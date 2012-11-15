@@ -1,0 +1,1258 @@
+
+
+// hide an element by id or object reference
+// example: hideElement('D_1_29')
+function hideElement(obj) {
+  if (typeof(obj) == "string") var obj = getObj(obj);
+  if (obj!=null) obj.style.visibility = 'hidden';
+}
+
+// hide many elements by id
+// parms: id1, id2, id3, id4, etc.
+// example: hideElements('D_1_29', 'D_3_1', 'I_7_11')
+function hideElements() {
+  for( var i = 0; i < hideElements.arguments.length; i++ ) {
+    hideElement(hideElements.arguments[i]);
+  }
+}
+
+// remove an element by id or object reference
+// example: removeElement('D_1_29')
+function removeElement(obj) {
+  if(typeof(obj) == "string") obj = getObj(obj);
+  if (obj!=null) obj.parentNode.removeChild(obj);
+}
+
+// remove many elements by id
+// parms: id1, id2, id3, id4, etc.
+// example: removeElements('D_1_29', 'D_3_1', 'I_7_11')
+function removeElements() {
+  for( var i = 0; i < removeElements.arguments.length; i++ ) {
+    removeElement(removeElements.arguments[i]);
+  }
+}
+
+// get element value by id
+// example: var cpu = getElementValue('D_3_1');
+function getElementValue(id) {
+  var elem;
+  var elemValue;
+
+  if (id != null && typeof id == "object") elem = id;  
+  else elem = document.getElementById(id);
+  if (elem == null) return '';
+  elemValue = '';
+  if (elem.tagName.toLowerCase() == 'div') {
+    var child = elem.firstChild;
+    if (child != null && child.tagName != null && child.tagName == "A") {
+      elemValue = child.innerHTML;
+    }
+    else {
+      elemValue = elem.innerHTML;
+    }
+  }
+  if (elem.tagName.toLowerCase() == 'input' || elem.tagName.toLowerCase() == 'select' || elem.tagName.toLowerCase() == 'textarea') elemValue = elem.value;
+  if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
+
+  elemValue = elemValue.replace(/&nbsp;/g,' ');
+  // Safari and Opera use the non-breaking space character A0 (160) -- we'll replace this with a standard space
+  while (elemValue.indexOf(String.fromCharCode(160)) != -1) {
+    elemValue = elemValue.replace(String.fromCharCode(160), " ");
+  } 
+
+  if (elemValue == elem.emptyText) elemValue = "";
+
+  return elemValue;
+}
+
+
+// shortcut for getElementValue, trimmed
+function get(id) {
+  return trim(getElementValue(id));
+}
+
+// shortcut for document.getElementById()
+function getObj(id) {
+  return document.getElementById(id);
+}
+
+
+// post data to a new window
+// params: url, parm1, value1, parm2, value2, parm3, value3, etc.
+function postToNewWindow(url) {
+  if (!url) {
+    alert("postToNewWindow Error: URL not specified.");
+  }
+  var form = document.forms["postToForm"];
+  if (form == null) {
+    form = document.createElement("form");
+    document.body.appendChild(form);
+  }
+  form.innerHTML = "";
+  form.action = url;
+  form.method = "post";
+  form.target = "_blank";
+  for (var i = 1; i < arguments.length; i+=2) {
+    var parm = arguments[i];
+    var val = "";
+    if (i+1 < arguments.length) val = arguments[i+1];
+    var hiddenField = createNamedElement("input", parm);
+    hiddenField.type = "hidden";
+    hiddenField.value = val;
+    form.appendChild(hiddenField);
+  }
+  form.submit();
+}
+
+
+//Make a call to postToNewWindow and pass a target param.
+// post data to a url
+// params: url, parm1, value1, parm2, value2, parm3, value3, etc.
+function postTo(url) {
+  if (!url) {
+    alert("postTo Error: URL not specified.");
+  }
+  var form = document.forms["postToForm"];
+  if (form == null) {
+    form = document.createElement("form");
+    document.body.appendChild(form);
+  }
+  form.innerHTML = "";
+  form.action = url;
+  form.method = "post";
+  form.target = "";
+  for (var i = 1; i < arguments.length; i+=2) {
+    var parm = arguments[i];
+    var val = "";
+    if (i+1 < arguments.length) val = arguments[i+1];
+    var hiddenField = createNamedElement("input", parm);
+    hiddenField.type = "hidden";
+    hiddenField.value = val;
+    form.appendChild(hiddenField);
+  }
+  form.submit();
+}
+
+
+
+// assign a value to a field
+// parms: element id, new value
+// example: changeElementValue('I_6_52', "GENUSER");
+function changeElementValue(id, val) {
+  var elem;
+  if (typeof id == "object") {
+    elem = id;
+  }
+  else {
+    elem = document.getElementById(id);
+  }
+  if (elem == null) return;
+  if (elem.tagName == "DIV") {
+    if (elem.slider != null) {
+      elem.slider.setValue(val);
+    }
+    else if (elem.comboBoxWidget != null) {
+      elem.comboBoxWidget.setValue(val);
+    }
+    else {
+      elem.innerHTML = val;
+    }
+  }
+  if (elem.tagName == "INPUT" || elem.tagName == "SELECT") {
+    elem.value = val;
+  }
+  if (context == "dspf") {
+    elem.modified = true;
+    var tip = elem.validationTip;
+    if (elem.id != null && elem.id.indexOf(".") == -1 && elem.cursorRecord != null) {
+      // not a subfile field being modified
+      pui.ctlRecModified[elem.cursorRecord] = true;
+    }
+    if (tip != null) {
+      tip.hide();
+      tip.doneShowing = true;
+      pui.removeCssClass(elem, "invalid");
+    }
+  }
+  if (context == "genie" && elem.fieldInfo != null && elem.fieldInfo["idx"] != null) {
+    pui.response[elem.fieldInfo["idx"]] = elem;
+  }
+  pui.checkEmptyText(elem);
+}
+
+// assign a new css class to an element
+// parms: element id, class name
+// example: changeElementClass('D_6_11', "BigText");
+function changeElementClass(id, customClass) {
+  var elem = document.getElementById(id);
+  if (elem == null) return '';
+  elem.className = customClass;
+}
+
+// create a new element of any type
+// parms: row, col, 
+//        optional element type like "div", "input", "button", "img", "dspf", (if not passed "div" assumed, "dspf" means ajax),
+//        optional content (innerHTML for div / value for input field / src for image), 
+//        optional element id
+// example: var elemObj = newElement(3, 10);
+// example: var elemObj = newElement(3, 10, "div" ,"Press Enter to Continue.");
+// example: var elemObj = newElement(3, 10, "input");
+// example: var elemObj = newElement(3, 10, "img", "../images/logo.gif");
+// example: var elemObj = newElement("img");
+function newElement(row, col, elemType, content, id) {
+  if (typeof(row) == "string") {
+    // row/column not specified, shift parameters over
+    id = elemType;
+    content = col;
+    elemType = row;
+    col = 0;
+    row = 0;
+  }
+  var elemTypeToCreate;
+  if (elemType==null) elemType = "div";
+  elemType = elemType.toLowerCase();
+  elemTypeToCreate = elemType;
+  if (elemType == "dspf") elemTypeToCreate = "div";
+  if (elemType == "button") elemTypeToCreate = "input";
+  var newElem = document.createElement(elemTypeToCreate);
+  newElem.style.position = "absolute";
+  newElem.style.top = (row * pui.multY + yAdjust) + "px";
+  newElem.style.left = (col * pui.multX) + "px";
+  if (content!=null) {
+    switch(elemType) {
+      case "div": 
+        newElem.innerHTML = content;
+        break;
+      case "dspf":
+        var req = new pui.Ajax(content);
+        req["async"] = false;
+        req.send();
+        if (req.ok()) {
+          newElem.innerHTML = req.getResponseText();
+        }
+        break;
+      case "input": 
+        newElem.value = content;
+        break;
+      case "button": 
+        newElem.type = "button";
+        newElem.value = content;  
+        newElem.className = "button";
+        if (!quirksMode) {
+          // default width needed for IE
+          newElem.style.width = "55px"; 
+        } 
+        break;
+      case "img": 
+        newElem.src = content;
+        break;
+    }
+  }
+  if (id!=null) {
+    newElem.id = id;
+  }
+  if (elemType == "input") {
+    document.forms["main"].appendChild(newElem);
+		addEvent(newElem, "keydown", defaultField);    
+  }
+  else {
+    if (context == "genie") document.getElementById(appContainerId).appendChild(newElem);
+    if (context == "dspf") pui.runtimeContainer.appendChild(newElem);
+  }
+  return newElem;
+}
+
+
+// Cancels an event and prevents it from bubbling up
+function preventEvent(event) {
+  if (!event) event = window.event;
+  if (window.event) {
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+  }
+  if (event.preventDefault) {
+    event.cancelBubble = true;
+    event.preventDefault();
+  }
+}
+
+
+
+
+
+// sets the active tab on a tab panel
+// this function can be executed before the tab panel is created by the designer, 
+// in which case the setTab action is automatically delayed until the tab panel is there
+// example: setTab("TabPanel", 1);
+var setTabActions = {};
+function setTab(tabPanelId, tab) {
+  var tabPanel = getObj(tabPanelId);
+  if (tabPanel == null || tabPanel.setTab == null) {
+    setTabActions[tabPanelId] = tab;
+  }
+  else {
+    tabPanel.setTab(tab);
+  }
+}
+
+
+// trims leading spaces from a string
+// example: s = ltrim(s);
+function ltrim(str){
+  while(str.charAt(0)==" "){
+    str = str.replace(str.charAt(0),"");
+  }
+  return str;
+}
+
+// trims trailing spaces from a string
+// example: s = rtrim(s);
+function rtrim(str){
+  while(str.charAt((str.length -1))==" "){
+    str = str.substring(0,str.length-1);
+  }
+  return str;
+}
+
+// trims a string
+// example: s = trim(s);
+function trim(str)
+{
+   return str.replace(/^\s*|\s*$/g,"");
+}
+
+// attaches a pop-up calendar to any input field
+// parms: input field id, date format
+// example: attachCalendar('I_5_20');
+function attachCalendar(id, format) {
+  var obj = document.getElementById(id);
+  if (obj != null) cal(obj, format);
+}
+
+// Creates a named DOM element. Necessary because IE has a non-standard way of doing this.
+function createNamedElement(type, name) {
+
+  var element;
+  
+  try {
+    // For IE
+    element = document.createElement('<' + type + ' name="' + name + '">');
+  }
+  catch(e) {
+    // For others
+    element      = document.createElement(type);
+    element.name = name;
+  }
+  return element;
+}   
+
+
+
+
+
+
+function getInnerText(domObj) {
+
+  // Handle id or object.
+  if (typeof(domObj) == "string") domObj = getObj(domObj);
+  if (domObj == null) return "";
+
+  var text = domObj.textContent;
+  if (text == null) { 
+    text = domObj.innerText;
+    if (text == null) return "";
+  }
+  // Firefox, Safari, and Opera translate &nbsp; into the non-breaking space character A0 (160) -- we'll replace this with a standard space
+  while (text.indexOf(String.fromCharCode(160)) != -1) {
+    text = text.replace(String.fromCharCode(160), " ");
+  } 
+  return text;
+}
+
+function getProgramURL(program, psid, useAuth) {
+
+  var auth = false;
+  var loc = location.href;
+  loc = loc.split("?")[0];
+  var parts = loc.split("/");
+  if (parts.length > 2 && 
+      parts[parts.length - 2].toLowerCase() == "auth") {    // && parts[parts.length - 3].toLowerCase() == "profoundui") {
+    auth = true;
+  }
+
+  var url = "/profoundui/";
+  if (auth == true || useAuth == true) url += "auth/";
+  url += program;   
+  if (psid != null && psid == true) url += "/" + PSID;
+  if (pui["serverURL"] != null) url = pui["serverURL"] + url;
+  return url;
+
+}
+
+
+
+
+
+
+
+// Sets a DOM property on an element -- catches exceptions.
+function setDOMAttribute(dom, attribute, value) {
+
+  var obj;
+  if (typeof(dom) == "string") obj = document.getElementById(dom);
+  else obj = dom;
+  if (obj == null) return;
+  
+  try {
+    obj[attribute] = value;
+    return;
+  }
+  catch(e) {
+    return;
+  }
+
+}
+
+function getActualStyle(dom, propertyName) {
+
+    var cssName = propertyName.replace(/ /g, "-");
+    var jsName = "";
+    var capitalize = false;
+    for (var i = 0; i < propertyName.length; i++) {
+      var ch = propertyName.substr(i,1);
+      if (capitalize) {
+        ch = ch.toUpperCase();
+        capitalize = false;
+      }
+      if (ch == " ") {
+        capitalize = true;
+      }
+      else {
+        jsName += ch;
+      }
+    }
+    var value = "";
+    if (dom.currentStyle) {
+      value = dom.currentStyle[jsName];
+    }
+    else if (window.getComputedStyle) {
+      value = document.defaultView.getComputedStyle(dom, null).getPropertyValue(cssName);  
+    }
+    if (propertyName.indexOf("color") >= 0) {
+      if (value.substr(0,1) == "#") value = value.toUpperCase();
+      if (value.substr(0,4) == "rgb(" && value.substr(value.length-1, 1) == ")") {
+        value = value.substr(4, value.length - 5);
+        value = value.replace(/ /g, "");
+        var hexCodes = value.split(",");
+        value = "#";
+        for (var i = 0; i < hexCodes.length; i++) {
+          var hex = Number(hexCodes[i]).toString(16).toUpperCase();
+          if (hex.length == 1) hex = "0" + hex;
+          value += hex;
+        } 
+      }
+    }
+    return value;
+}
+
+
+
+function addEvent(obj, eventName, func) {
+	
+	if (obj.addEventListener) {
+		obj.addEventListener(eventName, func, false);
+	}
+	else if (obj.attachEvent) {
+		obj.attachEvent("on" + eventName, func);
+	}
+	
+}
+
+function removeEvent(obj, eventName, func) {
+	
+	if (obj.removeEventListener) {
+		obj.removeEventListener(eventName, func, false);
+	}
+	else if (obj.detachEvent) {
+		obj.detachEvent("on" + eventName, func);
+	}
+	
+}
+
+
+function getMouseX(event) {
+  if (event != null && event.touches != null && event.touches.length == 1) {  // test for touch screen device like iPad
+    return event.touches[0].pageX;
+  }
+  var x = 0;
+  if (window.event != null) {
+    if (window.event.clientX != null) x += window.event.clientX;
+    if (document.documentElement != null && document.documentElement.scrollLeft != null) x += document.documentElement.scrollLeft;
+    if (document.body != null && document.body.scrollLeft != null) x += document.body.scrollLeft;
+  }
+  else {
+    if (event != null) {
+      if (event.clientX != null) x += event.clientX;
+      if (event.scrollX != null) x += event.scrollX;
+    }
+  }
+  return x;
+}
+
+function getMouseY(event) {
+  if (event != null && event.touches != null && event.touches.length == 1) {  // test for touch screen device like iPad
+    return event.touches[0].pageY;
+  }
+  var y = 0;
+  if (window.event != null) {
+    if (window.event.clientY != null) y += window.event.clientY;
+    if (document.documentElement != null && document.documentElement.scrollTop != null) y += document.documentElement.scrollTop;
+    if (document.body != null && document.body.scrollTop != null) y += document.body.scrollTop;
+  }
+  else {
+    if (event != null) {
+      if (event.clientY != null) y += event.clientY;
+      if (event.scrollY != null) y += event.scrollY;
+    }
+  }
+  return y;
+}
+
+
+function showErrors() {
+
+	if (errors.length == 0) {
+		alert("No errors have been reported.");
+		return;
+	}
+	
+	var error;
+	var message;
+	for (var i = 0; i < errors.length; i++) {
+		error = errors[i];
+		message = "Operation: " + error.operation + 
+				  "\nId: " + error.id + 
+				  "\n\nMessage: " + error.text + 
+				  "\n" + error.text2;
+		alert(message);
+	}
+	
+}
+
+
+
+function currentDate(editCode) {
+
+  if (editCode == null || editCode == "Y") {
+    slashes = true;
+  }
+
+  if (inDesignMode()) {
+    if (slashes) return "DD/DD/DD";
+    else return "DDDDDD";
+  }
+  else{
+    var sysTime;
+    var returnValue = "";
+    if(pui && pui.appJob) {
+      if (pui.appJob.sysTime == 0) return "";
+      sysTime = new Date(pui.appJob.sysTime * 1000);
+      var keyword = pui.formatting.keywords.DATFMT[pui.appJob.dateFormat];
+      var dispFormat = keyword.pattern.replace(/\B/g, pui.appJob.dateSeparator);
+      returnValue = sysTime.format(dispFormat, 'en_US');
+    }
+    else{
+      sysTime = new Date();
+      returnValue = ((parseInt(sysTime.getMonth(), 10) + 1) < 10 ? '0' : '') + (parseInt(sysTime.getMonth(), 10) + 1) + '/' +
+        (parseInt(sysTime.getDate(), 10) < 10 ? '0' : '') + sysTime.getDate() + '/' +
+        ((parseInt(sysTime.getFullYear(), 10) - 2000) < 10 ? '0' : '') + (parseInt(sysTime.getFullYear(), 10) - 2000);
+    }
+    if (editCode != null && editCode != "Y") {
+      var separator = "/";
+      if (pui != null && pui.appJob != null && pui.appJob.dateSeparator != null) separator = pui.appJob.dateSeparator;
+      returnValue = returnValue.replace(separator, "");
+      returnValue = returnValue.replace(separator, "");
+      if (returnValue.substr(0,1) == "0") returnValue = " " + returnValue.substr(1);
+    }
+    return returnValue;
+  }
+}
+
+function currentTime() {
+
+  if (inDesignMode()) {
+    return "TT:TT:TT";
+  }
+  else{
+    var sysTime;
+  
+    if(pui && pui.appJob){
+      if (pui.appJob.sysTime == 0) return "";
+      sysTime = new Date(pui.appJob.sysTime * 1000);
+      var keyword = pui.formatting.keywords.TIMFMT['*HMS'];
+      var dispFormat = keyword.pattern.replace(/\B/g, pui.appJob.timeSeparator);
+      return sysTime.format(dispFormat, 'en_US');
+    }
+    else{
+      sysTime = new Date();
+      return (sysTime.getHours() < 10 ? '0' : '') + sysTime.getHours() + ':' +
+        (sysTime.getMinutes() < 10 ? '0' : '') + sysTime.getMinutes() + ':' +
+        (sysTime.getSeconds() < 10 ? '0' : '') + sysTime.getSeconds();
+    }
+  }
+  
+}
+
+function currentUser() {
+  if (inDesignMode()) {
+    return "UUUUUUUUUU";
+  }
+  else {
+    if (pui.appJob == null || pui.appJob["user"] == null) return "";
+    else return pui.appJob["user"];
+  }
+}
+
+function getQueryStringParms() {
+	var parms = {};
+	var queryString = "";
+  queryString = location.search.substring(1, location.search.length);    
+		
+	if (queryString.length == 0) return parms;
+	queryString = queryString.replace(/\+/g, ' ');
+	var args = queryString.split('&'); 
+	for (var i = 0; i < args.length; i++) {
+		var pair = args[i].split('=');
+		var name = decodeURIComponent(pair[0]);		
+		var value = "";
+		if (pair.length==2) {
+      value = decodeURIComponent(pair[1]);
+    }		
+		parms[name] = value;
+	}
+	return parms;
+}
+
+
+
+// Shorthand Alias for applyDesignProperty() in properties.js
+// Check before attempting this. Otherwise, files that don't include "properties.js" cannot 
+// include this file.
+if (typeof(applyDesignProperty) != "undefined") {
+  window.applyProperty = applyDesignProperty;
+}
+
+// Unicode UTF-8 Encode/Decode
+
+pui.UTF8 = {
+
+  encode: function(str) {
+  	  	
+    var utftext = "";
+    		
+    for (var n = 0; n < str.length; n++) {
+        var c = str.charCodeAt(n);
+        if (c < 128) {
+          utftext += String.fromCharCode(c);
+        }
+        else if((c > 127) && (c < 2048)) {
+          utftext += String.fromCharCode((c >> 6) | 192);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+        else {
+          utftext += String.fromCharCode((c >> 12) | 224);
+          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+          utftext += String.fromCharCode((c & 63) | 128);
+        } 
+      } 
+      
+      return utftext;
+    	
+  },
+  
+  decode: function(utftext) {
+  	
+    var str = "";
+    var i = 0;
+    var c = c1 = c2 = 0;
+    
+    while (i < utftext.length) {			
+      c = utftext.charCodeAt(i);
+      if (c < 128) {
+        str += String.fromCharCode(c);
+        i++;
+      }
+      else if((c > 191) && (c < 224)) {
+        c2 = utftext.charCodeAt(i+1);
+        str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+        i += 2;
+      }
+      else {
+        c2 = utftext.charCodeAt(i+1);
+        c3 = utftext.charCodeAt(i+2);
+        str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+        i += 3;
+      } 
+    }
+    	
+    return str;
+    	
+  }	
+  
+};
+
+pui.Base64 = {
+
+	alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+	
+	encode: function(input) {
+	
+		var output = "";
+		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+		var i = 0;
+ 
+		input = pui.UTF8.encode(input);
+		while (i < input.length) {
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+			output = output +
+			this.alphabet.charAt(enc1) + this.alphabet.charAt(enc2) +
+			this.alphabet.charAt(enc3) + this.alphabet.charAt(enc4);
+		}
+		return output;
+							
+	},
+	
+	decode: function(input) {
+	
+		var output = "";
+		var chr1, chr2, chr3;
+		var enc1, enc2, enc3, enc4;
+		var i = 0;
+ 
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+		while (i < input.length) {
+			enc1 = this.alphabet.indexOf(input.charAt(i++));
+			enc2 = this.alphabet.indexOf(input.charAt(i++));
+			enc3 = this.alphabet.indexOf(input.charAt(i++));
+			enc4 = this.alphabet.indexOf(input.charAt(i++));
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+			output = output + String.fromCharCode(chr1);
+			if (enc3 != 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 != 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+		} 
+		output = pui.UTF8.decode(output);
+		return output;	
+			
+	}
+	
+}
+
+
+
+pui["downloadJSON"] = function() {
+  if (pui["savedJSON"] == null) {
+    alert("JSON is not available.");
+    return;
+  }
+  pui.downloadAsAttachment("text/plain", "json.txt", pui["savedJSON"]);  
+}
+
+
+
+
+pui["keepAlive"] = function() {
+  var url;
+  if (context == "dspf") {
+    if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
+    else url = getProgramURL("PUI0002110.pgm");
+  }
+  else if (context == "genie") {
+    url = DOCUMENT_URI;
+  }
+  else {
+    return false;
+  }
+  if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
+
+  if (context == "genie") pui.genie.formSubmitted = true;
+  if (context == "dspf") pui.screenIsReady = false;
+  pui.showWaitAnimation();
+
+  ajax({
+    "url": url,
+    "method": "post",
+    "params": {
+      "keepalive": "1"
+    },
+    "sendAsBinary": false,
+    "suppressAlert": true,
+    "handler": function() {
+      pui.hideWaitAnimation(true);
+      if (context == "genie") pui.genie.formSubmitted = false;
+      if (context == "dspf") {
+        pui.screenIsReady = true;
+        for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+          var grid = pui.gridsDisplayed[i];
+          grid.unMask();
+        }
+      }
+    },
+    "onfail": function() {
+      if (pui["onoffline"] == null) pui.alert(pui["no connection message"]);
+      pui.hideWaitAnimation(true);
+      if (context == "genie") pui.genie.formSubmitted = false;
+      if (context == "dspf") {
+        pui.screenIsReady = true;
+        for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+          var grid = pui.gridsDisplayed[i];
+          grid.unMask();
+        }
+      }
+      if (pui["onoffline"] != null) pui["onoffline"]();
+    }      
+  });
+
+  return true;
+}
+
+
+
+pui["getWindowSize"] = function() {
+
+  var winW;
+  var winH;
+  if (document.body && document.body.offsetWidth) {
+    winW = document.body.offsetWidth;
+    winH = document.body.offsetHeight;
+  }
+  if (document.compatMode=='CSS1Compat' &&
+      document.documentElement &&
+      document.documentElement.offsetWidth ) {
+    winW = document.documentElement.offsetWidth;
+    winH = document.documentElement.offsetHeight;
+  }
+  if (window.innerWidth && window.innerHeight) {
+    winW = window.innerWidth;
+    winH = window.innerHeight;
+  }
+  
+  if (winW == null && screen != null) winW = screen.width;
+  if (winH == null && screen != null) winH = screen.height;
+  
+  if (winW == null) winW = 800;
+  if (winH == null) winH = 600;
+
+  return {
+    "width": winW,
+    "height": winH
+  }
+
+}
+
+
+pui["openURL"] = function(url) {
+  window.open(url);
+}
+
+
+
+
+
+
+pui.normalizeURL = function(url) {
+
+  if (pui["serverURL"] != null) {
+    return pui["serverURL"] + url;
+  }
+  else {
+    return url;
+  }
+
+}
+
+
+
+
+// use css3 to animate an element or container
+pui["animate"] = function(parms) {
+  var elem = parms["element"];
+  if (typeof elem == "string") elem = getObj(elem);
+  if (elem == null) return;
+  var properties;
+  var effect = parms["effect"];
+  if (effect == "fly in left" || effect == "fly in right" || effect == "fly out left" || effect == "fly out right") properties = "left";
+  else if (effect == "fly in up" || effect == "fly in down" || effect == "fly out up" || effect == "fly out down") properties = "top";
+  else if (effect == "fade in" || effect == "fade out") properties = "opacity";
+  else {
+    properties = parms["properties"];
+    if (properties == null) {
+      properties = parms["property"];
+      if (properties == null) return;
+    }
+  }
+  if (typeof properties == "string") properties = [ properties ];
+  var duration = parms["duration"];
+  if (duration == null) duration = "500ms";
+  if (duration.substr(duration.length - 1, 1) != "s") duration += "s";
+  var ms = parseInt(duration) * 1000;
+  if (duration.length > 2 && duration.substr(duration.length - 2, 2) == "ms") {
+    ms = parseInt(duration);
+  }
+  var type = parms["type"];
+  if (type == null) type = "ease";
+  var from = parms["from"];
+  var to = parms["to"];
+  switch (effect) {
+    case "fly in right":
+      from = -elem.offsetWidth;
+      from += "px";
+      to = "0px";
+      break;
+    case "fly in left":
+      from = elem.offsetWidth;
+      from += "px";
+      to = "0px";
+      break;
+    case "fly out left":
+      to = -elem.offsetWidth;
+      to += "px";
+      from = "0px";
+      break;
+    case "fly out right":
+      to = elem.offsetWidth;
+      to += "px";
+      from = "0px";
+      break;
+    case "fly out down":
+      to = elem.offsetHeight;
+      to += "px";
+      from = "0px";
+      break;
+    case "fly out up":
+      to = -elem.offsetHeight;
+      to += "px";
+      from = "0px";
+      break;
+    case "fly in up":
+      from = elem.offsetHeight;
+      from += "px";
+      to = "0px";
+      break;
+    case "fly in down":
+      from = -elem.offsetHeight;
+      from += "px";
+      to = "0px";
+      break;
+    case "fade in":
+      from = "0";    
+      to = "100";
+      break;
+    case "fade out":
+      from = "100";    
+      to = "0";
+      break;
+  }
+  if (to == null) return;
+  var value = "";
+  for (var i = 0; i < properties.length; i++) {
+    var property = properties[i];
+    if (value != "") value += ", ";
+    value += property + " " + duration + " " + type;
+  }
+  var transitionProperties = ['transition', 'MozTransition', 'WebkitTransition', 'msTransition', 'OTransition'];
+
+  if (from != null) {
+    if (typeof from == "string" || typeof from == "number") from = [ from ];
+    for (var i = 0; i < properties.length; i++) {
+      var property = properties[i];
+      elem.style[property] = from[i];
+    }
+  }
+  
+  setTimeout(function() {
+    for (var i= 0; i < transitionProperties.length; i++) {
+      var tProp = transitionProperties[i];
+      elem.style[tProp] = value;
+    }
+  
+    setTimeout(function() {
+      if (typeof to == "string" || typeof to == "number") to = [ to ];
+      for (var i = 0; i < properties.length; i++) {
+        var property = properties[i];
+        elem.style[property] = to[i];
+      }
+      setTimeout(function() {
+        for (var i= 0; i < transitionProperties.length; i++) {
+          var tProp = transitionProperties[i];
+          elem.style[tProp] = "";
+        }
+        if (parms["oncomplete"] != null) parms["oncomplete"]();
+      }, ms);
+    }, 1);
+  }, 1);
+
+}
+
+
+pui["getActiveElement"] = function() {
+  if (context == "genie") {
+    return lastActiveElement;
+  }
+  else {
+    return pui.activeElement;
+  }
+}
+
+
+// API to allow scripts to send field exit.
+pui["fieldExit"] = function(minus) {
+	
+	 var obj = pui["getActiveElement"]();
+	 if (obj==null) return;
+	 
+	 var fldminus = false;
+	 if (minus!=null) fldminus=true;
+	 
+   if (context == "genie") {
+      fieldExit( obj, fldminus );		
+   } 
+   else {
+      pui.doFieldExit( obj );
+   }
+	
+}
+
+
+
+pui["showCalendar"] = function(id) {
+  var obj = id;
+  if (typeof id == "string") obj = getObj(id);
+  if (obj == null) return;
+  if (typeof obj != "object") return;
+  var calimg = obj.calimg;
+  if (calimg == null) return;
+  if (calimg.click != null && typeof calimg.click == "function") calimg.click();
+}
+
+
+
+
+pui.getComputedStyle = function(obj) {
+  var rtnStyle=null;
+  if (window.getComputedStyle) {
+    rtnStyle = window.getComputedStyle(obj);
+  } 
+  else if (obj.currentStyle) {
+    rtnStyle = obj.currentStyle;
+  }
+  return rtnStyle;
+}
+
+
+
+pui["upload"] = function(params, callback) {
+  
+  var path = typeof(params["path"] == "string") ? params["path"] : "";
+  var overwrite = (params["overwrite"] === true);
+  var dir = "";
+  var fileName = "";
+    
+  for (var i = path.length - 1; i >= 0; i--) {
+    var thisChar = path.charAt(i);
+    if (thisChar != "/") {
+      fileName = thisChar + fileName;
+    }
+    else {
+      var len = (i == 0) ? 1 : i;        
+      dir = path.substr(0, len);
+      break;
+    }
+  }
+    
+  var url = getProgramURL("PUI0009109.PGM");
+  url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+  url += "&mode=ajax";
+  url += "&r=" + Math.floor(Math.random() * 1000000000);
+  
+  var blob;  
+  try {
+    blob = new Blob([params["data"]]);
+  }
+  catch(err) {
+    var blobTheBuilder = new (window["BlobBuilder"] || window["WebKitBlobBuilder"] || window["MozBlobBuilder"] || BlobBuilder)();
+    blobTheBuilder.append(params["data"]);
+    blob = blobTheBuilder["getBlob"]();
+  }
+      
+  var formData = new FormData();
+  formData.append("file", blob);
+  formData.append("dir", dir);
+  formData.append("overwrite", (overwrite) ? "1" : "0");
+  formData.append("flimit", 1);
+  formData.append("slimit", String(Math.ceil(params["data"].byteLength / 1048576))); // Size rounded up to nearest MB.
+  formData.append("filename", fileName);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  
+  xhr.onreadystatechange = function() {
+  
+    if (xhr.readyState != 4) {
+      return;
+    }
+    
+    var success = true;
+    var error;
+    if (xhr.status == 200) {
+      var rsp;
+      try {
+        rsp = eval("(" + xhr.responseText + ")");
+      }
+      catch(e) {
+        success = false;
+        error = "Server response missing or invalid."
+      }
+      if (rsp) {
+        success = rsp["success"];
+        if (!success) {
+          error = rsp["error"];
+        }
+      }
+    }
+    else {
+      success = false;
+      error = xhr.status + " - " + xhr.statusText + ".";
+    }
+    
+    if (typeof(callback) == "function") {
+      callback(success, error);  
+    }    
+  }
+  
+  xhr.send(formData);   
+}
+
+
+
+
+
+pui["getCookie"] = function(check_name) {
+  // first we'll split this cookie up into name/value pairs
+  // note: document.cookie only returns name=value, not the other components of the cookie
+  var a_all_cookies = document.cookie.split(';');
+  var a_temp_cookie = '';
+  var cookie_name = '';
+  var cookie_value = '';
+  var b_cookie_found = false;
+  var i = '';
+  
+  for (i = 0; i < a_all_cookies.length; i++) {
+  	// now we'll split apart each name=value pair
+  	a_temp_cookie = a_all_cookies[i].split('=');
+  	
+  	// and trim left/right whitespace while we're at it
+  	cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');
+  
+  	// if the extracted name matches passed check_name
+  	if (cookie_name == check_name)	{
+  		b_cookie_found = true;
+  		// we need to handle case where cookie has no value but exists (no = sign, that is):
+  		if ( a_temp_cookie.length > 1 )	{
+  			cookie_value = unescape( a_temp_cookie[1].replace(/^\s+|\s+$/g, '') );
+  		}
+  		// note that in cases where cookie is initialized but no value, null is returned
+  		return cookie_value;
+  		break;
+  	}
+  	a_temp_cookie = null;
+  	cookie_name = '';
+  }
+  if (!b_cookie_found) {
+  	return null;
+  }
+}
+
+pui["setCookie"] = function(name, value, expires, path, domain, secure) {
+	// set time, it's in milliseconds
+	var today = new Date();
+	today.setTime(today.getTime());
+
+	// if the expires variable is set, make the correct expires time, the
+	// current script below will set it for x number of days, to make it
+	// for hours, delete * 24, for minutes, delete * 60 * 24
+	if (expires) {
+		expires = expires * 1000 * 60 * 60 * 24;
+	}
+	var expires_date = new Date( today.getTime() + (expires) );
+
+	document.cookie = name + "=" +escape( value ) +
+		( ( expires ) ? ";expires=" + expires_date.toGMTString() : "" ) + 
+		( ( path ) ? ";path=" + path : "" ) + 
+		( ( domain ) ? ";domain=" + domain : "" ) +
+		( ( secure ) ? ";secure" : "" );
+}
+
+pui["deleteCookie"] = function(name, path, domain) {
+	if ( pui["getCookie"](name) ) document.cookie = name + "=" +
+			( ( path ) ? ";path=" + path : "") +
+			( ( domain ) ? ";domain=" + domain : "" ) +
+			";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+}
+
+
+
+
+pui["refresh"] = function() {
+  pui["setCookie"]("puiRefreshId", pui.psid, null, "/");
+  pui.skipConfirm = true;
+  pui.shutdownOnClose = false;
+  pui.confirmOnClose = false;
+  window.location.reload();
+}
+
+
+pui["download"] = function (params) {
+
+  var inline = (params["inline"] === true);
+  if (params["id"] == null) return;  
+  
+  var url = getProgramURL("PUI0009110.PGM");
+  url += "?id=" + encodeURIComponent(params["id"]);
+  
+  if (params["contentType"] != null) {
+    url += "&type=" + encodeURIComponent(params["contentType"]);
+  }
+  
+  if (inline) {
+    url += "&inline=1";
+  }
+  
+  url += "&usehttprc=0";
+  url += "&AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+  url += "&r=" + Math.floor(Math.random() * 1000000000);
+
+  if (inline) {
+     pui["openURL"](url);
+  }
+  else {
+     pui["link"](url);
+  }
+  
+}
