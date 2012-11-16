@@ -691,6 +691,21 @@ pui.Grid = function() {
     return record[columnIndex];
   }
   
+  this.setDataValue = function(rowNum, fieldName, value) {
+    var field = null;
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      field = me.runtimeChildren[i];
+      if (typeof field.value == "object" && field.value["fieldName"] == fieldName) break;
+    }
+    if (field == null) return false;
+    var el = field.domEls[rowNum - 1];
+    if (el == null) return false;
+    if (el.tagName == "INPUT" || el.tagName == "TEXTAREA" || el.tagName === "SELECT") el.value = value;
+    if (el.tagName == "DIV") el.innerHTML = value;
+    el.modified = true;
+    return true;
+  }
+
   this.atTop = function() {
     if (me.recNum > 1) return false;
     else return true;
