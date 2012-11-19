@@ -90,6 +90,7 @@ pui.SlidingScrollBar = function() {
         touchHandle.style.borderRadius = "2px";
       }
       outerDiv.style.visibility = "hidden";
+      outerDiv.style.display = "none";
       
       if (pui.iPadEmulation) {
         function mousedown(e) {
@@ -403,12 +404,14 @@ pui.SlidingScrollBar = function() {
       }
       touchHandle.style.zIndex = me.zIndex;
       outerDiv.style.visibility = "hidden";
+      outerDiv.style.display = "none";
       touchBar.style.display = "";
       touchHandle.style.display = "";
     }
     else {
       outerDiv.style.zIndex = me.zIndex;
       outerDiv.style.visibility = "";
+      outerDiv.style.display = "";
       outerDiv.style.left = (me.x) + "px";
       outerDiv.style.top = (me.y) + "px";
     }
@@ -495,6 +498,7 @@ pui.SlidingScrollBar = function() {
     
   this.hide = function() {
     outerDiv.style.visibility = "hidden";
+    outerDiv.style.display = "none";
     rowNumDiv.style.display = "none";
     rowNumDiv.style.visibility = "hidden";
     if (touchHandle != null && touchBar != null) {
