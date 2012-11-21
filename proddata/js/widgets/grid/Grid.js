@@ -488,10 +488,17 @@ pui.Grid = function() {
   }
   
   this.exportCSV = function(file) {
-    var delimiter = ",";
-    if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
-      delimiter = ";";
-    }  
+    var delimiter;
+    if (typeof(pui["csv separator"]) == "string") {
+      // This flag not defined by default.
+      delimiter = pui["csv separator"];  
+    }
+    else {
+      delimiter = ",";     
+      if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+        delimiter = ";";
+      }
+    }
     if (me.designMode) return;    
     var fileName = file;
     if (fileName == null) fileName = me.csvFileName;

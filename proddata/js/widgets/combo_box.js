@@ -178,7 +178,7 @@ pui.ComboBoxWidget = function() {
     if (gridDiv != null && cellDiv != null) {
       choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
       choicesDiv.style.top = (parseInt(choicesDiv.style.top) + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top)) + "px";
-    }        
+    }
     var minWidth = parseInt(me.div.style.width);
     if (is_ie && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;

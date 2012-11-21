@@ -267,6 +267,7 @@ pui.SignaturePad = function() {
   }
 
   this.redraw = function() {
+    if (canvasContext == null) return;
     canvasContext.beginPath();
     for (var i = 0; i < strokes.length; i++) {
       var points = strokes[i];

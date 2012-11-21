@@ -51,7 +51,14 @@ function getElementValue(id) {
       elemValue = elem.innerHTML;
     }
   }
-  if (elem.tagName.toLowerCase() == 'input' || elem.tagName.toLowerCase() == 'select' || elem.tagName.toLowerCase() == 'textarea') elemValue = elem.value;
+  if (elem.tagName == "INPUT" && elem.type == "checkbox") {
+    if (elem.checked && elem.checkedValue != null) return elem.checkedValue;
+    if (!elem.checked && elem.uncheckedValue != null) return elem.uncheckedValue;
+    return elem.checked;  // "checked value" and/or "unchecked value" not present, so just return true or false
+  }
+  if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
+    elemValue = elem.value;
+  }
   if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
 
   elemValue = elemValue.replace(/&nbsp;/g,' ');
