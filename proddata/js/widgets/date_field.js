@@ -179,6 +179,14 @@ function allZeros(strd) {
   return true;  
 }
 
+function allDigits(strd) {
+  for (var i = 0; i < strd.length; i++) {
+    var ch = strd.substr(i,1);
+    if (ch < "0" || ch > "9") return false;
+  }
+  return true;  
+}
+
 function str2dt(str_datetime){
 	var re_date = /^(\d+)\-(\d+)\-(\d+)\s+(\d+)\:(\d+)\:(\d+)$/;
 	var result = re_date.exec(str_datetime);
@@ -244,6 +252,17 @@ function usa_dt(dt_datetime, format, formattingInfo){
 }
 function usa_dtstr2str(str_date, format, formattingInfo) {
 	if(str_date == null || str_date=="" || allZeros(str_date)) return "";
+
+  var ch1 = str_date.substr(0,1);
+  var ch2 = str_date.substr(1,1);
+  if (ch1 >= "1" && ch1 <= "9" && ch2 == "/") str_date = "0" + str_date;
+
+  if (formattingInfo != null && formattingInfo["edtWrd"] != null && formattingInfo["edtWrd"] != "" && allDigits(str_date)) {
+    if ( (formattingInfo["edtWrd"] == "'  /  /  '" && str_date.length == 6) ||
+         (formattingInfo["edtWrd"] == "'  /  /    '" && str_date.length == 8)) {
+      str_date = str_date.substr(0,2) + "/" + str_date.substr(2,2) + "/" + str_date.substr(4);
+    }
+  }
 
   var dateFormat = null;
   if (formattingInfo != null) {

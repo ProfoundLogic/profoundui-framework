@@ -311,10 +311,12 @@ pui.widgets.setStyledButtonImages = function(bstyle, buttonObj, state) {
 pui.widgets.resizeStyledButton = function(button, settings, width, height, parms) {
 
   if (typeof width == "string") {
+    if (width != "" && !isNaN(width)) width += "px";
     if (width.length >= 3 && width.substr(width.length - 2) == "px") width = parseInt(width);
     else width = button.topLeftDiv.parentNode.offsetWidth;
   }
   if (typeof height == "string") {
+    if (height != "" && !isNaN(height)) height += "px";
     if (height.length >= 3 && height.substr(height.length - 2) == "px") height = parseInt(height);
     else height = button.topLeftDiv.parentNode.offsetHeight;
   }  

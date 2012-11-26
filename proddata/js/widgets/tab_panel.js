@@ -235,6 +235,7 @@ function TabPanel() {
 
     var sWidth = me.container.style.width;
     var cntWidth = 0;
+    if (typeof sWidth == "string" && sWidth != "" && !isNaN(sWidth)) sWidth += "px";
     if (sWidth != null && sWidth != "" && sWidth.length >= 3 && sWidth.substr(sWidth.length - 2) == "px") {
       cntWidth = parseInt(sWidth);
       if (isNaN(cntWidth)) cntWidth = 0;
@@ -245,6 +246,7 @@ function TabPanel() {
     }
 
     var sHeight = me.container.style.height;
+    if (typeof sHeight == "string" && sHeight != "" && !isNaN(sHeight)) sHeight += "px";
     var cntHeight = 0;
     if (sHeight != null && sHeight != "" && sHeight.length >= 3 && sHeight.substr(sHeight.length - 2) == "px") {
       cntHeight = parseInt(sHeight);

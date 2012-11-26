@@ -170,15 +170,36 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.display = "none";
   }
 
+  function getScrollTop() {  // gets window scroll top position
+    var scrOfY = 0;
+    if ( typeof( window.pageYOffset ) == 'number' ) {
+      //Netscape compliant
+      scrOfY = window.pageYOffset;
+    } else if ( document.body && document.body.scrollTop ) {
+      //DOM compliant
+      scrOfY = document.body.scrollTop;
+    } else if ( document.documentElement && document.documentElement.scrollTop ) {
+      //IE6 standards compliant mode
+      scrOfY = document.documentElement.scrollTop;
+    }
+    return scrOfY;
+  }
+
   function showChoices() {
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
     choicesDiv.style.left = me.div.style.left;
-    choicesDiv.style.top = (parseInt(me.div.style.top) + parseInt(me.div.style.height) + 1) + "px";
+    var top = parseInt(me.div.style.top) + parseInt(me.div.style.height) + 1;
     if (gridDiv != null && cellDiv != null) {
       choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
-      choicesDiv.style.top = (parseInt(choicesDiv.style.top) + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top)) + "px";
+      top = parseInt(choicesDiv.style.top) + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
     }
+    var scrollTop = getScrollTop();
+    if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
+      var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
+      if (newTop - scrollTop >= 0) top = newTop;
+    }
+    choicesDiv.style.top = top + "px";
     var minWidth = parseInt(me.div.style.width);
     if (is_ie && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;

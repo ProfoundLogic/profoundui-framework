@@ -512,19 +512,22 @@ function allowKeys(allowedUnicodes, e) {
     }
   }
   if (key == 8) {     // backspace key
-    if (isTextbox) {
-      pos = getCursorPosition(obj);
-      if (pos == 0) {
-        goPrev(obj);
-        disableAction(e);
-        return false;              
-      }
-    }
-    else {
-      if (obj.tagName != "TEXTAREA") goPrev(obj);
-      disableAction(e);
-      return false;
-    }
+  
+    // Let's not do this anymore...
+  
+    //if (isTextbox) {
+    //  pos = getCursorPosition(obj);
+    //  if (pos == 0) {
+    //    goPrev(obj);
+    //    disableAction(e);
+    //    return false;              
+    //  }
+    //}
+    //else {
+    //  if (obj.tagName != "TEXTAREA") goPrev(obj);
+    //  disableAction(e);
+    //  return false;
+    //}
   } 
   if (key == 35 && isTextbox) {     // end key
     if (obj.value != rtrim(obj.value)) {

@@ -274,10 +274,12 @@ pui.widgets.getPanelProxy = function(defaults) {
 pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
 
   if (typeof width == "string") {
+    if (width != "" && !isNaN(width)) width += "px";
     if (width.length >= 3 && width.substr(width.length - 2) == "px") width = parseInt(width);
     else width = panel.topLeftDiv.parentNode.offsetWidth;
   }
   if (typeof height == "string") {
+    if (height != "" && !isNaN(height)) height += "px";
     if (height.length >= 3 && height.substr(height.length - 2) == "px") height = parseInt(height);
     else height = panel.topLeftDiv.parentNode.offsetHeight;
   }  
