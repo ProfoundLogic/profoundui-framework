@@ -213,6 +213,13 @@ function usa_dt(dt_datetime, format, formattingInfo){
     }
   }
 
+  if (formattingInfo != null && formattingInfo["dataLength"] == "8" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YY" || format == "DD/MM/YY")) {
+    format += "YY";
+  }
+  if (formattingInfo != null && formattingInfo["dataLength"] == "6" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YYYY" || format == "DD/MM/YYYY")) {
+    format = format.substr(0,6);
+  }
+
   var month;
   var mon;
   var day;
@@ -262,6 +269,13 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
          (formattingInfo["edtWrd"] == "'  /  /    '" && str_date.length == 8)) {
       str_date = str_date.substr(0,2) + "/" + str_date.substr(2,2) + "/" + str_date.substr(4);
     }
+  }
+  
+  if (formattingInfo != null && formattingInfo["dataLength"] == "8" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YY" || format == "DD/MM/YY")) {
+    format += "YY";
+  }
+  if (formattingInfo != null && formattingInfo["dataLength"] == "6" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YYYY" || format == "DD/MM/YYYY")) {
+    format = format.substr(0,6);
   }
 
   var dateFormat = null;
