@@ -838,6 +838,7 @@ pui.renderFormat = function(parms) {
             container = gridObj.cells[parms.rowNum][colNum];
           }
           else {
+            if (items[i].domEls != null) delete items[i].domEls;  // must not be present, may be there from cached mvc response object
             gridObj.runtimeChildren.push(items[i]);
             continue;
           }
@@ -1907,6 +1908,10 @@ pui.renderFormat = function(parms) {
     }  // end if already rendered condition
 
     dom.hasBoundSQLProps = hasBoundSQLProps;
+    
+    if (pui["controller"] != null && properties["set as modified"] != "false") {
+      dom.modified = true;
+    }
 
   }  // end for loop to process all items
 
