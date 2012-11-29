@@ -63,7 +63,7 @@ window["pui"]["Timer"] = function() {
     started = false;
   }
   
-  // reset timer
+  // reset the timer
   this["reset"] = function() {
     lastResetTime = new Date().getTime();
   }
