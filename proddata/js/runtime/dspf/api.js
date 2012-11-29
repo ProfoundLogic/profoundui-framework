@@ -666,39 +666,3 @@ pui["uploadSignature"] = function(params) {
   pui.uploadDataUrl(params, params["handler"]);
     
 }
-
-pui["focusOnContainer"] = function() {
-
-    setTimeout(function() {
-
-      // we no longer focus on container
-      // this causes the browser to position the scrollbar to the container div when a header is added to start.html
-      // we focus on a dummy box instead
-      //parms.container.focus();
-
-      if (pui.dummyBox == null) {
-
-        pui.dummyBox = document.createElement("input");
-        pui.dummyBox.type = "text";  
-        pui.dummyBox.readOnly = true;
-        pui.dummyBox.style.position = "absolute";  
-        pui.dummyBox.style.left = "-999px";
-        pui.dummyBox.style.top = "-999px";
-        pui.dummyBox.style.width = "10px";
-        pui.dummyBox.style.borderStyle = "none";
-        pui.dummyBox.style.backgroundColor = "transparent";
-        pui.runtimeContainer.appendChild(pui.dummyBox);
-
-      }
-
-      pui.ignoreBlurs = true;
-      
-      pui.dummyBox.focus();
-      
-      setTimeout(function() {
-        pui.ignoreBlurs = false;
-      }, 0);
-
-    }, 1);
-
-}
