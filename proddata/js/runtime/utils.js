@@ -1158,3 +1158,20 @@ pui.isPercent = function(value) {
   if (value.substr(value.length - 1, 1) == "%") return true;
   return false;
 }
+
+
+pui.getWindowScrollTop = function() {  // gets window scroll top position
+  var scrOfY = 0;
+  if ( typeof( window.pageYOffset ) == 'number' ) {
+    //Netscape compliant
+    scrOfY = window.pageYOffset;
+  } else if ( document.body && document.body.scrollTop ) {
+    //DOM compliant
+    scrOfY = document.body.scrollTop;
+  } else if ( document.documentElement && document.documentElement.scrollTop ) {
+    //IE6 standards compliant mode
+    scrOfY = document.documentElement.scrollTop;
+  }
+  return scrOfY;
+}
+

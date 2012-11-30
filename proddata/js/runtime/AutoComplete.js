@@ -581,13 +581,11 @@ function AutoComplete(config) {
 	}
 	
 	function showResults() {
-		
-		position();
 		drawResults();
 		resultPane.style.display = "block";
+		position();
 		if (shadow) applyShadow();		
 		if (useShim) applyShim();
-		
 	}
 	
 	function position() {
@@ -604,6 +602,13 @@ function AutoComplete(config) {
 		  top += cellDiv.offsetTop + gridDiv.offsetTop;
 		  left += cellDiv.offsetLeft + gridDiv.offsetLeft;
 		}
+
+    var scrollTop = pui.getWindowScrollTop();
+    if (top - scrollTop + resultPane.offsetHeight > pui["getWindowSize"]()["height"]) {
+      var newTop = top - resultPane.offsetHeight - textBox.offsetHeight - 3;
+      if (newTop - scrollTop >= 0) top = newTop;
+    }
+
 		resultPane.style.top = top + "px";
 		resultPane.style.left = left + "px";
 		

@@ -170,21 +170,6 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.display = "none";
   }
 
-  function getScrollTop() {  // gets window scroll top position
-    var scrOfY = 0;
-    if ( typeof( window.pageYOffset ) == 'number' ) {
-      //Netscape compliant
-      scrOfY = window.pageYOffset;
-    } else if ( document.body && document.body.scrollTop ) {
-      //DOM compliant
-      scrOfY = document.body.scrollTop;
-    } else if ( document.documentElement && document.documentElement.scrollTop ) {
-      //IE6 standards compliant mode
-      scrOfY = document.documentElement.scrollTop;
-    }
-    return scrOfY;
-  }
-
   function showChoices() {
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
@@ -194,7 +179,7 @@ pui.ComboBoxWidget = function() {
       choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
       top = parseInt(choicesDiv.style.top) + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
     }
-    var scrollTop = getScrollTop();
+    var scrollTop = pui.getWindowScrollTop();
     if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
       var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
       if (newTop - scrollTop >= 0) top = newTop;
