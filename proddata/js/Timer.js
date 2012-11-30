@@ -1,7 +1,7 @@
 
 if (typeof(window["pui"]) == "undefined") window["pui"] = {};
 
-/**************
+/**
  * Timer Class
  * @constructor
  */
