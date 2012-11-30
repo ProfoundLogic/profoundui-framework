@@ -3690,10 +3690,11 @@ pui.Grid = function() {
   function placeCursorOnCell(cell) {
     if (cell == null) return false;
     var inputBox = cell.firstChild;
-    while (inputBox != null && inputBox.tagName != "INPUT" && inputBox.tagName != "TEXTAREA" && inputBox.tagName != "SELECT" && inputBox.style.visibility != "hidden" && inputBox.style.display != "none") {
+    while (inputBox != null && inputBox.tagName != "INPUT" && inputBox.tagName != "TEXTAREA" && inputBox.tagName != "SELECT" && inputBox.style.visibility != "hidden" && inputBox.style.display != "none" && inputBox.comboBoxWidget == null) {
       inputBox = inputBox.nextSibling;
     }
     if (inputBox == null) return false;
+    if (inputBox.comboBoxWidget != null) inputBox = inputBox.comboBoxWidget.getBox();
     var tag = inputBox.tagName;
     if (tag != "INPUT" && tag != "TEXTAREA" && tag != "SELECT") return false;
     try {
