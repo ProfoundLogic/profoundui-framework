@@ -120,6 +120,8 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     down.style.visibility = dom.style.visibility;
   }
   
+  me.positionSpinnButtons();  // run this in the constructor
+  
   this.hide = function() {
     up.style.visibility = "hidden";
     down.style.visibility = "hidden";
@@ -177,7 +179,6 @@ pui.widgets.add({
       if (!parms.design) {
         setTimeout( function() { 
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
-          parms.dom.spinner.positionSpinnButtons();
         }, 1);
       }
       if (parms.design) parms.dom.readOnly = true;
