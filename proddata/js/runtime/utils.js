@@ -511,7 +511,7 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
   }
-  if (key == 8) {     // backspace key
+  //if (key == 8) {     // backspace key
   
     // Let's not do this anymore...
   
@@ -528,7 +528,7 @@ function allowKeys(allowedUnicodes, e) {
     //  disableAction(e);
     //  return false;
     //}
-  } 
+  //} 
   if (key == 35 && isTextbox) {     // end key
     if (obj.value != rtrim(obj.value)) {
       obj.value = rtrim(obj.value);
