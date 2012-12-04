@@ -14,8 +14,8 @@ pui.MenuWidget = function() {
   this.container = null;
   this.choices = [];
   this.choiceValues = [];  
-  this.hoverBackgroundColor = "#6699FF";
-  this.hoverTextColor = "#FFFFFF";
+  this.hoverBackgroundColor = null;
+  this.hoverTextColor = null;
   this.animate = true;
   this.borderColor = "#EEEEEE";
   this.padding = "5px";  
@@ -136,7 +136,12 @@ pui.MenuWidget = function() {
       function assignEvents(td) {
         td.onmouseover = function() {
           td.animationDone = true;
-		  if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") td.style.backgroundColor = me.hoverBackgroundColor;
+          if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
+            td.style.backgroundColor = me.hoverBackgroundColor;
+          }
+          else {
+            td.className = "menu-hover";
+          }
           if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
           if (me.optionHoverImage != null && me.optionHoverImage != "") {
             td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
@@ -216,6 +221,9 @@ pui.MenuWidget = function() {
               td.style.backgroundColor = "";
             }
           }
+          else {
+            td.className = "";
+          }      
         }
         td.onclick = function() {
           if (td.level > 0) me.removeAllSubMenus();
