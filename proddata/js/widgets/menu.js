@@ -17,7 +17,7 @@ pui.MenuWidget = function() {
   this.hoverBackgroundColor = null;
   this.hoverTextColor = null;
   this.animate = true;
-  this.borderColor = "#EEEEEE";
+  this.borderColor = null;
   this.padding = "5px";  
   this.paddingLeft = "5px";  
   this.optionImage = null;
@@ -92,12 +92,12 @@ pui.MenuWidget = function() {
       td.style.padding = me.padding;
       td.style.paddingLeft = me.paddingLeft;
       var bcolor = me.borderColor;
-      if (bcolor == "" || bcolor == null) bcolor = "transparent";
-      
-      if (table.rows.length <= 1) td.style.borderTop = "1px solid " + bcolor;
-      td.style.borderLeft = "1px solid " + bcolor;
-      td.style.borderRight = "1px solid " + bcolor;
-      td.style.borderBottom = "1px solid " + bcolor;
+      if (bcolor != "" && bcolor != null) {      
+        if (table.rows.length <= 1) td.style.borderTop = "1px solid " + bcolor;
+        td.style.borderLeft = "1px solid " + bcolor;
+        td.style.borderRight = "1px solid " + bcolor;
+        td.style.borderBottom = "1px solid " + bcolor;
+      }
       
       td.style.filter = "alpha(opacity=100)";
       td.style.opacity = 1;
