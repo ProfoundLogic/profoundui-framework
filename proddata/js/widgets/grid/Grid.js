@@ -838,10 +838,6 @@ pui.Grid = function() {
     var dataURL = me.dataProps["data url"];
     if (dataURL == "") dataURL = null;
     if (sql == null) sql = "";
-    if (sql != "" && dataURL == null) {
-      var sqlStart = sql.substr(0, 7).toUpperCase();
-      if (sqlStart != "SELECT ") return;  // Invalid - not an SQL SELECT statement
-    }
     if (sql != "" || dataURL != null) {
       if (csvFile != null) {
         if (sql == null || sql == "") return;
