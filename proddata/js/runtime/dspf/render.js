@@ -232,8 +232,13 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
     if (row != null && row != "") {
       row = parseInt(row);
       if (!isNaN(row) && row > 0) {
-        if ( (row >= clearFrom && row <= clearTo) ||
-             (row >= rangeFrom && row <= rangeTo) ) {
+        if (row >= clearFrom && row <= clearTo) {
+          itm["visibility"] = "hidden";
+          if (itm["grid"] != null) {
+            gridToHide = itm["grid"];
+          }
+        }
+        if (row >= rangeFrom && row <= rangeTo && pui["clear overlapped lines"] != false) {
           itm["visibility"] = "hidden";
           if (itm["grid"] != null) {
             gridToHide = itm["grid"];
