@@ -40,6 +40,8 @@ pui.windowTopField = null;
 pui.windowLeftField = null;
 pui.populateWindowTopLeft = true;
 pui.validCommandKeyField = null;
+pui.backButtonField = null;
+pui.sendBackButtonResponse = false;
 pui.setOffFields = [];
 pui.autoArrange = {};
 pui.autoArrange.keys = {};
@@ -451,6 +453,22 @@ pui.resize = function() {
 }
 
 
+pui.popstate = function(e) {
+  if (e == null) return;
+  var state = e.state;
+  if (state == null) return;
+  var puipage = state.puipage;
+  if (puipage == "previous") {
+    if (pui.backButtonField != null) {
+      pui.bypassValidation = "true";
+      pui.sendBackButtonResponse = true;
+      pui.respond();
+    }    
+  }
+  history.forward();
+}
+
+
 pui.render = function(parms) {
 
   if (!pui.resizeEventAssigned) {
@@ -458,9 +476,18 @@ pui.render = function(parms) {
     pui.resizeEventAssigned = true;
   }
 
+  if (!pui.backButtonSetup && history.pushState != null && history.replaceState != null) {
+    history.replaceState({ puipage: "previous" }, document.title);
+    history.pushState({ puipage: "current" }, document.title);
+    addEvent(window, "popstate", pui.popstate);
+    pui.backButtonSetup = true;
+  }
+
   pui.cleanup();
 
   pui.oldRenderParms = parms;
+
+  
 
   // handle errors
   var success = parms.success;
@@ -522,6 +549,7 @@ pui.render = function(parms) {
   pui.bypassValidation = "false";
   pui.placeCursorOnSubfile = false;
   pui.activeElement = null;
+  pui.sendBackButtonResponse = false;
   
   var layers = parms["layers"];
     
@@ -560,6 +588,7 @@ pui.render = function(parms) {
     pui.windowLeftField = null;
     pui.populateWindowTopLeft = true;
     pui.validCommandKeyField = null;
+    pui.backButtonField = null;
     pui.setOffFields = [];
     pui.cursorFields.record = null;
     pui.cursorFields.field = null;
@@ -726,6 +755,8 @@ pui.renderFormat = function(parms) {
     if (typeof obj == "object") pui.windowTopField = formatName + "." + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["valid command key"];
     if (typeof obj == "object") pui.validCommandKeyField = formatName + "." + obj["fieldName"].toUpperCase();
+    obj = parms.metaData.screen["back button"];
+    if (typeof obj == "object") pui.backButtonField = formatName + "." + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd element id"];
     if (typeof obj == "object") pui.dragDropFields.ddElementId = formatName + "." + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd record number"];
@@ -2823,6 +2854,14 @@ pui.buildResponse = function() {
     }
   }
 
+  if (pui.backButtonField != null) {
+    if (pui.sendBackButtonResponse) {
+      response[pui.backButtonField] = "1";
+    }
+    else {
+      response[pui.backButtonField] = "0";
+    }
+  }
   
   return response;
 }
