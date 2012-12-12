@@ -698,7 +698,7 @@ pui.Grid = function() {
     return record[columnIndex];
   }
   
-  this.setDataValue = function(rowNum, fieldName, value) {
+  this["setDataValue"] = function(rowNum, fieldName, value) {
     var field = null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       field = me.runtimeChildren[i];
