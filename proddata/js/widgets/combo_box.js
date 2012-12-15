@@ -177,7 +177,7 @@ pui.ComboBoxWidget = function() {
     var top = parseInt(me.div.style.top) + parseInt(me.div.style.height) + 1;
     if (gridDiv != null && cellDiv != null) {
       choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
-      top = parseInt(choicesDiv.style.top) + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
+      top = top + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
     }
     var scrollTop = pui.getWindowScrollTop();
     if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
