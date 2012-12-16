@@ -600,7 +600,8 @@ pui.widgets.add({
     },
 
     "width": function(parms) {
-      parms.dom.style.width = parms.value;
+      if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
+      else parms.dom.style.width = parms.value;
       var pstyle = parms.properties["panel style"];
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
@@ -613,7 +614,8 @@ pui.widgets.add({
     },
     
     "height": function(parms) {
-      parms.dom.style.height = parms.value;
+      if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
+      else parms.dom.style.height = parms.value;
       var pstyle = parms.properties["panel style"];
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {

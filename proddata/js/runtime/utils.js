@@ -1160,6 +1160,16 @@ pui.isPercent = function(value) {
 }
 
 
+pui.isNumericString = function(value) {
+  if (value == null) return false;
+  if (typeof value != "string") return false;
+  var num = Number(value);
+  if (isNaN(num)) return false;
+  if (String(num) === value) return true;
+  return false;
+}
+
+
 pui.getWindowScrollTop = function() {  // gets window scroll top position
   var scrOfY = 0;
   if ( typeof( window.pageYOffset ) == 'number' ) {
