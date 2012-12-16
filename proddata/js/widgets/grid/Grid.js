@@ -320,6 +320,7 @@ pui.Grid = function() {
       domObj.style.top = (parseInt(domObj.style.top) - diffTop) + "px";
     });
     me.setScrollBar();
+    me.setHeadings();
   }
   
   this.isInitCollapsed = function() {
