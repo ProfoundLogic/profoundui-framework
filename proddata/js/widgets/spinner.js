@@ -93,9 +93,15 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   
   // Public Methods
   this.positionSpinnButtons = function() {
-    var left = parseInt(dom.style.left);
+    var left;
+    left = dom.style.left;
+    if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
+    else left = dom.offsetLeft;
     if (isNaN(left)) left = 0;
-    var top = parseInt(dom.style.top);
+    var top;
+    top = dom.style.top;
+    if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
+    else top = dom.offsetTop;
     if (isNaN(top)) top = 0;
     up.style.left = left +  dom.offsetWidth - 15 + "px";
     top += parseInt((dom.offsetHeight - 18) / 2);
@@ -104,11 +110,15 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     up.style.zIndex = dom.style.zIndex;
     up.style.visibility = dom.style.visibility;
 
-    left = parseInt(dom.style.left);
+    left = dom.style.left;
+    if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
+    else left = dom.offsetLeft;
     if (isNaN(left)) left = 0;
-    top = parseInt(dom.style.top);
+    top = dom.style.top;
+    if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
+    else top = dom.offsetTop;
     if (isNaN(top)) top = 0;
-    down.style.left = left +  dom.offsetWidth - 15 + "px";
+    down.style.left = left + dom.offsetWidth - 15 + "px";
     top += 9;
     top += parseInt((dom.offsetHeight - 18) / 2);
     if (dom.offsetHeight % 2 == 1) {
@@ -179,7 +189,17 @@ pui.widgets.add({
       if (!parms.design) {
         setTimeout( function() { 
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
+          parms.dom.sizeMe = function() {
+            parms.dom.spinner.positionSpinnButtons();
+          }
         }, 1);
+      }
+      else {
+        parms.dom.sizeMe = function() {
+          var itm = parms.designItem;
+          itm.drawIcon();
+          itm.mirrorDown();
+        }
       }
       if (parms.design) parms.dom.readOnly = true;
     },

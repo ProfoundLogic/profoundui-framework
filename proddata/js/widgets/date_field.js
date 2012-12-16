@@ -419,7 +419,7 @@ function cal(dateField, format) {
   
   gDateField[gDateCount++] = dateField;
   
-  moveCal(dateField);
+  pui.moveCal(dateField);
   if (document.getElementById("popcal") == null) {
     addEvent(document, "click", function(e) {
       var target = getTarget(e);
@@ -438,20 +438,20 @@ function cal(dateField, format) {
     document.body.appendChild(popcalDiv);
   }
 }
-function moveCal(dateField){
+pui.moveCal = function(dateField){
   var gCalImage = dateField.calimg;
   gCalImage.style.display = "none";
-  //gCalImage.style.left = findPosX(dateField) +  dateField.offsetWidth + 5 + "px";
-  //gCalImage.style.top = findPosY(dateField) + "px";
-  gCalImage.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
-  var top = parseInt(dateField.style.top);
+  //gCalImage.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
+  //var top = parseInt(dateField.style.top);
+  gCalImage.style.left = dateField.offsetLeft + dateField.offsetWidth + 5 + "px";
+  var top = dateField.offsetTop;
 	top += parseInt((dateField.offsetHeight - 22) / 2);
   gCalImage.style.top = top + "px";
   gCalImage.style.display = "block";
 }
-function moveCals() {
+pui.moveCals = function() {
   for (var i = 0; i < gDateCount; i++) {
-    moveCal(gDateField[i]);
+    pui.moveCal(gDateField[i]);
   }
 }
 
@@ -488,8 +488,18 @@ pui.widgets.add({
             getObj("ipadKeyboard").style.display = "none";
           });
         }
+        parms.dom.sizeMe = function() {
+          pui.moveCal(parms.dom);
+        }
       }
-      if (parms.design) parms.dom.readOnly = true;
+      if (parms.design) {
+        parms.dom.readOnly = true;
+        parms.dom.sizeMe = function() {
+          var itm = parms.designItem;
+          itm.drawIcon();
+          itm.mirrorDown();
+        }
+      }
     },
     
     "value": function(parms) {
