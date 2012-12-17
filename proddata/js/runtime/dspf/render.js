@@ -445,7 +445,7 @@ pui.resize = function() {
   for (j = 0; j < container.childNodes.length; j++) {
     var child = container.childNodes[j];
     if (child.sizeMe != null && typeof child.sizeMe == "function") {
-      if (pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {
+      if (is_ie || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
         child.sizeMe();
       }
     }
