@@ -821,8 +821,8 @@ pui["keepAlive"] = function() {
         }
       }
     },
-    "onfail": function() {
-      if (pui["onoffline"] == null) pui.alert(pui["no connection message"]);
+    "onfail": function(req) {
+      if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation(true);
       if (context == "genie") pui.genie.formSubmitted = false;
       if (context == "dspf") {

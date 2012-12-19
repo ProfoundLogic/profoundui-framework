@@ -2901,8 +2901,8 @@ pui.submitResponse = function(response) {
         if (pui.genie == null) pui.render(parms);
         else pui.render5250(parms);
       },
-      "onfail": function() {
-        if (pui["onoffline"] == null) pui.alert(pui["no connection message"]);
+      "onfail": function(req) {
+        if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
         pui.hideWaitAnimation(true);
         pui.resetResponseValues();
         if (pui["onoffline"] != null) pui["onoffline"]();
@@ -3368,11 +3368,11 @@ pui["run"] = function(config) {
         parms.container = container;
         pui.render(parms);
       },
-      "onfail": function() {
+      "onfail": function(req) {
         pui.hideWaitAnimation(true);
         setTimeout(function() {
           if (pui["onoffline"] == null) {
-            pui.alert(pui["no connection message"]);
+            pui.alert(pui.getNoConnectionMessage(req));
             if (pui.touchDevice) {
               setTimeout(function() {
                 if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -3470,11 +3470,11 @@ pui["signon"] = function(config) {
       parms.container = container;
       pui.render(parms);
     },
-    "onfail": function() {
+    "onfail": function(req) {
       pui.hideWaitAnimation(true);
       setTimeout(function() {
         if (pui["onoffline"] == null) {
-          pui.alert(pui["no connection message"]);
+          pui.alert(pui.getNoConnectionMessage(req));
           if (pui.touchDevice) {
             setTimeout(function() {
               if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -3542,8 +3542,8 @@ pui.runMVC = function(response) {
         }
       });
     },
-    "onfail": function() {
-      if (pui["onoffline"] == null) pui.alert(pui["no connection message"]);
+    "onfail": function(req) {
+      if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation(true);
       pui.resetResponseValues();
       if (pui["onoffline"] != null) pui["onoffline"]();

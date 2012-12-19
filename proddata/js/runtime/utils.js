@@ -1185,3 +1185,16 @@ pui.getWindowScrollTop = function() {  // gets window scroll top position
   return scrOfY;
 }
 
+pui.getNoConnectionMessage = function(req) {
+
+  var msg = pui["no connection message"];
+  
+  if (pui["no connection status"] == true) {
+  
+    msg += "\n" + req.getStatusMessage();
+  
+  }
+
+  return msg;
+
+}
