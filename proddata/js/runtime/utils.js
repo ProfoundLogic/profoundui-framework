@@ -459,6 +459,14 @@ pui.keyFilter = (function() {
 
 function allowKeys(allowedUnicodes, e) {
 
+  // Allow user-defined key mappings in Genie.
+
+  if (context == "genie" && pui.genie.getMappedKeyName(e) != "") {
+  
+    return true;
+  
+  }
+  
   if (context == "dspf") return allowKeysSimple(allowedUnicodes, e);
 
   var obj;
