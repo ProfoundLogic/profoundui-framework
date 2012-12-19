@@ -43,7 +43,7 @@ window["pui"]["Timer"] = function() {
     started = true;  
   }
   
-  // stop timer function
+  // stop timer
   this["stop"] = function() {
     if (!started) return;
   
