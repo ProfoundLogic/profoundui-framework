@@ -1537,7 +1537,7 @@ pui.Grid = function() {
   
   function removeAllResponseElements() {
     var toRemove = [];
-    var startsWith = me.recordFormatName.toUpperCase() + ".";
+    var startsWith = pui.formatUpper(me.recordFormatName) + ".";
     for (var fldName in pui.responseElements) {
       if (fldName.substr(0, startsWith.length) == startsWith) toRemove.push(fldName);
     }
