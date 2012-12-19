@@ -471,6 +471,8 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   // Accept either DOM object or id.
   if (typeof(domObj) == "string") domObj = getObj(domObj);
   
+  if (domObj == null) return null;
+  
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
   else nmodel = domObj.propertiesNamedModel;
