@@ -393,20 +393,48 @@ pui.Grid = function() {
       me.setAllCellStyles();
       me.getData();
       // reenable any elements that were below the visible portion of the cell when collapsed
-      for (var row = 0; row < me.cells.length; row++) {
-        for (var col = 0; col < me.cells[row].length; col++) {
-          var cell = me.cells[row][col];
-          var child = cell.firstChild;
-          while (child != null) {
-            var top = parseInt(child.style.top);
-            if (child.reenableOnExpand) {
-              child.reenableOnExpand = false;
-              child.disabled = false;
+      for (var i = 0; i < me.runtimeChildren.length; i++) {
+      
+        var domEls = me.runtimeChildren[i].domEls;
+        if (domEls) {
+        
+          for (var idx in domEls) {
+          
+            // This check in case custom properties were added to 
+            // the array.
+            if (!isNaN(parseInt(idx, 10))) {
+            
+              var dom = domEls[idx];
+            
+              if (dom.reenableOnExpand) {
+              
+                dom.reenableOnExpand = false;
+                dom.disabled = false;  
+              
+              }
+            
             }
-            child = child.nextSibling;
+          
           }
+        
         }
+      
       }
+      
+      //for (var row = 0; row < me.cells.length; row++) {
+      //  for (var col = 0; col < me.cells[row].length; col++) {
+      //    var cell = me.cells[row][col];
+      //    var child = cell.firstChild;
+      //    while (child != null) {
+      //      var top = parseInt(child.style.top);
+      //      if (child.reenableOnExpand) {
+      //        child.reenableOnExpand = false;
+      //        child.disabled = false;
+      //      }
+      //      child = child.nextSibling;
+      //    }
+      //  }
+      //}
     }
     if (button != null && button.tagName == "IMG") {
       button.src = pui.normalizeURL("/profoundui/proddata/images/icons/collapseall.gif");

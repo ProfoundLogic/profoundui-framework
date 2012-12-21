@@ -857,13 +857,14 @@ pui.renderFormat = function(parms) {
     }
   
     // create dom element for item
+    var gridObj = null;
     var container = null;
     var gridId = items[i].grid;
     var layoutId = items[i]["layout"];
     if (gridId != null) {  // item belongs to a grid
       var gridDom = getObj(gridId);
       if (gridDom != null) {
-        var gridObj = gridDom.grid;
+        gridObj = gridDom.grid;
         var colNum = Number(items[i].column);
         if (isDesignMode) {        
           var rowNum = (gridObj.hasHeader ? 1 : 0);
@@ -1948,6 +1949,28 @@ pui.renderFormat = function(parms) {
     if (pui["controller"] != null && properties["set as modified"] != "false") {
       dom.modified = true;
     }
+    
+    // If rendering into collapsed grid, disable any elements which are 
+    // below the viewable portion of the cell. 
+    
+    if (!isDesignMode && gridObj != null && !gridObj.expanded) {
+    
+      var cell = container;
+      var height = parseInt(cell.style.height);
+      if (!isNaN(height)) {
+      
+        var top = parseInt(dom.style.top);
+        if (isNaN(top)) top = 0;        
+        if (top > height && (dom.tagName == "INPUT" || dom.tagName == "SELECT" || dom.tagName == "TEXTAREA") && !dom.disabled) {
+        
+          dom.reenableOnExpand = true;
+          dom.disabled = true;
+          
+        }
+        
+      }         
+      
+    }    
 
   }  // end for loop to process all items
 
