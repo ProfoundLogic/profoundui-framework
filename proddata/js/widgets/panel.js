@@ -372,7 +372,7 @@ pui.widgets.add({
     "field type": function(parms) {
 
       parms.dom.sizeMe = function() {
-        var pstyle = parms.value;      
+        var pstyle = parms.properties["panel style"];
         var settings = pui.widgets.panelStyles[pstyle];
         if (settings == null) {
           var pstyle = pui.widgets.getPanelStyles()[0];
