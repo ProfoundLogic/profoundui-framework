@@ -1226,12 +1226,38 @@ pui["deleteCookie"] = function(name, path, domain) {
 
 
 
-pui["refresh"] = function() {
+pui["refresh"] = function(parms) {
+  if (parms == null) parms = {};
+  var url = parms["url"];
+  var skin = parms["skin"];
   pui["setCookie"]("puiRefreshId", pui.psid, null, "/");
   pui.skipConfirm = true;
   pui.shutdownOnClose = false;
   pui.confirmOnClose = false;
-  window.location.reload();
+  if (skin != null) {
+    var skinParm = "skin=" + encodeURIComponent(skin);
+    url = window.location.href;
+    var parts = url.split("?");
+    var page = parts[0];
+    var queryString = parts[1];
+    if (queryString == null) queryString = "";
+    qparms = queryString.split("&");
+    var appliedSkin = false;
+    for (var i = 0; i < qparms.length; i++) {
+      if (qparms[i].length >= 5 && qparms[i].substr(0, 5).toLowerCase() == "skin=") {
+        qparms[i] = skinParm;
+        appliedSkin = true;
+      }
+    }
+    if (!appliedSkin) {
+      if (qparms.length == 1 && qparms[0] == "") qparms[0] = skinParm;
+      else qparms.push(skinParm);
+    }
+    queryString = qparms.join("&");
+    url = page + "?" + queryString;
+  }
+  if (url != null) window.location.href = url;
+  else window.location.reload();
 }
 
 
