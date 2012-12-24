@@ -647,7 +647,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     else {
       newDomObj = domObj;
       if (tag == "div" && effectiveValue != "tab panel") newDomObj.tabPanel = null;  // in case element used to be a tab panel, deactivate all tab panel functionality
-      if (isDesignMode || effectiveValue == "chart") rebuildCSSAttr = true;
+      if (isDesignMode || effectiveValue == "chart" || effectiveValue == "radio button") rebuildCSSAttr = true;
     }
     
     // set all css and attribute properties
