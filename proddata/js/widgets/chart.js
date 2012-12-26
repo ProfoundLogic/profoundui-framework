@@ -18,7 +18,31 @@ pui.widgets.renderChart = function(parms) {
     if (parms.forceHTML5 == true || pui["charts"]["force html5"] == true) FusionCharts.setCurrentRenderer("javascript");
     if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
     var chartObj = new FusionCharts("/profoundui/proddata/charts/" + parms.type + ".swf", chartId, "100%", "100%", "0", "0");
+    chartObj.dom = parms.dom;
     if (parms.transparent == true) chartObj.setTransparent(true);
+    
+    // Process chart data if necessary.
+    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined") {
+    
+      if (parms.xmlURL != null || parms.jsonURL != null) {
+      
+        FusionCharts(chartId)["addEventListener"]("DataLoadRequestCompleted", pui.widgets.addChartLinks);
+      
+      }
+      
+      if (parms.xmlData != null) {
+      
+        parms.xmlData = pui.widgets.addXMLChartLinks(parms.dom.id, parms.xmlData);
+      
+      }
+      else if (parms.jsonData != null) {
+      
+        parms.jsonData = pui.widgets.addJSONChartLinks(parms.dom.id, parms.jsonData);
+      
+      }
+    
+    }
+    
     if (parms.xmlURL != null) chartObj.setXMLUrl(parms.xmlURL);
     else if (parms.xmlData != null) chartObj.setXMLData(parms.xmlData);
     else if (parms.jsonURL != null) chartObj.setJSONUrl(parms.jsonURL);
@@ -57,6 +81,128 @@ pui.widgets.renderChart = function(parms) {
     loadChart();
   }
 
+}
+
+pui.widgets.addChartLinks = function(eventObject, argumentsObject) {
+
+  argumentsObject["cancelDataLoad"]();
+  var id = eventObject["sender"].dom.id;
+  
+  if (argumentsObject["dataFormat"] == "xml") {
+  
+    eventObject["sender"]["setXMLData"](pui.widgets.addXMLChartLinks(id, argumentsObject["data"]));
+  
+  }
+  else {
+  
+    eventObject["sender"]["setJSONData"](pui.widgets.addJSONChartLinks(id, argumentsObject["data"]));
+  
+  }
+
+}
+
+pui.widgets.addXMLChartLinks = function(id, xml) {
+
+  try {
+
+    var doc;
+    if (window.DOMParser) {
+    
+      var parser = new DOMParser();
+      doc = parser.parseFromString(xml, "text/xml");
+      
+    }
+    else {
+  
+      doc = new ActiveXObject("Microsoft.XMLDOM");
+      doc.async = false;
+      doc.loadXML(xml);
+    
+    }
+    
+    var sets = doc.getElementsByTagName("set");
+    
+    for (var i = 0; i < sets.length; i++) {
+    
+      var set = sets[i];
+      if (set.getAttribute("link") == null) {
+      
+        set.setAttribute("link", "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
+      
+      }
+    
+    }
+   
+    if (window.XMLSerializer) {
+    
+      return new XMLSerializer().serializeToString(doc);
+    
+    }
+    else  {
+    
+      return doc.xml;
+    
+    }
+
+  }
+  catch(e) {
+  
+    return xml;
+  
+  }
+
+}
+
+pui.widgets.addJSONChartLinks = function(id, json) {
+
+  try {
+
+    var obj = eval("(" + json + ")");
+    
+    var data = obj["data"];
+    
+    for (var i = 0; i < data.length; i++) {
+    
+      var set = data[i];
+      
+      if (typeof(set["link"]) == "undefined") {
+      
+        set["link"] = "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
+      
+      }
+    
+    }
+  
+    return obj;
+  
+  }
+  catch(e) {
+  
+    return json;
+  
+  }
+
+}
+
+pui.widgets.sendChartResponse = function(param) {
+
+  var param = eval("(" + param + ")");
+  var id = param["id"];
+  var name = param["name"];
+  
+  var dom = getObj(id);
+  
+  dom.responseValue = name;
+  
+  if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
+  
+    pui.bypassValidation = dom.bypassValidation;
+    
+  }
+  
+  var returnVal = pui.respond();
+  if (returnVal == false) dom.responseValue = "";
+    
 }
 
 pui.widgets.setChartPreview = function(dom, chartType) {
