@@ -184,7 +184,7 @@ pui.widgets.addJSONChartLinks = function(id, json) {
 
 }
 
-pui.widgets.sendChartResponse = function(param) {
+pui.widgets["sendChartResponse"] = function(param) {
 
   var param = eval("(" + param + ")");
   var id = param["id"];
