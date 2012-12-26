@@ -106,7 +106,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
   try {
 
     var doc;
-    if (window.DOMParser) {
+    if (typeof(DOMParser) != "undefined") {
     
       var parser = new DOMParser();
       doc = parser.parseFromString(xml, "text/xml");
@@ -133,7 +133,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
     
     }
    
-    if (window.XMLSerializer) {
+    if (typeof(XMLSerializer) != "undefined") {
     
       return new XMLSerializer().serializeToString(doc);
     
