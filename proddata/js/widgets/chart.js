@@ -125,11 +125,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
     for (var i = 0; i < sets.length; i++) {
     
       var set = sets[i];
-      if (set.getAttribute("link") == null) {
-      
-        set.setAttribute("link", "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
-      
-      }
+      set.setAttribute("link", "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
     
     }
    
@@ -164,12 +160,7 @@ pui.widgets.addJSONChartLinks = function(id, json) {
     for (var i = 0; i < data.length; i++) {
     
       var set = data[i];
-      
-      if (typeof(set["link"]) == "undefined") {
-      
-        set["link"] = "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
-      
-      }
+      set["link"] = "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
     
     }
   
