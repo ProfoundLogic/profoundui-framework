@@ -60,3 +60,50 @@ pui["field exit key"] = 107;  // numeric pad plus sign
 
 pui["no connection message"] = "Unable to reach server.  Check your connection and try again.";
 pui["no connection status"] = false;
+
+pui.SQLDateFmts = {
+
+  "*ISO": 1,
+  "*USA": 2,  
+  "*EUR": 3,
+  "*JIS": 4,
+  "*MDY": 5,  
+  "*DMY": 6, 
+  "*YMD": 7, 
+  "*JUL": 8,
+  "*JOB": 10
+
+};
+
+pui.SQLDateSeps = {
+
+  "/": 1,
+  "-": 2,
+  ".": 3,
+  ",": 4,
+  " ": 5,
+  "*BLANK": 5,
+  "*JOB": 7
+
+};
+
+pui.SQLTimeFmts = {
+
+  "*ISO": 1,
+  "*USA": 2,  
+  "*EUR": 3,
+  "*JIS": 4,
+  "*HMS": 9        
+
+};
+
+pui.SQLTimeSeps = {
+
+  ".": 3,
+  ",": 4,
+  " ": 5,
+  "*BLANK": 5,
+  ":": 6,
+  "*JOB": 7
+
+};

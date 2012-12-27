@@ -1153,6 +1153,20 @@ pui.getSQLParams = function(properties, obj) {
   
   } while (propVal != "");
   
+  if (paramString != "") {
+  
+    paramString += "&";
+  
+  }
+  
+  var dateFmt = pui.getSQLDateFmt();
+  var timeFmt = pui.getSQLTimeFmt();
+  
+  paramString += "datfmt=" + encodeURIComponent(dateFmt.fmt);
+  paramString += "&datsep=" + encodeURIComponent(dateFmt.sep);
+  paramString += "&timfmt=" + encodeURIComponent(timeFmt.fmt);
+  paramString += "&timsep=" + encodeURIComponent(timeFmt.sep);
+  
   return paramString;
 
 }
@@ -1204,5 +1218,81 @@ pui.getNoConnectionMessage = function(req) {
   }
 
   return msg;
+
+}
+
+pui.getSQLDateFmt = function() {
+
+  var fmt = null;
+  var sep = null;
+  
+  if (typeof(pui["sql date format"]) == "string") {
+  
+    fmt = pui.SQLDateFmts[pui["sql date format"].toUpperCase()];
+  
+  }  
+  
+  if (fmt == null) {
+  
+    fmt = pui.SQLDateFmts["*ISO"];
+  
+  }
+  
+  if (typeof(pui["sql date separator"]) == "string") {
+  
+    sep = pui.SQLDateSeps[pui["sql date separator"].toUpperCase()];
+  
+  }  
+  
+  if (sep == null) {
+  
+    sep = pui.SQLDateSeps["/"];
+  
+  }
+  
+  return {
+  
+    fmt: fmt,
+    sep: sep
+  
+  }
+
+}
+
+pui.getSQLTimeFmt = function() {
+
+  var fmt = null;
+  var sep = null;
+  
+  if (typeof(pui["sql time format"]) == "string") {
+  
+    fmt = pui.SQLTimeFmts[pui["sql time format"].toUpperCase()];
+  
+  }  
+  
+  if (fmt == null) {
+  
+    fmt = pui.SQLTimeFmts["*ISO"];
+  
+  }
+  
+  if (typeof(pui["sql time separator"]) == "string") {
+  
+    sep = pui.SQLTimeSeps[pui["sql time separator"].toUpperCase()];
+  
+  }  
+  
+  if (sep == null) {
+  
+    sep = pui.SQLTimeSeps[":"];
+  
+  }
+  
+  return {
+  
+    fmt: fmt,
+    sep: sep
+  
+  }
 
 }
