@@ -1370,9 +1370,10 @@ pui["removeCSS"] = function(path) {
 }
 
 pui["loadJS"] = function(parms) {
-  if (parms == null) return;
+  if (parms == null) return null;
   var path;
   var callback;
+  var test;
   if (typeof parms == "string") {
     path = parms;
   }
@@ -1380,8 +1381,9 @@ pui["loadJS"] = function(parms) {
     path = parms["path"];
     callback = parms["callback"];
     test = parms["test"];
+    if (test != null && typeof test == "function" && test() == true) return false;  // already loaded
   }
-  if (path == null) return;
+  if (path == null) return null;
   if (pui.getScript(path) != null) return false;
   var head = document.getElementsByTagName("head")[0];
   var done = false;   

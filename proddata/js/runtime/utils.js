@@ -1298,13 +1298,31 @@ pui.getSQLTimeFmt = function() {
 }
 
 
+pui.getDomain = function() {
+  var parts = location.href.split('://');
+  var prepend = "";
+  var domain = "";
+  if (parts.length > 1) {
+    prepend = parts[0] + '://';
+    parts.splice(0, 1);
+    domain = parts.join('://');
+  }
+  else {
+    domain = location.href;
+  }
+  domain = prepend + domain.split('/')[0];
+  return domain;
+}
+
 pui.getLink = function(path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
+  var domain = pui.getDomain();
   var links = head.getElementsByTagName("link");
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     if (link.href == path) return link;
+    if (link.href == domain + path) return link;
   }
   return null;
 }
@@ -1312,10 +1330,12 @@ pui.getLink = function(path) {
 pui.getScript = function(path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
+  var domain = pui.getDomain();
   var scripts = head.getElementsByTagName("script");
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
-    if (link.src == path) return link;
+    if (script.src == path) return script;
+    if (script.src == domain + path) return script;
   }
   return null;
 }
