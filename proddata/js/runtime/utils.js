@@ -1296,3 +1296,28 @@ pui.getSQLTimeFmt = function() {
   }
 
 }
+
+
+pui.getLink = function(path) {
+  var head = document.getElementsByTagName("head")[0];
+  if (head == null) return null;
+  var links = head.getElementsByTagName("link");
+  for (var i = 0; i < links.length; i++) {
+    var link = links[i];
+    if (link.href == path) return link;
+  }
+  return null;
+}
+
+pui.getScript = function(path) {
+  var head = document.getElementsByTagName("head")[0];
+  if (head == null) return null;
+  var scripts = head.getElementsByTagName("script");
+  for (var i = 0; i < scripts.length; i++) {
+    var script = scripts[i];
+    if (link.src == path) return link;
+  }
+  return null;
+}
+
+

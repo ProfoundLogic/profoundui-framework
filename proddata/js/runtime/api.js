@@ -1325,3 +1325,85 @@ pui["focusOnContainer"] = function() {
     }, 1);
 
 }
+
+
+
+
+pui["addCSS"] = function(css) {
+  var head = document.getElementsByTagName("head")[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = css;
+  head.appendChild(style);
+}
+
+pui["loadCSS"] = function(path) {
+  if (pui.getLink(path) != null) return false;
+  var head = document.getElementsByTagName("head")[0];
+  var css = document.createElement("link");
+  css.setAttribute("rel", "stylesheet");
+  css.setAttribute("type", "text/css");
+  css.setAttribute("media", "screen");
+  css.setAttribute("href", path);
+  head.appendChild(css);
+  return true;
+}
+
+pui["removeCSS"] = function(path) {
+  var head = document.getElementsByTagName("head")[0];
+  var link = pui.getLink(path);
+  if (link == null) {
+    var styles = head.getElementsByTagName("style");
+    for (var i = 0; i < styles.length; i++) {
+      var style = styles[i];
+      if (style.innerHTML == path) {
+        head.removeChild(style);
+        return true;
+      }
+    }
+    return false;
+  }
+  else {
+    head.removeChild(link);
+    return true;
+  }
+}
+
+pui["loadJS"] = function(parms) {
+  if (parms == null) return;
+  var path;
+  var callback;
+  if (typeof parms == "string") {
+    path = parms;
+  }
+  if (typeof parms == "object") {
+    path = parms["path"];
+    callback = parms["callback"];
+    test = parms["test"];
+  }
+  if (path == null) return;
+  if (pui.getScript(path) != null) return false;
+  var head = document.getElementsByTagName("head")[0];
+  var done = false;   
+  var script = document.createElement("script");
+  script.type= "text/javascript";
+  script.onreadystatechange= function () {
+    if (script.readyState == "complete" || script.readyState == "loaded") {
+      if (test != null && typeof test == "function" && test() != true) return;
+      if (!done && callback != null) callback();
+      done = true;
+    }
+  }
+  script.onload = function() {
+    if (test != null && typeof test == "function" && test() != true) return;
+    if (!done && callback != null) callback();
+    done = true;
+  };
+  script.src = path;
+  head.appendChild(script);
+  return true;
+}
+
+
+
+
