@@ -21,7 +21,7 @@ pui.widgets.add({
       parms.dom.grid.tableDiv = parms.dom;
       
       // improve performance in IE (IE is very slow when setting the .scrollTop property on a div)
-      if (is_ie && !parms.design && parms.properties["scrollbar"] == "paging" && context == "dspf") {
+      if ((is_ie || is_opera) && !parms.design && parms.properties["scrollbar"] == "paging" && context == "dspf") {
         parms.dom.grid.dontSetPagingScrollTop = true;
         setTimeout(function() {
           parms.dom.grid.dontSetPagingScrollTop = false;

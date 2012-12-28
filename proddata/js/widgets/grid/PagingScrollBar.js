@@ -27,7 +27,6 @@ pui.PagingScrollBar = function() {
   var midPoint = 0;
   var outerDiv;
   var innerDiv;
-  var drawTime = new Date();
   
   this.init = function() {    
     outerDiv = document.createElement("div");
@@ -54,17 +53,11 @@ pui.PagingScrollBar = function() {
         outerDiv.scrollTop = midPoint;
         return;
       }        
-    
+   
       var returnVal;
       if (ignoreOnScroll) {
         ignoreOnScroll = false;
         return;
-      }
-      if (is_opera || is_ie) {
-        var elapsedTime = (new Date()) - drawTime;
-        if (elapsedTime < 500) {
-          return;
-        }
       }
       if (pagedDown) {
         ignoreOnScroll = true;
@@ -160,7 +153,6 @@ pui.PagingScrollBar = function() {
     else {
       scrollTop = midPoint;
     }
-    drawTime = new Date();
     if (!me.grid.dontSetPagingScrollTop) {
       outerDiv.scrollTop = scrollTop;
     }
