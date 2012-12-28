@@ -440,6 +440,7 @@ function cal(dateField, format) {
 }
 pui.moveCal = function(dateField){
   var gCalImage = dateField.calimg;
+  if (gCalImage == null) return;
   gCalImage.style.display = "none";
   //gCalImage.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
   //var top = parseInt(dateField.style.top);

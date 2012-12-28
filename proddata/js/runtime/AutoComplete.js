@@ -13,6 +13,7 @@ function AutoComplete(config) {
 	var is_ie = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
 	var is_ie6    = (is_ie && (is_major == 4) && (agt.indexOf("msie 6.")!=-1) );
 	var quirksMode = (document.compatMode == "BackCompat");
+	var cancelQuery = false;
 	
 	// Internal fields.
 	var me = this;
@@ -323,8 +324,8 @@ function AutoComplete(config) {
 	
 	/* PRIVATE METHODS */
 	function doBlur(event) {
-		
 		event = event || window.event;
+		cancelQuery = true;
 		setTimeout(hideResults, 200);
 	}
 	
@@ -407,6 +408,7 @@ function AutoComplete(config) {
 				}
 				else {
 					clearTimeout(typeAheadTimer);
+					cancelQuery = false;
 					typeAheadTimer = setTimeout(function() {
 						doQuery(trim(textBox.value));
 					}, typeAheadDelay);
@@ -551,6 +553,11 @@ function AutoComplete(config) {
 				hideResults();
 				return;
 			}
+  		if (cancelQuery) {
+  			hideResults();
+  			return;
+  		}
+			
 			var data;			
 			data = eval(response);
 			records = data.results;
