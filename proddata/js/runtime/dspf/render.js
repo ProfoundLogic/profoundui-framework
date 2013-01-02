@@ -2038,22 +2038,24 @@ pui.renderFormat = function(parms) {
   }
 
   // execute global onload event
-  if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null) {
+  if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false) {
     pui["onload"](parms);
   }
 
   // execute format's onload event / save onsubmit event
 	if (screenProperties != null && !isDesignMode) {
-  	var onloadProp = screenProperties["onload"];
-  	if (onloadProp != null && onloadProp != "") {
-  	  try {
-  	    eval('var format = "' + screenProperties["record format name"] + '";');
-  	    eval('var file = "' + parms.file + '";');
-  	    eval(onloadProp);
-  	  }
-  	  catch(err) {
-  	    pui.alert("Onload Error:\n" + err.message);
-  	  }
+  	if (parms.runOnload !== false) {
+    	var onloadProp = screenProperties["onload"];
+    	if (onloadProp != null && onloadProp != "") {
+    	  try {
+    	    eval('var format = "' + screenProperties["record format name"] + '";');
+    	    eval('var file = "' + parms.file + '";');
+    	    eval(onloadProp);
+    	  }
+    	  catch(err) {
+    	    pui.alert("Onload Error:\n" + err.message);
+    	  }
+    	}
   	}
   	pui.onsubmitProp = screenProperties["onsubmit"];
 	}	
