@@ -4296,7 +4296,8 @@ pui.Grid = function() {
   
   this["render"] = function() {
     me.sizeAllCells();
-    me.setAllCellStyles(); 
+    me.setAllCellStyles();
+    me.setHeadings();
   }
   
   this["refresh"] = function() {
