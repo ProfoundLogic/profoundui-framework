@@ -455,7 +455,14 @@ pui.Grid = function() {
     
   }
   
-  this.rowZoom = function(rowCells) {
+  this["rowZoom"] = function(rowCells) {
+    if (context != "dspf") return;
+    if (typeof rowCells == "number") {
+      var rowNum = rowCells - me.recNum;
+      if (me.hasHeader) rowNum++;
+      rowCells = me.cells[rowNum];
+      if (rowCells == null) return;
+    }
     if (me.zoomDiv == null) {
       me.zoomDiv = document.createElement("div");
       var width = parseInt(me.tableDiv.style.width);
@@ -3398,7 +3405,7 @@ pui.Grid = function() {
         }
         me.zoomIcon.style.display = "";
         me.zoomIcon.onclick = function(e) {
-          me.rowZoom(me.cells[row]);
+          me["rowZoom"](me.cells[row]);
           preventEvent(e);
         }
 
