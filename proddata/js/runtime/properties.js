@@ -167,6 +167,8 @@ function getPropertiesModel() {
     { name: "Chart Settings", category: true, controls: ["chart"] },
     { name: "chart type", choices: pui.widgets.chartTypes, help: "Identifies the type of chart to display.  The chart type maps to a .swf flash file in the proddata/charts folder on the IFS.  If Flash is not available, HTML5 is used to render the chart.", controls: ["chart"] },
     { name: "chart overlay", choices: ["true", "false"], help: "When set to true, the Chart panel will overlay any other content on the screen, regardless of z-index settings. When set to false, the Chart panel will behave according to normal layering rules, based on z-index. The default value is false.", controls: ["chart"] },  
+    { name: "onchartclick", type: "js", help: "Initiates a client-side script when a chart section is clicked.  The name of the chart section is passed to the event as a parameter named \"name\".", controls: ["chart"] },
+
 
     { name: "Chart Data" + ((context == "genie") ? " from Screen" : ""), category: true, controls: ["chart"] },
     { name: "names", type: "list", help: "Specifies a list of names representing the data points on the chart or a list of screen element id's from which the names could be retrieved.  The list should be comma separated.", controls: ["chart"] },
@@ -1034,6 +1036,20 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
+        }
+      }
+    }
+    else if (propConfigName == "onchartclick") {
+      func = function() {
+        eval("var name = arguments[0];");
+        try {
+          var customFunction = eval(newValue);
+          if (typeof customFunction == "function") {
+            customFunction(arguments[0]);
+          }
+        }
+        catch(err) {
+          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);    
         }
       }
     }

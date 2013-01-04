@@ -22,7 +22,7 @@ pui.widgets.renderChart = function(parms) {
     if (parms.transparent == true) chartObj.setTransparent(true);
     
     // Process chart data if necessary.
-    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined") {
+    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom["onchartclick"]) == "function") {
     
       if (parms.xmlURL != null || parms.jsonURL != null) {
       
@@ -125,7 +125,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
     for (var i = 0; i < sets.length; i++) {
     
       var set = sets[i];
-      set.setAttribute("link", "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
+      set.setAttribute("link", "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
     
     }
    
@@ -160,7 +160,7 @@ pui.widgets.addJSONChartLinks = function(id, json) {
     for (var i = 0; i < data.length; i++) {
     
       var set = data[i];
-      set["link"] = "j-pui.widgets.sendChartResponse-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
+      set["link"] = "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
     
     }
   
@@ -175,7 +175,7 @@ pui.widgets.addJSONChartLinks = function(id, json) {
 
 }
 
-pui.widgets["sendChartResponse"] = function(param) {
+pui.widgets["doChartLink"] = function(param) {
 
   var param = eval("(" + param + ")");
   var id = param["id"];
@@ -183,16 +183,25 @@ pui.widgets["sendChartResponse"] = function(param) {
   
   var dom = getObj(id);
   
-  dom.responseValue = name;
+  if (typeof(dom.pui.properties["chart response"]) != "undefined") {
   
-  if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
-  
-    pui.bypassValidation = dom.bypassValidation;
+    dom.responseValue = name;
     
-  }
+    if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
+    
+      pui.bypassValidation = dom.bypassValidation;
+      
+    }
+    
+    var returnVal = pui.respond();
+    if (returnVal == false) dom.responseValue = "";  
   
-  var returnVal = pui.respond();
-  if (returnVal == false) dom.responseValue = "";
+  }
+  else if (typeof(dom["onchartclick"]) == "function") {
+  
+    dom["onchartclick"](name);
+  
+  }
     
 }
 
