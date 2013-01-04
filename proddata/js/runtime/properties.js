@@ -1039,6 +1039,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
       func = function(e) {
+        eval("var row;");
+        var rowValue = domObj.id.split(".")[1];
+        if (rowValue != null) {
+          rowValue = Number(rowValue);
+          if (!isNaN(rowValue)) {
+            eval("row = " + rowValue + ";");
+          }
+        }
         try {
           var customFunction = eval(newValue);
           if (typeof customFunction == "function") {
