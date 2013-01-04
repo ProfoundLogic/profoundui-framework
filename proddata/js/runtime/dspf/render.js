@@ -1456,7 +1456,7 @@ pui.renderFormat = function(parms) {
           if (propValue != null && propValue != "") {
             var propParm = properties;
             if (isDesignMode) propParm = designItem.properties;
-            dom = applyPropertyToField(propConfig, propParm, dom, propValue, isDesignMode, designItem);
+            dom = applyPropertyToField(propConfig, propParm, dom, propValue, isDesignMode, designItem, null, parms.subfileRow);
           }
 
           if (!isDesignMode && propname == "visibility" && propValue == "visible" && parms.rowNum != null) {

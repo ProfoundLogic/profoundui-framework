@@ -503,7 +503,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
 }
 
 // Applies property value to field in design mode or at run-time
-function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer) {
+function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow) {
 
   if (newValue == "Other..." && isDesignMode && propConfig.name != "value") return domObj;
   
@@ -1040,12 +1040,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
       func = function(e) {
         eval("var row;");
-        var rowValue = domObj.id.split(".")[1];
-        if (rowValue != null) {
-          rowValue = Number(rowValue);
-          if (!isNaN(rowValue)) {
-            eval("row = " + rowValue + ";");
-          }
+        if (subfileRow != null) {
+          eval("row = " + subfileRow + ";");
         }
         try {
           var customFunction = eval(newValue);
