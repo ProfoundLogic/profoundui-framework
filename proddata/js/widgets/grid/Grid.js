@@ -984,7 +984,8 @@ pui.Grid = function() {
             ref: me.ref,
             errors: me.errors,
             rowNum: rowNum,
-            subfileRow: subfileRow
+            subfileRow: subfileRow,
+            dataArrayIndex: i - 1
           });
           if (me.selectionEnabled && me.selectionField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
@@ -1456,7 +1457,7 @@ pui.Grid = function() {
         me.sortIcon.style.paddingLeft = "3px";
       }
       else {
-        me.sortIcon.parentNode.removeChild(me.sortIcon);
+        if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
       }
       me.sortBy = cell.fieldName;
       desc = !desc;
@@ -1502,6 +1503,12 @@ pui.Grid = function() {
       }
 
       if (me.tableDiv.columnSortResponseField == null) {
+        removeAllResponseElements();
+        for (var i = 0; i < me.runtimeChildren.length; i++) {
+          me.runtimeChildren[i].domEls = [];
+        }
+        pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
+
         if (!me.sorted) {
           for (var i = 0; i < me.dataArray.length; i++) {
            me.dataArray[i].subfileRow = i + 1;
@@ -1527,13 +1534,6 @@ pui.Grid = function() {
           else return 1;
         });
         me.sorted = true;
-  
-        for (var i = 0; i < me.runtimeChildren.length; i++) {
-          me.runtimeChildren[i].domEls = [];
-        }
-        pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
-
-        removeAllResponseElements();
   
         if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
           me.scrollbarObj.setScrollTopToRow(1);
@@ -1571,10 +1571,54 @@ pui.Grid = function() {
   
   
   function removeAllResponseElements() {
+    var fieldXRef = {};
+    for (var i = 0; i < me.fieldNames.length; i++) {
+      fieldXRef[me.fieldNames[i]] = i;
+    }
     var toRemove = [];
     var startsWith = pui.formatUpper(me.recordFormatName) + ".";
     for (var fldName in pui.responseElements) {
-      if (fldName.substr(0, startsWith.length) == startsWith) toRemove.push(fldName);
+      if (fldName.substr(0, startsWith.length) == startsWith) {
+        // place user's response back into dataArray before removing
+        var shortFieldName = fldName.substr(startsWith.length);
+        var parts = shortFieldName.split(".");
+        if (parts.length == 2) {
+          var fieldIdx = fieldXRef[parts[0]]
+          if (fieldIdx != null) {
+            var dom = pui.responseElements[fldName][0];
+            if (dom != null && dom.dataArrayIndex != null) {
+              var rowData = me.dataArray[dom.dataArrayIndex];
+              if (rowData != null) {
+                var value = dom.value;
+                if (dom.comboBoxWidget != null) {
+                  value = dom.comboBoxWidget.getValue();
+                }
+                if (dom.onOffSwitch != null) {
+                  value = "";
+                  if (dom.onOffSwitch.isOn && dom.onOffSwitch.onValue != null) {
+                    value = dom.onOffSwitch.onValue;
+                  }
+                  else if (!dom.onOffSwitch.isOn && dom.onOffSwitch.offValue != null) {
+                    value = dom.onOffSwitch.offValue;
+                  }        
+                }
+                if (dom.tagName == "INPUT" && dom.type == "checkbox") {
+                  if (dom.checked) {
+                    if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
+                    else value = "1";
+                  }
+                  else {
+                    if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue;
+                    else value = " ";
+                  }
+                }
+                rowData[fieldIdx] = value;
+              }
+            }
+          }
+        }
+        toRemove.push(fldName);
+      }
     }
     for (var i = 0; i < toRemove.length; i++) {
       delete pui.responseElements[toRemove[i]];

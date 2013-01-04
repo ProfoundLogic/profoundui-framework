@@ -1957,6 +1957,10 @@ pui.renderFormat = function(parms) {
       dom.modified = true;
     }
     
+    if (!isDesignMode && parms.dataArrayIndex != null) {
+      dom.dataArrayIndex = parms.dataArrayIndex;
+    }
+    
     // If rendering into collapsed grid, disable any elements which are 
     // below the viewable portion of the cell. 
     
