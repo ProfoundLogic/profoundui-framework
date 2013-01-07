@@ -1407,6 +1407,7 @@ pui.renderFormat = function(parms) {
               if (parms.lastFormat != true) {
                 dom.style.display = "none";
                 dom.style.visibility = "hidden";
+                dom.removeAttribute("id");
               }
               else {
                 if (properties["visibility"] != "hidden") {
