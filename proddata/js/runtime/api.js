@@ -1333,7 +1333,12 @@ pui["addCSS"] = function(css) {
   var head = document.getElementsByTagName("head")[0];
   var style = document.createElement('style');
   style.type = 'text/css';
-  style.innerHTML = css;
+  if (is_ie) {
+    style.styleSheet.cssText = css;
+  }
+  else {
+    style.innerHTML = css;
+  }
   head.appendChild(style);
 }
 
@@ -1356,7 +1361,8 @@ pui["removeCSS"] = function(path) {
     var styles = head.getElementsByTagName("style");
     for (var i = 0; i < styles.length; i++) {
       var style = styles[i];
-      if (style.innerHTML == path) {
+      if ( (style.innerHTML == path) || 
+           (style.styleSheet != null && style.styleSheet.cssText == path) ) {  // In IE, this will not much unless CSS is formatted exactly how IE would format it
         head.removeChild(style);
         return true;
       }
