@@ -1693,7 +1693,20 @@ pui.renderFormat = function(parms) {
           addEvent(dom, "focus", pui.setActiveElement);
           addEvent(dom, "keydown", pui.setActiveElement);
           addEvent(dom, "change", setModified);
-          if (dom.tagName != "SELECT") addEvent(dom, "click", setModified);
+          if (dom.tagName != "SELECT") {addEvent(dom, "click", setModified);}
+		  else{
+			addEvent(dom, "keydown", function(e) {
+			// prevent pagedown key from selecting last option in select box (not operational for Firefox)
+			if (!e) e = window.event;
+			var key = e.keyCode;
+			if (key == 34) {
+				e.cancelBubble = true;
+				e.returnValue = false;
+				if (e.preventDefault) e.preventDefault();
+				}
+			});
+		  
+		  }
         }
         
         if (dom.tagName == "INPUT" && dom.type == "radio") {
