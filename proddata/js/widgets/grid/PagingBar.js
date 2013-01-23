@@ -32,10 +32,10 @@ pui.PagingBar = function() {
   this.nextImg = null;
   this.nextLink = null;
   
-  var prevArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev.gif");
-  var prevArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev-disabled.gif");
-  var nextArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next.gif");
-  var nextArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next-disabled.gif");
+//  var prevArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev.gif");
+//  var prevArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev-disabled.gif");
+//  var nextArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next.gif");
+//  var nextArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next-disabled.gif");
   var exportImgSrc = pui.normalizeURL("/profoundui/proddata/images/grids/excel.gif");
   
   var div;
@@ -94,7 +94,7 @@ pui.PagingBar = function() {
     exportLink.style.position = "absolute";
     exportLink.style.top = "5px";
     exportLink.style.left = "24px";
-    exportLink.style.color = "#2C71EE";
+//    exportLink.style.color = "#2C71EE";
     exportLink.style.textDecoration = "underline";
     exportLink.style.cursor = "pointer";
     exportLink.onclick = function() {
@@ -104,19 +104,26 @@ pui.PagingBar = function() {
     exportLink.className = "paging-link";
     div.appendChild(exportLink);
 
-    me.prevImg = document.createElement("img");
-    me.prevImg.src = prevArrowSrc;
+    me.prevImg = document.createElement("div");
+    me.prevImg.className = "prev-imageIcon";
+//    me.prevImg.src = prevArrowSrc;
+    me.prevImg.style.verticalAlign = "top";
+    me.prevImg.style.display = "inline-block";
+    me.prevImg.style.height = "16px";
+    me.prevImg.style.width = "16px";
     me.prevImg.shortcutKey = "PageUp";
     me.prevImg.responseValue = "0";
     me.prevImg.parentPagingBar = me;
     me.prevImg.prevPage = true;
     me.prevImg.onmouseover = function() {
       if (me.prevImg.disabled) return;
-      me.prevLink.style.color = "#0C51CE";
+//      me.prevLink.style.color = "#0C51CE";
+      pui.addCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevImg.onmouseout = function() {
       if (me.prevImg.disabled) return;
-      me.prevLink.style.color = "#2C71EE";
+//      me.prevLink.style.color = "#2C71EE";
+      pui.removeCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevImg.onclick = function() {
       autoPageUp();
@@ -132,12 +139,16 @@ pui.PagingBar = function() {
     me.prevLink.parentPagingBar = me;
     me.prevLink.prevPage = true;
     me.prevLink.onmouseover = function() {
-      if (me.prevLink.disabled) return;
-      me.prevLink.style.color = "#0C51CE";
+      if(me.prevLink.disabled)
+        return;
+//      me.prevLink.style.color = "#0C51CE";
+      pui.addCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevLink.onmouseout = function() {
-      if (me.prevLink.disabled) return;
-      me.prevLink.style.color = "#2C71EE";
+      if(me.prevLink.disabled)
+        return;
+//      me.prevLink.style.color = "#2C71EE";
+      pui.removeCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevLink.onclick = function() {
       autoPageUp();
@@ -170,11 +181,13 @@ pui.PagingBar = function() {
     me.nextLink.nextPage = true;
     me.nextLink.onmouseover = function() {
       if (me.nextLink.disabled) return;
-      me.nextLink.style.color = "#0C51CE";
+//      me.nextLink.style.color = "#0C51CE";
+      pui.addCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextLink.onmouseout = function() {
       if (me.nextLink.disabled) return;
-      me.nextLink.style.color = "#2C71EE";
+//      me.nextLink.style.color = "#2C71EE";
+      pui.removeCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextLink.onclick = function() {
       autoPageDown();
@@ -182,19 +195,26 @@ pui.PagingBar = function() {
     me.nextLink.className = "paging-link";
     div.appendChild(me.nextLink);
   
-    me.nextImg = document.createElement("img");
-    me.nextImg.src = nextArrowSrc;    
+    me.nextImg = document.createElement("div");
+//    me.nextImg.src = nextArrowSrc;
+    me.nextImg.className = "next-imageIcon"; 
+    me.nextImg.style.verticalAlign = "top";
+    me.nextImg.style.display = "inline-block";
+    me.nextImg.style.height = "16px";
+    me.nextImg.style.width = "16px"; 
     me.nextImg.shortcutKey = "PageDown";
     me.nextImg.responseValue = "0";
     me.nextImg.parentPagingBar = me;
     me.nextImg.nextPage = true;
     me.nextImg.onmouseover = function() {
       if (me.nextImg.disabled) return;
-      me.nextLink.style.color = "#0C51CE";
+//      me.nextLink.style.color = "#0C51CE";
+      pui.addCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextImg.onmouseout = function() {
       if (me.nextImg.disabled) return;
-      me.nextLink.style.color = "#2C71EE";
+//      me.nextLink.style.color = "#2C71EE";
+      pui.removeCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextImg.onclick = function() {
       autoPageDown();
@@ -375,14 +395,14 @@ pui.PagingBar = function() {
       }
       
       if (me.showPagingControls) {
-        me.prevImg.style.display = "";
+        me.prevImg.style.display = "inline-block";
         me.prevLink.style.display = "";
-        me.nextImg.style.display = "";
+        me.nextImg.style.display = "inline-block";
         me.nextLink.style.display = "";
-        me.nextLink.style.color = "#2C71EE";
+//        me.nextLink.style.color = "#2C71EE";
         me.nextLink.style.textDecoration = "underline";
         me.nextLink.style.cursor = "pointer";
-        me.prevLink.style.color = "#2C71EE";
+//        me.prevLink.style.color = "#2C71EE";
         me.prevLink.style.textDecoration = "underline";
         me.prevLink.style.cursor = "pointer";
         me.nextImg.style.cursor = "pointer";
@@ -391,30 +411,40 @@ pui.PagingBar = function() {
         me.prevLink.disabled = false;
         me.nextImg.disabled = false;
         me.nextLink.disabled = false;
+        
         if (!me.grid.designMode && me.grid.atTop() && (me.pageUpCondition == "false" || !me.pageUpResponseDefined)) {
-          me.prevImg.src = prevArrowDisabledSrc;
-          me.prevImg.style.cursor = "default";
+//          me.prevImg.src = prevArrowDisabledSrc;
+//          me.prevImg.style.cursor = "default";
           me.prevImg.disabled = true;
-          me.prevLink.style.cursor = "default";
-          me.prevLink.style.textDecoration = "none";
-          me.prevLink.style.color = "#666666";
+//          me.prevLink.style.cursor = "default";
+//          me.prevLink.style.textDecoration = "none";
+//          me.prevLink.style.color = "#666666";
           me.prevLink.disabled = true;
+          pui.addCssClass(me.prevLink, "paging-link-disabled");
+          pui.addCssClass(me.prevImg, "prev-imageIconDisabled");        
         }
         else {
-          me.prevImg.src = prevArrowSrc;
+//          me.prevImg.src = prevArrowSrc;
+          pui.removeCssClass(me.prevLink, "paging-link-disabled");
+          pui.removeCssClass(me.prevImg, "prev-imageIconDisabled");
         }
+        
         if ( !me.grid.designMode && me.grid.atBottom() && 
              ((me.grid.subfileEnd && pui["page down on subfile end"] != true) || me.pageDownCondition == "false" || !me.pageDownResponseDefined) ) {
-          me.nextImg.src = nextArrowDisabledSrc;
-          me.nextImg.style.cursor = "default";
+//          me.nextImg.src = nextArrowDisabledSrc;
+//          me.nextImg.style.cursor = "default";
           me.nextImg.disabled = true;
-          me.nextLink.style.cursor = "default";
-          me.nextLink.style.textDecoration = "none";
-          me.nextLink.style.color = "#666666";
+//          me.nextLink.style.cursor = "default";
+//          me.nextLink.style.textDecoration = "none";
+//          me.nextLink.style.color = "#666666";
           me.nextLink.disabled = true;
+          pui.addCssClass(me.nextLink, "paging-link-disabled");
+          pui.addCssClass(me.nextImg, "next-imageIconDisabled"); 
         }
         else {
-          me.nextImg.src = nextArrowSrc;
+//          me.nextImg.src = nextArrowSrc;
+          pui.removeCssClass(me.nextLink, "paging-link-disabled");
+          pui.removeCssClass(me.nextImg, "next-imageIconDisabled");
         }
       }
       else {
