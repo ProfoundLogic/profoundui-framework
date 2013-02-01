@@ -36,7 +36,7 @@ pui.PagingBar = function() {
 //  var prevArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev-disabled.gif");
 //  var nextArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next.gif");
 //  var nextArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next-disabled.gif");
-  var exportImgSrc = pui.normalizeURL("/profoundui/proddata/images/grids/excel.gif");
+//  var exportImgSrc = pui.normalizeURL("/profoundui/proddata/images/grids/excel.gif");
   
   var div;
   var exportImg;
@@ -63,6 +63,8 @@ pui.PagingBar = function() {
     me.grid.pageDown();
   }
   
+//all img elements were changed to div elements
+
   this.init = function() {
     div = document.createElement("div");
     div.style.position = "absolute";
@@ -77,16 +79,19 @@ pui.PagingBar = function() {
 
     me.container.appendChild(div);
 
-    exportImg = document.createElement("img");
-    exportImg.src = exportImgSrc;
+    exportImg = document.createElement("div");
+//    exportImg.src = exportImgSrc;
     exportImg.style.cursor = "pointer";
     exportImg.style.position = "absolute";
     exportImg.style.top = "4px";
     exportImg.style.left = "4px";
+    exportImg.style.height = "14px";
+    exportImg.style.width = "14px";
     exportImg.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
     }
+    pui.addCssClass(exportImg,"export-image-icon");
     div.appendChild(exportImg);
 
     exportLink = document.createElement("span");
@@ -105,7 +110,7 @@ pui.PagingBar = function() {
     div.appendChild(exportLink);
 
     me.prevImg = document.createElement("div");
-    me.prevImg.className = "prev-imageIcon";
+    me.prevImg.className = "prev-image-icon";
 //    me.prevImg.src = prevArrowSrc;
     me.prevImg.style.verticalAlign = "top";
     me.prevImg.style.display = "inline-block";
@@ -197,7 +202,7 @@ pui.PagingBar = function() {
   
     me.nextImg = document.createElement("div");
 //    me.nextImg.src = nextArrowSrc;
-    me.nextImg.className = "next-imageIcon"; 
+    me.nextImg.className = "next-image-icon"; 
     me.nextImg.style.verticalAlign = "top";
     me.nextImg.style.display = "inline-block";
     me.nextImg.style.height = "16px";
@@ -421,12 +426,12 @@ pui.PagingBar = function() {
 //          me.prevLink.style.color = "#666666";
           me.prevLink.disabled = true;
           pui.addCssClass(me.prevLink, "paging-link-disabled");
-          pui.addCssClass(me.prevImg, "prev-imageIconDisabled");        
+          pui.addCssClass(me.prevImg, "prev-image-icon-disabled");        
         }
         else {
 //          me.prevImg.src = prevArrowSrc;
           pui.removeCssClass(me.prevLink, "paging-link-disabled");
-          pui.removeCssClass(me.prevImg, "prev-imageIconDisabled");
+          pui.removeCssClass(me.prevImg, "prev-image-icon-disabled");
         }
         
         if ( !me.grid.designMode && me.grid.atBottom() && 
@@ -439,12 +444,12 @@ pui.PagingBar = function() {
 //          me.nextLink.style.color = "#666666";
           me.nextLink.disabled = true;
           pui.addCssClass(me.nextLink, "paging-link-disabled");
-          pui.addCssClass(me.nextImg, "next-imageIconDisabled"); 
+          pui.addCssClass(me.nextImg, "next-image-icon-disabled"); 
         }
         else {
 //          me.nextImg.src = nextArrowSrc;
           pui.removeCssClass(me.nextLink, "paging-link-disabled");
-          pui.removeCssClass(me.nextImg, "next-imageIconDisabled");
+          pui.removeCssClass(me.nextImg, "next-image-icon-disabled");
         }
       }
       else {
