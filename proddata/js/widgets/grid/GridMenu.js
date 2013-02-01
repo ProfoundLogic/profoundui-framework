@@ -77,11 +77,16 @@ pui.GridMenu = function() {
       if (me.clickEvent.pageY) top = me.clickEvent.pageY;
       else if (me.clickEvent.clientY) top = me.clickEvent.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
       var maxLeft = document.body.offsetWidth - 185;  // width of menu plus scrollbar
+      var offset = {};
       if (context == "dspf" && me.grid.tableDiv.parentNode.getAttribute("container") == "true") {
-        var offset = pui.layout.getContainerOffset(me.grid.tableDiv.parentNode)
-        top = top - offset.y;
-        left = left - offset.x;
+        offset = pui.layout.getContainerOffset(me.grid.tableDiv.parentNode);
       }
+      else {
+        offset.x = me.grid.tableDiv.parentNode.offsetLeft;
+        offset.y = me.grid.tableDiv.parentNode.offsetTop;
+      }
+      top = top - offset.y;
+      left = left - offset.x;      
       if (left > maxLeft) left = maxLeft;
     }
     menuDiv.style.left = left + "px";
