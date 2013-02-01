@@ -86,6 +86,7 @@ pui.PagingBar = function() {
     exportImg.style.top = "4px";
     exportImg.style.left = "4px";
     exportImg.style.height = "14px";
+    exportImg.style.padding = "1px";
     exportImg.style.width = "14px";
     exportImg.onclick = function() {
       if (me.grid.designMode) return;
