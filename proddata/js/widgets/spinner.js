@@ -68,17 +68,15 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   }
   
   if (runtimeMode) {
-    if (is_ie) {
+    dom.style.paddingRight = "16px";
+    dom.style.boxSizing = "border-box";
+    dom.style.MozBoxSizing = "border-box";
+    dom.style.WebkitBoxSizing = "border-box";
+    if (is_ie && document.documentMode == 7) {
       var width = dom.offsetWidth;
-      width = width - 18;
+      width = width - 36;
       if (width < 16) width = 16;
       dom.style.width = width + "px";
-    }
-    else {
-      dom.style.paddingRight = "16px";
-      dom.style.boxSizing = "border-box";
-      dom.style.MozBoxSizing = "border-box";
-      dom.style.WebkitBoxSizing = "border-box";
     }
   }
 
