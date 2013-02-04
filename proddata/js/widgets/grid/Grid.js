@@ -840,10 +840,11 @@ pui.Grid = function() {
     maskCover.style.top = top + "px";
     maskCover.style.width = width + "px";
     maskCover.style.height = height + "px";
-    maskCover.style.zIndex = 250;
-    maskCover.style.backgroundColor = "#CCCCCC";
-    maskCover.style.opacity = 0.35;
-    maskCover.style.filter = "alpha(opacity=35)";
+    maskCover.className = "grid-mask";
+    //maskCover.style.zIndex = 250;
+    //maskCover.style.backgroundColor = "#CCCCCC";
+    //maskCover.style.opacity = 0.35;
+    //maskCover.style.filter = "alpha(opacity=35)";
     me.tableDiv.parentNode.appendChild(maskCover);
   }
   
