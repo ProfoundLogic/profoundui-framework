@@ -201,20 +201,35 @@ pui["show"] = function(parms) {
     });    
   }
   
-  pui.runtimeContainer = getObj("pui");
+
+  var container = parms["container"];
+  if (container != null && typeof container == "string") container = getObj(parms["container"]);
+
+  if (container == null) pui.runtimeContainer = getObj("pui");
+  
+  var layers = [{ "formats": formatList }];
   
   var obj = {
     container: pui.runtimeContainer,
     "appJob": {},
-    "layers": [{ "formats": formatList }],
+    "layers": layers,
     success: true
   }
   
-  pui.handler = handler;
-  if (pui.handler == null) pui.handler = function() { };
-  
-  pui.render(obj);
-  
+  if (container == null) {
+    pui.handler = handler;
+    if (pui.handler == null) pui.handler = function() { };
+    pui.render(obj);
+  }
+  else {
+    container.innerHTML = "";
+    var format = layers[0]["formats"][0];
+    format.lastLayer = true;
+    format.lastFormat = true;
+    format.container = container;
+    pui.renderFormat(format);
+  }
+
 }
 
 
