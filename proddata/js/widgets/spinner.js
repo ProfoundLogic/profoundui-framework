@@ -72,7 +72,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     dom.style.boxSizing = "border-box";
     dom.style.MozBoxSizing = "border-box";
     dom.style.WebkitBoxSizing = "border-box";
-    if (is_ie && document.documentMode == 7) {
+    if (is_ie7 || (is_ie && document.documentMode == 7)) {
       var width = dom.offsetWidth;
       width = width - 36;
       if (width < 16) width = 16;
