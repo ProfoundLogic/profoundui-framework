@@ -186,7 +186,7 @@ function AutoComplete(config) {
 	resultPane.style.border =  "1px solid #98C0F4";
 	if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
 	else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
-	container.appendChild(resultPane);
+	textBox.parentNode.appendChild(resultPane);
 	
 	if (shadow) {
 
@@ -234,7 +234,7 @@ function AutoComplete(config) {
 		rightCorner.style.position = "absolute";
 		rightCorner.style.background = "transparent url(" + imageBaseURL + "shadow.png) no-repeat scroll 0px -6px";
 		shadowDiv.appendChild(rightCorner);				
-		container.appendChild(shadowDiv);
+		textBox.parentNode.appendChild(shadowDiv);
 	}
 	
 	if (useShim) {
@@ -244,7 +244,7 @@ function AutoComplete(config) {
 		shim.style.position = "absolute";
 		shim.style.margin = "0px";
 		shim.style.zIndex = zIndex - 2;
-		container.appendChild(shim);
+		textBox.parentNode.appendChild(shim);
 	}
 
 	// Attach events.
