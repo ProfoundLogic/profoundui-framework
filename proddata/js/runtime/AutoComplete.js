@@ -292,8 +292,8 @@ function AutoComplete(config) {
 	  removeEvent(textBox, "keyup", doKeyUp);
 	  removeEvent(textBox, "keydown", doKeyDown);
 	  removeEvent(textBox, "blur", doBlur);
-	  removeEvent(textBox, "reize", doResize);
-	  removeEvent(window, "reize", doResize);
+	  removeEvent(textBox, "resize", doResize);
+	  removeEvent(window, "resize", doResize);
     resultPane = null;               
     shadowDiv = null;                
     leftShadow = null;               
