@@ -1708,6 +1708,7 @@ pui.Grid = function() {
             if (obj == null) continue;
             if (!obj.readOnly) continue;
             text = obj.value;
+            text = text.replace(/ /g, "&nbsp;");
             obj.style.display = "none";
             objClass = obj.className;
             left = parseInt(obj.style.left);
