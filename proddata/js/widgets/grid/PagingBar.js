@@ -32,12 +32,6 @@ pui.PagingBar = function() {
   this.nextImg = null;
   this.nextLink = null;
   
-//  var prevArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev.gif");
-//  var prevArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/prev-disabled.gif");
-//  var nextArrowSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next.gif");
-//  var nextArrowDisabledSrc = pui.normalizeURL("/profoundui/proddata/images/grids/next-disabled.gif");
-//  var exportImgSrc = pui.normalizeURL("/profoundui/proddata/images/grids/excel.gif");
-  
   var div;
   var exportImg;
   var exportLink;
@@ -63,16 +57,12 @@ pui.PagingBar = function() {
     me.grid.pageDown();
   }
   
-//all img elements were changed to div elements
-
   this.init = function() {
     div = document.createElement("div");
     div.style.position = "absolute";
-    //div.style.backgroundImage = divBackgroundSrc;
     div.style.backgroundRepeat = "repeat-x";
     div.style.textAlign = "center";
     div.style.paddingTop = "5px";
-    div.style.border = "1px solid #CCCCFF";
     div.style.overflow = "hidden";
     div.onselectstart = function(e) { return false };
     if (typeof div.style.MozUserSelect!="undefined") div.style.MozUserSelect = "none";
@@ -80,7 +70,6 @@ pui.PagingBar = function() {
     me.container.appendChild(div);
 
     exportImg = document.createElement("div");
-//    exportImg.src = exportImgSrc;
     exportImg.style.cursor = "pointer";
     exportImg.style.position = "absolute";
     exportImg.style.top = "4px";
@@ -100,7 +89,6 @@ pui.PagingBar = function() {
     exportLink.style.position = "absolute";
     exportLink.style.top = "5px";
     exportLink.style.left = "24px";
-//    exportLink.style.color = "#2C71EE";
     exportLink.style.textDecoration = "underline";
     exportLink.style.cursor = "pointer";
     exportLink.onclick = function() {
@@ -112,7 +100,6 @@ pui.PagingBar = function() {
 
     me.prevImg = document.createElement("div");
     me.prevImg.className = "prev-image-icon";
-//    me.prevImg.src = prevArrowSrc;
     me.prevImg.style.verticalAlign = "top";
     me.prevImg.style.display = "inline-block";
     me.prevImg.style.height = "16px";
@@ -123,12 +110,10 @@ pui.PagingBar = function() {
     me.prevImg.prevPage = true;
     me.prevImg.onmouseover = function() {
       if (me.prevImg.disabled) return;
-//      me.prevLink.style.color = "#0C51CE";
       pui.addCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevImg.onmouseout = function() {
       if (me.prevImg.disabled) return;
-//      me.prevLink.style.color = "#2C71EE";
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevImg.onclick = function() {
@@ -147,13 +132,11 @@ pui.PagingBar = function() {
     me.prevLink.onmouseover = function() {
       if(me.prevLink.disabled)
         return;
-//      me.prevLink.style.color = "#0C51CE";
       pui.addCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevLink.onmouseout = function() {
       if(me.prevLink.disabled)
         return;
-//      me.prevLink.style.color = "#2C71EE";
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     }
     me.prevLink.onclick = function() {
@@ -187,12 +170,10 @@ pui.PagingBar = function() {
     me.nextLink.nextPage = true;
     me.nextLink.onmouseover = function() {
       if (me.nextLink.disabled) return;
-//      me.nextLink.style.color = "#0C51CE";
       pui.addCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextLink.onmouseout = function() {
       if (me.nextLink.disabled) return;
-//      me.nextLink.style.color = "#2C71EE";
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextLink.onclick = function() {
@@ -202,7 +183,6 @@ pui.PagingBar = function() {
     div.appendChild(me.nextLink);
   
     me.nextImg = document.createElement("div");
-//    me.nextImg.src = nextArrowSrc;
     me.nextImg.className = "next-image-icon"; 
     me.nextImg.style.verticalAlign = "top";
     me.nextImg.style.display = "inline-block";
@@ -214,12 +194,10 @@ pui.PagingBar = function() {
     me.nextImg.nextPage = true;
     me.nextImg.onmouseover = function() {
       if (me.nextImg.disabled) return;
-//      me.nextLink.style.color = "#0C51CE";
       pui.addCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextImg.onmouseout = function() {
       if (me.nextImg.disabled) return;
-//      me.nextLink.style.color = "#2C71EE";
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     }
     me.nextImg.onclick = function() {
@@ -405,10 +383,8 @@ pui.PagingBar = function() {
         me.prevLink.style.display = "";
         me.nextImg.style.display = "inline-block";
         me.nextLink.style.display = "";
-//        me.nextLink.style.color = "#2C71EE";
         me.nextLink.style.textDecoration = "underline";
         me.nextLink.style.cursor = "pointer";
-//        me.prevLink.style.color = "#2C71EE";
         me.prevLink.style.textDecoration = "underline";
         me.prevLink.style.cursor = "pointer";
         me.nextImg.style.cursor = "pointer";
@@ -419,36 +395,24 @@ pui.PagingBar = function() {
         me.nextLink.disabled = false;
         
         if (!me.grid.designMode && me.grid.atTop() && (me.pageUpCondition == "false" || !me.pageUpResponseDefined)) {
-//          me.prevImg.src = prevArrowDisabledSrc;
-//          me.prevImg.style.cursor = "default";
           me.prevImg.disabled = true;
-//          me.prevLink.style.cursor = "default";
-//          me.prevLink.style.textDecoration = "none";
-//          me.prevLink.style.color = "#666666";
           me.prevLink.disabled = true;
           pui.addCssClass(me.prevLink, "paging-link-disabled");
           pui.addCssClass(me.prevImg, "prev-image-icon-disabled");        
         }
         else {
-//          me.prevImg.src = prevArrowSrc;
           pui.removeCssClass(me.prevLink, "paging-link-disabled");
           pui.removeCssClass(me.prevImg, "prev-image-icon-disabled");
         }
         
         if ( !me.grid.designMode && me.grid.atBottom() && 
              ((me.grid.subfileEnd && pui["page down on subfile end"] != true) || me.pageDownCondition == "false" || !me.pageDownResponseDefined) ) {
-//          me.nextImg.src = nextArrowDisabledSrc;
-//          me.nextImg.style.cursor = "default";
           me.nextImg.disabled = true;
-//          me.nextLink.style.cursor = "default";
-//          me.nextLink.style.textDecoration = "none";
-//          me.nextLink.style.color = "#666666";
           me.nextLink.disabled = true;
           pui.addCssClass(me.nextLink, "paging-link-disabled");
           pui.addCssClass(me.nextImg, "next-image-icon-disabled"); 
         }
         else {
-//          me.nextImg.src = nextArrowSrc;
           pui.removeCssClass(me.nextLink, "paging-link-disabled");
           pui.removeCssClass(me.nextImg, "next-image-icon-disabled");
         }
