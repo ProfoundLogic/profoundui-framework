@@ -951,7 +951,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         		  // The "value" field (if used) is tacked onto the 
         		  // end of the query, so appears in the data record 
         		  // but not in the field display array...
-        		  if (index == fields.length) break;        
+        		  if (url == "" && index == fields.length) break;        
         			
         			measureDiv.innerHTML = "";
         			template += "<div class=\"autocomplete-col\" style=\"float: left; width: ";
