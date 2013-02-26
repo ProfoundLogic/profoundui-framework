@@ -1500,7 +1500,7 @@ pui.Grid = function() {
         me.sortIcon.style.paddingLeft = "3px";
       }
       else {
-        me.sortIcon.parentNode.removeChild(me.sortIcon);
+        if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
       }
 
       if (me.tableDiv.columnSortResponseField == null) {
