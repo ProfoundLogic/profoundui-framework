@@ -1657,13 +1657,40 @@ pui.renderFormat = function(parms) {
             addEvent(boxDom, "keydown", function(event) {
               event = event || window.event;
               var key = event.keyCode;
+              var target = getTarget(event); 
               var digit = null;
+              
+              // Allow default action to occur when delete, backspace, or space is typed 
+              // and all text is selected.
+              if (key == 46 || key == 8 || key == 32) {
+              
+                var sel = false;
+                if (typeof(target.selectionStart) == "number") {
+                
+                  sel = (target.selectionStart == 0 && target.selectionEnd == target.value.length);
+                
+                }
+                else if (typeof(document.selection) != "undefined") {
+                
+                  sel = (document.selection.createRange().text == target.value);
+                
+                }
+                
+                if (sel) {
+                
+                  target.value = "";
+                  return;
+                
+                }
+              
+              }
+              
               if (key >= 48 && key <= 57) digit = key - 48;
               if (key >= 96 && key <= 105) digit = key - 96;
               if (key == 46) digit = 0;
               if (key == 8) digit = 0;
               if (digit != null) {
-                var target = getTarget(event);
+                target = getTarget(event);
                 var value = target.value;
                 if (value == null) return;                
                 var pos = getCursorPosition(target);                
