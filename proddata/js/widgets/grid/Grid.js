@@ -3505,13 +3505,27 @@ pui.Grid = function() {
         cell.onclick(event);
         
         // show custom context menu
-        var x = getMouseX(event);
-        var y = getMouseY(event);
+        var x = pui.getMouseX(event);
+        var y = pui.getMouseY(event);
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode;  // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
-          x = x - parent.offsetLeft;
-          y = y - parent.offsetTop;
+        
+          if (context == "dspf" && parent.getAttribute("container") == "true") {
+          
+            offset = pui.layout.getContainerOffset(parent);
+            
+          }
+          else {
+          
+            offset.x = parent.offsetLeft;
+            offset.y = parent.offsetTop;
+            
+          }        
+        
+          x -= offset.x;
+          y -= offset.y;
+          
         }        
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";
