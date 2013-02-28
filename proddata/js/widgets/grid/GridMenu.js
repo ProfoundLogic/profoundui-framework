@@ -78,6 +78,8 @@ pui.GridMenu = function() {
       var offset = {};
       if (context == "dspf" && me.grid.tableDiv.parentNode.getAttribute("container") == "true") {
         offset = pui.layout.getContainerOffset(me.grid.tableDiv.parentNode);
+        offset.x += pui.runtimeContainer.offsetLeft;
+        offset.y += pui.runtimeContainer.offsetTop;
       }
       else {
         offset.x = me.grid.tableDiv.parentNode.offsetLeft;

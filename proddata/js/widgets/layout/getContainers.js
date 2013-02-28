@@ -87,10 +87,6 @@ pui.layout.getContainerOffset = function(containerDom) {
   }
   x += elem.offsetLeft;
   y += elem.offsetTop;
-  if (!inDesignMode()) {
-    x += pui.runtimeContainer.offsetLeft;
-    y += pui.runtimeContainer.offsetTop;
-  }
   return {
     x: x,
     y: y

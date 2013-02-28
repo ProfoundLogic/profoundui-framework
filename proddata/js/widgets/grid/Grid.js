@@ -3515,6 +3515,8 @@ pui.Grid = function() {
           if (context == "dspf" && parent.getAttribute("container") == "true") {
           
             offset = pui.layout.getContainerOffset(parent);
+            offset.x += pui.runtimeContainer.offsetLeft;
+            offset.y += pui.runtimeContainer.offsetTop;
             
           }
           else {
