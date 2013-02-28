@@ -3511,6 +3511,7 @@ pui.Grid = function() {
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode;  // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
         
+          var offset = {};
           if (context == "dspf" && parent.getAttribute("container") == "true") {
           
             offset = pui.layout.getContainerOffset(parent);
