@@ -72,14 +72,14 @@ pui.GridMenu = function() {
       }
     }
     if (me.clickEvent != null) {
-      if (me.clickEvent.pageX) left = me.clickEvent.pageX;
-      else if (me.clickEvent.clientX) left = me.clickEvent.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-      if (me.clickEvent.pageY) top = me.clickEvent.pageY;
-      else if (me.clickEvent.clientY) top = me.clickEvent.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+      left = pui.getMouseX(me.clickEvent);
+      top = pui.getMouseY(me.clickEvent);
       var maxLeft = document.body.offsetWidth - 185;  // width of menu plus scrollbar
       var offset = {};
       if (context == "dspf" && me.grid.tableDiv.parentNode.getAttribute("container") == "true") {
         offset = pui.layout.getContainerOffset(me.grid.tableDiv.parentNode);
+        offset.x += pui.runtimeContainer.offsetLeft;
+        offset.y += pui.runtimeContainer.offsetTop;
       }
       else {
         offset.x = me.grid.tableDiv.parentNode.offsetLeft;

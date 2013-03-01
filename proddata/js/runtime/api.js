@@ -487,6 +487,8 @@ function removeEvent(obj, eventName, func) {
 }
 
 
+// DEPRECATED -- use pui.getMouseX() and pui.getMouseY() instead.
+
 function getMouseX(event) {
   if (event != null && event.touches != null && event.touches.length == 1) {  // test for touch screen device like iPad
     return event.touches[0].pageX;
@@ -525,6 +527,43 @@ function getMouseY(event) {
   return y;
 }
 
+pui.getMouseX = function(event) {
+
+  return pui.getMouseXY(event).x;
+
+}
+
+pui.getMouseY = function(event) {
+
+  return pui.getMouseXY(event).y;
+
+}
+
+pui.getMouseXY = function(event) {
+
+  event = event || window.event;
+
+  var xy = {x: 0, y: 0};
+
+  if (event != null && event.touches != null && event.touches.length == 1) {  // test for touch screen device like iPad
+  
+    xy.x = event.touches[0].pageX;
+    xy.y = event.touches[0].pageY;
+  
+  }
+  else if (event != null) {
+  
+    if (event.pageX) xy.x = event.pageX;
+    else if (event.clientX) xy.x = event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+    
+    if (event.pageY) xy.y = event.pageY;
+    else if (event.clientY) xy.y = event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);  
+  
+  }
+  
+  return xy;
+
+}
 
 function showErrors() {
 
