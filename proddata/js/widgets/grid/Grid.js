@@ -3696,10 +3696,14 @@ pui.Grid = function() {
         }
         
         // position cursor to an input element in the first column, if it's there
-        if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "TEXTAREA") {
-          // position to input box in first column, if it is present
-          var cell = me.cells[row][0];
-          placeCursorOnCell(cell);
+        // Don't do this when text selection flag is set, as the browser removes text selection
+        // when a box receives focus.
+        if (typeof(pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
+          if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "TEXTAREA") {
+            // position to input box in first column, if it is present
+            var cell = me.cells[row][0];
+            placeCursorOnCell(cell);
+          }
         }
       }
     }
