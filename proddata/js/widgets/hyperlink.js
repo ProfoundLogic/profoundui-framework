@@ -1,11 +1,12 @@
 
 pui["encode hyperlink spaces"] = null;
 
-pui.buildHyperlink = function(dom, value) {
+pui.buildHyperlink = function(dom, value, designMode, href, target) {
   dom.innerHTML = "";
   var a = document.createElement("a");
-  a.href = "javascript:void(0)";
-  //if (is_ie6) a.href = "#";
+  if (designMode == true || href == null) href = "javascript:void(0)";
+  a.href = href;
+  if (!designMode && target != null) a.target = target;
   var text = value;
   if ( (context == "genie" && pui["encode hyperlink spaces"] != false) ||
        (pui["encode hyperlink spaces"] == true) ) {
@@ -39,7 +40,8 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      pui.buildHyperlink(parms.dom, parms.evalProperty("value"));
+      
+      pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"]);
       if (parms.design) {
         designUtils.addEvent(parms.dom, "mouseover", function() {
           setTimeout(parms.designItem.designer.selection.positionSizies, 0);
@@ -51,7 +53,7 @@ pui.widgets.add({
     },
     
     "value": function(parms) {
-      pui.buildHyperlink(parms.dom, parms.value);
+      pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"]);
     }
     
   }

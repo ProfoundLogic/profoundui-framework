@@ -56,7 +56,9 @@ function getPropertiesModel() {
     { name: "Field Settings", category: true },
     { name: "ajax url", type: "long", help: "Specifies the content url for an ajax container.", controls: ["ajax container"] },
     { name: "iframe url", type: "long", help: "Specifies the content url for an IFrame (inline frame) element.", controls: ["iframe"] },
-    { name: "frame border", choices: ["true", "false"], blankChoice: false, help: "Determines whether the IFrame (inline frame) element will have a border.", controls: ["iframe"] },
+    { name: "frame border", choices: ["true", "false"], blankChoice: false, help: "Determines whether the IFrame (inline frame) element will have a border.", controls: ["iframe"] },    
+    { name: "hyperlink reference", help: "This property specifies an href attribute for the hyperlink.  It is used as an alternative to the response property or the onclick event property.", controls: ["hyperlink"] },
+    { name: "target", help: "This property specifies where to open the hyperlink reference.", choices: ["_parent", "_blank", "_top", "_self"], controls: ["hyperlink"] },    
     { name: "checked value", help: "For a checkbox field, specifies the value to send to the application when the checkbox is checked.", controls: ["checkbox"], bind: false },
     { name: "unchecked value", help: "For a checkbox field, specifies the value to send to the application when the checkbox is not checked.", controls: ["checkbox"], bind: false },
     { name: "on value", help: "Specifies the value to send to the application when the on/off switch is on.", controls: ["on off switch"], bind: false },
@@ -238,6 +240,7 @@ function getPropertiesModel() {
     { name: "allowed type", controls: ["file upload"], multOccur: true, choices: ["text/plain", "application/vnd.ms-word", "application/vnd.ms-excel", "application/pdf", "image/gif", "image/jpg", "image/png", "Other..."], hideFormatting: true, validDataTypes: ["char"], help: "Specifies a MIME file type (as reported by the web browser) which is allowed to be uploaded. If not set, any file type will be allowed.<br /><br />To specify multiple types, right-click the property and select Add Another Allowed Type."},
     
     { name: "Borders", category: true },
+    { name: "border radius", stylename: "borderRadius", format: "px", choices: ["1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px","11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], help: "This property allow you to create rounded corners by specifying a border radius." },
     { name: "border bottom color", stylename: "borderBottomColor", type: "color", help: "The color of the element's bottom side of the border." + colorHelp },
     { name: "border bottom style", stylename: "borderBottomStyle", choices: borderStyles, help: "The style of the element's bottom side of the border." },
     { name: "border bottom width", format: "px", stylename: "borderBottomWidth", choices: borderWidths, help: "The thickness of the element's bottom side of the border." },

@@ -478,7 +478,7 @@ pui.FieldFormat = {
         }
         else if (obj.curSym == "$") {
           if (strValue.substr(0,1) == "-") {
-            strValue = "-$" + strValue.substr(1);
+            strValue = "-" + obj.curSym + strValue.substr(1);
           }
           else {
             strValue = obj.curSym + strValue;
