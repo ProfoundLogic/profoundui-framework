@@ -2222,7 +2222,9 @@ pui.showErrors = function(errors, rrn) {
     }
     dom.className = newClass;
     if (dom.validationTip == null) {
-      dom.validationTip = new pui.ValidationTip();
+      var posDom = dom;
+      if (dom.parentNode != null && dom.parentNode.comboBoxWidget != null) posDom = dom.parentNode;
+      dom.validationTip = new pui.ValidationTip(posDom);
       dom.validationTip.container = pui.runtimeContainer;
   	  if (dom.parentNode.isPUIWindow == true) {
   	    dom.validationTip.container = dom.parentNode;
@@ -2233,7 +2235,7 @@ pui.showErrors = function(errors, rrn) {
   	      dom.validationTip.container = gridDiv.parentNode;
   	    }
   	  }
-      dom.validationTip.init(dom);
+      dom.validationTip.init();
     }
 
     var tip = dom.validationTip;
@@ -2241,11 +2243,7 @@ pui.showErrors = function(errors, rrn) {
     tip.setMessage(msg);      
     function showTipOnTimer(tip, dom) {  // allows blur events to complete
       setTimeout(function() {
-        var posDom = dom;
-        if (dom.parentNode != null && dom.parentNode.comboBoxWidget != null) posDom = dom.parentNode;
-        if (posDom.parentNode == null || posDom.parentNode.tagName == null) return;
         tip.show(3000);
-        tip.positionByElement(posDom);
       }, 0);
     }
     showTipOnTimer(tip, dom);
@@ -3029,15 +3027,14 @@ pui.cancelResponse = function(messages) {
     var dom = getObj(id);
     if (dom != null) {
       if (dom.validationTip != null) dom.validationTip.hide();
-      dom.validationTip = new pui.ValidationTip();
+      dom.validationTip = new pui.ValidationTip(dom);
       dom.validationTip.container = pui.runtimeContainer;
   	  if (dom.parentNode.isPUIWindow == true) {
   	    dom.validationTip.container = dom.parentNode;
   	  }
-      dom.validationTip.init(dom);
+      dom.validationTip.init();
       dom.validationTip.setMessage(msg);
       dom.validationTip.show();
-      dom.validationTip.positionByElement(dom);
     }    
   }
   pui.hideWaitAnimation(true);

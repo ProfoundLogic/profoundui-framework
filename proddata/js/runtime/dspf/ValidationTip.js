@@ -24,12 +24,12 @@
  * @constructor
  */
 
-pui.ValidationTip = function() {
+pui.ValidationTip = function(el) {
   this.container = document.body;
   var opacity = 0;
   var reverseFlag = false;
   var currentRequestNum = 0;
-  var activeBox = null;
+  var activeBox = el;
   
   var div;
   var contentDiv;
@@ -149,23 +149,22 @@ pui.ValidationTip = function() {
     div.style.top = top + "px";
   }
   
-  this.positionByElement = function(el) {
-    activeBox = el;
+  this.positionByElement = function() {
     var msgOffset = 3;
     var msgHeight = div.offsetHeight;
-    var targetHeight = el.offsetHeight;
-    var targetWidth = el.offsetWidth;
-    var top = parseInt(el.style.top) - ((msgHeight - targetHeight) / 2);
-    var left = parseInt(el.style.left) + targetWidth + msgOffset;
+    var targetHeight = activeBox.offsetHeight;
+    var targetWidth = activeBox.offsetWidth;
+    var top = activeBox.offsetTop - ((msgHeight - targetHeight) / 2);
+    var left = activeBox.offsetLeft + targetWidth + msgOffset;
 
-    if (el.parentNode.getAttribute("container") == "true") {
-      var offset = pui.layout.getContainerOffset(el.parentNode);
+    if (activeBox.parentNode.getAttribute("container") == "true") {
+      var offset = pui.layout.getContainerOffset(activeBox.parentNode);
       top = top + offset.y;
       left = left + offset.x;
     }
     
     // handle subfile elements
-    var cellElement = el.parentNode;
+    var cellElement = activeBox.parentNode;
     if (cellElement != me.container && cellElement.getAttribute("container") != "true") {
       if (cellElement == null) {
         // element must have been scrolled off of view in the subfile, show validation tip at top-left corner of screen
@@ -189,9 +188,9 @@ pui.ValidationTip = function() {
     }
 
     // make appropriate tab visible if dealing with tab panels
-    if (el.style.visibility == "hidden") {
-      var parentTab = el.parentTab;
-      var parentTabPanelId = el.parentTabPanel;
+    if (activeBox.style.visibility == "hidden") {
+      var parentTab = activeBox.parentTab;
+      var parentTabPanelId = activeBox.parentTabPanel;
       if (parentTab != null && parentTabPanelId) {
         var parentTabPanelDom = getObj(parentTabPanelId);
         if (parentTabPanelDom != null) {
@@ -222,6 +221,7 @@ pui.ValidationTip = function() {
     if (hideDelay != null) {
       hideRequest(currentRequestNum, hideDelay);
     }
+    this.positionByElement();
   }
 
   function hideRequest(requestNum, delay) {
