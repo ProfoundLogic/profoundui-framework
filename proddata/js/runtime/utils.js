@@ -1211,6 +1211,24 @@ pui.isNumericString = function(value) {
   return false;
 }
 
+// Returns checks for position/dimension style given as a number and 
+// assigns px unit, if so. 
+
+pui.getPosDimString = function(styleName, value) {
+
+  if (styleName == "top" || styleName == "left" || styleName == "height" || styleName == "width") {
+  
+    if (pui.isNumericString(value)) {
+    
+      return value + "px";
+    
+    }
+  
+  }
+  
+  return value;
+
+}
 
 pui.getWindowScrollTop = function() {  // gets window scroll top position
   var scrOfY = 0;

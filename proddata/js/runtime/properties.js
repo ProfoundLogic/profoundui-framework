@@ -694,7 +694,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
               }
             }
             else {
-              try { newDomObj.style[model[i].stylename] = propValue }
+              try { newDomObj.style[model[i].stylename] = getPosDimString(model[i].stylename, propValue) }
               catch (e) {}
             }
           }
@@ -897,7 +897,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else {
       try {
-        domObj.style[propConfig.stylename] = effectiveValue;
+        domObj.style[propConfig.stylename] = pui.getPosDimString(propConfig.stylename, effectiveValue);
       }
       catch(err) {
         if (js == null && isDesignMode) {
