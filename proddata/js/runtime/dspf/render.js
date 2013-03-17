@@ -765,33 +765,33 @@ pui.renderFormat = function(parms) {
   if (!isDesignMode && parms.rowNum == null) {
     pui.keyMap[formatName] = {};
     var obj = parms.metaData.screen["return cursor record"];
-    if (typeof obj == "object") pui.cursorFields.record = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.cursorFields.record = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor field"];
-    if (typeof obj == "object") pui.cursorFields.field = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.cursorFields.field = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor position"];
-    if (typeof obj == "object") pui.cursorFields.position = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.cursorFields.position = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor row"];
-    if (typeof obj == "object") pui.cursorFields.row = formatName + "." + obj["fieldName"].toUpperCase();
+    if (typeof obj == "object") pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["return cursor column"];    
-    if (typeof obj == "object") pui.cursorFields.column = formatName + "." + obj["fieldName"].toUpperCase();
+    if (typeof obj == "object") pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["changed"];
-    if (typeof obj == "object") pui.changedFields[formatName] = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.changedFields[formatName] = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window left"];
-    if (typeof obj == "object") pui.windowLeftField = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.windowLeftField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window top"];
-    if (typeof obj == "object") pui.windowTopField = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.windowTopField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["valid command key"];
-    if (typeof obj == "object") pui.validCommandKeyField = formatName + "." + obj["fieldName"].toUpperCase();
+    if (typeof obj == "object") pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["back button"];
-    if (typeof obj == "object") pui.backButtonField = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.backButtonField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd element id"];
-    if (typeof obj == "object") pui.dragDropFields.ddElementId = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.dragDropFields.ddElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd record number"];
-    if (typeof obj == "object") pui.dragDropFields.ddRecordNumber = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.dragDropFields.ddRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target element id"];
-    if (typeof obj == "object") pui.dragDropFields.targetElementId = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.dragDropFields.targetElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target record number"];
-    if (typeof obj == "object") pui.dragDropFields.targetRecordNumber = formatName + "." + pui.fieldUpper(obj["fieldName"]);
+    if (typeof obj == "object") pui.dragDropFields.targetRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     
     var idx = 1;
     obj = parms.metaData.screen["set off"];
@@ -1033,16 +1033,16 @@ pui.renderFormat = function(parms) {
               }
             }
             if (prop == "cursor record number") {
-              pui.cursorRRNs[formatName + "." + pui.fieldUpper(propValue.fieldName)] = dom;
+              pui.cursorRRNs[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
             if (prop == "subfile return rrn") {
-              pui.returnRRNs[formatName + "." + pui.fieldUpper(propValue.fieldName)] = dom;
+              pui.returnRRNs[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
             if (prop == "return mode") {
-              pui.sflModes[formatName + "." + pui.fieldUpper(propValue.fieldName)] = dom;
+              pui.sflModes[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
             if (prop == "column sort response") {
-              dom.columnSortResponseField = formatName + "." + pui.fieldUpper(propValue.fieldName);
+              dom.columnSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
             }
           }
         }
@@ -1115,7 +1115,7 @@ pui.renderFormat = function(parms) {
                 var fieldName = formattingObj.fieldName.toUpperCase();
                 var qualField = formatName + "." + fieldName;
                 if (pui.handler != null) qualField = fieldName;
-                                if (parms.subfileRow != null) {
+                if (parms.subfileRow != null) {
                   qualField += "." + (parms.subfileRow);
                 }
                 if (pui.dupElements[qualField] == null) pui.dupElements[qualField] = [];
