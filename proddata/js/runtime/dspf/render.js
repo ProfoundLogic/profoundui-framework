@@ -2014,7 +2014,7 @@ pui.renderFormat = function(parms) {
 
     dom.hasBoundSQLProps = hasBoundSQLProps;
     
-    if (pui["controller"] != null && properties["set as modified"] != "false") {
+    if (pui["controller"] != null && properties != null && properties["set as modified"] != "false") {
       dom.modified = true;
     }
     
