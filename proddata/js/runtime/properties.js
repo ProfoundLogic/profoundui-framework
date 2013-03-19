@@ -693,7 +693,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
               }
             }
             else {
-              try { newDomObj.style[model[i].stylename] = getPosDimString(model[i].stylename, propValue) }
+              try { newDomObj.style[model[i].stylename] = pui.getPosDimString(model[i].stylename, propValue) }
               catch (e) {}
             }
           }
