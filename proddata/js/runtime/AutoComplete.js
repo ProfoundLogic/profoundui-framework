@@ -197,6 +197,24 @@ function AutoComplete(config) {
 	else typeAheadDelay = 200;
 		
 	// Create result pane, shim, and shadowing divs. These will be sized/positioned when data is shown or when the window is resized.
+	
+	// Render to textbox parent node, or grid parent node if inside a grid.
+	var renderTo = textBox.parentNode;
+	var cellDiv = textBox.parentNode;
+	var gridDiv = null;
+	if (cellDiv != null) gridDiv = cellDiv.parentNode;
+	if (gridDiv != null && gridDiv.grid != null) {
+  
+    if (gridDiv.parentNode != null) {
+    
+      renderTo = gridDiv.parentNode;
+    
+    }
+  
+	}	
+	
+	
+	
 	resultPane = document.createElement("div");
 	resultPane.style.display = "none";
 	resultPane.style.margin = "0px";
@@ -206,7 +224,7 @@ function AutoComplete(config) {
 	resultPane.style.border =  "1px solid #98C0F4";
 	if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
 	else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
-	textBox.parentNode.appendChild(resultPane);
+	renderTo.appendChild(resultPane);
 	
 	if (shadow) {
 
@@ -254,7 +272,7 @@ function AutoComplete(config) {
 		rightCorner.style.position = "absolute";
 		rightCorner.style.background = "transparent url(" + imageBaseURL + "shadow.png) no-repeat scroll 0px -6px";
 		shadowDiv.appendChild(rightCorner);				
-		textBox.parentNode.appendChild(shadowDiv);
+		renderTo.appendChild(shadowDiv);
 	}
 	
 	if (useShim) {
@@ -264,7 +282,7 @@ function AutoComplete(config) {
 		shim.style.position = "absolute";
 		shim.style.margin = "0px";
 		shim.style.zIndex = zIndex - 2;
-		textBox.parentNode.appendChild(shim);
+		renderTo.appendChild(shim);
 	}
 
 	// Attach events.
