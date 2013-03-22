@@ -379,12 +379,15 @@ pui.attachDragDrop = function(dom, properties) {
         }
 
         if (!(drop.dom.id == dom.id && recordNumber != null && drop.recordNumber != null && (recordNumber == drop.recordNumber || recordNumber == drop.recordNumber + 1))) {
+          pui["dragDropInfo"]["cancel"] = false;
           executeEvent("ondrop");
-          if (pui.dragDropFields.ddElementId != null || pui.dragDropFields.ddRecordNumber || pui.dragDropFields.targetElementId != null || pui.dragDropFields.targetRecordNumber) {
-            pui.dragDropFields.respond = true;
-            pui.bypassValidation = pui.ddBypassValidation;
-            pui.respond();
-            pui.bypassValidation = "false";
+          if (pui["dragDropInfo"]["cancel"] != true) {
+            if (pui.dragDropFields.ddElementId != null || pui.dragDropFields.ddRecordNumber || pui.dragDropFields.targetElementId != null || pui.dragDropFields.targetRecordNumber) {
+              pui.dragDropFields.respond = true;
+              pui.bypassValidation = pui.ddBypassValidation;
+              pui.respond();
+              pui.bypassValidation = "false";
+            }
           }
         }
 
