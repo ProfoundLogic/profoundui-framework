@@ -35,10 +35,10 @@ pui.Locales = function() {
   };
     
   this.add = function(obj) {
-    var name = obj.name;
+    var name = obj["name"];
     if (name !== null) {
       for(var i=0; i<localeArray.length; i++){
-        if(obj.text < localeArray[i].text){
+        if(obj["text"] < localeArray[i]["text"]){
           break;
         }
       }

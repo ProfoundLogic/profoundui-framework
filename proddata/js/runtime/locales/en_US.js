@@ -19,9 +19,9 @@
 
 
 pui.locales.add({
-  name: "en_US",
-  text: "English (United States)",
-  datePatterns: [
+  'name': "en_US",
+  'text': "English (United States)",
+  'datePatterns': [
     'Y-m-d',
     'm/d/y',
     'm/d/Y',
@@ -48,7 +48,7 @@ pui.locales.add({
     'j-M-y',
     'j-M-Y'
   ],
-  timePatterns: [
+  'timePatterns': [
     'g:i',
     'g:i:s',
 	  'g:i a',
@@ -63,7 +63,7 @@ pui.locales.add({
     'H:i:s a',
     'H:i:s A'
   ],
-  timeStampPatterns: [
+  'timeStampPatterns': [
     'm/d/y g:i A',
     'm/d/y g:i a',
     'm/d/y H:i:s',

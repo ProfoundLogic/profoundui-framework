@@ -19,9 +19,9 @@
 
 
 pui.locales.add({
-  name: 'ga_IE',
-  text: 'Irish (Ireland)',
-  datePatterns: [
+  'name': 'ga_IE',
+  'text': 'Irish (Ireland)',
+  'datePatterns': [
     'Y-m-d',
     'd.m.y',
     'd.m.Y',
@@ -43,7 +43,7 @@ pui.locales.add({
     'j M y',
     'j M Y'
   ],
-  timePatterns: [
+  'timePatterns': [
     'g:i',
     'g:i:s',
 	  'g:i a',
@@ -58,7 +58,7 @@ pui.locales.add({
     'H:i:s a',
     'H:i:s A'
   ],
-  timeStampPatterns: [
+  'timeStampPatterns': [
     'D d M Y H:i:s',
     'd.m.y g:i A',
     'd.m.y g:i a',
