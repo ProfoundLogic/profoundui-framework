@@ -310,9 +310,14 @@ pui.widgets.add({
           var where            = parms.evalProperty("selection criteria").toUpperCase();
           var nameList         = parms.evalProperty("names");
           var valueList        = parms.evalProperty("values");
+          var chartOptions     = parms.evalProperty("chart options");
           
           if (trim(nameList) != "" && trim(valueList) != "") {
-            var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart>';
+            var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart';
+            if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "") {
+              chartXML += " " + chartOptions;
+            }
+            chartXML += '>';
             var nameArray = nameList.split(",");
             var valueArray = valueList.split(",");
             var n = nameArray.length;
