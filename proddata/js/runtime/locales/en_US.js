@@ -34,6 +34,7 @@ pui.locales.add({
 	  'Y/m',
 	  'm/Y',
 	  'Y/m/d',
+	  'y/m/d',
 	  'l, F j, Y',
     'l, F jS, Y',
     'D, M d, y',
