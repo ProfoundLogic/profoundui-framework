@@ -25,12 +25,12 @@
 // Example: pui.click("Submit");
 // Example: var obj = getObj("Submit); pui.click(obj);
 // Example: var obj = getObj("Submit); pui.click(obj);
-pui.click = function(button) {
+pui.click = function(button, skipjs) {
   setTimeout(function() {
     if (typeof button != "object") button = getObj(button);
     var originalResponseValue;
     if (button != null) {
-      if (button.onclick != null && typeof button.onclick == "function") {
+      if (skipjs != true && button.onclick != null && typeof button.onclick == "function") {
         button.onclick();
         return;
       }
@@ -306,7 +306,7 @@ pui["setPSHBTNFLD"] = function(fieldId, button) {
   }
 
   // Submit Screen
-  pui.click(button);
+  pui.click(button, true);
 }
 
 
