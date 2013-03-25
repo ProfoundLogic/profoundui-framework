@@ -49,8 +49,8 @@ pui.widgets.add({
           var widthHeight = "";
           var width = parseInt(parms.properties["width"]);
           var height = parseInt(parms.properties["height"]);
-          if (width > 0) widthHeight += ' width="' + width + '"';
-          if (height > 0) widthHeight += ' height="' + height + '"';
+          if (width > 0) widthHeight += ' width="' + parms.properties["width"] + '"';
+          if (height > 0) widthHeight += ' height="' + parms.properties["height"] + '"';
           var html = '<iframe src="' + url;
           html += '" frameborder="';
           html += (parms.properties["frame border"] == "true") ? "1" : "0";
