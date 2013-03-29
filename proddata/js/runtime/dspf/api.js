@@ -20,8 +20,9 @@
 
 
 // Automate the clicking of a button/link/image that has a response property
-// Parameter: id or dom object reference to a button/link/image
-//            the parameter is option -- if not passed, a response is still sent to the server
+// Parameter 1: id or dom object reference to a button/link/image
+//              the parameter is optional -- if not passed, a response is still sent to the server
+// Parameter 2: optional flag to indicate that any JavaScript onclick processing should be skipped
 // Example: pui.click("Submit");
 // Example: var obj = getObj("Submit"); pui.click(obj);
 // Example: var obj = getObj("Submit"); pui.click(obj);
