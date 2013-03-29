@@ -23,8 +23,8 @@
 // Parameter: id or dom object reference to a button/link/image
 //            the parameter is option -- if not passed, a response is still sent to the server
 // Example: pui.click("Submit");
-// Example: var obj = getObj("Submit); pui.click(obj);
-// Example: var obj = getObj("Submit); pui.click(obj);
+// Example: var obj = getObj("Submit"); pui.click(obj);
+// Example: var obj = getObj("Submit"); pui.click(obj);
 pui.click = function(button, skipjs) {
   setTimeout(function() {
     if (typeof button != "object") button = getObj(button);
