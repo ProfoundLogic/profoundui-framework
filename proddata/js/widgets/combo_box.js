@@ -434,8 +434,6 @@ pui.widgets.add({
         return;
       }
       
-      //parms.dom.comboBoxWidget["choices"] = parms.evalProperty("choices").split(",");
-      //parms.dom.comboBoxWidget["choice values"] = parms.evalProperty("choice values").split(",");
       parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
       return;
 
@@ -447,25 +445,13 @@ pui.widgets.add({
 
     "choices": function(parms) {
       if (parms.dom.comboBoxWidget != null) {      
-        var choices = parms.value;
-        if (choices != null && choices != "") {
-          parms.dom.comboBoxWidget["choices"] = choices.split(",");
-        }
-        else {
-          parms.dom.comboBoxWidget["choices"] = [];
-        }
+        parms.dom.comboBoxWidget["choices"] = pui.parseCommaSeparatedList(parms.value);
       }
     },
     
     "choice values": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
-        var choiceValues = parms.value;
-        if (choiceValues != null && choiceValues != "") {
-          parms.dom.comboBoxWidget["choice values"] = choiceValues.split(",");
-        }
-        else {
-          parms.dom.comboBoxWidget["choice values"] = [];
-        }
+        parms.dom.comboBoxWidget["choice values"] = pui.parseCommaSeparatedList(parms.value);
       }
     },
     

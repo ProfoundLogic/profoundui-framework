@@ -860,7 +860,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     var valueField = evalPropertyValue(properties["choice values field"], originalValue, domObj);
     var limit = evalPropertyValue(properties["max choices"], originalValue, domObj);
     var choices = evalPropertyValue(properties["choices"], originalValue, domObj);
-    choices = choices.split(",");
+    choices = pui.parseCommaSeparatedList(choices);
     var values = evalPropertyValue(properties["choice values"], originalValue, domObj);
     if (values == "") {
       values = [];
@@ -869,7 +869,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       }
     }
     else {
-      values = values.split(",");
+      values = pui.parseCommaSeparatedList(values);
     }
 
     // Apply auto complete if any of the settings are given.

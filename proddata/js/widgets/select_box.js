@@ -21,8 +21,10 @@
 
 
 pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
-  var choices = choicesString.split(",");
-  var choiceValues = choiceValuesString.split(",");
+
+  var choices = pui.parseCommaSeparatedList(choicesString);
+  var choiceValues = pui.parseCommaSeparatedList(choiceValuesString);
+
   dom.choices = {};
   for (var i = 0; i < choices.length; i++) {
     var optionText = choices[i];

@@ -464,7 +464,7 @@ pui.widgets.add({
       parms.dom.menuWidget = new pui.MenuWidget();
       var choices = parms.evalProperty("choices");
       if (choices != null && choices != "") {
-        parms.dom.menuWidget.choices = choices.split(",");
+        parms.dom.menuWidget.choices = pui.parseCommaSeparatedList(choices);
       }
       else {
         parms.dom.menuWidget.choices = ["Option 1", "Option 2", "Option 3"];
@@ -493,7 +493,7 @@ pui.widgets.add({
       if (parms.dom.menuWidget != null) {
         var choices = parms.value;
         if (choices != null && choices != "") {
-          parms.dom.menuWidget.choices = choices.split(",");
+          parms.dom.menuWidget.choices = pui.parseCommaSeparatedList(choices);
         }
         else {
           parms.dom.menuWidget.choices = ["Option 1", "Option 2", "Option 3"];
@@ -506,7 +506,7 @@ pui.widgets.add({
       if (parms.dom.menuWidget != null) {
         var choiceValues = parms.value;
         if (choiceValues != null && choiceValues != "") {
-          parms.dom.menuWidget.choiceValues = choiceValues.split(",");
+          parms.dom.menuWidget.choiceValues = pui.parseCommaSeparatedList(choiceValues);
         }
         else {
           parms.dom.menuWidget.choiceValues = [];

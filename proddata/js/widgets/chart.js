@@ -318,8 +318,8 @@ pui.widgets.add({
               chartXML += " " + chartOptions;
             }
             chartXML += '>';
-            var nameArray = nameList.split(",");
-            var valueArray = valueList.split(",");
+            var nameArray = pui.parseCommaSeparatedList(nameList);
+            var valueArray = pui.parseCommaSeparatedList(valueList);
             var n = nameArray.length;
             if (valueArray.length > n) n = valueArray.length;
             for (var i = 0; i < n; i++) {

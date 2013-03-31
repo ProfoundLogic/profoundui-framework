@@ -1022,7 +1022,7 @@ pui.renderFormat = function(parms) {
                 if (dbFile != null && dbFile != "") {
                   var optionFields = pui.evalBoundProperty(items[i]["choice options field"], data, parms.ref);
                   var optionField;
-                  if (optionFields != null) optionField = optionFields.split(",")[0];
+                  if (optionFields != null) optionField = pui.parseCommaSeparatedList(optionFields)[0];
                   var valueField = pui.evalBoundProperty(items[i]["choice values field"], data, parms.ref);
                   if (optionField != null && optionField != "" && valueField != null && valueField != "" && optionField != valueField) {
                     propValue["formatting"] = "Text";
@@ -2694,7 +2694,7 @@ pui.buildResponse = function() {
           }
         
           if (typeof dom.validValues == "string") {
-            var validValues = dom.validValues.split(",");
+            var validValues = pui.parseCommaSeparatedList(dom.validValues);
             var invalid = true;
             for (var i = 0; i < validValues.length; i++) {
               if (rtrim(validValues[i]) == value) {

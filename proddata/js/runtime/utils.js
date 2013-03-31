@@ -1378,4 +1378,25 @@ pui.getScript = function(path) {
   return null;
 }
 
+// syntax allowed:
+//   - string (comma separated): 'A,B,C'
+//   - string (json formatted): '["A","B","C"]'
+//   - javascript array
+pui.parseCommaSeparatedList = function(list) {
+  if (typeof list != "string") {
+    if (lsit instanceof Array) return list;
+    else return [];
+  }
+  if (list == "") return [];
+  var listArray;
+  if (list.substr(0, 1) == "[" && list.substr(list.length - 1, 1) == "]") {
+    try {
+      listArray = eval(list);
+    }
+    catch(e) {
+    }
+  }
+  if (listArray == null) listArray = listArray.split(",");
+  return listArray;
+}
 
