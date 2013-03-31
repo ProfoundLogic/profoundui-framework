@@ -1396,7 +1396,7 @@ pui.parseCommaSeparatedList = function(list) {
     catch(e) {
     }
   }
-  if (listArray == null) listArray = listArray.split(",");
+  if (listArray == null) listArray = list.split(",");
   return listArray;
 }
 
