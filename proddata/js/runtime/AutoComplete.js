@@ -873,7 +873,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     }
 
     // Apply auto complete if any of the settings are given.
-    if ((file != "" && fields[0] != "") || url != "" || (choices[0] != "" && values[0] != "")) {
+    if ((file != "" && fields[0] != "") || url != "" || (choices.length > 0 && choices[0] != "" && values[0] != "")) {
  	
  	    // Check for onselect event handler.
       var onSelectProp = evalPropertyValue(properties["onselect"], originalValue, domObj);

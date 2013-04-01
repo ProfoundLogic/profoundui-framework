@@ -2697,7 +2697,7 @@ pui.buildResponse = function() {
             var validValues = pui.parseCommaSeparatedList(dom.validValues);
             var invalid = true;
             for (var i = 0; i < validValues.length; i++) {
-              if (rtrim(validValues[i]) == value) {
+              if (rtrim(String(validValues[i])) == value) {
                 invalid = false;
                 break;
               }
