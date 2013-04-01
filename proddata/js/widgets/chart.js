@@ -334,6 +334,7 @@ pui.widgets.add({
               dataName = dataName.replace(/"/g, "'");  // '
               var dataValue = valueArray[i];
               if (dataValue == null) dataValue = "0";
+              dataValue = String(dataValue);
               dataValue = trim(dataValue);
               var char1 = dataValue.substr(0, 1);
               if ((char1 < "0" || char1 > "9") && char1 != "." && char1 != "," && char1 != "-") {
