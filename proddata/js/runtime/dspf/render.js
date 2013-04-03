@@ -76,6 +76,7 @@ pui.iPhoneEmulation = false;
 pui.columnSortResponseGrid = null;
 pui.fileUploadElements = [];
 pui.activeElement = null;
+pui.autoPageGrid = false;
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -577,6 +578,7 @@ pui.render = function(parms) {
   pui.placeCursorOnSubfile = false;
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
+  pui.autoPageGrid = false;
   
   var layers = parms["layers"];
     
@@ -3355,7 +3357,7 @@ pui.handleHotKey = function(e, keyName) {
     }
   }
 
-  if (keyName != null && keyName != "PageUp" && keyName != "PageDown") {
+  if (keyName != null && ((keyName != "PageUp" && keyName != "PageDown") || pui.autoPageGrid)) {
     preventEvent(e);
     if (is_ie) {
       try {

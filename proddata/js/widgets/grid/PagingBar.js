@@ -225,6 +225,12 @@ pui.PagingBar = function() {
     }
     div.appendChild(me.nextImg);
 
+    if (!me.pageDownResponseDefined || !me.pageUpResponseDefined) {
+     
+      pui.autoPageGrid = true;
+
+    }
+
     if (!me.grid.designMode && pui.runtimeContainer != null && div != null && div.parentNode != null) {
       function handleKeyDown(e) {
         if (div == null || div.parentNode == null) {
