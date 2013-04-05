@@ -121,6 +121,10 @@ pui.widgets.add({
         addEvent(document, "mouseup", function() {
           pui.imageElementMouseUp(parms.dom);
         });
+        addEvent(parms.dom, "touchstart", pui.imageElementMouseDown);
+        addEvent(document, "touchend", function() {
+          pui.imageElementMouseUp(parms.dom);
+        });
         var preloadImage = new Image();
         preloadImage.src = parms.value;
       }
