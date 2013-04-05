@@ -861,6 +861,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     var limit = evalPropertyValue(properties["max choices"], originalValue, domObj);
     var choices = evalPropertyValue(properties["choices"], originalValue, domObj);
     choices = pui.parseCommaSeparatedList(choices);
+    if (choices.length == 0) choices = [""];
     var values = evalPropertyValue(properties["choice values"], originalValue, domObj);
     if (values == "") {
       values = [];
@@ -871,6 +872,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     else {
       values = pui.parseCommaSeparatedList(values);
     }
+    if (values.length == 0) values = [""];
 
     // Apply auto complete if any of the settings are given.
     if ((file != "" && fields[0] != "") || url != "" || (choices.length > 0 && choices[0] != "" && values[0] != "")) {
