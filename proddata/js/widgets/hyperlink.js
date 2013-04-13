@@ -24,7 +24,12 @@ pui["encode hyperlink spaces"] = null;
 pui.buildHyperlink = function(dom, value, designMode, href, target) {
   dom.innerHTML = "";
   var a = document.createElement("a");
-  if (designMode == true || href == null) href = "javascript:void(0)";
+  if (designMode == true || href == null) {
+    href = "javascript:void(0)";
+    if (is_ie && designMode == true) {
+      href = "#";
+    }
+  }
   a.href = href;
   if (!designMode && target != null) a.target = target;
   var text = value;
