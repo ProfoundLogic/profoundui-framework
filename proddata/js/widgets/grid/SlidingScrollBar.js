@@ -49,7 +49,7 @@ pui.SlidingScrollBar = function() {
   var currentRequestNum = 0;
   var rowNumHideRequest = 0;
   var firstRequest = true;
-  var mouseWheelEnabled = false;  
+  var mouseWheelEnabled = false;
 
   var me = this;
 
@@ -61,6 +61,7 @@ pui.SlidingScrollBar = function() {
   var rowNumDiv;
   var multiplier = 25;
   var prevStartRow = -1;
+  var fadeOutOpacity = 0.2;
   
   var upImg;
   var downImg;
@@ -97,7 +98,8 @@ pui.SlidingScrollBar = function() {
       touchBar.style.position = "absolute";
       //touchBar.style.width = "25px";
       touchBar.style.width = "2px";
-      touchBar.style.backgroundColor = "#DDDDEE";
+      //touchBar.style.backgroundColor = "#DDDDEE";
+      touchBar.style.backgroundColor = "transparent";
       touchHandle = document.createElement("div");
       touchHandle.style.position = "absolute";
       //touchHandle.style.width = "25px";
@@ -112,6 +114,8 @@ pui.SlidingScrollBar = function() {
       outerDiv.style.visibility = "hidden";
       outerDiv.style.display = "none";
       
+      touchHandle.style.opacity = fadeOutOpacity;
+
       if (pui.iPadEmulation) {
         function mousedown(e) {
           var target = getTarget(e);
@@ -122,6 +126,7 @@ pui.SlidingScrollBar = function() {
               return;
             }
           }
+          touchHandle.style.opacity = 1;
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
           touchHandle.touch.startY = getMouseY(e);
@@ -184,6 +189,7 @@ pui.SlidingScrollBar = function() {
               return;
             }
           }
+          touchHandle.style.opacity = 1;
           var touch = e.touches[0]
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
@@ -334,22 +340,36 @@ pui.SlidingScrollBar = function() {
   }
 
   function slide(touchInfo) {
-    if (touchInfo == null) return;
+    if (touchInfo == null) {
+      touchHandle.style.opacity = fadeOutOpacity;
+      return;
+    }
     var duration = touchInfo.duration;
     var distance = touchInfo.distance;
     var startTop = touchHandle.lastTop;
     var startTime = touchInfo.lastTime;
-    if (distance == null) return;
-    if (duration == null) return;
-    if (duration > 500) return;  // duration too big, finger must have stopped
+    if (distance == null || duration == null) {
+      touchHandle.style.opacity = fadeOutOpacity;
+      return;
+    }
+    if (duration > 500) {  // duration too big, finger must have stopped
+      touchHandle.style.opacity = fadeOutOpacity;
+      return;
+    }
     var speed = distance / duration;
     var animationStartTime = new Date().getTime();
 
     function animate() {
 
-      if (touchHandle.touch == null) return;
+      if (touchHandle.touch == null) {
+        touchHandle.style.opacity = fadeOutOpacity;
+        return;
+      }
 
-      if (touchHandle.touch.startTime > animationStartTime) return;
+      if (touchHandle.touch.startTime > animationStartTime) {
+        touchHandle.style.opacity = fadeOutOpacity;
+        return;
+      }
             
       var done = false;
       var now = new Date().getTime();
@@ -396,6 +416,7 @@ pui.SlidingScrollBar = function() {
       
       if (done) {
         touchHandle.touch = null;
+        pui["animate"]({ "element": touchHandle, "property": "opacity", "from": 1, "to": fadeOutOpacity });
       }
       else {
         setTimeout(animate, 1000/60);  // 60 frames per second
