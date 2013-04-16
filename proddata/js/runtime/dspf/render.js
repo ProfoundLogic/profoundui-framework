@@ -855,8 +855,6 @@ pui.renderFormat = function(parms) {
   var gridsToRender = [];
   for (var i = 0; i < items.length; i++) {
 
-    var hasBoundSQLProps = false;
-
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
       continue;
     }
@@ -1010,7 +1008,7 @@ pui.renderFormat = function(parms) {
           }
           else {
           
-            hasBoundSQLProps = pui.isSQLProp(prop);
+            if (pui.isSQLProp(prop)) dom.hasBoundSQLProps = true;
           
             newValue = pui.evalBoundProperty(propValue, data, parms.ref);
             
@@ -2014,8 +2012,6 @@ pui.renderFormat = function(parms) {
   	    	        
     }  // end if already rendered condition
 
-    dom.hasBoundSQLProps = hasBoundSQLProps;
-    
     if (pui["controller"] != null && properties != null && properties["set as modified"] != "false") {
       dom.modified = true;
     }

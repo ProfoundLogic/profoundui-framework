@@ -648,6 +648,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (domObj.parentTabPanel != null) newDomObj.parentTabPanel = domObj.parentTabPanel;
       if (domObj.parentTab != null) newDomObj.parentTab = domObj.parentTab;
       
+      // Carry over bound SQL property flag.
+      if (domObj.hasBoundSQLProps) newDomObj.hasBoundSQLProps = true;
+      
       if (context == "genie") {
         attachInputEvents(newDomObj);
       }
