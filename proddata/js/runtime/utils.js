@@ -496,18 +496,13 @@ function allowKeys(allowedUnicodes, e) {
   var pos;
   var success;
   var shiftKey;
-  var isTextbox = false;
 
   //key=(typeof event!='undefined')?window.event.keyCode:e.keyCode;
   key = e.keyCode;
   obj = e.target || e.srcElement; // IE doesn't use .target
   
-  if (obj.tagName == "INPUT") {
-    if (obj.type == null || obj.type == "" || obj.type == "text" || obj.type == "number" || obj.type == "password") {
-      isTextbox = true;
-    }
-  }
-
+  var isTextbox = pui.isTextbox(obj);
+  
   if (pui.genie.formSubmitted) {
     if (pui.genie.config.enableKeyAhead) {
       if (e.modifiers) shiftKey = e.modifiers && Event.SHIFT_MASK;
@@ -623,7 +618,7 @@ function allowKeys(allowedUnicodes, e) {
   	}
     
   }
-  if (key == pui["field exit key"] && isTextbox && !e.shiftKey) {    // numpad plus sign
+  if (isTextbox && pui.isFieldExit(e)) {    
     pui.storeCursorPosition(obj);
     fieldExit(obj);
     disableAction(e);
@@ -1400,3 +1395,35 @@ pui.parseCommaSeparatedList = function(list) {
   return listArray;
 }
 
+pui.isTextbox = function(obj) {
+
+  if (obj.tagName == "INPUT") {
+    if (obj.type == null || obj.type == "" || obj.type == "text" || obj.type == "number" || obj.type == "password") {
+      return true;
+    }
+  }
+  
+  return false;
+
+}
+
+pui.isFieldExit = function(e) {
+
+  e = e || window.event;
+  var key = e.keyCode;
+  var fe = pui["field exit key"];
+  
+  if ((key == fe) && 
+      (!e.shiftKey || fe == 16) && 
+      (!e.ctrlKey || fe == 17)) {
+  
+    return true;
+      
+  }
+  else {
+  
+    return false;
+  
+  }        
+  
+}
