@@ -97,7 +97,18 @@ pui.widgets.add({
   },
   
   initialize: function(parms) {
+    var dom = parms.dom;
+    var id = dom.id;
+    if (id == null) id = "";
+    var cls = dom.className;
+    if (cls == null) cls = "";
+    if ((id.toLowerCase() == "scroller" || cls.toLowerCase() == "scroller") && (typeof iScroll == "function")) {
+      var parent = dom.parentNode;
+      if (parent != null && parent.tagName == "DIV") {
+        dom.iScroll = new iScroll(parent);
+      }
+    }
   }
-    
+
 });
 
