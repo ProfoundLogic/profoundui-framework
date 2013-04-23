@@ -61,7 +61,7 @@ pui.SlidingScrollBar = function() {
   var rowNumDiv;
   var multiplier = 25;
   var prevStartRow = -1;
-  var fadeOutOpacity = 0.2;
+  var fadeOutOpacity = 0;
   
   var upImg;
   var downImg;
@@ -353,7 +353,7 @@ pui.SlidingScrollBar = function() {
       return;
     }
     if (duration > 500) {  // duration too big, finger must have stopped
-      touchHandle.style.opacity = fadeOutOpacity;
+      //touchHandle.style.opacity = fadeOutOpacity;
       return;
     }
     var speed = distance / duration;
@@ -367,7 +367,7 @@ pui.SlidingScrollBar = function() {
       }
 
       if (touchHandle.touch.startTime > animationStartTime) {
-        touchHandle.style.opacity = fadeOutOpacity;
+        //touchHandle.style.opacity = fadeOutOpacity;
         return;
       }
             
@@ -416,7 +416,7 @@ pui.SlidingScrollBar = function() {
       
       if (done) {
         touchHandle.touch = null;
-        pui["animate"]({ "element": touchHandle, "property": "opacity", "from": 1, "to": fadeOutOpacity });
+        pui["animate"]({ "element": touchHandle, "property": "opacity", "from": 1, "to": fadeOutOpacity, "duration": "1s" });
       }
       else {
         setTimeout(animate, 1000/60);  // 60 frames per second
