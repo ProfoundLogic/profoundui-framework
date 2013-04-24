@@ -280,8 +280,37 @@ pui.layout.Layout = function() {
     }
   }
   
+  this.applyScrolling = function() {
+    function setupiScroll() {
+      var parent = me.layoutDiv.parentNode;
+      if (parent != null && parent.tagName == "DIV") {
+        me.iScroll = new iScroll(parent);
+      }
+    }
+  
+    if (typeof iScroll == "function") {    
+      setupiScroll();
+    }
+    else {
+      pui["loadJS"]({
+        "path": "/iscroll/iscroll.js",
+        "test": function() {
+          return (typeof iScroll == "function");
+        },
+        "callback": function() {
+          setupiScroll();
+        }
+      });
+    }      
+  }
+  
   this.destroy = function() {
     removeEvent(window, "resize", me.stretch);
+    if (me.iScroll != null) {
+      me.iScroll.destroy();
+      me.iScroll = null;
+      delete me.iScroll;
+    }
     me.layoutDiv = null;
     me.templateProps = null;
     me.stretchList = null;
