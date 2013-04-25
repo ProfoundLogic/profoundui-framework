@@ -1560,10 +1560,12 @@ pui.Grid = function() {
         if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
           me.scrollbarObj.setScrollTopToRow(1);
         }        
+      
+        me.recNum = 1;
+        me.getData();
+      
       }
       
-      me.recNum = 1;
-      me.getData();
       desc = !desc;
       cell.sortDescending = desc;
       me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");

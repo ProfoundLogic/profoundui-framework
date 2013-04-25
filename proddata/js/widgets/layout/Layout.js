@@ -293,7 +293,7 @@ pui.layout.Layout = function() {
     }
     else {
       pui["loadJS"]({
-        "path": "/iscroll/iscroll.js",
+        "path": pui.normalizeURL("/iscroll/iscroll.js"),
         "test": function() {
           return (typeof iScroll == "function");
         },
