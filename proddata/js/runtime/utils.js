@@ -1395,10 +1395,21 @@ pui.parseCommaSeparatedList = function(list) {
   return listArray;
 }
 
+
+pui.isHTML5InputType = function(type) {
+  switch(type) {
+    case "number":
+      return true;
+    default:
+      return false;
+  }
+}
+
+
 pui.isTextbox = function(obj) {
 
   if (obj.tagName == "INPUT") {
-    if (obj.type == null || obj.type == "" || obj.type == "text" || obj.type == "number" || obj.type == "password") {
+    if (obj.type == null || obj.type == "" || obj.type == "text" || pui.isHTML5InputType(obj.type) || obj.type == "password") {
       return true;
     }
   }
@@ -1427,3 +1438,5 @@ pui.isFieldExit = function(e) {
   }        
   
 }
+
+

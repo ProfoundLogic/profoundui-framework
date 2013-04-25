@@ -97,13 +97,13 @@ pui.SlidingScrollBar = function() {
       touchBar = document.createElement("div");
       touchBar.style.position = "absolute";
       //touchBar.style.width = "25px";
-      touchBar.style.width = "2px";
+      touchBar.style.width = "3px";
       //touchBar.style.backgroundColor = "#DDDDEE";
       touchBar.style.backgroundColor = "transparent";
       touchHandle = document.createElement("div");
       touchHandle.style.position = "absolute";
       //touchHandle.style.width = "25px";
-      touchHandle.style.width = "2px";
+      touchHandle.style.width = "3px";
       touchHandle.style.height = "25px";
       touchHandle.style.top = "0px";
       //touchHandle.style.backgroundColor = "#BBBBDD";
@@ -436,10 +436,10 @@ pui.SlidingScrollBar = function() {
     }
     
     if (touchHandle != null && touchBar != null) {
-      touchBar.style.left = (me.x - 4) + "px";
+      touchBar.style.left = (me.x - 5) + "px";
       touchBar.style.top = (me.y) + "px";
       touchBar.style.zIndex = me.zIndex;
-      touchHandle.style.left = (me.x - 4) + "px";
+      touchHandle.style.left = (me.x - 5) + "px";
       if (prevStartRow == -1) {
         touchHandle.style.top = (me.y) + "px";
       }
