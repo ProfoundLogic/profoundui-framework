@@ -603,7 +603,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (!mismatch && domObj.tagName.toLowerCase() == "input") {
       if (domObj.type != inpType) {
         mismatch = true;
-        if (domObj.type == "number" && inpType == "text") mismatch = false;
+        if (pui.isHTML5InputType(domObj.type) && inpType == "text") mismatch = false;
       }
     }
     //if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {

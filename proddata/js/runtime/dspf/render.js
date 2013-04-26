@@ -1597,7 +1597,7 @@ pui.renderFormat = function(parms) {
           }
         }
         // textboxes and text areas    
-        if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (dom.type == "" || dom.type == "text" || dom.type == "number" || dom.type == "password" || dom.type == "file"))) {
+        if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.formattingInfo != null && dom.formattingInfo.maxLength != null) {
@@ -1773,7 +1773,7 @@ pui.renderFormat = function(parms) {
       // determine first field to set focus on
       if (!isDesignMode && !pui.iPadEmulation && pui.focusField.dom == null && !dom.disabled && !dom.readOnly && properties["visibility"] != "hidden") {
         if (dom.tagName == "INPUT") {
-          if (dom.type == "" || dom.type == "text" || dom.type == "number" || dom.type == "checkbox" || dom.type == "radio" || dom.type == "password" || dom.type == "file") {
+          if (pui.isTextbox(dom) || dom.type == "checkbox" || dom.type == "radio" || dom.type == "file") {
             pui.focusField.dom = dom;
           }
         }
@@ -2302,7 +2302,7 @@ pui.showErrors = function(errors, rrn) {
     }
     
     addEvent(dom, "focus", showTipOnFocus);
-    if (!(dom.tagName == "INPUT" && (dom.type == "text" || dom.type == "number"))) {
+    if (!(dom.tagName == "INPUT" && (dom.type == "text" || pui.isHTML5InputType(dom.type)))) {
       addEvent(dom, "click", showTipOnFocus);
     }
     addEvent(dom, "blur", hideTipOnBlur)

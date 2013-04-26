@@ -185,7 +185,7 @@ function getCursorPosition(obj) {
   var cur;
   if (typeof obj == "string") obj = getObj(obj);
   if (obj == null) return -1;
-  if (obj.tagName != "INPUT" || (obj.type != null && obj.type != "" && obj.type != "text" && obj.type != "number" && obj.type != "password")) return -1;
+  if (obj.tagName != "INPUT" || !pui.isTextbox(obj)) return -1;
   if (document.selection!=null) {
     if (obj==null) obj = document.activeElement; 
     cur = document.selection.createRange(); 
@@ -1399,6 +1399,14 @@ pui.parseCommaSeparatedList = function(list) {
 pui.isHTML5InputType = function(type) {
   switch(type) {
     case "number":
+    case "date":
+    case "datetime":
+    case "time":
+    case "email":
+    case "url":
+    case "month":
+    case "tel":
+    case "url":
       return true;
     default:
       return false;

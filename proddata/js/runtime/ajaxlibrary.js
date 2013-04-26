@@ -636,7 +636,7 @@ function ajaxSubmit(form, handler) {
         if (elemType == "hidden") go = true;
         if (elemType == "password") go = true;
         if (elemType == "text") go = true;
-        if (elemType == "number") go = true;
+        if (pui.isHTML5InputType(elemType)) go = true;
         if (elemType == "") go = true;
         if (elemType == "checkbox" || elemType == "radio") {
           if (elem.checked) go = true;

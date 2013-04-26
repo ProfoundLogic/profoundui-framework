@@ -67,7 +67,7 @@ function validateByteCount(event, field) {
 		event = event || window.event;
 		field = event.target || event.srcElement;		
 	}
-	if (field.type != "text" && field.type != "password" && field.type != "number") return;
+	if (!pui.isTextbox(field)) return;
 	if (field.choices != null) return;
 	if (getEBCDICByteCount(rtrim(field.value)) > field.maxLength) {
 		if (field == null) {

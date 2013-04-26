@@ -644,7 +644,7 @@ function TabPanel() {
               elem.validationTip.hide();
             }
           }
-          if (isDesign && elem.tagName == "INPUT" && (elem.type == "text" || elem.type == "number" || elem.type == "checkbox" || elem.type == "radio")) {
+          if (isDesign && elem.tagName == "INPUT" && (elem.type == "text" || pui.isHTML5InputType(elem.type) || elem.type == "checkbox" || elem.type == "radio")) {
             toolbar.designer.getDesignItemByDomObj(elem).drawIcon();
           }
         }
