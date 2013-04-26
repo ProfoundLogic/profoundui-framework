@@ -108,6 +108,7 @@ function getPropertiesModel() {
     { name: "input only", choices: ["true", "false"], bind: false, type: "boolean", help: "Defines whether the current element is input only or not.  An input only element is always initialized when the screen appears.", controls: ["checkbox", "combo box", "date field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
     { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Specifies the default text to place into an empty field.  When the field receives focus, the text is removed.  This property is similar to the \"placeholder\" property, but provides support for older browser that may not yet support the placeholder HTML5 attribute."},
     { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field.  Older browsers may not support this feature."},
+    { name: "input type", choices: ["date", "datetime", "email", "time", "month", "number", "tel", "url"], controls: ["combo box", "date field", "textbox"], help: "Specifies an HTML5 input type.  Some types may not yet be supported by the user's browser or mobile device.  If a type is not specified or if the selected type is not supported, a standard textbox element will be used."},
     { name: "related field", help: "This property allows you to create a radio button group by associating multiple radio buttons with a field from the original application.  Specify the id of the field to associate the radio button with.  Additionally, this property can associate a text area with a group of textboxes by specify a comma separated list of textbox id's.", controls: ["radio button", "text area"], context: "genie"},
     { name: "select box height", format: "number", attribute: "size", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Other..."], help: "If specified, the select box appears as a list box; if omitted, the select box appears as a dropdown.", controls: ["select box"] },
     { name: "multiple", attribute: "multiple", choices: ["true", "false"], type: "boolean" , help: "Specifies that multiple options can be selected at once in a List Box.  The options are returned as a comma separated list.", controls: ["select box"], context: "dspf", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
@@ -603,7 +604,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (!mismatch && domObj.tagName.toLowerCase() == "input") {
       if (domObj.type != inpType) {
         mismatch = true;
-        if (pui.isHTML5InputType(domObj.type) && inpType == "text") mismatch = false;
+        if (domObj.type == "number" && inpType == "text") mismatch = false;
       }
     }
     //if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {

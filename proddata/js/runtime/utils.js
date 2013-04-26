@@ -1398,6 +1398,7 @@ pui.parseCommaSeparatedList = function(list) {
 
 pui.isHTML5InputType = function(type) {
   switch(type) {
+    // provided as a choice in the "input type" property
     case "number":
     case "date":
     case "datetime":
@@ -1407,6 +1408,12 @@ pui.isHTML5InputType = function(type) {
     case "month":
     case "tel":
     case "url":
+    // not provided as a choice in the "input type" property, but could be valid HTML5 input types
+    case "color":
+    case "datetime-local":
+    //case "range":
+    case "search":
+    case "week":
       return true;
     default:
       return false;

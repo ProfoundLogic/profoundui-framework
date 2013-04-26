@@ -525,7 +525,12 @@ pui.widgets.add({
     
     "value": function(parms) {
       parms.dom.value = parms.value;
+    },
+    
+    "input type": function(parms) {
+      if (!parms.design) parms.dom.type = parms.value;
     }
+
   
   }
   

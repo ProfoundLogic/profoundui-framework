@@ -508,7 +508,10 @@ pui.widgets.add({
           pui.alert("Onselect Error:\n" + err.message);        
         }
       }
+    },
 
+    "input type": function(parms) {
+      if (!parms.design && parms.dom.comboBoxWidget != null) parms.dom.comboBoxWidget.getBox().type = parms.value;
     }
 
   },
