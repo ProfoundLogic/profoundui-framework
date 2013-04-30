@@ -1042,8 +1042,26 @@ pui.FieldFormat = {
           value = value.slice(0, value.length-6) + '-' + value.slice(-6, -4) + '-' + value.slice(-4);
           validKeys += '\\-';
           maxLength = 11;
+          break;
+        case 'Mailto Link':
+          value = "mailto:" + trim(value);
+          validKeys = null;
+          break;
+        case 'Navigation Link':
+          if (is_android) {
+            value = "geo:0,0?q=" + trim(value);
+          }
+          else {
+            value = "http://maps.google.com/maps?q=" + trim(value);
+          }
+          validKeys = null;
+          break;
+        case 'Telephone Link':
+          value = "tel:" + trim(value);
+          validKeys = null;
+          break;
       }
-      obj.keyFilter = new RegExp('[' + validKeys + ']');
+      if (validKeys != null) obj.keyFilter = new RegExp('[' + validKeys + ']');
       obj.maxLength = maxLength;
       return value;
     },
@@ -1155,6 +1173,8 @@ pui.FieldFormat = {
               }
             }
           }
+          return value;
+        default:
           return value;
       }
     }
