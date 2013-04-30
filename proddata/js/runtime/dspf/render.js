@@ -2012,7 +2012,7 @@ pui.renderFormat = function(parms) {
   	    	        
     }  // end if already rendered condition
 
-    if (pui["controller"] != null && properties != null && properties["set as modified"] != "false") {
+    if ((pui["controller"] != null || typeof pui.handler == "function") && properties != null && properties["set as modified"] != "false") {
       dom.modified = true;
     }
     
@@ -2381,6 +2381,9 @@ pui.respond = function() {
     try {
       pui.referenceToResponse = response;  // create temporary reference to response object, so it can be updated by certain API's
       var onsubmitReturnVal = eval(pui.onsubmitProp);
+      if (typeof onsubmitReturnVal == "function") {
+        onsubmitReturnVal = onsubmitReturnVal(response);
+      }
       delete pui.referenceToResponse;
       if (onsubmitReturnVal == false) {
         pui.rrnTracker = {};
@@ -3431,6 +3434,12 @@ pui["run"] = function(config) {
       var preview = window.opener.pui["generatePreview"]();
       preview.container = container;
       pui.isPreview = true;
+      if (window.opener.pui.viewdesigner) {
+        pui.handler = function() { };
+      }
+      else {
+        pui.handler = null;
+      }
       pui.render(preview);
     }
   }

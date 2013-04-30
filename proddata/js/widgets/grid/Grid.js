@@ -2348,8 +2348,8 @@ pui.Grid = function() {
         if (expandToLayout != me.expandToLayout) {
           me.expandToLayout = expandToLayout;
           if (me.expandToLayout) {
-            me.doExpandToLayout();
             if (me.designMode) {
+              me.doExpandToLayout();
               me.tableDiv.designItem.properties["expand to layout"] = "true";
               me.tableDiv.designItem.propertiesChanged["expand to layout"] = true;
               me.tableDiv.designItem.designer.propWindow.refreshProperty("expand to layout");

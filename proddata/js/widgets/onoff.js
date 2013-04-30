@@ -138,7 +138,9 @@ pui.OnOffSwitch = function() {
  
   this.size = function() {
     var totalWidth = me.container.offsetWidth;
-    offLabel.style.width = (totalWidth - 5) + "px";
+    offLabelWidth = totalWidth - 5;
+    if (offLabelWidth < 0) offLabelWidth = 0;
+    offLabel.style.width = offLabelWidth + "px";
     me.setWideHandle(me.wideHandle);
   }
   
@@ -146,6 +148,7 @@ pui.OnOffSwitch = function() {
     if (isWide) {
       var totalWidth = me.container.offsetWidth;
       var handleWidth = parseInt((totalWidth - 14) / 2);
+      if (handleWidth < 0) handleWidth = 0;
       handleLeftDiv.style.width = handleWidth + "px";
     }
     else {

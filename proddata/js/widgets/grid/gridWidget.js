@@ -119,6 +119,7 @@ pui.widgets.add({
       setPropIfThere("header text align");
       setPropIfThere("row height");
       setPropIfThere("border color");
+      if (parms.design) setTimeout(function() { setPropIfThere("expand to layout") }, 0);
     }
     parms.dom.grid.setProperty(parms.propertyName, parms.value);
   },
@@ -132,6 +133,9 @@ pui.widgets.add({
       if (parms.dom.grid.pagingBar != null) {
         parms.dom.grid.pagingBar.draw();
         parms.dom.grid.pagingBar.position();
+      }
+      if (parms.properties["expand to layout"] == "true" || parms.properties["expand to layout"] == true) {
+        parms.dom.grid.doExpandToLayout();
       }
     }
     

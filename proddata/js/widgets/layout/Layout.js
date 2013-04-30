@@ -284,7 +284,15 @@ pui.layout.Layout = function() {
     function setupiScroll() {
       var parent = me.layoutDiv.parentNode;
       if (parent != null && parent.tagName == "DIV") {
-        me.iScroll = new iScroll(parent);
+        me.iScroll = new iScroll(parent, {
+          "onBeforeScrollStart": function (e) {
+            var target = getTarget(e);
+            while (target.nodeType != 1) target = target.parentNode;
+            if (target.tagName != "SELECT" && target.tagName != "INPUT" && target.tagName != "TEXTAREA") {
+              e.preventDefault();
+            }
+          }
+        });
       }
     }
   
