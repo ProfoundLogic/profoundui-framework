@@ -923,7 +923,7 @@ pui.Grid = function() {
           
           }
           
-          if (orderBy != "") {
+          if (orderBy && orderBy != "") {
           
             addField("order", orderBy);
           
