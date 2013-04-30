@@ -3974,6 +3974,7 @@ pui.Grid = function() {
       if (pui.sqlcache == null) pui.sqlcache = {};
       if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
       if (pui.sqlcache[start].sql === sql &&
+          pui.sqlcache[start].pstring === pstring &&
           pui.sqlcache[start].limit === limit &&
           pui.sqlcache[start].customURL === customURL) {
     		if (callback != null) {
@@ -4032,6 +4033,7 @@ pui.Grid = function() {
           pui.sqlcache[start].customURL = customURL;
           pui.sqlcache[start].results = response.results;
           pui.sqlcache[start].totalRecs = response.totalRecs;
+          pui.sqlcache[start].pstring = pstring;
         }  
         if (callback != null) callback(response.results, response.totalRecs);
         else returnVal = response.results;
