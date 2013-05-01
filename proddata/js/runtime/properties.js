@@ -180,7 +180,7 @@ function getPropertiesModel() {
     { name: "blank option", choices: ["true", "false"], help: "When set to true, a database-driven dropdown box will display a blank option before the options from the database file are displayed.", controls: ["combo box", "select box"] },
     { name: "blank option label", help: "By default, the blank option contains no text.  Use this property to specify alternate text to be displayed in the blank option.  The value sent to the server will still be blank.", controls: ["combo box", "select box"] },
     { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the choices.", controls: ["combo box", "select box", "grid"] },
-    { name: "max choices", format: "number", help: "Optional maximum number of choices to provide for a dynamic dropdown box, list box, or text field with auto complete.", controls: ["combo box", "select box", "textbox"] },
+    { name: "max choices", format: "number", help: "Optional maximum number of choices to provide for a dynamic dropdown box, list box, or text field with auto complete. If blank: defaults to 500 for dropdown, 10 for auto complete.", controls: ["combo box", "select box", "textbox"] },
     { name: "contains match", choices: ["true", "false"], help: "When set to true, the auto-complete query finds records that contain the search text.  When set to false, the auto-complete query finds records that start with the search text.  The default value is false.", controls: ["textbox"] },
     
     { name: "Dynamic Auto-Complete", category: true, controls: ["textbox"] },
