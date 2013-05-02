@@ -261,7 +261,7 @@ pui.widgets.getStyledButtonProxy = function(defaults) {
   
   parms.properties = {};
   parms.properties.width = "100px";
-  if (defaults.width != null) parms.properties.width = defaults.width;;
+  if (defaults.width != null) parms.properties.width = defaults.width;
   parms.properties.height = "23px"
   parms.properties.value = "Click Here";
   parms.properties["button style"] = bstyle;

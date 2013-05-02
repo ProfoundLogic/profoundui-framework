@@ -981,7 +981,7 @@ pui.renderFormat = function(parms) {
         designItem.properties.newitem = "true";
         designItem.propertiesChanged.newitem = true;
         var fieldType = items[i]["field type"];
-        if (fieldType == "styled button" || fieldType == "panel") {
+        if (fieldType == "styled button" || fieldType == "panel" || fieldType == "mobile button") {
           designItem.dom.style.borderStyle = "none";
         }
       }
@@ -3435,7 +3435,21 @@ pui["run"] = function(config) {
       preview.container = container;
       pui.isPreview = true;
       if (window.opener.pui.viewdesigner) {
-        pui.handler = function() { };
+        pui.handler = function(response) {
+          ajaxJSON({
+            "url": "dummy_url",
+            "method": "post",
+            "params": response,
+            "sendAsBinary": false,
+            "suppressAlert": true,
+            "handler": function() {
+               document.body.innerHTML = '<br/><br/>Preview screen submitted.';
+            },
+            "onfail": function() {
+               document.body.innerHTML = '<br/><br/>Preview screen submitted.';
+            }
+          });
+        };
       }
       else {
         pui.handler = null;

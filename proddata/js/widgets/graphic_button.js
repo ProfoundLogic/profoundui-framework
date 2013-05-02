@@ -37,7 +37,7 @@ function buildGraphicButton(parms) {
   }
   var graphic = "";
   if (imageSource != null && imageSource != "") {
-    graphic = '<img src="' + imageSource + '" style="vertical-align:middle;padding-bottom:2px;" /> ';
+    graphic = '<img src="' + pui.normalizeURL(imageSource) + '" style="vertical-align:middle;padding-bottom:2px;" /> ';
   }
   dom.setAttribute("type", "button");
   dom.innerHTML = graphic + value;
