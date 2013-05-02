@@ -51,14 +51,19 @@ pui.OnOffSwitch = function() {
   
   this.init = function() {
     offLabel.className = "off-label";
+    offLabel.style.background = "url('" + pui.normalizeURL("/profoundui/proddata/images/onoff/off.png") + "') no-repeat right 0";
     offSpan.innerHTML = "OFF";
     offLabel.appendChild(offSpan);
     onLabel.className = "on-label";
+    onLabel.style.background = "url('" + pui.normalizeURL("/profoundui/proddata/images/onoff/on.png") + "') no-repeat";
     onSpan.innerHTML = "ON";
     onLabel.appendChild(onSpan);
     handleLeftDiv.className = "onoff-handle-left";
+    handleLeftDiv.style.background = "url('" + pui.normalizeURL("/profoundui/proddata/images/onoff/handle_left.png") + "') no-repeat";
     handleRightDiv.className = "onoff-handle-right";
+    handleRightDiv.style.background = "url('" + pui.normalizeURL("/profoundui/proddata/images/onoff/handle_right.png") + "') no-repeat right 0";
     handleCenterDiv.className = "onoff-handle-center";
+    handleCenterDiv.style.background = "url('" + pui.normalizeURL("/profoundui/proddata/images/onoff/handle_center.png") + "')";
     handleRightDiv.appendChild(handleCenterDiv);
     handleLeftDiv.appendChild(handleRightDiv);
     pui.addCssClass(me.container, "onoff-switch");
