@@ -1476,4 +1476,19 @@ pui["loadJS"] = function(parms) {
 
 
 
+pui["endOfSession"] = function(message) {
+  pui.confirmOnClose = false;
+  pui.shutdownOnClose = false;
+  if (navigator["app"] != null && navigator["app"]["exitApp"] != null) {
+    document.body.innerHTML = "";
+    if (message != null) alert("Your session has timed out.");
+    navigator["app"]["exitApp"]();
+  }
+  if (pui["mobile"] != null && pui["mobile"]["showConnections"] != null) {
+    pui["mobile"]["showConnections"]();
+    if (message != null) alert("Your session has timed out.");
+  }
+}
+
+
 
