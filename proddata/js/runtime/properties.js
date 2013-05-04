@@ -78,6 +78,7 @@ function getPropertiesModel() {
     { name: "iframe url", type: "long", help: "Specifies the content url for an IFrame (inline frame) element.", controls: ["iframe"] },
     { name: "frame border", choices: ["true", "false"], blankChoice: false, help: "Determines whether the IFrame (inline frame) element will have a border.", controls: ["iframe"] },    
     { name: "theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the button.  The theme is associated with a set of cascading style sheet rules.", controls: ["mobile button"] },
+    { name: "has header", choices: ["true", "false"], help: "Determines whether the panel has a header.", controls: ["css3 panel"] },
     { name: "header height", format: "number", help: "Specifies the height of the panel header.", controls: ["css3 panel"] },
     { name: "header theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the panel header.  The theme is associated with a set of cascading style sheet rules.", controls: ["css3 panel"] },
     { name: "body theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the panel body.  The theme is associated with a set of cascading style sheet rules.", controls: ["css3 panel"] },
