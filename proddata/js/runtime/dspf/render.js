@@ -981,7 +981,7 @@ pui.renderFormat = function(parms) {
         designItem.properties.newitem = "true";
         designItem.propertiesChanged.newitem = true;
         var fieldType = items[i]["field type"];
-        if (fieldType == "styled button" || fieldType == "panel" || fieldType == "css3 panel" || fieldType == "mobile button") {
+        if (fieldType == "styled button" || fieldType == "panel" || fieldType == "css3 panel" || fieldType == "mobile button" || fieldType == "Layout") {
           designItem.dom.style.borderStyle = "none";
         }
       }

@@ -22,6 +22,11 @@
 pui.layout.template.processHTML = function(parms) {
   
   var html = pui.layout.templates[parms.template];
+  
+  if (typeof html == "function") {  // custom function provded instead of HTML
+    return html(parms);
+  }
+  
   var properties = parms.properties;
   var designMode = parms.designMode;
   var proxyMode = parms.proxyMode;

@@ -72,6 +72,11 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.appendChild(newDom.removeChild(child));
     child = newDom.firstChild;
   }
+  if (newDom.panel != null) {
+    dom.panel = newDom.panel;
+    dom.sizeMe = newDom.sizeMe;
+    dom.panel.container = dom;
+  }
   
   return { 
     success: true,
@@ -89,7 +94,6 @@ pui.layout.template.getProxy = function(defaults) {
     proxyMode: true
   });
   pui.layout.template.processDOM(proxy);
-  proxy.style.border = "1px dotted #15428B";
   if (defaults["width"] != null) proxy.style.width = defaults["width"];
   if (defaults["height"] != null) proxy.style.height = defaults["height"];
   if (defaults["css class"] != null) proxy.className = defaults["css class"];

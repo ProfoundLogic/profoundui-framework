@@ -167,6 +167,7 @@ pui.layout.Layout = function() {
 
   this.setProperty = function(property, value) {
     if (value == null) value = "";
+    var panel = me.layoutDiv.panel;
     
     switch (property) {
       case "id":
@@ -205,6 +206,7 @@ pui.layout.Layout = function() {
           styleName = words[0] + words[1].substr(0, 1).toUpperCase() + words[1].substr(1);
         }
         me.layoutDiv.style[styleName] = value;
+        if (panel != null) panel.resize();
         me.stretch();
         break;
 
@@ -262,6 +264,35 @@ pui.layout.Layout = function() {
           me.layoutDiv[property] = func;
         }
         break;
+
+      case "has header":
+        if (panel != null) panel.setHasHeader(value != "false" && value != false);
+        break;
+      case "header height":
+        if (panel != null) panel.setHeaderHeight(value);
+        break;
+      case "header text":
+        if (panel != null) panel.setText(value);
+        break;
+      case "header theme":
+        if (panel != null) panel.setHeaderSwatch(value);
+        break;
+      case "body theme":
+        if (panel != null) panel.setBodySwatch(value);
+        break;
+      case "straight edge":
+        if (panel != null) panel.setStraightEdge(value);
+        break;
+      case "color":
+      case "font family":
+      case "font size":
+      case "font style":
+      case "font weight":
+      case "text align":
+      case "text decoration":
+      case "text transform":
+        if (panel != null) panel.setStyle(property, value);
+        break;
       
       default: 
         var savedValue = me.templateProps[property];
@@ -275,8 +306,7 @@ pui.layout.Layout = function() {
             }, 0);
           }
         }
-        break;
-      
+        break;  
     }
   }
   
