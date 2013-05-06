@@ -776,7 +776,14 @@ pui.Grid = function() {
     else return true;
   }
   
-  this.pageUp = function() {    
+  this.pageUp = function() { 
+  
+    if (executeEvent("onpageup") == false) {
+    
+      return;
+    
+    }  
+     
     me.mask();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
@@ -809,7 +816,14 @@ pui.Grid = function() {
     else return true;
   }
 
-  this.pageDown = function() {    
+  this.pageDown = function() {   
+  
+    if (executeEvent("onpagedown") == false) {
+    
+      return;
+    
+    }
+   
     me.mask();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
