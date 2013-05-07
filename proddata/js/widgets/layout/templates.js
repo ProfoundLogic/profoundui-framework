@@ -84,7 +84,7 @@ pui.layout.templates["mobile device"] += "<tr condition=\"{ property: 'bottom ba
 pui.layout.templates["mobile device"] += "</table>";
 pui.layout.templates["mobile device"] += pui.layout.maximizeIcon;
 
-pui.layout.templates["css3 panel"] = pui.layout.template.css3PanelTemplate;
+pui.layout.templates["css panel"] = pui.layout.template.cssPanelTemplate;
 
 
 

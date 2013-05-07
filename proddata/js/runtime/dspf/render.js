@@ -409,7 +409,7 @@ pui.overlayAdjust = function(formats) {
               var itm = items[j];
               if (itm["grid"] != null) continue;
               var itmType = itm["field type"];
-              if (itmType != "panel" && itmType != "css3 panel" && typeof itm["top"] != "object" && itm["css class"] != "stationary" && itm["css class 2"] != "stationary") {
+              if (itmType != "panel" && itmType != "css panel" && typeof itm["top"] != "object" && itm["css class"] != "stationary" && itm["css class 2"] != "stationary") {
                 itm["top"] = (parseInt(itm["top"]) + pushDown) + "px";
               }
             }
@@ -654,7 +654,7 @@ pui.render = function(parms) {
           var refItems = layers[i]["metaData"]["items"];
           for (var j = 0; j < refItems.length; j++) {
             var panel = refItems[j];
-            if (panel["id"] == winRef && (panel["field type"] == "panel" || panel["field type"] == "css3 panel")) {
+            if (panel["id"] == winRef && (panel["field type"] == "panel" || panel["field type"] == "css panel")) {
               formats[0]["metaData"]["items"].push(panel);
               break;
             }
@@ -981,7 +981,7 @@ pui.renderFormat = function(parms) {
         designItem.properties.newitem = "true";
         designItem.propertiesChanged.newitem = true;
         var fieldType = items[i]["field type"];
-        if (fieldType == "styled button" || fieldType == "panel" || fieldType == "css3 panel" || fieldType == "mobile button" || fieldType == "Layout") {
+        if (fieldType == "styled button" || fieldType == "panel" || fieldType == "css panel" || fieldType == "css button" || fieldType == "Layout") {
           designItem.dom.style.borderStyle = "none";
         }
       }
