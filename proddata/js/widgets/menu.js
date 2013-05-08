@@ -184,6 +184,16 @@ pui.MenuWidget = function() {
           if (!e) e = window.event;
           var tgt = e.relatedTarget;
           if (tgt == null) tgt = e.toElement;
+          
+          // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
+          // instead of the <TD> that this routine expects.  This finds the <TD>...
+          while ( tgt.tagName == "TABLE" 
+                 || tgt.tagName == "TBODY" 
+                 || tgt.tagName == "TR") {
+            if (tgt.firstChild == null) break;
+            tgt = tgt.firstChild;
+          }
+          
           if (tgt == null || tgt.level == null || tgt.tagName != "TD" || tgt.menuId != me.container.id) {
             var keep = false;
             if (tgt != null) {
