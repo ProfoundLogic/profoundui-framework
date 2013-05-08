@@ -33,7 +33,7 @@ pui.widgets.add({
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
         applyAutoComp(parms.properties, parms.originalValue, parms.dom);
-        if (pui.iPadEmulation && !pui.iPhoneEmulation) {
+        if (pui.iPadEmulation && !pui.iPhoneEmulation && parms.dom.id.indexOf(".") == -1) {
           addEvent(parms.dom, "focus", function(event) {
             getObj("ipadKeyboard").style.display = "";
           });

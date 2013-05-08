@@ -126,6 +126,9 @@ pui.SlidingScrollBar = function() {
               return;
             }
           }
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT") {
+            return;
+          }
           touchHandle.style.opacity = 1;
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
@@ -188,6 +191,9 @@ pui.SlidingScrollBar = function() {
             if (gridDom.grid.hasHeader) {
               return;
             }
+          }
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT") {
+            return;
           }
           touchHandle.style.opacity = 1;
           var touch = e.touches[0]

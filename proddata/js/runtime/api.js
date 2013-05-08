@@ -947,7 +947,7 @@ pui.normalizeURL = function(url) {
   if (pui["serverURL"] != null) {
     return pui["serverURL"] + url;
   }
-  else if (window.cordova && url.substr(0, 1) == "/") {
+  else if (window["cordova"] && url.substr(0, 1) == "/") {
     return url.substr(1);
   }
   else {
