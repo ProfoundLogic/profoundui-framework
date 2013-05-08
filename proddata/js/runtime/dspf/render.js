@@ -499,6 +499,12 @@ pui.render = function(parms) {
     }
   }
 
+  if (pui.genie && pui.genie.middleDiv == null) {
+  
+    pui.genie.middleDiv = document.getElementById("middle");
+  
+  }
+
   if (!pui.resizeEventAssigned) {
     addEvent(window, "resize", pui.resize);
     pui.resizeEventAssigned = true;
