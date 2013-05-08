@@ -24,9 +24,11 @@ pui["fileupload"] = {};
 pui["fileupload"]["select text"] = "Select Files";
 pui["fileupload"]["clear text"] = "Clear";
 pui["fileupload"]["remove text"] = "Remove";
+pui["fileupload"]["upload text"] = "Upload";
 
 pui["fileupload"]["file limit"] = "Limit of {FILE_LIMIT} file(s) exceeded.";
 pui["fileupload"]["size limit"] = "Limit of {SIZE_LIMIT}MB per file exceeded.";
+pui["fileupload"]["no files"] = "No files selected.";
 pui["fileupload"]["duplicate file"] = "Duplicate files selected.";
 pui["fileupload"]["invalid type"] = "One or more files are of invalid type.";
 pui["fileupload"]["file exists"] = "One or more files already exist on the file system.";
@@ -56,6 +58,7 @@ pui["fileupload"].FileUpload = function(container) {
   var table;  
   var selectors = [];
   var clearLink;
+  var uploadLink;
   var transactionId = 1;
   var submitHandle;
   var timeout = 86400000;
@@ -68,6 +71,7 @@ pui["fileupload"].FileUpload = function(container) {
   var altName = "";
   var overwrite = false;
   var allowedTypes = [];
+  var uploadEvent; 
 
   // Constructor.
   createIFrame();
@@ -267,6 +271,12 @@ pui["fileupload"].FileUpload = function(container) {
   
   }
   
+  this.setUploadEvent = function(value) {
+
+    uploadEvent = value; 
+  
+  }
+  
   this.setAllowedTypes = function(types) {
   
     if (types && types.constructor && types.constructor.toString().indexOf("function Array") != -1) {
@@ -327,12 +337,20 @@ pui["fileupload"].FileUpload = function(container) {
 
   this.upload = function() {
   
-    if (submitHandle != null) {
+    if (submitHandle != null || (context == "genie" && pui.genie.formSubmitted)) {
     
       return;
     
-    }
+    }  
+  
+    submitHandle = {}; // Will be set to true value later.
+    if (context == "genie") {
     
+      pui.genie.formSubmitted = true; 
+      pui.showWaitAnimation();
+    
+    }
+  
     // These 3 values are always passed on the form action URL.
     // This is because they are absolutely necessary in order to 
     // notify the browser when the form submit is complete. 
@@ -413,7 +431,6 @@ pui["fileupload"].FileUpload = function(container) {
       try {
       
         responseObj = eval("(" + response + ")");
-        parsed = true;
         
       }
       catch(e) {
@@ -452,6 +469,27 @@ pui["fileupload"].FileUpload = function(container) {
     
     submitHandle = null;
     transactionId++;  
+    
+    if (context == "genie") {
+    
+      pui.genie.formSubmitted = false;
+      pui.hideWaitAnimation(true);
+    
+      // Finish here for Genie. 
+      // For Rich UI, the result is checked in the 
+      // main screen submit processing.
+      if (responseObj["success"] == true) {
+      
+        this.doUploadEvent();
+      
+      }
+      else {
+      
+        alert(responseObj["error"]);
+      
+      }    
+    
+    }
   
   }
   
@@ -470,6 +508,40 @@ pui["fileupload"].FileUpload = function(container) {
   this.getId = function() {
   
     return mainBox.id;
+  
+  }
+  
+  this.doUploadEvent = function() {
+  
+    if (uploadEvent && uploadEvent != "") {
+    
+      var obj = {};
+      obj["dir"] = this.getTargetDirectory();
+      obj["names"] = this.getFileNames();
+      
+      var func = function() {
+        eval("var info = arguments[0];");
+        try {
+        
+          var func2 = eval(uploadEvent);
+          if (typeof(func2) == "function") {
+          
+            func2(arguments[0]);
+          
+          }
+          
+        }
+        catch (e) {
+        
+          alert("onupload Error:\n" + e.message);  
+                
+        }
+        
+      }
+    
+      func(obj);
+    
+    }  
   
   }
 
@@ -621,6 +693,32 @@ pui["fileupload"].FileUpload = function(container) {
       controlBox.insertBefore(selector, clearLink);
     
     }
+    
+    if (context == "genie") {
+    
+      if (uploadLink == null) {
+    
+  		  uploadLink = document.createElement("a");
+  		  uploadLink.href = "javascript: void(0);";
+  		  uploadLink.appendChild(document.createTextNode(pui["fileupload"]["upload text"]));
+  		  uploadLink.className = "upload"; 
+		  
+		  } 
+		  
+		  if (uploadLink.attachEvent) {
+		  
+		    uploadLink.attachEvent("onclick", uploadFiles);
+		  
+		  }
+		  else if (uploadLink.addEventListener) {
+		  
+		    uploadLink.addEventListener("click", uploadFiles, false); 
+		  
+		  }	
+		  
+		  controlBox.appendChild(uploadLink);	      
+    
+    }
         
 	}
 	
@@ -706,6 +804,55 @@ pui["fileupload"].FileUpload = function(container) {
 	
 	}	
 	
+	function uploadFiles(e) {
+	
+	  e = e || window.event;
+	
+	  if (submitHandle == null && !inDesignMode() && !pui.genie.formSubmitted) {
+	  
+      // Validate here, for Rich UI, validation is done as part of the 
+      // main screen submit process.
+  
+      if (me.getCount() == 0) {
+      
+        alert(pui["fileupload"]["no files"]);
+        return;
+      
+      }
+      else {
+      
+        var err = me.validateCount();
+        if (!err) {
+        
+          err = me.validateNames();
+        
+        }
+        
+        if (err) {
+        
+          alert(err);
+          return;
+        
+        }
+      
+      }
+      
+      me.upload();
+	  
+	  }
+	
+    if (e) {
+    
+  	  e.cancelBubble = true;
+  	  e.returnValue = false;
+  	  if (e.preventDefault) e.preventDefault();
+  	  if (e.stopPropagation) e.stopPropagation();
+  	  return false;
+  	  
+	  }	
+	
+	}
+	
   function formatBytes(bytes, precision) {  
   
     var units = ["B", "KB", "MB", "GB", "TB"];  
@@ -779,9 +926,11 @@ pui.checkUploads = function(param) {
       
         for (var i = 0; i < pui.fileUploadElements.length; i++) { 
       
-          // Build response.
           var fileUpload = pui.fileUploadElements[i];
           var qualField = fileUpload.qualField;
+          
+          // Build response.
+          needResponse = true;
           
           // Response looks like this: 
           
@@ -873,7 +1022,6 @@ pui.checkUploads = function(param) {
 
 pui.widgets.add({
 
-  context: "dspf",
   name: "file upload",
   newId: "FileUpload",
   menuName: "File Upload",
@@ -894,7 +1042,7 @@ pui.widgets.add({
         if (parms.dom.fileUpload == null) {
         
           parms.dom.fileUpload = new pui["fileupload"].FileUpload(parms.dom);
-          pui.fileUploadElements.push(parms.dom.fileUpload);
+          if (context == "dspf") pui.fileUploadElements.push(parms.dom.fileUpload);
         
         }
         
@@ -957,6 +1105,14 @@ pui.widgets.add({
       if (parms.design) return;
     
       parms.dom.fileUpload.setOverwrite(parms.newValue == "true" || parms.newValue == true);   
+    
+    },
+    
+    "onupload": function(parms) {
+
+      if (parms.design) return;
+    
+      parms.dom.fileUpload.setUploadEvent(parms.newValue);
     
     }
     
