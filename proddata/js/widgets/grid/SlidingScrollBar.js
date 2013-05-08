@@ -126,7 +126,7 @@ pui.SlidingScrollBar = function() {
               return;
             }
           }
-          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT") {
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
           touchHandle.style.opacity = 1;
@@ -192,7 +192,7 @@ pui.SlidingScrollBar = function() {
               return;
             }
           }
-          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT") {
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
           touchHandle.style.opacity = 1;
