@@ -41,7 +41,7 @@ pui.widgets.add({
       parms.dom.style.padding = "0px";
       parms.dom.style.borderWidth = "0px";
       
-      // this is temporary and hacky ... we assume we want 100% height for browser viewport (should at least remove this once this screen has finished?)
+      // we assume we want 100% height for browser viewport (should we remove these properties once this screen has finished?)
       if (!parms.design && parms.properties["height"] == "100%" && parms.dom.parentNode.id == "pui") {
       
         // If height is unset, IE returns "auto", and all others return "0px"
