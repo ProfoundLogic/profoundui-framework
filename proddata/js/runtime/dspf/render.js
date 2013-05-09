@@ -3516,6 +3516,7 @@ pui["run"] = function(config) {
 }
 
 pui["signon"] = function(config) {
+  var mobile = (config["mobile"] === true);
   var container = config["container"];
   var debug = config["debug"];
   var workstnid = config["workstnid"];
@@ -3564,6 +3565,9 @@ pui["signon"] = function(config) {
   if (config["duplicateid"] == "1") {
     ajaxParams["duplicateid"] = "1";
   }
+  if (mobile) {
+    ajaxParams["mobile"] = "1";
+  }  
   var params = config["params"];
   if (params != null) {
     for (var param in params) {
@@ -3692,6 +3696,7 @@ pui.start = function() {
   var jsonURL = parms["jsonURL"];
   var mode = parms["mode"];
   var controller = parms["controller"];
+  var mobile = (parms["mobile"] === "1");
   var params = {};
   pui.detectIPadEmulation(container);
   for (var i = 1; i <= 255; i++) {
@@ -3719,6 +3724,7 @@ pui.start = function() {
     "workstnid": workstnid,
     "suffixid": suffixid,
     "duplicateid": duplicateid,    
+    "mobile": mobile,
     "params": params
   };
   if (program == null && jsonURL == null && mode == null) {
