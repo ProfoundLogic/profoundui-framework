@@ -1479,8 +1479,8 @@ pui["loadJS"] = function(parms) {
 pui["endOfSession"] = function(message) {
   pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
-  if (pui["mobile"] != null && pui["mobile"]["showConnections"] != null) {
-    pui["mobile"]["showConnections"]();
+  if (window["puiMobileClient"] != null && window["puiMobileClient"]["showConnections"] != null) {
+    window["puiMobileClient"]["showConnections"]();
     if (message != null) alert(message);
     return;
   }

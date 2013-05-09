@@ -129,7 +129,7 @@ pui.SlidingScrollBar = function() {
           if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
-          touchHandle.style.opacity = 1;
+          //touchHandle.style.opacity = 1;
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
           touchHandle.touch.startY = getMouseY(e);
@@ -141,6 +141,7 @@ pui.SlidingScrollBar = function() {
           if (touchHandle.lastTop != null) touchHandle.touch.startTop = touchHandle.lastTop;
           else touchHandle.touch.startTop = parseInt(touchHandle.style.top);
           function mousemove(e) {
+            touchHandle.style.opacity = 1;
             var y = getMouseY(e);
             var now = new Date().getTime();
             touchHandle.touch.duration = now - touchHandle.touch.lastTime;
@@ -195,7 +196,7 @@ pui.SlidingScrollBar = function() {
           if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
-          touchHandle.style.opacity = 1;
+          //touchHandle.style.opacity = 1;
           var touch = e.touches[0]
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
@@ -215,6 +216,7 @@ pui.SlidingScrollBar = function() {
         function touchmove(e) {
           if (e.touches.length != 1) return;  // Only deal with one finger
           if (touchHandle.touch == null) return;
+          touchHandle.style.opacity = 1;          
           var touch = e.touches[0];
           var y = touch.pageY;
           var now = new Date().getTime();
