@@ -1095,16 +1095,32 @@ pui.getSQLVarName = function(dom) {
 
   var varName = context + ".";
 
+  var id = dom.id;
+  
+  if (context == "genie" && dom.parentNode != pui.runtimeContainer) {
+  
+    // Strip window index, as the server 
+    // processing is not aware of the resulting id at 
+    // .scn file processing time.
+    var pos = id.lastIndexOf("_W");
+    if (pos != -1) {
+    
+      id = id.substr(0, id.lastIndexOf("_W") + 2);
+    
+    }
+  
+  }
+
   var inGrid = (typeof(dom.parentNode.parentNode.grid) != "undefined");
   if (!inGrid || dom.hasBoundSQLProps) {
   
-    varName += dom.id;
+    varName += id;
   
   }
   else {
   
-    var len = dom.id.lastIndexOf(".") + 1;
-    varName += dom.id.substr(0, len) + "*";
+    var len = id.lastIndexOf(".") + 1;
+    varName += id.substr(0, len) + "*";
   
   }
   
