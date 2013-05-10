@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
+if (typeof(window["pui"]) == "undefined") window["pui"] = {};
 
 function loadPCCommandApplet(callback) {
 
@@ -43,7 +43,17 @@ function loadPCCommandApplet(callback) {
 function runPCCommand(command) {
 
 	var applet = getObj("PCCommandApplet");
-	if (!applet) return;
+	if (!applet) {
+	
+	  // Could replace this at some time with a load <param>
+	  // for the applet to process.
+	
+	  pui.appletCommandData = command;
+	  loadPCCommandApplet("runCommandCb");
+	  return;  
+	
+	}
+	
 	try {
 		applet["runCommand"](command);
 	}
@@ -57,10 +67,31 @@ function runPCCommand(command) {
 
 }
 
+window["runCommandCb"] = function() {
+
+  runPCCommand(pui.appletCommandData);
+  pui.appletCommandData = null;  
+
+}
+
 function copyToClipboard(data) {
 
 	var applet = getObj("PCCommandApplet");
-	if (!applet) return;
+	if (!applet) {
+	
+	  pui.appletClipData = data;
+	  loadPCCommandApplet("copyToClipboardCb");
+	  return;  
+	
+	}
+	
 	applet["copyToClipboard"](data);
+
+}
+
+window["copyToClipboardCb"] = function() {
+
+  copyToClipboardCb(pui.appletClipData);
+  pui.appletClipData = null;  
 
 }
