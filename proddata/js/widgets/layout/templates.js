@@ -86,6 +86,8 @@ pui.layout.templates["mobile device"] += pui.layout.maximizeIcon;
 
 pui.layout.templates["css panel"] = pui.layout.template.cssPanelTemplate;
 
+pui.layout.templates["accordion"] = pui.layout.template.accordionTemplate;
+
 
 
 

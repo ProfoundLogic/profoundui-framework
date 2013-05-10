@@ -100,13 +100,15 @@ pui.layout.getContainerOffset = function(containerDom) {
   var x = 0;
   var y = 0;
   var elem = containerDom;
-  while (elem.layout == null || elem.parentNode.getAttribute("container") == "true") {
+  while (elem != null && (elem.layout == null || elem.parentNode.getAttribute("container") == "true")) {
     x += elem.offsetLeft;
     y += elem.offsetTop;
     elem = elem.offsetParent;
   }
-  x += elem.offsetLeft;
-  y += elem.offsetTop;
+  if (elem != null) {
+    x += elem.offsetLeft;
+    y += elem.offsetTop;
+  }
   return {
     x: x,
     y: y

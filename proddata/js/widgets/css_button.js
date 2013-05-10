@@ -194,7 +194,7 @@ pui.CSSButton = function() {
   this.setHeight = function(height) {  // can be in 100%    
     if (typeof height == "number") height = height + "px";
     link.style.height = height;
-  },
+  }
   
   this.setStyle = function(styleName, styleValue) {
     var parts = styleName.split(" ");
@@ -207,17 +207,17 @@ pui.CSSButton = function() {
     else {
       textSpan.style[styleName] = styleValue;
     }
-  },
+  }
   
   this.setHref = function(href) {
     if (me.designMode) return;
     link.href = href;
-  },
+  }
   
   this.setTarget = function(target) {
     if (me.designMode) return;
     link.target = target;
-  },
+  }
   
   this.setLineHeight = function(containerHeight) {
     if (me.container == null) return;
@@ -232,14 +232,23 @@ pui.CSSButton = function() {
     else {
       textSpan.style.lineHeight = null;
     }
-  },
+  }
   
-  this.getLink = function() {
+  this.getLink = this.getMainSpan = function() {
     return link;
-  },
+  }
 
   this.getTextSpan = function() {
     return textSpan;
+  }
+
+  this.setAllStyles = function(properties) {
+    var styles = ["color", "font family", "font size", "font style", "font variant", "font weight", "letter spacing", "text align", "text decoration", "text transform", "word spacing"];
+    for (var i = 0; i < styles.length; i++) {
+      var style = styles[i];
+      var value = properties[style];
+      if (value != null) me.setStyle(style, value);
+    }
   }
  
 }

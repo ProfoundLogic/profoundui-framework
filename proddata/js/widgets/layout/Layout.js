@@ -168,6 +168,7 @@ pui.layout.Layout = function() {
   this.setProperty = function(property, value) {
     if (value == null) value = "";
     var panel = me.layoutDiv.panel;
+    var accordion = me.layoutDiv.panel;
     
     switch (property) {
       case "id":
@@ -207,6 +208,7 @@ pui.layout.Layout = function() {
         }
         me.layoutDiv.style[styleName] = value;
         if (panel != null) panel.resize();
+        if (accordion != null) accordion.resize();
         me.stretch();
         break;
 
@@ -268,20 +270,28 @@ pui.layout.Layout = function() {
       case "has header":
         if (panel != null) panel.setHasHeader(value != "false" && value != false);
         break;
+      case "small sections":
+        if (accordion != null) accordion.setMini(value == "false" || value == false);
+        break;
       case "header height":
         if (panel != null) panel.setHeaderHeight(value);
         break;
       case "header text":
         if (panel != null) panel.setText(value);
         break;
+      case "section names":
+        if (accordion != null) accordion.setSectionNames(value);
+        break;
       case "header theme":
         if (panel != null) panel.setHeaderSwatch(value);
+        if (accordion != null) accordion.setHeaderSwatch(value);
         break;
       case "body theme":
         if (panel != null) panel.setBodySwatch(value);
+        if (accordion != null) accordion.setBodySwatch(value);
         break;
       case "straight edge":
-        if (panel != null) panel.setStraightEdge(value);
+        if (accordion != null) accordion.setStraightEdge(value);
         break;
       case "color":
       case "font family":
@@ -292,6 +302,7 @@ pui.layout.Layout = function() {
       case "text decoration":
       case "text transform":
         if (panel != null) panel.setStyle(property, value);
+        if (accordion != null) accordion.setStyle(property, value);
         break;
       
       default: 

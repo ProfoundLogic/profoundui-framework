@@ -1395,7 +1395,7 @@ pui.getScript = function(path) {
 //   - javascript array
 pui.parseCommaSeparatedList = function(list) {
   if (typeof list != "string") {
-    if (lsit instanceof Array) return list;
+    if (list instanceof Array) return list;
     else return [];
   }
   if (list == "") return [];
