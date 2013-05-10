@@ -24,7 +24,11 @@ pui["encode hyperlink spaces"] = null;
 pui.buildHyperlink = function(dom, value, designMode, href, target) {
   dom.innerHTML = "";
   var a = document.createElement("a");
-  if (designMode == true || href == null) href = "javascript:void(0)";
+  var noHref = false;
+  if (designMode == true || href == null)  { 
+    href = "javascript:void(0)";
+    noHref = true;
+  }
   a.href = href;
   if (!designMode && target != null) a.target = target;
   var text = value;
@@ -35,7 +39,7 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
   if (dom.style.color != null) a.style.color = dom.style.color;
   if (dom.style.textDecoration != null) a.style.textDecoration = dom.style.textDecoration;
   a.appendChild(document.createTextNode(text));
-  if (is_ie && (context == "dspf" || context == "genie")) {
+  if (is_ie && noHref && (context == "dspf" || context == "genie")) {
     addEvent(a, "click", function(e) {
       if (e.preventDefault) e.preventDefault(); 
       e.returnValue = false;
