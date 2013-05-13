@@ -74,8 +74,17 @@ pui.layout.template.applyTemplate = function(parms) {
   }
   if (newDom.panel != null) {
     dom.panel = newDom.panel;
-    dom.sizeMe = newDom.sizeMe;
+    dom.sizeMe = function() {
+      dom.panel.resize();
+    }
     dom.panel.container = dom;
+  }
+  if (newDom.accordion != null) {
+    dom.accordion = newDom.accordion;
+    dom.sizeMe = function() {
+      dom.accordion.resize();
+    }
+    dom.accordion.container = dom;
   }
   
   return { 

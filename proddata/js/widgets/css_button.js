@@ -238,6 +238,10 @@ pui.CSSButton = function() {
     return link;
   }
 
+  this.getInnerSpan = function() {
+    return innerSpan;
+  }
+
   this.getTextSpan = function() {
     return textSpan;
   }

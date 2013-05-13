@@ -27,8 +27,9 @@
 
 pui.Accordion = function() {
   this.container = null;
+  this.forProxy = false;
+  this.designMode = false;
   
-  var sectionNames;
   var headerDivs = [];
   var bodyDivs = [];
   var headerButtons = [];
@@ -37,12 +38,12 @@ pui.Accordion = function() {
   var headerSwatch = "b";
   var bodySwatch = "c";
   var expandedSection = -1;
+  var allowCollapse = false;
   
   var me = this;  
   
   this.init = function() {
-    me.setSectionNames(sectionNames);
-    me.resize();
+    me.container.style.overflow = "hidden";
   }
   
   this.setSectionNames = function(nameList) {
@@ -55,13 +56,10 @@ pui.Accordion = function() {
       headerButtons = [];
       bodyPanels = [];
       for (var i = 0; i < names.length; i++) {
-        var headerDiv = document.createElement("div");
-        var bodyDiv = document.createElement("div");
+        var headerDiv = document.createElement("div");        
         headerDiv.style.width = "100%";
-        bodyDiv.style.width = "100%";
-        bodyDiv.style.height = "175px";
+        headerDiv.style.padding = "0";        
         headerDiv.sectionNumber = i;
-
         headerDiv.onclick = function(e) {
           var target = getTarget(e);
           var sectionNumber = null;
@@ -70,13 +68,27 @@ pui.Accordion = function() {
             target = target.parentNode;
           }
           if (sectionNumber != null) {
-            if (expandedSection == sectionNumber) sectionNumber = -1;  // collapse
-            me.expandSection(sectionNumber);
+            if (expandedSection == sectionNumber) {
+              sectionNumber = -1;  // collapse
+              if (allowCollapse && !me.designMode) {
+                me.expandSection(sectionNumber);
+              }
+            }
+            else {
+              me.expandSection(sectionNumber);
+            }
           }
         }
 
+        var bodyDiv = document.createElement("div");
+        bodyDiv.style.width = "100%";
+        bodyDiv.style.height = "175px";
+        bodyDiv.style.padding = "0";
+        bodyDiv.style.overflow = "hidden";
+
         var headerButton = new pui.CSSButton();
         headerButton.container = headerDiv;
+        headerButton.forProxy = me.forProxy;
         headerButton.init();
         headerButton.setSwatch(headerSwatch);
         headerButton.setIcon("plus");
@@ -103,6 +115,7 @@ pui.Accordion = function() {
       headerButtons[i].setText(names[i]);
     }
     me.expandSection(0);
+    me.resize();
   }
   
   this.expandSection = function(sectionNumber) {
@@ -111,15 +124,23 @@ pui.Accordion = function() {
       var headerButton = headerButtons[i];
       if (i == sectionNumber) {
         headerButton.setIcon("minus");
+        headerButton.setDisabled(!allowCollapse);
         bodyDiv.style.display = "";
       }
       else {
         headerButton.setIcon("plus");
+        headerButton.setDisabled(false);
         bodyDiv.style.display = "none";
       }
     }
     me.setStraightEdge(straightEdge);
     expandedSection = sectionNumber;
+    me.resize();
+  }
+  
+  this.setAllowCollapse = function(allow) {
+    allowCollapse = (allow == "true" || allow == true);
+    me.expandSection(expandedSection);
   }
   
   this.setStraightEdge = function(edge) {
@@ -192,6 +213,7 @@ pui.Accordion = function() {
     for (var i = 0; i < headerButtons.length; i++) {
       headerButtons[i].setMini(mini);
     }
+    me.resize();
   }
 
   this.setHeaderSwatch = function(swatch) {
@@ -209,7 +231,6 @@ pui.Accordion = function() {
   }
   
   this.resize = function(newHeight) {
-    return;
     var totalHeight;
     if (typeof newHeight == "string") {
       if (newHeight.length < 3 || newHeight.substr(newHeight.length - 2, 2) != "px") {
@@ -218,17 +239,24 @@ pui.Accordion = function() {
     }
     if (newHeight != null && !isNaN(parseInt(newHeight))) totalHeight = parseInt(newHeight);
     else totalHeight = me.container.offsetHeight;
-    var hdrHeight = headerHeight;
-    if (!hasHeader) hdrHeight = - 1;
-    var bodyHeight = totalHeight - hdrHeight - 5;
+
+    var buttonHeight = 0;
+    if (headerDivs.length > 0) buttonHeight = headerDivs[0].offsetHeight;
+    if (buttonHeight == 0) buttonHeight = 42;  // default height
+
+    var bodyHeight = totalHeight - buttonHeight * headerDivs.length;
     if (bodyHeight < 0) bodyHeight = 0;
-    if (hasHeader) headerDiv.style.height = hdrHeight + "px";
-    bodyDiv.style.top = (hdrHeight + 1) + "px";
-    bodyDiv.style.height = bodyHeight + "px";
+
+    var bodyDiv = bodyDivs[expandedSection];
+    if (bodyDiv != null) {
+      bodyDiv.style.height = bodyHeight + "px";
+    }
+    if (me.container.layout != null) {
+      me.container.layout.sizeContainers();
+    }
   }
   
   this.setHeight = function(height) {
-    return;
     me.container.style.height = height;
     me.resize(height);
   }
