@@ -3577,12 +3577,17 @@ pui.Grid = function() {
           x -= offset.x;
           y -= offset.y;
           
-        }        
-        contextMenu.style.left = x + "px";
-        contextMenu.style.top = y + "px";
+        }  
         contextMenu.style.zIndex = me.contextMenuZIndex;
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
+        // Position after show, as some browsers (FF) report menu width 0 when hidden.
+        var maxX = document.documentElement.clientWidth - contextMenu.clientWidth - 10;  // width of menu plus scrollbar
+        var maxY = document.documentElement.clientHeight - contextMenu.clientHeight - 10; // height of menu plus scrollbar
+        if (x > maxX) x = maxX; 
+        if (y > maxY) y = maxY;     
+        contextMenu.style.left = x + "px";
+        contextMenu.style.top = y + "px";        
         
         addEvent(document, "click", function() {
           contextMenu.style.visibility = "hidden";
