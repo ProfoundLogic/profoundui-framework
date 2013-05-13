@@ -187,9 +187,9 @@ pui.MenuWidget = function() {
           
           // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
           // instead of the <TD> that this routine expects.  This finds the <TD>...
-          while ( tgt.tagName == "TABLE" 
+          while (tgt!=null && ( tgt.tagName == "TABLE" 
                  || tgt.tagName == "TBODY" 
-                 || tgt.tagName == "TR") {
+                 || tgt.tagName == "TR")) {
             if (tgt.firstChild == null) break;
             tgt = tgt.firstChild;
           }
