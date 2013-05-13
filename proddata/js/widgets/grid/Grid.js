@@ -783,6 +783,13 @@ pui.Grid = function() {
       return;
     
     }  
+    
+    if (context == "genie") {
+    
+      pressKey("pageup");
+      return;
+    
+    }
      
     me.mask();
     var numRows = me.cells.length;
@@ -823,6 +830,13 @@ pui.Grid = function() {
       return;
     
     }
+    
+    if (context == "genie") {
+    
+      pressKey("pagedown");
+      return;
+    
+    }    
    
     me.mask();
     var numRows = me.cells.length;
@@ -4533,7 +4547,7 @@ pui.Grid = function() {
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
   
       { name: "Paging Bar", category: true, context: "dspf" },
-      { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Displays links for navigating to the previous page and the next page of records.", context: "dspf" },
+      { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Displays links for navigating to the previous page and the next page of records." },
       { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "This property determines whether the page number should display within the paging bar.", context: "dspf" },
       { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: "Specifies the initial page number to use when the page number is displayed within the paging bar.  If not specified, page number 1 is used.", context: "dspf" },
       { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed.  This can be used to show miscellaneous information such as column totals.", context: "dspf" },

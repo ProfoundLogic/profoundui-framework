@@ -63,17 +63,21 @@ pui.PagingBar = function() {
   
   function autoPageUp() {
     if (me.prevLink.disabled) return;
-    if (me.pageUpResponseDefined) return;
-    if (me.grid.designMode) return;
-    if (me.grid.atTop()) return;
+    if (context != "genie") {
+      if (me.pageUpResponseDefined) return;
+      if (me.grid.designMode) return;
+      if (me.grid.atTop()) return;
+    }
     me.grid.pageUp();  
   }
   
   function autoPageDown() {
     if (me.nextLink.disabled) return;
-    if (me.pageDownResponseDefined) return;
-    if (me.grid.designMode) return;
-    if (me.grid.atBottom()) return;
+    if (context != "genie") {
+      if (me.pageDownResponseDefined) return;
+      if (me.grid.designMode) return;
+      if (me.grid.atBottom()) return;
+    }
     me.grid.pageDown();
   }
   
@@ -414,27 +418,29 @@ pui.PagingBar = function() {
         me.nextImg.disabled = false;
         me.nextLink.disabled = false;
         
-        if (!me.grid.designMode && me.grid.atTop() && (me.pageUpCondition == "false" || !me.pageUpResponseDefined)) {
-          me.prevImg.disabled = true;
-          me.prevLink.disabled = true;
-          pui.addCssClass(me.prevLink, "paging-link-disabled");
-          pui.addCssClass(me.prevImg, "prev-image-icon-disabled");        
-        }
-        else {
-          pui.removeCssClass(me.prevLink, "paging-link-disabled");
-          pui.removeCssClass(me.prevImg, "prev-image-icon-disabled");
-        }
-        
-        if ( !me.grid.designMode && me.grid.atBottom() && 
-             ((me.grid.subfileEnd && pui["page down on subfile end"] != true) || me.pageDownCondition == "false" || !me.pageDownResponseDefined) ) {
-          me.nextImg.disabled = true;
-          me.nextLink.disabled = true;
-          pui.addCssClass(me.nextLink, "paging-link-disabled");
-          pui.addCssClass(me.nextImg, "next-image-icon-disabled"); 
-        }
-        else {
-          pui.removeCssClass(me.nextLink, "paging-link-disabled");
-          pui.removeCssClass(me.nextImg, "next-image-icon-disabled");
+        if (context != "genie") {
+          if (!me.grid.designMode && me.grid.atTop() && (me.pageUpCondition == "false" || !me.pageUpResponseDefined)) {
+            me.prevImg.disabled = true;
+            me.prevLink.disabled = true;
+            pui.addCssClass(me.prevLink, "paging-link-disabled");
+            pui.addCssClass(me.prevImg, "prev-image-icon-disabled");        
+          }
+          else {
+            pui.removeCssClass(me.prevLink, "paging-link-disabled");
+            pui.removeCssClass(me.prevImg, "prev-image-icon-disabled");
+          }
+          
+          if ( !me.grid.designMode && me.grid.atBottom() && 
+               ((me.grid.subfileEnd && pui["page down on subfile end"] != true) || me.pageDownCondition == "false" || !me.pageDownResponseDefined) ) {
+            me.nextImg.disabled = true;
+            me.nextLink.disabled = true;
+            pui.addCssClass(me.nextLink, "paging-link-disabled");
+            pui.addCssClass(me.nextImg, "next-image-icon-disabled"); 
+          }
+          else {
+            pui.removeCssClass(me.nextLink, "paging-link-disabled");
+            pui.removeCssClass(me.nextImg, "next-image-icon-disabled");
+          }
         }
       }
       else {
