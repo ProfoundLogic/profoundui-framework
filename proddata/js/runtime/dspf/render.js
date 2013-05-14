@@ -2531,6 +2531,20 @@ pui.buildResponse = function() {
             case "file":
             case "hidden":
             case "":
+            // following are new HTML5 input types
+            case "number":
+            case "date":
+            case "datetime":
+            case "time":
+            case "email":
+            case "url":
+            case "month":
+            case "tel":
+            case "url":
+            case "color":
+            case "datetime-local":
+            case "search":
+            case "week":
               value = dom.value;
               if (value === dom.emptyText) value = "";
               if (dom.autoCompValueField != null) {
