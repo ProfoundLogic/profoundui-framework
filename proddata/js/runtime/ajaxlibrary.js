@@ -119,7 +119,7 @@ function RPGspRequest(arg) {
     xmlhttpObj = new ActiveXObject("Microsoft.XMLHTTP");
   }
   else {
-    alert("Ajax request error: Unsupported browser.");
+    pui.alert("Ajax request error: Unsupported browser.");
     return;
   }
   
@@ -139,7 +139,7 @@ function RPGspRequest(arg) {
                 }
                 else {
                   if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT")) {
-                    alert('Invalid value for property: "method".');
+                    pui.alert('Invalid value for property: "method".');
                     return;
                   }
                   else {
@@ -150,7 +150,7 @@ function RPGspRequest(arg) {
                 if (method == "POST") {
                   if (me["postData"] != null) {
                     if (typeof me["postData"] != "string") {
-                      alert('Invalid value for property: "postData".');
+                      pui.alert('Invalid value for property: "postData".');
                       return;
                     }
                     else {
@@ -163,7 +163,7 @@ function RPGspRequest(arg) {
                   async = true;
                 }
                 else if (me["async"] != true && me["async"] != false) {
-                  alert('Invalid value for property: "async".');
+                  pui.alert('Invalid value for property: "async".');
                   return;
                 }
                 else {
@@ -172,41 +172,41 @@ function RPGspRequest(arg) {
                 
                 // TODO: Somehow validate if this is a correctly formed URL to avoid JS errors on the send().
                 if (typeof me["url"] != "string") {
-                  alert('Invalid value for property: "url".');
+                  pui.alert('Invalid value for property: "url".');
                   return;
                 }
                 
                 if (me["user"] != null) {
                   if (typeof me["user"] != "string") {
-                    alert('Invalid value for property: "user".');
+                    pui.alert('Invalid value for property: "user".');
                     return;                    
                   }
                 }
                 
                 if (me["password"] != null) {
                   if (typeof me["password"] != "string") {
-                    alert('Invalid value for property: "password".');
+                    pui.alert('Invalid value for property: "password".');
                     return;                    
                   }
                 }
 
                 if (me["onsuccess"] != null) {
                   if (typeof me["onsuccess"] != "function") {
-                    alert('Invalid value for event: "onsuccess".');
+                    pui.alert('Invalid value for event: "onsuccess".');
                     return;
                   }
                 }
                 
                 if (me["onfail"] != null) {
                   if (typeof me["onfail"] != "function") {
-                    alert('Invalid value for event: "onfail".');
+                    pui.alert('Invalid value for event: "onfail".');
                     return;
                   }
                 }
                 
                 if (me["onready"] != null) {
                   if (typeof me["onready"] != "function") {
-                    alert('Invalid value for event: "onready".');
+                    pui.alert('Invalid value for event: "onready".');
                     return;
                   }
                 }
@@ -278,7 +278,7 @@ function RPGspRequest(arg) {
                   
                 }
                 catch(e) {
-                  alert(e);
+                  pui.alert(e);
                   return;
                 }
                 
@@ -317,7 +317,7 @@ function RPGspRequest(arg) {
                   else {
                     sendOK = false;
                     if (me["suppressAlert"] != true) {
-                      alert(statusMessage);
+                      pui.alert(statusMessage);
                     }
                     if (me["onfail"] != null) me["onfail"](me);
                   }
@@ -383,7 +383,7 @@ function RPGspRequest(arg) {
       return xmlhttpObj.getAllResponseHeaders();
     }
     catch(e) {
-      alert(e);
+      pui.alert(e);
     }
     
   }
@@ -397,7 +397,7 @@ function RPGspRequest(arg) {
       return xmlhttpObj.getResponseHeader(headerName);
     }
     catch(e) {
-      alert(e);
+      pui.alert(e);
     }
     
   }
@@ -418,7 +418,7 @@ function RPGspRequest(arg) {
       xmlhttpObj.abort();
     }
     catch(e) {
-      alert(e);
+      pui.alert(e);
     }
     
   }
@@ -618,11 +618,11 @@ function ajaxSubmit(form, handler) {
   var tagName;
   if (formObj!=null) tagName = formObj.tagName;
   if (formObj==null || tagName==null || tagName.toUpperCase() != "FORM") {
-    alert("Ajax request error: Invalid form object.");
+    pui.alert("Ajax request error: Invalid form object.");
     return "";
   }
   if (form.action == "") {
-    alert("Ajax request error: Invalid form action.");
+    pui.alert("Ajax request error: Invalid form action.");
     return "";    
   }
   

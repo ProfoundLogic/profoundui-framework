@@ -229,13 +229,14 @@ pui.SignaturePad = function() {
     }
   }
   
-  this.resize = function() {
+  this.resize = function(dontClear) {
     canvas.style.width = me.container.offsetWidth + "px";
     canvas.style.height = me.container.offsetHeight + "px";
     canvas.setAttribute("width", me.container.offsetWidth);
     canvas.setAttribute("height", me.container.offsetHeight);
     setContext();
-    strokes = [];
+    if (dontClear == true) me.redraw();
+    else strokes = [];
   }
   
   this.clear = function() {
@@ -340,7 +341,7 @@ pui.widgets.add({
         if (parms.design) parms.dom.signaturePad.designItem = parms.designItem;
         parms.dom.signaturePad.init();
         parms.dom.sizeMe = function() {
-          parms.dom.signaturePad.resize();
+          parms.dom.signaturePad.resize(true);
         }
       }
     },

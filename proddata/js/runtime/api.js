@@ -108,7 +108,7 @@ function getObj(id) {
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
 function postToNewWindow(url) {
   if (!url) {
-    alert("postToNewWindow Error: URL not specified.");
+    pui.alert("postToNewWindow Error: URL not specified.");
   }
   var form = document.forms["postToForm"];
   if (form == null) {
@@ -137,7 +137,7 @@ function postToNewWindow(url) {
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
 function postTo(url) {
   if (!url) {
-    alert("postTo Error: URL not specified.");
+    pui.alert("postTo Error: URL not specified.");
   }
   var form = document.forms["postToForm"];
   if (form == null) {
@@ -834,7 +834,7 @@ pui.Base64 = {
 
 pui["downloadJSON"] = function() {
   if (pui["savedJSON"] == null) {
-    alert("JSON is not available.");
+    pui.alert("JSON is not available.");
     return;
   }
   pui.downloadAsAttachment("text/plain", "json.txt", pui["savedJSON"]);  
@@ -1481,19 +1481,19 @@ pui["endOfSession"] = function(message) {
   pui.shutdownOnClose = false;
   if (window["puiMobileClient"] != null && window["puiMobileClient"]["showConnections"] != null) {
     window["puiMobileClient"]["showConnections"]();
-    if (message != null) alert(message);
+    if (message != null) pui.alert(message);
     return;
   }
   var parms = getQueryStringParms();
   var gobackto = parms["gobackto"];
   if (gobackto != null) {
     document.body.innerHTML = "";
-    if (message != null) alert(message);
+    if (message != null) pui.alert(message);
     location.href = gobackto;
   }
   if (navigator["app"] != null && navigator["app"]["exitApp"] != null) {
     document.body.innerHTML = "";
-    if (message != null) alert(message);
+    if (message != null) pui.alert(message);
     navigator["app"]["exitApp"]();
     return;
   }
@@ -1501,3 +1501,16 @@ pui["endOfSession"] = function(message) {
 
 
 
+pui.alert = function(msg, alertCallback, title, buttonName) {
+  if (window["navigator"] != null && window["navigator"]["notification"] != null && window["navigator"]["notification"].alert != null) {
+    if (alertCallback == null && title == null && buttonName == null && window["puiMobileClient"] != null && window["puiMobileClient"].alert != null) {
+      window["puiMobileClient"].alert(msg);
+    }
+    else {
+      window["navigator"]["notification"].alert(msg, function() { }, "Profound UI", "OK");
+    }
+  }
+  else {
+    alert(msg);
+  }
+}

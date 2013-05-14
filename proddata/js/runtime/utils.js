@@ -381,14 +381,6 @@ pui.arrayForEach = function(array, func) {
   
 }
 
-pui.alert = function(msg) {
-  //if (Ext != null && Ext.MessageBox != null && Ext.MessageBox.alert != null) {
-  //  Ext.MessageBox.alert("?", msg);
-  //}
-  //else {
-    alert(msg);
-  //}
-}
 
 pui.safeParseInt = function(stringValue, nanValue) {
   if (nanValue == null) nanValue = 0;

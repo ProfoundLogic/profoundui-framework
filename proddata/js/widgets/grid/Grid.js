@@ -2770,7 +2770,8 @@ pui.Grid = function() {
 
   this.setRowBackground = function(row, hover) {
     var even = ((row % 2) == 1);
-    if (me.hasHeader) even = !even;    
+    if (me.hasHeader) even = !even;
+    if (me.cells == null) return;
     var cols = me.cells[row];
     
     var selected = false;

@@ -485,7 +485,7 @@ pui["fileupload"].FileUpload = function(container) {
       }
       else {
       
-        alert(responseObj["error"]);
+        pui.alert(responseObj["error"]);
       
       }    
     
@@ -533,7 +533,7 @@ pui["fileupload"].FileUpload = function(container) {
         }
         catch (e) {
         
-          alert("onupload Error:\n" + e.message);  
+          pui.alert("onupload Error:\n" + e.message);  
                 
         }
         
@@ -815,7 +815,7 @@ pui["fileupload"].FileUpload = function(container) {
   
       if (me.getCount() == 0) {
       
-        alert(pui["fileupload"]["no files"]);
+        pui.alert(pui["fileupload"]["no files"]);
         return;
       
       }
@@ -830,7 +830,7 @@ pui["fileupload"].FileUpload = function(container) {
         
         if (err) {
         
-          alert(err);
+          pui.alert(err);
           return;
         
         }
