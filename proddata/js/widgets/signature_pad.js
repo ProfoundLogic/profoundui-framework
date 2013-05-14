@@ -339,6 +339,9 @@ pui.widgets.add({
         parms.dom.signaturePad.designMode = parms.design;
         if (parms.design) parms.dom.signaturePad.designItem = parms.designItem;
         parms.dom.signaturePad.init();
+        parms.dom.sizeMe = function() {
+          parms.dom.signaturePad.resize();
+        }
       }
     },
     
