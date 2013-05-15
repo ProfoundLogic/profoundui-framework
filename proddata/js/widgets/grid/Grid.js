@@ -3617,7 +3617,7 @@ pui.Grid = function() {
     
     cell.onclick = function(e) {      
       var target = getTarget(e);
-      if (target.tagName != "INPUT" && target.tagName != "SELECT") {
+      if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1);
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row);
       }
