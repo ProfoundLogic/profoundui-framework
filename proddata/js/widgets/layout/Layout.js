@@ -367,7 +367,8 @@ pui.layout.Layout = function() {
           "onBeforeScrollStart": function (e) {
             var target = getTarget(e);
             while (target.nodeType != 1) target = target.parentNode;
-            if (target.tagName != "SELECT" && target.tagName != "INPUT" && target.tagName != "TEXTAREA") {
+            while (target.tagName == "SPAN") target = target.parentNode;
+            if (target.tagName != "SELECT" && target.tagName != "INPUT" && target.tagName != "TEXTAREA" && target.tagName != "A") {
               e.preventDefault();
             }
           }
