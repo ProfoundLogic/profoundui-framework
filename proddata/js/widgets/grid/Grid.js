@@ -3747,12 +3747,22 @@ pui.Grid = function() {
         }
 
         // return cursor based on widgets within the cell
-        if (target.row != null && target.col != null && target.tagName == "DIV" && target.parentNode.grid == me) {
-          var column = String(target.col);
+        // this code needs to work on the cell, but the target could be the 
+        // widget in the cell...
+        var cell = target;
+        var prt = target.parentNode;
+        if (prt && prt.row && prt.col) {
+        
+          cell = prt;
+        
+        }
+        
+        if (cell.row != null && cell.col != null && cell.tagName == "DIV" && cell.parentNode.grid == me) {
+          var column = String(cell.col);
           for (var i = 0; i < me.runtimeChildren.length; i++) {
             var itm = me.runtimeChildren[i];
             if (itm["column"] == column && itm["cursor row"] != null && itm["cursor column"] != null) {
-              var recNum = me.recNum + target.row;
+              var recNum = me.recNum + cell.row;
               if (me.hasHeader) recNum = recNum - 1;
               var dom = getObj(itm["id"] + "." + recNum);
               if (dom != null) {
