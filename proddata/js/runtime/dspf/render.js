@@ -2227,11 +2227,17 @@ pui.showErrors = function(errors, rrn) {
     dom.className = newClass;
     if (dom.validationTip == null) {
       var posDom = dom;
-      if (dom.parentNode != null && dom.parentNode.comboBoxWidget != null) posDom = dom.parentNode;
+      var winDiv = dom.parentNode;
+      if (dom.parentNode != null && dom.parentNode.comboBoxWidget != null) {
+      
+        posDom = dom.parentNode;
+        winDiv = dom.parentNode.parentNode;
+        
+      }
       dom.validationTip = new pui.ValidationTip(posDom);
       dom.validationTip.container = pui.runtimeContainer;
-  	  if (dom.parentNode.isPUIWindow == true) {
-  	    dom.validationTip.container = dom.parentNode;
+  	  if (winDiv.isPUIWindow == true) {
+  	    dom.validationTip.container = winDiv;
   	  }
   	  else {
   	    var gridDiv = dom.parentNode.parentNode;
