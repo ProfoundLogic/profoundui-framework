@@ -1060,6 +1060,10 @@ pui.FieldFormat = {
           value = "tel:" + trim(value);
           validKeys = null;
           break;
+        case 'Normalize URL':
+          value = pui.normalizeURL(value);
+          validKeys = null;
+          break;
       }
       if (validKeys != null) obj.keyFilter = new RegExp('[' + validKeys + ']');
       obj.maxLength = maxLength;
