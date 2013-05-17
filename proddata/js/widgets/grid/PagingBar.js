@@ -474,6 +474,12 @@ pui.PagingBar = function() {
     div.parentNode.removeChild(div);
     me.container.appendChild(div); 
   }
+  
+  this.getHeight = function() {
+  
+    return div.offsetHeight;
+  
+  }
 
 }
 

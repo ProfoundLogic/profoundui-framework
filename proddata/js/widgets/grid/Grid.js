@@ -326,6 +326,7 @@ pui.Grid = function() {
     
     var height = container.offsetHeight;
     if (me.hasHeader) height -= me.headerHeight;
+    if (me.pagingBar) height -= me.pagingBar.getHeight();
     var numRows = height / me.rowHeight;
     if (me.hasHeader) numRows += 1;
     numRows = parseInt(numRows);
