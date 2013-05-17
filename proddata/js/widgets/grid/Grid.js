@@ -4458,6 +4458,11 @@ pui.Grid = function() {
     me.sizeAllCells();
     me.setAllCellStyles();
     me.setHeadings();
+    if (me.subfileHidden) {
+    
+      me.hideSubfile();
+    
+    }
   }
   
   this["refresh"] = function() {
