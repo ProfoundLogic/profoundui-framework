@@ -92,7 +92,12 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     dom.style.boxSizing = "border-box";
     dom.style.MozBoxSizing = "border-box";
     dom.style.WebkitBoxSizing = "border-box";
-    if (is_ie7 || (is_ie && document.documentMode == 7)) {
+    // IE can report 'MSIE 7.0' in user agent when running later versions 
+    // in compatability view, regardless of the document mode.
+    // The document mode value is set consistently based on document mode, although
+    // it does not exist in IE7.
+    var ie7 = (is_ie7 && (typeof(document.documentMode == 7) == "undefined" || document.documentMode == 7));
+    if (ie7) {
       var width = dom.offsetWidth;
       width = width - 36;
       if (width < 16) width = 16;
