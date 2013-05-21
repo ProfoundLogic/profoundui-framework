@@ -4473,7 +4473,12 @@ pui.Grid = function() {
   }
   
   this["refresh"] = function() {
-    me.getData();
+    me.recNum = 1;
+    me.totalRecs = null;
+    if (me.slidingScrollBar) {
+      me.scrollbarObj.totalRows = me.totalRecs;
+    }  
+    me.getData();    
   }
   
   this.getPropertiesModel = function() {
