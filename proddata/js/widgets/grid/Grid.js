@@ -53,7 +53,7 @@ pui.Grid = function() {
   this.tableDiv = null;
   this.cells = [];
   this.container = null;
-  this.borderColor = "#ccccff";
+  this.borderColor = "";
   this.borderWidth = 1;
   
   this.cellCursor = "default";
@@ -4181,6 +4181,7 @@ pui.Grid = function() {
   this.addColumn = function() {
     var n = me.vLines.length;
     var vLine = document.createElement("div");
+    vLine.className = "grid-vline";
     if (!me.designMode) {
       vLine.relatedGrid = me;
     }
@@ -4198,7 +4199,9 @@ pui.Grid = function() {
     vLine.style.height = height + "px";
     var bwidth = me.borderWidth;
     if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;
-    vLine.style.borderRight = bwidth + "px solid " + me.borderColor;
+    vLine.style.borderRightStyle = "solid";
+    vLine.style.borderRightWidth = bwidth + "px";
+    vLine.style.borderRightColor = me.borderColor;
     vLine.style.fontSize = "0px";
     vLine.style.padding = "0px";
     vLine.style.zIndex = me.vBorderZIndex;
@@ -4361,6 +4364,7 @@ pui.Grid = function() {
   this.addRow = function() {
     var n = me.hLines.length;
     var hLine = document.createElement("div");
+    hLine.className = "grid-hline";
     if (!me.designMode) {
       hLine.relatedGrid = me;
     }
@@ -4382,7 +4386,9 @@ pui.Grid = function() {
     hLine.style.width = width + "px";
     var bwidth = me.borderWidth;
     if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;
-    hLine.style.borderTop = bwidth + "px solid " + me.borderColor;
+    hLine.style.borderTopStyle = "solid";
+    hLine.style.borderTopWidth = bwidth + "px";
+    hLine.style.borderTopColor = me.borderColor;
     hLine.style.fontSize = "0px";
     hLine.style.padding = "0px";
     hLine.style.zIndex = me.hBorderZIndex;
