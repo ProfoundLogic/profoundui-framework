@@ -1493,8 +1493,9 @@ pui["endOfSession"] = function(message) {
   }
   if (navigator["app"] != null && navigator["app"]["exitApp"] != null) {
     document.body.innerHTML = "";
-    if (message != null) pui.alert(message);
-    navigator["app"]["exitApp"]();
+    if (message != null) {
+      pui.alert(message, function() { navigator["app"]["exitApp"]() });
+    }      
     return;
   }
 }
@@ -1507,7 +1508,10 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
       window["puiMobileClient"].alert(msg);
     }
     else {
-      window["navigator"]["notification"].alert(msg, function() { }, "Profound UI", "OK");
+      if (alertCallback == null) alertCallback = function() {};
+      if (title == null) title = "Profound UI";
+      if (buttonName == null) buttonName = "OK";
+      window["navigator"]["notification"].alert(msg, alertCallback, title, buttonName);
     }
   }
   else {
