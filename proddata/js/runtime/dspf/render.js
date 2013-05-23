@@ -2217,46 +2217,13 @@ pui.showErrors = function(errors, rrn) {
       continue;
     }
     if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
-    var newClass = dom.className;
-    if (newClass == null) newClass = "";
-    var temp = " " + newClass + " ";
-    if (temp.indexOf(" invalid ") < 0) {  //  not found
-      if (newClass != "") newClass += " ";
-      newClass += "invalid";
-    }
-    dom.className = newClass;
-    if (dom.validationTip == null) {
-      var posDom = dom;
-      var winDiv = dom.parentNode;
-      if (dom.parentNode != null && dom.parentNode.comboBoxWidget != null) {
-      
-        posDom = dom.parentNode;
-        winDiv = dom.parentNode.parentNode;
-        
-      }
-      dom.validationTip = new pui.ValidationTip(posDom);
-      dom.validationTip.container = pui.runtimeContainer;
-  	  if (winDiv.isPUIWindow == true) {
-  	    dom.validationTip.container = winDiv;
-  	  }
-  	  else {
-  	    var gridDiv = dom.parentNode.parentNode;
-  	    if (gridDiv != null && gridDiv.grid != null && gridDiv.parentNode.isPUIWindow == true) {
-  	      dom.validationTip.container = gridDiv.parentNode;
-  	    }
-  	  }
-      dom.validationTip.init();
-    }
-
     var tip = dom.validationTip;
-    tip.doneShowing = false;
-    tip.setMessage(msg);      
-    function showTipOnTimer(tip, dom) {  // allows blur events to complete
-      setTimeout(function() {
-        tip.show(3000);
-      }, 0);
+    if (tip == null) {
+      tip = new pui.ValidationTip(dom); 
     }
-    showTipOnTimer(tip, dom);
+    pui.addCssClass(dom, "invalid");
+    tip.setMessage(msg); 
+    tip.show(3000, true);     
 
     if (rrn != null) {
       var cell = dom.parentNode;
@@ -2269,57 +2236,6 @@ pui.showErrors = function(errors, rrn) {
       }
     }
 
-    function showTipOnFocus(e) {
-      if (pui.ignoreFocus) return;
-      var target = getTarget(e);
-      if (target == null) return;
-      var tip = target.validationTip;
-      if (tip == null) return;
-      if (tip.doneShowing == true) return;
-      tip.show();
-    }
-    
-    function hideTipOnBlur(e) {
-      if (pui.ignoreBlurs) return;
-      var target = getTarget(e);
-      if (target == null) return;
-      var tip = target.validationTip;
-      if (tip == null) return;
-      tip.hide();
-    }
-    
-    function hideTipOnKeyDown(event) {
-      event = event || window.event;
-      var key = event.keyCode;        
-      if (key >= 9 && key <= 45) return;     // includes keys like arrow keys, ctrl, shift, etc.
-      if (key >= 112 && key <= 145) return;  // includes f1-f12, num lock, scroll lock, etc.
-      var target = getTarget(event);
-      if (target == null) return;
-      var tip = target.validationTip;
-      if (tip == null) return;
-      tip.hide();
-      tip.doneShowing = true;
-      pui.removeCssClass(target, "invalid");
-    }
-
-    function hideTipOnChange(event) {
-      event = event || window.event;
-      var target = getTarget(event);
-      if (target == null) return;
-      var tip = target.validationTip;
-      if (tip == null) return;
-      tip.hide();
-      tip.doneShowing = true;
-      pui.removeCssClass(target, "invalid");
-    }
-    
-    addEvent(dom, "focus", showTipOnFocus);
-    if (!(dom.tagName == "INPUT" && (dom.type == "text" || pui.isHTML5InputType(dom.type)))) {
-      addEvent(dom, "click", showTipOnFocus);
-    }
-    addEvent(dom, "blur", hideTipOnBlur)
-    if (dom.tagName == "SELECT") addEvent(dom, "change", hideTipOnChange);
-    else addEvent(dom, "keydown", hideTipOnKeyDown);
   }    
   
   if (globalMessages.length > 0) {
@@ -3053,15 +2969,11 @@ pui.cancelResponse = function(messages) {
     var msg = messages[id];
     var dom = getObj(id);
     if (dom != null) {
-      if (dom.validationTip != null) dom.validationTip.hide();
-      dom.validationTip = new pui.ValidationTip(dom);
-      dom.validationTip.container = pui.runtimeContainer;
-  	  if (dom.parentNode.isPUIWindow == true) {
-  	    dom.validationTip.container = dom.parentNode;
-  	  }
-      dom.validationTip.init();
-      dom.validationTip.setMessage(msg);
-      dom.validationTip.show();
+      var tip = dom.validationTip;
+      if (tip != null) tip.hide();
+      tip = new pui.ValidationTip(dom);
+      tip.setMessage(msg);
+      tip.show();
     }    
   }
   pui.hideWaitAnimation(true);

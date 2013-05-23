@@ -702,3 +702,34 @@ pui["uploadSignature"] = function(params) {
   pui.uploadDataUrl(params, params["handler"]);
     
 }
+
+pui["errorTip"] = function(el, msg, hideDelay) {
+
+  if (hideDelay == null) {
+  
+    hideDelay = 3000;
+  
+  }
+  else if (hideDelay == 0) {
+  
+    hideDelay = null;
+  
+  }
+
+  if (typeof(el) == "string") {
+  
+    el = getObj(el);
+  
+  }
+  
+  var tip = el.validationTip;
+  if (tip == null) {
+  
+    tip = new pui.ValidationTip(el);
+  
+  }
+  pui.addCssClass(el, "invalid");
+  tip.setMessage(msg); 
+  tip.show(hideDelay);
+
+}
