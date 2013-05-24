@@ -1322,8 +1322,7 @@ pui["refresh"] = function(parms) {
   else window.location.reload();
 }
 
-
-pui["download"] = function (params) {
+pui["downloadURL"] = function (params) {
 
   var inline = (params["inline"] === true);
   if (params["id"] == null) return;  
@@ -1343,6 +1342,14 @@ pui["download"] = function (params) {
   url += "&AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
   url += "&r=" + Math.floor(Math.random() * 1000000000);
 
+  return url;
+}
+
+pui["download"] = function (params) {
+
+  var url = pui.downloadURL(params);
+  var inline = (params["inline"] === true);
+  
   if (inline) {
      pui["openURL"](url);
   }
