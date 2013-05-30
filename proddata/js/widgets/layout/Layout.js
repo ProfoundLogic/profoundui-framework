@@ -36,7 +36,7 @@ pui.layout.Layout = function() {
   var me = this;
   
   function sizeContainer(container) {
-    for (j = 0; j < container.childNodes.length; j++) {
+    for (var j = 0; j < container.childNodes.length; j++) {
       var child = container.childNodes[j];
       if (child.layout != null) {
         child.layout.stretch();
