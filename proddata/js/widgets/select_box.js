@@ -39,6 +39,17 @@ pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
 }
 
 pui.setSelectBoxValue = function(value, dom) {
+  
+  // If this is a numeric field in Genie, trim blanks...
+  if (dom.fieldInfo != null && dom.fieldInfo.shift != null) {
+    if (dom.fieldInfo.shift == '2' 
+     || dom.fieldInfo.shift == '3'
+     || dom.fieldInfo.shift == '5'
+     || dom.fieldInfo.shift == '7') {
+       value = trim(value);
+    }
+  }
+  
   if (dom.tagName == "INPUT") {  // read-only select box widgets do not get converted into dropdowns
     if (dom.choices != null && dom.choices[value] != null) {
       dom.value = dom.choices[value];
