@@ -343,15 +343,27 @@ pui.layout.Layout = function() {
         me.templateProps[property] = value;
         break;
       
+      case "onsectionclick":
+        if (!me.designMode) {
+           me.layoutDiv[property + "event"] = function() {
+            eval("var section = arguments[0];");
+            try {
+              return eval(value);
+            }
+            catch(err) {
+              pui.alert("Onexpand Error:\n" + err.message);        
+            }
+          }
+        }
+        break;
+
+      
       default: 
         var savedValue = me.templateProps[property];
         me.templateProps[property] = value;
         if (me.designMode && !toolbar.loadingDisplay && !toolbar.pastingFormat) {
           var rv = me.applyTemplate();
-          accordion = me.layoutDiv.accordion;
-          if (accordion != null && property == "section names") {
-            accordion.resize();
-          }
+          if (me.layoutDiv.accordion != null) me.layoutDiv.accordion.resize();
           if (rv.success == false) {
             me.templateProps[property] = savedValue;
             setTimeout(function() {

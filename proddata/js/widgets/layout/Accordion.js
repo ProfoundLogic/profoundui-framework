@@ -75,6 +75,10 @@ pui.Accordion = function() {
               }
             }
             else {
+              if (me.container["onsectionclickevent"] != null) {
+                var returnVal = me.container["onsectionclickevent"](sectionNumber);
+                if (returnVal == false) return;
+              }
               me.expandSection(sectionNumber);
             }
           }
