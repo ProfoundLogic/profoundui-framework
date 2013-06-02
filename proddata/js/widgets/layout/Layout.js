@@ -348,6 +348,10 @@ pui.layout.Layout = function() {
         me.templateProps[property] = value;
         if (me.designMode && !toolbar.loadingDisplay && !toolbar.pastingFormat) {
           var rv = me.applyTemplate();
+          accordion = me.layoutDiv.accordion;
+          if (accordion != null && property == "section names") {
+            accordion.resize();
+          }
           if (rv.success == false) {
             me.templateProps[property] = savedValue;
             setTimeout(function() {
