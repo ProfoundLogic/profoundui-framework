@@ -3630,7 +3630,7 @@ pui.start = function() {
   var controller = parms["controller"];
   var mobile = (parms["mobile"] === "1");
   var params = {};
-  pui.detectIPadEmulation(container);
+  if (pui.detectMobileEmulation != null && typeof pui.detectMobileEmulation == "function") pui.detectMobileEmulation(container);
   for (var i = 1; i <= 255; i++) {
     var parmValue = parms["p" + i];
     var parmLen = parms["l" + i];
@@ -3678,74 +3678,6 @@ pui.start = function() {
   }
 }
 
-
-pui.detectIPadEmulation = function(container) {
-  if (container == null) container = "pui";
-  if (typeof container == "string") container = document.getElementById(container);
-  if (container == null) return;
-  var useFinger;
-  if (container.parentNode.className == "ipad-emulator") {
-    pui.iPadEmulation = true;
-    useFinger = false;
-  }
-  if (container.parentNode.className == "iphone-emulator") {
-    pui.iPadEmulation = true;
-    pui.iPhoneEmulation = true;
-    useFinger = false;
-  }
-  if (!pui.iPadEmulation) return;  
-  if (useFinger) {
-    var finger = document.createElement("img");
-    finger.src = "/profoundui/proddata/images/ipad/finger.png";
-    finger.style.position = "absolute";
-    finger.style.cursor = "crosshair";  
-    finger.style.zIndex = 99;  
-    addEvent(document, "mousemove", function(event) {
-      var x = getMouseX(event);
-      x = x + 3;    
-      finger.style.left = x + "px";
-      var y = getMouseY(event);
-      y = y + 3;
-      finger.style.top = y + "px";
-    });
-    addEvent(document, "mousedown", function(event) {
-      var x = getMouseX(event);
-      x = x + 1;    
-      finger.style.left = x + "px";
-      var y = getMouseY(event);
-      y = y + 1;
-      finger.style.top = y + "px";
-    });
-  }
-  var addressbar = document.createElement("input");
-  addressbar.style.position = "absolute";
-  if (pui.iPhoneEmulation) {
-    addressbar.style.left = "90px";
-    addressbar.style.top = "164px";
-    addressbar.style.width = "223px";
-    addressbar.style.backgroundColor = "#d3dae4";
-  }
-  else {
-    addressbar.style.left = "285px";
-    addressbar.style.top = "89px";
-    addressbar.style.width = "455px";
-  }
-  addressbar.style.color = "#999999";
-  addressbar.style.borderStyle = "none";
-  addressbar.style.fontFamily = "Trebuchet MS, Sans-Serif";
-  addressbar.style.fontSize = "14px";
-  addressbar.value = location.href;
-  if (!pui.iPhoneEmulation) {
-    addressbar.onclick = function() {
-      getObj("ipadKeyboard").style.display = "";
-    }
-    addressbar.onblur = function() {
-      getObj("ipadKeyboard").style.display = "none";
-    }
-  }
-  document.body.appendChild(addressbar);
-  if (useFinger) document.body.appendChild(finger);
-}
 
 pui.newSession = function() {
   window.location.reload();
