@@ -460,15 +460,18 @@ pui.cleanup = function() {
 }
 
 
-pui.resize = function() {
+pui.resize = function(inEmulator) {
   var container = pui.runtimeContainer;
   if (container == null) return;
-  for (j = 0; j < container.childNodes.length; j++) {
+  for (var j = 0; j < container.childNodes.length; j++) {
     var child = container.childNodes[j];
     if (child.sizeMe != null && typeof child.sizeMe == "function") {
       if (is_ie || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
         child.sizeMe();
       }
+    }
+    if (inEmulator && child.layout != null) {
+      child.layout.stretch();
     }
   } 
 }
@@ -3615,6 +3618,7 @@ pui.runMVC = function(response) {
 
 pui.start = function() {  
   var parms = getQueryStringParms();
+  pui.canvasSize = parms["canvasSize"];
   var program = parms["pgm"];
   if (program == null) program = parms["program"];
   var debug = parms["debug"]

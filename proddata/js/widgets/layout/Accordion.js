@@ -88,6 +88,9 @@ pui.Accordion = function() {
         bodyDiv.style.width = "100%";
         bodyDiv.style.height = "175px";
         bodyDiv.style.padding = "0";
+        if (i < names.length - 1) {
+          bodyDiv.style.overflow = "hidden";
+        }
 
         var headerButton = new pui.CSSButton();
         headerButton.container = headerDiv;
