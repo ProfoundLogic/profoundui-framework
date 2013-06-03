@@ -21,24 +21,6 @@
 
 pui["fileupload"] = {};
 
-pui["fileupload"]["select text"] = "Select Files";
-pui["fileupload"]["clear text"] = "Clear";
-pui["fileupload"]["remove text"] = "Remove";
-pui["fileupload"]["upload text"] = "Upload";
-
-pui["fileupload"]["file limit"] = "Limit of {FILE_LIMIT} file(s) exceeded.";
-pui["fileupload"]["size limit"] = "Limit of {SIZE_LIMIT}MB per file exceeded.";
-pui["fileupload"]["no files"] = "No files selected.";
-pui["fileupload"]["duplicate file"] = "Duplicate files selected.";
-pui["fileupload"]["invalid type"] = "One or more files are of invalid type.";
-pui["fileupload"]["file exists"] = "One or more files already exist on the file system.";
-pui["fileupload"]["prevented"] = "Operation prevented by exit program.";
-
-pui["fileupload"]["input limit"] = "Total input size limit exceeded.";
-pui["fileupload"]["no session"] = "Not connected to a valid session.";
-pui["fileupload"]["timeout"] = "Transaction timed out.";
-pui["fileupload"]["invalid response"] = "The server response is missing or invalid.";
-
 /**
  * File Upload Class
  * @constructor
@@ -151,7 +133,7 @@ pui["fileupload"].FileUpload = function(container) {
   	    var a = document.createElement("a");
   	    a.href = "javascript: void(0);";
   	    a.className = "remove";
-  	    a.appendChild(document.createTextNode(pui["fileupload"]["remove text"]));
+  	    a.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload remove text")));
   	    a.puiFileIndex = i;
   	    if (a.attachEvent) {
   	      a.attachEvent("onclick", removeFile);
@@ -307,7 +289,7 @@ pui["fileupload"].FileUpload = function(container) {
   
     if (this.getCount() > fileLimit) {
     
-      return pui["fileupload"]["file limit"].replace(/{FILE_LIMIT}/g, fileLimit);
+      return pui.getLanguageText("runtimeMsg", "upload file limit", [ fileLimit ]);
     
     } 
   
@@ -323,7 +305,7 @@ pui["fileupload"].FileUpload = function(container) {
       
         if (typeof(used[arr[i]]) != "undefined") {
         
-          return pui["fileupload"]["duplicate file"];
+          return pui.getLanguageText("runtimeMsg", "upload duplicate file");
         
         }
         
@@ -397,7 +379,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     submitHandle = setTimeout(function() {
     
-      me.completeTransaction(transactionId, {"success":false,"error":pui["fileupload"]["timeout"]});
+      me.completeTransaction(transactionId, {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload timeout")});
     
     }, timeout);
     
@@ -435,7 +417,7 @@ pui["fileupload"].FileUpload = function(container) {
       }
       catch(e) {
       
-        responseObj = {"success":false,"error":pui["fileupload"]["invalid response"]}; 
+        responseObj = {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload invalid response")}; 
       
       }
       
@@ -451,12 +433,14 @@ pui["fileupload"].FileUpload = function(container) {
     
       if (responseObj["key"]) {
       
-        responseObj["error"] = pui["fileupload"][responseObj["key"]];
+        responseObj["error"] = pui.getLanguageText("runtimeMsg", "upload " + responseObj["key"] );
       
       }
       error = responseObj["error"];
-      error = error.replace(/{FILE_LIMIT}/g, fileLimit);
-      error = error.replace(/{SIZE_LIMIT}/g, sizeLimit);
+      if (responseObj["key"] == "file limit")
+         error = error.replace("&1", fileLimit);
+      if (responseObj["key"] == "size limit")
+         error = error.replace("&1", sizeLimit);
     
     }
     
@@ -629,7 +613,7 @@ pui["fileupload"].FileUpload = function(container) {
 	  selector = document.createElement("a");
 	  selector.href = "javascript: void(0);";
 	  selector.className = "control-proxy";
-	  selector.appendChild(document.createTextNode(pui["fileupload"]["select text"]));
+	  selector.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload select text")));
 	  
 	  var input = document.createElement("input");
 		input.name = "file";
@@ -665,7 +649,7 @@ pui["fileupload"].FileUpload = function(container) {
 		
 		  clearLink = document.createElement("a");
 		  clearLink.href = "javascript: void(0);";
-		  clearLink.appendChild(document.createTextNode(pui["fileupload"]["clear text"]));
+		  clearLink.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload clear text")));
 		  clearLink.className = "clear";
 		  
 		  if (clearLink.attachEvent) {
@@ -700,7 +684,7 @@ pui["fileupload"].FileUpload = function(container) {
     
   		  uploadLink = document.createElement("a");
   		  uploadLink.href = "javascript: void(0);";
-  		  uploadLink.appendChild(document.createTextNode(pui["fileupload"]["upload text"]));
+  		  uploadLink.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload upload text")));
   		  uploadLink.className = "upload"; 
 		  
 		  } 
@@ -815,7 +799,7 @@ pui["fileupload"].FileUpload = function(container) {
   
       if (me.getCount() == 0) {
       
-        pui.alert(pui["fileupload"]["no files"]);
+        pui.alert(pui.getLanguageText("runtimeMsg", "upload no files"));
         return;
       
       }

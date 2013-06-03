@@ -78,7 +78,6 @@ pui.toolbox.add = function() {};
 
 pui["field exit key"] = 107;  // numeric pad plus sign
 
-pui["no connection message"] = "Unable to reach server.  Check your connection and try again.";
 pui["no connection status"] = false;
 
 pui.SQLDateFmts = {

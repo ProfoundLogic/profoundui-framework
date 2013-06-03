@@ -42,7 +42,6 @@ pui.modified = false;
 pui.ctlRecModified = {};
 pui.ignoreBlurs = false;
 pui.ignoreFocus = false;
-pui.closeMessage = "This will end your session.";
 pui.confirmOnClose = true;
 pui.shutdownOnClose = true;
 pui.skipConfirm = false;
@@ -117,9 +116,6 @@ pui["loading animation"]["height"] = 16;
 
 pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
-
-pui["session ended text"] = "Your session has ended.";
-pui["close browser text"] = "To complete the log off process, please close your browser window.";
 
 pui.fkeyValues = {
   "F1": 1,
@@ -2930,7 +2926,7 @@ pui.submitResponse = function(response) {
         pui.hideWaitAnimation();
         if (parms == null) {
           document.body.style.backgroundColor = "#DFE8F6";
-          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["session ended text"] + '<br/><br/>' + pui["close browser text"] + '</div>';
+          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
           var returnVal = shutDown();
           if (returnVal == false) return;
           pui.shutdownOnClose = false;
@@ -3569,7 +3565,7 @@ pui.runMVC = function(response) {
       pui.hideWaitAnimation();
       if (parms == null) {
         document.body.style.backgroundColor = "#DFE8F6";
-        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["session ended text"] + '<br/><br/>' + pui["close browser text"] + '</div>';
+        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
         return;
       }        
       parms.container = pui.runtimeContainer;
@@ -3695,7 +3691,7 @@ pui.closeSession = function() {
   }
 
   document.body.style.backgroundColor = "#DFE8F6";
-  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["close browser text"] + '</div>';
+  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
   // close a window that was not opened through scripting.
