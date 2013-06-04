@@ -132,6 +132,7 @@ pui.setupMobileEmulator = function(){
 	rotateImage.style.top = "8px";
 	rotateImage.style.left = "260px";
   rotateImage.style.cursor = "pointer";
+  rotateImage.title = "Rotate";
 		
 	rotateImage.onclick = function(){
 	  var temp = mobileDiv.style.height;
