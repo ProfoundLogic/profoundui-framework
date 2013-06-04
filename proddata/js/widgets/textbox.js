@@ -50,7 +50,12 @@ pui.widgets.add({
     },
     
     "input type": function(parms) {
-      if (!parms.design) parms.dom.type = parms.value;
+      if (!parms.design) {
+        try {  // browser may not support a particular input type
+          parms.dom.type = parms.value;
+        }
+        catch(e) { }
+      }
     }
   
   }
