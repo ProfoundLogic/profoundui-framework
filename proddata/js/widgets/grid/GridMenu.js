@@ -19,15 +19,6 @@
 
 
 
-pui["filter text"] = "Filter";
-pui["remove filters text"] = "Remove All Filters";
-pui["find text"] = "Find";
-pui["sort ascending text"] = "Sort Ascending";
-pui["sort descending text"] = "Sort Descending";
-
-
-
-
 /**
  * Grid Menu Class
  * @constructor
@@ -138,13 +129,13 @@ pui.GridMenu = function() {
     var menuIcons = [];
     var optionHandlers = [];
     if (me.grid.sortable && me.cell.sortColumn != null) {
-      menuOptions.push(pui["sort ascending text"]);
+      menuOptions.push(pui.getLanguageText("runtimeText", "sort ascending text"));
       menuIcons.push("icons/sort_ascending.png");
       optionHandlers.push(function() {
         me.cell.sortDescending = true;
         me.cell.sortColumn();
       });
-      menuOptions.push(pui["sort descending text"]);
+      menuOptions.push(pui.getLanguageText("runtimeText", "sort descending text"));
       menuIcons.push("icons/sort_descending.png");
       optionHandlers.push(function() {
         me.cell.sortDescending = false;
@@ -160,7 +151,7 @@ pui.GridMenu = function() {
         optionHandlers.push(null);
       }
       if (me.grid.findOption) {
-        menuOptions.push(pui["find text"] + "...");
+        menuOptions.push(pui.getLanguageText("runtimeText", "find text") + "...");
         menuIcons.push("icons/search.png");
         optionHandlers.push(function() {
           alert("find - to do");
@@ -168,7 +159,7 @@ pui.GridMenu = function() {
       }
   
       if (me.grid.filterOption) {
-        menuOptions.push(pui["filter text"] + "...");
+        menuOptions.push(pui.getLanguageText("runtimeText", "filter text") + "...");
         menuIcons.push("icons/filter.png");
         optionHandlers.push(function() {
           alert("filter - to do");
@@ -176,7 +167,7 @@ pui.GridMenu = function() {
       }
   
       if (me.grid.filterOption && true) {
-        menuOptions.push(pui["remove filters text"]);
+        menuOptions.push(pui.getLanguageText("runtimeText", "remove filters text"));
         menuIcons.push("icons/remove_filter.png");
         optionHandlers.push(function() {
           alert("remove all filters - to do");
@@ -191,7 +182,7 @@ pui.GridMenu = function() {
         menuIcons.push(null);
         optionHandlers.push(null);
       }
-      menuOptions.push(pui["csv export text"] + "...");
+      menuOptions.push(pui.getLanguageText("runtimeText", "csv export text") + "...");
       menuIcons.push("grids/excel.gif");
       optionHandlers.push(function() {
         me.grid.exportCSV();

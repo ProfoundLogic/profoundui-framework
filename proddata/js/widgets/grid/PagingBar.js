@@ -19,12 +19,6 @@
 
 
 
-pui["next link text"] = "Next";
-pui["previous link text"] = "Previous";
-pui["csv export text"] = "Export to Excel";
-
-
-
 /**
  * Paging Bar Class
  * @constructor
@@ -109,7 +103,7 @@ pui.PagingBar = function() {
     div.appendChild(exportImg);
 
     exportLink = document.createElement("span");
-    exportLink.innerHTML = pui["csv export text"];
+    exportLink.innerHTML = pui.getLanguageText("runtimeText", "csv export text");
     exportLink.style.position = "absolute";
     exportLink.style.top = "5px";
     exportLink.style.left = "24px";
@@ -146,7 +140,7 @@ pui.PagingBar = function() {
     div.appendChild(me.prevImg);
       
     me.prevLink = document.createElement("span");
-    me.prevLink.innerHTML = pui["previous link text"];
+    me.prevLink.innerHTML = pui.getLanguageText("runtimeText", "previous link text");
     me.prevLink.href = "javascript:void(0)";
     me.prevLink.style.verticalAlign = "top";
     me.prevLink.shortcutKey = "PageUp";
@@ -185,7 +179,7 @@ pui.PagingBar = function() {
     div.appendChild(spacesSpan2);
 
     me.nextLink = document.createElement("span");
-    me.nextLink.innerHTML = pui["next link text"];
+    me.nextLink.innerHTML = pui.getLanguageText("runtimeText", "next link text");
     me.nextLink.href = "javascript:void(0)";
     me.nextLink.style.verticalAlign = "top";
     me.nextLink.shortcutKey = "PageDown";

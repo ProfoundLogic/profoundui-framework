@@ -87,14 +87,6 @@ pui.pagingBarHeight = 27;
 pui["vertical button spacing"] = 33;     // this accounts for the height of the button as well, used in non-window formats
 pui["horizontal button spacing"] = 90;   // this accounts for the width of the button as well, used in window formats
 
-pui["runtimeMessages"]= {};
-pui["runtimeMessages"]["ME"] = "Mandatory entry field. You must enter data.";
-pui["runtimeMessages"]["MF"] = "Mandatory fill field. You must fill the input box completely.";
-pui["runtimeMessages"]["required"] = "The value cannot be blank. This field is required.";
-pui["runtimeMessages"]["file required"] = "You must select at least one file.";
-pui["runtimeMessages"]["signature overflow"] = "The signature drawing size exceeds the maximum number of bytes available for storing the signature.  Please clear the signature pad and try again.";
-pui["runtimeMessages"]["validValues"] = "Value entered is not valid. Valid values are: ";
-
 pui["dup"] = {};
 pui["dup"]["char"] = "\u25CF";  // this is a character that looks like a round circle
 pui["dup"]["keyCode"] = 45;     // Insert (the default dup key is Shift-Insert)
@@ -2410,13 +2402,13 @@ pui.buildResponse = function() {
         if (dom.ME == true && dom.modified != true) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: boxDom, msg: pui["runtimeMessages"]["ME"] });
+          response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "ME") });
           continue;
         }
         if (dom.MF == true && dom.modified == true && boxDom.maxLength != null && boxDom.value != null && (boxDom.maxLength != boxDom.value.length || boxDom.value === boxDom.emptyText)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: boxDom, msg: pui["runtimeMessages"]["MF"] });
+          response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "MF") });
           continue;
         }
       }
@@ -2425,8 +2417,8 @@ pui.buildResponse = function() {
              (dom.fileUpload != null && dom.fileUpload.getCount() < 1) ) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          var msg = pui["runtimeMessages"]["required"];
-          if (dom.fileUpload != null) msg = pui["runtimeMessages"]["file required"];
+          var msg = pui.getLanguageText("runtimeMsg", "required");
+          if (dom.fileUpload != null) msg = pui.getLanguageText("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
           continue;
         }
@@ -2599,7 +2591,7 @@ pui.buildResponse = function() {
         if (value.length > dom.formattingInfo.maxLength) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: dom, msg: pui["runtimeMessages"]["signature overflow"] });
+          response.errors.push({ dom: dom, msg: pui.getLanguageText("runtimeMsg", "signature overflow") });
           continue;          
         }
       }
@@ -2647,7 +2639,7 @@ pui.buildResponse = function() {
             if (invalid) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              response.errors.push({ dom: boxDom, msg: pui["runtimeMessages"]["validValues"] + validValues.join(", ") + "." });
+              response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "validValues") + validValues.join(", ") + "." });
               continue;
             }
           }
