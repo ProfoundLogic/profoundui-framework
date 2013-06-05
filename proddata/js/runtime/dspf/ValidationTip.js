@@ -29,49 +29,57 @@ pui.ValidationTip = function(el) {
   var opacity = 0;
   var reverseFlag = false;
   var currentRequestNum = 0;
-  var domEl = el;
-  var positionEl = domEl;
+  var inputEl = el;
+  var widgetEl = el;
+  var orientation = "right";
+  var msg = "";
   
   var div;
   var contentDiv;
+  var closeButton;
   var me = this;
 
-  addEvent(domEl, "focus", showTipOnFocus);
-  if (!(domEl.tagName == "INPUT" && (domEl.type == "text" || pui.isHTML5InputType(domEl.type)))) {
-    addEvent(domEl, "click", showTipOnFocus);
-  }
-  addEvent(domEl, "blur", hideTipOnBlur)
-  if (domEl.tagName == "SELECT") addEvent(domEl, "change", hideTipOnChange);
-  else addEvent(domEl, "keydown", hideTipOnKeyDown);      
-  
-  if (domEl.parentNode != null && domEl.parentNode.comboBoxWidget != null) {
-  
-    positionEl = domEl.parentNode;
-    
-  }    
-  
   this.container = pui.runtimeContainer;
-  if (positionEl.parentNode.isPUIWindow == true) {
+  if (widgetEl.parentNode && widgetEl.parentNode.isPUIWindow == true) {
   
-    this.container = positionEl.parentNode;
+    this.container = widgetEl.parentNode;
     
   }
-  else {
+  else if (widgetEl.parentNode && widgetEl.parentNode.parentNode) {
   
-    var gridDiv = positionEl.parentNode.parentNode;
-    if (gridDiv != null && gridDiv.grid != null && gridDiv.parentNode.isPUIWindow == true) {
+    var gridDiv = widgetEl.parentNode.parentNode;
+    if (gridDiv.grid != null && gridDiv.parentNode && gridDiv.parentNode.isPUIWindow == true) {
       this.container = gridDiv.parentNode;
     }
     
   }
   
-  domEl.validationTip = this;    
+  if (inputEl.comboBoxWidget != null) {
   
+    inputEl = inputEl.comboBoxWidget.getBox();
+    
+  }      
+
+  addEvent(inputEl, "focus", showTipOnFocus);
+  if (!(inputEl.tagName == "INPUT" && (inputEl.type == "text" || pui.isHTML5InputType(inputEl.type)))) {
+    addEvent(inputEl, "click", showTipOnFocus);
+  }
+  addEvent(inputEl, "blur", hideTipOnBlur)
+  if (inputEl.tagName == "SELECT") addEvent(inputEl, "change", hideTipOnChange);
+  else addEvent(inputEl, "keydown", hideTipOnKeyDown);      
+  
+  inputEl.validationTip = this;    
+  
+  setOrientation();
   init();
   
-  this.setMessage = function(msg) {
-    contentDiv.innerHTML = '<img src="' + pui.normalizeURL("/profoundui/proddata/images/icons/exclamation.png") + '" style="width: 16px; height: 16px; vertical-align: text-bottom" /> ';
-    contentDiv.appendChild(document.createTextNode(msg));
+  this.setMessage = function(val) {
+  
+    msg = val;
+    var flt = (0 == 1 && orientation == "left") ? "right" : "none";
+    contentDiv.innerHTML = '<img src="' + pui.normalizeURL("/profoundui/proddata/images/icons/exclamation.png") + '" style="float: ' + flt + '; width: 16px; height: 16px; vertical-align: text-bottom" /> ';
+    contentDiv.appendChild(document.createTextNode(msg));        
+
   }
   
   this.setPosition = function(left, top) {
@@ -82,26 +90,76 @@ pui.ValidationTip = function(el) {
   this.positionByElement = function() {
     var msgOffset = 3;
     var msgHeight = div.offsetHeight;
-    var targetHeight = positionEl.offsetHeight;
-    var targetWidth = positionEl.offsetWidth;
-    var top = positionEl.offsetTop - ((msgHeight - targetHeight) / 2);
-    var left = positionEl.offsetLeft + targetWidth + msgOffset;
-
-    if (positionEl.parentNode.getAttribute("container") == "true") {
-      var offset = pui.layout.getContainerOffset(positionEl.parentNode);
-      top = top + offset.y;
-      left = left + offset.x;
+    var msgWidth = div.offsetWidth;
+    var targetHeight = widgetEl.offsetHeight;
+    var targetWidth = widgetEl.offsetWidth;
+    
+    var old = orientation;
+    setOrientation(); // This can change 
+    if (old != orientation) {
+    
+      init();
+      me.setMessage(msg);
+    
     }
     
-    // handle subfile elements
-    var cellElement = positionEl.parentNode;
-    if (cellElement != me.container && cellElement.getAttribute("container") != "true") {
-      if (cellElement == null) {
-        // element must have been scrolled off of view in the subfile, show validation tip at top-left corner of screen
-        top = 0;
-        left = -7;
+    var top, left;
+    if (orientation == "left" || orientation == "right") {
+    
+      top = widgetEl.offsetTop - ((msgHeight - targetHeight) / 2);
+      if (orientation == "left") {
+      
+        left = widgetEl.offsetLeft - msgWidth - msgOffset;
+      
       }
       else {
+      
+        left = widgetEl.offsetLeft + targetWidth + msgOffset;
+      
+      }
+      
+    }
+    else { // top || bottom
+    
+      left = widgetEl.offsetLeft + ((targetWidth - msgWidth) / 2);
+      if (orientation == "top") {
+      
+        top = widgetEl.offsetTop - msgHeight - msgOffset;
+      
+      }
+      else { // bottom
+      
+        top = widgetEl.offsetTop + targetHeight + msgOffset;
+      
+      }
+    
+    }
+
+    var prt = widgetEl.parentNode;
+    if (prt == null || (is_ie && prt.nodeName == "#document-fragment")) {
+    
+      // This is the case when grid widget scrolled out of view.
+      // Show at top left.
+      
+      // Switch orientation to right and shift to cut off arrow.
+      setOrientation("right");
+      init();
+      me.setMessage(msg);
+      top = 0;
+      left = -7;      
+    
+    }
+    else {
+    
+      if (prt.getAttribute("container") == "true") {
+        var offset = pui.layout.getContainerOffset(prt);
+        top = top + offset.y;
+        left = left + offset.x;
+      } 
+
+      // handle subfile elements
+      var cellElement = prt;
+      if (cellElement != me.container && cellElement.getAttribute("container") != "true") {
         left += cellElement.offsetLeft;
         top += cellElement.offsetTop;
         var gridElement = cellElement.parentNode;
@@ -115,12 +173,13 @@ pui.ValidationTip = function(el) {
           }
         }
       }
+    
     }
-
+   
     // make appropriate tab visible if dealing with tab panels
-    if (positionEl.style.visibility == "hidden") {
-      var parentTab = positionEl.parentTab;
-      var parentTabPanelId = positionEl.parentTabPanel;
+    if (widgetEl.style.visibility == "hidden") {
+      var parentTab = widgetEl.parentTab;
+      var parentTabPanelId = widgetEl.parentTabPanel;
       if (parentTab != null && parentTabPanelId) {
         var parentTabPanelDom = getObj(parentTabPanelId);
         if (parentTabPanelDom != null) {
@@ -139,7 +198,7 @@ pui.ValidationTip = function(el) {
   }
   
   this.show = function(hideDelay, onTimer) {
-  
+    
     this.doneShowing = false;
   
     if (onTimer == true) {
@@ -152,7 +211,7 @@ pui.ValidationTip = function(el) {
     
     }
   
-    if (div.style.display == "none") {
+    if (div.style.display == "none") {      
       div.style.display = "block";
       div.style.visibility = "";
       opacity = 0;
@@ -164,7 +223,8 @@ pui.ValidationTip = function(el) {
     if (hideDelay != null) {
       hideRequest(currentRequestNum, hideDelay);
     }
-    this.positionByElement();
+    me.positionByElement();
+      
   }
 
   function hideRequest(requestNum, delay) {
@@ -266,12 +326,98 @@ pui.ValidationTip = function(el) {
     pui.removeCssClass(target, "invalid");
   }  
   
+  function setOrientation(val) {
+  
+    if (val != null) {
+    
+      orientation = val;
+    
+    }
+    else if (typeof(widgetEl.pui.properties["error message location"]) != "undefined") {
+    
+      orientation = widgetEl.pui.properties["error message location"];  
+    
+    }
+  
+    if (orientation != "left" && orientation != "right" && 
+        orientation != "top" && orientation != "bottom")  { 
+        
+      orientation = "right";
+      
+    }
+  
+  }
+  
   function init() {
+  
+    var imgPos;
+    var img = "/profoundui/proddata/images/";
+    var padding;
+    var contentPadding;
+    var borderStyle;
+    var borderWidth;
+    var contentPadding = "5px 25px 5px 5px";
+    if (orientation == "top") { 
+    
+      imgPos = "bottom";
+      img += "validation-arrow-bottom.gif";
+      padding = "0px 0px 7px 0px";
+      borderStyle = "solid solid none solid";
+      borderWidth = "2px 2px medium 2px";      
+      
+    }
+    else if (orientation == "bottom") {
+    
+      imgPos = "top";
+      img += "validation-arrow-top.gif";
+      padding = "7px 0px 0px 0px";
+      borderStyle = "none solid solid solid";
+      borderWidth = "medium 2px 2px 2px";      
+      
+    }
+    else if (orientation == "left") { 
+    
+      imgPos = "right";
+      img += "validation-arrow-right.gif";
+      padding = "0px 7px 0px 0px";
+      contentPadding = "5px 5px 5px 25px";
+      borderStyle = "solid none solid solid";
+      borderWidth = "2px medium 2px 2px";      
+      
+    }
+    else { // right
+    
+      imgPos = "left";
+      img += "validation-arrow.gif";
+      padding = "0px 0px 0px 7px";
+      borderStyle = "solid solid solid none";
+      borderWidth = "2px 2px 2px medium";
+    
+    }
+    
+    var reinit = (div != null);
+    
+    if (reinit) {
+    
+      closeButton.onmousedown = null
+      closeButton.onmouseup = null
+      closeButton.onclick = null
+      closeButton.parentNode.removeChild(closeButton);
+      closeButton = null
+      
+      contentDiv.parentNode.removeChild(contentDiv);
+      contentDiv = null;
+      
+      div.onmousedown = null;
+      div.parentNode.removeChild(div);
+      div = null;
+    
+    }    
+    
     div = document.createElement("div");
     div.style.position = "absolute";
-    div.style.background = "transparent url(" + pui.normalizeURL("/profoundui/proddata/images/validation-arrow.gif") + ") no-repeat scroll left center";
-    div.style.padding = "0px";
-    div.style.paddingLeft = "7px";
+    div.style.background = "transparent url(" + pui.normalizeURL(img) + ") no-repeat scroll " + imgPos + " center";
+    div.style.padding = padding;
     div.style.opacity = 0.95;
     div.style.filter = "alpha(opacity=95)";
     div.style.zIndex = 999;
@@ -279,20 +425,37 @@ pui.ValidationTip = function(el) {
     contentDiv = document.createElement("div");
     contentDiv.style.background = "#F3E6E6 none repeat scroll 0 0";
     contentDiv.style.borderColor = "#924949";
-    contentDiv.style.borderStyle = "solid solid solid none";
-    contentDiv.style.borderWidth = "2px 2px 2px medium";
+    contentDiv.style.borderStyle = borderStyle;
+    contentDiv.style.borderWidth = borderWidth;
     contentDiv.style.maxWidth = "250px";
     contentDiv.style.minWidth = "150px";
-    contentDiv.style.padding = "5px";    
-    contentDiv.style.paddingRight = "25px";    
+    contentDiv.style.padding = contentPadding;   
     contentDiv.style.color = "#666666";
     contentDiv.style.fontFamily = "Verdana,Arial";
     contentDiv.style.fontSize = "11px";
     contentDiv.style.whiteSpace = "normal";
     closeButton = document.createElement("img");
     closeButton.style.position = "absolute";
-    closeButton.style.top = "4px";
-    closeButton.style.right = "5px";
+    if (orientation == "bottom") {
+    
+      closeButton.style.top = "8px";
+    
+    }
+    else {
+    
+      closeButton.style.top = "4px";
+      
+    }
+    if (orientation == "left") {
+    
+      closeButton.style.left = "5px";  
+    
+    }
+    else {
+      
+      closeButton.style.right = "5px";
+      
+    }
     closeButton.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x5.png");
     closeButton.onmousedown = function(e) {
       closeButton.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x5_click.png");
@@ -308,16 +471,17 @@ pui.ValidationTip = function(el) {
       opacity = 0;
       
       if (is_ie) {
+        var prt = widgetEl.parentNode;
         // In IE the blur event fires first, and we cannot cancel it.. so we must put the cursor back in the box
-        if (positionEl != null) {
-          if (positionEl.tagName == "INPUT" || positionEl.tagName == "SELECT" || positionEl.tagName == "TEXTAREA") {
-            if (positionEl.disabled != true) {
+        if (inputEl != null && prt != null && prt.nodeName != "#document-fragment") {
+          if (inputEl.tagName == "INPUT" || inputEl.tagName == "SELECT" || inputEl.tagName == "TEXTAREA") {
+            if (inputEl.disabled != true) {
               pui.ignoreFocus = true;
-              positionEl.focus();
-              if (positionEl.createTextRange != null) {
+              inputEl.focus();
+              if (inputEl.createTextRange != null) {
                 // for IE, this makes the cursor to appear - workaround for IE8 bug where the cursor just doesn't show
-                positionEl.select();
-                var tr = positionEl.createTextRange();
+                inputEl.select();
+                var tr = inputEl.createTextRange();
                 if (tr != null && tr.collapse !=  null && tr.select != null) {
                   tr.collapse();
                   tr.select();
@@ -336,8 +500,10 @@ pui.ValidationTip = function(el) {
       preventEvent(e);
       return false;
     }
-    div.style.display = "none";
-    div.style.visibility = "hidden";
+    if (!reinit) {
+      div.style.display = "none";
+      div.style.visibility = "hidden";
+    }
     div.appendChild(contentDiv);
     div.appendChild(closeButton);
     me.container.appendChild(div);

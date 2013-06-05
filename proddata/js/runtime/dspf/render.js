@@ -42,6 +42,7 @@ pui.modified = false;
 pui.ctlRecModified = {};
 pui.ignoreBlurs = false;
 pui.ignoreFocus = false;
+pui.closeMessage = "This will end your session.";
 pui.confirmOnClose = true;
 pui.shutdownOnClose = true;
 pui.skipConfirm = false;
@@ -108,6 +109,9 @@ pui["loading animation"]["height"] = 16;
 
 pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
+
+pui["session ended text"] = "Your session has ended.";
+pui["close browser text"] = "To complete the log off process, please close your browser window.";
 
 pui.fkeyValues = {
   "F1": 1,
@@ -448,18 +452,15 @@ pui.cleanup = function() {
 }
 
 
-pui.resize = function(inEmulator) {
+pui.resize = function() {
   var container = pui.runtimeContainer;
   if (container == null) return;
-  for (var j = 0; j < container.childNodes.length; j++) {
+  for (j = 0; j < container.childNodes.length; j++) {
     var child = container.childNodes[j];
     if (child.sizeMe != null && typeof child.sizeMe == "function") {
       if (is_ie || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
         child.sizeMe();
       }
-    }
-    if (inEmulator && child.layout != null) {
-      child.layout.stretch();
     }
   } 
 }
@@ -2207,16 +2208,30 @@ pui.showErrors = function(errors, rrn) {
       if (msg != null && msg != "") globalMessages.push(msg);
       continue;
     }
-    if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
-    var tip = dom.validationTip;
-    if (tip == null) {
-      tip = new pui.ValidationTip(dom); 
+    // 'dom' is the widget element. 
+    // 'tipBox' is the element the tool tip is attached to
+    // this is the interior textbox for a combobox widget.
+    if (dom.parentNode && dom.parentNode.comboBoxWidget) {
+    
+      dom = dom.parentNode;
+    
+    }   
+    var tipBox = dom;    
+    if (dom.comboBoxWidget != null) { 
+      tipBox = dom.comboBoxWidget.getBox();
     }
-    pui.addCssClass(dom, "invalid");
-    tip.setMessage(msg); 
-    tip.show(3000, true);     
-
-    if (rrn != null) {
+    if (dom.pui.properties["error message location"] == "alert") {
+      globalMessages.push(msg);
+    
+    }
+    else {
+      var tip = tipBox.validationTip;
+      if (tip == null) {
+        tip = new pui.ValidationTip(dom); 
+      }
+      pui.addCssClass(tipBox, "invalid");
+      tip.setMessage(msg); 
+      tip.show(3000, true);     
       var cell = dom.parentNode;
       if (cell != null) {
         var gridDiv = cell.parentNode;
@@ -2918,7 +2933,7 @@ pui.submitResponse = function(response) {
         pui.hideWaitAnimation();
         if (parms == null) {
           document.body.style.backgroundColor = "#DFE8F6";
-          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["session ended text"] + '<br/><br/>' + pui["close browser text"] + '</div>';
           var returnVal = shutDown();
           if (returnVal == false) return;
           pui.shutdownOnClose = false;
@@ -3557,7 +3572,7 @@ pui.runMVC = function(response) {
       pui.hideWaitAnimation();
       if (parms == null) {
         document.body.style.backgroundColor = "#DFE8F6";
-        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["session ended text"] + '<br/><br/>' + pui["close browser text"] + '</div>';
         return;
       }        
       parms.container = pui.runtimeContainer;
@@ -3606,7 +3621,6 @@ pui.runMVC = function(response) {
 
 pui.start = function() {  
   var parms = getQueryStringParms();
-  pui.canvasSize = parms["canvasSize"];
   var program = parms["pgm"];
   if (program == null) program = parms["program"];
   var debug = parms["debug"]
@@ -3683,7 +3697,7 @@ pui.closeSession = function() {
   }
 
   document.body.style.backgroundColor = "#DFE8F6";
-  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["close browser text"] + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
   // close a window that was not opened through scripting.
