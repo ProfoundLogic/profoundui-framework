@@ -155,7 +155,7 @@ pui.copyAllLanguageText("en_US", "en_UK");
 // ----------------------------------
 //  German / Germany
 // ----------------------------------
-pui["runtimeMsg"]["de_DE"] = {};
+pui.copyAllLanguageText("en_US", "de_DE");
 pui["runtimeMsg"]["de_DE"]["closeMessage"]            = "Die Sitzung wird beendet.";
 pui["runtimeMsg"]["de_DE"]["no connection message"]   = "System i5 ist nicht erreichbar, bitte die Kommunikation prüfen und erneut versuchen.";
 pui["runtimeMsg"]["de_DE"]["upload file limit"]       = "Maximum von &1 Datei(en) ist erreicht.";
@@ -194,7 +194,6 @@ pui["runtimeMsg"]["de_DE"]["file required"]           = "Bitte mindestens eine D
 pui["runtimeMsg"]["de_DE"]["signature overflow"]      = "Die Größe der Signatur überschreitet die maximale Speichergröße. Bitte löschen und erneut versuchen.";
 pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist nicht gültig. Gültige Werte sind: ";
 
-pui["runtimeText"]["de_DE"] = {};
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
 pui["runtimeText"]["de_DE"]["upload remove text"]   = "Entfernen";
@@ -211,7 +210,7 @@ pui["runtimeText"]["de_DE"]["sort descending text"] = "Sortierung absteigend";
 //  Portuguese (Portugal)
 // ----------------------------------
 
-pui["runtimeMsg"]["pt_PT"] = {};
+pui.copyAllLanguageText("en_US", "pt_PT");
 pui["runtimeMsg"]["pt_PT"]["closeMessage"]            = "Isto terminará a sua sessão.";
 pui["runtimeMsg"]["pt_PT"]["no connection message"]   = "Não é possível estabelecer ligação com o servidor. Verifique a ligação e tente de novo.";
 pui["runtimeMsg"]["pt_PT"]["upload file limit"]       = "Limite de &1 ficheiro(s) excedido.";
@@ -250,7 +249,6 @@ pui["runtimeMsg"]["pt_PT"]["file required"]           = "Deve seleccionar pelo m
 pui["runtimeMsg"]["pt_PT"]["signature overflow"]      = "A imagem da assinatura excede o número máximo de bytes disponíveis para o seu armazenamento. Por favor limpe a caixa da assinatura e tente de novo.";
 pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido não é válido. Valores válidos: ";
 
-pui["runtimeText"]["pt_PT"] = {};
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
 pui["runtimeText"]["pt_PT"]["upload remove text"]   = "Remover";
@@ -279,7 +277,7 @@ pui["runtimeMsg"]["pt_BR"]["file required"]           = "Deve seleccionar pelo m
 // ------------------------------------------------------------
 //  Spanish / Spain
 // -------------------------------------------------------------
-pui["runtimeMsg"]["es_ES"] = {};
+pui.copyAllLanguageText("en_US", "es_ES");
 pui["runtimeMsg"]["es_ES"]["closeMessage"]            = "Esto cerrará su sesión.";
 pui["runtimeMsg"]["es_ES"]["no connection message"]   = "No es posible establecer ligación al servidor. Verifique la ligación y él intente de nuevo.";
 pui["runtimeMsg"]["es_ES"]["upload file limit"]       = "Límite de &1 archivo(s) excedido.";
@@ -311,8 +309,13 @@ pui["runtimeMsg"]["es_ES"]["phone too long"]          = 'El número de teléfono
 pui["runtimeMsg"]["es_ES"]["ssno too long"]           = 'El código de la Seguridad Social es demasiado grande. (Máximo: &1 digits)';
 pui["runtimeMsg"]["es_ES"]["invalid custom val"]      = 'Validación de función custom inválida.';
 pui["runtimeMsg"]["es_ES"]["error custom val"]        = 'Error en la validación de función costum.';
+pui["runtimeMsg"]["es_ES"]["ME"]                      = "Campo de entrada obligatorio. Usted debe incorporar datos.";
+pui["runtimeMsg"]["es_ES"]["MF"]                      = "Campo de introducción total obligatoria. Usted debe llenar la caja de entrada totalmente .";
+pui["runtimeMsg"]["es_ES"]["required"]                = "El valor no puede estar en blanco. Se requiere este campo.";
+pui["runtimeMsg"]["es_ES"]["file required"]           = "Debe seleccionar al menos un archivo.";
+pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma excede el número máximo de los bytes disponibles para su almacenaje. Por favor borre la caja de la firma e intente de nuevo .";
+pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 
-pui["runtimeText"]["es_ES"] = {};
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
 pui["runtimeText"]["es_ES"]["upload remove text"]   = "Remover";
@@ -324,22 +327,60 @@ pui["runtimeText"]["es_ES"]["next link text"]       = "Próximo";
 pui["runtimeText"]["es_ES"]["previous link text"]   = "Anterior";
 pui["runtimeText"]["es_ES"]["sort ascending text"]  = "Ordenación Ascendente";
 pui["runtimeText"]["es_ES"]["sort descending text"] = "Ordenación Descendente";
-pui["runtimeMsg"]["es_ES"]["ME"]                      = "Campo de entrada obligatorio. Usted debe incorporar datos.";
-pui["runtimeMsg"]["es_ES"]["MF"]                      = "Campo de introducción total obligatoria. Usted debe llenar la caja de entrada totalmente .";
-pui["runtimeMsg"]["es_ES"]["required"]                = "El valor no puede estar en blanco. Se requiere este campo.";
-pui["runtimeMsg"]["es_ES"]["file required"]           = "Debe seleccionar al menos un archivo.";
-pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma excede el número máximo de los bytes disponibles para su almacenaje. Por favor borre la caja de la firma e intente de nuevo .";
-pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 
 // ------------------------------------------------------------
 //  Copy Spanish Spanish to Mexican Spanish
 // -------------------------------------------------------------
 pui.copyAllLanguageText("es_ES", "es_MX");
+pui["runtimeMsg"]["es_MX"]["closeMessage"]            = "Esto finalizará su sesión.";
+pui["runtimeMsg"]["es_MX"]["no connection message"]   = "No se puede accesar el servidor. Verifique su conexión y trate de nuevo.";
+pui["runtimeMsg"]["es_MX"]["upload file limit"]       = "Límite de &1 archivo(s) excedido.";
+pui["runtimeMsg"]["es_MX"]["upload size limit"]       = "Límite de &1MB por archivo excedido";
+pui["runtimeMsg"]["es_MX"]["upload no files"]         = "No hay archivos seleccionados.";
+pui["runtimeMsg"]["es_MX"]["upload duplicate file"]   = "Archivos duplicados seleccionados.";
+pui["runtimeMsg"]["es_MX"]["upload file exists"]      = "Uno a más archivos ya existen en el sistema de archivos.";
+pui["runtimeMsg"]["es_MX"]["upload prevented"]        = "Operación evitada por programa de salida.";
+pui["runtimeMsg"]["es_MX"]["upload input limit"]      = "Límite de tamaño total de entrada excedido";
+pui["runtimeMsg"]["es_MX"]["upload no session"]       = "No está conectado en una sesión válida.";
+pui["runtimeMsg"]["es_MX"]["upload timeout"]          = "La transacción excedió el límite de tiempo.";
+pui["runtimeMsg"]["es_MX"]["upload invalid response"] = "La respuesta del servidor es inválida o no se encuentra.";
+pui["runtimeMsg"]["es_MX"]["close browser text"]      = "Para completar el proceso de cierre de sesión, favor cerrar la ventana de su navegador.";
+pui["runtimeMsg"]["es_MX"]["session ended text"]      = "Su sesión ha terminado.";
+pui["runtimeMsg"]["es_MX"]["outside ucs2"]            = 'Los caracteres están fuera del rango del UCS-2.';
+pui["runtimeMsg"]["es_MX"]["invalid number"]          = '&1 no es un número válido.';
+pui["runtimeMsg"]["es_MX"]["invalid length"]          = '&1 tiene un largo de datos, o posición decimal incorrectos.';
+pui["runtimeMsg"]["es_MX"]["invalid decimal"]         = '&1 tiene demasiadas posiciones decimales. (Máx.: &2)';
+pui["runtimeMsg"]["es_MX"]["invalid choice"]          = '"&1" es inválido. Las opciones válidas son: "&2" o "&3".';
+pui["runtimeMsg"]["es_MX"]["invalid date"]            = '"&1" no es una fecha  válida. Ejemplo del formato : &2';
+pui["runtimeMsg"]["es_MX"]["invalid time"]            = '"&1" no es una la hora válida. Ejemplo del formato : &2';
+pui["runtimeMsg"]["es_MX"]["invalid time stamp"]      = '"&1" no es una fecha-hora válida. Ejemplo del formato: &2';
+pui["runtimeMsg"]["es_MX"]["invalid percent"]         = '&1 no es un decimal válido.';
+pui["runtimeMsg"]["es_MX"]["invalid digits"]          = '"&1"contiene demasiados dígitos. Máx: &2';
+pui["runtimeMsg"]["es_MX"]["exceeds whole"]           = '"&1" excede el número máximo de dígitos para la porción del número entero (&2 dígitos).';
+pui["runtimeMsg"]["es_MX"]["exceeds decimal"]         = '"&1" excede el número máximo de dígitos para la porción decimal (&2 dígitos).';
+pui["runtimeMsg"]["es_MX"]["zip too long"]            = 'Código de área es demasiado largo. (Máximo: &1 dígitos)';
+pui["runtimeMsg"]["es_MX"]["phone too long"]          = 'Número de Teléfono es demasiado largo. (Máximo: &1 dígitos)';
+pui["runtimeMsg"]["es_MX"]["ssno too long"]           = 'Número de Seguro Social muy largo. (Máximo: &1 dígitos)';
+pui["runtimeMsg"]["es_MX"]["invalid custom val"]      = 'Función de validación personalizada es inválida.';
+pui["runtimeMsg"]["es_MX"]["error custom val"]        = 'Error en la validación de la función personalizada.';
+
+pui["runtimeText"]["es_MX"]["upload select text"]     = "Seleccionar Archivos";
+pui["runtimeText"]["es_MX"]["upload clear text"]      = "Limpiar";
+pui["runtimeText"]["es_MX"]["upload remove text"]     = "Eliminar";
+pui["runtimeText"]["es_MX"]["upload upload text"]     = "Subir";
+pui["runtimeText"]["es_MX"]["csv export text"]        = "Exportar a Excel";
+pui["runtimeText"]["es_MX"]["filter text"]            = "Filtrar";
+pui["runtimeText"]["es_MX"]["remove filters text"]    = "Eliminar todos los filtros";
+pui["runtimeText"]["es_MX"]["next link text"]         = "Siguiente";
+pui["runtimeText"]["es_MX"]["previous link text"]     = "Anterior";
+pui["runtimeText"]["es_MX"]["sort ascending text"]    = "Orden Ascendente";
+pui["runtimeText"]["es_MX"]["sort descending text"]   = "Orden Descendente";
+
 
 // ------------------------------------------------------------
 //  Viva la France!
 // -------------------------------------------------------------
-pui["runtimeMsg"]["fr_FR"] = {};
+pui.copyAllLanguageText("en_US", "fr_FR");
 pui["runtimeMsg"]["fr_FR"]["closeMessage"]            = "Ça finira votre session.";
 pui["runtimeMsg"]["fr_FR"]["no connection message"]   = "Il n'est pas possible d'établir liaison au serveur. S'il vous plaît, vérifiez la liaison et essaye de nouveau.";
 pui["runtimeMsg"]["fr_FR"]["upload file limit"]       = "Limite de &1 fichier(s) dépassé.";
@@ -378,7 +419,6 @@ pui["runtimeMsg"]["fr_FR"]["file required"]           = "Vous devez sélectionne
 pui["runtimeMsg"]["fr_FR"]["signature overflow"]      = "L'image de la signature dépasse le nombre maximum de bytes disponibles pour son stockage. S'il vous plaît, videz la boîte de la signature et essaye à nouveau.";
 pui["runtimeMsg"]["fr_FR"]["validValues"]             = "La valeur introduite n'est pas valable. Valeurs valables :";
 
-pui["runtimeText"]["fr_FR"] = {};
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers Sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Nettoyer ";
 pui["runtimeText"]["fr_FR"]["upload remove text"]   = "Enlever ";
@@ -394,8 +434,8 @@ pui["runtimeText"]["fr_FR"]["sort descending text"] = "Trier dans l'ordre Décro
 // ------------------------------------------------------------
 //  Italiano
 // -------------------------------------------------------------
-pui["runtimeMsg"]["it_IT"] = {};
-pui["runtimeMsg"]["it_IT"]["closeMessage"]            = "Questo terminera' la sessione.";   
+pui.copyAllLanguageText("en_US", "it_IT");
+pui["runtimeMsg"]["it_IT"]["closeMessage"]            = "Questo terminerà la sessione.";   
 pui["runtimeMsg"]["it_IT"]["no connection message"]   = "Impossibile raggiungere il server. Controllare la connessione e riprovare.";
 pui["runtimeMsg"]["it_IT"]["upload file limit"]       = "Limite di &1 file superato.";
 pui["runtimeMsg"]["it_IT"]["upload size limit"]       = "Limite di &1MB per file superato.";
@@ -406,17 +446,17 @@ pui["runtimeMsg"]["it_IT"]["upload prevented"]        = "Operazione impedita da 
 pui["runtimeMsg"]["it_IT"]["upload input limit"]      = "Superato limite della dimensione totale input.";
 pui["runtimeMsg"]["it_IT"]["upload no session"]       = "Non collegato ad una sessione valida.";
 pui["runtimeMsg"]["it_IT"]["upload timeout"]          = "Scaduto il tempo per la transazione.";
-pui["runtimeMsg"]["it_IT"]["upload invalid response"] = "La risposta del server è mancante o non e' valida.";
+pui["runtimeMsg"]["it_IT"]["upload invalid response"] = "La risposta del server è mancante o non è valida.";
 pui["runtimeMsg"]["it_IT"]["close browser text"]      = "Per completare la chiusura della sessione, chiudere la finestra del browser.";
 pui["runtimeMsg"]["it_IT"]["session ended text"]      = "La sessione si è conclusa.";
 pui["runtimeMsg"]["it_IT"]["outside ucs2"]            = "Caratteri fuori dall'ambito UCS-2.";
-pui["runtimeMsg"]["it_IT"]["invalid number"]          = "&1 non e' un numero valido.";  
+pui["runtimeMsg"]["it_IT"]["invalid number"]          = "&1 non è un numero valido.";  
 pui["runtimeMsg"]["it_IT"]["invalid length"]          = '&1 ha lunghezza dati o posizione decimale errata.';
 pui["runtimeMsg"]["it_IT"]["invalid decimal"]         = '&1 ha troppe cifre decimali. (max: &2) ';
-pui["runtimeMsg"]["it_IT"]["invalid choice"]          = '"&1" non è valido.  Scelte valide sono: "&2" o "&3".';
+pui["runtimeMsg"]["it_IT"]["invalid choice"]          = '"&1" non è valido. Scelte valide sono: "&2" o "&3".';
 pui["runtimeMsg"]["it_IT"]["invalid date"]            = '"&1" non è una data valida. Esempio di formato corretto: &2';
-pui["runtimeMsg"]["it_IT"]["invalid time"]            = '"&1" non è un valore di tempo corretto.  Esempio di formato corretto: &2';
-pui["runtimeMsg"]["it_IT"]["invalid time stamp"]      = "\"&1\" non e' un riferimento di tempo valido.  Esempio di formato corretto: &2";
+pui["runtimeMsg"]["it_IT"]["invalid time"]            = '"&1" non è un valore di tempo corretto. Esempio di formato corretto: &2';
+pui["runtimeMsg"]["it_IT"]["invalid time stamp"]      = "\"&1\" non è un riferimento di tempo valido.  Esempio di formato corretto: &2";
 pui["runtimeMsg"]["it_IT"]["invalid percent"]         = '&1 non è un decimale valido.';
 pui["runtimeMsg"]["it_IT"]["invalid digits"]          = '"&1" contiene troppe cifre. Max: &2';
 pui["runtimeMsg"]["it_IT"]["exceeds whole"]           = '"&1" supera il numero massimo di cifre per la parte intera del numero (&2 digits).';
@@ -426,16 +466,15 @@ pui["runtimeMsg"]["it_IT"]["phone too long"]          = 'Numero di telefono è t
 pui["runtimeMsg"]["it_IT"]["ssno too long"]           = 'Codice fiscale è troppo lungo. (Massimo: &1 cifre)';
 pui["runtimeMsg"]["it_IT"]["invalid custom val"]      = "Non valida funzione di validazione personalizzata.";
 pui["runtimeMsg"]["it_IT"]["error custom val"]        = 'Errore nella funzione di convalida personalizzata.';
-pui["runtimeMsg"]["it_IT"]["ME"]                      = "Campo con obbligo di riempimento.  E' necessario immettere dati.";
-pui["runtimeMsg"]["it_IT"]["MF"]                      = "Campo con obbligo di riempimento.  E' necessario riempire completamente la casella dati.";
+pui["runtimeMsg"]["it_IT"]["ME"]                      = "Campo con obbligo di riempimento. È necessario immettere dati.";
+pui["runtimeMsg"]["it_IT"]["MF"]                      = "Campo con obbligo di riempimento. È necessario riempire completamente la casella dati.";
 pui["runtimeMsg"]["it_IT"]["required"]                = "Il valore non può essere vuoto. Questo campo è obbligatorio.";
-pui["runtimeMsg"]["it_IT"]["file required"]           = "E' necessario selezionare almeno un file.";
+pui["runtimeMsg"]["it_IT"]["file required"]           = "È necessario selezionare almeno un file.";
 pui["runtimeMsg"]["it_IT"]["signature overflow"]      = "La dimensione del testo firma supera il numero massimo di byte disponibili per memorizzare la firma.  Si prega di cancellare la pad per la firma elettronica e provare di nuovo.";
 pui["runtimeMsg"]["it_IT"]["validValues"]             = "Valore inserito non è valido. I valori validi sono: ";
 
-pui["runtimeText"]["it_IT"] = {};
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
-pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancellare";
+pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
 pui["runtimeText"]["it_IT"]["upload remove text"]   = "Rimuovi";
 pui["runtimeText"]["it_IT"]["upload upload text"]   = "Carica";
 pui["runtimeText"]["it_IT"]["csv export text"]      = "Esporta in Excel";
