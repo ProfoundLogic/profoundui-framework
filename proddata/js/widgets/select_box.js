@@ -238,6 +238,19 @@ pui.widgets.add({
     },
     
     "choices": function(parms) {
+    
+      // Can't have this happening at the same time as other population options.
+      // Causes timing/order of events issues if you call 'get()' while Ajax calls
+      // are in progress.
+      var db = parms.evalProperty("choices database file");
+      var url = parms.evalProperty("choices url");
+      
+      if (db != "" || url != "") {
+      
+        return;
+        
+      } 
+    
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
       var choicesString = parms.value; 
       var choiceValuesString = parms.evalProperty("choice values");
@@ -246,6 +259,19 @@ pui.widgets.add({
     },
 
     "choice values": function(parms) {
+    
+      // Can't have this happening at the same time as other population options.
+      // Causes timing/order of events issues if you call 'get()' while Ajax calls
+      // are in progress.
+      var db = parms.evalProperty("choices database file");
+      var url = parms.evalProperty("choices url");
+      
+      if (db != "" || url != "") {
+      
+        return;
+        
+      }    
+    
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
       var choicesString = parms.evalProperty("choices");
       var choiceValuesString = parms.value; 
