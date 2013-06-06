@@ -47,6 +47,7 @@ pui.setSelectBoxValue = function(value, dom) {
      || dom.fieldInfo.shift == '5'
      || dom.fieldInfo.shift == '7') {
        value = trim(value);
+       dom.pui.properties["value"] = value;
     }
   }
   
@@ -57,11 +58,15 @@ pui.setSelectBoxValue = function(value, dom) {
     else {
       dom.value = value;
     }
+    dom.pui.properties["value"] = value;
     return;
   }
   var multiple = false;
   if (dom.getAttribute("multiple") != null) multiple = true;
-  if (!multiple) dom.value = value;
+  if (!multiple) {
+    dom.value = value;
+    dom.pui.properties["value"] = value;
+  }
   if (multiple) {
     var values = value.split(",");
     for (var i = 0; i < dom.options.length; i++) {
