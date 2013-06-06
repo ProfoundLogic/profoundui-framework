@@ -210,6 +210,12 @@ function changeElementValue(id, val) {
     pui.response[elem.fieldInfo["idx"]] = elem;
   }
   pui.checkEmptyText(elem);
+  if (elem.pui && elem.pui.properties) {
+  
+    elem.pui.properties["value"] = val;  
+  
+  }
+  
 }
 
 // assign a new css class to an element
