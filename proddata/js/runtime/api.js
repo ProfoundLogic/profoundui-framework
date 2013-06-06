@@ -77,7 +77,12 @@ function getElementValue(id) {
     return elem.checked;  // "checked value" and/or "unchecked value" not present, so just return true or false
   }
   if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
-    elemValue = elem.value;
+    if (elem.tagName == "SELECT" && elem.pui && elem.pui.properties && elem.pui.properties["value"]) {
+      elemValue = elem.pui.properties["value"];
+    }
+    else {
+      elemValue = elem.value;
+    }
   }
   if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
 
