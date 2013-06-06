@@ -2207,16 +2207,30 @@ pui.showErrors = function(errors, rrn) {
       if (msg != null && msg != "") globalMessages.push(msg);
       continue;
     }
-    if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
-    var tip = dom.validationTip;
-    if (tip == null) {
-      tip = new pui.ValidationTip(dom); 
+    // 'dom' is the widget element. 
+    // 'tipBox' is the element the tool tip is attached to
+    // this is the interior textbox for a combobox widget.
+    if (dom.parentNode && dom.parentNode.comboBoxWidget) {
+    
+      dom = dom.parentNode;
+    
+    }   
+    var tipBox = dom;    
+    if (dom.comboBoxWidget != null) { 
+      tipBox = dom.comboBoxWidget.getBox();
     }
-    pui.addCssClass(dom, "invalid");
-    tip.setMessage(msg); 
-    tip.show(3000, true);     
-
-    if (rrn != null) {
+    if (dom.pui.properties["error message location"] == "alert") {
+      globalMessages.push(msg);
+    
+    }
+    else {
+      var tip = tipBox.validationTip;
+      if (tip == null) {
+        tip = new pui.ValidationTip(dom); 
+      }
+      pui.addCssClass(tipBox, "invalid");
+      tip.setMessage(msg); 
+      tip.show(3000, true);     
       var cell = dom.parentNode;
       if (cell != null) {
         var gridDiv = cell.parentNode;
