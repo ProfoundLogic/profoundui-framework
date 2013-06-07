@@ -124,6 +124,9 @@ pui.attachDragDrop = function(dom, properties) {
       if (isGrid) {
         var cols = dom.grid.cells[row];
         var cell0 = cols[0];
+        // Oddly, appending the proxy to the DOM prevents the cell click from firing, 
+        // which prevents things like row selection from occurring. 
+        cell0.onclick(event);        
         proxy = document.createElement("div");
         proxy.style.position = "absolute";
         proxy.style.left = dom.style.left;
