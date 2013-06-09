@@ -511,6 +511,8 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   
   if (domObj == null) return null;
   
+  if (propertyName == "shortcut key") pui.assignShortcutKey(propertyValue, domObj);
+  
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
   else nmodel = domObj.propertiesNamedModel;

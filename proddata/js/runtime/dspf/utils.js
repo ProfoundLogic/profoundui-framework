@@ -241,3 +241,31 @@ pui.parseLibraryFileMember = function(path) {
 }
 
 
+
+pui.assignShortcutKey = function(shortcutKey, dom) {
+  var formatName = pui.lastFormatName;
+  if (context != "dspf" || formatName == null) return;
+
+  // unassign current shortcut key
+  if (pui.keyMap[formatName] != null && pui.keyMap[formatName][shortcutKey] != null) {
+    var doms = pui.keyMap[formatName][shortcutKey];
+    for (var i = 0; i < doms.length; i++) {
+      if (doms[i] == dom) {
+        doms.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  // assign new shortcut key
+  dom.shortcutKey = shortcutKey;
+  if (shortcutKey == null || shortcutKey == "") return;
+  if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
+  if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
+  pui.keyMap[formatName][shortcutKey].push(dom);
+
+  if (dom["onclick"] == null || dom.responseValue == null) {
+    pui.attachResponse(dom);
+  }
+}
+

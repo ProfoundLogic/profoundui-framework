@@ -672,7 +672,7 @@ pui.render = function(parms) {
       }
       if (format["active"] == true) {
         format.lastFormat = true;
-        pui.lastFormatName = formats.name;
+        pui.lastFormatName = format.name;
       }
       pui.renderFormat(format);
     }
