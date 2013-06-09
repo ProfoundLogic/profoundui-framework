@@ -1652,7 +1652,7 @@ pui.renderFormat = function(parms) {
           
           addEvent(boxDom, "keydown", function(event) {
             event = event || window.event;
-            var key = event.keyCode;            
+            var key = event.keyCode;
             if (key >= 9 && key <= 45 && key != 32) return;   // includes keys like arrow keys, ctrl, shift, etc.
             if (key >= 112 && key <= 145) return;             // includes f1-f12, num lock, scroll lock, etc.
             setModified(event);
@@ -1729,6 +1729,15 @@ pui.renderFormat = function(parms) {
           }
         }
         // checkboxes / radio buttons / dropdowns
+        if (dom.tagName == "SELECT") {
+          addEvent(dom, "keydown", function(event) {
+            event = event || window.event;
+            var key = event.keyCode;
+            if (key == 38 || key == 40) {  // up or down arrow
+              setModified(event);
+            }
+          });
+        }
         if ((dom.tagName == "SELECT") || (dom.tagName == "INPUT" && (dom.type == "checkbox" || dom.type == "radio"))) {
           if (dom.cursorRecord != null || dom.cursorField != null || dom.cursorRow != null || dom.cursorColumn != null) {
             addEvent(dom, "focus", pui.returnCursor);
