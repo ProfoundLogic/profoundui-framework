@@ -247,12 +247,14 @@ pui.assignShortcutKey = function(shortcutKey, dom) {
   if (context != "dspf" || formatName == null) return;
 
   // unassign current shortcut key
-  if (pui.keyMap[formatName] != null && pui.keyMap[formatName][shortcutKey] != null) {
-    var doms = pui.keyMap[formatName][shortcutKey];
-    for (var i = 0; i < doms.length; i++) {
-      if (doms[i] == dom) {
-        doms.splice(i, 1);
-        break;
+  if (pui.keyMap[formatName] != null) {
+    for (var key in pui.keyMap[formatName]) {
+      var doms = pui.keyMap[formatName][key];
+      for (var i = 0; i < doms.length; i++) {
+        if (doms[i] == dom) {
+          doms.splice(i, 1);
+          break;
+        }
       }
     }
   }
