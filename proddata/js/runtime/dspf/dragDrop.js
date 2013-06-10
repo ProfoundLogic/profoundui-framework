@@ -30,11 +30,10 @@ pui.attachDragDrop = function(dom, properties) {
 
   var useProxy = (properties["use proxy"] == "true");
   var isGrid = (dom.grid != null);
-  var lastRow = 0;
   if (isGrid) {
     useProxy = true;
-    lastRow = dom.grid.cells.length - 1;
     setTimeout(function() {
+      var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
         var minLastRow = dom.grid.dataArray.length - dom.grid.recNum + 1;
         if (lastRow > minLastRow) lastRow = minLastRow;
@@ -63,6 +62,11 @@ pui.attachDragDrop = function(dom, properties) {
     var requestNum = 0;
     var recordNumber;
     if (isGrid) {
+      var lastRow = dom.grid.cells.length - 1;
+      if (!dom.grid.isDataGrid()) {
+        var minLastRow = dom.grid.dataArray.length - dom.grid.recNum + 1;
+        if (lastRow > minLastRow) lastRow = minLastRow;
+      }    
       var firstRow = 0;
       if (dom.grid.hasHeader) firstRow = 1;
       var clickedOn = getTarget(event);
