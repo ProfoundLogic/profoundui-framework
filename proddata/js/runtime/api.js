@@ -1358,7 +1358,7 @@ pui["downloadURL"] = function (params) {
 
 pui["download"] = function (params) {
 
-  var url = pui.downloadURL(params);
+  var url = pui["downloadURL"](params);
   var inline = (params["inline"] === true);
   
   if (inline) {
