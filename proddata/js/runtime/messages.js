@@ -144,6 +144,9 @@ pui["runtimeText"]["en_US"]["next link text"]       = "Next";
 pui["runtimeText"]["en_US"]["previous link text"]   = "Previous";
 pui["runtimeText"]["en_US"]["sort ascending text"]  = "Sort Ascending";
 pui["runtimeText"]["en_US"]["sort descending text"] = "Sort Descending";
+pui["runtimeText"]["en_US"]["row"]                  = "row";
+pui["runtimeText"]["en_US"]["rows"]                 = "rows";
+pui["runtimeText"]["en_US"]["page"]                 = "Page";
 
 
 // ----------------------------------
@@ -205,6 +208,9 @@ pui["runtimeText"]["de_DE"]["next link text"]       = "Nächstes";
 pui["runtimeText"]["de_DE"]["previous link text"]   = "Voriges";
 pui["runtimeText"]["de_DE"]["sort ascending text"]  = "Sortierung aufsteigend";
 pui["runtimeText"]["de_DE"]["sort descending text"] = "Sortierung absteigend";
+pui["runtimeText"]["de_DE"]["row"]                  = "zeile";
+pui["runtimeText"]["de_DE"]["rows"]                 = "zeilen";
+pui["runtimeText"]["de_DE"]["page"]                 = "Seite";
 
 // ----------------------------------
 //  Portuguese (Portugal)

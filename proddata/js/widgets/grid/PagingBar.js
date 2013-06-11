@@ -446,7 +446,7 @@ pui.PagingBar = function() {
       
       if (me.showPageNumber) {
         pageSpan.style.display = "";
-        pageSpan.innerHTML = "Page " + me.pageNumber;
+        pageSpan.innerHTML = pui.getLanguageText("runtimeText", "page") + " " + me.pageNumber;
       }
       else {
         pageSpan.style.display = "none";
