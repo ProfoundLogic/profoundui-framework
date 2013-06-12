@@ -128,9 +128,6 @@ pui.attachDragDrop = function(dom, properties) {
       if (isGrid) {
         var cols = dom.grid.cells[row];
         var cell0 = cols[0];
-        // Oddly, appending the proxy to the DOM prevents the cell click from firing, 
-        // which prevents things like row selection from occurring. 
-        cell0.onclick(event);        
         proxy = document.createElement("div");
         proxy.style.position = "absolute";
         proxy.style.left = dom.style.left;
@@ -147,6 +144,9 @@ pui.attachDragDrop = function(dom, properties) {
         for (var i = 0; i < cols.length; i++) {
           var cloneCell = cols[i].cloneNode(true);
           cloneCell.style.top = "0px";
+          cloneCell.onclick = null;
+          cloneCell.onmousedown = null;
+          cloneCell.onmouseup = null;
           proxy.appendChild(cloneCell);          
         }
       }
@@ -160,7 +160,6 @@ pui.attachDragDrop = function(dom, properties) {
       proxy.style.opacity = 0.60;
       proxy.style.filter = "alpha(opacity=60)";
       proxy.style.border = "1px solid #333333";
-      dom.parentNode.appendChild(proxy);
     }
 
     var cursorStartX = getMouseX(event);
@@ -181,6 +180,13 @@ pui.attachDragDrop = function(dom, properties) {
     executeEvent("ondragstart");
 
     function mousemove(event) {
+    
+      if (proxy.parentNode == null) {
+      
+        dom.parentNode.appendChild(proxy);
+      
+      }
+    
       var y = getMouseY(event) - cursorStartY;
       var x = getMouseX(event) - cursorStartX;
       proxy.style.top = (startDomY + y) + "px";
@@ -342,7 +348,7 @@ pui.attachDragDrop = function(dom, properties) {
     function mouseup() {
       requestNum++;
       if (useProxy) {
-        proxy.parentNode.removeChild(proxy);
+        if (proxy.parentNode != null) proxy.parentNode.removeChild(proxy);
         proxy = null;
       }
       if (touchEvent) {

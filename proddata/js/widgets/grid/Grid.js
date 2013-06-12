@@ -3566,7 +3566,7 @@ pui.Grid = function() {
         document.body.oncontextmenu = stopContextMenu;
         
         // select row
-        cell.onclick(event);
+        cell.onmouseup(event);
         
         // show custom context menu
         var x = pui.getMouseX(event);
@@ -3616,7 +3616,7 @@ pui.Grid = function() {
       }
     }
     
-    cell.onclick = function(e) {      
+    cell.onmouseup = function(e) {      
       var target = getTarget(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1);
