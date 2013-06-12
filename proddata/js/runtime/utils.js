@@ -1463,4 +1463,9 @@ pui.isFieldExit = function(e) {
   
 }
 
+pui.hasParent = function(node) {
 
+  var prt = node.parentNode;
+  return (prt != null && (!is_ie || prt.nodeName != "#document-fragment"));
+
+}

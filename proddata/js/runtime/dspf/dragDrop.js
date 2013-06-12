@@ -181,9 +181,9 @@ pui.attachDragDrop = function(dom, properties) {
 
     function mousemove(event) {
     
-      if (proxy.parentNode == null) {
+      if (!pui.hasParent(proxy)) {
       
-        dom.parentNode.appendChild(proxy);
+        dom.parentNode.appendChild(proxy);  
       
       }
     
@@ -356,7 +356,11 @@ pui.attachDragDrop = function(dom, properties) {
     function mouseup() {
       requestNum++;
       if (useProxy) {
-        if (proxy.parentNode != null) proxy.parentNode.removeChild(proxy);
+        if (pui.hasParent(proxy)) {
+        
+          proxy.parentNode.removeChild(proxy);
+          
+        }
         proxy = null;
       }
       if (touchEvent) {
