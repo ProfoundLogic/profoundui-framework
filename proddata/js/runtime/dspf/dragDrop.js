@@ -187,6 +187,14 @@ pui.attachDragDrop = function(dom, properties) {
       
       }
     
+      if (isGrid && dom.grid.contextMenuId) {
+      
+        var contextMenu = getObj(dom.grid.contextMenuId);
+        contextMenu.style.visibility = "hidden";
+        contextMenu.style.display = "none";        
+      
+      }
+    
       var y = getMouseY(event) - cursorStartY;
       var x = getMouseX(event) - cursorStartX;
       proxy.style.top = (startDomY + y) + "px";
