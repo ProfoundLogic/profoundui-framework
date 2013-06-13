@@ -60,6 +60,63 @@ pui.widgets.add({
             }
           });
         }
+        else if (context == "genie") {
+        
+          var relatedId = parms.evalProperty("related field"); 
+          var attrs;
+          var hide = false;
+          if (parms.dom.fieldInfo) {
+          
+            // Transformed 5250 field.
+            attrs = parms.dom.fieldInfo;
+          
+          }
+          else if (relatedId != "") {
+          
+            // Related radio.
+            if (parms.dom.relatedObj) {
+              
+              if (parms.dom.relatedObj.fieldInfo) {
+              
+                attrs = related.fieldInfo;
+                
+              }
+            
+            }
+            else {
+            
+              // No related field. Assume 5250 field not 
+              // conditioned for display. 
+              hide = true;
+            
+            }
+          
+          }
+          
+          if (attrs) {
+          
+            if (attrs["bypass"]) {
+            
+              parms.dom.disabled = true;
+              var attr = attrs["attr"];
+              hide = (attr == "27" || attr == "2F" || attr == "37" || attr == "3F");              
+            
+            }
+          
+          }
+          
+          if (hide) {
+          
+            parms.dom.style.visibility = "hidden";
+            if (parms.dom.labelObj) {
+            
+              parms.dom.labelObj.style.visibility = "hidden";
+            
+            }            
+          
+          }  
+       
+        }
       }
     }      
   }
