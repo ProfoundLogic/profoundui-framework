@@ -370,6 +370,13 @@ pui["runtimeMsg"]["es_MX"]["ssno too long"]           = 'Número de Seguro Socia
 pui["runtimeMsg"]["es_MX"]["invalid custom val"]      = 'Función de validación personalizada es inválida.';
 pui["runtimeMsg"]["es_MX"]["error custom val"]        = 'Error en la validación de la función personalizada.';
 
+pui["runtimeMsg"]["es_MX"]["ME"]                      = "Campo de entrada obligatorio. Debe ingresar los datos.";
+pui["runtimeMsg"]["es_MX"]["MF"]                      = "Campo de relleno obligatorio. Debe rellenar el cuadro de entrada completamente.";
+pui["runtimeMsg"]["es_MX"]["required"]                = "El valor no puede ser blanco. Este campo es requerido.";
+pui["runtimeMsg"]["es_MX"]["file required"]           = "Debe seleccionar al menos un archivo.";
+pui["runtimeMsg"]["es_MX"]["signature overflow"]      = "El tamaño del dibujo de la firma excede el número máximo de bytes disponible para almacenar la firma. Por favor borre el área de firma y trate de nuevo.";
+pui["runtimeMsg"]["es_MX"]["validValues"]             = "El valor ingresado es invalido. Los valores válidos son: ";
+
 pui["runtimeText"]["es_MX"]["upload select text"]     = "Seleccionar Archivos";
 pui["runtimeText"]["es_MX"]["upload clear text"]      = "Limpiar";
 pui["runtimeText"]["es_MX"]["upload remove text"]     = "Eliminar";
