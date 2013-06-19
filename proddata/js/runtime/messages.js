@@ -266,6 +266,9 @@ pui["runtimeText"]["pt_PT"]["next link text"]       = "Próximo";
 pui["runtimeText"]["pt_PT"]["previous link text"]   = "Anterior";
 pui["runtimeText"]["pt_PT"]["sort ascending text"]  = "Ordenar Ascendentemente";
 pui["runtimeText"]["pt_PT"]["sort descending text"] = "Ordenar Descendentemente";
+pui["runtimeText"]["pt_PT"]["row"]                  = "linha";
+pui["runtimeText"]["pt_PT"]["rows"]                 = "linhas";
+pui["runtimeText"]["pt_PT"]["page"]                 = "Página";
 
 // ------------------------------------------------------------
 //  Portuguese (Copy for Brazil)
@@ -277,8 +280,10 @@ pui["runtimeMsg"]["pt_BR"]["upload size limit"]       = "Limite de &1MB por arqu
 pui["runtimeMsg"]["pt_BR"]["upload no files"]         = "Não há arvquivos selecionados.";
 pui["runtimeMsg"]["pt_BR"]["upload duplicate file"]   = "Foram selecionados arvquivos em duplicado.";
 pui["runtimeMsg"]["pt_BR"]["upload file exists"]      = "Um ou mais arquivos já existem no sistema de arquivos.";
-pui["runtimeText"]["pt_BR"]["upload select text"]     = "Arquivos Selecionados";
 pui["runtimeMsg"]["pt_BR"]["file required"]           = "Deve seleccionar pelo menos um arquivo.";
+pui["runtimeText"]["pt_BR"]["upload select text"]     = "Arquivos Selecionados";
+pui["runtimeText"]["pt_BR"]["row"]                    = "fileira";
+pui["runtimeText"]["pt_BR"]["rows"]                   = "fileiras";
 
 // ------------------------------------------------------------
 //  Spanish / Spain
@@ -333,6 +338,10 @@ pui["runtimeText"]["es_ES"]["next link text"]       = "Próximo";
 pui["runtimeText"]["es_ES"]["previous link text"]   = "Anterior";
 pui["runtimeText"]["es_ES"]["sort ascending text"]  = "Ordenación Ascendente";
 pui["runtimeText"]["es_ES"]["sort descending text"] = "Ordenación Descendente";
+pui["runtimeText"]["es_ES"]["row"]                  = "línea";
+pui["runtimeText"]["es_ES"]["rows"]                 = "líneas";
+pui["runtimeText"]["es_ES"]["page"]                 = "Página";
+
 
 // ------------------------------------------------------------
 //  Copy Spanish Spanish to Mexican Spanish
@@ -388,6 +397,9 @@ pui["runtimeText"]["es_MX"]["next link text"]         = "Siguiente";
 pui["runtimeText"]["es_MX"]["previous link text"]     = "Anterior";
 pui["runtimeText"]["es_MX"]["sort ascending text"]    = "Orden Ascendente";
 pui["runtimeText"]["es_MX"]["sort descending text"]   = "Orden Descendente";
+pui["runtimeText"]["es_MX"]["row"]                    = "fila";
+pui["runtimeText"]["es_MX"]["rows"]                   = "filas";
+pui["runtimeText"]["es_MX"]["page"]                   = "página";
 
 
 // ------------------------------------------------------------
@@ -443,6 +455,9 @@ pui["runtimeText"]["fr_FR"]["next link text"]       = "Prochain ";
 pui["runtimeText"]["fr_FR"]["previous link text"]   = "Précédent ";
 pui["runtimeText"]["fr_FR"]["sort ascending text"]  = "Trier dans l'ordre Croissant";
 pui["runtimeText"]["fr_FR"]["sort descending text"] = "Trier dans l'ordre Décroissant";
+pui["runtimeText"]["fr_FR"]["row"]                  = "rangée";
+pui["runtimeText"]["fr_FR"]["rows"]                 = "rangées";
+pui["runtimeText"]["fr_FR"]["page"]                 = "Page";
 
 // ------------------------------------------------------------
 //  Italiano
@@ -497,3 +512,6 @@ pui["runtimeText"]["it_IT"]["next link text"]       = "Successivo";
 pui["runtimeText"]["it_IT"]["previous link text"]   = "Precedente";
 pui["runtimeText"]["it_IT"]["sort ascending text"]  = "Ordinare in Senso Ascendente";
 pui["runtimeText"]["it_IT"]["sort descending text"] = "Ordinare in Senso Discendente";
+pui["runtimeText"]["it_IT"]["row"]                  = "riga";
+pui["runtimeText"]["it_IT"]["rows"]                 = "righe";
+pui["runtimeText"]["it_IT"]["page"]                 = "Pagina";
