@@ -399,7 +399,7 @@ pui["runtimeText"]["es_MX"]["sort ascending text"]    = "Orden Ascendente";
 pui["runtimeText"]["es_MX"]["sort descending text"]   = "Orden Descendente";
 pui["runtimeText"]["es_MX"]["row"]                    = "fila";
 pui["runtimeText"]["es_MX"]["rows"]                   = "filas";
-pui["runtimeText"]["es_MX"]["page"]                   = "página";
+pui["runtimeText"]["es_MX"]["page"]                   = "Página";
 
 
 // ------------------------------------------------------------
