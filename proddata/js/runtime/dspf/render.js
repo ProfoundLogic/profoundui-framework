@@ -732,7 +732,7 @@ pui.render = function(parms) {
       }, 1);
     }
   }
-  else {
+  else if (!pui.placeCursorOnSubfile && (pui.cursorValues.setRow == null || pui.cursorValues.setColumn == null)) {
     pui["focusOnContainer"]();
   }
 

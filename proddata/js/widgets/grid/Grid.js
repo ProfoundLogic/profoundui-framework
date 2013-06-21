@@ -3892,7 +3892,7 @@ pui.Grid = function() {
       inputBox.focus();
       if (inputBox.createTextRange != null) {
         // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
-        if (inputBox.select != null && typeof inputBox.select == "function") inputBox.select();
+        if (inputBox.select != null) inputBox.select();
         var tr = inputBox.createTextRange();
         if (tr != null && tr.collapse !=  null && tr.select != null) {
           tr.collapse();
