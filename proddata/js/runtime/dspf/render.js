@@ -1551,33 +1551,40 @@ pui.renderFormat = function(parms) {
       // check set cursor row / column
       if ( !isDesignMode && 
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
-           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" &&
-           pui.cursorValues.setRow == properties["cursor row"] ) {
-        var cursorMatch = false;
-        if (pui.cursorValues.setColumn == properties["cursor column"]) cursorMatch = true;
-        if (!cursorMatch) {
-          if (properties["field type"] == "textbox" || properties["field type"] == "date field" || properties["field type"] == "password field" || properties["field type"] == "combox box" || properties["field type"] == "spinner") {
-            var fieldInfo = items[i]["value"];
-            if (fieldInfo != null && typeof fieldInfo == "object" && fieldInfo["dataLength"] != null) {
-              var dataLength = Number(fieldInfo["dataLength"]);
-              var cursorColumn = Number(properties["cursor column"]);
-              var setColumn = Number(pui.cursorValues.setColumn);
-              if (!isNaN(dataLength) && !isNaN(cursorColumn) && !isNaN(setColumn)) {
-                if (setColumn > cursorColumn && setColumn < cursorColumn + dataLength) {
-                  cursorMatch = true;
-                }                
+           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" ) {
+        crow = properties["cursor row"];
+        if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
+          var adj = parseInt(crow, 10);
+          if (!isNaN(adj)) adj += dom.parentNode.row - 1;
+          crow = "" + adj;         
+        }
+        if (pui.cursorValues.setRow == crow) {
+          var cursorMatch = false;
+          if (pui.cursorValues.setColumn == properties["cursor column"]) cursorMatch = true;
+          if (!cursorMatch) {
+            if (properties["field type"] == "textbox" || properties["field type"] == "date field" || properties["field type"] == "password field" || properties["field type"] == "combox box" || properties["field type"] == "spinner") {
+              var fieldInfo = items[i]["value"];
+              if (fieldInfo != null && typeof fieldInfo == "object" && fieldInfo["dataLength"] != null) {
+                var dataLength = Number(fieldInfo["dataLength"]);
+                var cursorColumn = Number(properties["cursor column"]);
+                var setColumn = Number(pui.cursorValues.setColumn);
+                if (!isNaN(dataLength) && !isNaN(cursorColumn) && !isNaN(setColumn)) {
+                  if (setColumn > cursorColumn && setColumn < cursorColumn + dataLength) {
+                    cursorMatch = true;
+                  }                
+                }
               }
             }
           }
-        }
-        if (cursorMatch) {
-          //if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
-            // "set cursor row" and "set cursor column" take precedence over other propertiess like "set focus"
-            pui.focusField.dom = dom;
-            if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
-            pui.focusField.setFocusFlag = true;
-          //}              
-        }              
+          if (cursorMatch) {
+            //if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
+              // "set cursor row" and "set cursor column" take precedence over other propertiess like "set focus"
+              pui.focusField.dom = dom;
+              if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
+              pui.focusField.setFocusFlag = true;
+            //}              
+          }
+        } 
       }
       
       // attach events that keep track of modified state / cursor, apply a key filter, set max length
