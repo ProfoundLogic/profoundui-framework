@@ -191,6 +191,24 @@ pui.ComboBoxWidget = function() {
   }
 
   function showChoices() {
+    
+    // In designer, the combo can start its life outside of a grid, then 
+    // be moved inside...
+ 
+    // You could also remove from one grid and into another...
+    
+    if (me.design) {
+      
+      var prt = me.div.parentNode;
+      if (prt.parentNode.grid) {
+        
+        cellDiv = prt;
+        gridDiv = prt.parentNode;
+        
+      }
+      
+    }
+    
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
     choicesDiv.style.left = me.div.style.left;
