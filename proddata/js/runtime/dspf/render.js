@@ -3157,7 +3157,7 @@ pui.handleHotKey = function(e, keyName) {
 
   if (context != "dspf") return;
   
-	if (!e) e = window.event;
+  if (!e) e = window.event;
   var key = e.keyCode;
   var fkey;
   
@@ -3212,14 +3212,14 @@ pui.handleHotKey = function(e, keyName) {
   
   var processKey = (keyName != null && pui.lastFormatName != null);
   if (processKey && keyName != "Enter") {
-     if (pui.keyMap[pui.lastFormatName][keyName] == null) {
+    if (pui.keyMap[pui.lastFormatName][keyName] == null) {
       processKey = false;
     }
   }
   if  (processKey) {
     var doms = [];
     var mustRespond = false;
-    for (formatName in pui.keyMap) {
+    for (var formatName in pui.keyMap) {
       var domArray = pui.keyMap[formatName][keyName];
       if (domArray != null) {
         var allDisabled = true;
