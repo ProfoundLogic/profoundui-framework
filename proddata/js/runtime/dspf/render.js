@@ -3215,7 +3215,36 @@ pui.handleHotKey = function(e, keyName) {
     if (pui.keyMap[pui.lastFormatName][keyName] == null) {
       processKey = false;
     }
+    else if (keyName == "PageUp" || keyName == "PageDown") {
+      
+      // Do not take action for page up / page down when multiple grids 
+      // with paging bar are on screen.
+      var pbar = false;
+      for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+        
+        var grid = pui.gridsDisplayed[i];
+        if (grid.pagingBar && grid.pagingBar.showPagingControls) {
+          
+          if (pbar == false) {
+            
+            pbar = true;
+            
+          }
+          else {
+            
+            processKey = false;
+            break;
+            
+          }
+          
+        }
+        
+      }
+      
+    }
+    
   }
+  
   if  (processKey) {
     var doms = [];
     var mustRespond = false;
