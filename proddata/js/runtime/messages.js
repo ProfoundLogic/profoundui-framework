@@ -515,3 +515,60 @@ pui["runtimeText"]["it_IT"]["sort descending text"] = "Ordinare in Senso Discend
 pui["runtimeText"]["it_IT"]["row"]                  = "riga";
 pui["runtimeText"]["it_IT"]["rows"]                 = "righe";
 pui["runtimeText"]["it_IT"]["page"]                 = "Pagina";
+
+// ------------------------------------------------------------
+//  Hebrew
+// -------------------------------------------------------------
+pui.copyAllLanguageText("en_US", "he_IL");
+pui["runtimeMsg"]["he_IL"]["closeMessage"]            = " זה מסיים את הפעלת המחשב שלך."; 
+pui["runtimeMsg"]["he_IL"]["no connection message"]   = " אין אפשרות להגיע לשרת. בדוק את החיבור שלך ונסה שוב.";
+pui["runtimeMsg"]["he_IL"]["upload file limit"]       = " מגבלה של &1 קובץ (ים) חרגו.";
+pui["runtimeMsg"]["he_IL"]["upload size limit"]       = ' מגבלה של מ"ב &1 לקובץ חרגו.';
+pui["runtimeMsg"]["he_IL"]["upload no files"]         = " לא נבחרו קבצים.";
+pui["runtimeMsg"]["he_IL"]["upload duplicate file"]   = " קבצים כפולים נבחרו.";
+pui["runtimeMsg"]["he_IL"]["upload file exists"]      = " אחד או יותר הקבצים כבר קיימים במערכת הקבצים."; 
+pui["runtimeMsg"]["he_IL"]["upload prevented"]        = " המבצע למנוע על ידי תכנית היציאה.";
+pui["runtimeMsg"]["he_IL"]["upload input limit"]      = " מגבלת גודל קלט הכולל חרגו."; 
+pui["runtimeMsg"]["he_IL"]["upload no session"]       = " אינה מחובר להפעלת מסוף בתוקף.";
+pui["runtimeMsg"]["he_IL"]["upload timeout"]          = " עסקה תם הזמן שהוקצב.";
+pui["runtimeMsg"]["he_IL"]["upload invalid response"] = " תגובת השרת היא חסרה או לא חוקית.";
+pui["runtimeMsg"]["he_IL"]["close browser text"]      = " כדי להשלים את תהליך התנתקות, בבקשה לסגור את חלון הדפדפן שלך.";
+pui["runtimeMsg"]["he_IL"]["session ended text"]      = " הפעלת המחשב שלך הסתיימה.";
+pui["runtimeMsg"]["he_IL"]["outside ucs2"]            = " התווים הן מחוץ לטווח של UCS-2.";
+pui["runtimeMsg"]["he_IL"]["invalid number"]          = ' מספר &1 לא חוקי ';
+pui["runtimeMsg"]["he_IL"]["invalid length"]          = ' אורך &1 נתונים שגוי או עמדה עשרונית';
+pui["runtimeMsg"]["he_IL"]["invalid decimal"]         = ' מקומות עשרוניים רבים מדי &1(מקס &2)';
+pui["runtimeMsg"]["he_IL"]["invalid choice"]          = ' אינו חוקית. אפשרויות חוקיות הן: "&2" או "&3" "&1"';
+pui["runtimeMsg"]["he_IL"]["invalid date"]            = ' תאריך לא חוקי. פורמט דוגמה: &2 "&1" ';
+pui["runtimeMsg"]["he_IL"]["invalid time"]            = " זמן &1 לא חוקי. פורמט דוגמה: 2&";
+pui["runtimeMsg"]["he_IL"]["invalid time stamp"]      = ' חותמת זמן לא חוקית. פורמט דוגמה: &2 "&1"';
+pui["runtimeMsg"]["he_IL"]["invalid percent"]         = ' עשרוני לא חוקית &1';
+pui["runtimeMsg"]["he_IL"]["invalid digits"]          = ' יותר מדי ספרות ב-&1. מקס: 2&';
+pui["runtimeMsg"]["he_IL"]["exceeds whole"]           = ' עולה על המספר המרבי של ספרות לכל חלק המספר "&1" (&2 ספרות)';
+pui["runtimeMsg"]["he_IL"]["exceeds decimal"]         = ' עולה על המספר המרבי של ספרות לחלק העשרוני "&1" (&2 ספרות)';
+pui["runtimeMsg"]["he_IL"]["zip too long"]            = ' המיקוד הוא ארוך מדי. מקסימום: &1 ספרות';
+pui["runtimeMsg"]["he_IL"]["phone too long"]          = ' מספר טלפון ארוך מדי. מקסימום: &1 ספרות';
+pui["runtimeMsg"]["he_IL"]["ssno too long"]           = ' מספר הביטוח הלאומי הוא ארוך מדי. מקסימום: &1 ספרות';
+pui["runtimeMsg"]["he_IL"]["invalid custom val"]      = ' פונקציה לא חוקי התיקוף מותאמת אישית';
+pui["runtimeMsg"]["he_IL"]["error custom val"]        = ' שגיאה בפונקצית התיקוף מותאמת אישית';
+pui["runtimeMsg"]["he_IL"]["ME"]                      = " שדה הזנת חובה. עליך להזין נתונים";
+pui["runtimeMsg"]["he_IL"]["MF"]                      = " שדה מילוי חובה. עליך למלא את תיבת הקלט לחלוטין";
+pui["runtimeMsg"]["he_IL"]["required"]                = " הערך אינו יכול להיות ריק. שדה זה נדרש";
+pui["runtimeMsg"]["he_IL"]["file required"]           = " עליך לבחור קובץ אחד לפחות";
+pui["runtimeMsg"]["he_IL"]["signature overflow"]      = " גודל ציור החתימה חורג מהערך המרבי. אנא לנקות את משטח החתימה ונסה שוב";
+pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינו חוקי. ערכים חוקיים הם";
+
+pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
+pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
+pui["runtimeText"]["he_IL"]["upload remove text"]   = " הסר ";
+pui["runtimeText"]["he_IL"]["upload upload text"]   = " העלה ";
+pui["runtimeText"]["he_IL"]["csv export text"]      = " יצוא לאקסל ";
+pui["runtimeText"]["he_IL"]["filter text"]          = " מסנן ";
+pui["runtimeText"]["he_IL"]["remove filters text"]  = " הסר את כל המסננים ";
+pui["runtimeText"]["he_IL"]["next link text"]       = " הבאה ";
+pui["runtimeText"]["he_IL"]["previous link text"]   = " הקודם ";
+pui["runtimeText"]["he_IL"]["sort ascending text"]  = " מיין לפי סדר עולה ";
+pui["runtimeText"]["he_IL"]["sort descending text"] = " מיין בסדר יורד ";
+pui["runtimeText"]["he_IL"]["row"]                  = " שורה ";
+pui["runtimeText"]["he_IL"]["rows"]                 = " שורות ";
+pui["runtimeText"]["he_IL"]["page"]                 = " עמוד ";
