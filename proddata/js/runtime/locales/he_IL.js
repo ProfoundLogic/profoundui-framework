@@ -89,7 +89,7 @@ pui.locales.add({
     'דצמבר'
   ],
   'shortMonthNames': [
-    '.ינ',
+    'ינ.',
     'פבר',
     'מארס',
     'אפר',
