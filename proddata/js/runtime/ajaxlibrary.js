@@ -92,6 +92,7 @@ function RPGspRequest(arg) {
   var statusMessage  = null;
   var sendOK         = null;
   var sending        = null;
+  var alertFn = (typeof(pui) != "undefined" && typeof(pui.alert) != "undefined") ? pui.alert : alert;
   
   // Reference to object that allows privileged methods to access the public members.
   var me = this;    
@@ -119,7 +120,7 @@ function RPGspRequest(arg) {
     xmlhttpObj = new ActiveXObject("Microsoft.XMLHTTP");
   }
   else {
-    pui.alert("Ajax request error: Unsupported browser.");
+    alertFn("Ajax request error: Unsupported browser.");
     return;
   }
   
@@ -139,7 +140,7 @@ function RPGspRequest(arg) {
                 }
                 else {
                   if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT")) {
-                    pui.alert('Invalid value for property: "method".');
+                    alertFn('Invalid value for property: "method".');
                     return;
                   }
                   else {
@@ -150,7 +151,7 @@ function RPGspRequest(arg) {
                 if (method == "POST") {
                   if (me["postData"] != null) {
                     if (typeof me["postData"] != "string") {
-                      pui.alert('Invalid value for property: "postData".');
+                      alertFn('Invalid value for property: "postData".');
                       return;
                     }
                     else {
@@ -163,7 +164,7 @@ function RPGspRequest(arg) {
                   async = true;
                 }
                 else if (me["async"] != true && me["async"] != false) {
-                  pui.alert('Invalid value for property: "async".');
+                  alertFn('Invalid value for property: "async".');
                   return;
                 }
                 else {
@@ -172,41 +173,41 @@ function RPGspRequest(arg) {
                 
                 // TODO: Somehow validate if this is a correctly formed URL to avoid JS errors on the send().
                 if (typeof me["url"] != "string") {
-                  pui.alert('Invalid value for property: "url".');
+                  alertFn('Invalid value for property: "url".');
                   return;
                 }
                 
                 if (me["user"] != null) {
                   if (typeof me["user"] != "string") {
-                    pui.alert('Invalid value for property: "user".');
+                    alertFn('Invalid value for property: "user".');
                     return;                    
                   }
                 }
                 
                 if (me["password"] != null) {
                   if (typeof me["password"] != "string") {
-                    pui.alert('Invalid value for property: "password".');
+                    alertFn('Invalid value for property: "password".');
                     return;                    
                   }
                 }
 
                 if (me["onsuccess"] != null) {
                   if (typeof me["onsuccess"] != "function") {
-                    pui.alert('Invalid value for event: "onsuccess".');
+                    alertFn('Invalid value for event: "onsuccess".');
                     return;
                   }
                 }
                 
                 if (me["onfail"] != null) {
                   if (typeof me["onfail"] != "function") {
-                    pui.alert('Invalid value for event: "onfail".');
+                    alertFn('Invalid value for event: "onfail".');
                     return;
                   }
                 }
                 
                 if (me["onready"] != null) {
                   if (typeof me["onready"] != "function") {
-                    pui.alert('Invalid value for event: "onready".');
+                    alertFn('Invalid value for event: "onready".');
                     return;
                   }
                 }
@@ -278,7 +279,7 @@ function RPGspRequest(arg) {
                   
                 }
                 catch(e) {
-                  pui.alert(e);
+                  alertFn(e);
                   return;
                 }
                 
@@ -317,7 +318,7 @@ function RPGspRequest(arg) {
                   else {
                     sendOK = false;
                     if (me["suppressAlert"] != true) {
-                      pui.alert(statusMessage);
+                      alertFn(statusMessage);
                     }
                     if (me["onfail"] != null) me["onfail"](me);
                   }
@@ -383,7 +384,7 @@ function RPGspRequest(arg) {
       return xmlhttpObj.getAllResponseHeaders();
     }
     catch(e) {
-      pui.alert(e);
+      alertFn(e);
     }
     
   }
@@ -397,7 +398,7 @@ function RPGspRequest(arg) {
       return xmlhttpObj.getResponseHeader(headerName);
     }
     catch(e) {
-      pui.alert(e);
+      alertFn(e);
     }
     
   }
@@ -418,7 +419,7 @@ function RPGspRequest(arg) {
       xmlhttpObj.abort();
     }
     catch(e) {
-      pui.alert(e);
+      alertFn(e);
     }
     
   }
@@ -605,6 +606,7 @@ function ajaxJSON(url, handler) {
 function ajaxSubmit(form, handler) { 
   var formObj;
   var postData = "";
+  var alertFn = (typeof(pui) != "undefined" && typeof(pui.alert) != "undefined") ? pui.alert : alert;
   
   if (typeof(form)=="object") {
     formObj = form;    
@@ -618,11 +620,11 @@ function ajaxSubmit(form, handler) {
   var tagName;
   if (formObj!=null) tagName = formObj.tagName;
   if (formObj==null || tagName==null || tagName.toUpperCase() != "FORM") {
-    pui.alert("Ajax request error: Invalid form object.");
+    alertFn("Ajax request error: Invalid form object.");
     return "";
   }
   if (form.action == "") {
-    pui.alert("Ajax request error: Invalid form action.");
+    alertFn("Ajax request error: Invalid form action.");
     return "";    
   }
   
