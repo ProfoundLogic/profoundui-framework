@@ -442,13 +442,13 @@ function AutoComplete(config) {
 			if (textBox.value.replace(/ /g, "") != "") {
 				
 				if (choices && values) {
-					doLookup(trim(textBox.value).toUpperCase());
+					doLookup(rtrim(textBox.value.toUpperCase()));
 				}
 				else {
 					clearTimeout(typeAheadTimer);
 					cancelQuery = false;
 					typeAheadTimer = setTimeout(function() {
-						doQuery(trim(textBox.value));
+						doQuery(rtrim(textBox.value));
 					}, typeAheadDelay);
 				}
 				return;
@@ -942,12 +942,12 @@ function applyAutoComp(properties, originalValue, domObj) {
         	onselect: onselect,
         	valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
         	beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
-        		query = trim(query.toUpperCase());
+        		query = rtrim(query.toUpperCase());
         		if (query == "") return false;
         		query = query.replace(/'/g, "''");  // '
         		if (pui["secLevel"] > 0) {
         		  if (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true") {
-        		    query = "%" + query + "%";
+        		    query = "%" + trim(query) + "%";
         		  }
         		  else {
         		    query += "%";
