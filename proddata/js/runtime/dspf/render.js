@@ -3007,6 +3007,7 @@ pui.cancelResponse = function(messages) {
     var grid = pui.gridsDisplayed[i];
     grid.unMask();
   }
+  pui["unmaskScreen"]();
   pui.resetResponseValues();
 }
 
@@ -3787,7 +3788,15 @@ pui["maskScreen"] = function(parms) {
   if (bodyWidth < 0) bodyWidth = 0;
   if (bodyHeight < 0) bodyHeight = 0;
   
-  var maskDiv = document.createElement("div"); 
+  
+  var maskDiv;
+  if (pui.maskDiv == null) {
+    maskDiv = document.createElement("div");
+    pui.maskDiv = maskDiv;
+  }
+  else {
+    maskDiv = pui.maskDiv;
+  }
   pui.runtimeContainer.appendChild(maskDiv);
   
   maskDiv.isPUIWindowMask = true;
@@ -3855,6 +3864,14 @@ pui["maskScreen"] = function(parms) {
   
 }
 
+
+
+pui["unmaskScreen"] = function() {
+  if (pui.maskDiv == null) return;
+  var parent = pui.maskDiv.parentNode;
+  if (parent != pui.runtimeContainer) return;
+  parent.removeChild(pui.maskDiv);
+}
 
 
 
