@@ -47,7 +47,7 @@ pui.Accordion = function() {
   }
   
   this.setSectionNames = function(nameList) {
-    if (nameList == null || nameList == "") nameList = ["Section 1", "Section 2", "Section 3"];
+    if (nameList == null || nameList == "" || (typeof nameList == "object" && nameList["fieldName"] != null)) nameList = ["Section 1", "Section 2", "Section 3"];
     var names = pui.parseCommaSeparatedList(nameList);
     if (names.length != headerDivs.length) {
       me.container.innerHTML = "";
@@ -150,6 +150,7 @@ pui.Accordion = function() {
   }
   
   this.setStraightEdge = function(edge) {
+    if (edge == null || typeof edge == "object") return;
     straightEdge = edge;
     var n = headerButtons.length;
     if (n <= 0) return;

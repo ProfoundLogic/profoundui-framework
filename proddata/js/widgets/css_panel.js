@@ -67,11 +67,12 @@ pui.CSSPanelSection = function() {
   
   this.setText = function(text) {
     if (me.type != "header") return;
+    if (text == null || typeof text == "object") text = "";
     textSpan.innerHTML = text;
   }
   
   this.setSwatch = function(newSwatch) {
-    if (newSwatch == null || newSwatch == "") newSwatch = "c";  // default
+    if (newSwatch == null || newSwatch == "" || typeof newSwatch == "object") newSwatch = "c";  // default
     if (newSwatch.length > 1) newSwatch = newSwatch.substr(0, 1);
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
@@ -89,6 +90,7 @@ pui.CSSPanelSection = function() {
   }
   
   this.setStraightEdge = function(edge) {
+    if (edge == null || typeof edge == "object") return;
     mainSpan.style.borderTopLeftRadius = "";
     mainSpan.style.borderTopRightRadius = "";
     mainSpan.style.borderBottomLeftRadius = "";
@@ -144,6 +146,7 @@ pui.CSSPanelSection = function() {
   
   this.setStyle = function(styleName, styleValue) {
     if (me.type != "header") return;  
+    if (typeof styleValue == "object") styleValue = "";
     var parts = styleName.split(" ");
     if (parts.length == 2) {
       styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
@@ -265,6 +268,7 @@ pui.CSSPanel = function() {
   }
 
   this.setStraightEdge = function(edge) {
+    if (edge == null || typeof edge == "object") return;
     straightEdge = edge;
     if (!hasHeader) {
       bodyPanel.setStraightEdge(edge);
