@@ -733,3 +733,15 @@ pui["errorTip"] = function(el, msg, hideDelay) {
   tip.show(hideDelay);
 
 }
+
+
+
+
+pui["expandAccordionSection"] = function(id, section) {
+  var obj = getObj(id);
+  if (obj == null) return;
+  var accordion = obj.accordion;
+  if (accordion == null) return;
+  accordion.expandSection(section);
+}
+
