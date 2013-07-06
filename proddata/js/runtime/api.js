@@ -618,31 +618,42 @@ function showErrors() {
 
 
 
-function currentDate(editCode) {
+function currentDate(editCode, YYYY) {
 
   if (editCode == null || editCode == "Y") {
     slashes = true;
   }
 
   if (inDesignMode()) {
-    if (slashes) return "DD/DD/DD";
-    else return "DDDDDD";
+    var dt;
+    if (slashes) dt = "DD/DD/DD";
+    else dt = "DDDDDD";
+    if (YYYY) dt += "DD";
+    return dt;
   }
   else{
     var sysTime;
     var returnValue = "";
-    if(pui && pui.appJob) {
+    if (pui && pui.appJob) {
       if (pui.appJob.sysTime == 0) return "";
       sysTime = new Date(pui.appJob.sysTime * 1000);
-      var keyword = pui.formatting.keywords.DATFMT[pui.appJob.dateFormat];
+      var dateFormat = pui.appJob.dateFormat;
+      if (YYYY) {
+        if (dateFormat == "*MDY") dateFormat = "*USA";      
+        if (dateFormat == "*DMY") dateFormat = "*EUR";      
+        if (dateFormat == "*YMD") dateFormat = "*ISO";      
+      }
+      var keyword = pui.formatting.keywords.DATFMT[dateFormat];
       var dispFormat = keyword.pattern.replace(/\B/g, pui.appJob.dateSeparator);
       returnValue = sysTime.format(dispFormat, 'en_US');
     }
-    else{
+    else {
       sysTime = new Date();
+      var subtractYear = 2000;
+      if (YYYY) subtractYear = 0;
       returnValue = ((parseInt(sysTime.getMonth(), 10) + 1) < 10 ? '0' : '') + (parseInt(sysTime.getMonth(), 10) + 1) + '/' +
         (parseInt(sysTime.getDate(), 10) < 10 ? '0' : '') + sysTime.getDate() + '/' +
-        ((parseInt(sysTime.getFullYear(), 10) - 2000) < 10 ? '0' : '') + (parseInt(sysTime.getFullYear(), 10) - 2000);
+        ((parseInt(sysTime.getFullYear(), 10) - subtractYear) < 10 ? '0' : '') + (parseInt(sysTime.getFullYear(), 10) - subtractYear);
     }
     if (editCode != null && editCode != "Y") {
       var separator = "/";
