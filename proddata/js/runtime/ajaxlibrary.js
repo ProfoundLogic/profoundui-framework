@@ -157,6 +157,11 @@ function RPGspRequest(arg) {
                     else {
                       postData = me["postData"];
                     }
+                  }
+                  else {
+                    // Never send null POST data. This confuses Chrome into changing the request type
+                    // and failing, in some situations.
+                    postData = "";
                   }  
                 } 
                 
