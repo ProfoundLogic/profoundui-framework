@@ -4454,10 +4454,18 @@ pui.Grid = function() {
     me.setProperty("number of rows", String(numRows)); 
     me.sizeAllCells();
     me.setAllCellStyles(); 
-    for (var i = 0; i < me.runtimeChildren.length; i++) {
-      me.runtimeChildren[i].domEls = [];
-    }
-    removeAllResponseElements();
+    
+    // Found this code to be losing changes to components after grid resize for 
+    // 'expand to layout'. This causes auto-complete box to clear (due to lost hidden value)
+    // and also general loss of user edits to input fields due to 'removeAllResponseElements'. 
+    
+    // It was not clear why it would need to do this, so we will disable it for now -- DR.
+    
+    //for (var i = 0; i < me.runtimeChildren.length; i++) {
+    //  me.runtimeChildren[i].domEls = [];
+    //}
+    //removeAllResponseElements();
+    
     me.getData();
   }
   
