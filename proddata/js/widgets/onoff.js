@@ -44,6 +44,11 @@ pui.OnOffSwitch = function() {
   
   function getOnPoint() {
     var totalWidth = me.container.offsetWidth;
+    if (totalWidth == 0) {
+      totalWidth = parseInt(me.container.style.width);
+      if (isNaN(totalWidth)) totalWidth = 0;
+      totalWidth += 2;
+    }
     if (me.wideHandle) onPoint = parseInt((totalWidth + 3) / 2);
     else onPoint = totalWidth - 6;
     return onPoint;
@@ -111,6 +116,11 @@ pui.OnOffSwitch = function() {
         var handleEndX = parseInt(handleLeftDiv.style.left);
         var diff = Math.abs(handleStartX - handleEndX);
         var totalWidth = me.container.offsetWidth;
+        if (totalWidth == 0) {
+          totalWidth = parseInt(me.container.style.width);
+          if (isNaN(totalWidth)) totalWidth = 0;
+          totalWidth += 2;
+        }
         var halfPoint = totalWidth / 2;
         if (me.wideHandle) halfPoint = halfPoint / 2 - 4;
         if (draggingHandle) {
@@ -143,6 +153,11 @@ pui.OnOffSwitch = function() {
  
   this.size = function() {
     var totalWidth = me.container.offsetWidth;
+    if (totalWidth == 0) {
+      totalWidth = parseInt(me.container.style.width);
+      if (isNaN(totalWidth)) totalWidth = 0;
+      totalWidth += 2;
+    }
     offLabelWidth = totalWidth - 5;
     if (offLabelWidth < 0) offLabelWidth = 0;
     offLabel.style.width = offLabelWidth + "px";
@@ -152,6 +167,11 @@ pui.OnOffSwitch = function() {
   this.setWideHandle = function(isWide) {
     if (isWide) {
       var totalWidth = me.container.offsetWidth;
+      if (totalWidth == 0) {
+        totalWidth = parseInt(me.container.style.width);
+        if (isNaN(totalWidth)) totalWidth = 0;
+        totalWidth += 2;
+      }
       var handleWidth = parseInt((totalWidth - 14) / 2);
       if (handleWidth < 0) handleWidth = 0;
       handleLeftDiv.style.width = handleWidth + "px";
