@@ -462,6 +462,7 @@ function getScreenPropertiesModel(designScreen) {
 
     { name: "Misc", category: true }, 
     { name: "alert errors", variable: "pui.genie.config.alertErrors", choices: ["true", "false"], type: "boolean", help: "When set to true, Genie presents green-screen errors in an alert box.  When set to false, errors are displayed at the bottom of the screen only." },    
+    { name: "detect menus", variable: "pui.genie.config.detectMenus", choices: ["true", "false"], type: "boolean", help: "When set to true, Genie looks for menu panels on this screen and and transforms the menu options into hyperlinks. The default value is true." },    
     { name: "detect date fields", variable: "pui.genie.config.detectDateFields", choices: ["true", "false"], type: "boolean", help: "When set to true, Genie looks for date fields on this screen and automatically attaches a calendar control to any field that it finds." },    
     { name: "default date format", variable: "pui.genie.config.defaultDateFormat", choices: ["MM/DD/YY", "MM/DD/YYYY", "DD/MM/YY", "DD/MM/YYYY", "DD.MM.YY", "DD.MM.YYYY", "MMDDYY", "MMDDYYYY", "DDMMYY", "DDMMYYYY", "YYMMDD", "YYYYMMDD", "YYYY-MM-DD"], help: "Defines the default date format to be used in calendar controls." },
     { name: "enlarge headings", variable: "pui.genie.config.enlargeHeadings", choices: ["true", "false"], type: "boolean", help: "When set to true, Genie looks for the screen heading and automatically increases its font size and adds a shadow." },
