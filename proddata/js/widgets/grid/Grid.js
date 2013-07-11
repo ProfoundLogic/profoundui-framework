@@ -571,8 +571,10 @@ pui.Grid = function() {
 
     // initialize column array, each array element will hold the index to the dataArray
     var columnArray = [];
+    var numericData = [];
     for (var i = 0; i < me.vLines.length - 1; i++) {
       columnArray.push(-1);
+      numericData.push(false);
     }
     
     // go through all grid elements, retrieve field names, and identify data index by field name
@@ -588,6 +590,9 @@ pui.Grid = function() {
             for (var j = 0; j < me.fieldNames.length; j++ ) {
               if (fieldName == me.fieldNames[j]) {
                 columnArray[col] = j;
+                if (val["formatting"] == "Number") {
+                   numericData[col] = true;
+                }
                 break;
               }
             }
@@ -621,6 +626,9 @@ pui.Grid = function() {
         var idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
+          if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+             value = value.replace('.', ',');
+          }
           value = value.replace(/"/g, '""');  // "
           if (line != "") line += delimiter;
           line += '"' + value + '"';
@@ -929,6 +937,15 @@ pui.Grid = function() {
     if (sql != "" || dataURL != null) {
       if (csvFile != null) {
         if (sql == null || sql == "") return;
+        var delimiter = ",";
+        var decType = ".";
+        if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+          delimiter = ";";
+          decType = ",";
+        }
+        if (typeof(pui["csv separator"]) == "string") {
+          delimiter = pui["csv separator"];  
+        }
         var form = document.createElement("form");
         form.action = getProgramURL("PUI0009107.pgm");
         form.method = "post";
@@ -938,6 +955,8 @@ pui.Grid = function() {
           field.value = fieldValue;
           form.appendChild(field);
         }
+        addField("delimiter", delimiter);
+        addField("decType", decType);
         addField("fileName", csvFile + ".csv");
         if (pui["secLevel"] > 0) {
         
