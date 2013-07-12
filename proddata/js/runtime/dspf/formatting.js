@@ -404,7 +404,10 @@ pui.FieldFormat = {
   "Number": {
     format: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
-
+      if (commaDecimal && obj.alreadyFormatted!=null && obj.alreadyFormatted==true) {                                                                    
+        obj.value = obj.value.replace(".", "");                           
+        obj.value = obj.value.replace(",", ".");
+      }                                           
       var strValue = (obj.value || 0) + '';
       var numValue = parseFloat(strValue, 10) || 0;
       
@@ -527,6 +530,7 @@ pui.FieldFormat = {
       if (isNaN(maxLength)) maxLength = null;
       obj.maxLength = maxLength;
       obj.keyFilter = new RegExp(keyFilter);
+      obj.alreadyFormatted = true;
 
       return strValue;
     },
