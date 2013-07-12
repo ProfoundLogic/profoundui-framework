@@ -204,12 +204,12 @@ pui["runtimeText"]["de_DE"]["upload upload text"]   = "Heraufladen";
 pui["runtimeText"]["de_DE"]["csv export text"]      = "Export nach Excel";
 pui["runtimeText"]["de_DE"]["filter text"]          = "Filter";
 pui["runtimeText"]["de_DE"]["remove filters text"]  = "Alle Filter entfernen";
-pui["runtimeText"]["de_DE"]["next link text"]       = "Nächstes";
-pui["runtimeText"]["de_DE"]["previous link text"]   = "Voriges";
+pui["runtimeText"]["de_DE"]["next link text"]       = "Nächste";
+pui["runtimeText"]["de_DE"]["previous link text"]   = "Vorige";
 pui["runtimeText"]["de_DE"]["sort ascending text"]  = "Sortierung aufsteigend";
 pui["runtimeText"]["de_DE"]["sort descending text"] = "Sortierung absteigend";
-pui["runtimeText"]["de_DE"]["row"]                  = "zeile";
-pui["runtimeText"]["de_DE"]["rows"]                 = "zeilen";
+pui["runtimeText"]["de_DE"]["row"]                  = "Zeile";
+pui["runtimeText"]["de_DE"]["rows"]                 = "Zeilen";
 pui["runtimeText"]["de_DE"]["page"]                 = "Seite";
 
 // ----------------------------------
