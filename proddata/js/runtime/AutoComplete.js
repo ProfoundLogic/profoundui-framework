@@ -576,7 +576,7 @@ function AutoComplete(config) {
 		
 		if (hiddenField) autoCompQueries += 1;
 		
-		var req = new pui.Ajax(url);
+		var req = new pui.Ajax(pui.appendAuth(url));
 		req["method"] = "post";
 		req["async"] = true;
 		req["suppressAlert"] = true;

@@ -4052,7 +4052,7 @@ pui.Grid = function() {
     }
     var returnVal = null;
     var url = getProgramURL("PUI0009102.PGM");
-    if (customURL) url = customURL;
+    if (customURL) url = pui.appendAuth(customURL);
     var req = new pui.Ajax(url);
     req["method"] = "post";
     req["async"] = true;

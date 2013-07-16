@@ -277,6 +277,9 @@ pui.widgets.add({
         parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Loading Chart...";        
         if (chartType == "") chartType = "Bar2D";  // set a default
         url = parms.evalProperty("chart url");
+        if (url!=null && url!="") {
+          url = pui.appendAuth(url);
+        }
         var xml = parms.evalProperty("chart xml");
         var json = parms.evalProperty("chart json");
 

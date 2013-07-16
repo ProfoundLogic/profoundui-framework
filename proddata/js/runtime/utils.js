@@ -1469,3 +1469,12 @@ pui.hasParent = function(node) {
   return (prt != null && (!is_ie || prt.nodeName != "#document-fragment"));
 
 }
+
+pui.appendAuth = function(url) {  
+ 	if (!inDesignMode() && typeof url == "string" && url.search("AUTH=") == -1) {
+ 	  if (url.search(/\?/) == -1) url += '?';
+ 	  else url += '&';
+    url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+ 	}
+ 	return url;
+}

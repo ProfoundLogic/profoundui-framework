@@ -334,7 +334,7 @@ pui.widgets.add({
       var url = parms.evalProperty("choices url");
       if (url != "" && !parms.design) {
       	
-      	var req = new pui.Ajax(url);
+      	var req = new pui.Ajax(pui.appendAuth(url));
       	req["async"] = true;
       	req["suppressAlert"] = true;
       	req["onready"] = function() {
