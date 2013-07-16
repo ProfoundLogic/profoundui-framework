@@ -40,6 +40,7 @@ var is_ie6up  = (is_ie && !is_ie3 && !is_ie4 && !is_ie5 && !is_ie5_5);
 var is_ie7    = (is_ie && (is_major == 4) && (agt.indexOf("msie 7.")!=-1) );
 var is_ie8    = (is_ie && (is_major == 4) && (agt.indexOf("msie 8.")!=-1) );
 var is_ie9    = (is_ie && (is_major == 5) && (agt.indexOf("msie 9.")!=-1) );
+var is_ie9up  = (is_ie && !is_ie3 && !is_ie4 && !is_ie5 && !is_ie5_5 && !is_ie6 && !is_ie7 && !is_ie8);
 var is_ie10   = (is_ie && (is_major == 5) && (agt.indexOf("msie 10.")!=-1) );
 var is_opera  = (agt.indexOf("opera") != -1);
 var is_safari = (agt.indexOf("safari") != -1);
