@@ -490,6 +490,17 @@ pui.render = function(parms) {
     }
   }
 
+  if (is_ie9up) {
+    
+    pui.addCssClass(pui.runtimeContainer, "pui-ie9plus");
+    
+  }
+  else {
+    
+    pui.removeCssClass(pui.runtimeContainer, "pui-ie9plus");
+    
+  }  
+  
   if (pui.genie && pui.genie.middleDiv == null) {
   
     pui.genie.middleDiv = document.getElementById("middle");
