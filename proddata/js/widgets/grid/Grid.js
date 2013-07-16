@@ -989,7 +989,7 @@ pui.Grid = function() {
           for (var i = 0; i < me.cells[0].length; i++) {
             var heading = getInnerText(me.cells[0][i]);
             heading = heading.replace(/"/g, '""');  // "
-            if (headings != "") headings += ",";
+            if (headings != "") headings += delimiter;
             headings += '"' + heading + '"';
           }          
           addField("headings", headings);
