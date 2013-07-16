@@ -3418,7 +3418,7 @@ pui["run"] = function(config) {
   if (mobile) {
     ajaxParams["mobile"] = "1";
   }
-  if (parameter != null) {
+  if (parameter != null && parameter != "") {
     ajaxParams["p1"] = parameter;
     ajaxParams["l1"] = "250";
   }
