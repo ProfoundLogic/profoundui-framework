@@ -3371,7 +3371,7 @@ pui.handleF1 = function(e) {
 
 pui["run"] = function(config) {
   var mobile = (config["mobile"] === true);
-  var appData = config["appData"];
+  var parameter = config["parameter"];
   var program = config["program"];
   if (program == null) program = "";
   var container = config["container"];
@@ -3418,9 +3418,9 @@ pui["run"] = function(config) {
   if (mobile) {
     ajaxParams["mobile"] = "1";
   }
-  if (appData != null) {
-    ajaxParams["p1"] = appData;
-    ajaxParams["l1"] = "256";
+  if (parameter != null) {
+    ajaxParams["p1"] = parameter;
+    ajaxParams["l1"] = "250";
   }
   var params = config["params"];
   if (params != null) {
