@@ -193,6 +193,11 @@ pui.Grid = function() {
   var seHandle;
   var minBWidth = 1;
   var designBorderStyle = "solid";
+  var persistState = false;
+  var movableColumns = false;
+  var resizableColumns = false;
+  var columnSignature;
+  var clientSortColumnId;
   
   var headerCellProxy;
   var headerCellProxyContainer;
@@ -1492,136 +1497,13 @@ pui.Grid = function() {
         sortColumn(headerRow[me.initialSortColumn]);
       }
     }
-    
-    function isDefaultSortDescending(col) {
-      var sortOrder = null;
-      if (me.defaultSortOrderArray.length == 0) return false;    
-      if (me.defaultSortOrderArray.length == 1) {
-        sortOrder = me.defaultSortOrderArray[0];
-      }
-      else {
-        sortOrder = me.defaultSortOrderArray[col];
-      } 
-      if (sortOrder == null) return false;
-      if (sortOrder.length < 1) return false;
-      sortOrder = sortOrder.substr(0, 1).toUpperCase();
-      if (sortOrder == "D") return true;
-      else return false;   
-    }
-    
-    function resetDefaultSort() {
-      var headerRow = me.cells[0];
-      for (var col = 0; col < headerRow.length; col++) {
-        headerRow[col].sortDescending = !isDefaultSortDescending(col);
-      }
-    }
-    
-    function sortColumnUsingSQL(cell) {
-      if (me.gridMenu != null) me.gridMenu.hide();
-      if (cell == null) return;
-      var desc = cell.sortDescending;
-      resetDefaultSort();
-      if (desc == null) desc = true;
-      if (me.sortIcon == null) {
-        me.sortIcon = document.createElement("img");
-        me.sortIcon.style.paddingLeft = "3px";
-      }
-      else {
-        if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
-      }
-      me.sortBy = cell.fieldName;
-      desc = !desc;
-      if (desc) me.sortBy += " DESC";
-
-      me.sorted = true;
-
-      if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-        me.scrollbarObj.setScrollTopToRow(1);
-      }
-      me.recNum = 1;
-      me.getData();
-      cell.sortDescending = desc;
-      me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
-      var destination = cell;
-      if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
-        destination = destination.firstChild;
-      }
-      destination.appendChild(me.sortIcon);
-    }
-
+        
     function attachClickEventForSQL(cell) {
       function doSort() {
         sortColumnUsingSQL(cell);
       }
       addEvent(cell, "click", doSort);
       cell.sortColumn = doSort;
-    }
-
-    function sortColumn(cell) {
-      if (me.gridMenu != null) me.gridMenu.hide();
-      if (cell == null) return;
-      var sortIndex = cell.sortIndex;
-      var desc = cell.sortDescending;
-      resetDefaultSort();
-      if (desc == null) desc = true;
-      if (me.sortIcon == null) {
-        me.sortIcon = document.createElement("img");
-        me.sortIcon.style.paddingLeft = "3px";
-      }
-      else {
-        if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
-      }
-
-      if (me.tableDiv.columnSortResponseField == null) {
-        removeAllResponseElements();
-        for (var i = 0; i < me.runtimeChildren.length; i++) {
-          me.runtimeChildren[i].domEls = [];
-        }
-        pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
-
-        if (!me.sorted) {
-          for (var i = 0; i < me.dataArray.length; i++) {
-           me.dataArray[i].subfileRow = i + 1;
-          }
-        }
-        me.dataArray.sort(function(row1, row2) {
-          var value1 = row1[sortIndex];
-          var value2 = row2[sortIndex];
-          if (cell.dataType == "zoned" || cell.dataType == "floating") {
-            value1 = Number(value1);
-            value2 = Number(value2);
-          }
-          if (cell.dataType == "reference") {
-            var refObj = me.ref[cell.fieldName];
-            if (refObj != null) {
-              if (refObj.dataType == 7 || refObj.dataType == 9 ||  refObj.dataType == 10) {  // zoned, packed, floating
-                value1 = Number(value1);
-                value2 = Number(value2);
-              }
-            }
-          }
-          if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
-          else return 1;
-        });
-        me.sorted = true;
-  
-        if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-          me.scrollbarObj.setScrollTopToRow(1);
-        }        
-      
-        me.recNum = 1;
-        me.getData();
-      
-      }
-      
-      desc = !desc;
-      cell.sortDescending = desc;
-      me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
-      var destination = cell;
-      if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
-        destination = destination.firstChild;
-      }
-      destination.appendChild(me.sortIcon);
     }
 
     function attachClickEvent(cell) {
@@ -1641,6 +1523,249 @@ pui.Grid = function() {
     }
   }
   
+  this.restoreState = function() {
+       
+    if (persistState == false) {
+      
+      return;
+      
+    }
+    
+    var state = loadState();
+    
+    if (state == null) {
+      
+      return;
+      
+    }
+      
+    // Reset storage if number/width of columns has changed.
+    if (state["cols"] == null || state["cols"] != columnSignature) {
+      
+      saveState({});
+      return;      
+      
+    }
+    
+    // Restore saved column widths.
+    if (resizableColumns == true) {
+      
+      var colWidths = state["colWidths"];
+      if (colWidths != null) {
+        
+        me.setColumnWidths(colWidths);
+        me.sizeAllCells();
+        me.setHeadings();      
+        
+      }
+    
+    }    
+        
+    // Restore saved column sequence.
+    if (movableColumns == true) {
+      
+      var colSequence = state["colSequence"];
+      if (colSequence != null) {
+        
+        var cells = new Array(colSequence.length);
+        for (var i = 0; i < cells.length; i++) {
+        
+          cells[i] = me.cells[0][colSequence[i]];
+          
+        }
+        
+        for (var i = 0; i < cells.length; i++) {
+          
+          var from = cells[i].col;
+          var to = i;
+          
+          me.moveColumn(from, to);  
+          
+        }      
+        
+      }
+    
+    }
+        
+    // Restore saved client-side column sort.
+    if (me.sortable && me.tableDiv.columnSortResponseField == null) {
+    
+      var sort = state["sort"];
+      if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
+        
+        var sortCell;
+        for (var i = 0; i < me.cells[0].length; i++) {
+          
+          if (me.cells[0][i].columnId == sort["columnId"]) {
+            
+            sortCell = me.cells[0][i];
+            sortCell.sortDescending = !sort["descending"];
+            
+          }
+          
+        }
+                
+        if (me.isDataGrid()) {
+          
+          sortColumnUsingSQL(sortCell, true);
+          
+        }
+        else {
+         
+          sortColumn(sortCell, true);
+          
+        }        
+        
+      }
+      
+    }
+    
+  }
+  
+  function isDefaultSortDescending(col) {
+    var sortOrder = null;
+    if (me.defaultSortOrderArray.length == 0) return false;    
+    if (me.defaultSortOrderArray.length == 1) {
+      sortOrder = me.defaultSortOrderArray[0];
+    }
+    else {
+      sortOrder = me.defaultSortOrderArray[col];
+    } 
+    if (sortOrder == null) return false;
+    if (sortOrder.length < 1) return false;
+    sortOrder = sortOrder.substr(0, 1).toUpperCase();
+    if (sortOrder == "D") return true;
+    else return false;   
+  }  
+  
+  function resetDefaultSort() {
+    var headerRow = me.cells[0];
+    for (var col = 0; col < headerRow.length; col++) {
+      headerRow[col].sortDescending = !isDefaultSortDescending(col);
+    }
+  }
+    
+  function sortColumn(cell, restoring) {
+    if (me.gridMenu != null) me.gridMenu.hide();
+    if (cell == null) return;
+    var sortIndex = cell.sortIndex;
+    var desc = cell.sortDescending;
+    resetDefaultSort();
+    if (desc == null) desc = true;
+    if (me.sortIcon == null) {
+      me.sortIcon = document.createElement("img");
+      me.sortIcon.style.paddingLeft = "3px";
+    }
+    else {
+      if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+    }
+
+    if (me.tableDiv.columnSortResponseField == null) {
+      clientSortColumnId = cell.columnId;
+      removeAllResponseElements();
+      for (var i = 0; i < me.runtimeChildren.length; i++) {
+        me.runtimeChildren[i].domEls = [];
+      }
+      pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
+
+      if (!me.sorted) {
+        for (var i = 0; i < me.dataArray.length; i++) {
+         me.dataArray[i].subfileRow = i + 1;
+        }
+      }
+      me.dataArray.sort(function(row1, row2) {
+        var value1 = row1[sortIndex];
+        var value2 = row2[sortIndex];
+        if (cell.dataType == "zoned" || cell.dataType == "floating") {
+          value1 = Number(value1);
+          value2 = Number(value2);
+        }
+        if (cell.dataType == "reference") {
+          var refObj = me.ref[cell.fieldName];
+          if (refObj != null) {
+            if (refObj.dataType == 7 || refObj.dataType == 9 ||  refObj.dataType == 10) {  // zoned, packed, floating
+              value1 = Number(value1);
+              value2 = Number(value2);
+            }
+          }
+        }
+        if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
+        else return 1;
+      });
+      me.sorted = true;
+
+      if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+        me.scrollbarObj.setScrollTopToRow(1);
+      }        
+    
+      me.recNum = 1;
+      me.getData();
+    
+    }
+         
+    desc = !desc;
+    cell.sortDescending = desc;
+    me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
+    var destination = cell;
+    if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
+      destination = destination.firstChild;
+    }
+    destination.appendChild(me.sortIcon);
+    
+    if (persistState && !restoring) {
+      
+      var obj = {};
+      obj["columnId"] = cell.columnId;
+      obj["descending"] = cell.sortDescending;
+      saveState(obj, "sort");
+      
+    }
+    
+  } 
+  
+  function sortColumnUsingSQL(cell, restoring) {
+    if (me.gridMenu != null) me.gridMenu.hide();
+    if (cell == null) return;
+    clientSortColumnId = cell.columnId;
+    var desc = cell.sortDescending;
+    resetDefaultSort();
+    if (desc == null) desc = true;
+    if (me.sortIcon == null) {
+      me.sortIcon = document.createElement("img");
+      me.sortIcon.style.paddingLeft = "3px";
+    }
+    else {
+      if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+    }
+    me.sortBy = cell.fieldName;
+    desc = !desc;
+    if (desc) me.sortBy += " DESC";
+
+    me.sorted = true;
+
+    if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+      me.scrollbarObj.setScrollTopToRow(1);
+    }
+    me.recNum = 1;
+    me.getData();
+    cell.sortDescending = desc;
+    me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
+    var destination = cell;
+    if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
+      destination = destination.firstChild;
+    }
+    destination.appendChild(me.sortIcon);
+    
+    if (persistState && !restoring) {
+      
+      var obj = {};
+      obj["columnId"] = cell.columnId;
+      obj["descending"] = cell.sortDescending;
+      saveState(obj, "sort");
+      
+    }    
+    
+  }  
   
   function removeAllResponseElements() {
     var fieldXRef = {};
@@ -1696,7 +1821,54 @@ pui.Grid = function() {
       delete pui.responseElements[toRemove[i]];
     }
   }
+    
+  function loadState() {
+    
+    var state;
+    
+    if (localStorage[me.storageKey] != null) {
+                  
+      try {
+      
+        state = JSON.parse(localStorage[me.storageKey]);
+        
+      }
+      catch(e) {
+        
+      }
+      
+    }
+    
+    return state;
+    
+  }
   
+  function saveState(value, key) {
+    
+    var stg;
+    if (key == null) { 
+    
+      // Root object.
+      stg = value;
+    
+    }
+    else {
+      
+      stg = loadState();
+      if (stg == null) {
+        
+        stg = {};
+        
+      }
+      
+      stg[key] = value;
+      
+    }
+    
+    stg["cols"] = columnSignature;
+    localStorage[me.storageKey] = JSON.stringify(stg);
+    
+  }
   
   function executeEvent(eventName) {
     if (me.designMode) return;
@@ -2384,6 +2556,7 @@ pui.Grid = function() {
 
       case "resizable columns":
         if (!me.designMode && (value == true || value == "true" )) {
+          resizableColumns = true;
           for (var i = 0; i < me.vLines.length; i++) {
             lineDesign(me.vLines, i, true, true);
           }        
@@ -2392,6 +2565,7 @@ pui.Grid = function() {
 
       case "movable columns":
         if (!me.designMode && me.hasHeader && (value == true || value == "true" )) {
+          movableColumns = true;
           var headerRow = me.cells[0];
           for (var col = 0; col < headerRow.length; col++) {
             cellDesign(headerRow[col], true);
@@ -2399,6 +2573,10 @@ pui.Grid = function() {
         }
         break;
       
+      case "persist state": 
+        persistState = (me.designMode == false && typeof(window.localStorage) != "undefined" && (value == true || value == "true"));
+        break;
+        
       case "expand to layout":
         var expandToLayout = (value == true || value == "true");
         if (expandToLayout != me.expandToLayout) {
@@ -3085,6 +3263,13 @@ pui.Grid = function() {
           if (columnPointer.matchedCol != null) {
             me.moveColumn(cell.col, columnPointer.matchedCol);
             columnPointer.matchedCol = null;            
+            if (persistState) { 
+              var colSequence = [];
+              for (var i = 0; i < me.cells[0].length; i++) {
+                colSequence.push(me.cells[0][i].columnId);
+              }  
+              saveState(colSequence, "colSequence");
+            }
           }
         }
         if (me.designMode) {
@@ -3322,6 +3507,14 @@ pui.Grid = function() {
         }
         else {
           me.alignColumnTotals();
+          if (isVertical && persistState) {
+            var colWidths = new Array(me.cells[0].length);
+            for (var i = 0; i < me.cells[0].length; i++) {
+              var cell = me.cells[0][i];
+              colWidths[cell.columnId] = cell.clientWidth;
+            }
+            saveState(colWidths, "colWidths");
+          }
         }
         removeEvent(document, "mousemove", mousemove);
         removeEvent(document, "mouseup", mouseup);
@@ -4121,6 +4314,9 @@ pui.Grid = function() {
         sizeCell(row, col);
       }
     }
+    if (columnSignature == null) {
+      columnSignature = me.getColumnWidths();
+    }
   }
 
   this.isDataGrid = function() {
@@ -4237,8 +4433,10 @@ pui.Grid = function() {
     setLineWidths();
     lineDesign(me.vLines, n, true);
     if (n > 0) {
+      var columnId = n - 1;
       for (var row = 1; row < me.hLines.length; row++) {
-        var cell = makeCell(row-1, n-1);
+        var cell = makeCell(row-1, columnId);
+        cell.columnId = columnId;
         cellDesign(cell);
       }
     }
@@ -4426,7 +4624,9 @@ pui.Grid = function() {
     lineDesign(me.hLines, n, false);
     if (n > 0) {
       for (var col = 1; col < me.vLines.length; col++) {
-        var cell = makeCell(n-1, col-1);        
+        var columnId = col - 1;
+        var cell = makeCell(n-1, columnId); 
+        cell.columnId = columnId;
         cellDesign(cell);
       }
     }
@@ -4603,7 +4803,7 @@ pui.Grid = function() {
       { name: "column sort response", format: "number", readOnly: true, validDataTypes: ["zoned"], help: "Specifies a response variable for server-side sorting.  If omitted, client-side sorting is used.  The response is a numeric value that represents a column in the grid.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
       { name: "resizable columns", choices: ["true", "false"], help: "Allows the user to resize grid columns at run time.", context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-      //{ name: "persist grid state", choices: ["true", "false"], help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser cookies with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
+      { name: "persist state", choices: ["true", "false"], help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       //{ name: "find option", choices: ["true", "false"], help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       //{ name: "filter option", choices: ["true", "false"], help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },

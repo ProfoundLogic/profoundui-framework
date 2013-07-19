@@ -1843,13 +1843,24 @@ pui.renderFormat = function(parms) {
         var fieldNames;
         var ref;
         var errors;
-        if (subfiles != null) subfile = subfiles[pui.formatUpper(properties["record format name"])];
+        var recName = pui.formatUpper(properties["record format name"]);
+        if (subfiles != null) subfile = subfiles[recName];
         if (subfile != null) subfileData = subfile.data;
         if (subfile != null) fieldNames = subfile["field names"];
         if (subfile != null) ref = subfile.ref;
         if (subfile != null) errors = subfile.errors;
 
         dom.grid.fileId = parms["fileId"];
+        if (typeof(pui["view"]) != "undefined") {
+          
+          dom.grid.storageKey = "pui-grid-" + pui["view"];
+          
+        }        
+        else if (typeof(parms["file"]) != "undefined" && typeof(parms["library"]) != "undefined") {
+          
+          dom.grid.storageKey = "pui-grid-" + parms["library"] + "-" + parms["file"] + "-" + recName;
+          
+        }
 
         if (subfileData != null) dom.grid.dataArray = subfileData;
         else dom.grid.dataArray = [];
@@ -2122,6 +2133,7 @@ pui.renderFormat = function(parms) {
       }
     }
     grid.makeSortable();
+    grid.restoreState();
   }
 
   // execute global onload event
