@@ -1097,6 +1097,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
       func = function(e) {
+        if ( (domObj.getAttribute!=null && domObj.getAttribute("disabled")=="true" )
+          || ( domObj.disabled!=null && domObj.disabled==true ) ) {
+          return;
+        }
         eval("var row;");
         if (subfileRow != null) {
           eval("row = " + subfileRow + ";");

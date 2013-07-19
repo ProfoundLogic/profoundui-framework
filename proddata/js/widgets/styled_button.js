@@ -538,6 +538,10 @@ pui.widgets.add({
       }
 
       function mouseover(e) {
+        if ( (parms.dom.getAttribute!=null && parms.dom.getAttribute("disabled")=="true" )
+          || ( parms.dom.disabled!=null && parms.dom.disabled==true ) ) {
+          return;
+        }
         parms.dom.mouseIsOver = true;
         if (parms.dom.clickedDown == true) return;
         var bstyle = parms.dom.button.bstyle;
@@ -583,6 +587,10 @@ pui.widgets.add({
       if (parms.isProxy != true) addEvent(parms.dom, "mouseout", mouseout);
       
       function mousedown(event) {
+        if ( (parms.dom.getAttribute!=null && parms.dom.getAttribute("disabled")=="true" )
+          || ( parms.dom.disabled!=null && parms.dom.disabled==true ) ) {
+          return;
+        }
         if (pui.isRightClick(event)) return;
         parms.dom.clickedDown = true;
         var bstyle = parms.dom.button.bstyle;
