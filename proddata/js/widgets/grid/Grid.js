@@ -1881,6 +1881,12 @@ pui.Grid = function() {
         eval("var dom = pui.temporary_property;");
         
         eval("var row = arguments[1];");
+        
+        if (eventName == "onrowclick") {
+          
+          eval("var isRightClick = arguments[2];");
+          
+        }        
 
         var rowNum = arguments[1];
         if (rowNum != null) {
@@ -3838,9 +3844,10 @@ pui.Grid = function() {
     
     cell.onclick = function(e) {      
       var target = getTarget(e);
+      var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
-        if (!me.hasHeader) executeEvent("onrowclick", row + 1);
-        if (me.hasHeader && row != 0) executeEvent("onrowclick", row);
+        if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight);
+        if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight);
       }
       if (context == "dspf" && !me.designMode) {
       
