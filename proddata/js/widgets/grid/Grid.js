@@ -1774,9 +1774,17 @@ pui.Grid = function() {
           var pos;
           var fieldInfo;
           if (obj == null) {
+			//try an input field
             id = "I_" + (row + x) + "_" + col;
             obj = getObj(id);
-            if (obj == null) continue;
+            if (obj == null) {
+				//try an input field in a window
+				if (!isNaN(winNum) && winNum > 0) {
+					id += "_W" + winNum;
+				}
+			}
+			obj = getObj(id);
+			if (obj == null) continue;
             if (!obj.readOnly) continue;
             text = obj.value;
             text = text.replace(/ /g, "&nbsp;");
