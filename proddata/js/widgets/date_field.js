@@ -81,12 +81,12 @@ function show_calendar(dateField, str_datetime, format) {
 
     "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
     ", '"+ dt2dtstr(dt_prev_year)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"\/profoundui\/proddata\/images\/prev_year.png\" width=\"16\" height=\"16\" border=\"0\""+
+    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/prev_year.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
     " alt=\"previous month\"></span>" +
 
     "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
     ", '"+ dt2dtstr(dt_prev_month)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"\/profoundui\/proddata\/images\/prev_month.png\" width=\"16\" height=\"16\" border=\"0\""+
+    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/prev_month.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
     " alt=\"previous month\"></span>" +
 		
 		"</td>\n" +
@@ -97,12 +97,12 @@ function show_calendar(dateField, str_datetime, format) {
 		
 		"<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
 		", '"+dt2dtstr(dt_next_month)+"'+document.cal.time.value, '" + format + "');\">"+
-		"<img arrow=\"1\" src=\"\/profoundui\/proddata\/images\/next_month.png\" width=\"16\" height=\"16\" border=\"0\""+
+		"<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/next_month.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
 		" alt=\"next month\"></span>" + 
 		
 		"<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
 		", '"+dt2dtstr(dt_next_year)+"'+document.cal.time.value, '" + format + "');\">"+
-		"<img arrow=\"1\" src=\"\/profoundui\/proddata\/images\/next_year.png\" width=\"16\" height=\"16\" border=\"0\""+
+		"<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/next_year.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
 		" alt=\"next month\"></span>" + 
 		
 		"</td>\n</tr>\n"
@@ -165,6 +165,7 @@ function show_calendar(dateField, str_datetime, format) {
 		"<input type=\"hidden\" name=\"time\" value=\""+dt2tmstr(dt_datetime)+
 		"\">\n</form>\n";
 
+  
 	calobj = document.getElementById("popcal");
 	var clickobj = dateField.calimg;
 	calobj.style.width ="180px";
@@ -407,7 +408,7 @@ function cal(dateField, format) {
     else format = pui.defaultDateFormat;
   }
   if (format == null || format == "") format = "MM/DD/YY";  // default
-  var calHTML = '<img src="/' + pui.normalizeURL('profoundui/proddata/images/cal.gif') + '" width="16px" height="16px" border="0" alt="">';
+  var calHTML = '<img src="' + pui.normalizeURL('/profoundui/proddata/images/cal.gif') + '" width="16px" height="16px" border="0" alt="">';
   var newElem = document.createElement("div");
   newElem.style.position = "absolute";
   newElem.style.width = "16px";
