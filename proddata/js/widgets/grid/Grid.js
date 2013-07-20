@@ -1436,6 +1436,26 @@ pui.Grid = function() {
         me.cells[0][i].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + me.columnHeadings[i] + '</div>';
         centerHeadingVertically(me.cells[0][i]);
       }      
+      // This method runs when the user resizes columns, and the sort icon becomes orphaned.
+      var placeIcon = false;
+      if (me.designMode == false && me.sortable == true) {      
+        if (clientSortColumnId == me.cells[0][i].columnId) {
+          placeIcon = true;
+        }
+        else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == me.cells[0][i].columnId) {
+          placeIcon = true;
+        }
+        if (placeIcon) {
+          if (me.sortIcon.parentNode != null) {
+            me.sortIcon.parentNode.removeChild(me.sortIcon);
+          }
+          var destination = me.cells[0][i];
+          if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
+            destination = destination.firstChild;
+          }
+          destination.appendChild(me.sortIcon);
+        }
+      }
     }
   }
   
