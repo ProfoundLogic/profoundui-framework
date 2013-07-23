@@ -1223,7 +1223,12 @@ pui["upload"] = function(params, callback) {
       if (rsp) {
         success = rsp["success"];
         if (!success) {
-          error = rsp["error"];
+          if (rsp["key"]) {
+            error = pui.getLanguageText("runtimeMsg", "upload " + rsp["key"]); 
+          }
+          else {
+            error = rsp["error"];
+          }
         }
       }
     }
