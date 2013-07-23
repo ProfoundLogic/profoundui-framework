@@ -1490,7 +1490,7 @@ pui.Grid = function() {
          (me.dataProps["custom sql"] == null || me.dataProps["custom sql"] == "" ) &&
          (me.dataProps["data url"] == null || me.dataProps["data url"] == "" ) &&
          (me.dataProps["database fields"] != null && me.dataProps["database fields"] != "") ) {
-      var fields = me.dataProps["database fields"].split(",");
+      var fields = pui.getFieldList(me.dataProps["database fields"]);
       for (var i = 0; i < fields.length; i++) {
         headerRow[i].fieldName = fields[i];
         if (!pui.iPadEmulation) {
