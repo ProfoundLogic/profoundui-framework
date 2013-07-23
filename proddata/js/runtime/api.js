@@ -1197,7 +1197,7 @@ pui["upload"] = function(params, callback) {
   formData.append("dir", dir);
   formData.append("overwrite", (overwrite) ? "1" : "0");
   formData.append("flimit", 1);
-  formData.append("slimit", String(Math.ceil(params["data"].byteLength / 1048576))); // Size rounded up to nearest MB.
+  formData.append("slimit", String(Math.ceil(blob.size / 1048576))); // Size rounded up to nearest MB.
   formData.append("filename", fileName);
 
   var xhr = new XMLHttpRequest();
