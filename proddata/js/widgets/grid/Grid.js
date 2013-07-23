@@ -1095,6 +1095,12 @@ pui.Grid = function() {
     function receiveData(data, totalRecs) {
       if (totalRecs != null) me.totalRecs = totalRecs;
       var paddingCSS = getPaddingCSS();
+      // Column order can differ from SQL when backend SQL statements are used, and the 
+      // user has re-ordered the columns.
+      var cellMap = new Array(me.cells[0].length);
+      for (var i = 0; i < me.cells[0].length; i++) {
+        cellMap[me.cells[0][i].columnId] = i;
+      }
       for (var i = 0; i < data.length; i++) {
         var record = data[i];
         var colNum = 0;
@@ -1104,10 +1110,17 @@ pui.Grid = function() {
           if (colNum < row.length) {            
             var dataValue = record[j];
             var alignCSS = "";
-            if (row[colNum].style.textAlign != null && row[colNum].style.textAlign != "") {
-              alignCSS = " text-align:" + row[colNum].style.textAlign;
+            var idx;
+            if (pui["secLevel"] > 0) {
+              idx = cellMap[colNum];
             }
-            row[colNum].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
+            else {
+              idx = colNum;
+            }
+            if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
+              alignCSS = " text-align:" + row[idx].style.textAlign;
+            }
+            row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
           }
           colNum++;
         }
