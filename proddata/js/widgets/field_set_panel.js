@@ -36,11 +36,19 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      parms.dom.innerHTML = "<legend>" + parms.evalProperty("value") + "</legend>";
+      var styleString = '';
+      if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
+    	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
+      }
+      parms.dom.innerHTML = '<legend' + styleString + '>' + parms.evalProperty("value") + '</legend>';
     },
     
     "value": function(parms) {
-      parms.dom.innerHTML = "<legend>" + parms.value + "</legend>";
+    	var styleString = '';
+        if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
+      	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
+        }	
+      parms.dom.innerHTML = '<legend' + styleString + '>' + parms.value + '</legend>'; 
     },
 
     "color": function(parms) {
