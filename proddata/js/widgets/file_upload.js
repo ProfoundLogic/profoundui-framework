@@ -534,7 +534,6 @@ pui["fileupload"].FileUpload = function(container) {
 	function createForm() {
 		
 		form = document.createElement("form");
-		form.method = "post";
 		form.enctype = "multipart/form-data";
 		form.encoding = "multipart/form-data"; // For IE7/8.
 		form.method = "post";
