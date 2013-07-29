@@ -1160,45 +1160,151 @@ pui.getComputedStyle = function(obj) {
 
 pui["upload"] = function(params, callback) {
   
-  var path = typeof(params["path"] == "string") ? params["path"] : "";
+  var dir = params["dir"];
   var overwrite = (params["overwrite"] === true);
-  var dir = "";
-  var fileName = "";
+
+  // The following values are passed by file upload widget 
+  // for validation purposes. This is for convenience only, the values
+  // can be spoofed. The exit program provides final validation. 
+  
+  // If these values are not passed by the caller (i.e. called by user, rather than widget), 
+  // then take values from passed data and let exit program validate.
+  
+  var slimit;
+  if (typeof(params["slimit"]) == "number") {
     
-  for (var i = path.length - 1; i >= 0; i--) {
-    var thisChar = path.charAt(i);
-    if (thisChar != "/") {
-      fileName = thisChar + fileName;
-    }
-    else {
-      var len = (i == 0) ? 1 : i;        
-      dir = path.substr(0, len);
-      break;
-    }
+    slimit = params["slimit"];
+    
+  }
+  
+  var flimit;
+  if (typeof(params["flimit"]) == "number") {
+    
+    flimit = params["flimit"];
+    
+  }
+  
+  var altname = "";
+  if (typeof(params["altname"]) == "string") {
+    
+    altname = params["altname"];
+    
   }
     
+  var allowedTypes;
+  if (typeof(params["allowedTypes"]) && params["allowedTypes"] instanceof Array) {
+    
+    allowedTypes = params["allowedTypes"];
+    
+  }
+  
+  // Get any missing values from data. 
+  if (flimit == null) {
+    
+    flimit = params["files"].length;
+    
+  }
+      
+  if (slimit == null || allowedTypes == null) {
+    
+    var largest;
+    var types = [];
+    for (var i = 0; i < params["files"].length; i++) {
+      
+      var obj = params["files"][i];
+      var type = (typeof(obj["type"]) != "undefined" && obj["type"] != "") ? obj["type"] : "application/octet-stream";
+      if (pui.arrayIndexOf(types, type) == -1) {
+        
+        types.push(type);
+        
+      }
+      
+      var size;
+      if (obj instanceof File) {
+        
+        size = obj.size;
+        
+      }
+      else {
+        
+        size = obj["data"]["byteLength"];
+        
+      }
+      size = Math.ceil(size / 1048576); // Size rounded up to nearest MB.
+      
+      if (largest == null || size > largest) {
+        
+        largest = size;
+        
+      }    
+      
+    }
+    
+    if (slimit == null) {
+      
+      slimit = largest;
+      
+    }
+    
+    if (allowedTypes == null) {
+      
+      allowedTypes = types;
+      
+    }
+  
+  }
+  
   var url = getProgramURL("PUI0009109.PGM");
   url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
   url += "&mode=ajax";
   url += "&r=" + Math.floor(Math.random() * 1000000000);
   
-  var blob;  
-  try {
-    blob = new Blob([params["data"]]);
-  }
-  catch(err) {
-    var blobTheBuilder = new (window["BlobBuilder"] || window["WebKitBlobBuilder"] || window["MozBlobBuilder"] || BlobBuilder)();
-    blobTheBuilder.append(params["data"]);
-    blob = blobTheBuilder["getBlob"]();
-  }
-      
   var formData = new FormData();
-  formData.append("file", blob);
   formData.append("dir", dir);
   formData.append("overwrite", (overwrite) ? "1" : "0");
-  formData.append("flimit", 1);
-  formData.append("slimit", String(Math.ceil(blob.size / 1048576))); // Size rounded up to nearest MB.
-  formData.append("filename", fileName);
+  formData.append("flimit", flimit);
+  formData.append("slimit", slimit); 
+  formData.append("altname", altname);
+  
+  for (var i = 0; i < allowedTypes.length; i++) {
+    
+    formData.append("type", allowedTypes[i]);
+    
+  }
+  
+  for (var i = 0; i < params["files"].length; i++) {
+    
+    var obj = params["files"][i];
+    
+    if (obj instanceof File) {
+    
+      formData.append("file", obj);
+      
+    }
+    else {
+      
+      var blob;  
+      try {
+        
+        blob = new Blob([obj["data"]]);
+        
+      }
+      catch(err) {
+        
+        var blobTheBuilder = new window["WebKitBlobBuilder"]();
+        blobTheBuilder.append(obj["data"]);
+        blob = blobTheBuilder["getBlob"]();
+        
+      }
+      
+      formData.append("file", blob);
+      
+    }
+    
+    // Necessary as browsers do not handle form part naming for BLOBs very well. 
+    formData.append("filename", obj["name"]);
+    
+  }
 
   var xhr = new XMLHttpRequest();
   xhr.open("POST", url, true);
@@ -1206,43 +1312,76 @@ pui["upload"] = function(params, callback) {
   xhr.onreadystatechange = function() {
   
     if (xhr.readyState != 4) {
+      
       return;
+      
     }
     
     var success = true;
     var error;
     if (xhr.status == 200) {
+      
       var rsp;
       try {
+        
         rsp = eval("(" + xhr.responseText + ")");
+        
       }
       catch(e) {
+        
         success = false;
         error = "Server response missing or invalid."
+          
       }
       if (rsp) {
+        
         success = rsp["success"];
         if (!success) {
+          
           if (rsp["key"]) {
+            
             error = pui.getLanguageText("runtimeMsg", "upload " + rsp["key"]); 
+            
+            if (rsp["key"] == "file limit") {
+              
+              error = error.replace("&1", flimit); 
+              
+            }
+            if (rsp["key"] == "size limit") {
+              
+              error = error.replace("&1", slimit); 
+              
+            }            
+
           }
           else {
+            
             error = rsp["error"];
+            
           }
+          
         }
+        
       }
+      
     }
     else {
+      
       success = false;
       error = xhr.status + " - " + xhr.statusText + ".";
+      
     }
     
     if (typeof(callback) == "function") {
+      
       callback(success, error);  
-    }    
+      
+    }  
+    
   }
   
-  xhr.send(formData);   
+  xhr.send(formData);  
+  
 }
 
 
