@@ -326,72 +326,119 @@ pui["fileupload"].FileUpload = function(container) {
     }  
   
     submitHandle = {}; // Will be set to true value later.
-    if (context == "genie") {
-    
-      pui.genie.formSubmitted = true; 
-      pui.showWaitAnimation();
-    
-    }
-  
-    // These 3 values are always passed on the form action URL.
-    // This is because they are absolutely necessary in order to 
-    // notify the browser when the form submit is complete. 
-    
-    // Form POST data may not be available if the input buffer size is 
-    // exceeded, for example.
-    form.action = formAction;
-    form.action += "?AUTH=";
-    if (pui["appJob"] && pui["appJob"]["auth"]) {
-
-      form.action += encodeURIComponent(pui["appJob"]["auth"]);
-		
-		}   
-		form.action += "&trans=" + encodeURIComponent(transactionId);
-		form.action += "&id=" + encodeURIComponent(mainBox.id);     
-    
-    form.elements["flimit"].value = fileLimit;
-    form.elements["slimit"].value = sizeLimit;
-    form.elements["dir"].value = targetDirectory;
-    form.elements["altname"].value = altName;
-    form.elements["overwrite"].value = (overwrite) ? "1" : "0";
-    while(form.elements["type"]) {
-    
-      if (form.elements["type"].length) {
+    error = "";
       
-        form.removeChild(form.elements["type"][0]);
+    if (typeof(window["cordova"]) != "undefined") {
+    
+      var params = {};
+      params["dir"] = targetDirectory;
+      params["overwrite"] = overwrite;
+      params["flimit"] = fileLimit;
+      params["flimit"] = sizeLimit;
+      params["altname"] = altName;
+      params["allowedTypes"] = allowedTypes;      
+      params["files"] = [];
+      
+      if (enhanced) {
+        
+        for (var i = 0; i < selectors[0].input.files.length; i++) {
+        
+          params["files"].push(selectors[0].input.files[i]);
+          
+        }
         
       }
       else {
+       
+        for (var i = 0; i < selectors.length - 1; i++) { // Prevent last unused control from posting.
+          
+          params["files"][i] = selectors[i].input.files[0];
+          
+        }        
+        
+      }
       
-        form.removeChild(form.elements["type"]);  
+      pui.upload(params, function(success, errorMsg) {
+        
+        if (!success) {
+          
+          error = errorMsg;
+          
+        }
+        submitHandle = null;
+        
+      });
+      
+    }
+    else {
+    
+      if (context == "genie") {
+        
+        pui.genie.formSubmitted = true; 
+        pui.showWaitAnimation();
+      
+      }      
+      
+      // These 3 values are always passed on the form action URL.
+      // This is because they are absolutely necessary in order to 
+      // notify the browser when the form submit is complete. 
+      
+      // Form POST data may not be available if the input buffer size is 
+      // exceeded, for example.
+      form.action = formAction;
+      form.action += "?AUTH=";
+      if (pui["appJob"] && pui["appJob"]["auth"]) {
+  
+        form.action += encodeURIComponent(pui["appJob"]["auth"]);
+  		
+  		}   
+  		form.action += "&trans=" + encodeURIComponent(transactionId);
+  		form.action += "&id=" + encodeURIComponent(mainBox.id);     
+      
+      form.elements["flimit"].value = fileLimit;
+      form.elements["slimit"].value = sizeLimit;
+      form.elements["dir"].value = targetDirectory;
+      form.elements["altname"].value = altName;
+      form.elements["overwrite"].value = (overwrite) ? "1" : "0";
+      while(form.elements["type"]) {
+      
+        if (form.elements["type"].length) {
+        
+          form.removeChild(form.elements["type"][0]);
+          
+        }
+        else {
+        
+          form.removeChild(form.elements["type"]);  
+        
+        }
       
       }
+      for (var i = 0; i < allowedTypes.length; i++) {
+      
+        var hidden = createNamedElement("input", "type");
+        hidden.type = "hidden";
+        hidden.value = allowedTypes[i];
+        form.appendChild(hidden);
+      
+      } 
+      
+      submitHandle = setTimeout(function() {
+      
+        me.completeTransaction(transactionId, {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload timeout")});
+      
+      }, timeout);
+      
+      // This prevents unused control from being posted.
+      if (!enhanced) {
+      
+        selectors[selectors.length - 1].input.disabled = true;
+      
+      }
+      
+      form.submit();
     
     }
-    for (var i = 0; i < allowedTypes.length; i++) {
-    
-      var hidden = createNamedElement("input", "type");
-      hidden.type = "hidden";
-      hidden.value = allowedTypes[i];
-      form.appendChild(hidden);
-    
-    } 
-    
-    submitHandle = setTimeout(function() {
-    
-      me.completeTransaction(transactionId, {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload timeout")});
-    
-    }, timeout);
-    
-    // This prevents unused control from being posted.
-    if (!enhanced) {
-    
-      selectors[selectors.length - 1].input.disabled = true;
-    
-    }
-    
-    error = "";  
-    form.submit();
   
   }
   
