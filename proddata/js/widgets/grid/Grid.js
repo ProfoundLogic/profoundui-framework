@@ -963,6 +963,7 @@ pui.Grid = function() {
           form.appendChild(field);
         }
         addField("delimiter", delimiter);
+        addField("UTF8", "Y");
         addField("decType", decType);
         addField("fileName", csvFile + ".csv");
         if (pui["secLevel"] > 0) {
