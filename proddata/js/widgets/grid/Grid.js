@@ -605,7 +605,7 @@ pui.Grid = function() {
         }
       }
     }
-
+    
     var data = "";
     
     // build csv headings
@@ -622,6 +622,8 @@ pui.Grid = function() {
         }
       }
     }
+
+    data = "\uFEFF" + data;
 
     // build csv data    
     for (var i = 0; i < me.dataArray.length; i++) {
