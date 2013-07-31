@@ -1220,14 +1220,15 @@ pui["upload"] = function(params, callback) {
       }
       
       var size;
-      if (obj instanceof File) {
+      if (obj["data"] && obj["data"] instanceof ArrayBuffer) {
         
-        size = obj.size;
+        size = obj["data"]["byteLength"];
+        
         
       }
       else {
         
-        size = obj["data"]["byteLength"];
+        size = obj.size;  
         
       }
       size = Math.ceil(size / 1048576); // Size rounded up to nearest MB.
@@ -1276,13 +1277,8 @@ pui["upload"] = function(params, callback) {
     
     var obj = params["files"][i];
     
-    if (obj instanceof File) {
+    if (obj["data"] && obj["data"] instanceof ArrayBuffer) {
     
-      formData.append("file", obj);
-      
-    }
-    else {
-      
       var blob;  
       try {
         
@@ -1298,6 +1294,11 @@ pui["upload"] = function(params, callback) {
       }
       
       formData.append("file", blob);
+      
+    }
+    else {
+      
+      formData.append("file", obj);
       
     }
     
