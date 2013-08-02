@@ -646,7 +646,7 @@ pui.Grid = function() {
           }
           value = value.replace(/"/g, '""');  // "
           if (line != "") line += delimiter;
-          line += '"' + value + '"';
+          line += '"' + rtrim(value) + '"';
         }
       }
       if (data != "") data += "\n";
