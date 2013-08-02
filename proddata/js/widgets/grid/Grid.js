@@ -577,9 +577,11 @@ pui.Grid = function() {
     // initialize column array, each array element will hold the index to the dataArray
     var columnArray = [];
     var numericData = [];
+    var graphicData = [];
     for (var i = 0; i < me.vLines.length - 1; i++) {
       columnArray.push(-1);
       numericData.push(false);
+      graphicData.push(false);
     }
     
     // go through all grid elements, retrieve field names, and identify data index by field name
@@ -597,6 +599,9 @@ pui.Grid = function() {
                 columnArray[col] = j;
                 if (val["formatting"] == "Number") {
                    numericData[col] = true;
+                }
+                if (val["dataType"] == "graphic") {
+                   graphicData[col] = true;
                 }
                 break;
               }
@@ -633,6 +638,9 @@ pui.Grid = function() {
         var idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
+          if (graphicData[j]) {
+             value = pui.formatting.decodeGraphic(value);
+          } 
           if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
              value = value.replace('.', ',');
           }
