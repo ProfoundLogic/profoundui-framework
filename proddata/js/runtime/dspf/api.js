@@ -573,7 +573,7 @@ pui["capturePhoto"] = function(parms) {
                   
                     if (jsonResponse["key"]) {
                     
-                      response["error"] = pui["fileupload"][jsonResponse["key"]];
+                      response["error"] = pui.getLanguageText("runtimeMsg", "upload " + jsonResponse["key"]);
                     
                     }
                     else {

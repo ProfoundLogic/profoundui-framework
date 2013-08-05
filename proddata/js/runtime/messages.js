@@ -1,4 +1,4 @@
-//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
+﻿//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
 //  Copyright (c) 2013 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
@@ -130,7 +130,8 @@ pui["runtimeMsg"]["en_US"]["MF"]                      = "Mandatory fill field. Y
 pui["runtimeMsg"]["en_US"]["required"]                = "The value cannot be blank. This field is required.";
 pui["runtimeMsg"]["en_US"]["file required"]           = "You must select at least one file.";
 pui["runtimeMsg"]["en_US"]["signature overflow"]      = "The signature drawing size exceeds the maximum number of bytes available for storing the signature.  Please clear the signature pad and try again.";
-pui["runtimeMsg"]["en_US"]["validValues"]              = "Value entered is not valid. Valid values are: ";
+pui["runtimeMsg"]["en_US"]["validValues"]             = "Value entered is not valid. Valid values are: ";
+pui["runtimeMsg"]["en_US"]["upload invalid type"]     = "One or more files are of invalid type.";
 
 pui["runtimeText"]["en_US"] = {};
 pui["runtimeText"]["en_US"]["upload select text"]   = "Select Files";
