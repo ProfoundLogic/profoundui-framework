@@ -40,15 +40,35 @@ pui.widgets.add({
       if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
     	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
       }
-      parms.dom.innerHTML = '<legend' + styleString + '>' + parms.evalProperty("value") + '</legend>';
+      var value = parms.evalProperty("value");
+      if (value != null && value != "") {
+      
+        parms.dom.innerHTML = '<legend' + styleString + '>' + value + '</legend>';
+        
+      }
+      else {
+      
+        parms.dom.innerHTML = "";
+      
+      }
     },
     
     "value": function(parms) {
     	var styleString = '';
         if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
       	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
-        }	
-      parms.dom.innerHTML = '<legend' + styleString + '>' + parms.value + '</legend>'; 
+        }
+        var value = parms.value;	
+        if (value != null && value != "") {
+        
+          parms.dom.innerHTML = '<legend' + styleString + '>' + value + '</legend>';
+          
+        }
+        else {
+        
+          parms.dom.innerHTML = "";
+        
+        }
     },
 
     "color": function(parms) {
