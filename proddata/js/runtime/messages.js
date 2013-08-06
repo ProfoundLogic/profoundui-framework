@@ -255,6 +255,7 @@ pui["runtimeMsg"]["pt_PT"]["required"]                = "O valor não pode estar
 pui["runtimeMsg"]["pt_PT"]["file required"]           = "Deve seleccionar pelo menos um ficheiro.";
 pui["runtimeMsg"]["pt_PT"]["signature overflow"]      = "A imagem da assinatura excede o número máximo de bytes disponíveis para o seu armazenamento. Por favor limpe a caixa da assinatura e tente de novo.";
 pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido não é válido. Valores válidos: ";
+pui["runtimeMsg"]["pt_PT"]["upload invalid type"]     = "Um ou mais ficheiros são de tipo inválido.";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -285,6 +286,7 @@ pui["runtimeMsg"]["pt_BR"]["file required"]           = "Deve seleccionar pelo m
 pui["runtimeText"]["pt_BR"]["upload select text"]     = "Arquivos Selecionados";
 pui["runtimeText"]["pt_BR"]["row"]                    = "fileira";
 pui["runtimeText"]["pt_BR"]["rows"]                   = "fileiras";
+pui["runtimeMsg"]["pt_BR"]["upload invalid type"]     = "Um ou mais arquivos são de tipo inválido.";
 
 // ------------------------------------------------------------
 //  Spanish / Spain
@@ -327,6 +329,7 @@ pui["runtimeMsg"]["es_ES"]["required"]                = "El valor no puede estar
 pui["runtimeMsg"]["es_ES"]["file required"]           = "Debe seleccionar al menos un archivo.";
 pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma excede el número máximo de los bytes disponibles para su almacenaje. Por favor borre la caja de la firma e intente de nuevo .";
 pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
+pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -444,6 +447,7 @@ pui["runtimeMsg"]["fr_FR"]["required"]                = "La valeur ne peut pas �
 pui["runtimeMsg"]["fr_FR"]["file required"]           = "Vous devez sélectionner au moins un fichier.";
 pui["runtimeMsg"]["fr_FR"]["signature overflow"]      = "L'image de la signature dépasse le nombre maximum de bytes disponibles pour son stockage. S'il vous plaît, videz la boîte de la signature et essaye à nouveau.";
 pui["runtimeMsg"]["fr_FR"]["validValues"]             = "La valeur introduite n'est pas valable. Valeurs valables :";
+pui["runtimeMsg"]["fr_FR"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
 
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers Sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Nettoyer ";
