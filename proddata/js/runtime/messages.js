@@ -197,6 +197,7 @@ pui["runtimeMsg"]["de_DE"]["required"]                = "Der Wert kann nicht lee
 pui["runtimeMsg"]["de_DE"]["file required"]           = "Bitte mindestens eine Datei auswählen.";
 pui["runtimeMsg"]["de_DE"]["signature overflow"]      = "Die Größe der Signatur überschreitet die maximale Speichergröße. Bitte löschen und erneut versuchen.";
 pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist nicht gültig. Gültige Werte sind: ";
+pui["runtimeMsg"]["de_DE"]["upload invalid type"]     = "Eine oder mehrere Dateien haben den falschen Typcode.";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
