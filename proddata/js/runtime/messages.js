@@ -564,6 +564,7 @@ pui["runtimeMsg"]["he_IL"]["required"]                = " הערך אינו יכ
 pui["runtimeMsg"]["he_IL"]["file required"]           = " עליך לבחור קובץ אחד לפחות";
 pui["runtimeMsg"]["he_IL"]["signature overflow"]      = " גודל ציור החתימה חורג מהערך המרבי. אנא לנקות את משטח החתימה ונסה שוב";
 pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינו חוקי. ערכים חוקיים הם";
+pui["runtimeMsg"]["he_IL"]["upload invalid type"]     = "אחד או יותר מהקבצים מסוג לא חוקי";
 
 pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
