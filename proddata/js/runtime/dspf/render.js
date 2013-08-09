@@ -1094,7 +1094,27 @@ pui.renderFormat = function(parms) {
               formattingObj.revert = false;
 
               if (pui.touchDevice && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
-                dom.type = "number";
+              
+                // The following options put non-digit characters into the box. Such as spaces, separators, commas, etc.
+                // Any non-digit characters cause a browser to render a "number" element empty.
+                
+                // It appears that the designer will always define all of these values for Number formatting. They will be
+                // empty string, if not set. 
+                
+                // However, a user who is hand coding the screen may not define them? 
+                
+                if (formattingObj["numSep"] != "true" && 
+                    formattingObj["numBlankFill"] != "true" && 
+                    formattingObj["negNum"] != "(999.00)" && formattingObj["negNum"] != "999.00-" && formattingObj["negNum"] != "999.00 CR" &&  
+                    (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
+                    (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&                  
+                    (!formattingObj["curSym"] || formattingObj["curSym"] == "") && 
+                    (!formattingObj["units"] || formattingObj["units"] == "")) {   
+                                
+                  dom.type = "number";
+                  
+                }
+                
               }
             
               if (propname == "changed") {
