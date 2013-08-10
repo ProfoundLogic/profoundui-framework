@@ -399,7 +399,7 @@ pui.Grid = function() {
     }
     if (button != null && button.tagName == "IMG") {
       button.src = pui.normalizeURL("/profoundui/proddata/images/icons/expandall.gif");
-      button.title = "Expand All";
+      button.title = pui.getLanguageText("runtimeText", "expandAll");
     }
   }
 
@@ -466,7 +466,7 @@ pui.Grid = function() {
     }
     if (button != null && button.tagName == "IMG") {
       button.src = pui.normalizeURL("/profoundui/proddata/images/icons/collapseall.gif");
-      button.title = "Collapse All";
+      button.title = pui.getLanguageText("runtimeText", "collapseAll");
     }
   }
   

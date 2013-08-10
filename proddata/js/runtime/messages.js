@@ -26,6 +26,13 @@ pui.getLanguageText = function(dict, msgid, varvals) {
 
   var lang = pui["language"] || "en_US";
   var msg  = pui[dict][lang][msgid];
+
+  // If for some reason a message is undefined in the selected
+  // language, fall back to US English.
+  
+  if (typeof(msg) == "undefined") {
+    msg = pui[dict]["en_US"][msgid];
+  }
  
   // for backward compat w/old pui["runtimeMessages"][xxx] support.
   
@@ -148,6 +155,8 @@ pui["runtimeText"]["en_US"]["sort descending text"] = "Sort Descending";
 pui["runtimeText"]["en_US"]["row"]                  = "row";
 pui["runtimeText"]["en_US"]["rows"]                 = "rows";
 pui["runtimeText"]["en_US"]["page"]                 = "Page";
+pui["runtimeText"]["en_US"]["collapseAll"]          = "Collapse All";
+pui["runtimeText"]["en_US"]["expandAll"]            = "Expand All";
 
 
 // ----------------------------------
@@ -213,6 +222,8 @@ pui["runtimeText"]["de_DE"]["sort descending text"] = "Sortierung absteigend";
 pui["runtimeText"]["de_DE"]["row"]                  = "Zeile";
 pui["runtimeText"]["de_DE"]["rows"]                 = "Zeilen";
 pui["runtimeText"]["de_DE"]["page"]                 = "Seite";
+pui["runtimeText"]["de_DE"]["collapseAll"]          = "alles zuklappen";
+pui["runtimeText"]["de_DE"]["expandAll"]            = "alles aufklappen";
 
 // ----------------------------------
 //  Portuguese (Portugal)
@@ -522,6 +533,9 @@ pui["runtimeText"]["it_IT"]["sort descending text"] = "Ordinare in Senso Discend
 pui["runtimeText"]["it_IT"]["row"]                  = "riga";
 pui["runtimeText"]["it_IT"]["rows"]                 = "righe";
 pui["runtimeText"]["it_IT"]["page"]                 = "Pagina";
+pui["runtimeText"]["it_IT"]["collapseAll"]          = "Comprimi tutto";
+pui["runtimeText"]["it_IT"]["expandAll"]            = "Espandi tutto";
+
 
 // ------------------------------------------------------------
 //  Hebrew
