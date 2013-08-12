@@ -1462,7 +1462,7 @@ pui.Grid = function() {
       }      
       // This method runs when the user resizes columns, and the sort icon becomes orphaned.
       var placeIcon = false;
-      if (me.designMode == false && me.sortable == true) {      
+      if (me.designMode == false && me.sortable == true && me.sortIcon != null) {      
         if (clientSortColumnId == me.cells[0][i].columnId) {
           placeIcon = true;
         }
