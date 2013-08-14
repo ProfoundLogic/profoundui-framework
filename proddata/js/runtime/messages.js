@@ -283,6 +283,8 @@ pui["runtimeText"]["pt_PT"]["sort descending text"] = "Ordenar Descendentemente"
 pui["runtimeText"]["pt_PT"]["row"]                  = "linha";
 pui["runtimeText"]["pt_PT"]["rows"]                 = "linhas";
 pui["runtimeText"]["pt_PT"]["page"]                 = "Página";
+pui["runtimeText"]["pt_PT"]["collapseAll"]          = "Recolher tudo";
+pui["runtimeText"]["pt_PT"]["expandAll"]            = "Expandir tudo";
 
 // ------------------------------------------------------------
 //  Portuguese (Copy for Brazil)
@@ -357,6 +359,8 @@ pui["runtimeText"]["es_ES"]["sort descending text"] = "Ordenación Descendente";
 pui["runtimeText"]["es_ES"]["row"]                  = "línea";
 pui["runtimeText"]["es_ES"]["rows"]                 = "líneas";
 pui["runtimeText"]["es_ES"]["page"]                 = "Página";
+pui["runtimeText"]["es_ES"]["collapseAll"]          = "Recoger tudo";
+pui["runtimeText"]["es_ES"]["expandAll"]            = "Espandir tudo";
 
 
 // ------------------------------------------------------------
@@ -475,6 +479,9 @@ pui["runtimeText"]["fr_FR"]["sort descending text"] = "Trier dans l'ordre Décro
 pui["runtimeText"]["fr_FR"]["row"]                  = "rangée";
 pui["runtimeText"]["fr_FR"]["rows"]                 = "rangées";
 pui["runtimeText"]["fr_FR"]["page"]                 = "Page";
+pui["runtimeText"]["fr_FR"]["collapseAll"]          = "Rassembler tout";
+pui["runtimeText"]["fr_FR"]["expandAll"]            = "Développer tout";
+
 
 // ------------------------------------------------------------
 //  Italiano
