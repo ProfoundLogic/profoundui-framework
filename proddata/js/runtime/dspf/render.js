@@ -1403,6 +1403,9 @@ pui.renderFormat = function(parms) {
             if (propname == "validate name" && propValue == "true") {
               dom.validateName = true;
             }
+            if (propname == "validate email" && propValue == "true") {
+              dom.validateEmail = true;
+            }
             if (propname == "set as modified" && propValue == "true") {
               dom.modified = true;
               pui.modified = true;
@@ -2701,6 +2704,17 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: "Name " + valNameMsg });
+              continue;
+            }
+          }
+
+          if (dom.validateEmail == true) {
+            if (!pui.validateEmail(value)) {
+              response.valid = false;
+              if (response.errors == null) response.errors = [];
+              var msg = "Invalid email address.";
+              //var msg = pui.getLanguageText("runtimeMsg", "invalid email");
+              response.errors.push({ dom: boxDom, msg: msg });
               continue;
             }
           }
