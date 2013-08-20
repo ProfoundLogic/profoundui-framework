@@ -2712,8 +2712,7 @@ pui.buildResponse = function() {
             if (!pui.validateEmail(value)) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              var msg = "Invalid email address.";
-              //var msg = pui.getLanguageText("runtimeMsg", "invalid email");
+              var msg = pui.getLanguageText("runtimeMsg", "invalid email");
               response.errors.push({ dom: boxDom, msg: msg });
               continue;
             }

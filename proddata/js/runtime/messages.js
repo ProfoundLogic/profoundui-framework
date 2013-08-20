@@ -139,6 +139,7 @@ pui["runtimeMsg"]["en_US"]["file required"]           = "You must select at leas
 pui["runtimeMsg"]["en_US"]["signature overflow"]      = "The signature drawing size exceeds the maximum number of bytes available for storing the signature.  Please clear the signature pad and try again.";
 pui["runtimeMsg"]["en_US"]["validValues"]             = "Value entered is not valid. Valid values are: ";
 pui["runtimeMsg"]["en_US"]["upload invalid type"]     = "One or more files are of invalid type.";
+pui["runtimeMsg"]["en_US"]["invalid email"]          = "Invalid email address.";
 
 pui["runtimeText"]["en_US"] = {};
 pui["runtimeText"]["en_US"]["upload select text"]   = "Select Files";
@@ -207,6 +208,7 @@ pui["runtimeMsg"]["de_DE"]["file required"]           = "Bitte mindestens eine D
 pui["runtimeMsg"]["de_DE"]["signature overflow"]      = "Die Größe der Signatur überschreitet die maximale Speichergröße. Bitte löschen und erneut versuchen.";
 pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist nicht gültig. Gültige Werte sind: ";
 pui["runtimeMsg"]["de_DE"]["upload invalid type"]     = "Eine oder mehrere Dateien haben den falschen Typcode.";
+pui["runtimeMsg"]["de_DE"]["invalid email"]          = "ungültige E-Mail-Adresse.";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
@@ -268,6 +270,7 @@ pui["runtimeMsg"]["pt_PT"]["file required"]           = "Deve seleccionar pelo m
 pui["runtimeMsg"]["pt_PT"]["signature overflow"]      = "A imagem da assinatura excede o número máximo de bytes disponíveis para o seu armazenamento. Por favor limpe a caixa da assinatura e tente de novo.";
 pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido não é válido. Valores válidos: ";
 pui["runtimeMsg"]["pt_PT"]["upload invalid type"]     = "Um ou mais ficheiros são de tipo inválido.";
+pui["runtimeMsg"]["pt_PT"]["invalid email"]          = "inválido e-mail.";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -344,6 +347,7 @@ pui["runtimeMsg"]["es_ES"]["file required"]           = "Debe seleccionar al men
 pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma excede el número máximo de los bytes disponibles para su almacenaje. Por favor borre la caja de la firma e intente de nuevo .";
 pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
+pui["runtimeMsg"]["es_ES"]["invalid email"]          = "dirección de correo electrónico no es válida.";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -398,6 +402,7 @@ pui["runtimeMsg"]["es_MX"]["phone too long"]          = 'Número de Teléfono es
 pui["runtimeMsg"]["es_MX"]["ssno too long"]           = 'Número de Seguro Social muy largo. (Máximo: &1 dígitos)';
 pui["runtimeMsg"]["es_MX"]["invalid custom val"]      = 'Función de validación personalizada es inválida.';
 pui["runtimeMsg"]["es_MX"]["error custom val"]        = 'Error en la validación de la función personalizada.';
+pui["runtimeMsg"]["es_MX"]["invalid email"]          = "dirección de correo electrónico no es válida.";
 
 pui["runtimeMsg"]["es_MX"]["ME"]                      = "Campo de entrada obligatorio. Debe ingresar los datos.";
 pui["runtimeMsg"]["es_MX"]["MF"]                      = "Campo de relleno obligatorio. Debe rellenar el cuadro de entrada completamente.";
@@ -464,6 +469,7 @@ pui["runtimeMsg"]["fr_FR"]["file required"]           = "Vous devez sélectionne
 pui["runtimeMsg"]["fr_FR"]["signature overflow"]      = "L'image de la signature dépasse le nombre maximum de bytes disponibles pour son stockage. S'il vous plaît, videz la boîte de la signature et essaye à nouveau.";
 pui["runtimeMsg"]["fr_FR"]["validValues"]             = "La valeur introduite n'est pas valable. Valeurs valables :";
 pui["runtimeMsg"]["fr_FR"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
+pui["runtimeMsg"]["fr_FR"]["invalid email"]          = "adresse mail invalide.";
 
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers Sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Nettoyer ";
@@ -525,6 +531,7 @@ pui["runtimeMsg"]["it_IT"]["file required"]           = "È necessario seleziona
 pui["runtimeMsg"]["it_IT"]["signature overflow"]      = "La dimensione del testo firma supera il numero massimo di byte disponibili per memorizzare la firma.  Si prega di cancellare la pad per la firma elettronica e provare di nuovo.";
 pui["runtimeMsg"]["it_IT"]["validValues"]             = "Valore inserito non è valido. I valori validi sono: ";
 pui["runtimeMsg"]["it_IT"]["upload invalid type"]     = "Uno o più file sono di tipo non valido.";
+pui["runtimeMsg"]["it_IT"]["invalid email"]          = "mail non valido.";
 
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
@@ -586,6 +593,7 @@ pui["runtimeMsg"]["he_IL"]["file required"]           = " עליך לבחור ק
 pui["runtimeMsg"]["he_IL"]["signature overflow"]      = " גודל ציור החתימה חורג מהערך המרבי. אנא לנקות את משטח החתימה ונסה שוב";
 pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינו חוקי. ערכים חוקיים הם";
 pui["runtimeMsg"]["he_IL"]["upload invalid type"]     = "אחד או יותר מהקבצים מסוג לא חוקי";
+pui["runtimeMsg"]["he_IL"]["invalid email"]          = 'כתובת דוא"ל לא חוקי';
 
 pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
