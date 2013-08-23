@@ -145,7 +145,15 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
     for (var i = 0; i < sets.length; i++) {
     
       var set = sets[i];
-      set.setAttribute("link", "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + set.getAttribute("name") + "\"}"); 
+      
+      var name = set.getAttribute("name");
+      if (name == null) {
+      
+        name = set.getAttribute("label");
+      
+      }
+      
+      set.setAttribute("link", "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + name + "\"}"); 
     
     }
    
