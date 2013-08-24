@@ -640,6 +640,7 @@ pui.render = function(parms) {
     pui.cursorValues.column = null;
     pui.cursorValues.setRow = null;
     pui.cursorValues.setColumn = null;
+    pui.cursorValues.noFocus = null;
     pui.gridsDisplayed = [];
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
@@ -714,6 +715,9 @@ pui.render = function(parms) {
       setTimeout(function() {
         if (pui.focusField.dom != null) {
           if (pui.focusField.dom.tagName == "DIV" || pui.focusField.dom.style.visibility == "hidden") {
+            pui["focusOnContainer"]();
+          }
+          else if (pui.cursorValues.noFocus == true) {
             pui["focusOnContainer"]();
           }
           else {
@@ -815,6 +819,8 @@ pui.renderFormat = function(parms) {
     
     pui.cursorValues.setRow = pui.evalBoundProperty(screenProperties["set cursor row"], data, parms.ref);
     pui.cursorValues.setColumn = pui.evalBoundProperty(screenProperties["set cursor column"], data, parms.ref);
+    pui.cursorValues.noFocus = pui.evalBoundProperty(screenProperties["no focus"], data, parms.ref);
+    if (pui.cursorValues.noFocus == "true") pui.cursorValues.noFocus = true;
     if (typeof screenProperties["set cursor condition"] == "object") {
       var setCursor = pui.evalBoundProperty(screenProperties["set cursor condition"], data, parms.ref);
       if (setCursor != true && setCursor != "true") {

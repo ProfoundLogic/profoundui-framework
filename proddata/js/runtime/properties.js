@@ -413,6 +413,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "set cursor condition", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], format: "true / false", help: "This property can provide an indicator condition, which will be used to determine whether the <i>set cursor row</i> and <i>set cursor column</i> properties are used to set focus.", viewdesigner: false },
       { name: "set cursor row", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false },
       { name: "set cursor column", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false },
+      { name: "no focus", choices: ["true", "false"], type: "boolean", help: "This property indicates that no field should receive focus when the screen first renders.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     	
     	{ name: "Drag and Drop Response", category: true },
     	{ name: "dd element id", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: "This property can be bound to a character field, which will be used to retrieve the id of the element that is drag and dropped." },
