@@ -3559,8 +3559,8 @@ pui.Grid = function() {
           me.alignColumnTotals();
           if (isVertical && persistState) {
             var colWidths = new Array(me.cells[0].length);
-            for (var i = 0; i < me.cells[0].length; i++) {
-              var cell = me.cells[0][i];
+            for (var j = 0; j < me.cells[0].length; j++) {
+              var cell = me.cells[0][j];
               colWidths[cell.columnId] = cell.clientWidth;
             }
             saveState(colWidths, "colWidths");
