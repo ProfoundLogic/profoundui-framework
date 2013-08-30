@@ -1853,14 +1853,13 @@ pui.Grid = function() {
                     else value = " ";
                   }
                 }
-                var formattingObj = me.runtimeChildren[fieldIdx].value;
-                var oldValue = formattingObj.value;
-                var oldRevert = formattingObj.revert;
-                formattingObj.value = value;
-                formattingObj.revert = true;
-                value = pui.FieldFormat.format(formattingObj);
-                formattingObj.value = oldValue;
-                formattingObj.revert = oldRevert;                
+                var oldValue = dom.formattingInfo.value;
+                var oldRevert = dom.formattingInfo.revert;
+                dom.formattingInfo.value = value;
+                dom.formattingInfo.revert = true;
+                value = pui.FieldFormat.format(dom.formattingInfo);
+                dom.formattingInfo.value = oldValue;
+                dom.formattingInfo.revert = oldRevert;                
                 if (typeof value == "object") {
                   // Error.
                   value = "";
