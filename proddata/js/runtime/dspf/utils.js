@@ -48,6 +48,7 @@ pui.isSubfileProperty = function(propertyName) {
     case "subfile message key": return true;
     case "subfile program message queue": return true;
     case "selection field": return true;
+    case "subfile changed": return true;
     default: return false;
   }
 }

@@ -53,6 +53,7 @@ pui.cursorRRNs = {};
 pui.returnRRNs = {};
 pui.topRRNs = {};
 pui.sflModes = {};
+pui.subfileChangedFields = {};
 pui.dragDropFields = {};
 pui.changedFields ={};
 pui.windowTopField = null;
@@ -581,6 +582,7 @@ pui.render = function(parms) {
   pui.returnRRNs = {};
   pui.topRRNs = {};
   pui.sflModes = {};
+  pui.subfileChangedFields = {};
   pui.sqlcache = {};
   pui.bypassValidation = "false";
   pui.placeCursorOnSubfile = false;
@@ -1057,6 +1059,9 @@ pui.renderFormat = function(parms) {
             }
             if (prop == "column sort response") {
               dom.columnSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
+            }
+            if (prop == "subfile changed") {
+              pui.subfileChangedFields[properties["record format name"]] = propValue.fieldName;
             }
           }
         }
@@ -2837,12 +2842,17 @@ pui.buildResponse = function() {
                 
         response[fieldName] = value;
         if (dom.subfileRow != null) {
-          var rrnName = fieldName.split(".")[0] + ".rrn";
+          var sflName = fieldName.split(".")[0];
+          var rrnName = sflName + ".rrn";
           var trackerName = rrnName + "=" + dom.subfileRow;
           if (pui.rrnTracker[trackerName] != true) {            
             if (response[rrnName] == null) response[rrnName] = [];
             response[rrnName].push(dom.subfileRow);
             pui.rrnTracker[trackerName] = true;
+          }
+          var subfileChangedField = pui.subfileChangedFields[sflName];
+          if (subfileChangedField != null) {
+            response[sflName + "." + subfileChangedField + "." + dom.subfileRow] = "1";
           }
         }
       }

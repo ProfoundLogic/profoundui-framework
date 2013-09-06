@@ -2340,6 +2340,7 @@ pui.Grid = function() {
       case "cursor record number":
       case "cursor progression":
       case "subfile return rrn":
+      case "subfile changed":
       
       case "subfile message key":
       case "subfile program message queue":
@@ -4805,6 +4806,7 @@ pui.Grid = function() {
       { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf" },
       { name: "cursor progression", choices: ["left to right", "top to bottom"], help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf" },
       { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf" },
+      { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf" },
       
       { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false },
       { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, help: "This property specifies a field that is used to select messages from a program message queue for display.  Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.", context: "dspf", viewdesigner: false },
