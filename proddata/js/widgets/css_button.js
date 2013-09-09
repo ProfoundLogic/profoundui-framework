@@ -97,7 +97,7 @@ pui.CSSButton = function() {
   }
   
   this.setSwatch = function(newSwatch) {
-    if (newSwatch == null || newSwatch == "" || typeof newSwatch == "object") newSwatch = "a";  // default
+    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "a";  // default
     if (newSwatch.length > 1) newSwatch = newSwatch.substr(0, 1);
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
@@ -143,7 +143,7 @@ pui.CSSButton = function() {
   }
   
   this.setStraightEdge = function(edge) {
-    if (edge == null || typeof edge == "object") return;
+    if (edge == null || pui.isBound(edge)) return;
     link.style.borderTopLeftRadius = "";
     link.style.borderTopRightRadius = "";
     link.style.borderBottomLeftRadius = "";
@@ -198,7 +198,7 @@ pui.CSSButton = function() {
   }
   
   this.setStyle = function(styleName, styleValue) {
-    if (typeof styleValue == "object") styleValue = "";
+    if (pui.isBound(styleValue)) styleValue = "";
     var parts = styleName.split(" ");
     if (parts.length == 2) {
       styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);

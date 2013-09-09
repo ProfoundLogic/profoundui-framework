@@ -37,7 +37,7 @@ pui.widgets.add({
       if (parms.design && parms.properties["field type"] != "button") {
         var cssClass = parms.designItem.properties["css class"];
         if (cssClass == null) cssClass = "";
-        if (typeof cssClass != "object") {
+        if (!pui.isBound(cssClass)) {
           if (cssClass.indexOf("button") < 0) {
             if (cssClass != "") cssClass += " ";
             cssClass += "button";

@@ -35,8 +35,8 @@ function buildOutputField(parms, value) {
     if (overflowX == null) overflowX = "";
     var overflowY = parms.properties["overflow y"];
     if (overflowY == null) overflowY = "";
-    if (parms.propertyName == "value" && typeof parms.newValue == "object" ||
-        parms.propertyName != "value" && typeof parms.properties.value == "object") {      
+    if (parms.propertyName == "value" && pui.isBound(parms.newValue) ||
+        parms.propertyName != "value" && pui.isBound(parms.properties.value)) {      
       if (overflowX == "") parms.dom.style.overflowX = "hidden";
       if (overflowY == "") parms.dom.style.overflowY = "hidden";
     }
@@ -66,7 +66,7 @@ pui.widgets.add({
     },
     
     "overflow x": function(parms) {
-      if (context == "dspf" && parms.design && typeof parms.properties.value == "object" && (parms.value == "" || parms.value == null)) {
+      if (context == "dspf" && parms.design && pui.isBound(parms.properties.value) && (parms.value == "" || parms.value == null)) {
         parms.properties["overflow x"] = "";
         parms.dom.style.overflowX = "hidden";
         return false;

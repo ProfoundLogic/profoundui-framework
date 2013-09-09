@@ -1494,6 +1494,6 @@ pui.isBound = function(propVal) {
 
 pui.isTranslated = function(propVal) {
   
-  return (typeof propVal == "object" && propVal["translations"] instanceof Array);
+  return (typeof propVal == "object" && typeof propVal["translations"] == "object" && typeof propVal["translations"].length == "number");
   
 }

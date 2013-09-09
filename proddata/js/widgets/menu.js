@@ -282,7 +282,7 @@ pui.MenuWidget = function() {
               itmDom = itmDom.parentNode;
             }            
             var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
-            if (typeof itm.properties["choices"] != "object") {
+            if (!pui.isBound(itm.properties["choices"]) && !pui.isTranslated(itm.properties["choices"])) {
               itm.designer.inlineEditBox.onUpdate = function(newName) {
                 var idx = 0;
                 sibling = dom.parentNode.previousSibling;

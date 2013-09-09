@@ -592,7 +592,7 @@ pui.Grid = function() {
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
           var val = itm["value"];
           if (itm["field type"] == "html container") val = itm["html"];
-          if (typeof val == "object" && val["dataType"] != "indicator" && val["dataType"] != "expression") {
+          if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
             var fieldName = pui.fieldUpper(val["fieldName"]);
             for (var j = 0; j < me.fieldNames.length; j++ ) {
               if (fieldName == me.fieldNames[j]) {
@@ -784,7 +784,7 @@ pui.Grid = function() {
     var field = null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       field = me.runtimeChildren[i];
-      if (typeof field.value == "object" && field.value["fieldName"] == fieldName) break;
+      if (pui.isBound(field.value) && field.value["fieldName"] == fieldName) break;
     }
     if (field == null) return false;
     var el = field.domEls[rowNum - 1];
@@ -1304,7 +1304,7 @@ pui.Grid = function() {
   function sendPropertyToDesigner(itm, propertyName, value) {
     stringValue = String(value);
     if (itm.properties[propertyName] != stringValue) {
-      if (typeof itm.properties[propertyName] == "object") {
+      if (pui.isBound(itm.properties[propertyName])) {
         if (propertyName == "top" || propertyName == "left") itm.properties[propertyName].designValue = stringValue;
       }
       else {
@@ -1520,7 +1520,7 @@ pui.Grid = function() {
         var col = Number(itm["column"]);
         var val = itm["value"];
         if (itm["field type"] == "html container") val = itm["html"];
-        if (typeof val == "object" && !isNaN(col) && col < headerRow.length && headerRow[col].sortIndex == null) {
+        if (pui.isBound(val) && !isNaN(col) && col < headerRow.length && headerRow[col].sortIndex == null) {
           var fieldName = pui.fieldUpper(val["fieldName"]);
           for (var j = 0; j < me.fieldNames.length; j++ ) {
             if (fieldName == me.fieldNames[j]) {
@@ -2588,8 +2588,8 @@ pui.Grid = function() {
         break;
       
       case "column headings":
-        if (typeof value  != "object") {
-          me.columnHeadings = value.split(",");
+        if (!pui.isBound(value) && !pui.isTranslated(value)) {
+          me.columnHeadings = pui.parseCommaSeparatedList(value);
         }
         me.setHeadings();
         break;
@@ -2831,7 +2831,7 @@ pui.Grid = function() {
       
       case "top":
         var top = value;
-        if (typeof top == "object") top = top.designValue;
+        if (pui.isBound(top)) top = top.designValue;
         var diff = parseInt(me.tableDiv.style.top) - pui.safeParseInt(top);
         me.doThisToTableDivs(function(domObj) {
           domObj.style.top = (parseInt(domObj.style.top) - diff) + "px";
@@ -2841,7 +2841,7 @@ pui.Grid = function() {
         
       case "left":
         var left = value;
-        if (typeof left == "object") left = left.designValue;
+        if (pui.isBound(left)) left = left.designValue;
         var diff = parseInt(me.tableDiv.style.left) - pui.safeParseInt(left);
         me.doThisToTableDivs(function(domObj) {
           domObj.style.left = (parseInt(domObj.style.left) - diff) + "px";
@@ -4074,7 +4074,7 @@ pui.Grid = function() {
       if (me.designMode) {
         if (me.hasHeader && row == 0) {
           var itm = me.tableDiv.designItem;
-          if (typeof itm.properties["column headings"] != "object") {
+          if (!pui.isBound(itm.properties["column headings"]) && !pui.isTranslated(itm.properties["column headings"])) {
             itm.designer.inlineEditBox.onUpdate = function(newHeading) {
               while (newHeading.indexOf("\n") != -1) {
                 newHeading = newHeading.replace("\n", "<br/>");
@@ -4198,7 +4198,7 @@ pui.Grid = function() {
       propValue = me.cellProps[propName];
       if (propValue == null) propValue = "";      
     }
-    if (typeof propValue == "object") return;
+    if (pui.isBound(propValue) || pui.isTranslated(propValue)) return;
     var propValues = propValue.split(",");
     if (propValues.length > 1) {
       if (col < propValues.length) {
@@ -4554,7 +4554,7 @@ pui.Grid = function() {
       var itm = me.tableDiv.designItem;
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
-        if (value == null || value == "" || typeof value == "object") return;
+        if (value == null || value == "" || pui.isBound(value) || pui.isTranslated(value)) return;
         arr = value.split(",");
         if (arr.length == 1 && propName != "column headings" && propName != "column widths") {
           // One value is applicable to all columns
@@ -4836,7 +4836,7 @@ pui.Grid = function() {
       { name: "header font color", type: "color", help: "Defines the color of the text inside the header row.  To define a different color for each grid cell in the header row, specify a comma separated list of color values." },
       { name: "header background", type: "color", help: "Defines the background color of the header row.  To define a different color for each grid cell in the header row, specify a comma separated list of color values." },
       { name: "header image", type: "image", help: "Defines a repeating background image for the header row." },
-      { name: "column headings", type: "list", help: "Specifies a comma separated list of heading text for each column of the grid." },
+      { name: "column headings", type: "list", help: "Specifies a comma separated list of heading text for each column of the grid.", translate: true },
   
       { name: "Colors", category: true },    
       { name: "odd row font color", type: "color", help: "Defines the color of text inside the odd rows of the grid.  To define a different color for each grid column, specify a comma separated list of color values." },
@@ -4883,7 +4883,7 @@ pui.Grid = function() {
       { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: "Determines if the previous page link is enabled.", context: "dspf" },
       { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
       { name: "csv export", choices: ["true", "false"], help: "Displays a link allowing the user to export grid data to Excel using the CSV format.", context: "dspf" },
-      { name: "csv file name", help: "Defines the name of the download file used to export grid data to CSV format.  The .csv extension is automatically appended to the name.  If omitted, the record format name is used.", context: "dspf" },
+      { name: "csv file name", help: "Defines the name of the download file used to export grid data to CSV format.  The .csv extension is automatically appended to the name.  If omitted, the record format name is used.", context: "dspf", translate: true },
       { name: "export with headings", choices: ["true", "false"], help: "Specifies whether subfile headings should be exported as the first row of the CSV file.", context: "dspf" },
       
       { name: "Row Folding", category: true, context: "dspf" },      
@@ -4947,7 +4947,7 @@ pui.Grid = function() {
 
       { name: "Misc", category: true },    
       { name: "css class", multOccur: (context == "dspf" ? true : false), attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
-      { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
+      { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
       { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
       
       { name: "Events", category: true },

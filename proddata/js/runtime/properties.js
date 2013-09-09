@@ -51,7 +51,7 @@ function getPropertiesModel() {
     { name: "description", help: "Use this property to provide a text description (or comment) for the element.", bind: false },
     { name: "button style", choices: pui.widgets.getButtonStyles, help: "Identifies the look and feel of the button.", controls: ["styled button"] },
     { name: "panel style", choices: pui.widgets.getPanelStyles, help: "Identifies the look and feel of the panel.", controls: ["panel"] },
-    { name: "value", help: "Sets the initialization value for the current element." },
+    { name: "value", help: "Sets the initialization value for the current element.", translate: true },
     { name: "response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "char", "zoned"], help: "Specifies a response indicator that is returned to your program when the element is clicked.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf" },
     { name: "menu response", readOnly: true, hideFormatting: true, help: "Specifies a response field to be populated with the selected menu option.", controls: ["menu"], context: "dspf" },    
     { name: "tab response", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: "Specifies a numeric response field to be populated when a tab is selected.  Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on.", controls: ["tab panel"], context: "dspf" },
@@ -92,8 +92,8 @@ function getPropertiesModel() {
     { name: "unchecked value", help: "For a checkbox field, specifies the value to send to the application when the checkbox is not checked.", controls: ["checkbox"], bind: false },
     { name: "on value", help: "Specifies the value to send to the application when the on/off switch is on.", controls: ["on off switch"], bind: false },
     { name: "off value", help: "Specifies the value to send to the application when the on/off switch is off.", controls: ["on off switch"], bind: false },
-    { name: "on text", help: "Specifies the text to to display for the \"on\" state of an on/off switch.  The default text is ON.", controls: ["on off switch"] },
-    { name: "off text", help: "Specifies the text to to display for the \"off\" state of an on/off switch.  The default text is OFF.", controls: ["on off switch"] },
+    { name: "on text", help: "Specifies the text to to display for the \"on\" state of an on/off switch.  The default text is ON.", controls: ["on off switch"], translate: true },
+    { name: "off text", help: "Specifies the text to to display for the \"off\" state of an on/off switch.  The default text is OFF.", controls: ["on off switch"], translate: true },
     { name: "wide handle", choices: ["true", "false"], type: "boolean", help: "Specifies whether the on/off switch should display a wide handle for switching state.  The default is true.  If false is selected, a narrow handle will be used.", hideFormatting: true, validDataTypes: ["indicator", "expression"], controls: ["on off switch"] },
     { name: "date format", choices: ["MM/DD/YY", "MM/DD/YYYY", "DD/MM/YY", "DD/MM/YYYY", "DD.MM.YY", "DD.MM.YYYY", "MMDDYY", "MMDDYYYY", "DDMMYY", "DDMMYYYY", "YYMMDD", "YY/MM/DD", "YYYYMMDD", "YYYY-MM-DD"], help: "Defines the date format that is returned from the pop-up calendar.", controls: ["date field"], context: "genie" },
     { name: "default value", help: "Specifies a default value for a field.  The specified value is displayed on the first output operation.  On subsequent output operations, the program value appears.", controls: ["combo box", "date field", "output field", "password field", "select box", "spinner", "text area", "textbox"], bind: false, context: "dspf", viewdesigner: false },
@@ -103,20 +103,20 @@ function getPropertiesModel() {
     { name: "override attribute", choices: ["true", "false"], type: "boolean", help: "Use this property to together with the \"put override\" property to override existing attributes already on the display.  It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], controls: ["combo box", "date field", "output field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
     { name: "put retain", choices: ["true", "false"], type: "boolean", help: "You use this property with the \"overlay\" property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], controls: ["combo box", "date field", "output field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
     { name: "disabled", attribute: "disabled", choices: ["true", "false"], type: "boolean", help: "Determines whether the element is disabled or not. The user cannot use a disabled field in any way." + ((context == "genie") ? " A disabled field is not submitted to the server application." : ""), hideFormatting: true, validDataTypes: ["indicator", "expression"]},
-    { name: "html", type: "long", allowNewLines: true, help: "Used to define custom html in an html container.", controls: ["html container"] },
+    { name: "html", type: "long", allowNewLines: true, help: "Used to define custom html in an html container.", controls: ["html container"], translate: true },
     { name: "image source", type: "image", attribute: "src", help: "Specifies the path to an image for an image or a graphic button.", controls: ["graphic button", "image"] },
     { name: "hover image source", type: "image", help: "Specifies the path to an image that will be displayed when the user hovers the mouse cursor over the image element.", controls: ["image"] },
     { name: "click image source", type: "image", help: "Specifies the path to an image that will be displayed when the user presses down the mouse on the image element.", controls: ["image"] },
-    { name: "alternate text", attribute: "alt", help: "Specifies the alternate text for an image.  The alternate text appears when the image cannot be rendered.", controls: ["image"] },
-    { name: "label", help: "Specifies the caption text associated with a checkbox or a radio button.", controls: ["checkbox", "radio button"] },
+    { name: "alternate text", attribute: "alt", help: "Specifies the alternate text for an image.  The alternate text appears when the image cannot be rendered.", controls: ["image"], translate: true },
+    { name: "label", help: "Specifies the caption text associated with a checkbox or a radio button.", controls: ["checkbox", "radio button"], translate: true },
     { name: "orientation", choices: ["horizontal", "vertical"], help: "Specifies the orientation of a slider or a menu element.", controls: ["menu", "slider"] },
     { name: "min value", format: "number", help: "Defines the minimum value for a spinner or slider element.", controls: ["slider", "spinner"] },
     { name: "max value", format: "number", help: "Defines the maximum value for a spinner or slider element.", controls: ["slider", "spinner"] },
     { name: "increment value", format: "number", help: "Specifies how much the value in a spinner or slider element increases or decreases.  The default value is 1.", controls: ["slider", "spinner"] },
     { name: "read only", attribute: "readOnly", choices: ["true", "false"], type: "boolean", help: "Defines whether the current element is read only or not.  A read only element prevents the user from changing its value; however, the user can still interact with the element.", controls: ["checkbox", "combo box", "date field", "on off switch", "password field", "radio button", "signature pad", "spinner", "text area", "textbox"], hideFormatting: true, validDataTypes: ["indicator", "expression"]},
     { name: "input only", choices: ["true", "false"], bind: false, type: "boolean", help: "Defines whether the current element is input only or not.  An input only element is always initialized when the screen appears.", controls: ["checkbox", "combo box", "date field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
-    { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Specifies the default text to place into an empty field.  When the field receives focus, the text is removed.  This property is similar to the \"placeholder\" property, but provides support for older browser that may not yet support the placeholder HTML5 attribute."},
-    { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field.  Older browsers may not support this feature."},
+    { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Specifies the default text to place into an empty field.  When the field receives focus, the text is removed.  This property is similar to the \"placeholder\" property, but provides support for older browser that may not yet support the placeholder HTML5 attribute.", translate: true},
+    { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field.  Older browsers may not support this feature.", translate: true},
     { name: "input type", choices: ["date", "datetime", "email", "time", "month", "number", "tel", "url"], controls: ["combo box", "date field", "textbox"], help: "Specifies an HTML5 input type.  Some types may not yet be supported by the user's browser or mobile device.  If a type is not specified or if the selected type is not supported, a standard textbox element will be used."},
     { name: "related field", help: "This property allows you to create a radio button group by associating multiple radio buttons with a field from the original application.  Specify the id of the field to associate the radio button with.  Additionally, this property can associate a text area with a group of textboxes by specify a comma separated list of textbox id's.", controls: ["radio button", "text area"], context: "genie"},
     { name: "select box height", format: "number", attribute: "size", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Other..."], help: "If specified, the select box appears as a list box; if omitted, the select box appears as a dropdown.", controls: ["select box"] },
@@ -169,7 +169,7 @@ function getPropertiesModel() {
     { name: "Auto-Complete Choices", category: true, controls: ["textbox"] },
     { name: "Selection Choices", category: true, controls: ["combo box", "select box"] },
     { name: "Menu Options", category: true, controls: ["menu"] },
-    { name: "choices", type: "list", help: "Specifies the options for a select box (dropdown or list box), text field with autocomplete, combo box, or menu.  The options should be comma separated.  To specify submenus for a menu, indent the choices using a dash or a series of dashes.", controls: ["combo box", "menu", "select box", "textbox"] },
+    { name: "choices", type: "list", translate: true, help: "Specifies the options for a select box (dropdown or list box), text field with autocomplete, combo box, or menu.  The options should be comma separated.  To specify submenus for a menu, indent the choices using a dash or a series of dashes.", controls: ["combo box", "menu", "select box", "textbox"], translate: true },
     { name: "choice values", type: "list", help: "Specifies alternate option values to send to the application for a select box (dropdown or list box), text field with auto complete, combo box, or menu. The values should be comma separated.", controls: ["combo box", "menu", "select box", "textbox"] },
     { name: "hover background color", type: "color", help: "Defines the background color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
     { name: "hover text color", type: "color", help: "Defines the text color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
@@ -189,7 +189,7 @@ function getPropertiesModel() {
     { name: "choices selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the choices database file.", controls: ["combo box", "select box", "textbox"] },
     { name: "choices parameter value", bind: true, type: "long", hide: (pui["secLevel"] == 0) ? true : false, multOccur: true, help: "Value for parameter marker in \"choices selection criteria\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Choices Parameter Value.", controls: ["combo box", "select box", "textbox"] },
     { name: "blank option", choices: ["true", "false"], help: "When set to true, a database-driven dropdown box will display a blank option before the options from the database file are displayed.", controls: ["combo box", "select box"] },
-    { name: "blank option label", help: "By default, the blank option contains no text.  Use this property to specify alternate text to be displayed in the blank option.  The value sent to the server will still be blank.", controls: ["combo box", "select box"] },
+    { name: "blank option label", help: "By default, the blank option contains no text.  Use this property to specify alternate text to be displayed in the blank option.  The value sent to the server will still be blank.", controls: ["combo box", "select box"], translate: true },
     { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the choices.", controls: ["combo box", "select box", "grid"] },
     { name: "max choices", format: "number", help: "Optional maximum number of choices to provide for a dynamic dropdown box, list box, or text field with auto complete. If blank: defaults to 500 for dropdown, 10 for auto complete.", controls: ["combo box", "select box", "textbox"] },
     { name: "contains match", choices: ["true", "false"], help: "When set to true, the auto-complete query finds records that contain the search text.  When set to false, the auto-complete query finds records that start with the search text.  The default value is false.", controls: ["textbox"] },
@@ -206,7 +206,7 @@ function getPropertiesModel() {
 
 
     { name: "Chart Data" + ((context == "genie") ? " from Screen" : ""), category: true, controls: ["chart"] },
-    { name: "names", type: "list", help: "Specifies a list of names representing the data points on the chart or a list of screen element id's from which the names could be retrieved.  The list should be comma separated.", controls: ["chart"] },
+    { name: "names", type: "list", help: "Specifies a list of names representing the data points on the chart or a list of screen element id's from which the names could be retrieved.  The list should be comma separated.", controls: ["chart"], translate: true },
     { name: "values", type: "list", help: "Specifies a list of numerical values used to build the chart or a list of screen element id's from which the values could be retrieved. The list should be comma separated.", controls: ["chart"] },
 
     { name: "Database-Driven Chart", category: true, controls: ["chart"] },
@@ -255,7 +255,7 @@ function getPropertiesModel() {
 
     { name: "Tabs", category: true },
     { name: "tab panel style", choices: pui.widgets.getTabStyles, help: "Identifies the look and feel of the tab panel.", controls: ["tab panel"] },
-    { name: "tab names", type: "list", help: "This property identifies a comma separated list of tab names for a Tab Panel.", controls: ["tab panel"] },
+    { name: "tab names", type: "list", help: "This property identifies a comma separated list of tab names for a Tab Panel.", controls: ["tab panel"], translate: true },
     { name: "active tab", format: "number", help: "This property specifies the initial active tab on a Tab Panel. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on.  The default value for the active tab index is 0.", controls: ["tab panel"] },
     { name: "ontabclick", type: "js", help: "Initiates a client-side script when a tab is clicked.  The tab index is passed to the event as a parameter named \"tab\".  If the client-side script evaluates to false, the tab will not be switched.", controls: ["tab panel"] },
     { name: "tab keys", type: "list", help: "This property identifies a comma separated list of function keys assigned to each tab within a Tab Panel.  The function keys in the list are automatically pressed when the appropriate tab is selected, allowing users to navigate the original application through a tab interface.", controls: ["tab panel"], context: "genie" },
@@ -305,7 +305,7 @@ function getPropertiesModel() {
     { name: "overflow x", stylename: "overflowX", choices: ["visible", "hidden", "scroll", "auto"], help: "Determines whether a horizontal scrollbar should be displayed for this element." + overflowHelp, formattingProp: true },
     { name: "overflow y", stylename: "overflowY", choices: ["visible", "hidden", "scroll", "auto"], help: "Determines whether a vertical scrollbar should be displayed for this element." + overflowHelp, formattingProp: true },
     { name: "tab index", format: "number", attribute: "tabIndex", help: "Determines the tab order for input elements on the screen." + (context == "genie" ? " This property does not take effect unless the Prevent Auto Tab property is set to true under Screen Properties." : "") },
-    { name: "tool tip", type: "long", allowNewLines: true, attribute: "title", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
+    { name: "tool tip", type: "long", allowNewLines: true, attribute: "title", translate: true, help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
     { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget.  To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
     { name: "visibility", format: "visible / hidden", stylename: "visibility", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden.  Hidden elements appear dimmed out in design mode, and invisible at runtime." },
     
@@ -590,7 +590,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       case "button":
         // when switching an element to be a button, enforce default cursor
         if (isDesignMode) {
-          if (typeof designItem.properties["cursor"] != "object") {
+          if (!pui.isBound(designItem.properties["cursor"])) {
             designItem.properties["cursor"] = "default";
             designItem.propertiesChanged["cursor"] = true;
           }
@@ -754,7 +754,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
       var attr = properties["display attribute field"];
       var dspAtrField = false;
-      if (attr != null && typeof attr == "string" && attr != "" && attr != " ") {
+      if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
         classes = classes.concat(pui.attrToCSS(attr));
         dspAtrField = true;
       }
@@ -1040,7 +1040,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (propConfigName != "display attribute field") classes[idx - 1] = effectiveValue;
     var attr = properties["display attribute field"];
     var dspAtrField = false;
-    if (attr != null && typeof attr == "string" && attr != "" && attr != " ") {
+    if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
       classes = classes.concat(pui.attrToCSS(attr));
       dspAtrField = true;
     }
@@ -1258,7 +1258,7 @@ function evalPropertyValue(propertyValue) {
 
   var effectiveValue = "";
 
-  if (typeof propertyValue == "object") {
+  if (pui.isBound(propertyValue) || pui.isTranslated(propertyValue)) {
     if (propertyValue.designValue != null) effectiveValue = propertyValue.designValue;
     return effectiveValue;
   }  

@@ -398,7 +398,7 @@ pui.overlayAdjust = function(formats) {
               var itm = items[j];
               if (itm["grid"] != null) continue;
               var itmType = itm["field type"];
-              if (itmType != "panel" && itmType != "css panel" && typeof itm["top"] != "object" && itm["css class"] != "stationary" && itm["css class 2"] != "stationary") {
+              if (itmType != "panel" && itmType != "css panel" && !pui.isBound(itm["top"]) && itm["css class"] != "stationary" && itm["css class 2"] != "stationary") {
                 itm["top"] = (parseInt(itm["top"]) + pushDown) + "px";
               }
             }
@@ -781,37 +781,37 @@ pui.renderFormat = function(parms) {
   if (!isDesignMode && parms.rowNum == null) {
     pui.keyMap[formatName] = {};
     var obj = parms.metaData.screen["return cursor record"];
-    if (typeof obj == "object") pui.cursorFields.record = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.cursorFields.record = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor field"];
-    if (typeof obj == "object") pui.cursorFields.field = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.cursorFields.field = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor position"];
-    if (typeof obj == "object") pui.cursorFields.position = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.cursorFields.position = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor row"];
-    if (typeof obj == "object") pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["return cursor column"];    
-    if (typeof obj == "object") pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["changed"];
-    if (typeof obj == "object") pui.changedFields[formatName] = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.changedFields[formatName] = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window left"];
-    if (typeof obj == "object") pui.windowLeftField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.windowLeftField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window top"];
-    if (typeof obj == "object") pui.windowTopField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.windowTopField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["valid command key"];
-    if (typeof obj == "object") pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
     obj = parms.metaData.screen["back button"];
-    if (typeof obj == "object") pui.backButtonField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.backButtonField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd element id"];
-    if (typeof obj == "object") pui.dragDropFields.ddElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.ddElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd record number"];
-    if (typeof obj == "object") pui.dragDropFields.ddRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.ddRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target element id"];
-    if (typeof obj == "object") pui.dragDropFields.targetElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.targetElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target record number"];
-    if (typeof obj == "object") pui.dragDropFields.targetRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.targetRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     
     var idx = 1;
     obj = parms.metaData.screen["set off"];
-    while (typeof obj == "object") {
+    while (pui.isBound(obj)) {
       pui.setOffFields.push(formatName + "." + obj["fieldName"].toUpperCase());
       idx++;
       obj = parms.metaData.screen["set off " + idx];
@@ -823,7 +823,7 @@ pui.renderFormat = function(parms) {
     pui.cursorValues.setColumn = pui.evalBoundProperty(screenProperties["set cursor column"], data, parms.ref);
     pui.cursorValues.noFocus = pui.evalBoundProperty(screenProperties["no focus"], data, parms.ref);
     if (pui.cursorValues.noFocus == "true") pui.cursorValues.noFocus = true;
-    if (typeof screenProperties["set cursor condition"] == "object") {
+    if (pui.isBound(screenProperties["set cursor condition"])) {
       var setCursor = pui.evalBoundProperty(screenProperties["set cursor condition"], data, parms.ref);
       if (setCursor != true && setCursor != "true") {
         pui.cursorValues.setRow = null;
@@ -842,7 +842,7 @@ pui.renderFormat = function(parms) {
       var propValue = screenProperties[propname];
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
-      if (typeof propValue == "object") {
+      if (pui.isBound(propValue)) {
         designer.dataFields.addUsage({
           fieldName: propValue.fieldName,
           dataType: propValue.dataType,  
@@ -888,13 +888,13 @@ pui.renderFormat = function(parms) {
     // this is accomplished by removing the "shortcut key" property
     if (!isDesignMode && items[i]["auto arrange"] == "true") {
       var vis = items[i]["visibility"];
-      if (vis == "hidden" || (typeof vis == "object" && pui.evalBoundProperty(vis, data, parms.ref) == "hidden")) {
+      if (vis == "hidden" || (pui.isBound(vis) && pui.evalBoundProperty(vis, data, parms.ref) == "hidden")) {
         if (items[i]["shortcut key"] != null) delete items[i]["shortcut key"];
       }      
     }
     if (!isDesignMode && items[i]["shortcut key"] != null) {
       var dis = items[i]["disabled"];
-      if (dis == "true" || (typeof dis == "object" && pui.evalBoundProperty(dis, data, parms.ref) == "true")) {
+      if (dis == "true" || (pui.isBound(dis) && pui.evalBoundProperty(dis, data, parms.ref) == "true")) {
         delete items[i]["shortcut key"];
       }      
     }
@@ -974,8 +974,8 @@ pui.renderFormat = function(parms) {
       var toppx = items[i].top;
       //if (leftpx == null) leftpx = "0px";
       //if (toppx == null) toppx = "0px";
-      if (typeof leftpx == "object") leftpx = "0px";
-      if (typeof toppx == "object") toppx = "0px";
+      if (pui.isBound(leftpx)) leftpx = "0px";
+      if (pui.isBound(toppx)) toppx = "0px";
       if (leftpx == "NaNpx") leftpx = "0px";
       if (toppx == "NaNpx") toppx = "0px";
       if (items[i].left != null) dom.style.left = leftpx;
@@ -1007,7 +1007,7 @@ pui.renderFormat = function(parms) {
         if (prop == "domEls") continue;
         var propValue = items[i][prop];
         var newValue;
-        if (typeof propValue == "object") {
+        if (pui.isBound(propValue)) {
           if (isDesignMode) {
             designer.dataFields.addUsage({
               fieldName: propValue.fieldName,
@@ -1100,7 +1100,7 @@ pui.renderFormat = function(parms) {
           
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
-            if (typeof formattingObj == "object") {
+            if (pui.isBound(formattingObj)) {
             
               formattingObj.revert = false;
 
@@ -1291,12 +1291,12 @@ pui.renderFormat = function(parms) {
             }
             
             if (propname == "selection field" && properties["field type"] == "grid") {
-              if (typeof items[i]["selection field"] == "object" && typeof items[i]["selection field"].fieldName == "string") {
+              if (pui.isBound(items[i]["selection field"])) {
                 dom.grid.selectionField = items[i]["selection field"];
               }
             }
             
-            if (propname == "shortcut key" && propValue != null && propValue != "" && typeof items[i]["response"] != "object") {
+            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
               pui.keyMap[formatName][propValue].push(dom);
               dom.shortcutKey = propValue;
@@ -1321,7 +1321,7 @@ pui.renderFormat = function(parms) {
                 }              
               }              
             }            
-            if (propname == "focus class" && typeof propValue == "string" && trim(propValue) != "") {
+            if (propname == "focus class" && !pui.isBound(propValue) && trim(propValue) != "") {
               dom.focusClass = trim(propValue);
               addEvent(dom, "focus", pui.applyFocusClass);
               addEvent(dom, "blur", pui.removeFocusClass);
@@ -1393,7 +1393,7 @@ pui.renderFormat = function(parms) {
             if (propname == "allow field exit" && propValue == "true") {
               var boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();            
-              if (typeof items[i]["value"] == "object" && items[i]["value"]["rjZeroFill"] == "true") {
+              if (pui.isBound(items[i]["value"]) && items[i]["value"]["rjZeroFill"] == "true") {
                 dom.rjZeroFill = true;
                 boxDom.rjZeroFill = true;
               }             
@@ -1609,7 +1609,7 @@ pui.renderFormat = function(parms) {
           if (!cursorMatch) {
             if (properties["field type"] == "textbox" || properties["field type"] == "date field" || properties["field type"] == "password field" || properties["field type"] == "combox box" || properties["field type"] == "spinner") {
               var fieldInfo = items[i]["value"];
-              if (fieldInfo != null && typeof fieldInfo == "object" && fieldInfo["dataLength"] != null) {
+              if (fieldInfo != null && pui.isBound(fieldInfo) && fieldInfo["dataLength"] != null) {
                 var dataLength = Number(fieldInfo["dataLength"]);
                 var cursorColumn = Number(properties["cursor column"]);
                 var setColumn = Number(pui.cursorValues.setColumn);
@@ -2036,8 +2036,8 @@ pui.renderFormat = function(parms) {
         }
         
         if (dom.grid.dataArray.length == 0) {
-          if (typeof items[i]["subfile message key"] == "object" || 
-              typeof items[i]["subfile program message queue"] == "object") {
+          if (pui.isBound(items[i]["subfile message key"]) || 
+              pui.isBound(items[i]["subfile program message queue"])) {
             dom.grid.hideSubfile();
           }
         }
@@ -3085,7 +3085,7 @@ pui.cancelResponse = function(messages) {
 
 
 pui.evalBoundProperty = function(propValue, data, ref) {
-  if (typeof propValue != "object") return propValue;
+  if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) return propValue;
   
   var formattingObj = propValue;
 
@@ -3094,6 +3094,13 @@ pui.evalBoundProperty = function(propValue, data, ref) {
     return "";
   }
 
+  if (pui.isTranslated(formattingObj)) {
+    
+    // Resolve translated value here...
+    return "";
+    
+  }
+  
   var fieldName = formattingObj.fieldName;
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
     fieldName = fieldName.toUpperCase();

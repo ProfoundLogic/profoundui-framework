@@ -67,12 +67,12 @@ pui.CSSPanelSection = function() {
   
   this.setText = function(text) {
     if (me.type != "header") return;
-    if (text == null || typeof text == "object") text = "";
+    if (text == null || pui.isBound(text) || pui.isTranslated(text)) text = "";
     textSpan.innerHTML = text;
   }
   
   this.setSwatch = function(newSwatch) {
-    if (newSwatch == null || newSwatch == "" || typeof newSwatch == "object") newSwatch = "c";  // default
+    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "c";  // default
     if (newSwatch.length > 1) newSwatch = newSwatch.substr(0, 1);
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
@@ -90,7 +90,7 @@ pui.CSSPanelSection = function() {
   }
   
   this.setStraightEdge = function(edge) {
-    if (edge == null || typeof edge == "object") return;
+    if (edge == null || pui.isBound(edge)) return;
     mainSpan.style.borderTopLeftRadius = "";
     mainSpan.style.borderTopRightRadius = "";
     mainSpan.style.borderBottomLeftRadius = "";
@@ -146,7 +146,7 @@ pui.CSSPanelSection = function() {
   
   this.setStyle = function(styleName, styleValue) {
     if (me.type != "header") return;  
-    if (typeof styleValue == "object") styleValue = "";
+    if (pui.isBound(styleValue)) styleValue = "";
     var parts = styleName.split(" ");
     if (parts.length == 2) {
       styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
@@ -268,7 +268,7 @@ pui.CSSPanel = function() {
   }
 
   this.setStraightEdge = function(edge) {
-    if (edge == null || typeof edge == "object") return;
+    if (edge == null || pui.isBound(edge)) return;
     straightEdge = edge;
     if (!hasHeader) {
       bodyPanel.setStraightEdge(edge);

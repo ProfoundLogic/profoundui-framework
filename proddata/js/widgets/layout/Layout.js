@@ -129,7 +129,7 @@ pui.layout.Layout = function() {
     if (!me.designMode) return false;
     var itm = me.designItem;
     if (itm.properties[propertyName] != value) {
-      if (typeof itm.properties[propertyName] == "object") {
+      if (pui.isBound(itm.properties[propertyName])) {
         itm.properties[propertyName].designValue = value;
       }
       else {

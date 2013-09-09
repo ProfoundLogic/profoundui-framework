@@ -54,7 +54,7 @@ pui.help.show = function() {
     else {
       // check help panel condition first
       var condition = props["help panel condition" + suffix];
-      if (condition != null && typeof condition == "object") {
+      if (condition != null && pui.isBound(condition)) {
         var dataValue;
         if (condition.dataType == "expression") {
           dataValue = pui.evalIndicatorExpression(condition.fieldName, data);
@@ -330,7 +330,7 @@ pui.help.extendedHelp = function(props, container) {
     else {
       // check help panel condition first
       var condition = props["help panel condition" + suffix];
-      if (condition != null && typeof condition == "object") {
+      if (condition != null && pui.isBound(condition)) {
         var dataValue;
         if (condition.dataType == "expression") {
           dataValue = pui.evalIndicatorExpression(condition.fieldName, data);

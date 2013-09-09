@@ -402,7 +402,7 @@ function TabPanel() {
           if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
           var itmDom = dom.parentNode.parentNode;
           var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
-          if (typeof itm.properties["tab names"] != "object") {
+          if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
             itm.designer.inlineEditBox.onUpdate = function(newName) {
               var idx = 0;
               sibling = dom.previousSibling;
@@ -416,7 +416,7 @@ function TabPanel() {
               }
               var propValue = itm.properties["tab names"];
               if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-              var tabNames = propValue.split(",");
+              var tabNames = pui.parseCommaSeparatedList(propValue);
               tabNames[idx] = newName;
               //propValue = tabNames[0];
               //for (var i = 1; i < tabNames.length; i++) {
@@ -524,15 +524,23 @@ function TabPanel() {
       addIcon.onclick = function() {
         var itm = toolbar.designer.getDesignItemByDomObj(me.container);
         var propValue = itm.properties["tab names"];
-        if (typeof propValue == "object") {
+        if (pui.isTranslated(propValue)) {
+          // Number of tabs is controlled by this, 
+          // doesn't make sense to change.
+          return;
+        }
+        else if (pui.isBound(propValue)) {
           var designValue = propValue.designValue;
-          if (designValue == null || designValue == "") designValue = "Tab 1,Tab 2,Tab 3";          
-          designValue += ",Tab " + (designValue.split(",").length + 1);
-          propValue.designValue = designValue;
+          if (designValue == null || designValue == "") designValue = "Tab 1,Tab 2,Tab 3";
+          designValue = pui.parseCommaSeparatedList(designValue);
+          designValue.push("Tab " + (designValue.length + 1));
+          propValue.designValue = designValue.join(",");
         }
         else {
           if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-          propValue += ",New Tab";
+          propValue = pui.parseCommaSeparatedList(propValue);
+          propValue.push("New Tab");
+          propValue = propValue.join(",");
         }
         var nmodel = getPropertiesNamedModel();
         var propConfig = nmodel["tab names"];
@@ -546,8 +554,8 @@ function TabPanel() {
         itm.designer.selection.add(itm);
         itm.designer.propWindow.refresh();
         var tabNames;
-        if (typeof propValue != "object") tabNames = propValue.split(",");
-        else tabNames = propValue.designValue.split(",");
+        if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) tabNames = pui.parseCommaSeparatedList(propValue);
+        else tabNames = pui.parseCommaSeparatedList(propValue.designValue);
         me.selectedTab = tabNames.length - 1;
         me.draw();
       }
@@ -555,15 +563,20 @@ function TabPanel() {
         var itm = toolbar.designer.getDesignItemByDomObj(me.container);
         var propValue = itm.properties["tab names"];
         var tabNames;
-        if (typeof propValue == "object") {
+        if (pui.isTranslated(propValue)) {
+          // Number of tabs is controlled by this, 
+          // doesn't make sense to change.
+          return;          
+        }
+        else if (pui.isBound(propValue)) {
           var designValue = propValue.designValue;
           if (designValue == null || designValue == "") designValue = "Tab 1,Tab 2,Tab 3";
           propValue.designValue = designValue;
-          tabNames = designValue.split(",");
+          tabNames = pui.parseCommaSeparatedList(designValue);
         }
         else {
           if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-          tabNames = propValue.split(",");
+          tabNames = pui.parseCommaSeparatedList(propValue);
         }
         if (tabNames.length > 1) {
           var canRemove = true;
@@ -587,7 +600,7 @@ function TabPanel() {
           else {
             tabNames.pop();
             if (me.selectedTab > tabNames.length - 1) me.selectedTab = tabNames.length - 1;
-            if (typeof propValue == "object") propValue.designValue = tabNames.join(",");
+            if (pui.isBound(propValue) || pui.isTranslated(propValue)) propValue.designValue = tabNames.join(",");
             else propValue = tabNames.join(",");
             var nmodel = getPropertiesNamedModel();
             var propConfig = nmodel["tab names"];
@@ -684,7 +697,7 @@ pui.widgets.add({
       parms.dom.tabPanel = new TabPanel();
       var tabNamesString = parms.evalProperty("tab names");
       if (tabNamesString != null && tabNamesString != "") {
-        parms.dom.tabPanel.tabs = tabNamesString.split(",");
+        parms.dom.tabPanel.tabs = pui.parseCommaSeparatedList(tabNamesString);
       }
       else {
         parms.dom.tabPanel.tabs = ["Tab 1", "Tab 2", "Tab 3"];
@@ -720,7 +733,7 @@ pui.widgets.add({
       if (parms.dom.tabPanel != null) {
         var tabNamesString = parms.value;
         if (tabNamesString != null && tabNamesString != "") {
-          parms.dom.tabPanel.tabs = tabNamesString.split(",");
+          parms.dom.tabPanel.tabs = pui.parseCommaSeparatedList(tabNamesString);
         }
         else {
           parms.dom.tabPanel.tabs = ["Tab 1", "Tab 2", "Tab 3"];

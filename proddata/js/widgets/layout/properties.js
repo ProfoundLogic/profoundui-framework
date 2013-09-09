@@ -50,7 +50,7 @@ pui.layout.getPropertiesModel = function() {
 
     { name: "Misc", category: true },    
     { name: "css class", multOccur: true, attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element. To specify multiple classes, right-click the property and select Add Another CSS Class." },
-    { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
+    { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
     { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
 
     { name: "Events", category: true },

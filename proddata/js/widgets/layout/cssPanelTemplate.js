@@ -31,7 +31,7 @@ pui.layout.template.cssPanelTemplate = function(parms) {
     return pui.layout.mergeProps([
       { name: "has header", choices: ["true", "false"], help: "Determines whether the panel has a header." },
       { name: "header height", format: "number", help: "Specifies the height of the panel header." },
-      { name: "header text", help: "Specifies the text that will appear in the panel header." },
+      { name: "header text", help: "Specifies the text that will appear in the panel header.", translate: true },
       { name: "header theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the panel header.  The theme is associated with a set of cascading style sheet rules." },
       { name: "body theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the panel body.  The theme is associated with a set of cascading style sheet rules." },
       { name: "straight edge", choices: ["all", "left", "right", "top", "bottom"], help: "Determines which parts of the element will have a straight edge instead of rounded corners." },
