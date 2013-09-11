@@ -589,6 +589,13 @@ pui.render = function(parms) {
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
   pui.autoPageGrid = false;
+    
+  var translateError = pui.translate(parms);
+  if (translateError != null) {
+    
+    pui.alert(translateError);
+    
+  }
   
   var layers = parms["layers"];
     
@@ -4501,4 +4508,129 @@ pui.doFieldExit = function(target) {
   }
     
   return false;
+}
+
+pui.translate = function(parms) {
+  
+  // Translation map will always be sent from up-to-date backend.
+  // Allow compatability with older backend for now. 
+  var translationMap = parms["translations"];
+  if (translationMap == null) {
+    
+    return;
+    
+  }
+  
+  // The map comes in UTF-16, hex encoded.
+  for (var i in translationMap) {
+    
+    translationMap[i] = pui.formatting.decodeGraphic(translationMap[i]);
+    
+  }
+  
+  var msg = "";
+  var layers = parms["layers"];
+  
+  for (var iLayer = 0; iLayer < layers.length; iLayer++) {
+  
+    var layer = layers[iLayer];
+    var formats = layer["formats"];
+    
+    for (var iFmt = 0; iFmt < formats.length; iFmt++) {
+      
+      var format = formats[iFmt];
+      var screen = format["metaData"]["screen"];
+      var items = format["metaData"]["items"];
+      
+      msg += pui.doTranslate(screen, translationMap, true);
+      
+      for (var iItem = 0; iItem < items.length; iItem++) {
+        
+        var item = items[iItem];
+        msg += pui.doTranslate(item, translationMap);
+        
+      }
+      
+    }    
+    
+  }
+  
+  if (msg != "") {
+  
+    return "Missing translation data:\n\n" + msg;
+    
+  }
+
+}
+
+pui.doTranslate = function(obj, translationMap, isScreen) {
+
+  isScreen = (isScreen === true);
+  
+  var rtn = "";
+  
+  for (var propName in obj) {
+    
+    var propVal = obj[propName];
+    
+    if (pui.isTranslated(propVal)) {
+      
+      var phraseIds = propVal["translations"];
+      var phrases = [];
+      for (var i = 0; i < phraseIds.length; i++) {
+        
+        var id = phraseIds[i];
+        var phrase = translationMap[id];
+        if (phrase != null) {
+          
+          phrases.push(phrase);
+          
+        }
+        else {
+        
+          var designValue = propVal["designValue"];
+          if (phraseIds.length > 1) {
+            
+            designValue = JSON.parse(designValue)[i];
+            
+          }
+          
+          phrases.push(designValue);
+          
+          if (isScreen) {
+            
+            rtn += "Record format \"" + trim(obj["record format name"]) + "\" ";
+            
+          }
+          else {
+            
+            rtn += "Widget \"" + trim(obj["id"]) + "\" ";
+            
+          }
+          
+          rtn += ", property \"" + trim(propName) + "\". ";
+          rtn += "Phrase: " + designValue;
+          rtn += " (" + id + ").\n";
+        
+        }
+        
+      }
+      
+      if (phrases.length == 1) {
+        
+        obj[propName] = phrases[0];  
+        
+      }
+      else if (phrases.length > 1) {
+      
+        obj[propName] = JSON.stringify(phrases);
+        
+      }              
+      
+    }    
+    
+  }
+  
+  return rtn;
+  
 }
