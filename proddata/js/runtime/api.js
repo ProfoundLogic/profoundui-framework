@@ -190,7 +190,7 @@ function changeElementValue(id, val) {
       elem.innerHTML = val;
     }
   }
-  if (elem.tagName == "INPUT" || elem.tagName == "SELECT") {
+  if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
     elem.value = val;
   }
   if (context == "dspf") {
@@ -210,12 +210,9 @@ function changeElementValue(id, val) {
     pui.response[elem.fieldInfo["idx"]] = elem;
   }
   pui.checkEmptyText(elem);
-  if (elem.pui && elem.pui.properties) {
-  
-    elem.pui.properties["value"] = val;  
-  
-  }
-  
+  if (elem.pui && elem.pui.properties) {  
+    elem.pui.properties["value"] = val;
+  }  
 }
 
 // assign a new css class to an element
