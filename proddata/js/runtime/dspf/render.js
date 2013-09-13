@@ -1109,7 +1109,7 @@ pui.renderFormat = function(parms) {
             var formattingObj = items[i][propname];
             if (pui.isBound(formattingObj)) {
             
-              formattingObj.revert = false;
+              formattingObj["revert"] = false;
 
               if (pui.touchDevice && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
               
@@ -2698,7 +2698,7 @@ pui.buildResponse = function() {
       var formattingObj = dom.formattingInfo;
       if (formattingObj != null && formattingObj.dataType != "expression") {
         formattingObj.value = value;
-        formattingObj.revert = true;
+        formattingObj["revert"] = true;
         if (dom.responseValue != null) formattingObj.formatting = "Text";
         value = pui.FieldFormat.format(formattingObj);
         if (typeof value == "object") {

@@ -1854,12 +1854,12 @@ pui.Grid = function() {
                   }
                 }
                 var oldValue = dom.formattingInfo.value;
-                var oldRevert = dom.formattingInfo.revert;
+                var oldRevert = dom.formattingInfo["revert"];
                 dom.formattingInfo.value = value;
-                dom.formattingInfo.revert = true;
+                dom.formattingInfo["revert"] = true;
                 value = pui.FieldFormat.format(dom.formattingInfo);
                 dom.formattingInfo.value = oldValue;
-                dom.formattingInfo.revert = oldRevert;                
+                dom.formattingInfo["revert"] = oldRevert;                
                 if (typeof value == "object") {
                   // Error.
                   value = "";

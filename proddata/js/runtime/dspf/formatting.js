@@ -309,7 +309,7 @@ Date.prototype.format = function(str, locale) {
 
 pui.FieldFormat = {
   format: function(obj) {
-    if (obj.revert) {
+    if (obj["revert"]) {
       var value = null;
       if (typeof pui["validate"] == "function") {
         value = pui["validate"](obj);
