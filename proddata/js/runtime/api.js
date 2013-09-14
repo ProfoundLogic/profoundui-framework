@@ -1689,3 +1689,13 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
     alert(msg);
   }
 }
+
+
+pui["get"] = function(id) {
+  return get(id);
+}
+
+pui["set"] = function(id, val) {
+  changeElementValue(id, val);
+}
+
