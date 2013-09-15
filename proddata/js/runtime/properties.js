@@ -169,7 +169,7 @@ function getPropertiesModel() {
     { name: "Auto-Complete Choices", category: true, controls: ["textbox"] },
     { name: "Selection Choices", category: true, controls: ["combo box", "select box"] },
     { name: "Menu Options", category: true, controls: ["menu"] },
-    { name: "choices", type: "list", translate: true, help: "Specifies the options for a select box (dropdown or list box), text field with autocomplete, combo box, or menu.  The options should be comma separated.  To specify submenus for a menu, indent the choices using a dash or a series of dashes.", controls: ["combo box", "menu", "select box", "textbox"], translate: true },
+    { name: "choices", type: "list", help: "Specifies the options for a select box (dropdown or list box), text field with autocomplete, combo box, or menu.  The options should be comma separated.  To specify submenus for a menu, indent the choices using a dash or a series of dashes.", controls: ["combo box", "menu", "select box", "textbox"], translate: true },
     { name: "choice values", type: "list", help: "Specifies alternate option values to send to the application for a select box (dropdown or list box), text field with auto complete, combo box, or menu. The values should be comma separated.", controls: ["combo box", "menu", "select box", "textbox"] },
     { name: "hover background color", type: "color", help: "Defines the background color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
     { name: "hover text color", type: "color", help: "Defines the text color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
