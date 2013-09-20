@@ -107,7 +107,7 @@ pui.widgets.add({
     },
     
     "image source": function(parms) {
-      parms.dom.originalImage = normalizeURL(parms.value, true);
+      parms.dom.originalImage = pui.normalizeURL(parms.value, true);
     },
 
     "hover image source": function(parms) {

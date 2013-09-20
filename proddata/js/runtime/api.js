@@ -1650,7 +1650,7 @@ pui["loadJS"] = function(parms) {
     if (!done && callback != null) callback();
     done = true;
   };
-  script.src = normalizeURL(path);
+  script.src = pui.normalizeURL(path);
   head.appendChild(script);
   return true;
 }
