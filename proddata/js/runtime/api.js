@@ -1633,7 +1633,7 @@ pui["loadJS"] = function(parms) {
     if (test != null && typeof test == "function" && test() == true) return false;  // already loaded
   }
   if (path == null) return null;
-  if (pui.getScript(normalizeURL(path)) != null) return false;
+  if (pui.getScript(pui.normalizeURL(path)) != null) return false;
   var head = document.getElementsByTagName("head")[0];
   var done = false;   
   var script = document.createElement("script");
