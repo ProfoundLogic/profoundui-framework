@@ -72,7 +72,7 @@ pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue:
 
 
 
-pui.layout.templates["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden;\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
+pui.layout.templates["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', help: 'Determines whether a horizontal scrollbar should be displayed.', choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', help: 'Determines whether a vertical scrollbar should be displayed.', choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
 
 pui.layout.templates["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', help: 'Specifies the number of table rows for this layout.' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" repeat=\"{ property: 'columns', help: 'Specifies the number of table columns for this layout.' }\"><div stretch=\"true\" container=\"true\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr></table>";
 pui.layout.templates["table"] += pui.layout.maximizeIcon;

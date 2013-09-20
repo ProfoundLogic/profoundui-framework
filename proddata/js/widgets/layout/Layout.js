@@ -238,6 +238,12 @@ pui.layout.Layout = function() {
       case "css class":
         break;
         
+      case "overflow x":
+        //if (!me.designMode) {
+          me.layoutDiv.firstChild.style.overflowX = value;
+        //}
+        break;
+
       case "tool tip":
         me.layoutDiv.title = value;
         break;
