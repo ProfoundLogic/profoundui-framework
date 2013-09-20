@@ -43,7 +43,7 @@ pui.ExternalFiles = function() {
     css.setAttribute("rel", "stylesheet");
     css.setAttribute("type", "text/css");
     css.setAttribute("media", "screen");
-    css.setAttribute("href", path);
+    css.setAttribute("href", pui.normalizeURL(path));
     cssLinks[path] = css;
     head.appendChild(css);
   }
@@ -68,7 +68,7 @@ pui.ExternalFiles = function() {
       done = true;
     };
     jsScripts[path] = script;
-    script.src = path;
+    script.src = pui.normalizeURL(path);
     head.appendChild(script);
 
     return true;
