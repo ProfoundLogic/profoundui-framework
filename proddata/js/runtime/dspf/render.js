@@ -2219,6 +2219,12 @@ pui.attachResponse = function(dom) {
       }
     }
     
+    if (dom.shortcutKey != null) {
+    
+      pui.keyName = dom.shortcutKey;
+    
+    }
+    
     // Little fix here: Do not pickup doms with matching shortcut key if 
     // we are dealing with a grid paging bar item. 
     
@@ -2226,7 +2232,6 @@ pui.attachResponse = function(dom) {
     // function independently of one another.
     var doms = [];
     if (dom.shortcutKey != null && !dom.parentPagingBar) {
-      pui.keyName = dom.shortcutKey;
       for (formatName in pui.keyMap) {
         var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
         if (keyMapDomArray != null) {
