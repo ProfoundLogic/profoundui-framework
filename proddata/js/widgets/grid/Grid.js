@@ -3106,7 +3106,7 @@ pui.Grid = function() {
           cols[i].style.backgroundImage = "";
         }
         else {
-          cols[i].style.backgroundImage = "url('" + selectionImage + "')";
+          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(selectionImage, true) + "')";
         }
         pui.addCssClass(cols[i], "selected");
       }
@@ -3114,7 +3114,7 @@ pui.Grid = function() {
         setColor(cols[i], me.cellProps["hover font color"], i);
         cols[i].style.backgroundColor = me.cellProps["hover background"];
         if (me.cellProps["hover image"] != null && me.cellProps["hover image"] != "") {
-          cols[i].style.backgroundImage = "url('" + me.cellProps["hover image"] + "')";
+          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(me.cellProps["hover image"], true) + "')";
           cols[i].style.backgroundRepeat = "repeat-x";        
         }
         pui.addCssClass(cols[i], "hover");
@@ -4237,7 +4237,7 @@ pui.Grid = function() {
     if (header) {
       var headerImage = me.cellProps["header image"];
       if (headerImage != null && headerImage != "") {
-        cell.style.backgroundImage = "url('" + headerImage + "')";
+        cell.style.backgroundImage = "url('" + pui.normalizeURL(headerImage, true) + "')";
         cell.style.backgroundRepeat = "repeat-x";
       }
       else {

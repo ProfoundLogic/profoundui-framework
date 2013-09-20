@@ -961,7 +961,17 @@ pui["openURL"] = function(url) {
 
 
 
-pui.normalizeURL = function(url) {
+pui.normalizeURL = function(url, mobileClientOnly) {
+
+  if (url == null || typeof url != "string") return "";
+
+  if (mobileClientOnly == true && window["puiMobileClient"] != null) {
+    return url;
+  }
+  
+  if (url.substr(0, 5).toLowerCase() == "http:" || url.substr(0, 6).toLowerCase() == "https:") {
+    return url;
+  }
 
   if (pui["serverURL"] != null) {
     return pui["serverURL"] + url;
@@ -1582,7 +1592,7 @@ pui["loadCSS"] = function(path) {
   css.setAttribute("rel", "stylesheet");
   css.setAttribute("type", "text/css");
   css.setAttribute("media", "screen");
-  css.setAttribute("href", path);
+  css.setAttribute("href", pui.normalizeURL(path));
   head.appendChild(css);
   return true;
 }
@@ -1623,7 +1633,7 @@ pui["loadJS"] = function(parms) {
     if (test != null && typeof test == "function" && test() == true) return false;  // already loaded
   }
   if (path == null) return null;
-  if (pui.getScript(path) != null) return false;
+  if (pui.getScript(normalizeURL(path)) != null) return false;
   var head = document.getElementsByTagName("head")[0];
   var done = false;   
   var script = document.createElement("script");
@@ -1640,7 +1650,7 @@ pui["loadJS"] = function(parms) {
     if (!done && callback != null) callback();
     done = true;
   };
-  script.src = path;
+  script.src = normalizeURL(path);
   head.appendChild(script);
   return true;
 }

@@ -83,6 +83,7 @@ pui.widgets.add({
       var hoverImage = parms.evalProperty("hover image source")
       parms.dom.hoverImage = hoverImage;
       if (hoverImage != null && hoverImage != "") {
+        parms.dom.hoverImage = pui.normalizeURL(parms.dom.hoverImage, true);
         addEvent(parms.dom, "mouseover", pui.imageElementMouseOver);
         addEvent(parms.dom, "mouseout", pui.imageElementMouseOut);
         var preloadImage1 = new Image();
@@ -91,8 +92,13 @@ pui.widgets.add({
       var clickImage = parms.evalProperty("click image source")
       parms.dom.clickImage = clickImage;
       if (clickImage != null && clickImage != "") {
+        parms.dom.clickImage = pui.normalizeURL(parms.dom.clickImage, true);
         addEvent(parms.dom, "mousedown", pui.imageElementMouseDown);
         addEvent(document, "mouseup", function() {
+          pui.imageElementMouseUp(parms.dom);
+        });
+        addEvent(parms.dom, "touchstart", pui.imageElementMouseDown);
+        addEvent(document, "touchend", function() {
           pui.imageElementMouseUp(parms.dom);
         });
         var preloadImage2 = new Image();
@@ -101,12 +107,13 @@ pui.widgets.add({
     },
     
     "image source": function(parms) {
-      parms.dom.originalImage = parms.value;
+      parms.dom.originalImage = normalizeURL(parms.value, true);
     },
 
     "hover image source": function(parms) {
       parms.dom.hoverImage = parms.value;
       if (parms.value != null && parms.value != "") {
+        parms.dom.hoverImage = pui.normalizeURL(parms.dom.hoverImage, true);
         addEvent(parms.dom, "mouseover", pui.imageElementMouseOver);
         addEvent(parms.dom, "mouseout", pui.imageElementMouseOut);
         var preloadImage = new Image();
@@ -117,6 +124,7 @@ pui.widgets.add({
     "click image source": function(parms) {
       parms.dom.clickImage = parms.value;
       if (parms.value != null && parms.value != "") {
+        parms.dom.clickImage = pui.normalizeURL(parms.dom.clickImage, true);
         addEvent(parms.dom, "mousedown", pui.imageElementMouseDown);
         addEvent(document, "mouseup", function() {
           pui.imageElementMouseUp(parms.dom);

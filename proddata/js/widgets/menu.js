@@ -122,7 +122,7 @@ pui.MenuWidget = function() {
       td.style.filter = "alpha(opacity=100)";
       td.style.opacity = 1;
       if (me.optionImage != null && me.optionImage != "") {
-        td.style.backgroundImage = "url('" + me.optionImage + "')";
+        td.style.backgroundImage = "url('" + pui.normalizeURL(me.optionImage, true) + "')";
         var repeat = me.repeat;
         if (repeat == null) repeat = "repeat";
         td.style.backgroundRepeat = repeat;
