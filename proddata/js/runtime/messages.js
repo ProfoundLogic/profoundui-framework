@@ -609,3 +609,65 @@ pui["runtimeText"]["he_IL"]["sort descending text"] = " מיין בסדר יור
 pui["runtimeText"]["he_IL"]["row"]                  = " שורה ";
 pui["runtimeText"]["he_IL"]["rows"]                 = " שורות ";
 pui["runtimeText"]["he_IL"]["page"]                 = " עמוד ";
+
+
+// ------------------------------------------------------------
+//   Dutch -- Netherlands
+// -------------------------------------------------------------
+pui.copyAllLanguageText("en_US", "nl_NL");
+pui["runtimeMsg"]["nl_NL"]["closeMessage"]            = "Hiermee wordt uw sessie afgesloten.";
+pui["runtimeMsg"]["nl_NL"]["no connection message"]   = "Geen contact met de server mogelijk. Controleer de verbinding en probeer opnieuw.";
+pui["runtimeMsg"]["nl_NL"]["upload file limit"]       = "Limiet van &1 bestand(en) overschreden.";
+pui["runtimeMsg"]["nl_NL"]["upload size limit"]       = "Limiet van &1MB per bestand overschreden";
+pui["runtimeMsg"]["nl_NL"]["upload no files"]         = "Geen bestanden geselecteerd.";
+pui["runtimeMsg"]["nl_NL"]["upload duplicate file"]   = "Identieke bestanden geselecteerd.";
+pui["runtimeMsg"]["nl_NL"]["upload file exists"]      = "Een of meerdere bestanden staan al in het file systeem.";
+pui["runtimeMsg"]["nl_NL"]["upload prevented"]        = "Handeling geblokkeerd door het exit programma.";
+pui["runtimeMsg"]["nl_NL"]["upload input limit"]      = "Limiet van totale input grootte overschreden.";
+pui["runtimeMsg"]["nl_NL"]["upload no session"]       = "Geen verbinding met een geldige sessie.";
+pui["runtimeMsg"]["nl_NL"]["upload timeout"]          = "Timeout van de transactie.";
+pui["runtimeMsg"]["nl_NL"]["upload invalid response"] = "Geen(geldig) antwoord van de server.";
+pui["runtimeMsg"]["nl_NL"]["close browser text"]      = "Sluit het browser scherm om het logoff proces te voltooien.";
+pui["runtimeMsg"]["nl_NL"]["session ended text"]      = "Sessie is beëindigd.";
+pui["runtimeMsg"]["nl_NL"]["outside ucs2"]            = "Tekens niet UCS-2.";
+pui["runtimeMsg"]["nl_NL"]["invalid number"]          = "&1 is geen geldig nummer.";
+pui["runtimeMsg"]["nl_NL"]["invalid length"]          = "Lengte of aantal decimalen van &1 is ongeldig.";
+pui["runtimeMsg"]["nl_NL"]["invalid decimal"]         = "Aantal decimalen van &1 ongeldig. (max: &2)";
+pui["runtimeMsg"]["nl_NL"]["invalid choice"]          = "\"&1\" is ongeldig. Geldige keuzes zijn: \"&2\" of \"&3\".";
+pui["runtimeMsg"]["nl_NL"]["invalid date"]            = "\"&1\" is geen geldige datum. Voorbeeld opmaak: &2";
+pui["runtimeMsg"]["nl_NL"]["invalid time"]            = "\"&1\" is geen geldige tijd. Voorbeeld opmaak: &2";
+pui["runtimeMsg"]["nl_NL"]["invalid time stamp"]      = "\"&1\" is geen geldige time stamp. Voorbeeld opmaak: &2";
+pui["runtimeMsg"]["nl_NL"]["invalid percent"]         = "&1 is geen geldige decimaal.";
+pui["runtimeMsg"]["nl_NL"]["invalid digits"]          = "\"&1\" heeft teveel cijfers. Max: &2";
+pui["runtimeMsg"]["nl_NL"]["exceeds whole"]           = "\"&1\" overschrijd het maximaal aantal cijfers voor het totale veld (&2 cijfers).";
+pui["runtimeMsg"]["nl_NL"]["exceeds decimal"]         = "\"&1\" overschrijd het maximaal aantal cijfers voor het decimale deel (&2 cijfers).";
+pui["runtimeMsg"]["nl_NL"]["zip too long"]            = "Postcode te lang. (Maximum: &1 cijfers)";
+pui["runtimeMsg"]["nl_NL"]["phone too long"]          = "Telefoonnummer te lang. (Maximum: &1 cijfers)";
+pui["runtimeMsg"]["nl_NL"]["ssno too long"]           = "Sofinummer te lang. (Maximum: &1 cijfers)";
+pui["runtimeMsg"]["nl_NL"]["invalid custom val"]      = "Ongeldige maatwerk controle routine.";
+pui["runtimeMsg"]["nl_NL"]["error custom val"]        = "Fout in maatwerk controle routine.";
+pui["runtimeMsg"]["nl_NL"]["ME"]                      = "Verplicht veld. Hier iets ingeven.";
+pui["runtimeMsg"]["nl_NL"]["MF"]                      = "Verplicht opvullen van veld. Alle posities van het veld vullen.";
+pui["runtimeMsg"]["nl_NL"]["required"]                = "Blanco is een ongeldige waarde. Dit veld is vereist.";
+pui["runtimeMsg"]["nl_NL"]["file required"]           = "Selecteer minstens één bestand.";
+pui["runtimeMsg"]["nl_NL"]["signature overflow"]      = "De afbeelding van de handtekening overschrijdt het maximale aantal bytes. Verwijder de handtekening en probeer opnieuw.";
+pui["runtimeMsg"]["nl_NL"]["validValues"]             = "Ongeldige waarde. Geldige waarden zijn: ";
+pui["runtimeMsg"]["nl_NL"]["upload invalid type"]     = "Eén of meerdere bestandstypes zijn ongeldig.";
+pui["runtimeMsg"]["nl_NL"]["invalid email"]           = "Ongeldig email addres.";
+
+pui["runtimeText"]["nl_NL"]["upload select text"]     = "Selecteer bestanden";
+pui["runtimeText"]["nl_NL"]["upload clear text"]      = "Wissen";
+pui["runtimeText"]["nl_NL"]["upload remove text"]     = "Verwijder";
+pui["runtimeText"]["nl_NL"]["upload upload text"]     = "Upload";
+pui["runtimeText"]["nl_NL"]["csv export text"]        = "Export naar Excel";
+pui["runtimeText"]["nl_NL"]["filter text"]            = "Filter";
+pui["runtimeText"]["nl_NL"]["remove filters text"]    = "Verwijder alle filters";
+pui["runtimeText"]["nl_NL"]["next link text"]         = "Volgende";
+pui["runtimeText"]["nl_NL"]["previous link text"]     = "Vorige";
+pui["runtimeText"]["nl_NL"]["sort ascending text"]    = "Sorteer oplopend";
+pui["runtimeText"]["nl_NL"]["sort descending text"]   = "Sorteer afdalend";
+pui["runtimeText"]["nl_NL"]["row"]                    = "rij";
+pui["runtimeText"]["nl_NL"]["rows"]                   = "rijen";
+pui["runtimeText"]["nl_NL"]["page"]                   = "Pagina";
+pui["runtimeText"]["nl_NL"]["collapseAll"]            = "Inklappen";
+pui["runtimeText"]["nl_NL"]["expandAll"]              = "Uitklappen";
