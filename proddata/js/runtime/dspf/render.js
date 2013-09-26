@@ -4585,7 +4585,9 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
       for (var i = 0; i < phraseIds.length; i++) {
         
         var id = phraseIds[i];
-        var phrase = translationMap[id];
+        // Id zero is reserved for blank/empty entry in 
+        // list-type properties. 
+        var phrase = (id == 0) ? "" : translationMap[id];
         if (phrase != null) {
           
           phrases.push(phrase);
