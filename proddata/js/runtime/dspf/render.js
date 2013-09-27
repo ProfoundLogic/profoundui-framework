@@ -18,8 +18,6 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
 pui.runtimeContainer = null;
 pui.renderCount = 0;
 pui["refresh interval"] = null;
@@ -78,6 +76,7 @@ pui.fileUploadElements = [];
 pui.activeElement = null;
 pui.autoPageGrid = false;
 
+
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
 pui.standardRowHeight = 20;  
@@ -109,6 +108,8 @@ pui["loading animation"]["height"] = 16;
 
 pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
+pui["horizontal auto arrange"] = false;
+pui["buttons per row"] = 1;  //required when pui["horizontal auto arrange"] set to true
 
 pui.fkeyValues = {
   "F1": 1,
@@ -1488,21 +1489,42 @@ pui.renderFormat = function(parms) {
                   }
                   else {
                     pui.autoArrange.keys[shortcutKey] = true;
-                    if (isWin) {
+                    if (isWin|| pui["horizontal auto arrange"]) {
                       if (pui.autoArrange.left == null) {
                         pui.autoArrange.left = parseInt(dom.style.left);
                         pui.autoArrange.startLeft = parseInt(dom.style.left);
                       }
                       else {
-                        if (pui.autoArrange.prevTop != null && Math.abs(parseInt(dom.style.top) - pui.autoArrange.prevTop) > 5) {
-                          pui.autoArrange.left = pui.autoArrange.startLeft;
-                        }
-                        else {
-                          pui.autoArrange.left += pui["horizontal button spacing"];
-                        }
-                      }
+						if (pui["horizontal auto arrange"]){
+							// This will re-arrange the buttons to fill the first line before wrapping to the second line
+							if(pui.autoArrange.buttonCount==null)
+								pui.autoArrange.buttonCount = 0;
+								
+							if (pui.autoArrange.startTop == null)
+								pui.autoArrange.startTop = parseInt(dom.style.top);
+
+							pui.autoArrange.buttonCount++;
+							
+							//calculate left using modulus 
+							pui.autoArrange.left = pui.autoArrange.startLeft + (pui.autoArrange.buttonCount % pui["buttons per row"]) * pui["horizontal button spacing"];
+							
+							//calculate top (the row) using division 
+							pui.autoArrange.top = pui.autoArrange.startTop + Math.floor(pui.autoArrange.buttonCount / pui["buttons per row"])*pui["vertical button spacing"];
+						
+						}
+						else{
+							//this is a window. it will move buttons on each line to fill blanks but not wrap to the previous line
+							if (pui.autoArrange.prevTop != null && Math.abs(parseInt(dom.style.top) - pui.autoArrange.prevTop) > 5) {
+							pui.autoArrange.left = pui.autoArrange.startLeft;
+							}
+							else {
+								pui.autoArrange.left += pui["horizontal button spacing"];
+							}
+						}
+					 }
                       dom.style.left = pui.autoArrange.left + "px";
                       pui.autoArrange.prevTop = parseInt(dom.style.top);
+					  if (pui["horizontal auto arrange"]) dom.style.top = pui.autoArrange.top + "px";
                     }
                     else {                
                       if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
