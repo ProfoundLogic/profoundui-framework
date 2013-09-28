@@ -4219,7 +4219,8 @@ pui.setActiveElement = function(e) {
 
 
 pui.returnCursor = function(e, dom) {
-  var target = getTarget(e);
+  var target;
+  if (e != null) target = getTarget(e);
   if (dom != null) target = dom;
   var cell = target.parentNode;
   var parentGrid = null;
@@ -4395,6 +4396,9 @@ pui.goToNextElement = function(target) {
         try {
           nextObjBox.focus();
           if (pui["highlight on focus"]) nextObjBox.select();
+          setTimeout(function() {
+            pui.returnCursor(null, nextObjBox);
+          }, 0);
         }
         catch(e) {}
         break;
@@ -4488,6 +4492,9 @@ pui.goToClosestElement = function(baseElem, direction) {
     try {
       curElem.focus();
       if (pui["highlight on focus"]) curElem.select();
+      setTimeout(function() {
+        pui.returnCursor(null, curElem);
+      }, 0);
     }
     catch(e) {}
   }
