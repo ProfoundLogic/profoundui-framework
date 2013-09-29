@@ -4135,7 +4135,9 @@ pui.showMessageSubfileHelp = function(textObj) {
     var month = Number(date.substr(4,2)) - 1;
     var day = Number(date.substr(6,2));
     var dateObj = new Date(year, month, day);
-    var keyword = pui.formatting.keywords.DATFMT[pui.appJob.dateFormat];
+    var dateFormat = pui.appJob.dateFormat;
+    if (dateFormat == "") dateFormat = "*ISO";
+    var keyword = pui.formatting.keywords.DATFMT[dateFormat];
     var dispFormat = keyword.pattern.replace(/\B/g, pui.appJob.dateSeparator);
     date = dateObj.format(dispFormat, 'en_US');
   }
