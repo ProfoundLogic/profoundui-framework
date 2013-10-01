@@ -3127,14 +3127,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
     if (formattingObj["designValue"] != null) return formattingObj["designValue"];
     return "";
   }
-
-  if (pui.isTranslated(formattingObj)) {
-    
-    // Resolve translated value here...
-    return "";
-    
-  }
-  
+ 
   var fieldName = formattingObj.fieldName;
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
     fieldName = fieldName.toUpperCase();
