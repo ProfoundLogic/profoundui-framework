@@ -246,8 +246,68 @@ pui.CSSPanel = function() {
     me.container.appendChild(headerDiv);
     me.container.appendChild(bodyDiv);
     me.resize();
+
+    var windowDiv = me.container.parentNode;
+    if (windowDiv != null && windowDiv.isPUIWindow == true) {
+      me.makeDraggable();
+    }
+    if (windowDiv == null) {
+      setTimeout(function() {
+        var windowDiv = me.container.parentNode;
+        if (windowDiv != null && windowDiv.isPUIWindow == true) {
+          me.makeDraggable();
+        }
+      }, 0);
+    }
   }
   
+  this.makeDraggable = function() {
+    var windowDiv = me.container.parentNode;
+    function mousedown(event) {
+      var cursorStartX = getMouseX(event);
+      var cursorStartY = getMouseY(event);
+      var startLeft = parseInt(windowDiv.style.left);
+      var startTop = parseInt(windowDiv.style.top);    
+      function mousemove(event) {            
+        var x = getMouseX(event);
+        var y = getMouseY(event);
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        windowDiv.style.top  = (startTop - cursorStartY + y) + "px";
+        windowDiv.style.left = (startLeft - cursorStartX + x) + "px";
+      }
+      function mouseup() {
+        removeEvent(document, "mousemove", mousemove);
+        removeEvent(document, "mouseup", mouseup);
+      }
+      addEvent(document, "mousemove", mousemove);
+      addEvent(document, "mouseup",   mouseup);
+      preventEvent(event);      
+    }
+    addEvent(headerDiv, "mousedown", mousedown);
+  
+    addEvent(headerDiv, "touchstart", function(e) {
+      if (e.touches.length != 1) return;  // Only deal with one finger
+      var touch = e.touches[0]
+      windowDiv.touch = {};
+      windowDiv.touch.startX = touch.pageX;
+      windowDiv.touch.startY = touch.pageY;
+      windowDiv.touch.startLeft = parseInt(windowDiv.style.left);
+      windowDiv.touch.startTop = parseInt(windowDiv.style.top);
+    });
+    addEvent(headerDiv, "touchmove", function(e) {
+      if (e.touches.length != 1) return;  // Only deal with one finger
+      var touch = e.touches[0];
+      var x = touch.pageX;
+      var y = touch.pageY;
+      windowDiv.style.left = (windowDiv.touch.startLeft - windowDiv.touch.startX + x) + "px";
+      windowDiv.style.top = (windowDiv.touch.startTop - windowDiv.touch.startY + y) + "px";
+      e.preventDefault();
+    });
+    headerDiv.style.cursor = "move";
+    headerDiv.firstChild.style.cursor = "move";
+  }
+
   this.setHasHeader = function(flag) {
     if (flag) {
       headerDiv.style.display = "";
