@@ -51,7 +51,9 @@ pui.widgets.add({
     
     "input type": function(parms) {
       if (!parms.design) {
-        parms.dom.setAttribute("type", parms.value);
+\       try { 
+          parms.dom.setAttribute("type", parms.value);
+        } catch(e) { }
       }
     }
   

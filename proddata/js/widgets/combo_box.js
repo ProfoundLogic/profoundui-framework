@@ -529,7 +529,11 @@ pui.widgets.add({
     },
 
     "input type": function(parms) {
-      if (!parms.design && parms.dom.comboBoxWidget != null) parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value);
+      try {
+        if (!parms.design && parms.dom.comboBoxWidget != null) 
+          parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value);
+      }
+      catch(e) { }
     }
 
   },
