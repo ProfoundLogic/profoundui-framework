@@ -21,7 +21,7 @@ if (typeof(window["pui"]) == "undefined") window["pui"] = {};
 
 function loadPCCommandApplet(callback) {
 
-  if (getObj("PCCommandApplet") == null) {
+  if (document.getElementById("PCCommandApplet") == null) {
   	var applet = document.createElement("applet");
   	applet.id = "PCCommandApplet";
   	applet.archive = "/profoundui/proddata/applet/PCIntegration.jar";
@@ -42,7 +42,7 @@ function loadPCCommandApplet(callback) {
 
 function runPCCommand(command) {
 
-	var applet = getObj("PCCommandApplet");
+	var applet = document.getElementById("PCCommandApplet");
 	if (!applet) {
 	
 	  // Could replace this at some time with a load <param>
@@ -76,7 +76,7 @@ window["runCommandCb"] = function() {
 
 function copyToClipboard(data) {
 
-	var applet = getObj("PCCommandApplet");
+	var applet = document.getElementById("PCCommandApplet");
 	if (!applet) {
 	
 	  pui.appletClipData = data;
