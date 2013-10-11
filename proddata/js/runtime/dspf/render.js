@@ -3912,13 +3912,20 @@ pui["maskScreen"] = function(parms) {
   
   maskDiv.isPUIWindowMask = true;
   maskDiv.style.position = "absolute";
+  
+  
+  
+ 
   maskDiv.style.left = "0px";
   maskDiv.style.top = "0px";
   if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
     maskDiv.style.display = "none";
     setTimeout(function() {
-      maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
-      maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
+      //maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
+      //maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
+	  var runtimePosition = getDivPosition(pui.runtimeContainer);
+	  maskDiv.style.left = (0-runtimePosition.x) + "px";
+      maskDiv.style.top = (0-runtimePosition.y) + "px";
       maskDiv.style.display = "";
     }, 0);
   }
@@ -3935,6 +3942,29 @@ pui["maskScreen"] = function(parms) {
   
   addEvent(window, "resize", resize);
   addEvent(window, "scroll", scroll);
+  
+  
+  
+ function getDivPosition(obj) {
+    var pos = {'x':0,'y':0};
+    if(obj.offsetParent) {
+        while(1) {
+          pos.x += obj.offsetLeft;
+          pos.y += obj.offsetTop;
+          if(!obj.offsetParent) {
+            break;
+          }
+          obj = obj.offsetParent;
+        }
+    } else if(obj.x) {
+        pos.x += obj.x;
+        pos.y += obj.y;
+    }
+    return pos;
+  }
+  
+  
+  
   
   function resize() {
     if (pui["resizeFrequency"] != null && pui.lastResizeTime != null && (new Date).getTime() - pui.lastResizeTime < pui["resizeFrequency"]) return; 
@@ -3960,10 +3990,11 @@ pui["maskScreen"] = function(parms) {
     if(!is_ie) {
       top = window.pageYOffset;
       left = window.pageXOffset;
-    }    
+    } 
+	var runtimePosition = getDivPosition(pui.runtimeContainer);	
     if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
-      left -= pui.runtimeContainer.offsetLeft;
-      if (context == "dspf") top -= pui.runtimeContainer.offsetTop;
+      left -= runtimePosition.x;
+      if (context == "dspf") top -= runtimePosition.y;
       else top = -pui.runtimeContainer.offsetTop;      
     }
       
