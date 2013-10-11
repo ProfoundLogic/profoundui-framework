@@ -1393,6 +1393,7 @@ pui.renderFormat = function(parms) {
                     value += pui["dup"]["char"];
                   }
                   target.value = value;
+                  pui.goToNextElement(target);
                   preventEvent(event);
                   return false;
                 }                
