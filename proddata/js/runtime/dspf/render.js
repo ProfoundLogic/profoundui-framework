@@ -1491,6 +1491,7 @@ pui.renderFormat = function(parms) {
                   else {
                     pui.autoArrange.keys[shortcutKey] = true;
                     if (isWin|| pui["horizontal auto arrange"]) {
+					  if (pui.autoArrange.top  == null) pui.autoArrange.top = parseInt(dom.style.top);
                       if (pui.autoArrange.left == null) {
                         pui.autoArrange.left = parseInt(dom.style.left);
                         pui.autoArrange.startLeft = parseInt(dom.style.left);
