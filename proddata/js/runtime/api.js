@@ -966,7 +966,7 @@ pui.normalizeURL = function(url, mobileClientOnly) {
 
   if (url == null || typeof url != "string") return "";
 
-  if (mobileClientOnly == true && window["puiMobileClient"] != null) {
+  if (mobileClientOnly == true && window["puiMobileClient"] == null) {
     return url;
   }
   
