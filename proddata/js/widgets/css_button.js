@@ -380,7 +380,20 @@ pui.widgets.add({
     
     "height": function(parms) {
       parms.dom.button.setLineHeight(parms.value);
-    }    
+    },
+    
+   "visibility": function(parms) {
+      if (!parms.design) {
+        // Fixes IE10 Ellipsis Rendering Issue .. when visibility is hidden
+        if (parms.value == "hidden") {
+          parms.dom.firstChild.style.display = "none";
+        }
+        else {
+          parms.dom.firstChild.style.display = "";
+        }
+      }
+    }
+
 
   }
   

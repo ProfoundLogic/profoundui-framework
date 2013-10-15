@@ -62,7 +62,7 @@ pui.widgets.add({
     
     "value": function(parms) {
       parms.dom.value = parms.value;
-    }    
+    }
 
   }
   
