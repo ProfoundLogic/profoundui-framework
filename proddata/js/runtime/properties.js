@@ -731,7 +731,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
                 }
               }
               else {
-                newDomObj.setAttribute(model[i].attribute, evalPropertyValue(propValue, originalValue, newDomObj));
+                var valueToAssign = evalPropertyValue(propValue, originalValue, newDomObj);
+                if (model[i].attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
+                newDomObj.setAttribute(model[i].attribute, valueToAssign);
                 if (model[i].attribute == "class") {
                   newDomObj.className = propValue;
                 }
@@ -997,6 +999,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           }
         }
         else {
+          if (propConfig.attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
           domObj.setAttribute(propConfig.attribute, valueToAssign);
           if (propConfig.attribute == "class") {
             domObj.className = valueToAssign;
