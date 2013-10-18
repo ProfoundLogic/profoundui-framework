@@ -1719,7 +1719,7 @@ pui.renderFormat = function(parms) {
               });
             }
           }
-          if (boxDom.cursorRecord != null || boxDom.cursorField != null || boxDom.cursorRow != null || boxDom.cursorColumn != null) {
+          if (dom.cursorRecord != null || dom.cursorField != null || dom.cursorRow != null || dom.cursorColumn != null) {
             addEvent(boxDom, "focus", pui.returnCursor);
             addEvent(boxDom, "keyup", pui.returnCursor);
           }          
