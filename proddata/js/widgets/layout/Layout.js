@@ -198,7 +198,7 @@ pui.layout.Layout = function() {
       size.height = parent.offsetHeight;
     }
     else {
-      var windowSize = pui.getWindowSize();
+      var windowSize = pui["getWindowSize"]();
       size.width = windowSize["width"];
       size.height = windowSize["height"];
       parentIsBrowserWindow = true;
