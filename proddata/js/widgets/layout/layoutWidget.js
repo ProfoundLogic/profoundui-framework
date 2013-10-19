@@ -36,6 +36,11 @@ pui.widgets.add({
       }
     }
 
+    if (!parms.design && parms.propertyName == "field type") {
+      parms.dom.layout.setProperty("center vertically", parms.properties["center vertically"]);
+      parms.dom.layout.setProperty("center horizontally", parms.properties["center horizontally"]);
+    }
+
     var setProperty = true;
     if (parms.propertyName == "field type" || parms.propertyName == "template") {
       parms.dom.style.padding = "0px";

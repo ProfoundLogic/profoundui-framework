@@ -32,6 +32,8 @@ pui.layout.Layout = function() {
   this.lockedInPlace = false;
   this.stretchList = [];
   this.containers = [];
+  this.centerHor = false;
+  this.centerVert = false;
   
   var me = this;
   
@@ -172,11 +174,51 @@ pui.layout.Layout = function() {
       container.style.display = "";
     }
     me.sizeContainers();
+    me.center();
   }
   
   this.sizeContainers = function() {
     for (var i = 0; i < me.containers.length; i++) {
       sizeContainer(me.containers[i]);
+    }
+  }
+  
+  this.center = function() {
+    var hor = me.centerHor;
+    var vert = me.centerVert;
+    if (!hor && !vert) return;
+
+    var size = {};
+    var parentIsBrowserWindow = false;
+    var parent = me.layoutDiv.parentNode;
+    if ( parent != null && parent.tagName == "DIV" &&
+         parent.offsetWidth > 0 && parent.offsetHeight > 0 && 
+         (parent.parentNode != document.body || (parent.style.width != null && parent.style.height != null && parent.style.width != "" && parent.style.height != "")) ) {
+      size.width = parent.offsetWidth;
+      size.height = parent.offsetHeight;
+    }
+    else {
+      var windowSize = pui.getWindowSize();
+      size.width = windowSize["width"];
+      size.height = windowSize["height"];
+      parentIsBrowserWindow = true;
+    }
+
+    if (hor) {
+      var layoutLeft = parseInt((size.width - me.layoutDiv.offsetWidth) / 2);
+      if (layoutLeft < 0) {
+        if (parentIsBrowserWindow) document.body.scrollLeft = Math.abs(layoutLeft);
+        layoutLeft = 0;
+      }
+      me.layoutDiv.style.left = layoutLeft + "px";
+    }
+
+    if (vert) {
+      var layoutTop = parseInt((size.height - me.layoutDiv.offsetHeight) / 2);
+      if (layoutTop < 0) {
+        layoutTop = 0;
+      }    
+      me.layoutDiv.style.top = layoutTop + "px";
     }
   }
 
@@ -229,6 +271,14 @@ pui.layout.Layout = function() {
 
       case "z index":
         me.layoutDiv.style.zIndex = value;
+        break;
+
+      case "center horizontally":
+        if (!me.designMode) me.centerHor = (value == "true" || value == true);
+        break;
+
+      case "center vertically":
+        if (!me.designMode) me.centerVert = (value == "true" || value == true);
         break;
 
       case "locked in place":

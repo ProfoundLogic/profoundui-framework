@@ -34,6 +34,8 @@ pui.layout.getPropertiesModel = function() {
     { name: "top", format: "px", help: "Represents the y-coordinate of the current layout." },
     { name: "right", format: "px", help: "Position of the layout from the right of the screen or another layout container." },
     { name: "bottom", format: "px", help: "Position of the layout from the bottom of the screen or another layout container." },
+    { name: "center horizontally", choices: ["true", "false"], type: "boolean", help: "Centers the layout horizontally within its parent container.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+    { name: "center vertically", choices: ["true", "false"], type: "boolean", help: "Centers the layout vertically within its parent container.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     { name: "height", fromat: "px", help: "Height of the layout.", bind: false, canBeRemoved: false },
     { name: "width", format: "px", help: "Width of the layout.", bind: false, canBeRemoved: false },
     { name: "min height", format: "px", help: "Minimum height of the layout." },
