@@ -66,6 +66,7 @@ pui.Widgets = function() {
       if (widget.context != null && widget.context != context) continue;
       if (fullList || (!widget.customSizing && widget.name != "layout")) list.push(widget.name);
     }
+    list.sort();
     return list;
   }
   
