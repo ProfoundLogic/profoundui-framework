@@ -1104,6 +1104,7 @@ pui.Grid = function() {
     
     
     function receiveData(data, totalRecs) {
+      if (me == null || me.cells == null) return;  // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
       var paddingCSS = getPaddingCSS();
       // Column order can differ from SQL when backend SQL statements are used, and the 
