@@ -449,13 +449,18 @@ pui.widgets.add({
            if (response) {
              data = response;
            }
-           
-          pui.widgets.renderChart({
-            dom: parms.dom,
-            type: chartType,
-            transparent: (parms.properties["chart overlay"] != "true"),
-            xmlData: data
-          });
+           // check if the returned xml data starts with a standard response
+           // if it does and the "chart options" property was specified, insert chart options into the data string
+           var startsWith = '<?xml version="1.0" encoding="utf-8"?><chart>';
+           if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "" && data.substr(0, startsWith.length) == startsWith) {
+             data = startsWith.substr(0, startsWith.length - 1) + " " + chartOptions + data.substr(startsWith.length - 1);
+           }
+           pui.widgets.renderChart({
+             dom: parms.dom,
+             type: chartType,
+             transparent: (parms.properties["chart overlay"] != "true"),
+             xmlData: data
+           });
          }
          ajaxRequest.send(); 
           
