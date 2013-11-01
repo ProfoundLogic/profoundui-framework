@@ -1110,6 +1110,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         if (subfileRow != null) {
           eval("row = " + subfileRow + ";");
         }
+        pui["temp_event"] = e;
+        eval("var event = pui.temp_event;");
         try {
           var customFunction = eval(newValue);
           if (typeof customFunction == "function") {
