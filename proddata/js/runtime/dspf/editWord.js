@@ -38,12 +38,22 @@ pui.applyEditWord = function(obj) {
   keyFilter += "]";
   obj.keyFilter = new RegExp(keyFilter);
 
-  // get value as a number
-  var numericValue = Number(value);
-  if (isNaN(numericValue)) numericValue = 0;
+  // Make sure value is a number
+  //   and make sure number converted to a string.
+  //
+  //  Note: We don't want to use the output from Number() here,
+  //        since this will lose precision on numbers with more than 15
+  //        digits (limit of the 64-bit floating point used by JS)
+  //        But it's okay to use it to test if it's a valid number.
+  var charValue;
+  if (isNaN(Number(value))) {
+    charValue = "0";
+  }
+  else {
+    charValue = String(value);
+  }
   
   // format value as a string of digits
-  var charValue = String(numericValue);
   charValue = charValue.replace("-", "");  // remove negative sign
   var numParts = charValue.split(".");
   var intPortion = numParts[0];
