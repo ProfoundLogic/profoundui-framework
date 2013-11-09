@@ -289,9 +289,7 @@ pui.layout.Layout = function() {
         break;
         
       case "overflow x":
-        //if (!me.designMode) {
-          me.layoutDiv.firstChild.style.overflowX = value;
-        //}
+        me.layoutDiv.firstChild.style.overflowX = value;
         break;
 
       case "tool tip":

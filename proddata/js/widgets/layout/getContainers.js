@@ -101,13 +101,13 @@ pui.layout.getContainerOffset = function(containerDom) {
   var y = 0;
   var elem = containerDom;
   while (elem != null && (elem.layout == null || elem.parentNode.getAttribute("container") == "true")) {
-    x += elem.offsetLeft;
-    y += elem.offsetTop;
+    x += elem.offsetLeft - elem.scrollLeft;
+    y += elem.offsetTop - elem.scrollTop;
     elem = elem.offsetParent;
   }
   if (elem != null) {
-    x += elem.offsetLeft;
-    y += elem.offsetTop;
+    x += elem.offsetLeft - elem.scrollLeft;
+    y += elem.offsetTop - elem.scrollTop;
   }
   return {
     x: x,

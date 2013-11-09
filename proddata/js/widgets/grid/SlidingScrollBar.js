@@ -273,6 +273,18 @@ pui.SlidingScrollBar = function() {
       }
       prevStartRow = startRow;
 
+      var onscrollEventCode = gridDom.grid.events["onscroll"];
+      if (onscrollEventCode != null && onscrollEventCode != "" && !me.designMode) {
+        try {
+          eval("row = " + startRow);
+          eval(onscrollEventCode);
+        }
+        catch(err) {
+          pui.alert(eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n" + err.message);
+          return false;
+        }
+      }
+
       if (me.showRowNum || me.showRowRange) {
         rowNumDiv.style.display = "";
         rowNumHideRequest += 1;

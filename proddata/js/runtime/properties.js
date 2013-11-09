@@ -703,7 +703,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         var propName = model[i].name;
         var propValue = properties[propName];
         if (propValue != null && propValue != "") {
-          if (model[i].stylename != null) {
+          var isStyleProp = (model[i].stylename != null);
+          if (propName == "overflow x" || propName == "overflow y") {
+            if (properties["field type"] == "layout") isStyleProp = false;
+          }
+          if (isStyleProp) {
             if (model[i].stylename == "visibility" && isDesignMode) {
               if (propValue == "hidden") {
                 newDomObj.style.filter = "alpha(opacity=30)";

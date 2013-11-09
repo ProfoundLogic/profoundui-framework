@@ -2178,8 +2178,32 @@ pui.Grid = function() {
       if (me.designMode && bwidth < minBWidth) bwidth = minBWidth;
       var scrollBarWidth = 23;
       if (pui.touchDevice || pui.iPadEmulation) scrollBarWidth = 0;
+
       me.scrollbarObj.x = parseInt(me.vLines[me.vLines.length - 1].style.left) - scrollBarWidth;
+
+      // check if the grid is inside a simple layout container with horizontal scrolling
+      // if so, attach vertical scrollbar to the layout
+      var horizontalScroll = false;
+      if (!me.designMode && me.container != null && me.container.tagName == "DIV" && me.container.getAttribute("container") == "true") {
+        var parent = me.container.parentNode;
+        if (parent != null && parent.tagName == "DIV" && parent.style.overflowX == "scroll") {
+          var layoutDiv = parent.parentNode;
+          if (layoutDiv != null && layoutDiv.tagName == "DIV" && layoutDiv.pui != null && layoutDiv.pui.properties != null && layoutDiv.pui.properties["template"] == "simple container" && layoutDiv.pui.properties["overflow x"] == "scroll") {
+            if (layoutDiv.offsetWidth < me.tableDiv.offsetWidth + me.tableDiv.offsetLeft) {
+              me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
+              parent.onscroll =  function() {
+                me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
+                if (me.tableDiv.style.visibility != "hidden") {
+                  me.scrollbarObj.draw();
+                }
+              }
+            }
+          }
+        }
+      }
+
       me.scrollbarObj.y = parseInt(me.tableDiv.style.top) + bwidth;
+      
       if (stype == "paging") {
         me.scrollbarObj.height = me.getStyleAsInt("height") - bwidth;
         if (me.scrollbarObj.height < 0) me.scrollbarObj.height = 0;
@@ -2975,6 +2999,7 @@ pui.Grid = function() {
       case "onrowmouseout":
       case "onpagedown":
       case "onpageup":
+      case "onscroll":
         me.events[property] = value;
         break;
       
@@ -4740,7 +4765,17 @@ pui.Grid = function() {
       }
     }
   }
-  
+
+  this["scrollToRow"] = function(row) {
+    if (me.slidingScrollBar) {
+      me.scrollbarObj.setScrollTopToRow(row);
+    }
+    else {
+      me.recNum = row;
+      me.getData();      
+    }
+  }
+
   this["setNumberOfRows"] = function(numRows) {
     me.setProperty("number of rows", String(numRows)); 
     me.sizeAllCells();
@@ -4956,8 +4991,9 @@ pui.Grid = function() {
       { name: "onrowdblclick", type: "js", help: "Initiates a client-side script when a row within the grid is double-clicked.  The script can determine the row number using the <b>row</b> variable.", bind: false },
       { name: "onrowmouseover", type: "js", help: "Initiates a client-side script when the mouse is moved over a row within the grid.  The script can determine the row number using the <b>row</b> variable.", bind: false },
       { name: "onrowmouseout", type: "js", help: "Initiates a client-side script when the mouse is moved off of a row within the grid.  The script can determine the row number using the <b>row</b> variable.", bind: false },
-      { name: "onpagedown", type: "js", help: "Initiates a client-side script when the user pages down using the grid's scrollbar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
-      { name: "onpageup", type: "js", help: "Initiates a client-side script when the user pages up using the grid's scrollbar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false }
+      { name: "onpagedown", type: "js", help: "Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
+      { name: "onpageup", type: "js", help: "Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
+      { name: "onscroll", type: "js", help: "Initiates a client-side script when the user scrolls using the grid's scrollbar.  The <b>row</b> variable in the script provides the top row of the grid.", bind: false }
     ];
     
     return model;
