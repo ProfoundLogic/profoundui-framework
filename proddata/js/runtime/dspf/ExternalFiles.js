@@ -48,11 +48,12 @@ pui.ExternalFiles = function() {
     head.appendChild(css);
   }
 
-  this.addJSFile = function(path, callback) {
+  this.addJSFile = function(path, callback, checkIfLoadedOnly) {
     if (typeof path != "string") return false;
     path = trim(path);
     if (path == "") return false;
     if (jsScripts[path] != null) return false;  // already there
+    if (checkIfLoadedOnly == true) return true;
 
     var done = false;
     var script = document.createElement("script");
@@ -121,38 +122,50 @@ pui.ExternalFiles = function() {
     // load javascript files (there is never any unloading of javascript files and they are never loaded in design mode)
     var jsLoadCount = 0;
     if (isDesignMode != true) {
+      // first pass (get jsLoadCount)
       idx = 1;
       path = pui.evalBoundProperty(props["external javascript"], parms.data, parms.ref);
       while (path != null) {
-        var alreadyLoaded = me.addJSFile(path, function() {
-          jsLoadCount -= 1;
-          if (jsLoadCount != 0) return;
-
-          // execute global onload event
-          if (pui["onload"] != null && typeof pui["onload"] == "function") {
-            pui["onload"](parms);
-          }
-        
-          // execute format's onload event
-        	var onloadProp = props["onload"];
-        	if (onloadProp != null && onloadProp != "") {
-        	  try {
-        	    eval('var format = "' + props["record format name"] + '";');
-        	    eval('var file = "' + parms.file + '";');
-        	    eval(onloadProp);
-        	  }
-        	  catch(err) {
-        	    pui.alert("Onload Error:\n" + err.message);
-        	  }
-        	}
-
-        });
-        if (alreadyLoaded) {
+        var notYetLoaded = me.addJSFile(path, function() {}, true);  // check if alrady loaded, does not actually load the file
+        if (notYetLoaded) {
           parms.runOnload = false;  // don't run onload from render.js ... it will run here as a callback instead once all scripts are loaded
           jsLoadCount++;
         }
         idx++;
         path = pui.evalBoundProperty(props["external javascript " + idx], parms.data, parms.ref);
+      }
+
+      // second pass (load files and run onload event when last file is loaded)
+      if (jsLoadCount > 0) {
+        idx = 1;
+        path = pui.evalBoundProperty(props["external javascript"], parms.data, parms.ref);
+        while (path != null) {
+          me.addJSFile(path, function() {
+            jsLoadCount -= 1;
+            if (jsLoadCount != 0) return;
+  
+            // execute global onload event
+            if (pui["onload"] != null && typeof pui["onload"] == "function") {
+              pui["onload"](parms);
+            }
+          
+            // execute format's onload event
+          	var onloadProp = props["onload"];
+          	if (onloadProp != null && onloadProp != "") {
+          	  try {
+          	    eval('var format = "' + props["record format name"] + '";');
+          	    eval('var file = "' + parms.file + '";');
+          	    eval(onloadProp);
+          	  }
+          	  catch(err) {
+          	    pui.alert("Onload Error:\n" + err.message);
+          	  }
+          	}
+  
+          });
+          idx++;
+          path = pui.evalBoundProperty(props["external javascript " + idx], parms.data, parms.ref);
+        }
       }
     }
   }
