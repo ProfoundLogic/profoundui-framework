@@ -39,21 +39,13 @@ pui.ValidationTip = function(el) {
   var closeButton;
   var me = this;
 
-  this.container = pui.runtimeContainer;
-  if (widgetEl.parentNode && widgetEl.parentNode.isPUIWindow == true) {
+  this.container = pui.getParentWindow(widgetEl);
+  if (this.container == null) {
   
-    this.container = widgetEl.parentNode;
-    
+    this.container = pui.runtimeContainer;
+  
   }
-  else if (widgetEl.parentNode && widgetEl.parentNode.parentNode) {
-  
-    var gridDiv = widgetEl.parentNode.parentNode;
-    if (gridDiv.grid != null && gridDiv.parentNode && gridDiv.parentNode.isPUIWindow == true) {
-      this.container = gridDiv.parentNode;
-    }
-    
-  }
-  
+
   if (inputEl.comboBoxWidget != null) {
   
     inputEl = inputEl.comboBoxWidget.getBox();
