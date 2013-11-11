@@ -51,6 +51,7 @@ pui.Grid = function() {
   this.vLines = [];
   this.hLines = [];
   this.tableDiv = null;
+  this.mainClass = "";
   this.cells = [];
   this.container = null;
   this.borderColor = "";
@@ -4494,6 +4495,11 @@ pui.Grid = function() {
     var n = me.vLines.length;
     var vLine = document.createElement("div");
     vLine.className = "grid-vline";
+    if (me.mainClass != "") {
+    
+      vLine.className += " " + me.mainClass + "-vline";
+    
+    }    
     if (!me.designMode) {
       vLine.relatedGrid = me;
     }
@@ -4679,6 +4685,11 @@ pui.Grid = function() {
     var n = me.hLines.length;
     var hLine = document.createElement("div");
     hLine.className = "grid-hline";
+    if (me.mainClass != "") {
+    
+      hLine.className += " " + me.mainClass + "-hline";
+    
+    }
     if (!me.designMode) {
       hLine.relatedGrid = me;
     }

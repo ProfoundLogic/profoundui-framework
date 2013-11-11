@@ -50,7 +50,7 @@ pui.widgets.add({
       }
       
       if (parms.properties["css class"] != null && parms.properties["css class"] != "") {
-        parms.dom.className = parms.properties["css class"];
+        parms.dom.className = parms.dom.grid.mainClass = parms.properties["css class"];
         parms.dom.grid.cellProps = {};
         parms.dom.grid.cellPropDefaults = {};
       }
