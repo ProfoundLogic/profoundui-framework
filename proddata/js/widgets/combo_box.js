@@ -555,6 +555,17 @@ pui.widgets.add({
         parms.dom.comboBoxWidget.setStyleProperty(parms.propertyName, parms.value)
         break;
     }
+  },
+  
+  afterSetters: {
+  
+    "tab index": function(parms) {
+    
+      parms.dom.removeAttribute("tabindex");
+      parms.dom.comboBoxWidget.getBox().setAttribute("tabindex", parms.value);
+    
+    }
+  
   }
   
 });
