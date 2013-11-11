@@ -272,3 +272,23 @@ pui.assignShortcutKey = function(shortcutKey, dom) {
   }
 }
 
+pui.getParentWindow = function(el) {
+
+  var win;
+  var prt = el.parentNode;
+  while (prt != null && prt != pui.runtimeContainer) {
+  
+    if (prt.isPUIWindow == true) {
+    
+      win = prt;
+      break;
+    
+    }
+    
+    prt = prt.parentNode;
+  
+  }
+
+  return win;
+
+}
