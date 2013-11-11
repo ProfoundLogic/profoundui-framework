@@ -4436,10 +4436,10 @@ pui.Grid = function() {
     borderWidth = parseInt(borderWidth);
     if (borderWidth < minBWidth && me.designMode) borderWidth = minBWidth;
     for (var i = 0; i < me.vLines.length; i++) {
-      me.vLines[i].style.borderRightWidth = borderWidth;
+      me.vLines[i].style.borderRightWidth = borderWidth + "px";
     }
     for (var i = 0; i < me.hLines.length; i++) {
-      me.hLines[i].style.borderTopWidth = borderWidth;
+      me.hLines[i].style.borderTopWidth = borderWidth + "px";
     }
     me.borderWidth = borderWidth;
     setLineWidths();
