@@ -119,6 +119,7 @@ pui.widgets.add({
       setPropIfThere("header text align");
       setPropIfThere("row height");
       setPropIfThere("border color");
+      setPropIfThere("border width");
       if (parms.design) setTimeout(function() { setPropIfThere("expand to layout") }, 0);
     }
     parms.dom.grid.setProperty(parms.propertyName, parms.value);
