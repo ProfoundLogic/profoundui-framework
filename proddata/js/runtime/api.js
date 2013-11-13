@@ -192,7 +192,20 @@ function changeElementValue(id, val) {
     }
   }
   if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
-    elem.value = val;
+    if (elem.tagName == "INPUT" && elem.type == "checkbox") {
+      if (typeof val == "boolean") {
+        elem.checked = val;
+      }
+      else if (elem.checkedValue != null && val == elem.checkedValue) {
+        elem.checked = true;
+      }
+      else {
+        elem.checked = false;
+      }
+    }
+    else {
+      elem.value = val;
+    }
   }
   if (context == "dspf") {
     elem.modified = true;
