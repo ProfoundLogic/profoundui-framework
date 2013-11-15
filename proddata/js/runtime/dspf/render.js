@@ -3060,7 +3060,7 @@ pui.submitResponse = function(response) {
       "handler": function(parms) {
         pui.hideWaitAnimation();
         if (parms == null) {
-          document.body.style.backgroundColor = "#DFE8F6";
+          //document.body.style.backgroundColor = "#DFE8F6";
           document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
           var returnVal = shutDown();
           if (returnVal == false) return;
@@ -3733,7 +3733,7 @@ pui.runMVC = function(response) {
     "handler": function(parms) {
       pui.hideWaitAnimation();
       if (parms == null) {
-        document.body.style.backgroundColor = "#DFE8F6";
+        //document.body.style.backgroundColor = "#DFE8F6";
         document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
         return;
       }        
@@ -3859,7 +3859,7 @@ pui.closeSession = function() {
     return;
   }
 
-  document.body.style.backgroundColor = "#DFE8F6";
+  //document.body.style.backgroundColor = "#DFE8F6";
   document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
