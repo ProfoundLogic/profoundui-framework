@@ -256,12 +256,14 @@ pui.MenuWidget = function() {
           }      
         }
         td.onclick = function() {
-          if (td.level > 0) me.removeAllSubMenus();
+          if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
           if (me.container["onoptionclick"] != null) {
-            if (inDesignMode()) return;            
+            if (inDesignMode()) return;
+            if (td.subMenuFrom != null) return;
             me.container["onoptionclick"](td.choiceValue, getInnerText(td));            
           }
-          if (context == "dspf") {
+          else if (context == "dspf") {
+            if (td.subMenuFrom != null) return;
             var dom = me.container;
             if (dom.responseValue == null) return;
             if (dom.disabled == true) return;
