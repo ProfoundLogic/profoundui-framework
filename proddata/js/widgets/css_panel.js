@@ -43,7 +43,7 @@ pui.CSSPanelSection = function() {
     mainSpan = document.createElement("span");
     innerSpan = document.createElement("span");
     if (me.type == "header") textSpan = document.createElement("span");
-    mainSpan.className = "ui-btn ui-shadow ui-btn-corner-all ui-btn-up-" + swatch;
+    mainSpan.className = "ui-btn ui-shadow ui-btn-corner-all ui-btn-up-" + swatch + " no-shadow";
     mainSpan.style.marginTop = "0";
     mainSpan.style.marginBottom = "0";
     mainSpan.style.cursor = "default";
