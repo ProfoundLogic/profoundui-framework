@@ -37,8 +37,6 @@ pui.ComboBoxWidget = function() {
   var box;
   var arrow;
   var choicesDiv;
-  var cellDiv;
-  var gridDiv;
   var fixedHeight = 110;
 
   this.init = function() {
@@ -104,13 +102,12 @@ pui.ComboBoxWidget = function() {
 
     if (choicesDiv == null) {
       choicesDiv = document.createElement("div");
-      var parent = me.div.parentNode;
-      if (!me.design && parent.parentNode.grid != null) {
-        cellDiv = parent;
-        gridDiv = cellDiv.parentNode;
-        parent = gridDiv.parentNode;
+      if (me.design) {
+        toolbar.designer.container.appendChild(choicesDiv);
       }
-      parent.appendChild(choicesDiv);      
+      else {
+        pui.runtimeContainer.appendChild(choicesDiv);
+      }
       addEvent(document, "click", hideChoices);
     }
     choicesDiv.style.display = "none";
@@ -191,24 +188,45 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.display = "none";
   }
 
-  function showChoices() {
+  function setChoicesPos() {
+  
+    var top = parseInt(me.div.style.top, 10);
+    var left = parseInt(me.div.style.left, 10);
     
-    // In designer, the combo can start its life outside of a grid, then 
-    // be moved inside...
- 
-    // You could also remove from one grid and into another...
+    var prt = me.div.parentNode;
+    if (prt.parentNode.grid) {
     
-    if (me.design) {
+      // Add cell offset. 
+      top += parseInt(prt.style.top, 10);
+      left += parseInt(prt.style.left, 10);
+    
+      // Add grid offset.
+      prt = prt.parentNode;
+      top += parseInt(prt.style.top, 10);
+      left += parseInt(prt.style.left, 10);
       
-      var prt = me.div.parentNode;
-      if (prt.parentNode.grid) {
-        
-        cellDiv = prt;
-        gridDiv = prt.parentNode;
-        
-      }
-      
+      prt = prt.parentNode;
+    
     }
+    
+    // Add any container offset.
+    if (prt.getAttribute("container") == "true") {
+    
+      var offset = pui.layout.getContainerOffset(prt);
+      top += offset.y;
+      left += offset.x;
+    
+    }
+    
+    // Shift down by height of widget div. 
+    top += parseInt(me.div.style.height, 10) + 1;
+    
+    choicesDiv.style.top = top + "px";
+    choicesDiv.style.left = left + "px";
+  
+  }
+
+  function showChoices() {
     
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
@@ -218,12 +236,8 @@ pui.ComboBoxWidget = function() {
     else {
       choicesDiv.style.height = "";
     }
-    choicesDiv.style.left = me.div.style.left;
-    var top = parseInt(me.div.style.top) + parseInt(me.div.style.height) + 1;
-    if (gridDiv != null && cellDiv != null) {
-      choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
-      top = top + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
-    }
+    
+    setChoicesPos();
     var minWidth = parseInt(me.div.style.width);
     if (is_ie && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;
@@ -288,6 +302,7 @@ pui.ComboBoxWidget = function() {
       }
       choicesDiv.appendChild(optDiv);
     }
+    var top = parseInt(choicesDiv.style.top, 10);
     var scrollTop = pui.getWindowScrollTop();
     if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
       var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
