@@ -39,6 +39,7 @@ pui.ComboBoxWidget = function() {
   var choicesDiv;
   var cellDiv;
   var gridDiv;
+  var fixedHeight = 110;
 
   this.init = function() {
     if (me.div == null) {
@@ -116,7 +117,7 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.position = "absolute";
     choicesDiv.style.overflowX = "hidden";
     choicesDiv.style.overflowY = "auto";
-    choicesDiv.style.height = "110px";
+    choicesDiv.style.height = fixedHeight + "px";
     choicesDiv.style.backgroundColor = "#EAF2FB";
     choicesDiv.style.border = "1px solid #A4BED4";
     choicesDiv.style.zIndex = 130;    
@@ -211,18 +212,18 @@ pui.ComboBoxWidget = function() {
     
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
+    if (me["choices"].length > 5) {
+      choicesDiv.style.height = fixedHeight + "px";
+    }
+    else {
+      choicesDiv.style.height = "";
+    }
     choicesDiv.style.left = me.div.style.left;
     var top = parseInt(me.div.style.top) + parseInt(me.div.style.height) + 1;
     if (gridDiv != null && cellDiv != null) {
       choicesDiv.style.left = (parseInt(choicesDiv.style.left) + parseInt(gridDiv.style.left) + parseInt(cellDiv.style.left)) + "px";
       top = top + parseInt(gridDiv.style.top) + parseInt(cellDiv.style.top);
     }
-    var scrollTop = pui.getWindowScrollTop();
-    if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
-      var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
-      if (newTop - scrollTop >= 0) top = newTop;
-    }
-    choicesDiv.style.top = top + "px";
     var minWidth = parseInt(me.div.style.width);
     if (is_ie && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;
@@ -286,7 +287,14 @@ pui.ComboBoxWidget = function() {
         preventEvent(e);
       }
       choicesDiv.appendChild(optDiv);
-    }    
+    }
+    var scrollTop = pui.getWindowScrollTop();
+    if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
+      var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
+      if (newTop - scrollTop >= 0) top = newTop;
+    }
+    choicesDiv.style.top = top + "px";    
+        
   }
 
 
