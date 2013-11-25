@@ -230,7 +230,7 @@ pui.ComboBoxWidget = function() {
     
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
-    if (me["choices"].length > 5) {
+    if (me["choices"].length > 5 || me["choices"].length == 0) {
       choicesDiv.style.height = fixedHeight + "px";
     }
     else {
