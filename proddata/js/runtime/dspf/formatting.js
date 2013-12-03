@@ -411,7 +411,7 @@ pui.FieldFormat = {
       var strInt;      
       //scrap everything from decimal point on
       strInt = strValue.replace(/\..*/, '');
-      if (strInt == "" && pui.appJob["decimalFormat"] == "J") {
+      if ((strInt == "" || strInt == "-") && pui.appJob["decimalFormat"] == "J") {
         strInt = "0";
       }
       
