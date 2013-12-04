@@ -3507,8 +3507,15 @@ pui["run"] = function(config) {
   container.setAttribute("tabindex", "0");
   pui.runtimeContainer = container;
   pui.showWaitAnimation();
-  var url = getProgramURL("PUI0001200.pgm");
-  if (config["jsonURL"] != null) url = config["jsonURL"];
+  var method = "post";
+  var url = getProgramURL("PUI0001200.pgm");  
+  if (config["jsonURL"] != null) {
+  
+    // Use GET here to avoid 412 - Precondition Failed in Chrome and IOS7 Safari.
+    url = config["jsonURL"] + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
+    method = "get";  
+    
+  }
   var ajaxParams = {
     "program": program.toUpperCase(),
     "library": library.toUpperCase(),
@@ -3583,7 +3590,7 @@ pui["run"] = function(config) {
 
     ajaxJSON({
       "url": url,
-      "method": "post",
+      "method": method,
       "sendAsBinary": false,
       "params": ajaxParams,
       "saveResponse": true,
