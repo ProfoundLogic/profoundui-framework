@@ -766,7 +766,9 @@ pui.Grid = function() {
     if (elems != null && elems.length == 1) {
       var elem = elems[0];
       if (elem != null) {
-        return getElementValue(elem);
+        // This is not always a dom element, such as with 'selection field', etc.
+        if (!elem.tagName) return elem.value;
+        else return getElementValue(elem);
       }      
     }
 
