@@ -102,7 +102,7 @@ pui.ComboBoxWidget = function() {
 
     if (choicesDiv == null) {
       choicesDiv = document.createElement("div");
-      if (me.design) {
+      if (context == "dspf" && inDesignMode()) {
         toolbar.designer.container.appendChild(choicesDiv);
       }
       else {
@@ -190,20 +190,20 @@ pui.ComboBoxWidget = function() {
 
   function setChoicesPos() {
   
-    var top = parseInt(me.div.style.top, 10);
-    var left = parseInt(me.div.style.left, 10);
+    var top = me.div.offsetTop;
+    var left = me.div.offsetLeft;
     
     var prt = me.div.parentNode;
     if (prt.parentNode.grid) {
     
       // Add cell offset. 
-      top += parseInt(prt.style.top, 10);
-      left += parseInt(prt.style.left, 10);
+      top += prt.offsetTop;
+      left += prt.offsetLeft;
     
       // Add grid offset.
       prt = prt.parentNode;
-      top += parseInt(prt.style.top, 10);
-      left += parseInt(prt.style.left, 10);
+      top += prt.offsetTop;
+      left += prt.offsetLeft;
       
       prt = prt.parentNode;
     
@@ -219,7 +219,7 @@ pui.ComboBoxWidget = function() {
     }
     
     // Shift down by height of widget div. 
-    top += parseInt(me.div.style.height, 10) + 1;
+    top += me.div.offsetHeight;
     
     choicesDiv.style.top = top + "px";
     choicesDiv.style.left = left + "px";
