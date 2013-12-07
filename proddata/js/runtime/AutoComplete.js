@@ -84,15 +84,16 @@ function AutoComplete(config) {
 	url = config.url;
 	valueField = config.valueField;
 	
-	// Container can be either an id or dom object. Defaults to document.body
-	if (typeof(config.container) == "string") container = document.getElementById(config.container);
-	else if (typeof(config.container) == "object") container = config.container;
-	else container = document.body;
-	
 	// Text box can be either id or dom object.
 	if (typeof(config.textBox) == "object") textBox = config.textBox;
 	else textBox = document.getElementById(config.textBox);
 	textBox.setAttribute("autocomplete", "off");
+	if (config.container) {
+	  container = config.container;
+	}
+	else {
+	  container = textBox.parentNode;
+	}
 	// Set maxLength to a large number.
 	// Removing the attribute using removeAttribute() causes -1
 	// to be assigned in FF, causing problems.
@@ -198,23 +199,6 @@ function AutoComplete(config) {
 		
 	// Create result pane, shim, and shadowing divs. These will be sized/positioned when data is shown or when the window is resized.
 	
-	// Render to textbox parent node, or grid parent node if inside a grid.
-	var renderTo = textBox.parentNode;
-	var cellDiv = textBox.parentNode;
-	var gridDiv = null;
-	if (cellDiv != null) gridDiv = cellDiv.parentNode;
-	if (gridDiv != null && gridDiv.grid != null) {
-  
-    if (gridDiv.parentNode != null) {
-    
-      renderTo = gridDiv.parentNode;
-    
-    }
-  
-	}	
-	
-	
-	
 	resultPane = document.createElement("div");
 	resultPane.style.display = "none";
 	resultPane.style.margin = "0px";
@@ -224,7 +208,7 @@ function AutoComplete(config) {
 	resultPane.style.border =  "1px solid #98C0F4";
 	if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
 	else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
-	renderTo.appendChild(resultPane);
+	container.appendChild(resultPane);
 	
 	if (shadow) {
 
@@ -272,7 +256,7 @@ function AutoComplete(config) {
 		rightCorner.style.position = "absolute";
 		rightCorner.style.background = "transparent url(" + imageBaseURL + "shadow.png) no-repeat scroll 0px -6px";
 		shadowDiv.appendChild(rightCorner);				
-		renderTo.appendChild(shadowDiv);
+		container.appendChild(shadowDiv);
 	}
 	
 	if (useShim) {
@@ -282,7 +266,7 @@ function AutoComplete(config) {
 		shim.style.position = "absolute";
 		shim.style.margin = "0px";
 		shim.style.zIndex = zIndex - 2;
-		renderTo.appendChild(shim);
+		container.appendChild(shim);
 	}
 
 	// Attach events.
@@ -635,19 +619,41 @@ function AutoComplete(config) {
 	
 	function position() {
 	
-		top = textBox.offsetTop;
-		left = textBox.offsetLeft;
-		top += textBox.offsetHeight;
+    top = textBox.offsetTop;
+    left = textBox.offsetLeft;
+    
+    var prt = textBox.parentNode;
+    if (prt.parentNode.grid) {
+    
+      // Add cell offset. 
+      top += prt.offsetTop;
+      left += prt.offsetLeft;
+    
+      // Add grid offset.
+      prt = prt.parentNode;
+      top += prt.offsetTop;
+      left += prt.offsetLeft;
+      
+      prt = prt.parentNode;
+    
+    }
+    
+    // Add any container offset.
+    if (prt.getAttribute("container") == "true") {
+    
+      var offset = pui.layout.getContainerOffset(prt);
+      top += offset.y;
+      left += offset.x;
+    
+    }
+    
+    // Shift down by height of textbox. 
+    top += textBox.offsetHeight;
+    
+    // Apply any configured adjustments.
 		top += topAdjust;
 		left += leftAdjust;
-		var cellDiv = textBox.parentNode;
-		var gridDiv = null;
-		if (cellDiv != null) gridDiv = cellDiv.parentNode;
-		if (gridDiv != null && gridDiv.grid != null) {
-		  top += cellDiv.offsetTop + gridDiv.offsetTop;
-		  left += cellDiv.offsetLeft + gridDiv.offsetLeft;
-		}
-
+	
     var scrollTop = pui.getWindowScrollTop();
     if (top - scrollTop + resultPane.offsetHeight > pui["getWindowSize"]()["height"]) {
       var newTop = top - resultPane.offsetHeight - textBox.offsetHeight - 3;
@@ -911,25 +917,23 @@ function applyAutoComp(properties, originalValue, domObj) {
         	if (where != "") sql += " AND (" + where + ")"; 
         	sql += " ORDER BY " + fields[0];  	
     	}
-    	var container = document.getElementById(appContainerId);
-    	if (context == "dspf") {
-    	  container = pui.runtimeContainer;
-    	  if (domObj.parentNode.isPUIWindow == true) {
-    	    container = domObj.parentNode;
-    	  }
-    	  else {
-    	    var gridDiv = domObj.parentNode.parentNode;
-    	    if (gridDiv != null && gridDiv.grid != null && gridDiv.parentNode.isPUIWindow == true) {
-    	      container = gridDiv.parentNode;
-    	    }
-    	  }
-    	}
-
 
         if (domObj.autoComp != null && domObj.autoComp.destroy != null) {
           domObj.autoComp.destroy();
           domObj.autoComp = null; 
         }
+
+      	var container;
+      	if (context == "dspf" && inDesignMode()) {
+      	
+      	  container = toolbar.designer.container;
+      	
+      	}
+      	else {
+      	
+      	  container = pui.runtimeContainer;
+      	
+      	}
 
         var autoComp = new AutoComplete({
         	textBox: domObj,
