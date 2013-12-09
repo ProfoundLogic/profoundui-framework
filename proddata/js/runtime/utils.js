@@ -833,6 +833,9 @@ pui.attachOnUserActivity = function() {
   }
   addEvent(document.body, "keydown", onUserActivity);
   addEvent(document.body, "mousemove",onUserActivity);
+  addEvent(document.body, "click",onUserActivity);
+  addEvent(document.body, "touchstart",onUserActivity);
+  addEvent(document.body, "touchmove",onUserActivity);
   pui.onUserActivityAttached = true;
 }
 

@@ -31,10 +31,14 @@ window["pui"]["Timer"] = function() {
       if (document.body.addEventListener) {
         document.body.addEventListener("keydown", me["reset"], false);
         document.body.addEventListener("mousemove", me["reset"], false);    
+        document.body.addEventListener("click", me["reset"], false);    
+        document.body.addEventListener("touchstart", me["reset"], false);    
+        document.body.addEventListener("touchmove", me["reset"], false);    
       }
       else if (document.body.attachEvent) {
         document.body.attachEvent("onkeydown", me["reset"]);
         document.body.attachEvent("onmousemove", me["reset"]);
+        document.body.attachEvent("onclick", me["reset"]);
       }
     }
   
