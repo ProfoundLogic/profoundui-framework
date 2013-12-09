@@ -956,7 +956,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         		  else {
         		    query += "%";
         		  }
-        		  baseParams["q"] = encodeURIComponent(pui.getSQLVarName(domObj));
+        		  baseParams["q"] = pui.getSQLVarName(domObj);
         		  baseParams["p1"] = query;
         		  pui.getSQLParams(properties, baseParams);
         		  
