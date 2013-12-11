@@ -189,7 +189,9 @@ function show_calendar(dateField, str_datetime, format) {
 	calobj.style.left = left + "px";
 	calobj.style.top = top + "px";
 
-	calobj.style.visibility = "visible";
+  // Using setTimeout() to prevent the 'click' event from "bleeding through" to the 
+  //  popup calendar when using pui.showCalendar() on Android.
+	setTimeout( function() { calobj.style.visibility = "visible"; }, 0 );
 }
 
 function allZeros(strd) {
@@ -455,6 +457,7 @@ function cal(dateField, format) {
     popcalDiv.style.position = "absolute";
     popcalDiv.style.width = "180px";
     popcalDiv.style.zIndex = 100;
+    popcalDiv.style.visibility = "hidden";
     popcalDiv.id = "popcal";
     document.body.appendChild(popcalDiv);
   }

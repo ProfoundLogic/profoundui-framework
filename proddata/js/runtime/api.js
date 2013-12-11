@@ -1160,7 +1160,12 @@ pui["showCalendar"] = function(id) {
   if (typeof obj != "object") return;
   var calimg = obj.calimg;
   if (calimg == null) return;
-  if (calimg.click != null && typeof calimg.click == "function") calimg.click();
+  if (calimg.click != null && typeof calimg.click == "function") {
+    calimg.click();
+  }
+  else if (calimg.onclick != null && typeof calimg.onclick == "function") {
+    setTimeout(function() { calimg.onclick(); }, 250 );
+  }
 }
 
 
