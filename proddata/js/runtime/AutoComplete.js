@@ -926,7 +926,25 @@ function applyAutoComp(properties, originalValue, domObj) {
       	}
       	else {
       	
-      	  container = pui.runtimeContainer;
+      	  var prt = domObj.parentNode;
+      	  while (prt) {
+      	  
+      	    if (prt.isPUIWindow) {
+      	    
+      	      container = prt;
+      	      break;
+      	    
+      	    }
+      	    
+      	    prt = prt.parentNode;
+      	  
+      	  }
+      	
+      	  if (container == null) {
+      	  
+      	    container = pui.runtimeContainer;
+      	    
+      	  }
       	
       	}
 

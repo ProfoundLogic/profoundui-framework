@@ -98,7 +98,22 @@ pui.ComboBoxWidget = function() {
       if (choicesDiv.style.display == "none" && !box.disabled) showChoices();
       else hideChoices();      
       preventEvent(e);
-    }    
+    }       
+ 
+    var win;
+    var prt = me.div.parentNode;
+    while (prt) {
+    
+      if (prt.isPUIWindow) {
+      
+        win = prt;
+        break;
+      
+      }
+    
+      prt = prt.parentNode;
+    
+    }
 
     if (choicesDiv == null) {
       choicesDiv = document.createElement("div");
@@ -106,7 +121,12 @@ pui.ComboBoxWidget = function() {
         toolbar.designer.container.appendChild(choicesDiv);
       }
       else {
-        pui.runtimeContainer.appendChild(choicesDiv);
+        if (win) {
+          win.appendChild(choicesDiv);
+        }
+        else {
+          pui.runtimeContainer.appendChild(choicesDiv);
+        }
       }
       addEvent(document, "click", hideChoices);
     }
