@@ -128,7 +128,7 @@ pui.ValidationTip = function(el) {
     }
 
     var prt = widgetEl.parentNode;
-    if (prt == null || (is_ie && prt.nodeName == "#document-fragment")) {
+    if (prt == null || (pui["is_old_ie"] && prt.nodeName == "#document-fragment")) {
     
       // This is the case when grid widget scrolled out of view.
       // Show at top left.
@@ -462,7 +462,7 @@ pui.ValidationTip = function(el) {
       div.style.visibility = "hidden";
       opacity = 0;
       
-      if (is_ie) {
+      if (pui["is_old_ie"]) {
         var prt = widgetEl.parentNode;
         // In IE the blur event fires first, and we cannot cancel it.. so we must put the cursor back in the box
         if (inputEl != null && prt != null && prt.nodeName != "#document-fragment") {

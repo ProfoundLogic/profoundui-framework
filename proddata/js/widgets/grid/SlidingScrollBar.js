@@ -107,7 +107,7 @@ pui.SlidingScrollBar = function() {
       touchHandle.style.top = "0px";
       //touchHandle.style.backgroundColor = "#BBBBDD";
       touchHandle.style.backgroundColor = "#999999";
-      if (!is_android) {  // border radius on a moving element seems to render really slow on android for some reason
+      if (!pui["is_android"]) {  // border radius on a moving element seems to render really slow on android for some reason
         touchHandle.style.borderRadius = "2px";
       }
       outerDiv.style.visibility = "hidden";
@@ -446,7 +446,7 @@ pui.SlidingScrollBar = function() {
   }
 
   this.draw = function() {
-    if (is_ie) {
+    if (pui["is_old_ie"]) {
       multiplier = 25;
       if (me.totalRows > 1000) multiplier = 50;      
     }
@@ -495,7 +495,7 @@ pui.SlidingScrollBar = function() {
       // Firefox div height limitation is 9,999,990 pixels
       // IE div height limitation of 1,342,177 pixels
       var limit = 9999990;
-      if (is_ie) limit = 1342177;
+      if (pui["is_old_ie"]) limit = 1342177;
       while (innerHeight > limit && multiplier > 1) {
         multiplier -= 1;
         innerHeight = (me.totalRows - me.rowsPerPage) * multiplier + height;

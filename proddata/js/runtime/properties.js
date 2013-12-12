@@ -602,7 +602,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           tag = "input";
           inpType = domObj.type;
         }
-        if (isDesignMode && is_ie6 && 
+        if (isDesignMode && pui["is_old_ie"] && pui["ie_mode"] == 6 && 
             (String(designItem.properties["select box height"]) == "" || 
              String(designItem.properties["select box height"]) == "1" || 
              String(designItem.properties["select box height"]) == "undefined")) {
@@ -627,7 +627,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (mismatch) {
       rebuildCSSAttr = true;   
       newDomObj = document.createElement(tag);
-      if (tag == "input" || (!is_ie && tag == "button")) newDomObj.type = inpType;
+      if (tag == "input" || (!pui["is_old_ie"] && tag == "button")) newDomObj.type = inpType;
       if (domObj.parentNode != null) domObj.parentNode.replaceChild(newDomObj, domObj);
       newDomObj.style.left = domObj.style.left;
       newDomObj.style.top = domObj.style.top;
@@ -851,7 +851,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     var selection = designer.selection;
     
     if (designItem.dom.id != newValue && document.getElementById(newValue) != null) {
-      if (!(is_ie && designItem.dom.id.toUpperCase() == newValue.toUpperCase())) {  // IE has a bug -- getElementById is case insensitive
+      if (!(pui["is_old_ie"] && designItem.dom.id.toUpperCase() == newValue.toUpperCase())) {  // IE has a bug -- getElementById is case insensitive
         pui.alert('The ID "' + newValue + '" is already in use.')
         designer.propWindow.refresh();
         return dom;

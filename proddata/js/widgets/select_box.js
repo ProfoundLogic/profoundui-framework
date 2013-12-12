@@ -286,7 +286,7 @@ pui.widgets.add({
     
     "select box height": function(parms) {
       // Process change in select box height for IE6 -- list boxes show normally, but dropdowns show as textboxes in design mode  
-      if (parms.design && is_ie6) {
+      if (parms.design && pui["is_old_ie"] && pui["ie_mode"] == 6) {
         var nmodel = getPropertiesNamedModel();
         applyPropertyToField(nmodel["field type"], parms.properties, parms.dom, "select box", parms.design, parms.designItem, parms.resizer);
       }

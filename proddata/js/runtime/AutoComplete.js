@@ -28,11 +28,6 @@
 function AutoComplete(config) {
 
 	/* PRIVATE MEMBERS */
-	var agt = navigator.userAgent.toLowerCase();
-	var is_major = parseInt(navigator.appVersion);
-	var is_ie = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
-	var is_ie6    = (is_ie && (is_major == 4) && (agt.indexOf("msie 6.")!=-1) );
-	var quirksMode = (document.compatMode == "BackCompat");
 	var cancelQuery = false;
 	
 	// Internal fields.
@@ -181,7 +176,7 @@ function AutoComplete(config) {
 	else shadow = true;
 
 	// Use shim only in IE6.
-	if (is_ie6) useShim = true;
+	if (pui["is_old_ie"] && pui["ie_mode"] <= 6) useShim = true;
 	else useShim = false;
 	
 	// Assign events.
@@ -743,7 +738,7 @@ function AutoComplete(config) {
 		// Width is set to either used defined value or calculated width. 
 		// The text box and result pane borders are taken into consideration.
 		var calcWidth = textBox.offsetWidth;
-		if (!is_ie || !quirksMode) calcWidth -= 2;
+		if (!pui["is_old_ie"] || !pui["is_quirksmode"]) calcWidth -= 2;
 		if (width == null || width < calcWidth) width = calcWidth;
 		resultPane.style.width = width + "px";		
 		
@@ -1031,7 +1026,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         		document.body.removeChild(measureDiv);
 
         	},
-        	shadow: (is_ie6 == true) ? false : true
+        	shadow: (pui["is_old_ie"] && pui["ie_mode"] <= 6) ? false : true
         });
     	domObj.autoComp = autoComp;
     	

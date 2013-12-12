@@ -53,8 +53,8 @@ pui.ComboBoxWidget = function() {
     me.div.style.border = "1px solid #7f9db9";
     if (me.div.style.width == null) me.div.style.width = "80px";
     me.div.style.height = "20px";
-    if (quirksMode) {
-      if (is_ie) me.div.style.height = "22px";
+    if (pui["is_quirksmode"]) {
+      if (pui["is_old_ie"]) me.div.style.height = "22px";
       else me.div.style.height = "19px";
     }
     
@@ -239,7 +239,7 @@ pui.ComboBoxWidget = function() {
     
     setChoicesPos();
     var minWidth = parseInt(me.div.style.width);
-    if (is_ie && me["choices"].length > 5) minWidth = minWidth - 22;
+    if (pui["is_old_ie"] && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;
     var spacerDiv = document.createElement("div");
     spacerDiv.style.width = minWidth + "px";

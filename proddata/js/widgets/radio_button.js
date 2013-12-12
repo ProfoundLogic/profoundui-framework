@@ -32,8 +32,8 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      if (parms.design && !quirksMode) {
-        if (!is_ie) {
+      if (parms.design && !pui["is_quirksmode"]) {
+        if (!pui["is_old_ie"]) {
           parms.dom.style.margin = "2px";
         }
       }
@@ -49,7 +49,7 @@ pui.widgets.add({
           var groupValue = parms.evalProperty("radio button group");
           if (value != null && groupValue != null) {
             if ((value == groupValue) || (!isNaN(Number(value)) && !isNaN(Number(groupValue)) && Number(value) == Number(groupValue))) {
-              if (is_ie) parms.dom.name = "radio";  // temporary name -- fixes problem of checkboxes being checked off in IE8 standards mode when radio button's checked dom property is set to true
+              if (pui["is_old_ie"]) parms.dom.name = "radio";  // temporary name -- fixes problem of checkboxes being checked off in IE8 standards mode when radio button's checked dom property is set to true
               parms.dom.checked = true;
             }
           }        

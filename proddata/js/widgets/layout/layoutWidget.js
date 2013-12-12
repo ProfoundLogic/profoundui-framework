@@ -109,7 +109,7 @@ pui.widgets.add({
     var cls = dom.className;
     if (cls == null) cls = "";
     if (id.toLowerCase() == "scroller" || cls.toLowerCase() == "scroller") {
-      if (!is_ie) {  // the iScroll component can crash in IE
+      if (!pui["is_old_ie"]) {  // the iScroll component can crash in IE
         dom.layout.applyScrolling();
       }
     }

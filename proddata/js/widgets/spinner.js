@@ -64,7 +64,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   up.onclick = function() {
     me.spin(increment);
   }
-  if (is_ie) {
+  if (pui["is_old_ie"]) {
     // in IE, a double-click does not send two onclick events
     up.ondblclick = function() {
       me.spin(increment);
@@ -80,7 +80,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   down.onclick = function() {
     me.spin(-increment);
   }
-  if (is_ie) {
+  if (pui["is_old_ie"]) {
     // in IE, a double-click does not send two onclick events
     down.ondblclick = function() {
       me.spin(-increment);
@@ -96,7 +96,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     // in compatability view, regardless of the document mode.
     // The document mode value is set consistently based on document mode, although
     // it does not exist in IE7.
-    var ie7 = (is_ie7 && (typeof(document.documentMode == 7) == "undefined" || document.documentMode == 7));
+    var ie7 = (pui["is_old_ie"] && pui["ie_mode"] == 7 && (typeof(document.documentMode == 7) == "undefined" || document.documentMode == 7));
     if (ie7) {
       var width = dom.offsetWidth;
       width = width - 36;
@@ -128,7 +128,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (isNaN(top)) top = 0;
     up.style.left = left +  dom.offsetWidth - 15 + "px";
     top += parseInt((dom.offsetHeight - 18) / 2);
-    if (quirksMode) top -= 1;
+    if (pui["is_quirksmode"]) top -= 1;
     up.style.top = top + "px";
     up.style.zIndex = dom.style.zIndex;
     up.style.visibility = dom.style.visibility;

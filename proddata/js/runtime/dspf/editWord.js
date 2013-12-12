@@ -290,7 +290,7 @@ pui.applyEditMask = function(dom, event, pos) {
     dom.value = value;
     
     // position cursor
-    if (dom.createTextRange != null && !is_opera) { 
+    if (dom.createTextRange != null && !pui["is_opera"]) { 
       var tr = dom.createTextRange(); 
       if (tr) { 
         tr.moveStart("character", pos);

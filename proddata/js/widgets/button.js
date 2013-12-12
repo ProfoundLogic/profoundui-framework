@@ -26,7 +26,7 @@ pui.widgets.add({
   newValue: "Click Here",
   inlineEdit: true,
   defaults: {
-    "width": !quirksMode ? "100px" : null,
+    "width": !pui["is_quirksmode"] ? "100px" : null,
     "css class": "button"    
   },
   

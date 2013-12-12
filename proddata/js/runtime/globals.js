@@ -24,33 +24,6 @@ var autoCompQueries = 0;
 
 var yAdjust = -20;
 
-var agt = navigator.userAgent.toLowerCase();
-var is_major = parseInt(navigator.appVersion);
-var is_minor = parseFloat(navigator.appVersion);
-var is_ie     = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
-var is_ie3    = (is_ie && (is_major < 4));
-var is_ie4    = (is_ie && (is_major == 4) && (agt.indexOf("msie 4")!=-1) );
-var is_ie4up  = (is_ie && (is_major >= 4));
-var is_ie5    = (is_ie && (is_major == 4) && (agt.indexOf("msie 5.0")!=-1) );
-var is_ie5_5  = (is_ie && (is_major == 4) && (agt.indexOf("msie 5.5") !=-1));
-var is_ie5up  = (is_ie && !is_ie3 && !is_ie4);
-var is_ie5_5up =(is_ie && !is_ie3 && !is_ie4 && !is_ie5);
-var is_ie6    = (is_ie && (is_major == 4) && (agt.indexOf("msie 6.")!=-1) );
-var is_ie6up  = (is_ie && !is_ie3 && !is_ie4 && !is_ie5 && !is_ie5_5);
-var is_ie7    = (is_ie && (is_major == 4) && (agt.indexOf("msie 7.")!=-1) );
-var is_ie8    = (is_ie && (is_major == 4) && (agt.indexOf("msie 8.")!=-1) );
-var is_ie9    = (is_ie && (is_major == 5) && (agt.indexOf("msie 9.")!=-1) );
-var is_ie9up  = (is_ie && !is_ie3 && !is_ie4 && !is_ie5 && !is_ie5_5 && !is_ie6 && !is_ie7 && !is_ie8);
-var is_ie10   = (is_ie && (is_major == 5) && (agt.indexOf("msie 10.")!=-1) );
-var is_opera  = (agt.indexOf("opera") != -1);
-var is_safari = (agt.indexOf("safari") != -1);
-var is_firefox = (agt.indexOf("firefox") != -1);
-var is_android = (agt.indexOf("android") != -1);
-var is_chrome = (navigator.userAgent.toLowerCase().indexOf('chrome') != -1);
-var quirksMode = (document.compatMode == "BackCompat");
-
-if (is_ie7 || is_ie8 || is_ie9) is_ie6 = false;
-
 var checkboxObjects = [];
 var errors        = new Array();
 var designScreens = new Array();
@@ -61,6 +34,77 @@ if (context == "genie") window.history.forward(1);
 
 // setup pui name space
 window.pui = {};
+{
+
+  var agt = navigator.userAgent.toLowerCase();
+
+  pui["is_ie"] = false;
+  pui["is_opera"] = (agt.indexOf("opera") != -1 || agt.indexOf("opr/") != -1);
+  pui["is_chrome"] = (agt.indexOf("chrome") != -1);
+  pui["is_safari"] = (!pui["is_chrome"] && agt.indexOf("safari") != -1);
+  pui["is_firefox"] = (agt.indexOf("firefox") != -1);
+  pui["is_android"] = (agt.indexOf("android") != -1);
+  pui["is_quirksmode"] = (document.compatMode == "BackCompat");
+  
+  // Looking at Trident will give the actual version of IE that is used, 
+  // regardless of compatability view and document mode. Sometimes this is an 
+  // important distinction. 
+  
+  // IE >=8 includes Trident in the user agent string. IE8 is Trident/4.0. 
+  // The Trident version increments along with IE version from there. 
+  // The IE user agent string drops the MSIE token starting with IE11. 
+  
+  // See here for old IE user agent: 
+  
+  // http://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+  
+  // And notes on changes for IE11: 
+  
+  // http://msdn.microsoft.com/en-us/library/ie/bg182625(v=vs.85).aspx#uaString
+  
+  var regex;
+  var trident;
+  var msie;
+  var matches;
+  
+  regex = new RegExp("trident/([0-9]{1,}[\.0-9]{0,})");
+  matches = regex.exec(agt);
+  if (matches != null) {
+  
+    trident = parseFloat(matches[1]);
+  
+  }
+  
+  if (!pui["is_opera"]) { // Older Opera includes MSIE token.
+  
+    regex = new RegExp("msie ([0-9]{1,}[\.0-9]{0,})"); ;
+    matches = regex.exec(agt);
+    if (matches != null) {
+    
+      msie = parseFloat(matches[1]);
+    
+    }
+  
+  }
+  
+  if (trident || msie) {
+  
+    pui["is_ie"] = true;
+    pui["ie_mode"] = msie || trident + 4;
+    // This flag will be used to replace our old 'is_ie'. It seems that it's 
+    // pretty safe to assume most IE checks are no longer necessary with IE11.   
+    if (pui["ie_mode"] < 11) {
+    
+      pui["is_old_ie"] = true;
+      
+    }
+    pui["ie_version"] = (trident) ? trident + 4 : msie;
+  
+  } 
+  
+}
+
+
 pui["secLevel"] = 0;
 pui.dummyBox = null;
 pui.multX = null;

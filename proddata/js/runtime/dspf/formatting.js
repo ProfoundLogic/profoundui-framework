@@ -1047,7 +1047,7 @@ pui.FieldFormat = {
           validKeys = null;
           break;
         case 'Navigation Link':
-          if (is_android) {
+          if (pui["is_android"]) {
             value = "geo:0,0?q=" + trim(value);
           }
           else {

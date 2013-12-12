@@ -1326,7 +1326,7 @@ pui.Grid = function() {
     var handle = document.createElement("div");
     handle.style.position = "absolute";
     handle.style.border = "1px solid #0000ff";
-    if (is_ie && quirksMode) {
+    if (pui["is_old_ie"] && pui["is_quirksmode"]) {
       handle.style.height = "6px";
       handle.style.width = "6px";
       handle.style.padding = "0px";

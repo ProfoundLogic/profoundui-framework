@@ -562,7 +562,7 @@ pui.widgets.add({
       function mouseout(e) {
         parms.dom.mouseIsOver = false;
         if (parms.dom.clickedDown == true) return;
-        if (is_ie) {
+        if (pui["is_old_ie"]) {
           var rel = e.relatedTarget || e.toElement;
           if (rel && rel != parms.dom) rel = rel.parentNode;
           if (rel == parms.dom) return;        

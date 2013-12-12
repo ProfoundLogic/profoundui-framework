@@ -287,7 +287,7 @@ function newElement(row, col, elemType, content, id) {
         newElem.type = "button";
         newElem.value = content;  
         newElem.className = "button";
-        if (!quirksMode) {
+        if (!pui["is_quirksmode"]) {
           // default width needed for IE
           newElem.style.width = "55px"; 
         } 
@@ -1595,7 +1595,7 @@ pui["addCSS"] = function(css) {
   var head = document.getElementsByTagName("head")[0];
   var style = document.createElement('style');
   style.type = 'text/css';
-  if (is_ie) {
+  if (pui["is_old_ie"]) {
     style.styleSheet.cssText = css;
   }
   else {

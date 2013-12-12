@@ -456,7 +456,7 @@ pui.resize = function(inEmulator) {
   for (var j = 0; j < container.childNodes.length; j++) {
     var child = container.childNodes[j];
     if (child.sizeMe != null && typeof child.sizeMe == "function") {
-      if (is_ie || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
+      if (pui["is_old_ie"] || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
         child.sizeMe();
       }
     }
@@ -492,7 +492,7 @@ pui.render = function(parms) {
     }
   }
 
-  if (is_ie9up) {
+  if (pui["is_old_ie"] && pui["ie_mode"] >= 9) {
     
     pui.addCssClass(pui.runtimeContainer, "pui-ie9plus");
     
@@ -733,7 +733,7 @@ pui.render = function(parms) {
           else {
             try {
               pui.focusField.dom.focus();
-              if (is_ie && pui.focusField.dom.tagName != "SELECT" && pui.focusField.dom.type != "checkbox" && pui.focusField.dom.type != "radio") {
+              if (pui["is_old_ie"] && pui.focusField.dom.tagName != "SELECT" && pui.focusField.dom.type != "checkbox" && pui.focusField.dom.type != "radio") {
                 if (pui.focusField.dom.createTextRange != null) {
                   // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
                   pui.focusField.dom.select();
@@ -1191,7 +1191,7 @@ pui.renderFormat = function(parms) {
                     radioName += "." + parms.subfileRow;
                   }
                   dom.name = radioName;
-                  if (is_ie) {
+                  if (pui["is_old_ie"]) {
                     // IE has a bug: radio button names cannot be assigned dynamically (they stop working)
                     // So, the element has to be recreated
                     var newDom;
@@ -1799,7 +1799,7 @@ pui.renderFormat = function(parms) {
                 if (key != 46 && key != 8) pos++;
                 preventEvent(event);
                 pui.applyEditMask(target, event, pos);
-                if (is_ie) {
+                if (pui["is_old_ie"]) {
                   try {
                     event.keyCode = 0;
                   }
@@ -3274,7 +3274,7 @@ pui.handleHotKey = function(e, keyName) {
 
   if (keyName == null) {
     if (fkey >= 1 && fkey <= 12) {
-      if(!is_ie || (fkey > 1 || e.shiftKey)){
+      if(!pui["is_old_ie"] || (fkey > 1 || e.shiftKey)){
         if(e.shiftKey){
           fkey = fkey + 12;
         }
@@ -3368,7 +3368,7 @@ pui.handleHotKey = function(e, keyName) {
             if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
               dom.parentPagingBar.grid.pageDown();
               preventEvent(e);
-              if (is_ie) {
+              if (pui["is_old_ie"]) {
                   try {
                     e.keyCode = 0;
                   }
@@ -3379,7 +3379,7 @@ pui.handleHotKey = function(e, keyName) {
             if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
               dom.parentPagingBar.grid.pageUp();
               preventEvent(e);
-              if (is_ie) {
+              if (pui["is_old_ie"]) {
                 try {
                   e.keyCode = 0;
                 }
@@ -3389,7 +3389,7 @@ pui.handleHotKey = function(e, keyName) {
             }
             if (dom.disabled) {
               preventEvent(e);
-              if (is_ie) {
+              if (pui["is_old_ie"]) {
                 try {
                   e.keyCode = 0;
                 }
@@ -3404,7 +3404,7 @@ pui.handleHotKey = function(e, keyName) {
           doms[0].onclick();
           pui.runtimeContainer.focus();
           preventEvent(e);
-          if (is_ie) {
+          if (pui["is_old_ie"]) {
             try {
               e.keyCode = 0;
             }
@@ -3414,7 +3414,7 @@ pui.handleHotKey = function(e, keyName) {
         }
         if (allDisabled) {
           preventEvent(e);
-          if (is_ie) {
+          if (pui["is_old_ie"]) {
             try {
               e.keyCode = 0;
             }
@@ -3448,7 +3448,7 @@ pui.handleHotKey = function(e, keyName) {
       }    
 
       preventEvent(e);
-      if (is_ie) {
+      if (pui["is_old_ie"]) {
         try {
           e.keyCode = 0;
         }
@@ -3460,7 +3460,7 @@ pui.handleHotKey = function(e, keyName) {
 
   if (keyName != null && ((keyName != "PageUp" && keyName != "PageDown") || pui.autoPageGrid)) {
     preventEvent(e);
-    if (is_ie) {
+    if (pui["is_old_ie"]) {
       try {
         e.keyCode = 0;
       }
@@ -3995,7 +3995,7 @@ pui["maskScreen"] = function(parms) {
 
     var top = document.documentElement.scrollTop;
     var left = document.documentElement.scrollLeft;
-    if(!is_ie) {
+    if(!pui["is_old_ie"]) {
       top = window.pageYOffset;
       left = window.pageXOffset;
     } 

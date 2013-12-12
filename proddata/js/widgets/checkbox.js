@@ -35,8 +35,8 @@ pui.widgets.add({
       var objValue = parms.evalProperty("value");
       var checkedValue = parms.evalProperty("checked value");
       parms.dom.checkedValue = checkedValue;
-      if (!quirksMode) {
-        if (!is_ie) {
+      if (!pui["is_quirksmode"]) {
+        if (!pui["is_old_ie"]) {
           parms.dom.style.margin = "2px";
         }
       }

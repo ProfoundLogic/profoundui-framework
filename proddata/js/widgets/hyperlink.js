@@ -39,7 +39,7 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
   if (dom.style.color != null) a.style.color = dom.style.color;
   if (dom.style.textDecoration != null) a.style.textDecoration = dom.style.textDecoration;
   a.appendChild(document.createTextNode(text));
-  if (is_ie && noHref && (context == "dspf" || context == "genie")) {
+  if (pui["is_old_ie"] && noHref && (context == "dspf" || context == "genie")) {
     addEvent(a, "click", function(e) {
       if (e.preventDefault) e.preventDefault(); 
       e.returnValue = false;

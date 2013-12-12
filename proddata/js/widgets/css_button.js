@@ -37,7 +37,7 @@ pui.CSSButton = function() {
   var swatch = "a";
   var disabled = false;
   var iconShadowClass = " ui-icon-shadow";
-  if (is_firefox) iconShadowClass = "";
+  if (pui["is_firefox"]) iconShadowClass = "";
   
   var me = this;
 

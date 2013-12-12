@@ -220,8 +220,9 @@ pui.SignaturePad = function() {
       }
     });
     if (me.designMode) {
-      if (is_chrome || is_ie6 || is_ie7 || is_ie8 || is_ie9) {
+      if (pui["is_chrome"] || pui["is_safari"] || (pui["is_old_ie"] && pui["ie_mode"] < 10)) {
         // chrome has strange rendering issues when trying to move canvas element in the designer
+        // chrome user agent string used to turn on old 'is_sarari' flag. Added for consistency with browser detect changes 12/12/2013. DR.
         // ie6,7,8,9 do not support canvas
         canvas.style.display = "none";
         moveBox.style.display = "none";

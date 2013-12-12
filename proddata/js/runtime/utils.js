@@ -64,7 +64,7 @@ function getElementByName_iefix(elemName) {
 
 
 function disableAction(e){
-  if(is_ie5up){
+  if(pui["is_old_ie"] && pui["ie_mode"] >= 5){
     e.cancelBubble = true;
     e.returnValue = false;
     if (e.preventDefault) e.preventDefault();
@@ -1469,7 +1469,7 @@ pui.isFieldExit = function(e) {
 pui.hasParent = function(node) {
 
   var prt = node.parentNode;
-  return (prt != null && (!is_ie || prt.nodeName != "#document-fragment"));
+  return (prt != null && (!pui["is_old_ie"] || prt.nodeName != "#document-fragment"));
 
 }
 
