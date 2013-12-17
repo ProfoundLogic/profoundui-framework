@@ -101,13 +101,31 @@ pui.layout.getContainerOffset = function(containerDom) {
   var y = 0;
   var elem = containerDom;
   while (elem != null && (elem.layout == null || elem.parentNode.getAttribute("container") == "true")) {
-    x += elem.offsetLeft - elem.scrollLeft;
-    y += elem.offsetTop - elem.scrollTop;
+    x += elem.offsetLeft + elem.clientLeft - elem.scrollLeft;
+    y += elem.offsetTop + elem.clientTop - elem.scrollTop;
+    if (elem == containerDom.parentNode) {
+      var comp = pui.getComputedStyle(elem);
+      if (comp) {
+        if (comp["padding-left"]) x -= parseInt(comp["padding-left"], 10);
+        else if (comp["paddingLeft"]) x -= parseInt(comp["paddingLeft"], 10);
+        if (comp["padding-top"]) y -= parseInt(comp["padding-top"], 10);
+        else if (comp["paddingTop"]) y -= parseInt(comp["paddingTop"], 10);
+      }
+    }
     elem = elem.offsetParent;
   }
   if (elem != null) {
-    x += elem.offsetLeft - elem.scrollLeft;
-    y += elem.offsetTop - elem.scrollTop;
+    x += elem.offsetLeft + elem.clientLeft - elem.scrollLeft;
+    y += elem.offsetTop + elem.clientTop - elem.scrollTop;
+    if (elem == containerDom.parentNode) {
+      var comp = pui.getComputedStyle(elem);
+      if (comp) {
+        if (comp["padding-left"]) x -= parseInt(comp["padding-left"], 10);
+        else if (comp["paddingLeft"]) x -= parseInt(comp["paddingLeft"], 10);
+        if (comp["padding-top"]) y -= parseInt(comp["padding-top"], 10);
+        else if (comp["paddingTop"]) y -= parseInt(comp["paddingTop"], 10);
+      }
+    }    
   }
   return {
     x: x,
