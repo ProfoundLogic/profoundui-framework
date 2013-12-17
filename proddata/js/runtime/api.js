@@ -86,6 +86,15 @@ function getElementValue(id) {
   }
   if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
   if (elem.slider != null) elemValue = String(elem.value);
+  if (elem.onOffSwitch != null) {
+    elemValue = "";
+    if (elem.onOffSwitch.isOn && elem.onOffSwitch.onValue != null) {
+      elemValue = elem.onOffSwitch.onValue;
+    }
+    else if (!elem.onOffSwitch.isOn && elem.onOffSwitch.offValue != null) {
+      elemValue = elem.onOffSwitch.offValue;
+    }        
+  }
 
   elemValue = elemValue.replace(/&nbsp;/g,' ');
   // Safari and Opera use the non-breaking space character A0 (160) -- we'll replace this with a standard space
