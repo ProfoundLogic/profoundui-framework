@@ -76,8 +76,15 @@ function getElementValue(id) {
     if (!elem.checked && elem.uncheckedValue != null) return elem.uncheckedValue;
     return elem.checked;  // "checked value" and/or "unchecked value" not present, so just return true or false
   }
-  if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
-    if (elem.tagName == "SELECT" && elem.pui && elem.pui.properties && elem.pui.properties["value"]) {
+  if (elem.tagName == "INPUT" || elem.tagName == "TEXTAREA") {
+    elemValue = elem.value;
+  }
+  if (elem.tagName == "SELECT") {
+    var idx = elem.selectedIndex;
+    if (idx >= 0) {
+      elemValue = elem.options[idx].value;
+    }
+    else if (elem.pui && elem.pui.properties && elem.pui.properties["value"]) {
       elemValue = elem.pui.properties["value"];
     }
     else {
