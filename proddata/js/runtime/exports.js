@@ -58,6 +58,7 @@ window['currentDate'] = currentDate;
 window['currentTime'] = currentTime;
 window['currentUser'] = currentUser;
 window['getQueryStringParms'] = getQueryStringParms;
+window["setCursor"] = setCursor;
 
 window['loadPCCommandApplet'] = loadPCCommandApplet;
 window['runPCCommand'] = runPCCommand;

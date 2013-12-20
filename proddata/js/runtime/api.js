@@ -17,7 +17,60 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
+// sets the host cursor location
+// pass in row and column based on green-screen coordinates or an id of an element.
+// example: setCursor("D_24_1"); pressKey('F1');   // the id's column part can be 1 off, based on "adjust columns" setting.
+function setCursor(row, col) {
 
+  if (arguments.length == 1) {
+  
+    var id = row;
+    var obj = getObj(id);
+    if (obj) {
+    
+      if (context == "genie") {
+      
+        if (obj.fieldInfo) {
+        
+          pui.response["crow"] = obj.fieldInfo.row;
+          pui.response["ccol"] = obj.fieldInfo.col;
+          
+        }
+        
+      }
+      else {
+      
+        if (obj.cursorRow && obj.cursorColumn) {
+        
+          pui.cursorValues.row = obj.cursorRow;
+          pui.cursorValues.column = obj.cursorColumn;
+        
+        }
+      
+      }
+      
+    }
+  
+  }
+
+  if (arguments.length == 2) {
+  
+    if (context == "genie") {
+    
+      pui.response["crow"] = row;
+      pui.response["ccol"] = col;
+      
+    }
+    else {
+    
+      pui.cursorValues.row = row;
+      pui.cursorValues.column = col;
+    
+    }
+    
+  }
+ 
+}
 
 
 // hide an element by id or object reference
