@@ -3046,6 +3046,16 @@ pui.Grid = function() {
     }
   }
   
+  this["setCursorRecordNumber"] = function(rrn) {
+  
+    if (typeof rrn == "number" && rrn > 0 && rrn < 9999) {
+    
+      me.tableDiv.cursorRRN = rrn; 
+    
+    }  
+  
+  }
+  
   this.placeCursor = function(onTimeout) {
     var rrn = me.placeCursorRRN;
     me.placeCursorRRN = null;
