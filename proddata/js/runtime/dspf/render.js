@@ -2518,12 +2518,19 @@ pui.buildResponse = function() {
     if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
     var value = null;
     if (dom.responseValue != null) {
-      value = dom.responseValue;
-      // handle same indicator variables bound to multiple buttons
-      if (value == "0") {
+      value = dom.responseValue;      
+      if (value == "0") {  // handle same indicator variables bound to multiple buttons
         for (var i = 1; i < doms.length; i++) {
           if (doms[i].responseValue == "1") {
             value = "1";
+            break;
+          }
+        }
+      }
+      else if (dom.responseValue == "" && dom.pui.properties["field type"] == "menu" && doms.length > 1) {  // handle same response variable bound to multiple menus
+        for (var i = 1; i < doms.length; i++) {
+          if (doms[i].responseValue != "") {
+            value = doms[i].responseValue;
             break;
           }
         }
