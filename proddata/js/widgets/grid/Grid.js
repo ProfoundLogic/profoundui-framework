@@ -4838,6 +4838,18 @@ pui.Grid = function() {
     me.getData();    
   }
   
+  this["getRecordCount"] = function() {
+    var count;
+    if (me.isDataGrid()) {
+      count = me.totalRecs;
+    }
+    else {
+      count = me.dataArray.length;    
+    }
+    if (count == null) count = 0;
+    return count;
+  }
+  
   this.getPropertiesModel = function() {
     var model = [
       { name: "Identification", category: true },
