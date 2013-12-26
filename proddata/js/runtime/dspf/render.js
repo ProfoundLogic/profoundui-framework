@@ -860,7 +860,8 @@ pui.renderFormat = function(parms) {
           keywords: propValue.keywords,
           designItem: "Screen",
           property: propname,
-          force: true
+          force: true,
+          "longName": propValue["longName"]
         }, designer);
       }
     }    
@@ -1026,7 +1027,8 @@ pui.renderFormat = function(parms) {
               keywords: propValue.keywords,
               designItem: designItem,
               property: prop,
-              force: true
+              force: true,
+              "longName": propValue["longName"]
             }, designer);
             newValue = propValue;
           }
