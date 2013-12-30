@@ -238,6 +238,18 @@ pui.ComboBoxWidget = function() {
     
     }
     
+    // Add Genie window offset, if any. 
+    if (context == "genie") {
+    
+      if (me.div.parentNode["layerInfo"]) {
+      
+        top += me.div.parentNode.offsetTop + me.div.parentNode.clientTop;
+        left += me.div.parentNode.offsetLeft + me.div.parentNode.clientLeft;
+      
+      }
+    
+    }
+    
     // Shift down by height of widget div. 
     top += me.div.offsetHeight;
     

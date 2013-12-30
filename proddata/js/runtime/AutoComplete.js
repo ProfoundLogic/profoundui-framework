@@ -642,6 +642,18 @@ function AutoComplete(config) {
     
     }
     
+    // Add Genie window offset, if any. 
+    if (context == "genie") {
+    
+      if (textBox.parentNode["layerInfo"]) {
+      
+        top += textBox.parentNode.offsetTop + textBox.parentNode.clientTop;
+        left += textBox.parentNode.offsetLeft + textBox.parentNode.clientLeft;
+      
+      }
+    
+    }    
+    
     // Shift down by height of textbox. 
     top += textBox.offsetHeight;
     
