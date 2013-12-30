@@ -1940,6 +1940,7 @@ pui.Grid = function() {
         eval("var dom = pui.temporary_property;");
         
         eval("var row = arguments[1];");
+        eval("var rowNumber = arguments[1];");
         
         if (eventName == "onrowclick") {
           
@@ -1961,7 +1962,8 @@ pui.Grid = function() {
           if (me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].subfileRow != null) {
             adjustedRow = me.dataArray[adjustedRow - 1].subfileRow;
           }
-          eval("row = " + adjustedRow);          
+          eval("row = " + adjustedRow); 
+          eval ("var rrn = " + adjustedRow);       
         }
         var returnVal = eval(eventCode);
         if (returnVal == false) return false;
