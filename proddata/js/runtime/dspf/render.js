@@ -1395,6 +1395,7 @@ pui.renderFormat = function(parms) {
                     value += pui["dup"]["char"];
                   }
                   target.value = value;
+                  setModified(event);
                   pui.goToNextElement(target);
                   preventEvent(event);
                   return false;
