@@ -1197,6 +1197,7 @@ pui.Grid = function() {
   }
 
   this.destroy = function() {
+    if (me.contextMenuId) removeEvent(document, "click", me.hideContextMenu); 
     for (var i = me.vLines.length - 1; i >= 0; i = i - 1) {
       me.vLines[i].parentNode.removeChild(me.vLines[i]);
     }  
@@ -2706,7 +2707,14 @@ pui.Grid = function() {
       
       case "context menu id":
         if (!me.designMode) {
-          me.contextMenuId = value;
+          removeEvent(document, "click", me.hideContextMenu);
+          var contextMenuId = trim(value);
+          if (contextMenuId != "") {
+          
+            me.contextMenuId = contextMenuId;
+            
+          }           
+          addEvent(document, "click", me.hideContextMenu);
         }
         break;
         
@@ -3878,12 +3886,21 @@ pui.Grid = function() {
           document.body.oncontextmenu = stopContextMenu;
           return;
         }
-        var contextMenuId = me.contextMenuId;
-        if (contextMenuId == null) contextMenuId = "";
-        contextMenuId = trim(contextMenuId);
-        if (contextMenuId == "") return;
-        var contextMenu = getObj(contextMenuId);
+        var contextMenu;
+        if (me.contextMenuId) {
+        
+          contextMenu = getObj(me.contextMenuId);
+        
+        }
         if (contextMenu == null) return;
+        
+        // This is necessary as FireFox can fire the 'hide' event directly after the 
+        // show event if the mouse cursor is not exactly over the menu div. This can 
+        // happen if the menu border is rounded slightly with CSS. 
+        // It would seem that the code below to stop event propagation would prevent that...
+        // Perhaps it's a bug in FireFox.
+        // See usage below and in 'hideContextMenu'...
+        contextMenu.showing = true;
         
         // disable browser's context menu
         document.body.oncontextmenu = stopContextMenu;
@@ -3927,14 +3944,15 @@ pui.Grid = function() {
         if (y > maxY) y = maxY;     
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";        
-        
-        addEvent(document, "click", function() {
-          contextMenu.style.visibility = "hidden";
-          contextMenu.style.display = "none";
-        });
-        
+                
         preventEvent(event);
-        if (event != null && event.stopPropagation != null) event.stopPropagation();      
+        if (event != null && event.stopPropagation != null) event.stopPropagation(); 
+        setTimeout(function() {
+        
+          contextMenu.showing = false;   
+        
+        }, 250);
+          
         return false;
       }
     }
@@ -4850,6 +4868,19 @@ pui.Grid = function() {
     }
     if (count == null) count = 0;
     return count;
+  }
+  
+  this.hideContextMenu = function() {
+  
+    if (!me.contextMenuId) return;
+    var menu = getObj(me.contextMenuId);
+    if (!menu) return;
+    if (menu.showing) return;
+    
+    menu.style.visibility = "hidden";
+    menu.style.display = "none";    
+          
+  
   }
   
   this.getPropertiesModel = function() {
