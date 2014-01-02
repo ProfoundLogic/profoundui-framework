@@ -34,6 +34,22 @@ pui.suppressPropertyScriptingErrors = false;
 // Provides list of properties and their definitions
 function getPropertiesModel() {
   if (cachedPropertiesModel != null) return cachedPropertiesModel;
+
+	if (pui.codeBased) {
+    cachedPropertiesModel = [
+      { name: "Identification", category: true },
+      { name: "bound field", help: "Use this property to specify the bound field name and data type.", readOnly: true, canBeRemoved: false },
+      { name: "description", help: "Use this property to provide a text description (or comment) for the field.", bind: false },
+    	{ name: "Encoding", category: true },
+    	{ name: "html encode", choices: ["true", "false"], help: "Determines whether the field should be html encoded.", bind: false },
+    	{ name: "json encode", choices: ["true", "false"], help: "Determines whether the field should be json encoded.", bind: false },
+    	{ name: "xml encode", choices: ["true", "false"], help: "Determines whether the field should be xml encoded.", bind: false },
+    	{ name: "csv encode", choices: ["true", "false"], help: "Determines whether the field should be csv encoded.", bind: false },
+      { name: "Misc", category: true },
+      { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Determines whether the field is output or not." }      
+    ]
+    return cachedPropertiesModel;
+  }
   
   var borderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"];
   var borderWidths = ["thin", "medium", "thick", "0px", "1px", "2px", "3px", "4px", "5px", "Other..."];
@@ -332,6 +348,23 @@ function getPropertiesModel() {
 
 // Provides list of global screen properties and their definitions
 function getScreenPropertiesModel(designScreen) {
+	
+	if (pui.codeBased) {
+  	var model = [
+    	{ name: "Identification", category: true },
+    	{ name: "record format name", help: "Identifies the record format name that is used to write or read this format from server code.", maxLength: 10, bind: false, canBeRemoved: false },
+    	{ name: "description", help: "Describes the record format.", bind: false },
+    	{ name: "document type", choices: ["html", "json", "xml", "text", "csv"], help: "Specifies the type of document used to define the record format.", hideFormatting: true, validDataTypes: ["char"] },
+    	{ name: "Input", category: true },
+      { name: "input parameters", type: "inputfields", readOnly: true, bind: false, help: "Identifies input parameter names and the corresponding bound fields for the HTTP request.", relatedProperties: ["parameter name", "input field"], canBeRemoved: false }, 
+      { name: "parameter name", label: "Parameter Name", multOccur: true, hide: true, bind: false, help: "" }, 
+      { name: "input field", label: "Bound Field", hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "" },
+    	{ name: "Misc", category: true },
+    	{ name: "separator", help: "Specifies an optional seperator value to output when multiple copies of this format are written.  For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false },
+    	{ name: "destination", help: "Specifies an IFS path to send the output to.  If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char"] }
+    ];
+    return model;
+	}
 	
 	if (context == "dspf") {
   	var model = [
