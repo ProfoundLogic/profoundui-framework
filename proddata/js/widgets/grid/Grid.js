@@ -262,7 +262,7 @@ pui.Grid = function() {
     }
     if (removeColumnIcon == null) {
       removeColumnIcon = createIcon("minus", "Remove Column");
-      removeColumnIcon.onclick = function() {        
+      removeColumnIcon.onclick = function() {
         var lastCol = me.vLines.length - 2;
         if (lastCol < 1) return;
         if (me.hasChildren(lastCol)) {
@@ -273,6 +273,7 @@ pui.Grid = function() {
         itm.designer.undo.start("Remove Grid Column");
         itm.designer.undo.add(itm, "column widths");
         itm.designer.undo.add(itm, "number of columns");
+        itm.designer.undo.add(itm, "column headings");
         me.removeLastColumn();
         me.doExpandToLayout();
         me.selectMe();
@@ -4572,8 +4573,15 @@ pui.Grid = function() {
   }
   
   this["removeColumn"] = function(colIndex) {
+    var lastCol = me.vLines.length - 2;
+    if (lastCol < 1) {
+      pui.alert("You cannot remove the last column.");
+      return;
+    }
     me.moveColumn(colIndex, me.cells[0].length);  // move column to end
     me.removeLastColumn();
+    //me.doExpandToLayout();
+    //me.selectMe();
   }
   
   this.removeLastColumn = function() {
@@ -4616,6 +4624,7 @@ pui.Grid = function() {
       // adjust grid properties
       var changed = false; 
       var itm = me.tableDiv.designItem;
+      itm.designer.undo.clear();
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
         if (value == null || value == "" || pui.isBound(value) || pui.isTranslated(value)) return;
