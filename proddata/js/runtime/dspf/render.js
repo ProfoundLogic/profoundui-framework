@@ -2174,7 +2174,7 @@ pui.renderFormat = function(parms) {
   // render grid data
   for (var i = 0; i < gridsToRender.length; i++) {
     var grid = gridsToRender[i];
-    if (pui.focusField != null || pui.focusField.setFocusFlag == true) {
+    if (pui.focusField != null && pui.focusField.setFocusFlag == true) {
       grid.placeCursorRRN = null;  // "set focus" takes precedence over "place cursor" 
     }
     if (grid.isInitCollapsed()) {
