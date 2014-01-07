@@ -1,6 +1,6 @@
 
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2013 Profound Logic Software, Inc.
+//  Copyright (c) 2014 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
