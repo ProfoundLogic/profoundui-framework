@@ -4580,8 +4580,8 @@ pui.Grid = function() {
     }
     me.moveColumn(colIndex, me.cells[0].length);  // move column to end
     me.removeLastColumn();
-    //me.doExpandToLayout();
-    //me.selectMe();
+    me.doExpandToLayout();
+    me.selectMe();
   }
   
   this.removeLastColumn = function() {
