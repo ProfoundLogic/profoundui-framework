@@ -1961,6 +1961,7 @@ pui.Grid = function() {
         if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
           var adjustedRow = eval("row");
           adjustedRow += (me.recNum - 1);
+          eval("rowNumber = " + adjustedRow);
           if (me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].subfileRow != null) {
             adjustedRow = me.dataArray[adjustedRow - 1].subfileRow;
           }
