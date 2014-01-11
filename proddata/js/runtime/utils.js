@@ -704,7 +704,9 @@ pui.beforeUnload = function(event) {
     if (context == "genie" && pui.isSignOnScreen()) return;
     if (window.parent != window && typeof(window.parent["Atrium"]) != "undefined") return;
     if (context == "genie" || !inDesignMode() || recordFormats.isDirty()) {
-      var theCloseMessage = pui.getLanguageText("runtimeMsg", "closeMessage");
+      var theCloseMessage;
+      if (pui.codeBased) theCloseMessage = pui.closeMessage;
+      else theCloseMessage = pui.getLanguageText("runtimeMsg", "closeMessage");
       if (context == "genie" && pui.genie.config.closeMessage != null && pui.genie.config.closeMessage != "") {
         theCloseMessage = pui.genie.config.closeMessage;
       }
