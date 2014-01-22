@@ -580,10 +580,12 @@ pui.Grid = function() {
     var columnArray = [];
     var numericData = [];
     var graphicData = [];
+    var boundVisibility  = [];
     for (var i = 0; i < me.vLines.length - 1; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
+      boundVisibility.push(false);
     }
     
     // go through all grid elements, retrieve field names, and identify data index by field name
@@ -592,6 +594,9 @@ pui.Grid = function() {
       if (itm["visibility"] != "hidden") {
         var col = Number(itm["column"]);
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
+          if (pui.isBound(itm["visibility"])) {
+            boundVisibility[col] = itm["visibility"];
+          }
           var val = itm["value"];
           if (itm["field type"] == "html container") val = itm["html"];
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
@@ -636,6 +641,24 @@ pui.Grid = function() {
     for (var i = 0; i < me.dataArray.length; i++) {
       var line = "";      
       var record = me.dataArray[i];
+      
+      // build fieldData for use with pui.evalBoundProperties
+      //  Note that fieldData is not necessarily in the same sequence as columnArray
+      //    but this doesn't matter, since pui.evalBoundProperties does lookup by
+      //    column name.
+      
+      var fieldData = {};        
+      if (record == null || record.length == 0) {
+        fieldData.empty = true;
+      }
+      else {
+        for (var j = 0; j < me.fieldNames.length; j++) {
+          fieldData[me.fieldNames[j]] = record[j];
+        }
+      }        
+      
+      // build CSV data for this row.
+      
       for (var j = 0; j < columnArray.length; j++) {
         var idx = columnArray[j];
         if (idx > -1) {
@@ -647,6 +670,11 @@ pui.Grid = function() {
              value = value.replace('.', ',');
           }
           value = value.replace(/"/g, '""');  // "
+          if (boundVisibility[j] !== false) {
+            if (pui.evalBoundProperty(boundVisibility[j], fieldData, me.ref) == "hidden") {
+          	  value = "";
+            }
+          }
           if (line != "") line += delimiter;
           line += '"' + rtrim(value) + '"';
         }
