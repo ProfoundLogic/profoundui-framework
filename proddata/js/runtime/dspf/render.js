@@ -1628,7 +1628,7 @@ pui.renderFormat = function(parms) {
       }
 
       // check set cursor row / column
-      if ( !isDesignMode && 
+      if ( !isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
            pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" ) {
         crow = properties["cursor row"];
