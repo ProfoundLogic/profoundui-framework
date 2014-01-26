@@ -124,6 +124,8 @@ pui.Widgets = function() {
       // add widget
       widgetArray.push(obj);
       me[name] = obj;
+      // Update the properties model with the new field type.
+      getPropertiesNamedModel()["field type"].choices = me.getWidgetList(false);
     }
   }
   
