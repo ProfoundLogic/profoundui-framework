@@ -245,10 +245,14 @@ pui.applyEditMask = function(dom, event, pos) {
   // derrive mask character array
   var mask = [];
   var n = edtMsk.length;
+  var zeroSuppressPos = n;
   if (edtWrd.length < n) n = edtWrd.length;
   for (var i = 0; i < n; i++) {
     wrdCh = edtWrd.substr(i, 1);
     mskCh = edtMsk.substr(i, 1);
+    if ((wrdCh == "0" || wrdCh == "*") && zeroSuppressPos > i) { 
+       zeroSuppressPos = i;
+    }
     if (wrdCh == " " || wrdCh == "0" || mskCh == " ") {
       mask.push(null);
     }
@@ -267,8 +271,14 @@ pui.applyEditMask = function(dom, event, pos) {
   if (value.length > n) {
     value = value.substr(0, n);
   }
-  var fillCh = "0";
+  var fillCh;
   for (var i = 0; i < n; i++) {
+    if (i <= zeroSuppressPos) {
+      fillCh = " ";
+    }
+    else {
+      fillCh = "0";
+    }
     var maskCh = mask[i];
     var valueCh = value.substr(i, 1);
     if (maskCh != null && valueCh != maskCh) {
