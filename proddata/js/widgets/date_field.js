@@ -57,10 +57,19 @@ function show_calendar(dateField, str_datetime, format) {
 	var dt_datetime = (str_datetime == null || str_datetime == "" ?  new Date() : str2dt(str_datetime));
 	if(dt_datetime==null) dt_datetime = new Date();
 
+  var curMonth = dt_datetime.getMonth();
 	var dt_prev_month = new Date(dt_datetime);
-	dt_prev_month.setMonth(dt_datetime.getMonth()-1);
+	dt_prev_month.setMonth(curMonth - 1);
+	// check if the date overflowed to the following month, and if so go back (in JavaScript, substracting a month from March 31st gives you March 3rd, February being a short month)
+	while (dt_prev_month.getMonth() == curMonth) {
+	  dt_prev_month.setDate(dt_prev_month.getDate() - 1);
+	}
 	var dt_next_month = new Date(dt_datetime);
-	dt_next_month.setMonth(dt_datetime.getMonth()+1);
+	dt_next_month.setMonth(curMonth + 1);
+	// check if the date overflowed to the following month, and if so go back (in JavaScript, adding a month to January 31st gives you a date in the beginning of March)
+	while (dt_next_month.getMonth() != curMonth + 1) {
+	  dt_next_month.setDate(dt_next_month.getDate() - 1);
+	}
 	var dt_prev_year = new Date(dt_datetime);
 	dt_prev_year.setFullYear(dt_datetime.getFullYear()-1);
 	var dt_next_year = new Date(dt_datetime);
