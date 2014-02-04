@@ -627,15 +627,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     var inpType = widget.inputType;
 
     switch(effectiveValue) {
-      case "button":
-        // when switching an element to be a button, enforce default cursor
-        if (isDesignMode) {
-          if (!pui.isBound(designItem.properties["cursor"])) {
-            designItem.properties["cursor"] = "default";
-            designItem.propertiesChanged["cursor"] = true;
-          }
-        }
-        break;
+      //case "button":
+      //  // when switching an element to be a button, enforce default cursor
+      //  if (isDesignMode) {
+      //    if (!pui.isBound(designItem.properties["cursor"])) {
+      //      designItem.properties["cursor"] = "default";
+      //      designItem.propertiesChanged["cursor"] = true;
+      //    }
+      //  }
+      //  break;
       case "select box":
         // protected field will not be turned into a select box
         if (!isDesignMode && domObj.readOnly && domObj.tagName == "INPUT") {

@@ -508,9 +508,9 @@ pui.widgets.add({
       button.textDiv.style.verticalAlign = "middle";
       //button.textDiv.style.display = "table-cell";
       button.textDiv.style.display = "";
-      if (!pui.iPadEmulation) {
-        button.textDiv.style.cursor = "default";
-      }
+      //if (!pui.iPadEmulation) {
+      //  button.textDiv.style.cursor = "default";
+      //}
       button.textDiv.style.overflow = "hidden";
       button.textDiv.onselectstart = function(e) { return false };
       if (typeof button.textDiv.style.MozUserSelect!="undefined") button.textDiv.style.MozUserSelect = "none";
