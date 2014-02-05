@@ -60,8 +60,26 @@ pui.widgets.add({
           document.body.style.overflow = "hidden";
           parms.dom.parentNode.style.padding = "0";
           parms.dom.parentNode.style.height = "100%";
-        } 
-        
+        }
+
+        // Phonegap/Mobile Client is buggy on iOS when using 100% height, so we assign the height in pixels
+        if (window["cordova"] && window["device"]["platform"] == "iOS") {
+          parms.dom.layout.assignHeightOnResize = true;
+          var orientation = window["orientation"];
+          var height = window["screen"]["width"];  // assume landscape
+          if (orientation == 0 || orientation == 180) {  // test for portrait
+            height = window["screen"]["height"];
+          }
+          height -= 18;  // account for status bar
+          height += "px";
+          parms.dom.parentNode.style.height = height;
+          parms.dom.parentNode.style.overflowX = "hidden";
+          parms.dom.parentNode.style.overflowY = "hidden";
+          document.body.style.height = height;
+          document.body.parentNode.style.height = height;
+          parms.dom.style.height = height;
+        }
+
       }
       
       if (parms.design) {
@@ -82,7 +100,8 @@ pui.widgets.add({
         parms.dom.layout.template = parms.value;
       }
       else if (!parms.design) {
-        addEvent(window, "resize", parms.dom.layout.stretch);
+        addEvent(window, "resize", parms.dom.layout.onresize);
+        addEvent(document, "orientationchange", parms.dom.layout.onresize);
       }
       nmodel = makeNamedModel(pui.layout.getPropertiesModel());
       for (var prop in parms.properties) {

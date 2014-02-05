@@ -60,7 +60,7 @@ function show_calendar(dateField, str_datetime, format) {
   var curMonth = dt_datetime.getMonth();
 	var dt_prev_month = new Date(dt_datetime);
 	dt_prev_month.setMonth(curMonth - 1);
-	// check if the date overflowed to the following month, and if so go back (in JavaScript, substracting a month from March 31st gives you March 3rd, February being a short month)
+	// check if the date stayed in the same month, and if so go back (in JavaScript, substracting a month from March 31st gives you March 3rd, February being a short month)
 	while (dt_prev_month.getMonth() == curMonth) {
 	  dt_prev_month.setDate(dt_prev_month.getDate() - 1);
 	}
