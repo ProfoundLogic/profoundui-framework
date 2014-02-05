@@ -570,7 +570,15 @@ pui.render = function(parms) {
   }
 
   pui.attachOnUserActivity();
-  pui.autoKeepAlive.setup();
+  if (pui.handler == null) {
+    if (pui["client side timeout"] == true) {
+      pui.timeout = parms["timeout"];
+      pui.timeoutMonitor.start();
+    }
+    else {
+      pui.autoKeepAlive.setup();
+    }
+  }
 
   pui.rrnTracker = {};
   pui.modified = false;
@@ -3063,6 +3071,7 @@ pui.submitResponse = function(response) {
     pui.handler(response);
   }  
   else {
+    pui.timeoutMonitor.end();
     ajaxJSON({
       "url": url,
       "method": "post",

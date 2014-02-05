@@ -127,6 +127,8 @@ pui["field exit key"] = 107;  // numeric pad plus sign
 
 pui["no connection status"] = false;
 
+pui["client side timeout"] = true;
+
 pui.SQLDateFmts = {
 
   "*ISO": 1,

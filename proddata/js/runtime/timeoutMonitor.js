@@ -1,8 +1,6 @@
 // Implementation Plan:
-// - include Timer.js in Profound UI and Genie
-// - include this file timeoutMonitor.js in Profound UI and Genie
-// - call pui.timeoutMonitoring.timer.reset() in the onuseractivity function
-// - call pui.timeoutMonitoring.start() in the rendering functions in both Profound UI and Genie
+// - call pui.timeoutMonitor.timer.reset() in the onuseractivity function
+// - call pui.timeoutMonitor.start() in the rendering functions in both Profound UI and Genie
 // - call pui.timeoutMonitor.end() when a screen is submitted
 
 pui.timeoutMonitor = {};
@@ -24,13 +22,16 @@ pui.timeoutMonitor.keepalive.action = function() {
 }
 
 pui.timeoutMonitor.showTimeOutScreen = function() {
+  var timeoutMessage = "Your session has timed out."
+  pui.runtimeContainer.innerHTML = "";
+  pui.showWaitAnimation();
   var url = getProgramURL("PUI0001200.pgm");  // handler
   if (pui.genie != null) {
     url = getProgramURL("PUI0002110.pgm");    // 5250 session controller
   }
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   ajaxJSON({
-    "url": "",
+    "url": url,
     "method": "post",
     "sendAsBinary": false,
     "suppressAlert": true,
@@ -38,33 +39,31 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
       "timeout": "1"
     },
     "handler": function(response) {
-      if (context == "genie" ) {
-        document.body.innerHTML = "Your session has timed out.";
+      if (pui.genie != null) {
+        document.body.style.backgroundColor = "#ffffff";
+        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
       }
       else {
-        // to do - pui.show the received screen
+        response.container = pui.runtimeContainer;
+        pui.handler = function() { };
+        pui.render(response);
       }
     },
     "onfail": function(req) {
-      document.body.innerHTML = "Your session has timed out.";
+      document.body.style.backgroundColor = "#ffffff";
+      document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
     }
   });
-}
-
-pui.timeoutMonitor.getTimeoutValue = function() {
-  var timeout = pui["appJob"]["timeout"];
-  return timeout;
 }
 
 pui.timeoutMonitor.start = function() {  // this is called when a screen is rendered
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
-  var timeout = pui.timeoutMonitor.getTimeoutValue();
-  if (timeout == null) return;
-  var keepAliveValue = timeout - 10;  // keep alive value is 10 seconds less than the timeout value 
+  if (pui.timeout == null) return;
+  var keepAliveValue = pui.timeout - 10;  // keep alive value is 10 seconds less than the timeout value 
   if (keepAliveValue < 3) return;     // check if keep alive is too frequent
-  pui.timeoutMonitor.timer.timeout = timeout;
-  //pui.timeoutMonitor.timer.showDebugInfo = true;
+  pui.timeoutMonitor.timer.timeout = pui.timeout;
+  pui.timeoutMonitor.timer.showDebugInfo = true;
   pui.timeoutMonitor.keepalive.timeout = keepAliveValue;
   //pui.timeoutMonitor.keepalive.showDebugInfo = true;
   pui.timeoutMonitor.timer.start();

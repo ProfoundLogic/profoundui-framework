@@ -829,8 +829,9 @@ pui.checkEmptyText = function(dom) {
 
 pui.attachOnUserActivity = function() {
   if (pui.onUserActivityAttached) return;  
-  if (pui["onuseractivity"] == null) return;
+  if (pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
   function onUserActivity() {
+    if (pui["client side timeout"] == true) pui.timeoutMonitor.timer.reset();
     if (pui["onuseractivity"] != null) pui["onuseractivity"]();
   }
   addEvent(document.body, "keydown", onUserActivity);
