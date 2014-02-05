@@ -5,7 +5,7 @@
 // - call pui.timeoutMonitoring.start() in the rendering functions in both Profound UI and Genie
 // - call pui.timeoutMonitor.end() when a screen is submitted
 
-var pui.timeoutMonitor = {};
+pui.timeoutMonitor = {};
 
 pui.timeoutMonitor.timer = new pui["Timer"]();
 pui.timeoutMonitor.timer.action = function() {
@@ -36,7 +36,7 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     "suppressAlert": true,
     "params": {
       "timeout": "1"
-    }
+    },
     "handler": function(response) {
       if (context == "genie" ) {
         document.body.innerHTML = "Your session has timed out.";
@@ -48,7 +48,7 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     "onfail": function(req) {
       document.body.innerHTML = "Your session has timed out.";
     }
-  };
+  });
 }
 
 pui.timeoutMonitor.getTimeoutValue = function() {
