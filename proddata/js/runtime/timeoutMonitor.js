@@ -22,7 +22,7 @@ pui.timeoutMonitor.keepalive.action = function() {
 }
 
 pui.timeoutMonitor.showTimeOutScreen = function() {
-  var timeoutMessage = "Your session has timed out."
+  var timeoutMessage = pui.getLanguageText("runtimeMsg", "session timed out");
   pui.runtimeContainer.innerHTML = "";
   pui.showWaitAnimation();
   var url = getProgramURL("PUI0001200.pgm");  // handler
@@ -63,7 +63,7 @@ pui.timeoutMonitor.start = function() {  // this is called when a screen is rend
   var keepAliveValue = pui.timeout - 10;  // keep alive value is 10 seconds less than the timeout value 
   if (keepAliveValue < 3) return;     // check if keep alive is too frequent
   pui.timeoutMonitor.timer.timeout = pui.timeout;
-  pui.timeoutMonitor.timer.showDebugInfo = true;
+  //pui.timeoutMonitor.timer.showDebugInfo = true;
   pui.timeoutMonitor.keepalive.timeout = keepAliveValue;
   //pui.timeoutMonitor.keepalive.showDebugInfo = true;
   pui.timeoutMonitor.timer.start();
