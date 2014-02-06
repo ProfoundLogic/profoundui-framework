@@ -28,7 +28,8 @@ pui.CSSButton = function() {
   this.container = null;
   this.designMode = null;
   this.forProxy = false;
-  
+  this.useSpan = false;  // instead of hyperlink tag
+
   var link;
   var innerSpan;
   var textSpan;
@@ -42,7 +43,7 @@ pui.CSSButton = function() {
   var me = this;
 
   this.init = function() {
-    if (me.forProxy) {
+    if (me.forProxy || me.useSpan) {
       link = document.createElement("span");  // using span circumvents conflicting Ext .x-dd-drag-ghost class css rule
     }
     else {
@@ -327,6 +328,9 @@ pui.widgets.add({
       button.container = parms.dom;
       button.designMode = parms.design;
       parms.dom.innerHTML = "";
+      if (!parms.design && parms.properties["hyperlink reference"] == null && parms.properties["target"] == null) {
+        button.useSpan = true;
+      }
       button.init();
       parms.dom.button = button;
       button.setText(parms.evalProperty("value"));
