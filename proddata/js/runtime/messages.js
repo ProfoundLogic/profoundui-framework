@@ -139,7 +139,8 @@ pui["runtimeMsg"]["en_US"]["file required"]           = "You must select at leas
 pui["runtimeMsg"]["en_US"]["signature overflow"]      = "The signature drawing size exceeds the maximum number of bytes available for storing the signature.  Please clear the signature pad and try again.";
 pui["runtimeMsg"]["en_US"]["validValues"]             = "Value entered is not valid. Valid values are: ";
 pui["runtimeMsg"]["en_US"]["upload invalid type"]     = "One or more files are of invalid type.";
-pui["runtimeMsg"]["en_US"]["invalid email"]          = "Invalid email address.";
+pui["runtimeMsg"]["en_US"]["invalid email"]           = "Invalid email address.";
+pui["runtimeMsg"]["en_US"]["session timed out"]       = "Your session has timed out.";
 
 pui["runtimeText"]["en_US"] = {};
 pui["runtimeText"]["en_US"]["upload select text"]   = "Select Files";
@@ -531,7 +532,8 @@ pui["runtimeMsg"]["it_IT"]["file required"]           = "È necessario seleziona
 pui["runtimeMsg"]["it_IT"]["signature overflow"]      = "La dimensione del testo firma supera il numero massimo di byte disponibili per memorizzare la firma.  Si prega di cancellare la pad per la firma elettronica e provare di nuovo.";
 pui["runtimeMsg"]["it_IT"]["validValues"]             = "Valore inserito non è valido. I valori validi sono: ";
 pui["runtimeMsg"]["it_IT"]["upload invalid type"]     = "Uno o più file sono di tipo non valido.";
-pui["runtimeMsg"]["it_IT"]["invalid email"]          = "mail non valido.";
+pui["runtimeMsg"]["it_IT"]["invalid email"]           = "mail non valido.";
+pui["runtimeMsg"]["it_IT"]["session timed out"]       = "La tua sessione é scaduta.";
 
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
