@@ -41,6 +41,7 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     "handler": function(response) {
       if (pui.genie != null) {
         document.body.style.backgroundColor = "#ffffff";
+        document.body.style.backgroundImage = "none";
         document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
       }
       else {
@@ -51,6 +52,7 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     },
     "onfail": function(req) {
       document.body.style.backgroundColor = "#ffffff";
+      document.body.style.backgroundImage = "none";
       document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
     }
   });
