@@ -27,6 +27,7 @@
 // Example: var obj = getObj("Submit"); pui.click(obj);
 // Example: var obj = getObj("Submit"); pui.click(obj);
 pui.click = function(button, skipjs) {
+  if (!pui.screenIsReady) return;
   setTimeout(function() {
     if (typeof button != "object") button = getObj(button);
     var originalResponseValue;
