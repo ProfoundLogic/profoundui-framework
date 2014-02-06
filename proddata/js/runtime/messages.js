@@ -349,6 +349,7 @@ pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma e
 pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
 pui["runtimeMsg"]["es_ES"]["invalid email"]          = "dirección de correo electrónico no es válida.";
+pui["runtimeMsg"]["en_US"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -404,13 +405,13 @@ pui["runtimeMsg"]["es_MX"]["ssno too long"]           = 'Número de Seguro Socia
 pui["runtimeMsg"]["es_MX"]["invalid custom val"]      = 'Función de validación personalizada es inválida.';
 pui["runtimeMsg"]["es_MX"]["error custom val"]        = 'Error en la validación de la función personalizada.';
 pui["runtimeMsg"]["es_MX"]["invalid email"]          = "dirección de correo electrónico no es válida.";
-
 pui["runtimeMsg"]["es_MX"]["ME"]                      = "Campo de entrada obligatorio. Debe ingresar los datos.";
 pui["runtimeMsg"]["es_MX"]["MF"]                      = "Campo de relleno obligatorio. Debe rellenar el cuadro de entrada completamente.";
 pui["runtimeMsg"]["es_MX"]["required"]                = "El valor no puede ser blanco. Este campo es requerido.";
 pui["runtimeMsg"]["es_MX"]["file required"]           = "Debe seleccionar al menos un archivo.";
 pui["runtimeMsg"]["es_MX"]["signature overflow"]      = "El tamaño del dibujo de la firma excede el número máximo de bytes disponible para almacenar la firma. Por favor borre el área de firma y trate de nuevo.";
 pui["runtimeMsg"]["es_MX"]["validValues"]             = "El valor ingresado es invalido. Los valores válidos son: ";
+pui["runtimeMsg"]["en_US"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
 
 pui["runtimeText"]["es_MX"]["upload select text"]     = "Seleccionar Archivos";
 pui["runtimeText"]["es_MX"]["upload clear text"]      = "Limpiar";
