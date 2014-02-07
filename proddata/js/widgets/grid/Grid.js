@@ -1740,10 +1740,6 @@ pui.Grid = function() {
 
     if (me.tableDiv.columnSortResponseField == null) {
       clientSortColumnId = cell.columnId;
-      removeAllResponseElements();
-      for (var i = 0; i < me.runtimeChildren.length; i++) {
-        me.runtimeChildren[i].domEls = [];
-      }
       pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
 
       if (!me.sorted) {
