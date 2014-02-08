@@ -22,8 +22,13 @@ pui.timeoutMonitor.keepalive.action = function() {
 }
 
 pui.timeoutMonitor.showTimeOutScreen = function() {
-  var timeoutMessage = pui.getLanguageText("runtimeMsg", "session timed out");
-  pui.runtimeContainer.innerHTML = "";
+  function showMessage(container) {
+    document.body.style.backgroundColor = "#ffffff";
+    document.body.style.backgroundImage = "none";
+    container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + 
+                              pui.getLanguageText("runtimeMsg", "session timed out") + '</div>';
+  }
+  showMessage(pui.runtimeContainer);
   pui.showWaitAnimation();
   var url = getProgramURL("PUI0001200.pgm");  // handler
   if (pui.genie != null) {
@@ -40,20 +45,17 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     },
     "handler": function(response) {
       if (pui.genie != null) {
-        document.body.style.backgroundColor = "#ffffff";
-        document.body.style.backgroundImage = "none";
-        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
+        showMessage(document.body);
       }
       else {
+        // render time out screen from PUISCREENS
         response.container = pui.runtimeContainer;
         pui.handler = function() { };
         pui.render(response);
       }
     },
     "onfail": function(req) {
-      document.body.style.backgroundColor = "#ffffff";
-      document.body.style.backgroundImage = "none";
-      document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + timeoutMessage + '</div>';
+      showMessage(document.body);
     }
   });
 }

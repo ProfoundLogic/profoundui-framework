@@ -1228,10 +1228,10 @@ pui.Grid = function() {
   this.destroy = function() {
     if (me.contextMenuId) removeEvent(document, "click", me.hideContextMenu); 
     for (var i = me.vLines.length - 1; i >= 0; i = i - 1) {
-      me.vLines[i].parentNode.removeChild(me.vLines[i]);
+      if (me.vLines[i].parentNode != null) me.vLines[i].parentNode.removeChild(me.vLines[i]);
     }  
     for (var i = me.hLines.length - 1; i >= 0; i = i - 1) {
-      me.hLines[i].parentNode.removeChild(me.hLines[i]);
+      if (me.hLines[i].parentNode != null) me.hLines[i].parentNode.removeChild(me.hLines[i]);
     }
     if (me.scrollbarObj != null) me.scrollbarObj.destroy();
     if (me.pagingBar != null) me.pagingBar.destroy();
@@ -1258,7 +1258,7 @@ pui.Grid = function() {
     delete me.cellProps;
     delete me;
   }
-  
+
   this.getColumnWidths = function() {
     var widths = "";
     for (var i = 1; i < me.vLines.length; i++) {

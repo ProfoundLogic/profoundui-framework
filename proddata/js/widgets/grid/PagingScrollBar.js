@@ -188,8 +188,8 @@ pui.PagingScrollBar = function() {
   }
   
   this.destroy = function() {
-    outerDiv.parentNode.removeChild(outerDiv);
-    innerDiv.parentNode.removeChild(innerDiv);
+    if (outerDiv.parentNode != null) outerDiv.parentNode.removeChild(outerDiv);
+    if (innerDiv.parentNode != null) innerDiv.parentNode.removeChild(innerDiv);
   }
 
   this.changeContainer = function(newContainer) {

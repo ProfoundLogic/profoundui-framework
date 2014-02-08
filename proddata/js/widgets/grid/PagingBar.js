@@ -357,7 +357,7 @@ pui.PagingBar = function() {
   
   this.destroy = function() {
     div.innerHTML = "";
-    div.parentNode.removeChild(div);
+    if (div.parentNode != null) div.parentNode.removeChild(div);
     me.prevImg = null;
     me.prevLink = null;
     me.nextImg = null;
