@@ -1740,6 +1740,7 @@ pui.Grid = function() {
 
     if (me.tableDiv.columnSortResponseField == null) {
       clientSortColumnId = cell.columnId;
+      saveResponsesToDataArray();
       pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
 
       if (!me.sorted) {
@@ -1842,15 +1843,27 @@ pui.Grid = function() {
   }  
   
   function removeAllResponseElements() {
-    var fieldXRef = {};
-    for (var i = 0; i < me.fieldNames.length; i++) {
-      fieldXRef[me.fieldNames[i]] = i;
-    }
+  	saveResponsesToDataArray();
     var toRemove = [];
     var startsWith = pui.formatUpper(me.recordFormatName) + ".";
     for (var fldName in pui.responseElements) {
       if (fldName.substr(0, startsWith.length) == startsWith) {
-        // place user's response back into dataArray before removing
+        toRemove.push(fldName);
+      }
+    }
+    for (var i = 0; i < toRemove.length; i++) {
+      delete pui.responseElements[toRemove[i]];
+    }
+  }
+
+  function saveResponsesToDataArray() {
+    var fieldXRef = {};
+    for (var i = 0; i < me.fieldNames.length; i++) {
+      fieldXRef[me.fieldNames[i]] = i;
+    }
+    var startsWith = pui.formatUpper(me.recordFormatName) + ".";
+    for (var fldName in pui.responseElements) {
+      if (fldName.substr(0, startsWith.length) == startsWith) {
         var shortFieldName = fldName.substr(startsWith.length);
         var parts = shortFieldName.split(".");
         if (parts.length == 2) {
@@ -1899,14 +1912,11 @@ pui.Grid = function() {
             }
           }
         }
-        toRemove.push(fldName);
       }
     }
-    for (var i = 0; i < toRemove.length; i++) {
-      delete pui.responseElements[toRemove[i]];
-    }
+  	
   }
-    
+  
   function loadState() {
     
     var state;
