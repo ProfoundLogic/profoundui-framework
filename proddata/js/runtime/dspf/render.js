@@ -447,6 +447,22 @@ pui.cleanup = function() {
   }
   pui.layoutsDisplayed = [];
   
+  // Remove any 'onchange' events if running in Chrome. Chrome and also certain versions of 
+  // Safari will fire the 'onchange' event when the container's .innerHTML property is blanked.
+  
+  if ((pui.is_chrome || pui.is_safari) && pui.runtimeContainer.querySelectorAll) {
+  
+    var elems = pui.runtimeContainer.querySelectorAll("input,select");
+    for (var i = 0; i < elems.length; i++) {
+    
+      var elem = elems[i];
+      elem.onchange = null;
+    
+    }
+  
+  }
+  
+  
 }
 
 
