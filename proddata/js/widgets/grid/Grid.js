@@ -1748,6 +1748,9 @@ pui.Grid = function() {
          me.dataArray[i].subfileRow = i + 1;
         }
       }
+      for (var i=0; i<me.dataArray.length; i++) {
+      	me.dataArray[i].beforeSort = i;
+      }
       me.dataArray.sort(function(row1, row2) {
         var value1 = row1[sortIndex];
         var value2 = row2[sortIndex];
@@ -1767,6 +1770,27 @@ pui.Grid = function() {
         if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
         else return 1;
       });
+      
+      //
+      // update the data array index in pui.responseElements
+      //  to point to the new data array index (after sorting)
+      //
+      var indexXRef = [];
+      for (i=0; i<me.dataArray.length; i++) {
+        indexXRef[me.dataArray[i].beforeSort] = i;
+      }
+      var startsWith = pui.formatUpper(me.recordFormatName) + ".";
+      for (var fldName in pui.responseElements) {
+        if (fldName.substr(0, startsWith.length) == startsWith) {
+          var shortFieldName = fldName.substr(startsWith.length);
+          var parts = shortFieldName.split(".");
+          if (parts.length == 2) {
+            var dom = pui.responseElements[fldName][0];
+            dom.dataArrayIndex = indexXRef[dom.dataArrayIndex];
+          }
+        }
+      }
+      
       me.sorted = true;
 
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
