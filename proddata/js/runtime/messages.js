@@ -272,6 +272,7 @@ pui["runtimeMsg"]["pt_PT"]["signature overflow"]      = "A imagem da assinatura 
 pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido não é válido. Valores válidos: ";
 pui["runtimeMsg"]["pt_PT"]["upload invalid type"]     = "Um ou mais ficheiros são de tipo inválido.";
 pui["runtimeMsg"]["pt_PT"]["invalid email"]          = "inválido e-mail.";
+pui["runtimeMsg"]["pt_PT"]["session timed out"]       = "A sua sessão expirou.";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -305,6 +306,7 @@ pui["runtimeText"]["pt_BR"]["upload select text"]     = "Arquivos Selecionados";
 pui["runtimeText"]["pt_BR"]["row"]                    = "fileira";
 pui["runtimeText"]["pt_BR"]["rows"]                   = "fileiras";
 pui["runtimeMsg"]["pt_BR"]["upload invalid type"]     = "Um ou mais arquivos são de tipo inválido.";
+pui["runtimeMsg"]["pt_BR"]["session timed out"]       = "A sua sessão expirou.";
 
 // ------------------------------------------------------------
 //  Spanish / Spain
@@ -349,7 +351,7 @@ pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma e
 pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
 pui["runtimeMsg"]["es_ES"]["invalid email"]          = "dirección de correo electrónico no es válida.";
-pui["runtimeMsg"]["en_US"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
+pui["runtimeMsg"]["es_ES"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -411,7 +413,7 @@ pui["runtimeMsg"]["es_MX"]["required"]                = "El valor no puede ser b
 pui["runtimeMsg"]["es_MX"]["file required"]           = "Debe seleccionar al menos un archivo.";
 pui["runtimeMsg"]["es_MX"]["signature overflow"]      = "El tamaño del dibujo de la firma excede el número máximo de bytes disponible para almacenar la firma. Por favor borre el área de firma y trate de nuevo.";
 pui["runtimeMsg"]["es_MX"]["validValues"]             = "El valor ingresado es invalido. Los valores válidos son: ";
-pui["runtimeMsg"]["en_US"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
+pui["runtimeMsg"]["es_MX"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
 
 pui["runtimeText"]["es_MX"]["upload select text"]     = "Seleccionar Archivos";
 pui["runtimeText"]["es_MX"]["upload clear text"]      = "Limpiar";
@@ -597,6 +599,7 @@ pui["runtimeMsg"]["he_IL"]["signature overflow"]      = " גודל ציור הח
 pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינו חוקי. ערכים חוקיים הם";
 pui["runtimeMsg"]["he_IL"]["upload invalid type"]     = "אחד או יותר מהקבצים מסוג לא חוקי";
 pui["runtimeMsg"]["he_IL"]["invalid email"]          = 'כתובת דוא"ל לא חוקי';
+pui["runtimeMsg"]["he_IL"]["session timed out"]       = "סביבת העבודה שלך נסגרה.";
 
 pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
@@ -657,6 +660,7 @@ pui["runtimeMsg"]["nl_NL"]["signature overflow"]      = "De afbeelding van de ha
 pui["runtimeMsg"]["nl_NL"]["validValues"]             = "Ongeldige waarde. Geldige waarden zijn: ";
 pui["runtimeMsg"]["nl_NL"]["upload invalid type"]     = "Eén of meerdere bestandstypes zijn ongeldig.";
 pui["runtimeMsg"]["nl_NL"]["invalid email"]           = "Ongeldig email addres.";
+pui["runtimeMsg"]["nl_NL"]["session timed out"]       = "Uw sessie is verlopen.";
 
 pui["runtimeText"]["nl_NL"]["upload select text"]     = "Selecteer bestanden";
 pui["runtimeText"]["nl_NL"]["upload clear text"]      = "Wissen";
