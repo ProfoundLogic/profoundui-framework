@@ -503,7 +503,7 @@ function AutoComplete(config) {
 		if (query == "") return;
 		
 		// Send dummy record in onload event so that template can be created.
-		onload({results:[{field1: ""}]});
+		onload({results:[{"field1": ""}]});
 
 		var startIndex;
 		for (var i = 0; i < recordSet.length; i++) {
