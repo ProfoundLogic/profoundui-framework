@@ -1503,3 +1503,34 @@ pui.isTranslated = function(propVal) {
   return (typeof propVal == "object" && typeof propVal["translations"] == "object" && typeof propVal["translations"].length == "number");
   
 }
+
+pui.taphold = function(target, handler, threshold) {
+
+  if (!pui.touchDevice || !target || !target.addEventListener) return;
+  if (typeof handler != "function") return;
+  if (typeof threshold != "number") threshold = 750;
+  
+  var timeoutId;
+
+  function start(e) {
+  
+    timeoutId = setTimeout(function() {
+    
+      timeoutId = null;
+      handler(e);
+    
+    }, threshold);
+  
+  } 
+
+  function stop(e) {
+  
+    clearTimeout(timeoutId);
+    timeoutId = null;
+      
+  }  
+  
+  target.addEventListener("touchstart", start, false);
+  target.addEventListener("touchend", stop, false);  
+  
+}
