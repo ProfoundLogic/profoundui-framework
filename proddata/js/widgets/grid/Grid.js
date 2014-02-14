@@ -2779,7 +2779,12 @@ pui.Grid = function() {
           
             me.contextMenuId = contextMenuId;
             
-          }           
+          }
+          if (pui.touchDevice) {
+            me.tableDiv.onselectstart = function(e) { return false };
+            if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";                     
+            if (typeof me.tableDiv.style.webkitUserSelect != "undefined") me.tableDiv.style.webkitUserSelect = "none";
+          }                     
           addEvent(document, "click", me.hideContextMenu);
         }
         break;
@@ -4006,6 +4011,10 @@ pui.Grid = function() {
         if (pui.touchDevice) {
         
           x -= contextMenu.clientWidth / 2;
+          
+          contextMenu.onselectstart = function(e) { return false };
+          if (typeof contextMenu.style.MozUserSelect != "undefined") contextMenu.style.MozUserSelect = "none";                     
+          if (typeof contextMenu.style.webkitUserSelect != "undefined") contextMenu.style.webkitUserSelect = "none";      
           
         }
         contextMenu.style.zIndex = me.contextMenuZIndex;
