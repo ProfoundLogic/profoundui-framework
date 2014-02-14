@@ -210,6 +210,7 @@ pui["runtimeMsg"]["de_DE"]["signature overflow"]      = "Die Größe der Signatu
 pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist nicht gültig. Gültige Werte sind: ";
 pui["runtimeMsg"]["de_DE"]["upload invalid type"]     = "Eine oder mehrere Dateien haben den falschen Typcode.";
 pui["runtimeMsg"]["de_DE"]["invalid email"]          = "ungültige E-Mail-Adresse.";
+pui["runtimeMsg"]["de_DE"]["session timed out"]       = "Ihre Sitzung ist abgelaufen.";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
