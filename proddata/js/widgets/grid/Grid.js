@@ -4077,7 +4077,9 @@ pui.Grid = function() {
       
         me.setCursorRRN(row);
         
-        if (me.selectionEnabled && target.tagName != "INPUT" && target.tagName != "SELECT" && (row > 0 || !me.hasHeader)) {
+        var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
+        
+        if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
           if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
           
             if (!e) e = window.event;
