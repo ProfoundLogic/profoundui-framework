@@ -8,8 +8,8 @@ pui.timeoutMonitor = {};
 pui.timeoutMonitor.timer = new pui["Timer"]();
 pui.timeoutMonitor.timer.action = function() {
   var returnValue = true;
-  if (pui["onsessiontimeout"] != null && typeof pui["onsessiontimeout"] == "function"){
-    returnValue = pui["onsessiontimeout"]();
+  if (pui["onbeforetimeout"] != null && typeof pui["onbeforetimeout"] == "function"){
+    returnValue = pui["onbeforetimeout"]();
   }
   if (returnValue !== false) pui.timeoutMonitor.showTimeOutScreen();
   pui.timeoutMonitor.timer.stop();
@@ -45,6 +45,10 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     },
     "handler": function(response) {
       if (pui.genie != null) {
+        // When used outside of Genie, the 'onload' processing in the 
+        // time out screen will handle these flags.
+        pui.confirmOnClose = false;
+        pui.shutdownOnClose = false;      
         showMessage(document.body);
       }
       else {
@@ -53,6 +57,9 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
         pui.handler = function() { };
         pui.render(response);
       }
+      if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function"){
+        pui["ontimeout"]();
+      }      
     },
     "onfail": function(req) {
       showMessage(document.body);
