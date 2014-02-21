@@ -46,7 +46,16 @@ pui.widgets.add({
     },
     
     "value": function(parms) {
-      parms.dom.value = parms.value;
+      if (parms.dom.autoCompTranslated) {
+      
+        parms.dom.autoCompTranslated = false;
+      
+      }
+      else {
+      
+        parms.dom.value = parms.value;
+        
+      }
     },
     
     "input type": function(parms) {

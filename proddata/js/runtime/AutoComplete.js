@@ -95,6 +95,8 @@ function AutoComplete(config) {
   if (context == "genie") textBox.setAttribute("maxLength", "133");
 	// Set hard-coded choices and values, if provided.
 	if (config.choices && config.values) {
+	  var translated = false;
+	  var compare = trim(textBox.value);
 		recordSet = new Array();
 		choices = config.choices;
 		values  = config.values;
@@ -103,6 +105,17 @@ function AutoComplete(config) {
   			recordSet[recordSet.length] = new Array();			
   			recordSet[recordSet.length - 1][0] = trim(choices[i]);
   			recordSet[recordSet.length - 1][1] = trim(values[i]);
+  			if (!translated && compare != "") {
+  			
+  			  if (compare == trim(values[i])) {
+  			  
+  			    textBox.value = trim(choices[i]);
+  			    textBox.autoCompTranslated = true;
+  			    translated = true;
+  			  
+  			  }
+  			
+  			}
   	  }
 		}
 		recordSet.sort(function(a, b) {
