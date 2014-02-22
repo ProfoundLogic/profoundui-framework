@@ -45,6 +45,7 @@ pui.SlidingScrollBar = function() {
   this.interval = 250;
   this.type = "sliding";
   this.ready = false;
+  this.gridDom;
   var currentRequestNum = 0;
   var rowNumHideRequest = 0;
   var firstRequest = true;
@@ -66,6 +67,7 @@ pui.SlidingScrollBar = function() {
   var downImg;
   
   this.init = function(gridDom) {
+    me.gridDom = gridDom;
     outerDiv = document.createElement("div");
     outerDiv.style.position = "absolute";
     outerDiv.style.width = "23px";
@@ -166,7 +168,7 @@ pui.SlidingScrollBar = function() {
             if (isNaN(pct)) pct = 0;
             var row = (me.totalRows - me.rowsPerPage) * pct;
             row = Math.round(row) + 1;
-            outerDiv.onscroll(row);
+            me.doScroll(row);
           }
           function mouseup(e) {
             removeEvent(document, "mousemove", mousemove);
@@ -242,7 +244,7 @@ pui.SlidingScrollBar = function() {
           if (isNaN(pct)) pct = 0;
           var row = (me.totalRows - me.rowsPerPage) * pct;
           row = Math.round(row) + 1;
-          outerDiv.onscroll(row);
+          me.doScroll(row);
           e.preventDefault();
         }
         addEvent(touchHandle, "touchmove", touchmove);
@@ -254,47 +256,9 @@ pui.SlidingScrollBar = function() {
       }
       
     }
-        
-    outerDiv.onscroll = function(startRowParm) {
-      if (!me.ready) return;
-      var startRow = Math.floor(outerDiv.scrollTop / multiplier) + 1;
-      if (upImg != null && downImg != null && startRowParm == null && prevStartRow > 0) startRowParm = prevStartRow;
-      if (startRowParm != null && typeof startRowParm == "number") startRow = startRowParm;
-      if (startRow == prevStartRow) return;  // starting row has not changed
-      var endRow = startRow + me.rowsPerPage - 1;
-      if (me.showRowRange) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "rows") + " " + startRow + " - " + endRow;
-      if (me.showRowNum) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "row") + " " + startRow;
-      positionRowNum();
-      if (me.onchange != null) me.onchange(startRow);      
-      if (me.onSetRow != null) {
-        currentRequestNum += 1;
-        if (currentRequestNum > 10000) currentRequestNum = 10;
-        sendRow(currentRequestNum, startRow);
-      }
-      prevStartRow = startRow;
-
-      var onscrollEventCode = gridDom.grid.events["onscroll"];
-      if (onscrollEventCode != null && onscrollEventCode != "" && !me.designMode) {
-        try {
-          eval("row = " + startRow);
-          eval(onscrollEventCode);
-        }
-        catch(err) {
-          pui.alert(eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n" + err.message);
-          return false;
-        }
-      }
-
-      if (me.showRowNum || me.showRowRange) {
-        rowNumDiv.style.display = "";
-        rowNumHideRequest += 1;
-        if (rowNumHideRequest > 10000) rowNumHideRequest = 0;
-        positionRowNum();
-        hideRowNum(rowNumHideRequest);
-      }
-      else {
-        rowNumDiv.style.display = "none";
-      }     
+    
+    if (context == "genie") {  // for "dspf" context, the onscroll event is now attached in the rendering code
+      outerDiv.onscroll = me.doScroll;
     }
     
     outerDiv.onmousedown = function(event) {
@@ -316,7 +280,57 @@ pui.SlidingScrollBar = function() {
     me.container.appendChild(rowNumDiv);    
   }  
   
-  this.setScrollTopToRow = function(rowNum) {
+  this.attachOnScroll = function() {
+    //outerDiv.onscroll = me.doScroll;
+    addEvent(outerDiv, "scroll", me.doScroll);
+  }
+
+  this.doScroll = function(startRowParm) {
+    if (!me.ready) return;
+    var startRow = Math.floor(outerDiv.scrollTop / multiplier) + 1;
+    if (upImg != null && downImg != null && startRowParm == null && prevStartRow > 0) startRowParm = prevStartRow;
+    if (startRowParm != null && typeof startRowParm == "number") startRow = startRowParm;
+    if (startRow == prevStartRow) return;  // starting row has not changed
+    var endRow = startRow + me.rowsPerPage - 1;
+    if (me.showRowRange) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "rows") + " " + startRow + " - " + endRow;
+    if (me.showRowNum) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "row") + " " + startRow;
+    positionRowNum();
+    if (me.onchange != null) me.onchange(startRow);      
+    if (me.onSetRow != null) {
+      currentRequestNum += 1;
+      if (currentRequestNum > 10000) currentRequestNum = 10;
+      sendRow(currentRequestNum, startRow);
+    }
+    prevStartRow = startRow;
+
+    var gridDom = me.gridDom;
+    if (gridDom != null) {
+      var onscrollEventCode = gridDom.grid.events["onscroll"];
+      if (onscrollEventCode != null && onscrollEventCode != "" && !me.designMode) {
+        try {
+          eval("row = " + startRow);
+          eval(onscrollEventCode);
+        }
+        catch(err) {
+          pui.alert(eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n" + err.message);
+          return false;
+        }
+      }
+    }
+
+    if (me.showRowNum || me.showRowRange) {
+      rowNumDiv.style.display = "";
+      rowNumHideRequest += 1;
+      if (rowNumHideRequest > 10000) rowNumHideRequest = 0;
+      positionRowNum();
+      hideRowNum(rowNumHideRequest);
+    }
+    else {
+      rowNumDiv.style.display = "none";
+    }     
+  }
+  
+  this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
     if (touchHandle != null) {
       var minTop = parseInt(touchBar.style.top);
       var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
@@ -327,6 +341,10 @@ pui.SlidingScrollBar = function() {
       prevStartRow = rowNum;
     }
     else {
+      if (setPrevStartRow) {
+        // this prevents onscroll event from processing
+        prevStartRow = rowNum;
+      }
       outerDiv.scrollTop = (rowNum - 1) * multiplier;
     }
   }
@@ -431,7 +449,7 @@ pui.SlidingScrollBar = function() {
       if (isNaN(pct)) pct = 0;
       var row = (me.totalRows - me.rowsPerPage) * pct;
       row = Math.round(row) + 1;
-      outerDiv.onscroll(row);
+      me.doScroll(row);
       
       if (done) {
         touchHandle.touch = null;
@@ -508,7 +526,7 @@ pui.SlidingScrollBar = function() {
     
     positionRowNum();
     
-    if (touchBar == null) outerDiv.onscroll();
+    if (touchBar == null) me.doScroll();
     
     // show up/down arrows instead of scrollbar if there is only 1 row
     if (!me.designMode && me.ready && me.rowsPerPage == 1) {
@@ -528,7 +546,7 @@ pui.SlidingScrollBar = function() {
           var startRow = prevStartRow - 1;
           if (startRow < 1) startRow = 1;
           if (startRow > me.totalRows) startRow = me.totalRows;
-          outerDiv.onscroll(startRow);
+          me.doScroll(startRow);
         }
         downImg = document.createElement("img");
         downImg.style.position = "absolute";
@@ -542,7 +560,7 @@ pui.SlidingScrollBar = function() {
           var startRow = prevStartRow + 1;
           if (startRow < 1) startRow = 1;
           if (startRow > me.totalRows) startRow = me.totalRows;
-          outerDiv.onscroll(startRow);
+          me.doScroll(startRow);
         }
         outerDiv.appendChild(upImg);
         outerDiv.appendChild(downImg);

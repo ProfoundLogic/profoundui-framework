@@ -447,22 +447,6 @@ pui.cleanup = function() {
   }
   pui.layoutsDisplayed = [];
   
-  // Remove any 'onchange' events if running in Chrome. Chrome and also certain versions of 
-  // Safari will fire the 'onchange' event when the container's .innerHTML property is blanked.
-  
-  if ((pui.is_chrome || pui.is_safari) && pui.runtimeContainer.querySelectorAll) {
-  
-    var elems = pui.runtimeContainer.querySelectorAll("input,select");
-    for (var i = 0; i < elems.length; i++) {
-    
-      var elem = elems[i];
-      elem.onchange = null;
-    
-    }
-  
-  }
-  
-  
 }
 
 
@@ -785,21 +769,17 @@ pui.render = function(parms) {
     pui["focusOnContainer"]();
   }
 
-  //var errors =  ;
-  //if (errors != null) {
-  //  pui.showErrors(errors);
-  //}
-
   pui.screenIsReady = true;
-  
-  setTimeout(function() {
-    for (var i = 0; i < pui.gridsDisplayed.length; i++) {
-      var grid = pui.gridsDisplayed[i];
-      if (grid.scrollbarObj != null) {
-        grid.scrollbarObj.ready = true;
+
+  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+    var grid = pui.gridsDisplayed[i];
+    if (grid.scrollbarObj != null) {
+      if (grid.scrollbarObj.attachOnScroll != null && typeof grid.scrollbarObj.attachOnScroll == "function") {
+        grid.scrollbarObj.attachOnScroll();
       }
+      grid.scrollbarObj.ready = true;
     }
-  }, 0);
+  }
 
 }
 
@@ -2219,7 +2199,7 @@ pui.renderFormat = function(parms) {
     }
     if (grid.subfileHidden) continue;
     if (grid.recNum > 1 && grid.scrollbarObj != null && grid.scrollbarObj.type == "sliding") {
-      grid.scrollbarObj.setScrollTopToRow(grid.recNum);
+      grid.scrollbarObj.setScrollTopToRow(grid.recNum, true);
     }
     else {
       if (pui.placeCursorOnSubfile && pui.cursorValues.setColumn == null && pui.cursorValues.setRow == null) {
