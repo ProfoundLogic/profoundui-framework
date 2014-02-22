@@ -791,6 +791,15 @@ pui.render = function(parms) {
   //}
 
   pui.screenIsReady = true;
+  
+  setTimeout(function() {
+    for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+      var grid = pui.gridsDisplayed[i];
+      if (grid.scrollbarObj != null) {
+        grid.scrollbarObj.ready = true;
+      }
+    }
+  }, 0);
 
 }
 
@@ -2222,7 +2231,7 @@ pui.renderFormat = function(parms) {
       }
     }
     if (grid.scrollbarObj != null) {
-      grid.scrollbarObj.ready = true;
+      //grid.scrollbarObj.ready = true; ... this now happens at the end of pui.render() instead of here, since we don't want to cause the onscroll event to fire prematurely
       if (!isDesignMode && grid.scrollbarObj.type == "sliding" && grid.scrollbarObj.rowsPerPage == 1) {
         grid.scrollbarObj.draw();
       }
