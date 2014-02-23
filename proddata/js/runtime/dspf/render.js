@@ -4515,15 +4515,17 @@ pui.goToClosestElement = function(baseElem, direction) {
     var elem = elems[i];
     if (elem.readOnly || elem.disabled || elem.style.visibility == "hidden" || elem.parentNode.style.visibility == "hidden") continue;
     if (elem.tagName == "A") elem = elem.parentNode;
-    var x = parseInt(elem.style.left);
+    var mainElem = elem;
+    if (elem.parentNode.comboBoxWidget != null) mainElem = elem.parentNode;
+    var x = parseInt(mainElem.style.left);
     if (isNaN(x)) continue;
-    var y = parseInt(elem.style.top);
+    var y = parseInt(mainElem.style.top);
     if (isNaN(y)) continue;
     gridDom = elem.parentNode.parentNode;
     if (gridDom.grid != null) {  // the element is within a grid
-      var cellX = parseInt(elem.parentNode.style.left);
+      var cellX = parseInt(mainElem.parentNode.style.left);
       if (isNaN(cellX)) return null;
-      var cellY = parseInt(elem.parentNode.style.top);
+      var cellY = parseInt(mainElem.parentNode.style.top);
       if (isNaN(cellY)) return null;
       var gridX = parseInt(gridDom.style.left);
       if (isNaN(gridX)) continue;
