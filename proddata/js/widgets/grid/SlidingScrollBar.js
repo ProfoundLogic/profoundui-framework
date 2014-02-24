@@ -45,7 +45,7 @@ pui.SlidingScrollBar = function() {
   this.interval = 250;
   this.type = "sliding";
   this.ready = false;
-  this.gridDom;
+  this.gridDom = null;
   var currentRequestNum = 0;
   var rowNumHideRequest = 0;
   var firstRequest = true;
