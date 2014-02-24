@@ -1000,7 +1000,7 @@ pui.FieldFormat = {
             validKeys += '\\.';
             maxLength++;
           }
-          validKeys += '\\-\\$';
+          validKeys += '\\-%';
           value += '%';
           break;
         case 'Zip Code':
@@ -1082,7 +1082,7 @@ pui.FieldFormat = {
               return { msg: pui.getLanguageText("runtimeMsg", "invalid digits", [ value, obj.dataLength ]) };
             }
             if(pui.formatting.isNumericType(obj.dataType)){
-              var wholeNums = parseInt(obj.dataLentgh, 10) - parseInt(obj.decPos, 10);
+              var wholeNums = parseInt(obj.dataLength, 10) - parseInt(obj.decPos, 10);
               var parts = value.split('.');
               if(parts[0].length > wholeNums){
                 return { msg: pui.getLanguageText("runtimeMsg", "exceeds whole", [ value,  wholeNums ]) };
