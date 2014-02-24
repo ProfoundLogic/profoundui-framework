@@ -446,7 +446,13 @@ pui.keyFilter = (function() {
   
   var isGecko = !/webkit/.test(navigator.userAgent.toLowerCase()) &&
                 /gecko/.test(navigator.userAgent.toLowerCase());
-                
+  if (pui["is_ie"]) {
+
+    // IE11 now incl. 'gecko' in the user agent string, which throws off 
+    // this code.
+    isGecko = false;
+  
+  }
   
   return function(e, re) {
   
