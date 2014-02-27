@@ -114,22 +114,12 @@ pui.formatting = {
       
       pui.formatting.Date.formats.locales[locale][format] = new Function('date', fn);
     },
-    newParser: function(fmt, locale) {
-      var format = fmt;
+    newParser: function(format, locale) {
       var esc = false;
       var chr = '';
       var regex = '';
       var code = '';
       var matchIndex = 1;
-      
-      // The standard timestamp pattern (Y-m-d-H-i-s.uu) causes the same code
-      // "u = parseInt(matches[the-match-index], 10);" to be output twice,
-      // breaking the millisecond portion of the pattern.  To work around
-      // that, I'm temporarily changing the pattern so it only assigns the
-      // millsecond once  -SK 
-      if (format === "Y-m-d-H.i.s.uu") {
-        format = "Y-m-d-H.i.s.u";
-      }
                 
       for(var i=0; i<format.length; i++){
         chr = format.charAt(i);
@@ -171,7 +161,7 @@ pui.formatting = {
         pui.formatting.Date.parsers.locales[locale] = {};
       }
       
-      pui.formatting.Date.parsers.locales[locale][fmt] = new Function('str', fn);
+      pui.formatting.Date.parsers.locales[locale][format] = new Function('str', fn);
     },
     getSuffix: function(day) {
       switch(day){
