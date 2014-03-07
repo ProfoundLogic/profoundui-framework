@@ -475,6 +475,7 @@ pui["runtimeMsg"]["fr_FR"]["signature overflow"]      = "L'image de la signature
 pui["runtimeMsg"]["fr_FR"]["validValues"]             = "La valeur introduite n'est pas valable. Valeurs valables :";
 pui["runtimeMsg"]["fr_FR"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
 pui["runtimeMsg"]["fr_FR"]["invalid email"]          = "adresse mail invalide.";
+pui["runtimeMsg"]["fr_FR"]["session timed out"]       = "Votre session a expiré.";
 
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers Sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Nettoyer ";
@@ -493,6 +494,67 @@ pui["runtimeText"]["fr_FR"]["page"]                 = "Page";
 pui["runtimeText"]["fr_FR"]["collapseAll"]          = "Rassembler tout";
 pui["runtimeText"]["fr_FR"]["expandAll"]            = "Développer tout";
 
+//--------------------------------------------------------------
+//  French Canadian Eh!
+//--------------------------------------------------------------
+pui.copyAllLanguageText("en_US", "fr_CA");
+pui["runtimeMsg"]["fr_CA"]["closeMessage"]            = "Votre session sera fermée.";
+pui["runtimeMsg"]["fr_CA"]["no connection message"]   = "Impossible d'accéder le serveur.  Veuillez vérifier votre connexion et réessayer.";
+pui["runtimeMsg"]["fr_CA"]["upload file limit"]       = "La limite de &1 fichier(s) est dépassée.";
+pui["runtimeMsg"]["fr_CA"]["upload size limit"]       = "La limite de &1MB par fichier est dépassée.";
+pui["runtimeMsg"]["fr_CA"]["upload no files"]         = "Aucun fichier sélectionné.";
+pui["runtimeMsg"]["fr_CA"]["upload duplicate file"]   = "Doublon(s) dans les fichiers sélectionnés.";
+pui["runtimeMsg"]["fr_CA"]["upload file exists"]      = "Un ou plusieurs fichier(s) existe déjà sur le système.";
+pui["runtimeMsg"]["fr_CA"]["upload prevented"]        = "L'opération est bloquée par le programme de sortie.";
+pui["runtimeMsg"]["fr_CA"]["upload input limit"]      = "L'entrée de données dépasse la limite.";
+pui["runtimeMsg"]["fr_CA"]["upload no session"]       = "Il n'y a aucune connection à une session valide.";
+pui["runtimeMsg"]["fr_CA"]["upload timeout"]          = "La transaction a expirée.";
+pui["runtimeMsg"]["fr_CA"]["upload invalid response"] = "La réponse du serveur est manquante ou invalide.";
+pui["runtimeMsg"]["fr_CA"]["close browser text"]      = "Veuillez fermer votre navigateur pour compléter le processus de déconnection.";
+pui["runtimeMsg"]["fr_CA"]["session ended text"]      = "Votre session s'est terminée.";
+pui["runtimeMsg"]["fr_CA"]["outside ucs2"]            = 'Caractères non-permis parmi les valeurs permises dans le UCS-2.';
+pui["runtimeMsg"]["fr_CA"]["invalid number"]          = "&1 n'est pas un numéro valide.";
+pui["runtimeMsg"]["fr_CA"]["invalid length"]          = "&1 n'a pas le bon nombre de caractères ou de décimales.'";
+pui["runtimeMsg"]["fr_CA"]["invalid decimal"]         = '&1 contient trop de décimales. (max: &2)';
+pui["runtimeMsg"]["fr_CA"]["invalid choice"]          = '"&1" est invalide. Les choix valides sont: "&2" ou "&3".';
+pui["runtimeMsg"]["fr_CA"]["invalid date"]            = '"&1" est une date invalide. Exemple de format: &2';
+pui["runtimeMsg"]["fr_CA"]["invalid time"]            = '"&1" est une heure invalide. Exemple de format: &2';
+pui["runtimeMsg"]["fr_CA"]["invalid time stamp"]      = '"&1" est une date et heure invalide. Exemple de format: &2';
+pui["runtimeMsg"]["fr_CA"]["invalid percent"]         = "&1 n'est pas une décimale valide.";
+pui["runtimeMsg"]["fr_CA"]["invalid digits"]          = '"&1" contient trop de caractères. Max: &2';
+pui["runtimeMsg"]["fr_CA"]["exceeds whole"]           = '"&1" dépasse le nombre de caractères maximum pour le nombre avant les décimales (&2 caractères).';
+pui["runtimeMsg"]["fr_CA"]["exceeds decimal"]         = '"&1" dépasse le nombre de caractères maximum pour les décimales (&2 caractères).';
+pui["runtimeMsg"]["fr_CA"]["zip too long"]            = 'Le code postal est trop long. (Maximum: &1 caractères)';
+pui["runtimeMsg"]["fr_CA"]["phone too long"]          = 'Le numéro de téléphone est trop long. (Maximum: &1 caractères)';
+pui["runtimeMsg"]["fr_CA"]["ssno too long"]           = "Le numéro d'assurance sociale est trop long. (Maximum: &1 caractères)";
+pui["runtimeMsg"]["fr_CA"]["invalid custom val"]      = 'La fonction de validation est invalide.';
+pui["runtimeMsg"]["fr_CA"]["error custom val"]        = 'Erreur dans la fonction de validation.';
+pui["runtimeMsg"]["fr_CA"]["ME"]                      = "Le champ est obligatoire.";
+pui["runtimeMsg"]["fr_CA"]["MF"]                      = "Chaque caractère doit être remplit pour ce champ.";
+pui["runtimeMsg"]["fr_CA"]["required"]                = "Le champ doit être remplit.";
+pui["runtimeMsg"]["fr_CA"]["file required"]           = "Au moins un fichier doit être choisi.";
+pui["runtimeMsg"]["fr_CA"]["signature overflow"]      = "La grosseur de la signature dépasse l'espace de stockage permis. Veuillez effacer la signature et réessayer.";
+pui["runtimeMsg"]["fr_CA"]["validValues"]             = "La valeur entrée est invalide. Les valeurs valides sont: ";
+pui["runtimeMsg"]["fr_CA"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
+pui["runtimeMsg"]["fr_CA"]["invalid email"]           = "L'adresse courriel est invalide.";
+pui["runtimeMsg"]["fr_CA"]["session timed out"]       = "Votre session est expirée.";
+
+pui["runtimeText"]["fr_CA"]["upload select text"]   = "Sélection de fichiers";
+pui["runtimeText"]["fr_CA"]["upload clear text"]    = "Effacer";
+pui["runtimeText"]["fr_CA"]["upload remove text"]   = "Supprimer";
+pui["runtimeText"]["fr_CA"]["upload upload text"]   = "Téléversement";
+pui["runtimeText"]["fr_CA"]["csv export text"]      = "Télécharger le fichier Excel";
+pui["runtimeText"]["fr_CA"]["filter text"]          = "Filtrer";
+pui["runtimeText"]["fr_CA"]["remove filters text"]  = "Enlever les filtres";
+pui["runtimeText"]["fr_CA"]["next link text"]       = "Suivant";
+pui["runtimeText"]["fr_CA"]["previous link text"]   = "Précédent";
+pui["runtimeText"]["fr_CA"]["sort ascending text"]  = "Tri ascendant";
+pui["runtimeText"]["fr_CA"]["sort descending text"] = "Tri descendant";
+pui["runtimeText"]["fr_CA"]["row"]                  = "rangée";
+pui["runtimeText"]["fr_CA"]["rows"]                 = "rangées";
+pui["runtimeText"]["fr_CA"]["page"]                 = "Page";
+pui["runtimeText"]["fr_CA"]["collapseAll"]          = "Réduire tout";
+pui["runtimeText"]["fr_CA"]["expandAll"]            = "Ouvrir tout";
 
 // ------------------------------------------------------------
 //  Italiano
