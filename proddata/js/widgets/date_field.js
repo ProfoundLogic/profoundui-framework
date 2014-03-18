@@ -514,7 +514,28 @@ pui.widgets.add({
             else format = pui.defaultDateFormat;
           }
           if (format == null || format == "") format = "MM/DD/YY";  // default format
-          setTimeout(function() { if (parms.dom.calimg == null) cal(parms.dom, format); }, 1);
+          setTimeout(function() { 
+          
+            // Not sure why this code runs on a 1s time delay -- I found it this way. 
+            // But, what happens is that automatic detect/attach of calendar in Genie runs before this, 
+            // so the 'cal()' function does not run here. 
+            
+            // This means that it was impossible to change widget-level 'date format' to something other than 
+            // Genie's configuration or screen-level value. 
+            
+            // -- DR.
+          
+            if (parms.dom.calimg == null) {
+              cal(parms.dom, format); 
+            }
+            else if (context == "genie") {
+              // Force recreate calendar, due to above -- DR.
+              parms.dom.calimg.parentNode.removeChild(parms.dom.calimg);
+              parms.dom.calimg = null;
+              cal(parms.dom, format);  
+            }
+            
+          }, 1);
         }
         if (pui.iPadEmulation && !pui.iPhoneEmulation) {
           addEvent(parms.dom, "focus", function(event) {
