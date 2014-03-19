@@ -1797,3 +1797,41 @@ pui["set"] = function(id, val) {
   changeElementValue(id, val);
 }
 
+pui["getActiveContainer"] = function() {
+
+  if (context == "genie") {
+
+    var idx = 1;
+    var topWin = document.getElementById("window" + idx);
+    while (topWin) {
+    
+      var temp = document.getElementById("window" + (++idx));
+      if (temp) {
+      
+        topWin = temp;
+        
+      }
+      else {
+      
+        break;
+      
+      }
+    
+    }
+    
+    if (topWin) { 
+    
+      return topWin;
+      
+    }
+
+  }
+  else if (context == "dspf" && pui.lastWindow) {
+  
+    return pui.lastWindow;
+  
+  }
+  
+  return pui.runtimeContainer;
+
+}
