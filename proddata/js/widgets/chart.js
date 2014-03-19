@@ -499,6 +499,24 @@ pui.widgets.add({
     
     "chart type": function(parms) {
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.value);
+    },
+    "visibility": function(parms) {
+    
+      if (parms.dom.chart) {
+      
+        if (parms.value == "hidden") {
+        
+          parms.dom.chart.style.display = "none";
+        
+        }
+        else {
+        
+          parms.dom.chart.style.display = "";
+        
+        }        
+      
+      }
+    
     }
     
   }  

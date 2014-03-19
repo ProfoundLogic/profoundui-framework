@@ -77,8 +77,24 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       if (objValue == checkedValue) parms.dom.checked = true;
       else parms.dom.checked = false;
-    }
-    
+    },
+    "visibility": function(parms) {
+      
+      if (!parms.design && parms.dom.labelObj) {
+      
+        if (parms.value == "hidden") {
+        
+          parms.dom.labelObj.style.visibility = "hidden";
+        
+        }
+        else {
+        
+          parms.dom.labelObj.style.visibility = "";
+        
+        }
+      
+      }
+    }    
   }
 
 });

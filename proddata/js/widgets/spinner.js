@@ -229,6 +229,26 @@ pui.widgets.add({
     
     "value": function(parms) {
       parms.dom.value = parms.value;
+    },
+    
+    "visibility": function(parms) {
+      
+      // Oddly, 'spinner' is attached on a time delay, see above. Better make sure it's there -- DR.
+      if (!parms.design && parms.dom.spinner) {
+      
+        if (parms.value == "hidden") {
+        
+          parms.dom.spinner.hide();
+        
+        }
+        else {
+        
+          parms.dom.spinner.show();  
+        
+        }
+      
+      }
+      
     }
 
   }

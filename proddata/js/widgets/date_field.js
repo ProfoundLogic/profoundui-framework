@@ -567,6 +567,25 @@ pui.widgets.add({
       try {
         if (!parms.design) parms.dom.setAttribute("type", parms.value);
       } catch(e) { }
+    },
+    
+    "visibility": function(parms) {
+    
+      if (parms.dom.calimg) {
+      
+        if (parms.value == "hidden") {
+        
+          parms.dom.calimg.style.visibility = "hidden";
+        
+        }
+        else {
+        
+          parms.dom.calimg.style.visibility = "";
+        
+        }        
+      
+      }
+    
     }
 
   

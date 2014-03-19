@@ -118,7 +118,24 @@ pui.widgets.add({
        
         }
       }
-    }      
+    },
+    "visibility": function(parms) {
+      
+      if (!parms.design && parms.dom.labelObj) {
+      
+        if (parms.value == "hidden") {
+        
+          parms.dom.labelObj.style.visibility = "hidden";
+        
+        }
+        else {
+        
+          parms.dom.labelObj.style.visibility = "";
+        
+        }
+      
+      }
+    }          
   }
     
 });

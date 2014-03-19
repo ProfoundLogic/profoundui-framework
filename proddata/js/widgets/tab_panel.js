@@ -636,22 +636,14 @@ function TabPanel() {
         var elem = elems[i];
         if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
           if (elem.parentTab == me.selectedTab) {
-            elem.style.visibility = "";
-            if (elem.chart != null) elem.style.display = "";
-            if (elem.calimg) elem.calimg.style.visibility = "";
-            if (!isDesign && elem.spinner) elem.spinner.show();
-            if (!isDesign && elem.labelObj) elem.labelObj.style.visibility = "";
+            applyProperty(elem, "visibility", "");
             if (elem.grid && elem.grid.setProperty) {
               if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid.show();
               else elem.grid.hide();
             }
           }
           else {
-            elem.style.visibility = "hidden";
-            if (elem.chart != null) elem.style.display = "none";
-            if (elem.calimg) elem.calimg.style.visibility = "hidden";
-            if (!isDesign && elem.spinner) elem.spinner.hide();
-            if (!isDesign && elem.labelObj) elem.labelObj.style.visibility = "hidden";
+            applyProperty(elem, "visibility", "hidden");
             if (elem.grid && elem.grid.setProperty) elem.grid.hide();
             if (elem.validationTip != null) {
               elem.validationTip.hide();
