@@ -1540,3 +1540,21 @@ pui.taphold = function(target, handler, threshold) {
   target.addEventListener("touchend", stop, false);  
   
 }
+
+// Used to fix IE8 printing issue, see here: 
+// http://stackoverflow.com/questions/3591464/print-page-shows-unchanged-checkbox-in-ie-with-doctype
+// --DR.
+pui.fixCheckPrint = function(el) {
+
+  if (el.checked) {
+  
+    el.setAttribute("checked", "checked");
+  
+  }
+  else {
+  
+    el.removeAttribute("checked");
+  
+  }
+
+}

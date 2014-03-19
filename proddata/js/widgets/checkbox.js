@@ -62,6 +62,9 @@ pui.widgets.add({
           });
         }
       }
+      // Fixes printing problem for IE8. 
+      // -- DR.
+      pui.fixCheckPrint(parms.dom);      
     },
     
     "value": function(parms) {
@@ -69,6 +72,9 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       if (parms.value == checkedValue) parms.dom.checked = true;
       else parms.dom.checked = false;    
+      // Fixes printing problem for IE8. 
+      // -- DR.
+      pui.fixCheckPrint(parms.dom);        
     },
     
     "checked value": function(parms) {
@@ -77,6 +83,9 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       if (objValue == checkedValue) parms.dom.checked = true;
       else parms.dom.checked = false;
+      // Fixes printing problem for IE8. 
+      // -- DR.
+      pui.fixCheckPrint(parms.dom);        
     },
     "visibility": function(parms) {
       
