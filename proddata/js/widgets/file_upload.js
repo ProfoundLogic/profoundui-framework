@@ -45,6 +45,7 @@ pui["fileupload"].FileUpload = function(container) {
   var submitHandle;
   var timeout = 86400000;
   var error = "";  
+  var disabled = false;
   
   var enhanced = false;
   var fileLimit = 1;
@@ -242,6 +243,17 @@ pui["fileupload"].FileUpload = function(container) {
     }
   
   }  
+  
+  this.setDisabled = function(state) {
+  
+    disabled = state;
+    for (var i = 0; i < selectors.length; i++) {
+    
+      selectors[i].input.disabled = disabled;
+    
+    }  
+  
+  }
   
   this.setOverwrite = function(value) {
   
@@ -809,7 +821,7 @@ pui["fileupload"].FileUpload = function(container) {
 	
 	  e = e || window.event;
 	  
-	  if (submitHandle == null) {
+	  if (submitHandle == null && !disabled) {
 	  
       while(selectors.length > 0) {
       
@@ -1143,6 +1155,15 @@ pui.widgets.add({
       if (parms.design) return;
     
       parms.dom.fileUpload.setUploadEvent(parms.newValue);
+    
+    },
+    
+    "disabled": function(parms) {
+    
+      if (parms.design) return;
+      
+      var disabled = (parms.value == "true");
+      parms.dom.fileUpload.setDisabled(disabled);
     
     }
     
