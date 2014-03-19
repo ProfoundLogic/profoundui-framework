@@ -58,6 +58,31 @@ pui.widgets.add({
           parms.dom.innerHTML = html;
         }
       }
+    },
+    "visibility": function(parms) {
+      
+      if (!parms.design) {
+      
+        var iframe = parms.dom.getElementsByTagName("iframe");
+        if (iframe && iframe.length == 1) {
+      
+          iframe = iframe[0];
+          if (parms.value == "hidden") {
+          
+            iframe.style.visibility = "hidden";
+            iframe.style.display = "none";
+          
+          }
+          else {
+          
+            iframe.style.visibility = "";
+            iframe.style.display = "";
+          
+          }
+        
+        }
+      
+      }
     }
     
   }
