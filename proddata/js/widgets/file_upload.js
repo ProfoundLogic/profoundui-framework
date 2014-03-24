@@ -687,7 +687,6 @@ pui["fileupload"].FileUpload = function(container) {
     }  
 	
 	  selector = document.createElement("a");
-	  selector.href = "javascript: void(0);";
 	  selector.className = "control-proxy";
 	  selector.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload select text")));
 	  
