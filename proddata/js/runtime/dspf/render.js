@@ -1267,7 +1267,7 @@ pui.renderFormat = function(parms) {
                   dom.responseValue = "";
                 }
                 if (propname == "upload response") {
-                  dom.fileUpload.qualField = qualField;
+                  dom["fileUpload"].qualField = qualField;
                 }
                 if (propname == "chart response") {
                   dom.responseValue = "";
@@ -2569,19 +2569,19 @@ pui.buildResponse = function() {
       }
       if (pui.bypassValidation != "true" && pui.bypassValidation != "send data" && dom.puirequired == true && !dom.disabled) {
         if ( (typeof boxDom.value == "string" && (trim(boxDom.value) == "" || boxDom.value === boxDom.emptyText)) ||
-             (dom.fileUpload != null && dom.fileUpload.getCount() < 1) ) {
+             (dom["fileUpload"] != null && dom["fileUpload"].getCount() < 1) ) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           var msg = pui.getLanguageText("runtimeMsg", "required");
-          if (dom.fileUpload != null) msg = pui.getLanguageText("runtimeMsg", "file required");
+          if (dom["fileUpload"] != null) msg = pui.getLanguageText("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
           continue;
         }
       }
-      if (dom.fileUpload != null && pui.bypassValidation != "true" && pui.bypassValidation != "send data") {
-        var msg = dom.fileUpload.validateCount();
+      if (dom["fileUpload"] != null && pui.bypassValidation != "true" && pui.bypassValidation != "send data") {
+        var msg = dom["fileUpload"].validateCount();
         if (msg == null) {
-          msg = dom.fileUpload.validateNames();
+          msg = dom["fileUpload"].validateNames();
         }
         if (msg != null) {
           response.valid = false;

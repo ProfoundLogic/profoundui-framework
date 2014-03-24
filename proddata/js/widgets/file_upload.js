@@ -176,7 +176,7 @@ pui["fileupload"].FileUpload = function(container) {
     if ((newMode == "enhanced" && !enhanced) || (newMode != "enhanced" && enhanced)) {
     
       enhanced = (newMode == "enhanced");
-      clearFiles();
+      this["clear"]();
     
     }
   
@@ -587,6 +587,24 @@ pui["fileupload"].FileUpload = function(container) {
     }  
   
   }
+  
+  // API methods.
+  this["clear"] = function() {
+  
+    if (submitHandle == null && !disabled) {
+	  
+      while(selectors.length > 0) {
+      
+        selectors[selectors.length - 1].parentNode.removeChild(selectors[selectors.length - 1]);
+        selectors.pop();
+      
+      }
+      
+      this.render();
+    
+    }  
+  
+  }
 
   // Private methods.
 
@@ -821,29 +839,14 @@ pui["fileupload"].FileUpload = function(container) {
 	
 	  e = e || window.event;
 	  
-	  if (submitHandle == null && !disabled) {
+	  me["clear"]();
 	  
-      while(selectors.length > 0) {
-      
-        selectors[selectors.length - 1].parentNode.removeChild(selectors[selectors.length - 1]);
-        selectors.pop();
-      
-      }
-      
-      me.render();
-    
-    }
-
-    if (e) {
-    
-  	  e.cancelBubble = true;
-  	  e.returnValue = false;
-  	  if (e.preventDefault) e.preventDefault();
-  	  if (e.stopPropagation) e.stopPropagation();
-  	  return false;
+	  e.cancelBubble = true;
+	  e.returnValue = false;
+	  if (e.preventDefault) e.preventDefault();
+	  if (e.stopPropagation) e.stopPropagation();
+	  return false;
   	  
-	  }
-	
 	}	
 	
 	function uploadFiles(e) {
@@ -1081,10 +1084,10 @@ pui.widgets.add({
   
     "field type": function(parms) {
 
-        if (parms.dom.fileUpload == null) {
+        if (parms.dom["fileUpload"] == null) {
         
-          parms.dom.fileUpload = new pui["fileupload"].FileUpload(parms.dom);
-          if (context == "dspf") pui.fileUploadElements.push(parms.dom.fileUpload);
+          parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
+          if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
         
         }
         
@@ -1098,15 +1101,15 @@ pui.widgets.add({
           prop = "allowed type " + (++suffix);
         
         }
-        parms.dom.fileUpload.setAllowedTypes(types);
+        parms.dom["fileUpload"].setAllowedTypes(types);
 
-        parms.dom.fileUpload.render();
+        parms.dom["fileUpload"].render();
 
     },
     
     "selection mode": function(parms) {
     
-      parms.dom.fileUpload.setMode(parms.value); 
+      parms.dom["fileUpload"].setMode(parms.value); 
     
     },
     
@@ -1114,7 +1117,7 @@ pui.widgets.add({
     
       if (parms.design) return;
     
-      parms.dom.fileUpload.setFileLimit(parseInt(parms.value, 10)); 
+      parms.dom["fileUpload"].setFileLimit(parseInt(parms.value, 10)); 
     
     },
     
@@ -1122,7 +1125,7 @@ pui.widgets.add({
     
       if (parms.design) return;
     
-      parms.dom.fileUpload.setSizeLimit(parseInt(parms.value, 10)); 
+      parms.dom["fileUpload"].setSizeLimit(parseInt(parms.value, 10)); 
     
     },
     
@@ -1130,7 +1133,7 @@ pui.widgets.add({
     
       if (parms.design) return;
     
-      parms.dom.fileUpload.setTargetDirectory(trim(parms.value));   
+      parms.dom["fileUpload"].setTargetDirectory(trim(parms.value));   
     
     },
     
@@ -1138,7 +1141,7 @@ pui.widgets.add({
     
       if (parms.design) return;
     
-      parms.dom.fileUpload.setAltName(trim(parms.value));   
+      parms.dom["fileUpload"].setAltName(trim(parms.value));   
     
     },
     
@@ -1146,7 +1149,7 @@ pui.widgets.add({
     
       if (parms.design) return;
     
-      parms.dom.fileUpload.setOverwrite(parms.value == "true" || parms.value == true);   
+      parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);   
     
     },
     
@@ -1154,7 +1157,7 @@ pui.widgets.add({
 
       if (parms.design) return;
     
-      parms.dom.fileUpload.setUploadEvent(parms.newValue);
+      parms.dom["fileUpload"].setUploadEvent(parms.newValue);
     
     },
     
@@ -1163,7 +1166,7 @@ pui.widgets.add({
       if (parms.design) return;
       
       var disabled = (parms.value == "true");
-      parms.dom.fileUpload.setDisabled(disabled);
+      parms.dom["fileUpload"].setDisabled(disabled);
     
     }
     
