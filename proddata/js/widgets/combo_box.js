@@ -155,6 +155,7 @@ pui.ComboBoxWidget = function() {
   
   this.setValue = function(value) {
     box.value = value;    
+    pui.checkEmptyText(box);
   }
 
   this.getValue = function() {
@@ -193,6 +194,7 @@ pui.ComboBoxWidget = function() {
     me["choices"] = [];
     me["choice values"] = [];
     box.value = "";
+    pui.checkEmptyText(box);
   }
   
   this.getBox = function() {
