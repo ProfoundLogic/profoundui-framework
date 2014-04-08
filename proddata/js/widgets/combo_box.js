@@ -39,6 +39,14 @@ pui.ComboBoxWidget = function() {
   var choicesDiv;
   var fixedHeight = 110;
 
+  this["showChoices"] = function() {
+    showChoices();
+  }
+
+  this["hideChoices"] = function() {
+    hideChoices();
+  }
+
   this.init = function() {
     if (me.div == null) {
       me.div = document.createElement("div");
