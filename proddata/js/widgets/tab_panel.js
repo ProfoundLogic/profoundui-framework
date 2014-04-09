@@ -636,6 +636,7 @@ function TabPanel() {
         var elem = elems[i];
         if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
           if (elem.parentTab == me.selectedTab) {
+            elem.style.visibility = "";
             applyProperty(elem, "visibility", "");
             if (elem.grid && elem.grid.setProperty) {
               if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid.show();
@@ -643,6 +644,7 @@ function TabPanel() {
             }
           }
           else {
+            elem.style.visibility = "hidden";
             applyProperty(elem, "visibility", "hidden");
             if (elem.grid && elem.grid.setProperty) elem.grid.hide();
             if (elem.validationTip != null) {
