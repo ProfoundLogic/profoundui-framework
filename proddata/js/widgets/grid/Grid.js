@@ -3035,7 +3035,10 @@ pui.Grid = function() {
           me.doThisToTableDivs(function(domObj) {
             domObj.style.visibility = value;
           });
-          if (value == "hidden" && me.scrollbarObj != null) me.scrollbarObj.hide();
+          if (me.scrollbarObj != null) {
+            if (value == "hidden") me.scrollbarObj.hide();
+            else me.scrollbarObj.draw();
+          }
         }
         if (me.designMode) {
           if (value == "hidden") {
