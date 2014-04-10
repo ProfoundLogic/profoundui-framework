@@ -569,12 +569,13 @@ pui.Grid = function() {
     var fileName = file;
     if (fileName == null) fileName = me.csvFileName;
     if (fileName == null || fileName == "") fileName = me.tableDiv.id;
-    fileName = encodeURIComponent(fileName);
 
     if (me.isDataGrid()) {
       me.getData(fileName);
       return;
     }
+
+    fileName = encodeURIComponent(fileName);
 
     // initialize column array, each array element will hold the index to the dataArray
     var columnArray = [];
