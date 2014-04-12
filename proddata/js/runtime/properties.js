@@ -1384,6 +1384,7 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
 
 pui.addCustomProperty = function(parms) {
   var pm = getPropertiesModel();
+  var pnm = getPropertiesNamedModel();
   var found = false;
   var insertAt = pm.length;
   
@@ -1403,9 +1404,11 @@ pui.addCustomProperty = function(parms) {
     insertAt++;
   }
   
-  // insert property
+  // insert property into both the properties model (array for reading properties sequentially) and the properties named model (object for referencing properties by name)
   delete parms.category;  // the category name doesn't belong on the property definition in the properties model
   pm.splice(insertAt, 0, parms);
+  pnm[parms.name] = parms;
+
 }
 
 
