@@ -4994,6 +4994,37 @@ pui.Grid = function() {
     return count;
   }
   
+  this["clearState"] = function(part) {
+  
+    var stg = loadState();
+    if (stg != null) {
+    
+      if (typeof part == "string") {
+      
+        part = part.toLowerCase();
+        for (var i in stg) {
+        
+          if (i.toLowerCase() == part) {
+          
+            delete stg[i];
+            saveState(stg);
+            break;
+          
+          }
+        
+        }
+      
+      }
+      else {
+      
+        delete localStorage[me.storageKey];
+      
+      }
+    
+    }
+  
+  }
+  
   this.hideContextMenu = function() {
   
     if (!me.contextMenuId) return;
