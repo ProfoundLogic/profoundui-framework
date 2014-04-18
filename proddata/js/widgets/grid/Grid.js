@@ -787,6 +787,20 @@ pui.Grid = function() {
     if (typeof row != "number") return null;
     if (typeof fieldName != "string") return null;
     var record = me.dataArray[row - 1];
+    
+    // if data array has been sorted, we need to get the record
+    // based on it's original subfile row number rather than
+    // it's position in the array.
+    if (typeof me.sorted != "undefined" && me.sorted === true) {
+       record = null;
+       for (var i=0; i<me.dataArray.length; i++) {
+       	  if (me.dataArray[i].subfileRow == row) {
+       	  	 record = me.dataArray[i];
+       	  	 break;
+       	  }
+       }    	
+    }
+    
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
     
