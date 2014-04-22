@@ -342,7 +342,6 @@ pui.widgets.add({
                 var retrievedDataName = get(dataName);
                 if (retrievedDataName != "") dataName = retrievedDataName;
               }
-              dataName = dataName.replace(/"/g, "'");  // '
               var dataValue = valueArray[i];
               if (dataValue == null) dataValue = "0";
               dataValue = String(dataValue);
@@ -359,7 +358,7 @@ pui.widgets.add({
                 dataValue = Number(dataValue);
               }
               if (isNaN(dataValue)) dataValue = 0;
-              chartXML += '<set name="' + dataName + '" value="' + dataValue + '" />';
+              chartXML += '<set name="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
             }
             chartXML += '</chart>';
             
