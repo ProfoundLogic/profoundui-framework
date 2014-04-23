@@ -60,6 +60,7 @@ window['currentUser'] = currentUser;
 window['getQueryStringParms'] = getQueryStringParms;
 window["setCursor"] = setCursor;
 window["getTarget"] = getTarget;
+window["inDesignMode"] = inDesignMode;
 
 window['loadPCCommandApplet'] = loadPCCommandApplet;
 window['runPCCommand'] = runPCCommand;
