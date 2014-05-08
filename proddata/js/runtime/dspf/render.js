@@ -2140,7 +2140,7 @@ pui.renderFormat = function(parms) {
     // If rendering into collapsed grid, disable any elements which are 
     // below the viewable portion of the cell. 
     
-    if (!isDesignMode && gridObj != null && !gridObj.expanded) {
+    if (!isDesignMode && gridObj != null && !gridObj["expanded"]) {
     
       var cell = container;
       var height = parseInt(cell.style.height);
@@ -2984,7 +2984,7 @@ pui.buildResponse = function() {
 
   for (var sflModeFieldName in pui.sflModes) {
     var dom = pui.sflModes[sflModeFieldName];
-    if (dom.grid.expanded) {
+    if (dom.grid["expanded"]) {
       response[sflModeFieldName] = "0";
     }
     else {

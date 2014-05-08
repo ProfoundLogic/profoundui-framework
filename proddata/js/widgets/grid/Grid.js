@@ -164,7 +164,7 @@ pui.Grid = function() {
   this.selectionValue = "1";
   this.selectedRecordNum = null;
   
-  this.expanded = true;
+  this["expanded"] = true;
   this.initCollapsed = null;
   this.initExpanded = null;
   this.foldMultiple = 1;
@@ -364,10 +364,10 @@ pui.Grid = function() {
   
   this.collapse = function(button) {
     //if (me.visibility == "hidden") return;
-    if (!me.expanded) return;
+    if (!me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
     if (me.zoomDiv != null) me.zoomDiv.style.display = "none";
-    me.expanded = false;
+    me["expanded"] = false;
     var rowCount = me.cells.length;
     if (me.hasHeader) rowCount -= 1;
     rowCount = rowCount * (me.foldMultiple - 1)
@@ -406,10 +406,10 @@ pui.Grid = function() {
   }
 
   this.expand = function(button) {
-    if (me.expanded) return;
+    if (me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
     if (me.zoomDiv != null) me.zoomDiv.style.display = "none";
-    me.expanded = true;
+    me["expanded"] = true;
     var rowCount = me.cells.length;
     if (me.hasHeader) rowCount -= 1;
     rowCount = parseInt(rowCount / me.foldMultiple);
@@ -473,7 +473,7 @@ pui.Grid = function() {
   }
   
   this.toggle = function(button) {
-    if (me.expanded) {
+    if (me["expanded"]) {
       me.collapse(button);
     }
     else {
@@ -3917,7 +3917,7 @@ pui.Grid = function() {
       
       me.setRowBackground(row, true);
 
-      if (me.singleRowZoom && !me.expanded && (row > 0 || !me.hasHeader)) {      
+      if (me.singleRowZoom && !me["expanded"] && (row > 0 || !me.hasHeader)) {      
         var cell = cols[0];
         if (me.zoomIcon == null) {
           me.zoomIcon = document.createElement("img");
