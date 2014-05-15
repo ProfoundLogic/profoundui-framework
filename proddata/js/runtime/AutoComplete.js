@@ -409,7 +409,7 @@ function AutoComplete(config) {
   				return false;
 				}
 			}
-		}		
+		}		 
 		
 	}
 	
@@ -417,7 +417,7 @@ function AutoComplete(config) {
 
 		event = event || window.event;
 		var keyCode = event.keyCode;
-
+    
     if (textBox.readOnly || textBox.disabled) {
       return;
     }
@@ -429,8 +429,12 @@ function AutoComplete(config) {
 			return;
 		}
 				
+			
 		// Query server when a printable character is pressed and there is at least one non-blank character in the box.
-		if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222)) {
+		// Second portion of if statement checks if running in mobile device browser or mobile client, and 
+		// checks if the keycode is 0. This is a fix for issue #593
+		if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222)
+		|| ((window.cordova != null || typeof window.orientation !== 'undefined') && keyCode == 0) ) {
 			if (textBox.value.replace(/ /g, "") != "") {
 				
 				if (choices && values) {
