@@ -368,7 +368,8 @@ function getScreenPropertiesModel(designScreen) {
 
     	{ name: "Misc", category: true },
     	{ name: "separator", help: "Specifies an optional seperator value to output when multiple copies of this format are written.  For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false },
-    	{ name: "destination", help: "Specifies an IFS path to send the output to.  If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char"] }
+    	{ name: "destination", help: "Specifies an IFS path to send the output to. The file path is set on the first write to this record format, and cannot be changed without closing and re-opening the display file. If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char"] },
+    	{ name: "existing file action", choices: ["append", "replace", "exception"], help: "Action to take if <i>destination</i> file already exists when the program starts writing this record format. \"append\" will append to existing file content. \"replace\" will delete/re-create the file. \"exception\" will cause the handler to send an escape message to the program. If not specified, the default value is \"exception\".", hideFormatting: true, validDataTypes: ["char"] }
     ];
     return model;
 	}
