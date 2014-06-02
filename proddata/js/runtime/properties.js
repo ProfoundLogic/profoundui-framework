@@ -40,12 +40,8 @@ function getPropertiesModel() {
       { name: "Identification", category: true },
       { name: "bound field", help: "Use this property to specify the bound field name and data type.", readOnly: true, canBeRemoved: false },
       { name: "description", help: "Use this property to provide a text description (or comment) for the field.", bind: false },
-    	{ name: "Encoding", category: true },
-    	{ name: "html encode", choices: ["true", "false"], help: "Determines whether the field should be html encoded.", bind: false },
-    	{ name: "json encode", choices: ["true", "false"], help: "Determines whether the field should be json encoded.", bind: false },
-    	{ name: "xml encode", choices: ["true", "false"], help: "Determines whether the field should be xml encoded.", bind: false },
-    	{ name: "csv encode", choices: ["true", "false"], help: "Determines whether the field should be csv encoded.", bind: false },
       { name: "Misc", category: true },
+      { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], help: "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> or <i>content type</i> property settings. ", bind: false },
       { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Determines whether the field is output or not." }      
     ]
     return cachedPropertiesModel;
