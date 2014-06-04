@@ -360,7 +360,7 @@ function getScreenPropertiesModel(designScreen) {
     	{ name: "content type", help: "Specifies an HTTP response content type.  If not specified, a default conent type based on the document type is used.", hideFormatting: true, validDataTypes: ["char"] },
     	{ name: "attachment name", help: "Specifies an attachment file name.  When the attachment name is specified, the \"Content-Disposition: attachment\" header is sent as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char"] },
     	{ name: "no cache", choices: ["true", "false"], type: "boolean", help: "Specifies whether the \"Cache-Control: no-cache\" HTTP header is sent, which causes the browser not to cache the response.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
-    	{ name: "custom headers", type: "long", help: "Specifies custom HTTP headers to send as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char"] },
+    	{ name: "custom header", multOccur: true, type: "long", help: "Specifies custom HTTP headers to send as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char"] },
 
     	{ name: "Misc", category: true },
     	{ name: "separator", help: "Specifies an optional seperator value to output when multiple copies of this format are written.  For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false },
