@@ -256,6 +256,9 @@ function changeElementValue(id, val) {
     else if (elem.comboBoxWidget != null) {
       elem.comboBoxWidget.setValue(val);
     }
+    else if (elem.button && elem.button.textDiv) {
+      elem.button.textDiv.innerHTML = val;
+    }
     else {
       elem.innerHTML = val;
     }
