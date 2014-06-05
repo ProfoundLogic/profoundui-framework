@@ -878,6 +878,9 @@ function AutoComplete(config) {
 	function doClick() {
 		selectRecord();
 		hideResults();
+		setTimeout(function() {
+		  textBox.focus();
+		}, 0);
 	}	
 	
 }
