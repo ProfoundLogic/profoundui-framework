@@ -4800,7 +4800,7 @@ pui.Grid = function() {
       movePropertyParts("header background");
       movePropertyParts("column headings");
       var columnHeadings = me.tableDiv.designItem.properties["column headings"];
-      if (columnHeadings == null) columnHeadings = "";
+      if (columnHeadings == null || typeof columnHeadings != "string") columnHeadings = "";
       me.columnHeadings = columnHeadings.split(",");
       movePropertyParts("odd row font color");
       movePropertyParts("odd row background");
