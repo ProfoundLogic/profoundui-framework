@@ -368,8 +368,8 @@ pui["runtimeText"]["es_ES"]["sort descending text"] = "Ordenación Descendente";
 pui["runtimeText"]["es_ES"]["row"]                  = "línea";
 pui["runtimeText"]["es_ES"]["rows"]                 = "líneas";
 pui["runtimeText"]["es_ES"]["page"]                 = "Página";
-pui["runtimeText"]["es_ES"]["collapseAll"]          = "Recoger tudo";
-pui["runtimeText"]["es_ES"]["expandAll"]            = "Espandir tudo";
+pui["runtimeText"]["es_ES"]["collapseAll"]          = "Contraer todo";
+pui["runtimeText"]["es_ES"]["expandAll"]            = "Expandir todo";
 
 
 // ------------------------------------------------------------
