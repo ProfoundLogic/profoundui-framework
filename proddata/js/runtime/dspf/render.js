@@ -1225,7 +1225,7 @@ pui.renderFormat = function(parms) {
                     newDom.style.display = dom.style.display;
                     newDom.id = dom.id;
                     newDom.value = dom.value;
-                    newDom.exraDomEls = dom.exraDomEls;
+                    newDom.extraDomEls = dom.extraDomEls;
                     newDom.labelObj = dom.labelObj;
                     newDom.modified = dom.modified;
                     dom.parentNode.replaceChild(newDom, dom);
