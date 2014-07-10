@@ -916,8 +916,8 @@ pui.getOffset = function(obj) {
   var curleft = curtop = 0;
   if (obj.offsetParent) {
     do {
-      curleft += obj.offsetLeft;
-      curtop += obj.offsetTop;
+      curleft += obj.offsetLeft - obj.scrollLeft;
+      curtop += obj.offsetTop - obj.scrollTop;
     } while (obj = obj.offsetParent);
   }
   return [curleft,curtop];
