@@ -1245,7 +1245,7 @@ pui.renderFormat = function(parms) {
                     newDom.onmouseout = dom.onmouseout;
                     newDom.onmouseover = dom.onmouseover;
                     newDom.onmouseup = dom.onmouseup;
-                    newDom.pui = dom.pui;
+                    newDom["pui"] = dom["pui"];
                     dom = newDom;                    
                   }
                   dom["radioValue"] = properties["value"];
