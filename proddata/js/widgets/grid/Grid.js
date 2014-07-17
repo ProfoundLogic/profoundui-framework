@@ -1960,7 +1960,7 @@ pui.Grid = function() {
     
     var state;
     
-    if (localStorage[me.storageKey] != null) {
+    if (pui.isLocalStorage() && localStorage[me.storageKey] != null) {
                   
       try {
       
@@ -2748,7 +2748,7 @@ pui.Grid = function() {
         break;
       
       case "persist state": 
-        persistState = (me.designMode == false && typeof(window.localStorage) != "undefined" && (value == true || value == "true"));
+        persistState = (me.designMode == false && pui.isLocalStorage() && (value == true || value == "true"));
         break;
         
       case "expand to layout":

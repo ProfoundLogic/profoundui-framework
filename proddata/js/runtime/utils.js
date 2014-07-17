@@ -1569,3 +1569,21 @@ pui.xmlEscape = function(str) {
   return str;
 
 }
+
+
+pui.isLocalStorage = function() {
+
+try {
+if (localStorage != null && typeof(window.localStorage) != "undefined")
+		return true;
+	
+	else
+		return false;
+	}
+	
+catch(e){
+	return false;
+	}
+}
+
+
