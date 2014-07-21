@@ -2203,13 +2203,11 @@ pui.renderFormat = function(parms) {
     if (grid.recNum > 1 && grid.scrollbarObj != null && grid.scrollbarObj.type == "sliding") {
       grid.scrollbarObj.setScrollTopToRow(grid.recNum, true);
     }
-    else {
-      if (pui.placeCursorOnSubfile && pui.cursorValues.setColumn == null && pui.cursorValues.setRow == null) {
-        if (pui.focusField == null || pui.focusField.setFocusFlag != true) {
-          setTimeout(function() {
-            grid.placeCursor(true);
-          }, 1);
-        }
+    if (pui.placeCursorOnSubfile && pui.cursorValues.setColumn == null && pui.cursorValues.setRow == null) {
+      if (pui.focusField == null || pui.focusField.setFocusFlag != true) {
+        setTimeout(function() {
+          grid.placeCursor(true);
+        }, 1);
       }
     }
     if (grid.scrollbarObj != null) {
