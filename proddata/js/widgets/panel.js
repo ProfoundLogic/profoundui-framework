@@ -241,14 +241,6 @@ pui.widgets.panelStyles = {
 pui.widgets.defaultPanelWidth = 200;
 pui.widgets.defaultPanelHeight = 100;
 
-pui.widgets.getPanelStyles = function() {
-  var panelStyleArray = [];
-  for (var panelStyle in pui.widgets.panelStyles) {
-    panelStyleArray.push(panelStyle);
-  }
-  return panelStyleArray;
-}
-
 
 pui.widgets.getPanelProxy = function(defaults) {
   var pstyle = defaults["panel style"];

@@ -130,14 +130,6 @@ pui.widgets.tabStyles = {
   }
 }
 
-pui.widgets.getTabStyles = function() {
-  var tabStyleArray = [];
-  for (var tabStyle in pui.widgets.tabStyles) {
-    tabStyleArray.push(tabStyle);
-  }
-  tabStyleArray.push("Other...");
-  return tabStyleArray;
-}
 
 pui.widgets.preloadTabStyle = function(tabStyle) {
   tabStyleSettings = pui.widgets.tabStyles[tabStyle];

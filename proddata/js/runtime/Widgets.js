@@ -134,3 +134,31 @@ pui.Widgets = function() {
 pui.widgets = new pui.Widgets();
 
 
+pui.widgets.getButtonStyles = function() {
+  var buttonStyleArray = [];
+  for (var buttonStyle in pui.widgets.buttonStyles) {
+    buttonStyleArray.push(buttonStyle);
+  }
+  return buttonStyleArray;
+}
+
+pui.widgets.getPanelStyles = function() {
+  var panelStyleArray = [];
+  for (var panelStyle in pui.widgets.panelStyles) {
+    panelStyleArray.push(panelStyle);
+  }
+  return panelStyleArray;
+}
+
+pui.widgets.getChartTypes = function() {
+  return pui.widgets.chartTypes;
+}
+
+pui.widgets.getTabStyles = function() {
+  var tabStyleArray = [];
+  for (var tabStyle in pui.widgets.tabStyles) {
+    tabStyleArray.push(tabStyle);
+  }
+  tabStyleArray.push("Other...");
+  return tabStyleArray;
+}

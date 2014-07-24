@@ -240,14 +240,6 @@ pui.widgets.buttonStyles = {
   }
 }
 
-pui.widgets.getButtonStyles = function() {
-  var buttonStyleArray = [];
-  for (var buttonStyle in pui.widgets.buttonStyles) {
-    buttonStyleArray.push(buttonStyle);
-  }
-  return buttonStyleArray;
-}
-
 
 pui.widgets.getStyledButtonProxy = function(defaults) {
   var bstyle = defaults["button style"];
