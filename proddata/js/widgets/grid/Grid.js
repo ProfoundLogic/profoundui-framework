@@ -1834,7 +1834,7 @@ pui.Grid = function() {
 
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         
-        me.scrollbarObj.setScrollTopToRow(1);
+        me.scrollbarObj.setScrollTopToRow(me.recNum);
       
       }
         
