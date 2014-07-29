@@ -1075,9 +1075,13 @@ pui.Grid = function() {
     }
     else if (context == "dspf") {
       me.tableDiv.cursorRRN = 0;
-      me.tableDiv.returnRRN = me.recNum;
+      var rrn = me.recNum;
+      if (me.dataArray[me.recNum - 1] && me.dataArray[me.recNum - 1].subfileRow != null) {
+        rrn = me.dataArray[me.recNum - 1].subfileRow;
+      }      
+      me.tableDiv.returnRRN = rrn;
       if (me.fileId != null) {
-        pui.topRRNs["toprrn." + me.fileId] = me.recNum;
+        pui.topRRNs["toprrn." + me.fileId] = rrn;
       }
       me.clearData();
       var rowNum = (me.hasHeader ? 1 : 0);
@@ -1587,7 +1591,7 @@ pui.Grid = function() {
         }
       }
       if (me.initialSortColumn != null) {
-        sortColumn(headerRow[me.initialSortColumn]);
+        sortColumn(headerRow[me.initialSortColumn], false, true);
       }
     }
         
@@ -1705,7 +1709,7 @@ pui.Grid = function() {
         }
         else {
          
-          sortColumn(sortCell, true);
+          sortColumn(sortCell, true, false);
           
         }        
         
@@ -1738,7 +1742,7 @@ pui.Grid = function() {
     }
   }
     
-  function sortColumn(cell, restoring) {
+  function sortColumn(cell, restoring, initialSort) {
     if (me.gridMenu != null) me.gridMenu.hide();
     if (cell == null) return;
     var sortIndex = cell.sortIndex;
@@ -1808,13 +1812,34 @@ pui.Grid = function() {
       
       me.sorted = true;
 
-      if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-        me.scrollbarObj.setScrollTopToRow(1);
-      }        
-    
       me.recNum = 1;
+      if (restoring || initialSort) {
+      
+        // These are automatic sorts at render time. 
+        // Need to set grid 'recNum' property (data array sequence number)
+        // based on rrn provided by the program.
+        
+        for (var i = 0; i < me.dataArray.length; i++) {
+        
+          if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
+          
+            me.recNum = i + 1;
+            break;
+          
+          }
+        
+        }
+      
+      }
+
+      if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+        
+        me.scrollbarObj.setScrollTopToRow(1);
+      
+      }
+        
       me.getData();
-    
+
     }
          
     desc = !desc;
