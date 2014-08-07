@@ -708,7 +708,7 @@ pui.beforeUnload = function(event) {
   
   if (pui.confirmOnClose && !pui.skipConfirm) {
     if (context == "genie" && pui.isSignOnScreen()) return;
-    if (window.parent != window && typeof(window.parent["Atrium"]) != "undefined") return;
+    if (window.parent != window && pui.checkForAtrium(parent)) return;
     if (context == "genie" || !inDesignMode() || recordFormats.isDirty()) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
@@ -1565,9 +1565,29 @@ pui.xmlEscape = function(str) {
   str = str.replace(/&/g, "&amp;");
   str = str.replace(/</g, "&lt;");
   str = str.replace(/>/g, "&gt;");
-  str = str.replace(/"/g, "&quot;");
-  return str;
+  str = str.replace(/"/g, "&quot;");   // " - fake comment to fix syntax highlighting
+  return str;  
 
+}
+
+
+// Used to fix Redmine 692 - iFrame close error issue when not in the same domain - Firefox and Chrome 
+// Function is used in this utils.js, genie.js and render.js
+
+pui.checkForAtrium = function(parentWindow) {
+  var hasAtrium = false;
+  
+  try {
+    hasAtrium = (typeof(parentWindow["Atrium"]) != "undefined");
+  }
+  catch(e) {
+  }
+
+  return hasAtrium;
+}
+
+
+<<<<<<< HEAD
 }
 
 
@@ -1587,3 +1607,5 @@ catch(e){
 }
 
 
+=======
+>>>>>>> Fix error Closing Applications Inside of Iframe

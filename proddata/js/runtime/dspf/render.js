@@ -534,8 +534,8 @@ pui.render = function(parms) {
     document.body.innerHTML = "<h1>Unrecoverable Error</h1> <p>Unrecoverable error <strong>" + parms["exception"] + "</strong> occurred while handling an exception. The original exception id is <strong>" + parms["cause"] + "</strong>.</p> <p>Please contact the server administrator to determine the cause of the problem.";
     return;
   }
-  
-  if (parms["closeTab"] == true && window.parent != window && typeof(window.parent["Atrium"]) != "undefined") {
+
+  if (parms["closeTab"] == true && window.parent != window && pui.checkForAtrium(window.parent)) {
     window["Atrium"]["closeTab"]();
     return;
   }
@@ -3889,11 +3889,11 @@ pui.newSession = function() {
 
 pui.closeSession = function() {
 
-  if (window.parent != window && typeof(window.parent["Atrium"]) != "undefined") {
+  if (window.parent != window && pui.checkForAtrium(window.parent)) {
     window["Atrium"]["closeTab"]();  
     return;
   }
-
+ 
   //document.body.style.backgroundColor = "#DFE8F6";
   document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
   
