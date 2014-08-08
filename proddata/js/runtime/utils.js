@@ -1587,10 +1587,6 @@ pui.checkForAtrium = function(parentWindow) {
 }
 
 
-<<<<<<< HEAD
-}
-
-
 pui.isLocalStorage = function() {
 
 try {
@@ -1606,6 +1602,3 @@ catch(e){
 	}
 }
 
-
-=======
->>>>>>> Fix error Closing Applications Inside of Iframe
