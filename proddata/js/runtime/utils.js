@@ -1602,3 +1602,22 @@ catch(e){
 	}
 }
 
+
+
+pui.normalizeColor = function(value) {
+  if (value.substr(0,1) == "#") value = value.toUpperCase();
+  if (value.substr(0,4) == "rgb(" && value.substr(value.length-1, 1) == ")") {
+    value = value.substr(4, value.length - 5);
+    value = value.replace(/ /g, "");
+    var hexCodes = value.split(",");
+    value = "#";
+    for (var i = 0; i < hexCodes.length; i++) {
+      var hex = Number(hexCodes[i]).toString(16).toUpperCase();
+      if (hex.length == 1) hex = "0" + hex;
+      value += hex;
+    } 
+  }
+  return value;
+}
+
+

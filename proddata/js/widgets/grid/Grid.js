@@ -4322,7 +4322,7 @@ pui.Grid = function() {
                 var cellStyleValue = me.cells[0][col].style[styleName];
                 if (cellStyleValue == null) cellStyleValue = "";
                 if (propName.indexOf("color") >= 0) {
-                  cellStyleValue = designUtils.normalizeColor(cellStyleValue);
+                  cellStyleValue = pui.normalizeColor(cellStyleValue);
                 }
                 if (me.cells[0][col] == cell) cellStyleValue = styleValue;
                 if (col != 0) styleValues += ",";

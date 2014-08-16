@@ -78,6 +78,11 @@ pui.MenuWidget = function() {
     var mainLevel = getLevel(parms.from);
     var prevTR;
     
+    var css;
+    if (window.getComputedStyle) {
+      css = window.getComputedStyle(container);
+    }
+    
     for (var i = parms.from; i <= parms.to; i++) {
       if (getLevel(i) != mainLevel) continue;
       var choice = me.choices[i];
@@ -112,7 +117,16 @@ pui.MenuWidget = function() {
       td.style.padding = me.padding;
       td.style.paddingLeft = me.paddingLeft;
       var bcolor = me.borderColor;
-      if (bcolor != "" && bcolor != null) {      
+      if (css != null && css.getPropertyValue != null) {
+        if (bcolor == "" || bcolor == null) {
+          bcolor = css.getPropertyValue("border-color");
+          if (bcolor == "" || bcolor == null) {
+            bcolor = css.getPropertyValue("border-left-color");
+          }
+        }
+      }
+      if (bcolor != "" && bcolor != null) {
+        bcolor = pui.normalizeColor(bcolor);
         if (table.rows.length <= 1) td.style.borderTop = "1px solid " + bcolor;
         td.style.borderLeft = "1px solid " + bcolor;
         td.style.borderRight = "1px solid " + bcolor;
@@ -625,6 +639,10 @@ pui.widgets.add({
       case "text transform": 
       case "word spacing":   
       case "background color":   
+      case "css class":
+      case "css class 2":
+      case "css class 3":
+      case "css class 4":
         if (parms.dom.menuWidget != null) {
           setTimeout(function() { parms.dom.menuWidget.draw() }, 0);
         }
