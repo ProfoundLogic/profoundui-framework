@@ -138,7 +138,12 @@ pui.MenuWidget = function() {
       if (me.optionImage != null && me.optionImage != "") {
         td.style.backgroundImage = "url('" + pui.normalizeURL(me.optionImage, true) + "')";
         var repeat = me.repeat;
-        if (repeat == null) repeat = "repeat";
+        if (repeat == null && css != null && css.getPropertyValue != null) {
+          repeat = css.getPropertyValue("background-repeat");
+        }
+        if (repeat == null || repeat == "") {
+          repeat = "repeat";  // default
+        }
         td.style.backgroundRepeat = repeat;
       }
       else {
@@ -180,7 +185,12 @@ pui.MenuWidget = function() {
           if (me.optionHoverImage != null && me.optionHoverImage != "") {
             td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
             var repeat = me.repeat;
-            if (repeat == null) repeat = "repeat";
+            if (repeat == null && css != null && css.getPropertyValue != null) {
+              repeat = css.getPropertyValue("background-repeat");
+            }
+            if (repeat == null) {
+              repeat = "repeat";  // default
+            }
             td.style.backgroundRepeat = repeat;
           }
           else {
