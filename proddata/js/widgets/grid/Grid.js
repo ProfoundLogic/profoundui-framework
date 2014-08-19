@@ -5064,6 +5064,45 @@ pui.Grid = function() {
   
   }
   
+  this["getSelectedCount"] = function() {
+  
+    var count = 0;
+    
+    if (me.selectionEnabled && me.selectionField) {
+    
+      var idx;
+      for (var i = 0; i < me.fieldNames.length; i++) {
+      
+        if (pui.fieldUpper(me.selectionField.fieldName) == me.fieldNames[i]) {
+                          
+          idx = i;
+          break;
+          
+        }
+        
+      }
+      
+      if (idx) {
+      
+        for (var i = 0; i < me.dataArray.length; i++) {
+        
+          if (me.dataArray[i].selection && me.dataArray[i].selection.modified) {
+          
+            if (me.dataArray[i].selected) count++;
+          
+          }
+          else if (me.dataArray[i][idx] == me.selectionValue) count++;
+        
+        }        
+      
+      }
+    
+    }
+  
+    return count;
+  
+  }  
+  
   this.hideContextMenu = function() {
   
     if (!me.contextMenuId) return;
