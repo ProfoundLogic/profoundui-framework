@@ -93,8 +93,9 @@ pui.GridMenu = function() {
         offset.y += pui.runtimeContainer.offsetTop;
       }
       else {
-        offset.x = me.grid.tableDiv.parentNode.offsetLeft;
-        offset.y = me.grid.tableDiv.parentNode.offsetTop;
+        var ctrOffset = pui.getOffset(me.grid.tableDiv.parentNode);      
+        offset.x = ctrOffset[0];
+        offset.y = ctrOffset[1];        
       }
       top = top - offset.y;
       left = left - offset.x;      
