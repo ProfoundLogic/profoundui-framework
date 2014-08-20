@@ -4042,9 +4042,10 @@ pui.Grid = function() {
             offset.x = parent.offsetLeft;
             offset.y = parent.offsetTop;
             
-          }        
-          offset.x += pui.runtimeContainer.offsetLeft;
-          offset.y += pui.runtimeContainer.offsetTop;
+          }  
+          var ctrOffset = pui.getOffset(pui.runtimeContainer);      
+          offset.x += ctrOffset[0];
+          offset.y += ctrOffset[1];
         
           x -= offset.x;
           y -= offset.y;
