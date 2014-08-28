@@ -449,8 +449,7 @@ function ajax(url, handler) {
     var paramObj = arguments[0];
     paramObj["async"] = null;
     paramObj["onsuccess"] = null;
-    paramObj["onfail"] = null;
-    paramObj["onsuccess"] = null;
+    //paramObj["onfail"] = null;
     if (typeof(paramObj["handler"]) == "function") {
       async = true;
       callback = paramObj["handler"];
@@ -559,7 +558,6 @@ function ajaxJSON(url, handler) {
     paramObj["async"] = null;
     paramObj["onsuccess"] = null;
     //paramObj["onfail"] = null;
-    paramObj["onsuccess"] = null;
     if (paramObj["saveResponse"] == true) saveResponse = true;
     if (typeof(paramObj["handler"]) == "function") {
       async = true;
