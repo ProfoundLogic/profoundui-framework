@@ -3939,22 +3939,29 @@ pui["maskScreen"] = function(parms) {
   var maskDiv;
   if (pui.maskDiv == null) {
     maskDiv = document.createElement("div");
-    maskDiv.id = "pui-mask-screen";
     pui.maskDiv = maskDiv;
   }
   else {
     maskDiv = pui.maskDiv;
   }
-  document.body.appendChild(maskDiv);
+  pui.runtimeContainer.appendChild(maskDiv);
   
   maskDiv.isPUIWindowMask = true;
   maskDiv.style.position = "absolute";
   
+  
+  
+ 
   maskDiv.style.left = "0px";
   maskDiv.style.top = "0px";
-  if (pui.genie != null) {
+  if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
     maskDiv.style.display = "none";
     setTimeout(function() {
+      //maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
+      //maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
+	  var runtimePosition = getDivPosition(pui.runtimeContainer);
+	  maskDiv.style.left = (0-runtimePosition.x) + "px";
+      maskDiv.style.top = (0-runtimePosition.y) + "px";
       maskDiv.style.display = "";
     }, 0);
   }
@@ -3971,6 +3978,29 @@ pui["maskScreen"] = function(parms) {
   
   addEvent(window, "resize", resize);
   addEvent(window, "scroll", scroll);
+  
+  
+  
+ function getDivPosition(obj) {
+    var pos = {'x':0,'y':0};
+    if(obj.offsetParent) {
+        while(1) {
+          pos.x += obj.offsetLeft;
+          pos.y += obj.offsetTop;
+          if(!obj.offsetParent) {
+            break;
+          }
+          obj = obj.offsetParent;
+        }
+    } else if(obj.x) {
+        pos.x += obj.x;
+        pos.y += obj.y;
+    }
+    return pos;
+  }
+  
+  
+  
   
   function resize() {
     if (pui["resizeFrequency"] != null && pui.lastResizeTime != null && (new Date).getTime() - pui.lastResizeTime < pui["resizeFrequency"]) return; 
@@ -3997,6 +4027,12 @@ pui["maskScreen"] = function(parms) {
       top = window.pageYOffset;
       left = window.pageXOffset;
     } 
+	var runtimePosition = getDivPosition(pui.runtimeContainer);	
+    if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
+      left -= runtimePosition.x;
+      if (context == "dspf") top -= runtimePosition.y;
+      else top = -pui.runtimeContainer.offsetTop;      
+    }
       
     if(maskDiv != null) {
       maskDiv.style.top = top + "px";
@@ -4010,8 +4046,9 @@ pui["maskScreen"] = function(parms) {
 
 pui["unmaskScreen"] = function() {
   if (pui.maskDiv == null) return;
-  var prt = pui.maskDiv.parentNode;
-  prt.removeChild(pui.maskDiv);
+  var parent = pui.maskDiv.parentNode;
+  if (parent != pui.runtimeContainer) return;
+  parent.removeChild(pui.maskDiv);
 }
 
 
