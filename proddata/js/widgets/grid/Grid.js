@@ -3415,11 +3415,37 @@ pui.Grid = function() {
                   columnPointer.src = pui.normalizeURL("/profoundui/proddata/images/grids/column-pointer.gif");
                   columnPointer.style.position = "absolute";
                   columnPointer.style.zIndex = me.moveColumnZIndex + 1;
-                  line.parentNode.appendChild(columnPointer);
+                  if (me.designMode) toolbar.designer.container.appendChild(columnPointer); 
+                  else document.body.appendChild(columnPointer);
                 }
+                var prt = line.parentNode;
+                var top = parseInt(line.style.top) - 10;
+                var left = parseInt(line.style.left) - 4;
+                var offset = {x:0, y:0};
+                if (context == "dspf" && prt.getAttribute("container") == "true") {
+                
+                  offset = pui.layout.getContainerOffset(prt);
+                  
+                }
+                else if (prt.isPUIWindow) {
+                
+                  offset.x = prt.offsetLeft;
+                  offset.y = prt.offsetTop;
+                  
+                }
+                var ctrOffset;
+                if (!me.designMode) {
+                
+                  ctrOffset = pui.getOffset(pui.runtimeContainer);
+                  offset.x += ctrOffset[0];
+                  offset.y += ctrOffset[1];                         
+                
+                }
+                top += offset.y;
+                left += offset.x;                
                 columnPointer.style.display = "";
-                columnPointer.style.top = (parseInt(line.style.top) - 10) + "px";
-                columnPointer.style.left = (parseInt(line.style.left) - 4) + "px";
+                columnPointer.style.top = top + "px";
+                columnPointer.style.left = left + "px";
                 matchedCol = i;
                 columnPointer.matchedCol = matchedCol;
                 break;
