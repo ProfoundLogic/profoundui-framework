@@ -1606,7 +1606,7 @@ pui.Grid = function() {
     function attachClickEvent(cell) {
       function doSort() {
         if (me.tableDiv.columnSortResponseField != null) {
-          me.columnSortResponse = String(cell.col);
+          me.columnSortResponse = String(cell.columnId);
           pui.columnSortResponseGrid = me;
           var returnVal = pui.respond();
           pui.columnSortResponseGrid = null;
