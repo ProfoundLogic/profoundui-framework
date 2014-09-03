@@ -3939,6 +3939,7 @@ pui["maskScreen"] = function(parms) {
   var maskDiv;
   if (pui.maskDiv == null) {
     maskDiv = document.createElement("div");
+    maskDiv.id = "pui-screen-mask";
     pui.maskDiv = maskDiv;
   }
   else {
