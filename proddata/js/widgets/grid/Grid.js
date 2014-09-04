@@ -3715,7 +3715,7 @@ pui.Grid = function() {
           psBar.set(me.tableDiv.designItem);
         }
         else {
-          me.alignColumnTotals();
+          me["alignColumnTotals"]();
         }
       }
       var bwidth = 3;
@@ -3757,7 +3757,7 @@ pui.Grid = function() {
           psBar.hide();
         }
         else {
-          me.alignColumnTotals();
+          me["alignColumnTotals"]();
           if (isVertical && persistState) {
             var colWidths = new Array(me.cells[0].length);
             for (var j = 0; j < me.cells[0].length; j++) {
@@ -4899,7 +4899,7 @@ pui.Grid = function() {
       if (to <= from) adjustedFrom++;  // from has moved - we inserted something infront of it 
       me.columnHeadings.splice(adjustedFrom, 1);  // remove the from cell
 
-      me.alignColumnTotals();
+      me["alignColumnTotals"]();
     }
   }
   
@@ -4979,7 +4979,7 @@ pui.Grid = function() {
     me.setScrollBar();
   }
 
-  this.alignColumnTotals = function() {
+  this["alignColumnTotals"] = function() {
     var rowNum = 0;
     if (me.hasHeader) rowNum = 1;
     var row = me.cells[rowNum];    
