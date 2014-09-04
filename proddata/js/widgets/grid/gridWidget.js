@@ -83,6 +83,7 @@ pui.widgets.add({
     if (parms.propertyName == "field type") {
       parms.dom.sizeMe = function() {
         if (parms.dom.grid.expandToLayout) parms.dom.grid.doExpandToLayout();
+        parms.dom.grid["alignColumnTotals"]();
       }
       if (parms.design) {
         var rowHeight = parseInt(parms.properties["row height"]);
