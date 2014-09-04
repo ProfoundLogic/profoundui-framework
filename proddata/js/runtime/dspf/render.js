@@ -3949,7 +3949,7 @@ pui["maskScreen"] = function(parms) {
   
   maskDiv.isPUIWindowMask = true;
   maskDiv.style.position = "absolute";
-  
+  maskDiv.style.padding = "0px";
   
   
  
@@ -3997,6 +3997,15 @@ pui["maskScreen"] = function(parms) {
         pos.x += obj.x;
         pos.y += obj.y;
     }
+    if (document.documentElement.scrollHeight > document.documentElement.clientHeight) {
+      // This corrects offset position being off when this code runs during a resize while the 
+      // vertical scrollbar is present. That results in scrollbars appearing when they shouldn't 
+      // after a resize while the mask is up.  
+      // This is arbitrary, but it's not cleaer how to calculate this correctly. 
+      // This is probably "good enough" for most browsers. 
+      pos.x += 8;  
+    
+    }
     return pos;
   }
   
@@ -4028,7 +4037,7 @@ pui["maskScreen"] = function(parms) {
       top = window.pageYOffset;
       left = window.pageXOffset;
     } 
-	var runtimePosition = getDivPosition(pui.runtimeContainer);	
+	  var runtimePosition = getDivPosition(pui.runtimeContainer);	
     if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
       left -= runtimePosition.x;
       if (context == "dspf") top -= runtimePosition.y;
