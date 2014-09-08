@@ -3759,8 +3759,8 @@ pui["signon"] = function(config) {
 pui.runMVC = function(response) {
 
   ajaxJSON({
-    "url": pui.normalizeURL(pui["controller"]) + "?r=" + Math.floor((Math.random()*1000000000)+1),
-    "method": "get",
+    "url": pui.normalizeURL(pui["controller"]),
+    "method": "post",
     "params": response,
     "sendAsBinary": false,
     "saveResponse": true,
