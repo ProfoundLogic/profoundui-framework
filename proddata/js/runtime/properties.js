@@ -25,6 +25,7 @@ var toolbar = null;
 var screenPropertiesObj = new Object();
 var cachedPropertiesModel = null;
 var cachedPropertiesNamedModel = null;
+var cachedMultOccur = null;
 var cachedScreens = {};
 
 pui.suppressPropertyScriptingErrors = false;
@@ -558,6 +559,9 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
   else nmodel = domObj.propertiesNamedModel;
   var propConfig = nmodel[propertyName];
+  if (propConfig == null ) {
+      propConfig = getMultOccurProp(propertyName);
+  }
   if (propConfig != null) {
     if (domObj["pui"] == null || domObj["pui"]["properties"] == null) {      
       var value = "";
@@ -1410,4 +1414,27 @@ pui.addCustomProperty = function(parms) {
 }
 
 
+function getMultOccurProp(propName) {
 
+  // get a list of multOccur properties:
+  
+  if (cachedMultOccur == null) {
+    var model = getPropertiesModel(); 
+    cachedMultOccur = [];
+    for (var x=0; x<model.length; x++) {
+      if (model[x].multOccur != null && model[x].multOccur == true) { 
+        cachedMultOccur.push(model[x]);
+      }
+    }
+  }
+  
+  // check if this property is in that list
+  
+  for (var x=0; x<cachedMultOccur.length; x++) {
+    if ( propName.substr(0,cachedMultOccur[x].name.length) === cachedMultOccur[x].name ) {
+      return cachedMultOccur[x];
+    }
+  }
+  
+  return null;
+}
