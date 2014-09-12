@@ -105,6 +105,7 @@ pui["loading animation"]["left"] = 10;
 pui["loading animation"]["top"] = 10;
 pui["loading animation"]["width"] = 16;
 pui["loading animation"]["height"] = 16;
+pui["loading animation"]["zIndex"] = 250;
 
 pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
@@ -3267,7 +3268,7 @@ pui.showWaitAnimation = function() {
   var top = pui["loading animation"]["top"];
   top += Math.max(document.body.scrollTop, document.documentElement.scrollTop)
   animation.style.top = top + "px";
-  animation.style.zIndex = 250;
+  animation.style.zIndex = pui["loading animation"]["zIndex"];
   animation.id = "_pui_loading_animation";
   pui.runtimeContainer.appendChild(animation);
   
