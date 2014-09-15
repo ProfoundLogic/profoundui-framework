@@ -3433,14 +3433,6 @@ pui.Grid = function() {
                   offset.y = prt.offsetTop;
                   
                 }
-                var ctrOffset;
-                if (!me.designMode) {
-                
-                  ctrOffset = pui.getOffset(pui.runtimeContainer);
-                  offset.x += ctrOffset[0];
-                  offset.y += ctrOffset[1];                         
-                
-                }
                 top += offset.y;
                 left += offset.x;                
                 columnPointer.style.display = "";
