@@ -4280,11 +4280,15 @@ pui.Grid = function() {
             if (itm["column"] == column && itm["cursor row"] != null && itm["cursor column"] != null) {
               var recNum = me.recNum + cell.row;
               if (me.hasHeader) recNum = recNum - 1;
-              var dom = getObj(itm["id"] + "." + recNum);
-              if (dom != null) {
-                pui.returnCursor(e, dom);
-                break;
+              var cursorReturned=false;
+              for (var j=0; j<itm.domEls.length; j++) {
+              	var dom = itm.domEls[j];
+              	if (dom!=null && dom.dataArrayIndex == recNum-1) {
+              		pui.returnCursor(e, dom);
+              		cursorReturned=true;
+              	}
               }
+              if (cursorReturned) break;
             }
           }
         }
