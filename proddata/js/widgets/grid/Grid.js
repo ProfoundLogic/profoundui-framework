@@ -3354,8 +3354,8 @@ pui.Grid = function() {
       }
       
       me.dragging = true;
-      var cursorStartX = getMouseX(event);
-      var cursorStartY = getMouseY(event);
+      var cursorStartX = pui.getMouseX(event);
+      var cursorStartY = pui.getMouseY(event);
       var startGridX = parseInt(me.tableDiv.style.left);
       var startGridY = parseInt(me.tableDiv.style.top);
       me.doThisToTableDivs(function(domObj) {
@@ -3368,8 +3368,8 @@ pui.Grid = function() {
       }
 
       function mousemove(event) {
-        var y = getMouseY(event) - cursorStartY;
-        var x = getMouseX(event) - cursorStartX;
+        var y = pui.getMouseY(event) - cursorStartY;
+        var x = pui.getMouseX(event) - cursorStartX;
         if (me.hasHeader && cell.row == 0) {
           // move header column
           if (headerCellProxy == null) {
@@ -3392,7 +3392,7 @@ pui.Grid = function() {
               if (me.designMode) {
                 mouseLeft = mouseLeft - me.tableDiv.designItem.designer.getLeftOffset();
               }
-              else if (pui.genie != null) {
+              else {
                 mouseLeft -= pui.runtimeContainer.offsetLeft;
               }
               if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
@@ -3433,6 +3433,14 @@ pui.Grid = function() {
                   offset.y = prt.offsetTop;
                   
                 }
+                var ctrOffset;                                    
+                if (!me.designMode) {                             
+                                                                 
+                  ctrOffset = pui.getOffset(pui.runtimeContainer);
+                  offset.x += ctrOffset[0];                       
+                  offset.y += ctrOffset[1];                       
+                                                                 
+                }                                                                 
                 top += offset.y;
                 left += offset.x;                
                 columnPointer.style.display = "";
