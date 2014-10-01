@@ -22,7 +22,6 @@
 function getTarget(e) {
 	var targ;
 	if (!e) e = window.event;
-	if (!e) return null;
 	if (e.touches != null && e.touches.length == 1) {  // detect touch screen device like iPad
 	  return e.touches[0].target;
 	}
