@@ -341,6 +341,19 @@ Date.prototype.format = function(str, locale) {
 pui.FieldFormat = {
   format: function(obj) {
     if (obj["revert"]) {
+      if (typeof pui["inputfilter"] == "function") {
+        var cpy = {};
+        for (var i in obj) {
+          cpy[i] = obj[i];
+        }      
+        try {
+          var ret = pui["inputfilter"](cpy.value, cpy, context);
+          if (typeof ret == "string") obj.value = ret;
+        }
+        catch(e) {
+          pui.logException(e, "(pui.inputfilter)");
+        }
+      }
       var value = null;
       if (typeof pui["validate"] == "function") {
         value = pui["validate"](obj);
