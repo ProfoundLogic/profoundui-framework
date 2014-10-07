@@ -1625,15 +1625,25 @@ pui.logException = function(e, prefix) {
   var msg;
   if (e.stack) {
   
+    msg = e.toString();
     var parts = e.stack.split("\n");
-    if (parts.length >= 2) {
+    if (parts.length >= 1) {
     
-      msg = trim(parts[0]) + " " + trim(parts[1]);
+      if (msg.indexOf(trim(parts[0])) != 0 || parts.length < 2) {
+      
+        msg += " " + trim(parts[0]);
+      
+      }
+      else {
+      
+        msg += " " + trim(parts[1]);
+      
+      }
     
     }
   
   }
-  if (!msg) {
+  else {
   
     if (typeof prefix == "string") msg = prefix;
     msg += " " + e.toString();
