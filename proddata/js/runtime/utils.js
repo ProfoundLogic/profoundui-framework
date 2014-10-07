@@ -1620,4 +1620,26 @@ pui.normalizeColor = function(value) {
   return value;
 }
 
+pui.logException = function(e, prefix) {
 
+  var msg;
+  if (e.stack) {
+  
+    var parts = e.stack.split("\n");
+    if (parts.length >= 2) {
+    
+      msg = trim(parts[0]) + " " + trim(parts[1]);
+    
+    }
+  
+  }
+  if (!msg) {
+  
+    if (typeof prefix == "string") msg = prefix;
+    msg += " " + e.toString();
+  
+  }
+  
+  console.log(msg);
+
+}
