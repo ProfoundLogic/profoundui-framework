@@ -3074,6 +3074,10 @@ pui.submitResponse = function(response) {
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   if (pui.handler != null && typeof pui.handler == "string") url = pui.handler;
 
+  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+    url = pui["submitUrlOverride"](url);
+  }
+
   if (pui.handler != null && typeof pui.handler == "function") {
     pui.handler(response);
   }  
