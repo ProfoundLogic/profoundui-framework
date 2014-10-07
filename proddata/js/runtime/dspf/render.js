@@ -3076,7 +3076,7 @@ pui.submitResponse = function(response) {
 
   if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
     try {
-      url = pui["submitUrlOverride"](url);
+      url = pui["overrideSubmitUrl"](url);
     }
     catch(e) {
     }
@@ -4090,7 +4090,13 @@ pui.setupWindowDiv = function(parms, layer) {
       elem.readOnly = true;
     }        
   }
-  disableByTag("*");
+  disableByTag("a");
+  disableByTag("input");
+  disableByTag("button");
+  disableByTag("div");
+  disableByTag("select");
+  disableByTag("textarea");
+
   
   var maskScreenValue;
   if (format != null) {
