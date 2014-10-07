@@ -4086,13 +4086,7 @@ pui.setupWindowDiv = function(parms, layer) {
       elem.readOnly = true;
     }        
   }
-  disableByTag("a");
-  disableByTag("input");
-  disableByTag("button");
-  disableByTag("div");
-  disableByTag("select");
-  disableByTag("textarea");
-
+  disableByTag("*");
   
   var maskScreenValue;
   if (format != null) {
