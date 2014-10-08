@@ -72,6 +72,7 @@ pui.placeCursorOnSubfile = false;
 pui.iPadEmulation = false;
 pui.iPhoneEmulation = false;
 pui.columnSortResponseGrid = null;
+pui.fieldNameSortResponseGrid = null;
 pui.fileUploadElements = [];
 pui.activeElement = null;
 pui.autoPageGrid = false;
@@ -1083,6 +1084,9 @@ pui.renderFormat = function(parms) {
             }
             if (prop == "column sort response") {
               dom.columnSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
+            }
+            if (prop == "field name sort response") {
+              dom.fieldNameSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
             }
             if (prop == "subfile changed") {
               pui.subfileChangedFields[properties["record format name"]] = propValue.fieldName;
@@ -2996,6 +3000,14 @@ pui.buildResponse = function() {
   if (pui.columnSortResponseGrid != null) {
     var field = pui.columnSortResponseGrid.tableDiv.columnSortResponseField;
     var value = pui.columnSortResponseGrid.columnSortResponse;
+    if (field != null && value != null) {
+      response[field] = value;
+    }
+  }
+
+  if (pui.fieldNameSortResponseGrid != null) {
+    var field = pui.fieldNameSortResponseGrid.tableDiv.fieldNameSortResponseField;
+    var value = pui.fieldNameSortResponseGrid.fieldNameSortResponse;
     if (field != null && value != null) {
       response[field] = value;
     }

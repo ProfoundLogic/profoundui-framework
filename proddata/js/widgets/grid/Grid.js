@@ -175,7 +175,9 @@ pui.Grid = function() {
   
   this.defaultSortOrderArray = [];
   this.initialSortColumn = null;
+  this.initialSortField = null;
   this.columnSortResponse = null;
+  this.fieldNameSortResponse = null;
   this.contextMenuId = null;
   
   this.dataConsumed = false;
@@ -1522,6 +1524,9 @@ pui.Grid = function() {
         else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == me.cells[0][i].columnId) {
           placeIcon = true;
         }
+        else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(me.cells[0][i].columnId)) {
+          placeIcon = true;
+        }
         if (placeIcon) {
           if (me.sortIcon.parentNode != null) {
             me.sortIcon.parentNode.removeChild(me.sortIcon);
@@ -1593,6 +1598,10 @@ pui.Grid = function() {
       if (me.initialSortColumn != null) {
         sortColumn(headerRow[me.initialSortColumn], false, true);
       }
+      else if (me.initialSortField != null) {
+        var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
+        if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], false, true);
+      }
     }
         
     function attachClickEventForSQL(cell) {
@@ -1610,6 +1619,13 @@ pui.Grid = function() {
           pui.columnSortResponseGrid = me;
           var returnVal = pui.respond();
           pui.columnSortResponseGrid = null;
+        }
+        else if (me.tableDiv.fieldNameSortResponseField != null) {
+          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.columnId);
+          if (me.fieldNameSortResponse == null) return;
+          pui.fieldNameSortResponseGrid = me;
+          var returnVal = pui.respond();
+          pui.fieldNameSortResponseGrid = null;
         }
         else {
           sortColumn(cell);
@@ -1685,7 +1701,7 @@ pui.Grid = function() {
     }
         
     // Restore saved client-side column sort.
-    if (me.sortable && me.tableDiv.columnSortResponseField == null) {
+    if (me.sortable && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
     
       var sort = state["sort"];
       if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
@@ -1757,7 +1773,7 @@ pui.Grid = function() {
       if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
     }
 
-    if (me.tableDiv.columnSortResponseField == null) {
+    if (me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
       clientSortColumnId = cell.columnId;
       saveResponsesToDataArray();
       pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
@@ -2495,7 +2511,10 @@ pui.Grid = function() {
       case "selection field":
             
       case "column sort response":      
+        // nothing to do here
+        break;
 
+      case "field name sort response":      
         // nothing to do here
         break;
       
@@ -2750,6 +2769,12 @@ pui.Grid = function() {
         if (!me.designMode) {
           me.initialSortColumn = parseInt(value);
           if (isNaN(me.initialSortColumn)) me.initialSortColumn = null;
+        }
+        break;
+
+      case "initial sort field":
+        if (!me.designMode) {
+          me.initialSortField = value;
         }
         break;
 
@@ -5135,16 +5160,41 @@ pui.Grid = function() {
   }  
   
   this.hideContextMenu = function() {
-  
     if (!me.contextMenuId) return;
     var menu = getObj(me.contextMenuId);
     if (!menu) return;
     if (menu.showing) return;
     
     menu.style.visibility = "hidden";
-    menu.style.display = "none";    
-          
+    menu.style.display = "none";   
+  }
   
+  this.getFieldNameFromColumnIndex = function(columnIndex) {
+    if (columnIndex == null || isNaN(columnIndex)) return null;
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"];
+      if (val != null && typeof val == "object" && val["fieldName"] != null) {
+        var col = Number(itm["column"]);
+        if (col == columnIndex) return val["fieldName"].toUpperCase();
+      }
+    }
+    return null;
+  }
+  
+  this.getColumnIndexFromFieldName = function(fieldName) {
+    var fieldNameUpper = pui.fieldUpper(fieldName);
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"]; 
+      if (val != null && typeof val == "object" && val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) {
+        var columnIndex = Number(itm["column"]);
+        if (columnIndex != null && !isNaN(columnIndex)) return columnIndex;
+      }
+    }
+    return null;
   }
   
   this.getPropertiesModel = function() {
@@ -5231,8 +5281,10 @@ pui.Grid = function() {
       { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
       { name: "sortable columns", choices: ["true", "false"], help: "Enables column sorting.  If set to true, the user will be able to click on the column headings to resort the data.", context: "dspf" },
       { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: "Specifies the default order for sortable columns.  When the user clicks a column, the default sort order is used initially.  To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list.  Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.", context: "dspf" },
-      { name: "initial sort column", format: "number", help: "This property specifies the column used to for inital sorting.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  If the property is omitted or set to blanks, sorting is not initiated when the grid is first rendered.", context: "dspf" },
-      { name: "column sort response", format: "number", readOnly: true, validDataTypes: ["zoned"], help: "Specifies a response variable for server-side sorting.  If omitted, client-side sorting is used.  The response is a numeric value that represents a column in the grid.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
+      { name: "initial sort column", format: "number", help: "This property specifies the column used to for inital sorting.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.", context: "dspf" },
+      { name: "initial sort field", help: "This property specifies the field name used to identify the column for inital sorting.  If this property and the \"inital sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
+      { name: "column sort response", format: "number", readOnly: true, validDataTypes: ["zoned"], help: "Specifies a response variable to receive a column number for server-side sorting.  If omitted, client-side sorting is used.  The response is a numeric value that represents a column in the grid.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
+      { name: "field name sort response", readOnly: true, help: "Specifies a response variable to receive a field name used for server-side sorting.  If omitted, client-side sorting is used.  The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
       { name: "resizable columns", choices: ["true", "false"], help: "Allows the user to resize grid columns at run time.", context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
       { name: "persist state", choices: ["true", "false"], help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
