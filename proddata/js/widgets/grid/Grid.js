@@ -1829,7 +1829,7 @@ pui.Grid = function() {
       me.sorted = true;
 
       me.recNum = 1;
-      if (restoring || initialSort) {
+      if (me.sflrcdnbr>0 && (restoring || initialSort))  {
       
         // These are automatic sorts at render time. 
         // Need to set grid 'recNum' property (data array sequence number)

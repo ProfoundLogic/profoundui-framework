@@ -2102,9 +2102,15 @@ pui.renderFormat = function(parms) {
         }
         
         var recNum = Number(properties["subfile record number"]);
-        if (isNaN(recNum)) recNum = 1;
-        if (recNum < 1 || recNum > 9999) recNum = 1;
         dom.grid.sflrcdnbr = recNum;
+        if (isNaN(recNum)) { 
+          recNum = 1;
+          dom.grid.sflrcdnbr = 0;
+        }
+        if (recNum < 1 || recNum > 9999) {
+          recNum = 1;
+          dom.grid.sflrcdnbr = 0;
+        }
         if (properties["position at top"] != "true") {
           var numRows = dom.grid.cells.length;
           if (dom.grid.hasHeader) numRows = numRows - 1;
