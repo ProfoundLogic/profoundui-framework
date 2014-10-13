@@ -1761,6 +1761,7 @@ pui.renderFormat = function(parms) {
             var key = event.keyCode;
             if (key >= 9 && key <= 45 && key != 32) return;   // includes keys like arrow keys, ctrl, shift, etc.
             if (key >= 112 && key <= 145) return;             // includes f1-f12, num lock, scroll lock, etc.
+            if (event.ctrlKey && key != 88 && key != 86) return;  // all ctrl keys except Ctrl-X & Ctrl-V
             setModified(event);
           });
           if(dom.formattingInfo && dom.formattingInfo.keyFilter){
