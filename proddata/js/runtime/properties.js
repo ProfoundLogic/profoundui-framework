@@ -929,6 +929,13 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     domObj.parentTab = effectiveValue;
   }
   
+  // Process change in position.
+  if (propConfigName == "top" || propConfigName == "left" || propConfigName == "right" || propConfigName == "bottom") {
+  
+    pui.posFix(domObj);
+  
+  }  
+  
   // Set up empty text
   if (propConfigName == "empty text" && !isDesignMode) {
     pui.setEmptyText(domObj, effectiveValue);

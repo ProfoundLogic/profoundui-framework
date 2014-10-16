@@ -1653,3 +1653,19 @@ pui.logException = function(e, prefix) {
   console.log(msg);
 
 }
+
+// This fixes:
+// http://redmine/issues/791
+
+pui.posFix = function(elem) {
+
+  if (pui["is_chrome"] && pui.isTextbox(elem)) {
+  
+    // Yes, that's really all there is to it!
+    var temp = elem.value;
+    elem.value = "";
+    elem.value = temp;
+  
+  }
+
+}
