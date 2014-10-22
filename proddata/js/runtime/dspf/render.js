@@ -2374,9 +2374,11 @@ pui.showErrors = function(errors, rrn) {
       if (tip == null) {
         tip = new pui.ValidationTip(dom); 
       }
-      pui.addCssClass(tipBox, "invalid");
-      tip.setMessage(msg); 
-      tip.show(3000, true);     
+      if (!tip.doneShowing) {
+        pui.addCssClass(tipBox, "invalid");
+        tip.setMessage(msg); 
+        tip.show(3000, true);
+      }
       var cell = dom.parentNode;
       if (cell != null) {
         var gridDiv = cell.parentNode;
@@ -2419,7 +2421,7 @@ pui.showErrors = function(errors, rrn) {
         try {
           dom.focus();
           if (pui["highlight on focus"]) dom.select();
-          dom.validationTip.show();
+          if (!tip.doneShowing) dom.validationTip.show();
           if (setFocusField) {
             pui.focusField.dom = dom;
             pui.focusField.setFocusFlag = true;
@@ -2570,12 +2572,14 @@ pui.buildResponse = function() {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "ME") });
+          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
         if (dom.MF == true && dom.modified == true && boxDom.maxLength != null && boxDom.value != null && (boxDom.maxLength != boxDom.value.length || boxDom.value === boxDom.emptyText)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "MF") });
+          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
       }
@@ -2587,6 +2591,7 @@ pui.buildResponse = function() {
           var msg = pui.getLanguageText("runtimeMsg", "required");
           if (dom["fileUpload"] != null) msg = pui.getLanguageText("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
+          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
       }
@@ -2599,6 +2604,7 @@ pui.buildResponse = function() {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: dom, msg: msg });
+          if (dom.validationTip!=null && dom.validationTip.doneShowing!=null) dom.validationTip.doneShowing=false;
           continue;
         }        
       }
@@ -2759,6 +2765,7 @@ pui.buildResponse = function() {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: dom, msg: pui.getLanguageText("runtimeMsg", "signature overflow") });
+          if (dom.validationTip!=null && dom.validationTip.doneShowing!=null) dom.validationTip.doneShowing=false;
           continue;          
         }
       }
@@ -2774,6 +2781,7 @@ pui.buildResponse = function() {
           response.nobypass = true;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: value.msg });
+          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
 
@@ -2790,6 +2798,7 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: "Name " + valNameMsg });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
@@ -2800,6 +2809,7 @@ pui.buildResponse = function() {
               if (response.errors == null) response.errors = [];
               var msg = pui.getLanguageText("runtimeMsg", "invalid email");
               response.errors.push({ dom: boxDom, msg: msg });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
@@ -2817,6 +2827,7 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "validValues") + validValues.join(", ") + "." });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
@@ -2859,6 +2870,7 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
@@ -2884,6 +2896,7 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
@@ -2909,6 +2922,7 @@ pui.buildResponse = function() {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
+              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
           }
