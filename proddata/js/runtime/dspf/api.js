@@ -722,6 +722,10 @@ pui["errorTip"] = function(el, msg, hideDelay) {
   
   }
   
+  // In case this is called from within a blur event, we don't
+  // want the message to be immediately hidden...
+  pui.ignoreBlurs = true;
+  
   var tip = el.validationTip;
   if (tip == null) {
   
@@ -732,6 +736,7 @@ pui["errorTip"] = function(el, msg, hideDelay) {
   tip.setMessage(msg); 
   tip.show(hideDelay);
 
+  setTimeout( function() { pui.ignoreBlurs = false; }, 0);
 }
 
 
