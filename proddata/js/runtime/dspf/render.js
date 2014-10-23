@@ -3096,6 +3096,23 @@ pui.buildResponse = function() {
     }
   }
   
+  if (pui["controller"] != null) {
+  
+    var count = 0;
+    var layers = pui.oldRenderParms["layers"];
+    for (var i = 0; i < layers.length; i++) {
+    
+      var formats = layers[i]["formats"];
+      for (var j = 0; j < formats.length; j++) {
+      
+        response["pui-recname." + (++count)] = formats[j]["metaData"]["screen"]["record format name"];
+      
+      }
+    
+    }  
+  
+  }
+  
   return response;
 }
 
