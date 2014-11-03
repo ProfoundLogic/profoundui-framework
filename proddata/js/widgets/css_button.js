@@ -227,7 +227,7 @@ pui.CSSButton = function() {
     if (containerHeight != null) {
       me.container.style.height = containerHeight;
     }
-    if (me.container.style.height != null && me.container.style.height != "") {
+    if (me.container.style.height != null && me.container.style.height != "" && textSpan.innerHTML.toLowerCase().indexOf("<br") < 0) {
       var height = link.offsetHeight - 26;
       if (height < 0) height = 0;
       textSpan.style.lineHeight =  height + "px";
