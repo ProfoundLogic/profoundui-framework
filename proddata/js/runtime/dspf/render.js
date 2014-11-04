@@ -566,6 +566,12 @@ pui.render = function(parms) {
       pui.appJob[prop] = parms.appJob[prop];
     }
   }
+  if (parms["ctrlJob"] != null) {
+    if (pui["ctrlJob"] == null) pui["ctrlJob"] = {};
+    for (var prop in parms["ctrlJob"]) {
+      pui["ctrlJob"][prop] = parms["ctrlJob"][prop];
+    }
+  }
 
   if (pui.iPadEmulation && !pui.iPhoneEmulation) {
     getObj("ipadKeyboard").style.display = "none";
