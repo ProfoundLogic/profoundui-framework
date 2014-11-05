@@ -2059,16 +2059,14 @@ pui.Grid = function() {
         eval("var rowNumber = arguments[1];");
         
         if (eventName == "onrowclick") {
-          
           eval("var isRightClick = arguments[2];");
-          
         }  
 
-        if (arguments.length >= 4) {
-        
+        if (arguments.length >= 4) {        
           eval("var event = arguments[3]");
-        
         }
+        
+        eval("var column = arguments[4];");
 
         var rowNum = arguments[1];
         if (rowNum != null) {
@@ -3983,8 +3981,8 @@ pui.Grid = function() {
     cell.onmouseover = function(e) {
       e = e || window.event;
       if (me.dragging) return;
-      if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e);
-      if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e);
+      if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e, col);
+      if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e, col);
       if (!me.hoverEffect) return;
       if (pui.touchDevice || pui.iPadEmulation) return;
       var header = (row == 0 && me.hasHeader);
@@ -4021,8 +4019,8 @@ pui.Grid = function() {
 
     cell.onmouseout = function(e) {
       e = e || window.event;
-      if (!me.hasHeader) executeEvent("onrowmouseout", row + 1, null, e);
-      if (me.hasHeader && row != 0) executeEvent("onrowmouseout", row, null, e);
+      if (!me.hasHeader) executeEvent("onrowmouseout", row + 1, null, e, col);
+      if (me.hasHeader && row != 0) executeEvent("onrowmouseout", row, null, e, col);
       var header = (row == 0 && me.hasHeader);
       if (header) return;      
       me.setRowBackground(row);
@@ -4165,8 +4163,8 @@ pui.Grid = function() {
       var target = getTarget(e);
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
-        if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e);
-        if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e);
+        if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
+        if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
       if (context == "dspf" && !me.designMode) {
       
@@ -4396,8 +4394,8 @@ pui.Grid = function() {
         }
       }
       else {      
-        if (!me.hasHeader) executeEvent("onrowdblclick", row + 1, null, e);
-        if (me.hasHeader && row != 0) executeEvent("onrowdblclick", row, null, e);
+        if (!me.hasHeader) executeEvent("onrowdblclick", row + 1, null, e, col);
+        if (me.hasHeader && row != 0) executeEvent("onrowdblclick", row, null, e, col);
       }
     }
     
