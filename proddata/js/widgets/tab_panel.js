@@ -463,6 +463,9 @@ function TabPanel() {
               if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
                 pui.bypassValidation = dom.bypassValidation;
               }
+              if (dom.responseAID) {
+                pui.keyName = dom.responseAID;
+              }
               var returnVal = pui.respond();
               if (returnVal == false) dom.responseValue = null;
             }
@@ -755,6 +758,21 @@ pui.widgets.add({
       if (parms.design && pui.isPercent(parms.value)) {
         parms.dom.tabPanel.draw();
       }
+    },
+    
+    "response AID": function(parms) {
+    
+      if (parms.value && parms.value != "") {
+      
+        parms.dom.responseAID = parms.value;
+      
+      }
+      else {
+      
+        parms.dom.responseAID = null;
+      
+      }
+    
     }
  
   }

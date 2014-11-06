@@ -168,8 +168,10 @@ pui.aidKeyValues = {
   "F23": 0xBB,
   "F24": 0xBC,  
   "Pause/Break": 0xBD,          // Clear Key
+  "Clear": 0xBD,
   "Enter": 0xF1,
   "Alt-F1": 0xF3,               // Help Key
+  "Help": 0xF3,
   "PageUp": 0xF4,
   "PageDown": 0xF5,
   "Print": 0xF6,
