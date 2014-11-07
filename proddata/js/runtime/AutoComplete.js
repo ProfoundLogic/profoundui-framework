@@ -991,7 +991,15 @@ function applyAutoComp(properties, originalValue, domObj) {
         	onselect: onselect,
         	valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
         	beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
-        		query = rtrim(query.toUpperCase());
+            // The following business gets around certain browsers (i.e. Chrome)
+            // upper-casing the German eszett character to SS, which throws off 
+            // matching in SQL WHERE clause. 
+            // This code converts eszett to 'capital eszett', which IBM doesn't seem to 
+            // recognize. Then the rest of the string is upper-cased, and the eszett 
+            // is then set back to normal. 
+            query = rtrim(query.replace(/\u00DF/g, "\u1E9E"));
+        		query = query.toUpperCase();
+            query = query.replace(/\u1E9E/g, "\u00DF");
         		if (query == "") return false;
         		query = query.replace(/'/g, "''");  // '
         		if (pui["secLevel"] > 0) {
