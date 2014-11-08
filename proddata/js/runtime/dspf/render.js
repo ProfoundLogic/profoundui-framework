@@ -2207,6 +2207,12 @@ pui.renderFormat = function(parms) {
     tabPanel.draw();
   }
 
+  if (isDesignMode) {
+    for (var i = 0; i < designer.grids.length; i++) {
+      designer.grids[i].dom.grid.doExpandToLayout(true);
+    }
+  }
+
   // render grid data
   for (var i = 0; i < gridsToRender.length; i++) {
     var grid = gridsToRender[i];

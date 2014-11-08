@@ -313,7 +313,10 @@ pui.Grid = function() {
     me.sendToDesigner();
   }
   
-  this.doExpandToLayout = function() {
+  this.doExpandToLayout = function(force) {
+    if (!force) {
+      if (me.designMode && toolbar.loadingDisplay) return;
+    }
     if (!me.expandToLayout) return;
     var container = me.tableDiv.parentNode;
     if (container.getAttribute("container") != "true") return;
