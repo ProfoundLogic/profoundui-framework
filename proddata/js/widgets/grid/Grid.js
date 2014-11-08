@@ -2789,6 +2789,10 @@ pui.Grid = function() {
         if (!me.designMode && me.hasHeader && (value == true || value == "true" )) {
           movableColumns = true;
           var headerRow = me.cells[0];
+          if (headerRow == null) {  // rows have not been created yet, this is possible depending on the order of properties in the JSON
+            me.addRow();
+            headerRow = me.cells[0];
+          }
           for (var col = 0; col < headerRow.length; col++) {
             cellDesign(headerRow[col], true);
           }
