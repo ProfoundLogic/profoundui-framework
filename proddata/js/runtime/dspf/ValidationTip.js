@@ -69,7 +69,7 @@ pui.ValidationTip = function(el) {
   
     msg = val;
     var flt = (0 == 1 && orientation == "left") ? "right" : "none";
-    contentDiv.innerHTML = '<img src="' + pui.normalizeURL("/profoundui/proddata/images/icons/exclamation.png") + '" style="float: ' + flt + '; width: 16px; height: 16px; vertical-align: text-bottom" /> ';
+    contentDiv.innerHTML = '<img class="pui-tip-icon" style="float: ' + flt + '; width: 16px; height: 16px; vertical-align: text-bottom" /> ';
     contentDiv.appendChild(document.createTextNode(msg));        
 
   }
@@ -342,51 +342,6 @@ pui.ValidationTip = function(el) {
   
   function init() {
   
-    var imgPos;
-    var img = "/profoundui/proddata/images/";
-    var padding;
-    var contentPadding;
-    var borderStyle;
-    var borderWidth;
-    var contentPadding = "5px 25px 5px 5px";
-    if (orientation == "top") { 
-    
-      imgPos = "bottom";
-      img += "validation-arrow-bottom.gif";
-      padding = "0px 0px 7px 0px";
-      borderStyle = "solid solid none solid";
-      borderWidth = "2px 2px medium 2px";      
-      
-    }
-    else if (orientation == "bottom") {
-    
-      imgPos = "top";
-      img += "validation-arrow-top.gif";
-      padding = "7px 0px 0px 0px";
-      borderStyle = "none solid solid solid";
-      borderWidth = "medium 2px 2px 2px";      
-      
-    }
-    else if (orientation == "left") { 
-    
-      imgPos = "right";
-      img += "validation-arrow-right.gif";
-      padding = "0px 7px 0px 0px";
-      contentPadding = "5px 5px 5px 25px";
-      borderStyle = "solid none solid solid";
-      borderWidth = "2px medium 2px 2px";      
-      
-    }
-    else { // right
-    
-      imgPos = "left";
-      img += "validation-arrow.gif";
-      padding = "0px 0px 0px 7px";
-      borderStyle = "solid solid solid none";
-      borderWidth = "2px 2px 2px medium";
-    
-    }
-    
     var reinit = (div != null);
     
     if (reinit) {
@@ -407,26 +362,18 @@ pui.ValidationTip = function(el) {
     }    
     
     div = document.createElement("div");
+    div.className = "pui-tip ";
+    if (orientation == "top") div.className += "pui-tip-top ";
+    else if (orientation == "bottom") div.className += "pui-tip-bottom ";
+    else if (orientation == "left") div.className += "pui-tip-left ";
+    else div.className += "pui-tip-right ";
+    if (widgetEl.pui.properties["error message css class"]) div.className += widgetEl.pui.properties["error message css class"];
+    else div.className += "pui-tip-error";
     div.style.position = "absolute";
-    div.style.background = "transparent url(" + pui.normalizeURL(img) + ") no-repeat scroll " + imgPos + " center";
-    div.style.padding = padding;
-    div.style.opacity = 0.95;
-    div.style.filter = "alpha(opacity=95)";
-    div.style.zIndex = 999;
-    div.style.cursor = "pointer";
     contentDiv = document.createElement("div");
-    contentDiv.style.background = "#F3E6E6 none repeat scroll 0 0";
-    contentDiv.style.borderColor = "#924949";
-    contentDiv.style.borderStyle = borderStyle;
-    contentDiv.style.borderWidth = borderWidth;
-    contentDiv.style.maxWidth = "250px";
-    contentDiv.style.minWidth = "150px";
-    contentDiv.style.padding = contentPadding;   
-    contentDiv.style.color = "#666666";
-    contentDiv.style.fontFamily = "Verdana,Arial";
-    contentDiv.style.fontSize = "11px";
-    contentDiv.style.whiteSpace = "normal";
+    contentDiv.className = "pui-tip-content";
     closeButton = document.createElement("img");
+    closeButton.className = "pui-tip-close";
     closeButton.style.position = "absolute";
     if (orientation == "bottom") {
     
@@ -448,14 +395,14 @@ pui.ValidationTip = function(el) {
       closeButton.style.right = "5px";
       
     }
-    closeButton.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x5.png");
+
     closeButton.onmousedown = function(e) {
-      closeButton.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x5_click.png");
+      closeButton.className = "pui-tip-close-click";
       preventEvent(e);
       return false;
     }
     closeButton.onmouseup = function() {
-      closeButton.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x5.png");
+      closeButton.className = "pui-tip-close";
     }
     closeButton.onclick = function() {
       div.style.display = "none";
