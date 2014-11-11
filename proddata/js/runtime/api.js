@@ -289,7 +289,7 @@ function changeElementValue(id, val) {
     if (tip != null) {
       tip.hide();
       tip.doneShowing = true;
-      pui.removeCssClass(elem, "invalid");
+      pui.removeCssClass(elem, tip.getInvalidClass());
     }
   }
   if (context == "genie" && elem.fieldInfo != null && elem.fieldInfo["idx"] != null) {

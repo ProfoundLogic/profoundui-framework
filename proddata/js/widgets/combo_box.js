@@ -331,7 +331,7 @@ pui.ComboBoxWidget = function() {
           if (tip != null) {
             tip.hide();
             tip.doneShowing = true;
-            pui.removeCssClass(box, "invalid");
+            pui.removeCssClass(box, tip.getInvalidClass());
           }
           pui.checkEmptyText(box);
         }

@@ -33,6 +33,10 @@ pui.ValidationTip = function(el) {
   var widgetEl = el;
   var orientation = "right";
   var msg = "";
+  var typeClass = "";
+  if (typeof widgetEl.pui.properties["error message css class"] == "string") typeClass = trim(widgetEl.pui.properties["error message css class"]);
+  if (typeClass == "") typeClass = "pui-tip-error";
+  var invalidClass = typeClass + "-invalid";
   
   var div;
   var contentDiv;
@@ -247,6 +251,12 @@ pui.ValidationTip = function(el) {
     me = null;
   }
   
+  this.getInvalidClass = function() {
+  
+    return invalidClass;
+  
+  }
+  
   function animate() {
     var interval = 100;
     var increment = 20;    
@@ -304,7 +314,7 @@ pui.ValidationTip = function(el) {
     if (tip == null) return;
     tip.hide();
     tip.doneShowing = true;
-    pui.removeCssClass(target, "invalid");
+    pui.removeCssClass(target, tip.getInvalidClass());
   }
 
   function hideTipOnChange(event) {
@@ -315,7 +325,7 @@ pui.ValidationTip = function(el) {
     if (tip == null) return;
     tip.hide();
     tip.doneShowing = true;
-    pui.removeCssClass(target, "invalid");
+    pui.removeCssClass(target, tip.getInvalidClass());
   }  
   
   function setOrientation(val) {
@@ -367,8 +377,7 @@ pui.ValidationTip = function(el) {
     else if (orientation == "bottom") div.className += "pui-tip-bottom ";
     else if (orientation == "left") div.className += "pui-tip-left ";
     else div.className += "pui-tip-right ";
-    if (widgetEl.pui.properties["error message css class"]) div.className += widgetEl.pui.properties["error message css class"];
-    else div.className += "pui-tip-error";
+    div.className += typeClass;
     div.style.position = "absolute";
     contentDiv = document.createElement("div");
     contentDiv.className = "pui-tip-content";

@@ -732,7 +732,7 @@ pui["errorTip"] = function(el, msg, hideDelay) {
     tip = new pui.ValidationTip(el);
   
   }
-  pui.addCssClass(el, "invalid");
+  pui.addCssClass(el, tip.getInvalidClass());
   tip.setMessage(msg); 
   tip.show(hideDelay);
 

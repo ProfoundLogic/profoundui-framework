@@ -404,7 +404,7 @@ function calendar_select() {
   if (tip != null) {
     tip.hide();
     tip.doneShowing = true;
-    pui.removeCssClass(pui.currentDateField, "invalid");
+    pui.removeCssClass(pui.currentDateField, tip.getInvalidClass());
   }
 
   try { pui.currentDateField.focus() }

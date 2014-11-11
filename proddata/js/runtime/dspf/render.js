@@ -2389,7 +2389,7 @@ pui.showErrors = function(errors, rrn) {
         tip = new pui.ValidationTip(dom); 
       }
       if (!tip.doneShowing) {
-        pui.addCssClass(tipBox, "invalid");
+        pui.addCssClass(tipBox, tip.getInvalidClass());
         tip.setMessage(msg); 
         tip.show(3000, true);
       }
