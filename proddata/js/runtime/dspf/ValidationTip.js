@@ -72,8 +72,7 @@ pui.ValidationTip = function(el) {
   this.setMessage = function(val) {
   
     msg = val;
-    var flt = (0 == 1 && orientation == "left") ? "right" : "none";
-    contentDiv.innerHTML = '<img class="pui-tip-icon" style="float: ' + flt + '; width: 16px; height: 16px; vertical-align: text-bottom" /> ';
+    contentDiv.innerHTML = '<div class="pui-tip-icon" />';
     contentDiv.appendChild(document.createTextNode(msg));        
 
   }
@@ -381,29 +380,8 @@ pui.ValidationTip = function(el) {
     div.style.position = "absolute";
     contentDiv = document.createElement("div");
     contentDiv.className = "pui-tip-content";
-    closeButton = document.createElement("img");
+    closeButton = document.createElement("div");
     closeButton.className = "pui-tip-close";
-    closeButton.style.position = "absolute";
-    if (orientation == "bottom") {
-    
-      closeButton.style.top = "8px";
-    
-    }
-    else {
-    
-      closeButton.style.top = "4px";
-      
-    }
-    if (orientation == "left") {
-    
-      closeButton.style.left = "5px";  
-    
-    }
-    else {
-      
-      closeButton.style.right = "5px";
-      
-    }
 
     closeButton.onmousedown = function(e) {
       closeButton.className = "pui-tip-close-click";
