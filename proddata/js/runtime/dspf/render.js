@@ -568,6 +568,7 @@ pui.render = function(parms) {
       pui.appJob[prop] = parms.appJob[prop];
     }
   }
+  pui["layers"] = parms["layers"];
   if (parms["ctrlJob"] != null) {
     if (pui["ctrlJob"] == null) pui["ctrlJob"] = {};
     for (var prop in parms["ctrlJob"]) {
