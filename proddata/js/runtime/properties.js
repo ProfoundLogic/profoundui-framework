@@ -1362,17 +1362,17 @@ function evalPropertyValue(propertyValue) {
 function getScreenProperties(designScreen, onsuccess, onfail) {
   var skin = pui.skin;
   var skinsFolder = "genie skins";
-  var url = "/profoundui/userdata/" + skinsFolder + "/" + skin + "/screens/" + encodeURIComponent(designScreen.name) + ".scn?mod=";
+  var query = "?type=genie_screen&skin=" + encodeURIComponent(skin) + "&screen=" + encodeURIComponent(designScreen.name) + "&mod=";
   var stamp;
   if (typeof(designScreen.modified) != "undefined") stamp = designScreen.modified;
   else stamp = getTimeStamp();
-  url += stamp; 
+  query += stamp; 
   if (cachedScreens[designScreen.name + "." + stamp] != null) {
     screenPropertiesObj[designScreen.screenId] = cachedScreens[designScreen.name + "." + stamp];
     onsuccess();
     return;
   }
-  var request = new pui.Ajax(url);
+  var request = new pui.Ajax(getProgramURL("PUI0009115.pgm" + query));
   request["async"] = true;
   request["method"] = "get";
   request["suppressAlert"] = true;
