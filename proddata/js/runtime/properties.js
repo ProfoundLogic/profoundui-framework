@@ -643,8 +643,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       case "select box":
         // protected field will not be turned into a select box
         if (!isDesignMode && domObj.readOnly && domObj.tagName == "INPUT") {
-          tag = "input";
-          inpType = domObj.type;
+          switch (pui.genie.config["protectedSelectBox"]) {
+            case "disable":
+              domObj.disabled = true;
+              break;
+            case "output":
+            default:
+              tag = "input";
+              inpType = domObj.type;
+          }
         }
         if (isDesignMode && pui["is_old_ie"] && pui["ie_mode"] == 6 && 
             (String(designItem.properties["select box height"]) == "" || 
