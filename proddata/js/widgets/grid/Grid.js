@@ -1805,8 +1805,23 @@ pui.Grid = function() {
             }
           }
         }
-        if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
-        else return 1;
+        if (typeof pui["gridSort"] == "function") {
+          var returnVal = pui["gridSort"](value1, value2);
+          if (typeof returnVal != "Number") returnVal = 0;
+          if (returnVal > 0) {
+            if (desc) return -1;
+            else return 1;
+          }
+          if (returnVal < 0) {
+            if (desc) return 1;
+            else return -1;
+          }
+          return 0;
+        }
+        else {
+          if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
+          else return 1;
+        }
       });
       
       //
