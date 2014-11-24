@@ -1807,7 +1807,7 @@ pui.Grid = function() {
         }
         if (typeof pui["gridSort"] == "function") {
           var returnVal = pui["gridSort"](value1, value2);
-          if (typeof returnVal != "Number") returnVal = 0;
+          if (typeof returnVal != "number") returnVal = 0;
           if (returnVal > 0) {
             if (desc) return -1;
             else return 1;
