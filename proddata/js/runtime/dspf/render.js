@@ -2523,7 +2523,7 @@ pui.buildResponse = function() {
     var domArr = pui.changeResponseElements[fieldName];
     for (var i = 0; i < domArr.length; i++) {
       var dom = domArr[i];
-      if (dom.modified && pui.bypassValidation != "true") {
+      if (dom.modified && (pui["controller"] != null || pui.bypassValidation != "true")) {
         response[fieldName] = "1";
         break;
       }
@@ -2623,7 +2623,7 @@ pui.buildResponse = function() {
           continue;
         }        
       }
-      if (dom.modified == true && pui.bypassValidation != "true") {
+      if (dom.modified == true && (pui["controller"] != null || pui.bypassValidation != "true")) {
         if (dom.tagName == "INPUT") {
           switch(dom.type) {
             case "text":
@@ -2770,7 +2770,7 @@ pui.buildResponse = function() {
       }
     }
 
-    if (typeof value == "string" && pui.bypassValidation != "true") {
+    if (typeof value == "string" && (pui["controller"] != null || pui.bypassValidation != "true")) {
       if (trim(value) == "" && dom.blankValues != null && dom.blankValues.length >= 1) {
         value = dom.blankValues[0];
       }
@@ -3050,7 +3050,7 @@ pui.buildResponse = function() {
   }
   
   for (var fmt in pui.changedFields) {
-    if (pui.ctlRecModified[fmt] && pui.bypassValidation != "true") {
+    if (pui.ctlRecModified[fmt] && (pui["controller"] != null || pui.bypassValidation != "true")) {
       response[pui.changedFields[fmt]] = "1";
     }
     else {
