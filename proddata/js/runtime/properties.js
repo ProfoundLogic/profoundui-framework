@@ -1140,8 +1140,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else if (propConfigName == "onspin") {
       func = function() {
+        eval("var value = arguments[0];");
+        eval("var increment = arguments[1];");
+        eval("var spinner = arguments[2];");
         try {
-          eval(newValue);
+          return eval(newValue);
         }
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        

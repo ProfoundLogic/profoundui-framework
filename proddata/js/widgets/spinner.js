@@ -179,16 +179,21 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
       if (maxLen == 1 && num < 0) num = 0;
       if (String(num).length > maxLen) return;
     }
+
+    var onspin = dom["onspin"];
+    if (onspin != null) {
+      var newValue = onspin(dom.value, byValue, dom);
+      if (typeof newValue == "string" || typeof newValue == "number"){
+        num = newValue;
+      }
+    }
+
     dom.value = num;
     dom.modified = true;
     if (context == "genie" && dom.fieldInfo != null && dom.fieldInfo["idx"] != null) {
       pui.response[dom.fieldInfo["idx"]] = dom;
     }
 
-    // try { dom.focus() } catch(e) { };
-    var onspin = dom["onspin"];
-    if (onspin != null) onspin();
-    
     pui.checkEmptyText(dom);    
   }
 
