@@ -1,7 +1,6 @@
-// Implementation Plan:
-// - call pui.timeoutMonitor.timer.reset() in the onuseractivity function
-// - call pui.timeoutMonitor.start() in the rendering functions in both Profound UI and Genie
-// - call pui.timeoutMonitor.end() when a screen is submitted
+// pui.timeoutMonitor.timer.reset() called in the onuseractivity function
+// pui.timeoutMonitor.start() called in the rendering functions in both Rich Displays and Genie
+// pui.timeoutMonitor.end() called when a screen is submitted
 
 pui.timeoutMonitor = {};
 
