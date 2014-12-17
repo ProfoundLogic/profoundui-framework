@@ -2902,11 +2902,11 @@ pui.buildResponse = function() {
             if (boxValue < rangeLow) {
               var rangeLowDisp = dom.rangeLow;
               if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-              var msg = "Value must be greater than or equal to " + rangeLowDisp + ".";
+              var msg = pui.getLanguageText("runtimeMsg", "invalid low range", [ rangeLowDisp ]);
               if (dom.rangeHigh != null) {
                 var rangeHighDisp = dom.rangeHigh;
                 if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-                msg = "Valid range is " + rangeLowDisp + " to " + rangeHighDisp + "."
+                msg = pui.getLanguageText("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];
@@ -2928,11 +2928,11 @@ pui.buildResponse = function() {
             if (boxValue > rangeHigh) {
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = "Value must be less than or equal to " + rangeHighDisp + ".";
+              var msg = msg = pui.getLanguageText("runtimeMsg", "invalid high range", [ rangeHighDisp ])
               if (dom.rangeLow != null) {
                 var rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-                msg = "Valid range is " + rangeLowDisp + " to " + rangeHighDisp + "."
+                msg = pui.getLanguageText("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];

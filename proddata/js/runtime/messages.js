@@ -141,6 +141,9 @@ pui["runtimeMsg"]["en_US"]["validValues"]             = "Value entered is not va
 pui["runtimeMsg"]["en_US"]["upload invalid type"]     = "One or more files are of invalid type.";
 pui["runtimeMsg"]["en_US"]["invalid email"]           = "Invalid email address.";
 pui["runtimeMsg"]["en_US"]["session timed out"]       = "Your session has timed out.";
+pui["runtimeMsg"]["en_US"]["invalid low range"]       = "Value must be greater than or equal to &1.";
+pui["runtimeMsg"]["en_US"]["invalid high range"]      = "Value must be less than or equal to &1.";
+pui["runtimeMsg"]["en_US"]["invalid range"]           = "Valid range is &1 to &2.";
 
 pui["runtimeText"]["en_US"] = {};
 pui["runtimeText"]["en_US"]["upload select text"]   = "Select Files";
