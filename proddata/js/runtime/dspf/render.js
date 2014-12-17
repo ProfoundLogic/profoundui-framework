@@ -2928,7 +2928,7 @@ pui.buildResponse = function() {
             if (boxValue > rangeHigh) {
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = msg = pui.getLanguageText("runtimeMsg", "invalid high range", [ rangeHighDisp ])
+              var msg = pui.getLanguageText("runtimeMsg", "invalid high range", [ rangeHighDisp ])
               if (dom.rangeLow != null) {
                 var rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
