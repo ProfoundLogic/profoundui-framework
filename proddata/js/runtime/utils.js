@@ -918,6 +918,26 @@ pui.getOffset = function(obj) {
     do {
       curleft += obj.offsetLeft - obj.scrollLeft;
       curtop += obj.offsetTop - obj.scrollTop;
+
+      if (obj.className == "scroller") {
+        var transform = obj.style.transform;
+        if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
+          transform = transform.substr(10);
+          transform = transform.split(")")[0];
+          var transformParts = transform.split(",");
+          var transformLeft = transformParts[0];
+          var transformTop = transformParts[1];
+          if (transformLeft != null && transformTop != null) {
+            transformLeft = parseInt(trim(transformLeft));
+            transformTop = parseInt(trim(transformTop));
+            if (!isNaN(transformLeft) && !isNaN(transformTop)) {
+              curleft += transformLeft;
+              curtop += transformTop;
+            }
+          }
+        }
+
+      }
     } while (obj = obj.offsetParent);
   }
   return [curleft,curtop];
