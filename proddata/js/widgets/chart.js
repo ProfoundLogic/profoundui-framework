@@ -35,9 +35,16 @@ pui.widgets.renderChart = function(parms) {
   
   function loadChart() {
     var chartId = parms.dom.id + "_Chart";
-    if (parms.forceHTML5 == true || pui["charts"]["force html5"] == true) FusionCharts.setCurrentRenderer("javascript");
     if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
-    var chartObj = new FusionCharts("/profoundui/proddata/charts/" + parms.type + ".swf", chartId, "100%", "100%", "0", "0");
+    
+    var chartObj = new FusionCharts({
+      "type": parms.type.toLowerCase(),
+      "id": chartId,
+      "width": "100%",
+      "height": "100%",
+      "renderAt": parms.dom
+    });
+    
     chartObj.dom = parms.dom;
     if (parms.transparent == true) chartObj.setTransparent(true);
     
@@ -68,7 +75,7 @@ pui.widgets.renderChart = function(parms) {
     else if (parms.jsonURL != null) chartObj.setJSONUrl(parms.jsonURL);
     else if (parms.jsonData != null) chartObj.setJSONData(parms.jsonData);
     parms.dom.style.backgroundColor = "";
-    chartObj.render(parms.dom.id);
+    chartObj.render();
     parms.dom.chart = document.getElementById(chartId);
     if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible") parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
   }
@@ -90,7 +97,7 @@ pui.widgets.renderChart = function(parms) {
         if (!done) callback();
         done = true;
     };
-    script.src = pui.normalizeURL('/profoundui/proddata/charts/FusionCharts.js');
+    script.src = pui.normalizeURL('/FusionChartsXT/js/fusioncharts.js');
     head.appendChild(script);
   }
 
