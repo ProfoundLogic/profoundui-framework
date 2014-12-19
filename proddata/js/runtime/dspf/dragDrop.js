@@ -28,6 +28,10 @@ pui.attachDragDrop = function(dom, properties) {
   };
   if (typeof dom.style.MozUserSelect!="undefined") dom.style.MozUserSelect = "none";
 
+  var offset = pui.getOffset(dom.parentNode);
+  var offsetX = offset[0];
+  var offsetY = offset[1];
+
   var useProxy = (properties["use proxy"] == "true");
   var isGrid = (dom.grid != null);
   if (isGrid) {
@@ -183,7 +187,8 @@ pui.attachDragDrop = function(dom, properties) {
     
       if (!pui.hasParent(proxy)) {
       
-        dom.parentNode.appendChild(proxy);  
+        //dom.parentNode.appendChild(proxy);
+        pui.runtimeContainer.appendChild(proxy);
       
       }
     
@@ -195,8 +200,8 @@ pui.attachDragDrop = function(dom, properties) {
       
       }
     
-      var y = getMouseY(event) - cursorStartY;
-      var x = getMouseX(event) - cursorStartX;
+      var y = getMouseY(event) - cursorStartY + offsetY;
+      var x = getMouseX(event) - cursorStartX + offsetX;
       proxy.style.top = (startDomY + y) + "px";
       proxy.style.left = (startDomX + x) + "px";
       
@@ -209,9 +214,14 @@ pui.attachDragDrop = function(dom, properties) {
         var left = proxy.offsetLeft;
         var top = proxy.offsetTop;
         var right = left + proxy.offsetWidth;
-        var bottom = top + proxy.offsetHeight;    
-        var left2 = tgt.offsetLeft;
-        var top2 = tgt.offsetTop;
+        var bottom = top + proxy.offsetHeight;
+        if (tgt.targetOffsetX == null || tgt.targetOffsetY == null) {
+          var targetOffset = pui.getOffset(tgt.parentNode);
+          tgt.targetOffsetX = targetOffset[0];
+          tgt.targetOffsetY = targetOffset[1];
+        }
+        var left2 = tgt.offsetLeft + tgt.targetOffsetX;
+        var top2 = tgt.offsetTop + tgt.targetOffsetY;
         var right2 = left2 + tgt.offsetWidth;
         var bottom2 = top2 + tgt.offsetHeight;
         if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top)) {
