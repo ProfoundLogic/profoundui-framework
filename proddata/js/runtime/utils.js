@@ -920,7 +920,7 @@ pui.getOffset = function(obj) {
       curtop += obj.offsetTop - obj.scrollTop;
 
       if (obj.className == "scroller") {
-        var transform = obj.style.transform;
+        var transform = obj.style["transform"];
         if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
           transform = transform.substr(10);
           transform = transform.split(")")[0];
