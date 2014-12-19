@@ -921,6 +921,7 @@ pui.getOffset = function(obj) {
 
       if (obj.className == "scroller") {
         var transform = obj.style["transform"];
+        if (transform == null) transform = obj.style["webkitTransform"];
         if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
           transform = transform.substr(10);
           transform = transform.split(")")[0];
