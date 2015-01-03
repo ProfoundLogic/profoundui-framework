@@ -705,6 +705,7 @@ function fieldExit(obj, minus) {
 
 pui.beforeUnload = function(event) {
   if (pui.touchDevice || pui.iPadEmulation) return;
+  if (pui.observer != null) return;
   
   if (pui.confirmOnClose && !pui.skipConfirm) {
     if (context == "genie" && pui.isSignOnScreen()) return;
@@ -723,7 +724,7 @@ pui.beforeUnload = function(event) {
 }
 
 pui["unload"] = function() {
-  if (pui.shutdownOnClose) {
+  if (pui.shutdownOnClose && pui.observer == null) {
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");

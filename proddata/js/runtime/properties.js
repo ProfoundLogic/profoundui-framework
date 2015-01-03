@@ -1167,6 +1167,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
       func = function(e) {
+        if (pui.observer != null) return;
         if ( (domObj.getAttribute!=null && domObj.getAttribute("disabled")=="true" )
           || ( domObj.disabled!=null && domObj.disabled==true ) ) {
           return;

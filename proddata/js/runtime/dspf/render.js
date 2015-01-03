@@ -792,6 +792,8 @@ pui.render = function(parms) {
     }
   }
 
+  if (pui.observed != null) pui.observed.update();
+
 }
 
 pui.renderFormat = function(parms) {
@@ -2455,6 +2457,8 @@ pui.showErrors = function(errors, rrn) {
 }
 
 pui.respond = function() {
+
+  if (pui.observer != null) return false;
   
   if (!pui.screenIsReady) {
     return false;
@@ -3743,7 +3747,7 @@ pui["signon"] = function(config) {
   pui.assignUnloadEvents();
   container.setAttribute("tabindex", "0");
   pui.runtimeContainer = container;
-  pui.showWaitAnimation();  
+  if (pui.observer == null) pui.showWaitAnimation();  
   var url = getProgramURL("PUI0001200.pgm");
   
   // New -- provide program parameter also for signed in sessions.
@@ -3795,6 +3799,8 @@ pui["signon"] = function(config) {
     }
     url += "/" + puiRefreshId;
   }
+
+  if (pui.observer != null) return;
 
   ajaxJSON({
     "url": url,
@@ -3907,6 +3913,8 @@ pui.start = function() {
   var mode = parms["mode"];
   var controller = parms["controller"];
   var mobile = (parms["mobile"] === "1");
+  var observe = (parms["observe"] === "1");
+  if (observe) pui.observed.enabled = true;
   var params = {};
   if (pui.detectMobileEmulation != null && typeof pui.detectMobileEmulation == "function") pui.detectMobileEmulation(container);
   for (var i = 1; i <= 255; i++) {
@@ -3935,7 +3943,8 @@ pui.start = function() {
     "suffixid": suffixid,
     "duplicateid": duplicateid,    
     "mobile": mobile,
-    "params": params
+    "params": params,
+    "observe": observe
   };
   if (program == null && jsonURL == null && mode == null) {
     // Signed in session. Look for Atrium item 
