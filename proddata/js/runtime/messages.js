@@ -214,6 +214,9 @@ pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist n
 pui["runtimeMsg"]["de_DE"]["upload invalid type"]     = "Eine oder mehrere Dateien haben den falschen Typcode.";
 pui["runtimeMsg"]["de_DE"]["invalid email"]          = "ungültige E-Mail-Adresse.";
 pui["runtimeMsg"]["de_DE"]["session timed out"]       = "Ihre Sitzung ist abgelaufen.";
+pui["runtimeMsg"]["de_DE"]["invalid low range"]       = "Wert muss größer sein als &1";
+pui["runtimeMsg"]["de_DE"]["invalid high range"]      = "Wert muss kleiner oder gleich &1 sein";
+pui["runtimeMsg"]["de_DE"]["invalid range"]           = "Gültiger Bereich ist zwischen &1 und &2";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
@@ -277,6 +280,9 @@ pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido n�
 pui["runtimeMsg"]["pt_PT"]["upload invalid type"]     = "Um ou mais ficheiros são de tipo inválido.";
 pui["runtimeMsg"]["pt_PT"]["invalid email"]          = "inválido e-mail.";
 pui["runtimeMsg"]["pt_PT"]["session timed out"]       = "A sua sessão expirou.";
+pui["runtimeMsg"]["pt_PT"]["invalid low range"]       = "O valor deve ser maior ou igual a &1";
+pui["runtimeMsg"]["pt_PT"]["invalid high range"]      = "O valor deve ser menor ou igual a &1";
+pui["runtimeMsg"]["pt_PT"]["invalid range"]           = "O Intervalo válido é de &1 a &2";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -356,6 +362,9 @@ pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es
 pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
 pui["runtimeMsg"]["es_ES"]["invalid email"]          = "dirección de correo electrónico no es válida.";
 pui["runtimeMsg"]["es_ES"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
+pui["runtimeMsg"]["es_ES"]["invalid low range"]       = "El valor debe ser mayor o igual a &1";
+pui["runtimeMsg"]["es_ES"]["invalid high range"]      = "El valor debe ser menor o igual a &1";
+pui["runtimeMsg"]["es_ES"]["invalid range"]           = "El valor debe estar comprendido entre &1 y &2";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -479,6 +488,9 @@ pui["runtimeMsg"]["fr_FR"]["validValues"]             = "La valeur saisie n'est 
 pui["runtimeMsg"]["fr_FR"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
 pui["runtimeMsg"]["fr_FR"]["invalid email"]           = "Adresse email invalide.";
 pui["runtimeMsg"]["fr_FR"]["session timed out"]       = "Votre session a expiré.";
+pui["runtimeMsg"]["fr_FR"]["invalid low range"]       = "La valeur doit être supérieure ou égale à &1";
+pui["runtimeMsg"]["fr_FR"]["invalid high range"]      = "La valeur doit être inférieure ou égale à &1";
+pui["runtimeMsg"]["fr_FR"]["invalid range"]           = "La valeur doit être comprise entre &1 et &2.";
 
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Effacer ";
@@ -541,6 +553,9 @@ pui["runtimeMsg"]["fr_CA"]["validValues"]             = "La valeur entrée est i
 pui["runtimeMsg"]["fr_CA"]["upload invalid type"]     = "Un ou plusieurs fichiers sont de type invalide.";
 pui["runtimeMsg"]["fr_CA"]["invalid email"]           = "L'adresse courriel est invalide.";
 pui["runtimeMsg"]["fr_CA"]["session timed out"]       = "Votre session est expirée.";
+pui["runtimeMsg"]["fr_CA"]["invalid low range"]       = "La valeur doit être supérieure ou égale à &1";
+pui["runtimeMsg"]["fr_CA"]["invalid high range"]      = "La valeur doit être inférieure ou égale à &1";
+pui["runtimeMsg"]["fr_CA"]["invalid range"]           = "La valeur doit se situer entre &1 et &2";
 
 pui["runtimeText"]["fr_CA"]["upload select text"]   = "Sélection de fichiers";
 pui["runtimeText"]["fr_CA"]["upload clear text"]    = "Effacer";
@@ -603,6 +618,9 @@ pui["runtimeMsg"]["it_IT"]["validValues"]             = "Valore inserito non è 
 pui["runtimeMsg"]["it_IT"]["upload invalid type"]     = "Uno o più file sono di tipo non valido.";
 pui["runtimeMsg"]["it_IT"]["invalid email"]           = "mail non valido.";
 pui["runtimeMsg"]["it_IT"]["session timed out"]       = "La tua sessione é scaduta.";
+pui["runtimeMsg"]["it_IT"]["invalid low range"]       = "Il valore deve essere maggiore o uguale a &1";
+pui["runtimeMsg"]["it_IT"]["invalid high range"]      = "Il valore deve essere minore o uguale a &1";
+pui["runtimeMsg"]["it_IT"]["invalid range"]           = "Intervallo valido da &1 a &2";
 
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
@@ -666,6 +684,9 @@ pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינ
 pui["runtimeMsg"]["he_IL"]["upload invalid type"]     = "אחד או יותר מהקבצים מסוג לא חוקי";
 pui["runtimeMsg"]["he_IL"]["invalid email"]          = 'כתובת דוא"ל לא חוקי';
 pui["runtimeMsg"]["he_IL"]["session timed out"]       = "סביבת העבודה שלך נסגרה.";
+pui["runtimeMsg"]["he_IL"]["invalid low range"]       = "ערך חייב להיות גדול או שווה ל- &1";
+pui["runtimeMsg"]["he_IL"]["invalid high range"]      = "ערך חייב להיות קטן או שווה ל- &1";
+pui["runtimeMsg"]["he_IL"]["invalid range"]           = "טווח חוקי הוא &1 ל- &2.";
 
 pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
@@ -727,6 +748,9 @@ pui["runtimeMsg"]["nl_NL"]["validValues"]             = "Ongeldige waarde. Geldi
 pui["runtimeMsg"]["nl_NL"]["upload invalid type"]     = "Eén of meerdere bestandstypes zijn ongeldig.";
 pui["runtimeMsg"]["nl_NL"]["invalid email"]           = "Ongeldig email addres.";
 pui["runtimeMsg"]["nl_NL"]["session timed out"]       = "Uw sessie is verlopen.";
+pui["runtimeMsg"]["nl_NL"]["invalid low range"]       = "Waarde moet zijn groter of gelijk aan &1";
+pui["runtimeMsg"]["nl_NL"]["invalid high range"]      = "Waarde moet zijn kleiner of gelijk aan &1";
+pui["runtimeMsg"]["nl_NL"]["invalid range"]           = "Waarde moet liggen tussen &1 en &2.";
 
 pui["runtimeText"]["nl_NL"]["upload select text"]     = "Selecteer bestanden";
 pui["runtimeText"]["nl_NL"]["upload clear text"]      = "Wissen";
