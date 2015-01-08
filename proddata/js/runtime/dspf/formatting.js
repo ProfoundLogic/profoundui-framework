@@ -254,35 +254,22 @@ pui.formatting = {
     return (/^(?:zoned|floating|packed)$/).test(dataType);
   },
   encodeGraphic: function(text, fieldLength) {
-  	// Blank pad field to full length.
-  	while (text.length < fieldLength) {
-  		text += " ";
-  	}
-    // encode
-  	var encoded = "";
   	for (var i = 0; i < text.length; i++) {  
   		var charCode = text.charCodeAt(i);
   		if (charCode > 0xFFFF) {
   			// Character is outside of UCS-2 (fixed 2-byte encoding) range.
   			return { msg: pui.getLanguageText("runtimeMsg", "outside ucs2") };
   		}
-  		// Hex digits MUST be uppercased.
-  		charCode = charCode.toString(16).toUpperCase();
-  		// Hex codes MUST have all leading zeros.
-  		while (charCode.length < 4) {
-  			charCode = "0" + charCode;
-  		}  
-  		encoded += charCode;
   	}
-  	return encoded;
+  	// Blank pad field to full length.
+  	while (text.length < fieldLength) {
+  		text += " ";
+  	}    
+  	return pui.Base64.encode(text);
   },
   decodeGraphic: function(input) {
  
-    var output = ""; 
-    for (var i = 0; i < input.length; i += 4) {
-      output += String.fromCharCode(parseInt(input.substr(i, 4), 16));
-    }
-    return output;
+    return pui.Base64.decode(input);
   
   },
   keywords: {
