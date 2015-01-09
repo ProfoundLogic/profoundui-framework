@@ -784,6 +784,10 @@ function currentUser() {
   }
 }
 
+function currentFormatNames() {
+  return pui.currentFormatNames;
+}
+
 function getQueryStringParms() {
 	var parms = {};
 	var queryString = "";

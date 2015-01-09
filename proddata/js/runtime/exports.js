@@ -57,6 +57,7 @@ window['calendar_select'] = calendar_select;
 window['currentDate'] = currentDate;
 window['currentTime'] = currentTime;
 window['currentUser'] = currentUser;
+window['currentFormatNames'] = currentFormatNames;
 window['getQueryStringParms'] = getQueryStringParms;
 window["setCursor"] = setCursor;
 window["getTarget"] = getTarget;

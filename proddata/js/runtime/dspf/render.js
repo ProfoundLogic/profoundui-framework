@@ -76,7 +76,7 @@ pui.fieldNameSortResponseGrid = null;
 pui.fileUploadElements = [];
 pui.activeElement = null;
 pui.autoPageGrid = false;
-
+pui.currentFormatNames = [];
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -704,6 +704,7 @@ pui.render = function(parms) {
     pui.lastFormatName = null;
     
     var lastLayer = (i == layers.length - 1);
+    pui.currentFormatNames = [];
     for (var j = 0; j < formats.length; j++) {
       var format = formats[j];
       format.container = parms.container;
@@ -806,6 +807,10 @@ pui.renderFormat = function(parms) {
   var data = parms.data;
   var formatName = parms.name;
   var isWin = false;
+
+  if (!isDesignMode && parms.subfileRow == null) {
+    pui.currentFormatNames.push(formatName);
+  }
   
   if (screenProperties != null) {
     if (pui.evalBoundProperty(screenProperties["show as window"], data, parms.ref) == "true") isWin = true;
