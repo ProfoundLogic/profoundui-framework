@@ -4376,6 +4376,19 @@ pui.setActiveElement = function(e) {
   var target = getTarget(e);
   if (!(target.tagName=="INPUT" && target.type=="button"))
     pui.activeElement = target;
+  var dom = target;
+  if (dom.parentNode && dom.parentNode.comboBoxWidget) dom = dom.parentNode;
+  var cell = dom.parentNode;
+  if (cell != null) {
+    var gridDiv = cell.parentNode;
+    if (gridDiv != null) {
+      var grid = gridDiv.grid;
+      if (grid != null) {
+        grid.setCursorRRN(cell.row);
+      }
+    }
+  }    
+    
 }
 
 
