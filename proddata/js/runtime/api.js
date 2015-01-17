@@ -1635,12 +1635,16 @@ pui["focusOnContainer"] = function() {
       // we no longer focus on container
       // this causes the browser to position the scrollbar to the container div when a header is added to start.html
       // we focus on a dummy box instead
-      //parms.container.focus();
 
       if (pui.dummyBox == null) {
 
         pui.dummyBox = document.createElement("input");
-        pui.dummyBox.type = "text";  
+        if (pui.touchDevice) {  // we use a button instead of a textbox for mobile devices to prevent the keyboard from inadvertantly popping up
+          pui.dummyBox.type = "button";
+        }
+        else {
+          pui.dummyBox.type = "text";
+        }
         pui.dummyBox.readOnly = true;
         pui.dummyBox.style.position = "absolute";  
         pui.dummyBox.style.left = "-999px";
@@ -1659,7 +1663,7 @@ pui["focusOnContainer"] = function() {
       setTimeout(function() {
         pui.ignoreBlurs = false;
       }, 0);
-
+      
     }, 1);
 
 }
