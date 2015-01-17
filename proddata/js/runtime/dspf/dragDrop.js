@@ -224,6 +224,11 @@ pui.attachDragDrop = function(dom, properties) {
         var top2 = tgt.offsetTop + tgt.targetOffsetY;
         var right2 = left2 + tgt.offsetWidth;
         var bottom2 = top2 + tgt.offsetHeight;
+        if (tgt.parentNode.getAttribute("container") == "true") {
+          // part of the grid or element may be cut off by the container (like in a horizontally scrolling grid), so we must account for that
+          var altRight2 = right2 - tgt.offsetWidth + tgt.parentNode.offsetWidth - tgt.offsetLeft;
+          if (altRight2 < right2) right2 = altRight2;
+        }
         if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top)) {
           if (tgt.relatedGrid != null) {
             //tgt.style.borderTop = tgt.relatedGrid.borderWidth + "px solid " + tgt.relatedGrid.borderColor;
