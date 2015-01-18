@@ -555,7 +555,68 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   
   if (domObj == null) return null;
   
-  if (propertyName == "shortcut key") pui.assignShortcutKey(propertyValue, domObj);
+  if (propertyName == "shortcut key") {
+    pui.assignShortcutKey(propertyValue, domObj);
+  }
+  if (propertyName == "focus class") {
+    domObj.focusClass = trim(propertyValue);
+    addEvent(domObj, "focus", pui.applyFocusClass);
+    addEvent(domObj, "blur", pui.removeFocusClass);
+  }
+  if (propertyName == "required") {
+    domObj.puirequired = (propertyValue == "true");
+  }
+  if (propertyName == "mandatory entry") {
+    domObj.ME = (propertyValue == "true");
+  }
+  if (propertyName == "mandatory fill") {
+    domObj.MF = (propertyValue == "true");
+  }
+  if (propertyName == "valid values") {
+    domObj.validValues = propertyValue;
+  }
+  if (propertyName == "allow blanks") {
+    domObj.allowBlanks = (propertyValue == "true");
+  }
+  if (propertyName == "auto advance") {  // to do
+    var boxDom = domObj;
+    if (domObj.comboBoxWidget != null) boxDom = domObj.comboBoxWidget.getBox();    
+    if (propertyValue == "true") {
+      boxDom.autoAdvance = true;
+      addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
+    }
+    else {
+      boxDom.autoAdvance = true;
+      removeEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
+    }
+  }
+  if (propertyName == "validate name") {
+    domObj.validateName = (propertyValue == "true");
+  }
+  if (propertyName == "validate email") {
+    domObj.validateEmail = (propertyValue == "true");
+  }
+  if (propertyName == "comparison operator") {
+    domObj.compOperator = (propertyValue == "true");
+  }
+  if (propertyName == "comparison value") {
+    domObj.compValue = propertyValue;
+  }
+  if (propertyName == "range low") {
+    domObj.rangeLow = propertyValue;
+  }
+  if (propertyName == "range high") {
+    domObj.rangeHigh = propertyValue;
+  }
+  if (propertyName == "checked value") {
+    domObj.checkedValue = propertyValue;
+  }
+  if (propertyName == "unchecked value") {
+    domObj.uncheckedValue = propertyValue;
+  }
+  if (propertyName == "bypass validation") {
+    domObj.bypassValidation = propertyValue;
+  }
   
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();

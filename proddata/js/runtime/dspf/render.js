@@ -1390,21 +1390,7 @@ pui.renderFormat = function(parms) {
               var boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
               boxDom.autoAdvance = true;
-              addEvent(boxDom, "keyup", function(event) {
-                event = event || window.event;
-                var target = getTarget(event);
-                // Do not auto-enter unless a printable character is typed in.
-                var keyCode = event.keyCode;
-                if (keyCode < 48 || (keyCode > 90 && keyCode < 96) || (keyCode > 111 && keyCode < 186)) {
-                  if (keyCode != 32) return;
-                }
-                var box = target;
-                if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
-                if (box.value.length == box.maxLength && getCursorPosition(box) >= box.maxLength) {
-                  pui.keyName = "Enter";
-                  pui.click();
-                }
-              });              
+              addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
             }
             if (propname == "allow dup key" && propValue == "true") {
               addEvent(dom, "keydown", function(event) {
@@ -4503,6 +4489,23 @@ pui.removeFocusClass = function(e) {
     cssClass = cssClass.replace(dom.focusClass, "");
   }
   dom.className = trim(cssClass);
+}
+
+
+pui.autoAdvanceOnKeyUp = function(event) {
+  event = event || window.event;
+  var target = getTarget(event);
+  // Do not auto-enter unless a printable character is typed in.
+  var keyCode = event.keyCode;
+  if (keyCode < 48 || (keyCode > 90 && keyCode < 96) || (keyCode > 111 && keyCode < 186)) {
+    if (keyCode != 32) return;
+  }
+  var box = target;
+  if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+  if (box.value.length == box.maxLength && getCursorPosition(box) >= box.maxLength) {
+    pui.keyName = "Enter";
+    pui.click();
+  }
 }
 
 
