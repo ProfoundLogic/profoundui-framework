@@ -3969,8 +3969,16 @@ pui.Grid = function() {
     content.style.position = "absolute";
     content.style.top = "50%";
     var height = content.offsetHeight;
-    //content.style.height = height + "px";
-    content.style.marginTop = (-parseInt(height / 2)) + "px";
+    if (height > 0) {
+      content.style.marginTop = (-parseInt(height / 2)) + "px";
+    }
+    else {
+      content.style.position = "relative";
+      content.style.webkitTransform = "translateY(-50%)";
+      content.style.mozTransform = "translateY(-50%)";
+      content.style.msTransform = "translateY(-50%)";
+      content.style.transform = "translateY(-50%)";
+    }
     var width = parseInt(cell.style.width);
     if (isNaN(width)) width = 0;
     width = width - 8;  // account for some padding (4 pixels on each side)
