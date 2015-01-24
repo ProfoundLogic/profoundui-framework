@@ -186,10 +186,7 @@ pui.attachDragDrop = function(dom, properties) {
     function mousemove(event) {
     
       if (!pui.hasParent(proxy)) {
-      
-        //dom.parentNode.appendChild(proxy);
-        pui.runtimeContainer.appendChild(proxy);
-      
+        document.body.appendChild(proxy);
       }
     
       if (isGrid && dom.grid.contextMenuId) {
@@ -357,6 +354,8 @@ pui.attachDragDrop = function(dom, properties) {
         }
       }
       
+      if (!touchEvent) preventEvent(event);
+      
     }
     function getDropInfo(dropEl) {
       var grid = dropEl.relatedGrid;
@@ -455,7 +454,7 @@ pui.attachDragDrop = function(dom, properties) {
     }
     document.onselectstart = function(e) { 
       return false; 
-    };
+    };  
       
   }
   addEvent(dom, "mousedown", mousedown);
