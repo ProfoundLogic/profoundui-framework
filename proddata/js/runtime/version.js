@@ -20,4 +20,4 @@
 
 
 if (!window["pui"]) window["pui"] = {};
-window["pui"]["version"] = "5.0.4"; 
+window["pui"]["version"] = "5.0.5"; 
