@@ -326,6 +326,7 @@ pui.widgets.add({
           var summaryOption    = parms.evalProperty("summary option");
           var maxCount         = parms.evalProperty("record limit").toUpperCase();
           var where            = parms.evalProperty("selection criteria").toUpperCase();
+          var orderBy          = parms.evalProperty("order by").toUpperCase();
           var nameList         = parms.evalProperty("names");
           var valueList        = parms.evalProperty("values");
           var chartOptions     = parms.evalProperty("chart options");
@@ -418,7 +419,8 @@ pui.widgets.add({
          if (summary != "") {
            sql += " GROUP BY " + nameField + " ";
          }
-         sql += " ORDER BY " + nameField;
+         if (summary == "" && orderBy != "") sql += " ORDER BY " + orderBy;
+         else sql += " ORDER BY " + nameField;
 
          var url =  getProgramURL("PUI0009104.PGM");
          var postData = "AUTH=" 

@@ -198,6 +198,15 @@ function getPropertiesModel() {
 
     { name: "Database-Driven Auto-Complete", category: true, controls: ["textbox"] },
     { name: "Database-Driven Selection", category: true, controls: ["combo box", "select box"] },
+    { name: "Database-Driven Chart", category: true, controls: ["chart"] },
+    { name: "database file", type: "file", uppercase: true, help: "Database file to use for the chart's data source. Specify it in the format 'database file' or 'library/database file'.", controls: ["chart"] },
+    { name: "name field", type: "field", uppercase: true, help: "Database field that determines the names by which records would be represented in the chart.", controls: ["chart"] },
+    { name: "value field", type: "field", uppercase: true, help: "Database field that determines the numerical values from which the chart is to be built.", controls: ["chart"] },
+    { name: "summary option", choices: ["none", "average", "count", "sum", "maximum", "minimum"], help: "Determines how values are used when creating the chart.", controls: ["chart"] },
+    { name: "selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the database file.", controls: ["chart"] },
+    { name: "parameter value", bind: true, type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"selection criteria\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.", controls: ["chart"] },    
+    { name: "record limit", format: "number", help: "Sets a limit on how many records are to be used in the chart.", controls: ["chart"] },    
+    
     { name: "choices database file", type: "file", uppercase: true, help: "Database file to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete. Specify it in the format 'database file' or 'library/database file'.", controls: ["combo box", "select box", "textbox"] },
     { name: "choice options field", type: "field", multiple: true, uppercase: true, help: "Database field name used to retrieve the options for a dynamic dropdown box, list box, combo box, or text field with auto complete. Multiple fields can be specifed for a text field with auto complete. In this case, the field names should be comma separated.", controls: ["combo box", "select box", "textbox"] },
     { name: "choice values field", type: "field", uppercase: true, help: "Database field name used to retrieve the values sent back to the application.  If omitted, the choice options field is used. In the case of a text field with autocomplete that has multiple option fields, the first option field is used.", controls: ["combo box", "select box", "textbox"] },
@@ -205,7 +214,7 @@ function getPropertiesModel() {
     { name: "choices parameter value", bind: true, type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"choices selection criteria\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Choices Parameter Value.", controls: ["combo box", "select box", "textbox"] },
     { name: "blank option", choices: ["true", "false"], help: "When set to true, a database-driven dropdown box will display a blank option before the options from the database file are displayed.", controls: ["combo box", "select box"] },
     { name: "blank option label", help: "By default, the blank option contains no text.  Use this property to specify alternate text to be displayed in the blank option.  The value sent to the server will still be blank.", controls: ["combo box", "select box"], translate: true },
-    { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the choices.", controls: ["combo box", "select box", "grid"] },
+    { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the items. For a database-driven chart, this property is ignored when \"summary option\" is used. In this case the items will sort on the \"name field\".", controls: ["combo box", "select box", "chart"] },
     { name: "max choices", format: "number", help: "Optional maximum number of choices to provide for a dynamic dropdown box, list box, or text field with auto complete. If blank: defaults to 500 for dropdown, 10 for auto complete.", controls: ["combo box", "select box", "textbox"] },
     { name: "contains match", choices: ["true", "false"], help: "When set to true, the auto-complete query finds records that contain the search text.  When set to false, the auto-complete query finds records that start with the search text.  The default value is false.", controls: ["textbox"] },
     
@@ -223,15 +232,6 @@ function getPropertiesModel() {
     { name: "Chart Data" + ((context == "genie") ? " from Screen" : ""), category: true, controls: ["chart"] },
     { name: "names", type: "list", help: "Specifies a list of names representing the data points on the chart or a list of screen element id's from which the names could be retrieved.  The list should be comma separated.", controls: ["chart"], translate: true },
     { name: "values", type: "list", help: "Specifies a list of numerical values used to build the chart or a list of screen element id's from which the values could be retrieved. The list should be comma separated.", controls: ["chart"] },
-
-    { name: "Database-Driven Chart", category: true, controls: ["chart"] },
-    { name: "database file", type: "file", uppercase: true, help: "Database file to use for the chart's data source. Specify it in the format 'database file' or 'library/database file'.", controls: ["chart"] },
-    { name: "name field", type: "field", uppercase: true, help: "Database field that determines the names by which records would be represented in the chart.", controls: ["chart"] },
-    { name: "value field", type: "field", uppercase: true, help: "Database field that determines the numerical values from which the chart is to be built.", controls: ["chart"] },
-    { name: "summary option", choices: ["none", "average", "count", "sum", "maximum", "minimum"], help: "Determines how values are used when creating the chart.", controls: ["chart"] },
-    { name: "selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the database file.", controls: ["chart"] },
-    { name: "parameter value", bind: true, type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"selection criteria\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.", controls: ["chart"] },    
-    { name: "record limit", format: "number", help: "Sets a limit on how many records are to be used in the chart.", controls: ["chart"] },
 
     { name: "Dynamic Chart", category: true, controls: ["chart"] },
     { name: "chart url", type: "long", help: "Sets the url to a web service that returns the chart definition and data in XML format as specified in the FusionCharts Data Formats section of the FusionCharts documentation site <a href=\"http://docs.fusioncharts.com/charts\" target=\"_blank\">http://docs.fusioncharts.com/charts</a>.", controls: ["chart"] },
