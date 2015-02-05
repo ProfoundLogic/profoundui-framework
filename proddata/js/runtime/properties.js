@@ -88,6 +88,7 @@ function getPropertiesModel() {
 
     { name: "Field Settings", category: true },
     { name: "ajax url", type: "long", help: "Specifies the content url for an ajax container.", controls: ["ajax container"] },
+    { name: "results template", type: "long", allowNewLines: true, controls: ["textbox"], help: "HTML template for auto-complete results panel. If omitted, a default template will be used." },
     { name: "iframe url", type: "long", help: "Specifies the content url for an IFrame (inline frame) element.", controls: ["iframe"] },
     { name: "frame border", choices: ["true", "false"], blankChoice: false, help: "Determines whether the IFrame (inline frame) element will have a border.", controls: ["iframe"] },    
     { name: "theme", choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."], help: "Specifies the jQuery Mobile theme to use for the button.  The theme is associated with a set of cascading style sheet rules.", controls: ["css button"] },

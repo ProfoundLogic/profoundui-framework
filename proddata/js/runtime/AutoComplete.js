@@ -906,6 +906,8 @@ function applyAutoComp(properties, originalValue, domObj) {
       values = pui.parseCommaSeparatedList(values);
     }
     if (values.length == 0) values = [""];
+    var tpl = trim(evalPropertyValue(properties["results template"], originalValue, domObj));
+    if (tpl == "") tpl = null;
 
     // Apply auto complete if any of the settings are given.
     if ((file != "" && fields[0] != "") || url != "" || (choices.length > 0 && choices[0] != "" && values[0] != "")) {
@@ -988,6 +990,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         	choices: (choices[0] != "") ? choices : null,
         	values: (values[0] != "") ? values : null,
         	limit: (limit != "") ? limit : null,
+          template: tpl,
         	onselect: onselect,
         	valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
         	beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
@@ -1024,6 +1027,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         		// Quit if the auto complete template and sizing have already 
         		// been done. This flag will be embedded into the dom object
         		// at the end of this function.
+            if (tpl) return;
         		if (domObj.autoCompSized != null) return;
         		
         		var measureDiv = document.createElement("div");
