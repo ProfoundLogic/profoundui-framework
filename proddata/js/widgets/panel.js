@@ -301,7 +301,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   if (isNaN(height)) height = pui.widgets.defaultPanelHeight;
 
   var overlap = 0;
-  if (pui.touchDevice) overlap = 1;
+  if (pui["is_touch"]) overlap = 1;
 
   var resized = false;
   if (height < settings.top + settings.bottom) {

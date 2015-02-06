@@ -94,7 +94,7 @@ pui.SlidingScrollBar = function() {
     rowNumDiv.style.opacity = 0.75;
     rowNumDiv.style.display = "none";
     
-    if ((context == "dspf" && pui.touchDevice) || pui.iPadEmulation) {
+    if ((context == "dspf" && pui["is_touch"]) || pui.iPadEmulation) {
       touchBar = document.createElement("div");
       touchBar.style.position = "absolute";
       //touchBar.style.width = "25px";
@@ -364,7 +364,7 @@ pui.SlidingScrollBar = function() {
 
   function positionRowNum() {
     var adjust = 22;
-    if (pui.touchDevice || pui.iPadEmulation) adjust = 0;
+    if (pui["is_touch"] || pui.iPadEmulation) adjust = 0;
     rowNumDiv.style.left = (me.x - rowNumDiv.offsetWidth + adjust) + "px";
     rowNumDiv.style.top = (me.y - rowNumDiv.offsetHeight - 2) + "px";
   }

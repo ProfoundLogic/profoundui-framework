@@ -874,7 +874,7 @@ pui.Grid = function() {
     if (me.recNum < 1) me.recNum = 1;
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
-      if (pui.touchDevice || pui.iPadEmulation) me.getData();
+      if (pui["is_touch"] || pui.iPadEmulation) me.getData();
     }
     else {
       me.getData();
@@ -925,7 +925,7 @@ pui.Grid = function() {
     }
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
-      if (pui.touchDevice || pui.iPadEmulation) me.getData();
+      if (pui["is_touch"] || pui.iPadEmulation) me.getData();
     }
     else {
       me.getData();
@@ -2321,7 +2321,7 @@ pui.Grid = function() {
       var bwidth = me.borderWidth;
       if (me.designMode && bwidth < minBWidth) bwidth = minBWidth;
       var scrollBarWidth = 23;
-      if (pui.touchDevice || pui.iPadEmulation) scrollBarWidth = 0;
+      if (pui["is_touch"] || pui.iPadEmulation) scrollBarWidth = 0;
 
       me.scrollbarObj.x = parseInt(me.vLines[me.vLines.length - 1].style.left) - scrollBarWidth;
 
@@ -2869,7 +2869,7 @@ pui.Grid = function() {
             me.contextMenuId = contextMenuId;
             
           }
-          if (pui.touchDevice) {
+          if (pui["is_touch"]) {
             me.tableDiv.onselectstart = function(e) { return false };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";                     
             if (typeof me.tableDiv.style.webkitUserSelect != "undefined") me.tableDiv.style.webkitUserSelect = "none";
@@ -4018,7 +4018,7 @@ pui.Grid = function() {
       if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e, col);
       if (!me.hoverEffect) return;
-      if (pui.touchDevice || pui.iPadEmulation) return;
+      if (pui["is_touch"] || pui.iPadEmulation) return;
       var header = (row == 0 && me.hasHeader);
       if (header) return;
       var cols = me.cells[row];
@@ -4135,7 +4135,7 @@ pui.Grid = function() {
           
         }  
         // Center under the finger for touch devices.
-        if (pui.touchDevice) {
+        if (pui["is_touch"]) {
         
           x -= contextMenu.clientWidth / 2;
           
@@ -4176,7 +4176,7 @@ pui.Grid = function() {
     // On IOS Safari/Chrome and also the Android browser, this doesn't happen. Which is expected, as 
     // the behavior on Chrome for Android is not standard...
     
-    if (pui.touchDevice && !pui.is_chrome) {
+    if (pui["is_touch"] && !pui.is_chrome) {
     
       pui.taphold(cell, function(e) {
       
@@ -4581,7 +4581,7 @@ pui.Grid = function() {
     cell.style.height = (parseInt(me.hLines[row+1].style.top) - parseInt(me.hLines[row].style.top)) + "px";
     var width = (parseInt(me.vLines[col+1].style.left) - parseInt(me.vLines[col].style.left));
     if (last && (me.pagingScrollBar || me.slidingScrollBar)) {
-      if (!(pui.touchDevice || pui.iPadEmulation)) {
+      if (!(pui["is_touch"] || pui.iPadEmulation)) {
         width = width - 16;  // reduce by scrollbar width
       }
     }

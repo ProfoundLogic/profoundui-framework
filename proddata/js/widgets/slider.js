@@ -42,7 +42,7 @@ pui.Slider = function() {
   var handle;
   var hiddenField;
   
-  var ipad = (pui.touchDevice || pui.iPadEmulation);
+  var ipad = (pui["is_touch"] || pui.iPadEmulation);
   
   this.init = function() {
     // create bar

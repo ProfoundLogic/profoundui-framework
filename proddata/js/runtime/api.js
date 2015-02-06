@@ -1639,7 +1639,7 @@ pui["focusOnContainer"] = function() {
       if (pui.dummyBox == null) {
 
         pui.dummyBox = document.createElement("input");
-        if (pui.touchDevice) {  // we use a button instead of a textbox for mobile devices to prevent the keyboard from inadvertantly popping up
+        if (pui["is_touch"]) {  // we use a button instead of a textbox for mobile devices to prevent the keyboard from inadvertantly popping up
           pui.dummyBox.type = "button";
         }
         else {

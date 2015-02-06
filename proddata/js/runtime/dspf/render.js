@@ -77,6 +77,7 @@ pui.fileUploadElements = [];
 pui.activeElement = null;
 pui.autoPageGrid = false;
 pui.currentFormatNames = [];
+pui["no focus"] = false;
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -1148,7 +1149,7 @@ pui.renderFormat = function(parms) {
             
               formattingObj["revert"] = false;
 
-              if (pui.touchDevice && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
+              if (pui["is_touch"] && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
               
                 // The following options put non-digit characters into the box. Such as spaces, separators, commas, etc.
                 // Any non-digit characters cause a browser to render a "number" element empty.
@@ -3702,7 +3703,7 @@ pui["run"] = function(config) {
         setTimeout(function() {
           if (pui["onoffline"] == null) {
             pui.alert(pui.getNoConnectionMessage(req));
-            if (pui.touchDevice) {
+            if (pui["is_touch"]) {
               setTimeout(function() {
                 if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
                   navigator["app"]["exitApp"](); 
@@ -3810,7 +3811,7 @@ pui["signon"] = function(config) {
       setTimeout(function() {
         if (pui["onoffline"] == null) {
           pui.alert(pui.getNoConnectionMessage(req));
-          if (pui.touchDevice) {
+          if (pui["is_touch"]) {
             setTimeout(function() {
               if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
                 navigator["app"]["exitApp"](); 
@@ -4695,7 +4696,7 @@ pui.doFieldExit = function(target) {
                                         || target.type=="number" 
                                         || target.type=="password"))) {
       var pos = target.cursorPosition;
-      if (pui.touchDevice) {
+      if (pui["is_touch"]) {
          pos = getCursorPosition(target);
       }
       if (pos == null) return false;

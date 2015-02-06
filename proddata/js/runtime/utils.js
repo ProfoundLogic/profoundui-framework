@@ -657,7 +657,7 @@ function fieldExit(obj, minus) {
   var signedNumeric = obj.getAttribute('signedNumeric');
   if (minus && (signedNumeric==null || signedNumeric!='Y')) return false;
   var pos = obj.cursorPosition;
-  if (pui.touchDevice) {
+  if (pui["is_touch"]) {
      pos = getCursorPosition(obj);
   }
   if (pos == null) return false;
@@ -704,7 +704,7 @@ function fieldExit(obj, minus) {
 
 
 pui.beforeUnload = function(event) {
-  if (pui.touchDevice || pui.iPadEmulation) return;
+  if (pui["is_touch"] || pui.iPadEmulation) return;
   if (pui.observer != null) return;
   
   if (pui.confirmOnClose && !pui.skipConfirm) {
@@ -1534,7 +1534,7 @@ pui.isTranslated = function(propVal) {
 
 pui.taphold = function(target, handler, threshold) {
 
-  if (!pui.touchDevice || !target || !target.addEventListener) return;
+  if (!pui["is_touch"] || !target || !target.addEventListener) return;
   if (typeof handler != "function") return;
   if (typeof threshold != "number") threshold = 750;
   
