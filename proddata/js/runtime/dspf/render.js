@@ -863,6 +863,7 @@ pui.renderFormat = function(parms) {
     pui.cursorValues.setColumn = pui.evalBoundProperty(screenProperties["set cursor column"], data, parms.ref);
     pui.cursorValues.noFocus = pui.evalBoundProperty(screenProperties["no focus"], data, parms.ref);
     if (pui.cursorValues.noFocus == "true") pui.cursorValues.noFocus = true;
+    if (pui["no focus"] == "true" || pui["no focus"] == true) pui.cursorValues.noFocus = true;
     if (pui.isBound(screenProperties["set cursor condition"])) {
       var setCursor = pui.evalBoundProperty(screenProperties["set cursor condition"], data, parms.ref);
       if (setCursor != true && setCursor != "true") {
