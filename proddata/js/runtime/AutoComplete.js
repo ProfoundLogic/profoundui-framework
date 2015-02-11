@@ -213,7 +213,7 @@ function AutoComplete(config) {
 	resultPane.style.padding = "0px";
 	resultPane.style.position = "absolute";
 	resultPane.style.zIndex = zIndex;
-	resultPane.style.border =  "1px solid #98C0F4";
+  resultPane.className = "autocomplete-results";
 	if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
 	else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
 	container.appendChild(resultPane);
