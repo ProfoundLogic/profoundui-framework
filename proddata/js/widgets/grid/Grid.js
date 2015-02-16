@@ -4148,8 +4148,11 @@ pui.Grid = function() {
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
         // Position after show, as some browsers (FF) report menu width 0 when hidden.
-        var maxX = document.documentElement.clientWidth - contextMenu.clientWidth - 10;  // width of menu plus scrollbar
-        var maxY = document.documentElement.clientHeight - contextMenu.clientHeight - 10; // height of menu plus scrollbar
+        var doc = document.documentElement;
+        var docScrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+        var docScrollTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10;  // width of menu plus scrollbar
+        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10; // height of menu plus scrollbar
         if (x > maxX) x = maxX; 
         if (y > maxY) y = maxY;     
         contextMenu.style.left = x + "px";
