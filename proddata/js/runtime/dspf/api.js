@@ -54,18 +54,6 @@ pui.click = function(button, skipjs) {
   0);
 }
 
-pui["submit"] = function(params) {
-  
-  if (typeof params["url"] != "string") return;
-  var altSubmit = (pui["controller"] != null || params["force"] == true);
-  pui.bypassValidation = (params["bypass validation"] == true);
-  if (altSubmit) {
-    pui.altSubmitURL = params["url"];
-    pui.altSubmitAjax = (params["ajax"] == true);
-  }
-  pui.click();  
-  
-}
 
 // Goes to a url and skips the "This will end your session" confirmation box
 // Example: pui.link("mailto:support@profoundlogic.com");

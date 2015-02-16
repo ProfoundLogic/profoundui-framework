@@ -674,8 +674,6 @@ pui.render = function(parms) {
     pui.gridsDisplayed = [];
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
-    pui.altSubmitURL = null;
-    pui.altSubmitAjax = null;
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -3138,10 +3136,7 @@ pui.submitResponse = function(response) {
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   if (pui.handler != null && typeof pui.handler == "string") url = pui.handler;
 
-  if (pui.altSubmitURL) {
-    url = pui.altSubmitURL;
-  }
-  else if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
     try {
       url = pui["overrideSubmitUrl"](url);
     }
@@ -3152,17 +3147,6 @@ pui.submitResponse = function(response) {
   if (pui.handler != null && typeof pui.handler == "function") {
     pui.handler(response);
   }  
-  if (pui.altSubmitURL && !pui.altSubmitAjax) {
-    pui["confirmOnClose"] = false;
-    var code = "postTo(\"" + pui.altSubmitURL + "\"";
-    var argv = [];
-    for (var name in response) {
-      argv.push("\"" + name + "\"", "\"" + response[name] + "\"");
-    }
-    if (argv.length > 0) code += ",";
-    code += argv.join(",") + ");";
-    eval(code);
-  }
   else {
     pui.timeoutMonitor.end();
     ajaxJSON({
@@ -3189,8 +3173,6 @@ pui.submitResponse = function(response) {
         else pui.render5250(parms);
       },
       "onfail": function(req) {
-        pui.altSubmitURL = null;
-        pui.altSubmitAjax = null;
         if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
         pui.hideWaitAnimation(true);
         pui.resetResponseValues();
