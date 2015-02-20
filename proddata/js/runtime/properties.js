@@ -618,6 +618,14 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   if (propertyName == "bypass validation") {
     domObj.bypassValidation = propertyValue;
   }
+  if (propertyName == "set focus" && (propertyValue==true || propertyValue=="true")) {
+    var dom = domObj;
+    if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
+    dom.focus();
+    pui.focusField.dom = dom;
+    pui.focusField.setFocusFlag = true;
+  }
+  
   
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
