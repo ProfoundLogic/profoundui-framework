@@ -80,7 +80,7 @@ pui.widgets.renderChart = function(parms) {
     if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible") parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
   }
   
-  function loadScript(callback) {
+  function loadScript(url, callback) {
     var done = false;
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
@@ -97,12 +97,22 @@ pui.widgets.renderChart = function(parms) {
         if (!done) callback();
         done = true;
     };
-    script.src = pui.normalizeURL('/FusionChartsXT/js/fusioncharts.js');
+    script.src = url;
     head.appendChild(script);
   }
 
   if (typeof FusionCharts == "undefined") {
-    loadScript(loadChart);
+    loadScript(pui.normalizeURL('/FusionChartsXT/js/fusioncharts.js'), function() {
+      loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.carbon.js'), function() {
+        loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.fint.js'), function() {
+          loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.ocean.js'), function() {
+            loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.zune.js'), function() {
+              loadChart();
+            });            
+          });          
+        });        
+      });
+    });
   }
   else {
     loadChart();
