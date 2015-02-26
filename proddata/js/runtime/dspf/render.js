@@ -2330,7 +2330,39 @@ pui.attachResponse = function(dom) {
       }
     }
     
+    pui.destURL = null;
+    pui.destParams = null;
+    pui.destBookmarkable = null;
+    pui.destRedirect = null;    
+    
+    if (dom.pui && dom.pui.properties && dom.pui.properties["destination url"]) {
+      
+      var props = dom.pui.properties;
+      
+      pui.destURL = props["destination url"];
+      pui.destBookmarkable = (!props["bookmarkable"] || props["bookmarkable"] == "true");
+      pui.destRedirect = (props["redirect to destination"] == "true");
+      pui.destParams = [];
+
+      var suffix = 1;
+      var prop1 = "destination parameter name";
+      var prop2 = "destination parameter value";          
+      while (props[prop1]) {
+        
+        pui.destParams.push([props[prop1], props[prop2]]);
+        prop1 = "destination parameter name " + (++suffix);
+        prop2 = "destination parameter value " + suffix;
+        
+      }
+      
+    }    
+    
     var returnVal = pui.respond();
+    
+    pui.destURL = null;
+    pui.destParams = null;
+    pui.destBookmarkable = null;
+    pui.destRedirect = null;     
     
     if (returnVal == false) {
       for (var i = 0; i < doms.length; i++) {
@@ -2514,6 +2546,7 @@ pui.respond = function() {
 }
 
 pui.buildResponse = function() {
+    
   var response = {};
 
   for (var fieldName in pui.changeResponseElements) {
@@ -3135,7 +3168,6 @@ pui.submitResponse = function(response) {
   else url = getProgramURL("PUI0002110.pgm");
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   if (pui.handler != null && typeof pui.handler == "string") url = pui.handler;
-
   if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
     try {
       url = pui["overrideSubmitUrl"](url);
@@ -3145,10 +3177,48 @@ pui.submitResponse = function(response) {
   }
 
   if (pui.handler != null && typeof pui.handler == "function") {
+    if (pui.destURL) {
+      var parts = pui.destURL.split("?");
+      var query = "";
+      url = parts[0];
+      if (parts.length > 1) query = parts[1];
+      var paramStr = "";
+      var paramArr = [];
+      for (var i = 0; i < pui.destParams.length; i++) {
+        var name = pui.destParams[i][0];
+        var value = pui.destParams[i][1];        
+        if (paramStr != "") paramStr += "&";
+        paramStr += encodeURIComponent(name) + "=" + encodeURIComponent(value);
+        paramArr.push("\"" + name + "\"", "\"" + value + "\"");
+        response[name] = value;
+      }
+      if (pui.destBookmarkable) {
+        if (query != "") query += "&";
+        query += paramStr;
+      }
+      if (query != "") url += "?" + query;    
+      if (pui.destRedirect) {
+        if (pui.destBookmarkable) {
+          location.href = url;  
+        }
+        else {
+          var code = "postTo(\"" + url + "\"";
+          if (paramArr.length > 0) {
+            code += "," + paramArr.join(",");
+          }
+          code += ");";
+          eval(code);
+        }
+        return;
+      }
+      else {
+        pui["controller"] = url;
+      }
+    }   
     pui.handler(response);
   }  
   else {
-    pui.timeoutMonitor.end();
+    pui.timeoutMonitor.end();   
     ajaxJSON({
       "url": url,
       "method": "post",
