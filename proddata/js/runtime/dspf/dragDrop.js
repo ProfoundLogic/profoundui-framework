@@ -28,10 +28,6 @@ pui.attachDragDrop = function(dom, properties) {
   };
   if (typeof dom.style.MozUserSelect!="undefined") dom.style.MozUserSelect = "none";
 
-  var offset = pui.getOffset(dom.parentNode);
-  var offsetX = offset[0];
-  var offsetY = offset[1];
-
   var useProxy = (properties["use proxy"] == "true");
   var isGrid = (dom.grid != null);
   if (isGrid) {
@@ -54,6 +50,10 @@ pui.attachDragDrop = function(dom, properties) {
   }
 
   function mousedown(event) {
+    
+    var offset = pui.getOffset(dom.parentNode);
+    var offsetX = offset[0];
+    var offsetY = offset[1];    
     
     var touchEvent = false;
     if (event != null && event.touches != null) {
