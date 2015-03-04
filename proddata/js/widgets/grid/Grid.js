@@ -3014,6 +3014,7 @@ pui.Grid = function() {
       case "sortable":
       case "custom sql":
       case "data url":
+      case "data transform function":
       case "starting row":
       case "ending row":
       case "data columns":
@@ -4655,8 +4656,28 @@ pui.Grid = function() {
     } 
     req["postData"] += "&limit=" + limit + "&start=" + start;
     if (total != null && total == true) req["postData"] += "&getTotal=1";
-    req["onready"] = function(req) { 	
-      var response = checkAjaxResponse(req, "Run SQL SELECT Query");
+    req["onready"] = function(req) {
+      var response;
+      if (me.dataProps["data transform function"] && req.getStatus() == 200) {
+        
+        try {
+          
+          var fn = eval("window." + me.dataProps["data transform function"]);
+          response = fn(req.getResponseText());
+         
+        }         
+        catch(e) {
+          
+          pui.logException(e);
+          
+        }
+          
+      }
+      else {
+      
+        response = checkAjaxResponse(req, "Run SQL SELECT Query");
+        
+      }
       if (response) {
         if (cache) {
           if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
@@ -5192,7 +5213,7 @@ pui.Grid = function() {
   
     return count;
   
-  }  
+  }
   
   this.hideContextMenu = function() {
     if (!me.contextMenuId) return;
@@ -5362,6 +5383,7 @@ pui.Grid = function() {
       { name: "custom sql", type: "long", help: "Specifies an sql statement to use to retrieve the records for a database-driven grid." },
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value." },    
       { name: "data url", type: "long", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
+      { name: "data transform function", type: "long", help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget." },
 
       { name: "Grid Data from Screen", category: true, context: "genie" },
       { name: "starting row", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie" },
