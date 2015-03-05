@@ -881,13 +881,15 @@ pui.Grid = function() {
     }
     setTimeout(function() {
       me.unMask();
-      // place cursor on first row
-      var rowNum = 0;
-      if (me.hasHeader) rowNum++;
-      var row = me.cells[rowNum];
-      setTimeout(function() {
-        placeCursorOnRow(row);
-      }, 100);
+      if (typeof(pui.cursorValues.noFocus)=="undefined" || pui.cursorValues.noFocus==false) {
+        // place cursor on first row
+        var rowNum = 0;
+        if (me.hasHeader) rowNum++;
+        var row = me.cells[rowNum];
+        setTimeout(function() {
+          placeCursorOnRow(row);
+        }, 100);
+      }
     }, 1);
   }
 
@@ -932,13 +934,15 @@ pui.Grid = function() {
     }
     setTimeout(function() {
       me.unMask();
-      // place cursor on first row
-      var rowNum = 0;
-      if (me.hasHeader) rowNum++;
-      var row = me.cells[rowNum];
-      setTimeout(function() {
-        placeCursorOnRow(row);
-      }, 100);
+      if (typeof(pui.cursorValues.noFocus)=="undefined" || pui.cursorValues.noFocus==false) {
+        // place cursor on first row
+        var rowNum = 0;
+        if (me.hasHeader) rowNum++;
+        var row = me.cells[rowNum];
+        setTimeout(function() {
+          placeCursorOnRow(row);
+        }, 100);
+      }
     }, 1);
   }
   
