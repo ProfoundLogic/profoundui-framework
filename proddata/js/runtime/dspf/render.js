@@ -808,7 +808,30 @@ pui.renderFormat = function(parms) {
   var data = parms.data;
   var formatName = parms.name;
   var isWin = false;
+  var ctlErrors = [];
+  var ctlErrorMap = {};
 
+  if (pui["controller"] != null && screenProperties != null) {
+    
+    var suffix = "";
+    var cnt = 1;
+    var propname = "error condition";
+    while (screenProperties[propname + suffix]) {
+      
+      var condition = pui.evalBoundProperty(screenProperties[propname + suffix], data);
+      if (condition == "1") {
+        
+        var msg = pui.evalBoundProperty(screenProperties["error message" + suffix], data);
+        ctlErrors.push({"msg": msg});
+        break;
+        
+      }
+      suffix = " " + (++cnt);
+      
+    }
+    
+  }
+  
   if (!isDesignMode && parms.subfileRow == null) {
     pui.currentFormatNames.push(formatName);
   }
@@ -1585,6 +1608,21 @@ pui.renderFormat = function(parms) {
           }
           
         }
+        
+        if (pui["controller"] != null && propname.indexOf("error condition") == 0 && propValue == "1" && !ctlErrorMap[dom.id]) {
+          
+          var suffix = "";
+          if (propname.length > "error condition".length) {
+            
+            suffix = " " + parseInt(propname.substr("error condition".length), 10);
+            
+          }
+          var msg = properties["error message" + suffix];
+          ctlErrors.push({"id": dom.id, "msg": msg});
+          ctlErrorMap[dom.id] = true;
+          
+        }
+        
       }
 
       // assign auto tabbing events to input boxes
@@ -2182,7 +2220,13 @@ pui.renderFormat = function(parms) {
 
   // process server side errors for this format
   if (!isDesignMode) {
-    var errors = parms["errors"];
+    var errors;
+    if (pui["controller"] != null && ctlErrors.length > 0) {
+      errors = ctlErrors;
+    }
+    else {
+      errors = parms["errors"];
+    }
     if (errors != null) {
       if (parms.subfileRow != null) {
         errors = errors[String(parms.subfileRow)];
