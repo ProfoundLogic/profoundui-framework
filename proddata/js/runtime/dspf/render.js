@@ -3901,6 +3901,7 @@ pui["signon"] = function(config) {
 
 pui.runMVC = function(response) {
 
+  response["profoundui"] = "1";
   ajaxJSON({
     "url": pui.normalizeURL(pui["controller"]),
     "method": "post",
