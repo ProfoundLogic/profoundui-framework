@@ -2184,7 +2184,7 @@ pui.Grid = function() {
             fieldInfo = obj.fieldInfo
             obj.parentNode.removeChild(obj);
           }
-          if (objClass == null || objClass == "" || objClass == "A20") {
+          if (objClass == null || objClass == "" || objClass == "A20" || objClass.indexOf("readOnly") != -1) {
             objClass = "";
           }
           var colNum = i;
