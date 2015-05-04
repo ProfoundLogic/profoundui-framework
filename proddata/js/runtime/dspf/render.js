@@ -751,7 +751,7 @@ pui.render = function(parms) {
           else if (pui.cursorValues.noFocus == true) {
             pui["focusOnContainer"]();
           }
-          else {
+          else if (pui.cursorValues.noFocus != "no focus on page") {
             try {
               pui.focusField.dom.focus();
               if (pui["is_old_ie"] && pui.focusField.dom.tagName != "SELECT" && pui.focusField.dom.type != "checkbox" && pui.focusField.dom.type != "radio") {
