@@ -102,16 +102,8 @@ pui.widgets.renderChart = function(parms) {
   }
 
   if (typeof FusionCharts == "undefined") {
-    loadScript(pui.normalizeURL('/FusionChartsXT/js/fusioncharts.js'), function() {
-      loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.carbon.js'), function() {
-        loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.fint.js'), function() {
-          loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.ocean.js'), function() {
-            loadScript(pui.normalizeURL('/FusionChartsXT/js/themes/fusioncharts.theme.zune.js'), function() {
-              loadChart();
-            });            
-          });          
-        });        
-      });
+    loadScript(pui.normalizeURL('/FusionChartsXT/js/pui-fusioncharts.js'), function() {
+      loadChart();
     });
   }
   else {
