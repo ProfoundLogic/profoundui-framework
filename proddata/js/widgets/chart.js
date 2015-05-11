@@ -18,9 +18,8 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 pui["charts"] = {};
-pui["charts"]["force html5"] = false;
+pui.chartsRendered = [];
 
 pui.widgets.chartTypes = ["Column3D", "Column2D", "Bar2D", "Line", "Area2D", "Pie2D", "Pie3D", "Doughnut3D", "Other..."]
 pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2D Pie", "3D Pie", "Doughnut"];
@@ -29,14 +28,11 @@ pui.widgets.renderChart = function(parms) {
   // description of parms:
   //   - dom - chart container
   //   - type - chart type
-  //   - forceHTML5 (optional true) - forces HTML5 mode, otherwise flash is the default and HTML5 is the fallback
   //   - transparent (optional true)
   //   - xmlURL or xmlData or jsonURL or jsonData
   
   function loadChart() {
     var chartId = parms.dom.id + "_Chart";
-    if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
-    
     var chartObj = new FusionCharts({
       "type": parms.type.toLowerCase(),
       "id": chartId,
@@ -44,7 +40,7 @@ pui.widgets.renderChart = function(parms) {
       "height": "100%",
       "renderAt": parms.dom
     });
-    
+    pui.chartsRendered.push(chartId);
     chartObj.dom = parms.dom;
     if (parms.transparent == true) chartObj.setTransparent(true);
     

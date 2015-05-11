@@ -452,6 +452,12 @@ pui.cleanup = function() {
   }
   pui.layoutsDisplayed = [];
   
+  if (typeof FusionCharts != "undefined")
+    for (var i = 0; i < pui.chartsRendered.length; i++)      
+      if (FusionCharts(pui.chartsRendered[i]))
+        FusionCharts(pui.chartsRendered[i]).dispose();      
+  pui.chartsRendered = [];
+  
 }
 
 
