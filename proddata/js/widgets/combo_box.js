@@ -102,10 +102,10 @@ pui.ComboBoxWidget = function() {
     arrow.style.right = "0px";
     arrow.style.width = "18px";
     arrow.style.height = "20px";
+    arrow.combo = true;
     arrow.onclick = function(e) {
       if (choicesDiv.style.display == "none" && !box.disabled) showChoices();
-      else hideChoices();      
-      preventEvent(e);
+      else hideChoices();
     }       
  
     var win;
@@ -136,7 +136,13 @@ pui.ComboBoxWidget = function() {
           pui.runtimeContainer.appendChild(choicesDiv);
         }
       }
-      addEvent(document, "click", hideChoices);
+      addEvent(document, "click", function(e) {
+        
+        var target = getTarget(e);
+        if (target != arrow)
+          hideChoices();
+        
+      });
     }
     choicesDiv.style.display = "none";
     choicesDiv.style.position = "absolute";

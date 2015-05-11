@@ -4203,6 +4203,8 @@ pui.Grid = function() {
     cell.onclick = function(e) {    
       e = e || window.event;
       var target = getTarget(e);
+      if (target.tagName == "IMG" && target.combo)
+        return;
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
