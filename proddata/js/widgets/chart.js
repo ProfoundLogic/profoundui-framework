@@ -33,6 +33,7 @@ pui.widgets.renderChart = function(parms) {
   
   function loadChart() {
     var chartId = parms.dom.id + "_Chart";
+    if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
     var chartObj = new FusionCharts({
       "type": parms.type.toLowerCase(),
       "id": chartId,
