@@ -81,6 +81,14 @@ pui.widgets.add({
         }
 
       }
+      else if (!parms.design && parms.dom.parentNode.isPUIWindow && 
+               (pui.isPercent(parms.properties["height"]) || 
+                pui.isPercent(parms.properties["width"]))) {
+        
+        parms.dom.parentNode.style.width = "100%";
+        parms.dom.parentNode.style.height = "100%";
+        
+      }
       
       if (parms.design) {
         if (!parms.dom.layout.designMode) {
