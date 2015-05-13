@@ -291,12 +291,28 @@ function buildLabel(dom, labelText) {
   else {
     label.style.zIndex = 20;  // default z-index for input fields
   }      
-  var left = parseInt(dom.style.left);
-  if (isNaN(left)) left = 0;
-  var top = parseInt(dom.style.top);
-  if (isNaN(top)) top = 0;
+  var left;
+  var top;
   var width = dom.offsetWidth;
   if (width < 20) width = 20;
+  dom.positionMe = null;
+  if (pui.isPercent(dom.style.top) || pui.isPercent(dom.style.left) || pui.isPercent(dom.style.bottom) || pui.isPercent(dom.style.right)) {
+    top = dom.offsetTop;
+    left = dom.offsetLeft;
+    if (dom.parentNode.getAttribute("container") == "true")
+    dom.positionMe = function() {
+        label.style.left = dom.offsetLeft + width + "px";
+        label.style.top = dom.offsetTop + "px";
+    }
+  }
+  else {
+    left = parseInt(dom.style.left);
+    if (isNaN(left)) 
+      left = 0;
+    top = parseInt(dom.style.top);
+    if (isNaN(top)) 
+      top = 0;    
+  }
   label.style.left = left + width + "px";
   label.style.top = top + "px";
   label.style.zIndex = dom.style.zIndex;

@@ -49,6 +49,11 @@ pui.layout.Layout = function() {
           child.sizeMe();
         }
       }
+      if (child.positionMe != null && typeof child.positionMe == "function") {
+        if (pui.isPercent(child.style.top) || pui.isPercent(child.style.left) || pui.isPercent(child.style.bottom) || pui.isPercent(child.style.right)) {
+          child.positionMe();
+        }
+      }      
     }
   }
   
