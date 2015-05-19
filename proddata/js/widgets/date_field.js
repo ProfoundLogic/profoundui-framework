@@ -548,6 +548,9 @@ pui.widgets.add({
         parms.dom.sizeMe = function() {
           pui.moveCal(parms.dom);
         }
+        parms.dom.positionMe = function() {
+          pui.moveCal(parms.dom);
+        }
       }
       if (parms.design) {
         parms.dom.readOnly = true;
@@ -556,6 +559,11 @@ pui.widgets.add({
           itm.drawIcon();
           itm.mirrorDown();
         }
+        parms.dom.positionMe = function() {
+          var itm = parms.designItem;
+          itm.drawIcon();
+          itm.mirrorDown();
+        }        
       }
     },
     
