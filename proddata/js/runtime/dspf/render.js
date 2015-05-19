@@ -78,6 +78,7 @@ pui.activeElement = null;
 pui.autoPageGrid = false;
 pui.currentFormatNames = [];
 pui["no focus"] = false;
+pui.restoreStyles = {};
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -457,6 +458,10 @@ pui.cleanup = function() {
       if (FusionCharts(pui.chartsRendered[i]))
         FusionCharts(pui.chartsRendered[i]).dispose();      
   pui.chartsRendered = [];
+  
+  for (var prop in pui.restoreStyles)
+    document.body.style[prop] = pui.restoreStyles[prop];
+  pui.restoreStyles = {};
   
 }
 

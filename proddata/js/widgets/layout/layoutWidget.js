@@ -53,10 +53,13 @@ pui.widgets.add({
         
         var parentStyle = pui.getComputedStyle( parms.dom.parentNode );
         if (parentStyle != null && ( parentStyle["height"]=="0px" || parentStyle["height"]=="auto" )) {
+          pui.restoreStyles["padding"] = document.body.style.padding;
           document.body.style.padding = "0";
+          pui.restoreStyles["height"] = document.body.style.height;
           document.body.style.height = "100%";
           document.body.parentNode.style.padding = "0";
           document.body.parentNode.style.height = "100%";
+          pui.restoreStyles["overflow"] = document.body.style.overflow;
           document.body.style.overflow = "hidden";
           parms.dom.parentNode.style.padding = "0";
           parms.dom.parentNode.style.height = "100%";
