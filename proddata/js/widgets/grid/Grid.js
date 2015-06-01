@@ -4111,6 +4111,14 @@ pui.Grid = function() {
         
         // select row
         cell.onclick(event);
+        if ((event.getPreventDefault && event.getPreventDefault()) || event.cancelBubble) {
+          
+          contextMenu.showing = false;
+          me.hideContextMenu();
+          return;
+          
+        }
+          
         
         // show custom context menu
         var x = pui.getMouseX(event);
