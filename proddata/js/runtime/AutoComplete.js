@@ -563,6 +563,9 @@ function AutoComplete(config) {
 		selectedRecord = null;				
 		var postData = encodeURIComponent(paramName) + "=" + encodeURIComponent(query);
 		if (limit != null) postData += "&limit=" + limit;
+    if ( (limit==null || limit=="") && pui["Default Auto Complete Max Choices"]!=null ) {
+      postData += "&limit=" + encodeURIComponent(pui["Default Auto Complete Max Choices"]);
+    }
 		if (baseParams) {
 			for (var i in baseParams) {
 				postData += "&";			
