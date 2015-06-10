@@ -79,6 +79,7 @@ pui.autoPageGrid = false;
 pui.currentFormatNames = [];
 pui["no focus"] = false;
 pui.restoreStyles = {};
+pui.windowStack = null;
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -651,6 +652,8 @@ pui.render = function(parms) {
     }
   }
 
+  pui.windowStack = [];
+  
   for (var i = 0; i < layers.length; i++) {
     pui.responseElements = {};
     pui.changeResponseElements = {};
@@ -745,6 +748,9 @@ pui.render = function(parms) {
     if (i > 0 && formats.length > 0 && pui.evalBoundProperty(formats[0].metaData.screen["center window"], formats[0].data, formats[0].ref) == "true") {
       pui.centerWindow();
     }
+    
+    pui.windowStack.push(parms.container);
+    
   }
 
   if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true) ) {
@@ -4344,8 +4350,18 @@ pui.setupWindowDiv = function(parms, layer) {
 } 
 
 pui.centerWindow = function() {
+  // get dimensions of current window:
   var windowDims = pui.getDimensions(pui.lastWindow);
-  var screenDims = pui.getDimensions(pui.runtimeContainer);
+  
+  // find the most recently rendered window that has a size to it (not including this one)
+  // center within that "screen" size:
+  var screenDims;
+  for (var w=pui.windowStack.length-1; w>=0; w--) {
+    screenDims = pui.getDimensions(pui.windowStack[w]);
+    if (screenDims.x1!=screenDims.x2 && screenDims.y1!=screenDims.y2) break;
+  }
+  
+  // calculate centering:
   var left = parseInt((screenDims.x2 - (windowDims.x2 - windowDims.x1)) / 2) - windowDims.x1;
   var top = parseInt((screenDims.y2 - (windowDims.y2 - windowDims.y1)) / 2) - windowDims.y1;
   if (left < -windowDims.x1) left = -windowDims.x1;
