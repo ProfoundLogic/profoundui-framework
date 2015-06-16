@@ -42,8 +42,7 @@ function setCursor(row, col) {
       
         if (obj.cursorRow && obj.cursorColumn) {
         
-          pui.cursorValues.row = obj.cursorRow;
-          pui.cursorValues.column = obj.cursorColumn;
+          pui.returnCursor(null, obj);
         
         }
       
