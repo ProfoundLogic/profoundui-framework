@@ -213,7 +213,8 @@ function AutoComplete(config) {
 	resultPane.style.padding = "0px";
 	resultPane.style.position = "absolute";
 	resultPane.style.zIndex = zIndex;
-  resultPane.className = "autocomplete-results";
+  resultPane.className = "autocomplete-results " + trim(textBox.id) + "-autocomplete-results";
+ 
 	if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
 	else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
 	container.appendChild(resultPane);
