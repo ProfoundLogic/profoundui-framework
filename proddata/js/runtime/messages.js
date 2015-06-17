@@ -144,6 +144,7 @@ pui["runtimeMsg"]["en_US"]["session timed out"]       = "Your session has timed 
 pui["runtimeMsg"]["en_US"]["invalid low range"]       = "Value must be greater than or equal to &1.";
 pui["runtimeMsg"]["en_US"]["invalid high range"]      = "Value must be less than or equal to &1.";
 pui["runtimeMsg"]["en_US"]["invalid range"]           = "Valid range is &1 to &2.";
+pui["runtimeMsg"]["en_US"]["unmonitored exception"]   = "The program has encountered an unmonitored exception. Please contact the system administrator for assistance.";
 
 pui["runtimeText"]["en_US"] = {};
 pui["runtimeText"]["en_US"]["upload select text"]   = "Select Files";
@@ -162,6 +163,27 @@ pui["runtimeText"]["en_US"]["rows"]                 = "rows";
 pui["runtimeText"]["en_US"]["page"]                 = "Page";
 pui["runtimeText"]["en_US"]["collapseAll"]          = "Collapse All";
 pui["runtimeText"]["en_US"]["expandAll"]            = "Expand All";
+pui["runtimeText"]["en_US"]["user"]                 = "User:";
+pui["runtimeText"]["en_US"]["password"]             = "Password";
+pui["runtimeText"]["en_US"]["pui sign on"]          = "Profound UI Sign On";
+pui["runtimeText"]["en_US"]["message id"]           = "Message Id";
+pui["runtimeText"]["en_US"]["severity"]             = "Severity";
+pui["runtimeText"]["en_US"]["date"]                 = "Date";
+pui["runtimeText"]["en_US"]["time"]                 = "Time";
+pui["runtimeText"]["en_US"]["program"]              = "Program";
+pui["runtimeText"]["en_US"]["procedure"]            = "Procedure";
+pui["runtimeText"]["en_US"]["lines"]                = "Line(s)";
+pui["runtimeText"]["en_US"]["message"]              = "Message";
+pui["runtimeText"]["en_US"]["new session"]          = "New Session";
+pui["runtimeText"]["en_US"]["close"]                = "Close";
+pui["runtimeText"]["en_US"]["current password"]     = "Current Password";
+pui["runtimeText"]["en_US"]["new password"]         = "New Password";
+pui["runtimeText"]["en_US"]["repeat new password"]  = "Repeat New Password";
+pui["runtimeText"]["en_US"]["submit"]               = "Submit";
+pui["runtimeText"]["en_US"]["exit"]                 = "Exit";
+pui["runtimeText"]["en_US"]["warning"]              = "Warning";
+pui["runtimeText"]["en_US"]["change password"]      = "Change Password";
+pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
 
 
 // ----------------------------------
