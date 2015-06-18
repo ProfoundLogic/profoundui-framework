@@ -2562,6 +2562,8 @@ pui.respond = function() {
     }
   }
 
+  hide_calendar();
+
   // handle screen's "onsubmit" event
   if (pui.onsubmitProp != null && pui.onsubmitProp != "") {
     try {
