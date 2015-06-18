@@ -79,6 +79,8 @@ function disableAction(e){
 function preventDoubleSubmit(){
 
   if (pui.genie.formSubmitted) return false;
+
+  hide_calendar();
   
   // Execute onsubmit function
   if (designScreens[0] && screenPropertiesObj[designScreens[0].screenId] != null && screenPropertiesObj[designScreens[0].screenId].screen != null) {
