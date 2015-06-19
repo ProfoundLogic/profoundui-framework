@@ -146,6 +146,7 @@ pui["show"] = function(parms) {
   // display meta data object or a path to a json file representing the display meta data should be provided
   var path = parms["path"];        // string - can be IFS path or in the form of LIBRARY/FILE(SOURCE)
   var meta = parms["meta"];        // object
+  var appJob = parms["appJob"] || {};
   
   // the name of the format or multiple formats to be displayed should be provided
   // if omitted, the first format in the meta data is used
@@ -168,6 +169,7 @@ pui["show"] = function(parms) {
       "method": "post",
       "handler": function(metaObj) {
         parms["meta"] = metaObj;
+        parms["appJob"] = appJob;
         pui.cachedMeta[path] = metaObj;
         pui["show"](parms);
       }
@@ -232,7 +234,7 @@ pui["show"] = function(parms) {
   
   var obj = {
     container: pui.runtimeContainer,
-    "appJob": {},
+    "appJob": appJob,
     "layers": layers,
     success: true
   }

@@ -4003,11 +4003,13 @@ pui.runMVC = function(response) {
       if (format == null) format = parms["screen"];
       var formats = parms["formats"];
       if (formats == null) formats = parms["screens"];
+      var appJob = parms["appJob"] || {};
       pui.show({
         "path": pui.normalizeURL(pui["view"]),
         "data": data,
         "format": format,  // if not specified, the first format is used
         "formats": formats,
+        "appJob": appJob,
         "handler": function(response) {
           pui.runMVC(response);
         }
