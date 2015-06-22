@@ -1774,6 +1774,9 @@ pui["endOfSession"] = function(message) {
     document.body.innerHTML = "";
     if (message != null) {
       pui.alert(message, function() { navigator["app"]["exitApp"]() });
+    }
+    else{
+      navigator["app"]["exitApp"]();
     }      
     return;
   }
