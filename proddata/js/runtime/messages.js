@@ -165,6 +165,7 @@ pui["runtimeText"]["en_US"]["collapseAll"]          = "Collapse All";
 pui["runtimeText"]["en_US"]["expandAll"]            = "Expand All";
 pui["runtimeText"]["en_US"]["user"]                 = "User";
 pui["runtimeText"]["en_US"]["password"]             = "Password";
+pui["runtimeText"]["en_US"]["pui"]                  = "Profound UI";
 pui["runtimeText"]["en_US"]["pui sign on"]          = "Profound UI Sign On";
 pui["runtimeText"]["en_US"]["sign on"]              = "Sign On";
 pui["runtimeText"]["en_US"]["message id"]           = "Message Id";
