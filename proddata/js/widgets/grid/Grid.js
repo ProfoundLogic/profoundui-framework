@@ -866,7 +866,6 @@ pui.Grid = function() {
       return;
     
     }
-     
     me.mask();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
@@ -2292,6 +2291,13 @@ pui.Grid = function() {
           }
           else if (context == "dspf") {
             pui.handleHotKey({}, "PageUp");
+            if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
+              setTimeout( function() {
+                me.scrollbarObj.destroy();
+                me.scrollbarObj = null;
+                me.setScrollBar();
+              }, 250 );
+            }
           }
           else if (context == "genie") {
             pressKey("PageUp");
@@ -2311,6 +2317,13 @@ pui.Grid = function() {
           }
           else if (context == "dspf") {
             pui.handleHotKey({}, "PageDown");
+            if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
+              setTimeout( function() {
+                me.scrollbarObj.destroy();
+                me.scrollbarObj = null;
+                me.setScrollBar();
+              }, 250 );
+            }
           }
           else if (context == "genie") {
             pressKey("PageDown");
@@ -2930,11 +2943,17 @@ pui.Grid = function() {
         break;
 
       case "page up response":
-        if (value != null && value != "") me.pagingBar.pageUpResponseDefined = true;
+        if (value != null && value != "") {
+          me.pagingBar.pageUpResponseDefined = true;
+          me.pagingBar.pageUpHotKeyDefined = true;
+        }
         break;
         
       case "page down response":
-        if (value != null && value != "") me.pagingBar.pageDownResponseDefined = true;
+        if (value != null && value != "") {
+          me.pagingBar.pageDownResponseDefined = true;
+          me.pagingBar.pageDownHotKeyDefined = true;
+        }
         break;        
         
       case "csv export":

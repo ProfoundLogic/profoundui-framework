@@ -97,7 +97,6 @@ pui.PagingScrollBar = function() {
             return;
           }
         }      
-        //pressKey("PageUp");
         pagedUp = true;
         ignoreOnScroll = true;
         outerDiv.scrollTop = 0;
@@ -111,7 +110,6 @@ pui.PagingScrollBar = function() {
             return;
           }
         }      
-        //pressKey("PageDown");
         pagedDown = true;
         ignoreOnScroll = true;
         outerDiv.scrollTop =  me.height * 2;
@@ -126,7 +124,6 @@ pui.PagingScrollBar = function() {
             return;
           }
         }            
-        //pressKey("PageDown");
         pagedDown = true;
         ignoreOnScroll = true;
         outerDiv.scrollTop = me.height * 2;
@@ -139,7 +136,6 @@ pui.PagingScrollBar = function() {
               return;
             }
         }      
-        //pressKey("PageUp");
         ignoreOnScroll = true;
         outerDiv.scrollTop = 0;
         pagedUp = true;
@@ -147,7 +143,7 @@ pui.PagingScrollBar = function() {
     }
     
     outerDiv.appendChild(innerDiv);
-    me.container.appendChild(outerDiv); 
+    me.container.appendChild(outerDiv);
   }  
   
   this.draw = function() {

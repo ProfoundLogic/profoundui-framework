@@ -37,6 +37,8 @@ pui.PagingBar = function() {
   this.pageDownCondition = null;
   this.pageUpResponseDefined = false;
   this.pageDownResponseDefined = false;
+  this.pageUpHotKeyDefined = false;
+  this.pageDownHotKeyDefined = false;
   this.pageNumber = 1;
   this.container = null;
   this.grid = null;
@@ -58,7 +60,7 @@ pui.PagingBar = function() {
   function autoPageUp() {
     if (me.prevLink.disabled) return;
     if (context != "genie") {
-      if (me.pageUpResponseDefined) return;
+      if (me.pageUpHotKeyDefined) return;
       if (me.grid.designMode) return;
       if (me.grid.atTop()) return;
     }
@@ -68,7 +70,7 @@ pui.PagingBar = function() {
   function autoPageDown() {
     if (me.nextLink.disabled) return;
     if (context != "genie") {
-      if (me.pageDownResponseDefined) return;
+      if (me.pageDownHotKeyDefined) return;
       if (me.grid.designMode) return;
       if (me.grid.atBottom()) return;
     }
@@ -229,6 +231,17 @@ pui.PagingBar = function() {
 
     }
 
+    // HACK:   Both this (handleKeyDown) and pui.handleHotKey (in dspf/render.js) fire 
+    //         for PageUp/PageDown.  (Even if not using a scrollbar rather than the
+    //         paging bar!) Therefore, if PageUp/PageDown are defined as hot keys, then
+    //         pui.handleHotKey handles them, and the autoPageUp/autoPageDown routines 
+    //         (called below) will ignore them. If they are not hot keys (i.e. not in 
+    //         pui.keyMap[]) then this routine handles them, and pui.handleHotKey 
+    //         does not do pageup/pagedown within the grid's data array, but it 
+    //         still handles submitting to the RPG program when the top/bottom of 
+    //         the grid is reached. This approach is confusing, and should probably
+    //         fixed up to be handled solely by the pui.handleHotKey routine.  -SK
+    
     if (!me.grid.designMode && pui.runtimeContainer != null && div != null && div.parentNode != null) {
       function handleKeyDown(e) {
         if (div == null || div.parentNode == null) {

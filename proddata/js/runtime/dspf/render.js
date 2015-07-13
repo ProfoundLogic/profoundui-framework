@@ -2299,6 +2299,21 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && grid.scrollbarObj.type == "sliding" && grid.scrollbarObj.rowsPerPage == 1) {
         grid.scrollbarObj.draw();
       }
+      // Paging scrollbar needs the PageUp/PageDown keys to be in the KeyMap so
+      //  the handleHotKey routine can used to page up/down on scrollbar events.
+      if (!isDesignMode && grid.scrollbarObj.type == "paging") {
+        var formatName = screenProperties["record format name"];
+        if (pui.keyMap[formatName]["PageDown"] == null) {
+          pui.keyMap[formatName]["PageDown"] = [];
+          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+          grid.pagingBar.pageDownHotKeyDefined = true;
+        }
+        if (pui.keyMap[formatName]["PageUp"] == null) {
+          pui.keyMap[formatName]["PageUp"] = [];
+          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+          grid.pagingBar.pageUpHotKeyDefined = true;
+        }
+      }
     }
     grid.makeSortable();
     grid.restoreState();
@@ -3608,6 +3623,16 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
+            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined) {
+              preventEvent(e);
+              if (pui["is_old_ie"]) {
+                  try {
+                    e.keyCode = 0;
+                  }
+                  catch(e) {}
+              }
+              return false;
+            }
             if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
               dom.parentPagingBar.grid.pageUp();
               preventEvent(e);
@@ -3616,6 +3641,16 @@ pui.handleHotKey = function(e, keyName) {
                   e.keyCode = 0;
                 }
                 catch(e) {}
+              }
+              return false;
+            }
+            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined) {
+              preventEvent(e);
+              if (pui["is_old_ie"]) {
+                  try {
+                    e.keyCode = 0;
+                  }
+                  catch(e) {}
               }
               return false;
             }
