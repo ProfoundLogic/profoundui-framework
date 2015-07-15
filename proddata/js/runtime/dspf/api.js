@@ -575,7 +575,7 @@ pui["capturePhoto"] = function(parms) {
                   
                     if (jsonResponse["key"]) {
                     
-                      response["error"] = pui.getLanguageText("runtimeMsg", "upload " + jsonResponse["key"]);
+                      response["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + jsonResponse["key"]);
                     
                     }
                     else {
@@ -662,7 +662,7 @@ pui.uploadDataUrl = function(params, callback) {
         success = rsp["success"];
         if (!success) {
           if (rsp["key"]) {
-            error = pui.getLanguageText("runtimeMsg", "upload " + rsp["key"]);
+            error = pui["getLanguageText"]("runtimeMsg", "upload " + rsp["key"]);
           }
           else {
             error = rsp["error"];

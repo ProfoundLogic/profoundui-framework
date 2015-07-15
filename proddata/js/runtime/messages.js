@@ -22,7 +22,7 @@ if (pui["runtimeText"] == null) pui["runtimeText"] = {};
 if (pui["runtimeMessages"] == null) pui["runtimeMessages"] = {};
 
 
-pui.getLanguageText = function(dict, msgid, varvals) {
+pui["getLanguageText"] = function(dict, msgid, varvals) {
 
   var lang = pui["language"] || "en_US";
   var msg  = pui[dict][lang][msgid];

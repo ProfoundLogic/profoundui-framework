@@ -25,7 +25,7 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.backgroundImage = "none";
     container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + 
-                              pui.getLanguageText("runtimeMsg", "session timed out") + '</div>';
+                              pui["getLanguageText"]("runtimeMsg", "session timed out") + '</div>';
   }
   showMessage(pui.runtimeContainer);
   pui.showWaitAnimation();

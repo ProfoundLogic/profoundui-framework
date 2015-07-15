@@ -731,7 +731,7 @@ pui.beforeUnload = function(event) {
     if (context == "genie" || !inDesignMode() || recordFormats.isDirty()) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
-      else theCloseMessage = pui.getLanguageText("runtimeMsg", "closeMessage");
+      else theCloseMessage = pui["getLanguageText"]("runtimeMsg", "closeMessage");
       if (context == "genie" && pui.genie.config.closeMessage != null && pui.genie.config.closeMessage != "") {
         theCloseMessage = pui.genie.config.closeMessage;
       }
@@ -1303,7 +1303,7 @@ pui.getWindowScrollTop = function() {  // gets window scroll top position
 
 pui.getNoConnectionMessage = function(req) {
 
-  var msg = pui.getLanguageText("runtimeMsg", "no connection message");
+  var msg = pui["getLanguageText"]("runtimeMsg", "no connection message");
   
   if (pui["no connection status"] == true) {
   

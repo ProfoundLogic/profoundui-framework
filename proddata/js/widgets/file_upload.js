@@ -134,7 +134,7 @@ pui["fileupload"].FileUpload = function(container) {
   	    var a = document.createElement("a");
   	    a.href = "javascript: void(0);";
   	    a.className = "remove";
-  	    a.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload remove text")));
+  	    a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
   	    a.puiFileIndex = i;
   	    if (a.attachEvent) {
   	      a.attachEvent("onclick", removeFile);
@@ -301,7 +301,7 @@ pui["fileupload"].FileUpload = function(container) {
   
     if (this.getCount() > fileLimit) {
     
-      return pui.getLanguageText("runtimeMsg", "upload file limit", [ fileLimit ]);
+      return pui["getLanguageText"]("runtimeMsg", "upload file limit", [ fileLimit ]);
     
     } 
   
@@ -317,7 +317,7 @@ pui["fileupload"].FileUpload = function(container) {
       
         if (typeof(used[arr[i]]) != "undefined") {
         
-          return pui.getLanguageText("runtimeMsg", "upload duplicate file");
+          return pui["getLanguageText"]("runtimeMsg", "upload duplicate file");
         
         }
         
@@ -437,7 +437,7 @@ pui["fileupload"].FileUpload = function(container) {
       
       submitHandle = setTimeout(function() {
       
-        me.completeTransaction(transactionId, {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload timeout")});
+        me.completeTransaction(transactionId, {"success":false,"error": pui["getLanguageText"]("runtimeMsg", "upload timeout")});
       
       }, timeout);
       
@@ -476,7 +476,7 @@ pui["fileupload"].FileUpload = function(container) {
       }
       catch(e) {
       
-        responseObj = {"success":false,"error": pui.getLanguageText("runtimeMsg", "upload invalid response")}; 
+        responseObj = {"success":false,"error": pui["getLanguageText"]("runtimeMsg", "upload invalid response")}; 
       
       }
       
@@ -492,7 +492,7 @@ pui["fileupload"].FileUpload = function(container) {
     
       if (responseObj["key"]) {
       
-        responseObj["error"] = pui.getLanguageText("runtimeMsg", "upload " + responseObj["key"] );
+        responseObj["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + responseObj["key"] );
       
       }
       error = responseObj["error"];
@@ -688,7 +688,7 @@ pui["fileupload"].FileUpload = function(container) {
 	
 	  selector = document.createElement("a");
 	  selector.className = "control-proxy";
-	  selector.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload select text")));
+	  selector.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload select text")));
 	  
 	  var input = document.createElement("input");
 		input.name = "file";
@@ -724,7 +724,7 @@ pui["fileupload"].FileUpload = function(container) {
 		
 		  clearLink = document.createElement("a");
 		  clearLink.href = "javascript: void(0);";
-		  clearLink.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload clear text")));
+		  clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
 		  clearLink.className = "clear";
 		  
 		  if (clearLink.attachEvent) {
@@ -759,7 +759,7 @@ pui["fileupload"].FileUpload = function(container) {
     
   		  uploadLink = document.createElement("a");
   		  uploadLink.href = "javascript: void(0);";
-  		  uploadLink.appendChild(document.createTextNode(pui.getLanguageText("runtimeText", "upload upload text")));
+  		  uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
   		  uploadLink.className = "upload"; 
 		  
 		  } 
@@ -859,7 +859,7 @@ pui["fileupload"].FileUpload = function(container) {
   
       if (me.getCount() == 0) {
       
-        pui.alert(pui.getLanguageText("runtimeMsg", "upload no files"));
+        pui.alert(pui["getLanguageText"]("runtimeMsg", "upload no files"));
         return;
       
       }

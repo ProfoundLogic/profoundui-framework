@@ -2694,14 +2694,14 @@ pui.buildResponse = function() {
         if (dom.ME == true && dom.modified != true) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "ME") });
+          response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "ME") });
           if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
         if (dom.MF == true && dom.modified == true && boxDom.maxLength != null && boxDom.value != null && (boxDom.maxLength != boxDom.value.length || boxDom.value === boxDom.emptyText)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "MF") });
+          response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "MF") });
           if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
         }
@@ -2711,8 +2711,8 @@ pui.buildResponse = function() {
              (dom["fileUpload"] != null && dom["fileUpload"].getCount() < 1) ) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          var msg = pui.getLanguageText("runtimeMsg", "required");
-          if (dom["fileUpload"] != null) msg = pui.getLanguageText("runtimeMsg", "file required");
+          var msg = pui["getLanguageText"]("runtimeMsg", "required");
+          if (dom["fileUpload"] != null) msg = pui["getLanguageText"]("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
           if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
           continue;
@@ -2887,7 +2887,7 @@ pui.buildResponse = function() {
         if (value.length > dom.formattingInfo.maxLength) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          response.errors.push({ dom: dom, msg: pui.getLanguageText("runtimeMsg", "signature overflow") });
+          response.errors.push({ dom: dom, msg: pui["getLanguageText"]("runtimeMsg", "signature overflow") });
           if (dom.validationTip!=null && dom.validationTip.doneShowing!=null) dom.validationTip.doneShowing=false;
           continue;          
         }
@@ -2930,7 +2930,7 @@ pui.buildResponse = function() {
             if (!pui.validateEmail(value)) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              var msg = pui.getLanguageText("runtimeMsg", "invalid email");
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid email");
               response.errors.push({ dom: boxDom, msg: msg });
               if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
@@ -2949,7 +2949,7 @@ pui.buildResponse = function() {
             if (invalid) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              response.errors.push({ dom: boxDom, msg: pui.getLanguageText("runtimeMsg", "validValues") + validValues.join(", ") + "." });
+              response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues.join(", ") + "." });
               if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
@@ -3010,11 +3010,11 @@ pui.buildResponse = function() {
             if (boxValue < rangeLow) {
               var rangeLowDisp = dom.rangeLow;
               if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-              var msg = pui.getLanguageText("runtimeMsg", "invalid low range", [ rangeLowDisp ]);
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid low range", [ rangeLowDisp ]);
               if (dom.rangeHigh != null) {
                 var rangeHighDisp = dom.rangeHigh;
                 if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-                msg = pui.getLanguageText("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
+                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];
@@ -3036,11 +3036,11 @@ pui.buildResponse = function() {
             if (boxValue > rangeHigh) {
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = pui.getLanguageText("runtimeMsg", "invalid high range", [ rangeHighDisp ])
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [ rangeHighDisp ])
               if (dom.rangeLow != null) {
                 var rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-                msg = pui.getLanguageText("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
+                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];
@@ -3308,7 +3308,7 @@ pui.submitResponse = function(response) {
         pui.hideWaitAnimation();
         if (parms == null) {
           //document.body.style.backgroundColor = "#DFE8F6";
-          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
           var returnVal = shutDown();
           if (returnVal == false) return;
           pui.shutdownOnClose = false;
@@ -4011,7 +4011,7 @@ pui.runMVC = function(response) {
       pui.hideWaitAnimation();
       if (parms == null) {
         //document.body.style.backgroundColor = "#DFE8F6";
-        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "session ended text") + '<br/><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
         return;
       }        
       parms.container = pui.runtimeContainer;
@@ -4142,7 +4142,7 @@ pui.closeSession = function() {
   }
  
   //document.body.style.backgroundColor = "#DFE8F6";
-  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui.getLanguageText("runtimeMsg", "close browser text") + '</div>';
+  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
   // close a window that was not opened through scripting.

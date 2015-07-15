@@ -258,7 +258,7 @@ pui.formatting = {
   		var charCode = text.charCodeAt(i);
   		if (charCode > 0xFFFF) {
   			// Character is outside of UCS-2 (fixed 2-byte encoding) range.
-  			return { msg: pui.getLanguageText("runtimeMsg", "outside ucs2") };
+  			return { msg: pui["getLanguageText"]("runtimeMsg", "outside ucs2") };
   		}
   	}
   	// Blank pad field to full length.
@@ -625,21 +625,21 @@ pui.FieldFormat = {
         valid = !(/[^\d.\-]/.test(value)) && value.split('-').length <= 2 && value.split('.').length <= 2;
       }
       
-      var errorMsg = pui.getLanguageText("runtimeMsg", "invalid number", [ obj.value ]);
+      var errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid number", [ obj.value ]);
       if(valid){
         parts = value.replace(/-/, '').split('.');
         if(parts[0].length > parseInt(obj.dataLength, 10) - parseInt(obj.decPos, 10)){
           valid = false;
-          errorMsg = pui.getLanguageText("runtimeMsg", "invalid length", [ obj.value ]);
+          errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid length", [ obj.value ]);
         }
         if(parts.length == 2){
           if(parts[1].length > parseInt(obj.decPos, 10)){
             valid = false;
-            errorMsg = pui.getLanguageText("runtimeMsg", "invalid decimal", [ obj.value, obj.decPos ]);
+            errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid decimal", [ obj.value, obj.decPos ]);
           }
           else if(value.indexOf('.') == -1){
             valid = value.replace(/-/g,'').length <= obj.dataLength;
-            errorMsg = pui.getLanguageText("runtimeMsg", "invalid decimal", [ obj.value, obj.decPos ]);          }
+            errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid decimal", [ obj.value, obj.decPos ]);          }
           else if(value.indexOf('.') == value.length - 1){
             valid = false;
           }
@@ -694,7 +694,7 @@ pui.FieldFormat = {
         return (value === on ? '1' : '0');
       }
       else{
-        return { msg: pui.getLanguageText("runtimeMsg", "invalid choice", [obj.value, on, off ]) };
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid choice", [obj.value, on, off ]) };
       }
     }
   },
@@ -801,7 +801,7 @@ pui.FieldFormat = {
       else {
         var yr = (new Date()).getFullYear();
         d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', obj.locale);
-        return { msg: pui.getLanguageText("runtimeMsg", "invalid date", [ obj.value, d.format(dateFormat, obj.locale) ]) };
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid date", [ obj.value, d.format(dateFormat, obj.locale) ]) };
       }
     },
     parseKeywords: function(keywords) {
@@ -930,7 +930,7 @@ pui.FieldFormat = {
       else{
         var yr = (new Date()).getFullYear();
         d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', obj.locale);
-        return { msg: pui.getLanguageText("runtimeMsg", "invalid time", [ obj.value, d.format(obj.timeFormat, obj.locale) ]) };
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time", [ obj.value, d.format(obj.timeFormat, obj.locale) ]) };
       }
     },
     parseKeywords: function(keywords) {
@@ -1010,7 +1010,7 @@ pui.FieldFormat = {
       else{
         var yr = (new Date()).getFullYear();
         d = pui.formatting.Date.parse(yr + '-09-09-14.30.15.000000', pui.formatting.Date.stdTimeStampPattern, obj.locale);
-        return { msg: pui.getLanguageText("runtimeMsg", "invalid time stamp", [ obj.value, d.format(obj.timeStampFormat, obj.locale)]) };
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time stamp", [ obj.value, d.format(obj.timeStampFormat, obj.locale)]) };
       }
       return value;
     }
@@ -1107,19 +1107,19 @@ pui.FieldFormat = {
           value = value.replace(/%/g, '');
           if(value.length > 0){
             if(!(/^-?\d*\.?\d+$/.test(value))){
-              return { msg: pui.getLanguageText("runtimeMsg", "invalid percent", [ value ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "invalid percent", [ value ]) };
             }
             if(value.length - value.split('.').length-1 > obj.dataLength + (parseInt(obj.decPos, 10) === 0 ? 0 : 1)){
-              return { msg: pui.getLanguageText("runtimeMsg", "invalid digits", [ value, obj.dataLength ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "invalid digits", [ value, obj.dataLength ]) };
             }
             if(pui.formatting.isNumericType(obj.dataType)){
               var wholeNums = parseInt(obj.dataLength, 10) - parseInt(obj.decPos, 10);
               var parts = value.split('.');
               if(parts[0].length > wholeNums){
-                return { msg: pui.getLanguageText("runtimeMsg", "exceeds whole", [ value,  wholeNums ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "exceeds whole", [ value,  wholeNums ]) };
               }
               if(parts[1] && parts[1].length > parseInt(obj.decPos, 10)){
-                return { msg: pui.getLanguageText("runtimeMsg", "exceeds decimal", [ value, obj.decPos ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "exceeds decimal", [ value, obj.decPos ]) };
               }
             }
           }
@@ -1132,7 +1132,7 @@ pui.FieldFormat = {
               maxLength = 5;
             }
             if(value.length > maxLength){
-              return { msg: pui.getLanguageText("runtimeMsg", "zip too long", [ maxLength ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "zip too long", [ maxLength ]) };
             }
           }
           else{
@@ -1140,7 +1140,7 @@ pui.FieldFormat = {
             if(value.length > maxLength){
               value = value.replace(/[^\d]/g, '');
               if(value.length > maxLength){
-                return { msg: pui.getLanguageText("runtimeMsg", "zip too long", [ maxLength ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "zip too long", [ maxLength ]) };
               }
             }
           }
@@ -1153,7 +1153,7 @@ pui.FieldFormat = {
               maxLength = 9;
             }
             if(value.length > maxLength){
-              return { msg: pui.getLanguageText("runtimeMsg", "zip too long", [ maxLength ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "zip too long", [ maxLength ]) };
             }
           }
           else{
@@ -1161,7 +1161,7 @@ pui.FieldFormat = {
             if(value.length > maxLength){
               value = value.replace(/[^\d]/g, '');
               if(value.length > maxLength){
-                return { msg: pui.getLanguageText("runtimeMsg", "zip too long", [ maxLength ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "zip too long", [ maxLength ]) };
               }
             }
           }
@@ -1174,7 +1174,7 @@ pui.FieldFormat = {
               maxLength = 10;
             }
             if(value.length > maxLength){
-              return { msg: pui.getLanguageText("runtimeMsg", "phone too long", [ maxLength ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "phone too long", [ maxLength ]) };
             }
           }
           else{
@@ -1182,7 +1182,7 @@ pui.FieldFormat = {
             if(value.length > maxLength){
               value = value.replace(/[^\d]/g, '');
               if(value.length > maxLength){
-                return { msg: pui.getLanguageText("runtimeMsg", "phone too long", [ maxLength ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "phone too long", [ maxLength ]) };
               }
             }
           }
@@ -1195,7 +1195,7 @@ pui.FieldFormat = {
               maxLength = 9;
             }
             if(value.length > maxLength){
-              return { msg: pui.getLanguageText("runtimeMsg", "ssno too long", [ maxLength ]) };
+              return { msg: pui["getLanguageText"]("runtimeMsg", "ssno too long", [ maxLength ]) };
             }
           }
           else{
@@ -1203,7 +1203,7 @@ pui.FieldFormat = {
             if(value.length > maxLength){
               value = value.replace(/[^\d]/g, '');
               if(value.length > maxLength){
-                return { msg: pui.getLanguageText("runtimeMsg", "ssno too long", [ maxLength ]) };
+                return { msg: pui["getLanguageText"]("runtimeMsg", "ssno too long", [ maxLength ]) };
               }
             }
           }
@@ -1221,14 +1221,14 @@ pui.FieldFormat = {
           func = eval('(' + obj.customFunction + ')');
         }
         catch(err1){
-          return { msg: pui.getLanguageText("runtimeMsg", "invalid custom val") + "\n\n" + err1.message || err1.description };
+          return { msg: pui["getLanguageText"]("runtimeMsg", "invalid custom val") + "\n\n" + err1.message || err1.description };
         }
         if(typeof func === 'function'){
           try{
             value = func(obj);
           }
           catch(err2){
-            return { msg: pui.getLanguageText("runtimeMsg", "error custom val") + "\n\n" + err2.message || err2.description };
+            return { msg: pui["getLanguageText"]("runtimeMsg", "error custom val") + "\n\n" + err2.message || err2.description };
           }
           return value;
         }

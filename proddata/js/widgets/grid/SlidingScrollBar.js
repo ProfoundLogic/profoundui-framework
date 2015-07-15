@@ -292,8 +292,8 @@ pui.SlidingScrollBar = function() {
     if (startRowParm != null && typeof startRowParm == "number") startRow = startRowParm;
     if (startRow == prevStartRow) return;  // starting row has not changed
     var endRow = startRow + me.rowsPerPage - 1;
-    if (me.showRowRange) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "rows") + " " + startRow + " - " + endRow;
-    if (me.showRowNum) rowNumDiv.innerHTML = pui.getLanguageText("runtimeText", "row") + " " + startRow;
+    if (me.showRowRange) rowNumDiv.innerHTML = pui["getLanguageText"]("runtimeText", "rows") + " " + startRow + " - " + endRow;
+    if (me.showRowNum) rowNumDiv.innerHTML = pui["getLanguageText"]("runtimeText", "row") + " " + startRow;
     positionRowNum();
     if (me.onchange != null) me.onchange(startRow);      
     if (me.onSetRow != null) {

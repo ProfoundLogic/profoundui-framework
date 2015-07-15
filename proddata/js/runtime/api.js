@@ -1442,7 +1442,7 @@ pui["upload"] = function(params, callback) {
           
           if (rsp["key"]) {
             
-            error = pui.getLanguageText("runtimeMsg", "upload " + rsp["key"]); 
+            error = pui["getLanguageText"]("runtimeMsg", "upload " + rsp["key"]); 
             
             if (rsp["key"] == "file limit") {
               
