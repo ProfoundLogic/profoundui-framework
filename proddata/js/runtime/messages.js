@@ -186,6 +186,7 @@ pui["runtimeText"]["en_US"]["exit"]                 = "Exit";
 pui["runtimeText"]["en_US"]["warning"]              = "Warning";
 pui["runtimeText"]["en_US"]["change password"]      = "Change Password";
 pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
+pui["runtimeText"]["en_US"]["find text"]            = "Find";
 
 
 // ----------------------------------
@@ -241,6 +242,7 @@ pui["runtimeMsg"]["de_DE"]["session timed out"]       = "Ihre Sitzung ist abgela
 pui["runtimeMsg"]["de_DE"]["invalid low range"]       = "Wert muss größer sein als &1";
 pui["runtimeMsg"]["de_DE"]["invalid high range"]      = "Wert muss kleiner oder gleich &1 sein";
 pui["runtimeMsg"]["de_DE"]["invalid range"]           = "Gültiger Bereich ist zwischen &1 und &2";
+pui["runtimeMsg"]["de_DE"]["unmonitored exception"]   = "Das Programm hat einen nicht überwachten Fehler gefunden. Bitte kontaktieren Sie ihren Systemadministrator.";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
@@ -258,6 +260,31 @@ pui["runtimeText"]["de_DE"]["rows"]                 = "Zeilen";
 pui["runtimeText"]["de_DE"]["page"]                 = "Seite";
 pui["runtimeText"]["de_DE"]["collapseAll"]          = "alles zuklappen";
 pui["runtimeText"]["de_DE"]["expandAll"]            = "alles aufklappen";
+pui["runtimeText"]["de_DE"]["user"]                 = "Benutzer";
+pui["runtimeText"]["de_DE"]["password"]             = "Passwort";
+pui["runtimeText"]["de_DE"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["de_DE"]["pui sign on"]          = "Profound UI Anmeldung";
+pui["runtimeText"]["de_DE"]["sign on"]              = "Aanmelding";
+pui["runtimeText"]["de_DE"]["message id"]           = "Nachrichten Id";
+pui["runtimeText"]["de_DE"]["severity"]             = "Schwere";
+pui["runtimeText"]["de_DE"]["date"]                 = "Datum";
+pui["runtimeText"]["de_DE"]["time"]                 = "Zeit";
+pui["runtimeText"]["de_DE"]["program"]              = "Programm";
+pui["runtimeText"]["de_DE"]["procedure"]            = "Prozedur";
+pui["runtimeText"]["de_DE"]["lines"]                = "Zeile(n)";
+pui["runtimeText"]["de_DE"]["message"]              = "Nachricht";
+pui["runtimeText"]["de_DE"]["new session"]          = "Neue Sitzung";
+pui["runtimeText"]["de_DE"]["close"]                = "Schließen";
+pui["runtimeText"]["de_DE"]["current password"]     = "Aktuelles Passwort";
+pui["runtimeText"]["de_DE"]["new password"]         = "Neues Passwort";
+pui["runtimeText"]["de_DE"]["repeat new password"]  = "Wiederholung neues Passwort";
+pui["runtimeText"]["de_DE"]["submit"]               = "Bestätigen";
+pui["runtimeText"]["de_DE"]["exit"]                 = "Ende";
+pui["runtimeText"]["de_DE"]["warning"]              = "Warnung";
+pui["runtimeText"]["de_DE"]["change password"]      = "Ändern Passwort";
+pui["runtimeText"]["de_DE"]["cancel"]               = "Abbrechen";
+pui["runtimeText"]["de_DE"]["find text"]            = "Finden";
+
 
 // ----------------------------------
 //  Portuguese (Portugal)
@@ -307,6 +334,7 @@ pui["runtimeMsg"]["pt_PT"]["session timed out"]       = "A sua sessão expirou."
 pui["runtimeMsg"]["pt_PT"]["invalid low range"]       = "O valor deve ser maior ou igual a &1";
 pui["runtimeMsg"]["pt_PT"]["invalid high range"]      = "O valor deve ser menor ou igual a &1";
 pui["runtimeMsg"]["pt_PT"]["invalid range"]           = "O Intervalo válido é de &1 a &2";
+pui["runtimeMsg"]["pt_PT"]["unmonitored exception"]   = "A aplicação encontrou uma excepção não monitorizada. Por favor conte o administrador de systema.";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -324,6 +352,31 @@ pui["runtimeText"]["pt_PT"]["rows"]                 = "linhas";
 pui["runtimeText"]["pt_PT"]["page"]                 = "Página";
 pui["runtimeText"]["pt_PT"]["collapseAll"]          = "Recolher tudo";
 pui["runtimeText"]["pt_PT"]["expandAll"]            = "Expandir tudo";
+pui["runtimeText"]["pt_PT"]["user"]                 = "Utilizador";
+pui["runtimeText"]["pt_PT"]["password"]             = "Palavra Passe";
+pui["runtimeText"]["pt_PT"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["pt_PT"]["pui sign on"]          = "Entrar em Profound UI";
+pui["runtimeText"]["pt_PT"]["sign on"]              = "Entrar";
+pui["runtimeText"]["pt_PT"]["message id"]           = "Id da mensagem";
+pui["runtimeText"]["pt_PT"]["severity"]             = "Severidade";
+pui["runtimeText"]["pt_PT"]["date"]                 = "Data";
+pui["runtimeText"]["pt_PT"]["time"]                 = "Hora";
+pui["runtimeText"]["pt_PT"]["program"]              = "Programa";
+pui["runtimeText"]["pt_PT"]["procedure"]            = "Procedimento";
+pui["runtimeText"]["pt_PT"]["lines"]                = "Linha(s)";
+pui["runtimeText"]["pt_PT"]["message"]              = "Mensagem";
+pui["runtimeText"]["pt_PT"]["new session"]          = "Nova Sessão";
+pui["runtimeText"]["pt_PT"]["close"]                = "Fechar";
+pui["runtimeText"]["pt_PT"]["current password"]     = "Palavra Chave Actual";
+pui["runtimeText"]["pt_PT"]["new password"]         = "Palavra Chave Nova";
+pui["runtimeText"]["pt_PT"]["repeat new password"]  = "Repetir Palavra Chave";
+pui["runtimeText"]["pt_PT"]["submit"]               = "Submeter";
+pui["runtimeText"]["pt_PT"]["exit"]                 = "Sair";
+pui["runtimeText"]["pt_PT"]["warning"]              = "Aviso";
+pui["runtimeText"]["pt_PT"]["change password"]      = "Alterar Palavra Chave";
+pui["runtimeText"]["pt_PT"]["cancel"]               = "Cancelar";
+pui["runtimeText"]["pt_PT"]["find text"]            = "Encontrar";
+
 
 // ------------------------------------------------------------
 //  Portuguese (Copy for Brazil)
@@ -515,6 +568,7 @@ pui["runtimeMsg"]["fr_FR"]["session timed out"]       = "Votre session a expiré
 pui["runtimeMsg"]["fr_FR"]["invalid low range"]       = "La valeur doit être supérieure ou égale à &1";
 pui["runtimeMsg"]["fr_FR"]["invalid high range"]      = "La valeur doit être inférieure ou égale à &1";
 pui["runtimeMsg"]["fr_FR"]["invalid range"]           = "La valeur doit être comprise entre &1 et &2.";
+pui["runtimeMsg"]["fr_FR"]["unmonitored exception"]   = "Le programme a rencontré une erreur non prévue. Prière de contacter l'administrateur système pour toute assistance.";
 
 pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers sélectionnés ";
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Effacer ";
@@ -532,6 +586,31 @@ pui["runtimeText"]["fr_FR"]["rows"]                 = "lignes";
 pui["runtimeText"]["fr_FR"]["page"]                 = "Page";
 pui["runtimeText"]["fr_FR"]["collapseAll"]          = "Tout replier";
 pui["runtimeText"]["fr_FR"]["expandAll"]            = "Tout déplier";
+pui["runtimeText"]["fr_FR"]["user"]                 = "Utilisateur";
+pui["runtimeText"]["fr_FR"]["password"]             = "Mot de passe";
+pui["runtimeText"]["fr_FR"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["fr_FR"]["pui sign on"]          = "Identification Profound UI";
+pui["runtimeText"]["fr_FR"]["sign on"]              = "Identification";
+pui["runtimeText"]["fr_FR"]["message id"]           = "N° du message";
+pui["runtimeText"]["fr_FR"]["severity"]             = "Sévérité";
+pui["runtimeText"]["fr_FR"]["date"]                 = "Date";
+pui["runtimeText"]["fr_FR"]["time"]                 = "Heure";
+pui["runtimeText"]["fr_FR"]["program"]              = "Programme";
+pui["runtimeText"]["fr_FR"]["procedure"]            = "Procédure";
+pui["runtimeText"]["fr_FR"]["lines"]                = "Ligne(s)";
+pui["runtimeText"]["fr_FR"]["message"]              = "Message";
+pui["runtimeText"]["fr_FR"]["new session"]          = "Nouvelle session";
+pui["runtimeText"]["fr_FR"]["close"]                = "Fermer";
+pui["runtimeText"]["fr_FR"]["current password"]     = "Mot de passe actuel";
+pui["runtimeText"]["fr_FR"]["new password"]         = "Nouveau mot de passe";
+pui["runtimeText"]["fr_FR"]["repeat new password"]  = "Répéter le nouveau mot de passe";
+pui["runtimeText"]["fr_FR"]["submit"]               = "Soumettre";
+pui["runtimeText"]["fr_FR"]["exit"]                 = "Quitter";
+pui["runtimeText"]["fr_FR"]["warning"]              = "Avertissement";
+pui["runtimeText"]["fr_FR"]["change password"]      = "Modifier le mot de passe";
+pui["runtimeText"]["fr_FR"]["cancel"]               = "Annuler";
+pui["runtimeText"]["fr_FR"]["find text"]            = "Trouver";
+
 
 //--------------------------------------------------------------
 //  French Canadian Eh!
@@ -580,6 +659,7 @@ pui["runtimeMsg"]["fr_CA"]["session timed out"]       = "Votre session est expir
 pui["runtimeMsg"]["fr_CA"]["invalid low range"]       = "La valeur doit être supérieure ou égale à &1";
 pui["runtimeMsg"]["fr_CA"]["invalid high range"]      = "La valeur doit être inférieure ou égale à &1";
 pui["runtimeMsg"]["fr_CA"]["invalid range"]           = "La valeur doit se situer entre &1 et &2";
+pui["runtimeMsg"]["fr_CA"]["unmonitored exception"]   = "Le programme a rencontré une erreur non controlée. Veuillez contacter l'administrateur du système.";
 
 pui["runtimeText"]["fr_CA"]["upload select text"]   = "Sélection de fichiers";
 pui["runtimeText"]["fr_CA"]["upload clear text"]    = "Effacer";
@@ -597,6 +677,31 @@ pui["runtimeText"]["fr_CA"]["rows"]                 = "rangées";
 pui["runtimeText"]["fr_CA"]["page"]                 = "Page";
 pui["runtimeText"]["fr_CA"]["collapseAll"]          = "Réduire tout";
 pui["runtimeText"]["fr_CA"]["expandAll"]            = "Ouvrir tout";
+pui["runtimeText"]["fr_CA"]["user"]                 = "Utilisateur";
+pui["runtimeText"]["fr_CA"]["password"]             = "Mot de passe";
+pui["runtimeText"]["fr_CA"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["fr_CA"]["pui sign on"]          = "Connection Profound UI";
+pui["runtimeText"]["fr_CA"]["sign on"]              = "Connection";
+pui["runtimeText"]["fr_CA"]["message id"]           = "Identifiant de message";
+pui["runtimeText"]["fr_CA"]["severity"]             = "Sévérité";
+pui["runtimeText"]["fr_CA"]["date"]                 = "Date";
+pui["runtimeText"]["fr_CA"]["time"]                 = "Heure";
+pui["runtimeText"]["fr_CA"]["program"]              = "Programme";
+pui["runtimeText"]["fr_CA"]["procedure"]            = "Procédure";
+pui["runtimeText"]["fr_CA"]["lines"]                = "Ligne(s)";
+pui["runtimeText"]["fr_CA"]["message"]              = "Message";
+pui["runtimeText"]["fr_CA"]["new session"]          = "Nouvelle Session";
+pui["runtimeText"]["fr_CA"]["close"]                = "Fermer";
+pui["runtimeText"]["fr_CA"]["current password"]     = "Mot de passe actuel";
+pui["runtimeText"]["fr_CA"]["new password"]         = "Nouveau mot de passe";
+pui["runtimeText"]["fr_CA"]["repeat new password"]  = "Répéter le mot de passe";
+pui["runtimeText"]["fr_CA"]["submit"]               = "Soumettre";
+pui["runtimeText"]["fr_CA"]["exit"]                 = "Quitter";
+pui["runtimeText"]["fr_CA"]["warning"]              = "Avertissement";
+pui["runtimeText"]["fr_CA"]["change password"]      = "Changer mot de passe";
+pui["runtimeText"]["fr_CA"]["cancel"]               = "Annuler";
+pui["runtimeText"]["fr_CA"]["find text"]            = "Trouver";
+
 
 // ------------------------------------------------------------
 //  Italiano
@@ -645,6 +750,7 @@ pui["runtimeMsg"]["it_IT"]["session timed out"]       = "La tua sessione é scad
 pui["runtimeMsg"]["it_IT"]["invalid low range"]       = "Il valore deve essere maggiore o uguale a &1";
 pui["runtimeMsg"]["it_IT"]["invalid high range"]      = "Il valore deve essere minore o uguale a &1";
 pui["runtimeMsg"]["it_IT"]["invalid range"]           = "Intervallo valido da &1 a &2";
+pui["runtimeMsg"]["it_IT"]["unmonitored exception"]   = "Il programma ha raggiunto un'eccezione non gestita. Per assistenza, si prega di contattare l'amministratore di sistema.";
 
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
@@ -662,6 +768,31 @@ pui["runtimeText"]["it_IT"]["rows"]                 = "righe";
 pui["runtimeText"]["it_IT"]["page"]                 = "Pagina";
 pui["runtimeText"]["it_IT"]["collapseAll"]          = "Comprimi tutto";
 pui["runtimeText"]["it_IT"]["expandAll"]            = "Espandi tutto";
+pui["runtimeText"]["it_IT"]["user"]                 = "Utente";
+pui["runtimeText"]["it_IT"]["password"]             = "Password";
+pui["runtimeText"]["it_IT"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["it_IT"]["pui sign on"]          = "Accesso Profound UI";
+pui["runtimeText"]["it_IT"]["sign on"]              = "Accesso";
+pui["runtimeText"]["it_IT"]["message id"]           = "Id Messaggio";
+pui["runtimeText"]["it_IT"]["severity"]             = "Gravità";
+pui["runtimeText"]["it_IT"]["date"]                 = "Data";
+pui["runtimeText"]["it_IT"]["time"]                 = "Ora";
+pui["runtimeText"]["it_IT"]["program"]              = "Programma";
+pui["runtimeText"]["it_IT"]["procedure"]            = "Procedura";
+pui["runtimeText"]["it_IT"]["lines"]                = "Linea(e)";
+pui["runtimeText"]["it_IT"]["message"]              = "Messaggio";
+pui["runtimeText"]["it_IT"]["new session"]          = "Nuova Sessione";
+pui["runtimeText"]["it_IT"]["close"]                = "Chiudi";
+pui["runtimeText"]["it_IT"]["current password"]     = "Password attuale";
+pui["runtimeText"]["it_IT"]["new password"]         = "Nuova Password";
+pui["runtimeText"]["it_IT"]["repeat new password"]  = "Ripeti Nuova Password";
+pui["runtimeText"]["it_IT"]["submit"]               = "Invia";
+pui["runtimeText"]["it_IT"]["exit"]                 = "Esci";
+pui["runtimeText"]["it_IT"]["warning"]              = "Attenzione";
+pui["runtimeText"]["it_IT"]["change password"]      = "Cambia Password";
+pui["runtimeText"]["it_IT"]["cancel"]               = "Cancella";
+pui["runtimeText"]["it_IT"]["find text"]            = "Trovare";
+
 
 
 // ------------------------------------------------------------
@@ -706,11 +837,12 @@ pui["runtimeMsg"]["he_IL"]["file required"]           = " עליך לבחור ק
 pui["runtimeMsg"]["he_IL"]["signature overflow"]      = " גודל ציור החתימה חורג מהערך המרבי. אנא לנקות את משטח החתימה ונסה שוב";
 pui["runtimeMsg"]["he_IL"]["validValues"]             = " ערך הזנה אינו חוקי. ערכים חוקיים הם";
 pui["runtimeMsg"]["he_IL"]["upload invalid type"]     = "אחד או יותר מהקבצים מסוג לא חוקי";
-pui["runtimeMsg"]["he_IL"]["invalid email"]          = 'כתובת דוא"ל לא חוקי';
+pui["runtimeMsg"]["he_IL"]["invalid email"]           = 'כתובת דוא"ל לא חוקי';
 pui["runtimeMsg"]["he_IL"]["session timed out"]       = "סביבת העבודה שלך נסגרה.";
 pui["runtimeMsg"]["he_IL"]["invalid low range"]       = "ערך חייב להיות גדול או שווה ל- &1";
 pui["runtimeMsg"]["he_IL"]["invalid high range"]      = "ערך חייב להיות קטן או שווה ל- &1";
 pui["runtimeMsg"]["he_IL"]["invalid range"]           = "טווח חוקי הוא &1 ל- &2.";
+pui["runtimeMsg"]["he_IL"]["unmonitored exception"]   = "התכנית נתקלה בחריג בלתי מבוקר. אנא צור קשר עם מנהל המערכת לעזרה";
 
 pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
@@ -726,6 +858,32 @@ pui["runtimeText"]["he_IL"]["sort descending text"] = " מיין בסדר יור
 pui["runtimeText"]["he_IL"]["row"]                  = " שורה ";
 pui["runtimeText"]["he_IL"]["rows"]                 = " שורות ";
 pui["runtimeText"]["he_IL"]["page"]                 = " עמוד ";
+pui["runtimeText"]["he_IL"]["user"]                 = "משתמש";
+pui["runtimeText"]["he_IL"]["password"]             = "סיסמא";
+pui["runtimeText"]["he_IL"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["he_IL"]["pui sign on"]          = "Profound UI להירשם";
+pui["runtimeText"]["he_IL"]["sign on"]              = "להירשם";
+pui["runtimeText"]["he_IL"]["message id"]           = "זיהוי הודעה";
+pui["runtimeText"]["he_IL"]["severity"]             = "רצינות";
+pui["runtimeText"]["he_IL"]["date"]                 = "תאריך";
+pui["runtimeText"]["he_IL"]["time"]                 = "זמן";
+pui["runtimeText"]["he_IL"]["program"]              = "תכנית";
+pui["runtimeText"]["he_IL"]["procedure"]            = "פרוצדורה";
+pui["runtimeText"]["he_IL"]["lines"]                = "שורה";
+pui["runtimeText"]["he_IL"]["message"]              = "הודעה";
+pui["runtimeText"]["he_IL"]["new session"]          = "מושב חדש";
+pui["runtimeText"]["he_IL"]["close"]                = "לסגור";
+pui["runtimeText"]["he_IL"]["current password"]     = "סיסמא נוכחית";
+pui["runtimeText"]["he_IL"]["new password"]         = "סיסמא חדשה";
+pui["runtimeText"]["he_IL"]["repeat new password"]  = "חזור על סיסמא חדשה";
+pui["runtimeText"]["he_IL"]["submit"]               = "שלח";
+pui["runtimeText"]["he_IL"]["exit"]                 = "יציאה";
+pui["runtimeText"]["he_IL"]["warning"]              = "אזהרה";
+pui["runtimeText"]["he_IL"]["change password"]      = "שינוי סיסמא";
+pui["runtimeText"]["he_IL"]["cancel"]               = "לבטל";
+pui["runtimeText"]["he_IL"]["find text"]            = "מצא";
+
+
 
 
 // ------------------------------------------------------------
@@ -775,6 +933,7 @@ pui["runtimeMsg"]["nl_NL"]["session timed out"]       = "Uw sessie is verlopen."
 pui["runtimeMsg"]["nl_NL"]["invalid low range"]       = "Waarde moet zijn groter of gelijk aan &1";
 pui["runtimeMsg"]["nl_NL"]["invalid high range"]      = "Waarde moet zijn kleiner of gelijk aan &1";
 pui["runtimeMsg"]["nl_NL"]["invalid range"]           = "Waarde moet liggen tussen &1 en &2.";
+pui["runtimeMsg"]["nl_NL"]["unmonitored exception"]   = "Het programma heeft een fout ontdekt. Voor hulp neem contact op met de systeembeheerder.";
 
 pui["runtimeText"]["nl_NL"]["upload select text"]     = "Selecteer bestanden";
 pui["runtimeText"]["nl_NL"]["upload clear text"]      = "Wissen";
@@ -792,3 +951,27 @@ pui["runtimeText"]["nl_NL"]["rows"]                   = "rijen";
 pui["runtimeText"]["nl_NL"]["page"]                   = "Pagina";
 pui["runtimeText"]["nl_NL"]["collapseAll"]            = "Inklappen";
 pui["runtimeText"]["nl_NL"]["expandAll"]              = "Uitklappen";
+pui["runtimeText"]["nl_NL"]["user"]                   = "Gebruiker";
+pui["runtimeText"]["nl_NL"]["password"]               = "Wachtwoord";
+pui["runtimeText"]["nl_NL"]["pui"]                    = "Profound UI";
+pui["runtimeText"]["nl_NL"]["pui sign on"]            = "Aanmelding Profound UI";
+pui["runtimeText"]["nl_NL"]["sign on"]                = "Aanmelding";
+pui["runtimeText"]["nl_NL"]["message id"]             = "Bericht-Id";
+pui["runtimeText"]["nl_NL"]["severity"]               = "Severity";
+pui["runtimeText"]["nl_NL"]["date"]                   = "Datum";
+pui["runtimeText"]["nl_NL"]["time"]                   = "Tijd";
+pui["runtimeText"]["nl_NL"]["program"]                = "Programma";
+pui["runtimeText"]["nl_NL"]["procedure"]              = "Procedure";
+pui["runtimeText"]["nl_NL"]["lines"]                  = "Regel(s)";
+pui["runtimeText"]["nl_NL"]["message"]                = "Boodschap";
+pui["runtimeText"]["nl_NL"]["new session"]            = "Nieuwe Sessie";
+pui["runtimeText"]["nl_NL"]["close"]                  = "Sluiten";
+pui["runtimeText"]["nl_NL"]["current password"]       = "Huidig wachtwoord";
+pui["runtimeText"]["nl_NL"]["new password"]           = "Nieuw wachtwoord";
+pui["runtimeText"]["nl_NL"]["repeat new password"]    = "Herhaal nieuw wachtwoord";
+pui["runtimeText"]["nl_NL"]["submit"]                 = "Aanbieden";
+pui["runtimeText"]["nl_NL"]["exit"]                   = "Einde";
+pui["runtimeText"]["nl_NL"]["warning"]                = "Waarschuwing";
+pui["runtimeText"]["nl_NL"]["change password"]        = "Wijzig wachtwoord";
+pui["runtimeText"]["nl_NL"]["cancel"]                 = "Afbreken";
+pui["runtimeText"]["nl_NL"]["find text"]              = "Vinden";
