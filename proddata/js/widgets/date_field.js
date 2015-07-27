@@ -27,14 +27,19 @@ pui.currentDateField = null;
 
 function show_calendar(dateField, str_datetime, format) {
   var arr_months, week_days;
-  var locale = null;
-  if (context == "dspf" && dateField.formattingInfo) {
-    locale = dateField.formattingInfo.locale;
+  var locale;
+  if (pui["locale"] && pui.locales[pui["locale"]])
+    locale = pui["locale"];
+  else {
+    
+    if (context == "dspf" && dateField.formattingInfo)
+      locale = dateField.formattingInfo.locale;
+    else if (context == "genie")
+      locale = pui.genie.config["locale"];
+    if (locale == "")
+      locale = null;
+    
   }
-  if (context == "genie") {
-    locale = pui.genie.config["locale"];
-  }
-  if (locale == "") locale = null;
   if (locale) {
     arr_months = pui.locales[locale]['monthNames'];
     dayNames = pui.locales[locale]['shortDayNames'];
