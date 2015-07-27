@@ -28,6 +28,7 @@ pui.currentDateField = null;
 function show_calendar(dateField, str_datetime, format) {
   var arr_months, week_days;
   var locale;
+  var n_weekstart = 0;
   if (pui["locale"] && pui.locales[pui["locale"]])
     locale = pui["locale"];
   else {
@@ -44,6 +45,8 @@ function show_calendar(dateField, str_datetime, format) {
     arr_months = pui.locales[locale]['monthNames'];
     dayNames = pui.locales[locale]['shortDayNames'];
     week_days = [];
+    if (pui.locales[locale]['weekStart'])
+      n_weekstart = pui.locales[locale]['weekStart'];
     for(var i=0; i<dayNames.length; i++){
       week_days.push(dayNames[i]);
     }
@@ -51,10 +54,6 @@ function show_calendar(dateField, str_datetime, format) {
   else{
     arr_months = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
     week_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-  }
-  var n_weekstart = 0;
-  if (locale && pui.locales[locale]['weekStart']) {
-    n_weekstart = pui.locales[locale]['weekStart'];
   }
 
   pui.currentDateField = dateField;
