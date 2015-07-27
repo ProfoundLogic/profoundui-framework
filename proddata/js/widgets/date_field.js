@@ -242,12 +242,17 @@ function usa_dt(dt_datetime, format, formattingInfo){
 
   var dateFormat = null;
   if (formattingInfo != null) {
+    var locale;
+    if (pui["locale"] && pui.locales[pui["locale"]])
+      locale = pui["locale"]; 
+    else
+      locale = formattingInfo.locale;
     dateFormat = formattingInfo.dateFormat;
     if (dateFormat == null) {
       dateFormat = formattingInfo.customPattern;
     }
     if (dateFormat != null) {
-      return dt_datetime.format(dateFormat, formattingInfo.locale);
+      return dt_datetime.format(dateFormat, locale);
     }
   }
 
@@ -323,9 +328,13 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
       dateFormat = formattingInfo.customPattern;
     }
     if (dateFormat != null) {
-      var d = pui.formatting.Date.parse(str_date, dateFormat, formattingInfo.locale);
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"]; 
+      else
+        locale = formattingInfo.locale;      
+      var d = pui.formatting.Date.parse(str_date, dateFormat, locale);
       if(d){
-        return d.format('d-m-Y 00:00:00', formattingInfo.locale);
+        return d.format('d-m-Y 00:00:00', locale);
       }
     }
  }

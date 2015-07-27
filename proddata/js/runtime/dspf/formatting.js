@@ -700,6 +700,11 @@ pui.FieldFormat = {
   },
   "Date": {
     format: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       if (pui.formatting.isNumericType(obj.dataType)) {
@@ -729,15 +734,20 @@ pui.FieldFormat = {
           value = pui.formatting.leftPad(value, 6, '0');
         }
       }
-      var d = pui.formatting.Date.parse(value, parsedKWs.internal, obj.locale);
+      var d = pui.formatting.Date.parse(value, parsedKWs.internal, locale);
       obj.dateFormat = obj.dateFormat || parsedKWs.display;
       if (d) {
         if (d.format('Y-m-d', 'en_US') == '0001-01-01') value = "";
-        else value = d.format(obj.dateFormat, obj.locale);
+        else value = d.format(obj.dateFormat, locale);
       }
       return value;
     },
     revert: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;      
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       //determine date format from numeric data
@@ -779,7 +789,7 @@ pui.FieldFormat = {
         d = pui.formatting.Date.parse('0001-01-01', 'Y-m-d', 'en_US');
       }
       else{
-        d = pui.formatting.Date.parse(value, dateFormat, obj.locale);
+        d = pui.formatting.Date.parse(value, dateFormat, locale);
       }
       if (dateFormat == "m/d/y" || dateFormat == "d/m/y") {
         if (value == "00/00/00" && obj.dataType == "char") return "0";
@@ -796,12 +806,12 @@ pui.FieldFormat = {
         return value;
       }
       if (d) {
-        return d.format(parsedKWs.internal, obj.locale);
+        return d.format(parsedKWs.internal, locale);
       }
       else {
         var yr = (new Date()).getFullYear();
-        d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', obj.locale);
-        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid date", [ obj.value, d.format(dateFormat, obj.locale) ]) };
+        d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', locale);
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid date", [ obj.value, d.format(dateFormat, locale) ]) };
       }
     },
     parseKeywords: function(keywords) {
@@ -869,6 +879,11 @@ pui.FieldFormat = {
   },
   "Time": {
     format: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;      
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       if(pui.formatting.isNumericType(obj.dataType)){
@@ -882,20 +897,25 @@ pui.FieldFormat = {
         format6 += "s";
         value6 += "00";
       }
-      var d = pui.formatting.Date.parse(value6, format6, obj.locale);
+      var d = pui.formatting.Date.parse(value6, format6, locale);
       if(d){
         if(obj.timeFormat === ''){
           obj.timeFormat = parsedKWs.display;
         }
         //Check for null time since RPG uses 00:00:00 (AM) for null and 24:00:00 (AM) for midnight
         if(/^0*$/.test(value.replace(/\D/g, ''))){
-          return d.format(obj.timeFormat, obj.locale).replace(/(?:12|24)/g, '00');
+          return d.format(obj.timeFormat, locale).replace(/(?:12|24)/g, '00');
         }
-        return d.format(obj.timeFormat, obj.locale);
+        return d.format(obj.timeFormat, locale);
       }
       return value;
     },
     revert: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;           
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       if(pui.formatting.isNumericType(obj.dataType)){
@@ -907,30 +927,30 @@ pui.FieldFormat = {
         d = pui.formatting.Date.parse('00:00:00', 'H:i:s', 'en_US');
       }
       else{
-        d = pui.formatting.Date.parse(value, obj.timeFormat, obj.locale);
+        d = pui.formatting.Date.parse(value, obj.timeFormat, locale);
       }
       if(d){
         if(/^0*$/.test(value.replace(/\D/g, ''))){
-          var formatted = d.format(parsedKWs.internal, obj.locale);
+          var formatted = d.format(parsedKWs.internal, locale);
           formatted = formatted.replace(/(?:12|24)/g, '00');
           formatted = formatted.replace(/PM/i, 'AM');
           return formatted;
         }
         else if(d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0){
           // Midnight must produce 24:00:00
-          return d.format(parsedKWs.internal, obj.locale);
+          return d.format(parsedKWs.internal, locale);
         }
         else {
           // But 12:00:01 (AM) must produce 00:00:01.
           // Replace 'R' formatting character with 'H' before sending back to the server to prevent a time greater than '24:00:00'
           parsedKWs.internal = parsedKWs.internal.replace(/([^\\]?)R/g, '$1' + 'H');
-          return d.format(parsedKWs.internal, obj.locale);
+          return d.format(parsedKWs.internal, locale);
         }
       }
       else{
         var yr = (new Date()).getFullYear();
-        d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', obj.locale);
-        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time", [ obj.value, d.format(obj.timeFormat, obj.locale) ]) };
+        d = pui.formatting.Date.parse(yr + '-03-07-14.30.15.000000', 'Y-m-d-H.i.s.u000', locale);
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time", [ obj.value, d.format(obj.timeFormat, locale) ]) };
       }
     },
     parseKeywords: function(keywords) {
@@ -992,25 +1012,35 @@ pui.FieldFormat = {
   },
   "Time Stamp": {
     format: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;           
       var value = obj.value + '';
       if(obj.timeStampFormat){
-        var d = pui.formatting.Date.parse(value, pui.formatting.Date.stdTimeStampPattern, obj.locale);
+        var d = pui.formatting.Date.parse(value, pui.formatting.Date.stdTimeStampPattern, locale);
         if(d){
-          value = d.format(obj.timeStampFormat, obj.locale);
+          value = d.format(obj.timeStampFormat, locale);
         }
       }
       return value;
     },
     revert: function(obj) {
+      var locale;
+      if (pui["locale"] && pui.locales[pui["locale"]])
+        locale = pui["locale"];
+      else
+        locale = obj.locale;           
       var value = obj.value + '';
-      var d = pui.formatting.Date.parse(value, obj.timeStampFormat, obj.locale);
+      var d = pui.formatting.Date.parse(value, obj.timeStampFormat, locale);
       if(d){
-        value = d.format(pui.formatting.Date.stdTimeStampPattern, obj.locale);
+        value = d.format(pui.formatting.Date.stdTimeStampPattern, locale);
       }
       else{
         var yr = (new Date()).getFullYear();
-        d = pui.formatting.Date.parse(yr + '-09-09-14.30.15.000000', pui.formatting.Date.stdTimeStampPattern, obj.locale);
-        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time stamp", [ obj.value, d.format(obj.timeStampFormat, obj.locale)]) };
+        d = pui.formatting.Date.parse(yr + '-09-09-14.30.15.000000', pui.formatting.Date.stdTimeStampPattern, locale);
+        return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time stamp", [ obj.value, d.format(obj.timeStampFormat, locale)]) };
       }
       return value;
     }
