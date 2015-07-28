@@ -830,49 +830,63 @@ pui.FieldFormat = {
         }
       }
       
-      datFmt = datFmt || '*ISO';
-      datSep = datSep || '*JOB';
-      
+      var displayPattern;
       var internalPattern;
-      if(pui.formatting.keywords.DATFMT[datFmt]){
-        internalPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
+      if (!datFmt && pui["default date pattern"]) {
+        
+        displayPattern = pui["default date pattern"];
+        internalPattern = "Y-m-d";
+        
       }
-      else{
-        internalPattern = pui.formatting.keywords.DATFMT['*ISO'].pattern;
-      }
-      
-      var internalSep;
-      var overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
-      if(overridable){
-        internalSep = pui.formatting.keywords.DATSEP[datSep];
-      }
-      else{
+      else {
+        
+        datFmt = datFmt || '*ISO';
+        datSep = datSep || '*JOB';
+        
+        internalPattern;
         if(pui.formatting.keywords.DATFMT[datFmt]){
-          internalSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
+          internalPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
         }
         else{
-          internalSep = '-';
+          internalPattern = pui.formatting.keywords.DATFMT['*ISO'].pattern;
         }
-      }
-      
-      var displayPattern = internalPattern;
-      if(datFmt == '*JOB' && pui.appJob && pui.appJob.dateFormat){
-        datFmt = pui.appJob.dateFormat;
-        displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
-      }
-      
-      var displaySep = internalSep;
-      overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
-      if(overridable){
-        if(datSep == '*JOB' && pui.appJob && pui.appJob.dateSeparator){
-          datSep = pui.appJob.dateSeparator;
+        
+        var internalSep;
+        var overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
+        if(overridable){
+          internalSep = pui.formatting.keywords.DATSEP[datSep];
         }
-        displaySep = pui.formatting.keywords.DATSEP[datSep];
+        else{
+          if(pui.formatting.keywords.DATFMT[datFmt]){
+            internalSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
+          }
+          else{
+            internalSep = '-';
+          }
+        }
+        
+        displayPattern = internalPattern;
+        if(datFmt == '*JOB' && pui.appJob && pui.appJob.dateFormat){
+          datFmt = pui.appJob.dateFormat;
+          displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
+        }
+        
+        var displaySep = internalSep;
+        overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
+        if(overridable){
+          if(datSep == '*JOB' && pui.appJob && pui.appJob.dateSeparator){
+            datSep = pui.appJob.dateSeparator;
+          }
+          displaySep = pui.formatting.keywords.DATSEP[datSep];
+        }
+        internalPattern = internalPattern.replace(/\B/g, internalSep)
+        displayPattern = displayPattern.replace(/\B/g, displaySep)
+      
       }
       
       return {
-        internal: internalPattern.replace(/\B/g, internalSep),
-        display: displayPattern.replace(/\B/g, displaySep)
+        internal: internalPattern,
+        display: displayPattern
       };
       
     }

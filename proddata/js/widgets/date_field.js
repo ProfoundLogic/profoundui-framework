@@ -247,9 +247,15 @@ function usa_dt(dt_datetime, format, formattingInfo){
       locale = pui["locale"]; 
     else
       locale = formattingInfo.locale;
-    dateFormat = formattingInfo.dateFormat;
-    if (dateFormat == null) {
-      dateFormat = formattingInfo.customPattern;
+    if (pui["default date pattern"])
+      dateFormat = pui["default date pattern"];
+    else {
+      
+      dateFormat = formattingInfo.dateFormat;
+      if (dateFormat == null) {
+        dateFormat = formattingInfo.customPattern;
+      }
+      
     }
     if (dateFormat != null) {
       return dt_datetime.format(dateFormat, locale);
@@ -323,9 +329,15 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
 
   var dateFormat = null;
   if (formattingInfo != null) {
-    dateFormat = formattingInfo.dateFormat;
-    if (dateFormat == null) {
-      dateFormat = formattingInfo.customPattern;
+    if (pui["default date pattern"])
+      dateFormat = pui["default date pattern"];
+    else {  
+    
+      dateFormat = formattingInfo.dateFormat;
+      if (dateFormat == null) {
+        dateFormat = formattingInfo.customPattern;
+      }
+      
     }
     if (dateFormat != null) {
       if (pui["locale"] && pui.locales[pui["locale"]])
