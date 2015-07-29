@@ -442,6 +442,7 @@ pui["runtimeMsg"]["es_ES"]["session timed out"]       = "El tiempo de su sesión
 pui["runtimeMsg"]["es_ES"]["invalid low range"]       = "El valor debe ser mayor o igual a &1";
 pui["runtimeMsg"]["es_ES"]["invalid high range"]      = "El valor debe ser menor o igual a &1";
 pui["runtimeMsg"]["es_ES"]["invalid range"]           = "El valor debe estar comprendido entre &1 y &2";
+pui["runtimeMsg"]["es_ES"]["unmonitored exception"]   = "Este programa ha encontrado algunas excepciones no monitorieadas. Favor contactar al administrador del sistema para su ayuda.";
 
 pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
@@ -459,6 +460,30 @@ pui["runtimeText"]["es_ES"]["rows"]                 = "líneas";
 pui["runtimeText"]["es_ES"]["page"]                 = "Página";
 pui["runtimeText"]["es_ES"]["collapseAll"]          = "Contraer todo";
 pui["runtimeText"]["es_ES"]["expandAll"]            = "Expandir todo";
+pui["runtimeText"]["es_ES"]["user"]                 = "Usuario";
+pui["runtimeText"]["es_ES"]["password"]             = "Contraseña";
+pui["runtimeText"]["es_ES"]["pui"]                  = "Profound UI";
+pui["runtimeText"]["es_ES"]["pui sign on"]          = "Profound UI Ingreso";
+pui["runtimeText"]["es_ES"]["sign on"]              = "Ingreso";
+pui["runtimeText"]["es_ES"]["message id"]           = "Identificacion de mensaje";
+pui["runtimeText"]["es_ES"]["severity"]             = "Severidad";
+pui["runtimeText"]["es_ES"]["date"]                 = "Fecha";
+pui["runtimeText"]["es_ES"]["time"]                 = "Hora";
+pui["runtimeText"]["es_ES"]["program"]              = "Programa";
+pui["runtimeText"]["es_ES"]["procedure"]            = "Procedimiento";
+pui["runtimeText"]["es_ES"]["lines"]                = "Linea(s)";
+pui["runtimeText"]["es_ES"]["message"]              = "Mensaje";
+pui["runtimeText"]["es_ES"]["new session"]          = "Nueva sesión";
+pui["runtimeText"]["es_ES"]["close"]                = "Cerrar";
+pui["runtimeText"]["es_ES"]["current password"]     = "Contraseña Actual";
+pui["runtimeText"]["es_ES"]["new password"]         = "Nueva contraseña";
+pui["runtimeText"]["es_ES"]["repeat new password"]  = "Repetir nueva contraseña";
+pui["runtimeText"]["es_ES"]["submit"]               = "Enviar";
+pui["runtimeText"]["es_ES"]["exit"]                 = "Salir";
+pui["runtimeText"]["es_ES"]["warning"]              = "Advertencia";
+pui["runtimeText"]["es_ES"]["change password"]      = "Cambiar contraseña";
+pui["runtimeText"]["es_ES"]["cancel"]               = "Cancelar";
+pui["runtimeText"]["es_ES"]["find text"]            = "Encontrar";
 
 
 // ------------------------------------------------------------
