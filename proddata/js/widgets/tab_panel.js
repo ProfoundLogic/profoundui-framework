@@ -276,8 +276,15 @@ function TabPanel() {
     if (settings.borderSize) borderSize = settings.borderSize;
     bottomDiv.style.border = borderSize + "px solid " + borderColor;
     bottomDiv.style.backgroundColor = me.backColor;
-
+    
     for (var i = 0; i < me.tabs.length; i++) {
+      var outerSpan = document.createElement("span");
+      outerSpan.style.display = "inline-block";
+      if (i == me.selectedTab) {
+        if (me.container.pui.properties["css class"])
+          outerSpan.className = me.container.pui.properties["css class"] + "-";
+        outerSpan.className += "selected-tab";
+      }
       if (settings.leftWidth != null) {
         var leftSpan = document.createElement("span");
         leftSpan.style.backgroundImage = "url(" + path + "left" + (i == me.selectedTab ? "-sel" : "") + "." + extension + ")";
@@ -478,9 +485,10 @@ function TabPanel() {
           }
         }
       }
-      if (settings.leftWidth != null) topDiv.appendChild(leftSpan);
-      topDiv.appendChild(tabSpan);
-      if (settings.rightWidth != null) topDiv.appendChild(rightSpan);
+      topDiv.appendChild(outerSpan);
+      if (settings.leftWidth != null) outerSpan.appendChild(leftSpan);
+      outerSpan.appendChild(tabSpan);
+      if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
     }
     me.container.appendChild(bottomDiv);
     me.container.appendChild(topDiv);
