@@ -843,7 +843,6 @@ pui.FieldFormat = {
         datFmt = datFmt || '*ISO';
         datSep = datSep || '*JOB';
         
-        internalPattern;
         if(pui.formatting.keywords.DATFMT[datFmt]){
           internalPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
         }
