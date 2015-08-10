@@ -153,6 +153,7 @@ pui["runtimeText"]["en_US"]["upload remove text"]   = "Remove";
 pui["runtimeText"]["en_US"]["upload upload text"]   = "Upload";
 pui["runtimeText"]["en_US"]["csv export text"]      = "Export to Excel";
 pui["runtimeText"]["en_US"]["filter text"]          = "Filter";
+pui["runtimeText"]["en_US"]["find text"]            = "Find";
 pui["runtimeText"]["en_US"]["remove filters text"]  = "Remove All Filters";
 pui["runtimeText"]["en_US"]["next link text"]       = "Next";
 pui["runtimeText"]["en_US"]["previous link text"]   = "Previous";
