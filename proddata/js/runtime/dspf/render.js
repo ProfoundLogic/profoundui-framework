@@ -1291,6 +1291,7 @@ pui.renderFormat = function(parms) {
                     newDom.extraDomEls = dom.extraDomEls;
                     newDom.labelObj = dom.labelObj;
                     newDom.modified = dom.modified;
+		    newDom.disabled = dom.disabled;
                     dom.parentNode.replaceChild(newDom, dom);
                     newDom.checked = dom.checked;
                     newDom.parentTabPanel = dom.parentTabPanel ;
