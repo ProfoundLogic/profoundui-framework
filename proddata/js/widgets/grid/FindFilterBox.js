@@ -26,11 +26,76 @@
 
 pui.FindFilterBox = function() {
 
-  // Private Properties
-  var me = this;
-  var div = document.createElement("div");
-  var box = document.createElement("input");
-  var bottom = document.createElement("div");
-  
+	// Private Properties
+	var me = this;
+	var div;
+	var contentDiv;
+	var box;
+
+	// Public Properties
+	this.container = null;
+
+	// Public Methods
+	this.init = function() {
+		div = document.createElement("div");
+		div.className = "pui-find-filter";
+		div.style.display = "none";
+		contentDiv = document.createElement("div");
+		contentDiv.className = "pui-find-filter-content";  
+		box = document.createElement("input");
+		box.className = "pui-find-filter-box";
+		addEvent(box, "keyup", function(e) {
+			var text = box.value;
+			if (typeof me.onsearch === "function") {
+				me.onsearch(text);
+			}
+		});
+		contentDiv.appendChild(box);
+		div.appendChild(contentDiv);
+		me.container.appendChild(div);
+	}
+
+	this.show = function() {
+		div.style.display = "";
+	}
+
+	this.hide = function() {
+		div.style.display = "none";
+	}
+
+	this.positionByGridColumn = function(cell) {
+		var grid = cell.parentNode;
+		if (grid == null) return;
+		var gridParent = grid.parentNode;
+		if (gridParent == null) return;
+		
+		var left, top, width;
+		left = cell.offsetLeft;
+		top = cell.offsetTop - 40;
+		width = cell.offsetWidth;		
+		
+		if (gridParent.getAttribute("container") == "true") {
+			var offset = pui.layout.getContainerOffset(gridParent);
+			top = top + offset.y;
+			left = left + offset.x;
+		} 	 
+
+		me.setPosition(left, top, width);    
+	}
+
+	this.setPosition = function(left, top, width) {
+		if (width == null) width = 200;
+		var boxWidth = width - 15;
+		if (boxWidth < 20) boxWidth = 20;
+		div.style.left = left + "px";
+		div.style.top = top + "px";
+		div.style.width = width + "px";
+		box.style.width = boxWidth + "px";
+	}
+	
+	this.setPlaceholder = function(placeholder) {
+		box.placeholder = placeholder;
+	}
+
 }
 
