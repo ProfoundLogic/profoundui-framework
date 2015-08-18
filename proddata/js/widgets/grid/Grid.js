@@ -190,7 +190,8 @@ pui.Grid = function() {
   this.ffbox.init();
   
   this.highlighting = {
-    column: 0,
+    columnId: 0,
+    col: 0,
     text: ""
   };
   
@@ -4097,9 +4098,7 @@ pui.Grid = function() {
     
     cell.onmousedown = function(event) {
       // Handle context menu
-      var target = getTarget(event);
-      var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
-      if (pui.isRightClick(event) && !prevent) {
+      if (pui.isRightClick(event)) {
         if (me.designMode) return;
         function stopContextMenu(event) {
           if (!event) event = window.event;
@@ -4246,14 +4245,15 @@ pui.Grid = function() {
       if (target.tagName == "IMG" && target.combo)
         return;
       var isRight = pui.isRightClick(e);
-      var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
-      if (!prevent && target.tagName != "OPTION") {
+      if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
       if (context == "dspf" && !me.designMode) {
       
         me.setCursorRRN(row);
+        
+        var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
         
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
           if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {

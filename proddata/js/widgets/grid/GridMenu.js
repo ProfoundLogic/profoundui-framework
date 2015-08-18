@@ -162,7 +162,8 @@ pui.GridMenu = function() {
           me.grid.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
           me.grid.ffbox.positionByGridColumn(me.cell);
           me.grid.setSearchIndexes(me.cell);
-          me.grid.highlighting.column = me.cell.columnId;
+          me.grid.highlighting.columnId = me.cell.columnId;
+          me.grid.highlighting.col = me.cell.col;
           me.grid.ffbox.show();
           me.grid.ffbox.clear();
           me.grid.ffbox.focus();
