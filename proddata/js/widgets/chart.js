@@ -239,18 +239,24 @@ pui.widgets["doChartLink"] = function(param) {
     
 }
 
-pui.widgets.setChartPreview = function(dom, chartType) {
+pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   dom.innerHTML = "";
-  var valid = false;
-  for (var i = 0; i < pui.widgets.chartTypes.length; i++) {
-    if (chartType == pui.widgets.chartTypes[i]) {
-      if (chartType != "Other...") {
-        valid = true;
-        break;
+  if (isMap)
+    chartType = "Map";
+  else {
+    
+    var valid = false;
+    for (var i = 0; i < pui.widgets.chartTypes.length; i++) {
+      if (chartType == pui.widgets.chartTypes[i]) {
+        if (chartType != "Other...") {
+          valid = true;
+          break;
+        }
       }
     }
+    if (!valid) chartType = "Bar2D";  // set a default
+    
   }
-  if (!valid) chartType = "Bar2D";  // set a default
   var img = document.createElement("img");
   img.src = "/profoundui/proddata/images/charts/" + chartType + ".jpg";
   img.style.position = "absolute";
@@ -277,9 +283,23 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {      
-      var chartType = parms.evalProperty("chart type");
+      var mapType = trim(parms.evalProperty("map type"));
+      var chartType;
+      if (mapType != "") {
+  
+        if (mapType.toLowerCase().indexOf("maps/") == 0)
+          mapType = mapType.substr(5);
+        mapType = "/FusionChartsXT/js/maps/" + mapType;
+        chartType = mapType;
+        
+      }
+      else {
+        
+        chartType = parms.evalProperty("chart type");
+        
+      }
       if (parms.design) {
-        pui.widgets.setChartPreview(parms.dom, chartType);
+        pui.widgets.setChartPreview(parms.dom, chartType, (mapType != ""));
         parms.dom.style.overflow = "hidden";
         parms.dom.style.border = "1px solid #999999";
       }
@@ -496,17 +516,22 @@ pui.widgets.add({
     
     "width": function(parms) {
       parms.dom.width = parms.value;
-      if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"]);
+      var isMap = (typeof parms.properties["map type"] != "undefined");
+      if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"], isMap);
     },
     
     "height": function(parms) {
       parms.dom.height = parms.value;
-      if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"]);
+      var isMap = (typeof parms.properties["map type"] != "undefined");
+      if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"], isMap);
     },
     
     "chart type": function(parms) {
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.value);
     },
+    "map type": function(parms) {
+      if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.value, true);
+    },    
     "visibility": function(parms) {
     
       if (parms.dom.chart) {
