@@ -34,6 +34,9 @@ pui.FindFilterBox = function() {
 
 	// Public Properties
 	this.container = null;
+	this.grid = null;
+	this.headerCell = null;
+	this.type = null;  // can be "find" or "filter"
 
 	// Public Methods
 	this.init = function() {
@@ -45,10 +48,33 @@ pui.FindFilterBox = function() {
 		box = document.createElement("input");
 		box.className = "pui-find-filter-box";
 		addEvent(box, "keyup", function(e) {
+      if (!e) e = window.event;
+      var key = e.keyCode;
+		  if (key == 13) return;  // Enter
 			var text = box.value;
 			if (typeof me.onsearch === "function") {
 				me.onsearch(text);
 			}
+		});
+		addEvent(box, "keydown", function(e) {
+      if (!e) e = window.event;
+      var key = e.keyCode;
+		  if (key == 13) {  // Enter
+		    if (me.type == "find") {
+    			if (typeof me.onsearch === "function") {
+      			var text = box.value;
+    				me.onsearch(text, true);
+    			}
+		    }
+		    preventEvent(e);
+		  }
+		});
+		addEvent(box, "blur", function(e) {
+      if (me.type == "find") {
+  		  me.grid.highlighting.text = "";
+  		  me.grid.getData();
+		  }
+		  me.hide();
 		});
 		contentDiv.appendChild(box);
 		div.appendChild(contentDiv);
@@ -70,8 +96,8 @@ pui.FindFilterBox = function() {
 		if (gridParent == null) return;
 		
 		var left, top, width;
-		left = cell.offsetLeft;
-		top = cell.offsetTop - 40;
+		left = grid.offsetLeft + cell.offsetLeft;
+		top = grid.offsetTop - 40;
 		width = cell.offsetWidth;		
 		
 		if (gridParent.getAttribute("container") == "true") {
@@ -95,6 +121,14 @@ pui.FindFilterBox = function() {
 	
 	this.setPlaceholder = function(placeholder) {
 		box.placeholder = placeholder;
+	}
+	
+	this.focus = function() {
+	  box.focus();
+	}
+	
+	this.clear = function() {
+	  box.value = "";
 	}
 
 }

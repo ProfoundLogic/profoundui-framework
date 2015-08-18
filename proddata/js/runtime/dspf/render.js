@@ -1046,6 +1046,19 @@ pui.renderFormat = function(parms) {
             }
           }
         }
+
+        if (dom.highlighted === true) {
+          pui.dehighlightText(dom);
+          dom.highlighted = false;
+        }
+
+        if (parms.highlighting != null && parms.highlighting.text != "" && String(items[i]["column"]) === String(parms.highlighting.column)) {
+          if (dom.tagName == "DIV") {  
+            pui.highlightText(dom, parms.highlighting.text);
+            dom.highlighted = true;
+          }
+        }
+
       }      
     }
     else {
@@ -1291,7 +1304,7 @@ pui.renderFormat = function(parms) {
                     newDom.extraDomEls = dom.extraDomEls;
                     newDom.labelObj = dom.labelObj;
                     newDom.modified = dom.modified;
-		    newDom.disabled = dom.disabled;
+                    newDom.disabled = dom.disabled;
                     dom.parentNode.replaceChild(newDom, dom);
                     newDom.checked = dom.checked;
                     newDom.parentTabPanel = dom.parentTabPanel ;
@@ -1625,6 +1638,13 @@ pui.renderFormat = function(parms) {
             dom.style.visibility = "";  // ensures that the grid's visibility is not overridden
           }
           
+        }
+        
+        if (parms.highlighting != null && parms.highlighting.text != "" && String(properties["column"]) === String(parms.highlighting.column)) {
+          if (dom.tagName == "DIV") {  
+            pui.highlightText(dom, parms.highlighting.text);
+            dom.highlighted = true;
+          }
         }
         
         if (pui["controller"] != null && propname.indexOf("error condition") == 0 && propValue == "1" && !ctlErrorMap[dom.id]) {

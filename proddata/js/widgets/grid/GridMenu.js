@@ -155,7 +155,17 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
         menuIcons.push("icons/search.png");
         optionHandlers.push(function() {
-          alert("find - to do");
+          me.grid.ffbox.grid = me.grid;
+          me.grid.ffbox.headerCell = me.cell;
+          me.grid.ffbox.type = "find";
+          me.grid.ffbox.onsearch = me.grid.find;
+          me.grid.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
+          me.grid.ffbox.positionByGridColumn(me.cell);
+          me.grid.setSearchIndexes(me.cell);
+          me.grid.highlighting.column = me.cell.columnId;
+          me.grid.ffbox.show();
+          me.grid.ffbox.clear();
+          me.grid.ffbox.focus();
         });
       }
   
@@ -163,7 +173,16 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
         menuIcons.push("icons/filter.png");
         optionHandlers.push(function() {
-          alert("filter - to do");
+          me.grid.ffbox.grid = me.grid;
+          me.grid.ffbox.headerCell = me.cell;
+          me.grid.ffbox.type = "filter";
+          me.grid.ffbox.onsearch = me.grid.filter;
+          me.grid.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
+          me.grid.ffbox.positionByGridColumn(me.cell);
+          me.grid.setSearchIndexes(me.cell);
+          me.grid.ffbox.show();
+          me.grid.ffbox.clear();
+          me.grid.ffbox.focus();
         });
       }
   
@@ -255,7 +274,7 @@ pui.GridMenu = function() {
   
   this.destroy = function() {
     if (menuDiv != null) {
-      menuDiv.parentNode.removeChild(menuDiv);      
+      if (menuDiv.parentNode != null) menuDiv.parentNode.removeChild(menuDiv);      
       menuDiv = null;
       table = null;
       me.clickEvent = null;

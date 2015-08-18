@@ -1709,3 +1709,44 @@ pui.posFix = function(elem) {
   }
 
 }
+
+
+pui.highlightText = function(node, text) {
+  if(node === undefined || !node) return;
+  if (node.tagName == "SPAN" && node.className == "pui-highlight") return;
+
+  if(node.hasChildNodes()) {
+    for(var i=0; i < node.childNodes.length; i++) {
+      pui.highlightText(node.childNodes[i], text);
+    }
+  }
+  if (node.nodeType == 3) { // NODE_TEXT
+    var content = node.nodeValue;
+    if (content != null && typeof content == "string") {
+      var contentLower = content.toLowerCase();
+      var textLower = text.toLowerCase();
+      var idx = contentLower.indexOf(textLower);
+      if (idx >= 0) {
+        var foundText = content.substr(idx, text.length);
+        var hiSpan = document.createElement("span");
+        hiSpan.appendChild(document.createTextNode(foundText));
+        hiSpan.className = "pui-highlight";
+  
+        var after = node.splitText(idx);
+        after.nodeValue = after.nodeValue.substring(text.length);
+        node.parentNode.insertBefore(hiSpan, after);
+      }
+    }
+  }
+}
+
+
+pui.dehighlightText = function(div) {
+  var spans = div.getElementsByTagName("span");
+  while(spans.length && (span = spans[0])) {
+    var parent = span.parentNode;
+    parent.replaceChild(span.firstChild, span);
+    parent.normalize();
+  }
+}
+

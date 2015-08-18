@@ -184,6 +184,16 @@ pui.Grid = function() {
   
   this.initialPageNumber = 1;
   
+  this.ffbox = new pui.FindFilterBox();
+  this.ffbox.container = pui.runtimeContainer;
+  if (this.ffbox.container == null) this.ffbox.container = document.body;  // this would occur in design mode, where the ffbox is not used
+  this.ffbox.init();
+  
+  this.highlighting = {
+    column: 0,
+    text: ""
+  };
+  
   var me = this;
   
   var addRowIcon;
@@ -1131,7 +1141,8 @@ pui.Grid = function() {
             errors: me.errors,
             rowNum: rowNum,
             subfileRow: subfileRow,
-            dataArrayIndex: i - 1
+            dataArrayIndex: i - 1,
+            highlighting: me.highlighting
           });
           if (me.selectionEnabled && me.selectionField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
@@ -5286,7 +5297,65 @@ pui.Grid = function() {
     }
     return null;
   }
-  
+
+  this.setSearchIndexes = function(headerCell) {
+    if (headerCell.searchIndexes != null) return;
+    else headerCell.searchIndexes = [];
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var col = Number(itm["column"]);
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"];
+      if (pui.isBound(val) && !isNaN(col) && col == headerCell.columnId) {
+        var fieldName = pui.fieldUpper(val["fieldName"]);
+        for (var j = 0; j < me.fieldNames.length; j++ ) {
+          if (fieldName == me.fieldNames[j]) {
+            headerCell.searchIndexes.push(j);
+          }
+        }
+      }
+    }
+
+  }
+
+  this.find = function(text, findNext) {
+    me.highlighting.text = "";
+    if (text == "") {
+      me.getData();
+      return;
+    }
+    var start = 0;
+    if (findNext) start = me.recNum;
+    var textLower = text.toLowerCase();
+    var idxes = me.ffbox.headerCell.searchIndexes;
+    var done = false;
+    for (var i = start; i < me.dataArray.length; i++) {
+      for (var j = 0; j < idxes.length; j++) {
+        var idx = idxes[j];
+        var value = me.dataArray[i][idx];
+        var valueLower = value.toLowerCase();
+        if (valueLower.indexOf(textLower) >= 0) {
+          if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+            me.highlighting.text = text;
+            var rec = i + 1;
+            if (me.recNum != rec) me.scrollbarObj.setScrollTopToRow(rec, false);
+            else me.getData();
+          }
+          done = true;
+          break;
+        }
+      }
+      if (done) break;
+    }
+    if (!done) {
+      me.getData();
+    }
+  }
+
+  this.filter = function(text) {
+    document.title = "filter: " + text;
+  }
+
   this.getPropertiesModel = function() {
     var model = [
       { name: "Identification", category: true },
