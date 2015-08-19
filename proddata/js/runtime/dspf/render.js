@@ -3587,39 +3587,47 @@ pui.handleHotKey = function(e, keyName) {
     return false;
   }
   
-  var processKey = (keyName != null && pui.lastFormatName != null);
-  if (processKey && keyName != "Enter") {
-    if (pui.keyMap[pui.lastFormatName][keyName] == null) {
-      processKey = false;
-    }
-    else if (keyName == "PageUp" || keyName == "PageDown") {
+  // NOTE: In most cases, only the command keys defined on the last format written (pui.lastFormatName)
+  //       are available. PageUp/PageDown are exceptions to this rule. 
+  //       This being the case, the Grid widgets Next/Prev links should probably also enable/disable 
+  //       based on this logic and also buttons/links created for ROLLUP/ROLLDOWN in non-SFLCTL formats 
+  //       should also show/hide accordingly. I don't think these are implemented correctly, but users have not 
+  //       reported any problems yet.
+  //       - DR 08/19/2015
+  var processKey = (
+    keyName != null && pui.lastFormatName != null && 
+    (
+      keyName == "Enter" || keyName == "PageUp" || keyName == "PageDown" || 
+      pui.keyMap[pui.lastFormatName][keyName] != null
+    )
+  );    
+    
+  if (processKey && keyName == "PageUp" || keyName == "PageDown") {
       
-      // Do not take action for page up / page down when multiple grids 
-      // with paging bar are on screen.
-      var pbar = false;
-      for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+    // Do not take action for page up / page down when multiple grids 
+    // with paging bar are on screen.
+    var pbar = false;
+    for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+      
+      var grid = pui.gridsDisplayed[i];
+      if (grid.pagingBar && grid.pagingBar.showPagingControls) {
         
-        var grid = pui.gridsDisplayed[i];
-        if (grid.pagingBar && grid.pagingBar.showPagingControls) {
+        if (pbar == false) {
           
-          if (pbar == false) {
-            
-            pbar = true;
-            
-          }
-          else {
-            
-            processKey = false;
-            break;
-            
-          }
+          pbar = true;
+          
+        }
+        else {
+          
+          processKey = false;
+          break;
           
         }
         
       }
       
     }
-    
+      
   }
   
   if  (processKey) {
