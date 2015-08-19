@@ -74,6 +74,7 @@ pui.FindFilterBox = function() {
     		  me.grid.getData();
   		  }
   		  me.hide();
+		    preventEvent(e);
 		  }
 		});
 		addEvent(box, "blur", function(e) {
