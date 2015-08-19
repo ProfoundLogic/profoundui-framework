@@ -1724,6 +1724,9 @@ pui.highlightText = function(node, text) {
     var content = node.nodeValue;
     if (content != null && typeof content == "string") {
       var contentLower = content.toLowerCase();
+      while (contentLower.indexOf(String.fromCharCode(160)) != -1) {    
+        contentLower = contentLower.replace(String.fromCharCode(160), " ");
+      }
       var textLower = text.toLowerCase();
       var idx = contentLower.indexOf(textLower);
       if (idx >= 0) {
