@@ -68,6 +68,13 @@ pui.FindFilterBox = function() {
 		    }
 		    preventEvent(e);
 		  }
+		  if (key == 27) {  // Escape
+        if (me.type == "find") {
+    		  me.grid.highlighting.text = "";
+    		  me.grid.getData();
+  		  }
+  		  me.hide();
+		  }
 		});
 		addEvent(box, "blur", function(e) {
       if (me.type == "find") {
