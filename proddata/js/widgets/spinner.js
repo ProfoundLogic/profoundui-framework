@@ -87,6 +87,15 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     }
   }
   
+  if (dom.pui.properties==null || dom.pui.properties["visibility"]==null || dom.pui.properties["visibility"]=="") {
+    if ( context=="genie" && dom.fieldInfo!=null && dom.fieldInfo["attr"]!=null ) {
+      var attr = dom.fieldInfo["attr"];
+      if (attr == "27" || attr == "2F" || attr == "37" || attr == "3F") {
+        me.hide();      
+      }
+    }
+  }
+  
   if (runtimeMode) {
     dom.style.paddingRight = "16px";
     dom.style.boxSizing = "border-box";
