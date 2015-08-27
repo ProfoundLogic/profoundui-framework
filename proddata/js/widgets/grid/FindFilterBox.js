@@ -128,7 +128,7 @@ pui.FindFilterBox = function() {
 	}
 	
 	this.setPlaceholder = function(placeholder) {
-		box.placeholder = placeholder;
+		box["placeholder"] = placeholder;
 	}
 	
 	this.focus = function() {

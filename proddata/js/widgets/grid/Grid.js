@@ -5362,6 +5362,31 @@ pui.Grid = function() {
 
   this.filter = function(text) {
     document.title = "filter: " + text;
+    var headerCell = me.ffbox.headerCell;
+    if (text == "") {
+      me.removeFilter(headerCell);
+    }
+    else {
+      me.setFilter(headerCell);
+    }
+  }
+  
+  this.setFilter = function(headerCell) {
+    if (headerCell.filterIcon == null) {
+      headerCell.filterIcon = document.createElement("img");
+      headerCell.filterIcon.style.paddingLeft = "3px";
+      headerCell.filterIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/filter.png");
+      var destination = headerCell;
+      if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
+        destination = destination.firstChild;
+      }
+      destination.appendChild(headerCell.filterIcon);
+    }
+  }
+
+  this.removeFilter = function(headerCell) {
+    if (headerCell.filterIcon != null && headerCell.filterIcon.parentNode != null) headerCell.filterIcon.parentNode.removeChild(headerCell.filterIcon);
+    headerCell.filterIcon = null;
   }
 
   this.getPropertiesModel = function() {
@@ -5456,7 +5481,7 @@ pui.Grid = function() {
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
-      //{ name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
+      { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
   
