@@ -188,6 +188,7 @@ pui["runtimeText"]["en_US"]["warning"]              = "Warning";
 pui["runtimeText"]["en_US"]["change password"]      = "Change Password";
 pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
+pui["runtimeText"]["en_US"]["remove filter"]        = "Remove Filter";
 
 
 // ----------------------------------
@@ -285,6 +286,7 @@ pui["runtimeText"]["de_DE"]["warning"]              = "Warnung";
 pui["runtimeText"]["de_DE"]["change password"]      = "Ändern Passwort";
 pui["runtimeText"]["de_DE"]["cancel"]               = "Abbrechen";
 pui["runtimeText"]["de_DE"]["find text"]            = "Finden";
+pui["runtimeText"]["de_DE"]["remove filter"]        = "Filter entfernen";
 
 
 // ----------------------------------
@@ -377,6 +379,7 @@ pui["runtimeText"]["pt_PT"]["warning"]              = "Aviso";
 pui["runtimeText"]["pt_PT"]["change password"]      = "Alterar Palavra Chave";
 pui["runtimeText"]["pt_PT"]["cancel"]               = "Cancelar";
 pui["runtimeText"]["pt_PT"]["find text"]            = "Encontrar";
+pui["runtimeText"]["pt_PT"]["remove filter"]        = "Retirar filtro";
 
 
 // ------------------------------------------------------------
@@ -485,6 +488,7 @@ pui["runtimeText"]["es_ES"]["warning"]              = "Advertencia";
 pui["runtimeText"]["es_ES"]["change password"]      = "Cambiar contraseña";
 pui["runtimeText"]["es_ES"]["cancel"]               = "Cancelar";
 pui["runtimeText"]["es_ES"]["find text"]            = "Encontrar";
+pui["runtimeText"]["es_ES"]["remove filter"]        = "Quitar filtro";
 
 
 // ------------------------------------------------------------
@@ -636,7 +640,7 @@ pui["runtimeText"]["fr_FR"]["warning"]              = "Avertissement";
 pui["runtimeText"]["fr_FR"]["change password"]      = "Modifier le mot de passe";
 pui["runtimeText"]["fr_FR"]["cancel"]               = "Annuler";
 pui["runtimeText"]["fr_FR"]["find text"]            = "Trouver";
-
+pui["runtimeText"]["fr_FR"]["remove filter"]        = "Supprimer le filtre";
 
 //--------------------------------------------------------------
 //  French Canadian Eh!
@@ -727,6 +731,7 @@ pui["runtimeText"]["fr_CA"]["warning"]              = "Avertissement";
 pui["runtimeText"]["fr_CA"]["change password"]      = "Changer mot de passe";
 pui["runtimeText"]["fr_CA"]["cancel"]               = "Annuler";
 pui["runtimeText"]["fr_CA"]["find text"]            = "Trouver";
+pui["runtimeText"]["fr_CA"]["remove filter"]        = "Supprimer le filtre";
 
 
 // ------------------------------------------------------------
@@ -818,6 +823,7 @@ pui["runtimeText"]["it_IT"]["warning"]              = "Attenzione";
 pui["runtimeText"]["it_IT"]["change password"]      = "Cambia Password";
 pui["runtimeText"]["it_IT"]["cancel"]               = "Cancella";
 pui["runtimeText"]["it_IT"]["find text"]            = "Trovare";
+pui["runtimeText"]["it_IT"]["remove filter"]        = "Rimuovi Filtro";
 
 
 
@@ -910,7 +916,7 @@ pui["runtimeText"]["he_IL"]["warning"]              = "אזהרה";
 pui["runtimeText"]["he_IL"]["change password"]      = "שינוי סיסמא";
 pui["runtimeText"]["he_IL"]["cancel"]               = "לבטל";
 pui["runtimeText"]["he_IL"]["find text"]            = "מצא";
-
+pui["runtimeText"]["he_IL"]["remove filter"]        = "הסר סינון";
 
 
 
@@ -1003,3 +1009,4 @@ pui["runtimeText"]["nl_NL"]["warning"]                = "Waarschuwing";
 pui["runtimeText"]["nl_NL"]["change password"]        = "Wijzig wachtwoord";
 pui["runtimeText"]["nl_NL"]["cancel"]                 = "Afbreken";
 pui["runtimeText"]["nl_NL"]["find text"]              = "Vinden";
+pui["runtimeText"]["nl_NL"]["remove filter"]          = "Verwijderen Filter";
