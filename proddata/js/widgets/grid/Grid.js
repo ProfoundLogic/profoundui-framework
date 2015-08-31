@@ -1127,40 +1127,53 @@ pui.Grid = function() {
         if (me.selectionEnabled) {
           me.setRowBackground(rowNum);
         }
-
-        if (fieldData.empty != true) {
-          var subfileRow = me.dataArray[i-1].subfileRow;
-          if (subfileRow == null) subfileRow = i;
-          pui.renderFormat({
-            designMode: false,
-            name: pui.formatUpper(me.recordFormatName),
-            metaData: {
-              items: me.runtimeChildren
-            },
-            data: fieldData,
-            ref: me.ref,
-            errors: me.errors,
-            rowNum: rowNum,
-            subfileRow: subfileRow,
-            dataArrayIndex: i - 1,
-            highlighting: me.highlighting
-          });
-          if (me.selectionEnabled && me.selectionField != null) {
-            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
-            if (pui.responseElements[qualField] == null) {
-              me.dataArray[i-1].selection = {
-                modified: false,
-                type: "grid selection",
-                value: me.selectionField.dataType == "indicator" ? "0" : " ",
-                subfileRow: subfileRow,
-                formattingInfo: me.selectionField
-              }
-              pui.responseElements[qualField] = [];
-              pui.responseElements[qualField].push(me.dataArray[i-1].selection);
+        
+        var filteredOut = false;
+        if (valuesData != null && valuesData.filteredOut != null) {
+          for (j = 0; j < valuesData.filteredOut.length; j++) {
+            if (valuesData.filteredOut[j] === true) {
+              filteredOut = true;
+              lastRow++;
+              break;
             }
           }
         }
-        rowNum++;
+
+        if (!filteredOut) {
+          if (fieldData.empty != true) {
+            var subfileRow = me.dataArray[i-1].subfileRow;
+            if (subfileRow == null) subfileRow = i;
+            pui.renderFormat({
+              designMode: false,
+              name: pui.formatUpper(me.recordFormatName),
+              metaData: {
+                items: me.runtimeChildren
+              },
+              data: fieldData,
+              ref: me.ref,
+              errors: me.errors,
+              rowNum: rowNum,
+              subfileRow: subfileRow,
+              dataArrayIndex: i - 1,
+              highlighting: me.highlighting
+            });
+            if (me.selectionEnabled && me.selectionField != null) {
+              var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
+              if (pui.responseElements[qualField] == null) {
+                me.dataArray[i-1].selection = {
+                  modified: false,
+                  type: "grid selection",
+                  value: me.selectionField.dataType == "indicator" ? "0" : " ",
+                  subfileRow: subfileRow,
+                  formattingInfo: me.selectionField
+                }
+                pui.responseElements[qualField] = [];
+                pui.responseElements[qualField].push(me.dataArray[i-1].selection);
+              }
+            }
+          }
+          rowNum++;
+        }
       }
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         me.scrollbarObj.totalRows = me.dataArray.length;
@@ -1521,35 +1534,45 @@ pui.Grid = function() {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var paddingCSS = getPaddingCSS();
-    for (var i = 0; i < me.cells[0].length; i++) {
+    var headerRow = me.cells[0];
+    for (var i = 0; i < headerRow.length; i++) {
+      var headerCell = headerRow[i];
+      var hasFilter = false;
+      if (me.designMode == false && headerCell.filterIcon != null) {
+        hasFilter = true;
+        me.removeFilterIcon(headerCell);
+      }
       if (me.columnHeadings.length <= i) {
-        me.cells[0][i].innerHTML = "";
+        headerCell.innerHTML = "";
       }
       else {
         var alignCSS = "";
-        if (me.cells[0][i].style.textAlign != null && me.cells[0][i].style.textAlign != "") {
-          alignCSS = " text-align:" + me.cells[0][i].style.textAlign;
+        if (headerCell.style.textAlign != null && headerCell.style.textAlign != "") {
+          alignCSS = " text-align:" + headerCell.style.textAlign;
         }
-        me.cells[0][i].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + me.columnHeadings[i] + '</div>';
-        centerHeadingVertically(me.cells[0][i]);
+        headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + me.columnHeadings[i] + '</div>';
+        centerHeadingVertically(headerCell);
       }      
-      // This method runs when the user resizes columns, and the sort icon becomes orphaned.
-      var placeIcon = false;
+      // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.      
+      if (hasFilter) {
+        me.setFilterIcon(headerCell);
+      }
+      var placeSortIcon = false;
       if (me.designMode == false && me.sortable == true && me.sortIcon != null) {      
-        if (clientSortColumnId == me.cells[0][i].columnId) {
-          placeIcon = true;
+        if (clientSortColumnId == headerCell.columnId) {
+          placeSortIcon = true;
         }
-        else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == me.cells[0][i].columnId) {
-          placeIcon = true;
+        else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
+          placeSortIcon = true;
         }
-        else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(me.cells[0][i].columnId)) {
-          placeIcon = true;
+        else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
+          placeSortIcon = true;
         }
-        if (placeIcon) {
+        if (placeSortIcon) {
           if (me.sortIcon.parentNode != null) {
             me.sortIcon.parentNode.removeChild(me.sortIcon);
           }
-          var destination = me.cells[0][i];
+          var destination = headerCell;
           if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
             destination = destination.firstChild;
           }
@@ -5326,7 +5349,22 @@ pui.Grid = function() {
 
   }
 
-  this.find = function(text, findNext) {
+  this.startFind = function(headerCell) {
+    me.ffbox.grid = me;
+    me.ffbox.headerCell = headerCell;
+    me.ffbox.type = "find";
+    me.ffbox.onsearch = me.doFind;
+    me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
+    me.ffbox.positionByGridColumn(headerCell);
+    me.setSearchIndexes(headerCell);
+    me.highlighting.columnId = headerCell.columnId;
+    me.highlighting.col = headerCell.col;
+    me.ffbox.show();
+    me.ffbox.clear();
+    me.ffbox.focus();
+  }
+
+  this.doFind = function(text, findNext) {
     me.highlighting.text = "";
     if (text == "") {
       me.getData();
@@ -5340,7 +5378,8 @@ pui.Grid = function() {
     for (var i = start; i < me.dataArray.length; i++) {
       for (var j = 0; j < idxes.length; j++) {
         var idx = idxes[j];
-        var value = me.dataArray[i][idx];
+        var record = me.dataArray[i];
+        var value = record[idx];
         var valueLower = value.toLowerCase();
         if (valueLower.indexOf(textLower) >= 0) {
           if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
@@ -5360,31 +5399,125 @@ pui.Grid = function() {
     }
   }
 
-  this.filter = function(text) {
-    document.title = "filter: " + text;
+  this.startFilter = function(headerCell) {
+    me.ffbox.grid = me;
+    me.ffbox.headerCell = headerCell;
+    me.ffbox.type = "filter";
+    me.ffbox.onsearch = me.doFilter;
+    me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
+    me.ffbox.positionByGridColumn(headerCell);
+    me.setSearchIndexes(headerCell);
+    me.highlighting.columnId = headerCell.columnId;
+    me.highlighting.col = headerCell.col;
+    me.ffbox.show();
+    me.ffbox.clear();
+    if (headerCell.filterText != null && headerCell.filterText != "") {
+      me.ffbox.setText(headerCell.filterText);
+      me.highlighting.text = headerCell.filterText;
+      me.getData();
+    }
+    me.ffbox.focus();
+  }
+
+  this.doFilter = function(text) {
     var headerCell = me.ffbox.headerCell;
     if (text == "") {
       me.removeFilter(headerCell);
     }
     else {
-      me.setFilter(headerCell);
-    }
+      me.setFilter(headerCell, text);
+    }    
   }
   
-  this.setFilter = function(headerCell) {
+  this.setFilter = function(headerCell, text) {
+    me.highlighting.text = text;
+    me.setFilterIcon(headerCell);
+    headerCell.filterText = text;
+    var textLower = text.toLowerCase();
+    var idxes = headerCell.searchIndexes;
+    var col = headerCell.columnId;
+    for (var i = 0; i < me.dataArray.length; i++) {
+      for (var j = 0; j < idxes.length; j++) {
+        var idx = idxes[j];
+        var record = me.dataArray[i];
+        var value = record[idx];
+        var valueLower = value.toLowerCase();
+        if (valueLower.indexOf(textLower) < 0) {
+          if (record.filteredOut == null) record.filteredOut = [];
+          record.filteredOut[col] = true;
+        }
+        else {
+          if (record.filteredOut != null) {
+            record.filteredOut[col] = false;
+          }
+        }
+      }
+    }
+    me.getData();
+  }
+
+  this.removeFilter = function(headerCell) {
+    me.highlighting.text = "";
+    me.removeFilterIcon(headerCell);
+    headerCell.filterText = null;
+    var col = headerCell.columnId;
+    for (var i = 0; i < me.dataArray.length; i++) {
+      var record = me.dataArray[i];
+      if (record.filteredOut != null) {
+        record.filteredOut[col] = false;
+      }
+    }
+    me.getData();
+  }
+
+  this.removeAllFilters = function() {
+    var headerRow = me.cells[0];
+    for (var i = 0; i < headerRow.length; i++) {
+      var headerCell = headerRow[i];
+      me.removeFilterIcon(headerCell);
+      headerCell.filterText = null;
+    }
+    for (var i = 0; i < me.dataArray.length; i++) {
+      var record = me.dataArray[i];
+      record.filteredOut = null;
+    }
+    me.getData();
+  }
+
+  this.getFilterCount = function() {
+    var count = 0;
+    var headerRow = me.cells[0];
+    for (var i = 0; i < headerRow.length; i++) {
+      var headerCell = headerRow[i];
+      if (headerCell.filterText != null && headerCell.filterText != "") {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  this.setFilterIcon = function(headerCell) {
     if (headerCell.filterIcon == null) {
       headerCell.filterIcon = document.createElement("img");
       headerCell.filterIcon.style.paddingLeft = "3px";
       headerCell.filterIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/filter.png");
+      headerCell.style.cursor = "pointer";
+      headerCell.filterIcon.onclick = function(e) {
+        if (!pui.isRightClick(e)) {
+          me.startFilter(headerCell);
+          preventEvent(e);
+        }
+      }
       var destination = headerCell;
       if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
         destination = destination.firstChild;
       }
-      destination.appendChild(headerCell.filterIcon);
+      if (me.sortIcon != null && me.sortIcon.parentNode === destination) destination.insertBefore(headerCell.filterIcon, me.sortIcon);
+      else destination.appendChild(headerCell.filterIcon);
     }
   }
 
-  this.removeFilter = function(headerCell) {
+  this.removeFilterIcon = function(headerCell) {
     if (headerCell.filterIcon != null && headerCell.filterIcon.parentNode != null) headerCell.filterIcon.parentNode.removeChild(headerCell.filterIcon);
     headerCell.filterIcon = null;
   }
@@ -5481,7 +5614,7 @@ pui.Grid = function() {
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
-      //{ name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
+      { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
   

@@ -155,18 +155,7 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
         menuIcons.push("icons/search.png");
         optionHandlers.push(function() {
-          me.grid.ffbox.grid = me.grid;
-          me.grid.ffbox.headerCell = me.cell;
-          me.grid.ffbox.type = "find";
-          me.grid.ffbox.onsearch = me.grid.find;
-          me.grid.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
-          me.grid.ffbox.positionByGridColumn(me.cell);
-          me.grid.setSearchIndexes(me.cell);
-          me.grid.highlighting.columnId = me.cell.columnId;
-          me.grid.highlighting.col = me.cell.col;
-          me.grid.ffbox.show();
-          me.grid.ffbox.clear();
-          me.grid.ffbox.focus();
+          me.grid.startFind(me.cell);
         });
       }
   
@@ -174,24 +163,23 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
         menuIcons.push("icons/filter.png");
         optionHandlers.push(function() {
-          me.grid.ffbox.grid = me.grid;
-          me.grid.ffbox.headerCell = me.cell;
-          me.grid.ffbox.type = "filter";
-          me.grid.ffbox.onsearch = me.grid.filter;
-          me.grid.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
-          me.grid.ffbox.positionByGridColumn(me.cell);
-          me.grid.setSearchIndexes(me.cell);
-          me.grid.ffbox.show();
-          me.grid.ffbox.clear();
-          me.grid.ffbox.focus();
+          me.grid.startFilter(me.cell);
         });
       }
   
-      if (me.grid.filterOption && true) {
+      if (me.grid.filterOption && me.cell.filterIcon != null) {
+        menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter text"));
+        menuIcons.push("icons/remove_filter.png");
+        optionHandlers.push(function() {
+          me.grid.removeFilter(me.cell);
+        });
+      }
+
+      if (me.grid.getFilterCount() > 1) {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
         menuIcons.push("icons/remove_filter.png");
         optionHandlers.push(function() {
-          alert("remove all filters - to do");
+          me.grid.removeAllFilters();
         });
       }
     }

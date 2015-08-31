@@ -66,22 +66,23 @@ pui.FindFilterBox = function() {
     				me.onsearch(text, true);
     			}
 		    }
+		    if (me.type == "filter") {
+    		  me.grid.highlighting.text = "";
+    		  me.grid.getData();
+		      me.hide();
+		    }
 		    preventEvent(e);
 		  }
 		  if (key == 27) {  // Escape
-        if (me.type == "find") {
-    		  me.grid.highlighting.text = "";
-    		  me.grid.getData();
-  		  }
+  		  me.grid.highlighting.text = "";
+  		  me.grid.getData();
   		  me.hide();
 		    preventEvent(e);
 		  }
 		});
 		addEvent(box, "blur", function(e) {
-      if (me.type == "find") {
-  		  me.grid.highlighting.text = "";
-  		  me.grid.getData();
-		  }
+		  me.grid.highlighting.text = "";
+		  me.grid.getData();
 		  me.hide();
 		});
 		contentDiv.appendChild(box);
@@ -137,6 +138,10 @@ pui.FindFilterBox = function() {
 	
 	this.clear = function() {
 	  box.value = "";
+	}
+
+	this.setText = function(text) {
+	  box.value = text;
 	}
 
 }
