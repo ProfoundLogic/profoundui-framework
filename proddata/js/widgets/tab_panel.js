@@ -703,6 +703,8 @@ pui.widgets.add({
       parms.dom.tabPanel.container = parms.dom;
 
       parms.dom.tabPanel.tabStyle = parms.properties["tab panel style"];
+      if (parms.design && pui.isBound(parms.dom.tabPanel.tabStyle))
+        parms.dom.tabPanel.tabStyle = "Simple";
       if (parms.properties["background color"] == null || parms.properties["background color"] == "") {      
         parms.dom.tabPanel.setDefaultBackColor();
       }
