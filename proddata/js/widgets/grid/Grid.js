@@ -4286,6 +4286,9 @@ pui.Grid = function() {
         
         var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
         
+        if (isRight && me.contextMenuId!=null && getObj(me.contextMenuId)!=null)
+          prevent = true;
+        
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
           if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
           
