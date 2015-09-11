@@ -168,7 +168,7 @@ pui.GridMenu = function() {
       }
   
       if (me.grid.filterOption && me.cell.filterIcon != null) {
-        menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter text"));
+        menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
         menuIcons.push("icons/remove_filter.png");
         optionHandlers.push(function() {
           me.grid.removeFilter(me.cell);

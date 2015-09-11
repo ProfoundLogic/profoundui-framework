@@ -43,6 +43,7 @@ pui.Grid = function() {
   this.cleared = true;  
   this.runtimeChildren = [];
   this.dataArray = [];
+  this.filteredDataArray = [];
   this.fieldNames = [];
   this.ref = {};  // reference field info
   
@@ -655,9 +656,11 @@ pui.Grid = function() {
     data = "\uFEFF" + data;
 
     // build csv data    
-    for (var i = 0; i < me.dataArray.length; i++) {
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    for (var i = 0; i < dataRecords.length; i++) {
       var line = "";      
-      var record = me.dataArray[i];
+      var record = dataRecords[i];
       
       // build fieldData for use with pui.evalBoundProperties
       //  Note that fieldData is not necessarily in the same sequence as columnArray
@@ -802,16 +805,18 @@ pui.Grid = function() {
   this.getDataValue = function(row, fieldName) {
     if (typeof row != "number") return null;
     if (typeof fieldName != "string") return null;
-    var record = me.dataArray[row - 1];
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    var record = dataRecords[row - 1];
     
     // if data array has been sorted, we need to get the record
     // based on it's original subfile row number rather than
     // it's position in the array.
-    if (typeof me.sorted != "undefined" && me.sorted === true) {
+    if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
        record = null;
-       for (var i=0; i<me.dataArray.length; i++) {
-       	  if (me.dataArray[i].subfileRow == row) {
-       	  	 record = me.dataArray[i];
+       for (var i=0; i < dataRecords.length; i++) {
+       	  if (dataRecords[i].subfileRow == row) {
+       	  	 record = dataRecords[i];
        	  	 break;
        	  }
        }    	
@@ -907,7 +912,9 @@ pui.Grid = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     var lastRow = me.recNum + numRows - 1;
-    if (me.dataArray.length > lastRow) return false;
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (dataRecords.length > lastRow) return false;
     else return true;
   }
 
@@ -931,8 +938,10 @@ pui.Grid = function() {
     if (me.hasHeader) numRows = numRows - 1;
     me.recNum += numRows;
     var lastRow = me.recNum + numRows - 1;
-    if (me.dataArray.length < lastRow && me.scrollbarObj != null) {
-      me.recNum = me.recNum - lastRow + me.dataArray.length;
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (dataRecords.length < lastRow && me.scrollbarObj != null) {
+      me.recNum = me.recNum - lastRow + dataRecords.length;
       if (me.recNum < 1) me.recNum = 1;
     }
     if (me.slidingScrollBar) {
@@ -1093,10 +1102,12 @@ pui.Grid = function() {
       runSQL(sql, numRows, me.recNum, receiveData, (me.totalRecs == null), dataURL, true);
     }
     else if (context == "dspf") {
+      var dataRecords = me.dataArray;
+      if (me.isFiltered()) dataRecords = me.filteredDataArray;
       me.tableDiv.cursorRRN = 0;
       var rrn = me.recNum;
-      if (me.dataArray[me.recNum - 1] && me.dataArray[me.recNum - 1].subfileRow != null) {
-        rrn = me.dataArray[me.recNum - 1].subfileRow;
+      if (dataRecords[me.recNum - 1] && dataRecords[me.recNum - 1].subfileRow != null) {
+        rrn = dataRecords[me.recNum - 1].subfileRow;
       }      
       me.tableDiv.returnRRN = rrn;
       if (me.fileId != null) {
@@ -1105,16 +1116,16 @@ pui.Grid = function() {
       me.clearData();
       var rowNum = (me.hasHeader ? 1 : 0);
       var lastRow = me.recNum + numRows - 1;
-      if (me.dataArray.length < lastRow && me.scrollbarObj != null) {
-        me.recNum = me.recNum - lastRow + me.dataArray.length;
+      if (dataRecords.length < lastRow && me.scrollbarObj != null) {
+        me.recNum = me.recNum - lastRow + dataRecords.length;
         if (me.recNum < 1) me.recNum = 1;
-        lastRow = me.dataArray.length;
+        lastRow = dataRecords.length;
       }
       me.hideTips();
       for (var i = me.recNum; i <= lastRow ; i++) {
       
         var fieldData = {};        
-        var valuesData = me.dataArray[i-1];        
+        var valuesData = dataRecords[i-1];        
         if (valuesData == null || valuesData.length == 0) {
           fieldData.empty = true;
         }
@@ -1128,55 +1139,42 @@ pui.Grid = function() {
           me.setRowBackground(rowNum);
         }
         
-        var filteredOut = false;
-        if (valuesData != null && valuesData.filteredOut != null) {
-          for (j = 0; j < valuesData.filteredOut.length; j++) {
-            if (valuesData.filteredOut[j] === true) {
-              filteredOut = true;
-              lastRow++;
-              break;
-            }
-          }
-        }
-
-        if (!filteredOut) {
-          if (fieldData.empty != true) {
-            var subfileRow = me.dataArray[i-1].subfileRow;
-            if (subfileRow == null) subfileRow = i;
-            pui.renderFormat({
-              designMode: false,
-              name: pui.formatUpper(me.recordFormatName),
-              metaData: {
-                items: me.runtimeChildren
-              },
-              data: fieldData,
-              ref: me.ref,
-              errors: me.errors,
-              rowNum: rowNum,
-              subfileRow: subfileRow,
-              dataArrayIndex: i - 1,
-              highlighting: me.highlighting
-            });
-            if (me.selectionEnabled && me.selectionField != null) {
-              var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
-              if (pui.responseElements[qualField] == null) {
-                me.dataArray[i-1].selection = {
-                  modified: false,
-                  type: "grid selection",
-                  value: me.selectionField.dataType == "indicator" ? "0" : " ",
-                  subfileRow: subfileRow,
-                  formattingInfo: me.selectionField
-                }
-                pui.responseElements[qualField] = [];
-                pui.responseElements[qualField].push(me.dataArray[i-1].selection);
+        if (fieldData.empty != true) {
+          var subfileRow = dataRecords[i-1].subfileRow;
+          if (subfileRow == null) subfileRow = i;
+          pui.renderFormat({
+            designMode: false,
+            name: pui.formatUpper(me.recordFormatName),
+            metaData: {
+              items: me.runtimeChildren
+            },
+            data: fieldData,
+            ref: me.ref,
+            errors: me.errors,
+            rowNum: rowNum,
+            subfileRow: subfileRow,
+            dataArrayIndex: i - 1,
+            highlighting: me.highlighting
+          });
+          if (me.selectionEnabled && me.selectionField != null) {
+            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + subfileRow;
+            if (pui.responseElements[qualField] == null) {
+              dataRecords[i-1].selection = {
+                modified: false,
+                type: "grid selection",
+                value: me.selectionField.dataType == "indicator" ? "0" : " ",
+                subfileRow: subfileRow,
+                formattingInfo: me.selectionField
               }
+              pui.responseElements[qualField] = [];
+              pui.responseElements[qualField].push(dataRecords[i-1].selection);
             }
           }
-          rowNum++;
         }
+        rowNum++;
       }
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-        me.scrollbarObj.totalRows = me.dataArray.length;
+        me.scrollbarObj.totalRows = dataRecords.length;
       }
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
       if (me.pagingBar != null) {
@@ -1299,6 +1297,7 @@ pui.Grid = function() {
     if (columnPointer != null) columnPointer.parentNode.removeChild(columnPointer);
     columnPointer = null;
     delete me.dataArray;
+    delete me.filteredDataArray;
     delete me.runtimeChildren;
     delete me.fieldNames;
     delete me.ref;
@@ -1827,7 +1826,8 @@ pui.Grid = function() {
       for (var i=0; i<me.dataArray.length; i++) {
       	me.dataArray[i].beforeSort = i;
       }
-      me.dataArray.sort(function(row1, row2) {
+
+      function doSort(row1, row2) {
         var value1 = row1[sortIndex];
         var value2 = row2[sortIndex];
         if (cell.dataType == "zoned" || cell.dataType == "floating") {
@@ -1860,7 +1860,10 @@ pui.Grid = function() {
           if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
           else return 1;
         }
-      });
+      }
+      
+      me.dataArray.sort(doSort);
+      if (me.isFiltered()) me.filteredDataArray.sort(doSort);
       
       //
       // update the data array index in pui.responseElements
@@ -2136,8 +2139,10 @@ pui.Grid = function() {
           var adjustedRow = eval("row");
           adjustedRow += (me.recNum - 1);
           eval("rowNumber = " + adjustedRow);
-          if (me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].subfileRow != null) {
-            adjustedRow = me.dataArray[adjustedRow - 1].subfileRow;
+          var dataRecords = me.dataArray;
+          if (me.isFiltered()) dataRecords = me.filteredDataArray;
+          if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].subfileRow != null) {
+            adjustedRow = dataRecords[adjustedRow - 1].subfileRow;
           }
           eval("row = " + adjustedRow); 
           eval ("var rrn = " + adjustedRow);       
@@ -3269,11 +3274,13 @@ pui.Grid = function() {
       if (me.hasHeader) {
         me.tableDiv.cursorRRN = me.tableDiv.cursorRRN - 1;
       }
-      if (me.dataArray[me.tableDiv.cursorRRN - 1] == null || me.dataArray[me.tableDiv.cursorRRN - 1].length == 0) {
+      var dataRecords = me.dataArray;
+      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (dataRecords[me.tableDiv.cursorRRN - 1] == null || dataRecords[me.tableDiv.cursorRRN - 1].length == 0) {
         me.tableDiv.cursorRRN = 0;
       }
-      else if (me.dataArray[me.tableDiv.cursorRRN - 1].subfileRow != null) {
-        me.tableDiv.cursorRRN = me.dataArray[me.tableDiv.cursorRRN - 1].subfileRow;
+      else if (dataRecords[me.tableDiv.cursorRRN - 1].subfileRow != null) {
+        me.tableDiv.cursorRRN = dataRecords[me.tableDiv.cursorRRN - 1].subfileRow;
       }
     }
   }
@@ -5353,6 +5360,8 @@ pui.Grid = function() {
   }
 
   this.startFind = function(headerCell) {
+    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
     me.ffbox.type = "find";
@@ -5403,6 +5412,8 @@ pui.Grid = function() {
   }
 
   this.startFilter = function(headerCell) {
+    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
     me.ffbox.type = "filter";
@@ -5433,41 +5444,65 @@ pui.Grid = function() {
   }
   
   this.setFilter = function(headerCell, text) {
+    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (headerCell == null) return;
     me.highlighting.text = text;
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
     var textLower = text.toLowerCase();
     var idxes = headerCell.searchIndexes;
     var col = headerCell.columnId;
+    me.filteredDataArray = [];
     for (var i = 0; i < me.dataArray.length; i++) {
+      var record = me.dataArray[i];
+      if (record.subfileRow == null) record.subfileRow = i + 1;
       for (var j = 0; j < idxes.length; j++) {
-        var idx = idxes[j];
-        var record = me.dataArray[i];
+        var idx = idxes[j];        
         var value = record[idx];
         var valueLower = value.toLowerCase();
-        if (valueLower.indexOf(textLower) < 0) {
-          if (record.filteredOut == null) record.filteredOut = [];
-          record.filteredOut[col] = true;
+        if (record.filteredOutArray == null) record.filteredOutArray = [];
+        record.filteredOutArray[col] = true;
+        if (valueLower.indexOf(textLower) >= 0) {          
+          record.filteredOutArray[col] = false;
+          break;
         }
-        else {
-          if (record.filteredOut != null) {
-            record.filteredOut[col] = false;
-          }
-        }
+      }
+      me.setFilteredOut(record);
+      if (!record.filteredOut) {
+        me.filteredDataArray.push(record);
       }
     }
     me.getData();
   }
+  
+  this.setFilteredOut = function(record) {
+    record.filteredOut = false;
+    if (record.filteredOutArray != null) {
+      for (var j = 0; j < record.filteredOutArray.length; j++) {
+        if (record.filteredOutArray[j] === true) {
+          record.filteredOut = true;
+          break;
+        }
+      }
+    }
+  }
 
   this.removeFilter = function(headerCell) {
+    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (headerCell == null) return;
     me.highlighting.text = "";
     me.removeFilterIcon(headerCell);
     headerCell.filterText = null;
     var col = headerCell.columnId;
+    me.filteredDataArray = [];
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
-      if (record.filteredOut != null) {
-        record.filteredOut[col] = false;
+      if (record.filteredOutArray != null) {
+        record.filteredOutArray[col] = false;
+      }
+      me.setFilteredOut(record);
+      if (!record.filteredOut) {
+        me.filteredDataArray.push(record);
       }
     }
     me.getData();
@@ -5482,8 +5517,10 @@ pui.Grid = function() {
     }
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
-      record.filteredOut = null;
+      record.filteredOutArray = null;
+      record.filteredOut = false;
     }
+    me.filteredDataArray = [];
     me.getData();
   }
 
@@ -5497,6 +5534,15 @@ pui.Grid = function() {
       }
     }
     return count;
+  }
+
+  this.isFiltered = function() {
+    var headerRow = me.cells[0];
+    for (var i = 0; i < headerRow.length; i++) {
+      var headerCell = headerRow[i];
+      if (headerCell.filterText != null && headerCell.filterText != "") return true;
+    }
+    return false;
   }
 
   this.setFilterIcon = function(headerCell) {

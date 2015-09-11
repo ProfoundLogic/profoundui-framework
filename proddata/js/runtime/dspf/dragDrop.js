@@ -35,7 +35,9 @@ pui.attachDragDrop = function(dom, properties) {
     setTimeout(function() {
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
-        var minLastRow = dom.grid.dataArray.length - dom.grid.recNum + 1;
+        var dataRecords = dom.grid.dataArray;
+        if (dom.grid.isFiltered()) dataRecords = dom.grid.filteredDataArray;
+        var minLastRow = dataRecords.length - dom.grid.recNum + 1;
         if (lastRow > minLastRow) lastRow = minLastRow;
       }
       if ((properties["cursor"] == null || properties["cursor"] == "") && !pui.iPadEmulation) {
@@ -66,9 +68,11 @@ pui.attachDragDrop = function(dom, properties) {
     var requestNum = 0;
     var recordNumber;
     if (isGrid) {
+      var dataRecords = dom.grid.dataArray;
+      if (dom.grid.isFiltered()) dataRecords = dom.grid.filteredDataArray;
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
-        var minLastRow = dom.grid.dataArray.length - dom.grid.recNum + 1;
+        var minLastRow = dataRecords.length - dom.grid.recNum + 1;
         if (lastRow > minLastRow) lastRow = minLastRow;
       }    
       var firstRow = 0;
@@ -94,10 +98,10 @@ pui.attachDragDrop = function(dom, properties) {
       if (dom.grid.hasHeader) {
         recordNumber = recordNumber - 1;
       }
-      if (dom.grid.dataArray[recordNumber - 1] !== null && 
-          dom.grid.dataArray[recordNumber - 1].length != 0 &&
-          dom.grid.dataArray[recordNumber - 1].subfileRow != null) {
-        recordNumber = dom.grid.dataArray[recordNumber - 1].subfileRow;
+      if (dataRecords[recordNumber - 1] !== null && 
+          dataRecords[recordNumber - 1].length != 0 &&
+          dataRecords[recordNumber - 1].subfileRow != null) {
+        recordNumber = dataRecords[recordNumber - 1].subfileRow;
       }      
     }
   
@@ -112,7 +116,9 @@ pui.attachDragDrop = function(dom, properties) {
             var lines = dropTarget.grid.hLines;
             var lastLine = lines.length - 1;
             if (!dropTarget.grid.isDataGrid()) {
-              var minLastLine = dropTarget.grid.dataArray.length - dropTarget.grid.recNum + 2;
+              var dataRecords = dropTarget.grid.dataArray;
+              if (dropTarget.grid.isFiltered()) dataRecords = dropTarget.grid.filteredDataArray;
+              var minLastLine = dataRecords.length - dropTarget.grid.recNum + 2;
               if (lastLine > minLastLine) lastLine = minLastLine;
             }
             for (var j = (dropTarget.grid.hasHeader ? 1 : 0); j <= lastLine; j++) {
