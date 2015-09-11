@@ -3324,8 +3324,10 @@ pui.Grid = function() {
     if (me.selectionEnabled) {
       if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
         var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
-        if (me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].length > 0) {
-          if (me.dataArray[adjustedRow - 1].selected == null) {
+        var dataRecords = me.dataArray;
+        if (me.isFiltered()) dataRecords = me.filteredDataArray;
+        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
+          if (dataRecords[adjustedRow - 1].selected == null) {
             if (me.selectionField != null) {
               if (me.selectionFieldIndex == null) {
                 for (var i = 0; i < me.fieldNames.length; i++) {
@@ -3336,13 +3338,13 @@ pui.Grid = function() {
                 }
               }
               if (me.selectionFieldIndex != null) {
-                if (me.dataArray[adjustedRow - 1][me.selectionFieldIndex] == me.selectionValue) {
-                  me.dataArray[adjustedRow - 1].selected = true;
+                if (dataRecords[adjustedRow - 1][me.selectionFieldIndex] == me.selectionValue) {
+                  dataRecords[adjustedRow - 1].selected = true;
                 }
               }
             }
           }
-          if (me.dataArray[adjustedRow - 1].selected == true) {
+          if (dataRecords[adjustedRow - 1].selected == true) {
             selected = true;
           }
         }
@@ -4303,8 +4305,9 @@ pui.Grid = function() {
           
             if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey)) {
               var numRows = me.hLines.length - 1;
+              
               for (var i = 0; i < me.dataArray.length; i++) {
-                var curRow = i - me.recNum + 1 + (me.hasHeader ? 1 : 0);                
+                var curRow = i - me.recNum + 1 + (me.hasHeader ? 1 : 0);
                 if ((!e.ctrlKey) || (curRow != row)) {  // this condition allows the user to unselect a record using the ctrl key
                   if (me.dataArray[i].selected == true) {
                     pui.modified = true;
@@ -4321,7 +4324,17 @@ pui.Grid = function() {
                   }
                 }
               }
+              
+              if (me.isFiltered()) {
+                for (var curRow = (me.hasHeader ? 1 : 0); curRow < numRows; curRow++) {
+                  me.setRowBackground(curRow);
+                }
+              }
+
             }
+
+            var dataRecords = me.dataArray;
+            if (me.isFiltered()) dataRecords = me.filteredDataArray;
             var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
             if (me.extendedSelection && e.shiftKey) {
               if (me.selectedRecordNum == null) me.selectedRecordNum = adjustedRow;
@@ -4333,16 +4346,16 @@ pui.Grid = function() {
                 toRecordNum = tempRecordNum;
               }
               var numRows = me.hLines.length - 1;
-              for (var i = 0; i < me.dataArray.length; i++) {
+              for (var i = 0; i < dataRecords.length; i++) {
 
                 var curRow = i - me.recNum + 1;
                 if (i+1 >= fromRecordNum && i+1 <= toRecordNum) {
-                  if (me.dataArray[i].selected != true) {
+                  if (dataRecords[i].selected != true) {
                     pui.modified = true;
-                    me.dataArray[i].selected = true;
+                    dataRecords[i].selected = true;
                     if (me.selectionField != null) {
-                      if (me.dataArray[i].selection == null) {
-                        me.dataArray[i].selection = {
+                      if (dataRecords[i].selection == null) {
+                        dataRecords[i].selection = {
                           type: "grid selection",
                           subfileRow: i + 1,
                           formattingInfo: me.selectionField
@@ -4350,21 +4363,21 @@ pui.Grid = function() {
                         var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
                         if (pui.responseElements[qualField] == null) {
                           pui.responseElements[qualField] = [];
-                          pui.responseElements[qualField].push(me.dataArray[i].selection);
+                          pui.responseElements[qualField].push(dataRecords[i].selection);
                         }
                       }                    
-                      me.dataArray[i].selection.modified = true;
-                      me.dataArray[i].selection.value = me.selectionValue;
+                      dataRecords[i].selection.modified = true;
+                      dataRecords[i].selection.value = me.selectionValue;
                     }
                   }
                 }
                 else {
-                  if (me.dataArray[i].selected == true) {
+                  if (dataRecords[i].selected == true) {
                     pui.modified = true;
-                    me.dataArray[i].selected = false;
+                    dataRecords[i].selected = false;
                     if (me.selectionField != null) {
-                      if (me.dataArray[i].selection == null) {
-                        me.dataArray[i].selection = {
+                      if (dataRecords[i].selection == null) {
+                        dataRecords[i].selection = {
                           type: "grid selection",
                           subfileRow: i + 1,
                           formattingInfo: me.selectionField
@@ -4372,11 +4385,11 @@ pui.Grid = function() {
                         var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
                         if (pui.responseElements[qualField] == null) {
                           pui.responseElements[qualField] = [];
-                          pui.responseElements[qualField].push(me.dataArray[i].selection);
+                          pui.responseElements[qualField].push(dataRecords[i].selection);
                         }
                       }
-                      me.dataArray[i].selection.modified = true;
-                      me.dataArray[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+                      dataRecords[i].selection.modified = true;
+                      dataRecords[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
                     }
                   }
                 }
@@ -4387,16 +4400,16 @@ pui.Grid = function() {
                 }
               }
             }
-            else if (me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].length > 0) {
-              if (me.dataArray[adjustedRow - 1].selected == true) me.dataArray[adjustedRow - 1].selected = false;
-              else me.dataArray[adjustedRow - 1].selected = true;
-              if (me.selectionField != null && me.dataArray[adjustedRow - 1] != null && me.dataArray[adjustedRow - 1].selection != null) {
-                me.dataArray[adjustedRow - 1].selection.modified = true;
-                if (me.dataArray[adjustedRow - 1].selected) {
-                  me.dataArray[adjustedRow - 1].selection.value = me.selectionValue;
+            else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
+              if (dataRecords[adjustedRow - 1].selected == true) dataRecords[adjustedRow - 1].selected = false;
+              else dataRecords[adjustedRow - 1].selected = true;
+              if (me.selectionField != null && dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].selection != null) {
+                dataRecords[adjustedRow - 1].selection.modified = true;
+                if (dataRecords[adjustedRow - 1].selected) {
+                  dataRecords[adjustedRow - 1].selection.value = me.selectionValue;
                 }
                 else {
-                  me.dataArray[adjustedRow - 1].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+                  dataRecords[adjustedRow - 1].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
                 }
               }
               pui.modified = true;
