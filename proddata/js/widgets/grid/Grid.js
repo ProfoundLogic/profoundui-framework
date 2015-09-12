@@ -5378,7 +5378,7 @@ pui.Grid = function() {
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
     me.ffbox.type = "find";
-    me.ffbox.onsearch = me["doFind"];
+    me.ffbox.onsearch = me["find"];
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
     me.ffbox.positionByGridColumn(headerCell);
     me.setSearchIndexes(headerCell);
@@ -5389,7 +5389,7 @@ pui.Grid = function() {
     me.ffbox.focus();
   }
 
-  this["doFind"] = function(text, findNext) {
+  this["find"] = function(text, findNext) {
     me.highlighting.text = "";
     if (text == "") {
       me.getData();
