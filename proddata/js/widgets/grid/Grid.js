@@ -5389,7 +5389,25 @@ pui.Grid = function() {
     me.ffbox.focus();
   }
 
-  this["find"] = function(text, findNext) {
+  this["clearHighlighting"] = function() {
+    me.highlighting.text = "";
+    me.getData();
+  }
+
+  this["find"] = function(parm1, parm2, parm3) {
+
+    var headerCell;
+    headerCell = me.ffbox.headerCell
+
+    var text = parm1;
+    var findNext = parm2;
+    if (typeof parm1 == "number") {  // when used as API rather than intenrally
+      headerCell = me.cells[0][parm1];
+      text = parm2;
+      findNext = parm3;
+      me.setSearchIndexes(headerCell);      
+    }    
+
     me.highlighting.text = "";
     if (text == "") {
       me.getData();
@@ -5398,7 +5416,7 @@ pui.Grid = function() {
     var start = 0;
     if (findNext) start = me.recNum;
     var textLower = text.toLowerCase();
-    var idxes = me.ffbox.headerCell.searchIndexes;
+    var idxes = headerCell.searchIndexes;
     var done = false;
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.filteredDataArray;
@@ -5461,6 +5479,7 @@ pui.Grid = function() {
   this["setFilter"] = function(headerCell, text) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
+    me.setSearchIndexes(headerCell);
     me.highlighting.text = text;
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
