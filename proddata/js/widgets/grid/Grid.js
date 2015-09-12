@@ -5372,13 +5372,13 @@ pui.Grid = function() {
 
   }
 
-  this.startFind = function(headerCell) {
+  this["startFind"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
     me.ffbox.type = "find";
-    me.ffbox.onsearch = me.doFind;
+    me.ffbox.onsearch = me["doFind"];
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
     me.ffbox.positionByGridColumn(headerCell);
     me.setSearchIndexes(headerCell);
@@ -5389,7 +5389,7 @@ pui.Grid = function() {
     me.ffbox.focus();
   }
 
-  this.doFind = function(text, findNext) {
+  this["doFind"] = function(text, findNext) {
     me.highlighting.text = "";
     if (text == "") {
       me.getData();
@@ -5400,10 +5400,12 @@ pui.Grid = function() {
     var textLower = text.toLowerCase();
     var idxes = me.ffbox.headerCell.searchIndexes;
     var done = false;
-    for (var i = start; i < me.dataArray.length; i++) {
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    for (var i = start; i < dataRecords.length; i++) {
       for (var j = 0; j < idxes.length; j++) {
         var idx = idxes[j];
-        var record = me.dataArray[i];
+        var record = dataRecords[i];
         var value = record[idx];
         var valueLower = value.toLowerCase();
         if (valueLower.indexOf(textLower) >= 0) {
@@ -5424,7 +5426,7 @@ pui.Grid = function() {
     }
   }
 
-  this.startFilter = function(headerCell) {
+  this["startFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
     me.ffbox.grid = me;
@@ -5449,20 +5451,19 @@ pui.Grid = function() {
   this.doFilter = function(text) {
     var headerCell = me.ffbox.headerCell;
     if (text == "") {
-      me.removeFilter(headerCell);
+      me["removeFilter"](headerCell);
     }
     else {
-      me.setFilter(headerCell, text);
+      me["setFilter"](headerCell, text);
     }    
   }
   
-  this.setFilter = function(headerCell, text) {
+  this["setFilter"] = function(headerCell, text) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
     me.highlighting.text = text;
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
-    var textLower = text.toLowerCase();
     var idxes = headerCell.searchIndexes;
     var col = headerCell.columnId;
     me.filteredDataArray = [];
@@ -5472,10 +5473,9 @@ pui.Grid = function() {
       for (var j = 0; j < idxes.length; j++) {
         var idx = idxes[j];        
         var value = record[idx];
-        var valueLower = value.toLowerCase();
         if (record.filteredOutArray == null) record.filteredOutArray = [];
         record.filteredOutArray[col] = true;
-        if (valueLower.indexOf(textLower) >= 0) {          
+        if (me.testFilter(value, text)) {          
           record.filteredOutArray[col] = false;
           break;
         }
@@ -5486,6 +5486,91 @@ pui.Grid = function() {
       }
     }
     me.getData();
+  }
+  
+  this["getFilter"] = function(headerCell) {
+    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (headerCell == null) return null;
+    return headerCell.filterText;
+  }
+  
+  this.testFilter = function(value, text) {
+
+    if (text.substr(0,8).toLowerCase() == "between ") {
+      var parts = text.substr(8).toLowerCase().split(" ");
+      if (parts.length == 3 && parts[1] == "and") {
+        var from = parts[0];
+        var to = parts[2];
+        if (!isNaN(Number(from)) && !isNaN(Number(to))) {
+          from = Number(from);
+          to = Number(to);
+          value = Number(value);
+        }
+        else {
+          value = value.toLowerCase();
+        }
+        return (value >= from && value <= to);
+      }
+    }
+
+    if (text.substr(0,7).toLowerCase() == "values ") {
+      text = text.substr(7).toLowerCase();
+      if (text == "") return true;
+      var list = text.split(",");
+      for (var i = 0; i < list.length; i++) {
+        text = trim(list[i]).toLowerCase();
+        if (value == text) return true;
+      }
+      return false;
+    }
+    else if (text.substr(0,12).toLowerCase() == "starts with ") {
+      var text = text.substr(12).toLowerCase();
+      return (text == value.substr(0,text.length).toLowerCase());
+    }
+    else if (text.substr(0,2) == "==") {
+      text = text.substr(2);
+      if (text == "") return true;
+      return (text.toLowerCase() == value.toLowerCase());
+    }
+    else if (text.substr(0,2) == ">=") {
+      text = text.substr(2);
+      if (text == "") return true;
+      if (isNaN(Number(text))) return value.toLowerCase() >= text.toLowerCase();
+      else return (Number(value) >= Number(text));
+    }
+    else if (text.substr(0,2) == "<=") {
+      text = text.substr(2);
+      if (text == "") return true;
+      if (isNaN(Number(text))) return value.toLowerCase() <= text.toLowerCase();
+      else return (Number(value) <= Number(text));
+    }
+    else if (text.substr(0,2) == "!=" || text.substr(0,2) == "<>") {
+      text = text.substr(2);
+      if (text == "") return true;
+      if (isNaN(Number(text))) return (value.toLowerCase().indexOf(text.toLowerCase()) < 0);
+      else return (Number(text) != Number(value));
+    }
+    else if (text.substr(0,1) == "=") {
+      text = text.substr(1);
+      if (text == "") return true;
+      return (text.toLowerCase() == value.toLowerCase());
+    }
+    else if (text.substr(0,1) == ">") {
+      text = text.substr(1);
+      if (text == "") return true;
+      if (isNaN(Number(text))) return value.toLowerCase() > text.toLowerCase();
+      else return (Number(value) > Number(text));
+    }
+    else if (text.substr(0,1) == "<") {
+      text = text.substr(1);
+      if (text == "") return true;
+      if (isNaN(Number(text))) return value.toLowerCase() < text.toLowerCase();
+      else return (Number(value) < Number(text));
+    }
+    else {
+      return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
+    }
+
   }
   
   this.setFilteredOut = function(record) {
@@ -5500,7 +5585,7 @@ pui.Grid = function() {
     }
   }
 
-  this.removeFilter = function(headerCell) {
+  this["removeFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
     me.highlighting.text = "";
@@ -5521,7 +5606,7 @@ pui.Grid = function() {
     me.getData();
   }
 
-  this.removeAllFilters = function() {
+  this["removeAllFilters"] = function() {
     var headerRow = me.cells[0];
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
@@ -5566,7 +5651,7 @@ pui.Grid = function() {
       headerCell.style.cursor = "pointer";
       headerCell.filterIcon.onclick = function(e) {
         if (!pui.isRightClick(e)) {
-          me.startFilter(headerCell);
+          me["startFilter"](headerCell);
           preventEvent(e);
         }
       }

@@ -155,7 +155,7 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
         menuIcons.push("icons/search.png");
         optionHandlers.push(function() {
-          me.grid.startFind(me.cell);
+          me.grid["startFind"](me.cell);
         });
       }
   
@@ -163,7 +163,7 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
         menuIcons.push("icons/filter.png");
         optionHandlers.push(function() {
-          me.grid.startFilter(me.cell);
+          me.grid["startFilter"](me.cell);
         });
       }
   
@@ -171,7 +171,7 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
         menuIcons.push("icons/remove_filter.png");
         optionHandlers.push(function() {
-          me.grid.removeFilter(me.cell);
+          me.grid["removeFilter"](me.cell);
         });
       }
 
@@ -179,7 +179,7 @@ pui.GridMenu = function() {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
         menuIcons.push("icons/remove_filter.png");
         optionHandlers.push(function() {
-          me.grid.removeAllFilters();
+          me.grid["removeAllFilters"]();
         });
       }
     }
