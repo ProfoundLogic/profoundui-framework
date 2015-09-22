@@ -54,6 +54,7 @@ function AutoComplete(config) {
   var usingScrollbar = false;
   var scrollbarWidth = getScrollbarWidth();
   var maxHeight = null;
+  var inMouseClick = false;
   
   // Fields adjustable through config. object.
   var container;  
@@ -227,6 +228,8 @@ function AutoComplete(config) {
  
   if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
   else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
+  if (resultPane.addEventListener) resultPane.addEventListener("mouseup", doMouseUp, false);
+  else if (resultPane.attachEvent) resultPane.attachEvent("onmouseup", doMouseUp);
   container.appendChild(resultPane);
   
   if (shadow) {
@@ -388,6 +391,9 @@ function AutoComplete(config) {
 
   function doBlur(event) {
     event = event || window.event;
+    // HACK: for some reason, IE fires the "blur" event right after clicking on  
+    //  the scrollbar. This blocks that so the user can select a record... -SK
+    if (pui["is_ie"] && usingScrollbar && inMouseClick) return;
     cancelQuery = true;
     setTimeout(hideResults, 200);
   }
@@ -537,6 +543,12 @@ function AutoComplete(config) {
         }
 
         if (offset + recordDiv.offsetHeight > bottom || offset < scrOfY) {
+          scrollingIntoView = true;
+          recordDiv.scrollIntoView(true);
+          setTimeout(function() { scrollingIntoView = false }, 1);
+        }
+        
+        if (usingScrollbar && recordDiv.offsetTop > maxHeight && !scrollingIntoView) {
           scrollingIntoView = true;
           recordDiv.scrollIntoView(true);
           setTimeout(function() { scrollingIntoView = false }, 1);
@@ -934,6 +946,7 @@ function AutoComplete(config) {
   }
   
   function doClick(event) {
+    inMouseClick = true;
     if (isOnScrollbar(event)) return;
     selectRecord();
     hideResults();
@@ -941,6 +954,10 @@ function AutoComplete(config) {
       textBox.focus();
     }, 0);
   }  
+  
+  function doMouseUp(event) {
+    inMouseClick = false;
+  }
 
   function makeScrollable() {
     
