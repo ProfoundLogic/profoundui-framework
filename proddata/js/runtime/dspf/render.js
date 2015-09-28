@@ -1696,6 +1696,8 @@ pui.renderFormat = function(parms) {
           addEvent(boxDom, "keydown", function(event) {
             event = event || window.event;
             var target = getTarget(event);
+            if (target.autoComp && target.autoComp.isOpen())
+              return;
             var keyCode = event.keyCode;
             var box = target;
             if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
