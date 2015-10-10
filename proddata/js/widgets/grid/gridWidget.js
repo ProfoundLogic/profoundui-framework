@@ -70,11 +70,11 @@ pui.widgets.add({
         parms.dom.grid.setHeadings();
       }
       else {
-        if (context == "dspf" && parms.properties["cursor progression"] != "top to bottom") {
+        if ((context == "dspf" || pui.usingGenieHandler) && parms.properties["cursor progression"] != "top to bottom") {
           // set up the columns first, so that rows are later, creating the cells from left to right
           parms.dom.grid.setProperty("number of columns", parms.properties["number of columns"]);
         }
-        if (context == "dspf" && parms.properties["cursor progression"] == "top to bottom") {
+        if ((context == "dspf" || pui.usingGenieHandler) && parms.properties["cursor progression"] == "top to bottom") {
           // set up the rows first, so that columns are added later, creating the cells from top to bottom
           parms.dom.grid.setProperty("number of rows", parms.properties["number of rows"]);
         }
@@ -145,7 +145,7 @@ pui.widgets.add({
     if (parms.dom.initTop) parms.dom.grid.setProperty("top", parms.dom.initTop);
     parms.dom.initLeft = parms.properties["left"];    
 
-    if (context == "genie" && !parms.design && parms.dom != null && parms.dom.grid != null) {
+    if (context == "genie" && !pui.usingGenieHandler && !parms.design && parms.dom != null && parms.dom.grid != null) {
       parms.dom.grid.consumeDataFromScreen(1, true);
     }
   }

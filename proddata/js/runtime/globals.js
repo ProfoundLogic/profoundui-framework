@@ -176,3 +176,6 @@ pui.SQLTimeSeps = {
   "*JOB": 7
 
 };
+
+pui.usingGenieHandler = false;
+pui.genieHandler = null;

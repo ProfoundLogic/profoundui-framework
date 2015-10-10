@@ -2343,7 +2343,7 @@ pui.renderFormat = function(parms) {
   }
 
   // execute global onload event
-  if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false) {
+  if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
     pui["onload"](parms);
   }
 
@@ -3736,7 +3736,7 @@ pui.handleHotKey = function(e, keyName) {
         }
       }
 
-      var returnVal = pui.respond();
+      var returnVal = pui.respond();;
       
       if (returnVal == false) {
         for (var i = 0; i < doms.length; i++) {

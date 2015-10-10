@@ -257,7 +257,7 @@ pui.SlidingScrollBar = function() {
       
     }
     
-    if (context == "genie") {  // for "dspf" context, the onscroll event is now attached in the rendering code
+    if (context == "genie" && !pui.usingGenieHandler) {  // for "dspf" context, the onscroll event is now attached in the rendering code
       outerDiv.onscroll = me.doScroll;
     }
     

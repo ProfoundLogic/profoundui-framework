@@ -59,7 +59,7 @@ pui.PagingBar = function() {
   
   function autoPageUp() {
     if (me.prevLink.disabled) return;
-    if (context != "genie") {
+    if (context != "genie" || pui.usingGenieHandler) {
       if (me.pageUpHotKeyDefined) return;
       if (me.grid.designMode) return;
       if (me.grid.atTop()) return;
@@ -69,7 +69,7 @@ pui.PagingBar = function() {
   
   function autoPageDown() {
     if (me.nextLink.disabled) return;
-    if (context != "genie") {
+    if (context != "genie" || pui.usingGenieHandler) {
       if (me.pageDownHotKeyDefined) return;
       if (me.grid.designMode) return;
       if (me.grid.atBottom()) return;

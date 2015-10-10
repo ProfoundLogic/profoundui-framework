@@ -75,10 +75,10 @@ pui.Grid = function() {
   this.sorted = false;
   this.sortBy = null;
   this.hoverEffect = false;
-  if (context == "dspf") this.hoverEffect = true;
+  if (context == "dspf" || pui.usingGenieHandler) this.hoverEffect = true;
   this.pagingScrollBar = true;
   this.slidingScrollBar = false;
-  if (context == "dspf") {
+  if (context == "dspf" || pui.usingGenieHandler) {
     this.pagingScrollBar = false;
     this.slidingScrollBar = true;
   }
@@ -503,7 +503,7 @@ pui.Grid = function() {
   }
   
   this["rowZoom"] = function(rowCells) {
-    if (context != "dspf") return;
+    if (context != "dspf" && !pui.usingGenieHandler) return;
     if (typeof rowCells == "number") {
       var rowNum = rowCells - me.recNum;
       if (me.hasHeader) rowNum++;
@@ -708,7 +708,7 @@ pui.Grid = function() {
   }
   
   this.hasChildren = function(colNumber) {
-    if (context == "genie") return false;    
+    if (context == "genie" && !pui.usingGenieHandler) return false;    
     var startCol = colNumber;
     var endCol = colNumber;
     if (colNumber == null) {
@@ -749,7 +749,7 @@ pui.Grid = function() {
   }
   
   this.mirrorDown = function(col) {
-    if (context == "genie") return;
+    if (context == "genie" && !pui.usingGenieHandler) return;
     if (!me.designMode) return;    
     var startRow;
     var modelCell;
@@ -781,7 +781,7 @@ pui.Grid = function() {
   }
   
   this.mirrorDownAll = function() {
-    if (context == "genie") return;
+    if (context == "genie" && !pui.usingGenieHandler) return;
     var numCols = me.vLines.length - 1;    
     for (var col = 0; col < numCols; col++) {
       me.mirrorDown(col);
@@ -791,7 +791,7 @@ pui.Grid = function() {
   this.getCellValue = function(row, col) {
     var rowNum = row;
     var topRecord = 1;
-    if (context == "dspf" || me.isDataGrid()) topRecord = me.recNum;
+    if (context == "dspf" || me.isDataGrid() || pui.usingGenieHandler) topRecord = me.recNum;
     rowNum = rowNum - topRecord;
     if (me.hasHeader) rowNum++;
     var rowObj = me.cells[rowNum];
@@ -876,12 +876,12 @@ pui.Grid = function() {
     
     }  
     
-    if (context == "genie") {
-    
-      pressKey("pageup");
-      return;
-    
+    if ( (pui.usingGenieHandler && me.atTop())
+        || (!pui.usingGenieHandler && context=="genie")) {
+        pressKey("pageup");
+        return;
     }
+    
     me.mask();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
@@ -926,12 +926,11 @@ pui.Grid = function() {
     
     }
     
-    if (context == "genie") {
-    
+    if ( (pui.usingGenieHandler && me.atBottom())
+      || (!pui.usingGenieHandler && context=="genie")) {
       pressKey("pagedown");
       return;
-    
-    }    
+    }
    
     me.mask();
     var numRows = me.cells.length;
@@ -1101,7 +1100,7 @@ pui.Grid = function() {
       me.clearData();
       runSQL(sql, numRows, me.recNum, receiveData, (me.totalRecs == null), dataURL, true);
     }
-    else if (context == "dspf") {
+    else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
       if (me.isFiltered()) dataRecords = me.filteredDataArray;
       me.tableDiv.cursorRRN = 0;
@@ -1591,7 +1590,7 @@ pui.Grid = function() {
   
   this.makeSortable = function() {
     if (!me.sortable) return;
-    if (context != "dspf") return;
+    if (context != "dspf" && !pui.usingGenieHandler) return;
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var headerRow = me.cells[0];
@@ -2199,13 +2198,13 @@ pui.Grid = function() {
             id = "I_" + (row + x) + "_" + col;
             obj = getObj(id);
             if (obj == null) {
-				//try an input field in a window
-				if (!isNaN(winNum) && winNum > 0) {
-					id += "_W" + winNum;
-				}
-			}
-			obj = getObj(id);
-			if (obj == null) continue;
+              //try an input field in a window
+              if (!isNaN(winNum) && winNum > 0) {
+                id += "_W" + winNum;
+              }
+            }
+            obj = getObj(id);
+            if (obj == null) continue;
             if (!obj.readOnly) continue;
             text = obj.value;
             text = text.replace(/ /g, "&nbsp;");
@@ -2296,7 +2295,7 @@ pui.Grid = function() {
       }
       if (stype == "sliding") {
         me.scrollbarObj = new pui.SlidingScrollBar();
-        if (context == "genie") me.scrollbarObj.ready = true;
+        if (context == "genie" && !pui.usingGenieHandler) me.scrollbarObj.ready = true;
       }
       me.scrollbarObj.container = me.container;
       me.scrollbarObj.zIndex = me.scrollZIndex;
@@ -2329,7 +2328,7 @@ pui.Grid = function() {
             }
             return true;
           }
-          else if (context == "dspf") {
+          else if (context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout( function() {
@@ -2355,7 +2354,7 @@ pui.Grid = function() {
             me.getData();
             return true;
           }
-          else if (context == "dspf") {
+          else if (context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout( function() {
@@ -2768,7 +2767,7 @@ pui.Grid = function() {
         if (me.hasHeader && (value == false || value == "false") ) {
           me.clearHeadings();          
           me.hasHeader = false;
-          if (context == "dspf") {
+          if (context == "dspf" || pui.usingGenieHandler) {
             var numCols = me.vLines.length - 1;    
             for (var col = 0; col < numCols; col++) {
               moveCellContent(me.cells[1][col], me.cells[0][col]);
@@ -2791,7 +2790,7 @@ pui.Grid = function() {
             me.addRow();
           }
           me.hasHeader = true;
-          if (context == "dspf") {
+          if (context == "dspf" || pui.usingGenieHandler) {
             var numCols = me.vLines.length - 1;    
             for (var col = 0; col < numCols; col++) {
               moveCellContent(me.cells[0][col], me.cells[1][col]);
@@ -3038,7 +3037,7 @@ pui.Grid = function() {
         break;
       
       case "scrollbar":
-        if (context == "genie") {
+        if (context == "genie" && !pui.usingGenieHandler) {
           if (value == true || value == "true" || value == "") me.pagingScrollBar = true;
           else me.pagingScrollBar = false;
           me.sizeAllCells();
@@ -3363,7 +3362,7 @@ pui.Grid = function() {
         }
       }
       cell.style.color = color;
-      if (context == "genie") {
+      if (context == "genie" && !pui.usingGenieHandler) {
         for (var i = 0; i < cell.childNodes.length; i++) {
           cell.childNodes[i].style.color = color;
         }
@@ -4289,7 +4288,7 @@ pui.Grid = function() {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
-      if (context == "dspf" && !me.designMode) {
+      if ((context == "dspf" || pui.usingGenieHandler) && !me.designMode) {
       
         me.setCursorRRN(row);
         
@@ -5768,7 +5767,7 @@ pui.Grid = function() {
       { name: "selection value", help: "Specifies the value used to populate the selection field when a grid row is selected.", bind: false, context: "dspf" },      
       { name: "selection image", type: "image", help: "Defines a repeating cell background image for row selection.", context: "dspf" },
       { name: "column widths", type: "list", help: "Specifies a comma separated list of column widths for this grid.", bind: false, canBeRemoved: false },
-      { name: "scrollbar", choices: context == "genie" ? ["true", "false"] : ["none", "sliding", "paging"], help: context == "genie" ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid.  If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid.  A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only." },
+      { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: (context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid.  If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid.  A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only." },
       { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
       { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Enables column sorting.  If set to true, the user will be able to click on the column headings to resort the data.", context: "dspf" },
       { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: "Specifies the default order for sortable columns.  When the user clicks a column, the default sort order is used initially.  To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list.  Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.", context: "dspf" },
@@ -5820,10 +5819,10 @@ pui.Grid = function() {
       { name: "data url", type: "long", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
       { name: "data transform function", type: "long", help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget." },
 
-      { name: "Grid Data from Screen", category: true, context: "genie" },
-      { name: "starting row", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie" },
-      { name: "ending row", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie" },
-      { name: "data columns", type: "list", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie"},
+      { name: "Grid Data from Screen", category: true, context: "genie-nohandler" },
+      { name: "starting row", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie-nohandler" },
+      { name: "ending row", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
+      { name: "data columns", type: "list", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler"},
 
       { name: "Position", category: true },
       { name: "left", format: "px", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },
