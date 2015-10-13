@@ -5654,7 +5654,7 @@ pui.Grid = function() {
 
   this.isFiltered = function() {
     var headerRow = me.cells[0];
-    // if (headerRow == null) return false;
+    if (headerRow == null) return false;
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
       if (headerCell.filterText != null && headerCell.filterText != "") return true;
