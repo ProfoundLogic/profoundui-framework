@@ -2824,6 +2824,7 @@ pui.Grid = function() {
         
       case "sortable columns":
         me.sortable = (value == "true");
+        if (context=="genie") me.makeSortable();
         break;
 
       case "default sort order":
