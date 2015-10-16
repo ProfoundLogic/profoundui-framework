@@ -179,3 +179,5 @@ pui.SQLTimeSeps = {
 
 pui.usingGenieHandler = false;
 pui.genieHandler = null;
+
+pui["function key pattern"] = "^(F|CA|CF|CK|CMD)([0-9]{1,2})([=:-])(.*)$";
