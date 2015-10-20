@@ -4587,7 +4587,7 @@ pui.setActiveElement = function(e) {
         grid.setCursorRRN(cell.row);
       }
     }
-  }    
+  }     
     
 }
 
@@ -4606,7 +4606,7 @@ pui.returnCursor = function(e, dom) {
     isButton = true;
   }
   var elem = target;
-  if (elem.parentNode.comboBoxWidget != null) elem = elem.parentNode;
+  if (elem.parentNode != null && elem.parentNode.comboBoxWidget != null) elem = elem.parentNode;
   if (elem.tagName == "OPTION" && elem.parentNode.tagName == "SELECT") elem = elem.parentNode;
   pui.cursorValues.record = elem.cursorRecord;
   pui.cursorValues.field = elem.cursorField;
