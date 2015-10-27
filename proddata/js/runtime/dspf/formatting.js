@@ -466,7 +466,8 @@ pui.FieldFormat = {
       if (decLength > 0){
         strDec = pui.formatting.rightPad(strDec, decLength, '0');
         strValue = strInt + (commaDecimal ? ',' : '.') + strDec;
-        maxLength++;
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength++;
         if (commaDecimal) keyFilter += ',';
         else keyFilter += '\\.';
       }
@@ -485,7 +486,8 @@ pui.FieldFormat = {
         else keyFilter += ',';
         var commaCount = dataLength - decLength - 1;
         commaCount = (commaCount >= 0 ? commaCount : 0);
-        maxLength += Math.floor(commaCount / 3);
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength += Math.floor(commaCount / 3);
       }
 
       //format negative numbers
@@ -495,7 +497,8 @@ pui.FieldFormat = {
         if(isNegative){
           strValue = '(' + strValue + ')';
         }
-        maxLength += 2;
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength += 2;
         keyFilter += '\\(\\)';
       }
       else if(obj.negNum == '999.00-'){
@@ -505,21 +508,24 @@ pui.FieldFormat = {
         else {
           strValue += ' ';
         }
-        maxLength++;
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength++;
         keyFilter += '\\-';
       }
       else if(obj.negNum == '999.00 CR'){
         if(isNegative){
           strValue = strValue + ' CR';
         }
-        maxLength += 3;
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength += 3;
         keyFilter += 'CR\\s';
       }
       else if(obj.negNum == '-999.00'){
         if(isNegative){
           strValue = '-' + strValue;
         }
-        maxLength++;
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
+          maxLength++;
         keyFilter += '\\-';
       }
 
