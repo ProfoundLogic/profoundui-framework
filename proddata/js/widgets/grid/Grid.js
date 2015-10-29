@@ -56,7 +56,7 @@ pui.Grid = function() {
   this.cells = [];
   this.container = null;
   this.borderColor = "";
-  this.borderWidth = 1;
+  this.borderWidth = null;
   
   this.cellCursor = "default";
   
@@ -2375,7 +2375,7 @@ pui.Grid = function() {
     }
     if (needScrollBar) {
       var bwidth = me.borderWidth;
-      if (me.designMode && bwidth < minBWidth) bwidth = minBWidth;
+      if (bwidth === null || (me.designMode && bwidth < minBWidth)) bwidth = minBWidth;
       var scrollBarWidth = 23;
       if (pui["is_touch"] || pui.iPadEmulation) scrollBarWidth = 0;
 
@@ -3784,7 +3784,7 @@ pui.Grid = function() {
     var line = lines[i];
     if (me.borderWidth < minBWidth) {
       line.style.borderWidth = "2px";
-      if (!isVertical) line.style.width = (parseInt(line.style.width) + 2 - me.borderWidth) + "px";
+      if (!isVertical) line.style.width = (parseInt(line.style.width) + 2) + "px";
     }
     if (!isVertical) line.style.borderTopStyle = designBorderStyle;
     if (isVertical) line.style.borderRightStyle = designBorderStyle;
@@ -3845,7 +3845,7 @@ pui.Grid = function() {
         line.dragging = false;
         me.dragging = false;
         var bwidth = me.borderWidth;
-        if (bwidth < minBWidth) bwidth = minBWidth;
+        if (bwidth === null || bwidth < minBWidth) bwidth = minBWidth;
         line.style.borderWidth = bwidth + "px"; 
         line.style.borderColor = me.borderColor; 
         if (!isVertical) line.style.borderTopStyle = designBorderStyle;
@@ -3912,7 +3912,7 @@ pui.Grid = function() {
     addEvent(line, "mouseout", function() { 
       if (!line.dragging) {
         var bwidth = me.borderWidth;
-        if (bwidth < minBWidth) bwidth = minBWidth;
+        if (bwidth === null || bwidth < minBWidth) bwidth = minBWidth;
         line.style.borderWidth = bwidth + "px"; 
         line.style.borderColor = me.borderColor; 
         if (!isVertical) line.style.borderTopStyle = designBorderStyle;
@@ -4010,7 +4010,7 @@ pui.Grid = function() {
     var width = 0;
     if (me.vLines.length > 0) {
       var bwidth = me.borderWidth;
-      if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;
+      if (bwidth === null || (bwidth < minBWidth && me.designMode)) bwidth = minBWidth;
       width = parseInt(me.vLines[me.vLines.length - 1].style.left) - me.getStyleAsInt("left") + bwidth;
     }
     for (var i = 0; i < me.hLines.length; i++) {
@@ -4832,7 +4832,7 @@ pui.Grid = function() {
   this.setBorderWidth = function(borderWidth) {
     if (!borderWidth) borderWidth = me.borderWidth;
     borderWidth = parseInt(borderWidth);
-    if (borderWidth < minBWidth && me.designMode) borderWidth = minBWidth;
+    if (!borderWidth || (borderWidth < minBWidth && me.designMode)) borderWidth = minBWidth;
     for (var i = 0; i < me.vLines.length; i++) {
       me.vLines[i].style.borderRightWidth = borderWidth + "px";
     }
@@ -4914,7 +4914,7 @@ pui.Grid = function() {
     }
     vLine.style.height = height + "px";
     var bwidth = me.borderWidth;
-    if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;
+    if (bwidth === null || (bwidth < minBWidth && me.designMode)) bwidth = minBWidth;
     vLine.style.borderRightStyle = "solid";
     vLine.style.borderRightWidth = bwidth + "px";
     vLine.style.borderRightColor = me.borderColor;
@@ -5109,7 +5109,7 @@ pui.Grid = function() {
     }
     hLine.style.top = y + "px";
     var width = 0;
-    if (me.vLines.length > 0) {
+    if (me.vLines.length > 0 ) {
       var bwidth = me.borderWidth;
       //if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;   // this is done later in the lineDesign() function
       width = parseInt(me.vLines[me.vLines.length - 1].style.left) - parseInt(me.tableDiv.style.left) + bwidth;
@@ -5117,11 +5117,7 @@ pui.Grid = function() {
     hLine.style.width = width + "px";
     var bwidth = me.borderWidth;
     if (bwidth < minBWidth && me.designMode) bwidth = minBWidth;
-    hLine.style.borderTopStyle = "solid";
-    hLine.style.borderTopWidth = bwidth + "px";
-    hLine.style.borderTopColor = me.borderColor;
-    hLine.style.fontSize = "0px";
-    hLine.style.padding = "0px";
+    if (bwidth !== null ) hLine.style.borderTopWidth = bwidth + "px";
     hLine.style.zIndex = me.hBorderZIndex;
     if (me.tableDiv.style.visibility == "hidden") hLine.style.visibility = "hidden";
     me.container.appendChild(hLine);
@@ -5836,7 +5832,7 @@ pui.Grid = function() {
       { name: "locked in place", choices: ["true", "false"], help: "If set to true, the grid cannot be moved or sized in the Visual Designer.", bind: false },
   
       { name: "Drag and Drop", category: true, context: "dspf" },
-      { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, type: "boolean", help: "This property determines if rows within the grid can be drag and dropped.", context: "dspf" },
+      { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "This property determines if rows within the grid can be drag and dropped.", context: "dspf" },
       { name: "ondragstart", type: "js", help: "Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
       { name: "drop targets", type: "list", help: "Specifies a list of target element id's, which indentify where the row can be dropped.", context: "dspf" },
       { name: "ondragenter", type: "js", help: "Initiates a client-side script when the user drags a row over a valid drop target.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },

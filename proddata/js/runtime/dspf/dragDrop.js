@@ -234,10 +234,7 @@ pui.attachDragDrop = function(dom, properties) {
         }
         if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top)) {
           if (tgt.relatedGrid != null) {
-            //tgt.style.borderTop = tgt.relatedGrid.borderWidth + "px solid " + tgt.relatedGrid.borderColor;
-            tgt.style.borderTopStyle = "solid";
-            tgt.style.borderWidth = tgt.relatedGrid.borderWidth + "px";
-            tgt.style.borderColor = tgt.relatedGrid.borderColor;            
+            pui.removeCssClass(tgt, "grid-drop-target");
           }
           else {
             if (tgt.tagName == "IMG") {
@@ -248,7 +245,7 @@ pui.attachDragDrop = function(dom, properties) {
         }
         else {
           if (tgt.relatedGrid != null) {
-            tgt.style.borderTop = "2px dashed #666666";
+            pui.addCssClass(tgt, "grid-drop-target");
           }
           else {
             if (tgt.borderColorBeforeDrag == null) tgt.borderColorBeforeDrag = tgt.style.borderColor;          
@@ -415,10 +412,7 @@ pui.attachDragDrop = function(dom, properties) {
         else pui["dragDropInfo"]["text"] += " into element " + drop.id;
         
         if (dropInto.relatedGrid != null) {
-          //dropInto.style.borderTop = dropInto.relatedGrid.borderWidth + "px solid " + dropInto.relatedGrid.borderColor;
-          dropInto.style.borderTopStyle = "solid";
-          dropInto.style.borderWidth = dropInto.relatedGrid.borderWidth + "px";
-          dropInto.style.borderColor = dropInto.relatedGrid.borderColor;            
+          pui.removeCssClass(dropInto, "grid-drop-target");
         }
         else {
           if (dropInto.tagName == "IMG") {
