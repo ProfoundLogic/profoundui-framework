@@ -288,6 +288,11 @@ pui.widgets.add({
           }
         });
       }
+      if (parms.design)
+        parms.dom.spellcheck = false;
+      // Retain default browser behavior unless the user sets this...
+      else if (typeof pui["allow spellcheck"] == "boolean")
+        parms.dom.spellcheck = pui["allow spellcheck"];
     },
     
     "value": function(parms) {

@@ -41,8 +41,14 @@ pui.widgets.add({
             getObj("ipadKeyboard").style.display = "none";
           });
         }
+        // Retain default browser behavior unless the user sets this...
+        if (typeof pui["allow spellcheck"] == "boolean")
+          parms.dom.spellcheck = pui["allow spellcheck"];
       }
-      if (parms.design) parms.dom.readOnly = true;
+      if (parms.design) { 
+        parms.dom.readOnly = true;
+        parms.dom.spellcheck = false;
+      }
     },
     
     "value": function(parms) {
