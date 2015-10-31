@@ -1080,7 +1080,12 @@ pui.renderFormat = function(parms) {
       }
 
       if (container != null) {
-        container.appendChild(dom);
+        if (items[i].insertBeforeObj != null) {
+          container.insertBefore(dom, items[i].insertBeforeObj)
+        }
+        else {
+          container.appendChild(dom);
+        }
       }
       
       // create design item object if in design mode
