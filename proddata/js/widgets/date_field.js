@@ -458,6 +458,18 @@ function cal(dateField, format) {
   top += parseInt((dateField.offsetHeight - 22) / 2);
   newElem.style.top = top + "px";
   newElem.style.visibility = dateField.style.visibility;
+
+  // If original field's visiblity was hidden with 5250 attr code (instead of 'visiblity' property)
+  // then also hide the calendar image.
+  if (dateField.pui==null || dateField.pui.properties==null || dateField.pui.properties["visibility"]==null || dateField.pui.properties["visibility"]=="") {
+    if ( context=="genie" && dateField.fieldInfo!=null && dateField.fieldInfo["attr"]!=null ) {
+      var attr = dateField.fieldInfo["attr"];
+      if (attr == "27" || attr == "2F" || attr == "37" || attr == "3F") {
+        newElem.style.visibility = "hidden";      
+      }
+    }
+  }
+  
   newElem.style.display = "none";
   newElem.style.cursor = "pointer";
   if (dateField.style.zIndex != null) newElem.style.zIndex = dateField.style.zIndex;
