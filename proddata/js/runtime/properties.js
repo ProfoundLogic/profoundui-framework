@@ -879,22 +879,24 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
       }
     }
-    var classes = [];
-    classes.push(properties["css class"]);
-    var clsNum = 2;
-    var cls = properties["css class " + clsNum];
-    while (cls != null) {
-      classes.push(cls);
-      clsNum++;
-      cls = properties["css class " + clsNum];
+    if (context == "dspf") {
+      var classes = [];
+      classes.push(properties["css class"]);
+      var clsNum = 2;
+      var cls = properties["css class " + clsNum];
+      while (cls != null) {
+        classes.push(cls);
+        clsNum++;
+        cls = properties["css class " + clsNum];
+      }
+      var attr = properties["display attribute field"];
+      var dspAtrField = false;
+      if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
+        classes = classes.concat(pui.attrToCSS(attr));
+        dspAtrField = true;
+      }
+      assignDomClasses(newDomObj, classes, dspAtrField);
     }
-    var attr = properties["display attribute field"];
-    var dspAtrField = false;
-    if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
-      classes = classes.concat(pui.attrToCSS(attr));
-      dspAtrField = true;
-    }
-    assignDomClasses(newDomObj, classes, dspAtrField);
     dom = newDomObj;
     if (!widget.resizable) {
       dom.style.width = "";
@@ -1168,7 +1170,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   }
   
   // Process classes
-  if (propConfigName.substr(0,9) == "css class" || propConfigName == "display attribute field") {
+  if (context == "dspf" && (propConfigName.substr(0,9) == "css class" || propConfigName == "display attribute field")) {
     var classes = [];
     classes.push(properties["css class"]);
     var clsNum = 2;
