@@ -103,10 +103,14 @@ pui.ComboBoxWidget = function() {
     arrow.style.width = "18px";
     arrow.style.height = "20px";
     arrow.combo = true;
-    arrow.onclick = function(e) {
+    arrow.onmousedown = function(e) {
+      preventEvent(e);
+    }
+    arrow.onmouseup = function(e) {
       if (choicesDiv.style.display == "none" && !box.disabled) showChoices();
       else hideChoices();
-    }       
+      preventEvent(e);      
+    }
  
     var win;
     var prt = me.div.parentNode;
