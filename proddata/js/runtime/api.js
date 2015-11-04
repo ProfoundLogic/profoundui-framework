@@ -278,7 +278,7 @@ function changeElementValue(id, val) {
       elem.value = val;
     }
   }
-  if (context == "dspf") {
+  if (context == "dspf" || (pui.usingGenieHandler && elem.fieldInfo == null)) {
     elem.modified = true;
     var tip = elem.validationTip;
     if (elem.id != null && elem.id.indexOf(".") == -1 && elem.cursorRecord != null) {

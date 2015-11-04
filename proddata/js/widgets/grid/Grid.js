@@ -802,9 +802,8 @@ pui.Grid = function() {
     return value;
   }
   
-  this.getDataValue = function(row, fieldName) {
-    if (typeof row != "number") return null;
-    if (typeof fieldName != "string") return null;
+  function getDataArrayForRow(row) {
+    
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.filteredDataArray;
     var record = dataRecords[row - 1];
@@ -815,13 +814,31 @@ pui.Grid = function() {
     if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
        record = null;
        for (var i=0; i < dataRecords.length; i++) {
-       	  if (dataRecords[i].subfileRow == row) {
-       	  	 record = dataRecords[i];
-       	  	 break;
-       	  }
-       }    	
+          if (dataRecords[i].subfileRow == row) {
+             record = dataRecords[i];
+             break;
+          }
+       }      
     }
-    
+
+    return record;
+  }
+  
+  function getColumnIndex(fieldName) {
+    var columnIndex = null;
+    for (var i = 0; i < me.fieldNames.length; i++ ) {
+      if (fieldName == me.fieldNames[i]) {
+        columnIndex = i;
+        break;
+      }
+    }
+    return columnIndex;
+  }
+  
+  this.getDataValue = function(row, fieldName) {
+    if (typeof row != "number") return null;
+    if (typeof fieldName != "string") return null;
+    var record = getDataArrayForRow(row);
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
     
@@ -836,19 +853,28 @@ pui.Grid = function() {
         else return getElementValue(elem);
       }      
     }
-
-    var columnIndex = null;
-    for (var i = 0; i < me.fieldNames.length; i++ ) {
-      if (fieldName == me.fieldNames[i]) {
-        columnIndex = i;
-        break;
-      }
-    }
+    var columnIndex = getColumnIndex(fieldName);
     if (columnIndex == null) return null;
     return record[columnIndex];
   }
   
   this["setDataValue"] = function(rowNum, fieldName, value) {
+    
+    // FIXME: When a row has not yet been rendered, we can update the dataArray
+    //        so that the new value is used when the field is eventually rendered.
+    //        However, there's no way to mark it modified!
+    
+    // Update dataArray
+    fieldName = pui.fieldUpper(fieldName);
+    var record = getDataArrayForRow(rowNum);
+    if (record != null) {
+      var idx = getColumnIndex(fieldName);
+      if (idx != null) {
+        record[idx] = value;
+      }
+    }
+    
+    // find the DOM element
     var field = null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       field = me.runtimeChildren[i];
@@ -857,9 +883,9 @@ pui.Grid = function() {
     if (field == null) return false;
     var el = field.domEls[rowNum - 1];
     if (el == null) return false;
-    if (el.tagName == "INPUT" || el.tagName == "TEXTAREA" || el.tagName === "SELECT") el.value = value;
-    if (el.tagName == "DIV") el.innerHTML = value;
-    el.modified = true;
+    
+    // Update DOM element
+    changeElementValue(el, value);
     return true;
   }
 
