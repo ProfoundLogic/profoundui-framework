@@ -1848,3 +1848,12 @@ pui["getActiveContainer"] = function() {
   return pui.runtimeContainer;
 
 }
+
+pui["getDisplayType"] = function() {
+  
+  if (pui.usingGenieHandler)
+    return "5250-handler";
+  else
+    return (context == "dspf") ? "rdf" : "5250";
+  
+}
