@@ -405,7 +405,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	function boxdragover(e) {
 		e.stopPropagation();	// The event only applies to dropBox.
 		e.preventDefault();		// prevent the default dragover on dropBox.
-		if (disabled || submitHandle !== null) return false;
+		if (disabled || submitHandle !== null || inDesignMode()) return false;
 		e.dataTransfer.dropEffect = "copy";
 		// Add a CSS class to indicate that drop is allowed here.
 		pui.addCssClass(dropBox, "dragover");
@@ -437,7 +437,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		e.stopPropagation();
 		e.preventDefault();
 		
-		if (disabled || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted)) return;
+		if (disabled || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() ) return;
 		
 		if( e.dataTransfer.files === null || e.dataTransfer.files === undefined ) {
 			console.log("Browser doesn't support dataTransfer.files API");
@@ -460,6 +460,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		// Remove previous error.
 		error = "";
 		if( context === "genie") errorElem.style.display = "none";
+		var hadError = false;
 
 		// Look at each dropped file.
 		for (var i = 0; i < e.dataTransfer.files.length; i++) {
@@ -478,18 +479,22 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			// files not explicitly chosen by the user, so we can't read
 			// everything in a directory. Ignore them for now.
 			if (!allowedT || isDirectory(e.dataTransfer.files[i])) {
+				hadError = true;
 				showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
 			}
 			// Don't add if file is larger than limit.
 			else if (e.dataTransfer.files[i].size > sizeLimit * 1048576) {
+				hadError = true;
 				showError(pui["getLanguageText"]("runtimeMsg", "upload size limit", [sizeLimit]));
 			}
 			// Don't add if we have passed the limit of files.
 			else if (selectors.length >= fileLimit) {
+				hadError = true;
 				showError(pui["getLanguageText"]("runtimeMsg", "upload file limit", [fileLimit]));
 			}
 			// Don't add empty files.
 			else if (e.dataTransfer.files[i].size <= 0) {
+				hadError = true;
 				console.log("Ignoring empty file: " + e.dataTransfer.files[i].name);
 			}
 			// Otherwise, add the file to our list.
@@ -498,6 +503,11 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			}
 		}
 		// done looking at each dropped file.
+		
+		// Remove all files if any one failed validation. This prevents upload.
+		if( hadError ) {
+			while( selectors.length > 0 ) selectors.pop();
+		}
 		
 		// Redraw table to show chosen files.
 		me.render();
