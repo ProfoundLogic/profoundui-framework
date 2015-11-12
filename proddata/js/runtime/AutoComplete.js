@@ -473,7 +473,7 @@ function AutoComplete(config) {
     // Second portion of if statement checks if running in mobile device browser or mobile client, and 
     // checks if the keycode is 0. This is a fix for issue #593
     if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222)
-    || ((window.cordova != null || typeof window.orientation !== 'undefined') && keyCode == 0) ) {
+    || ((window.cordova != null || typeof window.orientation !== 'undefined') && (keyCode == 0 || keyCode == 229)) ) {
       if (textBox.value.replace(/ /g, "") != "") {
         
         if (choices && values) {
