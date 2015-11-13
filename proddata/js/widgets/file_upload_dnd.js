@@ -30,6 +30,8 @@ pui["fileUploadDND"] = {};
  * Limitations: This widget will not work with IE versions less than 10 or
  * with Microsoft Edge (as of 11/4/15).
  * 
+ * Required by obfuscator:
+ * @constructor
  * @param {Object} container
  * @returns {undefined}
  */
@@ -593,9 +595,10 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		 * only need the JavaScript embedded in that page. So extract it.
 		 * It wants to call completeTransaction() on our widget.
 		 */
-		if (xhr.responseText.search(/completeTransaction\((\d),(\{[^\}]+\})\)/i) >= 0) {
-			respTransId = parseInt(RegExp.$1, 10);
-			responseObj = RegExp.$2.replace(/'/g, "\""); // Single-quoted strings throw exceptions.
+    var matches = xhr.responseText.match(/completeTransaction\((\d),(\{[^\}]+\})\)/i);
+		if (matches.length > 0 ) {
+			respTransId = parseInt(matches[1], 10);
+			responseObj = matches[2].replace(/'/g, "\""); // Single-quoted strings throw exceptions.
 			responseObj = JSON.parse(responseObj);
 		} else {
 			responseObj = {
