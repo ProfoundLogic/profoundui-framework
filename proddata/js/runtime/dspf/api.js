@@ -752,3 +752,10 @@ pui["expandAccordionSection"] = function(id, section) {
   accordion.expandSection(section);
 }
 
+pui["runAttnProgram"] = function() {
+ 
+  if (context == "dspf")	
+    pui.submitResponse({"attn":"1"});
+  
+}
+
