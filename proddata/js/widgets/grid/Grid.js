@@ -3808,7 +3808,7 @@ pui.Grid = function() {
   function lineDesign(lines, i, isVertical, resizableColumns) {
     if (!me.designMode && !resizableColumns) return;
     var line = lines[i];
-    if (me.borderWidth < minBWidth) {
+    if ( me.borderWidth !== null && me.borderWidth < minBWidth) {
       line.style.borderWidth = "2px";
       if (!isVertical) line.style.width = (parseInt(line.style.width) + 2) + "px";
     }
