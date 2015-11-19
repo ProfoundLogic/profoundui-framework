@@ -58,7 +58,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	var transactionId = 1; // This is used to avoid submitting twice? Or to prevent browser caching responses.
 	var submitHandle = null; // Gets a numeric timer id after a submit. Null when not uploading.
 	var timeout = 86400000; // Timeout used for upload submit in milliseconds. 1 day.
-	var error = "";
+	var error = "";         // This holds error from the last upload attempt. If non-empty, assume selectors haven't been marked "done".
 	var validationTip = null; // Tool tip for RichUI alerts instead of popups.
 	
 	var xhr = null;	// XMLHttpRequest. Referenced here to allow aborting.
@@ -66,7 +66,8 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	//
 	// These are user-modifiable widget properties.
 	//
-	var autoSubmit = false;
+	var autoSubmit = false;     // DSPF only.
+  var autoUpload = false;     // Genie only.
 	var disabled = false;
 	var fileLimit = 1;
 	var sizeLimit = 10;
@@ -77,8 +78,10 @@ pui["fileUploadDND"].FileUpload = function(container) {
 
 	var uploadEvent; // The user-defined onupload property.
 
-	// Provide an error element to show the last upload's error message.
-	if( context === "genie" ) var errorElem;
+	if( context === "genie" ) {
+    var errorElem;         // Provide an error element to show the last upload's error message.
+    var uploadLink = null; // starts upload when clicked.
+  }
 	
 
 	//
@@ -87,7 +90,6 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	createDropBox();
 	createControlBox();
 	createListBox();
-	//createProgressBox();
 
 	//
 	// Public methods. 
@@ -128,6 +130,9 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			col.className = "name-col";
 			col.title = name;
 			col.appendChild(document.createTextNode(name));
+      
+      col = row.insertCell(-1);
+			col.className = "remove-col";
 
 			// Indicate success for the file.
 			if( selectors[i].done ) {
@@ -136,6 +141,22 @@ pui["fileUploadDND"].FileUpload = function(container) {
 				var txt = document.createTextNode(pui["getLanguageText"]("runtimeText","upload finished text"));
 				col.appendChild(txt);
 			}
+      // Add a "remove" link.
+      else
+      {
+        var a = document.createElement("a");
+        a.href = "javascript: void(0);";
+        a.className = "remove";
+        a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
+        a.puiFileIndex = i;
+        if (a.attachEvent) {
+          a.attachEvent("onclick", removeFile);
+        } else if (a.addEventListener) {
+          a.addEventListener("click", removeFile, false);
+        }
+        col.appendChild(a);
+      }
+      // done adding Remove link.
 		}
 		// end foreach filename.
 	};
@@ -147,6 +168,10 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	this.setAutoSubmit = function(autosub) {
 		autoSubmit = (autosub === true || autosub === "true");
 	};
+  
+  this.setAutoUpload = function(autoup) {
+    autoUpload = (autoup === true || autoup === "true");
+  };
 
 	this.setFileLimit = function(newLimit) {
 		if (newLimit !== null && !isNaN(newLimit)) {
@@ -258,7 +283,76 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 * @returns {undefined}
 	 */
 	this.upload = function() {
-		// Nothing needs to happen.
+    
+    // Prevent upload if error exists; e.g. last upload failed, but user clicked submit again.
+    if( error.length > 0 ) return;
+		
+		// Hide the clear link when uploading.
+		clearLink.style.display = "none";
+    if (context === "genie") uploadLink.style.display = "none";
+
+		// See if any files were valid.
+		if (selectors.length > 0 ) {
+			submitHandle = {}; // Will be set to timeout value later.
+			
+			if (context === "genie") {
+				pui.genie.formSubmitted = true;
+				pui.showWaitAnimation();
+			}
+
+			// Setup the URL for the XMLHTTPRequest to POST.
+			var postURL = postAction + "?AUTH=";
+			if (pui["appJob"] && pui["appJob"]["auth"]) {
+				postURL += encodeURIComponent(pui["appJob"]["auth"]);
+			}
+			postURL += "&trans=" + encodeURIComponent(transactionId);
+			postURL += "&id=" + encodeURIComponent(mainBox.id);
+
+			// Use FormData object here instead of HTML form elements.
+			// XHR accepts FormData objects, and we aren't using a form.
+			var formData = new FormData();
+			formData.append('flimit', fileLimit);
+			formData.append('slimit', sizeLimit);
+			formData.append('dir', targetDirectory);
+			formData.append('altname', (fileLimit > 1 ? "" : altName) );
+			formData.append('overwrite', (overwrite ? "1" : "0"));
+			// For each file in our list, put it into the FormData object.
+			for (var i = 0; i < selectors.length; i++) {
+				formData.append('file', selectors[i]);
+			}
+
+			// Note: we can skip sending the MIME type since we validated it
+			// in the ondrop function already. (Simplifies handling jpg/jpeg.)
+
+			// Set a timer function to run if the transaction fails to complete.
+			// We won't use the XHR ontimeout event because that only works for
+			// asynchronous requests, and ours is synchronous.
+			// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+			submitHandle = setTimeout(function() {
+				me.completeTransaction(transactionId, {
+					"success": false,
+					"error": pui["getLanguageText"]("runtimeMsg", "upload timeout")
+				});
+			}, timeout);
+
+			xhr = new XMLHttpRequest();
+			xhr.open('POST', postURL);
+
+			// Define how to handle progress events.
+			if ("upload" in xhr) {
+				xhr.upload.onprogress = xhronprogress;
+			}
+
+			// Define what to do when upload is complete.
+			xhr.onload = xhronload;
+			
+			// Define how to handle abort.
+			xhr.onabort = xhronabort;
+
+			// Start the XHR post.
+			abortLink.style.visibility = "visible";
+			xhr.send(formData);
+		} // done handling files were selected.
 		return;
 	};
 	// end upload().
@@ -325,9 +419,6 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			} else {
 				showError(responseObj["error"]);
 			}
-		} else if( autoSubmit ) {
-			pui.keyName = "Enter";
-			pui.click();
 		}
 	};
 	// end completeTransaction().
@@ -382,7 +473,10 @@ pui["fileUploadDND"].FileUpload = function(container) {
 
 			clearLink.style.display = "none"; // hide the Clear link .
 			error = "";
-			if( context === "genie" ) errorElem.style.display = "none";
+			if( context === "genie" ) {
+        errorElem.style.display = "none";
+        uploadLink.style.display = "none";
+      }
 			progressBar.value = 0;
 			this.render();
 		}
@@ -407,7 +501,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	function boxdragover(e) {
 		e.stopPropagation();	// The event only applies to dropBox.
 		e.preventDefault();		// prevent the default dragover on dropBox.
-		if (disabled || submitHandle !== null || inDesignMode()) return false;
+		if (disabled || submitHandle !== null || inDesignMode() || pui.isPreview ) return false;
 		e.dataTransfer.dropEffect = "copy";
 		// Add a CSS class to indicate that drop is allowed here.
 		pui.addCssClass(dropBox, "dragover");
@@ -439,7 +533,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		e.stopPropagation();
 		e.preventDefault();
 		
-		if (disabled || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() ) return;
+		if (disabled || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() || pui.isPreview ) return;
 		
 		if( e.dataTransfer.files === null || e.dataTransfer.files === undefined ) {
 			console.log("Browser doesn't support dataTransfer.files API");
@@ -454,19 +548,38 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			validationTip = null;
 		}
 		
-		// Remove all selectors.
-		while (selectors.length > 0) {
-			selectors.pop();
-		}
+		// Remove files which already attempted to upload.
+    if( selectors.length > 0 && (selectors[0].done || error.length > 0 ) ) {
+      while (selectors.length > 0) {
+        selectors.pop();
+      }
+    }
 		
 		// Remove previous error.
 		error = "";
 		if( context === "genie") errorElem.style.display = "none";
+    progressBar.value = 0;
 		var hadError = false;
+    
+    // Don't add anything if too many files have been dropped in.
+    if (selectors.length + e.dataTransfer.files.length > fileLimit) {
+      hadError = true;
+      showError(pui["getLanguageText"]("runtimeMsg", "upload file limit", [fileLimit]));
+    }
+
+    var pushlist = [];
 
 		// Look at each dropped file.
-		for (var i = 0; i < e.dataTransfer.files.length; i++) {
-			
+		for (var i = 0; i < e.dataTransfer.files.length && !hadError; i++) {
+      var exists = false;
+			// See if the file's name already exists in the upload list.
+			for (var j = 0; j < selectors.length; j++) {
+				if (selectors[j].name === e.dataTransfer.files[i].name) {
+					exists = true;
+					break;
+				}
+			}
+
 			// Fix MIME type. PUI uses image/jpg whereas a browser may use image/jpeg.
 			var ftypeTmp = e.dataTransfer.files[i].type.replace(/image\/jpeg/i, "image/jpg");
 
@@ -484,15 +597,15 @@ pui["fileUploadDND"].FileUpload = function(container) {
 				hadError = true;
 				showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
 			}
+      // Don't add if the same filename is already in the list.
+			else if (exists) {
+        hadError = true;
+				showError(pui["runtimeMsg"]["en_US"]["upload duplicate file"]);
+			}
 			// Don't add if file is larger than limit.
 			else if (e.dataTransfer.files[i].size > sizeLimit * 1048576) {
 				hadError = true;
 				showError(pui["getLanguageText"]("runtimeMsg", "upload size limit", [sizeLimit]));
-			}
-			// Don't add if we have passed the limit of files.
-			else if (selectors.length >= fileLimit) {
-				hadError = true;
-				showError(pui["getLanguageText"]("runtimeMsg", "upload file limit", [fileLimit]));
 			}
 			// Don't add empty files.
 			else if (e.dataTransfer.files[i].size <= 0) {
@@ -501,84 +614,37 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			}
 			// Otherwise, add the file to our list.
 			else {
-				selectors.push(e.dataTransfer.files[i]);
+        pushlist.push(e.dataTransfer.files[i]);
 			}
 		}
 		// done looking at each dropped file.
-		
-		// Remove all files if any one failed validation. This prevents upload.
-		if( hadError ) {
-			while( selectors.length > 0 ) selectors.pop();
-		}
+
+    // Only add files if none of them had errors.
+    if( ! hadError ) {
+      for (var i = 0; i < pushlist.length; i++) {
+        selectors.push(pushlist[i]);
+      }
+    }
+    pushlist = null;
+    
+    // Show the "Clear" link if files were dropped and waiting for upload.
+    if( selectors.length > 0 && !autoSubmit && !autoUpload )
+    {
+      clearLink.style.display = "";
+      if( context === "genie")
+        uploadLink.style.display = "";
+    }
 		
 		// Redraw table to show chosen files.
 		me.render();
-		
-		// Hide the clear link when uploading.
-		clearLink.style.display = "none";
-
-		// See if any files were valid.
-		if (selectors.length > 0 ) {
-			submitHandle = {}; // Will be set to timeout value later.
-			
-			if (context === "genie") {
-				pui.genie.formSubmitted = true;
-				pui.showWaitAnimation();
-			}
-
-			// Setup the URL for the XMLHTTPRequest to POST.
-			var postURL = postAction + "?AUTH=";
-			if (pui["appJob"] && pui["appJob"]["auth"]) {
-				postURL += encodeURIComponent(pui["appJob"]["auth"]);
-			}
-			postURL += "&trans=" + encodeURIComponent(transactionId);
-			postURL += "&id=" + encodeURIComponent(mainBox.id);
-
-			// Use FormData object here instead of HTML form elements.
-			// XHR accepts FormData objects, and we aren't using a form.
-			var formData = new FormData();
-			formData.append('flimit', fileLimit);
-			formData.append('slimit', sizeLimit);
-			formData.append('dir', targetDirectory);
-			formData.append('altname', altName);
-			formData.append('overwrite', (overwrite ? "1" : "0"));
-			// For each file in our list, put it into the FormData object.
-			for (var i = 0; i < selectors.length; i++) {
-				formData.append('file', selectors[i]);
-			}
-
-			// Note: we can skip sending the MIME type since we validated it
-			// in the ondrop function already. (Simplifies handling jpg/jpeg.)
-
-			// Set a timer function to run if the transaction fails to complete.
-			// We won't use the XHR ontimeout event because that only works for
-			// asynchronous requests, and ours is synchronous.
-			// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-			submitHandle = setTimeout(function() {
-				me.completeTransaction(transactionId, {
-					"success": false,
-					"error": pui["getLanguageText"]("runtimeMsg", "upload timeout")
-				});
-			}, timeout);
-
-			xhr = new XMLHttpRequest();
-			xhr.open('POST', postURL);
-
-			// Define how to handle progress events.
-			if ("upload" in xhr) {
-				xhr.upload.onprogress = xhronprogress;
-			}
-
-			// Define what to do when upload is complete.
-			xhr.onload = xhronload;
-			
-			// Define how to handle abort.
-			xhr.onabort = xhronabort;
-
-			// Start the XHR post.
-			abortLink.style.visibility = "visible";
-			xhr.send(formData);
-		} // done handling files were selected.
+    
+    // Do nothing or auto upload or auto submit, which causes upload.
+    if( autoUpload && context === "genie")
+      me.upload();
+    else if( context === "dspf" && autoSubmit && selectors.length > 0 ) {
+			pui.keyName = "Enter";
+			pui.click();
+		}
 	}
 	// end boxdrop();
 	
@@ -670,7 +736,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		
 		clearLink = document.createElement("a");
 		clearLink.className = "clear-files";
-		clearLink.style.display = "none";
+    clearLink.style.display = "none";
 		clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
 		if (clearLink.attachEvent) {
 			clearLink.attachEvent("onclick", clearFiles);
@@ -678,6 +744,19 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			clearLink.addEventListener("click", clearFiles, false);
 		}
 		controlBox.appendChild(clearLink);
+    
+    if (context === "genie") {
+      uploadLink = document.createElement("a");
+      uploadLink.className = "upload-files";
+      uploadLink.style.display = "none";
+      uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
+      if (uploadLink.attachEvent) {
+        uploadLink.attachEvent("onclick", uploadFiles);
+      } else if (uploadLink.addEventListener) {
+        uploadLink.addEventListener("click", uploadFiles, false);
+      }
+      controlBox.appendChild(uploadLink);
+    }
 
 		// Create a progress tag.
 		progressBar = document.createElement("progress");
@@ -737,6 +816,35 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			validationTip.show();
 		}
 	}
+  
+  /**
+	 * Handler for a "remove" link onclick event.
+	 * Remove a file from the selectors list and re-render the widget.
+	 * 
+	 * @param {type} e
+	 * @returns {Boolean}
+	 */
+	function removeFile(e) {
+		e = e || window.event;
+		var target = e.target || e.srcElement;
+		if (submitHandle === null) {
+			// Remove specified selector.
+			var index = target.puiFileIndex;
+			selectors.splice(index, 1);
+			me.render();
+		}
+    // Hide the Clear and Upload links if no more selectors exist.
+    if( selectors.length == 0 ) {
+      me["clear"]();
+    }
+		e.cancelBubble = true;
+		e.returnValue = false;
+		if (e.preventDefault)
+			e.preventDefault();
+		if (e.stopPropagation)
+			e.stopPropagation();
+		return false;
+	}
 
 	/**
 	 * Handler for the "Clear" link onclick in the control-box.
@@ -755,6 +863,31 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			e.stopPropagation();
 		return false;
 	}
+  
+	/**
+	 * Handle user clicking on an "Upload" link in the control-box.
+	 * This link appears only for Genie context.
+	 * 
+	 * @param {type} e
+	 * @returns {undefined|Boolean}
+	 */
+	function uploadFiles(e) {
+		e = e || window.event;
+		if (submitHandle === null && !inDesignMode() && !pui.genie.formSubmitted) {
+			// Note: validation happens in the ondrop function.
+			me.upload();
+		}
+		// Prevent navigating to the href link.
+		if (e) {
+			e.cancelBubble = true;
+			e.returnValue = false;
+			if (e.preventDefault)
+				e.preventDefault();
+			if (e.stopPropagation)
+				e.stopPropagation();
+			return false;
+		}
+	} //end uploadFiles().
 	
 	/**
 	 * Handler for the "[x]" abort link in the control box.
@@ -887,6 +1020,11 @@ pui.widgets.add({
 				return;
 			parms.dom["fileUpload"].setAutoSubmit(parms.value);
 		},
+    "auto upload": function(parms) {
+      if(parms.design )
+        return;
+      parms.dom["fileUpload"].setAutoUpload(parms.value);
+    },
 		"number of files": function(parms) {
 			if (parms.design)
 				return;
