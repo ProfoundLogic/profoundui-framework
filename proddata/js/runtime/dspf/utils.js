@@ -49,6 +49,8 @@ pui.isSubfileProperty = function(propertyName) {
     case "subfile program message queue": return true;
     case "selection field": return true;
     case "subfile changed": return true;
+    case "row font color": return true;
+    case "row background": return true;
     default: return false;
   }
 }

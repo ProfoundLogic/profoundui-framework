@@ -106,13 +106,15 @@ pui.Grid = function() {
   this.cellProps["header image"] = "";
   this.cellProps["header font weight"] = "bold";
   this.cellProps["header font style"] = "normal";
+  this.cellProps["row font color"] = "";
+  this.cellProps["row background"] = "";
   this.cellProps["odd row font color"] = "#555555";
   if (context == "genie") this.cellProps["odd row font color"] = "";
-  this.cellProps["odd row background"] = "#e5f1f4";
+  //this.cellProps["odd row background"] = "#e5f1f4";
   this.cellProps["odd row background"] = "#efefef";
   this.cellProps["even row font color"] = "#555555";
   if (context == "genie") this.cellProps["even row font color"] = "";
-  this.cellProps["even row background"] = "#f8fbfc";
+  //this.cellProps["even row background"] = "#f8fbfc";
   this.cellProps["even row background"] = "#fcfcfc";
   this.cellProps["hover font color"] = "#555555";
   this.cellProps["hover background"] = "#dfe8f6";
@@ -164,7 +166,12 @@ pui.Grid = function() {
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
   this.selectedRecordNum = null;
-  
+
+  this.rowFontColorField = null;
+  this.rowFontColorFieldIndex = null;
+  this.rowBackgroundField = null;
+  this.rowBackgroundFieldIndex = null;
+
   this["expanded"] = true;
   this.initCollapsed = null;
   this.initExpanded = null;
@@ -1160,7 +1167,7 @@ pui.Grid = function() {
           }
         }        
 
-        if (me.selectionEnabled) {
+        if (me.selectionEnabled || me.rowFontColorField != null || me.rowBackgroundField != null) {
           me.setRowBackground(rowNum);
         }
         
@@ -2650,6 +2657,8 @@ pui.Grid = function() {
       case "header font color":
       case "header background":
       case "header image":
+      case "row font color":
+      case "row background":
       case "odd row font color":
       case "odd row background":
       case "even row font color":
@@ -3376,6 +3385,52 @@ pui.Grid = function() {
         }
       }
     }
+    
+    var rowBackground = null;
+    if (me.rowBackgroundField != null) {
+      if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
+        var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+        var dataRecords = me.dataArray;
+        if (me.isFiltered()) dataRecords = me.filteredDataArray;
+        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
+          if (me.rowBackgroundFieldIndex == null) {
+            for (var i = 0; i < me.fieldNames.length; i++) {
+              if (pui.fieldUpper(me.rowBackgroundField.fieldName) == me.fieldNames[i]) {                  
+                me.rowBackgroundFieldIndex = i;
+                break;
+              }
+            }
+          }
+          if (me.rowBackgroundFieldIndex != null) {
+            rowBackground = dataRecords[adjustedRow - 1][me.rowBackgroundFieldIndex];
+          }
+        }
+      }
+    }
+    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
+
+    var rowFontColor = null;
+    if (me.rowFontColorField != null) {
+      if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
+        var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+        var dataRecords = me.dataArray;
+        if (me.isFiltered()) dataRecords = me.filteredDataArray;
+        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
+          if (me.rowFontColorFieldIndex == null) {
+            for (var i = 0; i < me.fieldNames.length; i++) {
+              if (pui.fieldUpper(me.rowFontColorField.fieldName) == me.fieldNames[i]) {                  
+                me.rowFontColorFieldIndex = i;
+                break;
+              }
+            }
+          }
+          if (me.rowFontColorFieldIndex != null) {
+            rowFontColor = dataRecords[adjustedRow - 1][me.rowFontColorFieldIndex];
+          }
+        }
+      }
+    }
+    if (!pui.isBound(me.cellProps["row font color"]) && me.cellProps["row font color"] != null && me.cellProps["row font color"] != "") rowFontColor = me.cellProps["row font color"];
 
     function setColor(cell, color, colNum) {
       if (color == null) color = "";
@@ -3426,23 +3481,18 @@ pui.Grid = function() {
         pui.addCssClass(cols[i], "hover");
       }
       else {
-        if (even) {
-          setColor(cols[i], me.cellProps["even row font color"], i);
-          if (me.cellProps["even row background"] == null) {
-            cols[i].style.backgroundColor = "";
-          }
-          else {
-            cols[i].style.backgroundColor = me.cellProps["even row background"];
-          }
+        if (rowFontColor == null || rowFontColor == "") {
+          rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
+        }
+        if (rowBackground == null || rowBackground == "") {
+          rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
+        }
+        setColor(cols[i], rowFontColor, i);
+        if (rowBackground == null) {
+          cols[i].style.backgroundColor = "";
         }
         else {
-          setColor(cols[i], me.cellProps["odd row font color"], i);
-          if (me.cellProps["odd row background"] == null) {
-            cols[i].style.backgroundColor = "";
-          }
-          else {
-            cols[i].style.backgroundColor = me.cellProps["odd row background"];
-          }
+          cols[i].style.backgroundColor = rowBackground;
         }
         cols[i].style.backgroundImage = "";
       }
@@ -4662,8 +4712,10 @@ pui.Grid = function() {
     setCellStyle(cell, col, "textDecoration", "text decoration");
     setCellStyle(cell, col, "textTransform", "text transform");
     setCellStyle(cell, col, "wordSpacing", "word spacing");
-    setCellStyle(cell, col, "color", header ? "header font color" : even ? "even row font color" : "odd row font color");
-    setCellStyle(cell, col, "backgroundColor", header ? "header background" : even ? "even row background" : "odd row background");
+    var useRowFontColor = (me.designMode && me.cellProps["row font color"] != null && me.cellProps["row font color"] != "" && !pui.isBound(me.cellProps["row font color"]));
+    var useRowBackground = (me.designMode && me.cellProps["row background"] != null && me.cellProps["row background"] != "" && !pui.isBound(me.cellProps["row background"]));
+    setCellStyle(cell, col, "color", header ? "header font color" : useRowFontColor ? "row font color" : even ? "even row font color" : "odd row font color");
+    setCellStyle(cell, col, "backgroundColor", header ? "header background" :useRowBackground ? "row background" : even ? "even row background" : "odd row background");
     var cssClass = "";
     if (header) {
       var headerImage = me.cellProps["header image"];
@@ -5068,6 +5120,8 @@ pui.Grid = function() {
       movePropertyParts("odd row background");
       movePropertyParts("even row font color");
       movePropertyParts("even row background");
+      movePropertyParts("row font color");
+      movePropertyParts("row background");
       movePropertyParts("column widths");
       if (changed) {
         itm.designer.makeDirty();
@@ -5769,12 +5823,14 @@ pui.Grid = function() {
       { name: "header background", type: "color", help: "Defines the background color of the header row.  To define a different color for each grid cell in the header row, specify a comma separated list of color values." },
       { name: "header image", type: "image", help: "Defines a repeating background image for the header row." },
       { name: "column headings", type: "list", help: "Specifies a comma separated list of heading text for each column of the grid.", translate: true },
-  
-      { name: "Colors", category: true },    
+
+      { name: "Colors", category: true },
       { name: "odd row font color", type: "color", help: "Defines the color of text inside the odd rows of the grid.  To define a different color for each grid column, specify a comma separated list of color values." },
       { name: "odd row background", type: "color", help: "Defines the background color of the odd rows in the grid.  To define a different color for each grid column, specify a comma separated list of color values." },
       { name: "even row font color", type: "color", help: "Defines the color of text inside the even rows of the grid.  To define a different color for each grid column, specify a comma separated list of color values." },
       { name: "even row background", type: "color", help: "Defines the background color of the even rows in the grid.  To define a different color for each grid column, specify a comma separated list of color values." },
+      { name: "row font color", type: "color", help: "Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field." },
+      { name: "row background", type: "color", help: "Defines the background color of an individual row. You can define a dynamic background color for each record by binding this property to a field." },
       { name: "hover font color", type: "color", help: "Defines the color of text when the user hovers the mouse cursor over a grid row.  To define a different color for each grid column, specify a comma separated list of color values." },
       { name: "hover background", type: "color", help: "Defines the background color of a grid row when the user hovers the mouse cursor over it.  To define a different color for each grid column, specify a comma separated list of color values." },
       { name: "selection font color", type: "color", help: "Defines the color of text when the user selects a grid row.", context: "dspf" },

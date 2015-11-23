@@ -1401,6 +1401,18 @@ pui.renderFormat = function(parms) {
                 dom.grid.selectionField = items[i]["selection field"];
               }
             }
+
+            if (propname == "row font color" && properties["field type"] == "grid") {
+              if (pui.isBound(items[i][propname])) {
+                dom.grid.rowFontColorField = items[i][propname];
+              }
+            }
+
+            if (propname == "row background" && properties["field type"] == "grid") {
+              if (pui.isBound(items[i][propname])) {
+                dom.grid.rowBackgroundField = items[i][propname];
+              }
+            }
             
             if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
