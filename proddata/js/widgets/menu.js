@@ -41,6 +41,7 @@ pui.MenuWidget = function() {
   this.padding = "5px";  
   this.paddingLeft = "5px";  
   this.optionImage = null;
+  this.optionImages = [];
   this.optionHoverImage = null;
   this.orientation = "vertical";
   
@@ -136,7 +137,18 @@ pui.MenuWidget = function() {
       td.style.filter = "alpha(opacity=100)";
       td.style.opacity = 1;
       if (me.optionImage != null && me.optionImage != "") {
-        td.style.backgroundImage = "url('" + pui.normalizeURL(me.optionImage, true) + "')";
+        td.optionImage = me.optionImage;
+        if (me.optionImages.length > 1) {
+          if (me.optionImages[i] != null) {
+            td.optionImage = me.optionImages[i];
+          }
+          else {
+            td.optionImage = "";
+          }
+        }
+        if (td.optionImage != "") {
+          td.style.backgroundImage = "url('" + pui.normalizeURL(td.optionImage, true) + "')";
+        }
         var repeat = me.repeat;
         if (repeat == null && css != null && css.getPropertyValue != null) {
           repeat = css.getPropertyValue("background-repeat");
@@ -145,6 +157,9 @@ pui.MenuWidget = function() {
           repeat = "repeat";  // default
         }
         td.style.backgroundRepeat = repeat;
+        if (repeat == "no-repeat") {
+          td.style.backgroundPosition = "left center";
+        }
       }
       else {
         td.style.backgroundImage = "";
@@ -194,8 +209,8 @@ pui.MenuWidget = function() {
             td.style.backgroundRepeat = repeat;
           }
           else {
-            if (me.optionImage != null && me.optionImage != "") {
-              td.style.backgroundImage = "url('" + me.optionImage + "')";
+            if (td.optionImage != null && td.optionImage != "") {
+              td.style.backgroundImage = "url('" + td.optionImage + "')";
             }
             else {
               td.style.backgroundImage = "";
@@ -243,8 +258,8 @@ pui.MenuWidget = function() {
             }
           }
           if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = "";
-          if (me.optionImage != null && me.optionImage != "") {
-            td.style.backgroundImage = "url('" + me.optionImage + "')";
+          if (td.optionImage != null && td.optionImage != "") {
+            td.style.backgroundImage = "url('" + td.optionImage + "')";
             var repeat = me.repeat;
             if (repeat == null) repeat = "repeat";
             td.style.backgroundRepeat = repeat;
@@ -510,6 +525,12 @@ pui.widgets.add({
       parms.dom.menuWidget.hoverBackgroundColor = parms.properties["hover background color"];
       parms.dom.menuWidget.borderColor = parms.properties["border color"];
       parms.dom.menuWidget.optionImage = parms.properties["option image"];
+      if (parms.dom.menuWidget.optionImage == null || parms.dom.menuWidget.optionImage == "") {
+        parms.dom.menuWidget.optionImages = [];
+      }
+      else {
+        parms.dom.menuWidget.optionImages = pui.parseCommaSeparatedList(parms.dom.menuWidget.optionImage);
+      }
       parms.dom.menuWidget.optionHoverImage = parms.properties["option hover image"];
       parms.dom.menuWidget.repeat = parms.properties["background repeat"];
       parms.dom.menuWidget.padding = parms.properties["menu option padding"];
@@ -600,6 +621,12 @@ pui.widgets.add({
     "option image": function(parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.optionImage = parms.value;
+        if (parms.value == null || parms.value == "") {
+          parms.dom.menuWidget.optionImages = [];
+        }
+        else {
+          parms.dom.menuWidget.optionImages = pui.parseCommaSeparatedList(parms.value);
+        }
         parms.dom.menuWidget.draw();
       }
     },

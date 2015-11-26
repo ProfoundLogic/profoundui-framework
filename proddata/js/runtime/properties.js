@@ -202,7 +202,7 @@ function getPropertiesModel() {
     { name: "border color", type: "color", help: "The color of the border used for menu options." + colorHelp, controls: ["menu"] },
     { name: "menu option padding", choices: paddings, format: "px", help: "Sets the distance between the edge of the menu option and the menu option text." + measureHelp, controls: ["menu"] },
     { name: "menu option indent", choices: paddings, format: "px", help: "Sets the distance between the left edge of the menu option and the menu option text." + measureHelp, controls: ["menu"] },
-    { name: "option image", type: "image", help: "Defines the background image displayed under each menu option.", controls: ["menu"] },
+    { name: "option image", type: "image", help: "Defines the background image displayed under each menu option. You can specify one image or a comma separated list of images corresponding to each menu option.", controls: ["menu"] },
     { name: "option hover image", type: "image", help: "Defines the background image displayed when the user hovers over a menu option.", controls: ["menu"] },
     { name: "onoptionclick", type: "js", help: "Initiates a client-side script when a menu option is clicked.  The choice value is passed to the event as a parameter named \"value\".  The choice text is passed to the event as a parameter named \"text\".", controls: ["menu"] },
 
