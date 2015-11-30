@@ -54,6 +54,7 @@ pui.layout.getPropertiesModel = function() {
     { name: "css class", multOccur: true, attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element. To specify multiple classes, right-click the property and select Add Another CSS Class." },
     { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
     { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
+    { name: "inline style", type: "long", attribute: "style", help: "This property lets you define CSS properties that will be applied to the widget.  These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon.  You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\"" },
 
     { name: "Events", category: true },
     { name: "onclick", type: "js", help: "Initiates a client-side script when the element is clicked." },
@@ -63,10 +64,10 @@ pui.layout.getPropertiesModel = function() {
     { name: "onmouseout", type: "js", help: "Initiates a client-side script when the mouse is moved off this element." },
     { name: "onmouseover", type: "js", help: "Initiates a client-side script when the mouse is moved over this element." },
     { name: "onmouseup", type: "js", help: "Initiates a client-side script when the mouse button is released off this element." }
-  ]
+  ];
   
   return model;
-}
+};
 
 
 
@@ -75,4 +76,4 @@ pui.layout.getProperties = function(template) {
     template: template,
     returnProps: true
   });
-}
+};

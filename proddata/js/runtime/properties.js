@@ -336,6 +336,7 @@ function getPropertiesModel() {
     { name: "tool tip", type: "long", allowNewLines: true, attribute: "title", translate: true, help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
     { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget.  To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
     { name: "visibility", format: "visible / hidden", stylename: "visibility", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden.  Hidden elements appear dimmed out in design mode, and invisible at runtime." },
+    { name: "inline style", type: "long", attribute: "style", help: "This property lets you define CSS properties that will be applied to the widget.  These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon.  You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\"" },
     
     { name: "Events", category: true },
     { name: "onblur", type: "js", help: "Initiates a client-side script when the element loses focus." },
@@ -852,7 +853,13 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
               }
             }
             else {
-              try { newDomObj.style[model[i].stylename] = pui.getPosDimString(model[i].stylename, propValue) }
+              try {
+                var posdim = pui.getPosDimString(model[i].stylename, propValue);
+                newDomObj.style[model[i].stylename] = posdim;
+                
+                // To allow inline-style setting and removing, cache the style property.
+                pui.cacheStyle(newDomObj, model[i].stylename, posdim);
+              }
               catch (e) {}
             }
           }
@@ -870,7 +877,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
               else {
                 var valueToAssign = evalPropertyValue(propValue, originalValue, newDomObj);
                 if (model[i].attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
-                newDomObj.setAttribute(model[i].attribute, valueToAssign);
+                // Set the attribute if it is not "inline style", which is set
+                // later in the function.
+                if (model[i].attribute !== "style") {
+                  newDomObj.setAttribute(model[i].attribute, valueToAssign);
+                }
                 if (model[i].attribute == "class") {
                   newDomObj.className = propValue;
                 }
@@ -1064,7 +1075,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else {
       try {
-        domObj.style[propConfig.stylename] = pui.getPosDimString(propConfig.stylename, effectiveValue);
+        var posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
+        domObj.style[propConfig.stylename] = posdim;
+        
+        // To allow inline-style setting and removing, cache the style property.
+        if( effectiveValue === null || effectiveValue.length == 0 )
+          pui.removeCachedStyle(domObj, propConfig.stylename);
+        else
+          pui.cacheStyle(domObj, propConfig.stylename, posdim );
       }
       catch(err) {
         if (js == null && isDesignMode) {
@@ -1120,7 +1138,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (propConfig.attribute != null) {
     if (effectiveValue == "") {
       try {
-        domObj.removeAttribute(propConfig.attribute);
+        if (propConfig.attribute === "style" ) {
+          removeInlineCSS(domObj);
+        }else{
+          domObj.removeAttribute(propConfig.attribute);
+        }
         if (propConfig.attribute == "class") {
           domObj.className = "";
         }                    
@@ -1144,7 +1166,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
         else {
           if (propConfig.attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
-          domObj.setAttribute(propConfig.attribute, valueToAssign);
+          if (propConfig.attribute === "style") {
+            addInlineCSS(domObj, valueToAssign, (properties["field type"] === "layout") );
+          } else {
+            domObj.setAttribute(propConfig.attribute, valueToAssign);
+          }
           if (propConfig.attribute == "class") {
             domObj.className = valueToAssign;
           }                    
@@ -1540,3 +1566,159 @@ function getMultOccurProp(propName) {
   
   return null;
 }
+
+// Styles that should be ignored if the user puts any into "inline css";
+// widget properties should set these.
+pui.restrictedStylenames = [
+  "position","visibility","display","left","right","top","bottom","width","height"
+];
+
+// Styles that should be ignored if the user puts any into "inline css" for 
+// Layout widgets.
+pui.restrictedLayoutStylenames = ["overflow","overflow-x","overflow-y"];
+
+/**
+ * Return true if the given value is in the array. (Browser functions
+ * doing this are currently experimental, 11/18/15.)
+ * @param {Object} arr
+ * @param {String} value
+ * @returns {Boolean}
+ */
+function valueInArray(arr, value) {
+  for(var i=0; i < arr.length; i++) {
+    if( arr[i] === value ) return true;
+  }
+  return false;
+}
+
+/**
+ * Add the user's inline style to a widget if the style isn't in managedStylenames.
+ * Put the style in a list of user defined inline styles.
+ * Previous values from "inline style" are removed from the style object first.
+ * 
+ * @param {Object} domObj
+ * @param {String} valueToAssign
+ * @param {Boolean} isLayout     True when the widget is a Layout. Overflow is ignored on Layouts.
+ * @returns {undefined}
+ */
+function addInlineCSS(domObj, valueToAssign, isLayout ) {
+  // Quickly clear any old inline styles.
+  if( domObj.pui.styleInline && domObj.pui.styleInline !== null ) {
+    // For each style explicitly set earlier, remove it from dom.style.
+    for(var keyname in domObj.pui.styleInline ) {
+      domObj.style[keyname] = "";
+    }
+  }
+  domObj.pui.styleInline = {};
+  
+  var vals = valueToAssign.split(";");
+  // Foreach style, add the keyname to a list.
+  for( var i=0; i < vals.length; i++) {
+    var parts = vals[i].split(":");
+    if( parts.length != 2 ) continue;
+    
+    var key = parts[0].replace(/^\s+|\s+$/gm, ""); // IE8 compatible trim whitespace.
+    key = key.toLowerCase();
+    
+    // Ignore restricted styles.
+    if( valueInArray(pui.restrictedStylenames, key) ) continue;
+    
+    if( isLayout && valueInArray(pui.restrictedLayoutStylenames, key)) continue;
+    
+    domObj.pui.styleInline[key] = parts[1];
+    domObj.style[key] = parts[1];
+  }
+  
+  // Re-assert the cached values to override overlapping inline styles.
+  // Styles overlap when the inline style has something general like "border:",
+  // "overflow:", "font:", "background:", or "padding:".
+  if( domObj.pui.styleCached && domObj.pui.styleCached !== null ) {
+    for(var keyname in domObj.pui.styleCached ) {
+      domObj.style[keyname] = domObj.pui.styleCached[keyname];
+    }
+  }else{
+    domObj.pui.styleCached = {};
+  }
+}
+
+/**
+ * Remove all user-defined styles from the object that were set in "inline style".
+ * The cached style is restored.
+ * 
+ * This should be called when "inline style" is cleared.
+ * 
+ * @param {Object} domObj
+ * @returns {undefined}
+ */
+function removeInlineCSS(domObj) {
+  if( typeof(domObj.pui.styleInline) !== "object" || domObj.pui.styleInline === null)
+    return;
+
+  // For each style name explicitly set earlier, remove it from dom.style.
+  for(var keyname in domObj.pui.styleInline ) {
+    domObj.style[keyname] = "";
+  }
+  domObj.pui.styleInline = null;
+  
+  // Restore original styles.
+  if( domObj.pui.styleCached && domObj.pui.styleCached !== null ) {
+    for(var keyname in domObj.pui.styleCached ) {
+      domObj.style[keyname] = domObj.pui.styleCached[keyname];
+    }
+  }else{
+    domObj.pui.styleCached = {};
+  }
+}
+
+/**
+ * Store the PUI style property. This allows us to restore and/or remove
+ * inline css or a style property when either's values overlap and one changes.
+ * 
+ * This should be called when a property with .stylename is being set.
+ * This may also be called from Layout.js when min-height and other properties
+ * are set.
+ * 
+ * @param {Object} domObj
+ * @param {String} stylename  The CSS style keyword (not the PUI style property name).
+ * @param {String} effectiveValue
+ * @returns {undefined}
+ */
+pui.cacheStyle = function( domObj, stylename, effectiveValue ) {
+  if( ! domObj.pui.styleCached || domObj.pui.styleCached === null ) {
+    domObj.pui.styleCached = {};
+  }
+  
+  // Cache the style if it isn't restricted. (Ignore restricted values to avoid
+  // repositioning when we re-assert cached values.)
+  if( ! valueInArray(pui.restrictedStylenames, stylename) )
+    domObj.pui.styleCached[stylename] = effectiveValue;
+};
+
+/**
+ * Remove the cached style property and reset the style to reflect the new
+ * state of the domObj.
+ * 
+ * This should be called when a .stylename property is cleared.
+ * This may also be called from Layout.js when min-height and other properties
+ * are set.
+ * 
+ * @param {Object} domObj
+ * @param {String} stylename  The CSS style keyword (not the PUI style property name).
+ * @returns {undefined}
+ */
+pui.removeCachedStyle = function( domObj, stylename ) {
+  delete domObj.pui.styleCached[stylename];
+  
+  // Re-assert all of the inline style values.
+  if( typeof(domObj.pui.styleInline) === "object" || domObj.pui.styleInline !== null)
+  {
+    for(var keyname in domObj.pui.styleInline ) {
+      domObj.style[keyname] = domObj.pui.styleInline[keyname];
+    }
+  }
+  
+  // Re-assert the styleCached values to override overlapping inline styles.
+  for(var keyname in domObj.pui.styleCached ) {
+    domObj.style[keyname] = domObj.pui.styleCached[keyname];
+  }
+};

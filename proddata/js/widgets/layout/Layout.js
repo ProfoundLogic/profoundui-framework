@@ -269,10 +269,21 @@ pui.layout.Layout = function() {
         if (panel != null) panel.resize();
         if (accordion != null) accordion.resize();
         me.stretch();
+        
+        // To allow inline-style setting and removing, cache the style property.
+        if( value.length == 0 )
+          pui.removeCachedStyle(me.layoutDiv, styleName);
+        else
+          pui.cacheStyle(me.layoutDiv, styleName, value );
         break;
 
       case "z index":
         me.layoutDiv.style.zIndex = value;
+        // To allow inline-style setting and removing, cache the style property.
+        if( value.length == 0 )
+          pui.removeCachedStyle(me.layoutDiv, "z-index");
+        else
+          pui.cacheStyle(me.layoutDiv, "z-index", value );
         break;
 
       case "center horizontally":
