@@ -1577,19 +1577,6 @@ pui.restrictedStylenames = [
 // Layout widgets.
 pui.restrictedLayoutStylenames = ["overflow","overflow-x","overflow-y"];
 
-/**
- * Return true if the given value is in the array. (Browser functions
- * doing this are currently experimental, 11/18/15.)
- * @param {Object} arr
- * @param {String} value
- * @returns {Boolean}
- */
-function valueInArray(arr, value) {
-  for(var i=0; i < arr.length; i++) {
-    if( arr[i] === value ) return true;
-  }
-  return false;
-}
 
 /**
  * Add the user's inline style to a widget if the style isn't in managedStylenames.
@@ -1621,9 +1608,9 @@ function addInlineCSS(domObj, valueToAssign, isLayout ) {
     key = key.toLowerCase();
     
     // Ignore restricted styles.
-    if( valueInArray(pui.restrictedStylenames, key) ) continue;
+    if( pui.arrayIndexOf(pui.restrictedStylenames, key) >= 0 ) continue;
     
-    if( isLayout && valueInArray(pui.restrictedLayoutStylenames, key)) continue;
+    if( isLayout && pui.arrayIndexOf(pui.restrictedLayoutStylenames, key) >= 0 ) continue;
     
     domObj.pui.styleInline[key] = parts[1];
     domObj.style[key] = parts[1];
@@ -1690,7 +1677,7 @@ pui.cacheStyle = function( domObj, stylename, effectiveValue ) {
   
   // Cache the style if it isn't restricted. (Ignore restricted values to avoid
   // repositioning when we re-assert cached values.)
-  if( ! valueInArray(pui.restrictedStylenames, stylename) )
+  if( pui.arrayIndexOf(pui.restrictedStylenames, stylename) < 0 )
     domObj.pui.styleCached[stylename] = effectiveValue;
 };
 
