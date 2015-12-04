@@ -276,8 +276,9 @@ function TabPanel() {
     if (settings.borderSize) borderSize = settings.borderSize;
     bottomDiv.style.border = borderSize + "px solid " + borderColor;
     bottomDiv.style.backgroundColor = me.backColor;
-    
+
     for (var i = 0; i < me.tabs.length; i++) {
+      // Create a parent span to encapsulate the tab text, left, and right border.
       var outerSpan = document.createElement("span");
       outerSpan.style.display = "inline-block";
       if (i == me.selectedTab) {
@@ -399,29 +400,24 @@ function TabPanel() {
         if (isDesign) {
           var dom = designUtils.getTarget(e);
           if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
-          var itmDom = dom.parentNode.parentNode;
+          // Get the widget's outer-most div.
+          var itmDom = dom.parentNode.parentNode.parentNode;
           var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
+          
+          // Add an inline edit-box and a handler for updating it.
           if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
             itm.designer.inlineEditBox.onUpdate = function(newName) {
-              var idx = 0;
-              sibling = dom.previousSibling;
-              if (sibling != null && sibling.getAttribute("isTab") != "true") sibling = sibling.previousSibling;
-              if (sibling != null && sibling.getAttribute("isTab") != "true") sibling = sibling.previousSibling;
-              while (sibling != null) {
-                idx++;
-                sibling = sibling.previousSibling;
-                if (sibling != null && sibling.getAttribute("isTab") != "true") sibling = sibling.previousSibling;
-                if (sibling != null && sibling.getAttribute("isTab") != "true") sibling = sibling.previousSibling;
-              }
+              var idx = dom.tabId;
+
+              // Replace the old name with the new name. Convert string to array,
+              // modify element, convert back to string.
               var propValue = itm.properties["tab names"];
               if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
               var tabNames = pui.parseCommaSeparatedList(propValue);
               tabNames[idx] = newName;
-              //propValue = tabNames[0];
-              //for (var i = 1; i < tabNames.length; i++) {
-              //  propValue += "," + tabNames[i];
-              //}
               propValue = tabNames.join(",");
+              
+              // Apply the new value to the "tab names" property.
               var nmodel = getPropertiesNamedModel();
               var propConfig = nmodel["tab names"];
               itm.designer.undo.add(itm, propConfig.name);
@@ -485,11 +481,14 @@ function TabPanel() {
           }
         }
       }
+      // Add the tab container span to the widget. Add the left border if it
+      // exists, add the tab itself, and add the right border if it exists.
       topDiv.appendChild(outerSpan);
       if (settings.leftWidth != null) outerSpan.appendChild(leftSpan);
       outerSpan.appendChild(tabSpan);
       if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
     }
+    // done iterating over each tab.
     me.container.appendChild(bottomDiv);
     me.container.appendChild(topDiv);
     
