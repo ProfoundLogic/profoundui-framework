@@ -828,9 +828,12 @@ function AutoComplete(config) {
         // test if textbox entry starts the same as data
         var val1 = textBox.value;
         var val2 = choices[i];
-        val2 = val2.substr(0, val1.length);
-        val1 = val1.toUpperCase();
-        val2 = val2.toUpperCase();
+        // Avoid null reference errrors.
+        if( val1 !== null && val2 !== null ) {
+          val2 = val2.substr(0, val1.length);
+          val1 = val1.toUpperCase();
+          val2 = val2.toUpperCase();
+        }
         if (val1 == val2) {
           var rec = config.columnData[i];
           recs.push(rec);
