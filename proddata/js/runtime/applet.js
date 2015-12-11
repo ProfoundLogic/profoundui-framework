@@ -40,40 +40,6 @@ function loadPCCommandApplet(callback) {
 
 }
 
-function runPCCommand(command) {
-
-	var applet = document.getElementById("PCCommandApplet");
-	if (!applet) {
-	
-	  // Could replace this at some time with a load <param>
-	  // for the applet to process.
-	
-	  pui.appletCommandData = command;
-	  loadPCCommandApplet("runCommandCb");
-	  return;  
-	
-	}
-	
-	try {
-		applet["runCommand"](command);
-	}
-	catch(e) {
-		var msg = "Unable to execute \"" + command + "\".\n\n"
-		if (e != null) {
-		  msg += e.name + ":\n\n" + e.message + ".";
-		}
-		alert(msg);
-	}  
-
-}
-
-window["runCommandCb"] = function() {
-
-  runPCCommand(pui.appletCommandData);
-  pui.appletCommandData = null;  
-
-}
-
 function copyToClipboard(data) {
 
 	var applet = document.getElementById("PCCommandApplet");
