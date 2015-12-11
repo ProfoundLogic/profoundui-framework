@@ -1860,6 +1860,28 @@ pui["getDisplayType"] = function() {
 
 function runPCCommand(command) {
 
+	if (pui["use pc listener"] === true) {
+	
+	  var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
+    var req = new pui.Ajax("http://localhost:" + port + "/?cmd=" + encodeURIComponent(command));
+    req.method = "GET";
+    req.async = true;
+    req.suppressAlert = true;
+    req.onfail = function(req) {
+      
+        if (req.getStatus() != 200) {
+        
+          console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
+          console.log("Command: " + command);
+        
+        }
+        
+    }
+    req.send();
+    return;
+
+	}
+
 	var applet = document.getElementById("PCCommandApplet");
 	if (!applet) {
 	
