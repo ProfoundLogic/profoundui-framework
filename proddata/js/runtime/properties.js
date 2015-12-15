@@ -858,7 +858,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
                 newDomObj.style[model[i].stylename] = posdim;
                 
                 // To allow inline-style setting and removing, cache the style property.
-                pui.cacheStyle(newDomObj, model[i].stylename, posdim);
+                if( isDesignMode )
+                  pui.cacheStyle(newDomObj, model[i].stylename, posdim);
               }
               catch (e) {}
             }
@@ -1079,10 +1080,12 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         domObj.style[propConfig.stylename] = posdim;
         
         // To allow inline-style setting and removing, cache the style property.
-        if( effectiveValue === null || effectiveValue.length == 0 )
-          pui.removeCachedStyle(domObj, propConfig.stylename);
-        else
-          pui.cacheStyle(domObj, propConfig.stylename, posdim );
+        if( isDesignMode ) {
+          if( effectiveValue === null || effectiveValue.length == 0 )
+            pui.removeCachedStyle(domObj, propConfig.stylename);
+          else
+            pui.cacheStyle(domObj, propConfig.stylename, posdim );
+        }
       }
       catch(err) {
         if (js == null && isDesignMode) {
