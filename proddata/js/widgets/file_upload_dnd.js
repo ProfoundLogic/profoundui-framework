@@ -82,7 +82,11 @@ pui["fileUploadDND"].FileUpload = function(container) {
     var errorElem;         // Provide an error element to show the last upload's error message.
     var uploadLink = null; // starts upload when clicked.
   }
-	
+
+  // Variables necessary for the readNextFile() handlers to process the 
+  // file list in sequence.
+  var droppedFileList = null;
+  var droppedCtr = 0;
 
 	//
 	// Construct HTML elements.
@@ -286,6 +290,10 @@ pui["fileUploadDND"].FileUpload = function(container) {
     
     // Prevent upload if error exists; e.g. last upload failed, but user clicked submit again.
     if( error.length > 0 ) return;
+    
+    // Clear error messages, like "Limit of 1 file(s) exceeded", that still appear
+    // but don't prevent upload.
+    clearErrors();
 		
 		// Hide the clear link when uploading.
 		clearLink.style.display = "none";
@@ -464,20 +472,12 @@ pui["fileUploadDND"].FileUpload = function(container) {
 				selectors.pop();
 			}
 
-			// Remove a validationTip that this widget added. If pui added it,
-			// then we can't find it.
-			if (validationTip !== null) {
-				validationTip.hide();
-				validationTip = null;
-			}
+      clearErrors();
 
 			clearLink.style.display = "none"; // hide the Clear link .
-			error = "";
 			if( context === "genie" ) {
-        errorElem.style.display = "none";
         uploadLink.style.display = "none";
       }
-			progressBar.value = 0;
 			this.render();
 		}
 	};
@@ -499,8 +499,12 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 * @returns {Boolean}
 	 */
 	function boxdragover(e) {
-		e.stopPropagation();	// The event only applies to dropBox.
-		e.preventDefault();		// prevent the default dragover on dropBox.
+    e = e || event;
+    e.returnValue = false;
+    if( e.stopPropagation )
+      e.stopPropagation();	// The event only applies to dropBox.
+    if( e.preventDefault )
+      e.preventDefault();		// prevent the default dragover on dropBox.
 		if (disabled || submitHandle !== null || inDesignMode() || pui.isPreview ) return false;
 		e.dataTransfer.dropEffect = "copy";
 		// Add a CSS class to indicate that drop is allowed here.
@@ -515,8 +519,12 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 * @returns {Boolean}
 	 */
 	function boxdragleave(e) {
-		e.stopPropagation();
-		e.preventDefault();
+    e = e || event;
+    e.returnValue = false;
+    if( e.stopPropagation )
+      e.stopPropagation();
+    if( e.preventDefault )
+      e.preventDefault();
 		pui.removeCssClass(dropBox, "dragover");
 		return false;
 	}
@@ -530,59 +538,116 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 */
 	function boxdrop(e) {
 		// Prevent page redirect on file drop into our box.
-		e.stopPropagation();
-		e.preventDefault();
+    e = e || event;
+    e.returnValue = false;
+    if( e.stopPropagation )
+      e.stopPropagation();
+    if( e.preventDefault )
+      e.preventDefault();
 		
 		if (disabled || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() || pui.isPreview ) return;
 		
 		if( e.dataTransfer.files === null || e.dataTransfer.files === undefined ) {
+      // This case shouldn't happen since we previously disabled the ondrop
+      // handler for older browsers, but catch and log in case it does.
 			console.log("Browser doesn't support dataTransfer.files API");
 			return;
 		}
 		pui.removeCssClass(this, "dragover");
-
-		// In each drop event, clear the validation hint, since files 
-		// causing it to appear were blocked from being added.
-		if (validationTip !== null) {
-			validationTip.hide();
-			validationTip = null;
-		}
-		
+	
 		// Remove files which already attempted to upload.
     if( selectors.length > 0 && (selectors[0].done || error.length > 0 ) ) {
       while (selectors.length > 0) {
         selectors.pop();
       }
     }
-		
+
+    // In each drop event, clear the validation hint, since files 
+		// causing it to appear were blocked from being added.
 		// Remove previous error.
-		error = "";
-		if( context === "genie") errorElem.style.display = "none";
-    progressBar.value = 0;
-		var hadError = false;
+    clearErrors();
     
     // Don't add anything if too many files have been dropped in.
     if (selectors.length + e.dataTransfer.files.length > fileLimit) {
-      hadError = true;
       showError(pui["getLanguageText"]("runtimeMsg", "upload file limit", [fileLimit]));
+      return;
+    } 
+    
+    // If the dropped item had files/directories, then start reading them.
+    if( e.dataTransfer.files.length > 0 ) {
+      droppedFileList = e.dataTransfer.files;
+      droppedCtr = 0;
+      readNextFile();
+    } else {
+      // This happens when some text was dragged or in IE10/IE11 when a folder
+      // was dragged in. IE doesn't put folders in the dataTransfer FileList.
+      showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
     }
-
+  }// end boxdrop(e).
+  
+  /**
+   * Initiate one file reader on the list of dropped files and assign handlers.
+   * The handlers determine if the file was readable; directories are unreadable.
+   * 
+   * To ensure the script waits until the last file is finished reading, the
+   * next call to readNextFile() is only called from the handlers.
+   * 
+   * @returns {undefined}
+   */
+  function readNextFile() {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      droppedFileList[droppedCtr].isReadable = true;
+      // We are the last file.
+      if( droppedCtr == droppedFileList.length - 1 ) {
+        processDropList();
+      }
+      else {
+        droppedCtr++;
+        readNextFile();
+      }
+    };
+    reader.onerror = function(event) {
+      droppedFileList[droppedCtr].isReadable = false;
+      // We are the last file.
+      if( droppedCtr == droppedFileList.length - 1 ) {
+        processDropList();
+      }
+      else {
+        droppedCtr++;
+        readNextFile();
+      }
+    };
+    // Attempt to start reading. The obfuscator will mangle this without string.
+    reader["readAsArrayBuffer"](droppedFileList[droppedCtr]);
+  } //end readNextFile.
+  
+  /**
+   * This should only be called by the FileReader handlers after all the files
+   * attempted to open. Once here, we know if dropped objects were directories
+   * or readable files. 
+   * 
+   * @returns {undefined}
+   */
+  function processDropList()
+  {
     var pushlist = [];
+    var hadError = false;
 
 		// Look at each dropped file.
-		for (var i = 0; i < e.dataTransfer.files.length && !hadError; i++) {
+		for (var i = 0; i < droppedFileList.length && !hadError; i++) {
       var exists = false;
 			// See if the file's name already exists in the upload list.
 			for (var j = 0; j < selectors.length; j++) {
-				if (selectors[j].name === e.dataTransfer.files[i].name) {
+				if (selectors[j].name === droppedFileList[i].name) {
 					exists = true;
 					break;
 				}
 			}
 
 			// Fix MIME type. PUI uses image/jpg whereas a browser may use image/jpeg.
-			var ftypeTmp = e.dataTransfer.files[i].type.replace(/image\/jpeg/i, "image/jpg");
-
+			var ftypeTmp = droppedFileList[i].type.replace(/image\/jpeg/i, "image/jpg");
+      
 			// If there is nothing in allowedTypes[], allow the file.
 			// If the file's type was in allowedTypes[], allow it.
 			var allowedT = (allowedTypes.length <= 0 || allowedTypes.indexOf(ftypeTmp) >= 0);
@@ -593,7 +658,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			// file was a directory. Browsers prevent JS from selecting
 			// files not explicitly chosen by the user, so we can't read
 			// everything in a directory. Ignore them for now.
-			if (!allowedT || isDirectory(e.dataTransfer.files[i])) {
+      if (!allowedT || ! droppedFileList[i].isReadable ) {
 				hadError = true;
 				showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
 			}
@@ -603,18 +668,13 @@ pui["fileUploadDND"].FileUpload = function(container) {
 				showError(pui["runtimeMsg"]["en_US"]["upload duplicate file"]);
 			}
 			// Don't add if file is larger than limit.
-			else if (e.dataTransfer.files[i].size > sizeLimit * 1048576) {
+			else if (droppedFileList[i].size > sizeLimit * 1048576) {
 				hadError = true;
 				showError(pui["getLanguageText"]("runtimeMsg", "upload size limit", [sizeLimit]));
 			}
-			// Don't add empty files.
-			else if (e.dataTransfer.files[i].size <= 0) {
-				hadError = true;
-				console.log("Ignoring empty file: " + e.dataTransfer.files[i].name);
-			}
 			// Otherwise, add the file to our list.
 			else {
-        pushlist.push(e.dataTransfer.files[i]);
+        pushlist.push(droppedFileList[i]);
 			}
 		}
 		// done looking at each dropped file.
@@ -662,7 +722,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		 * It wants to call completeTransaction() on our widget.
 		 */
     var matches = xhr.responseText.match(/completeTransaction\((\d),(\{[^\}]+\})\)/i);
-		if (matches.length > 0 ) {
+		if (matches && matches.length > 0 ) {
 			respTransId = parseInt(matches[1], 10);
 			responseObj = matches[2].replace(/'/g, "\""); // Single-quoted strings throw exceptions.
 			responseObj = JSON.parse(responseObj);
@@ -709,16 +769,27 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 * @returns {undefined}
 	 */
 	function createDropBox() {
+    
+    var dropUploadSupported = true;
+    if( ! window["File"] || ! window["FileList"] || ! window["FileReader"] ) dropUploadSupported = false;
+    
 		dropBox = document.createElement("div");
 		dropBox.className = "drop-box";
 		var str = pui["getLanguageText"]("runtimeText", "upload drophere text");
+    if( ! dropUploadSupported ) {
+      str = pui["getLanguageText"]("runtimeText","upload browser unsupported");
+      dropBox.style.whiteSpace = "pre-wrap";
+      dropBox.style.overflowX = "auto";
+    }
 		var txtnd = document.createTextNode(str);
 		dropBox.appendChild(txtnd);
 
 		// Event Handlers for dropBox.
-		dropBox.addEventListener("dragover", boxdragover );
-		dropBox.addEventListener("dragleave", boxdragleave );
-		dropBox.addEventListener("drop", boxdrop );
+    if( dropUploadSupported && dropBox.addEventListener ) {
+      dropBox.addEventListener("dragover", boxdragover );
+      dropBox.addEventListener("dragleave", boxdragleave );
+      dropBox.addEventListener("drop", boxdrop );
+    }
 		
 		mainBox.appendChild(dropBox);
 	}
@@ -826,25 +897,59 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 */
 	function removeFile(e) {
 		e = e || window.event;
-		var target = e.target || e.srcElement;
-		if (submitHandle === null) {
-			// Remove specified selector.
-			var index = target.puiFileIndex;
-			selectors.splice(index, 1);
-			me.render();
-		}
-    // Hide the Clear and Upload links if no more selectors exist.
-    if( selectors.length == 0 ) {
-      me["clear"]();
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if (e.preventDefault)
+      e.preventDefault();
+    if (e.stopPropagation)
+      e.stopPropagation();
+    
+    // Ignore clicks while upload is in progress.
+    if (submitHandle !== null) {
+      return false;
     }
-		e.cancelBubble = true;
-		e.returnValue = false;
-		if (e.preventDefault)
-			e.preventDefault();
-		if (e.stopPropagation)
-			e.stopPropagation();
-		return false;
-	}
+    
+		var target = e.target || e.srcElement;
+    // Remove specified selector.
+    var index = target.puiFileIndex;
+    selectors.splice(index, 1);
+    me.render();
+
+    if( selectors.length == 0 ) {
+      // Hide the Clear and Upload links and errors if no more selectors exist.
+      me["clear"]();
+    } else {
+      // Clear just the errors.
+      clearErrors();
+      if( context === "genie") {
+        // In case the upload was too large and failed, show the upload link
+        // after a file was removed from the list.
+        uploadLink.style.display = "";
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * Hide errors and reset the widget state without removing files.
+   * 
+   * Post: this.error is empty, progressBar is 0, and error messages/tips
+   *  should disappear.
+   * @returns {undefined}
+   */
+  function clearErrors() {
+    if( context === "genie") {
+      // Hide error message.
+      errorElem.style.display = "none";
+    }
+    // Clear the widget state without removing the other files.
+    if (validationTip !== null) {
+      validationTip.hide();
+      validationTip = null;
+    }
+    error = "";
+    progressBar.value = 0;
+  }
 
 	/**
 	 * Handler for the "Clear" link onclick in the control-box.
@@ -895,8 +1000,13 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	 * @returns {Boolean}
 	 */
 	function abortUpload(e) {
-		e.preventDefault();
-		e.stopPropagation();
+    e = e || window.event;
+    if( e.preventDefault)
+      e.preventDefault();
+    if( e.stopPropagation )
+      e.stopPropagation();
+    e.cancelBubble = true;
+    e.returnValue = false;
 		if( xhr && xhr.abort ) {
 			xhr.abort();
 		}
@@ -920,15 +1030,6 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
 	}
 
-	/**
-	 * Returns true if the indicated file is a directory.
-	 * Directories appear as 0 or 4096 byte files with an empty MIME type.
-	 * @param {File} file
-	 * @returns {Boolean}
-	 */
-	function isDirectory(file) {
-		return (file && file.type.length <= 0 && (file.size % 4096) === 0);
-	}
 };
 // end of pui["fileUpload"].FileUpload().
 
@@ -1008,8 +1109,11 @@ pui.widgets.add({
 			// for screens using this widget. By default the browser will open
 			// the dropped page and navigate away. Prevent that.
 			if( ! pui["fileUploadDND"].myPreventDefAdded ) {
-				window.addEventListener("dragover", pui["fileUploadDND"].myPreventDef, false);
-				window.addEventListener("drop", pui["fileUploadDND"].myPreventDef, false);
+        // For old IE, don't add listener, because drag/drop isn't even supported.
+        if( window.addEventListener ) {
+          window.addEventListener("dragover", pui["fileUploadDND"].myPreventDef, false);
+          window.addEventListener("drop", pui["fileUploadDND"].myPreventDef, false);
+        }
 				pui["fileUploadDND"].myPreventDefAdded = true;
 			}
 		},
@@ -1071,7 +1175,9 @@ pui.widgets.add({
 */
 pui["fileUploadDND"].myPreventDef = function(e) {
 	e = e || event;
-	e.preventDefault();
+  e.returnValue = false;
+  if( e. preventDefault)
+    e.preventDefault();
 };
 // Flag to avoid adding redundant window listeners.
 pui["fileUploadDND"].myPreventDefAdded = false;

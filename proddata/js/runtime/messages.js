@@ -153,6 +153,7 @@ pui["runtimeText"]["en_US"]["upload clear text"]    = "Clear";
 pui["runtimeText"]["en_US"]["upload remove text"]   = "Remove";
 pui["runtimeText"]["en_US"]["upload upload text"]   = "Upload";
 pui["runtimeText"]["en_US"]["upload drophere text"] = "Drop files here";
+pui["runtimeText"]["en_US"]["upload browser unsupported"] = "Drag/drop files requires Internet Explorer 10 or higher, Chrome, or Firefox";
 pui["runtimeText"]["en_US"]["upload finished text"] = "Finished";
 pui["runtimeText"]["en_US"]["csv export text"]      = "Export to Excel";
 pui["runtimeText"]["en_US"]["filter text"]          = "Filter";
