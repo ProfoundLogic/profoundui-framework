@@ -5436,7 +5436,7 @@ pui.Grid = function() {
       var col = Number(itm["column"]);
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
-      if (pui.isBound(val) && !isNaN(col) && col == headerCell.columnId) {
+      if (pui.isBound(val) && !isNaN(col) && col == headerCell.col) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         for (var j = 0; j < me.fieldNames.length; j++ ) {
           if (fieldName == me.fieldNames[j]) {
