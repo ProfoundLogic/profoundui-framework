@@ -31,6 +31,11 @@ pui.widgets.renderChart = function(parms) {
   //   - transparent (optional true)
   //   - xmlURL or xmlData or jsonURL or jsonData
   
+  if (parms.dom.isRendering)
+    return;
+  
+  parms.dom.isRendering = true;    
+  
   function loadChart() {
     var chartId = parms.dom.id + "_Chart";
     if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
@@ -39,7 +44,13 @@ pui.widgets.renderChart = function(parms) {
       "id": chartId,
       "width": "100%",
       "height": "100%",
-      "renderAt": parms.dom
+      "renderAt": parms.dom,
+      "events": {
+        "renderComplete": complete,
+        "dataLoadError": complete,
+        "dataInvalid": complete,
+        "noDataToDisplay": complete
+      }
     });
     pui.chartsRendered.push(chartId);
     chartObj.dom = parms.dom;
@@ -75,6 +86,13 @@ pui.widgets.renderChart = function(parms) {
     chartObj.render();
     parms.dom.chart = document.getElementById(chartId);
     if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible") parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
+        
+    function complete() {
+      
+      parms.dom.isRendering = false;
+      
+    }
+    
   }
   
   function loadScript(url, callback) {
@@ -283,14 +301,14 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {      
-    
+        
       var tp = getObj(parms.evalProperty("parent tab panel"));
       if (tp)
         tp = tp.tabPanel;
       var tn = parseInt(parms.evalProperty("parent tab"), 10);
       if (tp && !isNaN(tn) && tn != tp.selectedTab)
         return;
-            
+                  
       var mapType = trim(parms.evalProperty("map type"));
       var chartType;
       if (mapType != "") {
