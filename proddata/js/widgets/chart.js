@@ -334,7 +334,10 @@ pui.widgets.add({
         if (parms.dom["pui"] == null) parms.dom["pui"] = {};
         parms.dom["pui"]["properties"] = parms.properties;
 
-        parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Loading Chart...";        
+        // Do not do this on already rendered chart or FusionCharts will 
+        // lose the reference to it and methods like 'dispose()' will fail!
+        if (!parms.dom.chart)
+          parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Loading Chart...";        
         if (chartType == "") chartType = "Bar2D";  // set a default
         url = parms.evalProperty("chart url");
         if (url!=null && url!="") {
