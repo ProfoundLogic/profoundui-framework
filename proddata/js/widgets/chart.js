@@ -283,6 +283,14 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {      
+    
+      var tp = getObj(parms.evalProperty("parent tab panel"));
+      if (tp)
+        tp = tp.tabPanel;
+      var tn = parseInt(parms.evalProperty("parent tab"), 10);
+      if (tp && !isNaN(tn) && tn != tp.selectedTab)
+        return;
+            
       var mapType = trim(parms.evalProperty("map type"));
       var chartType;
       if (mapType != "") {

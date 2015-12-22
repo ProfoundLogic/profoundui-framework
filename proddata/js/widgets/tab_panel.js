@@ -644,6 +644,10 @@ function TabPanel() {
               if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid.show();
               else elem.grid.hide();
             }
+            // Render charts if not done already. A chart will not render when 
+            // the containing tab is inactive...   
+            if (!inDesignMode() && elem.pui.properties["field type"] == "chart" && !elem.chart)
+              applyProperty(elem, "field type", "chart");            
           }
           else {
             elem.style.visibility = "hidden";
