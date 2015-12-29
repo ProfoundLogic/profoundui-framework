@@ -491,15 +491,27 @@ pui["buildFKeyMenu"] = function(parms) {
 
 
 pui["capturePhoto"] = function(parms) {
+
   var dir = parms["dir"];
   if (dir == null) dir = "/www/profoundui/htdocs/profoundui/userdata/images";
   var overwrite = parms["overwrite"];
   if (overwrite !== true) overwrite = false;
   var fileName = parms["fileName"];
   if (fileName == null) fileName = "image.jpg";
+
+  var getPictureParm = {};
+  //targetWidth and targetHeight must be used together according
+  //to the cordova-plugin-camera API documentation
+  if (parms["targetWidth"] != null && parms["targetHeight"] != null){
+    getPictureParm["targetWidth"] = parms["targetWidth"];
+    getPictureParm["targetHeight"] = parms["targetHeight"];
+  }
+  getPictureParm["quality"] = parms["quality"];
+  if (getPictureParm["quality"] == null) getPictureParm["quality"] = 50;
+  getPictureParm["destinationType"] = navigator["camera"]["DestinationType"]["FILE_URI"];
+  getPictureParm["sourceType"] = navigator["camera"]["PictureSourceType"]["CAMERA"];
+
   var handler = parms["handler"];
-  var quality = parms["quality"];
-  if (quality == null) quality = 50;
   if (handler == null) {
     handler = function(response) {
       if (response["success"] == false) {
@@ -533,11 +545,7 @@ pui["capturePhoto"] = function(parms) {
                               function(msg) { 
                                 handler({ "success": false, "error": msg });
                               },
-                              { 
-                                "quality": quality, 
-                                "destinationType": navigator["camera"]["DestinationType"]["FILE_URI"],
-                                "sourceType": navigator["camera"]["PictureSourceType"]["CAMERA"] 
-                              }
+                              getPictureParm
   );
 
   function uploadPhoto(imageURI) {
