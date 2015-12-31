@@ -116,6 +116,9 @@ pui["enable arrow keys"] = false;
 pui["horizontal auto arrange"] = false;
 pui["buttons per row"] = 1;  //required when pui["horizontal auto arrange"] set to true
 
+// Parent namespace for wikihelp functions, settings, and objects.
+pui["wikihelp"] = {}; 
+
 pui.fkeyValues = {
   "F1": 1,
   "F2": 2,
@@ -651,6 +654,21 @@ pui.render = function(parms) {
       }
     }
   }
+  
+  // Prevent overlays from persisting incorrectly between screens by removing
+  // existing elements on each render.
+  if( pui["wikihelp"]["overlays"] ) {
+    while(pui["wikihelp"]["overlays"].length > 0) {
+      var overlay = pui["wikihelp"]["overlays"].pop();
+      overlay.parentNode.removeChild(overlay);
+      // Try to delete the extra object from the node. IE<8 can't delete it, so catch.
+      try{ delete overlay["pui"];}
+      catch(ex){}
+      overlay = null;
+    }
+  }
+  // Create a list to allow finding, hiding, and showing wiki-help overlays.
+  pui["wikihelp"]["overlays"] = [];
 
   pui.windowStack = [];
   
@@ -2358,7 +2376,7 @@ pui.renderFormat = function(parms) {
     grid.makeSortable();
     grid.restoreState();
   }
-
+  
   // execute global onload event
   if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
     pui["onload"](parms);
@@ -2380,8 +2398,8 @@ pui.renderFormat = function(parms) {
     	}
   	}
   	pui.onsubmitProp = screenProperties["onsubmit"];
-	}	
-
+	}
+  
 }
 
 
@@ -2472,7 +2490,7 @@ pui.attachResponse = function(dom) {
       }
       
     }    
-    
+
     var returnVal = pui.respond();
     
     pui.destURL = null;
@@ -5079,4 +5097,269 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
   
   return rtn;
   
-}
+};
+
+/**
+ * Show overlays on every widget in the current formats.
+ * If the overlays were previously created, they are made visible and the 
+ * function returns. Otherwise, overlay elements are created for each current
+ * format.
+ * 
+ * @returns {undefined}
+ */
+pui["wikihelp"]["overlayOn"] = function() {
+  if (pui["layers"] == null) return;
+  
+  // If the overlays have already been constructed, then show them.
+  if( pui["wikihelp"]["overlays"].length > 0 ) {
+    for(var i=0; i < pui["wikihelp"]["overlays"].length; i++) {
+      var overlay = pui["wikihelp"]["overlays"][i];
+
+      var isVisible = true;
+      // Detect member of tab panel. Only show if parent tab is selected.
+      if( overlay["pui"].parentTabSelected ) {
+        isVisible = overlay["pui"].parentTabSelected(overlay["pui"].parentTabPanel, overlay["pui"].parentTab);
+      }
+
+      if( isVisible ) overlay.style.display = "block";
+    }//end showing each overlay.
+  }
+  // The overlays haven't been constructed yet; create them.
+  else {
+    pui["wikihelp"].createOverlays(true);
+  }
+};
+
+/**
+ * Create overlay divs for each item in all current formats.
+ * 
+ * @param {boolean} displayOverlays    If true, the overlay's style.display value is block.
+ *                                  Else, the style.display value is none.
+ * @returns {undefined}
+ */
+pui["wikihelp"].createOverlays = function(displayOverlays) {
+  var curfmtNames = currentFormatNames();
+  // Look in each layer.
+  for(var lyrIdx=0; lyrIdx < pui["layers"].length; lyrIdx++ ) {
+    var layer = pui["layers"][lyrIdx];
+    // Look in each format.
+    for(var fmtIdx=0; fmtIdx < layer.formats.length; fmtIdx++ ) {
+      var format = layer.formats[fmtIdx];
+      // Ignore formats that aren't current.
+      if( pui.arrayIndexOf(curfmtNames, format.name) < 0 ) continue;
+
+      // Look at each item in this format.
+      for(var itmIdx=0; itmIdx < format.metaData.items.length; itmIdx++ ) {
+        var item = format.metaData.items[itmIdx];
+        if( ! item.id ) continue;
+        
+        // Get the widget element to determine the overlay's position and size.
+        var el = getObj( item.id );
+        if( ! el ) continue;
+        if( item["field type"] === "layout") continue;
+        if( item["field type"] === "panel") continue;
+        if( item["field type"] === "css panel") continue;
+
+        // Create a new overlay div that we can position absolutely.
+        var overlay = document.createElement("div");
+        overlay.className = "pui-wikih-overlay";
+        overlay.style.position = "absolute";
+        el.parentNode.appendChild(overlay);
+        
+        // Copy info to pass on to the onclick handler.
+        overlay["pui"] = {};
+        overlay["pui"]["dspf"] = format.file;
+        overlay["pui"]["recfmt"] = format.name;
+        overlay["pui"]["fieldId"] = item.id;
+        overlay["pui"]["fieldName"] = "";
+        // Pass along field name for bound fields.
+        if( typeof(item.value) == "object" && item.value.fieldName )
+          overlay["pui"]["fieldName"] = item.value.fieldName;
+        else if(typeof(item["menu response"]) == "object" && item["menu response"].fieldName)
+          overlay["pui"]["fieldName"] = item["menu response"].fieldName;
+        else if(typeof(item.response) == "object" && item.response.fieldName)
+          overlay["pui"]["fieldName"] = item.response.fieldName;
+
+        var isVisible = true;
+        // Detect member of tab panel. Only show field if parent tab is selected.
+        if( el.parentTabPanel && el.parentTab ) {
+          overlay["pui"].parentTabPanel = el.parentTabPanel;
+          overlay["pui"].parentTab = parseInt(el.parentTab, 10);
+          
+          // Returns true if the corresponding widget's parent tab exists and is
+          // selected; else returns false.
+          overlay["pui"].parentTabSelected = function(parentTabPanel, parentTab){
+            // Note: "this" inside this function refers to the function's parent
+            // object: overlay.pui. But using "this" causes obfuscator warnings.
+            var partabPanel = document.getElementById(parentTabPanel);
+            if( ! partabPanel ) return false;
+            var seltab = partabPanel.getTab();
+            return seltab === parentTab;
+          };
+          isVisible = overlay["pui"].parentTabSelected(overlay["pui"].parentTabPanel, overlay["pui"].parentTab);
+        }
+        if( isVisible && displayOverlays ) overlay.style.display = "block";
+        else overlay.style.display = "none";
+
+        // Match the width/height of the widget on the page; zIndex over it.
+        // Workaround for IE8,IE9 offset values returning 0: call getBoundingClientRect
+        el.getBoundingClientRect();
+        var ovwidth = el.offsetWidth;
+        var ovheight = el.offsetHeight;
+        overlay.style.zIndex = el.style.zIndex + 100;
+        
+        
+        // Match the overlay's position with the position of the widget.
+        if( el.style.top.length > 0 ) overlay.style.top = el.style.top;
+        else if( el.style.bottom.length > 0 ) overlay.style.bottom = el.style.bottom;
+        if( el.style.left.length > 0 ) overlay.style.left = el.style.left;
+        else if( el.style.right.length > 0 ) overlay.style.right = el.style.right;
+
+        // Special cases; adjust position and size of overlay.
+        // 
+        // Radio buttons and checkboxes have multiple elements not inside a parent div.
+        if( item["field type"] === "radio button" ) {
+          overlay.style.margin = "3px 3px 0 5px";
+          // The next sibling 
+          if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+            ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
+            ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
+          }
+        }
+        else if( item["field type"] === "checkbox" ) {
+          overlay.style.margin = "2px";
+          if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+            ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
+            ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
+          }
+        }
+        // Tab panels contain other elements, so only overlay the tabs to 
+        // prevent clicking them.
+        else if( item["field type"] === "tab panel") {
+          // 2nd child Node contains the tabs. Use height from tabs.
+          ovheight = el.childNodes[1].offsetHeight;
+          overlay.style.fontSize = (ovheight * 0.85) + "px";
+        }
+        else if( item["field type"] === "date field") {
+          ovwidth = el.offsetWidth + 22;
+        }
+        
+        overlay.style.width = ovwidth + "px";
+        overlay.style.height = ovheight + "px";
+        
+        // Look for user-defined text content.
+        if( pui["wikihelp"]["overlayText"] ) {
+          overlay.appendChild(document.createTextNode(pui["wikihelp"]["overlayText"]));
+
+          // Scale the font unless explicitly told not to.
+          if(pui["wikihelp"]["fontScale"] != false) {
+            // Get user-defined font scaling factors or use the best determined
+            // values for Helvetica font with latin characters.
+            var fontScale = Number(pui["wikihelp"]["fontScale"]);
+            if( isNaN(fontScale)) fontScale = 1.56;
+
+            // Calculate the largest font size for the text to remain in its box.
+            // Works for most boxes with short (1-4 chars) strings.
+            var fontWidth = ovwidth / pui["wikihelp"]["overlayText"].length;
+            var fontHeight = Math.min( fontWidth * fontScale, ovheight * fontScale / 2);
+            overlay.style.fontSize = fontHeight + "px";
+          }
+        }
+
+        // Add an image for the overlay.
+        if( pui["wikihelp"]["image"] ) {
+          var img = document.createElement("img");
+          img.src = pui["wikihelp"]["image"];
+          // By default make the image square. Otherwise it stretches for some fields.
+          if( pui["wikihelp"]["imageSquare"] !== false ) {
+            var size = Math.min(ovwidth, ovheight);
+            img.width = size;
+            img.height = size;
+          }
+          else {
+            img.width = ovwidth;
+            img.height = ovheight;
+          }
+          overlay.appendChild(img);
+        }
+
+        addEvent(overlay, "click", pui["wikihelp"].onClickOverlay );
+        pui["wikihelp"]["overlays"].push(overlay);
+
+      }//end looking at each item.
+    }//end looking at each format.
+  }//end looking at each layer.
+};
+
+/**
+ * Hide all wiki-help widget overlays.
+ * 
+ * @returns {undefined}
+ */
+pui["wikihelp"]["overlayOff"] = function() {
+  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+    pui["wikihelp"]["overlays"][i].style.display = "none";
+  }
+};
+
+/**
+ * Handler for wiki-help overlay onclick. This function packages the
+ * display file name, current record format name, and field id into an object
+ * and passes those values to a user-defined onclick function, if it exists.
+ * 
+ * @param {Object} event
+ * @returns {Boolean}
+ */
+pui["wikihelp"].onClickOverlay = function(event) {
+  event = event || window.event; //cross browser event.
+  preventEvent(event); //cross browser event.preventDefault and cancelBubble.
+  
+  var target = event.target || event.srcElement; //srcElement is for IE<9.
+  
+  // An image may capture the click event, so get the div node, which has the
+  // parameters we need to pass along.
+  if( target.parentNode["pui"] && target.parentNode["pui"]["dspf"] ) target = target.parentNode;
+  
+  // Export the event, display file name, record format name, clicked field id,
+  // and field name to the user's handler function if it exists.
+  var params = {};
+  params["dspf"] = target["pui"]["dspf"];
+  params["recfmt"] = target["pui"]["recfmt"];
+  params["fieldId"] = target["pui"]["fieldId"];
+  params["fieldName"] = target["pui"]["fieldName"];
+  params["event"] = event;
+  if( typeof(pui["wikihelp"]["onclick"]) === "function") 
+    pui["wikihelp"]["onclick"](params);
+  params = null;
+  
+  return false;
+};
+
+/**
+ * Returns an object containing the display file name and all formats.
+ * This is the screen-level-help API function.
+ * 
+ * @returns {Object}
+ */
+pui["wikihelp"]["getScreenInfo"] = function() {
+  
+  if( pui["wikihelp"]["overlays"].length < 1 )
+    pui["wikihelp"].createOverlays(false);
+  
+  var info = {};
+  info["formats"] = currentFormatNames();
+  info["dspf"] = pui["layers"][0]["formats"][0].file;
+  
+  info["fields"] = [];
+  // If we need to fetch items from current formats, iterate over pui.wikihelp.overlays.
+  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+    var field = {};
+    field.id = pui["wikihelp"]["overlays"][i]["pui"]["fieldId"];
+    if( pui["wikihelp"]["overlays"][i]["pui"]["fieldName"]
+    && pui["wikihelp"]["overlays"][i]["pui"]["fieldName"].length > 0 )
+      field.name = pui["wikihelp"]["overlays"][i]["pui"]["fieldName"];
+    info["fields"].push( field );
+  }
+  
+  return info;
+};
