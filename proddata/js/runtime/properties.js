@@ -1697,7 +1697,11 @@ pui.cacheStyle = function( domObj, stylename, effectiveValue ) {
  * @returns {undefined}
  */
 pui.removeCachedStyle = function( domObj, stylename ) {
-  delete domObj.pui.styleCached[stylename];
+
+  if (typeof domObj.pui.styleCached != "undefined" 
+    && domObj.pui.styleCached[stylename]!="undefined") {
+    delete domObj.pui.styleCached[stylename];
+  }
   
   // Re-assert all of the inline style values.
   if( typeof(domObj.pui.styleInline) === "object" || domObj.pui.styleInline !== null)
