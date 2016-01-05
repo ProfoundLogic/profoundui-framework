@@ -112,6 +112,7 @@ pui.multY = null;
 pui.defaultDateFormat = "MM/DD/YY";
 pui["is_touch"] = ("ontouchstart" in window);
 pui.touchDevice = pui["is_touch"];  // for backward compatibility.
+pui["is_mouse_capable"] = false;  // default to false
 
 pui.designer = {};
 pui.designer["initial keywords"] = [];   // for example, customer could change it as follows... pui.designer["initial keywords"] = ["INDARA"];

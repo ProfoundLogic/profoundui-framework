@@ -4126,7 +4126,8 @@ pui.runMVC = function(response) {
 
 }
 
-pui.start = function() {  
+pui.start = function() {
+  pui.startMouseCapableMonitoring();
   var parms = getQueryStringParms();
   pui.canvasSize = parms["canvasSize"];
   var program = parms["pgm"];

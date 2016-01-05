@@ -1753,3 +1753,39 @@ pui.dehighlightText = function(div) {
   }
 }
 
+
+pui.startMouseCapableMonitoring = function() {
+	if (pui["is_mouse_capable"]) {
+	  return;
+	}
+
+	if (pui.isLocalStorage() && localStorage["pui-is-mouse-capable"] == "true") {
+		pui["is_mouse_capable"] = true;
+		return;
+	}
+
+	var docElement = document.documentElement;
+	if (docElement == null) return;
+
+	// Look for 2 consecutive 'mousemove' events without an intervening
+	// 'mousedown'; this excludes touch screen tap events
+	var onMouseDown = function () {
+		hadMouseOver = false;
+	};
+	var onMouseMove = function () {
+		if (hadMouseOver) {
+			pui["is_mouse_capable"] = true;
+			if (pui.isLocalStorage()) {
+				localStorage.setItem("pui-is-mouse-capable", "true");
+			}			
+			removeEvent(docElement, 'mousedown', onMouseDown);
+			removeEvent(docElement, 'mousemove', onMouseMove);
+		}
+		hadMouseOver = true;
+	};
+
+	var hadMouseOver = false;
+	addEvent(docElement, 'mousedown', onMouseDown);
+	addEvent(docElement, 'mousemove', onMouseMove);
+}
+
