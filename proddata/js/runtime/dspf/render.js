@@ -4453,45 +4453,33 @@ pui.setupWindowDiv = function(parms, layer) {
   pui.runtimeContainer.appendChild(windowDiv);
   parms.container = windowDiv;
   pui.lastWindow = windowDiv;
-} 
+}; 
 
+/**
+ * Adjusts the left and top position of pui.lastWindow to be centered on the
+ * screen. pui.lastWindow should be the window most recently added.
+ * 
+ * See issues 1430 and 1786 for example test cases if you change this function.
+ * 
+ * @returns {undefined}
+ */
 pui.centerWindow = function() {
   // get dimensions of current window:
   var windowDims = pui.getDimensions(pui.lastWindow);
   
-  // find the most recently rendered window that has a size to it (not including this one)
-  // center within that "screen" size:
+  // Starting with pui.runtimeContainer, which is first in windowStack, find
+  // a window that has a size to it.
+  // Centering will happen on that "screen" size.
   var screenDims;
-  var parentWin;
-  for (var w=pui.windowStack.length-1; w>=0; w--) {
+  for (var w=0; w < pui.windowStack.length; w++) {
     screenDims = pui.getDimensions(pui.windowStack[w]);
-    parentWin = pui.windowStack[w];
     if (screenDims.x1!=screenDims.x2 && screenDims.y1!=screenDims.y2) break;
   }
   
-  // If the parent window is the pui container, its offsets should not be
-  // used in the calculation. Otherwise, we need the coordinates of the parent's
-  // top-left and bottom-right corners--not just the dimensions.
-  if( parentWin.id !== "pui") {
-    screenDims.x1 += parentWin.offsetLeft;
-    screenDims.x2 += parentWin.offsetLeft;
-    screenDims.y1 += parentWin.offsetTop;
-    screenDims.y2 += parentWin.offsetTop;
-  }
-
   // calculate centering:
   
-  // Find the midpoint between the parent's top-left and bottom-right.
-  var scrnMidpX = (screenDims.x1 + screenDims.x2) / 2; 
-  var scrnMidpY = (screenDims.y1 + screenDims.y2) / 2;
-  
-  // Align window center_x with parent's midpoint_x.
-  // Left becomes screen midpoint_x - half_of_window_width.
-  var left = parseInt( scrnMidpX - (windowDims.x2 - windowDims.x1) / 2 ); 
-  
-  // Align window center_y with parent's midpoint_y.
-  // Top becomes screen midpoint_y - half_of_window_height.
-  var top = parseInt( scrnMidpY - (windowDims.y2 - windowDims.y1) / 2 );
+  var left = parseInt((screenDims.x2 - (windowDims.x2 - windowDims.x1)) / 2) - windowDims.x1;
+  var top = parseInt((screenDims.y2 - (windowDims.y2 - windowDims.y1)) / 2) - windowDims.y1;
   
   if (left < -windowDims.x1) left = -windowDims.x1;
   if (top < -windowDims.y1) top = -windowDims.y1;
