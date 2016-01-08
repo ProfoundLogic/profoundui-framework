@@ -4462,19 +4462,42 @@ pui.centerWindow = function() {
   // find the most recently rendered window that has a size to it (not including this one)
   // center within that "screen" size:
   var screenDims;
+  var parentWin;
   for (var w=pui.windowStack.length-1; w>=0; w--) {
     screenDims = pui.getDimensions(pui.windowStack[w]);
+    parentWin = pui.windowStack[w];
     if (screenDims.x1!=screenDims.x2 && screenDims.y1!=screenDims.y2) break;
   }
   
+  // If the parent window is the pui container, its offsets should not be
+  // used in the calculation. Otherwise, we need the coordinates of the parent's
+  // top-left and bottom-right corners--not just the dimensions.
+  if( parentWin.id !== "pui") {
+    screenDims.x1 += parentWin.offsetLeft;
+    screenDims.x2 += parentWin.offsetLeft;
+    screenDims.y1 += parentWin.offsetTop;
+    screenDims.y2 += parentWin.offsetTop;
+  }
+
   // calculate centering:
-  var left = parseInt((screenDims.x2 - (windowDims.x2 - windowDims.x1)) / 2) - windowDims.x1;
-  var top = parseInt((screenDims.y2 - (windowDims.y2 - windowDims.y1)) / 2) - windowDims.y1;
+  
+  // Find the midpoint between the parent's top-left and bottom-right.
+  var scrnMidpX = (screenDims.x1 + screenDims.x2) / 2; 
+  var scrnMidpY = (screenDims.y1 + screenDims.y2) / 2;
+  
+  // Align window center_x with parent's midpoint_x.
+  // Left becomes screen midpoint_x - half_of_window_width.
+  var left = parseInt( scrnMidpX - (windowDims.x2 - windowDims.x1) / 2 ); 
+  
+  // Align window center_y with parent's midpoint_y.
+  // Top becomes screen midpoint_y - half_of_window_height.
+  var top = parseInt( scrnMidpY - (windowDims.y2 - windowDims.y1) / 2 );
+  
   if (left < -windowDims.x1) left = -windowDims.x1;
   if (top < -windowDims.y1) top = -windowDims.y1;
   pui.lastWindow.style.left = left + "px";
   pui.lastWindow.style.top = top + "px";
-}
+};
 
 pui.getDimensions = function(screen) {
   var dims = {
@@ -4482,7 +4505,10 @@ pui.getDimensions = function(screen) {
     y1: 99999,
     x2: 0,
     y2: 0
-  }
+  };
+  // Look at the dimensions of each of the screen's child nodes. After the
+  // loop finishes, a rectangle bounded by the values in "dims" would contain
+  // all of the widgets. That rectangle should be the size of the screen.
   var obj = screen.firstChild;
   while (obj != null) {
     if (!obj.isPUIWindow && !obj.isPUIWindowMask && obj.style != null && obj.style.position == "absolute") {
@@ -4506,7 +4532,7 @@ pui.getDimensions = function(screen) {
   if (dims.x1 == 99999) dims.x1 = 0;
   if (dims.y1 == 99999) dims.y1 = 0;
   return dims;
-}
+};
 
 
 pui.showMessageSubfileHelp = function(textObj) {
