@@ -5174,6 +5174,7 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         if( item["field type"] === "layout") continue;
         if( item["field type"] === "panel") continue;
         if( item["field type"] === "css panel") continue;
+        if( item["visibility"] === "hidden") continue;
 
         // Create a new overlay div that we can position absolutely.
         var overlay = document.createElement("div");
@@ -5257,6 +5258,11 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         }
         else if( item["field type"] === "date field") {
           ovwidth = el.offsetWidth + 22;
+        }
+        else if( item["field type"] === "grid") {
+          if( item["csv export"] === "true") {
+            ovheight += pui.pagingBarHeight;
+          }
         }
         
         overlay.style.width = ovwidth + "px";
