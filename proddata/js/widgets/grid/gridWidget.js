@@ -39,6 +39,7 @@ pui.widgets.add({
       parms.dom.grid = new pui.Grid();
       parms.dom.grid.container = parms.dom.parentNode;
       parms.dom.grid.tableDiv = parms.dom;
+      parms.dom.grid.designMode = parms.design;
       
       // improve performance in IE (IE is very slow when setting the .scrollTop property on a div)
       if ((pui["is_old_ie"] || pui["is_opera"]) && !parms.design && parms.properties["scrollbar"] == "paging" && context == "dspf") {

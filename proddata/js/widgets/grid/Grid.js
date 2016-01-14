@@ -922,7 +922,7 @@ pui.Grid = function() {
     if (me.recNum < 1) me.recNum = 1;
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
-      if (pui["is_touch"] || pui.iPadEmulation) me.getData();
+      if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) me.getData();
     }
     else {
       me.getData();
@@ -978,7 +978,7 @@ pui.Grid = function() {
     }
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
-      if (pui["is_touch"] || pui.iPadEmulation) me.getData();
+      if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) me.getData();
     }
     else {
       me.getData();
@@ -2410,7 +2410,7 @@ pui.Grid = function() {
       var bwidth = me.borderWidth;
       if (bwidth === null || (me.designMode && bwidth < minBWidth)) bwidth = minBWidth;
       var scrollBarWidth = 23;
-      if (pui["is_touch"] || pui.iPadEmulation) scrollBarWidth = 0;
+      if ((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation) scrollBarWidth = 0;
 
       me.scrollbarObj.x = parseInt(me.vLines[me.vLines.length - 1].style.left) - scrollBarWidth;
 
@@ -2506,6 +2506,8 @@ pui.Grid = function() {
   
   function positionIcons() {
     if (!me.designMode) return;
+    if (addRowIcon == null) return;
+    if (removeRowIcon == null) return;
     var y = 0;
     var x = 0;
     var n = me.hLines.length;
@@ -2615,7 +2617,11 @@ pui.Grid = function() {
       
       case "selection field":
             
-      case "column sort response":      
+      case "column sort response":
+      
+      case "right":
+      case "bottom":
+      
         // nothing to do here
         break;
 
@@ -4162,7 +4168,7 @@ pui.Grid = function() {
       if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e, col);
       if (!me.hoverEffect) return;
-      if (pui["is_touch"] || pui.iPadEmulation) return;
+      if ((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation) return;
       var header = (row == 0 && me.hasHeader);
       if (header) return;
       var cols = me.cells[row];
@@ -4295,7 +4301,7 @@ pui.Grid = function() {
           
         }  
         // Center under the finger for touch devices.
-        if (pui["is_touch"]) {
+        if (pui["is_touch"] && !pui["is_mouse_capable"]) {
         
           x -= contextMenu.clientWidth / 2;
           
@@ -4339,7 +4345,7 @@ pui.Grid = function() {
     // On IOS Safari/Chrome and also the Android browser, this doesn't happen. Which is expected, as 
     // the behavior on Chrome for Android is not standard...
     
-    if (pui["is_touch"] && !pui.is_chrome) {
+    if (pui["is_touch"] && !pui["is_mouse_capable"] && !pui.is_chrome) {
     
       pui.taphold(cell, function(e) {
       
@@ -4762,7 +4768,7 @@ pui.Grid = function() {
     cell.style.height = (parseInt(me.hLines[row+1].style.top) - parseInt(me.hLines[row].style.top)) + "px";
     var width = (parseInt(me.vLines[col+1].style.left) - parseInt(me.vLines[col].style.left));
     if (last && (me.pagingScrollBar || me.slidingScrollBar)) {
-      if (!(pui["is_touch"] || pui.iPadEmulation)) {
+      if (!((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation)) {
         width = width - 16;  // reduce by scrollbar width
       }
     }

@@ -1226,7 +1226,7 @@ pui.renderFormat = function(parms) {
             
               formattingObj["revert"] = false;
 
-              if (pui["is_touch"] && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
+              if (pui["is_touch"] && !pui["is_mouse_capable"] && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
               
                 // The following options put non-digit characters into the box. Such as spaces, separators, commas, etc.
                 // Any non-digit characters cause a browser to render a "number" element empty.
@@ -4959,7 +4959,7 @@ pui.doFieldExit = function(target) {
                                         || target.type=="number" 
                                         || target.type=="password"))) {
       var pos = target.cursorPosition;
-      if (pui["is_touch"]) {
+      if (pui["is_touch"] && !pui["is_mouse_capable"]) {
          pos = getCursorPosition(target);
       }
       if (pos == null) return false;

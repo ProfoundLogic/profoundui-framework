@@ -346,7 +346,7 @@ pui.ComboBoxWidget = function() {
           pui.checkEmptyText(box);
         }
         hideChoices();
-        if (!pui["is_touch"]) me.setFocus();
+        if (!pui["is_touch"] || pui["is_mouse_capable"]) me.setFocus();
         if (me.div.selectEvent != null && !box.readOnly && !me.design) {
           me.div.selectEvent(box.value, target.choiceText, me.div);
         }

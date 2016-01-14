@@ -675,7 +675,7 @@ function fieldExit(obj, minus) {
   var signedNumeric = obj.getAttribute('signedNumeric');
   if (minus && (signedNumeric==null || signedNumeric!='Y')) return false;
   var pos = obj.cursorPosition;
-  if (pui["is_touch"]) {
+  if (pui["is_touch"] && !pui["is_mouse_capable"]) {
      pos = getCursorPosition(obj);
   }
   if (pos == null) return false;
@@ -722,7 +722,7 @@ function fieldExit(obj, minus) {
 
 
 pui.beforeUnload = function(event) {
-  if (pui["is_touch"] || pui.iPadEmulation) return;
+  if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) return;
   if (pui.observer != null) return;
   
   if (pui.confirmOnClose && !pui.skipConfirm) {
@@ -1777,7 +1777,15 @@ pui.startMouseCapableMonitoring = function() {
 			pui["is_mouse_capable"] = true;
 			if (pui.isLocalStorage()) {
 				localStorage.setItem("pui-is-mouse-capable", "true");
-			}			
+			}
+			if (pui.gridsDisplayed != null && pui.gridsDisplayed.length > 0) {
+			  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+			    var grid = pui.gridsDisplayed[i];
+			    if (grid != null && typeof grid.setScrollBar == "function") {
+			      grid.setScrollBar();
+			    }
+			  }
+			}
 			removeEvent(docElement, 'mousedown', onMouseDown);
 			removeEvent(docElement, 'mousemove', onMouseMove);
 		}

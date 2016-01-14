@@ -42,7 +42,7 @@ pui.Slider = function() {
   var handle;
   var hiddenField;
   
-  var ipad = (pui["is_touch"] || pui.iPadEmulation);
+  var ipad = ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation);
   
   this.init = function() {
     // create bar
@@ -65,7 +65,7 @@ pui.Slider = function() {
     handle.style.backgroundColor = "#d7f0ff";
     handle.style.position = "absolute";
     handle.style.fontSize = "0px";
-    if (ipad) {
+    if (ipad && !me.design) {
       handle.style.MozBorderRadius = "15px";
       handle.style.borderRadius = "15px";
       handle.style.WebkitBorderRadius = "15px";
@@ -202,7 +202,7 @@ pui.Slider = function() {
 
     // draw handle
     if (me.orientation == "vertical") {
-      if (ipad) {
+      if (ipad && !me.design) {
         handle.style.height = "32px";
         handle.style.width = "37px";
         handle.style.left = "-11px";
@@ -214,7 +214,7 @@ pui.Slider = function() {
       }
     }
     else {
-      if (ipad) {
+      if (ipad && !me.design) {
         handle.style.height = "37px";
         handle.style.width = "32px";      
         handle.style.top = "-11px";
