@@ -69,7 +69,7 @@ pui.formatting = {
         case 'D': return { r: '(?:' + pui.locales[locale]['shortDayNames'].join('|') + ')', c: '', g: 0 };
         case 'l': return { r: '(?:' + pui.locales[locale]['dayNames'].join('|') + ')', c: '', g: 0 };
         case 'y': return { r: '(\\\\d{2})', c: 'y = parseInt(matches[' + matchIndex + '], 10); y += (y > pui.formatting.Date.y2k ? 1900 : 2000);', g: 1 };
-        case 'Y': return { r: '(\\\\d{4})', c: 'y = parseInt(matches[' + matchIndex + '], 10);', g: 1 };
+        case 'Y': return { r: '(\\\\d{4})', c: 'y = parseInt(matches[' + matchIndex + '], 10); if (y == 0) y = null;', g: 1 };
         case 'g': return { r: '(\\\\d{1,2})', c: 'h = parseInt(matches[' + matchIndex + '], 10);', g: 1 };
         case 'G': return { r: '(\\\\d{1,2})', c: 'h = parseInt(matches[' + matchIndex + '], 10);', g: 1 };
         case 'h': return { r: '(\\\\d{1,2})', c: 'h = parseInt(matches[' + matchIndex + '], 10);', g: 1 };
