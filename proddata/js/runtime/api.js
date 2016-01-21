@@ -989,7 +989,7 @@ pui["keepAlive"] = function() {
       }
     },
     "onfail": function(req) {
-      if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
+      if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation(true);
       if (context == "genie") pui.genie.formSubmitted = false;
       if (context == "dspf") {

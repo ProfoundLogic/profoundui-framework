@@ -3379,7 +3379,7 @@ pui.submitResponse = function(response) {
         else pui.render5250(parms);
       },
       "onfail": function(req) {
-        if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
+        if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
         pui.hideWaitAnimation(true);
         pui.resetResponseValues();
         if (pui["onoffline"] != null) pui["onoffline"]();
@@ -3937,7 +3937,8 @@ pui["run"] = function(config) {
         pui.hideWaitAnimation(true);
         setTimeout(function() {
           if (pui["onoffline"] == null) {
-            pui.alert(pui.getNoConnectionMessage(req));
+            if (!pui["suppress comm errors"])
+              pui.alert(pui.getNoConnectionMessage(req));
             if (pui["is_touch"]) {
               setTimeout(function() {
                 if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -4045,7 +4046,8 @@ pui["signon"] = function(config) {
       pui.hideWaitAnimation(true);
       setTimeout(function() {
         if (pui["onoffline"] == null) {
-          pui.alert(pui.getNoConnectionMessage(req));
+          if (!pui["suppress comm errors"])
+            pui.alert(pui.getNoConnectionMessage(req));
           if (pui["is_touch"]) {
             setTimeout(function() {
               if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -4117,7 +4119,7 @@ pui.runMVC = function(response) {
       });
     },
     "onfail": function(req) {
-      if (pui["onoffline"] == null) pui.alert(pui.getNoConnectionMessage(req));
+      if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation(true);
       pui.resetResponseValues();
       if (pui["onoffline"] != null) pui["onoffline"]();
