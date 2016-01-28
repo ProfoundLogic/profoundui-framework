@@ -1390,7 +1390,10 @@ pui.FieldFormat = {
     };
     
     return function(obj) {
-      if(!invalid[obj.dataType] || invalid[obj.dataType][obj.formatting]){
+      // obj.dataType isn't a known type or the dataType/format combo is invalid.
+      // Or the formatting is blank (issue 2216).
+      if(!invalid[obj.dataType] || invalid[obj.dataType][obj.formatting]
+      || obj.formatting === "" ){
         obj.formatting = 'Text';
         return false;
       }
