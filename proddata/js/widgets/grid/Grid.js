@@ -4324,8 +4324,8 @@ pui.Grid = function() {
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";        
                 
-        preventEvent(event);
-        if (event != null && event.stopPropagation != null) event.stopPropagation(); 
+        //preventEvent(event);
+        //if (event != null && event.stopPropagation != null) event.stopPropagation(); 
         setTimeout(function() {
         
           contextMenu.showing = false;   

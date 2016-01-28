@@ -1915,3 +1915,55 @@ window["runCommandCb"] = function() {
 }
 
 pui["runPCCommand"] = runPCCommand;
+
+
+
+
+// press a key for the user
+// example: pressKey('Enter');                // press enter
+// example: pressKey('Option1');              // selects option 1
+// example: pressKey('F5');                   // press F5
+// example: pressKey('F5', 'F6', 'F7');       // press F5, then F6, then F7
+function pressKey(keyDesc, onTimeoutDelay) {
+  if (onTimeoutDelay != null && typeof onTimeoutDelay != "string" && onTimeoutDelay == true) {
+    setTimeout(function() {
+      pressKey(keyDesc);
+    }, 0);
+    return;
+  }
+  
+  if (context == "dspf") {
+    // Create button on the fly, so that the aid key is sent
+    var keyButton = newElement("button");
+    keyButton.id = "puiKeyButton";
+    keyButton.style.display = "none";
+    applyProperty("puiKeyButton", "shortcut key", keyDesc);
+    pui.click("puiKeyButton");
+    return;
+  }
+  
+  if (arguments.length > 1) {
+    var steps = [];
+    for (var i = 0; i < arguments.length; i++) {
+      steps[i] = "pressKey('" + arguments[i] + "')";
+    }
+    multiStepAction(steps);
+    return;
+  }
+  if (keyDesc.substr(0,6) == 'option') {
+    var option = keyDesc.substr(6);
+    selectOption(option);
+  }
+  else {
+    var keyname = getKeyNameFromDesc(keyDesc);
+    if (keyname != '') {
+      pressKeyUsingHexName(keyname);
+    }
+  }
+}
+// allow variations in spelling/case since this is a commonly used function
+function presskey(key) { pressKey(key) } 
+function Presskey(key) { pressKey(key) } 
+function PressKey(key) { pressKey(key) } 
+function pressKEY(key) { pressKey(key) } 
+function PRESSKEY(key) { pressKey(key) } 
