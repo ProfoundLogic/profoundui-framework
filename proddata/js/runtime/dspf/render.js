@@ -1725,7 +1725,7 @@ pui.renderFormat = function(parms) {
 
       // assign arrow key navigation events to input boxes
       if (pui["enable arrow keys"] == true) {
-        if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field") {
+        if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field" || properties["field type"] == "checkbox") {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           addEvent(boxDom, "keydown", function(event) {
