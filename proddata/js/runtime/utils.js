@@ -1796,6 +1796,10 @@ pui.startMouseCapableMonitoring = function() {
 			  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
 			    var grid = pui.gridsDisplayed[i];
 			    if (grid != null && typeof grid.setScrollBar == "function") {
+			      if (grid.scrollbarObj != null) {
+			        if (grid.scrollbarObj.destroy == "function") grid.scrollbarObj.destroy();
+              grid.scrollbarObj = null;
+			      }
 			      grid.setScrollBar();
 			    }
 			  }
