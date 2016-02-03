@@ -5266,6 +5266,10 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
             ovheight += pui.pagingBarHeight;
           }
         }
+        else if( item["field type"] === "styled button" && !item["height"] ){
+          var dim = pui.getDimensions(el);
+          ovheight = dim.y2;
+        }
         
         overlay.style.width = ovwidth + "px";
         overlay.style.height = ovheight + "px";
