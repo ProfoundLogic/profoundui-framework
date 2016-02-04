@@ -946,36 +946,47 @@ pui.isRightClick = function(e) {
 
 
 pui.getOffset = function(obj) {
-  var curleft = curtop = 0;
-  if (obj.offsetParent) {
-    do {
-      curleft += obj.offsetLeft - obj.scrollLeft;
-      curtop += obj.offsetTop - obj.scrollTop;
+  var curleft = 0;
+  var curtop = 0;
+  // Get offsets from obj and each offsetParent until there are no more parents.
+  while(obj != null ){
 
-      if (obj.className == "scroller") {
-        var transform = obj.style["transform"];
-        if (transform == null) transform = obj.style["webkitTransform"];
-        if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
-          transform = transform.substr(10);
-          transform = transform.split(")")[0];
-          var transformParts = transform.split(",");
-          var transformLeft = transformParts[0];
-          var transformTop = transformParts[1];
-          if (transformLeft != null && transformTop != null) {
-            transformLeft = parseInt(trim(transformLeft));
-            transformTop = parseInt(trim(transformTop));
-            if (!isNaN(transformLeft) && !isNaN(transformTop)) {
-              curleft += transformLeft;
-              curtop += transformTop;
-            }
+    curleft += obj.offsetLeft;
+    curtop += obj.offsetTop;
+
+    // Compensate for content scroll position, but not for the body tag.
+    // body.scrollTop/Left in Chrome, Safari, and Opera is the window scroll 
+    // top/left. Offset shouldn't change when the page scrolls.
+    if( obj.tagName !== "BODY") {
+      curleft -= obj.scrollLeft;
+      curtop -= obj.scrollTop;
+    }
+
+    // Include the style transform in the offset.
+    if (obj.className == "scroller") {
+      var transform = obj.style["transform"];
+      if (transform == null) transform = obj.style["webkitTransform"];
+      if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
+        transform = transform.substr(10);
+        transform = transform.split(")")[0];
+        var transformParts = transform.split(",");
+        var transformLeft = transformParts[0];
+        var transformTop = transformParts[1];
+        if (transformLeft != null && transformTop != null) {
+          transformLeft = parseInt(trim(transformLeft));
+          transformTop = parseInt(trim(transformTop));
+          if (!isNaN(transformLeft) && !isNaN(transformTop)) {
+            curleft += transformLeft;
+            curtop += transformTop;
           }
         }
-
       }
-    } while (obj = obj.offsetParent);
+
+    }
+    obj = obj.offsetParent;
   }
   return [curleft,curtop];
-}
+};
 
 
 /**
