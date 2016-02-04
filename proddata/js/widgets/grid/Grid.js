@@ -363,6 +363,45 @@ pui.Grid = function() {
     numRows = parseInt(numRows);
     if (numRows < 1) numRows = 1;
     me.dontSelect = true;
+
+    // If the active element prior to this event
+    // is a subfile element, save it's position
+    // and move the focus to a temporary
+    // input field, if the gridExpanding 
+    // flag is false
+    var activeEl = document.activeElement;
+    var proxyEl = null;
+    var focusedEl = null;
+    var gridExpanding = false;
+    if (me.cells.length < numRows){
+      gridExpanding = true;
+    }
+    
+    if(activeEl && activeEl.subfileRow && !gridExpanding && pui['is_android']){
+      proxyEl = document.createElement('input');
+      proxyEl.type = activeEl.type;
+      proxyEl.style.position = 'absolute';
+      proxyEl.style.left = '0px';
+      proxyEl.style.top = '0px';
+      proxyEl.style.opacity = 0;
+      proxyEl.id = 'proxyEl';
+      focusedEl = activeEl;
+      document.body.appendChild(proxyEl);
+      proxyEl.focus();
+
+      var firstRowNumber = me.cells[0][0].firstChild.subfileRow;
+      if(firstRowNumber <= activeEl.subfileRow && firstRowNumber + numRows > activeEl.subfileRow ){
+        me.recNum = firstRowNumber;
+      }
+      else{
+        me.recNum = activeEl.subfileRow;
+      }
+    }
+    else{
+      me.scrollbarObj.setScrollTopToRow(me.recNum);
+    }
+
+
     me["setNumberOfRows"](numRows);
     me.dontSelect = false;
     
@@ -375,6 +414,14 @@ pui.Grid = function() {
     });
     me.setScrollBar();
     me.setHeadings();
+
+    // If the temporary input field variable exists
+    // we need to focus on the subfile element that previously had
+    // focus, and we need to remove the temporary input field variable
+    if (focusedEl && proxyEl && !gridExpanding && pui['is_android']){
+      focusedEl.focus();
+      proxyEl.parentNode.removeChild(proxyEl);
+    }
   }
   
   this.isInitCollapsed = function() {
@@ -1283,8 +1330,8 @@ pui.Grid = function() {
     var touchTarget;
     if (me.scrollbarObj != null) {
       touchTarget = me.scrollbarObj.touchTarget;
-    }
-    for (var row = (me.hasHeader ? 1 : 0); row < me.cells.length; row++) {
+    }     
+    for (var row = (me.hasHeader ? 1 : 0); row < me.cells.length; row++) {      
       for (var col = 0; col < me.cells[row].length; col++) {
         var cell = me.cells[row][col];
         var elem = cell.firstChild;
@@ -4368,8 +4415,8 @@ pui.Grid = function() {
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";        
                 
-        //preventEvent(event);
-        //if (event != null && event.stopPropagation != null) event.stopPropagation(); 
+        preventEvent(event);
+        if (event != null && event.stopPropagation != null) event.stopPropagation(); 
         setTimeout(function() {
         
           contextMenu.showing = false;   
