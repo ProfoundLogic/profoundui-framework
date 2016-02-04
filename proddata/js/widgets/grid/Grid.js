@@ -598,6 +598,11 @@ pui.Grid = function() {
       me.getData(fileName);
       return;
     }
+    
+    if (context=="genie" && !pui.usingGenieHandler) {
+      pui.alert("In 5250 mode, the \"csv export\" feature requires an SQL-driven subfile.");
+      return;
+    }
 
     fileName = encodeURIComponent(fileName);
 
@@ -5878,9 +5883,10 @@ pui.Grid = function() {
       { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is returned to your program when the next page link is clicked.", context: "dspf" },
       { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: "Determines if the previous page link is enabled.", context: "dspf" },
       { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
-      { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the CSV format.", context: "dspf" },
-      { name: "csv file name", help: "Defines the name of the download file used to export grid data to CSV format.  The .csv extension is automatically appended to the name.  If omitted, the record format name is used.", context: "dspf", translate: true },
-      { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether subfile headings should be exported as the first row of the CSV file.", context: "dspf" },
+      
+      { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
+      { name: "csv file name", help: "Defines the name of the download file used to export grid data to CSV format.  The .csv extension is automatically appended to the name.  If omitted, the record format name is used." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },
+      { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
       
       { name: "Row Folding", category: true, context: "dspf" },      
       { name: "fold multiple", choices: ["2", "3", "4", "Other..."], help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.   The multiple represents the number of collapsed rows that can fit into one expanded row.", bind: false, context: "dspf" },
