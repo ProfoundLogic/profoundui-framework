@@ -467,6 +467,8 @@ pui.cleanup = function() {
     document.body.style[prop] = pui.restoreStyles[prop];
   pui.restoreStyles = {};
   
+  pui.killFrames();
+  
 }
 
 

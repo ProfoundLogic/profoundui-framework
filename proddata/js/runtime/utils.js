@@ -743,20 +743,7 @@ pui.beforeUnload = function(event) {
 
 pui["unload"] = function() {
   if (pui.shutdownOnClose && pui.observer == null) {
-    // For Redmine #2287, Chrome doesn't seem to fire the "unload" 
-    // event for iframes when a Chrome tab is closed.
-    if (pui["is_chrome"]) {
-    
-      var iframes = document.querySelectorAll("iframe");
-      for (var i = 0; i < iframes.length; i++) {
-      
-        var iframe = iframes[i];
-        if (iframe.contentWindow["pui"] && iframe.contentWindow["pui"]["unload"])
-          iframe.contentWindow["pui"]["unload"]();
-        
-      }
-      
-    }
+    pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
@@ -1826,3 +1813,21 @@ pui.startMouseCapableMonitoring = function() {
 	addEvent(docElement, 'mousemove', onMouseMove);
 }
 
+pui.killFrames = function() {
+  
+  // For Redmine #2287, Chrome doesn't seem to fire the "unload" 
+  // event for iframes when a Chrome tab is closed.
+  if (pui["is_chrome"]) {
+
+    var iframes = document.querySelectorAll("iframe");
+    for (var i = 0; i < iframes.length; i++) {
+
+      var iframe = iframes[i];
+      if (iframe.contentWindow["pui"] && iframe.contentWindow["pui"]["unload"])
+        iframe.contentWindow["pui"]["unload"]();
+      
+    }
+
+  }  
+  
+}
