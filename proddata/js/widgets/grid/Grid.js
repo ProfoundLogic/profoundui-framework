@@ -3359,7 +3359,65 @@ pui.Grid = function() {
       placeCursorOnRow(row);
     }
   }
+  
+  
+  function checkSelected(record) {
+    
+    var selected = false;
+    
+    if (record.selected == null) {
+      if (me.selectionField != null) {
+        if (me.selectionFieldIndex == null) {
+          for (var i = 0; i < me.fieldNames.length; i++) {
+            if (pui.fieldUpper(me.selectionField.fieldName) == me.fieldNames[i]) {                  
+              me.selectionFieldIndex = i;
+              break;
+            }
+          }
+        }
+        if (me.selectionFieldIndex != null) {
+          if (record[me.selectionFieldIndex] == me.selectionValue) {
+            record.selected = true;
+          }
+        }
+      }
+    }
+    if (record.selected == true) {
+      selected = true;
+    }
 
+    return selected;
+  }
+
+  
+  this["isRowSelected"] = function(row) {
+    var rec = getDataArrayForRow(row);
+    return checkSelected(rec);
+  }
+  
+  
+  this["getSelectedRows"] = function() {
+
+    var selRows = [];
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    var start = (me.hasHeader ? 0 : 1 );
+    
+    for (var row=start; row<dataRecords.length; row++) {
+      
+      if (checkSelected(dataRecords[row])) {
+        var rrn = row + 1; 
+        if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
+          rrn = dataRecords[row].subfileRow;
+        }
+        selRows.push(rrn);
+      }
+    }
+    
+    return selRows;
+  }
+  
+  
   this.setRowBackground = function(row, hover) {
     var even = ((row % 2) == 1);
     if (me.hasHeader) even = !even;
@@ -3373,26 +3431,7 @@ pui.Grid = function() {
         var dataRecords = me.dataArray;
         if (me.isFiltered()) dataRecords = me.filteredDataArray;
         if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-          if (dataRecords[adjustedRow - 1].selected == null) {
-            if (me.selectionField != null) {
-              if (me.selectionFieldIndex == null) {
-                for (var i = 0; i < me.fieldNames.length; i++) {
-                  if (pui.fieldUpper(me.selectionField.fieldName) == me.fieldNames[i]) {                  
-                    me.selectionFieldIndex = i;
-                    break;
-                  }
-                }
-              }
-              if (me.selectionFieldIndex != null) {
-                if (dataRecords[adjustedRow - 1][me.selectionFieldIndex] == me.selectionValue) {
-                  dataRecords[adjustedRow - 1].selected = true;
-                }
-              }
-            }
-          }
-          if (dataRecords[adjustedRow - 1].selected == true) {
-            selected = true;
-          }
+          selected = checkSelected(dataRecords[adjustedRow - 1]);
         }
       }
     }
@@ -3417,8 +3456,7 @@ pui.Grid = function() {
           }
         }
       }
-    }
-    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
+    }    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
 
     var rowFontColor = null;
     if (me.rowFontColorField != null) {
