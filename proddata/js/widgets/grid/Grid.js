@@ -4420,8 +4420,8 @@ pui.Grid = function() {
         
         var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
         
-        if (isRight && me.contextMenuId!=null && getObj(me.contextMenuId)!=null)
-          prevent = true;
+        // if (isRight && me.contextMenuId!=null && getObj(me.contextMenuId)!=null)
+        //  prevent = true;
         
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
           if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
@@ -4526,7 +4526,7 @@ pui.Grid = function() {
               }
             }
             else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-              if (dataRecords[adjustedRow - 1].selected == true) dataRecords[adjustedRow - 1].selected = false;
+              if (dataRecords[adjustedRow - 1].selected == true && !isRight) dataRecords[adjustedRow - 1].selected = false;
               else dataRecords[adjustedRow - 1].selected = true;
               if (me.selectionField != null && dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].selection != null) {
                 dataRecords[adjustedRow - 1].selection.modified = true;
