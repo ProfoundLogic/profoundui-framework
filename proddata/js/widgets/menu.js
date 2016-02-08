@@ -51,7 +51,9 @@ pui.MenuWidget = function() {
     var parentTable = parms.parentTable;
 
     container.innerHTML = "";
-    container.style.padding = "0px";
+    // Let a rule in profoundui.css define the style (rather than inline).
+    if(container.className == null || container.className.length <= 0)
+      container.className = "menu";
     
     var table = document.createElement("table");
     var cwidth = container.style.width;
@@ -63,18 +65,10 @@ pui.MenuWidget = function() {
     }
     table.cellPadding = 0;
     table.cellSpacing = 0;
-    table.style.color = container.style.color;
-    table.style.fontFamily = container.style.fontFamily;
-    table.style.fontSize = container.style.fontSize;
-    table.style.fontVariant = container.style.fontVariant;
-    table.style.fontWeight = container.style.fontWeight;
-    table.style.letterSpacing = container.style.letterSpacing;
-    table.style.textAlign = container.style.textAlign;
-    if (container.textAlignOriginal != null) table.style.textAlign = container.textAlignOriginal;
+    
+    // In MS Edge the table doesn't inherit the parent's textDecoration style,
+    // so set it inline. Other styles get inherited in FF, Chrome, IE8-11.
     table.style.textDecoration = container.style.textDecoration;
-    table.style.textTransform = container.style.textTransform;
-    table.style.wordSpacing = container.style.wordSpacing;
-    table.style.backgroundColor = container.style.backgroundColor;
     
     var mainLevel = getLevel(parms.from);
     var prevTR;
@@ -99,22 +93,16 @@ pui.MenuWidget = function() {
       else {
         tr = prevTR;
       }
-      //tr.style.backgroundColor = container.style.backgroundColor;
+
       var td = tr.insertCell(tr.cells.length);
       if (choice == null || choice == "" || trim(choice) == "") choice = "&nbsp;";
       td.innerHTML = choice;
       td.choiceValue = choiceValue;
       td.level = mainLevel;
+      if( inDesignMode() )
+        td.choiceNum = i; // Needed for double-click to edit menu with submenus.
       td.menuId = me.container.id;
       td.orientation = parms.orientation;
-      if (!pui.iPadEmulation) {
-        if (container.cursor != null && container.cursor != "") {
-          td.style.cursor = container.cursor;
-        }
-        else {
-          td.style.cursor = "pointer";
-        }
-      }
       td.style.padding = me.padding;
       td.style.paddingLeft = me.paddingLeft;
       var bcolor = me.borderColor;
@@ -164,7 +152,7 @@ pui.MenuWidget = function() {
       else {
         td.style.backgroundImage = "";
       }
-      //td.style.backgroundRepeat = "no-repeat";
+
       if (hasSubMenu(i)) {
         td.subMenuFrom = i + 1;
         td.subMenuTo = i + 1;
@@ -193,9 +181,12 @@ pui.MenuWidget = function() {
           if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
             td.style.backgroundColor = me.hoverBackgroundColor;
           }
-          else {
-            td.className = "menu-hover";
-          }
+          /* Set the class so a user can define custom style. (There's no 
+           * menu-hover rule in the default profoundui.css.) The
+           * "hover background color" property overrides any class style.
+           */
+          td.className = "menu-hover";
+          
           if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
           if (me.optionHoverImage != null && me.optionHoverImage != "") {
             td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
@@ -217,8 +208,8 @@ pui.MenuWidget = function() {
             }
           }
           removeSameOrHigherLevelMenus(td);
-          me.showSubMenu(td)
-        }
+          me.showSubMenu(td);
+        };
         td.onmouseout = function(e) {
           if (!e) e = window.event;
           var tgt = e.relatedTarget;
@@ -282,7 +273,7 @@ pui.MenuWidget = function() {
                 td.style.filter = "alpha(opacity=" + opacity + ")";
                 td.style.opacity = opacity / 100;
                 if (td.animationDone) return;
-                setTimeout(function() { animate(opacity) }, 60);
+                setTimeout(function() { animate(opacity); }, 60);
               }
               animate(100);
             }
@@ -290,10 +281,8 @@ pui.MenuWidget = function() {
               td.style.backgroundColor = "";
             }
           }
-          else {
-            td.className = "";
-          }      
-        }
+          td.className = "";
+        };
         td.onclick = function() {
           if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
           if (me.container["onoptionclick"] != null) {
@@ -313,7 +302,8 @@ pui.MenuWidget = function() {
             var returnVal = pui.respond();
             if (returnVal == false) dom.responseValue = "";
           }
-        }
+        };
+        // Allow editing of a top-menu value by double-clicking.
         td.ondblclick = function(e) {
           var isDesign = inDesignMode();
           if (isDesign && td.orientation == "vertical" && td.level == 0) {
@@ -321,20 +311,18 @@ pui.MenuWidget = function() {
             var itmDom = dom.parentNode;
             while (itmDom.tagName != "DIV") {
               itmDom = itmDom.parentNode;
-            }            
+            }
             var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
-            if (!pui.isBound(itm.properties["choices"]) && !pui.isTranslated(itm.properties["choices"])) {
+            // Add an inline editor if the field isn't bound, translated,
+            // and if the edited choice can be determined.
+            if (!pui.isBound(itm.properties["choices"])
+            && !pui.isTranslated(itm.properties["choices"])
+            && typeof(dom.choiceNum) === "number" ) {
               itm.designer.inlineEditBox.onUpdate = function(newName) {
-                var idx = 0;
-                sibling = dom.parentNode.previousSibling;
-                while (sibling != null) {
-                  idx++;
-                  sibling = sibling.previousSibling;
-                }
                 var propValue = itm.properties["choices"];
                 if (propValue == "") propValue = "Option 1,Option 2,Option 3";
                 var optionNames = propValue.split(",");
-                optionNames[idx] = newName;
+                optionNames[dom.choiceNum] = newName;
                 propValue = optionNames.join(",");
                 var nmodel = getPropertiesNamedModel();
                 var propConfig = nmodel["choices"];
@@ -344,11 +332,11 @@ pui.MenuWidget = function() {
                 itm.changed = true;
                 itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
                 itm.designer.propWindow.refreshProperty("choices");
-              }
+              };
               itm.designer.inlineEditBox.show(itm, dom, "menu");
             }
           }
-        }
+        };
       }
       assignEvents(td);
       prevTR = tr;
@@ -389,13 +377,22 @@ pui.MenuWidget = function() {
   
   // Public Methods
   this.draw = function() {
-    drawMenu({
-      container: me.container,
-      orientation: me.orientation,
-      from: 0,
-      to: me.choices.length - 1
-    });
-  }
+    // Use timeout to avoid unnecessary, repeated drawing when multiple
+    // properties are set.
+    if( me.renderTimeout > 0 ) clearTimeout(me.renderTimeout);
+    me.renderTimeout = setTimeout(function(){
+      
+      drawMenu({
+        container: me.container,
+        orientation: me.orientation,
+        from: 0,
+        to: me.choices.length - 1
+      });
+
+      me.renderTimeout = null;
+      try{ delete me.renderTimeout;}catch(exc){}
+    }, 0);
+  };
   
   this.showSubMenu = function(td) {
     if (td.subMenuFrom == null) return;  // this option does not have a sub menu
@@ -407,16 +404,12 @@ pui.MenuWidget = function() {
     if (td.subMenuContainer == null) {
       td.subMenuContainer = document.createElement("div");
       td.subMenuContainer.className = parentContainer.className;
-      destStyle = td.subMenuContainer.style;
-      sourceStyle = parentContainer.style;
+      var destStyle = td.subMenuContainer.style;
+      var sourceStyle = parentContainer.style;
       destStyle.backgroundColor = sourceStyle.backgroundColor;
       destStyle.letterSpacing = sourceStyle.letterSpacing;
       destStyle.wordSpacing = sourceStyle.wordSpacing;
       destStyle.textAlign = sourceStyle.textAlign;
-      if (parentContainer.textAlignOriginal != null) {
-        destStyle.textAlign = parentContainer.textAlignOriginal;
-        td.subMenuContainer.textAlignOriginal = parentContainer.textAlignOriginal;
-      }
       destStyle.textDecoration = sourceStyle.textDecoration;
       destStyle.textTransform = sourceStyle.textTransform;
       destStyle.fontVariant = sourceStyle.fontVariant;
@@ -426,7 +419,8 @@ pui.MenuWidget = function() {
       destStyle.color = sourceStyle.color;
       destStyle.zIndex = sourceStyle.zIndex;
       destStyle.position = "absolute";
-      me.container.parentNode.appendChild(td.subMenuContainer);              
+      if(!pui.iPadEmulation) destStyle.cursor = sourceStyle.cursor;
+      me.container.parentNode.appendChild(td.subMenuContainer);
     }
     if (td.orientation == "vertical") {
       td.subMenuContainer.style.top = (parentContainer.offsetTop + td.offsetTop) + "px";
@@ -462,7 +456,7 @@ pui.MenuWidget = function() {
       }
     }
     if (addToArray) displayedSubMenus.push(td);
-  }
+  };
   
   this.removeSubMenu = function(td) {
     if (td.subMenuContainer == null) return;
@@ -474,7 +468,7 @@ pui.MenuWidget = function() {
     }
     td.subMenuContainer.parentNode.removeChild(td.subMenuContainer);
     td.subMenuContainer = null;
-  }
+  };
   
   this.removeAllSubMenus = function() {
     var toRemove = [];
@@ -484,9 +478,9 @@ pui.MenuWidget = function() {
     for (var i = 0; i < toRemove.length; i++) {
       me.removeSubMenu(toRemove[i]);
     }  
-  }
-
-}
+  };
+  
+};
 
 
 
@@ -498,11 +492,7 @@ pui.widgets.add({
     width: "200px",
     height: "200px",
     "choices": "Option 1,Option 2,Option 3,Option 4,Option 5",
-    color: "#333366",
     "border color": "#EEEEEE",
-    "font family": "Arial",
-    "font size": "12px",
-    "background color": "#FFFFFF",
     "hover background color": "#6699FF",
     "hover text color": "#FFFFFF",
     animate: "true"
@@ -511,7 +501,6 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      parms.dom.style.overflowY = "auto";
       parms.dom.menuWidget = new pui.MenuWidget();
       var choices = parms.evalProperty("choices");
       if (choices != null && choices != "") {
@@ -654,12 +643,7 @@ pui.widgets.add({
         parms.dom.menuWidget.orientation = orientation;
         parms.dom.menuWidget.draw();
       }
-    },
-    
-    "text align": function(parms) {
-      parms.dom.textAlignOriginal = parms.value;
     }
-
   },
   
   globalPropertySetter: function(parms) {    
@@ -681,16 +665,10 @@ pui.widgets.add({
       case "css class 3":
       case "css class 4":
         if (parms.dom.menuWidget != null) {
-          setTimeout(function() { parms.dom.menuWidget.draw() }, 0);
+          parms.dom.menuWidget.draw();
         }
         break;
     }
   }
   
 });
-
-
-
-
-
-
