@@ -833,7 +833,9 @@ pui.render = function(parms) {
 
   if (pui.observed != null) pui.observed.update();
 
-}
+  // Does nothing if in design mode or break messages aren't enabled.
+  pui["breakMessagesInit"]();
+};
 
 pui.renderFormat = function(parms) {
   // retrieve parameters

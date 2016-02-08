@@ -1831,3 +1831,465 @@ pui.killFrames = function() {
   }  
   
 }
+
+/**
+ * Initialize the break-message settings, storage, and event handlers. Start
+ * polling. Called by init() in runtime/5250/init.js or render() in
+ * runtime/dspf/render.js.
+ * 
+ * Note: un-obfuscated so that you can stop by setting pui["brkmsg enable"]=false,
+ * and resume by calling pui.breakMessagesInit() from the console or 
+ * user script.
+ * 
+ * @returns {undefined}
+ */
+pui["breakMessagesInit"] = function(){
+  // Do nothing if local storage isn't supported or break-messages not enabled.
+  if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
+  // Do nothing if there is no user or user is QTMHHTP1.
+  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
+  || pui.appJob["user"] === "QTMHHTP1" ) return;
+  
+  // Ensure that polling interval is valid.
+  pui["brkmsg poll interval"] = Number(pui["brkmsg poll interval"]);
+  if( isNaN(pui["brkmsg poll interval"]))
+    pui["brkmsg poll interval"] = 30;
+  // Fastest interval allowed is 1 second.
+  else if( pui["brkmsg poll interval"] < 1 )
+    pui["brkmsg poll interval"] = 1;
+  
+  // Ensure that max-error-count exists.
+  pui["brkmsg max errors"] = Number(pui["brkmsg max errors"]);
+  if( isNaN(pui["brkmsg max errors"]))
+    pui["brkmsg max errors"] = 3;
+  
+  // Maximum messages to show at once. 
+  pui["brkmsg max messages"] = Number(pui["brkmsg max messages"]);
+  if( isNaN(pui["brkmsg max messages"]))
+    pui["brkmsg max messages"] = 10;
+  
+  // User polling timeout in seconds. UserId will be cleared from localStorage
+  // if no polling happened for that user recently.
+  pui["brkmsg user timeout"] = Number(pui["brkmsg user timeout"]);
+  if( isNaN(pui["brkmsg user timeout"]))
+    pui["brkmsg user timeout"] = 300;
+  // Prevent unpredictable behavior when timeout happens too quickly.
+  else if( pui["brkmsg user timeout"] <= pui["brkmsg poll interval"] )
+    pui["brkmsg user timeout"] = pui["brkmsg poll interval"] + 10;
+  
+  // Current error count.
+  pui.breakMessageErrors = 0;
+
+  // Become the active poller if necessary.
+  pui.breakMessagesPollCheck();
+
+  // If we are a new session and old messages exist, then get ready to show them.
+  var msgs;
+  try{ msgs = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"])); }
+  // If the messages couldn't parse, just clear them.
+  catch(exc){ localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], "[]"); }
+
+  // Setup the non-Atrium container and event listener.
+  if( window.parent == window || !pui.checkForAtrium(window.parent) ){
+    // Create a UI container.
+    var container = document.createElement("div");
+    container.id = "pui-break-messages";
+    container.style.zIndex = pui.windowZIndex++;
+    pui.runtimeContainer.appendChild(container);
+
+    if( pui.isLocalStorage()){
+      // Avoid duplicate event handlers by removing before adding.
+      removeEvent(window, "storage", pui.breakMessagesOnStorage);
+      // Listen on our window for messages from storage.
+      addEvent(window, "storage", pui.breakMessagesOnStorage);
+      // Show pending messages.
+      if(msgs) pui.breakMessagesShow(msgs);
+    }
+  } 
+  // Setup the Atrium event handler.
+  else if(pui.isLocalStorage() ){
+    // Attach a single handler to the Atrium window for all child windows.
+    removeEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
+    addEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
+    // Show pending messages.
+    if(msgs) window.parent["Atrium"]["api"]["breakMessagesShow"](msgs,pui.appJob["user"]);
+  }
+
+  pui.breakMessagesStartPoll();  
+};//end breakMessagesInit.
+
+/**
+ * Check if this session's job should assume the active polling role. If too
+ * much time has passed since the last poll, take over as active poller and
+ * return true. Otherwise, don't take over and return false.
+ * Returns false if the session isn't active.
+ * 
+ * @returns {Boolean}
+ */
+pui.breakMessagesPollCheck = function(){
+  if( !pui || !pui.appJob || pui.appJob["auth"].length <= 0
+  || pui.appJob["user"].length <= 0 ) return false;
+  // Returns true if localStorage isn't available, because then every tab must
+  // poll; otherwise break-messaging wouldn't work for older browsers.
+  if(!pui.isLocalStorage() || typeof(JSON) !== "object") return true;
+
+  //
+  // See if we should take over as active poller.
+  //
+  var activePoller = localStorage.getItem("brkmsgActivePoller_"+pui.appJob["user"]);
+  var lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+pui.appJob["user"]));
+  if( isNaN(lastPoll) ) lastPoll = 0;
+  
+  // Calculate how many milliseconds since the last poll; calculate how many 
+  // seconds is too many: the polling interval + 10 seconds.
+  // Assume the other process is gone after that long.
+  var now = Date.now();
+  var difference_ms = now - lastPoll;
+  var compareto_ms = pui["brkmsg poll interval"]*1000 + 10000;
+  
+  // If there was no activePoller or the last recorded one was too long ago,
+  // then take over as active poller.
+  if( activePoller === null
+  || (difference_ms >= compareto_ms && activePoller !== pui.appJob["auth"])){
+    activePoller = pui.appJob["auth"];
+    localStorage.setItem("brkmsgActivePoller_"+pui.appJob["user"], activePoller);
+    localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], now );
+  }
+  
+  //
+  // Get the list of all userIds in local storage. See if we should remove any.
+  //
+  var userIds;
+  var listChanged = false;
+  try{
+    userIds = JSON.parse(localStorage.getItem("brkmsgUserIds"));
+  }
+  catch(exc){ listChanged = true;}
+  if( userIds == null || typeof(userIds.pop) !== "function") {
+    userIds = [];
+    listChanged = true;
+  }
+  
+  // Make sure current user is in array.
+  var activeList = [];
+  if( pui.arrayIndexOf(userIds, pui.appJob["user"]) < 0 ){
+    activeList.push(pui.appJob["user"]);
+    listChanged = true;
+  }
+  
+  // Look at all users from storage and see if they have been inactive too long.
+  for(var i=0; i < userIds.length; i++){
+    if( userIds[i] !== pui.appJob["user"]){
+      var lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+userIds[i]));
+      if(isNaN(lastPoll)) lastPoll = 0;
+
+      // Users keys should be cleared.
+      if( Date.now() - lastPoll >= pui["brkmsg user timeout"]*1000 ){
+        localStorage.removeItem("brkmsgLastPoll_"+userIds[i]);
+        localStorage.removeItem("brkmsgActivePoller_"+userIds[i]);
+        localStorage.removeItem("brkmsgMessages_"+userIds[i]);
+        listChanged = true;
+      }
+      // User is still active, keep them.
+      else activeList.push(userIds[i]);
+    }
+  }
+  if(listChanged) localStorage.setItem("brkmsgUserIds", JSON.stringify(activeList));
+  
+  activeList = null;
+  userIds = null;
+  
+  return activePoller === pui.appJob["auth"];
+};
+
+/**
+ * Start a new Interval function to poll for break messages. 
+ * 
+ * @returns {undefined}
+ */
+pui.breakMessagesStartPoll = function(){
+  if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
+
+  // Stop a previous Interval if it existed.
+  if( typeof(pui.breakMessagePoller) === "number")
+    clearInterval(pui.breakMessagePoller);
+
+  // Start a new poller.
+  pui.breakMessagePoller = setInterval(function(){
+    // If the user logged off or brkmsg became disabled, then stop the poller.
+    if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
+    || pui.appJob["user"] === "QTMHHTP1" || pui["brkmsg enable"] !== true){
+      pui.breakMessagesStopPoll();
+      return;
+    }
+    
+    // See if we should assume the role as active poller or we are active poller.
+    if( pui.breakMessagesPollCheck() ){
+      // We are the poller, so poll the server. Otherwise, do nothing.
+      ajaxJSON({
+        "url": "PUI0009116.PGM",
+        "method": "post",
+        "async": true,
+        "suppressAlert": true, /*Popup alerts every interval would be very annoying.*/
+        "params": { "AUTH": pui.appJob["auth"] },
+        /* Handler for errors, such as 404. */
+        "onfail": function(){
+          pui.breakMessageErrors++;
+          // If too many errors were encountered polling, then stop polling.
+          if( pui.breakMessageErrors >= pui["brkmsg max errors"] ) {
+            pui.breakMessagesStopPoll();
+            console.log("Stopped break-message polling; too many errors.");
+          }
+        },
+        /* Handler for successful response. parms is a JSON object.*/
+        "handler": function(parms){
+          // There was an error.
+          if( parms == null || typeof(parms) !== "object" || parms["error"] ){
+            pui.breakMessageErrors++;
+            // If too many errors were encountered polling, then stop polling.
+            // Errors here are usually from session time out.
+            if( pui.breakMessageErrors >= pui["brkmsg max errors"] ) {
+              pui.breakMessagesStopPoll();
+            }
+          }
+          // There was at least one new message.
+          else if( parms["success"] && parms["messages"] != null
+          && typeof(parms["messages"].pop) === "function"
+          && parms["messages"].length > 0 ) {
+          
+            var brkMessages;
+            // Try adding the new messages to any stored ones.
+            if(pui.isLocalStorage() && typeof(JSON) === "object"){
+              try{
+                // Get existing messages.
+                brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+              }
+              // Existing messages failed to parse. Ignore.
+              catch(exc){ console.log(exc); }
+
+              // If the existing messages aren't an array, discard them.
+              if( brkMessages == null || typeof(brkMessages.pop) !== "function"){
+                brkMessages = [];
+              }
+              // Add new messages to end of array, and store the modified array.
+              brkMessages = brkMessages.concat(parms["messages"]);
+            }
+            else{
+              // The browser is old; don't bother with localStorage.
+              brkMessages = parms["messages"];
+            }
+            
+            // Make sure the new array isn't too large.
+            if( pui["brkmsg max messages"] > 0 && brkMessages.length > pui["brkmsg max messages"] ) {
+              // Get the last elements from the array.
+              brkMessages = brkMessages.slice(brkMessages.length - pui["brkmsg max messages"], brkMessages.length);
+            }
+            
+            // Send the message to Atrium.
+            if( window != window.parent && pui.checkForAtrium(window.parent)){
+              window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
+            }
+            else {
+              // Non-Atrium: show the message
+              pui.breakMessagesShow(brkMessages );
+            }
+            // Store the message, sending it to any other tabs.
+            if(pui.isLocalStorage() && typeof(JSON) === "object")
+              localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+          }
+          // Else no error and success==false: there were no messages.
+        }
+      });
+
+      if( pui.isLocalStorage())
+        localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], Date.now() );
+    }//done with active poll.
+    
+    // Fallback for IE8, which supports storage but not storage events:
+    // redraw the messages from local storage in case another tab cleared or
+    // caught any.
+    if( pui.isLocalStorage() && typeof(window.addEventListener) === "undefined"
+    && typeof(JSON) === "object" ){
+      try{
+        var brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+        pui.breakMessagesShow( brkMessages );
+      }
+      catch(exc){ console.log(exc); }
+    }
+  }, pui["brkmsg poll interval"] * 1000 );
+};
+
+/**
+ * Stop the polling interval and detach break-message storage event listeners.
+ * 
+ * @returns {undefined}
+ */
+pui.breakMessagesStopPoll = function(){
+  clearInterval(pui.breakMessagePoller);
+  removeEvent(window, "storage", pui.breakMessagesOnStorage);
+};
+
+/**
+ * Dismiss a break message and remove it from local storage. The message will
+ * also disappear from other tabs.
+ * This function is the onclick handler for the message Close icon.
+ * 
+ * @param {Event|Object} event
+ * @returns {undefined}
+ */
+pui.breakMessageDismiss = function(event){
+  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
+  || pui.appJob["user"] === "QTMHHTP1"  ){
+    return;
+  }
+
+  event = event || window.event;
+  var target = event.target || event.srcElement;
+  var msgwrap = target.parentNode.parentNode;
+  var bkmsgcont = msgwrap.parentNode;
+  // Clear the message wrapper and all contents.
+  msgwrap.innerHTML = "";
+  msgwrap.parentNode.removeChild(msgwrap);
+  msgwrap = null;
+
+  // If there are no more messages, we can unmask.
+  if( bkmsgcont.lastChild === null )
+    pui["unmaskScreen"]();
+
+  bkmsgcont = null;
+  
+  // Signal other tabs to redraw any break-messages.
+  if(pui.isLocalStorage() && typeof(JSON) === "object") {
+    var brkMessages;
+    try{
+      brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+      if( brkMessages !== null && typeof(brkMessages.pop) === "function" )
+        brkMessages.pop();
+      else
+        brkMessages = [];
+    }
+    catch(exc){
+      console.log(exc);
+      brkMessages = [];
+    }
+    localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+    brkMessages = null;
+  }
+};
+
+/**
+ * Put a div on the screen for each specified message. This can be called
+ * by the AJAX handler or the onStorage handler when new messages arrive.
+ * 
+ * @param {Array|Object} messages   An array of objects that must have these
+ *   members: date, time, msg, jobName, jobUserName, jobNum, jobCurProfName.
+ *   
+ * @returns {undefined}
+ */
+pui.breakMessagesShow = function(messages ){
+  if( messages === null || typeof(messages.pop) !== "function" ) return;
+  
+  var bkmsgcont = document.getElementById("pui-break-messages");
+  if( ! bkmsgcont ) return;
+
+  // Clear existing messages from the page. The messages argument contains the
+  // same messages as the store, so make sure what is visible agrees with
+  // what other tabs show.
+  bkmsgcont.innerHTML = "";
+  
+  if( messages.length == 0) {
+	  pui["unmaskScreen"]();
+	  return;
+  }
+
+  pui["maskScreen"]();
+
+  // Keep pushing the container to the top.
+  pui.windowZIndex += 2;
+  bkmsgcont.style.zIndex = pui.windowZIndex;
+  
+  var top = 10;
+  var left = 10;
+
+  // Show each message in a set of DIVs.
+  for(var i=0; i < messages.length; i++ ){
+    var curmsg = messages[i];
+    curmsg["to"] = pui.appJob["user"];
+
+    var msgwrap = document.createElement("div");
+    msgwrap.style.top = top + "px";
+    msgwrap.style.left = left + "px";
+    msgwrap.className = "msg-wrap";
+
+    var msgtitlewrap = document.createElement("div");
+    msgtitlewrap.className = "msg-titlewrap";
+    msgwrap.appendChild(msgtitlewrap);
+    
+    var msgtitle = document.createElement("div");
+    msgtitle.className = "title";
+    msgtitlewrap.appendChild(msgtitle);
+
+    var closeImg = document.createElement("div");
+    closeImg.className = "closeImg";
+    msgtitlewrap.appendChild(closeImg);
+
+    addEvent(closeImg, "click", pui.breakMessageDismiss);
+	  
+	  var msgbody = document.createElement("div");
+    msgbody.className = "msg-body";
+    
+    // Use the user-defined formatter if it exists.
+    if( typeof(pui["breakMessageFormat"]) === "function"){
+      var stringwrap = {"title":"","body":""};
+      pui["breakMessageFormat"](curmsg, stringwrap);
+      msgtitle.innerHTML = stringwrap.title;
+      msgbody.innerHTML = stringwrap.body;
+    }
+    else {
+      try{
+        msgtitle.innerHTML = curmsg["date"]+" "+curmsg["time"] + "<br>"
+          + curmsg["jobNum"] +"/"+ curmsg["jobUserName"] +"/"+ curmsg["jobName"];
+        msgbody.innerHTML = curmsg["to"] +":<br>"+ curmsg["msg"];
+      }
+      catch(exc){ console.log(exc); }
+    }
+	  
+	  msgwrap.appendChild(msgbody);
+	  bkmsgcont.appendChild(msgwrap);
+	  msgbody = null;
+	  msgwrap = null;
+	  msgtitle = null;
+    curmsg = null;
+    
+    top += 1;
+    left += 10;
+  }
+  // done showing each message.
+	
+  bkmsgcont = null;
+};
+
+/**
+ * Handle page onstorage events: clear any existing messages, and re-draw any
+ * that still exist in the local storage object. The event may fire when
+ * the active poller stored a new message or when the user dismissed a visible
+ * message.
+ * 
+ * @param {type} e
+ * @returns {Boolean}
+ */
+pui.breakMessagesOnStorage = function(e){
+  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
+  || pui.appJob["user"] === "QTMHHTP1"  ){
+    return false;
+  }
+  
+  // Only handle changes to break messages for current user.
+  if(e.key !== "brkmsgMessages_"+pui.appJob["user"]) return false;
+  try{
+    var messages = JSON.parse(e.newValue);
+    pui.breakMessagesShow( messages );
+  }
+  catch(exc){ console.log(exc); }
+  return false;
+};
