@@ -1551,16 +1551,15 @@ pui.validateEmail = function(email) {
 } 
 
 pui.isBound = function(propVal) {
-  
-  return (typeof propVal == "object" && typeof propVal["fieldName"] == "string");
-  
-}
+  return (propVal != null && typeof propVal == "object" && typeof propVal["fieldName"] == "string");
+};
 
 pui.isTranslated = function(propVal) {
-  
-  return (typeof propVal == "object" && typeof propVal["translations"] == "object" && typeof propVal["translations"].length == "number");
-  
-}
+  return (propVal != null && typeof propVal == "object"
+    && typeof propVal["translations"] == "object"
+    && propVal["translations"] != null
+    && typeof propVal["translations"].length == "number");
+};
 
 pui.taphold = function(target, handler, threshold) {
 
