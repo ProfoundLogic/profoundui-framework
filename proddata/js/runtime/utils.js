@@ -1836,6 +1836,8 @@ pui.killFrames = function() {
  * polling. Called by init() in runtime/5250/init.js or render() in
  * runtime/dspf/render.js.
  * 
+ * Requires a browser that supports localStorage and JSON.
+ * 
  * Note: un-obfuscated so that you can stop by setting pui["brkmsg enable"]=false,
  * and resume by calling pui.breakMessagesInit() from the console or 
  * user script.
@@ -1845,6 +1847,7 @@ pui.killFrames = function() {
 pui["breakMessagesInit"] = function(){
   // Do nothing if local storage isn't supported or break-messages not enabled.
   if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
+  if( !pui.isLocalStorage() || typeof(JSON) !== "object") return;
   // Do nothing if there is no user or user is QTMHHTP1.
   if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
   || pui.appJob["user"] === "QTMHHTP1" ) return;
@@ -1906,7 +1909,7 @@ pui["breakMessagesInit"] = function(){
     }
   } 
   // Setup the Atrium event handler.
-  else if(pui.isLocalStorage() ){
+  else{
     // Attach a single handler to the Atrium window for all child windows.
     removeEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
     addEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
@@ -1928,9 +1931,6 @@ pui["breakMessagesInit"] = function(){
 pui.breakMessagesPollCheck = function(){
   if( !pui || !pui.appJob || pui.appJob["auth"].length <= 0
   || pui.appJob["user"].length <= 0 ) return false;
-  // Returns true if localStorage isn't available, because then every tab must
-  // poll; otherwise break-messaging wouldn't work for older browsers.
-  if(!pui.isLocalStorage() || typeof(JSON) !== "object") return true;
 
   //
   // See if we should take over as active poller.
@@ -2058,25 +2058,19 @@ pui.breakMessagesStartPoll = function(){
           
             var brkMessages;
             // Try adding the new messages to any stored ones.
-            if(pui.isLocalStorage() && typeof(JSON) === "object"){
-              try{
-                // Get existing messages.
-                brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-              }
-              // Existing messages failed to parse. Ignore.
-              catch(exc){ console.log(exc); }
+            try{
+              // Get existing messages.
+              brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+            }
+            // Existing messages failed to parse. Ignore.
+            catch(exc){ console.log(exc); }
 
-              // If the existing messages aren't an array, discard them.
-              if( brkMessages == null || typeof(brkMessages.pop) !== "function"){
-                brkMessages = [];
-              }
-              // Add new messages to end of array, and store the modified array.
-              brkMessages = brkMessages.concat(parms["messages"]);
+            // If the existing messages aren't an array, discard them.
+            if( brkMessages == null || typeof(brkMessages.pop) !== "function"){
+              brkMessages = [];
             }
-            else{
-              // The browser is old; don't bother with localStorage.
-              brkMessages = parms["messages"];
-            }
+            // Add new messages to end of array, and store the modified array.
+            brkMessages = brkMessages.concat(parms["messages"]);
             
             // Make sure the new array isn't too large.
             if( pui["brkmsg max messages"] > 0 && brkMessages.length > pui["brkmsg max messages"] ) {
@@ -2093,15 +2087,13 @@ pui.breakMessagesStartPoll = function(){
               pui.breakMessagesShow(brkMessages );
             }
             // Store the message, sending it to any other tabs.
-            if(pui.isLocalStorage() && typeof(JSON) === "object")
-              localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+            localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
           }
           // Else no error and success==false: there were no messages.
         }
       });
 
-      if( pui.isLocalStorage())
-        localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], Date.now() );
+      localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], Date.now() );
     }//done with active poll.
     
     // Fallback for IE8, which supports storage but not storage events:
@@ -2111,7 +2103,13 @@ pui.breakMessagesStartPoll = function(){
     && typeof(JSON) === "object" ){
       try{
         var brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-        pui.breakMessagesShow( brkMessages );
+        if( window != window.parent && pui.checkForAtrium(window.parent)){
+          window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
+        }
+        else {
+          // Non-Atrium: show the message
+          pui.breakMessagesShow(brkMessages );
+        }
       }
       catch(exc){ console.log(exc); }
     }
@@ -2142,38 +2140,29 @@ pui.breakMessageDismiss = function(event){
     return;
   }
 
-  event = event || window.event;
-  var target = event.target || event.srcElement;
-  var msgwrap = target.parentNode.parentNode;
-  var bkmsgcont = msgwrap.parentNode;
-  // Clear the message wrapper and all contents.
-  msgwrap.innerHTML = "";
-  msgwrap.parentNode.removeChild(msgwrap);
-  msgwrap = null;
-
-  // If there are no more messages, we can unmask.
-  if( bkmsgcont.lastChild === null )
-    pui["unmaskScreen"]();
-
-  bkmsgcont = null;
+  var target = getTarget(event);
+  var msgIdx = target["msgIdx"];
   
-  // Signal other tabs to redraw any break-messages.
-  if(pui.isLocalStorage() && typeof(JSON) === "object") {
-    var brkMessages;
-    try{
-      brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-      if( brkMessages !== null && typeof(brkMessages.pop) === "function" )
-        brkMessages.pop();
-      else
-        brkMessages = [];
+  var brkMessages;
+  // Try removing just the clicked element from the messages.
+  try{
+    brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+    if( brkMessages !== null && typeof(brkMessages.splice) === "function" ){
+      // Remove the clicked message from the array.
+      brkMessages.splice(msgIdx,1);
     }
-    catch(exc){
-      console.log(exc);
+    else
       brkMessages = [];
-    }
-    localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
-    brkMessages = null;
   }
+  catch(exc){
+    console.log(exc);
+    brkMessages = [];
+  }
+  // Update the store, and signal any other tabs to redraw
+  localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+  // Redraw the messages with new indices.
+  pui.breakMessagesShow(brkMessages);
+  brkMessages = null;
 };
 
 /**
@@ -2186,7 +2175,7 @@ pui.breakMessageDismiss = function(event){
  * @returns {undefined}
  */
 pui.breakMessagesShow = function(messages ){
-  if( messages === null || typeof(messages.pop) !== "function" ) return;
+  if( messages == null || typeof(messages.pop) !== "function" ) return;
   
   var bkmsgcont = document.getElementById("pui-break-messages");
   if( ! bkmsgcont ) return;
@@ -2230,6 +2219,7 @@ pui.breakMessagesShow = function(messages ){
 
     var closeImg = document.createElement("div");
     closeImg.className = "closeImg";
+    closeImg["msgIdx"] = i; // Needed for array splice upon click.
     msgtitlewrap.appendChild(closeImg);
 
     addEvent(closeImg, "click", pui.breakMessageDismiss);
