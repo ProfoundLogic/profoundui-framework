@@ -4254,6 +4254,7 @@ pui.Grid = function() {
     }
     
     cell.onmousedown = function(event) {
+      event = event || window.event;
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
