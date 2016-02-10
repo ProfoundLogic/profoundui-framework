@@ -37,9 +37,10 @@ pui.MenuWidget = function() {
   this.hoverBackgroundColor = null;
   this.hoverTextColor = null;
   this.animate = true;
+  this.repeat = null; // background-repeat property and style.
   this.borderColor = null;
-  this.padding = "5px";  
-  this.paddingLeft = "5px";  
+  this.padding = null;  
+  this.paddingLeft = null;
   this.optionImage = null;
   this.optionImages = [];
   this.optionHoverImage = null;
@@ -51,31 +52,33 @@ pui.MenuWidget = function() {
     var parentTable = parms.parentTable;
 
     container.innerHTML = "";
-    // Let a rule in profoundui.css define the style (rather than inline).
-    if(container.className == null || container.className.length <= 0)
+    // If the "css class" property wasn't set, then specify a default class
+    // having rules in profoundui.css.
+    if(container.className == null || container.className.length <= 0){
       container.className = "menu";
-    
+    }
+    if( parms.orientation == "horizontal")
+      pui.addCssClass(container, "horizontal");
+
     var table = document.createElement("table");
     var cwidth = container.style.width;
     if (cwidth != null && cwidth != "" && parms.orientation != "horizontal") {
       table.style.width = "100%";
     }
-    if (parms.orientation == "horizontal") {
-      container.style.textAlign = "left";
-    }
     table.cellPadding = 0;
     table.cellSpacing = 0;
-    
-    // In MS Edge the table doesn't inherit the parent's textDecoration style,
-    // so set it inline. Other styles get inherited in FF, Chrome, IE8-11.
-    table.style.textDecoration = container.style.textDecoration;
-    
+
     var mainLevel = getLevel(parms.from);
     var prevTR;
-    
-    var css;
-    if (window.getComputedStyle) {
-      css = window.getComputedStyle(container);
+
+    var bcolor = me.borderColor;
+    // If the menu's "border color" property was set, apply it to the table top
+    // and left border. Cells will get bottom/right borders later. Otherwise,
+    // CSS border handles style.
+    if (bcolor != "" && bcolor != null) {
+      bcolor = pui.normalizeColor(bcolor);
+      table.style.borderTop = "1px solid "+bcolor;
+      table.style.borderLeft = "1px solid "+bcolor;
     }
     
     for (var i = parms.from; i <= parms.to; i++) {
@@ -99,33 +102,35 @@ pui.MenuWidget = function() {
       td.innerHTML = choice;
       td.choiceValue = choiceValue;
       td.level = mainLevel;
-      if( inDesignMode() )
-        td.choiceNum = i; // Needed for double-click to edit menu with submenus.
+      if(inDesignMode()) td.choiceNum = i; // Needed for double-click to edit menu with submenus in designer.
       td.menuId = me.container.id;
       td.orientation = parms.orientation;
-      td.style.padding = me.padding;
-      td.style.paddingLeft = me.paddingLeft;
-      var bcolor = me.borderColor;
-      if (css != null && css.getPropertyValue != null) {
-        if (bcolor == "" || bcolor == null) {
-          bcolor = css.getPropertyValue("border-color");
-          if (bcolor == "" || bcolor == null) {
-            bcolor = css.getPropertyValue("border-left-color");
-          }
-        }
+      
+      // Set inline padding of table cells if "menu option padding" is set.
+      if(me.padding != null && me.padding.length > 0){
+        // Set the top, bottom, and right. Allows the padding-left to get the default value
+        // of 5px if "menu option indent" is not set and "menu option padding" is set.
+        td.style.paddingTop = td.style.paddingBottom = td.style.paddingRight = me.padding;
       }
+      // Set inline padding if "menu option indent" is set (Otherwise, CSS sets padding)
+      if(me.paddingLeft != null && me.paddingLeft.length > 0) td.style.paddingLeft = me.paddingLeft;
+
+      // Set inline border if the menu "border color" property is set. Otherwise, css sets it.
       if (bcolor != "" && bcolor != null) {
-        bcolor = pui.normalizeColor(bcolor);
-        if (table.rows.length <= 1) td.style.borderTop = "1px solid " + bcolor;
-        td.style.borderLeft = "1px solid " + bcolor;
-        td.style.borderRight = "1px solid " + bcolor;
-        td.style.borderBottom = "1px solid " + bcolor;
+          td.style.borderRight = "1px solid " + bcolor;
+          td.style.borderBottom = "1px solid " + bcolor;
       }
       
-      td.style.filter = "alpha(opacity=100)";
-      td.style.opacity = 1;
+      // Animating the fade-out, hover color requires inline opacity.
+      if (me.animate){
+        td.style.filter = "alpha(opacity=100)";
+        td.style.opacity = 1;
+      }
+      
+      // Table cell backgrounds get the option-image property if set.
       if (me.optionImage != null && me.optionImage != "") {
         td.optionImage = me.optionImage;
+        // Try using a unique image for this menu option.
         if (me.optionImages.length > 1) {
           if (me.optionImages[i] != null) {
             td.optionImage = me.optionImages[i];
@@ -137,19 +142,17 @@ pui.MenuWidget = function() {
         if (td.optionImage != "") {
           td.style.backgroundImage = "url('" + pui.normalizeURL(td.optionImage, true) + "')";
         }
-        var repeat = me.repeat;
-        if (repeat == null && css != null && css.getPropertyValue != null) {
-          repeat = css.getPropertyValue("background-repeat");
-        }
-        if (repeat == null || repeat == "") {
-          repeat = "repeat";  // default
-        }
-        td.style.backgroundRepeat = repeat;
-        if (repeat == "no-repeat") {
-          td.style.backgroundPosition = "left center";
+        // Set the background-repeat style on the cell if the "background repeat"
+        // property was set. Otherwise, allow CSS to handle it.
+        if( me.repeat != null && me.repeat.length > 0){
+          td.style.backgroundRepeat = me.repeat;
+          if (me.repeat == "no-repeat") {
+            td.style.backgroundPosition = "left center";
+          }
         }
       }
       else {
+        // Do not allow the background-image property to be set.
         td.style.backgroundImage = "";
       }
 
@@ -181,23 +184,23 @@ pui.MenuWidget = function() {
           if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
             td.style.backgroundColor = me.hoverBackgroundColor;
           }
-          /* Set the class so a user can define custom style. (There's no 
-           * menu-hover rule in the default profoundui.css.) The
-           * "hover background color" property overrides any class style.
-           */
-          td.className = "menu-hover";
+          else{
+            // Set the class so a user can define custom style (when bg color isn't set).
+            td.className = "menu-hover";
+          }
           
           if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
+          // If hover-image property is set, then set it as inline BG image.
           if (me.optionHoverImage != null && me.optionHoverImage != "") {
             td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
-            var repeat = me.repeat;
-            if (repeat == null && css != null && css.getPropertyValue != null) {
-              repeat = css.getPropertyValue("background-repeat");
+            // Set the background-repeat style on the cell if the "background repeat"
+            // property was set. Otherwise, allow CSS to handle it.
+            if( me.repeat != null && me.repeat.length > 0){
+              td.style.backgroundRepeat = me.repeat;
+              if (me.repeat == "no-repeat") {
+                td.style.backgroundPosition = "left center";
+              }
             }
-            if (repeat == null) {
-              repeat = "repeat";  // default
-            }
-            td.style.backgroundRepeat = repeat;
           }
           else {
             if (td.optionImage != null && td.optionImage != "") {
@@ -249,11 +252,10 @@ pui.MenuWidget = function() {
             }
           }
           if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = "";
+          // If option-image property was set, restore the background to it.
           if (td.optionImage != null && td.optionImage != "") {
             td.style.backgroundImage = "url('" + td.optionImage + "')";
-            var repeat = me.repeat;
-            if (repeat == null) repeat = "repeat";
-            td.style.backgroundRepeat = repeat;
+            td.style.backgroundRepeat = me.repeat;
           }
           else {
             td.style.backgroundImage = "";
@@ -281,7 +283,11 @@ pui.MenuWidget = function() {
               td.style.backgroundColor = "";
             }
           }
-          td.className = "";
+          else {
+            //when bg color isn't set, clear class. (for potential custom css).
+            td.className = "";
+          }
+          
         };
         td.onclick = function() {
           if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
@@ -492,7 +498,11 @@ pui.widgets.add({
     width: "200px",
     height: "200px",
     "choices": "Option 1,Option 2,Option 3,Option 4,Option 5",
+    color: "#333366",
     "border color": "#EEEEEE",
+    "font family": "Arial",
+    "font size": "12px",
+    "background color": "#FFFFFF",
     "hover background color": "#6699FF",
     "hover text color": "#FFFFFF",
     animate: "true"
@@ -521,11 +531,11 @@ pui.widgets.add({
         parms.dom.menuWidget.optionImages = pui.parseCommaSeparatedList(parms.dom.menuWidget.optionImage);
       }
       parms.dom.menuWidget.optionHoverImage = parms.properties["option hover image"];
+      //Note: this is confusing; setting "background image" does nothing because
+      //"option image" controls it. But "background repeat" does take effect.
       parms.dom.menuWidget.repeat = parms.properties["background repeat"];
       parms.dom.menuWidget.padding = parms.properties["menu option padding"];
-      if (parms.dom.menuWidget.padding == null || parms.dom.menuWidget.padding == "") parms.dom.menuWidget.padding = "5px";
       parms.dom.menuWidget.paddingLeft = parms.properties["menu option indent"];
-      if (parms.dom.menuWidget.paddingLeft == null || parms.dom.menuWidget.paddingLeft == "") parms.dom.menuWidget.paddingLeft = "5px";
       parms.dom.menuWidget.animate = (parms.properties["animate"] != "false");
       var orientation = parms.properties["orientation"];
       if (orientation != "horizontal" && orientation != "vertical") {
@@ -590,19 +600,21 @@ pui.widgets.add({
         parms.dom.menuWidget.draw();
       }
     },
-    
+
+    // This property sets the table cell padding top/right/bottom.
+    // CSS takes over if value is null.
     "menu option padding": function(parms) {
       if (parms.dom.menuWidget != null) {
-        if (parms.value == null || parms.value == "") parms.dom.menuWidget.padding = "5px";        
-        else parms.dom.menuWidget.padding = parms.value;        
+        parms.dom.menuWidget.padding = parms.value;
         parms.dom.menuWidget.draw();
       }
     },
 
+    // This property set the table cell padding-left style.
+    // CSS takes over if value is null.
     "menu option indent": function(parms) {
       if (parms.dom.menuWidget != null) {
-        if (parms.value == null || parms.value == "") parms.dom.menuWidget.paddingLeft = "5px";        
-        else parms.dom.menuWidget.paddingLeft = parms.value;        
+        parms.dom.menuWidget.paddingLeft = parms.value;        
         parms.dom.menuWidget.draw();
       }
     },
@@ -654,7 +666,7 @@ pui.widgets.add({
       case "font style":     
       case "font variant":   
       case "font weight":    
-      case "letter spacing": 
+      case "letter spacing":
       case "text align":     
       case "text decoration":
       case "text transform": 
