@@ -1822,8 +1822,11 @@ pui.killFrames = function() {
     for (var i = 0; i < iframes.length; i++) {
 
       var iframe = iframes[i];
-      if (iframe.contentWindow["pui"] && iframe.contentWindow["pui"]["unload"])
-        iframe.contentWindow["pui"]["unload"]();
+      try {
+        if (iframe.contentWindow["pui"] && iframe.contentWindow["pui"]["unload"])
+          iframe.contentWindow["pui"]["unload"]();        
+      }
+      catch (e) { /* ignore */ }
       
     }
 
