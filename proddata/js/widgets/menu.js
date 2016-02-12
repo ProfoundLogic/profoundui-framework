@@ -52,11 +52,9 @@ pui.MenuWidget = function() {
     var parentTable = parms.parentTable;
 
     container.innerHTML = "";
-    // If the "css class" property wasn't set, then specify a default class
-    // having rules in profoundui.css.
-    if(container.className == null || container.className.length <= 0){
-      container.className = "menu";
-    }
+    // Apply the styles from profoundui.css. 
+    pui.addCssClass(container, "menu");
+    
     if( parms.orientation == "horizontal")
       pui.addCssClass(container, "horizontal");
 
