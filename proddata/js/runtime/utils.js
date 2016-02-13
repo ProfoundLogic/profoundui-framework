@@ -78,7 +78,8 @@ function disableAction(e){
 
 function preventDoubleSubmit(){
 
-  if (pui.genie.formSubmitted) return false;
+  //if (pui.genie.formSubmitted) return false;
+  if (pui["isServerBusy"]()) return false;
 
   hide_calendar();
   
@@ -748,14 +749,19 @@ pui["unload"] = function() {
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
     if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
-    ajax({
-      url: url,
-      method: "post",
-      suppressAlert: true,
-      params: {
-        "shutdown": "1"
-      }
-    });
+    if (navigator != null && typeof navigator["sendBeacon"] == "function") {
+      navigator["sendBeacon"](url, "shutdown=1");
+    }
+    else {
+      ajax({
+        url: url,
+        method: "post",
+        suppressAlert: true,
+        params: {
+          "shutdown": "1"
+        }
+      });
+    }
     pui.shutdownOnClose = false;
   }
 }

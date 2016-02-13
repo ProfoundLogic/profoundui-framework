@@ -1967,3 +1967,22 @@ function Presskey(key) { pressKey(key) }
 function PressKey(key) { pressKey(key) } 
 function pressKEY(key) { pressKey(key) } 
 function PRESSKEY(key) { pressKey(key) } 
+
+
+pui["isServerBusy"] = function() {
+	if ( (context == "dspf" && pui.screenIsReady === false) || 
+	     (context == "genie" && pui.genie.formSubmitted === true) ) return true;
+
+	var frames = document.getElementsByTagName("iframe");
+	for (var i = 0; i < frames.length; i++) {
+		var frameWin = frames[i].contentWindow;
+		if (frameWin == null) continue;
+		var framePui = frameWin.pui;
+		if (framePui == null) continue;
+		if (typeof framePui["isServerBusy"] !== "function") continue;
+		if (framePui["isServerBusy"]()) return true;
+	}
+
+	return false;			 
+}
+

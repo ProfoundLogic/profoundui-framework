@@ -2622,8 +2622,9 @@ pui.showErrors = function(errors, rrn) {
 pui.respond = function() {
 
   if (pui.observer != null) return false;
-  
-  if (!pui.screenIsReady) {
+
+  //if (!pui.screenIsReady) {
+  if (pui["isServerBusy"]()) {
     return false;
   }
   
