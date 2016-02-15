@@ -1977,12 +1977,19 @@ pui["isServerBusy"] = function() {
 	for (var i = 0; i < frames.length; i++) {
 		var frameWin = frames[i].contentWindow;
 		if (frameWin == null) continue;
-		var framePui = frameWin.pui;
+		var framePui = null;
+		// must use try/catch to prevent cross-domain access denied errors
+		try {
+		  framePui = frameWin.pui;
+		}
+		catch(e) {
+		}
 		if (framePui == null) continue;
+		if (typeof framePui !== "object") continue;
 		if (typeof framePui["isServerBusy"] !== "function") continue;
 		if (framePui["isServerBusy"]()) return true;
 	}
 
-	return false;			 
+	return false;
 }
 
