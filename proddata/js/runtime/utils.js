@@ -1824,7 +1824,7 @@ pui.killFrames = function() {
   // event for iframes when a Chrome tab is closed.
   if (pui["is_chrome"]) {
 
-    var iframes = document.querySelectorAll("iframe");
+    var iframes = document.getElementsByTagName("iframe");
     for (var i = 0; i < iframes.length; i++) {
 
       var iframe = iframes[i];
