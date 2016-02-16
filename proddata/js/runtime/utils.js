@@ -1828,15 +1828,47 @@ pui.killFrames = function() {
     for (var i = 0; i < iframes.length; i++) {
 
       var iframe = iframes[i];
+      
+      var puiObj = null;
       try {
-        if (iframe.contentWindow["pui"] && iframe.contentWindow["pui"]["unload"])
-          iframe.contentWindow["pui"]["unload"]();        
+        puiObj = iframe.contentWindow["pui"];
       }
-      catch (e) { /* ignore */ }
+      catch(e) { /* ignore */ }
+      
+      if (puiObj != null && typeof puiObj["unload"] === "function") {
+        puiObj["unload"]();
+      }
+      else {
+        iframe.src = "";
+      } 
       
     }
 
   }  
+  
+}
+
+
+pui["haltFrames"] = function() {
+  
+  var iframes = document.getElementsByTagName("iframe");
+  for (var i = 0; i < iframes.length; i++) {
+
+    var iframe = iframes[i];
+    
+    var puiObj = null;
+    try {
+      puiObj = iframe.contentWindow["pui"];
+    }
+    catch(e) { /* ignore */ }
+    
+    if (puiObj != null && typeof puiObj["haltFrames"] === "function") {
+      puiObj["haltFrames"]();
+    }
+
+    iframe.src = "";
+    
+  }
   
 }
 

@@ -2674,6 +2674,7 @@ pui.respond = function() {
     }
   }
   
+  pui["haltFrames"]();
   pui.screenIsReady = false;  // this prevents double-submits
 
   pui.showWaitAnimation();
