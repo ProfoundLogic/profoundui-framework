@@ -5603,8 +5603,13 @@ pui.Grid = function() {
           if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
             me.highlighting.text = text;
             var rec = i + 1;
-            if (me.recNum != rec) me.scrollbarObj.setScrollTopToRow(rec, false);
-            else me.getData();
+            if (me.recNum != rec) {
+              var rv = me.scrollbarObj.setScrollTopToRow(rec, false);
+              if (rv === false) me.getData();
+            }
+            else {
+              me.getData();
+            }
           }
           done = true;
           break;

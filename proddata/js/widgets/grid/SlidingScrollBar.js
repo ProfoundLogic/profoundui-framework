@@ -339,13 +339,16 @@ pui.SlidingScrollBar = function() {
       var top = parseInt((maxTop - minTop) * pct) + minTop;
       touchHandle.style.top = top + "px";
       prevStartRow = rowNum;
+      return (touchHandle.style.top != top + "px");  // return false if position of handle not changed
     }
     else {
       if (setPrevStartRow) {
         // this prevents onscroll event from processing
         prevStartRow = rowNum;
       }
+      var prevTop = outerDiv.scrollTop;
       outerDiv.scrollTop = (rowNum - 1) * multiplier;
+      return (prevTop != outerDiv.scrollTop);  // return false if position of scrollbar not changed
     }
   }
   
