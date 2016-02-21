@@ -728,7 +728,16 @@ pui.beforeUnload = function(event) {
   
   if (pui.confirmOnClose && !pui.skipConfirm) {
     if (context == "genie" && pui.isSignOnScreen()) return;
-    if (window.parent != window && pui.checkForAtrium(parent)) return;
+    var par = window;
+    while (par != null && par != par.parent) {
+      par = par.parent;
+      if (pui.checkForAtrium(par)) return;
+      try {
+        if (typeof par["pui"] != "undefined") return;
+      }
+      catch(e) {
+      }
+    } 
     if (context == "genie" || !inDesignMode() || recordFormats.isDirty()) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
@@ -1635,7 +1644,7 @@ pui.checkForAtrium = function(parentWindow) {
   var hasAtrium = false;
   
   try {
-    hasAtrium = (typeof(parentWindow["Atrium"]) != "undefined");
+    hasAtrium = (typeof(parentWindow["Atrium"]) != "undefined" && typeof(parentWindow["Atrium"]["api"]) != "undefined");
   }
   catch(e) {
   }
