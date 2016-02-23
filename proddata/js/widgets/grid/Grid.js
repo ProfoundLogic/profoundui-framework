@@ -397,7 +397,7 @@ pui.Grid = function() {
         me.recNum = activeEl.subfileRow;
       }
     }
-    else{
+    else if(me.scrollbarObj != null ){
       me.scrollbarObj.setScrollTopToRow(me.recNum);
     }
 
