@@ -98,6 +98,7 @@ function preventDoubleSubmit(){
     }
   }
   
+  pui["haltFrames"]();
   pui.genie.formSubmitted = true;
   var cursorPos = getCursorPosition(lastActiveElement);
   if (lastActiveElement != null && lastActiveElement.tagName == "INPUT" && lastActiveElement.maxLength != null && lastActiveElement.maxLength > 0 && cursorPos == lastActiveElement.maxLength) {
