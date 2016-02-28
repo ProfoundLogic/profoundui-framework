@@ -1872,8 +1872,11 @@ pui["haltFrames"] = function() {
     }
     catch(e) { /* ignore */ }
     
-    if (puiObj != null && typeof puiObj["haltFrames"] === "function") {
-      puiObj["haltFrames"]();
+    if (puiObj != null && typeof puiObj === "object") {
+      puiObj["halted"] = true;
+      if (typeof puiObj["haltFrames"] === "function") {
+        puiObj["haltFrames"]();
+      }
     }
 
     iframe.src = "";
