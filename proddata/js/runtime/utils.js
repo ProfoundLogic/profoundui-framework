@@ -754,6 +754,7 @@ pui.beforeUnload = function(event) {
 
 pui["unload"] = function() {
   if (pui.shutdownOnClose && pui.observer == null) {
+    pui["halted"] = true;
     pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
@@ -1869,6 +1870,7 @@ pui["haltFrames"] = function() {
     var puiObj = null;
     try {
       puiObj = iframe.contentWindow["pui"];
+      iframe.contentWindow["puihalted"] = true;
     }
     catch(e) { /* ignore */ }
     
