@@ -755,6 +755,7 @@ pui.beforeUnload = function(event) {
 pui["unload"] = function() {
   if (pui.shutdownOnClose && pui.observer == null) {
     pui["halted"] = true;
+    window["puihalted"] = true;
     pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
@@ -1843,10 +1844,12 @@ pui.killFrames = function() {
       var puiObj = null;
       try {
         puiObj = iframe.contentWindow["pui"];
+        iframe.contentWindow["puihalted"] = true;
       }
       catch(e) { /* ignore */ }
       
       if (puiObj != null && typeof puiObj["unload"] === "function") {
+        puiObj["halted"] = true;
         puiObj["unload"]();
       }
       else {
