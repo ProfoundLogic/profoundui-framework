@@ -4359,6 +4359,7 @@ pui.Grid = function() {
         // show custom context menu
         var x = pui.getMouseX(event);
         var y = pui.getMouseY(event);
+        var ctrOffset = pui.getOffset(pui.runtimeContainer);
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode;  // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
@@ -4375,7 +4376,7 @@ pui.Grid = function() {
             offset.y = parent.offsetTop;
             
           }  
-          var ctrOffset = pui.getOffset(pui.runtimeContainer);      
+             
           offset.x += ctrOffset[0];
           offset.y += ctrOffset[1];
           
@@ -4408,8 +4409,8 @@ pui.Grid = function() {
         var doc = document.documentElement;
         var docScrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
         var docScrollTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10;  // width of menu plus scrollbar
-        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10; // height of menu plus scrollbar
+        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10 - ctrOffset[0];  // width of menu plus scrollbar
+        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10 - ctrOffset[1]; // height of menu plus scrollbar
         if (x > maxX) x = maxX; 
         if (y > maxY) y = maxY;     
         contextMenu.style.left = x + "px";
