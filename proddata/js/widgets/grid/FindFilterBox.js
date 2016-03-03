@@ -107,15 +107,28 @@ pui.FindFilterBox = function() {
 		var left, top, width;
 		left = grid.offsetLeft + cell.offsetLeft;
 		top = grid.offsetTop - 40;
-		width = cell.offsetWidth;		
+		width = cell.offsetWidth;
 		
+    if (gridParent.isPUIWindow) {
+      left += gridParent.offsetLeft;
+      top += gridParent.offsetTop;
+    }
+
 		if (gridParent.getAttribute("container") == "true") {
 			var offset = pui.layout.getContainerOffset(gridParent);
-			top = top + offset.y;
-			left = left + offset.x;
+			top += offset.y;
+			left += left + offset.x;
 		} 	 
 
 		me.setPosition(left, top, width);    
+	}
+	
+	this.changeContainer = function(newContainer) {
+    if (me.container === newContainer) return;
+    me.container.removeChild(div);
+    me.container = newContainer;
+    newContainer.appendChild(div);
+    
 	}
 
 	this.setPosition = function(left, top, width) {
