@@ -581,7 +581,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
     } else {
       // This happens when some text was dragged or in IE10/IE11 when a folder
       // was dragged in. IE doesn't put folders in the dataTransfer FileList.
-      showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
+      showError(pui["getLanguageText"]("runtimeMsg", "upload invalid type"));
     }
   }// end boxdrop(e).
   
@@ -660,12 +660,12 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			// everything in a directory. Ignore them for now.
       if (!allowedT || ! droppedFileList[i].isReadable ) {
 				hadError = true;
-				showError(pui["runtimeMsg"]["en_US"]["upload invalid type"]);
+				showError(pui["getLanguageText"]("runtimeMsg", "upload invalid type"));
 			}
       // Don't add if the same filename is already in the list.
 			else if (exists) {
         hadError = true;
-				showError(pui["runtimeMsg"]["en_US"]["upload duplicate file"]);
+				showError(pui["getLanguageText"]("runtimeMsg", "upload duplicate file"));
 			}
 			// Don't add if file is larger than limit.
 			else if (droppedFileList[i].size > sizeLimit * 1048576) {
