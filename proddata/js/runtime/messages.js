@@ -82,19 +82,19 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
   }
 
   return msg;
-}
+};
 
 pui.copyDictionary = function(dict, fromLang, toLang) {
   if (pui[dict][toLang] == null) pui[dict][toLang] = {};
   for (msg in pui[dict][fromLang]) {
     pui[dict][toLang][msg] = pui[dict][fromLang][msg];
   }  
-}
+};
 
 pui.copyAllLanguageText = function(fromLang, toLang) {
   pui.copyDictionary("runtimeMsg", fromLang, toLang);
   pui.copyDictionary("runtimeText", fromLang, toLang);
-}
+};
 
 // ----------------------------------
 //  USA English
@@ -608,6 +608,8 @@ pui["runtimeText"]["fr_FR"]["upload select text"]   = "Fichiers sélectionnés "
 pui["runtimeText"]["fr_FR"]["upload clear text"]    = "Effacer ";
 pui["runtimeText"]["fr_FR"]["upload remove text"]   = "Retirer ";
 pui["runtimeText"]["fr_FR"]["upload upload text"]   = "Envoyer ";
+pui["runtimeText"]["fr_FR"]["upload drophere text"] = "Déposer les fichiers ici.";
+pui["runtimeText"]["fr_FR"]["upload finished text"] = "Fini";
 pui["runtimeText"]["fr_FR"]["csv export text"]      = "Exporter vers Excel ";
 pui["runtimeText"]["fr_FR"]["filter text"]          = "Filtrer ";
 pui["runtimeText"]["fr_FR"]["remove filters text"]  = "Supprimer tous les filtres ";
