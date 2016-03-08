@@ -658,11 +658,13 @@ pui.Grid = function() {
     var numericData = [];
     var graphicData = [];
     var boundVisibility  = [];
+    var boundDate = [];
     for (var i = 0; i < me.vLines.length - 1; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
       boundVisibility.push(false);
+      boundDate.push(false);
     }
     
     // go through all grid elements, retrieve field names, and identify data index by field name
@@ -683,6 +685,9 @@ pui.Grid = function() {
                 columnArray[col] = j;
                 if (val["formatting"] == "Number") {
                    numericData[col] = true;
+                }
+                else if(val["formatting"] == "Date"){
+                  boundDate[col] = val; //Save this info so we can format later.
                 }
                 if (val["dataType"] == "graphic") {
                    graphicData[col] = true;
@@ -748,6 +753,10 @@ pui.Grid = function() {
           if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
              value = value.replace('.', ',');
           }
+          else if (typeof boundDate[j] === "object" && boundDate[j] != null ){
+            // Format CSV date same as rendered date; "0001-01-01" becomes "".
+            value = pui.evalBoundProperty(boundDate[j], fieldData, me.ref);
+          }
           value = value.replace(/"/g, '""');  // "
           if (boundVisibility[j] !== false) {
             if (pui.evalBoundProperty(boundVisibility[j], fieldData, me.ref) == "hidden") {
@@ -764,7 +773,7 @@ pui.Grid = function() {
 
     pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
     
-  }
+  };
   
   this.hasChildren = function(colNumber) {
     if (context == "genie" && !pui.usingGenieHandler) return false;    
