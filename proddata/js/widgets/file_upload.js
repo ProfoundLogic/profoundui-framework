@@ -412,19 +412,10 @@ pui["fileupload"].FileUpload = function(container) {
       form.elements["dir"].value = targetDirectory;
       form.elements["altname"].value = altName;
       form.elements["overwrite"].value = (overwrite) ? "1" : "0";
-      while(form.elements["type"]) {
-      
-        if (form.elements["type"].length) {
-        
-          form.removeChild(form.elements["type"][0]);
-          
-        }
-        else {
-        
-          form.removeChild(form.elements["type"]);  
-        
-        }
-      
+      var els = [].slice(form.querySelectorAll("input[name=\"type\"]"));
+      while (els.length > 0) {
+        var el = els.pop();
+        el.parentNode.removeChild(el);
       }
       for (var i = 0; i < allowedTypes.length; i++) {
       
