@@ -1608,7 +1608,7 @@ pui.renderFormat = function(parms) {
                     dom.style.visibility = "hidden";
                   }
                   else {
-					if (shortcutKey)
+					if (shortcutKey != null)
 						pui.autoArrange.keys[shortcutKey] = true;
                     if (isWin|| pui["horizontal auto arrange"]) {
 					  if (pui.autoArrange.top  == null) pui.autoArrange.top = parseInt(dom.style.top);
