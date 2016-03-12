@@ -377,9 +377,14 @@ pui.Grid = function() {
       gridExpanding = true;
     }
     
+    var timeoutDuration = 1;
+
     if(activeEl && activeEl.subfileRow && !gridExpanding && pui['is_android']){
       proxyEl = document.createElement('input');
       proxyEl.type = activeEl.type;
+      if(proxyEl.type == "number"){
+    	  timeoutDuration = 1000;
+      }
       proxyEl.style.position = 'absolute';
       proxyEl.style.left = '0px';
       proxyEl.style.top = '0px';
@@ -418,10 +423,14 @@ pui.Grid = function() {
     // If the temporary input field variable exists
     // we need to focus on the subfile element that previously had
     // focus, and we need to remove the temporary input field variable
-    if (focusedEl && proxyEl && !gridExpanding && pui['is_android']){
-      focusedEl.focus();
-      proxyEl.parentNode.removeChild(proxyEl);
-    }
+    // We use a timeout to avoid certain keyboard errors on android devices
+    // where the numeric keyboard is "detached"
+    setTimeout(function(){
+	    if (focusedEl && proxyEl && !gridExpanding && pui['is_android']){
+	      focusedEl.focus();
+	      proxyEl.parentNode.removeChild(proxyEl);
+	    }
+    }, timeoutDuration);
   }
   
   this.isInitCollapsed = function() {
