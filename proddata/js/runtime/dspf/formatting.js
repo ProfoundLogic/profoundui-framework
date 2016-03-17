@@ -448,7 +448,7 @@ pui.FieldFormat = {
       
       var strDec;
       //scrap everything up to and including decimal point      
-      strValueWithDecimalPoint = strValue;
+      var strValueWithDecimalPoint = strValue;
       if (strValueWithDecimalPoint.indexOf(".") == -1) strValueWithDecimalPoint += ".";
       strDec = strValueWithDecimalPoint.replace(/.*\./, ''); 
       
@@ -884,8 +884,8 @@ pui.FieldFormat = {
           }
           displaySep = pui.formatting.keywords.DATSEP[datSep];
         }
-        internalPattern = internalPattern.replace(/\B/g, internalSep)
-        displayPattern = displayPattern.replace(/\B/g, displaySep)
+        internalPattern = internalPattern.replace(/\B/g, internalSep);
+        displayPattern = displayPattern.replace(/\B/g, displaySep);
       
       }
       

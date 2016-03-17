@@ -5544,25 +5544,47 @@ pui.Grid = function() {
     return null;
   }
 
+  /**
+   * Set headerCell.searchIndexes[] to be an array of integers that map to 
+   * fields in me.dataArray[][]. Also put references to runtimeChildren[].value
+   * into headerCell.pui.formats[]. The first value in .searchIndexes matches
+   * the first object in .pui.formats, 2nd to 2nd, etc.
+   * 
+   * Called by startFind, find, setFilter, startFilter.
+   * 
+   * @param {Object|Element} headerCell    A DOM element for a column header.
+   * @returns {undefined}
+   */
   this.setSearchIndexes = function(headerCell) {
     if (headerCell.searchIndexes != null) return;
     else headerCell.searchIndexes = [];
+    
+    if( headerCell["pui"] == null) headerCell["pui"] = {};
+    headerCell["pui"].formats = [];
+
+    // Look at each runtimeChildren for any belonging to the headerCell's column.
+    // We can't use headerCell.fieldName, because it only gets one of a column's
+    // fields. There may be multiple fields.   MD.
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
       var col = Number(itm["column"]);
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
+      // The current itm maps to the headerCell's column.
       if (pui.isBound(val) && !isNaN(col) && col == headerCell.col) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
+        // Find the index of the dataArray column that corresponds to fieldName.
+        // me.fieldNames maps me.dataArray columns to fieldNames.
         for (var j = 0; j < me.fieldNames.length; j++ ) {
           if (fieldName == me.fieldNames[j]) {
             headerCell.searchIndexes.push(j);
+            headerCell["pui"].formats.push(val);
+            break; //There should be one matching fieldName. no need to keep searching.
           }
         }
       }
     }
-
-  }
+  };
 
   this["startFind"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
@@ -5579,17 +5601,17 @@ pui.Grid = function() {
     me.ffbox.show();
     me.ffbox.clear();
     me.ffbox.focus();
-  }
+  };
 
   this["clearHighlighting"] = function() {
     me.highlighting.text = "";
     me.getData();
-  }
+  };
 
   this["find"] = function(parm1, parm2, parm3) {
 
     var headerCell;
-    headerCell = me.ffbox.headerCell
+    headerCell = me.ffbox.headerCell;
 
     var text = parm1;
     var findNext = parm2;
@@ -5617,6 +5639,13 @@ pui.Grid = function() {
         var idx = idxes[j];
         var record = dataRecords[i];
         var value = record[idx];
+        // If the header has a format for the current field, then use it.
+        if( headerCell["pui"] && headerCell["pui"].formats
+         && headerCell["pui"].formats[j] != null
+         && typeof headerCell["pui"].formats[j] == "object"){
+          headerCell["pui"].formats[j].value = value;
+          value = pui.FieldFormat.format( headerCell["pui"].formats[j] );
+        }
         var valueLower = value.toLowerCase();
         if (valueLower.indexOf(textLower) >= 0) {
           if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
@@ -5639,7 +5668,7 @@ pui.Grid = function() {
     if (!done) {
       me.getData();
     }
-  }
+  };
 
   this["startFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
@@ -5661,7 +5690,7 @@ pui.Grid = function() {
       me.getData();
     }
     me.ffbox.focus();
-  }
+  };
 
   this.doFilter = function(text) {
     var headerCell = me.ffbox.headerCell;
@@ -5671,7 +5700,7 @@ pui.Grid = function() {
     else {
       me["setFilter"](headerCell, text);
     }    
-  }
+  };
   
   this["setFilter"] = function(headerCell, text) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
@@ -5689,6 +5718,13 @@ pui.Grid = function() {
       for (var j = 0; j < idxes.length; j++) {
         var idx = idxes[j];        
         var value = record[idx];
+        // If the header has a format for the current field, then use it.
+        if( headerCell["pui"] && headerCell["pui"].formats
+         && headerCell["pui"].formats[j] != null
+         && typeof headerCell["pui"].formats[j] == "object"){
+          headerCell["pui"].formats[j].value = value;
+          value = pui.FieldFormat.format( headerCell["pui"].formats[j] );
+        }
         if (record.filteredOutArray == null) record.filteredOutArray = [];
         record.filteredOutArray[col] = true;
         if (me.testFilter(value, text)) {          
@@ -5702,13 +5738,13 @@ pui.Grid = function() {
       }
     }
     me.getData();
-  }
+  };
   
   this["getFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return null;
     return headerCell.filterText;
-  }
+  };
   
   this.testFilter = function(value, text) {
 
@@ -5787,7 +5823,7 @@ pui.Grid = function() {
       return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
     }
 
-  }
+  };
   
   this.setFilteredOut = function(record) {
     record.filteredOut = false;
