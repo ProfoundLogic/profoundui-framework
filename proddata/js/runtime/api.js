@@ -1858,14 +1858,27 @@ pui["getDisplayType"] = function() {
   
 }
 
-function runPCCommand(command) {
+function runPCCommand(arg) {
 
+  var command;
+  var wait = false;
+  
+  if (typeof arg == "string") {
+    command = arg;
+  }
+  else {
+    command = arg["command"];
+    wait = arg["wait"];
+  }
+  
 	if (pui["use pc listener"] === true) {
 	
+	  var waitArg = (wait) ? "1" : "0";
 	  var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
-    var req = new pui.Ajax("http://localhost:" + port + "/?cmd=" + encodeURIComponent(command));
+    var req = new pui.Ajax("http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) 
+                         + "&wait=" + waitArg );
     req.method = "GET";
-    req.async = true;
+    req.async = (wait === false);
     req.suppressAlert = true;
     req.onfail = function(req) {
       
