@@ -35,10 +35,11 @@ pui.PagingBar = function() {
   this.showBar = false;
   this.pageUpCondition = null;
   this.pageDownCondition = null;
-  this.pageUpResponseDefined = false;
-  this.pageDownResponseDefined = false;
-  this.pageUpHotKeyDefined = false;
-  this.pageDownHotKeyDefined = false;
+  
+  // These remain false when their responses are not set, even for paging scrollbar.
+  this.pageUpResponseDefined = false;   //true when grid "page up response" is set.
+  this.pageDownResponseDefined = false; //true when grid "page down response" is set.
+  
   this.pageNumber = 1;
   this.container = null;
   this.grid = null;
@@ -57,20 +58,28 @@ pui.PagingBar = function() {
   
   var me = this;
   
+  /**
+   * Handle the "Previous" paging control and PageUp key for Genie. 
+   * @returns {undefined}
+   */
   function autoPageUp() {
     if (me.prevLink.disabled) return;
     if (context != "genie" || pui.usingGenieHandler) {
-      if (me.pageUpHotKeyDefined) return;
+      if (me.pageUpResponseDefined) return; //pui.attachResponse/clickEvent handles pageUp.
       if (me.grid.designMode) return;
       if (me.grid.atTop()) return;
     }
     me.grid.pageUp();  
   }
   
+  /**
+   * Handle the "Next" paging control and PageDown key for Genie.
+   * @returns {undefined}
+   */
   function autoPageDown() {
     if (me.nextLink.disabled) return;
     if (context != "genie" || pui.usingGenieHandler) {
-      if (me.pageDownHotKeyDefined) return;
+      if (me.pageDownResponseDefined) return; //pui.attachResponse/clickEvent handles pageDown.
       if (me.grid.designMode) return;
       if (me.grid.atBottom()) return;
     }
@@ -84,7 +93,7 @@ pui.PagingBar = function() {
     div.style.textAlign = "center";
     div.style.paddingTop = "5px";
     div.style.overflow = "hidden";
-    div.onselectstart = function(e) { return false };
+    div.onselectstart = function(e) { return false; };
     if (typeof div.style.MozUserSelect!="undefined") div.style.MozUserSelect = "none";
 
     me.container.appendChild(div);
@@ -100,7 +109,7 @@ pui.PagingBar = function() {
     exportImg.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
-    }
+    };
     pui.addCssClass(exportImg,"export-image-icon");
     div.appendChild(exportImg);
 
@@ -114,7 +123,7 @@ pui.PagingBar = function() {
     exportLink.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
-    }
+    };
     exportLink.className = "paging-link";
     div.appendChild(exportLink);
 
@@ -131,14 +140,14 @@ pui.PagingBar = function() {
     me.prevImg.onmouseover = function() {
       if (me.prevImg.disabled) return;
       pui.addCssClass(me.prevLink, "paging-link-hover");
-    }
+    };
     me.prevImg.onmouseout = function() {
       if (me.prevImg.disabled) return;
       pui.removeCssClass(me.prevLink, "paging-link-hover");
-    }
+    };
     me.prevImg.onclick = function() {
       autoPageUp();
-    }
+    };
     div.appendChild(me.prevImg);
       
     me.prevLink = document.createElement("span");
@@ -153,15 +162,15 @@ pui.PagingBar = function() {
       if(me.prevLink.disabled)
         return;
       pui.addCssClass(me.prevLink, "paging-link-hover");
-    }
+    };
     me.prevLink.onmouseout = function() {
       if(me.prevLink.disabled)
         return;
       pui.removeCssClass(me.prevLink, "paging-link-hover");
-    }
+    };
     me.prevLink.onclick = function() {
       autoPageUp();
-    }
+    };
     me.prevLink.className = "paging-link";
     div.appendChild(me.prevLink);
 
@@ -191,14 +200,14 @@ pui.PagingBar = function() {
     me.nextLink.onmouseover = function() {
       if (me.nextLink.disabled) return;
       pui.addCssClass(me.nextLink, "paging-link-hover");
-    }
+    };
     me.nextLink.onmouseout = function() {
       if (me.nextLink.disabled) return;
       pui.removeCssClass(me.nextLink, "paging-link-hover");
-    }
+    };
     me.nextLink.onclick = function() {
       autoPageDown();
-    }
+    };
     me.nextLink.className = "paging-link";
     div.appendChild(me.nextLink);
   
@@ -215,14 +224,14 @@ pui.PagingBar = function() {
     me.nextImg.onmouseover = function() {
       if (me.nextImg.disabled) return;
       pui.addCssClass(me.nextLink, "paging-link-hover");
-    }
+    };
     me.nextImg.onmouseout = function() {
       if (me.nextImg.disabled) return;
       pui.removeCssClass(me.nextLink, "paging-link-hover");
-    }
+    };
     me.nextImg.onclick = function() {
       autoPageDown();
-    }
+    };
     div.appendChild(me.nextImg);
 
     if (!me.pageDownResponseDefined || !me.pageUpResponseDefined) {
@@ -231,17 +240,6 @@ pui.PagingBar = function() {
 
     }
 
-    // HACK:   Both this (handleKeyDown) and pui.handleHotKey (in dspf/render.js) fire 
-    //         for PageUp/PageDown.  (Even if not using a scrollbar rather than the
-    //         paging bar!) Therefore, if PageUp/PageDown are defined as hot keys, then
-    //         pui.handleHotKey handles them, and the autoPageUp/autoPageDown routines 
-    //         (called below) will ignore them. If they are not hot keys (i.e. not in 
-    //         pui.keyMap[]) then this routine handles them, and pui.handleHotKey 
-    //         does not do pageup/pagedown within the grid's data array, but it 
-    //         still handles submitting to the RPG program when the top/bottom of 
-    //         the grid is reached. This approach is confusing, and should probably
-    //         fixed up to be handled solely by the pui.handleHotKey routine.  -SK
-    
     if (!me.grid.designMode && pui.runtimeContainer != null && div != null && div.parentNode != null) {
       function handleKeyDown(e) {
         if (div == null || div.parentNode == null) {
@@ -253,7 +251,9 @@ pui.PagingBar = function() {
         if (key == 33) autoPageUp();
         if (key == 34) autoPageDown();
       }
-      addEvent(pui.runtimeContainer, "keydown", handleKeyDown);
+      // pui.handleHotKey now handles the PageUp/Down keys.
+      if( context == "genie" || pui.usingGenieHandler )
+        addEvent(pui.runtimeContainer, "keydown", handleKeyDown);
     }
 
     function mousedown(event) {
@@ -348,7 +348,7 @@ pui.PagingBar = function() {
       }      
     }
     addEvent(div, "mousedown", mousedown);    
-  }
+  };
   
   this.position = function() {  
     if ((me.csvExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
@@ -362,11 +362,11 @@ pui.PagingBar = function() {
     else {
       div.style.display = "none";
     }
-  }
+  };
   
   this.hide = function() {
     div.style.display = "none";
-  }
+  };
   
   this.destroy = function() {
     div.innerHTML = "";
@@ -384,7 +384,7 @@ pui.PagingBar = function() {
     pageSpan = null;
     
     me = null;  
-  }
+  };
   
   this.setClassName = function(cssClass) {
     // two classes are actually assigned here (grid specific and generic)
@@ -396,7 +396,7 @@ pui.PagingBar = function() {
     cssClass += " paging-bar";
     cssClass = trim(cssClass);
     if (div.className != cssClass) div.className = cssClass;
-  }
+  };
   
   this.draw = function() {
 
@@ -474,19 +474,19 @@ pui.PagingBar = function() {
       
     }
     
-  }
+  };
   
   this.changeContainer = function(newContainer) {
     me.container = newContainer;
     div.parentNode.removeChild(div);
     me.container.appendChild(div); 
-  }
+  };
   
   this.getHeight = function() {
   
     return div.offsetHeight;
   
-  }
+  };
 
-}
+};
 

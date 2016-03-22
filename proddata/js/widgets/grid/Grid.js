@@ -3096,14 +3096,12 @@ pui.Grid = function() {
       case "page up response":
         if (value != null && value != "") {
           me.pagingBar.pageUpResponseDefined = true;
-          me.pagingBar.pageUpHotKeyDefined = true;
         }
         break;
         
       case "page down response":
         if (value != null && value != "") {
           me.pagingBar.pageDownResponseDefined = true;
-          me.pagingBar.pageDownHotKeyDefined = true;
         }
         break;        
         

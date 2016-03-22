@@ -2361,19 +2361,19 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && grid.scrollbarObj.type == "sliding" && grid.scrollbarObj.rowsPerPage == 1) {
         grid.scrollbarObj.draw();
       }
-      // Paging scrollbar needs the PageUp/PageDown keys to be in the KeyMap so
-      //  the handleHotKey routine can used to page up/down on scrollbar events.
-      if (!isDesignMode && grid.scrollbarObj.type == "paging") {
+      // Add PageUp/PageDown keys to the KeyMap so that the handleHotKey routine
+      // can be used to page up/down on paging scrollbar events. Also handles
+      // PageUp/PageDown keys for any scrollbar. No longer does PagingBar handle
+      // these keys. PagingBar handles them only for Genie and GenieHandler.
+      if (!isDesignMode ) {
         var formatName = screenProperties["record format name"];
         if (pui.keyMap[formatName]["PageDown"] == null) {
           pui.keyMap[formatName]["PageDown"] = [];
           pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
-          grid.pagingBar.pageDownHotKeyDefined = true;
         }
         if (pui.keyMap[formatName]["PageUp"] == null) {
           pui.keyMap[formatName]["PageUp"] = [];
           pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
-          grid.pagingBar.pageUpHotKeyDefined = true;
         }
       }
     }
