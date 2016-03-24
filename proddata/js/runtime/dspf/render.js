@@ -2365,15 +2365,24 @@ pui.renderFormat = function(parms) {
       // can be used to page up/down on paging scrollbar events. Also handles
       // PageUp/PageDown keys for any scrollbar. No longer does PagingBar handle
       // these keys. PagingBar handles them only for Genie and GenieHandler.
-      if (!isDesignMode ) {
+      if (!isDesignMode && typeof screenProperties["record format name"] === "string"
+        && grid.pagingBar != null ) {
         var formatName = screenProperties["record format name"];
-        if (pui.keyMap[formatName]["PageDown"] == null) {
-          pui.keyMap[formatName]["PageDown"] = [];
-          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
-        }
-        if (pui.keyMap[formatName]["PageUp"] == null) {
-          pui.keyMap[formatName]["PageUp"] = [];
-          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+        var formatNameUC = formatName.toUpperCase();
+        // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
+        // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
+        if( pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null )
+          formatName = formatNameUC;
+        
+        if (pui.keyMap[formatName] != null ){
+          if (pui.keyMap[formatName]["PageDown"] == null) {
+            pui.keyMap[formatName]["PageDown"] = [];
+            pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+          }
+          if (pui.keyMap[formatName]["PageUp"] == null) {
+            pui.keyMap[formatName]["PageUp"] = [];
+            pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+          }
         }
       }
     }
@@ -2404,7 +2413,7 @@ pui.renderFormat = function(parms) {
   	pui.onsubmitProp = screenProperties["onsubmit"];
 	}
   
-}
+};
 
 
 pui.attachResponse = function(dom) {
