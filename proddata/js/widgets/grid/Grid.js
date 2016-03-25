@@ -933,7 +933,7 @@ pui.Grid = function() {
     var columnIndex = getColumnIndex(fieldName);
     if (columnIndex == null) return null;
     return record[columnIndex];
-  }
+  };
   
   this["setDataValue"] = function(rowNum, fieldName, value) {
     
@@ -954,8 +954,11 @@ pui.Grid = function() {
     // find the DOM element
     var field = null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      field = me.runtimeChildren[i];
-      if (pui.isBound(field.value) && field.value["fieldName"] == fieldName) break;
+      var rtval = me.runtimeChildren[i].value;
+      if(pui.isBound(rtval) && pui.fieldUpper(rtval["fieldName"]) == fieldName ){
+          field = me.runtimeChildren[i];
+          break;
+      }
     }
     if (field == null) return false;
     var el = field.domEls[rowNum - 1];
@@ -964,12 +967,12 @@ pui.Grid = function() {
     // Update DOM element
     changeElementValue(el, value);
     return true;
-  }
+  };
 
   this.atTop = function() {
     if (me.recNum > 1) return false;
     else return true;
-  }
+  };
   
   this.pageUp = function() { 
   
