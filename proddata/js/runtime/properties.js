@@ -25,7 +25,6 @@ var toolbar = null;
 var screenPropertiesObj = new Object();
 var cachedPropertiesModel = null;
 var cachedPropertiesNamedModel = null;
-var cachedMultOccur = null;
 var cachedScreens = {};
 
 pui.suppressPropertyScriptingErrors = false;
@@ -44,7 +43,7 @@ function getPropertiesModel() {
       { name: "Misc", category: true },
       { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], help: "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting.", bind: false },
       { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Determines whether the field is output or not." }      
-    ]
+    ];
     return cachedPropertiesModel;
   }
   
@@ -163,7 +162,7 @@ function getPropertiesModel() {
     { name: "message id", label: "Message Id", uppercase: true, maxLength: 7, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]}, 
     { name: "message file", label: "Message File", uppercase: true, maxLength: 10, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]}, 
     { name: "message library", label: "Library", uppercase: true, maxLength: 10, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]}, 
-    { name: "message condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, readOnly: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]},
+    { name: "message condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]},
   
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "indicator", "expression"], help: "Controls the position and orientation of validation and error tool tips. When \"alert\" is selected, an alert box will be used instead of a tool tip. If not set, the default value \"right\" is used.", context: "dspf"},
@@ -185,8 +184,8 @@ function getPropertiesModel() {
     { name: "error message file", label: "Message File", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "", context: "dspf", viewdesigner: false}, 
     { name: "error message library", label: "Library", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "", context: "dspf", viewdesigner: false}, 
     { name: "replacement data", label: "Replacement Data", validDataTypes: ["char"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "", context: "dspf", viewdesigner: false}, 
-    { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, readOnly: true, format: "1 / 0", type: "boolean", help: "", context: "dspf"},
-    { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, readOnly: true, format: "1 / 0", type: "boolean", help: "",context: "dspf", viewdesigner: false},
+    { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf"},
+    { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "",context: "dspf", viewdesigner: false},
     { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true, help: "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent.", context: "dspf", viewdesigner: false }, 
     { name: "set as modified", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Marks an input field as modified when it is first displayed.", controls: ["check box", "combo box", "date field", "password field", "radio button", "select box", "slider", "spinner", "text area", "textbox"], context: "dspf"},
     { name: "bypass validation", choices: ["true", "false", "send data"], type: "boolean", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "menu", "tab panel", "chart", "css button"], help: "This property, typically used on Cancel or Undo buttons, specifies that the element will not trigger client-side validation and will automatically discard all data modified by the user on the screen.  It represents the CAxx set of DDS keywords.  You can select \"send data\" to bypass all client-side validation except for field data type validation and still send all data modified by the user.", hideFormatting: true, validDataTypes: ["char", "indicator", "expression"], context: "dspf" },
@@ -272,7 +271,7 @@ function getPropertiesModel() {
 
     { name: "Drag and Drop", category: true, controls: ["html container", "output field", "image"], context: "dspf" },
     { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "This property determines if the element can be drag and dropped.", controls: ["html container", "output field", "image"], context: "dspf" },
-    { name: "use proxy", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, type: "boolean", help: "This property determines if a drag and drop proxy is created.  If set to true, instead of dragging the element around, a proxy element is created and moved instead.", controls: ["html container", "output field", "image"], context: "dspf" },
+    { name: "use proxy", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "This property determines if a drag and drop proxy is created.  If set to true, instead of dragging the element around, a proxy element is created and moved instead.", controls: ["html container", "output field", "image"], context: "dspf" },
     { name: "ondragstart", type: "js", help: "Initiates a client-side script when the user first starts to drag the element.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", controls: ["html container", "output field", "image"], context: "dspf" },
     { name: "drop targets", type: "list", help: "Specifies a list of target element id's, which indentify where this element can be dropped.", controls: ["html container", "output field", "image"], context: "dspf" },
     { name: "ondragenter", type: "js", help: "Initiates a client-side script when the user drags an element over a valid drop target.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", controls: ["html container", "output field", "image"], context: "dspf" },
@@ -494,7 +493,7 @@ function getScreenPropertiesModel(designScreen) {
   	return model;
   }	
 	
-  var colorHelp = "<br><br><u>Usage</u>: Enter a color name or select a color.<br><br> <u>Valid colors by name</u> : <span style='color:aqua;'>aqua</span>, <span style='color:black;'>black</span>, <span style='color:blue;'>blue</span>, <span style='color:fuchsia;'>fuchsia</span>, <span style='color:gray;'>gray</span>, <span style='color:green;'>green</span>, <span style='color:lime;'>lime</span>, <span style='color:maroon;'>maroon</span>, <span style='color:navy;'>navy</span>, <span style='color:olive;'>olive</span>, <span style='color:purple;'>purple</span>, <span style='color:red;'>red</span>, <span style='color:silver;'>silver</span>, <span style='color:teal;'>teal</span>, <span style='color:white;background-color:black;'>white</span>, and <span style='color:yellow;background-color:black;'>yellow</span>. All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>)."
+  var colorHelp = "<br><br><u>Usage</u>: Enter a color name or select a color.<br><br> <u>Valid colors by name</u> : <span style='color:aqua;'>aqua</span>, <span style='color:black;'>black</span>, <span style='color:blue;'>blue</span>, <span style='color:fuchsia;'>fuchsia</span>, <span style='color:gray;'>gray</span>, <span style='color:green;'>green</span>, <span style='color:lime;'>lime</span>, <span style='color:maroon;'>maroon</span>, <span style='color:navy;'>navy</span>, <span style='color:olive;'>olive</span>, <span style='color:purple;'>purple</span>, <span style='color:red;'>red</span>, <span style='color:silver;'>silver</span>, <span style='color:teal;'>teal</span>, <span style='color:white;background-color:black;'>white</span>, and <span style='color:yellow;background-color:black;'>yellow</span>. All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>).";
   var model = [
     { name: "Identification", category: true },
     { name: "screen name", help: "The screen name is used to save the current screen to the server.  The screen is saved to a .scn file under the selected skin.  In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false },    
@@ -645,12 +644,13 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   else nmodel = domObj.propertiesNamedModel;
   var propConfig = nmodel[propertyName];
   if (propConfig == null ) {
-      propConfig = getMultOccurProp(propertyName);
+    // Get the multOccur property config.
+    propConfig = pui.getPropConfig(nmodel, propertyName);
   }
   if (propConfig != null) {
     if (domObj["pui"] == null || domObj["pui"]["properties"] == null) {      
       var value = "";
-      var fieldType = "output field"
+      var fieldType = "output field";
       if (domObj.tagName == "DIV") {
         value = getInnerText(domObj);
       }
@@ -997,7 +997,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     
     if (designItem.dom.id != newValue && document.getElementById(newValue) != null) {
       if (!(pui["is_old_ie"] && designItem.dom.id.toUpperCase() == newValue.toUpperCase())) {  // IE has a bug -- getElementById is case insensitive
-        pui.alert('The ID "' + newValue + '" is already in use.')
+        pui.alert('The ID "' + newValue + '" is already in use.');
         designer.propWindow.refresh();
         return dom;
       }
@@ -1181,7 +1181,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
       catch(e) {
         if (js == null && isDesignMode) {
-          var msg = "'" + newValue + "' is not a valid value for " + propConfigName + "."
+          var msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
           if (toolbar.loadingDisplay) {
             var formatName = toolbar.designer.screenProperties[toolbar.designer.currentScreen.screenId]["record format name"];
             if (properties["grid"] != null) {
@@ -1235,7 +1235,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
         }
-      }
+      };
     }
     else if (propConfigName == "onoptionclick") {
       func = function() {
@@ -1247,7 +1247,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
         }
-      }
+      };
     }
     else if (propConfigName == "onspin") {
       func = function() {
@@ -1260,7 +1260,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
         }
-      }
+      };
     }
     else if (propConfigName == "onchartclick") {
       func = function() {
@@ -1274,7 +1274,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);    
         }
-      }
+      };
     }
     else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
       func = function(e) {
@@ -1299,7 +1299,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         catch(err) {
           pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
         }
-      }
+      };
     }
     if (!isDesignMode && func != null) {
       domObj[propConfigName] = func;
@@ -1504,11 +1504,11 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
     screenPropertiesObj[designScreen.screenId] = obj;
     cachedScreens[designScreen.name + "." + stamp] = obj;
     onsuccess();
-  }
+  };
   request["onfail"] = function() {
     pui.alert("An error occurred while loading screen '" + designScreen.name + "'.\n\nHTTP " + request.getStatus() + "\n\n" + request.getStatusText() + ".");
     onfail();    
-  }
+  };
   request.send();
 }
 
@@ -1542,33 +1542,8 @@ pui.addCustomProperty = function(parms) {
   pm.splice(insertAt, 0, parms);
   pnm[parms.name] = parms;
 
-}
+};
 
-
-function getMultOccurProp(propName) {
-
-  // get a list of multOccur properties:
-  
-  if (cachedMultOccur == null) {
-    var model = getPropertiesModel(); 
-    cachedMultOccur = [];
-    for (var x=0; x<model.length; x++) {
-      if (model[x].multOccur != null && model[x].multOccur == true) { 
-        cachedMultOccur.push(model[x]);
-      }
-    }
-  }
-  
-  // check if this property is in that list
-  
-  for (var x=0; x<cachedMultOccur.length; x++) {
-    if ( propName.substr(0,cachedMultOccur[x].name.length) === cachedMultOccur[x].name ) {
-      return cachedMultOccur[x];
-    }
-  }
-  
-  return null;
-}
 
 // Styles that should be ignored if the user puts any into "inline css";
 // widget properties should set these.
