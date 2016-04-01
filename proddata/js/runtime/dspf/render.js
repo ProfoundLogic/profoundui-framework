@@ -3553,11 +3553,13 @@ pui.showWaitAnimation = function() {
     animation.style.width = width + "px";
     animation.style.height = height + "px";
   }
+  if(pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0)
+    animation.alt = pui["loading animation"]["alt"];
   animation.style.position = "absolute";
   var left = pui["loading animation"]["left"];
   animation.style.left = left + "px";
   var top = pui["loading animation"]["top"];
-  top += Math.max(document.body.scrollTop, document.documentElement.scrollTop)
+  top += Math.max(document.body.scrollTop, document.documentElement.scrollTop);
   animation.style.top = top + "px";
   animation.style.zIndex = pui["loading animation"]["zIndex"];
   animation.id = "_pui_loading_animation";
@@ -3568,7 +3570,7 @@ pui.showWaitAnimation = function() {
     if (!grid.subfileHidden) grid.mask();
   }
   
-}
+};
 
 pui.hideWaitAnimation = function(removeAnimationImage) {
   //pui.runtimeContainer.style.opacity = "";
