@@ -333,6 +333,9 @@ pui.ComboBoxWidget = function() {
           box.value = target.choiceValue;
           box.modified = true;
           me.div.modified = true;
+          if (me.formatName != null && pui.ctlRecModified != null) {
+            pui.ctlRecModified[me.formatName] = true;
+          }
           if (context == "genie" && box.fieldInfo != null && box.fieldInfo["idx"] != null) {
             pui.response[box.fieldInfo["idx"]] = box;
           }

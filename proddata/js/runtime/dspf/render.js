@@ -1823,7 +1823,10 @@ pui.renderFormat = function(parms) {
         // textboxes and text areas    
         if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
           var boxDom = dom;
-          if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+          if (dom.comboBoxWidget != null) {
+            dom.comboBoxWidget.formatName = formatName;
+            boxDom = dom.comboBoxWidget.getBox();
+          }
           if (dom.formattingInfo != null && dom.formattingInfo.maxLength != null) {
             boxDom.maxLength = dom.formattingInfo.maxLength;
             if (dom.tagName == "TEXTAREA") {
