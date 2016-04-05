@@ -20,8 +20,9 @@
 
 pui["charts"] = {};
 pui.chartsRendered = [];
+pui.scriptLoading = false; //Help prevent multiple script tags from getting into head.
 
-pui.widgets.chartTypes = ["Column3D", "Column2D", "Bar2D", "Line", "Area2D", "Pie2D", "Pie3D", "Doughnut3D", "Other..."]
+pui.widgets.chartTypes = ["Column3D", "Column2D", "Bar2D", "Line", "Area2D", "Pie2D", "Pie3D", "Doughnut3D", "Other..."];
 pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2D Pie", "3D Pie", "Doughnut"];
 
 pui.widgets.renderChart = function(parms) {
@@ -105,27 +106,50 @@ pui.widgets.renderChart = function(parms) {
         if (typeof FusionCharts == "undefined") return;
         if (!done) callback();
         done = true;
+        pui.scriptLoading = false; //Allow other charts to stop waiting to load.
       }
-    }
+    };
     script.onload = function() {
         if (typeof FusionCharts == "undefined") return;
         if (!done) callback();
         done = true;
+        pui.scriptLoading = false; //Allow other charts to stop waiting to load.
     };
     script.src = url;
     head.appendChild(script);
   }
 
   if (typeof FusionCharts == "undefined") {
-    loadScript(pui.normalizeURL('/FusionChartsXT/js/pui-fusioncharts.js'), function() {
-      loadChart();
-    });
+    // Check if another call to pui.widgets.renderChart is busy loading the script.
+    // Without this check, each chart loads pui-fusioncharts.js separately and
+    // adds as many script tags to the head as there are charts.
+    if(!pui.scriptLoading){
+      // No other chart is loading the script file, so we will.
+      pui.scriptLoading = true;
+      loadScript(pui.normalizeURL('/FusionChartsXT/js/pui-fusioncharts.js'), function() {
+        loadChart();
+      });
+    }else{
+      var waitCount = 0;
+      // Another chart is loading pui-fusioncharts.js, so wait until it finishes.
+      var waitintval = setInterval(function(){
+        if(!pui.scriptLoading){
+          loadChart();
+          clearInterval(waitintval);
+        }
+        // Give up waiting after 2 minutes.
+        else if(waitCount > 2400){
+          clearInterval(waitintval);
+        }
+        waitCount++;
+      }, 50);
+    }
   }
   else {
     loadChart();
   }
 
-}
+};
 
 pui.widgets.addChartLinks = function(eventObject, argumentsObject) {
 
@@ -143,7 +167,7 @@ pui.widgets.addChartLinks = function(eventObject, argumentsObject) {
   
   }
 
-}
+};
 
 pui.widgets.addXMLChartLinks = function(id, xml) {
 
@@ -199,7 +223,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
   
   }
 
-}
+};
 
 pui.widgets.addJSONChartLinks = function(id, json) {
 
@@ -225,7 +249,7 @@ pui.widgets.addJSONChartLinks = function(id, json) {
   
   }
 
-}
+};
 
 pui.widgets["doChartLink"] = function(param) {
 
@@ -255,7 +279,7 @@ pui.widgets["doChartLink"] = function(param) {
   
   }
     
-}
+};
 
 pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   dom.innerHTML = "";
@@ -286,7 +310,7 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   img.style.height = "100%";
   img.isChartPreview = true;
   dom.appendChild(img);
-}
+};
 
 
 pui.widgets.add({
@@ -302,7 +326,11 @@ pui.widgets.add({
   
     "field type": function(parms) {      
         
-      var tp = getObj(parms.evalProperty("parent tab panel"));
+      // Do not render chart in tab panel until the tab is activated.
+      var objid = parms.evalProperty("parent tab panel");
+      var tp;
+      // Avoid the warning: Empty string passed to getElementById().
+      if(objid != null && objid.length > 0) tp = getObj();
       if (tp)
         tp = tp.tabPanel;
       var tn = parseInt(parms.evalProperty("parent tab"), 10);
@@ -471,7 +499,7 @@ pui.widgets.add({
          else sql += " ORDER BY " + nameField;
 
          var url =  getProgramURL("PUI0009104.PGM");
-         var postData = "AUTH=" 
+         var postData = "AUTH=";
          if (context == "genie") postData += GENIE_AUTH;
          if (context == "dspf") postData += pui.appJob.auth;
          if (pui["secLevel"] > 0) {
@@ -517,7 +545,7 @@ pui.widgets.add({
              transparent: (parms.properties["chart overlay"] != "true"),
              xmlData: data
            });
-         }
+         };
          ajaxRequest.send(); 
           
         }
