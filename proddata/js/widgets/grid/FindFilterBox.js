@@ -88,15 +88,15 @@ pui.FindFilterBox = function() {
 		contentDiv.appendChild(box);
 		div.appendChild(contentDiv);
 		me.container.appendChild(div);
-	}
+	};
 
 	this.show = function() {
 		div.style.display = "";
-	}
+	};
 
 	this.hide = function() {
 		div.style.display = "none";
-	}
+	};
 
 	this.positionByGridColumn = function(cell) {
 		var grid = cell.parentNode;
@@ -117,11 +117,11 @@ pui.FindFilterBox = function() {
 		if (gridParent.getAttribute("container") == "true") {
 			var offset = pui.layout.getContainerOffset(gridParent);
 			top += offset.y;
-			left += left + offset.x;
+			left += offset.x;
 		} 	 
 
 		me.setPosition(left, top, width);    
-	}
+	};
 	
 	this.changeContainer = function(newContainer) {
     if (me.container === newContainer) return;
@@ -129,7 +129,7 @@ pui.FindFilterBox = function() {
     me.container = newContainer;
     newContainer.appendChild(div);
     
-	}
+	};
 
 	this.setPosition = function(left, top, width) {
 		if (width == null) width = 200;
@@ -139,23 +139,23 @@ pui.FindFilterBox = function() {
 		div.style.top = top + "px";
 		div.style.width = width + "px";
 		box.style.width = boxWidth + "px";
-	}
+	};
 	
 	this.setPlaceholder = function(placeholder) {
 		box["placeholder"] = placeholder;
-	}
+	};
 	
 	this.focus = function() {
 	  box.focus();
-	}
+	};
 	
 	this.clear = function() {
 	  box.value = "";
-	}
+	};
 
 	this.setText = function(text) {
 	  box.value = text;
-	}
+	};
 
-}
+};
 
