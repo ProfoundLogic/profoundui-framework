@@ -947,7 +947,10 @@ pui["downloadJSON"] = function() {
   }
   var json = pui["savedJSON"];
   if (typeof JSON === "object" && typeof JSON.parse === "function" && typeof JSON.stringify === "function") {
-    json = JSON.stringify(JSON.parse(pui["savedJSON"]), null, "  ");  // make it pretty
+    try {  // just in case something goes wrong or browser doesn't support
+      json = JSON.stringify(JSON.parse(pui["savedJSON"]), null, "  ");  // make it pretty
+    }
+    catch(err) { }
   }
   pui.downloadAsAttachment("text/plain", "json.txt", json);  
 }
