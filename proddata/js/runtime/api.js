@@ -945,7 +945,11 @@ pui["downloadJSON"] = function() {
     pui.alert("JSON is not available.");
     return;
   }
-  pui.downloadAsAttachment("text/plain", "json.txt", pui["savedJSON"]);  
+  var json = pui["savedJSON"];
+  if (typeof JSON === "object" && typeof JSON.parse === "function" && typeof JSON.stringify === "function") {
+    json = JSON.stringify(JSON.parse(pui["savedJSON"]), null, "  ");  // make it pretty
+  }
+  pui.downloadAsAttachment("text/plain", "json.txt", json);  
 }
 
 
