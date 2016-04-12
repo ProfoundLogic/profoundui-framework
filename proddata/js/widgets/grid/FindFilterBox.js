@@ -109,9 +109,12 @@ pui.FindFilterBox = function() {
 		top = grid.offsetTop - 40;
 		width = cell.offsetWidth;
 		
-    if (gridParent.isPUIWindow) {
-      left += gridParent.offsetLeft;
-      top += gridParent.offsetTop;
+    // Compensate if the grid is inside a window. Fixes "center window"
+    // positioning issues. See issue 2544 for test cases.
+    var acont = pui["getActiveContainer"]();
+    if (acont != null && acont.isPUIWindow === true) {
+      left += acont.offsetLeft;
+      top += acont.offsetTop;
     }
 
 		if (gridParent.getAttribute("container") == "true") {

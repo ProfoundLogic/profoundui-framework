@@ -312,7 +312,7 @@ pui.SlidingScrollBar = function() {
           eval(onscrollEventCode);
         }
         catch(err) {
-          pui.alert(eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n" + err.message);
+          pui.alert("onscroll Error:\n" + err.message);
           return false;
         }
       }
@@ -328,7 +328,7 @@ pui.SlidingScrollBar = function() {
     else {
       rowNumDiv.style.display = "none";
     }     
-  }
+  };
   
   this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
     if (touchHandle != null) {

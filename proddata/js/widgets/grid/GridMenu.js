@@ -31,6 +31,8 @@ pui.GridMenu = function() {
   var menuDiv;
   var table;
   
+  var menuDivWidth = 185; //Used to avoid positioning off screen right.
+  
   // Public Properties
   this.grid = null;
   this.clickEvent = null;
@@ -54,7 +56,7 @@ pui.GridMenu = function() {
     menuDiv.style.border = "1px solid #718bb7";
     menuDiv.style.backgroundColor = "#f0f0f0";
     menuDiv.style.zIndex = me.grid.contextMenuZIndex;
-    menuDiv.onselectstart = function(e) { return false };
+    menuDiv.onselectstart = function(e) { return false; };
     if (typeof menuDiv.style.MozUserSelect!="undefined") menuDiv.style.MozUserSelect = "none";    
     
     table = document.createElement("table");
@@ -63,9 +65,9 @@ pui.GridMenu = function() {
     table.cellSpacing = 0;
     table.style.width = "175px";
     me.hide();
-    menuDiv.appendChild(table)
+    menuDiv.appendChild(table);
     me.grid.container.appendChild(menuDiv);
-  }
+  };
   
   this.show = function() {
     var numOptions = buildMenu();
@@ -85,30 +87,64 @@ pui.GridMenu = function() {
     if (me.clickEvent != null) {
       left = pui.getMouseX(me.clickEvent);
       top = pui.getMouseY(me.clickEvent);
-      var maxLeft = document.body.offsetWidth - 185;  // width of menu plus scrollbar
-      var offset = {};
-      if (context == "dspf" && me.grid.tableDiv.parentNode.getAttribute("container") == "true") {
-        offset = pui.layout.getContainerOffset(me.grid.tableDiv.parentNode);
-        offset.x += pui.runtimeContainer.offsetLeft;
-        offset.y += pui.runtimeContainer.offsetTop;
+      var maxLeft = document.body.offsetWidth - menuDivWidth;  // width of menu plus scrollbar
+      var offset = {x:0, y:0};
+      var gridParent = me.grid.tableDiv.parentNode;
+      if (context == "dspf") {
+        // Get the parent container's offset.
+        if( gridParent.getAttribute("container") == "true"){
+          offset = pui.layout.getContainerOffset(gridParent);
+          offset.x += pui.runtimeContainer.offsetLeft;
+          offset.y += pui.runtimeContainer.offsetTop;
+
+          // If the grid is inside a container whose overflow x is hidden,
+          // then the maxLeft value should be adjusted to keep the context menu
+          // inside the layout. See issue 2544 for test cases.
+          var parentRight = gridParent.offsetLeft + gridParent.offsetWidth;
+          if( parentRight > 0 && (gridParent.style.overflowX == "hidden"
+            || gridParent.style.overflow == "hidden") ){
+            // The left shouldn't be farther than parentRight - width of menu.
+            maxLeft = parentRight - menuDivWidth;
+
+            var grandParent = gridParent.parentNode;
+            if(grandParent != null){
+              // If the grandparent is scrolled right, then maxLeft should be larger.
+              if(grandParent.scrollLeft > 0)
+                maxLeft += grandParent.scrollLeft;
+
+              // Compensate for vertical scrollbar.
+              if(grandParent.style.overflowY == "scroll" || grandParent.style.overflowY == "auto")
+                maxLeft -= 10;            
+            }//endif grandParent != null.
+          }
+        }//endif container.
+
+        // Look for a PUI window as the container, compensate for its offsets.
+        // This fixes screens with "center window" true. See issue 2544 for test cases.
+        var acont = pui["getActiveContainer"]();
+        if( acont != null && acont.isPUIWindow === true){
+          offset.x += acont.offsetLeft;
+          offset.y += acont.offsetTop;
+        }
+        
       }
       else {
-        var ctrOffset = pui.getOffset(me.grid.tableDiv.parentNode);      
+        var ctrOffset = pui.getOffset(gridParent);      
         offset.x = ctrOffset[0];
         offset.y = ctrOffset[1];        
       }
       top = top - offset.y;
-      left = left - offset.x;      
+      left = left - offset.x;
       if (left > maxLeft) left = maxLeft;
     }
     menuDiv.style.left = left + "px";
     menuDiv.style.top = top + "px";
     menuDiv.style.display = "";
-  }
+  };
   
   this.hide = function() {
     menuDiv.style.display = "none";
-  }
+  };
 
   // Private functions
   function buildMenu() {
@@ -226,19 +262,19 @@ pui.GridMenu = function() {
         //obj.style.backgroundColor = "#316ac5";
         obj.style.backgroundColor = "#3399ff";
         obj.style.color = "#ffffff";
-      }
+      };
       row.onmouseout = function(e) {
         var obj = getTarget(e).parentNode;
         obj.style.backgroundColor = "";
         obj.style.color = "#333333";
-      }
+      };
 
       row.optionHandler = optionHandlers[i];
       row.onclick = function(e) {
         obj = getTarget(e).parentNode;
         obj.optionHandler();
         me.hide();
-      }
+      };
 
       var imgCell = row.insertCell(0);
       imgCell.style.width = "20px";
@@ -270,8 +306,8 @@ pui.GridMenu = function() {
       me.grid = null;
       me = null;
     }
-  }
+  };
 
-}
+};
 
 

@@ -288,7 +288,7 @@ pui.CSSPanel = function() {
   
     addEvent(headerDiv, "touchstart", function(e) {
       if (e.touches.length != 1) return;  // Only deal with one finger
-      var touch = e.touches[0]
+      var touch = e.touches[0];
       windowDiv.touch = {};
       windowDiv.touch.startX = touch.pageX;
       windowDiv.touch.startY = touch.pageY;
@@ -305,8 +305,9 @@ pui.CSSPanel = function() {
       e.preventDefault();
     });
     headerDiv.style.cursor = "move";
-    headerDiv.firstChild.style.cursor = "move";
-  }
+    if( headerDiv.firstChild != null) //avoid null error in IE9,IE10.
+      headerDiv.firstChild.style.cursor = "move";
+  };
 
   this.setHasHeader = function(flag) {
     if (flag) {
