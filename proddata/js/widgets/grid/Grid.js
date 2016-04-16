@@ -327,6 +327,13 @@ pui.Grid = function() {
         domObj.style.visibility = "";
       });
     }
+    if (context=="genie" && me.contextMenuId != null) {
+      var menu = getObj(me.contextMenuId);
+      if (menu) {
+        menu.style.visibility = "";
+        menu.style.display = "";
+      }
+    }
     positionIcons();
     me.setScrollBar();
     me.sendToDesigner();
@@ -2277,10 +2284,15 @@ pui.Grid = function() {
       var dataColumns = me.dataProps[prop];
       colArray[x] = dataColumns.split(",");
     }
+    
+    me.dataArray = [];
+    me.recNum = 1;
 
     var rowNum = 0;
     if (me.hasHeader) rowNum++;
     for (var row = startRow; row <= endRow; row += multiple) {
+      me.dataArray[rowNum] = [];
+      me.dataArray[rowNum].selected = false;
       for (var x = 0; x < multiple; x++) {
         for (var i = 0; i < colArray[x].length; i++) {
           var col = colArray[x][i];
@@ -2294,7 +2306,7 @@ pui.Grid = function() {
           }
           var obj = getObj(id);
           var text;
-          var objCass;
+          var objClass;
           var left;
           var top;
           var pos;
@@ -2340,6 +2352,7 @@ pui.Grid = function() {
             var div = document.createElement("div");
             div.className = objClass;
             div.innerHTML = text;
+            me.dataArray[rowNum][colNum] = text.replace(/&nbsp;/g, " ");
             div.style.position = "absolute";
             left -= parseInt(cell.style.left);
             left -= parseInt(me.tableDiv.style.left);
@@ -3467,7 +3480,7 @@ pui.Grid = function() {
     var selRows = [];
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.filteredDataArray;
-    var start = (me.hasHeader ? 0 : 1 );
+    var start = 0; 
     
     for (var row=start; row<dataRecords.length; row++) {
       
@@ -4482,7 +4495,7 @@ pui.Grid = function() {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
-      if ((context == "dspf" || pui.usingGenieHandler) && !me.designMode) {
+      if (!me.designMode) {
       
         me.setCursorRRN(row);
         
@@ -5512,6 +5525,7 @@ pui.Grid = function() {
     var menu = getObj(me.contextMenuId);
     if (!menu) return;
     if (menu.showing) return;
+    if (context=="genie" && me.designMode) return;
     
     menu.style.visibility = "hidden";
     menu.style.display = "none";   
@@ -6000,10 +6014,10 @@ pui.Grid = function() {
       { name: "row height", help: "Specifies the height that will be applied to each row, not including the header row.  This can also be controlled by resizing the grid with the mouse.", bind: false, canBeRemoved: false },
       { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Determines whether the grid rows will be highlighted when the user hovers the mouse over them." },
       { name: "hover image", type: "image", help: "Defines a repeating cell background image for the hover effect." },
-      { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], help: "Determines if rows within the grid can be selected by the user with a click of the mouse.  <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys", context: "dspf" },
+      { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], help: "Determines if rows within the grid can be selected by the user with a click of the mouse.  <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys" },
       { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, help: "This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record.  If a character field is specified, the selection value property will be used to populate the field when a row is selected.", context: "dspf" },      
       { name: "selection value", help: "Specifies the value used to populate the selection field when a grid row is selected.", bind: false, context: "dspf" },      
-      { name: "selection image", type: "image", help: "Defines a repeating cell background image for row selection.", context: "dspf" },
+      { name: "selection image", type: "image", help: "Defines a repeating cell background image for row selection." },
       { name: "column widths", type: "list", help: "Specifies a comma separated list of column widths for this grid.", bind: false, canBeRemoved: false },
       { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: (context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid.  If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid.  A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only." },
       { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
@@ -6019,7 +6033,7 @@ pui.Grid = function() {
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
-      { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
+      { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"] },
   
       { name: "Paging Bar", category: true, context: "dspf" },
       { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Displays links for navigating to the previous page and the next page of records." },
