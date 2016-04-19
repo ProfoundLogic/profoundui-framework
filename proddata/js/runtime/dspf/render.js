@@ -450,7 +450,7 @@ pui.cleanup = function() {
     if (grid != null && typeof grid.destroy == "function") grid.destroy();
   }
   pui.gridsDisplayed = [];
-
+  
   for (var i = 0; i < pui.layoutsDisplayed.length; i++) {
     var layout = pui.layoutsDisplayed[i];
     if (layout != null && typeof layout.destroy == "function") layout.destroy();
