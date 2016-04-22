@@ -46,7 +46,13 @@ pui.locales.add({
     'M j, y',
     'M j, Y',
     'j-M-y',
-    'j-M-Y'
+    'j-M-Y',
+    'yz',
+    'y/z',
+    'y-z',
+    'Yz',
+    'Y/z',
+    'Y-z'
   ],
   'timePatterns': [
     'g:i',
