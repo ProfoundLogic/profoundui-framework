@@ -45,9 +45,11 @@ pui.locales.add({
     'yz',
     'y/z',
     'y-z',
+    'y.z',
     'Yz',
     'Y/z',
-    'Y-z'
+    'Y-z',
+    'Y.z'
   ],
   'timePatterns': [
     'g:i',
