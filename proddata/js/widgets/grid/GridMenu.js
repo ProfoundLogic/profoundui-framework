@@ -87,7 +87,8 @@ pui.GridMenu = function() {
     if (me.clickEvent != null) {
       left = pui.getMouseX(me.clickEvent);
       top = pui.getMouseY(me.clickEvent);
-      var maxLeft = document.body.offsetWidth - menuDivWidth;  // width of menu plus scrollbar
+      // maxLeft keeps the menu from falling past the edge of the container/page.
+      var maxLeft = document.body.scrollWidth - menuDivWidth;
       var offset = {x:0, y:0};
       var gridParent = me.grid.tableDiv.parentNode;
       if (context == "dspf") {
@@ -117,21 +118,28 @@ pui.GridMenu = function() {
                 maxLeft -= 10;            
             }//endif grandParent != null.
           }
+          
+          // Look for a PUI window, compensate for its offsets.
+          // This fixes screens with "center window" true. See issue 2544 for test cases.
+          // Only affects grids inside a layout/container.
+          var acont = pui["getActiveContainer"]();
+          if( acont != null && acont.isPUIWindow === true){
+            offset.x += acont.offsetLeft;
+            offset.y += acont.offsetTop;
+          }
         }//endif container.
-
-        // Look for a PUI window as the container, compensate for its offsets.
-        // This fixes screens with "center window" true. See issue 2544 for test cases.
-        var acont = pui["getActiveContainer"]();
-        if( acont != null && acont.isPUIWindow === true){
-          offset.x += acont.offsetLeft;
-          offset.y += acont.offsetTop;
+        // Grid is not inside a layout/container. See 2612 for test cases.
+        else{
+          var ctrOffset = pui.getOffset(gridParent);
+          offset.x = ctrOffset[0];
+          offset.y = ctrOffset[1];
         }
-        
       }
+      // Grid is not in a display file.
       else {
-        var ctrOffset = pui.getOffset(gridParent);      
+        var ctrOffset = pui.getOffset(gridParent);
         offset.x = ctrOffset[0];
-        offset.y = ctrOffset[1];        
+        offset.y = ctrOffset[1];
       }
       top = top - offset.y;
       left = left - offset.x;
@@ -309,5 +317,3 @@ pui.GridMenu = function() {
   };
 
 };
-
-
