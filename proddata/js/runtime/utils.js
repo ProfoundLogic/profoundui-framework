@@ -78,7 +78,6 @@ function disableAction(e){
 
 function preventDoubleSubmit(){
 
-  //if (pui.genie.formSubmitted) return false;
   if (pui["isServerBusy"]()) return false;
 
   hide_calendar();
