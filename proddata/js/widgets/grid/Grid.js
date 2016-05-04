@@ -5766,7 +5766,10 @@ pui.Grid = function() {
            && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
            
             var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
-            if( rtChild["visibility"] == "hidden" || (rtChild["left"] < 0 && rtChild["top"] < 0))
+            var rtleft = parseInt(rtChild["left"],10);
+            var rttop = parseInt(rtChild["top"],10);
+            if( rtChild["visibility"] == "hidden"
+            || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
               ignoreTest = true;
           }
         }
