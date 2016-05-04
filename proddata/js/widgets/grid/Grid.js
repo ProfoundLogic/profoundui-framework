@@ -5576,6 +5576,7 @@ pui.Grid = function() {
     
     if( headerCell["pui"] == null) headerCell["pui"] = {};
     headerCell["pui"].formats = [];
+    headerCell["pui"].rtIdxs = [];   //Indices of me.runtimeChildren for this column.
 
     // Look at each runtimeChildren for any belonging to the headerCell's column.
     // We can't use headerCell.fieldName, because it only gets one of a column's
@@ -5594,6 +5595,7 @@ pui.Grid = function() {
           if (fieldName == me.fieldNames[j]) {
             headerCell.searchIndexes.push(j);
             headerCell["pui"].formats.push(val);
+            headerCell["pui"].rtIdxs.push(i);
             break; //There should be one matching fieldName. no need to keep searching.
           }
         }
@@ -5716,7 +5718,18 @@ pui.Grid = function() {
       me["setFilter"](headerCell, text);
     }    
   };
-  
+
+  /**
+   * Test all values loaded in the grid's specified column, and redraw
+   * only those rows where the cell values pass the search text.
+   * 
+   * @param {Object|Number} headerCell    If a Number, the value determines which
+   *   cell to pull the column information from, starting at index 0.
+   *   If an Object, then headerCell is the DOM for a cell that should contain
+   *   column information.
+   * @param {String} text     The filter text. May be an expression.
+   * @returns {undefined}
+   */
   this["setFilter"] = function(headerCell, text) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
     if (headerCell == null) return;
@@ -5729,20 +5742,37 @@ pui.Grid = function() {
     me.filteredDataArray = [];
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
-      if (record.subfileRow == null) record.subfileRow = i + 1;
+      if (record.subfileRow == null) record.subfileRow = i + 1;      
       for (var j = 0; j < idxes.length; j++) {
         var idx = idxes[j];        
         var value = record[idx];
-        // If the header has a format for the current field, then use it.
-        if( headerCell["pui"] && headerCell["pui"].formats
-         && headerCell["pui"].formats[j] != null
-         && typeof headerCell["pui"].formats[j] == "object"){
-          headerCell["pui"].formats[j].value = value;
-          value = pui.FieldFormat.format( headerCell["pui"].formats[j] );
+        var ignoreTest = false;
+        if( headerCell["pui"] != null){
+          // If the header has a format for the current field, then use it.
+          if( headerCell["pui"].formats != null
+           && headerCell["pui"].formats[j] != null
+           && typeof headerCell["pui"].formats[j] == "object" ){
+
+            var curfmt = headerCell["pui"].formats[j];
+            curfmt.value = value;
+            value = pui.FieldFormat.format( curfmt );
+          }
+
+          // If the field is hidden explicitly or by position, then ignore its
+          // value in the filter.
+          if( headerCell["pui"].rtIdxs != null
+           && headerCell["pui"].rtIdxs[j] != null
+           && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
+           && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
+           
+            var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
+            if( rtChild["visibility"] == "hidden" || (rtChild["left"] < 0 && rtChild["top"] < 0))
+              ignoreTest = true;
+          }
         }
         if (record.filteredOutArray == null) record.filteredOutArray = [];
         record.filteredOutArray[col] = true;
-        if (me.testFilter(value, text)) {          
+        if (!ignoreTest && me.testFilter(value, text)) {
           record.filteredOutArray[col] = false;
           break;
         }
@@ -5761,6 +5791,26 @@ pui.Grid = function() {
     return headerCell.filterText;
   };
   
+  /**
+   * Return true if a cell's value should be included in filtered data; returns
+   * false if the value should not be included.
+   * 
+   * Comparisons are case insensitive.
+   * 
+   * Supported expressions:
+   *   between x and y
+   *   values x,y,z              (exact matches)
+   *   starts with str
+   *   ==str, =str               (exact match)
+   *   >=str, <=str, >str, <str
+   *   !=str, <>str              (partial match)
+   *   str                       (partial match)
+   * 
+   * @param {String} value    The data value from the cell.
+   * @param {String} text     The search text, which may be an expression.
+   * @returns {Boolean}       Returns true if the cell value contained the search
+   *    text or passed the expression.
+   */
   this.testFilter = function(value, text) {
 
     if (text.substr(0,8).toLowerCase() == "between ") {
@@ -5786,7 +5836,7 @@ pui.Grid = function() {
       var list = text.split(",");
       for (var i = 0; i < list.length; i++) {
         text = trim(list[i]).toLowerCase();
-        if (value == text) return true;
+        if (value.toLowerCase() == text) return true;
       }
       return false;
     }
@@ -5850,7 +5900,7 @@ pui.Grid = function() {
         }
       }
     }
-  }
+  };
 
   this["removeFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
@@ -5871,7 +5921,7 @@ pui.Grid = function() {
       }
     }
     me.getData();
-  }
+  };
 
   this["removeAllFilters"] = function() {
     var headerRow = me.cells[0];
@@ -5887,7 +5937,7 @@ pui.Grid = function() {
     }
     me.filteredDataArray = [];
     me.getData();
-  }
+  };
 
   this.getFilterCount = function() {
     var count = 0;
@@ -5899,7 +5949,7 @@ pui.Grid = function() {
       }
     }
     return count;
-  }
+  };
 
   this.isFiltered = function() {
     var headerRow = me.cells[0];
@@ -5909,7 +5959,7 @@ pui.Grid = function() {
       if (headerCell.filterText != null && headerCell.filterText != "") return true;
     }
     return false;
-  }
+  };
 
   this.setFilterIcon = function(headerCell) {
     if (headerCell.filterIcon == null) {
@@ -5922,7 +5972,7 @@ pui.Grid = function() {
           me["startFilter"](headerCell);
           preventEvent(e);
         }
-      }
+      };
       var destination = headerCell;
       if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
         destination = destination.firstChild;
@@ -5930,12 +5980,12 @@ pui.Grid = function() {
       if (me.sortIcon != null && me.sortIcon.parentNode === destination) destination.insertBefore(headerCell.filterIcon, me.sortIcon);
       else destination.appendChild(headerCell.filterIcon);
     }
-  }
+  };
 
   this.removeFilterIcon = function(headerCell) {
     if (headerCell.filterIcon != null && headerCell.filterIcon.parentNode != null) headerCell.filterIcon.parentNode.removeChild(headerCell.filterIcon);
     headerCell.filterIcon = null;
-  }
+  };
 
   this.getPropertiesModel = function() {
     var model = [
@@ -6063,7 +6113,7 @@ pui.Grid = function() {
         me.setProperty("column headings", descriptions);
         var itm = me.tableDiv.designItem;        
         sendPropertyToDesigner(itm, "column headings", descriptions);
-        itm.designer.propWindow.refreshProperty("column headings")
+        itm.designer.propWindow.refreshProperty("column headings");
       }},
       { name: "selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the database file." },
       { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the records retrieved from the database file." },
@@ -6125,9 +6175,9 @@ pui.Grid = function() {
     ];
     
     return model;
-  }
+  };
   
-}
+};
 
 
 
