@@ -960,6 +960,10 @@ pui["downloadJSON"] = function() {
 
 pui["keepAlive"] = function() {
   var url;
+  
+  if (context == "genie" && pui.genie.formSubmitted == true)
+    return;
+  
   if (context == "dspf") {
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
