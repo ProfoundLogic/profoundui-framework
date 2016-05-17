@@ -79,14 +79,54 @@ pui.widgets.renderChart = function(parms) {
     
     }
     
-    if (parms.xmlURL != null) chartObj.setXMLUrl(parms.xmlURL);
-    else if (parms.xmlData != null) chartObj.setXMLData(parms.xmlData);
-    else if (parms.jsonURL != null) chartObj.setJSONUrl(parms.jsonURL);
-    else if (parms.jsonData != null) chartObj.setJSONData(parms.jsonData);
-    parms.dom.style.backgroundColor = "";
-    chartObj.render();
-    parms.dom.chart = document.getElementById(chartId);
-    if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible") parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
+    if (parms.xmlURL != null){
+      //Load XML string using our own ajax code to avoid MS Edge problem with some
+      // URLs in FusionCharts. The URL should not have ampersands encoded as %26
+      // (as it did in the past for xmlURL).
+      ajax({
+        url: parms.xmlURL,
+        method: "get",
+        async: true,
+        handler: function(responseText){
+          chartObj.setXMLData(responseText);
+          tidyup();
+        }
+      });
+    }
+    else if (parms.xmlData != null){
+      chartObj.setXMLData(parms.xmlData);
+      tidyup();
+    }
+    else if (parms.jsonURL != null) {
+      //Use our own ajax code to avoid MS Edge problem with some URLs in FusionCharts.
+      //Note: as of 5/16/16, there is no way to choose a URL for JSON data in VD.
+      ajax({
+        url: parms.jsonURL,
+        method: "get",
+        async: true,
+        handler: function(responseText){
+          chartObj.setJSONData(responseText);
+          tidyup();
+        }
+      });
+    }
+    else if (parms.jsonData != null){
+      chartObj.setJSONData(parms.jsonData);
+      tidyup();
+    }
+    else{
+      tidyup();
+    }
+    
+    // Code to run after chart data is loaded. We need this for the changed 
+    // program flow made to avoid Synchronous XMLHttpRequest deprecation warnings.
+    function tidyup(){
+      parms.dom.style.backgroundColor = "";
+      chartObj.render();
+      parms.dom.chart = document.getElementById(chartId);
+      if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible")
+        parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
+    }
         
     function complete() {
       
@@ -550,16 +590,6 @@ pui.widgets.add({
           
         }
         else {
-        
-          // Encode ampersands in the url. 
-          
-          // The url gets put into the <embed> or <object> tag parameters, where the ampersand has 
-          // its own meaning.
-          
-          // This results in truncation of multiple query string parameters.
-          // URL encoding the ampersands allows them to be treated normally as parameter separators.
-          url = url.replace(/&/g, "%26"); 
-        
           pui.widgets.renderChart({
             dom: parms.dom,
             type: chartType,
