@@ -659,10 +659,11 @@ pui.render = function(parms) {
   
   // Prevent overlays from persisting incorrectly between screens by removing
   // existing elements on each render.
-  if( pui["wikihelp"]["overlays"] ) {
+  if( pui["wikihelp"]["overlays"] != null ) {
     while(pui["wikihelp"]["overlays"].length > 0) {
       var overlay = pui["wikihelp"]["overlays"].pop();
-      overlay.parentNode.removeChild(overlay);
+      if( overlay.parentNode != null && typeof overlay.parentNode.removeChild == "function")
+        overlay.parentNode.removeChild(overlay);
       // Try to delete the extra object from the node. IE<8 can't delete it, so catch.
       try{ delete overlay["pui"];}
       catch(ex){}
