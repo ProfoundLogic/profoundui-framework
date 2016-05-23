@@ -2364,28 +2364,29 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && grid.scrollbarObj.type == "sliding" && grid.scrollbarObj.rowsPerPage == 1) {
         grid.scrollbarObj.draw();
       }
-    }
-    // Add PageUp/PageDown keys to the KeyMap so that the handleHotKey routine
-    // can be used to page up/down on paging scrollbar events. Also handles
-    // PageUp/PageDown keys for any scrollbar. No longer does PagingBar handle
-    // these keys. PagingBar handles them only for Genie and GenieHandler.
-    if (!isDesignMode && typeof screenProperties["record format name"] === "string"
-      && grid.pagingBar != null ) {
-      var formatName = screenProperties["record format name"];
-      var formatNameUC = formatName.toUpperCase();
-      // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
-      // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
-      if( pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null )
-        formatName = formatNameUC;
-      
-      if (pui.keyMap[formatName] != null ){
-        if (pui.keyMap[formatName]["PageDown"] == null) {
-          pui.keyMap[formatName]["PageDown"] = [];
-          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
-        }
-        if (pui.keyMap[formatName]["PageUp"] == null) {
-          pui.keyMap[formatName]["PageUp"] = [];
-          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+      // Paging scrollbar needs the PageUp/PageDown keys to be in the KeyMap so
+      //  the handleHotKey routine can used to page up/down on scrollbar events.
+      //  PagingBar handles those keys for Genie and GenieHandler. ???
+      if (!isDesignMode && typeof screenProperties["record format name"] === "string"
+        && grid.scrollbarObj.type == "paging" ) {
+        var formatName = screenProperties["record format name"];
+        var formatNameUC = formatName.toUpperCase();
+        // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
+        // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
+        if( pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null )
+          formatName = formatNameUC;
+
+        if (pui.keyMap[formatName] != null ){
+          if (pui.keyMap[formatName]["PageDown"] == null) {
+            pui.keyMap[formatName]["PageDown"] = [];
+            pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+            grid.pagingBar.pageDownHotKeyDefined = true;
+          }
+          if (pui.keyMap[formatName]["PageUp"] == null) {
+            pui.keyMap[formatName]["PageUp"] = [];
+            pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+            grid.pagingBar.pageUpHotKeyDefined = true;
+          }
         }
       }
     }

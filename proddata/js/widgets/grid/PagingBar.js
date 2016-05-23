@@ -40,6 +40,10 @@ pui.PagingBar = function() {
   this.pageUpResponseDefined = false;   //true when grid "page up response" is set.
   this.pageDownResponseDefined = false; //true when grid "page down response" is set.
   
+  // Become true in renderForamt() for paging scrollbar depending on pui.keyMap.
+  this.pageUpHotKeyDefined = false;
+  this.pageDownHotKeyDefined = false;
+  
   this.pageNumber = 1;
   this.container = null;
   this.grid = null;
@@ -59,13 +63,19 @@ pui.PagingBar = function() {
   var me = this;
   
   /**
-   * Handle the "Previous" paging control and PageUp key for Genie. 
+   * Handle the "Previous" paging control and PageUp key for Genie, scrolling
+   * grids, and some paging grids.
+   * @param {boolean} fromClick   True when handling a click on "Previous" link.
    * @returns {undefined}
    */
-  function autoPageUp() {
+  function autoPageUp(fromClick) {
     if (me.prevLink.disabled) return;
     if (context != "genie" || pui.usingGenieHandler) {
-      if (me.pageUpResponseDefined) return; //pui.attachResponse/clickEvent handles pageUp.
+      // pui.attachResponse/clickEvent handles pageUp for clicks when "page up response" is defined.
+      // pageUpHotKeyDefined can be true even if "page up response" is undefined,
+      // so we must handle clicks when "page up response" is not defined.
+      // pui.handleHotKey handles PageUp key when the grid is paging type.
+      if (me.pageUpHotKeyDefined && (!fromClick || me.pageUpResponseDefined)) return;
       if (me.grid.designMode) return;
       if (me.grid.atTop()) return;
     }
@@ -73,13 +83,15 @@ pui.PagingBar = function() {
   }
   
   /**
-   * Handle the "Next" paging control and PageDown key for Genie.
+   * Handle the "Next" paging control and PageDown key for Genie, scrolling
+   * grids, and some paging grids.
+   * @param {boolean} fromClick    True when handling a click on "Next" link.
    * @returns {undefined}
    */
-  function autoPageDown() {
+  function autoPageDown(fromClick) {
     if (me.nextLink.disabled) return;
     if (context != "genie" || pui.usingGenieHandler) {
-      if (me.pageDownResponseDefined) return; //pui.attachResponse/clickEvent handles pageDown.
+      if (me.pageDownHotKeyDefined && (!fromClick || me.pageDownResponseDefined)) return; 
       if (me.grid.designMode) return;
       if (me.grid.atBottom()) return;
     }
@@ -146,7 +158,7 @@ pui.PagingBar = function() {
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     };
     me.prevImg.onclick = function() {
-      autoPageUp();
+      autoPageUp(true);
     };
     div.appendChild(me.prevImg);
       
@@ -169,7 +181,7 @@ pui.PagingBar = function() {
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     };
     me.prevLink.onclick = function() {
-      autoPageUp();
+      autoPageUp(true);
     };
     me.prevLink.className = "paging-link";
     div.appendChild(me.prevLink);
@@ -206,7 +218,7 @@ pui.PagingBar = function() {
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     };
     me.nextLink.onclick = function() {
-      autoPageDown();
+      autoPageDown(true);
     };
     me.nextLink.className = "paging-link";
     div.appendChild(me.nextLink);
@@ -230,7 +242,7 @@ pui.PagingBar = function() {
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     };
     me.nextImg.onclick = function() {
-      autoPageDown();
+      autoPageDown(true);
     };
     div.appendChild(me.nextImg);
 
@@ -239,7 +251,17 @@ pui.PagingBar = function() {
       pui.autoPageGrid = true;
 
     }
-
+    
+    // HACK:   Both this (handleKeyDown) and pui.handleHotKey (in dspf/render.js) fire 
+    //         for PageUp/PageDown.  (Even if not using a scrollbar rather than the
+    //         paging bar!) Therefore, if PageUp/PageDown are defined as hot keys, then
+    //         pui.handleHotKey handles them, and the autoPageUp/autoPageDown routines 
+    //         (called below) will ignore them. If they are not hot keys (i.e. not in 
+    //         pui.keyMap[]) then this routine handles them, and pui.handleHotKey 
+    //         does not do pageup/pagedown within the grid's data array, but it 
+    //         still handles submitting to the RPG program when the top/bottom of 
+    //         the grid is reached. This approach is confusing, and should probably
+    //         fixed up to be handled solely by the pui.handleHotKey routine.  -SK
     if (!me.grid.designMode && pui.runtimeContainer != null && div != null && div.parentNode != null) {
       function handleKeyDown(e) {
         if (div == null || div.parentNode == null) {
@@ -251,9 +273,7 @@ pui.PagingBar = function() {
         if (key == 33) autoPageUp();
         if (key == 34) autoPageDown();
       }
-      // pui.handleHotKey now handles the PageUp/Down keys.
-      if( context == "genie" || pui.usingGenieHandler )
-        addEvent(pui.runtimeContainer, "keydown", handleKeyDown);
+      addEvent(pui.runtimeContainer, "keydown", handleKeyDown);
     }
 
     function mousedown(event) {
