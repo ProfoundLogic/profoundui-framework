@@ -976,7 +976,7 @@ pui["keepAlive"] = function() {
   }
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
 
-  if (context == "genie") pui.genie.formSubmitted = true;
+  if (context == "genie") pui.submitLog(pui.genie.formSubmitted = true);
   if (context == "dspf") pui.screenIsReady = false;
   pui.showWaitAnimation();
 
@@ -990,7 +990,7 @@ pui["keepAlive"] = function() {
     "suppressAlert": true,
     "handler": function() {
       pui.hideWaitAnimation(true);
-      if (context == "genie") pui.genie.formSubmitted = false;
+      if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
       if (context == "dspf") {
         pui.screenIsReady = true;
         for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
@@ -1002,7 +1002,7 @@ pui["keepAlive"] = function() {
     "onfail": function(req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation(true);
-      if (context == "genie") pui.genie.formSubmitted = false;
+      if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
       if (context == "dspf") {
         pui.screenIsReady = true;
         for (var i = 0; i < pui.gridsDisplayed.length; i++) {  

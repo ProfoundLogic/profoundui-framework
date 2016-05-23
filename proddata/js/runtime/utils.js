@@ -98,7 +98,7 @@ function preventDoubleSubmit(){
   }
   
   pui["haltFrames"]();
-  pui.genie.formSubmitted = true;
+  pui.submitLog(pui.genie.formSubmitted = true);
   var cursorPos = getCursorPosition(lastActiveElement);
   if (lastActiveElement != null && lastActiveElement.tagName == "INPUT" && lastActiveElement.maxLength != null && lastActiveElement.maxLength > 0 && cursorPos == lastActiveElement.maxLength) {
     // cursor beyond last character
@@ -2340,3 +2340,39 @@ pui.breakMessagesOnStorage = function(e){
   catch(exc){ console.log(exc); }
   return false;
 };
+
+pui.submitLog = function(submittingFlag) {
+  
+  if (!pui["submit log"])
+    return;
+  
+  console.log("=".repeat(80));
+  console.log(new Date().toString() + ": submit flag = " + submittingFlag);
+  console.log("-".repeat(80));
+  try {
+    
+    throw new Error();
+    
+  }
+  catch(e) {
+    
+    var lines = e.stack.split("\n");
+    if (lines[0].indexOf("Error") == 0)
+      lines.shift();
+    lines.shift();
+    for (var i = 0; i < lines.length; i++)
+      if (lines[i] != "")
+        console.log(lines[i].replace(/^\s*at\s/, ""));
+    
+  }
+  
+}
+if (typeof String.prototype.repeat != "function")
+  String.prototype.repeat = function(n) {
+    
+    var val = "";
+    for (var i = 0; i < n; i++)
+      val += this;
+    return val;
+    
+  }

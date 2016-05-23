@@ -304,7 +304,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			submitHandle = {}; // Will be set to timeout value later.
 			
 			if (context === "genie") {
-				pui.genie.formSubmitted = true;
+				pui.submitLog(pui.genie.formSubmitted = true);
 				pui.showWaitAnimation();
 			}
 
@@ -417,7 +417,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		submitHandle = null;
 		transactionId++;
 		if (context === "genie") {
-			pui.genie.formSubmitted = false;
+			pui.submitLog(pui.genie.formSubmitted = false);
 			pui.hideWaitAnimation(true);
 			// Finish here for Genie. 
 			// For Rich UI, the result is checked in the 

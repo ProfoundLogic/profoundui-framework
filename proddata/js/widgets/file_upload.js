@@ -386,7 +386,7 @@ pui["fileupload"].FileUpload = function(container) {
     
       if (context == "genie") {
         
-        pui.genie.formSubmitted = true; 
+        pui.submitLog(pui.genie.formSubmitted = true); 
         pui.showWaitAnimation();
       
       }      
@@ -506,7 +506,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     if (context == "genie") {
     
-      pui.genie.formSubmitted = false;
+      pui.submitLog(pui.genie.formSubmitted = false);
       pui.hideWaitAnimation(true);
     
       // Finish here for Genie. 
