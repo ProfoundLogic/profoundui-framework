@@ -507,6 +507,8 @@ pui.popstate = function(e) {
 
 pui.render = function(parms) {
 
+  pui.nodejs = (parms["nodejs"] === true);
+  
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = "Profound UI server-side version (" + parms["version"] + ") doesn't match client-side JavaScript version (" + pui["version"] + ").";
     if (window.console && window.console.error) {

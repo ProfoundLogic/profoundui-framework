@@ -185,3 +185,5 @@ pui["function key pattern"] = "^(F|CA|CF|CK|CMD)([0-9]{1,2})([=:-])(.*)$";
 
 pui.sessionRetryCount = 0;
 pui["session timeout retries"] = 0;
+
+pui.nodejs = false;
