@@ -372,7 +372,7 @@ pui.FieldFormat = {
         }
       }
       
-      if (obj.dataType == "graphic") {
+      if (obj.dataType == "graphic" && !pui.nodejs) {
         value = pui.formatting.decodeGraphic(value);
       }
 
@@ -425,7 +425,7 @@ pui.FieldFormat = {
           return str.toUpperCase();
         });
       }
-      if (obj.dataType == "graphic") {
+      if (obj.dataType == "graphic" && !pui.nodejs) {
         var dataLength = parseInt(obj.dataLength, 10);
         value = pui.formatting.encodeGraphic(value, dataLength);        
       }
