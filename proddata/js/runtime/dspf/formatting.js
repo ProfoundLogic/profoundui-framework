@@ -1040,7 +1040,11 @@ pui.FieldFormat = {
       if(obj.timeStampFormat){
         var d = pui.formatting.Date.parse(value, pui.formatting.Date.stdTimeStampPattern, locale);
         if(d){
-          value = d.format(obj.timeStampFormat, locale);
+          // Change *LoVal timestamp to blanks; else, value is formatted timestamp.
+          // Note: d.format only has precision up to 1ms. So 00.00.001000 does not
+          // become blank, but 00.00.000999 does.
+          if (d.format(pui.formatting.Date.stdTimeStampPattern, 'en_US') == '0001-01-01-00.00.00.000000') value = "";
+          else value = d.format(obj.timeStampFormat, locale);
         }
       }
       return value;
