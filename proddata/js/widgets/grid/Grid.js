@@ -1885,6 +1885,20 @@ pui.Grid = function() {
       
     }
     
+    
+    var filters = state["filters"];
+    if (filters != null) {
+       for (var i=0; i<filters.length; i++) {
+         var col = state["filters"][i]["column"];
+         var text = state["filters"][i]["text"];
+         if (text==null || text=="") 
+           me["removeFilter"]( col );
+         else
+           me["setFilter"]( col, text );
+         
+       }
+    }
+    
   }
   
   function isDefaultSortDescending(col) {
@@ -5788,6 +5802,22 @@ pui.Grid = function() {
       }
     }
     me.getData();
+    if (persistState) {
+      var filters = [];
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        var headerCell = headerRow[i];
+        if (headerCell.filterText != null && headerCell.filterText != "") {
+          filters.push({ "text": headerCell.filterText, "column": headerCell.columnId });
+        }
+      }
+      if (filters.length < 1) {
+        me["clearState"]("filters");
+      }
+      else {
+        saveState(filters, "filters");
+      }
+    }
   };
   
   this["getFilter"] = function(headerCell) {
