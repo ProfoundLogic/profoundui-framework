@@ -5652,6 +5652,8 @@ pui.Grid = function() {
       headerCell = me.cells[0][parm1];
       text = parm2;
       findNext = parm3;
+      me.highlighting.columnId = headerCell.columnId;
+      me.highlighting.col = headerCell.col;
       me.setSearchIndexes(headerCell);      
     }    
 
