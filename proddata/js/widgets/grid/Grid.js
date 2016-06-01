@@ -941,6 +941,29 @@ pui.Grid = function() {
     if (columnIndex == null) return null;
     return record[columnIndex];
   };
+
+  
+  this["getAllDataValues"] = function(filtered) {
+    
+    if (me.fieldNames.length<1) return null;
+    saveResponsesToDataArray();
+    
+    var useFilter = (filtered!=null && !filtered) ? false : true;
+    var dataRecords = me.dataArray;
+    if (useFilter && me.isFiltered()) dataRecords = me.filteredDataArray;
+    var result = [];
+    
+    for (var y=0; y<dataRecords.length; y++) {
+      var record = {};
+      for (var x=0; x<me.fieldNames.length; x++) {
+        record[me.fieldNames[x]] = dataRecords[y][x];
+      }
+      result.push(record);
+    }
+    
+    return result;
+  }
+  
   
   this["setDataValue"] = function(rowNum, fieldName, value) {
     
@@ -3381,6 +3404,7 @@ pui.Grid = function() {
       case "onpagedown":
       case "onpageup":
       case "onscroll":
+      case "onfilterchange":
         me.events[property] = value;
         break;
       
@@ -5805,6 +5829,7 @@ pui.Grid = function() {
     }
     me.getData();
     if (persistState) me.saveFilters();
+    executeEvent("onfilterchange");
   };
 
   
@@ -5962,7 +5987,8 @@ pui.Grid = function() {
       }
     }
     me.getData();
-    me.saveFilters();
+    if (persistState) me.saveFilters();
+    executeEvent("onfilterchange");
   };
 
   this["removeAllFilters"] = function() {
@@ -5980,6 +6006,7 @@ pui.Grid = function() {
     me.filteredDataArray = [];
     me.getData();
     me["clearState"]("filters");
+    executeEvent("onfilterchange");
   };
 
   this.getFilterCount = function() {
@@ -6208,6 +6235,7 @@ pui.Grid = function() {
       { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
       
       { name: "Events", category: true },
+      { name: "onfilterchange", type: "js", help: "Initiates a client-side script when the filter has changed.", bind: false, context: "dspf" },
       { name: "onrowclick", type: "js", help: "Initiates a client-side script when a row within the grid is clicked.  The script can determine the row number using the <b>row</b> variable.", bind: false },
       { name: "onrowdblclick", type: "js", help: "Initiates a client-side script when a row within the grid is double-clicked.  The script can determine the row number using the <b>row</b> variable.", bind: false },
       { name: "onrowmouseover", type: "js", help: "Initiates a client-side script when the mouse is moved over a row within the grid.  The script can determine the row number using the <b>row</b> variable.", bind: false },
