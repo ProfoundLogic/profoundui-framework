@@ -128,7 +128,7 @@ pui.widgets.tabStyles = {
     borderColor: "#2763a5",
     separated: true
   }
-}
+};
 
 
 pui.widgets.preloadTabStyle = function(tabStyle) {
@@ -145,18 +145,18 @@ pui.widgets.preloadTabStyle = function(tabStyle) {
         }
         var path = pui.normalizeURL("/profoundui/proddata/images/tabs/" + tabStyle.toLowerCase() + "/");
         if (tabStyleSettings.hiImages) {
-          preload(path + "left-hi." + extension)
-          preload(path + "middle-hi." + extension)
-          preload(path + "right-hi." + extension)
+          preload(path + "left-hi." + extension);
+          preload(path + "middle-hi." + extension);
+          preload(path + "right-hi." + extension);
         }
-        preload(path + "left-sel." + extension)
-        preload(path + "middle-sel." + extension)
-        preload(path + "right-sel." + extension)
+        preload(path + "left-sel." + extension);
+        preload(path + "middle-sel." + extension);
+        preload(path + "right-sel." + extension);
       }
       tabStyleSettings.preloaded = true;
     }
   }
-}
+};
 
 
 /**
@@ -189,7 +189,7 @@ function TabPanel() {
     if (settings != null && settings.defaultBackColor != null) {
       me.backColor = settings.defaultBackColor;
     }
-  }
+  };
   
   this.draw = function() {
     if (me.tabStyle == null || me.tabStyle == "") me.tabStyle = "Simple";
@@ -378,7 +378,7 @@ function TabPanel() {
         if (settings.hiUnderline == true) {
           obj.style.textDecoration = "underline";          
         }
-      }
+      };
       tabSpan.onmouseout = function(e) {
         var obj = getTarget(e);
         if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
@@ -394,7 +394,7 @@ function TabPanel() {
         if (settings.hiUnderline == true) {
           obj.style.textDecoration = "";
         }
-      }
+      };
       tabSpan.ondblclick = function(e) {
         var isDesign = inDesignMode();
         if (isDesign) {
@@ -426,11 +426,11 @@ function TabPanel() {
               itm.changed = true;
               itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
               itm.designer.propWindow.refreshProperty("tab names");
-            }
+            };
             itm.designer.inlineEditBox.show(itm, dom, "tab");
           }
         }
-      }
+      };
       tabSpan.onclick = function(e) {
         var target = getTarget(e);
         if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
@@ -480,7 +480,7 @@ function TabPanel() {
             }
           }
         }
-      }
+      };
       // Add the tab container span to the widget. Add the left border if it
       // exists, add the tab itself, and add the right border if it exists.
       topDiv.appendChild(outerSpan);
@@ -510,7 +510,7 @@ function TabPanel() {
         icon.style.padding = "0px";
         icon.onmousedown = function(event) {
           designUtils.preventEvent(event);
-        }
+        };
         me.container.appendChild(icon);  
         return icon;
       }
@@ -560,7 +560,7 @@ function TabPanel() {
         else tabNames = pui.parseCommaSeparatedList(propValue.designValue);
         me.selectedTab = tabNames.length - 1;
         me.draw();
-      }
+      };
       removeIcon.onclick = function() {
         var itm = toolbar.designer.getDesignItemByDomObj(me.container);
         var propValue = itm.properties["tab names"];
@@ -615,7 +615,7 @@ function TabPanel() {
             itm.designer.propWindow.refreshProperty("tab names");
           }
         }
-      }
+      };
     }
 
     processElements("div");
@@ -631,7 +631,7 @@ function TabPanel() {
         container = pui.runtimeContainer;
       }
       else {
-        container = document.getElementById(appContainerId)
+        container = document.getElementById(appContainerId);
       }
       elems = container.getElementsByTagName(tag);
       for (var i = 0; i < elems.length; i++) {
@@ -664,7 +664,7 @@ function TabPanel() {
       }
     }
 
-  }
+  };
 }
 
 
@@ -692,7 +692,7 @@ pui.widgets.add({
     
       parms.dom.sizeMe = function() {
         parms.dom.tabPanel.draw();
-      }
+      };
     
       parms.dom.tabPanel = new TabPanel();
       var tabNamesString = parms.evalProperty("tab names");
@@ -721,13 +721,13 @@ pui.widgets.add({
         parms.dom.setTab = function(tab) {
           parms.dom.tabPanel.selectedTab = tab;
           parms.dom.tabPanel.draw();
-        }
+        };
         parms.dom.getTab = function() {
           return parms.dom.tabPanel.selectedTab;
-        }
+        };
         parms.dom.refresh = function() {
           parms.dom.setTab(parms.dom.getTab());
-        }
+        };
       }
     },
     
