@@ -92,7 +92,8 @@ function getPropertiesModel() {
     { name: "text transform", stylename: "textTransform", choices: ["capitalize", "uppercase", "lowercase", "none"],help: "Transforms the default formatting of the text. <br><br>Capitalize(first character only),UPPERCASE(all), lowercase(all)." },
     { name: "white space", stylename: "whiteSpace", choices: ["normal", "pre", "nowrap"], help: "Determines how white space inside an element is handled.  The default is no-wrap.", controls: ["html container", "hyperlink"] },
     { name: "word spacing", stylename: "wordSpacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."],help: "Spacing between each word in the current element. <span style='word-spacing:-2px;'>Negative decreases spacing</span>, <span style='word-spacing:2px;'>positive increases spacing</span>.", formattingProp: true },
-
+    { name: "spell check", attribute: "spellcheck", choices: ["true", "false"], help: "Determines whether the element will have browser based spell checking. Default behavior is based on browser settings.", hideFormatting: true, validDataTypes: ["indicator"], controls: ["textbox", "text area"]},
+         
     { name: "Field Settings", category: true },
     { name: "ajax url", type: "long", help: "Specifies the content url for an ajax container.", controls: ["ajax container"] },
     { name: "results template", type: "long", allowNewLines: true, controls: ["textbox"], help: "HTML template for auto-complete results panel. If omitted, a default template will be used." },
