@@ -132,7 +132,7 @@ pui.widgets.tabStyles = {
 
 
 pui.widgets.preloadTabStyle = function(tabStyle) {
-  tabStyleSettings = pui.widgets.tabStyles[tabStyle];
+  var tabStyleSettings = pui.widgets.tabStyles[tabStyle];
   if (tabStyleSettings != null) {
     if (tabStyleSettings.preloaded != true) {   // not already preloaded
       if (tabStyleSettings.useImages) {
@@ -168,6 +168,24 @@ function TabPanel() {
 
   // Private Properties
   var me = this;
+  
+  // The number of pixels to scroll when first clicking scroll right/left.
+  var beginScrollIncrement = Number(pui["tabpanel scroll speed"]);
+  if( isNaN(beginScrollIncrement) || beginScrollIncrement < 1) beginScrollIncrement = 5;
+  
+  var scrollAccelAmount = Number(pui["tabpanel scroll acceleration"]);
+  if( isNaN(scrollAccelAmount) || scrollAccelAmount < 1) scrollAccelAmount = 1;
+  
+  // These are set and cleared in onmouseup and onmousedown of the scroll buttons.
+  var scrollLeftIval = null;
+  var scrollRightIval = null;
+  
+  // These allow scrolling speed to increase the longer the button is held.
+  var curScrollIncrement = 5;
+  var scrollCounter = 0;
+  
+  // Clicking a tab redraws the panel, so preserve the scrollLeft with this.
+  var lastScrollLeft = 0;
   
   // Public Properties
   this.defaults = {};
@@ -234,16 +252,12 @@ function TabPanel() {
       }
     }
     topDiv.style.width = "100%";
-
+    
     var bottomDiv = document.createElement("div");
     bottomDiv.style.position = "absolute";
     bottomDiv.style.left = "0px";
     bottomDiv.style.top = (settings.height + adjust) + "px";
     bottomDiv.className = "content-area";
-
-    // offsetHeight/Width properties are slow, causing a browser reflow
-    //var cntHeight = me.container.offsetHeight;
-    //var cntWidth = me.container.offsetWidth;
 
     var sWidth = me.container.style.width;
     var cntWidth = 0;
@@ -306,7 +320,7 @@ function TabPanel() {
         rightSpan.style.styleFloat = "left";  // IE
         rightSpan.style.display = "inline-block";
       }
-
+      
       var tabSpan = document.createElement("span");
       tabSpan.tabId = i;
       tabSpan.innerHTML = me.tabs[i];
@@ -432,6 +446,7 @@ function TabPanel() {
         }
       };
       tabSpan.onclick = function(e) {
+        lastScrollLeft = topDiv.scrollLeft;
         var target = getTarget(e);
         if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
         var tab = target.tabId;
@@ -491,6 +506,80 @@ function TabPanel() {
     // done iterating over each tab.
     me.container.appendChild(bottomDiv);
     me.container.appendChild(topDiv);
+    
+   // Calculate scrollLeftMax: how far from left is the element scrolled.
+    var topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
+ 
+    // Avoid showing scroll buttons if we are close enough to an end. Fixes
+    // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
+    if( (topDiv_scrollLeftMax - lastScrollLeft) <= 3) lastScrollLeft = topDiv_scrollLeftMax;
+    else if( lastScrollLeft <= 3 ) lastScrollLeft = 0;
+    
+    // Restore the previous scrollLeft from before a tab was clicked.
+    topDiv.scrollLeft = lastScrollLeft;
+    
+    // Let this be referenced in scope of "if(isDesign){}" block.
+    var rightScrollSpan = null;
+    
+    // scrollLeftMax is 0 when nothing overflows. We only need buttons on overflow.
+    if( topDiv_scrollLeftMax > 0 ){
+      var leftScrollSpan = createScrollButton("left", settings, extension, path, borderColor);
+      rightScrollSpan = createScrollButton("right", settings, extension, path, borderColor);
+
+      function scrollLeft(){
+        if( topDiv.scrollLeft > 0){
+          topDiv.scrollLeft -= curScrollIncrement;
+        }else{
+          clearInterval(scrollLeftIval);
+          leftScrollSpan.style.display = "none";
+        }
+        rightScrollSpan.style.display = "inline-block";
+        scrollCounter++;
+        // Scroll faster the longer the button is held.
+        if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+      }
+
+      function scrollRight(){
+        if( topDiv.scrollLeft < topDiv_scrollLeftMax){
+          topDiv.scrollLeft += curScrollIncrement;
+        }else{
+          clearInterval(scrollRightIval);
+          rightScrollSpan.style.display = "none";
+        }
+        leftScrollSpan.style.display = "inline-block";
+        scrollCounter++;
+        // Scroll faster the longer the button is held.
+        if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+      }
+      
+      // Setup the click handlers for both buttons.
+      leftScrollSpan.onmousedown = function(){
+        // Reset increment amount and speed counter. Start scrolling.
+        curScrollIncrement = beginScrollIncrement;
+        scrollCounter = 0;
+        scrollLeftIval = setInterval(scrollLeft, 42);
+      };
+      // Stop scrolling.
+      leftScrollSpan.onmouseup = function(){ clearInterval(scrollLeftIval); };
+      leftScrollSpan.onmouseout = leftScrollSpan.onmouseup;
+      leftScrollSpan.ondrag = leftScrollSpan.onmouseup;
+      
+      rightScrollSpan.onmousedown = function(){
+        curScrollIncrement = beginScrollIncrement;
+        scrollCounter = 0;
+        scrollRightIval = setInterval(scrollRight, 42);
+      };
+      rightScrollSpan.onmouseup = function(){ clearInterval(scrollRightIval); };
+      rightScrollSpan.onmouseout = rightScrollSpan.onmouseup;
+      rightScrollSpan.ondrag = rightScrollSpan.onmouseup;
+
+      me.container.appendChild(leftScrollSpan);
+      me.container.appendChild(rightScrollSpan);
+
+      // Display either when needed.
+      if( topDiv.scrollLeft > 0 ) leftScrollSpan.style.display = "inline-block";
+      if( topDiv.scrollLeft < topDiv_scrollLeftMax) rightScrollSpan.style.display = "inline-block";
+    }//done adding scroll buttons.
     
     var isDesign = inDesignMode();
 
@@ -616,6 +705,9 @@ function TabPanel() {
           }
         }
       };
+      
+      // Avoid overlapping the +/- buttons.
+      if(rightScrollSpan != null) rightScrollSpan.style.right = "35px";
     }
 
     processElements("div");
@@ -633,7 +725,7 @@ function TabPanel() {
       else {
         container = document.getElementById(appContainerId);
       }
-      elems = container.getElementsByTagName(tag);
+      var elems = container.getElementsByTagName(tag);
       for (var i = 0; i < elems.length; i++) {
         var elem = elems[i];
         if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
@@ -664,11 +756,79 @@ function TabPanel() {
       }
     }
 
-  };
-}
+  }; //end this.draw().
+  
+  /**
+   * Create a scroll left or right button in the same style as the tabs.
+   * 
+   * @param {String} cssClass     Extra CSS class: left or right.
+   * @param {Object} settings     From pui.widgets.tabStyles.
+   * @param {String} extension    File type of background image.
+   * @param {String} path         URI path of background image.
+   * @param {String} borderColor  CSS color.
+   * @returns {Object}            A span DOM element as the tab.
+   */
+  function createScrollButton(cssClass, settings, extension, path, borderColor ){
+    // Create a parent span to encapsulate the button image, left, and right border.
+    // Note: image is defined by CSS rule like :before { content: url(); }
+    var outerSpan = document.createElement("span");
+    if(cssClass) outerSpan.className = "pui-tscrbtn "+cssClass;
 
+    if (settings.leftWidth != null) {
+      var leftSpan = document.createElement("span");
+      leftSpan.className = "edge";
+      leftSpan.style.backgroundImage = "url(" + path + "left-sel." + extension + ")";
+      leftSpan.style.height = (settings.height + 2) + "px";
+      leftSpan.style.width = settings.leftWidth + "px";
+    }
+    if (settings.rightWidth != null) {
+      var rightSpan = document.createElement("span");
+      rightSpan.className = "edge";
+      rightSpan.style.backgroundImage = "url(" + path + "right-sel." + extension + ")";
+      rightSpan.style.height = (settings.height + 2) + "px";
+      rightSpan.style.width = settings.rightWidth + "px";
+    }
 
+    var tabSpan = document.createElement("span");
+    tabSpan.className = "mid";    
+    tabSpan.style.height = settings.height + "px";
 
+    if (settings.useImages) {
+      tabSpan.style.backgroundImage = "url(" + path + "middle-sel." + extension + ")";
+      tabSpan.style.backgroundRepeat = "repeat-x";
+      var leftMargin = 1;
+      if (settings.leftMargin) leftMargin = settings.leftMargin;
+      leftSpan.style.marginLeft = leftMargin + "px";
+      tabSpan.style.padding = (settings.height - 17) + "px 0.5em 0px"; //image is 
+
+      if (settings.separated != true) {
+        leftSpan.style.backgroundColor = me.backColor;            
+        rightSpan.style.backgroundColor = me.backColor;  
+        tabSpan.style.backgroundColor = me.backColor;  
+      }
+      if (settings.selColor != null) tabSpan.style.color = settings.selColor;
+      if (settings.selBold == true) tabSpan.style.fontWeight = "bold";
+    }
+    else {
+      tabSpan.style.marginLeft = "3px";
+      tabSpan.style.padding = "3px 0.5em";
+      tabSpan.style.borderTop = "1px solid " + borderColor;
+      tabSpan.style.borderLeft = "1px solid " + borderColor;
+      tabSpan.style.borderRight = "1px solid " + borderColor;
+      tabSpan.style.backgroundColor = me.backColor;  
+      tabSpan.style.borderBottom = "1px solid " + me.backColor;  
+    }
+
+    // Add the left border if it, exists, add the tab itself, and add the
+    // right border if it exists.
+    if (settings.leftWidth != null) outerSpan.appendChild(leftSpan);
+    outerSpan.appendChild(tabSpan);
+    if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
+
+    return outerSpan;
+  }//end createScrollButton().
+  
+}//end TabPanel constructor.
 
 
 
