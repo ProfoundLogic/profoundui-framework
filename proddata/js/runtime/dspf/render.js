@@ -2614,13 +2614,15 @@ pui.showErrors = function(errors, rrn) {
       if (dom != null) {
         if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
         try {
-          dom.focus();
-          if (pui["highlight on focus"]) dom.select();
-          if (!tip.doneShowing) dom.validationTip.show();
           if (setFocusField) {
             pui.focusField.dom = dom;
             pui.focusField.setFocusFlag = true;
           }
+          else {
+            dom.focus();
+            if (pui["highlight on focus"]) dom.select();
+          }
+          if (!tip.doneShowing) dom.validationTip.show();
           break;
         }
         catch(e) {
