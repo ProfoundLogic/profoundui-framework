@@ -5513,13 +5513,13 @@ pui.Grid = function() {
       }
       else {
       
-        delete localStorage[me.storageKey];
+        try{ delete localStorage[me.storageKey]; }catch(exc){}
       
       }
     
     }
   
-  }
+  };
   
   this["getSelectedCount"] = function() {
   
