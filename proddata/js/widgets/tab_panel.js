@@ -536,7 +536,9 @@ function TabPanel() {
 
       function scrollRight(){
         if( topDiv.scrollLeft < topDiv_scrollLeftMax){
-          topDiv.scrollLeft += curScrollIncrement;
+          // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
+          // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
+          try{topDiv.scrollLeft += curScrollIncrement;}catch(exc){}
         }else{
           clearInterval(scrollRightIval);
           rightScrollSpan.style.display = "none";
@@ -575,12 +577,11 @@ function TabPanel() {
       // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
       if( lastScrollLeft === null )
       {
-        var topDiv = me.container.childNodes[1];
         // The selected tab number should correspond to the array index of childNodes.
-        if( topDiv != null && topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
+        if( topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
           var outerSpan = topDiv.childNodes[me.selectedTab];
           // Put the selected tab in the middle of the tab panel.
-          lastScrollLeft = outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2;
+          lastScrollLeft = Math.round(outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2);
         }
         else lastScrollLeft = 0; //Or set to 0 for later math. (This case shouldn't normally happen.)
       }
@@ -592,7 +593,9 @@ function TabPanel() {
       
       // Restore the previous scrollLeft from before a tab was clicked, or to
       // scroll to the active tab.
-      topDiv.scrollLeft = lastScrollLeft;
+      // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
+      // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
+      try{topDiv.scrollLeft = lastScrollLeft;}catch(exc){}
       
       // Display either button only when needed.
       if( topDiv.scrollLeft > 0 ) leftScrollSpan.style.display = "inline-block";
