@@ -174,7 +174,7 @@ function TabPanel() {
   if( isNaN(beginScrollIncrement) || beginScrollIncrement < 1) beginScrollIncrement = 5;
   
   var scrollAccelAmount = Number(pui["tabpanel scroll acceleration"]);
-  if( isNaN(scrollAccelAmount) || scrollAccelAmount < 1) scrollAccelAmount = 1;
+  if( isNaN(scrollAccelAmount) || scrollAccelAmount < 0) scrollAccelAmount = 1;
   
   // These are set and cleared in onmouseup and onmousedown of the scroll buttons.
   var scrollLeftIval = null;
@@ -185,7 +185,10 @@ function TabPanel() {
   var scrollCounter = 0;
   
   // Clicking a tab redraws the panel, so preserve the scrollLeft with this.
-  var lastScrollLeft = 0;
+  var lastScrollLeft = null;
+  
+  // This value is used in 3 places for themes that don't use images.
+  var simpleSelectedTabBackgroundColor = "#B7C8F6";
   
   // Public Properties
   this.defaults = {};
@@ -363,9 +366,9 @@ function TabPanel() {
         tabSpan.style.borderRight = "1px solid " + borderColor;
         if (i != me.selectedTab) {
           tabSpan.style.borderBottom = "1px solid " + borderColor;
-          tabSpan.style.backgroundColor = "#B7C8F6";
+          tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
           if (context == "genie") {
-            tabSpan.style.filter = "progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=white,endColorStr=#B7C8F6)";
+            tabSpan.style.filter = "progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=white,endColorStr=#"+simpleSelectedTabBackgroundColor+")";
           }
           tabSpan.style.cursor = "pointer";
         }
@@ -506,18 +509,10 @@ function TabPanel() {
     // done iterating over each tab.
     me.container.appendChild(bottomDiv);
     me.container.appendChild(topDiv);
-    
-   // Calculate scrollLeftMax: how far from left is the element scrolled.
+        
+    // Calculate scrollLeftMax: how far from left is the element scrolled.
     var topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
  
-    // Avoid showing scroll buttons if we are close enough to an end. Fixes
-    // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
-    if( (topDiv_scrollLeftMax - lastScrollLeft) <= 3) lastScrollLeft = topDiv_scrollLeftMax;
-    else if( lastScrollLeft <= 3 ) lastScrollLeft = 0;
-    
-    // Restore the previous scrollLeft from before a tab was clicked.
-    topDiv.scrollLeft = lastScrollLeft;
-    
     // Let this be referenced in scope of "if(isDesign){}" block.
     var rightScrollSpan = null;
     
@@ -575,8 +570,31 @@ function TabPanel() {
 
       me.container.appendChild(leftScrollSpan);
       me.container.appendChild(rightScrollSpan);
-
-      // Display either when needed.
+      
+      // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
+      // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
+      if( lastScrollLeft === null )
+      {
+        var topDiv = me.container.childNodes[1];
+        // The selected tab number should correspond to the array index of childNodes.
+        if( topDiv != null && topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
+          var outerSpan = topDiv.childNodes[me.selectedTab];
+          // Put the selected tab in the middle of the tab panel.
+          lastScrollLeft = outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2;
+        }
+        else lastScrollLeft = 0; //Or set to 0 for later math. (This case shouldn't normally happen.)
+      }
+      
+      // Avoid showing scroll buttons if we are close enough to an end. Fixes
+      // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
+      if( (topDiv_scrollLeftMax - lastScrollLeft) <= 3) lastScrollLeft = topDiv_scrollLeftMax;
+      else if( lastScrollLeft <= 3 ) lastScrollLeft = 0;
+      
+      // Restore the previous scrollLeft from before a tab was clicked, or to
+      // scroll to the active tab.
+      topDiv.scrollLeft = lastScrollLeft;
+      
+      // Display either button only when needed.
       if( topDiv.scrollLeft > 0 ) leftScrollSpan.style.display = "inline-block";
       if( topDiv.scrollLeft < topDiv_scrollLeftMax) rightScrollSpan.style.display = "inline-block";
     }//done adding scroll buttons.
@@ -716,7 +734,7 @@ function TabPanel() {
     processElements("textarea");
     processElements("button");
     processElements("img");
-    
+        
     function processElements(tag) {
       var container;
       if (context == "dspf" && !isDesign) {
@@ -774,17 +792,22 @@ function TabPanel() {
     var outerSpan = document.createElement("span");
     if(cssClass) outerSpan.className = "pui-tscrbtn "+cssClass;
 
+    // By default, scroll buttons use the same style as a selected tab. Allow
+    // them to use style of unselected tab with config option.
+    var bgimgSel = "-sel.";
+    if( pui["tabpanel scroll unsel style"] == true) bgimgSel = ".";
+
     if (settings.leftWidth != null) {
       var leftSpan = document.createElement("span");
       leftSpan.className = "edge";
-      leftSpan.style.backgroundImage = "url(" + path + "left-sel." + extension + ")";
+      leftSpan.style.backgroundImage = "url(" + path + "left"+bgimgSel + extension + ")";
       leftSpan.style.height = (settings.height + 2) + "px";
       leftSpan.style.width = settings.leftWidth + "px";
     }
     if (settings.rightWidth != null) {
       var rightSpan = document.createElement("span");
       rightSpan.className = "edge";
-      rightSpan.style.backgroundImage = "url(" + path + "right-sel." + extension + ")";
+      rightSpan.style.backgroundImage = "url(" + path + "right"+bgimgSel + extension + ")";
       rightSpan.style.height = (settings.height + 2) + "px";
       rightSpan.style.width = settings.rightWidth + "px";
     }
@@ -794,7 +817,7 @@ function TabPanel() {
     tabSpan.style.height = settings.height + "px";
 
     if (settings.useImages) {
-      tabSpan.style.backgroundImage = "url(" + path + "middle-sel." + extension + ")";
+      tabSpan.style.backgroundImage = "url(" + path + "middle"+bgimgSel + extension + ")";
       tabSpan.style.backgroundRepeat = "repeat-x";
       var leftMargin = 1;
       if (settings.leftMargin) leftMargin = settings.leftMargin;
@@ -815,8 +838,12 @@ function TabPanel() {
       tabSpan.style.borderTop = "1px solid " + borderColor;
       tabSpan.style.borderLeft = "1px solid " + borderColor;
       tabSpan.style.borderRight = "1px solid " + borderColor;
-      tabSpan.style.backgroundColor = me.backColor;  
-      tabSpan.style.borderBottom = "1px solid " + me.backColor;  
+      tabSpan.style.borderBottom = "1px solid " + me.backColor;
+      // Use color of selected tab unless overridden by config option.
+      if( pui["tabpanel scroll unsel style"] != true)
+        tabSpan.style.backgroundColor = me.backColor;
+      else
+        tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
     }
 
     // Add the left border if it, exists, add the tab itself, and add the
