@@ -264,6 +264,8 @@ pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
 pui["runtimeText"]["en_US"]["remove filter"]        = "Remove Filter";
 // Atrium only.
+pui["runtimeText"]["en_US"]["yes"]                  = "Yes";
+pui["runtimeText"]["en_US"]["no"]                   = "No";
 pui["runtimeText"]["en_US"]["settings"]             = "Settings";
 pui["runtimeText"]["en_US"]["favorites"]            = "Favorites";
 pui["runtimeText"]["en_US"]["type query press en"]  = "Type query, press Enter.";
@@ -1020,6 +1022,8 @@ pui["runtimeText"]["fr_FR"]["new folder"]           = "Nouveau dossier";
 pui["runtimeText"]["fr_FR"]["rename"]               = "Renommer";
 pui["runtimeText"]["fr_FR"]["description"]          = "Description";
 pui["runtimeText"]["fr_FR"]["ok"]                   = "OK";
+pui["runtimeText"]["fr_FR"]["yes"]                  = "Oui";
+pui["runtimeText"]["fr_FR"]["no"]                   = "Non";
 pui["runtimeText"]["fr_FR"]["add"]                  = "Ajouter";
 pui["runtimeText"]["fr_FR"]["add x"]                = "Ajouter &1";
 pui["runtimeText"]["fr_FR"]["delete"]               = "Supprimer";
