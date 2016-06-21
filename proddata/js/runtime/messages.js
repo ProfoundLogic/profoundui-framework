@@ -1641,6 +1641,8 @@ pui["runtimeText"]["nl_NL"]["cancel"]                 = "Afbreken";
 pui["runtimeText"]["nl_NL"]["find text"]              = "Vinden";
 pui["runtimeText"]["nl_NL"]["remove filter"]          = "Verwijderen Filter";
 // Atrium
+pui["runtimeText"]["nl_NL"]["yes"]                  = "Ja";
+pui["runtimeText"]["nl_NL"]["no"]                   = "Nee";
 pui["runtimeText"]["nl_NL"]["settings"]             = "Instellingen";
 pui["runtimeText"]["nl_NL"]["favorites"]            = "Favorieten";
 pui["runtimeText"]["nl_NL"]["type query press en"]  = "Type vraag, druk op enter.";
