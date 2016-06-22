@@ -2367,6 +2367,7 @@ pui.submitLog = function(submittingFlag) {
   }
   
 }
+
 if (typeof String.prototype.repeat != "function")
   String.prototype.repeat = function(n) {
     
@@ -2376,3 +2377,29 @@ if (typeof String.prototype.repeat != "function")
     return val;
     
   }
+
+pui.wait = function(interval, max, check, proceed) {
+
+  var elapsed = 0;
+  var handle = setInterval(
+    function() {
+
+      elapsed += interval;
+      if (check() === true) {
+        
+        clearInterval(handle);
+        proceed(true);
+        
+      }
+      else if (elapsed >= max) {
+
+        clearInterval(handle);
+        proceed(false);   
+      
+      } 
+    
+    },
+    interval
+  );    
+  
+}
