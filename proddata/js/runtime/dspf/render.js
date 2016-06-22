@@ -2396,47 +2396,51 @@ pui.renderFormat = function(parms) {
     grid.restoreState();
   }
   
-  var maxWait = 60000; 
-  pui.wait(
-    50, // Check every x ms
-    maxWait, // Abort after x ms
-    function() { // Does condition check.
-      
-      // This flag indicates 'fusioncharts.js' is loading for a chart render...
-      return (pui.scriptLoading == false);
-      
-    },
-    function(conditionMet) { // Runs when condition is met or aborted.
+  if (!isDesignMode) {
     
-      if (!conditionMet)
-        console.log("fusioncharts.js load aborted after " + maxWait + "ms.");
+    var maxWait = 60000; 
+    pui.wait(
+      50, // Check every x ms
+      maxWait, // Abort after x ms
+      function() { // Does condition check.
+        
+        // This flag indicates 'fusioncharts.js' is loading for a chart render...
+        return (pui.scriptLoading == false);
+        
+      },
+      function(conditionMet) { // Runs when condition is met or aborted.
       
-      // execute global onload event
-      if (!isDesignMode && pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
-        pui["onload"](parms);
-      }
+        if (!conditionMet)
+          console.log("fusioncharts.js load aborted after " + maxWait + "ms.");
+        
+        // execute global onload event
+        if (pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
+          pui["onload"](parms);
+        }
 
-      // execute format's onload event / save onsubmit event
-      if (screenProperties != null && !isDesignMode) {
-        if (parms.runOnload !== false) {
-          var onloadProp = screenProperties["onload"];
-          if (onloadProp != null && onloadProp != "") {
-            try {
-              eval('var format = "' + screenProperties["record format name"] + '";');
-              eval('var file = "' + parms.file + '";');
-              eval(onloadProp);
-            }
-            catch(err) {
-              pui.alert("Onload Error:\n" + err.message);
+        // execute format's onload event / save onsubmit event
+        if (screenProperties != null) {
+          if (parms.runOnload !== false) {
+            var onloadProp = screenProperties["onload"];
+            if (onloadProp != null && onloadProp != "") {
+              try {
+                eval('var format = "' + screenProperties["record format name"] + '";');
+                eval('var file = "' + parms.file + '";');
+                eval(onloadProp);
+              }
+              catch(err) {
+                pui.alert("Onload Error:\n" + err.message);
+              }
             }
           }
-        }
-        pui.onsubmitProp = screenProperties["onsubmit"];
-      }         
-    
-    }
-    
-  );
+          pui.onsubmitProp = screenProperties["onsubmit"];
+        }         
+      
+      }
+      
+    );
+  
+  }
   
 };
 
