@@ -1019,6 +1019,20 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
     
+    // If the id of a tab panel changes, look for its child members.
+    if( properties["field type"] == "tab panel" ){
+      // Look at each item in the designer.
+      for(var i=0; i < designer.items.length; i++){
+        // If the item's "parent tab panel" matches the old "id", then fix "parent tab panel".
+        if( designer.items[i].properties["parent tab panel"] == designItem.dom.id ){
+          designer.items[i].properties["parent tab panel"] = newValue;
+          designer.items[i].dom.parentTabPanel = newValue;
+          designer.items[i].propertiesChanged["parent tab panel"] = true;
+          designer.propWindow.refreshProperty("parent tab panel");
+        }
+      }
+    }
+    
     if (selection.resizers.length == 1) {
       designer.propWindow.setHeader("Properties - " + effectiveValue);
     }    
