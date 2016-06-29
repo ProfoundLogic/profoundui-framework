@@ -4791,6 +4791,12 @@ pui.Grid = function() {
     return cell;
   }
 
+  /**
+   * Try to place the cursor on the first input element in the row.
+   * 
+   * @param {Object|Array} row        An array of dom elements representing a row.
+   * @returns {undefined}
+   */
   function placeCursorOnRow(row) {
     for (var i = 0; i < row.length; i++) {
       var cell = row[i];
@@ -4799,6 +4805,13 @@ pui.Grid = function() {
     }
   }
 
+  /**
+   * Try to focus the first supported input element in a cell. Text inputs may
+   * be highlighted.
+   * 
+   * @param {object} cell  Cell dom in the grid.
+   * @returns {boolean}    Returns true if element was found and focused. False otherwise.
+   */
   function placeCursorOnCell(cell) {
     if (cell == null) return false;
     var inputBox = cell.firstChild;
@@ -4822,22 +4835,33 @@ pui.Grid = function() {
     if (inputBox.comboBoxWidget != null) inputBox = inputBox.comboBoxWidget.getBox();
     var tag = inputBox.tagName;
     if (tag != "INPUT" && tag != "TEXTAREA" && tag != "SELECT") return false;
+    
+    // Focusing a SELECT element as a result of pressing pgup/pgdn in Firefox would
+    // change the value before paging, and that's a confusing UI. See Issue 2556.
+    // So don't focus a SELECT in firefox. If placeCursorOnRow called us, then it
+    // will try finding another input element on the row.
+    if( tag == "SELECT" && pui["is_firefox"]) return false;
+    
     try {
-      inputBox.focus();
-      if (inputBox.createTextRange != null) {
-        // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
-        if (inputBox.select != null) inputBox.select();
-        var tr = inputBox.createTextRange();
-        if (tr != null && tr.collapse !=  null && tr.select != null) {
-          tr.collapse();
-          tr.select();
+      inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
+    
+      // Only INPUT and TEXTAREA have select or createTextRange methods.
+      if( tag == "INPUT" || tag == "TEXTAREA"){
+        if (inputBox.createTextRange != null) {
+          // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
+          if (inputBox.select != null) inputBox.select();
+          var tr = inputBox.createTextRange();
+          if (tr != null && tr.collapse !=  null && tr.select != null) {
+            tr.collapse();
+            tr.select();
+          }
         }
+        if (pui["highlight on focus"]) inputBox.select();
       }
-      if (pui["highlight on focus"]) inputBox.select();
     }
-    catch (e) {
-    }
-    return true;  
+    catch (e) {}
+    
+    return true;
   }
 
   function setCellStyle(cell, col, styleName, propNameParm) {

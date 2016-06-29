@@ -1981,19 +1981,31 @@ pui.renderFormat = function(parms) {
           addEvent(dom, "keydown", pui.setActiveElement);
           addEvent(dom, "change", setModified);
           if (dom.tagName != "SELECT") {addEvent(dom, "click", setModified);}
-			else{
-			// prevent pagedown key from selecting last option in select box (not operational for Firefox)
-			addEvent(dom, "keydown", function(e) {
-			if (!e) e = window.event;
-			var key = e.keyCode;
-			if (key == 34) {
-				e.cancel=true; 
-				if (e.preventDefault) e.preventDefault(); 
-				return false; 
-				}
-			});
-		  
-		  }
+          else{
+            // prevent pagedown key from selecting last option in select box (not operational for Firefox)
+            addEvent(dom, "keydown", function(e) {
+            if (!e) e = window.event;
+            var key = e.keyCode;
+            if (key == 34) {
+              e.cancel=true; 
+              if (e.preventDefault) e.preventDefault(); 
+              return false; 
+              }
+            });
+            
+            // If the SELECT box is in a subfile and browser is Firefox, then the pgup/pgdn
+            // keys would change the value and also page the grid; this behavior is confusing. (See Issue 2556.)
+            // So prevent the grid from paging in Firefox. preventEvent stops the key event bubbling
+            // up to the grid. This forces the user to focus outside the SELECT in order to page.
+            if( parms.subfileRow > 0 && pui["is_firefox"] ){
+              addEvent(dom, "keydown", function(e){
+                e = e || window.event;
+                if(e.keyCode == 33 || e.keyCode == 34){
+                  preventEvent(e);
+                }
+              });
+            }
+          }
         }
         
         if (dom.tagName == "INPUT" && dom.type == "radio") {
