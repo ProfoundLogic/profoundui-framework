@@ -3901,6 +3901,7 @@ pui["run"] = function(config) {
     "program": program.toUpperCase(),
     "library": library.toUpperCase(),
     "init": "1",
+    "pathname": location.pathname,
     "debug": debug,
     "log": log,
     "workstnid": workstnid
@@ -4043,6 +4044,7 @@ pui["signon"] = function(config) {
     "program": program.toUpperCase(),
     "library": library.toUpperCase(),    
     "init": "1",
+    "pathname": location.pathname,
     "debug": debug,
     "log": log,
     "workstnid": workstnid,
