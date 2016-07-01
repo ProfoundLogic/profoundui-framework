@@ -122,7 +122,7 @@ pui.widgets.add({
         }
         if (parms.dom.tagName == "SELECT") {
           parms.dom.options.length = 0;
-          parms.dom.options[0] = new Option("Loading...", "");
+          parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
         }
       	req.send();
       	return;
@@ -225,7 +225,7 @@ pui.widgets.add({
           }
           if (parms.dom.tagName == "SELECT") {
             parms.dom.options.length = 0;
-            parms.dom.options[0] = new Option("Loading...", "");
+            parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
           }
           ajaxRequest.send();
         }

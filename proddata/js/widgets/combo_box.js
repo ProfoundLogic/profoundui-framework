@@ -428,7 +428,7 @@ pui.widgets.add({
           parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
       	}
         parms.dom.comboBoxWidget.clear();
-        parms.dom.comboBoxWidget.setValue("Loading...");
+        parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
       	req.send();
       	return;
       }
@@ -524,7 +524,7 @@ pui.widgets.add({
             parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
           }
           parms.dom.comboBoxWidget.clear();
-          parms.dom.comboBoxWidget.setValue("Loading...");
+          parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
           ajaxRequest.send();
         }
         return;
