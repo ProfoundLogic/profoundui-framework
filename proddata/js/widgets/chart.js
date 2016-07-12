@@ -20,7 +20,6 @@
 
 pui["charts"] = {};
 pui.chartsRendered = [];
-pui.scriptLoading = false; //Help prevent multiple script tags from getting into head.
 
 pui.widgets.chartTypes = ["Column3D", "Column2D", "Bar2D", "Line", "Area2D", "Pie2D", "Pie3D", "Doughnut3D", "Other..."];
 pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2D Pie", "3D Pie", "Doughnut"];
@@ -144,56 +143,14 @@ pui.widgets.renderChart = function(parms) {
     
   }
   
-  function loadScript(url, callback) {
-    var done = false;
-    var head = document.getElementsByTagName("head")[0];
-    var script = document.createElement("script");
-    script.type= "text/javascript";
-    script.onreadystatechange= function () {
-      if (script.readyState == "complete" || script.readyState == "loaded") {
-        if (typeof FusionCharts == "undefined") return;
-        if (!done) callback();
-        done = true;
-        pui.scriptLoading = false; //Allow other charts to stop waiting to load.
-      }
-    };
-    script.onload = function() {
-        if (typeof FusionCharts == "undefined") return;
-        if (!done) callback();
-        done = true;
-        pui.scriptLoading = false; //Allow other charts to stop waiting to load.
-    };
-    script.src = url;
-    head.appendChild(script);
-  }
-
   if (typeof FusionCharts == "undefined") {
-    // Check if another call to pui.widgets.renderChart is busy loading the script.
-    // Without this check, each chart loads pui-fusioncharts.js separately and
-    // adds as many script tags to the head as there are charts.
-    if(!pui.scriptLoading){
-      // No other chart is loading the script file, so we will.
-      pui.scriptLoading = true;
-      loadScript(pui.normalizeURL('/FusionChartsXT/js/pui-fusioncharts.js'), function() {
-        loadChart();
-      });
-    }else{
-      var waitCount = 0;
-      // Another chart is loading pui-fusioncharts.js, so wait until it finishes.
-      var waitintval = setInterval(function(){
-        if(!pui.scriptLoading){
-          loadChart();
-          clearInterval(waitintval);
-        }
-        // Give up waiting after 2 minutes.
-        else if(waitCount > 2400){
-          clearInterval(waitintval);
-        }
-        waitCount++;
-      }, 50);
-    }
-  }
-  else {
+    // Dependency scripts should have been loaded before render-time.
+    // If they didn't, then indicate a problem to the user.
+    parms.dom.innerHTML = "<br/>&nbsp;&nbsp;" 
+      + pui["getLanguageText"]("runtimeMsg", "failed to load x", [pui["getLanguageText"]("runtimeText","chart")] );
+    console.log("Dependency FusionCharts not defined before rendering.");
+  } else {
+    // Dependency scripts loaded, so render the chart.
     loadChart();
   }
 
@@ -352,8 +309,6 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   img.style.position = "absolute";
   img.style.left = "0px";
   img.style.top = "0px";
-  //img.style.width = dom.style.width;
-  //img.style.height = dom.style.height;
   img.style.width = "100%";
   img.style.height = "100%";
   img.isChartPreview = true;
@@ -363,6 +318,7 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
 
 pui.widgets.add({
   name: "chart",
+  dependencies: ["/FusionChartsXT/js/pui-fusioncharts.js"],
   defaults: {
     width: "300px",
     height: "200px",
@@ -413,7 +369,8 @@ pui.widgets.add({
         // Do not do this on already rendered chart or FusionCharts will 
         // lose the reference to it and methods like 'dispose()' will fail!
         if (!parms.dom.chart)
-          parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Loading Chart...";        
+          parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
+            + pui["getLanguageText"]("runtimeMsg", "loading x", [pui["getLanguageText"]("runtimeText","chart")] );
         if (chartType == "") chartType = "Bar2D";  // set a default
         url = parms.evalProperty("chart url");
         if (url!=null && url!="") {
@@ -505,11 +462,13 @@ pui.widgets.add({
           }
           
           if (file == "") {
-            parms.dom.innerHTML = "&nbsp;&nbsp;Data source not specified for chart.";
+            parms.dom.innerHTML = "&nbsp;&nbsp;" 
+              + pui["getLanguageText"]("runtimeMsg", "data src not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
             return;
           }
           if (nameField == "") {
-            parms.dom.innerHTML = "&nbsp;&nbsp;Name field not specified for chart.";
+            parms.dom.innerHTML = "&nbsp;&nbsp;"
+              + pui["getLanguageText"]("runtimeMsg", "name fld not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
             return;
           }
           
@@ -525,7 +484,8 @@ pui.widgets.add({
               valueField = nameField;
             }
             else {
-              parms.dom.innerHTML = "&nbsp;&nbsp;Value field not specified for chart.";
+              parms.dom.innerHTML = "&nbsp;&nbsp;"
+                + pui["getLanguageText"]("runtimeMsg", "val fld not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
               return;
             }
           }

@@ -2366,7 +2366,7 @@ pui.submitLog = function(submittingFlag) {
     
   }
   
-}
+};
 
 if (typeof String.prototype.repeat != "function")
   String.prototype.repeat = function(n) {
@@ -2376,8 +2376,17 @@ if (typeof String.prototype.repeat != "function")
       val += this;
     return val;
     
-  }
+  };
 
+/**
+ * Do a polling wait for some condition to happen. Execute a callback when finished.
+ * @param {Number} interval   Time in milliseconds to poll, using setInterval.
+ * @param {Number} max        Maximum time to wait in milliseconds.
+ * @param {Function} check    Callback to return true when condition is met, false when not.
+ * @param {Function} proceed  Callback to execute when condition is met or max time has passed.
+ *                            Accepts one parameter: true when condition is met, false when max time expired.
+ * @returns {undefined}
+ */
 pui.wait = function(interval, max, check, proceed) {
 
   var elapsed = 0;
@@ -2396,10 +2405,165 @@ pui.wait = function(interval, max, check, proceed) {
         clearInterval(handle);
         proceed(false);   
       
-      } 
+      }
     
     },
     interval
-  );    
+  );
   
-}
+};
+
+/**
+ * If the specified item has a script dependency, then add the script's URL string to a list.
+ * @param {Object} item                 Input. Item/widget properties.
+ * @param {Object|Array} dependencies   Output. List of URL strings
+ * @returns {undefined}
+ */
+pui.addItemDependenciesTo = function(item, dependencies){
+  if( item != null ){
+    var fieldtype = item["field type"] || item["field_type"]; //Genie uses "field_type"; RDF uses "field type".
+    if( fieldtype != null ){
+      // In pre-render time, parms items don't have widget names, which
+      // is the key under which pui.widgets stores dependencies.
+      // So try to resolve the widget name from "field type" and template if necessary.
+      if( fieldtype == "layout" && item["template"] == "css panel" ) fieldtype = "css panel"; //special case.
+
+      if( pui.widgets[fieldtype] != null && pui.widgets[fieldtype].dependencies != null 
+      && pui.widgets[fieldtype].dependencies.length > 0 ){
+      
+        // Used to avoid loading redundant dependencies.
+        var scripts = document.getElementsByTagName("script");
+
+        var widdep = pui.widgets[fieldtype].dependencies;
+        
+        // Get the protocol, domain, and port for comparison because some script.src include those.
+        var origin = "";
+        var re = /^(https?:\/\/[^\/]+)\//i;
+        var matches = document.URL.match(re);
+        if( matches != null && matches.length == 2) origin = matches[1];
+        
+        // Add each dependency to a list.
+        for( var dp=0; dp < widdep.length; dp++ ){
+          // Make both the relative URI and the full URL for comparison.
+          var uri = pui.normalizeURL(widdep[dp]);
+          var url = pui.normalizeURL( origin + uri);
+          
+          // Avoid adding the same script multiple times by checking if it already exists.
+          var scriptExists = false;  
+          for(var sc=0; sc < scripts.length; sc++){
+            if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)){
+              scriptExists = true;
+              break;
+            }
+          }
+          
+          // If the script wasn't already loaded in <head>, and if the
+          // dependency wasn't already added to the list, add it to the list.
+          if( !scriptExists && pui.arrayIndexOf(dependencies, uri) < 0 ){
+            dependencies.push(uri);
+          }
+        }//done linking each dependency.
+      }
+    }
+  }
+};
+
+/**
+ * Look for any widgets that have script dependencies. Then execute the callback.
+ * 
+ * When dependencies exist, add script tags to the document.head for each dependency. Execute
+ * the callback after finished loading all. This should be called once before DSPF render-time,
+ * or once before loading Genie items during rendering.
+ * 
+ * @param {Object} parm        Contains list of items or rendering parameters with items buried inside.
+ * @param {Function} callback  Function to execute on success or failure to load scripts.
+ * @returns {undefined}
+ */
+pui.loadDependencyScripts = function(parm, callback ){
+  
+  // List to be populated with unique URI strings.
+  var dependencies = [];
+  
+  if( parm != null ){
+    // When called by genie() in 5250/genie.js, parm should be an entry from the global screenPropertiesObj.
+    if( parm["items"] != null && parm["items"].length > 0){
+      for(var itm=0; itm < parm["items"].length; itm++){
+        
+        // If the "dependencies" property exists, add to a list.
+        pui.addItemDependenciesTo( parm["items"][itm], dependencies);
+      }
+    }
+    // When called for pui.render, parm should contain layers and formats for the RDF/genie screen.
+    else if(parm["layers"] != null && parm["layers"].length > 0){
+      // Look in each layer.
+      for(var lay=0; lay < parm["layers"].length; lay++){
+        var layer = parm["layers"][lay];
+        if( layer != null && layer["formats"] != null && layer["formats"].length > 0){
+          // Look in each format
+          for(var fmt=0; fmt < layer["formats"].length; fmt++){
+            var format = layer["formats"][fmt];
+            if( format != null && format["metaData"] != null && format["metaData"]["items"] != null && format["metaData"]["items"].length > 0){
+              // Look at each item.
+              for(var itm=0; itm < format["metaData"]["items"].length; itm++){
+                
+                // If the "dependencies" property exists, add to a list.
+                pui.addItemDependenciesTo( format["metaData"]["items"][itm], dependencies);
+              }//end look at each item.
+            }
+          }//end look in each format.
+        }
+      }//end look in each layer.
+    }
+  }
+  
+  // Execute and return. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
+  if( dependencies.length <= 0){
+    callback();
+    return;
+  }
+  
+  // This function handles the onload/onerror event for all scripts, which load
+  // asynchronously.
+  function myonload(){
+    pui.scriptsLoading--;
+    // When all scripts have finished loading, execute the callback.
+    if (pui.scriptsLoading <= 0) callback();
+  };
+
+  pui.scriptsLoading = dependencies.length;
+  
+  for(var i=0; i < dependencies.length; i++ ){
+    
+    var url = dependencies[i];
+    
+    if( url != null && url.length > 0 ){
+      var head = document.getElementsByTagName("head")[0];
+      var script = document.createElement("script");
+      script.type= "text/javascript";
+      
+      if( typeof script.onload == "undefined"){
+        // IE8 fires the readystatechange event, not the load event.
+        // script.onload is undefined for IE8, null for others before defined.
+        script.onreadystatechange = function(){
+          if (script.readyState == "complete" || script.readyState == "loaded") myonload();
+        };
+      }else{
+        // IE9,10 fire for both events, so just use onload; IE11/Edge/FF/Chrome only support onload.
+        script.onload = myonload;
+        script.onerror = function(evt){
+          evt = evt || window.event;
+          if( evt != null && evt.target != null ) 
+            console.log("Failed to load widget dependency script ", evt.target.src);
+          myonload();
+        };
+      }
+
+      script.src = url; //Assume URL was already normalized.
+      head.appendChild(script);      
+    }else{
+      // If the string was empty, then no onload will decrement the counter; do so now.
+      pui.scriptsLoading--;
+    }    
+  }//done each dependencies.
+
+};

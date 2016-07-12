@@ -2409,51 +2409,31 @@ pui.renderFormat = function(parms) {
   }
   
   if (!isDesignMode) {
-    
-    var maxWait = 60000; 
-    pui.wait(
-      50, // Check every x ms
-      maxWait, // Abort after x ms
-      function() { // Does condition check.
-        
-        // This flag indicates 'fusioncharts.js' is loading for a chart render...
-        return (pui.scriptLoading == false);
-        
-      },
-      function(conditionMet) { // Runs when condition is met or aborted.
-      
-        if (!conditionMet)
-          console.log("fusioncharts.js load aborted after " + maxWait + "ms.");
-        
-        // execute global onload event
-        if (pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
-          pui["onload"](parms);
-        }
 
-        // execute format's onload event / save onsubmit event
-        if (screenProperties != null) {
-          if (parms.runOnload !== false) {
-            var onloadProp = screenProperties["onload"];
-            if (onloadProp != null && onloadProp != "") {
-              try {
-                eval('var format = "' + screenProperties["record format name"] + '";');
-                eval('var file = "' + parms.file + '";');
-                eval(onloadProp);
-              }
-              catch(err) {
-                pui.alert("Onload Error:\n" + err.message);
-              }
-            }
+    // execute global onload event
+    if (pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
+      pui["onload"](parms);
+    }
+
+    // execute format's onload event / save onsubmit event
+    if (screenProperties != null) {
+      if (parms.runOnload !== false) {
+        var onloadProp = screenProperties["onload"];
+        if (onloadProp != null && onloadProp != "") {
+          try {
+            eval('var format = "' + screenProperties["record format name"] + '";');
+            eval('var file = "' + parms.file + '";');
+            eval(onloadProp);
           }
-          pui.onsubmitProp = screenProperties["onsubmit"];
-        }         
-      
+          catch(err) {
+            pui.alert("Onload Error:\n" + err.message);
+          }
+        }
       }
-      
-    );
+      pui.onsubmitProp = screenProperties["onsubmit"];
+    }
   
   }
-  
 };
 
 
@@ -3433,7 +3413,11 @@ pui.submitResponse = function(response) {
           return;
         }        
         parms.container = pui.runtimeContainer;
-        if (pui.genie == null) pui.render(parms);
+        
+        // If any items depend on external scripts, wait for those to load before
+        // rendering. Otherwise, pui.render/render5250 is called without waiting.
+        if (pui.genie == null) pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
+        // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
         else pui.render5250(parms);
       },
       "onfail": function(req) {
@@ -3444,7 +3428,7 @@ pui.submitResponse = function(response) {
       }      
     });
   }
-}
+};
 
 
 pui.resetResponseValues = function() {
@@ -3528,15 +3512,6 @@ pui.evalBoundProperty = function(propValue, data, ref) {
       formattingObj["units"] = "";
       formattingObj["negNum"] = "-999.00";
     }
-    //if (formattingObj.dataType == "date") {
-    //  // to do
-    //}
-    //if (formattingObj.dataType == "time") {
-    //  // to do
-    //}
-    //if (formattingObj.dataType == "timestamp") {
-    //  // to do
-    //}
   }
   
   return pui.FieldFormat.format(formattingObj);
@@ -3575,10 +3550,6 @@ pui.evalIndicatorExpression = function(expression, data) {
 
 
 pui.showWaitAnimation = function() {
-  //pui.runtimeContainer.style.zoom = 1;  // triggers hasLayout in IE  ??
-
-  //pui.runtimeContainer.style.opacity = 0.5;
-  //pui.runtimeContainer.style.filter = "alpha(opacity=50)";
   var animation;
   if (pui["loading animation"]["text"] != null) {
     animation = document.createElement("div");
@@ -3616,8 +3587,6 @@ pui.showWaitAnimation = function() {
 };
 
 pui.hideWaitAnimation = function(removeAnimationImage) {
-  //pui.runtimeContainer.style.opacity = "";
-  //pui.runtimeContainer.style.filter = "";
   if (removeAnimationImage == true) {
     var animation = getObj("_pui_loading_animation");
     if (animation != null && animation.parentNode != null) {
@@ -3862,12 +3831,12 @@ pui.handleHotKey = function(e, keyName) {
     return false;
   }
 
-}
+};
 
 
 pui.handleF1 = function(e) {
   return pui.handleHotKey(e, "F1");
-}
+};
 
 
 pui["run"] = function(config) {
@@ -3978,7 +3947,7 @@ pui["run"] = function(config) {
       // set refresh parameter and append persistence id
       ajaxParams = {
         "refresh": "1"
-      }
+      };
       url += "/" + puiRefreshId;
     }
 
@@ -3992,7 +3961,10 @@ pui["run"] = function(config) {
       "handler": function(parms) {
         pui.hideWaitAnimation();
         parms.container = container;
-        pui.render(parms);
+
+        // If any items depend on external scripts, wait for those to load before
+        // rendering. Otherwise, pui.render is called without waiting.
+        pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
       },
       "onfail": function(req) {
         pui.hideWaitAnimation(true);
@@ -4015,7 +3987,7 @@ pui["run"] = function(config) {
       }
     });
   }
-}
+};
 
 pui["signon"] = function(config) {
   var mobile = (config["mobile"] === true);
@@ -4086,7 +4058,7 @@ pui["signon"] = function(config) {
     // set refresh parameter and append persistence id
     ajaxParams = {
       "refresh": "1"
-    }
+    };
     url += "/" + puiRefreshId;
   }
 
@@ -4102,7 +4074,10 @@ pui["signon"] = function(config) {
     "handler": function(parms) {
       pui.hideWaitAnimation();
       parms.container = container;
-      pui.render(parms);
+      
+      // If any items depend on external scripts, wait for those to load before
+      // rendering. Otherwise, pui.render is called without waiting.
+      pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
     },
     "onfail": function(req) {
       pui.hideWaitAnimation(true);
@@ -4124,7 +4099,7 @@ pui["signon"] = function(config) {
       }, 500);
     }
   });
-}
+};
 
 
 pui.runMVC = function(response) {

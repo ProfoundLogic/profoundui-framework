@@ -146,6 +146,11 @@ pui["runtimeMsg"]["en_US"]["invalid low range"]       = "Value must be greater t
 pui["runtimeMsg"]["en_US"]["invalid high range"]      = "Value must be less than or equal to &1.";
 pui["runtimeMsg"]["en_US"]["invalid range"]           = "Valid range is &1 to &2.";
 pui["runtimeMsg"]["en_US"]["unmonitored exception"]   = "The program has encountered an unmonitored exception. Please contact the system administrator for assistance.";
+pui["runtimeMsg"]["en_US"]["loading x"]               = "Loading &1...";
+pui["runtimeMsg"]["en_US"]["data src not specfd x"]   = "Data source not specified for &1...";
+pui["runtimeMsg"]["en_US"]["name fld not specfd x"]   = "Name field not specified for &1...";
+pui["runtimeMsg"]["en_US"]["val fld not specfd x"]    = "Value field not specified for &1...";
+pui["runtimeMsg"]["en_US"]["failed to load x"]        = "Failed to load &1.";
 // Atrium only.
 pui["runtimeMsg"]["en_US"]["num sessions exceeded"]   = "Number of allowed sessions exceeded.";
 pui["runtimeMsg"]["en_US"]["unable to load portal"]   = "Unable to load portal settings or navigation items.";
@@ -263,6 +268,7 @@ pui["runtimeText"]["en_US"]["change password"]      = "Change Password";
 pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
 pui["runtimeText"]["en_US"]["remove filter"]        = "Remove Filter";
+pui["runtimeText"]["en_US"]["chart"]                = "Chart";
 // Atrium only.
 pui["runtimeText"]["en_US"]["yes"]                  = "Yes";
 pui["runtimeText"]["en_US"]["no"]                   = "No";

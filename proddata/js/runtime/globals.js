@@ -186,4 +186,6 @@ pui["function key pattern"] = "^(F|CA|CF|CK|CMD)([0-9]{1,2})([=:-])(.*)$";
 pui.sessionRetryCount = 0;
 pui["session timeout retries"] = 0;
 
+pui.scriptsLoading = 0; //Counter for widget dependency scripts being loaded in pre-rendering time.
+
 pui.nodejs = false;
