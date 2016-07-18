@@ -29,8 +29,11 @@ var errors        = new Array();
 var designScreens = new Array();
 var usedIds       = new Object();
 
-// prevent back button
-if (context == "genie") window.history.forward(1);
+// prevent Genie from being loaded via the back button.
+// Note: in Atrium, history.forward(1) causes the parent Atrium window to navigate forward
+// when loading a tab containing Genie. Other tabs are lost. Assume an iframe containing Genie
+// is used for only the Genie session. So don't modify history for Genie tabs in iframes. Issue 2671.
+if (context == "genie" && window.parent == window) window.history.forward(1);
 
 // setup pui name space
 window.pui = {};
