@@ -531,6 +531,7 @@ pui["runtimeMsg"]["de_DE"]["invalid low range"]       = "Wert muss größer sein
 pui["runtimeMsg"]["de_DE"]["invalid high range"]      = "Wert muss kleiner oder gleich &1 sein";
 pui["runtimeMsg"]["de_DE"]["invalid range"]           = "Gültiger Bereich ist zwischen &1 und &2";
 pui["runtimeMsg"]["de_DE"]["unmonitored exception"]   = "Das Programm hat einen nicht überwachten Fehler gefunden. Bitte kontaktieren Sie ihren Systemadministrator.";
+pui["runtimeMsg"]["de_DE"]["loading"]				  = "übertragen...";
 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
@@ -624,6 +625,7 @@ pui["runtimeMsg"]["pt_PT"]["invalid low range"]       = "O valor deve ser maior 
 pui["runtimeMsg"]["pt_PT"]["invalid high range"]      = "O valor deve ser menor ou igual a &1";
 pui["runtimeMsg"]["pt_PT"]["invalid range"]           = "O Intervalo válido é de &1 a &2";
 pui["runtimeMsg"]["pt_PT"]["unmonitored exception"]   = "A aplicação encontrou uma excepção não monitorizada. Por favor conte o administrador de systema.";
+pui["runtimeMsg"]["pt_PT"]["loading"] 				  = "A carregar...";
 
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -684,6 +686,7 @@ pui["runtimeText"]["pt_BR"]["row"]                    = "fileira";
 pui["runtimeText"]["pt_BR"]["rows"]                   = "fileiras";
 pui["runtimeMsg"]["pt_BR"]["upload invalid type"]     = "Um ou mais arquivos são de tipo inválido.";
 pui["runtimeMsg"]["pt_BR"]["session timed out"]       = "A sua sessão expirou.";
+pui["runtimeMsg"]["pt_BR"]["loading"]				  = "Carregando...";
 
 // ------------------------------------------------------------
 //  Spanish / Spain
