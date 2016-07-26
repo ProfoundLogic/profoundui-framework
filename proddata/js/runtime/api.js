@@ -975,6 +975,13 @@ pui["keepAlive"] = function() {
     return false;
   }
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
+  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+    try {
+      url = pui["overrideSubmitUrl"](url);
+    }
+    catch(e) {
+    }
+  }  
 
   if (context == "genie") pui.submitLog(pui.genie.formSubmitted = true);
   if (context == "dspf") pui.screenIsReady = false;

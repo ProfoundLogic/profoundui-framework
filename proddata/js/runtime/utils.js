@@ -760,6 +760,13 @@ pui["unload"] = function() {
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
     if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
+	if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+	  try {
+	    url = pui["overrideSubmitUrl"](url);
+	  }
+	  catch(e) {
+	  }
+	}	
     if (navigator != null && typeof navigator["sendBeacon"] == "function") {
       navigator["sendBeacon"](url, "shutdown=1");
     }
