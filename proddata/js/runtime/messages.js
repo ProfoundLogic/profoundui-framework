@@ -1008,7 +1008,7 @@ pui["runtimeText"]["fr_FR"]["remove filter"]        = "Supprimer le filtre";
 // Atrium 
 pui["runtimeText"]["fr_FR"]["settings"]             = "Paramètres";
 pui["runtimeText"]["fr_FR"]["favorites"]            = "Favoris";
-pui["runtimeText"]["fr_FR"]["type query press en"]  = "Type query, press Enter.";
+pui["runtimeText"]["fr_FR"]["type query press en"]  = "Saisir une requête, appuyer sur Entrée.";
 pui["runtimeText"]["fr_FR"]["add to favorites"]     = "Ajouter aux favoris";
 pui["runtimeText"]["fr_FR"]["rmv from favorites"]   = "Supprimer des favoris";
 pui["runtimeText"]["fr_FR"]["please wait"]          = "Veuillez patienter...";
