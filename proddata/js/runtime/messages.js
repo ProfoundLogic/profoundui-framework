@@ -1260,6 +1260,7 @@ pui["runtimeMsg"]["fr_CA"]["invalid low range"]       = "La valeur doit être su
 pui["runtimeMsg"]["fr_CA"]["invalid high range"]      = "La valeur doit être inférieure ou égale à &1";
 pui["runtimeMsg"]["fr_CA"]["invalid range"]           = "La valeur doit se situer entre &1 et &2";
 pui["runtimeMsg"]["fr_CA"]["unmonitored exception"]   = "Le programme a rencontré une erreur non controlée. Veuillez contacter l'administrateur du système.";
+pui["runtimeMsg"]["fr_CA"]["loading"]                 = "En chargement...";
 
 pui["runtimeText"]["fr_CA"]["upload select text"]   = "Sélection de fichiers";
 pui["runtimeText"]["fr_CA"]["upload clear text"]    = "Effacer";
