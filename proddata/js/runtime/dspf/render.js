@@ -1778,13 +1778,13 @@ pui.renderFormat = function(parms) {
         crow = properties["cursor row"];
         if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
           var adj = parseInt(crow, 10);
-          if (!isNaN(adj)) adj += dom.parentNode.row - 1;
+          if (!isNaN(adj)) adj += dom.parentNode.row;
           crow = "" + adj;         
         }
         if (pui.cursorValues.setRow == crow) {
           var cursorMatch = false;
           if (pui.cursorValues.setColumn == properties["cursor column"]) cursorMatch = true;
-          if (!cursorMatch) {
+          if (!cursorMatch && pui.focusField.setFocusFlag != true) {
             if (properties["field type"] == "textbox" || properties["field type"] == "date field" || properties["field type"] == "password field" || properties["field type"] == "combox box" || properties["field type"] == "spinner") {
               var fieldInfo = items[i]["value"];
               if (fieldInfo != null && pui.isBound(fieldInfo) && fieldInfo["dataLength"] != null) {
