@@ -1875,26 +1875,32 @@ pui["haltFrames"] = function() {
   for (var i = 0; i < iframes.length; i++) {
 
     var iframe = iframes[i];
+    if( iframe != null ){
     
-    var puiObj = null;
-    try {
-      puiObj = iframe.contentWindow["pui"];
-      iframe.contentWindow["puihalted"] = true;
-    }
-    catch(e) { /* ignore */ }
-    
-    if (puiObj != null && typeof puiObj === "object") {
-      puiObj["halted"] = true;
-      if (typeof puiObj["haltFrames"] === "function") {
-        puiObj["haltFrames"]();
+      var puiObj = null;
+      try {
+        puiObj = iframe.contentWindow["pui"];
+        iframe.contentWindow["puihalted"] = true;
       }
-    }
+      catch(e) { /* ignore */ }
 
-    iframe.src = "";
-    
+      if (puiObj != null && typeof puiObj === "object") {
+        puiObj["halted"] = true;
+        if (typeof puiObj["haltFrames"] === "function") {
+          puiObj["haltFrames"]();
+        }
+      }
+
+      // Since haltFrames can be called in the middle of a session, avoid breaking the
+      // back button behavior by removing the element before clearing "src". Issue 2503.
+      if( iframe.parentNode != null )
+        iframe.parentNode.removeChild(iframe);
+
+      // Prevent the browser from trying to continue loading the document.
+      iframe.src = "";
+    }
   }
-  
-}
+};
 
 /**
  * Initialize the break-message settings, storage, and event handlers. Start
