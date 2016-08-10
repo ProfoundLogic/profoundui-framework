@@ -5102,9 +5102,9 @@ pui.Grid = function() {
   }
 
   this.setBorderWidth = function(borderWidth) {
-    if (!borderWidth) borderWidth = me.borderWidth;
+    if (borderWidth==null) borderWidth = me.borderWidth;
     borderWidth = parseInt(borderWidth);
-    if (!borderWidth || (borderWidth < minBWidth && me.designMode)) borderWidth = minBWidth;
+    if (isNaN(borderWidth) || (borderWidth < minBWidth && me.designMode)) borderWidth = minBWidth;
     for (var i = 0; i < me.vLines.length; i++) {
       me.vLines[i].style.borderRightWidth = borderWidth + "px";
     }
