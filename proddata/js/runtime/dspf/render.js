@@ -2008,12 +2008,6 @@ pui.renderFormat = function(parms) {
           }
         }
         
-        if (dom.tagName == "INPUT" && dom.type == "radio") {
-          // radio buttons come in groups, they are not individually modified
-          // therefore, we will set the modified flag to true to force posting of radio values
-          dom.modified = true;
-        }
-        
         if (dom.cursorRecord != null || dom.cursorField != null || dom.cursorRow != null || dom.cursorColumn != null) {
           addEvent(dom, "click", pui.returnCursor);
         }
@@ -2762,6 +2756,19 @@ pui.buildResponse = function() {
   for (var fieldName in pui.responseElements) {
     var doms = pui.responseElements[fieldName];
     var dom = doms[0];
+    
+    // If it's a 'radio button' control we want to change the 
+    //  'dom' entry to the 'modified' one, if any.
+    if (dom.type == "radio") {
+    	for (var j = 0; j < doms.length; j++) {
+    		var radioDom = doms[j];
+    		if (radioDom.modified) {
+    			dom = radioDom;
+    			break;
+    		}
+    	}    
+    }
+    
     var boxDom = dom;
     if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
     var value = null;
