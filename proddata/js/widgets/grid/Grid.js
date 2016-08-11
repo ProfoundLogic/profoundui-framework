@@ -4975,6 +4975,8 @@ pui.Grid = function() {
   function runSQL(sql, limit, start, callback, total, customURL, cache) {
     if (limit == null) limit = 99;
     if (start == null) start = 1;
+    var pstring = null;
+    if (pui["secLevel"] > 0) pstring = pui.getSQLParams(me.dataProps); //needed for comparison and later for postData.
     if (cache) {
       if (pui.sqlcache == null) pui.sqlcache = {};
       if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
@@ -5012,7 +5014,7 @@ pui.Grid = function() {
       
       }     
       
-      var pstring = pui.getSQLParams(me.dataProps);
+      // Add parameters. pstring is not null if secLevel > 0, because getSQLParams always returns a string.
       if (pstring != "") {
       
         req["postData"] += "&" + pstring;
@@ -5063,7 +5065,7 @@ pui.Grid = function() {
         if (callback != null) callback(response.results, response.totalRecs);
         else returnVal = response.results;
       }
-    }
+    };
     req.send();  
     if (callback == null) return returnVal;
   }  
@@ -5077,7 +5079,7 @@ pui.Grid = function() {
     if (columnSignature == null) {
       columnSignature = me.getColumnWidths();
     }
-  }
+  };
 
   this.isDataGrid = function() {
     if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "") ||
@@ -5088,7 +5090,7 @@ pui.Grid = function() {
     else {
       return false;
     }  
-  }
+  };
   
   this.setBorderColor = function(borderColor) {
     if (!borderColor) borderColor = me.borderColor;
@@ -5099,7 +5101,7 @@ pui.Grid = function() {
       me.hLines[i].style.borderTopColor = borderColor;
     }
     me.borderColor = borderColor;
-  }
+  };
 
   this.setBorderWidth = function(borderWidth) {
     if (borderWidth==null) borderWidth = me.borderWidth;
@@ -5114,7 +5116,7 @@ pui.Grid = function() {
     me.borderWidth = borderWidth;
     setLineWidths();
     me.setScrollBar();
-  }
+  };
   
   this.hide = function() {
     me.doThisToTableDivs(function(domObj) {
@@ -5122,7 +5124,7 @@ pui.Grid = function() {
     });
     if (me.scrollbarObj != null) me.scrollbarObj.hide();  
     if (me.pagingBar != null) me.pagingBar.hide();
-  }
+  };
   
   this.hideSubfile = function() {
     me.subfileHidden = true;
@@ -5145,7 +5147,7 @@ pui.Grid = function() {
       me.scrollbarObj.hide();  
     }
     if (me.pagingBar != null) me.pagingBar.hide();    
-  }
+  };
 
   this.show = function() {
     me.doThisToTableDivs(function(domObj) {
@@ -5159,7 +5161,7 @@ pui.Grid = function() {
     }
     if (!isSelected && me.tableDiv.customUnselect) me.tableDiv.customUnselect();
     me.setScrollBar();  
-  }
+  };
 
   this.addColumn = function() {
     var n = me.vLines.length;
