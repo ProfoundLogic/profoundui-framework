@@ -1359,6 +1359,16 @@ pui.renderFormat = function(parms) {
                 }
                 
                 if (pui.responseElements[qualField] == null) pui.responseElements[qualField] = [];
+
+                // When widget in a subfile is changed with setDataValue() prior to rendering
+                // the element, there will be an entry in pui.responseElements with "modifiedBeforeRender" set.
+                // Now that we are actually rendering the element, we replace that entry with the proper DOM element.
+                if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+                  pui.responseElements[qualField] = [];
+                  dom.modified = true;
+                  pui.modified = true;
+                }
+                
                 if (propname == "page down response") {
                   pui.responseElements[qualField].push(dom.grid.pagingBar.nextImg);
                   pui.responseElements[qualField].push(dom.grid.pagingBar.nextLink);

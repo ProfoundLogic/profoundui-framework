@@ -967,10 +967,6 @@ pui.Grid = function() {
   
   this["setDataValue"] = function(rowNum, fieldName, value) {
     
-    // FIXME: When a row has not yet been rendered, we can update the dataArray
-    //        so that the new value is used when the field is eventually rendered.
-    //        However, there's no way to mark it modified!
-    
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
     var record = getDataArrayForRow(rowNum,true);
@@ -980,6 +976,7 @@ pui.Grid = function() {
         record[idx] = value;
       }
     }
+    
     
     // find the DOM element
     var field = null;
@@ -991,8 +988,24 @@ pui.Grid = function() {
       }
     }
     if (field == null) return false;
+    
     var el = field.domEls[rowNum - 1];
-    if (el == null) return false;
+    
+    // If an element has never been rendered, there is no way to mark it "modified" because
+    // there is no DOM element.  As a workaround, we'll add a simple object containing 
+    // the value to the pui.responseElements array.  If this does get rendered, the
+    // code in runtime/dspf/render.js will replace this object with the real DOM element.
+    
+    if (el == null) {
+      var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+      if (pui.responseElements[qualField] == null) {
+        pui.responseElements[qualField] = [{ 
+          responseValue: String(value),
+          modifiedBeforeRender: true
+        }];
+      }
+      return false;
+    }
     
     // Update DOM element
     changeElementValue(el, value);
