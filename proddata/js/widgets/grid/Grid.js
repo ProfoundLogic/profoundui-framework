@@ -886,10 +886,10 @@ pui.Grid = function() {
     return value;
   }
   
-  function getDataArrayForRow(row) {
+  function getDataArrayForRow(row, useFilter) {
     
     var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (useFilter && me.isFiltered()) dataRecords = me.filteredDataArray;
     var record = dataRecords[row - 1];
     
     // if data array has been sorted, we need to get the record
@@ -922,7 +922,7 @@ pui.Grid = function() {
   this.getDataValue = function(row, fieldName) {
     if (typeof row != "number") return null;
     if (typeof fieldName != "string") return null;
-    var record = getDataArrayForRow(row);
+    var record = getDataArrayForRow(row,true);
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
     
@@ -973,7 +973,7 @@ pui.Grid = function() {
     
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
-    var record = getDataArrayForRow(rowNum);
+    var record = getDataArrayForRow(rowNum,true);
     if (record != null) {
       var idx = getColumnIndex(fieldName);
       if (idx != null) {
@@ -3510,7 +3510,7 @@ pui.Grid = function() {
 
   
   this["isRowSelected"] = function(row) {
-    var rec = getDataArrayForRow(row);
+    var rec = getDataArrayForRow(row,true);
     return checkSelected(rec);
   }
   
@@ -6083,6 +6083,13 @@ pui.Grid = function() {
     headerCell.filterIcon = null;
   };
 
+  this["isRowFilteredOut"] = function(rowNo) {
+    var record = getDataArrayForRow(rowNo, false);
+    var result = false;
+    if (record!=null && record.filteredOut!=null && record.filteredOut===true) result = true;
+    return result;
+  }
+  
   this.getPropertiesModel = function() {
     var model = [
       { name: "Identification", category: true },
