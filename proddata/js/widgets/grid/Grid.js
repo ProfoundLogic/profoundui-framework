@@ -1004,6 +1004,9 @@ pui.Grid = function() {
           modifiedBeforeRender: true
         }];
       }
+      if (pui.responseElements[qualField][0] !=null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+        pui.responseElements[qualField][0].responseValue = String(value);
+      }
       return false;
     }
     
