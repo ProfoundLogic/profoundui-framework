@@ -1993,14 +1993,15 @@ function pressKey(keyDesc, onTimeoutDelay) {
   }
 }
 // allow variations in spelling/case since this is a commonly used function
-function presskey(key) { pressKey(key) } 
-function Presskey(key) { pressKey(key) } 
-function PressKey(key) { pressKey(key) } 
-function pressKEY(key) { pressKey(key) } 
-function PRESSKEY(key) { pressKey(key) } 
+function presskey(key) { pressKey(key); } 
+function Presskey(key) { pressKey(key); } 
+function PressKey(key) { pressKey(key); } 
+function pressKEY(key) { pressKey(key); } 
+function PRESSKEY(key) { pressKey(key); } 
 
 
 pui["isServerBusy"] = function() {
+  if( typeof context == "undefined") return false; //change password page uses api.js but doesn't set context.
 	if ( (context == "dspf" && pui.screenIsReady === false) || 
 	     (context == "genie" && pui.genie.formSubmitted === true) ) return true;
 
@@ -2022,5 +2023,5 @@ pui["isServerBusy"] = function() {
 	}
 
 	return false;
-}
+};
 
