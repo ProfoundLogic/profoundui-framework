@@ -5225,22 +5225,40 @@ pui.Grid = function() {
     }
     positionIcons();
     me.setScrollBar();
-  }
+  };
   
-  this["removeColumn"] = function(colIndex) {
+  /**
+   * Remove a column.
+   * @param {Number} columnId  The original columnId, as positioned in design-time.
+   * @returns {undefined}
+   */
+  this["removeColumn"] = function(columnId) {
     var lastCol = me.vLines.length - 2;
     if (lastCol < 1) {
-      pui.alert("You cannot remove the last column.");
+      pui.alert(pui["getLanguageText"]("runtimeMsg","cannot rmv last col"));
       return;
     }
-    me.moveColumn(colIndex, me.cells[0].length);  // move column to end
+    // Find the current position of the columnId. (User may have moved it.)
+    var col = -1;
+    for(var i=0; i < me.cells[0].length; i++){
+      if( me.cells[0][i].columnId == columnId){
+         col = me.cells[0][i].col;
+         break;
+      }
+    }
+    if(col < 0){
+      pui.alert(pui["getLanguageText"]("runtimeMsg","cannot find col"));
+      return;
+    }
+    
+    me.moveColumn(col, me.cells[0].length);  // move column to end
     me.removeLastColumn();
     me.doExpandToLayout();
     me.selectMe();
-  }
+  };
   
   this.removeLastColumn = function() {
-    n = me.vLines.length;
+    var n = me.vLines.length;
     if (n <= 0) return;
     n = n - 1;
     me.vLines[n].parentNode.removeChild(me.vLines[n]);
@@ -5256,7 +5274,7 @@ pui.Grid = function() {
     setLineWidths();
     positionIcons();
     me.setScrollBar();
-  }
+  };
   
   this.moveColumn = function(from, to) {
     for (var row = 0; row < me.cells.length; row++) {
@@ -5283,7 +5301,7 @@ pui.Grid = function() {
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
         if (value == null || value == "" || pui.isBound(value) || pui.isTranslated(value)) return;
-        arr = value.split(",");
+        var arr = value.split(",");
         if (arr.length == 1 && propName != "column headings" && propName != "column widths") {
           // One value is applicable to all columns
           return;
@@ -5377,7 +5395,7 @@ pui.Grid = function() {
 
       me["alignColumnTotals"]();
     }
-  }
+  };
   
   this.addRow = function() {
     var n = me.hLines.length;

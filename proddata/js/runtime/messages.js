@@ -151,6 +151,8 @@ pui["runtimeMsg"]["en_US"]["data src not specfd x"]   = "Data source not specifi
 pui["runtimeMsg"]["en_US"]["name fld not specfd x"]   = "Name field not specified for &1...";
 pui["runtimeMsg"]["en_US"]["val fld not specfd x"]    = "Value field not specified for &1...";
 pui["runtimeMsg"]["en_US"]["failed to load x"]        = "Failed to load &1.";
+pui["runtimeMsg"]["en_US"]["cannot rmv last col"]     = "You cannot remove the last column.";
+pui["runtimeMsg"]["en_US"]["cannot find col"]         = "Cannot find the specified columnId.";
 // Atrium only.
 pui["runtimeMsg"]["en_US"]["num sessions exceeded"]   = "Number of allowed sessions exceeded.";
 pui["runtimeMsg"]["en_US"]["unable to load portal"]   = "Unable to load portal settings or navigation items.";
