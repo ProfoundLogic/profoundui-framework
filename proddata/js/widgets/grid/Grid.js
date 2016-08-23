@@ -862,7 +862,7 @@ pui.Grid = function() {
       me.cells[row][col].innerHTML = "";
       me.cells[row][col].appendChild(dupSpan.cloneNode(true));
     }
-  }
+  };
   
   this.mirrorDownAll = function() {
     if (context == "genie" && !pui.usingGenieHandler) return;
@@ -870,7 +870,7 @@ pui.Grid = function() {
     for (var col = 0; col < numCols; col++) {
       me.mirrorDown(col);
     }
-  }
+  };
   
   this.getCellValue = function(row, col) {
     var rowNum = row;
@@ -880,11 +880,11 @@ pui.Grid = function() {
     if (me.hasHeader) rowNum++;
     var rowObj = me.cells[rowNum];
     if (rowObj == null) return null;
-    var cell = rowObj[col];
+    var cell = rowObj[getCurrentColumnFromId(col)];
     if (cell == null) return null;
     var value = getInnerText(cell);
     return value;
-  }
+  };
   
   function getDataArrayForRow(row, useFilter) {
     
@@ -4085,7 +4085,7 @@ pui.Grid = function() {
         doResize(x, y, i, isVertical, startTop, startLeft);
         if (!isVertical && i == lines.length - 1 && lines.length > 2 && me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
           var addHeight = y;
-          if (addHeight < -me.rowHeight + 5) addHeight = -me.rowHeight + 5
+          if (addHeight < -me.rowHeight + 5) addHeight = -me.rowHeight + 5;
           if (typeof me.scrollbarObj.increaseHeight == "function") me.scrollbarObj.increaseHeight(addHeight);
         }
         if (me.designMode) {
@@ -4374,10 +4374,10 @@ pui.Grid = function() {
         me.zoomIcon.onclick = function(e) {
           me["rowZoom"](me.cells[row]);
           preventEvent(e);
-        }
+        };
 
       }
-    }
+    };
 
     cell.onmouseout = function(e) {
       e = e || window.event;
@@ -4386,7 +4386,7 @@ pui.Grid = function() {
       var header = (row == 0 && me.hasHeader);
       if (header) return;      
       me.setRowBackground(row);
-    }
+    };
     
     cell.onmousedown = function(event) {
       event = event || window.event;
@@ -4485,7 +4485,7 @@ pui.Grid = function() {
         
           x -= contextMenu.clientWidth / 2;
           
-          contextMenu.onselectstart = function(e) { return false };
+          contextMenu.onselectstart = function(e) { return false; };
           if (typeof contextMenu.style.MozUserSelect != "undefined") contextMenu.style.MozUserSelect = "none";                     
           if (typeof contextMenu.style.webkitUserSelect != "undefined") contextMenu.style.webkitUserSelect = "none";      
           
@@ -4514,7 +4514,7 @@ pui.Grid = function() {
           
         return false;
       }
-    }
+    };
     
     // Map a 'tap/hold' gesture on touch devices to the cell mousedown event.
     
@@ -4621,7 +4621,7 @@ pui.Grid = function() {
                           type: "grid selection",
                           subfileRow: i + 1,
                           formattingInfo: me.selectionField
-                        }
+                        };
                         var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
                         if (pui.responseElements[qualField] == null) {
                           pui.responseElements[qualField] = [];
@@ -4643,7 +4643,7 @@ pui.Grid = function() {
                           type: "grid selection",
                           subfileRow: i + 1,
                           formattingInfo: me.selectionField
-                        }
+                        };
                         var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
                         if (pui.responseElements[qualField] == null) {
                           pui.responseElements[qualField] = [];
@@ -4734,7 +4734,7 @@ pui.Grid = function() {
           }
         }
       }
-    }
+    };
     
     cell.ondblclick = function(e) {
       e = e || window.event;
@@ -4768,7 +4768,7 @@ pui.Grid = function() {
               itm.changed = true;
               itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
               itm.designer.propWindow.refreshProperty("column headings");
-            }
+            };
             itm.designer.inlineEditBox.onStyleUpdate = function(propName, styleName, styleValue) {
               var styleValues = "";
               for (var col = 0; col < me.cells[0].length; col++) {                
@@ -4787,7 +4787,7 @@ pui.Grid = function() {
               itm.changed = true;
               itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
               itm.designer.propWindow.refreshProperty(propName);
-            }
+            };
             itm.designer.inlineEditBox.show(itm, cell, "grid");
           }
         }
@@ -4796,7 +4796,7 @@ pui.Grid = function() {
         if (!me.hasHeader) executeEvent("onrowdblclick", row + 1, null, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowdblclick", row, null, e, col);
       }
-    }
+    };
     
     //cell.innerHTML = "content";
     if (!me.cells[row]) me.cells[row] = new Array();
@@ -4956,10 +4956,10 @@ pui.Grid = function() {
         var header = (row == 0 && me.hasHeader);
         var even = ((row % 2) == 1);
         if (me.hasHeader) even = !even;        
-        setCellStyles(cell, header, even, col)
+        setCellStyles(cell, header, even, col);
       }
     }  
-  }  
+  };
 
   function sizeCell(row, col) {    
     var rowObj = me.cells[row];
@@ -5228,6 +5228,24 @@ pui.Grid = function() {
   };
   
   /**
+   * Given the original, design-time, columnId of a column, return its current column index.
+   * @param {Number} columnId
+   * @returns {Number}  Returns -1 if column not found.
+   */
+  function getCurrentColumnFromId(columnId){
+    var col = -1;
+    if( me.cells != null && me.cells[0] != null ){
+      for(var i=0; i < me.cells[0].length; i++){
+        if( me.cells[0][i] != null && me.cells[0][i].columnId == columnId){
+           col = me.cells[0][i].col;
+           break;
+        }
+      }
+    }    
+    return col;
+  }
+  
+  /**
    * Remove a column.
    * @param {Number} columnId  The original columnId, as positioned in design-time.
    * @returns {undefined}
@@ -5239,13 +5257,7 @@ pui.Grid = function() {
       return;
     }
     // Find the current position of the columnId. (User may have moved it.)
-    var col = -1;
-    for(var i=0; i < me.cells[0].length; i++){
-      if( me.cells[0][i].columnId == columnId){
-         col = me.cells[0][i].col;
-         break;
-      }
-    }
+    var col = getCurrentColumnFromId(columnId);
     if(col < 0){
       pui.alert(pui["getLanguageText"]("runtimeMsg","cannot find col"));
       return;
@@ -5444,7 +5456,7 @@ pui.Grid = function() {
     }
     positionIcons();
     me.setScrollBar();
-  }
+  };
 
   this.removeRow = function() {
     n = me.hLines.length;
@@ -5467,7 +5479,7 @@ pui.Grid = function() {
     setLineHeights();
     positionIcons();
     me.setScrollBar();
-  }
+  };
 
   this["alignColumnTotals"] = function() {
     var rowNum = 0;
@@ -5487,7 +5499,7 @@ pui.Grid = function() {
         }
       }
     }
-  }
+  };
 
   this["scrollToRow"] = function(row) {
     if (me.slidingScrollBar) {
@@ -5497,7 +5509,7 @@ pui.Grid = function() {
       me.recNum = row;
       me.getData();      
     }
-  }
+  };
 
   this["setNumberOfRows"] = function(numRows) {
     me.setProperty("number of rows", String(numRows)); 
@@ -5516,7 +5528,7 @@ pui.Grid = function() {
     //removeAllResponseElements();
     
     me.getData();
-  }
+  };
   
   this["render"] = function() {
     me.sizeAllCells();
@@ -5527,7 +5539,7 @@ pui.Grid = function() {
       me.hideSubfile();
     
     }
-  }
+  };
   
   this["refresh"] = function() {
     me.recNum = 1;
@@ -5536,7 +5548,7 @@ pui.Grid = function() {
       me.scrollbarObj.totalRows = me.totalRecs;
     }  
     me.getData();    
-  }
+  };
   
   this["getRecordCount"] = function() {
     var count;
@@ -5548,7 +5560,7 @@ pui.Grid = function() {
     }
     if (count == null) count = 0;
     return count;
-  }
+  };
   
   this["clearState"] = function(part) {
   
@@ -5618,7 +5630,7 @@ pui.Grid = function() {
   
     return count;
   
-  }
+  };
   
   this.hideContextMenu = function() {
     if (!me.contextMenuId) return;
@@ -5629,7 +5641,7 @@ pui.Grid = function() {
     
     menu.style.visibility = "hidden";
     menu.style.display = "none";   
-  }
+  };
   
   this.getFieldNameFromColumnIndex = function(columnIndex) {
     if (columnIndex == null || isNaN(columnIndex)) return null;
@@ -5643,7 +5655,7 @@ pui.Grid = function() {
       }
     }
     return null;
-  }
+  };
   
   this.getColumnIndexFromFieldName = function(fieldName) {
     var fieldNameUpper = pui.fieldUpper(fieldName);
@@ -5657,7 +5669,7 @@ pui.Grid = function() {
       }
     }
     return null;
-  }
+  };
 
   /**
    * Set headerCell.searchIndexes[] to be an array of integers that map to 
@@ -5704,7 +5716,7 @@ pui.Grid = function() {
   };
 
   this["startFind"] = function(headerCell) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
@@ -5733,7 +5745,8 @@ pui.Grid = function() {
     var text = parm1;
     var findNext = parm2;
     if (typeof parm1 == "number") {  // when used as API rather than intenrally
-      headerCell = me.cells[0][parm1];
+      headerCell = me.cells[0][getCurrentColumnFromId(parm1)];
+      if(headerCell == null) return;
       text = parm2;
       findNext = parm3;
       me.highlighting.columnId = headerCell.columnId;
@@ -5790,7 +5803,7 @@ pui.Grid = function() {
   };
 
   this["startFilter"] = function(headerCell) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
@@ -5833,7 +5846,7 @@ pui.Grid = function() {
    * @returns {undefined}
    */
   this["setFilter"] = function(headerCell, text) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.setSearchIndexes(headerCell);
     me.highlighting.text = text;
@@ -5908,11 +5921,11 @@ pui.Grid = function() {
     else {
       saveState(filters, "filters");
     }
-  }
+  };
   
   
   this["getFilter"] = function(headerCell) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return null;
     return headerCell.filterText;
   };
@@ -6029,7 +6042,7 @@ pui.Grid = function() {
   };
 
   this["removeFilter"] = function(headerCell) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][headerCell];
+    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.highlighting.text = "";
     me.removeFilterIcon(headerCell);
@@ -6122,7 +6135,7 @@ pui.Grid = function() {
     var result = false;
     if (record!=null && record.filteredOut!=null && record.filteredOut===true) result = true;
     return result;
-  }
+  };
   
   this.getPropertiesModel = function() {
     var model = [
