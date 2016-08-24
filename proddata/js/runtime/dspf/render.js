@@ -1788,7 +1788,12 @@ pui.renderFormat = function(parms) {
         crow = properties["cursor row"];
         if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
           var adj = parseInt(crow, 10);
-          if (!isNaN(adj)) adj += dom.parentNode.row - 1;
+          if (dom.parentNode.parentNode.grid.hasHeader) {
+            adj += dom.parentNode.row - 1;
+          }  
+          else {
+            adj += dom.parentNode.row;
+          }
           crow = "" + adj;         
         }
         if (pui.cursorValues.setRow == crow) {
