@@ -19,7 +19,7 @@
 
 
 
-function buildOutputField(parms, value) {
+function buildOutputField(parms, value, labelForId) {
   if (!parms.design) {
     var originalValue = getInnerText(parms.oldDom);
     if (originalValue != null && originalValue != "" && parms.dom.originalValue == null) {
@@ -29,7 +29,18 @@ function buildOutputField(parms, value) {
   parms.dom.innerHTML = "";
   var text = value;
   text = text.replace(/ /g, "\u00a0");
-  parms.dom.appendChild(document.createTextNode(text));
+
+  // If the "label for" property was set, create a <label> tag
+  if (labelForId) {
+	  labelElem = document.createElement("label");
+	  labelElem.htmlFor = labelForId;
+	  textNode = document.createTextNode(text);
+	  labelElem.appendChild(textNode);
+	  parms.dom.appendChild(labelElem);
+  } else {
+	  parms.dom.appendChild(document.createTextNode(text));  
+  }
+  
   if (context == "dspf" && parms.design) {
     var overflowX = parms.properties["overflow x"];
     if (overflowX == null) overflowX = "";
@@ -56,12 +67,12 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      buildOutputField(parms, parms.evalProperty("value"));      
+      buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));      
     },
     
     "value": function(parms) {
       if (parms.design || parms.properties["value"] != "script: value") {
-        buildOutputField(parms, parms.value);
+        buildOutputField(parms, parms.value, parms.evalProperty("label for"));
       }
     },
     

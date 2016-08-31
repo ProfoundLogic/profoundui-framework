@@ -164,7 +164,9 @@ function getPropertiesModel() {
     { name: "message file", label: "Message File", uppercase: true, maxLength: 10, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]}, 
     { name: "message library", label: "Library", uppercase: true, maxLength: 10, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]}, 
     { name: "message condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"]},
-  
+ 
+    { name: "label for", help: "Specifies the ID of the element that this is a label for. This property will cause a &lt;label&gt; tag to be generated for this element with the 'for' attribute set to the ID specified.", canBeRemoved: true, controls: ["output field"] },
+
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "indicator", "expression"], help: "Controls the position and orientation of validation and error tool tips. When \"alert\" is selected, an alert box will be used instead of a tool tip. If not set, the default value \"right\" is used.", context: "dspf"},
     { name: "error message css class", help: "Specifies a css class name to apply to the top-level error tip element. This allows error tips to be styled individually. If not specified, css class \"pui-tip-error\" is used, which gives error message styling. Try \"pui-tip-info\" for an informational message.", context: "dspf"},    
