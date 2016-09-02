@@ -1992,6 +1992,9 @@ pui.Grid = function() {
       	me.dataArray[i].beforeSort = i;
       }
 
+      var fieldNameUpper = "";
+      if (typeof cell.fieldName == "string") fieldNameUpper = cell.fieldName.toUpperCase();
+      
       function doSort(row1, row2) {
         var value1 = row1[sortIndex];
         var value2 = row2[sortIndex];
@@ -2009,7 +2012,7 @@ pui.Grid = function() {
           }
         }
         if (typeof pui["gridSort"] == "function") {
-          var returnVal = pui["gridSort"](value1, value2);
+          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc);
           if (typeof returnVal != "number") returnVal = 0;
           if (returnVal > 0) {
             if (desc) return -1;
