@@ -31,12 +31,18 @@ pui.FindFilterBox = function() {
 	var div;
 	var contentDiv;
 	var box;
+  var timeoutId = null; //Needed for clearTimeout in the keyup handler.
+  
+  // Don't re-evaluate the filter if what the user typed wouldn't change the input.
+  var ignoreKeys = [16,17,18, 35,36, 37,38,39,40]; //shift,ctl,alt; home,end; left,up,right,down.
 
 	// Public Properties
 	this.container = null;
 	this.grid = null;
 	this.headerCell = null;
 	this.type = null;  // can be "find" or "filter"
+  
+  this.interval = 100; //How long to wait after the user stops typing to find/filter.
 
 	// Public Methods
 	this.init = function() {
@@ -50,10 +56,16 @@ pui.FindFilterBox = function() {
 		addEvent(box, "keyup", function(e) {
       if (!e) e = window.event;
       var key = e.keyCode;
-		  if (key == 13) return;  // Enter
+		  if (key == 13 ) return;  // Enter: Let the keydown handler process this.
+      if( pui.arrayIndexOf(ignoreKeys,key) >= 0) return; //non-character keys, ignore.
 			var text = box.value;
 			if (typeof me.onsearch === "function") {
-				me.onsearch(text);
+        clearTimeout(timeoutId); // remove the previously queued timout event.
+        function keyuptimeout(){
+          me.onsearch(text);
+        }
+        // Enqueue the find/filter event; avoids re-rendering the grid every keystroke.
+        timeoutId = setTimeout(keyuptimeout, me.interval );
 			}
 		});
 		addEvent(box, "keydown", function(e) {
@@ -73,7 +85,7 @@ pui.FindFilterBox = function() {
 		    }
 		    preventEvent(e);
 		  }
-		  if (key == 27) {  // Escape
+		  else if (key == 27) {  // Escape
   		  me.grid.highlighting.text = "";
   		  me.grid.getData();
   		  me.hide();

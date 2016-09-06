@@ -155,7 +155,7 @@ pui.Grid = function() {
   this.findOption = false;
   this.filterOption = false;
   this.exportOption = null;
-
+  
   this.expandToLayout = false;
   this.dontSelect = false;
   
@@ -227,6 +227,12 @@ pui.Grid = function() {
   
   var maskCover = null;
   
+  // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
+  // filters while a prior AJAX request has been sent but the response is not received.
+  var waitingOnRequest = false;
+  
+  var customSqlIsSetup = false; //Some properties of customSQL grid are setup in receiveData. Only set them up once.
+  
   this.enableDesign = function() {
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
@@ -252,7 +258,7 @@ pui.Grid = function() {
         me.mirrorDownAll();
         me.doExpandToLayout();
         me.selectMe();
-      }
+      };
     }
     if (removeRowIcon == null) {
       removeRowIcon = createIcon("minus", "Remove Row");
@@ -266,7 +272,7 @@ pui.Grid = function() {
           me.doExpandToLayout();
           me.selectMe();
         }
-      }
+      };
     }
     if (addColumnIcon == null) {
       addColumnIcon = createIcon("plus", "Add New Column");
@@ -279,7 +285,7 @@ pui.Grid = function() {
         me.sizeAllCells();
         me.doExpandToLayout();
         me.selectMe();
-      }
+      };
     }
     if (removeColumnIcon == null) {
       removeColumnIcon = createIcon("minus", "Remove Column");
@@ -298,7 +304,7 @@ pui.Grid = function() {
         me.removeLastColumn();
         me.doExpandToLayout();
         me.selectMe();
-      }
+      };
     }
     if (nwHandle == null) nwHandle = createHandle("nw");
     if (neHandle == null) neHandle = createHandle("ne");
@@ -311,14 +317,14 @@ pui.Grid = function() {
       if (neHandle != null) neHandle.style.visibility = "";
       if (swHandle != null) swHandle.style.visibility = "";
       if (seHandle != null) seHandle.style.visibility = "";
-    }
+    };
     
     me.tableDiv.customUnselect = function() {
       if (nwHandle != null) nwHandle.style.visibility = "hidden";
       if (neHandle != null) neHandle.style.visibility = "hidden";
       if (swHandle != null) swHandle.style.visibility = "hidden";
       if (seHandle != null) seHandle.style.visibility = "hidden";
-    }
+    };
     
     me.clearData();
     
@@ -337,7 +343,7 @@ pui.Grid = function() {
     positionIcons();
     me.setScrollBar();
     me.sendToDesigner();
-  }
+  };
   
   this.doExpandToLayout = function(force) {
     if (!force) {
@@ -438,7 +444,7 @@ pui.Grid = function() {
 	      proxyEl.parentNode.removeChild(proxyEl);
 	    }
     }, timeoutDuration);
-  }
+  };
   
   this.isInitCollapsed = function() {
     if (me.foldMultiple <= 1) return false;
@@ -447,7 +453,7 @@ pui.Grid = function() {
     if (me.initCollapsed == null && me.initExpanded == false) collapsed = true;
     if (collapsed == null) collapsed = false;
     return collapsed;
-  }
+  };
   
   this.collapse = function(button) {
     //if (me.visibility == "hidden") return;
@@ -457,7 +463,7 @@ pui.Grid = function() {
     me["expanded"] = false;
     var rowCount = me.cells.length;
     if (me.hasHeader) rowCount -= 1;
-    rowCount = rowCount * (me.foldMultiple - 1)
+    rowCount = rowCount * (me.foldMultiple - 1);
     if (!me.subfileHidden) {
       me.setProperty("row height", parseInt(me.rowHeight / me.foldMultiple));
       for (var i = 0; i < rowCount; i++) {
@@ -490,7 +496,7 @@ pui.Grid = function() {
       button.src = pui.normalizeURL("/profoundui/proddata/images/icons/expandall.gif");
       button.title = pui["getLanguageText"]("runtimeText", "expandAll");
     }
-  }
+  };
 
   this.expand = function(button) {
     if (me["expanded"]) return;
@@ -557,7 +563,7 @@ pui.Grid = function() {
       button.src = pui.normalizeURL("/profoundui/proddata/images/icons/collapseall.gif");
       button.title = pui["getLanguageText"]("runtimeText", "collapseAll");
     }
-  }
+  };
   
   this.toggle = function(button) {
     if (me["expanded"]) {
@@ -566,11 +572,11 @@ pui.Grid = function() {
     else {
       me.expand(button);
     }
-  }
+  };
   
   this.setExpander = function(button) {
     
-  }
+  };
   
   this["rowZoom"] = function(rowCells) {
     if (context != "dspf" && !pui.usingGenieHandler) return;
@@ -593,7 +599,7 @@ pui.Grid = function() {
       me.zoomDiv.style.left = parseInt(me.tableDiv.style.left) + "px";
       me.zoomDiv.onclick = function() {
         me.zoomDiv.style.display = "none";
-      }
+      };
       me.zoomDiv.onmouseout = function(e) {
         var target = e ? e.relatedTarget : event.toElement;  
         try {  // this is needed because of a ff bug that issues message: Permission denied to access property 'parentNode' from a non-chrome context
@@ -605,7 +611,7 @@ pui.Grid = function() {
         catch(e) {
         }
         me.zoomDiv.style.display = "none";
-      }
+      };
       me.tableDiv.parentNode.appendChild(me.zoomDiv);
     }
     me.zoomDiv.innerHTML = "";
@@ -638,7 +644,7 @@ pui.Grid = function() {
       me.zoomDiv.appendChild(clone);      
     }
     me.zoomDiv.style.display = "";
-  }
+  };
   
   this.exportCSV = function(file) {
     var delimiter;
@@ -811,7 +817,7 @@ pui.Grid = function() {
       }
     }
     return false;
-  }
+  };
   
   this.getChildren = function() {
     var children = [];
@@ -824,13 +830,13 @@ pui.Grid = function() {
       }
     }
     return children;
-  }
+  };
   
   this.getSubfilePage = function() {
     var sflPage = me.hLines.length - 1;
     if (me.hasHeader) sflPage = sflPage - 1;
     return sflPage;
-  }
+  };
   
   this.mirrorDown = function(col) {
     if (context == "genie" && !pui.usingGenieHandler) return;
@@ -962,7 +968,7 @@ pui.Grid = function() {
     }
     
     return result;
-  }
+  };
   
   
   this["setDataValue"] = function(rowNum, fieldName, value) {
@@ -1058,7 +1064,7 @@ pui.Grid = function() {
         }, 100);
       }
     }, 1);
-  }
+  };
 
   this.atBottom = function() {
     var numRows = me.cells.length;
@@ -1068,7 +1074,7 @@ pui.Grid = function() {
     if (me.isFiltered()) dataRecords = me.filteredDataArray;
     if (dataRecords.length > lastRow) return false;
     else return true;
-  }
+  };
 
   this.pageDown = function() {   
   
@@ -1114,11 +1120,11 @@ pui.Grid = function() {
         }, 100);
       }
     }, 1);
-  }
+  };
   
   this.unMask = function() {
     if (maskCover != null) maskCover.style.display = "none";
-  }
+  };
   
   this.mask = function() {
     if (me.designMode) return;
@@ -1141,12 +1147,8 @@ pui.Grid = function() {
     maskCover.style.width = width + "px";
     maskCover.style.height = height + "px";
     maskCover.className = "grid-mask";
-    //maskCover.style.zIndex = 250;
-    //maskCover.style.backgroundColor = "#CCCCCC";
-    //maskCover.style.opacity = 0.35;
-    //maskCover.style.filter = "alpha(opacity=35)";
     me.tableDiv.parentNode.appendChild(maskCover);
-  }
+  };
   
   this.getData = function(csvFile) {
     if (me.tableDiv.disabled == true) return;
@@ -1154,8 +1156,10 @@ pui.Grid = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     if (numRows < 1) return;
+    // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
     var sql = me.dataProps["custom sql"];
     var orderBy = "";
+    // There was no "custom sql", so build the string from DB-driven properties.
     if (sql == null || sql == "") {
       var file        = me.dataProps["database file"];
       var fields      = me.dataProps["database fields"];
@@ -1171,6 +1175,9 @@ pui.Grid = function() {
           sql += " ORDER BY " + orderBy;
         }
       }
+    } else if(me.sortBy != null) {
+      // Allow the cache comparison know if sorting changed.
+      sql += " ORDER BY " + me.sortBy;
     }
     var dataURL = me.dataProps["data url"];
     if (dataURL == "") dataURL = null;
@@ -1316,7 +1323,7 @@ pui.Grid = function() {
                 value: me.selectionField.dataType == "indicator" ? "0" : " ",
                 subfileRow: subfileRow,
                 formattingInfo: me.selectionField
-              }
+              };
               pui.responseElements[qualField] = [];
               pui.responseElements[qualField].push(dataRecords[i-1].selection);
             }
@@ -1346,6 +1353,14 @@ pui.Grid = function() {
       for (var i = 0; i < me.cells[0].length; i++) {
         cellMap[me.cells[0][i].columnId] = i;
       }
+      // For custom sql grids, the CGI may return a column number as the field name instead of the expression.
+      // A filtering query needs the expression, so try to extract all field names from the sql string.
+      var fldlist = null;
+      if( me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "" ){
+        // Try to extract the expression from the sql string. Field list starts after "SELECT ".
+        fldlist = pui.getFieldList(me.dataProps["custom sql"].substr(7), true );
+      }
+      
       for (var i = 0; i < data.length; i++) {
         var record = data[i];
         var colNum = 0;
@@ -1362,10 +1377,36 @@ pui.Grid = function() {
             else {
               idx = colNum;
             }
+            
+            // For customSQL grids, set the headerCell.fieldName if it is empty.
+            if( i == 0 && me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != ""
+            && (me.cells[0][idx].fieldName == null || me.cells[0][idx].fieldName == "") ){
+              // If the CGI returned a column number instead of fieldName; e.g. from
+              // an expression, use the expression as the fieldName.
+              if( Number(j) > 0 && fldlist != null && fldlist.length > idx && fldlist[idx] != null && fldlist[idx] != ""){
+                me.cells[0][idx].fieldName = fldlist[idx];
+              }else{
+                // The field name as returned by the CGI was a real name (or was a number and failed to parse).
+                me.cells[0][idx].fieldName = j;
+              }
+              // Make the column sortable, which couldn't happen at render time without fieldName.
+              if(me.sortable && me.hasHeader && (context == "dspf" || pui.usingGenieHandler ) ){
+                attachClickEventForSQL(me.cells[0][idx], idx);
+              }
+            }
+            
             if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
               alignCSS = " text-align:" + row[idx].style.textAlign;
-            }
+            }            
             row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
+            
+            // Highlight cells in the column.
+            if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
+              if (row[idx].tagName == "DIV"){
+                pui.highlightText(row[idx], me.highlighting.text);
+                row[idx].highlighted = true;
+              }
+            }
           }
           colNum++;
         }
@@ -1388,9 +1429,17 @@ pui.Grid = function() {
       }
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
       me.cleared = false;
-    }    
-    
-  }
+      
+      // Set flag that custom SQL grid is setup, and load again sorted by initial sort column, if necessary.
+      if(!customSqlIsSetup && me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "" ){
+        customSqlIsSetup = true;
+        if (me.initialSortColumn != null) {
+          var headerRow = me.cells[0];
+          sortColumnUsingSQL(headerRow[me.initialSortColumn]); //Queues a reload.
+        }
+      }
+    } //end of receiveData().
+  }; //end of getData().
 
   this.clearData = function() {
     if (me.cleared) return;
@@ -1417,14 +1466,14 @@ pui.Grid = function() {
       }
     }
     me.cleared = true;
-  }
+  };
 
   this.hideTips = function() {
     for (var domid in me.validationTips) {
       var tip = me.validationTips[domid];
       tip.hideNow();
     }
-  }
+  };
 
   this.destroy = function() {
     if (me.contextMenuId) removeEvent(document, "click", me.hideContextMenu); 
@@ -1459,7 +1508,7 @@ pui.Grid = function() {
     delete me.validationTips;
     delete me.cellProps;
     delete me;
-  }
+  };
 
   this.getColumnWidths = function() {
     var widths = "";
@@ -1473,7 +1522,7 @@ pui.Grid = function() {
       }
     }
     return widths;
-  }
+  };
 
   this.setColumnWidths = function(widths) {
     if (typeof widths == "string") widths = widths.split(",");
@@ -1494,7 +1543,7 @@ pui.Grid = function() {
     me.setScrollBar();
     me.setHeadings();        
     me.sendToDesigner(true);
-  }
+  };
   
   this.selectMe = function() {
     if (me.dontSelect) return;
@@ -1510,7 +1559,7 @@ pui.Grid = function() {
     selection.clear();
     selection.add(itm);
     me.sendToDesigner(true);
-  }
+  };
   
   this.sendToDesigner = function(forced) {
     if (!me.designMode) return;
@@ -1535,7 +1584,7 @@ pui.Grid = function() {
     changed = sendPropertyToDesigner(itm, "width", me.tableDiv.style.width) || changed;
     if (changed) itm.designer.makeDirty();
     if (changed || forced) itm.designer.propWindow.refresh();
-  }
+  };
   
   function sendPropertyToDesigner(itm, propertyName, value) {
     stringValue = String(value);
@@ -1612,7 +1661,7 @@ pui.Grid = function() {
         doResize(x, y, vIndex, true, me.vLines[vIndex].startTop, me.vLines[vIndex].startLeft);
         if ((type == "sw" || type == "se") && me.hLines.length > 2) {
           var addHeight = y;
-          if (addHeight < -me.rowHeight + 5) addHeight = -me.rowHeight + 5
+          if (addHeight < -me.rowHeight + 5) addHeight = -me.rowHeight + 5;
           if (typeof me.scrollbarObj.increaseHeight == "function") me.scrollbarObj.increaseHeight(addHeight);
         }
         psBar.set(me.tableDiv.designItem);
@@ -1730,7 +1779,7 @@ pui.Grid = function() {
         }
       }
     }
-  }
+  };
   
   this.clearHeadings = function() {
     if (!me.hasHeader) return;
@@ -1738,14 +1787,42 @@ pui.Grid = function() {
     for (var i = 0; i < me.cells[0].length; i++) {
       me.cells[0][i].innerHTML = "";
     }
-  }
+  };
   
+  /**
+   * Add "click" handler to header cell.
+   * (Called by makeSortable and by receiveData when grid is custom SQL.)
+   * @param {Object} cell  Header cell DOM element.
+   * @param {Number} col   The current column number of the cell.
+   * @returns {undefined}
+   */
+  function attachClickEventForSQL(cell, col) {
+    if (!pui.iPadEmulation) {
+      cell.style.cursor = "pointer";
+    }
+    
+    function doSort() {
+      if (!me.waitingOnRequest) //Respond to clicks only when data is not loading.
+        sortColumnUsingSQL(cell);
+    }
+    addEvent(cell, "click", doSort);
+    cell.sortColumn = doSort;
+    
+    cell.sortDescending = !isDefaultSortDescending(col);
+  }
+    
+  /**
+   * Setup the UI to allow sorting a column.
+   * Called when the "sortable columns" property is set; i.e. when rendering.
+   * @returns {undefined}
+   */
   this.makeSortable = function() {
     if (!me.sortable) return;
     if (context != "dspf" && !pui.usingGenieHandler) return;
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var headerRow = me.cells[0];
+    // Setup click events for DB-driven grid; it knows the fieldNames at this point. Custom SQL doesn't.
     if ( (me.dataProps["database file"] != null && me.dataProps["database file"] != "") &&
          (me.dataProps["custom sql"] == null || me.dataProps["custom sql"] == "" ) &&
          (me.dataProps["data url"] == null || me.dataProps["data url"] == "" ) &&
@@ -1753,17 +1830,14 @@ pui.Grid = function() {
       var fields = pui.getFieldList(me.dataProps["database fields"]);
       for (var i = 0; i < fields.length; i++) {
         headerRow[i].fieldName = fields[i];
-        if (!pui.iPadEmulation) {
-          headerRow[i].style.cursor = "pointer";
-        }
-        attachClickEventForSQL(headerRow[i]);
-        headerRow[i].sortDescending = !isDefaultSortDescending(i);
+        attachClickEventForSQL(headerRow[i], i);
       }
-      if (me.initialSortColumn != null) {
+      if (me.initialSortColumn != null) {   //Set sort parameters and queue a reload.
         sortColumnUsingSQL(headerRow[me.initialSortColumn]);
       }
     }
-    else {
+    else if (me.dataProps["custom sql"] == null || me.dataProps["custom sql"] == "" ) {
+      // Make each header cell of a Load-All grid respond to sort clicks. (Custom SQL is setup after data loads.)
       for (var i = 0; i < me.runtimeChildren.length; i++) {
         var itm = me.runtimeChildren[i];
         var col = Number(itm["column"]);
@@ -1795,14 +1869,6 @@ pui.Grid = function() {
       }
     }
         
-    function attachClickEventForSQL(cell) {
-      function doSort() {
-        sortColumnUsingSQL(cell);
-      }
-      addEvent(cell, "click", doSort);
-      cell.sortColumn = doSort;
-    }
-
     function attachClickEvent(cell) {
       function doSort() {
         if (me.tableDiv.columnSortResponseField != null) {
@@ -1825,7 +1891,7 @@ pui.Grid = function() {
       addEvent(cell, "click", doSort);
       cell.sortColumn = doSort;
     }
-  }
+  };
   
   this.restoreState = function() {
        
@@ -1938,7 +2004,7 @@ pui.Grid = function() {
        }
     }
     
-  }
+  };
   
   function isDefaultSortDescending(col) {
     var sortOrder = null;
@@ -1959,7 +2025,7 @@ pui.Grid = function() {
   function resetDefaultSort() {
     var headerRow = me.cells[0];
     for (var col = 0; col < headerRow.length; col++) {
-      headerRow[col].sortDescending = !isDefaultSortDescending(col);
+      headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); //use .columnId in case column moved.
     }
   }
     
@@ -2129,6 +2195,7 @@ pui.Grid = function() {
       me.scrollbarObj.setScrollTopToRow(1);
     }
     me.recNum = 1;
+    me.mask(); //disable UI until server responds.
     me.getData();
     cell.sortDescending = desc;
     me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
@@ -2174,7 +2241,7 @@ pui.Grid = function() {
         var shortFieldName = fldName.substr(startsWith.length);
         var parts = shortFieldName.split(".");
         if (parts.length == 2) {
-          var fieldIdx = fieldXRef[parts[0]]
+          var fieldIdx = fieldXRef[parts[0]];
           if (fieldIdx != null) {
             var dom = pui.responseElements[fldName][0];
             if (dom != null && dom.dataArrayIndex != null) {
@@ -2386,14 +2453,14 @@ pui.Grid = function() {
             objClass = obj.className;
             left = parseInt(obj.style.left);
             top = parseInt(obj.style.top);
-            fieldInfo = obj.fieldInfo
+            fieldInfo = obj.fieldInfo;
           }
           else {
             text = obj.innerHTML;
             objClass = obj.className;
             left = parseInt(obj.style.left);
             top = parseInt(obj.style.top);
-            fieldInfo = obj.fieldInfo
+            fieldInfo = obj.fieldInfo;
             obj.parentNode.removeChild(obj);
           }
           if (objClass == null || objClass == "" || objClass == "A20" || objClass.indexOf("readOnly") != -1) {
@@ -2430,7 +2497,7 @@ pui.Grid = function() {
       }
       rowNum++;
     }
-  }
+  };
   
   this.setScrollBar = function() {
   
@@ -2480,12 +2547,12 @@ pui.Grid = function() {
           me.recNum = recNum;
           me.getData();
           me.placeCursor(true);
-        }
+        };
         me.scrollbarObj.onchange = function(recNum) {
           if (me.isDataGrid()) {
             me.clearData();
           }
-        }
+        };
         me.scrollbarObj.enableMouseWheel(me.tableDiv);        
       }
       
@@ -2517,7 +2584,7 @@ pui.Grid = function() {
             pressKey("PageUp");
             return true;
           }        
-        }
+        };
 
         me.scrollbarObj.onpagedown = function() {
           var returnVal = executeEvent("onpagedown");
@@ -2543,7 +2610,7 @@ pui.Grid = function() {
             pressKey("PageDown");
             return true;
           }
-        }
+        };
       }
       
       me.scrollbarObj.init(me.tableDiv);
@@ -2571,7 +2638,7 @@ pui.Grid = function() {
                 if (me.tableDiv.style.visibility != "hidden") {
                   me.scrollbarObj.draw();
                 }
-              }
+              };
             }
           }
         }
@@ -2621,7 +2688,7 @@ pui.Grid = function() {
         me.scrollbarObj = null;
       }
     }    
-  }
+  };
   
   function createIcon(type, tooltipText) {
     var icon = document.createElement("div");
@@ -2641,7 +2708,7 @@ pui.Grid = function() {
     icon.style.padding = "0px";
     icon.onmousedown = function(event) {
       designUtils.preventEvent(event);
-    }
+    };
     me.container.appendChild(icon);  
     return icon;
   }
@@ -2707,7 +2774,7 @@ pui.Grid = function() {
     var returnValue = parseInt(me.tableDiv.style[styleProperty]);
     if (isNaN(returnValue)) returnValue = 0;
     return returnValue;
-  }
+  };
   
   this.setProperty = function(property, value) {
     if (value == null) value = "";
@@ -2854,7 +2921,7 @@ pui.Grid = function() {
             else me.extendedSelection = false;
           }
           if (typeof(pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
-            me.tableDiv.onselectstart = function(e) { return false };
+            me.tableDiv.onselectstart = function(e) { return false; };
             if (typeof me.tableDiv.style.MozUserSelect!="undefined") me.tableDiv.style.MozUserSelect = "none";
           }
         }
@@ -2918,7 +2985,7 @@ pui.Grid = function() {
         me.rowHeight = parseInt(value);
         var topLineIdx = me.hasHeader ? 1 : 0;
         if (me.hLines.length <= topLineIdx) return;
-        var curTop = parseInt(me.hLines[topLineIdx].style.top)
+        var curTop = parseInt(me.hLines[topLineIdx].style.top);
         for (var i = topLineIdx + 1; i < me.hLines.length; i++) {
           curTop += me.rowHeight;
           me.hLines[i].style.top = curTop + "px";
@@ -3018,6 +3085,7 @@ pui.Grid = function() {
           else {
             me.defaultSortOrderArray = value.split(",");
           }
+          resetDefaultSort(); //Make sure after applyProperty the first click to sort gets correct order.
         }
         break;
 
@@ -3110,7 +3178,7 @@ pui.Grid = function() {
             
           }
           if (pui["is_touch"]) {
-            me.tableDiv.onselectstart = function(e) { return false };
+            me.tableDiv.onselectstart = function(e) { return false; };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";                     
             if (typeof me.tableDiv.style.webkitUserSelect != "undefined") me.tableDiv.style.webkitUserSelect = "none";
           }                     
@@ -3430,16 +3498,16 @@ pui.Grid = function() {
       default:
         pui.alert("Grid property not handled: " + property);
     }
-  }
+  };
   
   this.doThisToTableDivs = function(handler) {  
     for (var i = 0; i < me.vLines.length; i++) {
       var line = me.vLines[i];
-      handler(line)
+      handler(line);
     }
     for (var i = 0; i < me.hLines.length; i++) {
       var line = me.hLines[i];
-      handler(line)
+      handler(line);
     }
     handler(me.tableDiv);
     if (addRowIcon != null) handler(addRowIcon);
@@ -3450,7 +3518,7 @@ pui.Grid = function() {
     if (neHandle != null) handler(neHandle);
     if (swHandle != null) handler(swHandle);
     if (seHandle != null) handler(seHandle);
-  }  
+  };
   
   this.setCursorRRN = function(row) {
     if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
@@ -3467,7 +3535,7 @@ pui.Grid = function() {
         me.tableDiv.cursorRRN = dataRecords[me.tableDiv.cursorRRN - 1].subfileRow;
       }
     }
-  }
+  };
   
   this["setCursorRecordNumber"] = function(rrn) {
   
@@ -3477,7 +3545,7 @@ pui.Grid = function() {
     
     }  
   
-  }
+  };
   
   this.placeCursor = function(onTimeout) {
     var rrn = me.placeCursorRRN;
@@ -3496,7 +3564,7 @@ pui.Grid = function() {
     else {
       placeCursorOnRow(row);
     }
-  }
+  };
   
   
   function checkSelected(record) {
@@ -3531,7 +3599,7 @@ pui.Grid = function() {
   this["isRowSelected"] = function(row) {
     var rec = getDataArrayForRow(row,true);
     return checkSelected(rec);
-  }
+  };
   
   
   this["getSelectedRows"] = function() {
@@ -3553,7 +3621,7 @@ pui.Grid = function() {
     }
     
     return selRows;
-  }
+  };
   
   
   this.setRowBackground = function(row, hover) {
@@ -3686,7 +3754,7 @@ pui.Grid = function() {
     }
     if (hover != true && me.zoomIcon != null) me.zoomIcon.style.display = "none";
     if (hover == true && me.zoomIcon != null) me.zoomIcon.style.display = "";
-  }
+  };
   
   // set design events on a cell div
   function cellDesign(cell, movableColumns) {
@@ -3697,7 +3765,7 @@ pui.Grid = function() {
           preventEvent(e);
           return false;
         }
-      }
+      };
     }
 
     cell.style.cursor = "default";
@@ -4964,7 +5032,7 @@ pui.Grid = function() {
     }  
   };
 
-  function sizeCell(row, col) {    
+  function sizeCell(row, col) {
     var rowObj = me.cells[row];
     var last = false;
     if (me.vLines.length - 2 == col) last = true;
@@ -4981,28 +5049,51 @@ pui.Grid = function() {
     }
     if (width < 0) width = 0;
     cell.style.width = width + "px";
-  }
+  };
   
-  // run sql on the server and return result set
-  // parms:
-  //   sql statement -- used only in backwards compat. security mode.
-  //   max number of records to return - defaults to 99
-  //   starting record (allows for paging) - defaults to 1
-  //   callback function
-  //   optional total flag -- when true the server will return total record count on response object.  
-  //   optional custom url to process the request (overrides the standard process)
+  /**
+   * Run sql on the server and return result set.
+   * 
+   * @param {String} sql         sql statement -- used only in backwards compat. security mode.
+   * @param {Number} limit       max number of records to return - defaults to 99
+   * @param {Number} start       starting record (allows for paging) - defaults to 1
+   * @param {Function} callback  callback function; usually receiveData.
+   * @param {Boolean} total      optional total flag -- when true the server will return total record count on response object.  
+   * @param {String} customURL   optional custom url to process the request (overrides the standard process)
+   * @param {Boolean} cache      True when pui.sqlcache should be used.
+   * @returns {undefined|response.results|pui.sqlcache.results}
+   */
   function runSQL(sql, limit, start, callback, total, customURL, cache) {
     if (limit == null) limit = 99;
     if (start == null) start = 1;
     var pstring = null;
-    if (pui["secLevel"] > 0) pstring = pui.getSQLParams(me.dataProps); //needed for comparison and later for postData.
+    if (pui["secLevel"] > 0){
+      // Setup parameters that are needed now for sqlcache comparison and later for postData.
+      pstring = pui.getSQLParams(me.dataProps);
+      
+      if( me.isFiltered() ){
+        var headerRow = me.cells[0];
+        // Look in each column for filter text.
+        var filtNum = 0; //CGI looks for fltrfld 0 to 9 and stops when one isn't found.
+        for (var i = 0; i < headerRow.length; i++) {
+          var headerCell = headerRow[i];
+          if( headerCell.fieldName != null && headerCell.filterText != null ){
+            pstring += "&fltrfld"+ String(filtNum) + "=" + encodeURIComponent(headerCell.fieldName);
+            pstring += me.prepareFilterText(String(filtNum), headerCell.filterText);
+            filtNum++;
+          }
+        }
+      }
+    } //done creating sql query parameters.
+    
     if (cache) {
+      me.unMask();
       if (pui.sqlcache == null) pui.sqlcache = {};
       if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
       if (pui.sqlcache[start].sql === sql &&
           pui.sqlcache[start].pstring === pstring &&
           pui.sqlcache[start].limit === limit &&
-          pui.sqlcache[start].customURL === customURL) {
+          pui.sqlcache[start].customURL === customURL ) {
     		if (callback != null) {
     		  callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs);
     		  return;
@@ -5029,17 +5120,17 @@ pui.Grid = function() {
       if (me.sortBy != null) orderBy = me.sortBy;
       if (orderBy && orderBy != "") {
       
-        req["postData"] += "&order=" + orderBy;  
+        req["postData"] += "&order=" + orderBy;
       
-      }     
+      }
       
       // Add parameters. pstring is not null if secLevel > 0, because getSQLParams always returns a string.
       if (pstring != "") {
       
         req["postData"] += "&" + pstring;
       
-      }       
-    
+      }
+      
     }
     else {
     
@@ -5049,6 +5140,7 @@ pui.Grid = function() {
     req["postData"] += "&limit=" + limit + "&start=" + start;
     if (total != null && total == true) req["postData"] += "&getTotal=1";
     req["onready"] = function(req) {
+      me.unMask();
       var response;
       if (me.dataProps["data transform function"] && req.getStatus() == 200) {
         
@@ -5073,8 +5165,8 @@ pui.Grid = function() {
       if (response) {
         if (cache) {
           if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
-          pui.sqlcache[start].sql = sql;         
-          pui.sqlcache[start].limit = limit;     
+          pui.sqlcache[start].sql = sql;
+          pui.sqlcache[start].limit = limit;
           pui.sqlcache[start].start = start;
           pui.sqlcache[start].customURL = customURL;
           pui.sqlcache[start].results = response.results;
@@ -5084,8 +5176,10 @@ pui.Grid = function() {
         if (callback != null) callback(response.results, response.totalRecs);
         else returnVal = response.results;
       }
+      me.waitingOnRequest = false; //Allow filter changes and clicks to sort columns.
     };
-    req.send();  
+    me.waitingOnRequest = true; //Ignore filter changes and clicks to sort columns.
+    req.send();
     if (callback == null) return returnVal;
   }  
   
@@ -5686,7 +5780,9 @@ pui.Grid = function() {
    * @returns {undefined}
    */
   this.setSearchIndexes = function(headerCell) {
-    if (headerCell.searchIndexes != null) return;
+    // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
+    if (me.isDataGrid()) return;
+    if (headerCell.searchIndexes != null) return;  //searchIndexes is already setup.
     else headerCell.searchIndexes = [];
     
     if( headerCell["pui"] == null) headerCell["pui"] = {};
@@ -5814,6 +5910,7 @@ pui.Grid = function() {
     me.ffbox.onsearch = me.doFilter;
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
     me.ffbox.positionByGridColumn(headerCell);
+    if( me.isDataGrid()) me.ffbox.interval = 250;   //Slows reloading data to 250ms after last keystroke.
     me.setSearchIndexes(headerCell);
     me.highlighting.columnId = headerCell.columnId;
     me.highlighting.col = headerCell.col;
@@ -5849,60 +5946,76 @@ pui.Grid = function() {
    * @returns {undefined}
    */
   this["setFilter"] = function(headerCell, text) {
+    if (me.waitingOnRequest) return;
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.setSearchIndexes(headerCell);
+    me.highlighting.columnId = headerCell.columnId; //need to set when called from API w/o startFilter.
+    me.highlighting.col = headerCell.col;
     me.highlighting.text = text;
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
-    var idxes = headerCell.searchIndexes;
-    var col = headerCell.columnId;
-    me.filteredDataArray = [];
-    for (var i = 0; i < me.dataArray.length; i++) {
-      var record = me.dataArray[i];
-      if (record.subfileRow == null) record.subfileRow = i + 1;      
-      for (var j = 0; j < idxes.length; j++) {
-        var idx = idxes[j];        
-        var value = record[idx];
-        var ignoreTest = false;
-        if( headerCell["pui"] != null){
-          // If the header has a format for the current field, then use it.
-          if( headerCell["pui"].formats != null
-           && headerCell["pui"].formats[j] != null
-           && typeof headerCell["pui"].formats[j] == "object" ){
-
-            var curfmt = headerCell["pui"].formats[j];
-            curfmt.value = value;
-            value = pui.FieldFormat.format( curfmt );
-          }
-
-          // If the field is hidden explicitly or by position, then ignore its
-          // value in the filter.
-          if( headerCell["pui"].rtIdxs != null
-           && headerCell["pui"].rtIdxs[j] != null
-           && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
-           && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
-           
-            var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
-            var rtleft = parseInt(rtChild["left"],10);
-            var rttop = parseInt(rtChild["top"],10);
-            if( rtChild["visibility"] == "hidden"
-            || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
-              ignoreTest = true;
-          }
-        }
-        if (record.filteredOutArray == null) record.filteredOutArray = [];
-        record.filteredOutArray[col] = true;
-        if (!ignoreTest && me.testFilter(value, text)) {
-          record.filteredOutArray[col] = false;
-          break;
-        }
+    
+    if( me.isDataGrid()){
+      // Filter in this field for DB-driven grids. (Assume one field per column.)
+      if( headerCell.fieldName != null && headerCell.fieldName != "" ){
+        me.totalRecs = null; // make sure the CGI gives us totalRecs (count of results).
+        me.recNum = 1;       // Show record 1 on row 1.
       }
-      me.setFilteredOut(record);
-      if (!record.filteredOut) {
-        me.filteredDataArray.push(record);
-      }
+      
+      me.mask();             // disable UI until server responds.
     }
+    else{
+      // Do client-side filtering.
+      var idxes = headerCell.searchIndexes;
+      var col = headerCell.columnId;
+      me.filteredDataArray = [];
+      for (var i = 0; i < me.dataArray.length; i++) {
+        var record = me.dataArray[i];
+        if (record.subfileRow == null) record.subfileRow = i + 1;      
+        for (var j = 0; j < idxes.length; j++) {
+          var idx = idxes[j];        
+          var value = record[idx];
+          var ignoreTest = false;
+          if( headerCell["pui"] != null){
+            // If the header has a format for the current field, then use it.
+            if( headerCell["pui"].formats != null
+             && headerCell["pui"].formats[j] != null
+             && typeof headerCell["pui"].formats[j] == "object" ){
+
+              var curfmt = headerCell["pui"].formats[j];
+              curfmt.value = value;
+              value = pui.FieldFormat.format( curfmt );
+            }
+
+            // If the field is hidden explicitly or by position, then ignore its
+            // value in the filter.
+            if( headerCell["pui"].rtIdxs != null
+             && headerCell["pui"].rtIdxs[j] != null
+             && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
+             && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
+
+              var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
+              var rtleft = parseInt(rtChild["left"],10);
+              var rttop = parseInt(rtChild["top"],10);
+              if( rtChild["visibility"] == "hidden"
+              || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
+                ignoreTest = true;
+            }
+          }
+          if (record.filteredOutArray == null) record.filteredOutArray = [];
+          record.filteredOutArray[col] = true;
+          if (!ignoreTest && me.testFilter(value, text)) {
+            record.filteredOutArray[col] = false;
+            break;
+          }
+        }
+        me.setFilteredOut(record);
+        if (!record.filteredOut) {
+          me.filteredDataArray.push(record);
+        }
+      }
+    } //done client-side filtering.
     me.getData();
     if (persistState) me.saveFilters();
     executeEvent("onfilterchange");
@@ -5954,7 +6067,7 @@ pui.Grid = function() {
    *    text or passed the expression.
    */
   this.testFilter = function(value, text) {
-
+    
     if (text.substr(0,8).toLowerCase() == "between ") {
       var parts = text.substr(8).toLowerCase().split(" ");
       if (parts.length == 3 && parts[1] == "and") {
@@ -6006,6 +6119,7 @@ pui.Grid = function() {
     else if (text.substr(0,2) == "!=" || text.substr(0,2) == "<>") {
       text = text.substr(2);
       if (text == "") return true;
+      // Alphanumeric - matches if search text contains value. Numeric - must be exact match.
       if (isNaN(Number(text))) return (value.toLowerCase().indexOf(text.toLowerCase()) < 0);
       else return (Number(text) != Number(value));
     }
@@ -6032,6 +6146,73 @@ pui.Grid = function() {
 
   };
   
+  /**
+   * Parse the user's filter text into HTTP POST parameters for the CGI program.
+   * 
+   * @param {String} filtNum  0-9, to be used in the output.
+   * @param {String} text     User input from Filter box.
+   * @returns {String}        URL encoded string with &key=value pairs for the filter.
+   */
+  this.prepareFilterText = function(filtNum, text){
+    var retval = "";
+    text = text.toUpperCase();
+    
+    var btwnreg = /^BETWEEN (.+) AND (.+)$/;
+    var matches = text.match(btwnreg);
+    // between a and z
+    if( matches != null && matches.length == 3 ){
+      retval = "&fltrtype"+filtNum+"=BET"
+        + "&fltrval"+filtNum+"_0="+encodeURIComponent(matches[1])
+        + "&fltrval"+filtNum+"_1="+encodeURIComponent(matches[2]);
+    }
+    // values a,b,c
+    else if( text.substr(0,7) == "VALUES " ){
+      var vals = text.substr(7);
+      if( vals != "" ){
+        vals = vals.split(",");
+        
+        if( vals.length > 0){
+          // This type of filter tells the CGI program how many values it will have.
+          retval = "&fltrtype"+filtNum+"=VAL&fltrcnt"+filtNum+"="+String(vals.length);
+          for( var i=0; i < vals.length; i++){
+            // Add a value. Trim whitespace because client-side filtering does for this one.
+            retval += "&fltrval"+filtNum+"_"+String(i)+"="+encodeURIComponent(trim(vals[i]));
+          }
+        }
+      }
+    }
+    // starts with - assume character data type. CGI will put in quotes: locate('text',field) = 1
+    else if( text.substr(0,12) == "STARTS WITH " ){
+      retval = "&fltrtype"+filtNum+"=STW&fltrval"+filtNum+"="+encodeURIComponent(text.substr(12));
+    }
+    else if(text.substr(0,2) == "=="){
+      retval = "&fltrtype"+filtNum+"=%3D&fltrval"+filtNum+"="+encodeURIComponent(text.substr(2));
+    }
+    else if(text.substr(0,1) == "="){
+      retval = "&fltrtype"+filtNum+"=%3D&fltrval"+filtNum+"="+encodeURIComponent(text.substr(1));
+    }
+    else if(text.substr(0,2) == ">="){
+      retval = "&fltrtype"+filtNum+"=%3E%3D&fltrval"+filtNum+"="+encodeURIComponent(text.substr(2));
+    }
+    else if(text.substr(0,2) == "<="){
+      retval = "&fltrtype"+filtNum+"=%3C%3D&fltrval"+filtNum+"="+encodeURIComponent(text.substr(2));
+    }
+    else if(text.substr(0,2) == "!=" || text.substr(0,2) == "<>" ){
+      retval = "&fltrtype"+filtNum+"=!%3D&fltrval"+filtNum+"="+encodeURIComponent(text.substr(2));
+    }
+    else if(text.substr(0,1) == ">"){
+      retval = "&fltrtype"+filtNum+"=%3E&fltrval"+filtNum+"="+encodeURIComponent(text.substr(1));
+    }
+    else if(text.substr(0,1) == "<"){
+      retval = "&fltrtype"+filtNum+"=%3C&fltrval"+filtNum+"="+encodeURIComponent(text.substr(1));
+    }
+    else{
+      // Field CONTAINS text.
+      retval = "&fltrtype"+filtNum+"=CON&fltrval"+filtNum+"="+encodeURIComponent(text);
+    }
+    return retval;
+  };
+  
   this.setFilteredOut = function(record) {
     record.filteredOut = false;
     if (record.filteredOutArray != null) {
@@ -6045,29 +6226,42 @@ pui.Grid = function() {
   };
 
   this["removeFilter"] = function(headerCell) {
+    if (me.waitingOnRequest) return;
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.highlighting.text = "";
     me.removeFilterIcon(headerCell);
     headerCell.filterText = null;
-    var col = headerCell.columnId;
-    me.filteredDataArray = [];
-    for (var i = 0; i < me.dataArray.length; i++) {
-      var record = me.dataArray[i];
-      if (record.filteredOutArray != null) {
-        record.filteredOutArray[col] = false;
-      }
-      me.setFilteredOut(record);
-      if (!record.filteredOut) {
-        me.filteredDataArray.push(record);
-      }
+    
+    if( me.isDataGrid()){
+      me.totalRecs = null;   // make sure the CGI gives us count of results.
+      me.recNum = 1;         // Show record 1 on row 1.
+      
+      me.mask();             // disable UI until server responds.
     }
+    else{
+      // Remove client-side filtering.
+      var col = headerCell.columnId;
+      me.filteredDataArray = [];
+      for (var i = 0; i < me.dataArray.length; i++) {
+        var record = me.dataArray[i];
+        if (record.filteredOutArray != null) {
+          record.filteredOutArray[col] = false;
+        }
+        me.setFilteredOut(record);
+        if (!record.filteredOut) {
+          me.filteredDataArray.push(record);
+        }
+      }  
+    }
+    
     me.getData();
     if (persistState) me.saveFilters();
     executeEvent("onfilterchange");
   };
 
   this["removeAllFilters"] = function() {
+    if (me.waitingOnRequest) return;
     var headerRow = me.cells[0];
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
@@ -6080,6 +6274,12 @@ pui.Grid = function() {
       record.filteredOut = false;
     }
     me.filteredDataArray = [];
+    if( me.isDataGrid()){
+      me.totalRecs = null;   // make sure the CGI gives us count of results.
+      me.recNum = 1;         // Show record 1 on row 1.
+      
+      me.mask();             // disable UI until server responds.
+    }
     me.getData();
     me["clearState"]("filters");
     executeEvent("onfilterchange");

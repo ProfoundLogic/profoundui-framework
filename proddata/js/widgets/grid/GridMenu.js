@@ -188,13 +188,17 @@ pui.GridMenu = function() {
       });
     }
     
+    // Filtering should be disabled if fieldName isn't a real SQL field name or expression.
+    var custSqlInvalidField = (me.grid.dataProps["custom sql"] != null && me.grid.dataProps["custom sql"] != ""
+      && (me.cell.fieldName == null || me.cell.fieldName == "" || Number(me.cell.fieldName) > 0));
+    
+    if ( !custSqlInvalidField && menuOptions.length > 0 && (me.grid.findOption || me.grid.filterOption) ) {
+      menuOptions.push("-");
+      menuIcons.push(null);
+      optionHandlers.push(null);
+    }
+    
     if (!me.grid.isDataGrid()) {
-      if  ( (menuOptions.length > 0) &&
-            (me.grid.findOption || me.grid.filterOption) ) {
-        menuOptions.push("-");
-        menuIcons.push(null);
-        optionHandlers.push(null);
-      }
       if (me.grid.findOption) {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
         menuIcons.push("icons/search.png");
@@ -202,32 +206,32 @@ pui.GridMenu = function() {
           me.grid["startFind"](me.cell);
         });
       }
+    }
   
-      if (me.grid.filterOption) {
-        menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
-        menuIcons.push("icons/filter.png");
-        optionHandlers.push(function() {
-          me.grid["startFilter"](me.cell);
-        });
-      }
-  
-      if (me.grid.filterOption && me.cell.filterIcon != null) {
-        menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
-        menuIcons.push("icons/remove_filter.png");
-        optionHandlers.push(function() {
-          me.grid["removeFilter"](me.cell);
-        });
-      }
-
-      if (me.grid.getFilterCount() > 1) {
-        menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
-        menuIcons.push("icons/remove_filter.png");
-        optionHandlers.push(function() {
-          me.grid["removeAllFilters"]();
-        });
-      }
+    if (me.grid.filterOption && !custSqlInvalidField) {
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
+      menuIcons.push("icons/filter.png");
+      optionHandlers.push(function() {
+        me.grid["startFilter"](me.cell);
+      });
     }
 
+    if (me.grid.filterOption && me.cell.filterIcon != null) {
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
+      menuIcons.push("icons/remove_filter.png");
+      optionHandlers.push(function() {
+        me.grid["removeFilter"](me.cell);
+      });
+    }
+
+    if (me.grid.getFilterCount() > 1) {
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
+      menuIcons.push("icons/remove_filter.png");
+      optionHandlers.push(function() {
+        me.grid["removeAllFilters"]();
+      });
+    }
+    
     if ( (me.grid.exportOption == true) ||
          (me.grid.exportOption == null && me.grid.pagingBar != null && me.grid.pagingBar.csvExport) ) {
       if (menuOptions.length > 0 && menuOptions[menuOptions.length - 1] != "-") {
@@ -266,8 +270,6 @@ pui.GridMenu = function() {
       row.style.padding = "3px";
       row.onmouseover = function(e) {
         var obj = getTarget(e).parentNode;
-        //obj.style.backgroundColor = "#bbb7c7";
-        //obj.style.backgroundColor = "#316ac5";
         obj.style.backgroundColor = "#3399ff";
         obj.style.color = "#ffffff";
       };
@@ -279,7 +281,7 @@ pui.GridMenu = function() {
 
       row.optionHandler = optionHandlers[i];
       row.onclick = function(e) {
-        obj = getTarget(e).parentNode;
+        var obj = getTarget(e).parentNode;
         obj.optionHandler();
         me.hide();
       };

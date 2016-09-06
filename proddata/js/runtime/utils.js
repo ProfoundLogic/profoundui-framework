@@ -1116,21 +1116,54 @@ pui.storeCursorPosition = function( obj ) {
    obj.cursorPosition = getCursorPosition(obj);
 }
 
-pui.getFieldList = function(propVal) {
+/**
+ * Parse a comma-separated string of field names and return them in a list.
+ * 
+ * @param {String} propVal
+ * @param {Boolean} stopAtFrom  When true, if " FROM " is detected outside a string
+ *                              or parentheses, return fieldnames found before it.
+ * @returns {Array}   Empty array if no fields parsed.
+ */
+pui.getFieldList = function(propVal, stopAtFrom) {
 
   var fields = new Array();
-  var insideParen = false;
+  var fromstr = " from ";
+  var frompos = 0;
   var character = "";
   var field = "";
   var parenLevel = 0;
   var inQuote = false;
   for (var i = 0; i < propVal.length; i++) {
+    
+    if( stopAtFrom === true && frompos == 6){
+      // Remove " from " from the last field name, and stop looking.
+      field = field.substr(0, field.length - 6);
+      break;
+    }
+    
   	character =  propVal.charAt(i);
   	if (!inQuote) {
-    	if (character == "(") parenLevel += 1;
-    	else if (character == ")") parenLevel -= 1;
+    	if (character == "("){
+        parenLevel += 1;
+        frompos = 0;
+      }
+    	else if (character == ")"){
+        parenLevel -= 1;
+        frompos = 0;
+      }
+      else if (character == "'"){
+        inQuote = true;
+        frompos = 0;
+      }
+      else if ( parenLevel == 0 ){
+        // If this character matches another character in " from ", then increase position.
+        if( character.toLowerCase() == fromstr.charAt(frompos) )
+          frompos++;
+        else
+          frompos = 0; //" from " didn't match, so reset position.
+      }
+      
     	if (parenLevel < 1) parenLevel = 0;
-    	if (character == "'") inQuote = true;
   	}
   	else {
   		if (character == "'") inQuote = false;
@@ -1138,6 +1171,7 @@ pui.getFieldList = function(propVal) {
   	if (character == "," && parenLevel == 0 && !inQuote) {
   	  fields.push(trim(field));
   	  field = "";
+      frompos = 0;
     }
     else {
   	  field += character;
@@ -1147,7 +1181,7 @@ pui.getFieldList = function(propVal) {
   
   return fields;
 
-}
+};
 
 pui.sqlProps = {
             
