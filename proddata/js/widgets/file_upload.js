@@ -1035,6 +1035,7 @@ pui.checkUploads = function(param) {
       
         }
       
+        pui["haltFrames"]();
         pui.submitResponse(param);  
         
       }

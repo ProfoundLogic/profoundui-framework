@@ -2715,7 +2715,6 @@ pui.respond = function() {
     }
   }
   
-  pui["haltFrames"]();
   pui.screenIsReady = false;  // this prevents double-submits
 
   pui.showWaitAnimation();
@@ -2723,8 +2722,11 @@ pui.respond = function() {
   if (pui.bypassValidation != "true" && (pui.bypassValidation != "send data" || response.nobypass == true)) {
     uploading = pui.processUpload(response);
   }
-  if (!uploading) pui.submitResponse(response);
-  
+  if (!uploading) {
+    pui["haltFrames"]();
+    pui.submitResponse(response);
+  }
+ 
   return true;
 }
 
