@@ -233,6 +233,11 @@ pui.Grid = function() {
   
   var customSqlIsSetup = false; //Some properties of customSQL grid are setup in receiveData. Only set them up once.
   
+  // These three members are only for data grids. They are passed to the CGI program.
+  var findText;
+  var findColumn;
+  var findStartRow;
+  
   this.enableDesign = function() {
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
@@ -1256,8 +1261,18 @@ pui.Grid = function() {
         if (me.scrollbarObj.type == "paging") me.scrollbarObj.atTop = (me.recNum == 1);
         if (me.tableDiv.style.visibility != "hidden") me.scrollbarObj.draw();
       }
-      me.clearData();
-      runSQL(sql, numRows, me.recNum, receiveData, (me.totalRecs == null), dataURL, true);
+      
+      var startRow = me.recNum;
+      if(findText != null && findColumn != null && findStartRow > 0){
+        // When doing Find, startRow may be one higher than me.recNum. Then, if the CGI program
+        // returns nothing because nothing was found, we can leave the grid cells as they were.
+        startRow = findStartRow;
+      }
+      else
+        // We aren't doing a server-side Find, so clear all cells.
+        me.clearData();
+
+      runSQL(sql, numRows, startRow, receiveData, (me.totalRecs == null), dataURL, true);
     }
     else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
@@ -1342,10 +1357,21 @@ pui.Grid = function() {
       me.cleared = false;      
     }
     
-    
-    function receiveData(data, totalRecs) {
+    /**
+     * Callback for runSQL.
+     * @param {Object|Array} data       Received data from XHR or pui.sqlcache.
+     * @param {Null|Number} totalRecs   When set, the XHR responded to getTotal with this.
+     * @param {Null|Number} matchRow    When doing Find, returns row on which match was found and data starts.
+     * @returns {undefined}
+     */
+    function receiveData(data, totalRecs, matchRow) {
       if (me == null || me.cells == null) return;  // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
+      if (matchRow > 0){
+        me.recNum = matchRow;  // Set in response to a Find operation.
+        me.clearData();        // Only clear data when results were found.
+      }
+        
       var paddingCSS = getPaddingCSS();
       // Column order can differ from SQL when backend SQL statements are used, and the 
       // user has re-ordered the columns.
@@ -1423,8 +1449,15 @@ pui.Grid = function() {
           }
           me.scrollbarObj.reset();
         }
-        if (me.scrollbarObj.type == "sliding") {
-          if (me.totalRecs != null) me.scrollbarObj.totalRows = me.totalRecs;
+        else if (me.scrollbarObj.type == "sliding") {
+          if (me.totalRecs != null){
+            me.scrollbarObj.totalRows = me.totalRecs;
+            if (matchRow > 0){        //If this response is the result of a Find.
+              // Position the scrollbar to where the data is--if possible, without making another XHR. If the 
+              // Found record is the last record, the scrollbar will resend and position on the last row.
+              me.scrollbarObj.setScrollTopToRow(me.recNum, true); 
+            }
+          }
         }
       }
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
@@ -5070,8 +5103,8 @@ pui.Grid = function() {
     if (pui["secLevel"] > 0){
       // Setup parameters that are needed now for sqlcache comparison and later for postData.
       pstring = pui.getSQLParams(me.dataProps);
-      
-      if( me.isFiltered() ){
+     
+      if (me.isFiltered()){
         var headerRow = me.cells[0];
         // Look in each column for filter text.
         var filtNum = 0; //CGI looks for fltrfld 0 to 9 and stops when one isn't found.
@@ -5084,6 +5117,12 @@ pui.Grid = function() {
           }
         }
       }
+      
+      // Add parameter for Find, if it is set.
+      if( findColumn != null && findText != null ){
+        pstring += "&findcol=" + findColumn;
+        pstring += "&findval=" + encodeURIComponent(findText);
+      }
     } //done creating sql query parameters.
     
     if (cache) {
@@ -5095,7 +5134,7 @@ pui.Grid = function() {
           pui.sqlcache[start].limit === limit &&
           pui.sqlcache[start].customURL === customURL ) {
     		if (callback != null) {
-    		  callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs);
+    		  callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs, pui.sqlcache[start]["matchRow"]);
     		  return;
     		}
     		else {
@@ -5172,8 +5211,11 @@ pui.Grid = function() {
           pui.sqlcache[start].results = response.results;
           pui.sqlcache[start].totalRecs = response.totalRecs;
           pui.sqlcache[start].pstring = pstring;
-        }  
-        if (callback != null) callback(response.results, response.totalRecs);
+          pui.sqlcache[start]["matchRow"] = response["matchRow"];
+        }
+        if (callback != null){
+          callback(response.results, response.totalRecs, response["matchRow"]);
+        }
         else returnVal = response.results;
       }
       me.waitingOnRequest = false; //Allow filter changes and clicks to sort columns.
@@ -5823,6 +5865,7 @@ pui.Grid = function() {
     me.ffbox.onsearch = me["find"];
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
     me.ffbox.positionByGridColumn(headerCell);
+    if( me.isDataGrid()) me.ffbox.interval = 250;   //Slows reloading data to 250ms after last keystroke.
     me.setSearchIndexes(headerCell);
     me.highlighting.columnId = headerCell.columnId;
     me.highlighting.col = headerCell.col;
@@ -5836,10 +5879,22 @@ pui.Grid = function() {
     me.getData();
   };
 
+  /**
+   * Find data in the grid and scroll to its row. 
+   * When call via API the three parameters are columnIndex, text, and next.
+   * When called internally the two parameters are text, and next.
+   * 
+   * When next is true, start search with the record after the top visible row.
+   * 
+   * @param {String|Number}  parm1   columnIndex (API) or the search text.
+   * @param {String|Boolean} parm2   search text (API) or next.
+   * @param {Boolean|Null}   parm3   next (API) or null.
+   * @returns {undefined}
+   */
   this["find"] = function(parm1, parm2, parm3) {
+    if (me.waitingOnRequest) return;
 
-    var headerCell;
-    headerCell = me.ffbox.headerCell;
+    var headerCell = me.ffbox.headerCell;
 
     var text = parm1;
     var findNext = parm2;
@@ -5858,47 +5913,61 @@ pui.Grid = function() {
       me.getData();
       return;
     }
-    var start = 0;
-    if (findNext) start = me.recNum;
-    var textLower = text.toLowerCase();
-    var idxes = headerCell.searchIndexes;
-    var done = false;
-    var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
-    for (var i = start; i < dataRecords.length; i++) {
-      for (var j = 0; j < idxes.length; j++) {
-        var idx = idxes[j];
-        var record = dataRecords[i];
-        var value = record[idx];
-        // If the header has a format for the current field, then use it.
-        if( headerCell["pui"] && headerCell["pui"].formats
-         && headerCell["pui"].formats[j] != null
-         && typeof headerCell["pui"].formats[j] == "object"){
-          headerCell["pui"].formats[j].value = value;
-          value = pui.FieldFormat.format( headerCell["pui"].formats[j] );
-        }
-        var valueLower = value.toLowerCase();
-        if (valueLower.indexOf(textLower) >= 0) {
-          if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-            me.highlighting.text = text;
-            var rec = i + 1;
-            if (me.recNum != rec) {
-              var rv = me.scrollbarObj.setScrollTopToRow(rec, false);
-              if (rv === false) me.getData();
-            }
-            else {
-              me.getData();
-            }
-          }
-          done = true;
-          break;
-        }
-      }
-      if (done) break;
-    }
-    if (!done) {
+    
+    if( me.isDataGrid()){
+      me.highlighting.text = text;
+      findText = text;
+      findColumn = headerCell.columnId + 1; //CGI program's columns start at 1, not 0.
+      findStartRow = 1;
+      if (findNext) findStartRow = me.recNum + 1; //CGI program will search after top visible row.
+      me.mask();
       me.getData();
-    }
+      findText = null;      //Clear to prevent other async calls to getData from searching again.
+      findColumn = null;
+      findStartRow = null;
+    }else{                  //Client-side Find.
+      var start = 0;
+      if (findNext) start = me.recNum;
+      var textLower = text.toLowerCase();
+      var idxes = headerCell.searchIndexes;
+      var done = false;
+      var dataRecords = me.dataArray;
+      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      for (var i = start; i < dataRecords.length; i++) {
+        for (var j = 0; j < idxes.length; j++) {
+          var idx = idxes[j];
+          var record = dataRecords[i];
+          var value = record[idx];
+          // If the header has a format for the current field, then use it.
+          if( headerCell["pui"] && headerCell["pui"].formats
+           && headerCell["pui"].formats[j] != null
+           && typeof headerCell["pui"].formats[j] == "object"){
+            headerCell["pui"].formats[j].value = value;
+            value = pui.FieldFormat.format( headerCell["pui"].formats[j] );
+          }
+          var valueLower = value.toLowerCase();
+          if (valueLower.indexOf(textLower) >= 0) {
+            if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+              me.highlighting.text = text;
+              var rec = i + 1;
+              if (me.recNum != rec) {
+                var rv = me.scrollbarObj.setScrollTopToRow(rec, false);
+                if (rv === false) me.getData();
+              }
+              else {
+                me.getData();
+              }
+            }
+            done = true;
+            break;
+          }
+        }
+        if (done) break;
+      }
+      if (!done) {
+        me.getData();
+      }
+    } //done client-side Find.
   };
 
   this["startFilter"] = function(headerCell) {

@@ -198,14 +198,12 @@ pui.GridMenu = function() {
       optionHandlers.push(null);
     }
     
-    if (!me.grid.isDataGrid()) {
-      if (me.grid.findOption) {
-        menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
-        menuIcons.push("icons/search.png");
-        optionHandlers.push(function() {
-          me.grid["startFind"](me.cell);
-        });
-      }
+    if (me.grid.findOption) {
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
+      menuIcons.push("icons/search.png");
+      optionHandlers.push(function() {
+        me.grid["startFind"](me.cell);
+      });
     }
   
     if (me.grid.filterOption && !custSqlInvalidField) {
