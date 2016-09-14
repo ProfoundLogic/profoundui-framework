@@ -231,7 +231,7 @@ pui.Grid = function() {
   // filters while a prior AJAX request has been sent but the response is not received.
   var waitingOnRequest = false;
   
-  var customSqlIsSetup = false; //Some properties of customSQL grid are setup in receiveData. Only set them up once.
+  var sqlurlDidInitialSort = false; //Handle Initial Sort Column for customSQL/dataURL grids once in receiveData.
   
   // These three members are only for data grids. They are passed to the CGI program.
   var findText;
@@ -1404,8 +1404,10 @@ pui.Grid = function() {
               idx = colNum;
             }
             
-            // For customSQL grids, set the headerCell.fieldName if it is empty.
-            if( i == 0 && me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != ""
+            // For customSQL or dataURL grids, set the headerCell.fieldName if it is empty.
+            if( i == 0
+            && ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
+               || (me.dataProps["data url"] != null && me.dataProps["data url"] != ""))
             && (me.cells[0][idx].fieldName == null || me.cells[0][idx].fieldName == "") ){
               // If the CGI returned a column number instead of fieldName; e.g. from
               // an expression, use the expression as the fieldName.
@@ -1463,9 +1465,10 @@ pui.Grid = function() {
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
       me.cleared = false;
       
-      // Set flag that custom SQL grid is setup, and load again sorted by initial sort column, if necessary.
-      if(!customSqlIsSetup && me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "" ){
-        customSqlIsSetup = true;
+      // Set flag that customSQL/dataURL grid is setup, and load again sorted by initial sort column, if necessary.
+      if(!sqlurlDidInitialSort && ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
+        || (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ) ){
+        sqlurlDidInitialSort = true;
         if (me.initialSortColumn != null) {
           var headerRow = me.cells[0];
           sortColumnUsingSQL(headerRow[me.initialSortColumn]); //Queues a reload.
@@ -1843,7 +1846,7 @@ pui.Grid = function() {
     
     cell.sortDescending = !isDefaultSortDescending(col);
   }
-    
+  
   /**
    * Setup the UI to allow sorting a column.
    * Called when the "sortable columns" property is set; i.e. when rendering.
@@ -5123,6 +5126,12 @@ pui.Grid = function() {
         pstring += "&findcol=" + findColumn;
         pstring += "&findval=" + encodeURIComponent(findText);
       }
+      
+      // Allow dataURL grids to sort. 
+      if( me.dataProps["data url"] != null && me.dataProps["data url"] != "" && me.sortBy != null ){
+        pstring += "&order=" + me.sortBy;
+      }
+      
     } //done creating sql query parameters.
     
     if (cache) {
