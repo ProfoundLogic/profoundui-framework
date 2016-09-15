@@ -605,27 +605,8 @@ function TabPanel() {
     var isDesign = inDesignMode();
 
     if (isDesign) {
-      function createIcon(type, tooltipText) {
-        var icon = document.createElement("div");
-        icon.style.position = "absolute";
-        icon.style.width = "16px";
-        icon.style.height = "18px";
-        icon.style.fontSize = "0px";
-        icon.style.overflow = "hidden";
-        icon.style.backgroundImage = "url('" + pui.normalizeURL("/profoundui/proddata/images/icons/") + type + ".gif')";
-        icon.style.backgroundRepeat = "no-repeat";
-        icon.style.cursor = "pointer";
-        icon.title = tooltipText;
-        icon.style.color = "white";
-        icon.style.padding = "0px";
-        icon.onmousedown = function(event) {
-          designUtils.preventEvent(event);
-        };
-        me.container.appendChild(icon);  
-        return icon;
-      }
-      var addIcon = createIcon("plus", "Add New Tab");
-      var removeIcon = createIcon("minus", "Remove Tab");
+      var addIcon = designUtils.createAndAppendIcon("plus", "Add New Tab", me.container);
+      var removeIcon = designUtils.createAndAppendIcon("minus", "Remove Tab", me.container);
       var x = me.container.offsetWidth - 20;
       var y = 2;
       addIcon.style.left = x + "px";

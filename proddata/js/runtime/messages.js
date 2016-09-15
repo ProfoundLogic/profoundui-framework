@@ -271,6 +271,7 @@ pui["runtimeText"]["en_US"]["cancel"]               = "Cancel";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
 pui["runtimeText"]["en_US"]["remove filter"]        = "Remove Filter";
 pui["runtimeText"]["en_US"]["chart"]                = "Chart";
+pui["runtimeText"]["en_US"]["section"]              = "Section";
 // Atrium only.
 pui["runtimeText"]["en_US"]["yes"]                  = "Yes";
 pui["runtimeText"]["en_US"]["no"]                   = "No";

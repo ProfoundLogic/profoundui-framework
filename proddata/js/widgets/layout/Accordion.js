@@ -40,14 +40,21 @@ pui.Accordion = function() {
   var expandedSection = -1;
   var allowCollapse = false;
   
+  var addIcon = null;
+  var removeIcon = null;
+
+  var INITIALLIST = pui["getLanguageText"]("runtimeText","section") + " 1,"
+                  + pui["getLanguageText"]("runtimeText","section") + " 2,"
+                  + pui["getLanguageText"]("runtimeText","section") + " 3";
+  
   var me = this;  
   
   this.init = function() {
     me.container.style.overflow = "hidden";
-  }
+  };
   
   this.setSectionNames = function(nameList) {
-    if (nameList == null || nameList == "" || pui.isBound(nameList)) nameList = ["Section 1", "Section 2", "Section 3"];
+    if (nameList == null || nameList == "" || pui.isBound(nameList)) nameList = INITIALLIST;
     var names = pui.parseCommaSeparatedList(nameList);
     if (names.length != headerDivs.length) {
       me.container.innerHTML = "";
@@ -82,7 +89,7 @@ pui.Accordion = function() {
               me.expandSection(sectionNumber);
             }
           }
-        }
+        };
 
         var bodyDiv = document.createElement("div");
         bodyDiv.style.width = "100%";
@@ -120,9 +127,39 @@ pui.Accordion = function() {
     for (var i = 0; i < names.length; i++) {
       headerButtons[i].setText(names[i]);
     }
-    me.expandSection(0);
-    me.resize();
-  }
+    me.expandSection(0);    //also calls me.resize().
+    
+    // Add icons to the container DOM element. The container gets replaced at least once while
+    // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
+    if (me.designMode ){
+      if( addIcon == null ){
+        // Add the + (add) button.
+        addIcon = designUtils.createAndAppendIcon("plus",
+          pui["getLanguageText"]("runtimeText","add x", [pui["getLanguageText"]("runtimeText","section")] ),
+          me.container);
+        addIcon.style.right = "2px";
+        addIcon.style.bottom = "2px";
+        addIcon.onclick = addIconOnclick;
+      }else if( addIcon.parentNode == null ){
+        // Re-attach icon, which can get removed from DOM in this.setSectionNames (container.innerHTML = "").
+        me.container.appendChild(addIcon);
+      }
+      
+      if( names.length > 1 ){         // Only show the remove icon if there exist more than one section.
+        if( removeIcon == null  ){
+          // Add the - (remove) button.
+          removeIcon = designUtils.createAndAppendIcon("minus",
+            pui["getLanguageText"]("runtimeText","delete x", [pui["getLanguageText"]("runtimeText","section")] ),
+            me.container);
+          removeIcon.style.right = "2px";
+          removeIcon.style.bottom = "16px";
+          removeIcon.onclick = removeIconOnclick;
+        }else if( removeIcon.parentNode == null ){
+          me.container.appendChild(removeIcon);   //attach icon to newest container DOM.
+        }
+      }
+    }
+  };
   
   this.expandSection = function(sectionNumber) {
     for (var i = 0; i < bodyDivs.length; i++) {
@@ -142,12 +179,12 @@ pui.Accordion = function() {
     me.setStraightEdge(straightEdge);
     expandedSection = sectionNumber;
     me.resize();
-  }
+  };
   
   this.setAllowCollapse = function(allow) {
     allowCollapse = (allow == "true" || allow == true);
     me.expandSection(expandedSection);
-  }
+  };
   
   this.setStraightEdge = function(edge) {
     if (edge == null || pui.isBound(edge)) return;
@@ -202,40 +239,40 @@ pui.Accordion = function() {
         bottomPart.setStraightEdge("top");
         break;
     }
-  }
+  };
     
   this.setStyle = function(styleName, styleValue) {
     for (var i = 0; i < headerButtons.length; i++) {
       headerButtons[i].setStyle(styleName, styleValue);
     }
-  }
+  };
 
   this.setAllStyles = function(properties) {
     for (var i = 0; i < headerButtons.length; i++) {
       headerButtons[i].setAllStyles(properties);
     }
-  }
+  };
   
   this.setMini = function(mini) {
     for (var i = 0; i < headerButtons.length; i++) {
       headerButtons[i].setMini(mini);
     }
     me.resize();
-  }
+  };
 
   this.setHeaderSwatch = function(swatch) {
     for (var i = 0; i < headerButtons.length; i++) {
       headerButtons[i].setSwatch(swatch);
     }
     headerSwatch = swatch;
-  }
+  };
 
   this.setBodySwatch = function(swatch) {
     for (var i = 0; i < bodyPanels.length; i++) {
       bodyPanels[i].setSwatch(swatch);
     }
     bodySwatch = swatch;
-  }
+  };
   
   this.resize = function(newHeight) {
     var totalHeight;
@@ -261,11 +298,72 @@ pui.Accordion = function() {
     if (me.container.layout != null) {
       me.container.layout.sizeContainers();
     }
-  }
+  };
   
   this.setHeight = function(height) {
     me.container.style.height = height;
     me.resize(height);
+  };
+
+  // copied mostly from tab_panel addIcon.onclick.
+  function addIconOnclick(){
+    var itm = toolbar.designer.getDesignItemByDomObj(me.container);
+    var propValue = itm.properties["section names"];
+    if (pui.isTranslated(propValue)) {
+      // Number of sections is controlled by this, doesn't make sense to change.
+      return;
+    }
+    else if (pui.isBound(propValue)) {
+      var designValue = propValue.designValue;
+      if (designValue == null || designValue == "") designValue = INITIALLIST;
+      designValue = pui.parseCommaSeparatedList(designValue);
+      designValue.push("Section " + (designValue.length + 1));
+      propValue.designValue = designValue.join(",");
+    }
+    else {
+      if (propValue == "" || propValue == null) propValue = INITIALLIST;
+      propValue = pui.parseCommaSeparatedList(propValue);
+      propValue.push("Section " + (propValue.length + 1) );
+      propValue = propValue.join(",");
+    }
+    applySectionNamesProperty(itm, propValue);
   }
   
-}
+  function removeIconOnclick(){
+    var itm = toolbar.designer.getDesignItemByDomObj(me.container);
+    var propValue = itm.properties["section names"];
+    if (pui.isTranslated(propValue)) {
+      // Number of sections is controlled by this, doesn't make sense to change.
+      return;
+    }
+    else if (pui.isBound(propValue)) {
+      var designValue = propValue.designValue;
+      if (designValue == null || designValue == "") designValue = INITIALLIST;
+      designValue = pui.parseCommaSeparatedList(designValue);
+      designValue.pop();
+      propValue.designValue = designValue.join(",");
+    }
+    else {
+      if (propValue == "" || propValue == null) propValue = INITIALLIST;
+      propValue = pui.parseCommaSeparatedList(propValue);
+      propValue.pop();
+      propValue = propValue.join(",");
+    }
+    applySectionNamesProperty(itm, propValue);
+  }
+  
+  function applySectionNamesProperty(itm, propValue){
+    var nmodel = me.container.propertiesNamedModel;
+    var propConfig = nmodel["section names"];
+    itm.designer.undo.start("Add New Section");
+    itm.designer.undo.add(itm, propConfig.name);
+    applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+    itm.propertiesChanged["section names"] = true;
+    itm.changed = true;
+    itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+    itm.designer.selection.clear();
+    itm.designer.selection.add(itm);
+    itm.designer.propWindow.refresh();
+  }
+  
+};
