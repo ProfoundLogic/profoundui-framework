@@ -1385,6 +1385,11 @@ pui.Grid = function() {
       if( me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "" ){
         // Try to extract the expression from the sql string. Field list starts after "SELECT ".
         fldlist = pui.getFieldList(me.dataProps["custom sql"].substr(7), true );
+      }else if ( (me.dataProps["database file"] != null && me.dataProps["database file"] != "") &&
+        (me.dataProps["data url"] == null || me.dataProps["data url"] == "" ) &&
+        (me.dataProps["database fields"] != null && me.dataProps["database fields"] != "") ) {
+        // DB-driven grid.
+        fldlist = pui.getFieldList(me.dataProps["database fields"]);
       }
       
       for (var i = 0; i < data.length; i++) {
@@ -1404,11 +1409,9 @@ pui.Grid = function() {
               idx = colNum;
             }
             
-            // For customSQL or dataURL grids, set the headerCell.fieldName if it is empty.
-            if( i == 0
-            && ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
-               || (me.dataProps["data url"] != null && me.dataProps["data url"] != ""))
-            && (me.cells[0][idx].fieldName == null || me.cells[0][idx].fieldName == "") ){
+            // For data grids, set the headerCell.fieldName if it is empty. (DB-driven 
+            // grids only set fieldName if me.sortable was true.)
+            if( i == 0 && me.isDataGrid() && (me.cells[0][idx].fieldName == null || me.cells[0][idx].fieldName == "") ){
               // If the CGI returned a column number instead of fieldName; e.g. from
               // an expression, use the expression as the fieldName.
               if( Number(j) > 0 && fldlist != null && fldlist.length > idx && fldlist[idx] != null && fldlist[idx] != ""){
@@ -1846,10 +1849,11 @@ pui.Grid = function() {
     
     cell.sortDescending = !isDefaultSortDescending(col);
   }
-  
+    
   /**
    * Setup the UI to allow sorting a column.
-   * Called when the "sortable columns" property is set; i.e. when rendering.
+   * Called when the "sortable columns" property is set; i.e. when rendering (for genie),
+   * and always near the end of pui.renderFormat() for each gridsToRender.
    * @returns {undefined}
    */
   this.makeSortable = function() {
