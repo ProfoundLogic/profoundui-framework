@@ -312,25 +312,25 @@ function AutoComplete(config) {
     
     template = setValue;
     
-  }
+  };
   
   this.isOpen = function() {
     
     return (resultPane.style.display == "block");
     
-  }
+  };
     
   this.setWidth = function(setVal) {
     
     width = setVal;
     
-  }
+  };
   
   this.getSelectedRecord = function() {
   
     return selectedRecord;    
   
-  }
+  };
   
   this.destroy = function() {
     removeEvent(textBox, "keyup", doKeyUp);
@@ -363,7 +363,7 @@ function AutoComplete(config) {
     values = null;                   
     recordSet = null;
     me = null; 
-  }
+  };
 
   
   /* PRIVATE METHODS */
@@ -545,13 +545,13 @@ function AutoComplete(config) {
         if (offset + recordDiv.offsetHeight > bottom || offset < scrOfY) {
           scrollingIntoView = true;
           recordDiv.scrollIntoView(true);
-          setTimeout(function() { scrollingIntoView = false }, 1);
+          setTimeout(function() { scrollingIntoView = false; }, 1);
         }
         
         if (usingScrollbar && recordDiv.offsetTop > maxHeight && !scrollingIntoView) {
           scrollingIntoView = true;
           recordDiv.scrollIntoView(true);
-          setTimeout(function() { scrollingIntoView = false }, 1);
+          setTimeout(function() { scrollingIntoView = false; }, 1);
         }
       }
     }
@@ -740,7 +740,7 @@ function AutoComplete(config) {
   
   function hideResults() {
   
-    resultPane.style.display = "none";
+    if (resultPane != null ) resultPane.style.display = "none";
     if (shadow) shadowDiv.style.display = "none";
     if (useShim) shim.style.display = "none";
     records = new Array();
@@ -914,7 +914,7 @@ function AutoComplete(config) {
     if (scrollingIntoView) return;
   
     event = event || window.event;
-    target = event.target || event.srcElement;
+    var target = event.target || event.srcElement;
 
     var recordIndex = target.getAttribute("recordIndex");
     if (recordIndex == "" || recordIndex == null) {
@@ -1073,6 +1073,19 @@ function applyAutoComp(properties, originalValue, domObj) {
           }
         
         }
+        
+        function safeUpperCase(str){
+          // The following business gets around certain browsers (i.e. Chrome)
+          // upper-casing the German eszett character to SS, which throws off 
+          // matching in SQL WHERE clause. 
+          // This code converts eszett to 'capital eszett', which IBM doesn't seem to 
+          // recognize. Then the rest of the string is upper-cased, and the eszett 
+          // is then set back to normal. 
+          str = rtrim(str.replace(/\u00DF/g, "\u1E9E"));
+          str = str.toUpperCase();
+          str = str.replace(/\u1E9E/g, "\u00DF");
+          return str;
+        }
 
         var autoComp = new AutoComplete({
           textBox: domObj,
@@ -1086,15 +1099,24 @@ function applyAutoComp(properties, originalValue, domObj) {
           onselect: onselect,
           valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
           beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
-            // The following business gets around certain browsers (i.e. Chrome)
-            // upper-casing the German eszett character to SS, which throws off 
-            // matching in SQL WHERE clause. 
-            // This code converts eszett to 'capital eszett', which IBM doesn't seem to 
-            // recognize. Then the rest of the string is upper-cased, and the eszett 
-            // is then set back to normal. 
-            query = rtrim(query.replace(/\u00DF/g, "\u1E9E"));
-            query = query.toUpperCase();
-            query = query.replace(/\u1E9E/g, "\u00DF");
+            
+            if (evalPropertyValue(properties["case sensitive"], originalValue, domObj) == "true"){
+              // Note: PUIWIDGET.cpp sees the "case sensitive" property and decides not to use UPPER in the query.
+              // 
+              // If "text transform" or the bound setting for text transform are set, then make the user's input
+              // upper/lower case. They would want this if their database values are already all upper/lowercase.
+              if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "uppercase"
+              || (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "uppercase") ){
+                query = safeUpperCase(query);
+              }else if(evalPropertyValue(properties["text transform"], originalValue, domObj) == "lowercase"
+              || (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "lowercase") ){
+                query = rtrim(query.toLowerCase());
+              }
+            }else{
+              // When "case sensitive" is off, always upper case. PUIWIDGET will use UPPER() in query.
+              query = safeUpperCase(query);
+            }
+            
             if (query == "") return false;
             query = query.replace(/'/g, "''");  // '
             if (pui["secLevel"] > 0) {
@@ -1153,8 +1175,8 @@ function applyAutoComp(properties, originalValue, domObj) {
                   for (var j = 0; j < colWidths[index]; j++) {
                     measureDiv.innerHTML += "a";
                   }
-                  template += (measureDiv.offsetWidth + 5) + "px;\""
-                  totalWidth += measureDiv.offsetWidth + 5
+                  template += (measureDiv.offsetWidth + 5) + "px;\"";
+                  totalWidth += measureDiv.offsetWidth + 5;
                 }
                 else if (typeof(colWidths[index]) == "string") {
                   template += colWidths[index] + ";\"";
@@ -1233,7 +1255,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           }
           if (firstField == null) domObj.value = "";
           else domObj.value = firstRec[firstField];
-        }
+        };
         autoCompQueries += 1;
         
         req.send();

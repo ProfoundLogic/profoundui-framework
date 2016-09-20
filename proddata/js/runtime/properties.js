@@ -229,6 +229,7 @@ function getPropertiesModel() {
     { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the items. For a database-driven chart, this property is ignored when \"summary option\" is used. In this case the items will sort on the \"name field\".", controls: ["combo box", "select box", "chart"] },
     { name: "max choices", format: "number", help: "Optional maximum number of choices to provide for a dynamic dropdown box, list box, or text field with auto complete. If blank: defaults to 500 for dropdown, 10 for auto complete.", controls: ["combo box", "select box", "textbox"] },
     { name: "contains match", choices: ["true", "false"], help: "When set to true, the auto-complete query finds records that contain the search text.  When set to false, the auto-complete query finds records that start with the search text.  The default value is false.", controls: ["textbox"] },
+    { name: "case sensitive", choices: ["true", "false"], help: "When set to true, the auto-complete query does not convert the database search column to upper case before comparing. When false, the database column and search text are converted to upper case before comparing. The default is false.", controls: ["textbox"] },
     
     { name: "Dynamic Auto-Complete", category: true, controls: ["textbox"] },
     { name: "Dynamic Selection", category: true, controls: ["combo box", "select box"] },
