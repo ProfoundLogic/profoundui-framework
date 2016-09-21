@@ -828,19 +828,37 @@ pui.addCssClass = function(dom, clsName) {
   newClsArray.push(clsName);
   dom.className = newClsArray.join(" ");
   return;
-}
+};
 
+/**
+ * Change an element's .className by removing a specified class.
+ * @param {type} dom      Element to affect.
+ * @param {type} clsName  Name of class to remove from className.
+ * @returns {undefined}
+ */
 pui.removeCssClass = function(dom, clsName) {
-  var cls = dom.className;
-  if (cls == null) return;
-  if (cls == "") return;
-  var clsArray = cls.split(" ");
+  dom.className = pui.removeFromStringList(dom.className, clsName);
+};
+
+/**
+ * Remove a string from a delimiter-separated string of entries. e.g. css class name.
+ * 
+ * @param {String} separatedListStr   Space-separated list or other type of list string.
+ * @param {String} remString          The entry to remove.
+ * @param {Null|String} separator     (optional) The delimiter character. Default is space.
+ * @returns {String}                  Returns the list sans remString or empty string.
+ */
+pui.removeFromStringList = function(separatedListStr, remString, separator){
+  if (separatedListStr == null) return "";
+  if (separatedListStr == "") return "";
+  if (separator == null || separator == "") separator = " ";
+  var clsArray = separatedListStr.split(separator);
   var newClsArray = [];
   for (var i = 0; i < clsArray.length; i++) {
-    if (clsArray[i] != "" && clsArray[i] != clsName) newClsArray.push(clsArray[i]);
+    if (clsArray[i] != "" && clsArray[i] != remString) newClsArray.push(clsArray[i]);
   }
-  dom.className = newClsArray.join(" ");
-}
+  return newClsArray.join(" ");
+};
 
 
 pui.setEmptyText = function(dom, emptyText) {

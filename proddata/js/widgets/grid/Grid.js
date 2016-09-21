@@ -2503,8 +2503,12 @@ pui.Grid = function() {
             fieldInfo = obj.fieldInfo;
             obj.parentNode.removeChild(obj);
           }
-          if (objClass == null || objClass == "" || objClass == "A20" || objClass.indexOf("readOnly") != -1) {
+          if (objClass == null || objClass == "" || objClass == "A20") {
             objClass = "";
+          }else if (objClass.indexOf("readOnly") != -1){
+            // The data has other formatting; keep everything except readOnly and input. Issues 2551 & 1438.
+            objClass = pui.removeFromStringList(objClass,"readOnly");
+            objClass = pui.removeFromStringList(objClass,"input");    //input looks ugly in a grid.
           }
           var colNum = i;
           if (multiple > 1) colNum = 0;
