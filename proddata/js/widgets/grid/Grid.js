@@ -4657,10 +4657,12 @@ pui.Grid = function() {
     }     
     
     cell.onclick = function(e) {    
+
       e = e || window.event;
       var target = getTarget(e);
       if (target.tagName == "IMG" && target.combo)
         return;
+
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
@@ -4682,16 +4684,23 @@ pui.Grid = function() {
           
             if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey)) {
               var numRows = me.hLines.length - 1;
-              
+
               for (var i = 0; i < me.dataArray.length; i++) {
                 var curRow = i - me.recNum + 1 + (me.hasHeader ? 1 : 0);
-                if ((!e.ctrlKey) || (curRow != row)) {  // this condition allows the user to unselect a record using the ctrl key
-                  if (me.dataArray[i].selected == true) {
-                    pui.modified = true;
-                    me.dataArray[i].selected = false;
-                    if (me.selectionField != null && me.dataArray[i].selection != null) {
-                      me.dataArray[i].selection.modified = true;
-                      me.dataArray[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+                var clickedRow = row - (me.hasHeader ? 1 : 0);
+                // this condition allows the user to unselect a record using the ctrl key.
+                //  Only do it if it's NOT a right click mouse event 
+                // -or-
+                //  It's a right click and they aren't on a selected row.
+                if (!isRight || (isRight && me.dataArray[clickedRow].selected != true)) {
+                  if ((!e.ctrlKey) || (curRow != row)) {  
+                    if (me.dataArray[i].selected == true) {
+                      pui.modified = true;
+                      me.dataArray[i].selected = false;
+                      if (me.selectionField != null && me.dataArray[i].selection != null) {
+                        me.dataArray[i].selection.modified = true;
+                        me.dataArray[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+                      }
                     }
                   }
                 }
