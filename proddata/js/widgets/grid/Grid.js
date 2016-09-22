@@ -5421,11 +5421,15 @@ pui.Grid = function() {
       pui.alert(pui["getLanguageText"]("runtimeMsg","cannot rmv last col"));
       return;
     }
-    // Find the current position of the columnId. (User may have moved it.)
-    var col = getCurrentColumnFromId(columnId);
-    if(col < 0){
-      pui.alert(pui["getLanguageText"]("runtimeMsg","cannot find col"));
-      return;
+    if (!me.designMode){
+      // Find the current position of the columnId. (User may have moved it.)
+      var col = getCurrentColumnFromId(columnId);
+      if(col < 0){
+        pui.alert(pui["getLanguageText"]("runtimeMsg","cannot find col"));
+        return;
+      }
+    }else{
+      var col = columnId; //Designer must use cell.col not cell.columnId.
     }
     
     me.moveColumn(col, me.cells[0].length);  // move column to end
