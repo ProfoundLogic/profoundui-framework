@@ -54,7 +54,13 @@ pui.Accordion = function() {
   };
   
   this.setSectionNames = function(nameList) {
-    if (nameList == null || nameList == "" || pui.isBound(nameList)) nameList = INITIALLIST;
+    if (nameList == null || nameList == "")
+      nameList = INITIALLIST;
+    else if (pui.isBound(nameList)){
+      var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
+      if (tmplist.length == 0 ) nameList = INITIALLIST;
+      else nameList = nameList.designValue;   //Use the bound value saved in designer.
+    }
     var names = pui.parseCommaSeparatedList(nameList);
     if (names.length != headerDivs.length) {
       me.container.innerHTML = "";
