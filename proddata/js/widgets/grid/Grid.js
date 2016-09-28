@@ -232,6 +232,7 @@ pui.Grid = function() {
   var waitingOnRequest = false;
   
   var sqlurlDidInitialSort = false; //Handle Initial Sort Column for customSQL/dataURL grids once in receiveData.
+  var dataGridDidRestoreState = false; //Becomes true after restoring datagrid state in getData.
   
   // These three members are only for data grids. They are passed to the CGI program.
   var findText;
@@ -1161,6 +1162,13 @@ pui.Grid = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     if (numRows < 1) return;
+    
+    // Load any stored filter and sort options before making the first XHR for data grids.
+    if (!me.dataGridDidRestoreState && me.isDataGrid()){
+      restoreStateDataGrid();
+      me.dataGridDidRestoreState = true; //Only restore filters/sort once.
+    }
+    
     // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
     var sql = me.dataProps["custom sql"];
     var orderBy = "";
@@ -1379,18 +1387,6 @@ pui.Grid = function() {
       for (var i = 0; i < me.cells[0].length; i++) {
         cellMap[me.cells[0][i].columnId] = i;
       }
-      // For custom sql grids, the CGI may return a column number as the field name instead of the expression.
-      // A filtering query needs the expression, so try to extract all field names from the sql string.
-      var fldlist = null;
-      if( me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "" ){
-        // Try to extract the expression from the sql string. Field list starts after "SELECT ".
-        fldlist = pui.getFieldList(me.dataProps["custom sql"].substr(7), true );
-      }else if ( (me.dataProps["database file"] != null && me.dataProps["database file"] != "") &&
-        (me.dataProps["data url"] == null || me.dataProps["data url"] == "" ) &&
-        (me.dataProps["database fields"] != null && me.dataProps["database fields"] != "") ) {
-        // DB-driven grid.
-        fldlist = pui.getFieldList(me.dataProps["database fields"]);
-      }
       
       for (var i = 0; i < data.length; i++) {
         var record = data[i];
@@ -1407,23 +1403,6 @@ pui.Grid = function() {
             }
             else {
               idx = colNum;
-            }
-            
-            // For data grids, set the headerCell.fieldName if it is empty. (DB-driven 
-            // grids only set fieldName if me.sortable was true.)
-            if( i == 0 && me.isDataGrid() && (me.cells[0][idx].fieldName == null || me.cells[0][idx].fieldName == "") ){
-              // If the CGI returned a column number instead of fieldName; e.g. from
-              // an expression, use the expression as the fieldName.
-              if( Number(j) > 0 && fldlist != null && fldlist.length > idx && fldlist[idx] != null && fldlist[idx] != ""){
-                me.cells[0][idx].fieldName = fldlist[idx];
-              }else{
-                // The field name as returned by the CGI was a real name (or was a number and failed to parse).
-                me.cells[0][idx].fieldName = j;
-              }
-              // Make the column sortable, which couldn't happen at render time without fieldName.
-              if(me.sortable && me.hasHeader && (context == "dspf" || pui.usingGenieHandler ) ){
-                attachClickEventForSQL(me.cells[0][idx], idx);
-              }
             }
             
             if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
@@ -1876,7 +1855,16 @@ pui.Grid = function() {
         sortColumnUsingSQL(headerRow[me.initialSortColumn]);
       }
     }
-    else if (me.dataProps["custom sql"] == null || me.dataProps["custom sql"] == "" ) {
+    else if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
+          || (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ){
+
+      // Custom SQL and data URL grids can sort given the column number.
+      var numCols = me.vLines.length - 1;
+      for (var i = 0; i < numCols; i++) {
+        attachClickEventForSQL(headerRow[i], i);
+      }
+
+    }else {
       // Make each header cell of a Load-All grid respond to sort clicks. (Custom SQL is setup after data loads.)
       for (var i = 0; i < me.runtimeChildren.length; i++) {
         var itm = me.runtimeChildren[i];
@@ -1933,28 +1921,36 @@ pui.Grid = function() {
     }
   };
   
-  this.restoreState = function() {
-       
+  /**
+   * Returns undefined if persistState isn't enabled or not setup.
+   * Returns a state object otherwise.
+   * @returns {undefined|Array|Object}
+   */
+  function restoreStatePreCheck(){
     if (persistState == false) {
-      
       return;
-      
     }
     
     var state = loadState();
-    
     if (state == null) {
-      
       return;
-      
     }
-      
+
     // Reset storage if number/width of columns has changed.
     if (state["cols"] == null || state["cols"] != columnSignature) {
-      
       saveState({});
       return;      
-      
+    }
+    return state;
+  }
+  
+  // Called after the grid has loaded. dataGrid state is restored before the first XHR,
+  // in restoreStateDataGrid().
+  this.restoreState = function() {
+       
+    var state = restoreStatePreCheck();
+    if (state == null) {
+      return;
     }
     
     // Restore saved column widths.
@@ -1998,7 +1994,7 @@ pui.Grid = function() {
     }
         
     // Restore saved client-side column sort.
-    if (me.sortable && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
+    if (me.sortable && !me.isDataGrid() && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
     
       var sort = state["sort"];
       if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
@@ -2014,25 +2010,13 @@ pui.Grid = function() {
           }
           
         }
-                
-        if (me.isDataGrid()) {
-          
-          sortColumnUsingSQL(sortCell, true);
-          
-        }
-        else {
-         
-          sortColumn(sortCell, true, false);
-          
-        }        
-        
+
+        sortColumn(sortCell, true, false);        
       }
-      
     }
     
-    
     var filters = state["filters"];
-    if (filters != null) {
+    if (filters != null && !me.isDataGrid() ) {
        for (var i=0; i<filters.length; i++) {
          var col = state["filters"][i]["column"];
          var text = state["filters"][i]["text"];
@@ -2045,6 +2029,61 @@ pui.Grid = function() {
     }
     
   };
+  
+  /**
+   * Restore filter and sort order of a data grid. This should be called only once:
+   * the first time getData is called. This does not cause new AJAX calls.
+   * @returns {undefined}
+   */
+  function restoreStateDataGrid(){
+    var state = restoreStatePreCheck();
+    if (state == null) {
+      return;
+    }
+    
+    // Restore saved client-side column sort.
+    if (me.sortable && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
+      var sort = state["sort"];
+      if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
+        var sortCell;
+        for (var i = 0; i < me.cells[0].length; i++) {
+          
+          if (me.cells[0][i].columnId == sort["columnId"]) {
+            sortCell = me.cells[0][i];
+            sortCell.sortDescending = !sort["descending"]; 
+          }
+        }
+
+        // Set the column properties without causing a request.
+        sortColumnUsingSQL(sortCell, true);
+      }
+    }
+    
+    var filters = state["filters"];
+    if (filters != null) {
+      
+      // Set each filter on header cells without causing a request.
+      for (var i=0; i < filters.length; i++) {
+        var col = state["filters"][i]["column"];
+        var text = state["filters"][i]["text"];
+
+        var headerCell = me.cells[0][getCurrentColumnFromId(col)];
+        if (headerCell == null) return;
+        if (text != null && text != ""){
+          me.highlighting.columnId = headerCell.columnId; //The last filtered column gets highlighted.
+          me.highlighting.col = headerCell.col;
+          me.highlighting.text = text;
+          me.setFilterIcon(headerCell);
+          headerCell.filterText = text;
+        }else{
+          me.highlighting.text = null;
+          me.removeFilterIcon(headerCell);
+          headerCell.filterText = null;
+        }
+      }
+    }
+    
+  }
   
   function isDefaultSortDescending(col) {
     var sortOrder = null;
@@ -2211,6 +2250,13 @@ pui.Grid = function() {
     
   } 
   
+  /**
+   * Update the UI to show a column as sorted, set the sort column, and reload
+   * the grid when not restoring.
+   * @param {Object} cell         The header cell of the column to sort.
+   * @param {Boolean} restoring   (optional) When true, a new XHR isn't made.
+   * @returns {undefined}
+   */
   function sortColumnUsingSQL(cell, restoring) {
     if (me.gridMenu != null) me.gridMenu.hide();
     if (cell == null) return;
@@ -2225,18 +2271,23 @@ pui.Grid = function() {
     else {
       if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
     }
-    me.sortBy = cell.fieldName;
+    me.sortBy = cell.columnId + 1;    //column number works fine in db-driven and custom sql queries.
     desc = !desc;
     if (desc) me.sortBy += " DESC";
-
+    
     me.sorted = true;
+    
+    // Avoid creating an XHR when restoring, which happens before the first XHR for data grids.
+    if (!restoring){
 
-    if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-      me.scrollbarObj.setScrollTopToRow(1);
+      if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+        me.scrollbarObj.setScrollTopToRow(1);
+      }
+      me.recNum = 1;
+      me.mask(); //disable UI until server responds.
+      me.getData();
     }
-    me.recNum = 1;
-    me.mask(); //disable UI until server responds.
-    me.getData();
+    
     cell.sortDescending = desc;
     me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
     var destination = cell;
@@ -2588,7 +2639,10 @@ pui.Grid = function() {
       me.scrollbarObj.designMode = me.designMode;
       if (stype == "sliding") {
         me.scrollbarObj.onSetRow = function(recNum) {
+          if (me.isDataGrid && me.recNum == recNum) return; //Don't cause unnecessary XHR when we are in position already.
           me.recNum = recNum;
+          // Grid may be destroyed if user submits before sliding scrollbar's sendRow() timeout wakes up.
+          if (me == null || me.cells == null) return;
           me.getData();
           me.placeCursor(true);
         };
@@ -5123,15 +5177,15 @@ pui.Grid = function() {
     if (pui["secLevel"] > 0){
       // Setup parameters that are needed now for sqlcache comparison and later for postData.
       pstring = pui.getSQLParams(me.dataProps);
-     
+      
       if (me.isFiltered()){
         var headerRow = me.cells[0];
         // Look in each column for filter text.
-        var filtNum = 0; //CGI looks for fltrfld 0 to 9 and stops when one isn't found.
+        var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
-          if( headerCell.fieldName != null && headerCell.filterText != null ){
-            pstring += "&fltrfld"+ String(filtNum) + "=" + encodeURIComponent(headerCell.fieldName);
+          if( headerCell.columnId >= 0 && headerCell.filterText != null ){
+            pstring += "&fltrcol"+ String(filtNum) + "=" + (headerCell.columnId + 1);
             pstring += me.prepareFilterText(String(filtNum), headerCell.filterText);
             filtNum++;
           }
@@ -6057,10 +6111,8 @@ pui.Grid = function() {
     
     if( me.isDataGrid()){
       // Filter in this field for DB-driven grids. (Assume one field per column.)
-      if( headerCell.fieldName != null && headerCell.fieldName != "" ){
-        me.totalRecs = null; // make sure the CGI gives us totalRecs (count of results).
-        me.recNum = 1;       // Show record 1 on row 1.
-      }
+      me.totalRecs = null; // make sure the CGI gives us totalRecs (count of results).
+      me.recNum = 1;       // Show record 1 on row 1.
       
       me.mask();             // disable UI until server responds.
     }

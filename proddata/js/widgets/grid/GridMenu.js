@@ -187,12 +187,8 @@ pui.GridMenu = function() {
         me.cell.sortColumn();
       });
     }
-    
-    // Filtering should be disabled if fieldName isn't a real SQL field name or expression.
-    var custSqlInvalidField = (me.grid.dataProps["custom sql"] != null && me.grid.dataProps["custom sql"] != ""
-      && (me.cell.fieldName == null || me.cell.fieldName == "" || Number(me.cell.fieldName) > 0));
-    
-    if ( !custSqlInvalidField && menuOptions.length > 0 && (me.grid.findOption || me.grid.filterOption) ) {
+        
+    if ( menuOptions.length > 0 && (me.grid.findOption || me.grid.filterOption) ) {
       menuOptions.push("-");
       menuIcons.push(null);
       optionHandlers.push(null);
@@ -206,7 +202,7 @@ pui.GridMenu = function() {
       });
     }
   
-    if (me.grid.filterOption && !custSqlInvalidField) {
+    if (me.grid.filterOption) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
       menuIcons.push("icons/filter.png");
       optionHandlers.push(function() {
