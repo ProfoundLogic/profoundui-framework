@@ -2639,7 +2639,8 @@ pui.Grid = function() {
       me.scrollbarObj.designMode = me.designMode;
       if (stype == "sliding") {
         me.scrollbarObj.onSetRow = function(recNum) {
-          if (me.isDataGrid && me.recNum == recNum) return; //Don't cause unnecessary XHR when we are in position already.
+          // Note: even if recNum == me.recNum, we still need to call getData for certain grids; e.g.
+          // a grid inside an unselected tab panel tab. Without calling getData, the data would be hidden.
           me.recNum = recNum;
           // Grid may be destroyed if user submits before sliding scrollbar's sendRow() timeout wakes up.
           if (me == null || me.cells == null) return;
