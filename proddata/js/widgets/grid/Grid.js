@@ -147,7 +147,7 @@ pui.Grid = function() {
   
   this.scrollbarObj = null;
   
-  this.totalRecs = null;
+  this.totalRecs = null;    //The total number of records in a resultset for data grids.
   
   this.csvFileName = null;
   this.exportWithHeadings = false;
@@ -231,7 +231,7 @@ pui.Grid = function() {
   // filters while a prior AJAX request has been sent but the response is not received.
   var waitingOnRequest = false;
   
-  var sqlurlDidInitialSort = false; //Handle Initial Sort Column for customSQL/dataURL grids once in receiveData.
+  var dataGridDidInitialSort = false;  //Becomes true after setting up initial sort column in getData.
   var dataGridDidRestoreState = false; //Becomes true after restoring datagrid state in getData.
   
   // These three members are only for data grids. They are passed to the CGI program.
@@ -1076,10 +1076,14 @@ pui.Grid = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     var lastRow = me.recNum + numRows - 1;
-    var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
-    if (dataRecords.length > lastRow) return false;
-    else return true;
+    
+    if (me.isDataGrid()){
+      return (me.totalRecs <= lastRow);
+    }else{
+      var dataRecords = me.dataArray;
+      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      return (dataRecords.length <= lastRow);
+    }
   };
 
   this.pageDown = function() {   
@@ -1101,12 +1105,21 @@ pui.Grid = function() {
     if (me.hasHeader) numRows = numRows - 1;
     me.recNum += numRows;
     var lastRow = me.recNum + numRows - 1;
-    var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
-    if (dataRecords.length < lastRow && me.scrollbarObj != null) {
-      me.recNum = me.recNum - lastRow + dataRecords.length;
-      if (me.recNum < 1) me.recNum = 1;
+
+    if (me.isDataGrid()){
+      if (me.totalRecs < lastRow && me.scrollbarObj != null) {
+        me.recNum = me.recNum - lastRow + me.totalRecs;
+        if (me.recNum < 1) me.recNum = 1;
+      }
+    }else{
+      var dataRecords = me.dataArray;
+      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (dataRecords.length < lastRow && me.scrollbarObj != null) {
+        me.recNum = me.recNum - lastRow + dataRecords.length;
+        if (me.recNum < 1) me.recNum = 1;
+      }
     }
+
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
       if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) me.getData();
@@ -1162,6 +1175,12 @@ pui.Grid = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     if (numRows < 1) return;
+    
+    // Only once, setup a column to be sorted as the "initial sort column" property for data grids.
+    if(me.initialSortColumn != null && !dataGridDidInitialSort && me.isDataGrid() ){
+      dataGridDidInitialSort = true;
+      sortColumnUsingSQL(me.cells[0][me.initialSortColumn], true); //Set initial sort column without causing XHR.
+    }
     
     // Load any stored filter and sort options before making the first XHR for data grids.
     if (!me.dataGridDidRestoreState && me.isDataGrid()){
@@ -1421,12 +1440,13 @@ pui.Grid = function() {
           colNum++;
         }
       }
+      var numRows = me.cells.length;
+      if (me.hasHeader) numRows = numRows - 1;
+      
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
           me.scrollbarObj.atBottom = false;
           if (me.totalRecs != null) {
-            var numRows = me.cells.length;
-            if (me.hasHeader) numRows = numRows - 1;
             if (me.recNum + numRows > me.totalRecs) {
               me.scrollbarObj.atBottom = true;
             }
@@ -1445,17 +1465,13 @@ pui.Grid = function() {
         }
       }
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
-      me.cleared = false;
-      
-      // Set flag that customSQL/dataURL grid is setup, and load again sorted by initial sort column, if necessary.
-      if(!sqlurlDidInitialSort && ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
-        || (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ) ){
-        sqlurlDidInitialSort = true;
-        if (me.initialSortColumn != null) {
-          var headerRow = me.cells[0];
-          sortColumnUsingSQL(headerRow[me.initialSortColumn]); //Queues a reload.
-        }
+
+      // Update the pagingbar after each response.
+      if (me.pagingBar != null) {
+        me.pagingBar.pageNumber = parseInt((me.recNum + numRows * 2 - 2) / numRows) + me.initialPageNumber - 1;
+        me.pagingBar.draw();
       }
+      me.cleared = false;
     } //end of receiveData().
   }; //end of getData().
 
@@ -1850,9 +1866,6 @@ pui.Grid = function() {
       for (var i = 0; i < fields.length; i++) {
         headerRow[i].fieldName = fields[i];
         attachClickEventForSQL(headerRow[i], i);
-      }
-      if (me.initialSortColumn != null) {   //Set sort parameters and queue a reload.
-        sortColumnUsingSQL(headerRow[me.initialSortColumn]);
       }
     }
     else if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
