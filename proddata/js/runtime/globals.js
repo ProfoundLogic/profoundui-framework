@@ -185,7 +185,7 @@ pui.usingGenieHandler = false;
 pui.genieHandler = null;
 
 pui["function key pattern"] = "^(F|CA|CF|CK|CMD)([0-9]{1,2})([=:-])(.*)$";
-pui["special key pattern"] = "^(Enter|PageUp|PageDown|Rollup|RollDown|PgUp|PgDn|Help|Print)([=-])(.*)$";
+pui["special key pattern"] = "^(Enter|PageUp|PageDown|Rollup|RollDown|RollDn|PgUp|PgDn|Help|Print)([=-])(.*)$";
 
 pui.sessionRetryCount = 0;
 pui["session timeout retries"] = 0;
