@@ -34,11 +34,22 @@ pui.widgets.renderChart = function(parms) {
   if (parms.dom.isRendering)
     return;
   
-  parms.dom.isRendering = true;    
+  parms.dom.isRendering = true;
   
   function loadChart() {
-    var chartId = parms.dom.id + "_Chart";
-    if (FusionCharts(chartId)) FusionCharts(chartId).dispose();
+
+    // dom.id becomes null when the chart is in the background behind a windowed record format. The id attribute is set when the first
+    // format is rendered. Then DB-driven charts send XHR. The next format may clear "id" attributes from the first format before the
+    // response arrives. To avoid setting multiple chart ids to "_Chart", don't render without an id. Otherwise disposing causes errors.
+    if (parms.dom.id != null && parms.dom.id != "")
+      var chartId = parms.dom.id + "_Chart";
+    else if (parms.domId != null)
+      var chartId = parms.domId + "_Chart";   //DB-driven charts send the additional domId property.
+    else {
+      console.log("Stopped rendering chart; missing id attribute.");
+      return;
+    }
+
     var chartObj = new FusionCharts({
       "type": parms.type.toLowerCase(),
       "id": chartId,
@@ -330,11 +341,13 @@ pui.widgets.add({
   
     "field type": function(parms) {      
         
-      // Do not render chart in tab panel until the tab is activated.
+      // Do not render chart in tab panel until the tab is activated. Note: if this chart were listed
+      // before the parent tab panel in Designer's elements list, then at runtime the tab panel wouldn't
+      // have been created before the chart; it'd always be null. So the chart would always render.
       var objid = parms.evalProperty("parent tab panel");
       var tp;
       // Avoid the warning: Empty string passed to getElementById().
-      if(objid != null && objid.length > 0) tp = getObj();
+      if(objid != null && objid.length > 0) tp = getObj(objid);
       if (tp)
         tp = tp.tabPanel;
       var tn = parseInt(parms.evalProperty("parent tab"), 10);
@@ -529,6 +542,8 @@ pui.widgets.add({
          }
          postData += "&maxcount=" + maxCount;
          
+         var domId = parms.dom.id; //Save in case a window or overlay clears the "id" attribute before the response arrives.
+         
          var ajaxRequest = new pui.Ajax(url);
          ajaxRequest["method"] = "post";
          ajaxRequest["async"] = true;
@@ -548,10 +563,11 @@ pui.widgets.add({
              data = startsWith.substr(0, startsWith.length - 1) + " " + chartOptions + data.substr(startsWith.length - 1);
            }
            pui.widgets.renderChart({
-             dom: parms.dom,
-             type: chartType,
-             transparent: (parms.properties["chart overlay"] != "true"),
-             xmlData: data
+            dom: parms.dom,
+            domId: domId,
+            type: chartType,
+            transparent: (parms.properties["chart overlay"] != "true"),
+            xmlData: data
            });
          };
          ajaxRequest.send(); 
