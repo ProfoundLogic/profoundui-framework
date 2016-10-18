@@ -385,10 +385,17 @@ pui.widgets.add({
           parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
             + pui["getLanguageText"]("runtimeMsg", "loading x", [pui["getLanguageText"]("runtimeText","chart")] );
         if (chartType == "") chartType = "Bar2D";  // set a default
-        url = parms.evalProperty("chart url");
+        var url = parms.evalProperty("chart url");
+        var jsonURL = parms.evalProperty("chart url json");
+        
         if (url!=null && url!="") {
           url = pui.appendAuth(url);
         }
+        
+        if (jsonURL!=null && jsonURL!="") {
+          jsonURL = pui.appendAuth(jsonURL);
+        }
+        
         var xml = parms.evalProperty("chart xml");
         var json = parms.evalProperty("chart json");
 
@@ -412,7 +419,7 @@ pui.widgets.add({
           return;        
         }
         
-        if (url == "") {
+        if (url == "" && jsonURL == "") {
         
           var file             = parms.evalProperty("database file").toUpperCase();
           var nameField        = parms.evalProperty("name field").toUpperCase();
@@ -519,7 +526,7 @@ pui.widgets.add({
          if (summary == "" && orderBy != "") sql += " ORDER BY " + orderBy;
          else sql += " ORDER BY " + nameField;
 
-         var url =  getProgramURL("PUI0009104.PGM");
+         url =  getProgramURL("PUI0009104.PGM");
          var postData = "AUTH=";
          if (context == "genie") postData += GENIE_AUTH;
          if (context == "dspf") postData += pui.appJob.auth;
@@ -573,7 +580,7 @@ pui.widgets.add({
          ajaxRequest.send(); 
           
         }
-        else {
+        else if(url != "" ){      //xmlURL
         
           // Support the old data URL method in case the new one breaks
           // some people's charts.
@@ -595,6 +602,14 @@ pui.widgets.add({
             xmlURL: url
           });
 
+        }
+        else{     //jsonURL.
+          pui.widgets.renderChart({
+            dom: parms.dom,
+            type: chartType,
+            transparent: (parms.properties["chart overlay"] != "true"),
+            jsonURL: jsonURL
+          });
         }
       }
     },
