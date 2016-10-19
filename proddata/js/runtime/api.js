@@ -1610,8 +1610,23 @@ pui["refresh"] = function(parms) {
 
 pui["downloadURL"] = function (params) {
 
+  if ( pui==null 
+      || pui["appJob"]==null 
+      || pui["appJob"]["auth"]==null
+      || pui["appJob"]["auth"]=="" ) {
+    if (pui["is_ie"]) {
+      return "";
+    }
+    else {
+      return "data:text/html," +
+      "<!DOCTYPE html><html><body>" +
+      "<p>To download, please connect to a Profound UI session.</p>" +
+      "</body></html>";
+    }
+  }
+  
   var inline = (params["inline"] === true);
-  if (params["id"] == null) return;  
+  if (params["id"] == null) return "";  
   
   var url = getProgramURL("PUI0009110.PGM");
   url += "?id=" + encodeURIComponent(params["id"]);
@@ -1635,6 +1650,13 @@ pui["download"] = function (params) {
 
   var url = pui["downloadURL"](params);
   var inline = (params["inline"] === true);
+  
+  if ( pui==null 
+      || pui["appJob"]==null 
+      || pui["appJob"]["auth"]==null
+      || pui["appJob"]["auth"]=="" ) {
+    inline = true;    
+  }
   
   if (inline) {
      pui["openURL"](url);
