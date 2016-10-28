@@ -1106,7 +1106,7 @@ pui.renderFormat = function(parms) {
 
       if (container != null) {
         if (items[i].insertBeforeObj != null) {
-          container.insertBefore(dom, items[i].insertBeforeObj)
+          container.insertBefore(dom, items[i].insertBeforeObj);
         }
         else {
           container.appendChild(dom);
@@ -3156,7 +3156,7 @@ pui.buildResponse = function() {
             if (boxValue > rangeHigh) {
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [ rangeHighDisp ])
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [ rangeHighDisp ]);
               if (dom.rangeLow != null) {
                 var rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
@@ -4187,7 +4187,7 @@ pui.runMVC = function(response) {
     }      
   });
 
-}
+};
 
 pui.start = function() {
   pui.startMouseCapableMonitoring();
@@ -4195,7 +4195,7 @@ pui.start = function() {
   pui.canvasSize = parms["canvasSize"];
   var program = parms["pgm"];
   if (program == null) program = parms["program"];
-  var debug = parms["debug"]
+  var debug = parms["debug"];
   var container = parms["container"];
   var workstnid = parms["workstnid"];
   var suffixid = parms["suffixid"];
@@ -4257,12 +4257,12 @@ pui.start = function() {
     if (mode != null) config["mode"] = mode;
     pui["run"](config);
   }
-}
+};
 
 
 pui.newSession = function() {
   window.location.reload();
-}
+};
 
 pui.closeSession = function() {
 
@@ -4285,7 +4285,7 @@ pui.closeSession = function() {
   if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
     navigator["app"]["exitApp"](); 
   }
-}
+};
 
 pui.formatErrorText = function() {
   var dom = document.getElementById("ESHELP");
@@ -4300,7 +4300,7 @@ pui.formatErrorText = function() {
       dom.innerHTML = text;
     }
   }
-}
+};
 
 
 
@@ -4427,7 +4427,7 @@ pui["maskScreen"] = function(parms) {
     }
   }
   
-}
+};
 
 
 
@@ -4436,7 +4436,7 @@ pui["unmaskScreen"] = function() {
   var parent = pui.maskDiv.parentNode;
   if (parent != pui.runtimeContainer) return;
   parent.removeChild(pui.maskDiv);
-}
+};
 
 
 
@@ -4672,18 +4672,18 @@ pui.showMessageSubfileHelp = function(textObj) {
   img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
   img.onmouseover = function() {
     img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1_hover.png");
-  }
+  };
   img.onmouseout = function() {
     img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
-  }
+  };
   img.onclick = function() {
     div.style.display = "none";
-  }
+  };
   div.appendChild(img);
   
   pui.messageSubfileHelpWindowDiv = div;
   
-}
+};
 
 pui.setActiveElement = function(e) {
   var target = getTarget(e);
@@ -4702,7 +4702,7 @@ pui.setActiveElement = function(e) {
     }
   }     
     
-}
+};
 
 
 pui.returnCursor = function(e, dom) {
@@ -4779,7 +4779,7 @@ pui.returnCursor = function(e, dom) {
       }
     }
   }
-}
+};
 
 pui.clearCursor = function(e) {
   var clear = false;
@@ -4792,7 +4792,7 @@ pui.clearCursor = function(e) {
     pui.cursorValues.position = null;
     pui.cursorValues.elementId = null;
   }
-}
+};
 
 
 pui.applyFocusClass = function(e) {
@@ -4804,7 +4804,7 @@ pui.applyFocusClass = function(e) {
     cssClass += " " + dom.focusClass;
   }
   dom.className = cssClass;
-}
+};
 
 
 pui.removeFocusClass = function(e) {
@@ -4816,7 +4816,7 @@ pui.removeFocusClass = function(e) {
     cssClass = cssClass.replace(dom.focusClass, "");
   }
   dom.className = trim(cssClass);
-}
+};
 
 
 pui.autoAdvanceOnKeyUp = function(event) {
@@ -4833,7 +4833,7 @@ pui.autoAdvanceOnKeyUp = function(event) {
     pui.keyName = "Enter";
     pui.click();
   }
-}
+};
 
 
 pui.translateDataType = function(dtype) {
@@ -4848,7 +4848,7 @@ pui.translateDataType = function(dtype) {
     case 18: return "timestamp";
     default: return "char";
   }
-}
+};
 
 
 pui.isDup = function(parm) {
@@ -4858,7 +4858,7 @@ pui.isDup = function(parm) {
   if (value == null) value = "";
   if (typeof value != "string") value = String(value);
   return (value.indexOf(pui["dup"]["char"]) != -1);
-}
+};
 
 
 pui.goToNextElement = function(target) {
@@ -4910,7 +4910,7 @@ pui.goToNextElement = function(target) {
     }
     
   }
-}
+};
 
 
 pui.goToClosestElement = function(baseElem, direction) {
@@ -5004,14 +5004,14 @@ pui.goToClosestElement = function(baseElem, direction) {
     }
     catch(e) {}
   }
-}
+};
 
 
 pui.fieldUpper = pui.formatUpper = function(fieldName) {
   if (fieldName == null) return "";
   if (pui.handler != null || pui.viewdesigner) return fieldName;
   else return fieldName.toUpperCase(); 
-}
+};
 
 
 pui.doFieldExit = function(target) {
@@ -5048,7 +5048,7 @@ pui.doFieldExit = function(target) {
   }
     
   return false;
-}
+};
 
 pui.translate = function(parms) {
   
@@ -5101,7 +5101,7 @@ pui.translate = function(parms) {
     
   }
 
-}
+};
 
 pui.doTranslate = function(obj, translationMap, isScreen) {
 
@@ -5178,6 +5178,79 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
 };
 
 /**
+ * Set timeout to show help overlays when they come into view. Assume this onscroll
+ * handler is attached only when help overlays are on.
+ * @returns {undefined}
+ */
+pui["wikihelp"].onscroll = function(){
+  // If another handler is queued, then remove it so only one runs.
+  if (pui["wikihelp"].onscrollTimeoutVal != null ){
+    clearTimeout(pui["wikihelp"].onscrollTimeoutVal);
+  }
+  
+  // Delay to avoid expensive checking all elements frequently (60fps is 16.6ms per frame).
+  pui["wikihelp"].onscrollTimeoutVal = setTimeout(pui["wikihelp"].onscrollTimeout, 17);
+};
+
+/**
+ * Show help overlays when they come into view. Callback for setTimeout in onscroll.
+ * @returns {undefined}
+ */
+pui["wikihelp"].onscrollTimeout = function(){
+  // Look at each overlay and retest its visibility if it isn't already visible.
+  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+    var overlay = pui["wikihelp"]["overlays"][i];
+    
+    if (!overlay["pui"].isVisible){
+      overlay["pui"].isVisible = pui["wikihelp"].isVisible( getObj(overlay["pui"]["fieldId"]) );
+      if( overlay["pui"].isVisible ) overlay.style.display = "block";
+    }
+  }
+};
+
+/**
+ * Check if the specified element is not hidden underneath any other elements.
+ * 
+ * @param {String} el        Widget's DOM element to test.
+ * @returns {Boolean|Null}
+ *    False if the element is in a tab panel and the parent tab is not selected.
+ *    True if the specified element is on top of other elements.
+ */
+pui["wikihelp"].isVisible = function(el){
+  if (el == null) return false;
+  
+  // Check if the element is in a tab panel, and if the parent tab is selected.
+  if( el.parentTabPanel && el.parentTab ) {
+    var partabPanel = document.getElementById(el.parentTabPanel);
+    if( ! partabPanel ) return false;   //The parent tab panel could not be found. Assume element isn't visible.
+    var seltab = partabPanel.getTab();
+    
+    if (seltab !== parseInt(el.parentTab,10) ) return false; //The parent tab is not selected, so element is not visible.
+  }
+  
+  var rect = el.getBoundingClientRect();    //Gets coordinates relative to viewport.
+  var midpx = Math.round((rect.left + rect.right) / 2);
+  var midpy = Math.round((rect.top + rect.bottom) / 2);
+  
+  // See what elements are at the widget's corners. (Note: elementFromPoint uses viewport coordinates.)
+  // Testing 2px off exact corner catches grids and widgets that paint other elements in their exact corner.
+  // Test multiple points in case element isn't scrolled completely in view.
+  var topleftEl  = document.elementFromPoint(rect.left  + 2, rect.top + 2);
+  var botrightEl = document.elementFromPoint(rect.right - 2, rect.bottom - 2);
+  var botleftEl  = document.elementFromPoint(rect.left  + 2, rect.bottom - 2);
+  var midpEl     = document.elementFromPoint(midpx, midpy);
+
+  if (topleftEl === el || midpEl === el || botrightEl === el || botleftEl === el
+  || el.contains(topleftEl) || el.contains(midpEl) || el.contains(botrightEl)
+  || el.contains(botleftEl) ){
+    return true;
+  }
+
+  // If the element is in a container, the user may scroll the layout later, making it visible.
+  return (el.parentNode != null && el.parentNode.getAttribute("container") == "true");
+};
+
+/**
  * Show overlays on every widget in the current formats.
  * If the overlays were previously created, they are made visible and the 
  * function returns. Otherwise, overlay elements are created for each current
@@ -5188,18 +5261,17 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
 pui["wikihelp"]["overlayOn"] = function() {
   if (pui["layers"] == null) return;
   
+  addEvent( window, "scroll", pui["wikihelp"].onscroll ); //If any widgets become visible, shows overlay.
+  
   // If the overlays have already been constructed, then show them.
   if( pui["wikihelp"]["overlays"].length > 0 ) {
     for(var i=0; i < pui["wikihelp"]["overlays"].length; i++) {
       var overlay = pui["wikihelp"]["overlays"][i];
 
-      var isVisible = true;
-      // Detect member of tab panel. Only show if parent tab is selected.
-      if( overlay["pui"].parentTabSelected ) {
-        isVisible = overlay["pui"].parentTabSelected(overlay["pui"].parentTabPanel, overlay["pui"].parentTab);
-      }
-
-      if( isVisible ) overlay.style.display = "block";
+      // Re-test visibility in case elements changed since the overlays were created.
+      overlay["pui"].isVisible = pui["wikihelp"].isVisible( getObj(overlay["pui"]["fieldId"]) );
+      
+      if( overlay["pui"].isVisible ) overlay.style.display = "block";
     }//end showing each overlay.
   }
   // The overlays haven't been constructed yet; create them.
@@ -5238,46 +5310,46 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         if( item["field type"] === "panel") continue;
         if( item["field type"] === "css panel") continue;
         if( item["visibility"] === "hidden") continue;
+          
+        // Info to pass on to the onclick handler and to pui.wikihelp.skipItem.
+        var details = {};
+        details["dspf"] = format.file;
+        details["recfmt"] = format.name;
+        details["fieldId"] = item.id;
+        details["field type"] = item["field type"];
+        
+        // Pass along field name for bound fields.
+        if( typeof(item.value) == "object" && item.value.fieldName )
+          details["fieldName"] = item.value.fieldName;
+        else if(typeof(item["menu response"]) == "object" && item["menu response"].fieldName)
+          details["fieldName"] = item["menu response"].fieldName;
+        else if(typeof(item.response) == "object" && item.response.fieldName)
+          details["fieldName"] = item.response.fieldName;
+        else
+          details["fieldName"] = "";
+        
+        // Let the end-developer limit which items to overlay via this API function.
+        if (typeof pui["wikihelp"]["skipItem"] == "function" && pui["wikihelp"]["skipItem"](details) === true ) continue;
 
         // Create a new overlay div that we can position absolutely.
         var overlay = document.createElement("div");
         overlay.className = "pui-wikih-overlay";
         overlay.style.position = "absolute";
         el.parentNode.appendChild(overlay);
-        
-        // Copy info to pass on to the onclick handler.
-        overlay["pui"] = {};
-        overlay["pui"]["dspf"] = format.file;
-        overlay["pui"]["recfmt"] = format.name;
-        overlay["pui"]["fieldId"] = item.id;
-        overlay["pui"]["fieldName"] = "";
-        // Pass along field name for bound fields.
-        if( typeof(item.value) == "object" && item.value.fieldName )
-          overlay["pui"]["fieldName"] = item.value.fieldName;
-        else if(typeof(item["menu response"]) == "object" && item["menu response"].fieldName)
-          overlay["pui"]["fieldName"] = item["menu response"].fieldName;
-        else if(typeof(item.response) == "object" && item.response.fieldName)
-          overlay["pui"]["fieldName"] = item.response.fieldName;
 
-        var isVisible = true;
-        // Detect member of tab panel. Only show field if parent tab is selected.
+        overlay["pui"] = details;
+        
+        // Pass the original element's tab details to the overlay to help determine visibility.
         if( el.parentTabPanel && el.parentTab ) {
           overlay["pui"].parentTabPanel = el.parentTabPanel;
           overlay["pui"].parentTab = parseInt(el.parentTab, 10);
-          
-          // Returns true if the corresponding widget's parent tab exists and is
-          // selected; else returns false.
-          overlay["pui"].parentTabSelected = function(parentTabPanel, parentTab){
-            // Note: "this" inside this function refers to the function's parent
-            // object: overlay.pui. But using "this" causes obfuscator warnings.
-            var partabPanel = document.getElementById(parentTabPanel);
-            if( ! partabPanel ) return false;
-            var seltab = partabPanel.getTab();
-            return seltab === parentTab;
-          };
-          isVisible = overlay["pui"].parentTabSelected(overlay["pui"].parentTabPanel, overlay["pui"].parentTab);
         }
-        if( isVisible && displayOverlays ) overlay.style.display = "block";
+        
+        // Note: the onscroll event will re-test elements that were originally out of the viewport.
+        overlay["pui"].isVisible = pui["wikihelp"].isVisible(el);
+
+        // Show the overlay, unless there is a parent tab that isn't selected.
+        if( overlay["pui"].isVisible && displayOverlays ) overlay.style.display = "block";
         else overlay.style.display = "none";
 
         // Match the width/height of the widget on the page; zIndex over it.
@@ -5385,6 +5457,8 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
  * @returns {undefined}
  */
 pui["wikihelp"]["overlayOff"] = function() {
+  removeEvent( window, "scroll", pui["wikihelp"].onscroll );
+
   for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
     pui["wikihelp"]["overlays"][i].style.display = "none";
   }
