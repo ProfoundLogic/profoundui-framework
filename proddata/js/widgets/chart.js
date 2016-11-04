@@ -68,7 +68,7 @@ pui.widgets.renderChart = function(parms) {
     if (parms.transparent == true) chartObj.setTransparent(true);
     
     // Process chart data if necessary.
-    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom["onchartclick"]) == "function") {
+    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom.pui.properties["onchartclick"]) != "undefined") {
     
       if (parms.xmlURL != null || parms.jsonURL != null) {
       
