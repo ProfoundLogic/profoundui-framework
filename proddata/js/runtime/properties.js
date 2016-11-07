@@ -1284,6 +1284,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     else if (propConfigName == "onchartclick") {
       func = function() {
         eval("var name = arguments[0];");
+        if (typeof name == "object") {
+          eval("var category = name.category");
+          eval("var name = name.name");
+        }
         try {
           var customFunction = eval(newValue);
           if (typeof customFunction == "function") {

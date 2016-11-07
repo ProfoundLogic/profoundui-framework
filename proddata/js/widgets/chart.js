@@ -204,21 +204,51 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
     
     }
     
-    var sets = doc.getElementsByTagName("set");
+    var categories = [];
+    var dataSets;
+    if (doc.getElementsByTagName("categories").length == 1) {
+      
+      var els = doc.getElementsByTagName("category");
+      for (var i = 0; i < els.length; i++)
+        categories.push(els[i].getAttribute("label"));
+      dataSets = doc.getElementsByTagName("dataset");
     
-    for (var i = 0; i < sets.length; i++) {
-    
-      var set = sets[i];
+    }
+    else {
+  
+      dataSets = [doc];
       
-      var name = set.getAttribute("name");
-      if (name == null) {
+    }
+    for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
       
-        name = set.getAttribute("label");
+      var dataSet = dataSets[dataSetIdx];
+      var sets = dataSet.getElementsByTagName("set");
+      for (var setIdx = 0; setIdx < sets.length; setIdx++) {
       
-      }
+        var data = {"id": id};
+        var set = sets[setIdx];
+        if (dataSet.nodeName == "dataset") {
+
+          data["name"] = dataSet.getAttribute("seriesname"); // According to FusionCharts docs.
+          if (data["name"] == null)
+            data["name"] = dataSet.getAttribute("seriesName"); // According to our example.
+          if (setIdx < categories.length)
+          data["category"] = categories[setIdx];
+        
+        }
+        else {
+        
+          data["name"] = set.getAttribute("name");
+          if (data["name"] == null)
+            data["name"] = set.getAttribute("label");
+        
+        }
+        
+        set.setAttribute("link", "j-pui.widgets.doChartLink-" + JSON.stringify(data));
       
-      set.setAttribute("link", "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + name + "\"}"); 
-    
+      }     
+     
+      
     }
    
     if (typeof(XMLSerializer) != "undefined") {
@@ -269,15 +299,19 @@ pui.widgets.addJSONChartLinks = function(id, json) {
 
 pui.widgets["doChartLink"] = function(param) {
 
-  var param = eval("(" + param + ")");
+  var param = JSON.parse(param);
   var id = param["id"];
   var name = param["name"];
+  var category = param["category"];
   
   var dom = getObj(id);
   
   if (typeof(dom.pui.properties["chart response"]) != "undefined") {
   
-    dom.responseValue = name;
+    if (category)
+      dom.responseValue = category + "|" + name;
+    else
+      dom.responseValue = name;
     
     if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
     
@@ -291,7 +325,16 @@ pui.widgets["doChartLink"] = function(param) {
   }
   else if (typeof(dom["onchartclick"]) == "function") {
   
-    dom["onchartclick"](name);
+    if (category) {
+
+      dom["onchartclick"]({"name": name, "category": category});
+     
+    }
+    else {
+      
+      dom["onchartclick"](name);
+    
+    }
   
   }
     
