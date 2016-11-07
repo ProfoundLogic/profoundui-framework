@@ -277,12 +277,44 @@ pui.widgets.addJSONChartLinks = function(id, json) {
 
     var obj = eval("(" + json + ")");
     
-    var data = obj["data"];
+    var dataSets;
+    var categories = [];
+    if (obj["dataset"] instanceof Array) {
+      
+      dataSets = obj["dataset"];
+      for (var i = 0; i < obj["categories"][0]["category"].length; i++)
+        categories.push(obj["categories"][0]["category"][i]["label"]);
+      
+    }
+    else {
+      
+      dataSets = [obj["data"]];
+      
+    }
+     
+    for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
     
-    for (var i = 0; i < data.length; i++) {
-    
-      var set = data[i];
-      set["link"] = "j-pui.widgets.doChartLink-{\"id\":\"" + id + "\", \"name\":\"" + set["label"] + "\"}";    
+      var data = {"id": id};
+      var dataSet = dataSets[dataSetIdx];
+      var sets = (dataSet["data"] instanceof Array) ? dataSet["data"] : dataSet;
+      for (var setIdx = 0; setIdx < sets.length; setIdx++) {
+        
+        var set = sets[setIdx];
+        if (dataSet["seriesname"]) {
+          
+          data["name"] = dataSet["seriesname"];
+          if (setIdx < categories.length)
+            data["category"] = categories[setIdx];
+          
+        }
+        else {
+          
+          data["name"] = set["label"];
+          
+        }
+        set["link"] = "j-pui.widgets.doChartLink-" + JSON.stringify(data);
+        
+      }    
     
     }
   
