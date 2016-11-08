@@ -1900,64 +1900,108 @@ pui["getDisplayType"] = function() {
 
 function runPCCommand(arg) {
 
+  // Load Java Applet if needed.
+  
+  if (!pui["use pc listener"]) {
+    var applet = document.getElementById("PCCommandApplet");
+    if (!applet) {
+      pui.appletCommandData = arg;
+      loadPCCommandApplet("runCommandCb");
+      return;  
+    }
+  }
+  
   var command;
   var wait = false;
+  var commandList = [];
+  var nextCommand = 0;
+  
+  // for backward compatibility, the argument to this function
+  //   can be one of the following:
+  //      string = just contains the command to run
+  //      object = an object containing { "command": the-command, "wait": true/false }
+  //      array  = array of objects (as 'object' above) to run multiple commands
   
   if (typeof arg == "string") {
-    command = arg;
+    commandList = [ { "command": command, "wait": false } ];
   }
   else {
-    command = arg["command"];
-    wait = arg["wait"];
+    commandList = arg;
   }
-  
-	if (pui["use pc listener"] === true) {
-	
-	  var waitArg = (wait) ? "1" : "0";
-	  var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
-    var req = new pui.Ajax("http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) 
-                         + "&wait=" + waitArg );
-    req.method = "GET";
-    req.async = (wait === false);
-    req.suppressAlert = true;
-    req.onfail = function(req) {
+
+  function doRunPCCommand() {
+    
+    if (nextCommand >= commandList.length) return;
+    var command = commandList[nextCommand]["command"];
+    var wait = commandList[nextCommand]["wait"];
+    nextCommand += 1;
+    
+    if (pui["use pc listener"] === true || pui["image pc listener"] ) {
       
-        if (req.getStatus() != 200) {
-        
-          console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
-          console.log("Command: " + command);
-        
+      var waitArg = (wait) ? "1" : "0";
+      var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
+      var url = "http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) + "&wait=" + waitArg 
+      
+      if ( pui["image pc listener"] ) {
+        url += "&type=image&rnd=" + String(Math.random()) + String(new Date().getTime());
+        var cmdImg = new Image();
+        cmdImg.onload = function() {
+          doRunPCCommand();
         }
-        
+        cmdImg.src = url;
+      }
+      else {
+        var req = new pui.Ajax(url);
+        req.method = "GET";
+        req.async = true;
+        req.suppressAlert = true;
+        req.onfail = function(req) {
+            if (req.getStatus() != 200) {
+              console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
+              console.log("Command: " + command);
+            }
+        }
+        req.onsuccess = function() {
+          doRunPCCommand();
+        }
+        req.send();
+      }
+      return;
     }
-    req.send();
-    return;
+    
+    
+    // When running multiple commands with the Java applet
+    //  join them together into a single string.
+    //
+    // NOTE: This does not work quite right because the parenthesis
+    //       can change the meaning of some commands.  But, since
+    //       the applet does not have a way to tell us when it's
+    //       finished running a command, we use this as a workaround 
+    //       -SK
+    
+    if (nextCommand==0 && commandList.length>0) {
+      var arr = [];
+      for (var i=0; i<commandList.length; i++) {
+        arr.push("(" + commandList[i].command + ")");
+      }
+      command = arr.join(" && ");
+    }
+    
+    try {
+      applet["runCommand"](command);
+    }
+    catch(e) {
+      var msg = "Unable to execute \"" + command + "\".\n\n"
+      if (e != null) {
+        msg += e.name + ":\n\n" + e.message + ".";
+      }
+      alert(msg);
+    }  
+    
+  }
 
-	}
-
-	var applet = document.getElementById("PCCommandApplet");
-	if (!applet) {
-	
-	  // Could replace this at some time with a load <param>
-	  // for the applet to process.
-	
-	  pui.appletCommandData = command;
-	  loadPCCommandApplet("runCommandCb");
-	  return;  
-	
-	}
-	
-	try {
-		applet["runCommand"](command);
-	}
-	catch(e) {
-		var msg = "Unable to execute \"" + command + "\".\n\n"
-		if (e != null) {
-		  msg += e.name + ":\n\n" + e.message + ".";
-		}
-		alert(msg);
-	}  
-
+  doRunPCCommand();
+  
 }
 
 window["runCommandCb"] = function() {
