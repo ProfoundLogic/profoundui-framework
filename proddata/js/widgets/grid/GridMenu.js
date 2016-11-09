@@ -209,7 +209,7 @@ pui.GridMenu = function() {
         me.grid["startFilter"](me.cell);
       });
     }
-
+	
     if (me.grid.filterOption && me.cell.filterIcon != null) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
       menuIcons.push("icons/remove_filter.png");
@@ -226,6 +226,14 @@ pui.GridMenu = function() {
       });
     }
     
+	if (me.grid.resetOption) {
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text"));
+      menuIcons.push("icons/default.png");
+      optionHandlers.push(function() {
+        me.grid["clearState"]();
+      });
+    }
+	
     if ( (me.grid.exportOption == true) ||
          (me.grid.exportOption == null && me.grid.pagingBar != null && me.grid.pagingBar.csvExport) ) {
       if (menuOptions.length > 0 && menuOptions[menuOptions.length - 1] != "-") {

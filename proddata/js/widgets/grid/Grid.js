@@ -154,6 +154,7 @@ pui.Grid = function() {
   
   this.findOption = false;
   this.filterOption = false;
+  this.resetOption = false;
   this.exportOption = null;
   
   this.expandToLayout = false;
@@ -3266,7 +3267,11 @@ pui.Grid = function() {
       
       case "filter option":
         me.filterOption = (value == true || value == "true");
-        break;      
+        break; 
+
+	  case "reset option":
+		me.resetOption = (value == true || value == "true");
+		break;
 
       case "export option":
         if (value == true || value == "true") {
@@ -6600,7 +6605,9 @@ pui.Grid = function() {
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
-      { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
+	  //Reset the  browser cache Data for a table
+	  { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the browser cache data for this table when the grid heading is right-clicked.", context: "dspf" },  
+	  { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"] },
   
       { name: "Paging Bar", category: true, context: "dspf" },
