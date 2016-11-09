@@ -3958,7 +3958,9 @@ pui["run"] = function(config) {
       else {
         pui.handler = null;
       }
-      pui.render(preview);
+      // If any items depend on external scripts, wait for those to load before
+      // rendering. Without dependencies, pui.render is called without waiting.
+      pui.loadDependencyScripts(preview, function(){ pui.render(preview); });
     }
   }
   else {
