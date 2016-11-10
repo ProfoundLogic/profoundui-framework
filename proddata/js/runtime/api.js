@@ -1899,10 +1899,15 @@ pui["getDisplayType"] = function() {
 }
 
 function runPCCommand(arg) {
+  
+  var listenerMode = 0;
+  if (pui["use pc listener"]) listenerMode = 1;
+  if (window["HTTPS"]!=null && window["HTTPS"]=="ON" && listenerMode == 1) listenerMode = 2;
+  if (pui["pc listener mode"]) listenerMode = parseInt(pui["pc listener mode"]);
 
   // Load Java Applet if needed.
   
-  if (!pui["use pc listener"]) {
+  if (listenerMode == 0) {
     var applet = document.getElementById("PCCommandApplet");
     if (!applet) {
       pui.appletCommandData = arg;
@@ -1936,13 +1941,13 @@ function runPCCommand(arg) {
     var wait = commandList[nextCommand]["wait"];
     nextCommand += 1;
     
-    if (pui["use pc listener"] === true || pui["image pc listener"] ) {
+    if (listenerMode >= 1) {
       
       var waitArg = (wait) ? "1" : "0";
       var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
       var url = "http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) + "&wait=" + waitArg 
       
-      if ( pui["image pc listener"] ) {
+      if ( listenerMode >= 2 ) {
         url += "&type=image&rnd=" + String(Math.random()) + String(new Date().getTime());
         var cmdImg = new Image();
         cmdImg.onload = function() {
@@ -1953,7 +1958,7 @@ function runPCCommand(arg) {
       else {
         var req = new pui.Ajax(url);
         req.method = "GET";
-        req.async = true;
+        req.async = (wait) ? false : true;
         req.suppressAlert = true;
         req.onfail = function(req) {
             if (req.getStatus() != 200) {
