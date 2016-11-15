@@ -5274,6 +5274,12 @@ pui["wikihelp"]["overlayOn"] = function() {
       overlay["pui"].isVisible = pui["wikihelp"].isVisible( getObj(overlay["pui"]["fieldId"]) );
       
       if( overlay["pui"].isVisible ) overlay.style.display = "block";
+      
+      // Elements inside hidden accordion sections can't report a valid offsetWidth/offsetHeight.
+      // Try fetching those values again in case the elements are visible now.
+      var el = document.getElementById(overlay["pui"]["fieldId"]);
+      pui["wikihelp"].sizeOverlay(el, overlay);
+      
     }//end showing each overlay.
   }
   // The overlays haven't been constructed yet; create them.
@@ -5353,12 +5359,15 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         // Show the overlay, unless there is a parent tab that isn't selected.
         if( overlay["pui"].isVisible && displayOverlays ) overlay.style.display = "block";
         else overlay.style.display = "none";
+        
+        // Extra details needed for special case widgets.
+        if( item["field type"] === "grid" && item["csv export"] === "true" ){
+          overlay["pui"].pagingBarHeight = pui.pagingBarHeight;
+        }
+        if( item["field type"] === "styled button" ){
+          overlay["pui"].itemHeight = item["height"];
+        }
 
-        // Match the width/height of the widget on the page; zIndex over it.
-        // Workaround for IE8,IE9 offset values returning 0: call getBoundingClientRect
-        el.getBoundingClientRect();
-        var ovwidth = el.offsetWidth;
-        var ovheight = el.offsetHeight;
         overlay.style.zIndex = el.style.zIndex + 100;
         
         
@@ -5368,89 +5377,108 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         if( el.style.left.length > 0 ) overlay.style.left = el.style.left;
         else if( el.style.right.length > 0 ) overlay.style.right = el.style.right;
 
-        // Special cases; adjust position and size of overlay.
-        // 
-        // Radio buttons and checkboxes have multiple elements not inside a parent div.
-        if( item["field type"] === "radio button" ) {
-          overlay.style.margin = "3px 3px 0 5px";
-          // The next sibling 
-          if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
-            ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
-            ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
-          }
-        }
-        else if( item["field type"] === "checkbox" ) {
-          overlay.style.margin = "2px";
-          if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
-            ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
-            ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
-          }
-        }
-        // Tab panels contain other elements, so only overlay the tabs to 
-        // prevent clicking them.
-        else if( item["field type"] === "tab panel") {
-          // 2nd child Node contains the tabs. Use height from tabs.
-          ovheight = el.childNodes[1].offsetHeight;
-          overlay.style.fontSize = (ovheight * 0.85) + "px";
-        }
-        else if( item["field type"] === "date field") {
-          ovwidth = el.offsetWidth + 22;
-        }
-        else if( item["field type"] === "grid") {
-          if( item["csv export"] === "true") {
-            ovheight += pui.pagingBarHeight;
-          }
-        }
-        else if( item["field type"] === "styled button" && !item["height"] ){
-          var dim = pui.getDimensions(el);
-          ovheight = dim.y2;
-        }
-        
-        overlay.style.width = ovwidth + "px";
-        overlay.style.height = ovheight + "px";
-        
         // Look for user-defined text content.
         if( pui["wikihelp"]["overlayText"] ) {
           overlay.appendChild(document.createTextNode(pui["wikihelp"]["overlayText"]));
-
-          // Scale the font unless explicitly told not to.
-          if(pui["wikihelp"]["fontScale"] != false) {
-            // Get user-defined font scaling factors or use the best determined
-            // values for Helvetica font with latin characters.
-            var fontScale = Number(pui["wikihelp"]["fontScale"]);
-            if( isNaN(fontScale)) fontScale = 1.56;
-
-            // Calculate the largest font size for the text to remain in its box.
-            // Works for most boxes with short (1-4 chars) strings.
-            var fontWidth = ovwidth / pui["wikihelp"]["overlayText"].length;
-            var fontHeight = Math.min( fontWidth * fontScale, ovheight * fontScale / 2);
-            overlay.style.fontSize = fontHeight + "px";
-          }
         }
 
         // Add an image for the overlay.
         if( pui["wikihelp"]["image"] ) {
           var img = document.createElement("img");
           img.src = pui["wikihelp"]["image"];
-          // By default make the image square. Otherwise it stretches for some fields.
-          if( pui["wikihelp"]["imageSquare"] !== false ) {
-            var size = Math.min(ovwidth, ovheight);
-            img.width = size;
-            img.height = size;
-          }
-          else {
-            img.width = ovwidth;
-            img.height = ovheight;
-          }
           overlay.appendChild(img);
         }
 
+        pui["wikihelp"].sizeOverlay(el, overlay);
+        
         addEvent(overlay, "click", pui["wikihelp"].onClickOverlay );
         pui["wikihelp"]["overlays"].push(overlay);
 
       }//end looking at each item.
     }//end looking at each format.
   }//end looking at each layer.
+};
+
+/**
+ * Calculate the width and height of an overlay box based on the underlying widget properties.
+ * @param {Object} el       The widget's DOM element.
+ * @param {Object} overlay  The help overlay object for a widget.
+ * @returns {undefined}
+ */
+pui["wikihelp"].sizeOverlay = function(el, overlay){
+  // Match the width/height of the widget on the page; zIndex over it.
+  // Workaround for IE8,IE9 offset values returning 0: call getBoundingClientRect
+  el.getBoundingClientRect();
+  var ovwidth = el.offsetWidth;
+  var ovheight = el.offsetHeight;
+
+  // Special cases; adjust position and size of overlay.
+  // 
+  // Radio buttons and checkboxes have multiple elements not inside a parent div.
+  if( overlay["pui"]["field type"] === "radio button" ) {
+    overlay.style.margin = "3px 3px 0 5px";
+    // The next sibling 
+    if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+      ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
+      ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
+    }
+  }
+  else if( overlay["pui"]["field type"] === "checkbox" ) {
+    overlay.style.margin = "2px";
+    if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+      ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
+      ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
+    }
+  }
+  // Tab panels contain other elements, so only overlay the tabs to 
+  // prevent clicking them.
+  else if( overlay["pui"]["field type"] === "tab panel") {
+    // 2nd child Node contains the tabs. Use height from tabs.
+    ovheight = el.childNodes[1].offsetHeight;
+    overlay.style.fontSize = (ovheight * 0.85) + "px";
+  }
+  else if( overlay["pui"]["field type"] === "date field") {
+    ovwidth = el.offsetWidth + 22;
+  }
+  else if( overlay["pui"]["field type"] === "grid" && overlay["pui"].pagingBarHeight != null ) {
+    ovheight += overlay["pui"].pagingBarHeight;
+  }
+  else if( overlay["pui"]["field type"] === "styled button" && !overlay["pui"].itemHeight ){
+    var dim = pui.getDimensions(el);
+    ovheight = dim.y2;
+  }
+
+  overlay.style.width = ovwidth + "px";
+  overlay.style.height = ovheight + "px";
+
+  // Set user-defined text size: scale the font unless explicitly told not to.
+  if( pui["wikihelp"]["overlayText"] && pui["wikihelp"]["fontScale"] != false ) {
+    // Get user-defined font scaling factors or use the best determined
+    // values for Helvetica font with latin characters.
+    var fontScale = Number(pui["wikihelp"]["fontScale"]);
+    if( isNaN(fontScale)) fontScale = 1.56;
+
+    // Calculate the largest font size for the text to remain in its box.
+    // Works for most boxes with short (1-4 chars) strings.
+    var fontWidth = ovwidth / pui["wikihelp"]["overlayText"].length;
+    var fontHeight = Math.min( fontWidth * fontScale, ovheight * fontScale / 2);
+    overlay.style.fontSize = fontHeight + "px";
+  }
+  
+  // Set image overlay size.
+  if( pui["wikihelp"]["image"] ) {
+    var img = overlay.getElementsByTagName("img")[0];
+    // By default make the image square. Otherwise it stretches for some fields.
+    if( pui["wikihelp"]["imageSquare"] !== false ) {
+      var size = Math.min(ovwidth, ovheight);
+      img.width = size;
+      img.height = size;
+    }
+    else {
+      img.width = ovwidth;
+      img.height = ovheight;
+    }
+  }
 };
 
 /**
@@ -5491,6 +5519,7 @@ pui["wikihelp"].onClickOverlay = function(event) {
   params["recfmt"] = target["pui"]["recfmt"];
   params["fieldId"] = target["pui"]["fieldId"];
   params["fieldName"] = target["pui"]["fieldName"];
+  params["field type"] = target["pui"]["field type"];
   params["event"] = event;
   if( typeof(pui["wikihelp"]["onclick"]) === "function") 
     pui["wikihelp"]["onclick"](params);
