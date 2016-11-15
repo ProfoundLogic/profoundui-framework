@@ -2799,7 +2799,8 @@ pui.buildResponse = function() {
           }
         }
       }
-      else if (dom.responseValue == "" && dom.pui.properties["field type"] == "menu" && doms.length > 1) {  // handle same response variable bound to multiple menus
+      // handle same response variable bound to multiple menus. (Note: dom.pui could be null if grid setDataValue created the domEl. Issue 3034.)
+      else if (dom.responseValue == "" && dom.pui != null && dom.pui.properties["field type"] == "menu" && doms.length > 1) {
         for (var i = 1; i < doms.length; i++) {
           if (doms[i].responseValue != "") {
             value = doms[i].responseValue;
