@@ -5037,8 +5037,12 @@ pui.doFieldExit = function(target) {
           value = "0" + value;
         }
       }
-      target.value = value;
-      target.modified = true;
+      var needsOnchange = (target.value !== value);
+   	  target.value = value;
+	  target.modified = true;
+      if (needsOnchange && typeof target.onchange === 'function') {
+  		  target.onchange();
+      }
     } 
   }  
 
