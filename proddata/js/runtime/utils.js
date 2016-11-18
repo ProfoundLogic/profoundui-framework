@@ -674,6 +674,7 @@ function fieldExit(obj, minus) {
   var rightAdjust = false;
   var maxLength;
   var signedNumeric = obj.getAttribute('signedNumeric');
+  var needsOnchange = false;
   if (minus && (signedNumeric==null || signedNumeric!='Y')) return false;
   var pos = obj.cursorPosition;
   if (pui["is_touch"] && !pui["is_mouse_capable"]) {
@@ -682,6 +683,7 @@ function fieldExit(obj, minus) {
   if (pos == null) return false;
   if (pos < 0) return false;
   if (pos >= 0) {
+	needsOnchange = (obj.value !== obj.value.substr(0, pos)); 
     obj.value = obj.value.substr(0, pos);
     blankFill = obj.getAttribute('blankFill');
     if (signedNumeric!=null && signedNumeric=='Y') blankFill = "Y";
@@ -711,6 +713,9 @@ function fieldExit(obj, minus) {
       }
       obj.value = newValue;
     }
+  }
+  if (needsOnchange && typeof obj.onchange === 'function') {
+	  obj.onchange();
   }
   goNext(obj);
   return true;
