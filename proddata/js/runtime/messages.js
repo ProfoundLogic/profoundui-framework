@@ -52,7 +52,7 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
   // for backward compat w/old pui[xxxxx] texts
   
   if (dict == "runtimeText") {
-    var oldtext = [ "close browser text", "csv export text", "filter text",
+    var oldtext = [ "close browser text", "csv export text", "filter text", "reset data",
                     "next link text", "previous link text", "remove filters text",
                     "session ended text",  "sort ascending text", "sort descending text" ]; 
     for (var m=0; m<oldtext.length; m++) {
@@ -235,6 +235,7 @@ pui["runtimeText"]["en_US"]["upload finished text"] = "Finished";
 pui["runtimeText"]["en_US"]["csv export text"]      = "Export to Excel";
 pui["runtimeText"]["en_US"]["filter text"]          = "Filter";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
+pui["runtimeText"]["en_US"]["reset data"]           = "Reset";
 pui["runtimeText"]["en_US"]["remove filters text"]  = "Remove All Filters";
 pui["runtimeText"]["en_US"]["next link text"]       = "Next";
 pui["runtimeText"]["en_US"]["previous link text"]   = "Previous";

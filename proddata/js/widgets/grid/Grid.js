@@ -6606,7 +6606,7 @@ pui.Grid = function() {
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
 	  //Reset the  browser cache Data for a table
-	  { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the browser cache data for this table when the grid heading is right-clicked.", context: "dspf" },  
+	  { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },  
 	  { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"] },
   

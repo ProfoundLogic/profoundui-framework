@@ -227,11 +227,41 @@ pui.GridMenu = function() {
     }
     
 	if (me.grid.resetOption) {
-      menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text"));
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "reset data"));
       menuIcons.push("icons/default.png");
       optionHandlers.push(function() {
+       var properties = me.grid.cells[0][0].parentNode.pui.properties;
+        
+        me.grid["alignColumnTotals"]();
+
+        // Restore column order.
+        var headerRow = me.grid.cells[0];
+        for (var i = 0; i < headerRow.length; i++) {
+          var headerCell = headerRow[i];
+          if (headerCell.col != headerCell.columnId)
+            me.grid.moveColumn(headerCell.col, headerCell.columnId );
+        }
+        
+        // Reset column widths - must follow calls to moveColumn.
+        var colWidths = properties["column widths"];
+        me.grid.setColumnWidths(colWidths);
+        me.grid.sizeAllCells();
+        
+        me.grid.sortIcon = null; //Prevent sortIcon from being drawn.
+
+        me.grid.setHeadings(); //Redraws column headings, including icons; but if order wasn't restored, the headings don't match the content.
+        
+        // Reset sort order.
+        if (me.grid.isDataGrid() ){
+          me.grid.sortBy = me.grid.initialSortColumn; //(Null is OK.)
+        }else{
+          //TODO: Load-all grid.
+        }
+        
+        me.grid["removeAllFilters"]();
         me.grid["clearState"]();
-      });
+
+		});
     }
 	
     if ( (me.grid.exportOption == true) ||
