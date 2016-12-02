@@ -1170,6 +1170,12 @@ pui.Grid = function() {
     me.tableDiv.parentNode.appendChild(maskCover);
   };
   
+  /**
+   * Populate the grid cells. Data-grids may fetch data from a URL. Handler-driven grids
+   * fill internal data arrays.
+   * @param {type} csvFile  Filename specified in exportCSV when grid is data-grid.
+   * @returns {undefined}
+   */
   this.getData = function(csvFile) {
     if (me.tableDiv.disabled == true) return;
     if (me.designMode) return;
@@ -5788,7 +5794,8 @@ pui.Grid = function() {
     me.totalRecs = null;
     if (me.slidingScrollBar) {
       me.scrollbarObj.totalRows = me.totalRecs;
-    }  
+    }
+    pui.sqlcache = null;  //Clear the cache to force requests for new data.
     me.getData();    
   };
   
