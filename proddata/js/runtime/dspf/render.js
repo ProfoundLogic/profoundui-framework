@@ -4966,7 +4966,7 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (isNaN(x)) continue;
     var y = parseInt(mainElem.style.top);
     if (isNaN(y)) continue;
-    gridDom = elem.parentNode.parentNode;
+    gridDom = mainElem.parentNode.parentNode;
     if (gridDom.grid != null) {  // the element is within a grid
       var cellX = parseInt(mainElem.parentNode.style.left);
       if (isNaN(cellX)) return null;
