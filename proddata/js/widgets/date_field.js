@@ -239,7 +239,6 @@ function dt2dtstr(dt_datetime){
       dt_datetime.getDate()+"-"+(dt_datetime.getMonth()+1)+"-"+dt_datetime.getFullYear()+" "));
 }
 function usa_dt(dt_datetime, format, formattingInfo){
-
   var dateFormat = null;
   if (formattingInfo != null) {
     var locale;
@@ -247,20 +246,18 @@ function usa_dt(dt_datetime, format, formattingInfo){
       locale = pui["locale"]; 
     else
       locale = formattingInfo.locale;
-    if (pui["default date pattern"])
-      dateFormat = pui["default date pattern"];
-    else {
-      
       dateFormat = formattingInfo.dateFormat;
       if (dateFormat == null) {
         dateFormat = formattingInfo.customPattern;
       }
-      
+      if ((dateFormat == '' || dateFormat == null) && (pui['default date pattern'])){
+       dateFormat = pui['default date pattern'];
+      }   
     }
+
     if (dateFormat != null) {
       return dt_datetime.format(dateFormat, locale);
     }
-  }
 
   if (formattingInfo != null && formattingInfo["dataLength"] == "8" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YY" || format == "DD/MM/YY")) {
     format += "YY";
@@ -329,17 +326,14 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
 
   var dateFormat = null;
   if (formattingInfo != null) {
-    if (pui["default date pattern"])
-      dateFormat = pui["default date pattern"];
-    else {  
-    
-      dateFormat = formattingInfo.dateFormat;
-      if (dateFormat == null) {
-        dateFormat = formattingInfo.customPattern;
+     dateFormat = formattingInfo.dateFormat;   
+     if (dateFormat == null) {
+       dateFormat = formattingInfo.customPattern;
       }
-      
-    }
-    if (dateFormat != null) {
+      if ((dateFormat == '' || dateFormat == null) && (pui['default date pattern'])){
+       dateFormat = pui['default date pattern'];
+      };     
+     if (dateFormat != null) {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"]; 
       else
@@ -545,12 +539,18 @@ pui.widgets.add({
       if (!parms.design) {
         if (parms.dom.tagName == "INPUT" && !parms.dom.readOnly && !parms.dom.disabled) {
           var format; 
-          format = parms.properties["date format"];
-          if (format == null || format == "") {
+          if (parms.properties["date format"]) {
+            format = parms.properties["date format"];
+          } else {
             if (context == "genie") format = pui.genie.config.defaultDateFormat;
-            else format = pui.defaultDateFormat;
-          }
-          if (format == null || format == "") format = "MM/DD/YY";  // default format
+            if (!format) {
+              if (pui.defaultDateFormat) {
+                format = pui.defaultDateFormat;
+              } else {
+                format = "MM/DD/YY";  // default format
+              }
+            }
+          } 
           setTimeout(function() { 
           
             // Not sure why this code runs on a 1s time delay -- I found it this way. 

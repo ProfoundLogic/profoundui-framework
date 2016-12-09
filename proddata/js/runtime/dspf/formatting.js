@@ -738,9 +738,12 @@ pui.FieldFormat = {
             parsedKWs.internal += "d";
           }
           value = pui.formatting.leftPad(value, 6, '0');
-        }
+        } 
       }
       var d = pui.formatting.Date.parse(value, parsedKWs.internal, locale);
+      if (obj.dateFormat == '' && pui["default date pattern"]){
+        obj.dateFormat = pui["default date pattern"];
+      }
       obj.dateFormat = obj.dateFormat || parsedKWs.display;
       if (d) {
         if (d.format('Y-m-d', 'en_US') == '0001-01-01') value = "";
