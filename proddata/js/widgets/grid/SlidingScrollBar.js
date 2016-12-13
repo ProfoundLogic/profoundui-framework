@@ -50,6 +50,7 @@ pui.SlidingScrollBar = function() {
   var rowNumHideRequest = 0;
   var firstRequest = true;
   var mouseWheelEnabled = false;
+  var finishTimeout = null;   // for a timeout in gridRequestFinished().
 
   var me = this;
 
@@ -198,13 +199,13 @@ pui.SlidingScrollBar = function() {
             return;
           }
           //touchHandle.style.opacity = 1;
-          var touch = e.touches[0]
+          var touch = e.touches[0];
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
           me.touchTarget = target;
           touchHandle.touch.startY = touch.pageY;
           touchHandle.touch.lastY = touchHandle.touch.startY;
-          touchHandle.touch.startTime = new Date().getTime()
+          touchHandle.touch.startTime = new Date().getTime();
           touchHandle.touch.lastTime = new Date().getTime();
           touchHandle.touch.distance = null;
           touchHandle.touch.duration = null;
@@ -267,27 +268,35 @@ pui.SlidingScrollBar = function() {
         positionRowNum();
       }
       if (me.designMode) designUtils.preventEvent(event);
-    }
+    };
 
     outerDiv.onmouseup = function() {
       hideRowNum(rowNumHideRequest);
-    }
+    };
     
     outerDiv.appendChild(innerDiv);
     me.container.appendChild(outerDiv); 
     if (touchBar != null) me.container.appendChild(touchBar); 
     if (touchHandle != null) me.container.appendChild(touchHandle); 
     me.container.appendChild(rowNumDiv);    
-  }  
+  };
   
   this.attachOnScroll = function() {
     //outerDiv.onscroll = me.doScroll;
     addEvent(outerDiv, "scroll", me.doScroll);
-  }
+  };
 
   this.doScroll = function(startRowParm) {
     if (!me.ready) return;
-    var startRow = Math.floor(outerDiv.scrollTop / multiplier) + 1;
+    
+    var startRow = Math.floor(outerDiv.scrollTop / multiplier) + 1; //Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
+    
+    // When setScrollToRow should set the row rather than calculating it from scrollTop; and when doScroll is called with
+    // no arguments or as an event handler, use the targetRow. (i.e. user typed PgUp/PgDn or clicked paging link).
+    if (me.targetRow > 0 && (startRowParm == null || startRowParm.target != null)){
+      startRow = me.targetRow;
+    }
+    
     if (upImg != null && downImg != null && startRowParm == null && prevStartRow > 0) startRowParm = prevStartRow;
     if (startRowParm != null && typeof startRowParm == "number") startRow = startRowParm;
     if (startRow == prevStartRow) return;  // starting row has not changed
@@ -347,10 +356,27 @@ pui.SlidingScrollBar = function() {
         prevStartRow = rowNum;
       }
       var prevTop = outerDiv.scrollTop;
-      outerDiv.scrollTop = (rowNum - 1) * multiplier;
+      outerDiv.scrollTop = (rowNum - 1) * multiplier; //fires "scroll", so doScroll is now in the event queue.
+      me.targetRow = rowNum;   //Give the row number for doScroll to use, putting doScroll in a special state.
       return (prevTop != outerDiv.scrollTop);  // return false if position of scrollbar not changed
     }
-  }
+  };
+  
+  /**
+   * Grid calls this when it finishes loading. Signal that the process that started in setScrollTopToRow is
+   * finished, and doScroll goes back to normal: outerDiv.scrollTop determines the row.
+   * (This helps work around issue 3152, scrollTop is unreliable in Chrome when zoom is not at 100%.)
+   * @returns {undefined}
+   */
+  this.gridRequestFinished = function(){
+    clearTimeout(me.finishTimeout);  //Only the latest timeout needs to run.
+    
+    me.finishTimeout = setTimeout(function(){
+      // This is in a timeout to be cleared after a previously queued onSetRow has run. If this weren't in a timeout,
+      // targetRow would be cleared before a queued second call to doScroll, which could then calculate the wrong row.
+      me.targetRow = null;
+    }, me.interval);
+  };
   
   function sendRow(requestNum, rowNum) {
     if (firstRequest) {
@@ -550,7 +576,7 @@ pui.SlidingScrollBar = function() {
           if (startRow < 1) startRow = 1;
           if (startRow > me.totalRows) startRow = me.totalRows;
           me.doScroll(startRow);
-        }
+        };
         downImg = document.createElement("img");
         downImg.style.position = "absolute";
         downImg.style.bottom = "0px";
@@ -564,18 +590,18 @@ pui.SlidingScrollBar = function() {
           if (startRow < 1) startRow = 1;
           if (startRow > me.totalRows) startRow = me.totalRows;
           me.doScroll(startRow);
-        }
+        };
         outerDiv.appendChild(upImg);
         outerDiv.appendChild(downImg);
       }
     }
     
-  }
+  };
   
   this.increaseHeight = function(y) {
     if (touchBar != null) touchBar.style.height = (parseInt(outerDiv.style.height) + y - 2) + "px";
     else outerDiv.style.height = (parseInt(outerDiv.style.height) + y) + "px";
-  }
+  };
     
   this.hide = function() {
     outerDiv.style.visibility = "hidden";
@@ -586,13 +612,13 @@ pui.SlidingScrollBar = function() {
       touchBar.style.display = "none";    
       touchHandle.style.display = "none";    
     }
-  }
+  };
   
   this.destroy = function() {
     if (outerDiv.parentNode != null) outerDiv.parentNode.removeChild(outerDiv);
     if (innerDiv.parentNode != null) innerDiv.parentNode.removeChild(innerDiv);
     if (rowNumDiv.parentNode != null) rowNumDiv.parentNode.removeChild(rowNumDiv);
-  }
+  };
   
   this.enableMouseWheel = function(gridDom) {
 
@@ -605,6 +631,7 @@ pui.SlidingScrollBar = function() {
     }
     
     /** Event handler for mouse wheel event.
+     * @param {Object} event    Mouse event.
      */
     function wheel(event){
       var delta = 0;
@@ -644,12 +671,12 @@ pui.SlidingScrollBar = function() {
             gridDom.addEventListener('DOMMouseScroll', wheel, false);
     /** IE/Opera. */
     gridDom.onmousewheel = wheel;    
-  }
+  };
 
   this.changeContainer = function(newContainer) {
     me.container = newContainer;
     outerDiv.parentNode.removeChild(outerDiv);
     me.container.appendChild(outerDiv); 
-  }
+  };
 
-}
+};

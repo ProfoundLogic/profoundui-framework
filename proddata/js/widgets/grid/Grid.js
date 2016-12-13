@@ -1383,7 +1383,11 @@ pui.Grid = function() {
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         me.scrollbarObj.totalRows = dataRecords.length;
       }
-      if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
+      if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null){
+        me.scrollbarObj.draw();
+        // Sliding scrollbar must know when grid is done loading so that a flag can be cleared after queued functions finish.
+        if (typeof me.scrollbarObj.gridRequestFinished == "function") me.scrollbarObj.gridRequestFinished();
+      }
       if (me.pagingBar != null) {
         me.pagingBar.pageNumber = parseInt((me.recNum + numRows * 2 - 2) / numRows) + me.initialPageNumber - 1;
         me.pagingBar.draw();
@@ -1471,7 +1475,11 @@ pui.Grid = function() {
           }
         }
       }
-      if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) me.scrollbarObj.draw();
+      if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null){
+        me.scrollbarObj.draw();
+        // Sliding scrollbar must know when grid is done loading so that a flag can be cleared after queued functions finish.
+        if (typeof me.scrollbarObj.gridRequestFinished == "function") me.scrollbarObj.gridRequestFinished();
+      }
 
       // Update the pagingbar after each response.
       if (me.pagingBar != null) {
