@@ -2808,6 +2808,26 @@ pui.buildResponse = function() {
           }
         }
       }
+      
+      // When an element is modified by setDataValue, but never modified
+      // by normal means (i.e. modified before rendering) we need to set 
+      // it in the rrnTracker, etc.
+      
+      if (dom.modifiedBeforeRender) {
+        var splitName = fieldName.split(".");
+        var sflName = splitName[0];
+        var subfileRow = parseInt(splitName[splitName.length-1]);
+        if (!isNaN(subfileRow) && subfileRow > 0) {
+          var rrnName = sflName + ".rrn";
+          var trackerName = rrnName + "=" + subfileRow;
+          if (pui.rrnTracker[trackerName] != true) {            
+            if (response[rrnName] == null) response[rrnName] = [];
+            response[rrnName].push(subfileRow);
+            pui.rrnTracker[trackerName] = true;
+          }
+        }
+      }
+
       response[fieldName] = value;
     }
     else {
