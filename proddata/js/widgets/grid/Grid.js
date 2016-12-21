@@ -1636,7 +1636,7 @@ pui.Grid = function() {
   };
   
   function sendPropertyToDesigner(itm, propertyName, value) {
-    stringValue = String(value);
+    var stringValue = String(value);
     if (itm.properties[propertyName] != stringValue) {
       if (pui.isBound(itm.properties[propertyName])) {
         if (propertyName == "top" || propertyName == "left") itm.properties[propertyName].designValue = stringValue;
@@ -3524,7 +3524,7 @@ pui.Grid = function() {
           if (me.rowHeight < 5) me.rowHeight = 5;
           var downto = 0;
           if (me.hasHeader) downto = 1;
-          for (j = i - 1; j >= downto; j = j - 1) {
+          for (var j = i - 1; j >= downto; j = j - 1) {
             curTop = curTop - me.rowHeight;
             me.hLines[j].style.top = curTop + "px";
           }
@@ -5566,10 +5566,18 @@ pui.Grid = function() {
       var changed = false; 
       var itm = me.tableDiv.designItem;
       itm.designer.undo.clear();
+      var jsonAvailable = (JSON != null && typeof JSON.parse == "function" && typeof JSON.stringify == "function");
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
-        if (value == null || value == "" || pui.isBound(value) || pui.isTranslated(value)) return;
-        var arr = value.split(",");
+        if (value == null || value == "" || pui.isBound(value)) return;
+        var isTranslated = pui.isTranslated(value);
+        if (isTranslated){
+          if (!jsonAvailable) return;
+          var arr = JSON.parse(value.designValue);
+        }else{
+          var arr = value.split(",");
+        }
+        
         if (arr.length == 1 && propName != "column headings" && propName != "column widths") {
           // One value is applicable to all columns
           return;
@@ -5577,16 +5585,33 @@ pui.Grid = function() {
         var numCols = me.cells[0].length;
         while (arr.length > numCols) {
           arr.pop();
+          if (isTranslated) value["translations"].pop();
         }
         while (arr.length < numCols) {
           arr.push("");
+          if (isTranslated) value["translations"].push(0);
         }
         arr.splice(to, 0, arr[from]);  // copy
+        if (isTranslated) value["translations"].splice(to, 0, value["translations"][from]);  // copy translation
         var adjustedFrom = from;
         if (to <= from) adjustedFrom++;  // from has moved - we inserted something infront of it 
         arr.splice(adjustedFrom, 1);  // remove the from entry
-        var newValue = arr.join(",");        
-        if (value != newValue) {
+        if (isTranslated) value["translations"].splice(adjustedFrom, 1);  // remove the from translation entry.
+        var newValue;
+        var different;
+        if (isTranslated){
+          newValue = JSON.stringify(arr);
+          different = (value.designValue != newValue);
+          if (different){
+            // newValue gets the re-arranged comma-separated string and rearranged translations array.
+            value.designValue = newValue;
+            newValue = value;
+          }
+        }else{
+          newValue = arr.join(",");
+          different = (value != newValue);
+        }
+        if (different) {
           itm.properties[propName] = newValue;
           itm.propertiesChanged[propName] = true;
           itm.changed = true;
@@ -5612,8 +5637,12 @@ pui.Grid = function() {
       movePropertyParts("header background");
       movePropertyParts("column headings");
       var columnHeadings = me.tableDiv.designItem.properties["column headings"];
-      if (columnHeadings == null || typeof columnHeadings != "string") columnHeadings = "";
-      me.columnHeadings = columnHeadings.split(",");
+      if (pui.isTranslated(columnHeadings) && jsonAvailable) {
+        me.columnHeadings = JSON.parse(columnHeadings.designValue);
+      }else{
+        if (columnHeadings == null || typeof columnHeadings != "string") columnHeadings = "";
+        me.columnHeadings = columnHeadings.split(",");
+      }
       movePropertyParts("odd row font color");
       movePropertyParts("odd row background");
       movePropertyParts("even row font color");
@@ -5625,7 +5654,7 @@ pui.Grid = function() {
         itm.designer.makeDirty();
         itm.designer.propWindow.refresh();
       }
-    }
+    } //end if me.designMode.
     me.sizeAllCells();
     if (!me.designMode) {
       if (me.isDataGrid()) {
