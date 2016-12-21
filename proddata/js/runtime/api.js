@@ -1916,7 +1916,6 @@ function runPCCommand(arg) {
     }
   }
   
-  var command;
   var wait = false;
   var commandList = [];
   var nextCommand = 0;
@@ -1928,7 +1927,7 @@ function runPCCommand(arg) {
   //      array  = array of objects (as 'object' above) to run multiple commands
   
   if (typeof arg == "string") {
-    commandList = [ { "command": command, "wait": false } ];
+    commandList = [ { "command": arg, "wait": false } ];
   }
   else {
     commandList = arg;
