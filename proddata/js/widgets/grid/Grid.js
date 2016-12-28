@@ -5897,7 +5897,7 @@ pui.Grid = function() {
         
       }
       
-      if (idx) {
+      if (idx != null && idx >= 0) {
       
         for (var i = 0; i < me.dataArray.length; i++) {
         
