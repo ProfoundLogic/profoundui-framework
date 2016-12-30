@@ -4610,6 +4610,10 @@ pui.getDimensions = function(screen) {
 
 
 pui.showMessageSubfileHelp = function(textObj) {
+  // Allow the helpWindowDiv to be seen again when it is detached from the DOM but it and its parent aren't null. Issue 2992.
+  if (pui.messageSubfileHelpWindowDiv != null && !document.body.contains(pui.messageSubfileHelpWindowDiv)){
+    pui.messageSubfileHelpWindowDiv = null;
+  }
 
   if (pui.messageSubfileHelpWindowDiv != null && pui.messageSubfileHelpWindowDiv.style.display != "none" && pui.messageSubfileHelpWindowDiv.parentNode != null) {
     // help already shown, user clicked message again, so we hide the help
