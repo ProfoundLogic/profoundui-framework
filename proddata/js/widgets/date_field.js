@@ -474,9 +474,13 @@ function cal(dateField, format) {
       e.cancelBubble = true;
       e.returnValue = false;
       if (e.preventDefault) e.preventDefault();
-      if (e.stopPropagation) e.stopPropagation();
+      if (e.stopPropagation) e.stopPropagation(); 
     }
     return false;
+  }
+  if (dateField.parentTab!=null && dateField.parentTabPanel!=null) {
+    newElem.parentTab = dateField.parentTab;
+    newElem.parentTabPanel = dateField.parentTabPanel;
   }
   if (dateField.parentNode == null) return;
   dateField.parentNode.appendChild(newElem);
