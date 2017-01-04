@@ -4771,15 +4771,16 @@ pui.Grid = function() {
           
             if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey)) {
               var numRows = me.hLines.length - 1;
+              var clickedRow = row + me.recNum - (me.hasHeader ? 1 : 0);
 
               for (var i = 0; i < me.dataArray.length; i++) {
                 var curRow = i - me.recNum + 1 + (me.hasHeader ? 1 : 0);
-                var clickedRow = row - (me.hasHeader ? 1 : 0);
+                
                 // this condition allows the user to unselect a record using the ctrl key.
                 //  Only do it if it's NOT a right click mouse event 
                 // -or-
                 //  It's a right click and they aren't on a selected row.
-                if (!isRight || (isRight && me.dataArray[clickedRow].selected != true)) {
+                if (!isRight || (isRight && me.dataArray[clickedRow - 1].selected != true)) {
                   if ((!e.ctrlKey) || (curRow != row)) {  
                     if (me.dataArray[i].selected == true) {
                       pui.modified = true;
