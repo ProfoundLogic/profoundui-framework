@@ -2637,3 +2637,19 @@ pui.loadDependencyScripts = function(parm, callback ){
   }//done each dependencies.
 
 };
+
+/**
+ * Round to a specified number of decimals.
+ * Source:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+ * 
+ * @param {Number} number
+ * @param {Number} precision
+ * @returns {Number}
+ */
+pui.round = function(number, precision){
+  var factor = Math.pow(10, precision);
+  var tempNumber = number * factor;
+  var roundedTempNumber = Math.round(tempNumber);
+  return roundedTempNumber / factor;  
+};
