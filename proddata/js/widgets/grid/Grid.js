@@ -3458,6 +3458,7 @@ pui.Grid = function() {
       case "order by":
       case "sortable":
       case "custom sql":
+      case "allow any select statement":
       case "data url":
       case "data transform function":
       case "starting row":
@@ -5292,6 +5293,11 @@ pui.Grid = function() {
     } 
     req["postData"] += "&limit=" + limit + "&start=" + start;
     if (total != null && total == true) req["postData"] += "&getTotal=1";
+    
+    var fetchCounter = me.dataProps["allow any select statement"];
+    if (fetchCounter!=null && (fetchCounter=="true" || fetchCounter==true))
+      req["postData"] += "&FetchCounter=Y";
+    
     req["onready"] = function(req) {
       me.unMask();
       var response;
@@ -6688,6 +6694,7 @@ pui.Grid = function() {
       { name: "selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the database file." },
       { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the records retrieved from the database file." },
       { name: "custom sql", type: "long", help: "Specifies an sql statement to use to retrieve the records for a database-driven grid." },
+      { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "<p>Allows any valid SELECT SQL statement.</p><p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>"},
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value." },    
       { name: "data url", type: "long", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
       { name: "data transform function", type: "long", help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget." },
