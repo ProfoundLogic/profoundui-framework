@@ -414,8 +414,9 @@ pui.widgets.add({
   
   propertySetters: {
   
-    "field type": function(parms) {      
-        
+    "field type": function(parms) {
+      if (parms.dom["pui"] == null) parms.dom["pui"] = {}; //In case dom.pui isn't already set.
+
       // Do not render chart in tab panel until the tab is activated. Note: if this chart were listed
       // before the parent tab panel in Designer's elements list, then at runtime the tab panel wouldn't
       // have been created before the chart; it'd always be null. So the chart would always render.
@@ -426,9 +427,15 @@ pui.widgets.add({
       if (tp)
         tp = tp.tabPanel;
       var tn = parseInt(parms.evalProperty("parent tab"), 10);
-      if (tp && !isNaN(tn) && tn != tp.selectedTab)
+      if (tp && !isNaN(tn) && tn != tp.selectedTab){
+        if (typeof parms.properties["chart response"] != "undefined"){
+          // When the tab click handler calls applyProperty on "field type", dom.pui.properties is the argument.
+          // So if the chart is to render correctly later, dom.pui.properties must be set correctly. Issue #3333.
+          parms.dom["pui"]["properties"]["chart response"] = parms.properties["chart response"];
+        }
         return;
-                  
+      }
+
       var mapType = trim(parms.evalProperty("map type"));
       var chartType;
       if (mapType != "") {
@@ -450,8 +457,7 @@ pui.widgets.add({
         parms.dom.style.border = "1px solid #999999";
       }
       else {
-        // not sure if the next 2 lines are needed any more
-        if (parms.dom["pui"] == null) parms.dom["pui"] = {};
+        // renderFormat doesn't set all dom.pui.properties that are needed later (e.g. "chart response"), so set them now.
         parms.dom["pui"]["properties"] = parms.properties;
 
         // Do not do this on already rendered chart or FusionCharts will 
