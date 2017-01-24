@@ -4748,6 +4748,10 @@ pui.returnCursor = function(e, dom) {
   var elem = target;
   if (elem.parentNode != null && elem.parentNode.comboBoxWidget != null) elem = elem.parentNode;
   if (elem.tagName == "OPTION" && elem.parentNode.tagName == "SELECT") elem = elem.parentNode;
+  if (elem.tagName == "IMG" && elem.parentNode.tagName == "BUTTON"){
+    elem = elem.parentNode;
+    isButton = true;
+  } 
   pui.cursorValues.record = elem.cursorRecord;
   pui.cursorValues.field = elem.cursorField;
   var pos = getCursorPosition(target) + 1;
