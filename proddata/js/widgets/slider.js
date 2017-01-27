@@ -75,9 +75,9 @@ pui.Slider = function() {
       handle.style.borderRadius = "5px";
       handle.style.WebkitBorderRadius = "5px";
     }
-    me.div.onselectstart = function(e) { return false };
-    bar.onselectstart = function(e) { return false };
-    handle.onselectstart = function(e) { return false };
+    me.div.onselectstart = function(e) { return false; };
+    bar.onselectstart = function(e) { return false; };
+    handle.onselectstart = function(e) { return false; };
 
     function mousedown(event) {
       if (me.readOnly) return;
@@ -167,15 +167,15 @@ pui.Slider = function() {
     me.div.appendChild(bar);
     me.div.appendChild(handle);    
     me.draw();
-  }
+  };
   
   this.roundByIncrement = function(value, roundDown) {
     var halfAdjust = me.incrementValue / 2;
     if (roundDown == true) halfAdjust = 0;
-    newValue = parseInt((value + me.minValue + halfAdjust) / me.incrementValue) * me.incrementValue - me.minValue;
+    var newValue = parseInt((value + me.minValue + halfAdjust) / me.incrementValue) * me.incrementValue - me.minValue;
     newValue = Math.round(newValue * 1000000) / 1000000;
     return newValue;
-  }
+  };
   
   this.draw = function() {
     // draw bar
@@ -193,10 +193,11 @@ pui.Slider = function() {
       bar.style.left = "10px";
       bar.style.top = "6px";
       bar.style.height = "5px";
-      var width = parseInt(me.div.style.width) - 24;
+      //Make slider rail 24 pixels less than DIV width. (I'm not sure if offsetWidth is always set, else I'd use it always. MD.)
+      var width = (pui.isPercent(me.div.style.width) ? me.div.offsetWidth : parseInt(me.div.style.width) ) - 24;
       if (isNaN(width)) width = 0;
       if (width < 0) width = 0;
-      bar.style.width = width + "px";;
+      bar.style.width = width + "px";
       bar.style.borderBottom = "1px solid #B7B7B7";
     }
 
@@ -226,7 +227,7 @@ pui.Slider = function() {
       }
     }
     me.setValue(me.value);
-  }
+  };
   
   this.validateValues = function() {
     if (isNaN(me.incrementValue)) me.incrementValue = 1;
@@ -239,7 +240,7 @@ pui.Slider = function() {
     me.value = me.roundByIncrement(me.value);
     me.div.value = me.value;
     if (!me.design && context == "genie") hiddenField.value = me.value;    
-  }
+  };
   
   this.setValue = function(value) {
     value = Number(value);
@@ -268,9 +269,9 @@ pui.Slider = function() {
     me.value = value;
     me.div.value = value;
     if (!me.design && context == "genie") hiddenField.value = me.value;    
-  }  
+  };
   
-}
+};
 
 
 
