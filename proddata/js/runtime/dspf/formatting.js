@@ -436,7 +436,19 @@ pui.FieldFormat = {
     format: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
 
+      var dataLength = parseInt(obj.dataLength, 10);
+      var decLength = parseInt(obj.decPos, 10);
+
       var strValue = (obj.value || 0) + '';
+      if (decLength > 0 && strValue === "0") {
+        strValue = ".";
+        while (strValue.length - 1 < decLength) {
+          strValue += "0";
+        }
+      }
+      else if (decLength > 0 && strValue.substr(0,1) === "0.") {
+        strValue = strValue.substr(1);
+      }
       var numValue = parseFloat(strValue, 10) || 0;
       
       var strInt;      
@@ -452,8 +464,6 @@ pui.FieldFormat = {
       if (strValueWithDecimalPoint.indexOf(".") == -1) strValueWithDecimalPoint += ".";
       strDec = strValueWithDecimalPoint.replace(/.*\./, ''); 
       
-      var dataLength = parseInt(obj.dataLength, 10);
-      var decLength = parseInt(obj.decPos, 10);
       var maxLength = dataLength;
       var keyFilter = '[\\d';
 
