@@ -23,13 +23,27 @@ pui.layout.templates = {};
 
 
 pui.layout.retrieveTemplate = function(templateName) {
+  
+  var url = templateName;
+  
+  if ( templateName.substr(0, 1) != "/" 
+      && templateName.substr(0, 5).toLowerCase() != "http:" 
+      && templateName.substr(0, 6).toLowerCase() != "https:"  ) {
+    url = "/profoundui/userdata/layouts/" + templateName + ".html"; 
+  }
+  
   ajax({
-    "url": "/profoundui/userdata/layouts/" + templateName + ".html",
+    "url": pui.normalizeURL(url),
     "method": "post",
     "handler": function(html) {
       pui.layout.templates[templateName] = html;
     }
   });
+  
+}
+
+pui["retrieveCustomLayoutTemplate"] = function(templateName) {
+  pui.layout.retrieveTemplate(templateName);
 }
 
 pui["maximizeLayout"] = function(e) {
