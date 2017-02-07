@@ -5186,7 +5186,8 @@ pui.Grid = function() {
     var width = (parseInt(me.vLines[col+1].style.left) - parseInt(me.vLines[col].style.left));
     if (last && (me.pagingScrollBar || me.slidingScrollBar)) {
       if (!((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation)) {
-        width = width - 16;  // reduce by scrollbar width
+        var oneRowOnly = ((me.hasHeader && me.cells.length == 2) || (!me.hasHeader && me.cells.length == 1));
+        if (!oneRowOnly) width = width - 16;  // reduce by scrollbar width
       }
     }
     if (width < 0) width = 0;

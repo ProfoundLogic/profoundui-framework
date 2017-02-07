@@ -831,6 +831,7 @@ pui.render = function(parms) {
         grid.scrollbarObj.attachOnScroll();
       }
       grid.scrollbarObj.ready = true;
+      if (grid.scrollbarObj.rowsPerPage == 1) grid.scrollbarObj.draw();
     }
   }
 
@@ -4669,6 +4670,12 @@ pui.showMessageSubfileHelp = function(textObj) {
   var left = parseInt(gridObj.style.left);
   left += 3;
   
+  var minWidth = 600;
+  var width = gridObj.clientWidth - 25;
+  if (width < minWidth) {
+    width = minWidth;
+  }
+  
   var div;
   if (pui.messageSubfileHelpWindowDiv == null || pui.messageSubfileHelpWindowDiv.parentNode == null) {
     div = document.createElement("div");
@@ -4680,7 +4687,7 @@ pui.showMessageSubfileHelp = function(textObj) {
   div.style.position = "absolute";
   div.style.left = left + "px";
   div.style.top = top + "px";
-  div.style.width = "640px";
+  div.style.width = width + "px";
   div.style.height = "250px";
   div.style.border = "1px solid #cccccc";
   div.style.zIndex = pui.windowZIndex;
