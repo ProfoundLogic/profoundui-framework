@@ -627,7 +627,7 @@ pui.SlidingScrollBar = function() {
     
     function handle(delta) {
       if (touchHandle != null) return;
-      outerDiv.scrollTop -= delta * 23;
+      outerDiv.scrollTop -= delta * multiplier;
     }
     
     /** Event handler for mouse wheel event.
