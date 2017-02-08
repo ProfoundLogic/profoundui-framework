@@ -289,7 +289,7 @@ pui.SlidingScrollBar = function() {
   this.doScroll = function(startRowParm) {
     if (!me.ready) return;
     
-    var startRow = Math.floor(outerDiv.scrollTop / multiplier) + 1; //Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
+    var startRow = Math.round(outerDiv.scrollTop / multiplier) + 1; //Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
     
     // When setScrollToRow should set the row rather than calculating it from scrollTop; and when doScroll is called with
     // no arguments or as an event handler, use the targetRow. (i.e. user typed PgUp/PgDn or clicked paging link).
