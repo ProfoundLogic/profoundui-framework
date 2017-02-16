@@ -3751,7 +3751,7 @@ pui.Grid = function() {
         selRows.push(rrn);
       }
     }
-    
+     
     return selRows;
   };
   
@@ -5164,13 +5164,16 @@ pui.Grid = function() {
   
   this.setAllCellStyles = function() {
     for (var row = 0; row < me.cells.length; row++) {
+      var header = (row == 0 && me.hasHeader);
       for (var col = 0; col < me.cells[row].length; col++) {
         var cell = me.cells[row][col];
-        var header = (row == 0 && me.hasHeader);
         var even = ((row % 2) == 1);
         if (me.hasHeader) even = !even;        
         setCellStyles(cell, header, even, col);
       }
+      if (!me.designMode && !header) {
+        me.setRowBackground(row);
+      } 
     }  
   };
 
