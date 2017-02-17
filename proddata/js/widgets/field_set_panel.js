@@ -20,66 +20,88 @@
 
 
 pui.widgets.add({
-  name: "field set panel",
-  canBelongToGrid: false,
-  tag: "fieldset",
-  newId: "FieldSet",
-  newValue: "Field Set",
-  container: true,
-  inlineEdit: true,
-  defaults: {
-    width: "300px",
-    height: "200px",
-    "z index": "8"
-  },
-
-  propertySetters: {
-  
-    "field type": function(parms) {
-      var styleString = '';
-      if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
-    	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
-      }
-      var value = parms.evalProperty("value");
-      if (value != null && value != "") {
-      
-        parms.dom.innerHTML = '<legend' + styleString + '>' + value + '</legend>';
-        
-      }
-      else {
-      
-        parms.dom.innerHTML = "";
-      
-      }
+	name: "field set panel",
+    canBelongToGrid: false,
+    tag: "fieldset",
+    newId: "FieldSet",
+    newValue: "Field Set",
+    container: true,
+    inlineEdit: true,
+    defaults: {
+    	width: "300px",
+    	height: "200px",
+    	"z index": "8"
     },
+
+
+    propertySetters: {
+	
+    	"field type": function(parms) {
+    		var value = parms.evalProperty("value"),
+    			color = parms.evalProperty("color"),
+    			align = parms.evalProperty("text align");
+    		if (value) {
+    			if (color) {
+    				color = ' style="color:' + color + ';"';
+    			}
+    			if (align) {
+    				align = ' align="' + align + '"';
+    			}
+    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    		}
+    		
+    	},
     
-    "value": function(parms) {
-    	var styleString = '';
-        if (parms.evalProperty("color") != null && parms.evalProperty("color") != ' ') {
-      	  styleString = ' style="color: ' + parms.evalProperty("color") + ';"' ;
-        }
-        var value = parms.value;	
-        if (value != null && value != "") {
-        
-          parms.dom.innerHTML = '<legend' + styleString + '>' + value + '</legend>';
-          
-        }
-        else {
-        
-          parms.dom.innerHTML = "";
-        
-        }
-    },
+    	"value": function(parms) {
+    		var value = parms.value,
+    			color = parms.evalProperty("color"),
+    			align = parms.evalProperty("text align");
+    		if (value) {
+    			if (color) {
+    				color = ' style="color:' + color + ';"';
+    			}
+    			if (align) {
+    				align = ' align="' + align + '"';
+    			}
+    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    		} else {
+    			parms.dom.innerHTML = "";
+    		}
+    	},
 
-    "color": function(parms) {
-      // set color on legend
-      var legend = parms.dom.firstChild;
-      if (legend != null && legend.tagName == "LEGEND") {
-        legend.style.color = parms.value;
-      }
+    	"color": function(parms) {
+    		var value = parms.evalProperty("value"),
+    			color = parms.value,
+    			align = parms.evalProperty("text align");
+    		if (value) {
+    			if (color) {
+    				color = ' style="color:' + color + ';"';
+    			}
+    			if (align) {
+    				align = ' align="' + align + '"';
+    			}
+    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    		} else {
+    			parms.dom.innerHTML = "";
+    		}
+    	},
+
+    	"text align": function(parms) {
+    		var value = parms.evalProperty("value"),
+    			color = parms.evalProperty("color"),
+    			align = parms.value;
+    		if (value) {
+    			if (color) {
+    				color = ' style="color:' + color + ';"';
+    			}
+    			if (align) {
+    				align = ' align="' + align + '"';
+    			}
+    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    		} else {
+    			parms.dom.innerHTML = "";
+    		}
+    	}
     }
-    
-  }
-  
 });
 
