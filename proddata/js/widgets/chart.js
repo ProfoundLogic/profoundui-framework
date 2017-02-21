@@ -629,6 +629,7 @@ pui.widgets.add({
           
          }
          postData += "&maxcount=" + maxCount;
+         postData += "&UTF8=Y";
          
          var domId = parms.dom.id; //Save in case a window or overlay clears the "id" attribute before the response arrives.
          

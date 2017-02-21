@@ -198,6 +198,7 @@ pui.widgets.add({
           if (maxChoices != null && maxChoices != "") {
           	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
+          ajaxRequest["postData"] += "&UTF8=Y";
           ajaxRequest["onsuccess"] = function() {
           	              	
           	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");

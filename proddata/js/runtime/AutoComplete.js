@@ -618,6 +618,8 @@ function AutoComplete(config) {
       }
     }
     
+    postData += "&UTF8=Y";
+    
     if (hiddenField) autoCompQueries += 1;
     
     var req = new pui.Ajax(pui.appendAuth(url));

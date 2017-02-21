@@ -5297,6 +5297,7 @@ pui.Grid = function() {
     } 
     req["postData"] += "&limit=" + limit + "&start=" + start;
     if (total != null && total == true) req["postData"] += "&getTotal=1";
+    req["postData"] += "&UTF8=Y";
     
     var fetchCounter = me.dataProps["allow any select statement"];
     if (fetchCounter!=null && (fetchCounter=="true" || fetchCounter==true))
