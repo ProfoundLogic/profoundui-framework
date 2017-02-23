@@ -427,17 +427,19 @@ pui.cleanup = function() {
   pui.dummyBox = null;
 
   if (pui.oldRenderParms != null && pui.isPreview != true) {
-    for (var j = 0; j < pui.oldRenderParms["layers"].length; j++) {
-      var layer = pui.oldRenderParms["layers"][j];
-      for (var i = 0; i < layer.formats.length; i++) {
-        var format = layer.formats[i];
-        if (format.data) delete format.data;
-        if (format.metaData) delete format.metaData;
-        var subfiles = format.subfiles;
-        if (subfiles != null) {
-          for (var sflName in subfiles) {
-            delete subfiles[sflName].data;
-            delete subfiles[sflName];
+    if (pui.oldRenderParms["layers"]) {
+      for (var j = 0; j < pui.oldRenderParms["layers"].length; j++) {
+        var layer = pui.oldRenderParms["layers"][j];
+        for (var i = 0; i < layer.formats.length; i++) {
+          var format = layer.formats[i];
+          if (format.data) delete format.data;
+          if (format.metaData) delete format.metaData;
+          var subfiles = format.subfiles;
+          if (subfiles != null) {
+            for (var sflName in subfiles) {
+              delete subfiles[sflName].data;
+              delete subfiles[sflName];
+            }
           }
         }
       }
@@ -637,6 +639,11 @@ pui.render = function(parms) {
     
   }
   
+  if (parms["html"]) {
+    parms.container.innerHTML = parms["html"];
+    return;
+  }
+
   var layers = parms["layers"];
     
   for (var i = 0; i < layers.length; i++) {
@@ -3438,7 +3445,7 @@ pui.submitResponse = function(response) {
     pui.handler(response);
   }  
   else {
-    pui.timeoutMonitor.end();   
+    pui.timeoutMonitor.end();
     ajaxJSON({
       "url": url,
       "method": "post",
