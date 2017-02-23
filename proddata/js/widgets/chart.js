@@ -404,7 +404,7 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
 
 pui.widgets.add({
   name: "chart",
-  dependencies: ["/FusionChartsXT/js/pui-fusioncharts.js"],
+  "dependencies": ["/FusionChartsXT/js/pui-fusioncharts.js"],
   defaults: {
     width: "300px",
     height: "200px",

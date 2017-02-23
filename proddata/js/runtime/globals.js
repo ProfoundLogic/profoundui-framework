@@ -190,6 +190,6 @@ pui["special key pattern"] = "^(Enter|PageUp|PageDown|Rollup|RollDown|RollDn|PgU
 pui.sessionRetryCount = 0;
 pui["session timeout retries"] = 0;
 
-pui.scriptsLoading = 0; //Counter for widget dependency scripts being loaded in pre-rendering time.
+pui.dependenciesLoading = 0; //Counter for widget dependency files being loaded in pre-rendering time.
 
 pui.nodejs = false;

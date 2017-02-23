@@ -3467,9 +3467,9 @@ pui.submitResponse = function(response) {
         }        
         parms.container = pui.runtimeContainer;
         
-        // If any items depend on external scripts, wait for those to load before
+        // If any items depend on external files, wait for those to load before
         // rendering. Otherwise, pui.render/render5250 is called without waiting.
-        if (pui.genie == null) pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
+        if (pui.genie == null) pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
         // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
         else pui.render5250(parms);
       },
@@ -3987,9 +3987,9 @@ pui["run"] = function(config) {
       else {
         pui.handler = null;
       }
-      // If any items depend on external scripts, wait for those to load before
+      // If any items depend on external files, wait for those to load before
       // rendering. Without dependencies, pui.render is called without waiting.
-      pui.loadDependencyScripts(preview, function(){ pui.render(preview); });
+      pui.loadDependencyFiles(preview, function(){ pui.render(preview); });
     }
   }
   else {
@@ -4017,9 +4017,9 @@ pui["run"] = function(config) {
         pui.hideWaitAnimation();
         parms.container = container;
 
-        // If any items depend on external scripts, wait for those to load before
+        // If any items depend on external files, wait for those to load before
         // rendering. Otherwise, pui.render is called without waiting.
-        pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
+        pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
       },
       "onfail": function(req) {
         pui.hideWaitAnimation(true);
@@ -4130,9 +4130,9 @@ pui["signon"] = function(config) {
       pui.hideWaitAnimation();
       parms.container = container;
       
-      // If any items depend on external scripts, wait for those to load before
+      // If any items depend on external files, wait for those to load before
       // rendering. Otherwise, pui.render is called without waiting.
-      pui.loadDependencyScripts(parms, function(){ pui.render(parms); });
+      pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
     },
     "onfail": function(req) {
       pui.hideWaitAnimation(true);

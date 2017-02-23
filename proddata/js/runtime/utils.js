@@ -2484,7 +2484,7 @@ pui.wait = function(interval, max, check, proceed) {
 };
 
 /**
- * If the specified item has a script dependency, then add the script's URL string to a list.
+ * If the specified item has a file dependency, then add the file's URL string to a list.
  * @param {Object} item                 Input. Item/widget properties.
  * @param {Object|Array} dependencies   Output. List of URL strings
  * @returns {undefined}
@@ -2498,13 +2498,14 @@ pui.addItemDependenciesTo = function(item, dependencies){
       // So try to resolve the widget name from "field type" and template if necessary.
       if( fieldtype == "layout" && item["template"] == "css panel" ) fieldtype = "css panel"; //special case.
 
-      if( pui.widgets[fieldtype] != null && pui.widgets[fieldtype].dependencies != null 
-      && pui.widgets[fieldtype].dependencies.length > 0 ){
+      if( pui.widgets[fieldtype] != null && pui.widgets[fieldtype]["dependencies"] != null 
+      && pui.widgets[fieldtype]["dependencies"].length > 0 ){
       
         // Used to avoid loading redundant dependencies.
         var scripts = document.getElementsByTagName("script");
+        var links = document.getElementsByTagName("links");
 
-        var widdep = pui.widgets[fieldtype].dependencies;
+        var widdep = pui.widgets[fieldtype]["dependencies"];
         
         // Get the protocol, domain, and port for comparison because some script.src include those.
         var origin = "";
@@ -2514,6 +2515,7 @@ pui.addItemDependenciesTo = function(item, dependencies){
         
         // Add each dependency to a list.
         for( var dp=0; dp < widdep.length; dp++ ){
+          
           // Make both the relative URI and the full URL for comparison.
           var uri = pui.normalizeURL(widdep[dp]);
           var url = pui.normalizeURL( origin + uri);
@@ -2521,17 +2523,28 @@ pui.addItemDependenciesTo = function(item, dependencies){
           // Avoid adding the same script multiple times by checking if it already exists.
           var scriptExists = false;  
           for(var sc=0; sc < scripts.length; sc++){
-            if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)){
+            if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)) {
               scriptExists = true;
               break;
             }
           }
           
-          // If the script wasn't already loaded in <head>, and if the
-          // dependency wasn't already added to the list, add it to the list.
+          // Avoiding adding the same stylesheet multiple times by checking if it already exists
+          if (links && !scriptExists) {
+            for (var l=0; l<links.length; l++) {
+              if (links[l].type.toLowerCase() == "text/css" && (links[l].href == url || links[l].href == uri)) {
+                scriptExists = true;
+                break;
+              }
+            }
+          }
+          
+          // If the file wasn't already loaded in <head>, and if the
+          // dependency wasn't already added to the list, add it to the list.          
           if( !scriptExists && pui.arrayIndexOf(dependencies, uri) < 0 ){
             dependencies.push(uri);
           }
+          
         }//done linking each dependency.
       }
     }
@@ -2539,17 +2552,17 @@ pui.addItemDependenciesTo = function(item, dependencies){
 };
 
 /**
- * Look for any widgets that have script dependencies. Then execute the callback.
+ * Look for any widgets that have dependencies. Then execute the callback.
  * 
- * When dependencies exist, add script tags to the document.head for each dependency. Execute
+ * When dependencies exist, add script/link tags to the document.head for each dependency. Execute
  * the callback after finished loading all. This should be called once before DSPF render-time,
  * or once before loading Genie items during rendering.
  * 
  * @param {Object} parm        Contains list of items or rendering parameters with items buried inside.
- * @param {Function} callback  Function to execute on success or failure to load scripts.
+ * @param {Function} callback  Function to execute on success or failure to load files.
  * @returns {undefined}
  */
-pui.loadDependencyScripts = function(parm, callback ){
+pui.loadDependencyFiles = function(parm, callback ){
   
   // List to be populated with unique URI strings.
   var dependencies = [];
@@ -2592,15 +2605,15 @@ pui.loadDependencyScripts = function(parm, callback ){
     return;
   }
   
-  // This function handles the onload/onerror event for all scripts, which load
+  // This function handles the onload/onerror event for all files which load
   // asynchronously.
   function myonload(){
-    pui.scriptsLoading--;
-    // When all scripts have finished loading, execute the callback.
-    if (pui.scriptsLoading <= 0) callback();
+    pui.dependenciesLoading--;
+    // When all dependencies have finished loading, execute the callback.
+    if (pui.dependenciesLoading <= 0) callback();
   };
 
-  pui.scriptsLoading = dependencies.length;
+  pui.dependenciesLoading = dependencies.length;
   
   for(var i=0; i < dependencies.length; i++ ){
     
@@ -2608,31 +2621,48 @@ pui.loadDependencyScripts = function(parm, callback ){
     
     if( url != null && url.length > 0 ){
       var head = document.getElementsByTagName("head")[0];
-      var script = document.createElement("script");
-      script.type= "text/javascript";
+
+      var fileref;
+      var extn = url.substr(-4, 4).toLowerCase();
+      if (extn === ".css") {
+        fileref = document.createElement("link"); 
+        fileref.setAttribute("type", "text/css");
+        fileref.setAttribute("rel", "stylesheet");
+      }
+      else {
+        fileref = document.createElement("script");
+        fileref.setAttribute("type", "text/javascript");
+      }
       
-      if( typeof script.onload == "undefined"){
+      if( typeof fileref.onload == "undefined"){
         // IE8 fires the readystatechange event, not the load event.
-        // script.onload is undefined for IE8, null for others before defined.
-        script.onreadystatechange = function(){
-          if (script.readyState == "complete" || script.readyState == "loaded") myonload();
+        // fileref.onload is undefined for IE8, null for others before defined.
+        fileref.onreadystatechange = function(){
+          if (fileref.readyState == "complete" || fileref.readyState == "loaded") myonload();
         };
       }else{
         // IE9,10 fire for both events, so just use onload; IE11/Edge/FF/Chrome only support onload.
-        script.onload = myonload;
-        script.onerror = function(evt){
+        fileref.onload = myonload;
+        fileref.onerror = function(evt){
           evt = evt || window.event;
           if( evt != null && evt.target != null ) 
-            console.log("Failed to load widget dependency script ", evt.target.src);
+            console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href );
           myonload();
         };
       }
 
-      script.src = url; //Assume URL was already normalized.
-      head.appendChild(script);      
+      // It's go time! (Assume the url is already normalized...)
+      if (extn === ".css") {
+        fileref.setAttribute("href", url)
+      }
+      else {
+        fileref.setAttribute("src", url); 
+      }
+      head.appendChild(fileref);      
+      
     }else{
       // If the string was empty, then no onload will decrement the counter; do so now.
-      pui.scriptsLoading--;
+      pui.dependenciesLoading--;
     }    
   }//done each dependencies.
 
