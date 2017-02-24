@@ -3454,6 +3454,7 @@ pui.submitResponse = function(response) {
   }  
   else {
     pui.timeoutMonitor.end();
+    pui.showWaitAnimation();
     ajaxJSON({
       "url": url,
       "method": "post",
