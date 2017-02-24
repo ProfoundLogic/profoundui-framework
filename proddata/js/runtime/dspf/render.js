@@ -640,7 +640,15 @@ pui.render = function(parms) {
   }
   
   if (parms["html"]) {
+    // Render html
     parms.container.innerHTML = parms["html"];
+    // Evaluate any <script> tags in the html
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+      var script = scripts[i];
+      var js = script.innerHTML;
+      eval(js);
+    }
     return;
   }
 
@@ -5603,3 +5611,4 @@ pui["wikihelp"]["getScreenInfo"] = function() {
   
   return info;
 };
+
