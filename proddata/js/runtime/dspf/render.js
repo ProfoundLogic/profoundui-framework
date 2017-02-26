@@ -512,8 +512,16 @@ pui.render = function(parms) {
   pui.nodejs = (parms["nodejs"] === true);
   
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
-    var msg = "Profound UI server-side version (" + parms["version"] + ") doesn't match client-side JavaScript version (" + pui["version"] + ").";
-    if (window.console && window.console.error) {
+    var msg = null;
+    if (parms["nodejs"]) {
+      if (pui["version"] < parms["version"]) {  // nodejs sends min version
+        msg = "Installed copy of Profound.js requires Profound UI client-side version " + parms["version"] + " or above. Profound UI client-side version is " + pui["version"] + ".";
+      }
+    } 
+    else {
+      msg = "Profound UI server-side version (" + parms["version"] + ") doesn't match client-side JavaScript version (" + pui["version"] + ").";
+    }
+    if (msg != null && window.console && window.console.error) {
       console.error(msg);
     }
   }
