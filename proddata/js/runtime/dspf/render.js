@@ -650,15 +650,19 @@ pui.render = function(parms) {
   if (parms["html"]) {
     // Render html
     parms.container.innerHTML = parms["html"];
+    parms.container.style.width = "100%";
+    if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "100%";
     // Evaluate any <script> tags in the html
     var scripts = parms.container.getElementsByTagName("script");
     for (var i = 0; i < scripts.length; i++) {
       var script = scripts[i];
       var js = script.innerHTML;
       eval.call(window, js);
-    }
+    }    
     return;
   }
+  parms.container.style.width = "";
+  if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "";
 
   var layers = parms["layers"];
     
