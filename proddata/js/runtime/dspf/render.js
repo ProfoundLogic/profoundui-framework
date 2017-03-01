@@ -654,11 +654,30 @@ pui.render = function(parms) {
     if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "100%";
     // Evaluate any <script> tags in the html
     var scripts = parms.container.getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-      var script = scripts[i];
-      var js = script.innerHTML;
-      eval.call(window, js);
-    }    
+    
+    function loadScript(idx) {
+      var script = scripts[idx];
+      if (script == null) return;
+
+      if (script.innerHTML) {
+        var js = script.innerHTML;
+        eval.call(window, js);
+        loadScript(idx + 1);
+      }
+      else {
+        pui.loadJS({
+          path: script.src,
+          callback: function() {
+            loadScript(idx + 1);
+          },
+          onerror: function() {
+            loadScript(idx + 1);
+          }
+        });
+      }
+    }
+    loadScript(0);
+    
     return;
   }
   parms.container.style.width = "";

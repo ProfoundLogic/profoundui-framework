@@ -1760,6 +1760,7 @@ pui["loadJS"] = function(parms) {
   if (parms == null) return null;
   var path;
   var callback;
+  var onerror;
   var test;
   if (typeof parms == "string") {
     path = parms;
@@ -1767,6 +1768,7 @@ pui["loadJS"] = function(parms) {
   if (typeof parms == "object") {
     path = parms["path"];
     callback = parms["callback"];
+    onerror = parms["onerror"];
     test = parms["test"];
     if (test != null && typeof test == "function" && test() == true) return false;  // already loaded
   }
@@ -1787,7 +1789,8 @@ pui["loadJS"] = function(parms) {
     if (test != null && typeof test == "function" && test() != true) return;
     if (!done && callback != null) callback();
     done = true;
-  };
+  }
+  if (onerror) script["onerror"] = onerror;
   script.src = pui.normalizeURL(path);
   head.appendChild(script);
   return true;
