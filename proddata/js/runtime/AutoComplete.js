@@ -211,7 +211,7 @@ function AutoComplete(config) {
   else typeAheadDelay = 200;
   
   // Take scrollable/maxHeight from config. default=false 
-  if (typeof(config.scrollable) != "undefined" && typeof(config.maxHeight) != "undefined") {
+  if (typeof(config.scrollable) != "undefined" && typeof(config.maxHeight) != "undefined" && config.maxHeight != null) {
     scrollable=config.scrollable;
     maxHeight=config.maxHeight;
   }
@@ -391,9 +391,9 @@ function AutoComplete(config) {
 
   function doBlur(event) {
     event = event || window.event;
-    // HACK: for some reason, IE fires the "blur" event right after clicking on  
-    //  the scrollbar. This blocks that so the user can select a record... -SK
-    if (pui["is_ie"] && usingScrollbar && inMouseClick) return;
+    // We don't want to execute the blur (regardless of browser)  
+    // if we are in the process of clicking in the result pane.
+    if (usingScrollbar && inMouseClick) return;
     cancelQuery = true;
     setTimeout(hideResults, 200);
   }
@@ -943,21 +943,24 @@ function AutoComplete(config) {
   
   function isOnScrollbar(event) {
     if (usingScrollbar && scrollbarWidth!=null && resultPane.offsetWidth!=null) {
-      var width = resultPane.offsetWidth - scrollbarWidth;
-      var mousePos = pui.getMouseX(event) - getObjOffset(resultPane).left;
-      if (mousePos>width) return true; 
+      var scrollbarStart = event.currentTarget.getBoundingClientRect().right - scrollbarWidth;
+      var mousePos = pui.getMouseX(event);
+      if (mousePos > scrollbarStart) {
+    	  return true; 
+      }
     }
     return false;
   }
   
   function doClick(event) {
     inMouseClick = true;
+    setTimeout(function() {
+        textBox.focus();
+      }, 0);
     if (isOnScrollbar(event)) return;
     selectRecord();
     hideResults();
-    setTimeout(function() {
-      textBox.focus();
-    }, 0);
+
   }  
   
   function doMouseUp(event) {
@@ -1204,7 +1207,11 @@ function applyAutoComp(properties, originalValue, domObj) {
             document.body.removeChild(measureDiv);
 
           },
-          shadow: (pui["is_old_ie"] && pui["ie_mode"] <= 6) ? false : true
+          shadow: (pui["is_old_ie"] && pui["ie_mode"] <= 6) ? false : true,
+          scrollable: true,
+          maxHeight: isNaN(parseInt(evalPropertyValue(properties["max height"], originalValue, domObj))) ? 
+        		       null : parseInt(evalPropertyValue(properties["max height"], originalValue, domObj))
+        		  
         });
       domObj.autoComp = autoComp;
       
