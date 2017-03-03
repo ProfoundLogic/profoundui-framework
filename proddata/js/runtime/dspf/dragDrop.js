@@ -24,12 +24,19 @@ pui["dragDropInfo"] = {};
 pui.attachDragDrop = function(dom, properties) {
 
   dom.onselectstart = function(e) { 
+    if (isGrid || isHTMLContainer) {
+      //So that the user can select the text inside of a textarea or input element if nested in a Grid or HTML container 
+      var target = getTarget(e);
+      if (target.tagName == 'TEXTAREA' || target.tagName == 'INPUT') return true; 
+    }
     return false;
   };
   if (typeof dom.style.MozUserSelect!="undefined") dom.style.MozUserSelect = "none";
 
   var useProxy = (properties["use proxy"] == "true");
   var isGrid = (dom.grid != null);
+  var isHTMLContainer = (properties['field type'] == 'html container');
+
   if (isGrid) {
     useProxy = true;
     setTimeout(function() {
@@ -52,7 +59,7 @@ pui.attachDragDrop = function(dom, properties) {
   }
 
   function mousedown(event) {
-    
+    var clickedOn = getTarget(event);
     var offset = pui.getOffset(dom.parentNode);
     var offsetX = offset[0];
     var offsetY = offset[1];    
@@ -67,6 +74,11 @@ pui.attachDragDrop = function(dom, properties) {
     var row;
     var requestNum = 0;
     var recordNumber;
+
+    if (isHTMLContainer) {
+      if (clickedOn.tagName == 'TEXTAREA' || clickedOn.tagName == 'INPUT') return;
+    }
+
     if (isGrid) {
       var dataRecords = dom.grid.dataArray;
       if (dom.grid.isFiltered()) dataRecords = dom.grid.filteredDataArray;
