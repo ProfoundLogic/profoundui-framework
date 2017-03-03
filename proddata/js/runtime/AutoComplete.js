@@ -429,6 +429,16 @@ function AutoComplete(config) {
     // Hide the result pane if it is shown and a record is not selected.
     else if (keyCode == 13) {
       var resultsDisplayed = (resultPane.style.display == "block");
+      // If there's only 1 result displayed and the user has entered a case-insensitive match,
+      // we'll assume that they want to auto-select that value and allow the "enter" to make it's 
+      // way to the application. (Redmine #878)
+      if (resultsDisplayed && resultPane.children.length == 1 &&
+    		resultPane.children[0].value.toUpperCase() === event.currentTarget.value.toUpperCase() ) {
+    	  activeRecord = 0;
+          selectRecord();
+          hideResults();
+    	  return true;
+      }  
       if (resultsDisplayed && activeRecord != null) {
         selectRecord();
         hideResults();
