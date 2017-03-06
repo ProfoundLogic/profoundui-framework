@@ -24,168 +24,150 @@ pui.chartsRendered = [];
 pui.widgets.chartTypes = ["Column3D", "Column2D", "Bar2D", "Line", "Area2D", "Pie2D", "Pie3D", "Doughnut3D", "Other..."];
 pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2D Pie", "3D Pie", "Doughnut"];
 
+/**
+ * Given some XML or JSON data, construct a new FusionCharts object and render it. This should
+ * be called after the data is already loaded in the browser; e.g. after AJAX response arrives.
+ * 
+ * Note: Recent FusionCharts documentation (e.g. v3.11) recommends loading chart data in the
+ * constructor rather than calling setXMLData or setJSONData. Either seems to behave the same.
+ * 
+ * @param {Object} parms   Description of parameters:
+ * - dom - chart container
+ * - domId - set for DB-driven, "chart url json", and "chart url" types. 
+ * - type - chart type
+ * - transparent (optional true)
+ * - xmlURL or xmlData or jsonURL or jsonData
+ *   
+ * @returns {undefined}
+ */
 pui.widgets.renderChart = function(parms) {
-  // description of parms:
-  //   - dom - chart container
-  //   - type - chart type
-  //   - transparent (optional true)
-  //   - xmlURL or xmlData or jsonURL or jsonData
-  
-  if (parms.dom.isRendering)
-    return;
+  if (parms.dom.isRendering) return;
   
   parms.dom.isRendering = true;
   
-  function loadChart() {
-
-    // dom.id becomes null when the chart is in the background behind a windowed record format. The id attribute is set when the first
-    // format is rendered. Then DB-driven charts send XHR. The next format may clear "id" attributes from the first format before the
-    // response arrives. To avoid setting multiple chart ids to "_Chart", don't render without an id. Otherwise disposing causes errors.
-    if (parms.dom.id != null && parms.dom.id != "")
-      var chartId = parms.dom.id + "_Chart";
-    else if (parms.domId != null)
-      var chartId = parms.domId + "_Chart";   //DB-driven charts send the additional domId property.
-    else {
-      console.log("Stopped rendering chart; missing id attribute.");
-      return;
-    }
-
-    var chartObj = new FusionCharts({
-      "type": parms.type.toLowerCase(),
-      "id": chartId,
-      "width": "100%",
-      "height": "100%",
-      "renderAt": parms.dom,
-      "events": {
-        "renderComplete": complete,
-        "dataLoadError": complete,
-        "dataInvalid": complete,
-        "noDataToDisplay": complete
-      }
-    });
-    pui.chartsRendered.push(chartId);
-    chartObj.dom = parms.dom;
-    if (parms.transparent == true) chartObj.setTransparent(true);
-    
-    // Process chart data if necessary.
-    if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom.pui.properties["onchartclick"]) != "undefined") {
-    
-      if (parms.xmlURL != null || parms.jsonURL != null) {
-      
-        FusionCharts(chartId)["addEventListener"]("DataLoadRequestCompleted", pui.widgets.addChartLinks);
-      
-      }
-      
-      if (parms.xmlData != null) {
-      
-        parms.xmlData = pui.widgets.addXMLChartLinks(parms.dom.id, parms.xmlData);
-      
-      }
-      else if (parms.jsonData != null) {
-      
-        parms.jsonData = pui.widgets.addJSONChartLinks(parms.dom.id, parms.jsonData);
-      
-      }
-    
-    }
-    
-    if (parms.xmlURL != null){
-      // Let FusionCharts handle the XHR.
-      if( pui["legacy chart data url"] == true ){
-        chartObj.setXMLUrl(parms.xmlURL);
-        tidyup();
-      }else{
-        // Load XML string using our own ajax code to avoid non-Chrome problem with some
-        // URLs in FusionCharts. The URL should not have ampersands encoded as %26.
-        ajax({
-          url: parms.xmlURL,
-          method: "get",
-          async: true,
-          handler: function(responseText){
-            chartObj.setXMLData(responseText);
-            tidyup();
-          }
-        });
-      }
-    }
-    else if (parms.xmlData != null){
-      chartObj.setXMLData(parms.xmlData);
-      tidyup();
-    }
-    else if (parms.jsonURL != null) {
-      // Use our own ajax code to avoid non-Chrome problem with some URLs in FusionCharts.
-      // Note: as of 6/1/16, there is no way to choose a URL for JSON data in VD,
-      // so this code is never called. (Thus, no need for "legacy" fallback.)
-      ajax({
-        url: parms.jsonURL,
-        method: "get",
-        async: true,
-        handler: function(responseText){
-          chartObj.setJSONData(responseText);
-          tidyup();
-        }
-      });
-    }
-    else if (parms.jsonData != null){
-      chartObj.setJSONData(parms.jsonData);
-      tidyup();
-    }
-    else{
-      tidyup();
-    }
-    
-    // Code to run after chart data is loaded by one of the various data methods.
-    // (Calling this in the XHR response handler avoids Synchronous XMLHttpRequest
-    // deprecation warnings that would appear when doing synchronous XHRs, then
-    // subsequently running this code in the same thread.)
-    function tidyup(){
-      parms.dom.style.backgroundColor = "";
-      chartObj.render();
-      parms.dom.chart = document.getElementById(chartId);
-      if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible")
-        parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
-    }
-        
-    function complete() {
-      
-      parms.dom.isRendering = false;
-      
-    }
-    
-  }
-  
   if (typeof FusionCharts == "undefined") {
     // Dependency scripts should have been loaded before render-time.
-    // If they didn't, then indicate a problem to the user.
+    // If they didn't, then indicate a problem to the user and stop.
     parms.dom.innerHTML = "<br/>&nbsp;&nbsp;" 
       + pui["getLanguageText"]("runtimeMsg", "failed to load x", [pui["getLanguageText"]("runtimeText","chart")] );
     console.log("Dependency FusionCharts not defined before rendering.");
-  } else {
-    // Dependency scripts loaded, so render the chart.
-    loadChart();
+    return;
+  }
+  
+  if (inDesignMode()) return;  //User switched to design mode while async request was loading in Genie.
+  
+  var maptype = parms.dom.pui.properties["map type"];
+  var isMap = maptype != null && maptype != "";
+
+  // dom.id becomes null when the chart is in the background behind a windowed record format. The id attribute is set when the first
+  // format is rendered. Then certain charts send XHR. The next format may clear "id" attributes from the first format before the
+  // response arrives. To avoid setting multiple chart ids to "_Chart", don't render without an id. Otherwise disposing causes errors.
+  if (parms.dom.id != null && parms.dom.id != "")
+    var chartId = parms.dom.id + "_Chart";
+  else if (parms.domId != null)
+      var chartId = parms.domId + "_Chart";   //certain charts send the additional domId property.
+  else {
+    console.log("Stopped rendering chart; missing id attribute.");
+    return;
   }
 
+  var fc_parms = {
+    "type": parms.type.toLowerCase(),
+    "id": chartId,
+    "width": "100%",
+    "height": "100%",
+    "renderAt": parms.dom,
+    "events": {
+      "renderComplete": complete,
+      "dataLoadError": complete,
+      "dataInvalid": complete,
+      "noDataToDisplay": complete
+    }
+  };
+
+  // Allow the chart/map to be clickable by adding special things to the data.
+  if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom.pui.properties["onchartclick"]) != "undefined") {
+    // Add a listener for legacy xmlurl chart to run after FusionCharts loads the data from the url.
+    if (parms.xmlURL != null) {
+      fc_parms["events"]["dataLoadRequestCompleted"] = pui.widgets.addChartLinks;
+    }
+
+    //If XML or JSON data is loaded and ready now, add the links now.
+    if (parms.xmlData != null) {
+      parms.xmlData = pui.widgets.addXMLChartLinks(parms.dom.id, parms.xmlData, isMap);
+    }
+    else if (parms.jsonData != null) {
+      parms.jsonData = pui.widgets.addJSONChartLinks(parms.dom.id, parms.jsonData, isMap);
+    }
+  }
+  
+  // Set dataSources for the FusionCharts constructor.
+  if (parms.xmlData != null) {
+    fc_parms["dataFormat"] = "xml";
+    fc_parms["dataSource"] = parms.xmlData; 
+  }
+  else if (parms.jsonData != null) {
+    fc_parms["dataFormat"] = "json";
+    fc_parms["dataSource"] = parms.jsonData;
+  }
+
+  var chartObj = new FusionCharts(fc_parms);
+  pui.chartsRendered.push(chartId);
+  chartObj.dom = parms.dom;
+  if (parms.transparent == true) chartObj.setTransparent(true);
+
+  if (parms.xmlURL != null && pui["legacy chart data url"] == true){
+    // Let FusionCharts handle the XHR. (This was the "chart url" behavior before PUI 5.5.0.)
+    chartObj.setXMLUrl(parms.xmlURL);
+  }
+
+  parms.dom.style.backgroundColor = "";
+  chartObj.render();
+  parms.dom.chart = document.getElementById(chartId);
+  if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible")
+    parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
+
+  function complete() {
+    parms.dom.isRendering = false;    //FusionCharts code finished running.
+  }
 };
 
+/**
+ * Handler called by FusionCharts after "chart url" (XML) data finishes loading.
+ * (Only runs when pui["legacy chart data url"] is true.)
+ * @param {Object} eventObject
+ * @param {Object} argumentsObject
+ * @returns {undefined}
+ */
 pui.widgets.addChartLinks = function(eventObject, argumentsObject) {
-
-  argumentsObject["cancelDataLoad"]();
+  
+  if( typeof argumentsObject["cancelDataLoad"] == "function")
+    argumentsObject["cancelDataLoad"]();
   var id = eventObject["sender"].dom.id;
   
+  var maptype = eventObject["sender"].dom.pui.properties["map type"];
+  var isMap = maptype != null && maptype != "";
+  
   if (argumentsObject["dataFormat"] == "xml") {
-  
-    eventObject["sender"]["setXMLData"](pui.widgets.addXMLChartLinks(id, argumentsObject["data"]));
-  
+    //Note: at some point FusionCharts changed, and the second argument became "dataSource" instead of "data".
+    var xml = pui.widgets.addXMLChartLinks(id, argumentsObject["dataSource"], isMap);
+    eventObject["sender"]["setXMLData"](xml);
   }
-  else {
-  
-    eventObject["sender"]["setJSONData"](pui.widgets.addJSONChartLinks(id, argumentsObject["data"]));
-  
-  }
-
+  //The case for JSON URL is no longer needed. Removed in 5.7.1. MD.
 };
 
-pui.widgets.addXMLChartLinks = function(id, xml) {
+/**
+ * Add attributes to the XML tags so FusionCharts will call our doChartLink when someone
+ * clicks on a data node in the chart or map.
+ * 
+ * For maps, this assumes the XML is in the form <chart><set id="" value="" /></chart>.
+ * 
+ * @param {String} id
+ * @param {String} xml
+ * @param {Boolean} isMap
+ * @returns {doc.xml|String}
+ */
+pui.widgets.addXMLChartLinks = function(id, xml, isMap) {
 
   try {
 
@@ -228,6 +210,7 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
         var data = {"id": id};
         var set = sets[setIdx];
         if (dataSet.nodeName == "dataset") {
+          //Multi-series.
 
           data["name"] = dataSet.getAttribute("seriesname"); // According to FusionCharts docs.
           if (data["name"] == null)
@@ -237,11 +220,15 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
         
         }
         else {
-        
-          data["name"] = set.getAttribute("name");
-          if (data["name"] == null)
-            data["name"] = set.getAttribute("label");
-        
+          //Single series data or map.
+          
+          if (isMap){
+            data["name"] = set.getAttribute("id");  //Maps use tags like: <set id="" value="" />.
+          }else{
+            data["name"] = set.getAttribute("name");
+            if (data["name"] == null)
+              data["name"] = set.getAttribute("label");
+          }
         }
         
         set.setAttribute("link", "j-pui.widgets.doChartLink-" + JSON.stringify(data));
@@ -271,7 +258,14 @@ pui.widgets.addXMLChartLinks = function(id, xml) {
 
 };
 
-pui.widgets.addJSONChartLinks = function(id, json) {
+/**
+ * 
+ * @param {String} id
+ * @param {String} json
+ * @param {Boolean} isMap
+ * @returns {Object}
+ */
+pui.widgets.addJSONChartLinks = function(id, json, isMap) {
 
   try {
 
@@ -309,7 +303,10 @@ pui.widgets.addJSONChartLinks = function(id, json) {
         }
         else {
           
-          data["name"] = set["label"];
+          if (isMap)
+            data["name"] = set["id"];    //Maps use "id" instead of "label".
+          else
+            data["name"] = set["label"]; //Charts use "label"
           
         }
         set["link"] = "j-pui.widgets.doChartLink-" + JSON.stringify(data);
@@ -438,8 +435,9 @@ pui.widgets.add({
 
       var mapType = trim(parms.evalProperty("map type"));
       var chartType;
-      if (mapType != "") {
-  
+      var isMap = (mapType != "");
+      if (isMap) {
+
         if (mapType.toLowerCase().indexOf("maps/") == 0)
           mapType = mapType.substr(5);
         mapType = "/FusionChartsXT/js/maps/" + mapType;
@@ -452,11 +450,15 @@ pui.widgets.add({
         
       }
       if (parms.design) {
-        pui.widgets.setChartPreview(parms.dom, chartType, (mapType != ""));
+        pui.widgets.setChartPreview(parms.dom, chartType, isMap);
         parms.dom.style.overflow = "hidden";
         parms.dom.style.border = "1px solid #999999";
       }
       else {
+        //Save ID in case a window or overlay clears the "id" attribute before the response 
+        //arrives. Avoids errors when we use AJAX to load chart data before renderChart.
+        var domId = parms.dom.id;
+        
         // renderFormat doesn't set all dom.pui.properties that are needed later (e.g. "chart response"), so set them now.
         parms.dom["pui"]["properties"] = parms.properties;
 
@@ -501,7 +503,8 @@ pui.widgets.add({
         }
         
         if (url == "" && jsonURL == "") {
-        
+          // The chart data is provided by the properties "names" and "values",
+          // or the chart is database-driven.
           var file             = parms.evalProperty("database file").toUpperCase();
           var nameField        = parms.evalProperty("name field").toUpperCase();
           var valueField       = parms.evalProperty("value field").toUpperCase();
@@ -514,6 +517,7 @@ pui.widgets.add({
           var chartOptions     = parms.evalProperty("chart options");
           
           if (trim(nameList) != "" && trim(valueList) != "") {
+            // The chart data is in the "names" and "values" properties.
             var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart';
             if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "") {
               chartXML += " " + chartOptions;
@@ -548,7 +552,11 @@ pui.widgets.add({
                 dataValue = Number(dataValue);
               }
               if (isNaN(dataValue)) dataValue = 0;
-              chartXML += '<set name="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
+              
+              var attrname = "name";
+              if (isMap) attrname = "id"; //Maps use a different attribute than charts.
+              
+              chartXML += '<set '+attrname+'="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
             }
             chartXML += '</chart>';
             
@@ -572,7 +580,9 @@ pui.widgets.add({
               + pui["getLanguageText"]("runtimeMsg", "name fld not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
             return;
           }
-          
+          //
+          // The chart data is database-driven.
+          //
           var summary = "";
           if (summaryOption == "average") summary = "avg(";
           if (summaryOption == "count") summary = "count(";
@@ -631,7 +641,7 @@ pui.widgets.add({
          postData += "&maxcount=" + maxCount;
          postData += "&UTF8=Y";
          
-         var domId = parms.dom.id; //Save in case a window or overlay clears the "id" attribute before the response arrives.
+         if (isMap) postData += "&isMap=Y"; //Tell PUI0009104 to use the correct XML for maps.
          
          var ajaxRequest = new pui.Ajax(url);
          ajaxRequest["method"] = "post";
@@ -660,8 +670,9 @@ pui.widgets.add({
            });
          };
          ajaxRequest.send(); 
-          
         }
+        //done with database-driven and "names"/"values" charts.
+
         else if(url != "" ){      //xmlURL
         
           // Support the old data URL method in case the new one breaks
@@ -674,23 +685,52 @@ pui.widgets.add({
 
             // This results in truncation of multiple query string parameters.
             // URL encoding the ampersands allows them to be treated normally as parameter separators.
-            url = url.replace(/&/g, "%26"); 
+            url = url.replace(/&/g, "%26");
+            
+            // FusionCharts will make the AJAX request.
+            pui.widgets.renderChart({
+              dom: parms.dom,
+              domId: domId,
+              type: chartType,
+              transparent: (parms.properties["chart overlay"] != "true"),
+              xmlURL: url
+            });
           }
-        
-          pui.widgets.renderChart({
-            dom: parms.dom,
-            type: chartType,
-            transparent: (parms.properties["chart overlay"] != "true"),
-            xmlURL: url
-          });
-
+          else{
+            //We make the AJAX request to avoid a problem in non-Chrome browsers with
+            //some URLs in FusionCharts. The URL should not have ampersands encoded as %26.
+            ajax({
+              url: url,
+              method: "get",
+              async: true,
+              handler: function(responseText){
+                pui.widgets.renderChart({
+                dom: parms.dom,
+                domId: domId,
+                type: chartType,
+                transparent: (parms.properties["chart overlay"] != "true"),
+                xmlData: responseText
+               });
+              }
+            });
+            
+          }
         }
-        else{     //jsonURL.
-          pui.widgets.renderChart({
-            dom: parms.dom,
-            type: chartType,
-            transparent: (parms.properties["chart overlay"] != "true"),
-            jsonURL: jsonURL
+        else {     //jsonURL.
+          //We make AJAX request to avoid non-Chrome problem with some URLs in FusionCharts.
+          ajax({
+            url: jsonURL,
+            method: "get",
+            async: true,
+            handler: function(responseText){
+              pui.widgets.renderChart({
+                dom: parms.dom,
+                domId: domId,
+                type: chartType,
+                transparent: (parms.properties["chart overlay"] != "true"),
+                jsonData: responseText
+              });
+            }
           });
         }
       }
