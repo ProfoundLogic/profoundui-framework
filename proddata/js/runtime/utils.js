@@ -2503,7 +2503,7 @@ pui.addItemDependenciesTo = function(item, dependencies){
       
         // Used to avoid loading redundant dependencies.
         var scripts = document.getElementsByTagName("script");
-        var links = document.getElementsByTagName("links");
+        var links = document.getElementsByTagName("link");
 
         var widdep = pui.widgets[fieldtype]["dependencies"];
         
