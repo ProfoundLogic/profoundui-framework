@@ -3428,7 +3428,15 @@ pui.buildResponse = function() {
 }
 
 
-pui.submitResponse = function(response) {
+pui.submitResponse = function(response, value) {
+
+  if (response == null) {
+    response = pui["captureData"]();
+  }
+  else if (typeof response === "string") {
+    response = pui["captureData"](response, value);
+  }
+
   var url;
   if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
   else url = getProgramURL("PUI0002110.pgm");
@@ -3522,6 +3530,7 @@ pui.submitResponse = function(response) {
     });
   }
 };
+pui["submit"] = pui.submitResponse;  // short-hand
 
 
 pui.resetResponseValues = function() {

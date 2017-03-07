@@ -760,6 +760,7 @@ pui["expandAccordionSection"] = function(id, section) {
   accordion.expandSection(section);
 }
 
+
 pui["runAttnProgram"] = function() {
  
   if (context == "dspf")	
@@ -767,3 +768,44 @@ pui["runAttnProgram"] = function() {
   
 }
 
+
+pui["captureData"] = function(nameOrData, value) {
+
+  function captureByTagName(tagName) {
+    var els = document.getElementsByTagName(tagName);
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var name = el.name;
+      if (name != null && name != "") {
+        var value = el.value;
+        var type = el.type;
+        if (tagName === "button" || type == "submit" || type === "reset" || type === "button") {
+          value = "0";
+        }
+        data[name] = value;
+      }
+    }
+  }
+  function capture() {
+    captureByTagName("input");
+    captureByTagName("button");
+    captureByTagName("select");
+    captureByTagName("textarea");
+  }
+
+  var data = nameOrData;
+  if (typeof data === "object") {
+    capture();
+  }
+  else {
+    data = {};
+    capture();
+    if (typeof nameOrData === "string") {
+      if (value == null) value = "1";
+      data[nameOrData] = value;
+    }
+  }
+  
+  return data;
+
+}
