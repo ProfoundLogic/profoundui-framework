@@ -476,28 +476,8 @@ function TabPanel() {
           var selection = toolbar.designer.selection;
           if (selection.resizers.length > 1) selection.clear();
         }
-        if (changed) {
-          var dom = me.container;
-          if (dom.disabled != true) {
-            if (context == "dspf" && dom.sendTabResponse == true) {
-              dom.responseValue = tab;
-              if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
-                pui.bypassValidation = dom.bypassValidation;
-              }
-              if (dom.responseAID) {
-                pui.keyName = dom.responseAID;
-              }
-              var returnVal = pui.respond();
-              if (returnVal == false) dom.responseValue = null;
-            }
-            else {
-              me.draw();
-              if (context == "dspf" && dom.sendActiveTab == true) {
-                dom.responseValue = tab;
-              }
-            }
-          }
-        }
+        if (changed)
+          me.processTabChange(tab);
       };
       // Add the tab container span to the widget. Add the left border if it
       // exists, add the tab itself, and add the right border if it exists.
@@ -761,6 +741,36 @@ function TabPanel() {
   }; //end this.draw().
   
   /**
+   * The user changed the tab by clicking on one that isn't the selectedTab
+   * or by calling the API method, setTab, on a tab that isn't selectedTab.
+   * A response value will be set if "tab response" is bound.
+   * @param {type} tab
+   * @returns {undefined}
+   */
+  this.processTabChange = function(tab){
+    var dom = me.container;
+    if (dom.disabled != true) {
+      if (context == "dspf" && dom.sendTabResponse == true) {
+        dom.responseValue = tab;
+        if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
+          pui.bypassValidation = dom.bypassValidation;
+        }
+        if (dom.responseAID) {
+          pui.keyName = dom.responseAID;
+        }
+        var returnVal = pui.respond();
+        if (returnVal == false) dom.responseValue = null;
+      }
+      else {
+        me.draw();
+        if (context == "dspf" && dom.sendActiveTab == true) {
+          dom.responseValue = tab;
+        }
+      }
+    }
+  };
+  
+  /**
    * Create a scroll left or right button in the same style as the tabs.
    * 
    * @param {String} cssClass     Extra CSS class: left or right.
@@ -890,8 +900,9 @@ pui.widgets.add({
       if (!parms.design) {
         // set and get current tab api's
         parms.dom.setTab = function(tab) {
+          var changed = (parms.dom.tabPanel.selectedTab != tab);
           parms.dom.tabPanel.selectedTab = tab;
-          parms.dom.tabPanel.draw();
+          if (changed) parms.dom.tabPanel.processTabChange(tab);
         };
         parms.dom.getTab = function() {
           return parms.dom.tabPanel.selectedTab;
