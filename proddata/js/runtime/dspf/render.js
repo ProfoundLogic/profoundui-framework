@@ -665,12 +665,12 @@ pui.render = function(parms) {
         loadScript(idx + 1);
       }
       else {
-        pui.loadJS({
-          path: script.src,
-          callback: function() {
+        pui["loadJS"]({
+          "path": script.src,
+          "callback": function() {
             loadScript(idx + 1);
           },
-          onerror: function() {
+          "onerror": function() {
             loadScript(idx + 1);
           }
         });
