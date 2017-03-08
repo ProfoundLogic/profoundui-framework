@@ -678,7 +678,13 @@ pui.render = function(parms) {
     }
     loadScript(0);
     
+    pui.screenIsReady = true;
+    pui.isHtml = true;
+    
     return;
+  }
+  else {
+    pui.isHtml = false;
   }
   parms.container.style.width = "";
   if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "";
@@ -3429,6 +3435,11 @@ pui.buildResponse = function() {
 
 
 pui.submitResponse = function(response, value) {
+
+  if (pui.isHtml) {
+    if (!pui.screenIsReady) return false;
+    pui.screenIsReady = false;
+  }
 
   if (response == null) {
     response = pui["captureData"]();
