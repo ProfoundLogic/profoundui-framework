@@ -510,6 +510,7 @@ pui.popstate = function(e) {
 pui.render = function(parms) {
 
   pui.nodejs = (parms["nodejs"] === true);
+  pui.ejsData = null;
   
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = null;

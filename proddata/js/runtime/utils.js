@@ -2683,3 +2683,63 @@ pui.round = function(number, precision){
   var roundedTempNumber = Math.round(tempNumber);
   return roundedTempNumber / factor;  
 };
+
+
+
+pui.ejs = function(html) {
+  
+  if (html.indexOf("<%") < 0) return html;  // no ejs to process
+  
+  if (typeof window["ejs"] !== "object" || typeof window["ejs"]["render"] !== "function") {
+    console.error("EJS templating library not loaded.")
+    return html;
+  }
+  
+  // First, format the data properly for ejs
+  if (pui.ejsData == null) {
+    var data = {};
+    var layers = pui["layers"];
+    var formats = layers[layers.length - 1].formats;
+    for (var i = 0; i < formats.length; i++) {
+      var format = formats[i];      
+      for (var name in format.data) {
+        var value = format.data[name];
+        // make availalbe in both lower and upper case
+        data[name.toLowerCase()] = value;
+        data[name.toUpperCase()] = value;
+      }
+      if (format.subfiles) {
+        for (var subfile in format.subfiles) {
+          var subfileData = format.subfiles[subfile].data;
+          var fields = format.subfiles[subfile]["field names"];
+          var list = [];
+          for (var j = 0; j < subfileData.length; j++) {
+            var recordArray = subfileData[j];
+            var record = {};          
+            for (var k = 0; k < fields.length; k++) {
+              var fieldName = fields[k];              
+              // make availalbe in both lower and upper case
+              record[fieldName.toLowerCase()] = recordArray[k];
+              record[fieldName.toUpperCase()] = recordArray[k];
+            }
+            list.push(record);
+          }
+          // make availalbe in both lower and upper case
+          data[subfile.toLowerCase()] = list;
+          data[subfile.toUpperCase()] = list;
+        }
+      }
+    }
+    pui.ejsData = data;
+  }
+  
+  try {
+    html = window["ejs"]["render"](html, pui.ejsData);
+  }
+  catch (err) {
+    console.error(err);
+  }
+  
+  return html;
+
+}
