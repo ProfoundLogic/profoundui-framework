@@ -2599,27 +2599,24 @@ pui.loadDependencyFiles = function(parm, callback ){
     }
   }
   
-  // Execute and return. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
-  if( dependencies.length <= 0){
-    callback();
-    return;
-  }
+  pui.dependencies = dependencies; //Store the URLs globally to be accessed by callbacks.
   
-  // This function handles the onload/onerror event for all files which load
-  // asynchronously.
+  myonload();
+  
+  // Recursive method to load a css/js file and callback itself onsuccess or onerror. Overall, files
+  // are loaded synchronously, one at a time, in FIFO order set in the "dependencies" property.
   function myonload(){
-    pui.dependenciesLoading--;
-    // When all dependencies have finished loading, execute the callback.
-    if (pui.dependenciesLoading <= 0) callback();
-  };
 
-  pui.dependenciesLoading = dependencies.length;
-  
-  for(var i=0; i < dependencies.length; i++ ){
-    
-    var url = dependencies[i];
-    
-    if( url != null && url.length > 0 ){
+    if (pui.dependencies.length <= 0){
+      // Stop recursion. All dependencies are loaded or timed out (or there were none).
+      pui.dependencies = null;
+      callback();   // Execute and return. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
+      return;
+    }
+
+    var url = pui.dependencies.shift(); //Remove first from queue.
+
+    if( url != null && url.length > 0 ){      
       var head = document.getElementsByTagName("head")[0];
 
       var fileref;
@@ -2633,7 +2630,7 @@ pui.loadDependencyFiles = function(parm, callback ){
         fileref = document.createElement("script");
         fileref.setAttribute("type", "text/javascript");
       }
-      
+
       if( typeof fileref.onload == "undefined"){
         // IE8 fires the readystatechange event, not the load event.
         // fileref.onload is undefined for IE8, null for others before defined.
@@ -2653,18 +2650,17 @@ pui.loadDependencyFiles = function(parm, callback ){
 
       // It's go time! (Assume the url is already normalized...)
       if (extn === ".css") {
-        fileref.setAttribute("href", url)
+        fileref.setAttribute("href", url);
       }
       else {
         fileref.setAttribute("src", url); 
       }
       head.appendChild(fileref);      
-      
+
     }else{
-      // If the string was empty, then no onload will decrement the counter; do so now.
-      pui.dependenciesLoading--;
-    }    
-  }//done each dependencies.
+      myonload();   //If the string was empty, then look for the next dependency.
+    }
+  } //end myonload() recursive function.
 
 };
 
