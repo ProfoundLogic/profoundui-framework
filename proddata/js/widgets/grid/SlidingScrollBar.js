@@ -339,6 +339,15 @@ pui.SlidingScrollBar = function() {
     }     
   };
   
+  /**
+   * Set the scrollbar position to reflect where rowNum is. This is called when pageUp/pageDown keys 
+   * are typed (or paging links are clicked); in grid find; when sorting; and when the grid is setup 
+   * in renderFormat when "subfile record number" is set.
+   * 
+   * @param {Number} rowNum
+   * @param {Boolean} setPrevStartRow   When true, this.doScroll should return, doing nothing.
+   * @returns {Boolean}
+   */
   this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
     if (touchHandle != null) {
       var minTop = parseInt(touchBar.style.top);
@@ -352,12 +361,14 @@ pui.SlidingScrollBar = function() {
     }
     else {
       if (setPrevStartRow) {
-        // this prevents onscroll event from processing
+        // this prevents onscroll event from processing. Either grid is initialized or an AJAX "find" has responded.
         prevStartRow = rowNum;
+      }else{
+        // The grid is handling pageUp, pageDown, or sorting--not being initialized--so set targetRow.
+        me.targetRow = rowNum;   //Give the row number for doScroll to use, putting doScroll in a special state.
       }
       var prevTop = outerDiv.scrollTop;
       outerDiv.scrollTop = (rowNum - 1) * multiplier; //fires "scroll", so doScroll is now in the event queue.
-      me.targetRow = rowNum;   //Give the row number for doScroll to use, putting doScroll in a special state.
       return (prevTop != outerDiv.scrollTop);  // return false if position of scrollbar not changed
     }
   };
