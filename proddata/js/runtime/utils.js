@@ -2743,3 +2743,29 @@ pui.ejs = function(html) {
   return html;
 
 }
+
+pui.setHtmlWithEjs = function(dom, html) {
+  if (pui.ejsLoading) {
+    setTimeout(function() {
+      pui.setHtmlWithEjs(dom, html);
+    }, 100);
+  }
+  if (!pui.ejsLoaded) {
+    pui.ejsLoading = true;
+    dom.innerHTML = "";
+    pui["loadJS"]({
+      "path": pui.normalizeURL("/ejs/ejs.min.js"),
+      "callback": function() {
+        dom.innerHTML = pui.ejs(html);
+        pui.ejsLoaded = true;
+        pui.ejsLoading = false;
+      },
+      "onerror": function() {
+        pui.ejsLoading = false;        
+      }
+    });
+  }
+  else {
+    dom.innerHTML = pui.ejs(html);
+  }
+}

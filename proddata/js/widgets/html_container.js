@@ -32,11 +32,11 @@ pui.widgets.add({
   propertySetters: {
   
     "field type": function(parms) {
-      parms.dom.innerHTML = pui.ejs(parms.evalProperty("html"));
+      pui.setHtmlWithEjs(parms.dom, parms.evalProperty("html"));
     },
     
     "html": function(parms) {
-      parms.dom.innerHTML = pui.ejs(parms.value);
+      pui.setHtmlWithEjs(parms.dom, parms.value);
     }
 
   }

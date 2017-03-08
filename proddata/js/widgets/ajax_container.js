@@ -42,7 +42,7 @@ pui.widgets.add({
         else {
           ajax(url, function(response) {
             try {
-              parms.dom.innerHTML = pui.ejs(response);
+              pui.setHtmlWithEjs(parms.dom, response);
             }
             catch(err) {
               parms.dom.innerHTML = err.message;
