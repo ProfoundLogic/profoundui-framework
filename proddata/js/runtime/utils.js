@@ -2695,7 +2695,10 @@ pui.ejs = function(html) {
   if (pui.ejsData == null) {
     var data = {};
     var layers = pui["layers"];
-    var formats = layers[layers.length - 1].formats;
+    if (layers == null) layers = [];
+    var lastLayer = layers[layers.length - 1];
+    if (lastLayer == null) lastLayer = { formats: [] };
+    var formats = lastLayer.formats;
     for (var i = 0; i < formats.length; i++) {
       var format = formats[i];      
       for (var name in format.data) {
