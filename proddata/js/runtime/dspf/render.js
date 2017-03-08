@@ -3711,7 +3711,7 @@ pui.hideWaitAnimation = function(removeAnimationImage) {
 
 pui.handleHotKey = function(e, keyName) {
 
-  if (context != "dspf") return;
+  if (context != "dspf" || pui.isHtml) return;
   
   if (!e) e = window.event;
   var key = e.keyCode;
