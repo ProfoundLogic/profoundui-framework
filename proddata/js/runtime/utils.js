@@ -2748,6 +2748,7 @@ pui.setHtmlWithEjs = function(dom, html) {
     setTimeout(function() {
       pui.setHtmlWithEjs(dom, html);
     }, 100);
+    return;
   }
   if (!pui.ejsLoaded) {
     pui.ejsLoading = true;
