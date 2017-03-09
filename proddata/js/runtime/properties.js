@@ -1480,7 +1480,7 @@ function evalPropertyValue(propertyValue) {
   if (String(propertyValue).substr(0, 7).toLowerCase() == "script:") {
     js = propertyValue.substr(7);
   }
-  if (js == null) {
+  if (js == null || js.trim()=="") {
     effectiveValue = propertyValue;
   }
   else {
