@@ -778,8 +778,16 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.id = domObj.id;
       newDomObj.name = domObj.name;
       if (context == "dspf") {
-        if (domObj.cursorRecord != null) newDomObj.cursorRecord = domObj.cursorRecord;
-        if (domObj.cursorField != null) newDomObj.cursorField = domObj.cursorField;
+        if (newDomObj["pui"] == null) newDomObj["pui"] = {};
+        
+        if (domObj.cursorRecord != null){
+          newDomObj.cursorRecord = domObj.cursorRecord;
+          newDomObj["pui"]["formatName"] = domObj.cursorRecord;   //Expose format name for custom widgets. #3440.
+        }
+        if (domObj.cursorField != null){
+          newDomObj.cursorField = domObj.cursorField;
+          newDomObj["pui"]["fieldName"] = domObj.cursorField;
+        }
       }
       if (context == "genie") {
         newDomObj.fieldInfo = domObj.fieldInfo;

@@ -145,7 +145,7 @@ pui.fkeyValues = {
   "F23": 23,
   "F24": 24,  
   "Enter": 0
-}
+};
 
 pui.aidKeyValues = {
 
@@ -184,7 +184,7 @@ pui.aidKeyValues = {
   "RecordBackspace": 0xF8,      // Not implemented
   "AutoEnter": 0x3F             // Not implemented
   
-}
+};
 
 
 pui.protectFormat = function(format) {
@@ -206,7 +206,7 @@ pui.protectFormat = function(format) {
       if (!done) itm[prop] = "PR";
     }
   }
-}
+};
 
 
 pui.doClearLine = function(clearLine, format, oRange, startingLine) {
@@ -281,7 +281,7 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
       }
     }
   }
-}
+};
 
 
 // check if two overlay ranges overlap
@@ -305,7 +305,7 @@ pui.rangeOverlap = function(range1, range2) {
   if (mid1 >= from2 && mid1 <= to2) return true;
   if (mid2 >= from1 && mid2 <= to1) return true;
   return false;
-}
+};
 
 
 // determine if record formats below subfiles need to be pushed down and by how much
@@ -419,7 +419,7 @@ pui.overlayAdjust = function(formats) {
     }
   }
 
-}
+};
 
 
 pui.cleanup = function() {
@@ -471,7 +471,7 @@ pui.cleanup = function() {
   
   pui.killFrames();
   
-}
+};
 
 
 pui.resize = function(inEmulator) {
@@ -488,7 +488,7 @@ pui.resize = function(inEmulator) {
       child.layout.stretch();
     }
   } 
-}
+};
 
 
 pui.popstate = function(e) {
@@ -504,7 +504,7 @@ pui.popstate = function(e) {
     }    
   }
   history.forward();
-}
+};
 
 
 pui.render = function(parms) {
@@ -1212,6 +1212,11 @@ pui.renderFormat = function(parms) {
               // assign cursor record and field
               dom.cursorRecord = formatName;
               dom.cursorField = pui.fieldUpper(propValue.fieldName);
+              
+              if (dom["pui"] == null ) dom["pui"] = {};   //Expose field and format for custom widgets. #3440.
+              dom["pui"]["formatName"] = formatName;
+              dom["pui"]["fieldName"] = dom.cursorField;
+              
               // remove numeric formatting from auto-complete field where choice option is not the same as choice value
               if (items[i]["field type"] == "textbox") {
                 var dbFile = pui.evalBoundProperty(items[i]["choices database file"], data, parms.ref);
@@ -2603,7 +2608,7 @@ pui.attachResponse = function(dom) {
     }    
   }
   addEvent(dom, "click", clickEvent);
-}
+};
 
 
 pui.showErrors = function(errors, rrn) {
@@ -2712,7 +2717,7 @@ pui.showErrors = function(errors, rrn) {
     }, 0);
   }, 0);
 
-}
+};
 
 pui.respond = function() {
 
@@ -2782,7 +2787,7 @@ pui.respond = function() {
   }
  
   return true;
-}
+};
 
 pui.buildResponse = function() {
     
@@ -3432,7 +3437,7 @@ pui.buildResponse = function() {
   }
   
   return response;
-}
+};
 
 
 pui.submitResponse = function(response, value) {
@@ -3551,12 +3556,12 @@ pui.resetResponseValues = function() {
     var doms = pui.responseElements[fieldName];
     for (var i = 0; i < doms.length; i++) {
       if (doms[i].responseValue == "1") {
-        doms[i].responseValue = "0"
+        doms[i].responseValue = "0";
       }
     }
   }
   pui.screenIsReady = true;
-}
+};
 
 
 pui.cancelResponse = function(messages) {
@@ -3578,7 +3583,7 @@ pui.cancelResponse = function(messages) {
   }
   pui["unmaskScreen"]();
   pui.resetResponseValues();
-}
+};
 
 
 pui.evalBoundProperty = function(propValue, data, ref) {
@@ -3629,7 +3634,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
   }
   
   return pui.FieldFormat.format(formattingObj);
-}
+};
 
 pui.evalIndicatorExpression = function(expression, data) {
   var iMainValue = false;
@@ -3660,7 +3665,7 @@ pui.evalIndicatorExpression = function(expression, data) {
   }
   if (iMainValue) return "1";
   return "0";
-}
+};
 
 
 pui.showWaitAnimation = function() {
@@ -3707,7 +3712,7 @@ pui.hideWaitAnimation = function(removeAnimationImage) {
       animation.parentNode.removeChild(animation);
     }
   }
-}
+};
 
 
 pui.handleHotKey = function(e, keyName) {
