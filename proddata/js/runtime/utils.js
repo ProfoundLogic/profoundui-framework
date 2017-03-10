@@ -2694,6 +2694,7 @@ pui.ejs = function(html) {
   // First, format the data properly for ejs
   if (pui.ejsData == null) {
     var data = {};
+    var flags = {};
     var layers = pui["layers"];
     if (layers == null) layers = [];
     var lastLayer = layers[layers.length - 1];
@@ -2703,9 +2704,16 @@ pui.ejs = function(html) {
       var format = formats[i];      
       for (var name in format.data) {
         var value = format.data[name];
-        // make availalbe in both lower and upper case
-        data[name.toLowerCase()] = value;
-        data[name.toUpperCase()] = value;
+        if (name.substr(0,3).toUpperCase() === "*IN") {
+          var ind = name.substr(3);
+          if (!isNaN(Number(ind))) ind = Number(ind);
+          flags[ind] = value;
+        }
+        else {
+          // make availalbe in both lower and upper case
+          data[name.toLowerCase()] = value;
+          data[name.toUpperCase()] = value;
+        }
       }
       if (format.subfiles) {
         for (var subfile in format.subfiles) {
@@ -2716,10 +2724,17 @@ pui.ejs = function(html) {
             var recordArray = subfileData[j];
             var record = {};          
             for (var k = 0; k < fields.length; k++) {
-              var fieldName = fields[k];              
-              // make availalbe in both lower and upper case
-              record[fieldName.toLowerCase()] = recordArray[k];
-              record[fieldName.toUpperCase()] = recordArray[k];
+              var fieldName = fields[k]; 
+              if (fieldName.substr(0,3).toUpperCase() === "*IN") {
+                var ind = fieldName.substr(3);
+                if (!isNaN(Number(ind))) ind = Number(ind);
+                flags[ind] = recordArray[k];
+              }
+              else {
+                // make availalbe in both lower and upper case
+                record[fieldName.toLowerCase()] = recordArray[k];
+                record[fieldName.toUpperCase()] = recordArray[k];
+              }
             }
             list.push(record);
           }
@@ -2729,6 +2744,7 @@ pui.ejs = function(html) {
         }
       }
     }
+    if (Object.keys(flags).length > 0) data.flags = flags;
     pui.ejsData = data;
   }
   
