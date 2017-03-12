@@ -3690,6 +3690,7 @@ pui.showWaitAnimation = function() {
     animation.alt = pui["loading animation"]["alt"];
   animation.style.position = "absolute";
   var left = pui["loading animation"]["left"];
+  if (pui.isHtml && left < 0) left = 0;  
   animation.style.left = left + "px";
   var top = pui["loading animation"]["top"];
   top += Math.max(document.body.scrollTop, document.documentElement.scrollTop);
