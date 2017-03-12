@@ -194,7 +194,7 @@ pui.layout.Layout = function() {
     var parentIsBrowserWindow = false;
     var parent = me.layoutDiv.parentNode;
     if ( parent != null && parent.tagName == "DIV" &&
-         parent.offsetWidth > 0 && parent.offsetHeight > 0 && 
+         parent.offsetWidth > 0 &&
          (parent.parentNode != document.body || (parent.style.width != null && parent.style.height != null && parent.style.width != "" && parent.style.height != "")) ) {
       size.width = parent.offsetWidth;
       size.height = parent.offsetHeight;
