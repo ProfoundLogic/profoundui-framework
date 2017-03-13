@@ -1488,14 +1488,14 @@ function evalPropertyValue(propertyValue) {
   if (String(propertyValue).substr(0, 7).toLowerCase() == "script:") {
     js = propertyValue.substr(7);
   }
-  if (js == null || trim(String(js))=="") {
+  if (js == null || trim(js)=="") {
     effectiveValue = propertyValue;
   }
   else {
     eval("var value = arguments[1];");
     eval("var obj = arguments[2];");
     try {
-      effectiveValue = eval(js);
+      effectiveValue = String(eval(js));
     }
     catch(err) {
       if (!pui.suppressPropertyScriptingErrors) {
