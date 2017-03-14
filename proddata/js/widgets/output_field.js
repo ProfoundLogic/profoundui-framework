@@ -28,7 +28,9 @@ function buildOutputField(parms, value, labelForId) {
   }
   parms.dom.innerHTML = "";
   var text = value;
-  text = text.replace(/ /g, "\u00a0");
+  if (typeof text === 'string') {
+    text = text.replace(/ /g, "\u00a0");
+  }
 
   // If the "label for" property was set, create a <label> tag
   if (labelForId) {
