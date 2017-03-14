@@ -1495,7 +1495,7 @@ function evalPropertyValue(propertyValue) {
     eval("var value = arguments[1];");
     eval("var obj = arguments[2];");
     try {
-      effectiveValue = String(eval(js));
+      effectiveValue = eval(js);
     }
     catch(err) {
       if (!pui.suppressPropertyScriptingErrors) {
