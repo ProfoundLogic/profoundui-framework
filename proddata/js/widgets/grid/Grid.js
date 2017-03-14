@@ -987,6 +987,10 @@ pui.Grid = function() {
       var idx = getColumnIndex(fieldName);
       if (idx != null) {
         record[idx] = value;
+        // If this is the "selection field" we should also update record.selected (Redmine #3458)
+        if (fieldName == pui.fieldUpper(me.selectionField.fieldName)) {
+        	record.selected = (value == me.selectionValue);
+        }
       }
     }
     
