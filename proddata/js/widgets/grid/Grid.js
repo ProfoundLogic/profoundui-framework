@@ -3978,7 +3978,7 @@ pui.Grid = function() {
                 mouseLeft = mouseLeft - me.tableDiv.designItem.designer.getLeftOffset();
               }
               else {
-                mouseLeft -= pui.runtimeContainer.offsetLeft;
+                mouseLeft -= pui.runtimeContainer.getBoundingClientRect().left;
               }
               if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
                 mouseLeft = mouseLeft - pui.layout.getContainerOffset(me.tableDiv.parentNode).x;
