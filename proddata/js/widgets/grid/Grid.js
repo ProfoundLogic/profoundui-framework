@@ -988,10 +988,45 @@ pui.Grid = function() {
       if (idx != null) {
         record[idx] = value;
         // If this is the "selection field" we should also update record.selected (Redmine #3458)
-        if (me.selectionEnabled && me.selectionField && 
-            me.selectionField.fieldName && fieldName == pui.fieldUpper(me.selectionField.fieldName)) {
-        	record.selected = (value == me.selectionValue);
-        }
+        if (me.selectionEnabled
+        && me.selectionField
+        && me.selectionField.fieldName
+        && fieldName == pui.fieldUpper(me.selectionField.fieldName)) {
+            var rowIsSelected = (value == me.selectionValue);
+            var rowNewValue = rowIsSelected ? me.selectionValue : me.selectionField.dataType == "indicator" ? "0" : " ";
+            if (record.selected != rowIsSelected) {
+                record.selected = rowIsSelected;
+                pui.modified = true;
+
+                // This will be here if the row has already been rendered
+                if (record.selection) {
+                    record.selection.modified = true;
+                    record.selection.value = rowNewValue;
+                    
+                  // This will run if the row has not yet been rendered.
+                  // In that case we need to stick an element into the response array.
+                } else {
+                    var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+                    if (pui.responseElements[qualField] == null) {
+                        pui.responseElements[qualField] = [{
+                            responseValue: String(value),
+                            modified: true,
+                            type: "grid selection",
+                            value: rowNewValue,
+                            subfileRow: rowNum,
+                            formattingInfo: me.selectionField,
+                            modifiedBeforeRender: true
+                        }];
+                    }
+                    if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+                        pui.responseElements[qualField][0].responseValue = String(value);
+                    }
+                }
+           }
+           if (rowIsSelected) {
+               me.selectedRecordNum = rowNum;
+           }
+       }
       }
     }
     
