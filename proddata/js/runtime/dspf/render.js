@@ -4237,8 +4237,8 @@ pui.runMVC = function(response) {
     "handler": function(parms) {
       pui.hideWaitAnimation();
       if (parms == null) {
-        //document.body.style.backgroundColor = "#DFE8F6";
         document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+        pui.closeSession();   //Without this, a parent atrium tab can't be closed by clicking [x].
         return;
       }        
       parms.container = pui.runtimeContainer;
