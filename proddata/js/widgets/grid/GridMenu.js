@@ -271,10 +271,15 @@ pui.GridMenu = function() {
         menuIcons.push(null);
         optionHandlers.push(null);
       }
-      menuOptions.push(pui["getLanguageText"]("runtimeText", "csv export text") + "...");
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "export to x",["Excel (CSV)"]) + "...");
       menuIcons.push("grids/excel.gif");
       optionHandlers.push(function() {
         me.grid.exportCSV();
+      });
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "export to x",["Excel (XLSX)"]) + "...");
+      menuIcons.push("grids/excel.gif");
+      optionHandlers.push(function() {
+        me.grid.exportCSV(null,true);
       });
     }
 

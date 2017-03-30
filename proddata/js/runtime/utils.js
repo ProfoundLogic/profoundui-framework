@@ -2784,4 +2784,349 @@ pui.setHtmlWithEjs = function(dom, html) {
   else {
     dom.innerHTML = pui.ejs(html);
   }
-}
+};
+
+/**
+ * Create a xlsx file from a worksheet and cause a Save As dialog to appear in the browser asynchronously.
+ * Loads the necessary JavaScript libraries the first time it is called.
+ * @param {String} fileName
+ * @param {pui.xlsx_worksheet} worksheet
+ * @returns {undefined}
+ */
+pui.xlsx_workbook_download = function(fileName, worksheet){
+  
+  // If necessary, load the required JSZip library and FileSaver "polyfill".
+  var path = "/jszip/jszip.min.js";
+  if (typeof JSZip == "function")
+    loadSaveAsJS();
+  else
+    pui["loadJS"]({
+      "path": path,
+      "callback": loadSaveAsJS,
+      "onerror": function(){
+        console.log("Failed to load "+path);
+      }
+    });
+  
+  function loadSaveAsJS(){
+    var path = "/jszip/FileSaver.min.js";
+    // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
+    // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
+    if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null )
+      fullyloaded();
+    else
+      pui["loadJS"]({
+        "path": path,
+        "callback": fullyloaded,
+        "onerror": function(){
+          console.log("Failed to load "+path);
+        }
+      });
+  }
+  
+  // JSZip and the FileSaver are loaded, so build the Excel workbook.
+  function fullyloaded(){
+
+    var xmlns_package_rels = "http://schemas.openxmlformats.org/package/2006/relationships";
+
+    // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
+    // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
+
+    //[Content_Types].xml
+    var content_types = worksheet.xmlstart
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +  '<Default Extension="rels" ContentType="'+pui.mime_openxml+'-package.relationships+xml"/>'
+    +  '<Default Extension="xml" ContentType="application/xml"/>'
+    +  '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
+    +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+pui.mime_xlsx_base+'.worksheet+xml"/>'
+    +  '<Override PartName="/xl/styles.xml" ContentType="'+pui.mime_xlsx_base+'.styles+xml"/>'
+    +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>'
+    +'</Types>';
+
+    //_rels/.rels
+    var rels = worksheet.xmlstart
+    +'<Relationships xmlns="'+xmlns_package_rels+'">'
+    +  '<Relationship Id="rId1" Type="'+worksheet.rel_xmlns+'/officeDocument" Target="xl/workbook.xml"/>'
+    +'</Relationships>';
+
+    //xl/workbook.xml
+    var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<workbook xmlns="'+worksheet.xmlns+'" xmlns:r="'+worksheet.rel_xmlns+'">'
+    +  '<sheets>'
+    +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
+    +  '</sheets>'
+    +'</workbook>';
+
+    //xl/_rels/workbook.xml.rels
+    var workbookrels = worksheet.xmlstart
+    +'<Relationships xmlns="'+xmlns_package_rels+'">'
+    +  '<Relationship Id="rId3" Type="'+worksheet.rel_xmlns+'/styles" Target="styles.xml"/>'
+    +  '<Relationship Id="rId1" Type="'+worksheet.rel_xmlns+'/worksheet" Target="worksheets/sheet1.xml"/>'
+    +  '<Relationship Id="rId4" Type="'+worksheet.rel_xmlns+'/sharedStrings" Target="sharedStrings.xml"/>'
+    +'</Relationships>';
+
+    //x1/styles.xml - at least one of each font, fill, and border is required.
+    var styles = worksheet.xmlstart 
+    +'<styleSheet xmlns="'+worksheet.xmlns+'">'
+    +  '<fonts count="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>'
+    +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
+    +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+    // CellStyleFormats (Formatting Records) - at least one must exist; it's referenced as xfId="0" in <xf> tags.
+    +  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' 
+    // Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
+    // numFmtIds 0-49 are not defined explicitly:
+    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
+    // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
+    // For now, handle 2-decimal formating; everything else gets general formatting.
+    +  '<cellXfs count="2">'
+    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
+    +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
+    +  '</cellXfs>'
+    +  '<dxfs count="0"/>'
+    +'</styleSheet>';
+
+    var zip = new JSZip();
+
+    zip["file"]("[Content_Types].xml", content_types);
+    zip["file"]("_rels/.rels", rels);
+    zip["file"]("xl/workbook.xml", workbook);
+    zip["file"]("xl/styles.xml", styles);
+    zip["file"]("xl/sharedStrings.xml", worksheet.getSharedStringsXML() );
+    zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
+    zip["file"]("xl/worksheets/sheet1.xml", worksheet.getSheetXML() );
+
+    if ( typeof Blob != "function" ){
+      // IE8,IE9 can't prompt to SaveAs, so they need PUI0009106 to help get it.
+      var promise = zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"});
+      promise["then"](function (bstr){
+        pui.downloadAsAttachment(pui.mime_xlsx_base+".sheet", fileName + ".xlsx", bstr);
+      });
+    }else{
+      // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
+      var promise = zip["generateAsync"]({"type": "blob", "compression": "DEFLATE",
+        "mimeType": pui.mime_xlsx_base+".sheet" });
+      promise["then"](function (blob){
+        saveAs(blob, fileName + ".xlsx");
+      });
+    }
+  } //end fullyloaded().
+};
+
+/**
+ * Worksheet object for creating XML strings for MS Excel 2007+ workbooks.
+ * @constructor
+ * @param {Number} numcols
+ * @returns {undefined}
+ */
+pui.xlsx_worksheet = function(numcols){
+  
+  var me = this;
+  
+  this.xmlstart = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  this.xmlns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+  this.rel_xmlns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+
+  var numColumns = numcols;
+  var rows = null;
+  var sst = {}; //Shared strings table. mapping of strings to values used in dataset.
+  var sst_count = 0;
+  
+  // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
+  // Needed for the <dimension> tag and in each <row> tag.
+  var map = [];
+  
+  this.formats = [];
+  for (var i=0; i < numColumns; i++){
+    me.formats[i] = {"dataType":"char"}; //Default all to char so unhandled types are set as literal text.
+  }
+
+  var charcounts = [];  //max number of characters in each column; to calculate <col width="">.
+  var fontMaxDigitWidth = 7; //max pixel width of 11pt font.
+  makemap();
+  
+  /**
+   * Add a new row for cells to go. Grid should add cells and rows in a sequential order.
+   * @returns {undefined}
+   */
+  this.newRow = function(){
+    if (rows == null) rows = [];
+    rows.push([]);
+  };
+  
+  /**
+   * Set a column's format internally. The format determines XLSX style and whether a column's
+   * cells need to be in the Shared Strings Table. For now, these are stored as strings:
+   *   "char", "graphic", "date", "timestamp", "time".
+   * Anything else is sent by value.
+   * 
+   * @param {Number} col      The zero-based column index.
+   * @param {Object} format   References bound value object from grid's me.runtimeChildren. Includes properties:
+   *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); maxLength; etc.
+   * @returns {undefined}
+   */
+  this.setColumnFormat = function(col, format){
+    if (format["dataType"] != null){
+      if (format["dataType"].length == 1){
+        //If DB-driven grid calls setColumnFormat, then type names are in IBM format. 
+        var datatype = "char";
+        switch (format["dataType"]) {
+          case "L": datatype = "date"; break;
+          case "T": datatype = "time"; break;
+          case "Z": datatype = "timestamp"; break;
+          case "G": datatype = "graphic"; break;
+          case "F": datatype = "floating"; break;
+          case "P": datatype = "packed"; break;
+          case "B": // binary
+          case "I": // integer
+          case "S": // zoned decimal
+          case "U": // unsigned
+          case "Y": // keyboard shift of numeric only - zoned
+            datatype = "zoned"; break;
+        }
+        me.formats[col]["dataType"] = datatype;
+      }else{
+        me.formats[col]["dataType"] = format["dataType"];
+      }
+    }
+    if (format["decPos"] != null) me.formats[col]["decPos"] = format["decPos"];
+  };
+
+  /**
+   * Set a cell value on the last row added to the sheet.
+   * @param {Number} col          The zero-based column index.
+   * @param {String} value        The numeric value for the sheet, or string value for shared-strings table.
+   * @param {Null|String} format  When not null, overrides the default column format.
+   * @returns {undefined}
+   */
+  this.setCell = function(col, value, format){
+    // If this is on the first row, get the column style information from each cell.
+    if (rows.length == 1){
+      charcounts[col] = value.length;
+    }else{
+      // For other rows, track the max character length of data in each column.
+      charcounts[col] = Math.max(charcounts[col], value.length );
+    }
+    
+    var fmt = me.formats[col]["dataType"];   // Default format is set per column.
+    if (format != null) fmt = format;     // Cell overrides default column format.
+    
+    if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
+      // Store time/date types as strings. In the future we could translate their values to native Excel data.
+      
+      if (sst[value] == null) sst[value] = sst_count++; //store the unique shared string and its ID, then increment the ID.
+      value = sst[value]; //Value is the ID from the shared strings table.
+    }
+
+    // If the cell overrides the default column format, then store as object.
+    if (format != null && format != me.formats[col]["dataType"]) value = {value:value, format:format};
+    
+    rows[rows.length - 1][col] = value;
+  };
+  
+  /**
+   * Return an XML document string containing the Excel shared strings table.
+   * @returns {String}
+   */
+  this.getSharedStringsXML = function(){
+    // Order the shared strings by the index id. Assume there are no gaps in indices.
+    var sst_inorder = [];
+    for( var str in sst ){
+      var idx = sst[str];
+      sst_inorder[idx] = str;
+    }
+
+    var xml = me.xmlstart + '<sst xmlns="'+me.xmlns+'" count="'
+      + String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
+    for (var i=0; i < sst_inorder.length; i++){
+      xml += '<si><t>' + pui.xmlEscape(sst_inorder[i]) + '</t></si>';
+    }
+    xml += '</sst>';
+    return xml;
+  };
+  
+  /**
+   * Return an XML document string containing the spreadsheet data.
+   * @returns {String}
+   */
+  this.getSheetXML = function(){
+    var xml = me.xmlstart + '<worksheet xmlns="'+me.xmlns+'"'+' xmlns:r="'+me.rel_xmlns+'">'
+    +'<dimension ref="A1:'+ map[numColumns - 1] + rows.length + '"/><cols>';
+  
+    // Configure each column with widths, and with styles for new cells.
+    for (var col=0; col < numColumns; col++){
+      // Calculate column width based on number of characters. Formula comes from:
+      // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
+      var width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
+      
+      //If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
+      var style = me.formats[col]["decPos"] == "2" ? 's="1"' : '';
+      
+      xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'" '+style+ ' customWidth="1"/>';
+    }
+    xml += '</cols><sheetData>';
+    
+    // Output each row with either numeric data or reference to shared-strings table.
+    for (var row=0; row < rows.length; row++){
+      var r = String(row+1);
+      xml += '<row r="'+r+'">';
+      
+      for (var col=0; col < numColumns; col++){
+        xml += '<c r="' + map[col] + r + '"';
+        
+        var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
+        
+        // Some cells (e.g. headers) override default format; extract value and format.
+        if (typeof rows[row][col] == "object" && rows[row][col].format != null){
+          fmt = rows[row][col].format;
+          rows[row][col] = rows[row][col].value;
+        }
+        
+        if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
+          // TODO: date/time values could be converted to native excel formats if all variations are handled.
+          xml += ' t="s"';
+        }else if(me.formats[col]["decPos"] == "2"){
+          xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
+        }
+        xml += '><v>' + rows[row][col] + '</v></c>';
+      }
+      
+      xml += '</row>';
+    }
+    xml += '</sheetData></worksheet>';
+    
+    return xml;
+  };
+
+  /**
+   * Fill the map of column indexes to excel-style column names for as many columns as needed.
+   * @returns {undefined}
+   */
+  function makemap(){
+    var mapctr = 0;
+
+    var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var d3 = "";
+    var d2 = "";
+
+    // Loop over the digits to create the map for as many columns that are used.
+    // The left-most digit is blank until the 2nd and 3rd pass ZZ.
+    for(var i=-1; i < 26 && mapctr < numcols; i++){
+
+      var d2start = -1; //Let the k loop run once with no 2nd digit; then 2nd digits are included.
+      if (i >= 0) d2start = 0;  //passed ZZ: 2nd digit should start at "A" instead of "".
+
+      // Loop for the middle digit, which is blank until the 3rd digit passes Z the first time.
+      for(var j=d2start; j < 26 && mapctr < numcols; j++){
+
+        for(var k=0; k < 26 && mapctr < numcols; k++){
+          map[mapctr] = d3 + d2 + digits[k];
+          mapctr++;
+        }
+        d2 = digits[(j + 1) % 26 ];    //get the next digit; wraps around to 0 if next is 26.
+      }
+      d3 = digits[i + 1]; //note: the last time this runs, it will return undefined; but no matter.
+    }
+  }
+  
+};
+

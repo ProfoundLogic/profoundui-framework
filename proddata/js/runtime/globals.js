@@ -193,3 +193,7 @@ pui["session timeout retries"] = 0;
 pui.dependenciesLoading = 0; //Counter for widget dependency files being loaded in pre-rendering time.
 
 pui.nodejs = false;
+
+// MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
+pui.mime_openxml = "application/vnd.openxmlformats";
+pui.mime_xlsx_base = pui.mime_openxml+"-officedocument.spreadsheetml";

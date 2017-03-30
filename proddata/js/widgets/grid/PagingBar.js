@@ -30,6 +30,7 @@ pui.PagingBar = function() {
   this.y = 100;
   this.width = 500;
   this.csvExport = false;
+  this.xlsxExport = false;
   this.showPagingControls = false;
   this.showPageNumber = false;
   this.showBar = false;
@@ -56,6 +57,8 @@ pui.PagingBar = function() {
   var div;
   var exportImg;
   var exportLink;
+  var exportImgXLSX;
+  var exportLinkXLSX;
   var spacesSpan1;
   var spacesSpan2;
   var pageSpan;
@@ -126,7 +129,7 @@ pui.PagingBar = function() {
     div.appendChild(exportImg);
 
     exportLink = document.createElement("span");
-    exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "csv export text");
+    exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "excel export text");
     exportLink.style.position = "absolute";
     exportLink.style.top = "5px";
     exportLink.style.left = "24px";
@@ -138,6 +141,36 @@ pui.PagingBar = function() {
     };
     exportLink.className = "paging-link";
     div.appendChild(exportLink);
+    
+    exportImgXLSX = document.createElement("div");
+    exportImgXLSX.style.cursor = "pointer";
+    exportImgXLSX.style.position = "absolute";
+    exportImgXLSX.style.top = "4px";
+    exportImgXLSX.style.left = "4px";   //When both links are on, this changes.
+    exportImgXLSX.style.height = "14px";
+    exportImgXLSX.style.padding = "1px";
+    exportImgXLSX.style.width = "14px";
+    exportImgXLSX.onclick = function() {
+      if (me.grid.designMode) return;
+      me.grid.exportCSV(null, true);
+    };
+    pui.addCssClass(exportImgXLSX,"export-image-icon");
+    div.appendChild(exportImgXLSX);
+    
+    exportLinkXLSX = document.createElement("span");
+    // Show "Export to Excel" when only XLSX is enabled. If both XLSX and CSV are enabled, show "Export to Excel XLSX".
+    exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["XLSX"]);
+    exportLinkXLSX.style.position = "absolute";
+    exportLinkXLSX.style.top = "5px";
+    exportLinkXLSX.style.left = "24px";
+    exportLinkXLSX.style.textDecoration = "underline";
+    exportLinkXLSX.style.cursor = "pointer";
+    exportLinkXLSX.onclick = function() {
+      if (me.grid.designMode) return;
+      me.grid.exportCSV(null, true);
+    };
+    exportLinkXLSX.className = "paging-link";
+    div.appendChild(exportLinkXLSX);
 
     me.prevImg = document.createElement("div");
     me.prevImg.className = "prev-image-icon";
@@ -371,7 +404,7 @@ pui.PagingBar = function() {
   };
   
   this.position = function() {  
-    if ((me.csvExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
+    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
         me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {  
       div.style.left = me.x + "px";
       div.style.top = me.y + "px";
@@ -399,6 +432,8 @@ pui.PagingBar = function() {
     div = null;
     exportImg = null;
     exportLink = null;
+    exportImgXLSX = null;
+    exportLinkXLSX = null;
     spacesSpan1 = null;
     spacesSpan2 = null;
     pageSpan = null;
@@ -422,17 +457,55 @@ pui.PagingBar = function() {
 
     me.setClassName(me.grid.tableDiv.className);
 
-    if ((me.csvExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
+    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
         me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {  
       me.position();
 
-      if (me.csvExport) {
-        exportImg.style.display = "";
-        exportLink.style.display = "";
-      }
-      else {
-        exportImg.style.display = "none";
-        exportLink.style.display = "none";
+      var disp = me.csvExport ? "" : "none";
+      exportImg.style.display = disp;
+      exportLink.style.display = disp;
+      
+      disp = me.xlsxExport ? "" : "none";
+      exportImgXLSX.style.display = disp;
+      exportLinkXLSX.style.display = disp;
+                                         
+      // If both XLSX export and CSV export are set, use different text, and different position for XLSX link.
+      if (this.xlsxExport && this.csvExport){
+        exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["Excel CSV"]);
+        exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["Excel XLSX"]);
+        exportImgXLSX.style.left = "160px";
+        exportLinkXLSX.style.left = "180px";
+        
+        // The paging links, page number may be too far left for all text; or the grid may not be wide enough.
+        var leftcomp = exportLinkXLSX.parentNode.offsetWidth;
+        if (me.showPagingControls) leftcomp = me.prevImg.offsetLeft;
+        else if (me.showPageNumber) leftcomp = pageSpan.offsetLeft;
+
+        if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+          // The text runs over, so use less.
+          exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["CSV"]);
+          exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["XLSX"]);
+          exportImgXLSX.style.left = "122px";
+          exportLinkXLSX.style.left = "144px";
+          if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+            // The text still runs over, so use less.
+            exportLinkXLSX.innerHTML = "XLSX";
+            exportImgXLSX.style.left = "124px";
+            exportLinkXLSX.style.left = "144px";
+            if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+              // The text still runs over, so use less.
+              exportLink.innerHTML = "CSV";
+              exportImgXLSX.style.left = "60px";
+              exportLinkXLSX.style.left = "80px";
+            }
+          }
+        }
+      }else{
+        //Only one export option is on; just show "Export to Excel" for whichever is on.
+        exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "excel export text");
+        exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "excel export text");
+        exportImgXLSX.style.left = "4px";
+        exportLinkXLSX.style.left = "24px";
       }
       
       if (me.showPagingControls) {

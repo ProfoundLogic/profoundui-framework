@@ -49,19 +49,31 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
        msg = msg.replace("{FILE_LIMIT}", "&1");
   }
   
+  // Support old "csv export text" language setting, which has been replaced with "excel export text".
+  var csvid = "csv export text";
+  var excelexpid = "excel export text";
+  if (msgid == excelexpid && typeof pui["runtimeText"][lang][csvid] != "undefined"){
+    msg = pui["runtimeText"][lang][csvid];
+  }
+  
   // for backward compat w/old pui[xxxxx] texts
   
   if (dict == "runtimeText") {
+    var tmpmsgid = msgid;
+    if (msgid == excelexpid){
+      tmpmsgid = csvid;   //Lets the next loop use pui["csv export text"], if necessary.
+    }
+    
     var oldtext = [ "close browser text", "csv export text", "filter text", "reset data",
                     "next link text", "previous link text", "remove filters text",
                     "session ended text",  "sort ascending text", "sort descending text" ]; 
     for (var m=0; m<oldtext.length; m++) {
-      if ( msgid==oldtext[m] && typeof(pui[oldtext[m]]) != "undefined" ) {
+      if ( tmpmsgid==oldtext[m] && typeof(pui[oldtext[m]]) != "undefined" ) {
          msg = pui[oldtext[m]];
       }
     }
   }
-                  
+  
   // for backward compat w/old pui[xxxxx] messages
   
   if (dict == "runtimeMsg") {
@@ -232,7 +244,8 @@ pui["runtimeText"]["en_US"]["upload upload text"]   = "Upload";
 pui["runtimeText"]["en_US"]["upload drophere text"] = "Drop files here";
 pui["runtimeText"]["en_US"]["upload browser unsupported"] = "Drag/drop files requires Internet Explorer 10 or higher, Chrome, or Firefox";
 pui["runtimeText"]["en_US"]["upload finished text"] = "Finished";
-pui["runtimeText"]["en_US"]["csv export text"]      = "Export to Excel";
+pui["runtimeText"]["en_US"]["excel export text"]    = "Export to Excel";    //Replaces "csv export text".
+pui["runtimeText"]["en_US"]["export to x"]          = "Export to &1";
 pui["runtimeText"]["en_US"]["filter text"]          = "Filter";
 pui["runtimeText"]["en_US"]["find text"]            = "Find";
 pui["runtimeText"]["en_US"]["reset data"]           = "Reset";
@@ -541,7 +554,8 @@ pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
 pui["runtimeText"]["de_DE"]["upload remove text"]   = "Entfernen";
 pui["runtimeText"]["de_DE"]["upload upload text"]   = "Heraufladen";
-pui["runtimeText"]["de_DE"]["csv export text"]      = "Export nach Excel";
+pui["runtimeText"]["de_DE"]["excel export text"]    = "Export nach Excel";
+pui["runtimeText"]["de_DE"]["excel to x"]           = "Export nach &1";
 pui["runtimeText"]["de_DE"]["filter text"]          = "Filter";
 pui["runtimeText"]["de_DE"]["remove filters text"]  = "Alle Filter entfernen";
 pui["runtimeText"]["de_DE"]["next link text"]       = "Nächste";
@@ -635,7 +649,8 @@ pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
 pui["runtimeText"]["pt_PT"]["upload remove text"]   = "Remover";
 pui["runtimeText"]["pt_PT"]["upload upload text"]   = "Enviar";
-pui["runtimeText"]["pt_PT"]["csv export text"]      = "Exportar para Excel";
+pui["runtimeText"]["pt_PT"]["excel export text"]    = "Exportar para Excel";
+pui["runtimeText"]["pt_PT"]["excel to x"]           = "Exportar para &1";
 pui["runtimeText"]["pt_PT"]["filter text"]          = "Filtrar";
 pui["runtimeText"]["pt_PT"]["remove filters text"]  = "Remover Todos os  Filtros";
 pui["runtimeText"]["pt_PT"]["next link text"]       = "Próximo";
@@ -746,7 +761,8 @@ pui["runtimeText"]["es_ES"]["upload select text"]   = "Archivos Seleccionados";
 pui["runtimeText"]["es_ES"]["upload clear text"]    = "Borrar";
 pui["runtimeText"]["es_ES"]["upload remove text"]   = "Remover";
 pui["runtimeText"]["es_ES"]["upload upload text"]   = "Cargar";
-pui["runtimeText"]["es_ES"]["csv export text"]      = "Exportar para Excel";
+pui["runtimeText"]["es_ES"]["excel export text"]    = "Exportar para Excel";
+pui["runtimeText"]["es_ES"]["excel to x"]           = "Exportar para &1";
 pui["runtimeText"]["es_ES"]["filter text"]          = "Filtrar";
 pui["runtimeText"]["es_ES"]["remove filters text"]  = "Remover Todos os  Filtros";
 pui["runtimeText"]["es_ES"]["next link text"]       = "Próximo";
@@ -833,7 +849,8 @@ pui["runtimeText"]["es_MX"]["upload select text"]     = "Seleccionar Archivos";
 pui["runtimeText"]["es_MX"]["upload clear text"]      = "Limpiar";
 pui["runtimeText"]["es_MX"]["upload remove text"]     = "Eliminar";
 pui["runtimeText"]["es_MX"]["upload upload text"]     = "Subir";
-pui["runtimeText"]["es_MX"]["csv export text"]        = "Exportar a Excel";
+pui["runtimeText"]["es_MX"]["excel export text"]      = "Exportar a Excel";
+pui["runtimeText"]["es_MX"]["excel to x"]             = "Exportar a &1";
 pui["runtimeText"]["es_MX"]["filter text"]            = "Filtrar";
 pui["runtimeText"]["es_MX"]["remove filters text"]    = "Eliminar todos los filtros";
 pui["runtimeText"]["es_MX"]["next link text"]         = "Siguiente";
@@ -972,7 +989,8 @@ pui["runtimeText"]["fr_FR"]["upload upload text"]   = "Envoyer ";
 pui["runtimeText"]["fr_FR"]["upload drophere text"] = "Déposer les fichiers ici.";
 pui["runtimeText"]["fr_FR"]["upload browser unsupported"] = "Glisser/déposer des fichiers requiert Internet Explorer 10 ou plus récent, Chrome, ou Firefox";
 pui["runtimeText"]["fr_FR"]["upload finished text"] = "Fini";
-pui["runtimeText"]["fr_FR"]["csv export text"]      = "Exporter vers Excel ";
+pui["runtimeText"]["fr_FR"]["excel export text"]    = "Exporter vers Excel ";
+pui["runtimeText"]["fr_FR"]["excel to x"]           = "Exporter vers &1";
 pui["runtimeText"]["fr_FR"]["filter text"]          = "Filtrer ";
 pui["runtimeText"]["fr_FR"]["remove filters text"]  = "Supprimer tous les filtres ";
 pui["runtimeText"]["fr_FR"]["next link text"]       = "Suivante ";
@@ -1270,7 +1288,8 @@ pui["runtimeText"]["fr_CA"]["upload select text"]   = "Sélection de fichiers";
 pui["runtimeText"]["fr_CA"]["upload clear text"]    = "Effacer";
 pui["runtimeText"]["fr_CA"]["upload remove text"]   = "Supprimer";
 pui["runtimeText"]["fr_CA"]["upload upload text"]   = "Téléversement";
-pui["runtimeText"]["fr_CA"]["csv export text"]      = "Exporter vers Excel ";
+pui["runtimeText"]["fr_CA"]["excel export text"]    = "Exporter vers Excel ";
+pui["runtimeText"]["fr_CA"]["excel to x"]           = "Exporter vers &1";
 pui["runtimeText"]["fr_CA"]["filter text"]          = "Filtrer";
 pui["runtimeText"]["fr_CA"]["remove filters text"]  = "Enlever les filtres";
 pui["runtimeText"]["fr_CA"]["next link text"]       = "Suivante";
@@ -1363,7 +1382,8 @@ pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
 pui["runtimeText"]["it_IT"]["upload remove text"]   = "Rimuovi";
 pui["runtimeText"]["it_IT"]["upload upload text"]   = "Carica";
-pui["runtimeText"]["it_IT"]["csv export text"]      = "Esporta in Excel";
+pui["runtimeText"]["it_IT"]["excel export text"]    = "Esporta in Excel";
+pui["runtimeText"]["it_IT"]["excel to x"]           = "Esporta in &1";
 pui["runtimeText"]["it_IT"]["filter text"]          = "Filtra";
 pui["runtimeText"]["it_IT"]["remove filters text"]  = "Rimuovi tutti i filtri";
 pui["runtimeText"]["it_IT"]["next link text"]       = "Successivo";
@@ -1457,7 +1477,7 @@ pui["runtimeText"]["he_IL"]["upload select text"]   = " בחר קבצים ";
 pui["runtimeText"]["he_IL"]["upload clear text"]    = " נקה ";
 pui["runtimeText"]["he_IL"]["upload remove text"]   = " הסר ";
 pui["runtimeText"]["he_IL"]["upload upload text"]   = " העלה ";
-pui["runtimeText"]["he_IL"]["csv export text"]      = " יצוא לאקסל ";
+pui["runtimeText"]["he_IL"]["excel export text"]    = " יצוא לאקסל ";
 pui["runtimeText"]["he_IL"]["filter text"]          = " מסנן ";
 pui["runtimeText"]["he_IL"]["remove filters text"]  = " הסר את כל המסננים ";
 pui["runtimeText"]["he_IL"]["next link text"]       = " הבאה ";
@@ -1620,7 +1640,8 @@ pui["runtimeText"]["nl_NL"]["upload select text"]     = "Selecteer bestanden";
 pui["runtimeText"]["nl_NL"]["upload clear text"]      = "Wissen";
 pui["runtimeText"]["nl_NL"]["upload remove text"]     = "Verwijder";
 pui["runtimeText"]["nl_NL"]["upload upload text"]     = "Upload";
-pui["runtimeText"]["nl_NL"]["csv export text"]        = "Export naar Excel";
+pui["runtimeText"]["nl_NL"]["excel export text"]      = "Export naar Excel";
+pui["runtimeText"]["nl_NL"]["excel to x"]             = "Export naar &1";
 pui["runtimeText"]["nl_NL"]["filter text"]            = "Filter";
 pui["runtimeText"]["nl_NL"]["remove filters text"]    = "Verwijder alle filters";
 pui["runtimeText"]["nl_NL"]["next link text"]         = "Volgende";

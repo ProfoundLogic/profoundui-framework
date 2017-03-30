@@ -1059,6 +1059,10 @@ pui.renderFormat = function(parms) {
         delete items[i]["shortcut key"];
       }      
     }
+    
+    // "export file name" property replaced "csv file name"; this supports files using older property.
+    if(items[i]["csv file name"] != null && items[i]["export file name"] == null)
+      items[i]["export file name"] = items[i]["csv file name"];
   
     // create dom element for item
     var gridObj = null;

@@ -149,7 +149,7 @@ pui.Grid = function() {
   
   this.totalRecs = null;    //The total number of records in a resultset for data grids.
   
-  this.csvFileName = null;
+  this.exportFileName = null;
   this.exportWithHeadings = false;
   
   this.findOption = false;
@@ -653,7 +653,19 @@ pui.Grid = function() {
     me.zoomDiv.style.display = "";
   };
   
-  this.exportCSV = function(file) {
+  /**
+   * Build a CSV or XLSX document, and show a Save-As prompt in the browser.
+   * 
+   * @param {String} fileName     Base filename to use in the Save As prompt. When undefined, the
+   *                              "export file name" property or the record format name is used.
+   * @param {Boolean} exportXLSX  When true, exports to XLSX file. Else, exports as CSV.
+   * @returns {undefined}
+   */
+  this.exportCSV = function(fileName, exportXLSX) {
+    // If "xlsx export" is not set but a config flag is, then "Export to Excel" uses XLSX.
+    if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true"))
+      exportXLSX = true;
+    
     var delimiter;
     if (typeof(pui["csv separator"]) == "string") {
       // This flag not defined by default.
@@ -665,13 +677,16 @@ pui.Grid = function() {
         delimiter = ";";
       }
     }
-    if (me.designMode) return;    
-    var fileName = file;
-    if (fileName == null) fileName = me.csvFileName;
+    if (me.designMode) return;
+    if (fileName == null) fileName = me.exportFileName;
     if (fileName == null || fileName == "") fileName = me.tableDiv.id;
 
     if (me.isDataGrid()) {
-      me.getData(fileName);
+      if (exportXLSX){
+        me.exportExcel_DataGrid(fileName);
+      }else{
+        me.getData(fileName);
+      }
       return;
     }
     
@@ -696,6 +711,9 @@ pui.Grid = function() {
       boundDate.push(false);
     }
     
+    var worksheet;
+    if (exportXLSX) worksheet = new pui.xlsx_worksheet(columnArray.length);
+    
     // go through all grid elements, retrieve field names, and identify data index by field name
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
@@ -707,11 +725,14 @@ pui.Grid = function() {
           }
           var val = itm["value"];
           if (itm["field type"] == "html container") val = itm["html"];
+
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
             var fieldName = pui.fieldUpper(val["fieldName"]);
             for (var j = 0; j < me.fieldNames.length; j++ ) {
               if (fieldName == me.fieldNames[j]) {
                 columnArray[col] = j;
+                if (exportXLSX)
+                  worksheet.setColumnFormat(col, val);  //pass data type and formatting info.
                 if (val["formatting"] == "Number") {
                    numericData[col] = true;
                 }
@@ -729,14 +750,18 @@ pui.Grid = function() {
       }
     }
     
-    var data = "";
+    var data = "";    //CSV data.
     
     // build csv headings
     if (me.hasHeader && me.exportWithHeadings) {
+      if (exportXLSX) worksheet.newRow();
+      
       for (var i = 0; i < columnArray.length; i++) {
         var idx = columnArray[i];
         if (idx > -1) {
           var heading = getInnerText(me.cells[0][i]);
+          if (exportXLSX)
+            worksheet.setCell(i, rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
@@ -770,38 +795,199 @@ pui.Grid = function() {
         }
       }        
       
-      // build CSV data for this row.
+      // build CSV and XLSX data for this row.
+      
+      if (exportXLSX) worksheet.newRow();
       
       for (var j = 0; j < columnArray.length; j++) {
         var idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
+          
           if (graphicData[j]) {
              value = pui.formatting.decodeGraphic(value);
           } 
+          var xlsxvalue = value;    //XLSX can't use "," as decimal separator and needn't escape '"'.
           if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
              value = value.replace('.', ',');
           }
           else if (typeof boundDate[j] === "object" && boundDate[j] != null ){
             // Format CSV date same as rendered date; "0001-01-01" becomes "".
             value = pui.evalBoundProperty(boundDate[j], fieldData, me.ref);
+            xlsxvalue = value;
           }
           value = value.replace(/"/g, '""');  // "
           if (boundVisibility[j] !== false) {
             if (pui.evalBoundProperty(boundVisibility[j], fieldData, me.ref) == "hidden") {
           	  value = "";
+              xlsxvalue = "";
             }
           }
           if (line != "") line += delimiter;
           line += '"' + rtrim(value) + '"';
+          
+          if (exportXLSX) worksheet.setCell(j, rtrim(xlsxvalue) );
         }
       }
       if (data != "") data += "\n";
       data += line;
     }
 
-    pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
+    if (exportXLSX)
+      pui.xlsx_workbook_download(fileName, worksheet);
+    else
+      pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
+  };
+  
+  /**
+   * Request Data-driven grid data for the entire file, unfiltered, unsorted.
+   * Without a way to know the column data types, cells are stored as strings.
+   * @param {String} fileName
+   * @returns {undefined}
+   */
+  this.exportExcel_DataGrid = function(fileName){
+    if (pui["secLevel"] <= 0){
+      console.log("Export not implemented for low security level.");
+      return;
+    }
     
+    var limit = me.totalRecs;
+    if (limit == null) limit = 9999;
+    
+    var url = getProgramURL("PUI0009102.PGM");
+    var dataURL = me.dataProps["data url"];
+    if (dataURL == "") dataURL = null;
+    if (dataURL){
+      url = pui.appendAuth(dataURL);
+      setupajax();
+    }
+    else if(me.dataProps["database file"] && me.dataProps["database file"].length > 0){
+      // If URL is for database-driven grid, then we know the file and can fetch the column data types.
+      // TODO: Change PUI0009102 to return the dataType and decPos, and remove this extra XHR.
+      var dblib = "";
+      var dbfile = me.dataProps["database file"].split("/");
+      if (dbfile.length > 1){
+        dblib = dbfile[0];
+        dbfile = dbfile[1];
+      }else{
+        dbfile = dbfile[0];
+      }
+      
+      ajaxJSON({
+        "url": getProgramURL("PUI0009101.pgm"),
+        "method": "post",
+        "params": {
+          "context": "genie", //Makes PUI0009101 use SyncJob so it works if the URL does/doesn't have "/auth".
+          "file": dbfile,
+          "library": dblib,
+          "AUTH": (context == "genie" ? GENIE_AUTH : pui.appJob.auth)
+        },
+        "async": true,
+        "handler": function (response) {
+          var fldresp = null;
+          if (response != null && response["fields"] != null)
+            fldresp = response["fields"];
+          setupajax(fldresp);
+        }
+      });
+      me.mask();
+    }else{
+      setupajax();
+    }
+    
+    // Call CGI program or webservice to fetch data. Called directly or in callback.
+    function setupajax(fields){
+      var req = new pui.Ajax(url);
+      req["method"] = "post";
+      req["async"] = true;
+      if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH; 
+      if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
+      req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
+        +"&"+ pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1&UTF8=Y";
+
+      var orderBy = me.dataProps["order by"];
+      if (me.sortBy != null) orderBy = me.sortBy;
+      if (orderBy && orderBy != "") req["postData"] += "&order=" + orderBy;
+
+      var fetchCounter = me.dataProps["allow any select statement"];
+      if (fetchCounter!=null && (fetchCounter=="true" || fetchCounter==true))
+        req["postData"] += "&FetchCounter=Y";
+
+      req["onready"] = function(req) {
+        var response = checkAjaxResponse(req, "Run SQL SELECT Query");
+        if (response && response["results"] && response["results"].length > 0){
+          if (fields != null)
+            response["fields"] = fields;
+          makexlsx(response);
+        }else
+          me.unMask();
+      };
+      req.send();
+      me.mask();
+    }
+    
+    // Take the data retrieved, create and download an excel file.
+    function makexlsx(response){
+      var numCols = 0;
+      if (response["colWidths"] != null)
+        numCols = response["colWidths"].length;
+      else{
+        // In case the web service doesn't return "colWidths" with its data,calculate it.
+        for (var colid in response["results"][0]){
+          numCols++;
+        }
+      }
+
+      var worksheet = new pui.xlsx_worksheet(numCols);
+      
+      if (response["fields"] != null && response["results"].length > 0){
+        // DB-Driven grid got PUI0009101 response; set the column formats if we can match column names.
+        var colNum = 0;
+        for (var colid in response["results"][0]){
+          // Find the field info for the current column.
+          for (var i=0; i < response["fields"].length; i++){
+            if (response["fields"][i]["field"] == colid){
+              var fld = { "dataType": response["fields"][i]["type"], "decPos": response["fields"][i]["decPos"] };
+              worksheet.setColumnFormat(colNum, fld);
+              break;
+            }
+          }
+          colNum++;
+        }
+      }
+      
+      if (me.hasHeader && me.exportWithHeadings) {
+        worksheet.newRow();
+        for (var i = 0; i < me.cells[0].length && i < numCols; i++) {
+          var heading = getInnerText(me.cells[0][i]);
+          worksheet.setCell(i, rtrim(heading), "char" );
+        }
+      }
+      
+      // Look at each result cell. Format if necessary. Add to worksheet.
+      for (var rowNum = 0; rowNum < response["results"].length; rowNum++){
+        worksheet.newRow();
+        var row = response["results"][rowNum];
+        var colNum = 0;
+        for (var colid in row){
+          var value = row[colid];
+          var datatype = worksheet.formats[colNum]["dataType"];          
+          if (datatype == "zoned" || datatype == "packed"){
+            if( pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")){
+              //XLSX can't use "," as separator. Assume appJob decFmt is same as CGI helper job's.
+              value = value.replace(/[.]/g, ""); //remove thousands separator.
+              value = value.replace(",",".");   //decimal separator becomes ".".
+            }
+          }
+          //Note: Excel accepts scientific notation as values, so float/real/double are sent verbatim.
+          worksheet.setCell(colNum, value);
+          colNum++;
+        }
+      }
+      
+      pui.xlsx_workbook_download(fileName, worksheet);
+      me.unMask();
+    }//end makexlsx().
   };
   
   this.hasChildren = function(colNumber) {
@@ -3425,9 +3611,17 @@ pui.Grid = function() {
           positionIcons();
         }
         break;
+        
+      case "xlsx export":
+        me.pagingBar.xlsxExport = (value == true || value == "true");
+        if (me.designMode) {
+          me.pagingBar.draw();
+          positionIcons();
+        }
+        break;
 
-      case "csv file name":
-        me.csvFileName = value;
+      case "export file name":
+        me.exportFileName = value;
         break;
 
       case "export with headings":
@@ -6701,9 +6895,9 @@ pui.Grid = function() {
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
-	  //Reset the  browser cache Data for a table
-	  { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },  
-	  { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to export grid data to Excel using the CSV format when the grid heading is right-clicked.", context: "dspf" },
+	    //Reset the  browser cache Data for a table
+	    { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },  
+	    { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"] },
   
       { name: "Paging Bar", category: true, context: "dspf" },
@@ -6717,7 +6911,8 @@ pui.Grid = function() {
       { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
       
       { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
-      { name: "csv file name", help: "Defines the name of the download file used to export grid data to CSV format.  The .csv extension is automatically appended to the name.  If omitted, the record format name is used." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },
+      { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },      
+      { name: "export file name", help: "Defines the name of the download file used to export grid data to CSV or XLSX formats.  The .xlsx or .csv extension is automatically appended to the name.  If omitted, the record format name is used." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },      
       { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
       
       { name: "Row Folding", category: true, context: "dspf" },      

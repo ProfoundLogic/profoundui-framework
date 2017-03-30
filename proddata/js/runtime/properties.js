@@ -1532,6 +1532,13 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
   request["onsuccess"] = function() {
     var text = "(" + request.getResponseText() + ")";
     var obj = eval(text);
+    if (obj["items"] != null && obj["items"].length > 0){
+      // Support skin customizations using "csv file name", which was replaced by "export file name".
+      for (var i=0; i < obj["items"].length; i++){
+        if (obj["items"][i]["csv_file_name"] != null && obj["items"][i]["export_file_name"] == null)
+          obj["items"][i]["export_file_name"] = obj["items"][i]["csv_file_name"];
+      }
+    }
     screenPropertiesObj[designScreen.screenId] = obj;
     cachedScreens[designScreen.name + "." + stamp] = obj;
     onsuccess();
