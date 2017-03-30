@@ -21,7 +21,7 @@
 
 
 var calobj=null;
-var gDateField = new Array();
+var gDateField = new Array(); 
 var gDateCount = 0;
 pui.currentDateField = null;
 
@@ -623,6 +623,24 @@ pui.widgets.add({
       if (parms.dom.calimg) {
       
         if (parms.value == "hidden") {
+        
+          parms.dom.calimg.style.visibility = "hidden";
+        
+        }
+        else {
+        
+          parms.dom.calimg.style.visibility = "";
+        
+        }        
+      
+      }
+    
+    },
+    "disabled": function(parms) {
+    
+      if (parms.dom.calimg) {
+      
+        if (parms.value == "true") {
         
           parms.dom.calimg.style.visibility = "hidden";
         
