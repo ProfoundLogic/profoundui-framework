@@ -482,13 +482,17 @@ function cal(dateField, format) {
     newElem.parentTab = dateField.parentTab;
     newElem.parentTabPanel = dateField.parentTabPanel;
   }
-  if (dateField.parentNode == null) return;
-  dateField.parentNode.appendChild(newElem);
+
   dateField.calimg = newElem;
-  
   gDateField[gDateCount++] = dateField;
-  
+  if (dateField.parentNode == null) {
+	  dateField.calimg.needsToBeMoved = true;
+	  return;
+  }
+  dateField.parentNode.appendChild(newElem);
   pui.moveCal(dateField);
+  dom.calimg.needsToBeMoved = false;
+ 
   if (document.getElementById("popcal") == null) {
     addEvent(document, "click", function(e) {
       var target = getTarget(e);

@@ -1115,6 +1115,9 @@ pui.renderFormat = function(parms) {
         }
         if (dom.calimg != null) {
           container.appendChild(dom.calimg);
+          if (dom.calimg.needsToBeMoved) {
+        	  pui.moveCal(dom);
+          }
           if (dom.calimg.redisplay) {
             dom.calimg.style.display = "";
             dom.calimg.redisplay = false;
