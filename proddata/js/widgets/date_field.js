@@ -491,7 +491,7 @@ function cal(dateField, format) {
   }
   dateField.parentNode.appendChild(newElem);
   pui.moveCal(dateField);
-  dom.calimg.needsToBeMoved = false;
+  dateField.calimg.needsToBeMoved = false;
  
   if (document.getElementById("popcal") == null) {
     addEvent(document, "click", function(e) {
