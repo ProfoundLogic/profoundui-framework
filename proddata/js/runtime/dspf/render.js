@@ -64,6 +64,7 @@ pui.setOffFields = [];
 pui.autoArrange = {};
 pui.autoArrange.keys = {};
 pui.gridsDisplayed = [];
+pui.widgetsToCleanup = [];
 pui.layoutsDisplayed = [];
 pui.bypassValidation = "false";
 pui.ddBypassValidation = "false";
@@ -465,6 +466,12 @@ pui.cleanup = function() {
         FusionCharts(pui.chartsRendered[i]).dispose();      
   pui.chartsRendered = [];
   
+  for (var i = 0; i < pui.widgetsToCleanup.length; i++){
+    var widget = pui.widgetsToCleanup[i];
+    if (widget != null && typeof widget.destroy == "function") widget.destroy();
+  }
+  pui.widgetsToCleanup = [];
+  
   for (var prop in pui.restoreStyles)
     document.body.style[prop] = pui.restoreStyles[prop];
   pui.restoreStyles = {};
@@ -762,6 +769,7 @@ pui.render = function(parms) {
     pui.cursorValues.setColumn = null;
     pui.cursorValues.noFocus = null;
     pui.gridsDisplayed = [];
+    pui.widgetsToCleanup = [];
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
 

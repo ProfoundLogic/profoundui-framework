@@ -42,6 +42,8 @@ pui.Slider = function() {
   var handle;
   var hiddenField;
   
+  var timeout = null;
+  
   var ipad = ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation);
   
   this.init = function() {
@@ -100,12 +102,12 @@ pui.Slider = function() {
         var valueRange = me.maxValue - me.minValue;
 
         var pixelRange = 0;
-        if (vertical) pixelRange = parseInt(bar.style.height);
-        else pixelRange = parseInt(bar.style.width);
+        if (vertical) pixelRange = bar.clientHeight;
+        else pixelRange = bar.clientWidth;
 
         var pixelStart = 0;
-        if (vertical) pixelStart = parseInt(bar.style.top);
-        else pixelStart = parseInt(bar.style.left);
+        if (vertical) pixelStart = bar.offsetTop;
+        else pixelStart = bar.offsetLeft;
 
         var pixelAdjust = 0;
         if (vertical) pixelAdjust = parseInt(handle.style.height) / 2;
@@ -162,12 +164,24 @@ pui.Slider = function() {
     }
     addEvent(handle, "mousedown", mousedown);
     addEvent(handle, "touchstart", mousedown);
+    
+    // When the Slider is percent width, the sizes don't always match after resizing
+    // (including zoom). Draw upon resize fixes that. 
+    addEvent(window, "resize", resize);
 
     // add to div container and draw
     me.div.appendChild(bar);
     me.div.appendChild(handle);    
     me.draw();
+    
+    pui.widgetsToCleanup.push(me);  //Causes destroy to be called when record format or screen changes.
   };
+  
+  // Redraw the slider 100ms after user stops adjusting size or zoom.
+  function resize(){
+    clearTimeout(timeout);
+    timeout = setTimeout(me.draw, 100);
+  }
   
   this.roundByIncrement = function(value, roundDown) {
     var halfAdjust = me.incrementValue / 2;
@@ -182,23 +196,40 @@ pui.Slider = function() {
     if (me.orientation == "vertical") {
       bar.style.left = "6px";
       bar.style.top = "10px";
-      var height = parseInt(me.div.style.height) - 24;
-      if (isNaN(height)) height = 0;
-      if (height < 0) height = 0;
-      bar.style.height = height + "px";
       bar.style.width = "5px";
       bar.style.borderRight = "1px solid #B7B7B7";
+      
+      if (pui.isPercent(me.div.style.height)){
+        // Size bar proportionally with window and zoom. Leave 14px to bottom (at 100% zoom).
+        var height = pui.round((1 - (bar.offsetTop + 14)/me.div.clientHeight)*100, 1);
+        if (isNaN(height) || height < 0) height = 0;  //Avoid IE8 error.
+        bar.style.height = height + "%";
+      }else{
+        var height = parseInt(me.div.style.height, 10);
+        if (isNaN(height)) height = me.div.clientHeight;
+        height -= 24;
+        if (height < 0) height = 0;   //Avoid IE8 error.
+        bar.style.height = height + "px";
+      } 
     }
     else {
       bar.style.left = "10px";
       bar.style.top = "6px";
       bar.style.height = "5px";
-      //Make slider rail 24 pixels less than DIV width. (I'm not sure if offsetWidth is always set, else I'd use it always. MD.)
-      var width = (pui.isPercent(me.div.style.width) ? me.div.offsetWidth : parseInt(me.div.style.width) ) - 24;
-      if (isNaN(width)) width = 0;
-      if (width < 0) width = 0;
-      bar.style.width = width + "px";
       bar.style.borderBottom = "1px solid #B7B7B7";
+      
+      if (pui.isPercent(me.div.style.width)){
+        // Size bar proportionally with window and zoom. Leave 14px to right (at 100% zoom).
+        var width = pui.round((1 - (bar.offsetLeft + 14)/me.div.clientWidth)*100, 1);
+        if (isNaN(width) || width < 0) width = 0;  //Avoid IE8 error.
+        bar.style.width = width + "%";
+      }else{
+        var width = parseInt(me.div.style.width,10);
+        if (isNaN(width)) width = me.div.clientWidth;
+        width -= 24;  //Leave 14px to right (10px to left).
+        if( width < 0 ) width = 0; //Avoid IE8 error.
+        bar.style.width = width + "px";
+      }
     }
 
     // draw handle
@@ -253,8 +284,8 @@ pui.Slider = function() {
     var pixelRange = 0;
     var pixelAdjust = 0;
     
-    if (vertical) pixelRange = parseInt(bar.style.height);
-    else pixelRange = parseInt(bar.style.width);
+    if (vertical) pixelRange = bar.clientHeight;
+    else pixelRange = bar.clientWidth;
     
     if (vertical) pixelAdjust = parseInt(handle.style.height) / 2;
     else pixelAdjust = parseInt(handle.style.width) / 2;
@@ -269,6 +300,20 @@ pui.Slider = function() {
     me.value = value;
     me.div.value = value;
     if (!me.design && context == "genie") hiddenField.value = me.value;    
+  };
+  
+  /**
+   * Remove global window event that otherwise stays registered. Called by pui.cleanup().
+   * @returns {undefined}
+   */
+  this.destroy = function(){
+    removeEvent(window, "resize", resize);
+    if ( me == null) return;
+    me.div = null;
+    bar = null;
+    handle = null;
+    hiddenField = null;
+    me = null;
   };
   
 };
