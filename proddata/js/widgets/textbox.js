@@ -44,6 +44,8 @@ pui.widgets.add({
         // Retain default browser behavior unless the user sets this...
         if (typeof pui["allow spellcheck"] == "boolean")
           parms.dom.spellcheck = pui["allow spellcheck"];
+        //If they are changing a date field to a textbox, remove the calendar
+        if(parms.dom.calimg) pui.removeCal(parms.dom);
       }
       if (parms.design) { 
         parms.dom.readOnly = true;

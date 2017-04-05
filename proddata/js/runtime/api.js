@@ -449,6 +449,11 @@ function attachCalendar(id, format) {
   if (obj != null) cal(obj, format);
 }
 
+pui["detachCalendar"] = function(domObj) {
+  if (typeof(domObj) == "string") domObj = getObj(domObj);
+  if (domObj != null) pui.removeCal(domObj);
+}
+
 // Creates a named DOM element. Necessary because IE has a non-standard way of doing this.
 function createNamedElement(type, name) {
 

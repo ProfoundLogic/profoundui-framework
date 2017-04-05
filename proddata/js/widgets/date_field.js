@@ -530,6 +530,14 @@ pui.moveCals = function() {
   }
 }
 
+pui.removeCal = function(dateField) {
+  var cal = dateField.calimg;
+  if (cal) {
+    cal.parentNode.removeChild(cal);
+    dateField.calimg = null;
+  }
+}
+
 
 pui.widgets.add({
   name: "date field",
@@ -575,8 +583,7 @@ pui.widgets.add({
             }
             else if (context == "genie") {
               // Force recreate calendar, due to above -- DR.
-              parms.dom.calimg.parentNode.removeChild(parms.dom.calimg);
-              parms.dom.calimg = null;
+              pui.removeCal(parms.dom);
               cal(parms.dom, format);  
             }
             
@@ -611,55 +618,32 @@ pui.widgets.add({
         }        
       }
     },
-    
     "value": function(parms) {
       parms.dom.value = parms.value;
     },
-    
     "input type": function(parms) {
       try {
         if (!parms.design) parms.dom.setAttribute("type", parms.value);
       } catch(e) { }
     },
-    
     "visibility": function(parms) {
-    
       if (parms.dom.calimg) {
-      
         if (parms.value == "hidden") {
-        
-          parms.dom.calimg.style.visibility = "hidden";
-        
-        }
-        else {
-        
-          parms.dom.calimg.style.visibility = "";
-        
+          parms.dom.calimg.style.visibility = "hidden"; 
+        } else {    
+          parms.dom.calimg.style.visibility = ""; 
         }        
-      
       }
-    
     },
     "disabled": function(parms) {
-    
       if (parms.dom.calimg) {
-      
         if (parms.value == "true") {
-        
           parms.dom.calimg.style.visibility = "hidden";
-        
-        }
-        else {
-        
+        } else {
           parms.dom.calimg.style.visibility = "";
-        
         }        
-      
       }
-    
     }
-
-  
   }
   
 });
