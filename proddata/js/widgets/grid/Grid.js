@@ -6502,7 +6502,7 @@ pui.Grid = function() {
   
   this["getFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
-    if (headerCell == null) return null;
+    if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
     return headerCell.filterText;
   };
   
