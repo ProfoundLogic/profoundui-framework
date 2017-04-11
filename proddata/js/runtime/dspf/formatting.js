@@ -723,11 +723,15 @@ pui.FieldFormat = {
         locale = obj.locale;
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
+      if (obj.dateFormat == '' && pui["default date pattern"]){
+        obj.dateFormat = pui["default date pattern"];
+      }
+      obj.dateFormat = obj.dateFormat || parsedKWs.display;
       if (pui.formatting.isNumericType(obj.dataType)) {
         if (value == "0" && obj.dataType == "zoned" && obj.dataLength == 6) {
-          if (obj.dateFormat == "m/d/y" || obj.dateFormat == "d/m/y") {
+          if (obj.dateFormat == "m/d/y" || obj.dateFormat == "d/m/y" ) {
             obj.maxLength = 8;
-            return "00/00/00";
+            return "";
           }
         }        
         if (value == "" || value == "0") return "";
@@ -751,10 +755,6 @@ pui.FieldFormat = {
         } 
       }
       var d = pui.formatting.Date.parse(value, parsedKWs.internal, locale);
-      if (obj.dateFormat == '' && pui["default date pattern"]){
-        obj.dateFormat = pui["default date pattern"];
-      }
-      obj.dateFormat = obj.dateFormat || parsedKWs.display;
       if (d) {
         if (d.format('Y-m-d', 'en_US') == '0001-01-01') value = "";
         else value = d.format(obj.dateFormat, locale);
