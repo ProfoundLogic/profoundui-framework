@@ -710,9 +710,9 @@ pui.Grid = function() {
       boundVisibility.push(false);
       boundDate.push(false);
     }
-    
-    var worksheet;
-    if (exportXLSX) worksheet = new pui.xlsx_worksheet(columnArray.length);
+        
+    var tempformats = [];
+    var colcount = 0;
     
     // go through all grid elements, retrieve field names, and identify data index by field name
     for (var i = 0; i < me.runtimeChildren.length; i++) {
@@ -732,7 +732,8 @@ pui.Grid = function() {
               if (fieldName == me.fieldNames[j]) {
                 columnArray[col] = j;
                 if (exportXLSX)
-                  worksheet.setColumnFormat(col, val);  //pass data type and formatting info.
+                  tempformats[col] = val;
+                colcount++;
                 if (val["formatting"] == "Number") {
                    numericData[col] = true;
                 }
@@ -751,6 +752,19 @@ pui.Grid = function() {
     }
     
     var data = "";    //CSV data.
+    var worksheet;
+    if (exportXLSX){
+      worksheet = new pui.xlsx_worksheet(colcount);
+      colcount = 0;
+      // Look at each column containing a value, set the format. Use same order that cell values will use.
+      for (var i = 0; i < columnArray.length; i++) {
+        if (columnArray[i] > -1){
+          worksheet.setColumnFormat(colcount, tempformats[i]);  //pass data type, decPos, etc.
+          colcount++;
+        }
+      }
+      tempformats = null;
+    }
     
     // build csv headings
     if (me.hasHeader && me.exportWithHeadings) {
@@ -761,7 +775,7 @@ pui.Grid = function() {
         if (idx > -1) {
           var heading = getInnerText(me.cells[0][i]);
           if (exportXLSX)
-            worksheet.setCell(i, rtrim(heading), "char" );
+            worksheet.addCell(rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
@@ -826,7 +840,7 @@ pui.Grid = function() {
           if (line != "") line += delimiter;
           line += '"' + rtrim(value) + '"';
           
-          if (exportXLSX) worksheet.setCell(j, rtrim(xlsxvalue) );
+          if (exportXLSX) worksheet.addCell(rtrim(xlsxvalue) );
         }
       }
       if (data != "") data += "\n";

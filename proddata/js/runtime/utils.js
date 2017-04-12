@@ -2931,6 +2931,8 @@ pui.xlsx_worksheet = function(numcols){
   var sst = {}; //Shared strings table. mapping of strings to values used in dataset.
   var sst_count = 0;
   
+  var curCol = 0; //Needed for this.addCell.
+  
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
   var map = [];
@@ -2951,6 +2953,7 @@ pui.xlsx_worksheet = function(numcols){
   this.newRow = function(){
     if (rows == null) rows = [];
     rows.push([]);
+    curCol = 0;
   };
   
   /**
@@ -2989,6 +2992,17 @@ pui.xlsx_worksheet = function(numcols){
       }
     }
     if (format["decPos"] != null) me.formats[col]["decPos"] = format["decPos"];
+  };
+  
+  /**
+   * Append a cell to the current row. Used in Load-all grids.
+   * @param {String} value
+   * @param {Null|String} format
+   * @returns {undefined}
+   */
+  this.addCell = function(value, format){
+    me.setCell(curCol, value, format);
+    curCol++;
   };
 
   /**
@@ -3056,7 +3070,9 @@ pui.xlsx_worksheet = function(numcols){
     for (var col=0; col < numColumns; col++){
       // Calculate column width based on number of characters. Formula comes from:
       // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
-      var width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
+      var width = 0;
+      if (charcounts[col] != null && ! isNaN(parseInt(charcounts[col],10)) )
+        width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
       
       //If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
       var style = me.formats[col]["decPos"] == "2" ? 's="1"' : '';
@@ -3087,6 +3103,7 @@ pui.xlsx_worksheet = function(numcols){
         }else if(me.formats[col]["decPos"] == "2"){
           xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
         }
+        if (rows[row][col] == null) rows[row][col] = '';
         xml += '><v>' + rows[row][col] + '</v></c>';
       }
       
