@@ -3147,3 +3147,47 @@ pui.xlsx_worksheet = function(numcols){
   
 };
 
+
+/**
+ * Returns the column descriptions for a database file or SQL statement.
+ * @param {parm} object with "file" optionally "library", or "customSQL" 
+ * @param  cb - gets called with the {request} object
+ * 
+ *  **** IMPORTANT NOTE ******************************************
+ *   The fields array returned for database file is different than
+ *   the fields array returned for custom SQL statements.  
+ *  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    
+ *  Database File:
+ *  Always returned: "field", "longName", "text", "type", "use", "canNull", "length" 
+ *  Conditionally: "decPos", "key", "generatedBy", "ccsid"
+ *  
+ *  Custom SQL:
+ *  Always returned: "DB2_COLUMN_NAME", "DB2_SYSTEM_COLUMN_NAME", "DB2_LABEL", "SQLTYPE",
+ *                   "DATETIME_INTERVAL_CODE", "LENGTH", "PRECISION", "SCALE", "DB2_CCSID",
+ *                   "DB2_COLUMN_GENERATED", "DB2_COLUMN_GENERATION_TYPE", "NULLABLE" 
+ *  
+ */
+pui.getFieldDescriptions = function(parm, cb){
+	var library=parm["library"] || "", 
+	    file=parm["file"] || "", 
+	    customSql=parm["customSql"] || "";
+    if (context == "genie") url = getProgramURL("PUI0009101.PGM");
+    if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
+    var request = new pui.Ajax(url);
+    request["async"] = true;
+    request["method"] = "post";
+    request["postData"] = "file=" + encodeURIComponent(file);
+    request["postData"] += "&library=" + encodeURIComponent(library);
+    request["postData"] += "&customSql=" + encodeURIComponent(customSql);
+    
+    console.log(request["postData"]);
+    
+    if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
+    request["postData"] += "&context=" + context;
+    request["suppressAlert"] = true;
+	var theCallback = function() {
+		cb(request);
+	}
+    request["onready"] = theCallback;
+    request.send();
+};

@@ -6813,6 +6813,57 @@ pui.Grid = function() {
     if (record!=null && record.filteredOut!=null && record.filteredOut===true) result = true;
     return result;
   };
+
+  this.customSqlCallback = function(request) {
+      var response, error;
+      var headings = "", columnWidths = "";
+      var itm = me.tableDiv.designItem;
+      
+      if (request.getStatus() != 200) {
+        error = "HTTP " + request.getStatus() + " - " + request.getStatusText() + "."; 
+      }
+      else {
+        try {
+          response = eval("(" + request.getResponseText() + ")");
+        }
+        catch(e) {
+          error = "The server response is missing or invalid."; // Invalid JSON response.
+        }
+        if (error == null && response.success != true) { // Program-reported error.
+          error = response.errorText;
+        }                
+      }
+      if (error != null) {
+        pui.alert("Unable to retrieve field listing:\n" + error);
+        return;
+      }
+      for (i=0; i< response.fields.length; i++) {
+        if (headings != '') {
+    	  headings += ',';
+    	}
+    	headings += trim(response.fields[i]["DB2_LABEL"]) 
+    	         || trim(response.fields[i]["DB2_COLUMN_NAME"]) 
+                 || trim(response.fields[i]["DB2_SYSTEM_COLUMN_NAME"]);
+    	
+    	if (columnWidths != '') {
+    	  columnWidths += ',';
+    	}
+    	// this is just an estimated width...doesn't have to be exact
+    	columnWidths += (parseInt(response.fields[i]["LENGTH"]) * 10);
+      }
+      me.setProperty("column headings", headings);
+      sendPropertyToDesigner(itm, "column headings", headings);
+      itm.designer.propWindow.refreshProperty("column headings");
+          
+      me.setProperty("number of columns", response.fields.length);
+      sendPropertyToDesigner(itm, "number of columns", response.fields.length);
+      itm.designer.propWindow.refreshProperty("number of columns");
+          
+      me.setProperty("column widths", columnWidths);
+      sendPropertyToDesigner(itm, "column widths", columnWidths);
+      itm.designer.propWindow.refreshProperty("column widths");
+  };
+  
   
   this.getPropertiesModel = function() {
     var model = [
@@ -6939,15 +6990,28 @@ pui.Grid = function() {
       { name: "Grid Data", category: true },
       { name: "database file", type: "file", uppercase: true, help: "Database file to use for a grid that is tied directly to a database.  You can specify a 'database file' or 'library/database file'.  If library is omitted, the session's library list is used." },
       { name: "database fields", type: "field", multiple: true, uppercase: true, help: "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", descriptionsHandler: function(descriptions) {
-        if (!confirm("Use field descriptions as column headings?")) return;
+        if (!confirm("Update grid columns?")) return;
+        // update the column headings
         me.setProperty("column headings", descriptions);
         var itm = me.tableDiv.designItem;        
         sendPropertyToDesigner(itm, "column headings", descriptions);
         itm.designer.propWindow.refreshProperty("column headings");
+        // update the number of columns based on the number of headings
+        var count = descriptions.split(',').length;
+        me.setProperty("number of columns", count);
+        sendPropertyToDesigner(itm, "number of columns", count);
+        itm.designer.propWindow.refreshProperty("number of columns");
       }},
       { name: "selection criteria", type: "long", help: "Optional expression identifying which records should be retrieved from the database file." },
       { name: "order by", type: "field", multiple: true, uppercase: true, help: "Optional expression identifying which fields determine the order of the records retrieved from the database file." },
-      { name: "custom sql", type: "long", help: "Specifies an sql statement to use to retrieve the records for a database-driven grid." },
+      { name: "custom sql", type: "long", help: "Specifies an sql statement to use to retrieve the records for a database-driven grid.", 
+    	  customSqlHandler: function(customSql) {
+              if (!confirm("Adjust grid based on columns?")) return;
+    		  var parm = { "customSql" : customSql };
+    		  pui.getFieldDescriptions(parm, me.customSqlCallback);
+    	  }
+      },
+    	  
       { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "<p>Allows any valid SELECT SQL statement.</p><p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>"},
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value." },    
       { name: "data url", type: "long", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
