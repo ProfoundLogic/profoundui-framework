@@ -553,7 +553,7 @@ pui.widgets.add({
               }
               if (isNaN(dataValue)) dataValue = 0;
               
-              var attrname = "name";
+              var attrname = "label";
               if (isMap) attrname = "id"; //Maps use a different attribute than charts.
               
               chartXML += '<set '+attrname+'="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
