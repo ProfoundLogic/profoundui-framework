@@ -218,7 +218,7 @@ pui.GridMenu = function() {
       });
     }
 
-    if (me.grid.getFilterCount() > 1) {
+    if (me.grid.filterOption && me.grid.getFilterCount() > 1) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
       menuIcons.push("icons/remove_filter.png");
       optionHandlers.push(function() {
