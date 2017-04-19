@@ -5646,7 +5646,7 @@ pui.Grid = function() {
     me.setScrollBar();
   };
   
-  this.hide = function() {
+  this["hide"] = function() {
     me.doThisToTableDivs(function(domObj) {
       domObj.style.visibility = "hidden";
     });
@@ -5677,7 +5677,7 @@ pui.Grid = function() {
     if (me.pagingBar != null) me.pagingBar.hide();    
   };
 
-  this.show = function() {
+  this["show"] = function() {
     me.doThisToTableDivs(function(domObj) {
       domObj.style.visibility = "";
     });
