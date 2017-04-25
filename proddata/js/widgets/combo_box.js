@@ -517,16 +517,22 @@ pui.widgets.add({
           ajaxRequest["postData"] += "&UTF8=Y";
           ajaxRequest["onsuccess"] = function() {
           	              	
+            var eventCode = parms.evalProperty("ondbload");
+            if (typeof eventCode != "string" || eventCode == "") eventCode = null;
+            
           	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
           	parms.dom.comboBoxWidget.clear();
-          	if (!response) return;              	
+          	if (!response) {
+              if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id); 
+          	  return;              	
+          	}
             
             if (parms.properties["blank option"] == "true") {
               var blankOptionLabel = parms.evalProperty("blank option label");
               if (blankOptionLabel == null) blankOptionLabel = "";
               parms.dom.comboBoxWidget["choices"].push(blankOptionLabel);
               parms.dom.comboBoxWidget["choice values"].push("");
-            }
+            } 
             var opts = response;
             for (var i = 0; i < opts.length; i++) {
               var opt = opts[i];
@@ -534,7 +540,8 @@ pui.widgets.add({
               parms.dom.comboBoxWidget["choice values"].push(opt.value);
             }               
             parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
-          }
+            if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id); 
+        }
           parms.dom.comboBoxWidget.clear();
           parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
           ajaxRequest.send();

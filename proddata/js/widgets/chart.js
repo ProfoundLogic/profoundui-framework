@@ -668,6 +668,15 @@ pui.widgets.add({
             transparent: (parms.properties["chart overlay"] != "true"),
             xmlData: data
            });
+           
+           var eventCode = parms.evalProperty("ondbload");
+           if (typeof eventCode != "string" || eventCode == "") eventCode = null;
+           if (eventCode) {
+             var success = true;
+             if (!response) success = false;
+             pui.executeDatabaseLoadEvent(eventCode, success, parms.dom.id);
+           }
+           
          };
          ajaxRequest.send(); 
         }

@@ -347,6 +347,7 @@ function getPropertiesModel() {
     { name: "onchange", type: "js", help: "Initiates a client-side script when the element value is changed." },
     { name: "onclick", type: "js", help: "Initiates a client-side script when the element is clicked." },
     { name: "ondblclick", type: "js", help: "Initiates a client-side script when the element is double-clicked." },
+    { name: "ondbload", controls: ["select box", "combo box", "textbox", "chart"], type: "js", help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>" },
     { name: "onfocus", type: "js", help: "Initiates a client-side script when the element receives focus." },
     { name: "onkeydown", type: "js", help: "Initiates a client-side script when a keyboard key is being pressed down on this element." },
     { name: "onkeypress", type: "js", help: "Initiates a client-side script when the user presses and releases a keyboard key on this element." },

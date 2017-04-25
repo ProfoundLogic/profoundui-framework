@@ -2103,3 +2103,23 @@ pui["isServerBusy"] = function() {
 	return false;
 };
 
+
+pui["showLastError"] = function() {
+
+  if (errors.length == 0) {
+    alert("No errors have been reported.");
+    return;
+  }
+
+  var last = errors.length - 1;
+  var error;
+  var message;
+  
+  message = "Operation: " + errors[last].operation + 
+                 "\nId: " + errors[last].id + 
+          "\n\nMessage: " + errors[last].text + 
+                     "\n" + errors[last].text2;
+  
+  alert(message);
+  
+}

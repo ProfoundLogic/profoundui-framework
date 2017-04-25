@@ -77,6 +77,7 @@ function AutoComplete(config) {
   var choices; 
   var values;
   var recordSet;
+  var ondbload;
 
   /* CONSTRUCTOR */
 
@@ -200,7 +201,8 @@ function AutoComplete(config) {
   // Assign events.
   if (typeof(config.beforequery) == "function") beforequery = config.beforequery;
   if (typeof(config.onload) == "function") onload = config.onload;
-  if (config.onselect != null) onselect = config.onselect;  
+  if (config.onselect != null) onselect = config.onselect;
+  if (config.ondbload != null) ondbload = config.ondbload;
   
   // Assign custom template, if supplied. This will be set up with a default on  
   // first record retrieval, if not supplied. 
@@ -362,6 +364,7 @@ function AutoComplete(config) {
     choices = null;                  
     values = null;                   
     recordSet = null;
+    ondbload = null;
     me = null; 
   };
 
@@ -640,8 +643,11 @@ function AutoComplete(config) {
     req["onready"] = function(req) {
       if (hiddenField) autoCompQueries -= 1;
       
-      var response = checkAjaxResponse(req, "Genereate Auto-Complete Suggestions");
-      if (!response) return;
+      var response = checkAjaxResponse(req, "Generate Auto-Complete Suggestions");
+      if (!response) {
+        if (ondbload) pui.executeDatabaseLoadEvent(ondbload, false, textBox.id);
+        return;
+      }
       
       if (trim(textBox.value) == "") {
         hideResults();
@@ -675,7 +681,9 @@ function AutoComplete(config) {
         if (onload) onload(data);          
         showResults();
       }
-      else hideResults();      
+      else hideResults();
+      
+      if (ondbload) pui.executeDatabaseLoadEvent(ondbload, true, textBox.id);
       
     };
     req.send();
@@ -1032,6 +1040,10 @@ function applyAutoComp(properties, originalValue, domObj) {
           }
         }
       }
+      
+      // Check for ondbload event handler
+      var onDbLoadProp = evalPropertyValue(properties["ondbload"], originalValue, domObj);
+      if (typeof onDbLoadProp != "string" || onDbLoadProp == "") onDbLoadProp = null;
    
       // Create sql query and base params.
       var baseParams = new Object();
@@ -1112,6 +1124,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           limit: (limit != "") ? limit : null,
           template: tpl,
           onselect: onselect,
+          ondbload: onDbLoadProp,
           valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
           beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
             

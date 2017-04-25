@@ -200,10 +200,16 @@ pui.widgets.add({
           }
           ajaxRequest["postData"] += "&UTF8=Y";
           ajaxRequest["onsuccess"] = function() {
-          	              	
+
+            var eventCode = parms.evalProperty("ondbload");
+            if (typeof eventCode != "string" || eventCode == "") eventCode = null;
+            
           	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
           	if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
-          	if (!response) return;              	
+          	if (!response) {
+          	  if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id); 
+          	  return;              	
+          	}
             
             if (parms.properties["blank option"] == "true") {
               var blankOptionLabel = parms.evalProperty("blank option label");
@@ -223,6 +229,7 @@ pui.widgets.add({
               parms.dom.choices[opts[i].value] = opts[i].text;
             }               
             pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
+            if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id); 
           }
           if (parms.dom.tagName == "SELECT") {
             parms.dom.options.length = 0;

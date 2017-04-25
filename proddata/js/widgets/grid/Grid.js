@@ -240,6 +240,8 @@ pui.Grid = function() {
   var findColumn;
   var findStartRow;
   
+  var ondbload = null;
+  
   this.enableDesign = function() {
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
@@ -3874,6 +3876,10 @@ pui.Grid = function() {
       case "onfilterchange":
         me.events[property] = value;
         break;
+        
+      case "ondbload":
+        ondbload = value;
+        break;
       
       default:
         pui.alert("Grid property not handled: " + property);
@@ -5554,6 +5560,7 @@ pui.Grid = function() {
     req["onready"] = function(req) {
       me.unMask();
       var response;
+      var successful = false;
       if (me.dataProps["data transform function"] && req.getStatus() == 200) {
         
         try {
@@ -5590,7 +5597,9 @@ pui.Grid = function() {
           callback(response.results, response.totalRecs, response["matchRow"]);
         }
         else returnVal = response.results;
+        successful = true;
       }
+      if (ondbload) pui.executeDatabaseLoadEvent(ondbload, successful, me.tableDiv.id);
       me.waitingOnRequest = false; //Allow filter changes and clicks to sort columns.
     };
     me.waitingOnRequest = true; //Ignore filter changes and clicks to sort columns.
@@ -7060,6 +7069,7 @@ pui.Grid = function() {
       { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
       
       { name: "Events", category: true },
+      { name: "ondbload", type: "js", help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>" },
       { name: "onfilterchange", type: "js", help: "Initiates a client-side script when the filter has changed.", bind: false, context: "dspf" },
       { name: "onrowclick", type: "js", help: "Initiates a client-side script when a row within the grid is clicked.  The script can determine the row number using the <b>row</b> variable.", bind: false },
       { name: "onrowdblclick", type: "js", help: "Initiates a client-side script when a row within the grid is double-clicked.  The script can determine the row number using the <b>row</b> variable.", bind: false },

@@ -3191,3 +3191,49 @@ pui.getFieldDescriptions = function(parm, cb){
     request["onready"] = theCallback;
     request.send();
 };
+
+
+/**
+ *
+ * Code to execute the "ondbload" event when data is loaded into a database-driven widget:
+ * 
+ *    @param {String}  func - event code to run
+ *    @param {boolean} success - boolean true/false whether load succeeded
+ *    @param {Object}  widget - id of widget to pass to event
+ *
+ * @return {boolean} true if the event was executed successful, false otherwise
+ * 
+ */
+pui.executeDatabaseLoadEvent = function(func, success, widget) {
+ 
+   // create a "de-obfuscated" copy of the global errors array.
+  
+   var myError = null;
+   if (errors.length > 0) {
+     var lastError = errors.length - 1;
+     myError = { 
+       "operation": errors[lastError].operation,
+       "id": errors[lastError].id,
+       "text": errors[lastError].text,
+         "text2": errors[lastError].text2
+     };
+   }
+
+   
+   // Run the event  
+   
+   try {
+     pui["temporary_property"] = myError;
+     eval("var response = { success: arguments[1], id: arguments[2], error: pui.temporary_property };");
+     var customFunction = eval(func);
+     if (typeof customFunction == "function") {
+       customFunction();
+     }
+   }
+   catch(err) {
+     pui.alert("OndbLoad Error:\n" + err.message);
+     return false;
+   }
+
+   return true;
+};
