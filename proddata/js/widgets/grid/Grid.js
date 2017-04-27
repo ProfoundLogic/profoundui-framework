@@ -6056,6 +6056,13 @@ pui.Grid = function() {
   };
 
   this["scrollToRow"] = function(row) {
+    row = parseInt(row,10);
+    if (isNaN(row)){
+      //me.recNum cannot be set to a string; otherwise, the grid will crash.
+      //If setScrollTopToRow() passes a string, then the grid will crash after slidingScollBar's doScroll(). #3529.
+      console.log("scrollToRow cannot parseInt:",row);
+      return;
+    }
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(row);
     }
