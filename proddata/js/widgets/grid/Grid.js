@@ -4944,15 +4944,6 @@ pui.Grid = function() {
              
           offset.x += ctrOffset[0];
           offset.y += ctrOffset[1];
-          
-          // When the viewport isn't at the top of the page, chrome reports the offset
-          // relative to the viewport, throwing the calculations off...
-          if (pui["is_chrome"]) {
-            var doc = document.documentElement;
-            var scrollTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-            offset.y += scrollTop; 
-          }
-        
           x -= offset.x;
           y -= offset.y;
           
