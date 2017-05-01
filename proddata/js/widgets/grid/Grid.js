@@ -4190,8 +4190,6 @@ pui.Grid = function() {
       me.dragging = true;
       var cursorStartX = pui.getMouseX(event);
       var cursorStartY = pui.getMouseY(event);
-      var startGridX = parseInt(me.tableDiv.style.left);
-      var startGridY = parseInt(me.tableDiv.style.top);
       me.doThisToTableDivs(function(domObj) {
         domObj.startLeft = pui.safeParseInt(domObj.style.left);
         domObj.startTop = pui.safeParseInt(domObj.style.top);
@@ -4200,7 +4198,7 @@ pui.Grid = function() {
       if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
         inLayoutContainer = true;
       }
-
+      
       function mousemove(event) {
         var y = pui.getMouseY(event) - cursorStartY;
         var x = pui.getMouseX(event) - cursorStartX;
@@ -4219,27 +4217,60 @@ pui.Grid = function() {
           headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + x) + "px";
           var matchedCol = null;
           if (y > -25 && y < parseInt(me.tableDiv.style.height)) {
+            //Look at each vLine and decide which the mouse is nearest.
+            //Adjust the mouse coordinates to the vLine's frame of reference so they can be compared.
             for (var i = 0; i < me.vLines.length; i++) {
               var line = me.vLines[i];
               var lineLeft = parseInt(line.style.left);
-              var mouseLeft = x + cursorStartX;
+              var mouseLeft = x + cursorStartX; //mouseLeft is now same as pui.getMouseX(event);
+              
+              var mouseLineDiffX = 0; //The difference between the mouse X and the vLine's left offset.
+              var mouseLineDiffY = 0;
+              
               if (me.designMode) {
-                mouseLeft = mouseLeft - me.tableDiv.designItem.designer.getLeftOffset();
+                //Note: in Designer, the mouseLeft is only used in a comparison, not in positioning columnPointer.
+                mouseLineDiffX += me.tableDiv.designItem.designer.getLeftOffset();
               }
               else {
-                mouseLeft -= pui.runtimeContainer.getBoundingClientRect().left;
-              }
-              if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
-                mouseLeft = mouseLeft - pui.layout.getContainerOffset(me.tableDiv.parentNode).x;
-              }
-              if (!me.designMode) {
+                //Get the runtimeContainer's position relative to the page. The bounding rectangle handles
+                //positions of any parent DIV elements the customer's start.html may have added. #3344.
+                var rect = pui.runtimeContainer.getBoundingClientRect();
+                //BoundingClientRect is relative to the viewport, so adjust for scroll position.
+                if (typeof window.pageXOffset == "number"){
+                  mouseLineDiffX = rect.left + window.pageXOffset;
+                  mouseLineDiffY = rect.top + window.pageYOffset;
+                }else{
+                  //window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
+                  //See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+                  mouseLineDiffX = rect.left + document.documentElement.scrollLeft;
+                  mouseLineDiffY = rect.top + document.documentElement.scrollTop;
+                }
+                
+                //Compensate if the grid is inside a window. (See #3532 for test cases.)
                 var windowDiv = me.tableDiv.parentNode;
+                var acont = pui["getActiveContainer"]();
                 if (windowDiv.isPUIWindow == true) {
-                  mouseLeft -= parseInt(windowDiv.style.left);
+                  mouseLineDiffX += parseInt(windowDiv.style.left);
+                  mouseLineDiffY += parseInt(windowDiv.style.top);
+                }else if (acont != null && acont.isPUIWindow === true){
+                  //Note: in RDF, the active container is a PUIWindow. In Genie, pui.runtimeContainer is
+                  //the active container but not a PUIWindow. So, the same offset isn't added twice.
+                  mouseLineDiffX += acont.offsetLeft;
+                  mouseLineDiffY += acont.offsetTop;
                 }
               }
+              
+              if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
+                //In Rich Display or Designer, compensate when the grid is in a container.
+                mouseLineDiffX += pui.layout.getContainerOffset(me.tableDiv.parentNode).x;
+                mouseLineDiffY += pui.layout.getContainerOffset(me.tableDiv.parentNode).y;
+              }
+              
+              mouseLeft -= mouseLineDiffX;
+              
               var diff = Math.abs(lineLeft - mouseLeft);
               if (diff < 15) {
+                // The mouse is near vLine[i].
                 if (columnPointer != null && columnPointer.parentNode != line.parentNode) {
                   columnPointer.parentNode.removeChild(columnPointer);
                   columnPointer = null;
@@ -4256,27 +4287,19 @@ pui.Grid = function() {
                 var top = parseInt(line.style.top) - 10;
                 var left = parseInt(line.style.left) - 4;
                 var offset = {x:0, y:0};
-                if (context == "dspf" && prt.getAttribute("container") == "true") {
-                
+                //Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
+                if (!me.designMode) {
+                  //In RDF or Genie, the previous mouse calculations can be used because the
+                  //columnPointer's parent is <body>, and the mouse position is based on <body>.
+                  offset.y = mouseLineDiffY;
+                  offset.x = mouseLineDiffX;
+                }else if (context == "dspf" && prt.getAttribute("container") == "true") {
+                  //We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
+                  //parent is a designer div, not the body. So the mouse calculation cannot be used.
                   offset = pui.layout.getContainerOffset(prt);
-                  
                 }
-                else if (prt.isPUIWindow) {
-                
-                  offset.x = prt.offsetLeft;
-                  offset.y = prt.offsetTop;
-                  
-                }
-                var ctrOffset;                                    
-                if (!me.designMode) {                             
-                                                                 
-                  ctrOffset = pui.getOffset(pui.runtimeContainer);
-                  offset.x += ctrOffset[0];                       
-                  offset.y += ctrOffset[1];                       
-                                                                 
-                }                                                                 
                 top += offset.y;
-                left += offset.x;                
+                left += offset.x;
                 columnPointer.style.display = "";
                 columnPointer.style.top = top + "px";
                 columnPointer.style.left = left + "px";
@@ -4294,9 +4317,6 @@ pui.Grid = function() {
         }
         var designItem = me.tableDiv.designItem;
         if (designItem != null) {
-
-          var offsetX = designItem.designer.getLeftOffset();
-          var offsetY = designItem.designer.getTopOffset();
           pui.designer.testDragOverGridOrLayout({
             x: x + cursorStartX,
             y: y + cursorStartY,
@@ -4366,7 +4386,7 @@ pui.Grid = function() {
               if (designer.dropContainer != null) {
               
                 designer.undo.clear();
-                container = designer.dropContainer;
+                var container = designer.dropContainer;
               
                 var top;
                 var left;
