@@ -94,7 +94,7 @@ function textArea_cleanUp(e) {
       }
     }
     else {
-      if (lines[curLine].length >= lineLengths[curLine]) {
+      if (getEBCDICByteCount(lines[curLine]) >= lineLengths[curLine]) {
         if (curLine >= lineLengths.length - 1) {
           break;
         }
