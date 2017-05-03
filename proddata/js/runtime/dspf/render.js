@@ -111,6 +111,7 @@ pui["loading animation"]["top"] = 10;
 pui["loading animation"]["width"] = 16;
 pui["loading animation"]["height"] = 16;
 pui["loading animation"]["zIndex"] = 250;
+pui["loading animation"]["css"] = 'pui-animation';
 
 pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
@@ -3685,40 +3686,44 @@ pui.evalIndicatorExpression = function(expression, data) {
 
 pui.showWaitAnimation = function() {
   var animation;
-  if (pui["loading animation"]["text"] != null) {
+  if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui.normalizeURL("/profoundui/proddata/images/loading.gif")) {
     animation = document.createElement("div");
-    animation.innerHTML = pui["loading animation"]["text"];
-    animation.style.backgroundColor = "#cccccc";
-    animation.style.border = "1px solid #333333";
-    animation.style.fontSize = "10px";
-    animation.style.fontFamily = "Sans-Serif";
+    animation.className = pui["loading animation"]["css"];
+  } else {
+    if (pui["loading animation"]["text"] != null) {
+      animation = document.createElement("div");
+      animation.innerHTML = pui["loading animation"]["text"];
+      animation.style.backgroundColor = "#cccccc";
+      animation.style.border = "1px solid #333333";
+      animation.style.fontSize = "10px";
+      animation.style.fontFamily = "Sans-Serif";
+    } else {
+      animation = document.createElement("img");
+      animation.src = pui["loading animation"]["path"];
+      var width = pui["loading animation"]["width"];
+      var height = pui["loading animation"]["height"];
+      animation.style.width = width + "px";
+      animation.style.height = height + "px";
+    }
+    if (pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0)
+      animation.alt = pui["loading animation"]["alt"];
+      animation.style.position = "absolute";
+      var left = pui["loading animation"]["left"];
+      if (pui.isHtml && left < 0) left = 0;
+      animation.style.left = left + "px";
+      var top = pui["loading animation"]["top"];
+      top += Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+      animation.style.top = top + "px";
+      animation.style.zIndex = pui["loading animation"]["zIndex"];
   }
-  else {
-    animation = document.createElement("img");
-    animation.src = pui["loading animation"]["path"];
-    var width = pui["loading animation"]["width"];
-    var height = pui["loading animation"]["height"];
-    animation.style.width = width + "px";
-    animation.style.height = height + "px";
-  }
-  if(pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0)
-    animation.alt = pui["loading animation"]["alt"];
-  animation.style.position = "absolute";
-  var left = pui["loading animation"]["left"];
-  if (pui.isHtml && left < 0) left = 0;  
-  animation.style.left = left + "px";
-  var top = pui["loading animation"]["top"];
-  top += Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-  animation.style.top = top + "px";
-  animation.style.zIndex = pui["loading animation"]["zIndex"];
   animation.id = "_pui_loading_animation";
   pui.runtimeContainer.appendChild(animation);
-  
-  for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+
+  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
     if (!grid.subfileHidden) grid.mask();
   }
-  
+
 };
 
 pui.hideWaitAnimation = function(removeAnimationImage) {
