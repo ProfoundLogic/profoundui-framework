@@ -218,7 +218,11 @@ function getCursorPosition(obj) {
   return -1; 
 } 
 
-
+/**
+ * If in Visual Designer or in Genie with Design Mode on, then returns true; else false. Note: this must
+ * be called after pui.dspfDesign(), after pui.loadDependencyFiles to correctly detect Visual Designer.
+ * @returns {Boolean}
+ */
 function inDesignMode() {
   if (toolbar == null) return false;
   if (toolbar.designer == null) return false;
@@ -2487,9 +2491,14 @@ pui.wait = function(interval, max, check, proceed) {
  * If the specified item has a file dependency, then add the file's URL string to a list.
  * @param {Object} item                 Input. Item/widget properties.
  * @param {Object|Array} dependencies   Output. List of URL strings
+ * @param {Object|Null} formatData      Input. The "data" property of the current RDF format. This is needed
+ *                                      if a conditional dependency needs to test a bound field's value.
+ *                                      This is null for Genie and Designer.
+ * @param {Boolean} designer            True if page is Designer. False for Genie, RDF. Needed for some 
+ *                                      conditional dependencies.
  * @returns {undefined}
  */
-pui.addItemDependenciesTo = function(item, dependencies){
+pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
   if( item != null ){
     var fieldtype = item["field type"] || item["field_type"]; //Genie uses "field_type"; RDF uses "field type".
     if( fieldtype != null ){
@@ -2515,36 +2524,47 @@ pui.addItemDependenciesTo = function(item, dependencies){
         
         // Add each dependency to a list.
         for( var dp=0; dp < widdep.length; dp++ ){
-          
-          // Make both the relative URI and the full URL for comparison.
-          var uri = pui.normalizeURL(widdep[dp]);
-          var url = pui.normalizeURL( origin + uri);
-          
-          // Avoid adding the same script multiple times by checking if it already exists.
-          var scriptExists = false;  
-          for(var sc=0; sc < scripts.length; sc++){
-            if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)) {
-              scriptExists = true;
-              break;
+          var dependUri = widdep[dp];
+          var useDependency = false;
+          if (typeof widdep[dp] == "object" && widdep[dp] != null && typeof widdep[dp]["condition"] == "function"){
+            //The dependency is conditional, so load only when it passes a test.
+            if (widdep[dp]["condition"](item, formatData, designer)){
+              dependUri = widdep[dp]["script"];
+              useDependency = true;
             }
+          }else if(typeof widdep[dp] == "string"){
+            useDependency = true;  //Always use dependency when it is a string.
           }
-          
-          // Avoiding adding the same stylesheet multiple times by checking if it already exists
-          if (links && !scriptExists) {
-            for (var l=0; l<links.length; l++) {
-              if (links[l].type.toLowerCase() == "text/css" && (links[l].href == url || links[l].href == uri)) {
+          if(useDependency){
+            // Make both the relative URI and the full URL for comparison.
+            var uri = pui.normalizeURL(dependUri);
+            var url = pui.normalizeURL( origin + uri);
+
+            // Avoid adding the same script multiple times by checking if it already exists.
+            var scriptExists = false;  
+            for(var sc=0; sc < scripts.length; sc++){
+              if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)) {
                 scriptExists = true;
                 break;
               }
             }
-          }
-          
-          // If the file wasn't already loaded in <head>, and if the
-          // dependency wasn't already added to the list, add it to the list.          
-          if( !scriptExists && pui.arrayIndexOf(dependencies, uri) < 0 ){
-            dependencies.push(uri);
-          }
-          
+
+            // Avoiding adding the same stylesheet multiple times by checking if it already exists
+            if (links && !scriptExists) {
+              for (var l=0; l<links.length; l++) {
+                if (links[l].type.toLowerCase() == "text/css" && (links[l].href == url || links[l].href == uri)) {
+                  scriptExists = true;
+                  break;
+                }
+              }
+            }
+
+            // If the file wasn't already loaded in <head>, and if the
+            // dependency wasn't already added to the list, add it to the list.          
+            if( !scriptExists && pui.arrayIndexOf(dependencies, uri) < 0 ){
+              dependencies.push(uri);
+            }
+          } //done if useDep.
         }//done linking each dependency.
       }
     }
@@ -2558,7 +2578,8 @@ pui.addItemDependenciesTo = function(item, dependencies){
  * the callback after finished loading all. This should be called once before DSPF render-time,
  * or once before loading Genie items during rendering.
  * 
- * @param {Object} parm        Contains list of items or rendering parameters with items buried inside.
+ * @param {Object} parm        Contains list of items or rendering parameters with items buried inside. For
+ *    Genie/RDF, this would be the JSON response from the CGI program. With Designer, it has a list of widgets.
  * @param {Function} callback  Function to execute on success or failure to load files.
  * @returns {undefined}
  */
@@ -2569,11 +2590,12 @@ pui.loadDependencyFiles = function(parm, callback ){
   
   if( parm != null ){
     // When called by genie() in 5250/genie.js, parm should be an entry from the global screenPropertiesObj.
+    // When called by designer, parm is just an object with an "items" array and "designMode":true.
     if( parm["items"] != null && parm["items"].length > 0){
       for(var itm=0; itm < parm["items"].length; itm++){
         
         // If the "dependencies" property exists, add to a list.
-        pui.addItemDependenciesTo( parm["items"][itm], dependencies);
+        pui.addItemDependenciesTo( parm["items"][itm], dependencies, null, parm["designer"]);
       }
     }
     // When called for pui.render, parm should contain layers and formats for the RDF/genie screen.
@@ -2590,7 +2612,7 @@ pui.loadDependencyFiles = function(parm, callback ){
               for(var itm=0; itm < format["metaData"]["items"].length; itm++){
                 
                 // If the "dependencies" property exists, add to a list.
-                pui.addItemDependenciesTo( format["metaData"]["items"][itm], dependencies);
+                pui.addItemDependenciesTo( format["metaData"]["items"][itm], dependencies, format["data"], false);
               }//end look at each item.
             }
           }//end look in each format.
@@ -2681,13 +2703,18 @@ pui.round = function(number, precision){
 };
 
 
-
+/**
+ * Look for EJS tags in a string of HTML. If EJS is present, then supply data from
+ * the record format or screen and use the EJS renderer to process the HTML.
+ * @param {String} html
+ * @returns {String}
+ */
 pui.ejs = function(html) {
   
   if (html.indexOf("<%") < 0) return html;  // no ejs to process
   
   if (typeof window["ejs"] !== "object" || typeof window["ejs"]["render"] !== "function") {
-    console.error("EJS templating library not loaded.")
+    console.error("EJS templating library not loaded.");
     return html;
   }
   
@@ -2744,7 +2771,12 @@ pui.ejs = function(html) {
         }
       }
     }
-    if (Object.keys(flags).length > 0) data.flags = flags;
+    var useflags = false;
+    for( var key in flags){ //Object.keys(flags).length > 0 would be nicer, but IE8 doesn't support Object.keys.
+      useflags = true;
+      break;
+    }
+    if (useflags) data.flags = flags;
     pui.ejsData = data;
   }
   
@@ -2757,8 +2789,16 @@ pui.ejs = function(html) {
   
   return html;
 
-}
+};
 
+/**
+ * Start loading the EJS library then check for EJS content. If the library is loaded, 
+ * then check for EJS content. This is used by the ajax_container.
+ *
+ * @param {Object} dom
+ * @param {String} html
+ * @returns {undefined}
+ */
 pui.setHtmlWithEjs = function(dom, html) {
   if (pui.ejsLoading) {
     setTimeout(function() {

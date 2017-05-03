@@ -22,6 +22,20 @@
 pui.widgets.add({
   name: "html container",
   inlineEdit: true,
+  
+  // Pre-load ejs.min.js before rendering starts, if the container uses EJS tags.
+  "dependencies": [{
+    "script": "/ejs/ejs.min.js",
+    "condition": function(props, data, designer){
+      if (designer) return true; //Always load for Visual Designer.
+      if (typeof props["html"] == "string") return props["html"].indexOf("<%") >= 0;  //Hard-coded value.
+      if (props["html"] != null && typeof props["html"]["fieldName"] == "string"){  //Bound value (DSPF only).
+        var value = data[ props["html"]["fieldName"].toUpperCase() ];
+        if (value != null ) return value.indexOf("<%") >= 0;
+      }
+      return false;
+    }
+  }],
   defaults: {
     html: "<i>HTML Content</i>",
     "white space": "normal",
@@ -36,7 +50,7 @@ pui.widgets.add({
         parms.dom.innerHTML = parms.evalProperty("html");
       }
       else {
-        pui.setHtmlWithEjs(parms.dom, parms.evalProperty("html"));
+        parms.dom.innerHTML = pui.ejs(parms.evalProperty("html"));
       }
     },
     
@@ -45,7 +59,7 @@ pui.widgets.add({
         parms.dom.innerHTML = parms.value;
       }
       else {
-        pui.setHtmlWithEjs(parms.dom, parms.value);
+        parms.dom.innerHTML = pui.ejs(parms.value);
       }
     }
 
