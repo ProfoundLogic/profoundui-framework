@@ -695,7 +695,7 @@ pui.render = function(parms) {
   else {
     pui.isHtml = false;
   }
-  parms.container.style.width = "";
+  if (pui.isPreview !== true) parms.container.style.width = "";
   if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "";
 
   var layers = parms["layers"];
