@@ -250,7 +250,12 @@ pui.GridMenu = function() {
         me.grid.sortIcon = null; //Prevent sortIcon from being drawn.
 
         me.grid.setHeadings(); //Redraws column headings, including icons; but if order wasn't restored, the headings don't match the content.
-        
+          
+         //if expand to layout is set true then expand the current grid for reset option 
+         if (properties["expand to layout"] == "true" || properties["expand to layout"] == true){
+             me.grid.doExpandToLayout();
+         }
+         
         // Reset sort order.
         if (me.grid.isDataGrid() ){
           me.grid.sortBy = me.grid.initialSortColumn; //(Null is OK.)
