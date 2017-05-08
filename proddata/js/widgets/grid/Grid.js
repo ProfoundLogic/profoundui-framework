@@ -4925,6 +4925,7 @@ pui.Grid = function() {
         var x = pui.getMouseX(event);
         var y = pui.getMouseY(event);
         var ctrOffset = pui.getOffset(pui.runtimeContainer);
+        if (context == "genie") ctrOffset = pui.getOffset( pui["getActiveContainer"]() ); //handles grid inside a window. #3541.
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode;  // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
