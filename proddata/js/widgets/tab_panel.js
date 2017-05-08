@@ -715,8 +715,8 @@ function TabPanel() {
             elem.style.visibility = "";
             applyProperty(elem, "visibility", "");
             if (elem.grid && elem.grid.setProperty) {
-              if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid.show();
-              else elem.grid.hide();
+              if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid['show']();
+              else elem.grid['hide']();
             }
             // Render charts if not done already. A chart will not render when 
             // the containing tab is inactive...   
@@ -726,7 +726,7 @@ function TabPanel() {
           else {
             elem.style.visibility = "hidden";
             applyProperty(elem, "visibility", "hidden");
-            if (elem.grid && elem.grid.setProperty) elem.grid.hide();
+            if (elem.grid && elem.grid.setProperty) elem.grid['hide']();
             if (elem.validationTip != null) {
               elem.validationTip.hide();
             }
