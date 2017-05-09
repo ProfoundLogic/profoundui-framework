@@ -21,7 +21,11 @@
 
 pui.layout.templates = {};
 
-
+/**
+ * Retrieve a custom layout template from an IFS file or URL. A user's script would cause this to run.
+ * @param {String} templateName   Name of the template, also part of the IFS file name.
+ * @returns {undefined}
+ */
 pui.layout.retrieveTemplate = function(templateName) {
   
   var url = templateName;
@@ -32,19 +36,26 @@ pui.layout.retrieveTemplate = function(templateName) {
     url = "/profoundui/userdata/layouts/" + templateName + ".html"; 
   }
   
-  ajax({
+  //Synchronously fetch the template HTML so that it's ready before pui.render. Issue 3548. Note: this makes a deprecated
+  //warning appear in the console. An alternative is to adapt the "dependencies" feature to load the template before pui.render.
+  var req = new pui.Ajax({
     "url": pui.normalizeURL(url),
     "method": "post",
-    "handler": function(html) {
-      pui.layout.templates[templateName] = html;
-    }
+    "suppressAlert": true
   });
-  
-}
+  req["async"] = false;
+  req.send();
+  if (req.ok()) {
+    pui.layout.templates[templateName] = req.getResponseText();
+  }else{
+    //Note: processHTML will fall back to "simple container", because this template didn't exist.
+    console.log("Failed to load custom layout template:",templateName);
+  }
+};
 
 pui["retrieveCustomLayoutTemplate"] = function(templateName) {
   pui.layout.retrieveTemplate(templateName);
-}
+};
 
 pui["maximizeLayout"] = function(e) {
   var itemDom = getTarget(e).parentNode;
@@ -74,7 +85,7 @@ pui["maximizeLayout"] = function(e) {
   designer.selection.add(item);
   designer.propWindow.refresh();
   preventEvent(e);
-}
+};
 
 pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue: 'false', proxyValue: 'false' }\" title=\"Maximize\" style=\"position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; cursor: pointer; background-image: url(/profoundui/proddata/images/icons/maximize.png)\" onmousedown=\"pui.maximizeLayout(event)\" />";
 
@@ -103,8 +114,11 @@ pui.layout.templates["css panel"] = pui.layout.template.cssPanelTemplate;
 pui.layout.templates["accordion"] = pui.layout.template.accordionTemplate;
 
 
-
-
+/**
+ * Returns an array of template name strings. pui.layout.getPropertiesModel calls this,
+ * allowing Designer to show the list of templates in the "template" property.
+ * @returns {Array}
+ */
 pui.layout.getTemplateList = function() {
   var templates = pui.layout.templates;
   var list = [];
@@ -112,7 +126,7 @@ pui.layout.getTemplateList = function() {
     list.push(x);
   }
   return list;
-}
+};
 
 
 pui.layout.mergeProps = function(templateProps) {
@@ -129,4 +143,4 @@ pui.layout.mergeProps = function(templateProps) {
     }
   }
   return props;
-}
+};
