@@ -5678,7 +5678,7 @@ pui.Grid = function() {
   this.hideSubfile = function() {
     me.subfileHidden = true;
     if (!me.hasHeader) {
-      me.hide();
+      me['hide']();
       return;
     }
     for (var i = 1; i < me.cells.length; i++) {
