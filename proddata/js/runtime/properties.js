@@ -42,7 +42,8 @@ function getPropertiesModel() {
       { name: "description", help: "Use this property to provide a text description (or comment) for the field.", bind: false },
       { name: "Misc", category: true },
       { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], help: "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting.", bind: false },
-      { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Determines whether the field is output or not." }      
+      { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: "Determines whether the field is output or not." },
+      { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the field. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." }
     ];
     return cachedPropertiesModel;
   }
@@ -338,7 +339,7 @@ function getPropertiesModel() {
     { name: "overflow y", stylename: "overflowY", choices: ["visible", "hidden", "scroll", "auto"], help: "Determines whether a vertical scrollbar should be displayed for this element." + overflowHelp, formattingProp: true },
     { name: "tab index", format: "number", attribute: "tabIndex", help: "Determines the tab order for input elements on the screen." + (context == "genie" ? " This property does not take effect unless the Prevent Auto Tab property is set to true under Screen Properties." : "") },
     { name: "tool tip", type: "long", allowNewLines: true, attribute: "title", translate: true, help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element." },
-    { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget.  To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
+    { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
     { name: "visibility", format: "visible / hidden", stylename: "visibility", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden.  Hidden elements appear dimmed out in design mode, and invisible at runtime." },
     { name: "inline style", type: "long", allowNewLines: true, attribute: "style", help: "This property lets you define CSS properties that will be applied to the widget.  These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon.  You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\"" },
     
@@ -387,7 +388,8 @@ function getScreenPropertiesModel(designScreen) {
     	{ name: "Misc", category: true },
     	{ name: "separator", help: "Specifies an optional seperator value to output when multiple copies of this format are written.  For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false },
     	{ name: "destination", help: "Specifies an IFS path to send the output to. The file path is set on the first write to this record format, and cannot be changed without closing and re-opening the display file. If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char"] },
-    	{ name: "existing file action", choices: ["append", "replace", "exception"], help: "Action to take if <i>destination</i> file already exists when the program starts writing this record format. \"append\" will append to existing file content. \"replace\" will delete/re-create the file. \"exception\" will cause the handler to send an escape message to the program. If not specified, the default value is \"exception\".", hideFormatting: true, validDataTypes: ["char"] }
+    	{ name: "existing file action", choices: ["append", "replace", "exception"], help: "Action to take if <i>destination</i> file already exists when the program starts writing this record format. \"append\" will append to existing file content. \"replace\" will delete/re-create the file. \"exception\" will cause the handler to send an escape message to the program. If not specified, the default value is \"exception\".", hideFormatting: true, validDataTypes: ["char"] },
+      { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the record format. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." }
     ];
     return model;
 	}
@@ -483,8 +485,12 @@ function getScreenPropertiesModel(designScreen) {
 
       { name: "Events", category: true },
       { name: "onload", type: "js", help: "Initiates a client-side script when the screen loads." },
-      { name: "onsubmit", type: "js", help: "Initiates a client-side script or expression before a response is submitted to the screen.  This typically occurs when a button or a hyperlink is clicked.  If the expression evaluates to <i>false</i>, the response is not submitted." }
-  	];
+      { name: "onsubmit", type: "js", help: "Initiates a client-side script or expression before a response is submitted to the screen.  This typically occurs when a button or a hyperlink is clicked.  If the expression evaluates to <i>false</i>, the response is not submitted." },
+
+    	{ name: "Misc", category: true },
+      { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the record format. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." }
+
+    ];
   	return model;	  
 	}
 	
@@ -1731,5 +1737,5 @@ pui.removeCachedStyle = function( domObj, stylename ) {
   }
 };
 
-pui["getPropertiesModel"] = getPropertiesModel();
-pui["getPropertiesNamedModel"] = getPropertiesNamedModel();
+pui["getPropertiesModel"] = getPropertiesModel;
+pui["getPropertiesNamedModel"] = getPropertiesNamedModel;

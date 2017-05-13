@@ -3880,8 +3880,9 @@ pui.Grid = function() {
       case "ondbload":
         ondbload = value;
         break;
-      
+
       default:
+      if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
         pui.alert("Grid property not handled: " + property);
     }
   };
@@ -7085,6 +7086,7 @@ pui.Grid = function() {
       { name: "Misc", category: true },    
       { name: "css class", multOccur: (context == "dspf" ? true : false), attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
       { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
+      { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
       { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
       
       { name: "Events", category: true },
