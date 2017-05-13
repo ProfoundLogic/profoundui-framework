@@ -1730,3 +1730,6 @@ pui.removeCachedStyle = function( domObj, stylename ) {
     domObj.style[keyname] = domObj.pui.styleCached[keyname];
   }
 };
+
+pui["getPropertiesModel"] = getPropertiesModel();
+pui["getPropertiesNamedModel"] = getPropertiesNamedModel();

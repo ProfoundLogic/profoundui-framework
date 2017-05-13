@@ -516,6 +516,10 @@ pui.popstate = function(e) {
 
 
 pui.render = function(parms) {
+  
+  if (typeof pui["beforeRender"] === "function") {
+    parms = pui["beforeRender"](parms);
+  }
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
@@ -3450,6 +3454,10 @@ pui.buildResponse = function() {
     
     }  
   
+  }
+  
+  if (typeof pui["beforeRespond"] === "function") {
+    response = pui["beforeRespond"](response);
   }
   
   return response;
