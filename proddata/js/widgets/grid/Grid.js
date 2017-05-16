@@ -6610,12 +6610,16 @@ pui.Grid = function() {
     else if (text.substr(0,2) == ">=") {
       text = text.substr(2);
       if (text == "") return true;
+      text = prepareComparisonString(text);
+      value = prepareComparisonString(value);
       if (isNaN(Number(text))) return value.toLowerCase() >= text.toLowerCase();
       else return (Number(value) >= Number(text));
     }
     else if (text.substr(0,2) == "<=") {
       text = text.substr(2);
       if (text == "") return true;
+      text = prepareComparisonString(text);
+      value = prepareComparisonString(value);
       if (isNaN(Number(text))) return value.toLowerCase() <= text.toLowerCase();
       else return (Number(value) <= Number(text));
     }
@@ -6634,12 +6638,16 @@ pui.Grid = function() {
     else if (text.substr(0,1) == ">") {
       text = text.substr(1);
       if (text == "") return true;
+      text = prepareComparisonString(text);
+      value = prepareComparisonString(value);
       if (isNaN(Number(text))) return value.toLowerCase() > text.toLowerCase();
       else return (Number(value) > Number(text));
     }
     else if (text.substr(0,1) == "<") {
       text = text.substr(1);
       if (text == "") return true;
+      text = prepareComparisonString(text);
+      value = prepareComparisonString(value);
       if (isNaN(Number(text))) return value.toLowerCase() < text.toLowerCase();
       else return (Number(value) < Number(text));
     }
@@ -6647,6 +6655,16 @@ pui.Grid = function() {
       return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
     }
 
+    function prepareComparisonString(string){
+      var string = string;
+      if (string.indexOf(',') != -1) {
+        var temp = string.split(',').join('');
+        if (!isNaN(Number(temp))){
+          return temp;
+        } 
+      } 
+      return string;
+    }
   };
   
   /**
