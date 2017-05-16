@@ -21,7 +21,7 @@
 
 pui.layout.template.processHTML = function(parms) {
 
-  var html = pui.layout.templates[parms.template];
+  var html = pui.layout["templates"][parms.template];
   
   if (typeof html == "function") {  // custom function provded instead of HTML
     return html(parms);
@@ -29,7 +29,7 @@ pui.layout.template.processHTML = function(parms) {
   if (typeof html != "string"){
     //If a custom template is removed, then Designer and pui.render would crash when loading a screen using the missing template.
     console.log("Template,",parms.template,", did not exist. Reverting to simple container.");
-    html = pui.layout.templates[parms.template] = pui.layout.templates["simple container"];
+    html = pui.layout["templates"][parms.template] = pui.layout["templates"]["simple container"];
   }
   
   var properties = parms.properties;
