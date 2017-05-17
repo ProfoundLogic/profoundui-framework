@@ -5037,7 +5037,7 @@ pui.Grid = function() {
           
             if (!e) e = window.event;
           
-            if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey)) {
+            if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey && !e.metaKey)) {
               var numRows = me.hLines.length - 1;
               var clickedRow = row + me.recNum - (me.hasHeader ? 1 : 0);
 
@@ -5049,7 +5049,7 @@ pui.Grid = function() {
                 // -or-
                 //  It's a right click and they aren't on a selected row.
                 if (!isRight || (isRight && me.dataArray[clickedRow - 1].selected != true)) {
-                  if ((!e.ctrlKey) || (curRow != row)) {  
+                  if ((!e.ctrlKey && !e.metaKey) || (curRow != row)) {  
                     if (me.dataArray[i].selected == true) {
                       pui.modified = true;
                       me.dataArray[i].selected = false;
