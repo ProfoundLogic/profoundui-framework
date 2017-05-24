@@ -2775,8 +2775,9 @@ pui.Grid = function() {
     var rowNum = 0;
     if (me.hasHeader) rowNum++;
     for (var row = startRow; row <= endRow; row += multiple) {
-      me.dataArray[rowNum] = [];
-      me.dataArray[rowNum].selected = false;
+      var dataArrayRow = rowNum - (me.hasHeader ? 1 : 0);
+      me.dataArray[dataArrayRow] = [];
+      me.dataArray[dataArrayRow].selected = false;
       for (var x = 0; x < multiple; x++) {
         for (var i = 0; i < colArray[x].length; i++) {
           var col = colArray[x][i];
@@ -2796,7 +2797,7 @@ pui.Grid = function() {
           var pos;
           var fieldInfo;
           if (obj == null) {
-			//try an input field
+       			//try an input field
             id = "I_" + (row + x) + "_" + col;
             obj = getObj(id);
             if (obj == null) {
@@ -2840,7 +2841,7 @@ pui.Grid = function() {
             var div = document.createElement("div");
             div.className = objClass;
             div.innerHTML = text;
-            me.dataArray[rowNum][colNum] = text.replace(/&nbsp;/g, " ");
+            me.dataArray[dataArrayRow][colNum] = text.replace(/&nbsp;/g, " ");
             div.style.position = "absolute";
             left -= parseInt(cell.style.left);
             left -= parseInt(me.tableDiv.style.left);
