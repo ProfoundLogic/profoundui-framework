@@ -3696,7 +3696,7 @@ pui.evalIndicatorExpression = function(expression, data) {
 
 pui.showWaitAnimation = function() {
   var animation;
-  if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui.normalizeURL("/profoundui/proddata/images/loading.gif")) {
+  if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui.normalizeURL("/profoundui/proddata/images/loading.gif") && pui["loading animation"]["text"] == null) {
     animation = document.createElement("div");
     animation.className = pui["loading animation"]["css"];
   } else {
