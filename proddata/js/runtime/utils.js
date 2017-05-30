@@ -1223,7 +1223,10 @@ pui.sqlProps = {
   "choices database file" : null,
   "choice options field" : null,
   "choice values field" : null,
-  "choices selection criteria" : null
+  "choices selection criteria" : null,
+  "parameter value": null,
+  "choices parameter value": null,
+  "case sensitive": null
             
 };
 
