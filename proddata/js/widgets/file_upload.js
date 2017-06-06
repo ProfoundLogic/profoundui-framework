@@ -23,6 +23,7 @@ pui["fileupload"] = {};
 
 /**
  * File Upload Class
+ * @param {Object} container
  * @constructor
  */
 
@@ -47,7 +48,12 @@ pui["fileupload"].FileUpload = function(container) {
   var error = "";  
   var disabled = false;
   
-  var enhanced = false;
+  var MODE_STANDARD = 0;
+  var MODE_ENHANCED = 1;
+  var MODE_SINGLE = 2;
+  
+  var selectionMode = MODE_STANDARD;
+  
   var fileLimit = 1;
   var sizeLimit = 10;
   var targetDirectory = "";
@@ -67,11 +73,11 @@ pui["fileupload"].FileUpload = function(container) {
   this.render = function() {
 
     // Create selector only if not done before, or if we 
-    // are in single select mode.
+    // are in standard select mode.
     
-    // In single-select mode it is necessary to add a new selector once one is used to provide 
-    // multiple file upload. 
-    if (!enhanced || selectors.length == 0) {
+    // In standard-select mode it is necessary to add a new selector once one is used to provide 
+    // multiple file upload. In any mode, at least one selector is needed.
+    if (selectionMode == MODE_STANDARD || selectors.length == 0) {
     
       createSelector();
       
@@ -87,7 +93,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     var names = [];
     var sizes = [];
-    if (enhanced) {
+    if (selectionMode == MODE_ENHANCED) {
     
       for (var i = 0; i < selectors[0].input.files.length; i++) {
       
@@ -113,7 +119,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     for (var i = 0; i < names.length; i++) {
     
-      var name = names[i] + ((enhanced) ? " (" + formatBytes(sizes[i], 2) + ")" : ""); 
+      var name = names[i] + ((selectionMode == MODE_ENHANCED) ? " (" + formatBytes(sizes[i], 2) + ")" : ""); 
       var row = tBody.insertRow(-1);
       row.className = "row";
 	    if (i % 2 == 0) {
@@ -127,7 +133,8 @@ pui["fileupload"].FileUpload = function(container) {
 	    col.title = name;
 	    col.appendChild(document.createTextNode(name));
 	    
-	    if (!enhanced) {      
+	    if (selectionMode == MODE_STANDARD) {
+        // Show the Remove link for each file selected in standard mode.
 	          
   	    col = row.insertCell(-1);
   	    col.className = "remove-col";
@@ -148,7 +155,7 @@ pui["fileupload"].FileUpload = function(container) {
 	    
     }      
   
-  }
+  };
   
   this.setFileLimit = function(newLimit) {
   
@@ -158,7 +165,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
   this.setSizeLimit = function(newLimit) {
   
@@ -168,31 +175,47 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }  
+  };
   
+  /**
+   * Set the selection mode. If the mode changed, clear the selectors.
+   * @param {String} newMode
+   * @returns {undefined}
+   */
   this.setMode = function(newMode) {
   
+    var doclear = false;
     // It is necessary to clear all file selectors when the mode is changing.
-    if ((newMode == "enhanced" && !enhanced) || (newMode != "enhanced" && enhanced)) {
-    
-      enhanced = (newMode == "enhanced");
-      this["clear"]();
-    
+    if (newMode == "enhanced"){
+      if (selectionMode != MODE_ENHANCED) doclear = true;
+      selectionMode = MODE_ENHANCED;
     }
-  
-  }
+    else if(newMode == "standard"){
+      if (selectionMode != MODE_STANDARD) doclear = true;
+      selectionMode = MODE_STANDARD;
+    }
+    else if(newMode == "single"){
+      if (selectionMode != MODE_SINGLE) doclear = true;
+      selectionMode = MODE_SINGLE;
+    }
+    if (doclear) this["clear"]();
+  };
   
   this.getTargetDirectory = function() {
   
     return targetDirectory;
   
-  }
+  };
   
+  /**
+   * Return a list of file names selected.
+   * @returns {Array} Returns an array of strings.
+   */
   this.getFileNames = function() {
   
     var names = [];
   
-    if (enhanced) {
+    if (selectionMode == MODE_ENHANCED) {
     
       for (var i = 0; i < selectors[0].input.files.length; i++) {
       
@@ -217,7 +240,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     return names;   
   
-  }
+  };
   
   this.setTargetDirectory = function(value) {
   
@@ -232,7 +255,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
   this.setAltName = function(value) {
   
@@ -242,7 +265,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }  
+  };
   
   this.setDisabled = function(state) {
   
@@ -253,7 +276,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }  
   
-  }
+  };
   
   this.setOverwrite = function(value) {
   
@@ -263,13 +286,13 @@ pui["fileupload"].FileUpload = function(container) {
     
     }    
   
-  }
+  };
   
   this.setUploadEvent = function(value) {
 
     uploadEvent = value; 
   
-  }
+  };
   
   this.setAllowedTypes = function(types) {
   
@@ -279,14 +302,21 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
+  /**
+   * Return the number of files selected.
+   * @returns {Number}
+   */
   this.getCount = function() {
   
-    if (enhanced) {
+    if (selectionMode == MODE_ENHANCED) {
     
       return selectors[0].input.files.length;
     
+    }
+    else if (selectionMode == MODE_SINGLE){
+      return (selectors[0] != null && selectors[0].input.value != "" ? 1 : 0);
     }
     else {
     
@@ -295,7 +325,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
   this.validateCount = function() {
   
@@ -305,11 +335,15 @@ pui["fileupload"].FileUpload = function(container) {
     
     } 
   
-  }
+  };
   
+  /**
+   * Check for duplicate file names in standard selection.
+   * @returns {String|undefined}  Returns a string error message if a duplicate was found.
+   */
   this.validateNames = function() {
   
-    if (!enhanced) {
+    if (selectionMode == MODE_STANDARD) {
     
       var arr = this.getFileNames();
       var used = {};
@@ -327,7 +361,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
 
   this.upload = function() {
   
@@ -351,7 +385,7 @@ pui["fileupload"].FileUpload = function(container) {
       params["allowedTypes"] = allowedTypes;      
       params["files"] = [];
       
-      if (enhanced) {
+      if (selectionMode == MODE_ENHANCED) {
         
         for (var i = 0; i < selectors[0].input.files.length; i++) {
         
@@ -360,7 +394,7 @@ pui["fileupload"].FileUpload = function(container) {
         }
         
       }
-      else {
+      else if (selectionMode == MODE_STANDARD) {
        
         for (var i = 0; i < selectors.length - 1; i++) { // Prevent last unused control from posting.
           
@@ -368,6 +402,11 @@ pui["fileupload"].FileUpload = function(container) {
           
         }        
         
+      }
+      else if (selectionMode == MODE_SINGLE) {
+        if (selectors[0] != null && selectors[0].input.value != ""){
+          params["files"][0] = selectors[0].input.files[0];
+        }
       }
       
       pui.upload(params, function(success, errorMsg) {
@@ -433,7 +472,7 @@ pui["fileupload"].FileUpload = function(container) {
       }, timeout);
       
       // This prevents unused control from being posted.
-      if (!enhanced) {
+      if (selectionMode == MODE_STANDARD) {
       
         selectors[selectors.length - 1].input.disabled = true;
       
@@ -443,7 +482,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
   this["completeTransaction"] = function(id, response) {
   
@@ -495,7 +534,7 @@ pui["fileupload"].FileUpload = function(container) {
     }
     
     // This is disabled before submit.
-    if (!enhanced) {
+    if (selectionMode == MODE_STANDARD) {
     
       selectors[selectors.length - 1].input.disabled = false;
     
@@ -525,25 +564,25 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
   
-  }
+  };
   
   this.isSubmitting = function() {
   
     return (submitHandle != null);
   
-  }
+  };
   
   this.getError = function() {
   
     return error;
   
-  }
+  };
   
   this.getId = function() {
   
     return mainBox.id;
   
-  }
+  };
   
   this.doUploadEvent = function() {
   
@@ -571,13 +610,13 @@ pui["fileupload"].FileUpload = function(container) {
                 
         }
         
-      }
+      };
     
       func(obj);
     
     }  
   
-  }
+  };
   
   // API methods.
   this["clear"] = function() {
@@ -595,7 +634,7 @@ pui["fileupload"].FileUpload = function(container) {
     
     }  
   
-  }
+  };
 
   // Private methods.
 
@@ -653,10 +692,10 @@ pui["fileupload"].FileUpload = function(container) {
 	
 	function createSelector() {
 	
-	  // For single selection mode, remove current selector if unused.
+	  // For standard selection mode, remove current selector if unused.
 	  // Otherwise, hide it before a new one is created.
 	  var selector;
-    if (!enhanced) {
+    if (selectionMode == MODE_STANDARD) {
     
         if (selectors.length > 0) {
         
@@ -686,10 +725,10 @@ pui["fileupload"].FileUpload = function(container) {
 		input.type = "file";
 		input.className = "control";
 		
-		if (enhanced) {
+		if (selectionMode == MODE_ENHANCED) {
 		
 			input.multiple = true;
-			enhanced = (typeof(input.files) != "undefined");
+      if(typeof(input.files) == "undefined") selectionMode = MODE_STANDARD; //Fallback for older browsers.
 			
 			
 		}
@@ -900,7 +939,7 @@ pui["fileupload"].FileUpload = function(container) {
   
   }	
 
-}
+};
 
 pui.processUpload = function(param) {
 
@@ -923,7 +962,7 @@ pui.processUpload = function(param) {
   
   }
 
-}
+};
 
 pui.checkUploads = function(param) {
 
@@ -1049,12 +1088,12 @@ pui.checkUploads = function(param) {
     else {
     
       setTimeout(function() {
-        pui.checkUploads(param)
+        pui.checkUploads(param);
       }, interval);
     
     }
 
-}
+};
 
 pui.widgets.add({
 
