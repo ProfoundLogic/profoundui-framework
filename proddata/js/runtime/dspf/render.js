@@ -1329,10 +1329,32 @@ pui.renderFormat = function(parms) {
                     (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
                     (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&                  
                     (!formattingObj["curSym"] || formattingObj["curSym"] == "") && 
-                    (!formattingObj["units"] || formattingObj["units"] == "")) {   
-                                
-                  dom.type = "number";
+                    (!formattingObj["units"] || formattingObj["units"] == "")) {
+
+                  dom.type = "number";  //Field uses numeric keyboard in Android.
+                  //Note: iOS could show a number-only keyboard when .pattern="[0-9]*"; but that keyboard
+                  //has no "-", and Y format allows "-". The iOS keyboard  has numbers and characters.
                   
+                  //Browsers do not respect the maxlength attribute when input type="number"; so enforce the length manually. #3582.
+                  if (formattingObj["maxLength"] > 0){
+                    //Note: if the input were invalid (NaN), the .value property would be ""; so the length could not be
+                    //checked. Prevent a trailing dash from invalidating the value, and length enforcement still works.
+                    //Soft and hardware backspace keys do not fire textInput events.
+                    addEvent(dom, "textInput", function(e){
+                      var target = getTarget(e);
+                      if (target == null || target.value == null) return;
+                      //When the field is empty, .value is "" and validity.valid is true. Allow dash. When validity.valid 
+                      //is false, then the field is not empty. Prevent, because another dash would not make it valid.
+                      //If the field is not empty and is valid, a trailing dash would invalidate. Deny.
+                      if (e.data == "-" && target["validity"] != null
+                      && ((target.value != "" && target["validity"].valid ) || !target["validity"].valid) ){
+                        preventEvent(e);
+                      }
+                      //Prevent field from becoming too long.
+                      else if (target.maxLength > 0 && target.value.length >= target.maxLength)
+                        preventEvent(e);
+                    });
+                  } //endif maxLength > 0.
                 }
                 
               }
@@ -1994,6 +2016,14 @@ pui.renderFormat = function(parms) {
                 e = e || window.event;
                 pui.keyFilter(e, keyFilter);
               });
+              //Apply key filter to handle Android virtual keyboard keys, which don't always fire "keypress". Issue 3582.
+              if (dom.type == "number" && dom.formattingInfo["noExtraSpaces"] ){
+                addEvent(boxDom, "textInput", function(e) {
+                  e = e || window.event;
+                  if(!keyFilter.test(e.data))
+                    preventEvent(e);
+                });
+              }
             })();
           }
           if (dom.formattingInfo != null && dom.formattingInfo.edtMsk != null && dom.formattingInfo.edtMsk != "") {
