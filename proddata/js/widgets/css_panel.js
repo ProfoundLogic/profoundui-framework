@@ -36,6 +36,7 @@ pui.CSSPanelSection = function() {
   var layoutContainer;
   
   var swatch = "c";
+  var swatchLength = 1;
   
   var me = this;
 
@@ -73,20 +74,27 @@ pui.CSSPanelSection = function() {
   
   this.setSwatch = function(newSwatch) {
     if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "c";  // default
-    if (newSwatch.length > 1) newSwatch = newSwatch.substr(0, 1);
+
+    //Preconfigured themes A-G have the format 'A - Black'
+    //'B - Blue', etc. This makes sure only 'A', 'B', etc is used 
+    //for the class generation
+    var regex = / - {1}.*/g;
+    newSwatch = newSwatch.replace(regex, '');
+    
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
     var classes = mainSpan.className.split(" ");
     for (var i = 0; i < classes.length; i++) {
       var cls = classes[i];
-      if (cls.length > 2 && cls.substr(cls.length - 2, 2) == "-" + swatch) {
-        var newCls = cls.substr(0, cls.length - 1) + newSwatch;
+      if (cls.length > 2 && cls.substr(cls.length - (swatchLength + 1), swatchLength + 1) == "-" + swatch) {
+        var newCls = cls.substr(0, cls.length - swatchLength) + newSwatch;
         pui.removeCssClass(mainSpan, cls);
         pui.addCssClass(mainSpan, newCls);
         break;
       }
     }
     swatch = newSwatch;
+    swatchLength = swatch.length;
   }
   
   this.setStraightEdge = function(edge) {

@@ -36,6 +36,7 @@ pui.CSSButton = function() {
   var iconSpan;
   
   var swatch = "a";
+  var swatchLength = 1;
   var disabled = false;
   var iconShadowClass = " ui-icon-shadow";
   if (pui["is_firefox"]) iconShadowClass = "";
@@ -99,20 +100,27 @@ pui.CSSButton = function() {
   
   this.setSwatch = function(newSwatch) {
     if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "a";  // default
-    if (newSwatch.length > 1) newSwatch = newSwatch.substr(0, 1);
+    
+    //Preconfigured themes A-G have the format 'A - Black'
+    //'B - Blue', etc. This makes sure only 'A', 'B', etc is used 
+    //for the class generation
+    var regex = / - {1}.*/g;
+    newSwatch = newSwatch.replace(regex, '');
+
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
     var classes = link.className.split(" ");
     for (var i = 0; i < classes.length; i++) {
       var cls = classes[i];
-      if (cls.length > 2 && cls.substr(cls.length - 2, 2) == "-" + swatch) {
-        var newCls = cls.substr(0, cls.length - 1) + newSwatch;
+      if (cls.length > 2 && cls.substr(cls.length - (swatchLength + 1), swatchLength + 1) == "-" + swatch) {
+        var newCls = cls.substr(0, cls.length - swatchLength) + newSwatch;
         pui.removeCssClass(link, cls);
         pui.addCssClass(link, newCls);
         break;
       }
     }
     swatch = newSwatch;
+    swatchLength = swatch.length;
   }
   
   this.setIconPosition = function(pos) {
