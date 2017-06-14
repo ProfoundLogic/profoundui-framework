@@ -190,6 +190,9 @@ function TabPanel() {
   // This value is used in 3 places for themes that don't use images.
   var simpleSelectedTabBackgroundColor = "#B7C8F6";
   
+  // This is used to hide tabs dynamically
+  var hiddenTabs = {};
+  
   // Public Properties
   this.defaults = {};
   this.defaults.fontFamily = "arial";
@@ -205,6 +208,20 @@ function TabPanel() {
   
   
   // Public Methods  
+  this.hideTab = function(index) {
+    if (me.selectedTab == index) {
+      me.selectedTab = 0;
+      if (me.selectedTab == index) me.selectedTab = 1;
+    }
+    hiddenTabs[index] = true;
+    me.draw();
+  }
+  
+  this.showTab = function(index) {
+    hiddenTabs[index] = false;
+    me.draw();
+  }
+  
   this.setDefaultBackColor = function() {
     var settings = pui.widgets.tabStyles[me.tabStyle];
     if (settings != null && settings.defaultBackColor != null) {
@@ -298,6 +315,8 @@ function TabPanel() {
       // Create a parent span to encapsulate the tab text, left, and right border.
       var outerSpan = document.createElement("span");
       outerSpan.style.display = "inline-block";
+      if (hiddenTabs[i]) outerSpan.style.display = "none";
+      
       if (i == me.selectedTab) {
         if (me.container.pui.properties["css class"])
           outerSpan.className = me.container.pui.properties["css class"] + "-";
@@ -333,7 +352,7 @@ function TabPanel() {
       tabSpan.style.height = settings.height + "px";
       tabSpan.style.lineHeight = settings.height + "px";
       tabSpan.setAttribute("isTab", "true");
-      tabSpan.style.display = "inline-block";
+      tabSpan.style.display = "inline-block";      
       
       if (settings.useImages) {
         tabSpan.style.backgroundImage = "url(" + path + "middle" + (i == me.selectedTab ? "-sel" : "") + "." + extension + ")";
@@ -909,6 +928,12 @@ pui.widgets.add({
         };
         parms.dom.refresh = function() {
           parms.dom.setTab(parms.dom.getTab());
+        };
+        parms.dom["hideTab"] = function(index) {
+          parms.dom.tabPanel.hideTab(index);
+        };
+        parms.dom["showTab"] = function(index) {
+          parms.dom.tabPanel.hideTab(index);
         };
       }
     },
