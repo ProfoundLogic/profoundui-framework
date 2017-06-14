@@ -933,7 +933,7 @@ pui.widgets.add({
           parms.dom.tabPanel.hideTab(index);
         };
         parms.dom["showTab"] = function(index) {
-          parms.dom.tabPanel.hideTab(index);
+          parms.dom.tabPanel.showTab(index);
         };
       }
     },
