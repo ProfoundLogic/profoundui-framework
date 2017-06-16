@@ -204,6 +204,8 @@ pui.Grid = function() {
     text: ""
   };
   
+  this.propagateScrollEvents = false;
+  
   var me = this;
   
   var addRowIcon;
@@ -3881,6 +3883,15 @@ pui.Grid = function() {
       case "ondbload":
         ondbload = value;
         break;
+        
+      case "propagate scroll events":
+        if (value === true || value === "true") {
+          me.propagateScrollEvents = true;
+        }
+        else {
+          me.propagateScrollEvents = false;
+        }
+        break;
 
       default:
       if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
@@ -6997,6 +7008,7 @@ pui.Grid = function() {
       { name: "column widths", type: "list", help: "Specifies a comma separated list of column widths for this grid.", bind: false, canBeRemoved: false },
       { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: (context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid.  If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid.  A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only." },
       { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
+      { name: "propagate scroll events", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.", context: "dspf" },
       { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Enables column sorting.  If set to true, the user will be able to click on the column headings to resort the data.", context: "dspf" },
       { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: "Specifies the default order for sortable columns.  When the user clicks a column, the default sort order is used initially.  To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list.  Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.", context: "dspf" },
       { name: "initial sort column", format: "number", help: "This property specifies the column used to for inital sorting.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.", context: "dspf" },

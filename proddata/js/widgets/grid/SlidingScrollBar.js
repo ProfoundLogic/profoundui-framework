@@ -246,7 +246,10 @@ pui.SlidingScrollBar = function() {
           var row = (me.totalRows - me.rowsPerPage) * pct;
           row = Math.round(row) + 1;
           me.doScroll(row);
-          e.preventDefault();
+          var prevent = true;
+          if (me.gridDom && me.gridDom.grid.propagateScrollEvents) prevent = false;
+          if (prevent)
+             e.preventDefault();
         }
         addEvent(touchHandle, "touchmove", touchmove);
         addEvent(gridDom, "touchmove", touchmove);
@@ -670,8 +673,12 @@ pui.SlidingScrollBar = function() {
        * That might be ugly, but we handle scrolls somehow
        * anyway, so don't bother here..
        */
-      if (event.preventDefault)
-              event.preventDefault();
+      var prevent = false;
+      if (event.preventDefault) prevent = true;
+      if (me.gridDom && me.gridDom.grid.propagateScrollEvents) prevent = false;
+      if (prevent)
+        event.preventDefault();
+      
       event.returnValue = false;
     }
     
