@@ -1150,8 +1150,15 @@ pui.Grid = function() {
       var elem = elems[0];
       if (elem != null) {
         // This is not always a dom element, such as with 'selection field', etc.
-        if (!elem.tagName) return elem.value;
-        else return getElementValue(elem);
+        if (!elem.tagName) {
+          if (typeof elem.responseValue != "undefined")
+            return elem.responseValue;
+          else
+            return elem.value; 
+        }
+        else {
+          return getElementValue(elem);
+        }
       }      
     }
     var columnIndex = getColumnIndex(fieldName);
