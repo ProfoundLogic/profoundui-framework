@@ -976,6 +976,10 @@ pui.FieldFormat = {
           // But 12:00:01 (AM) must produce 00:00:01.
           // Replace 'R' formatting character with 'H' before sending back to the server to prevent a time greater than '24:00:00'
           parsedKWs.internal = parsedKWs.internal.replace(/([^\\]?)R/g, '$1' + 'H');
+           if(obj.dataType == "char" && (obj.timeFormat == "H:i" || obj.timeFormat == "H:i:s")){
+            //parseKWs.internal has a common value H.i.s/R.i.s which is now change if obj.timeFormat is different. 
+           parsedKWs.internal = "H:i:s";
+          }
           return d.format(parsedKWs.internal, locale);
         }
       }
