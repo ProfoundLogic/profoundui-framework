@@ -153,9 +153,8 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.overflowX = "hidden";
     choicesDiv.style.overflowY = "auto";
     choicesDiv.style.height = fixedHeight + "px";
-    choicesDiv.style.backgroundColor = "#EAF2FB";
-    choicesDiv.style.border = "1px solid #A4BED4";
-    choicesDiv.style.zIndex = 130;    
+    choicesDiv.style.zIndex = 130; 
+	choicesDiv.className = "combo-options";
   }
 
   this.draw = function() {
@@ -316,24 +315,18 @@ pui.ComboBoxWidget = function() {
     for (var i = 0; i < me["choices"].length; i++) {
       var optDiv = document.createElement("div");
       optDiv.innerHTML = me["choices"][i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-      optDiv.style.whiteSpace = "nowrap";
       optDiv.choiceValue = me["choice values"][i];
       if (optDiv.choiceValue == null) optDiv.choiceValue =  me["choices"][i];
       optDiv.choiceText =  me["choices"][i];
-      optDiv.style.overflow = "hidden";
       optDiv.style.fontFamily = box.style.fontFamily;
-      optDiv.style.fontSize = "12px";
-      optDiv.style.padding = "2px";
-      optDiv.style.cursor = "default";
+	  optDiv.className = "combo-option";
       optDiv.onmouseover = function(e) {
         var target = getTarget(e);
-        target.style.backgroundImage = "url(" + pui.normalizeURL("/profoundui/proddata/images/combo/selection_background.gif") + ")";
-        target.style.backgroundPosition = "center bottom";
-        target.style.backgroundRepeat = "repeat-x";
+		target.className = "combo-option-select";
       }
       optDiv.onmouseout = function(e) {
         var target = getTarget(e);
-        target.style.backgroundImage = "";
+		target.className = "combo-option";
       }
       optDiv.onmousedown = function(e) {
         preventEvent(e);
