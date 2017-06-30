@@ -71,8 +71,8 @@ pui.layout.Layout = function() {
           itm.designer.propWindow.refresh();
         }
       }
-    }
-  }
+    };
+  };
   
   this.hasChildren = function() {
     var containers = pui.layout.template.getContainers(me.layoutDiv);
@@ -81,7 +81,7 @@ pui.layout.Layout = function() {
       if (container.firstChild != null) return true;
     }
     return false;
-  }
+  };
 
   this.getChildren = function(parms) {
     if (parms == null) parms = {};
@@ -99,12 +99,12 @@ pui.layout.Layout = function() {
       }
     }
     return children;
-  }
+  };
   
   this.setPropertiesModel = function() {
     me.layoutDiv.propertiesModel = pui.layout.getProperties(me.template);
     me.layoutDiv.propertiesNamedModel = makeNamedModel(me.layoutDiv.propertiesModel);
-  }
+  };
  
   this.applyTemplate = function() {
     var parms = {
@@ -127,7 +127,7 @@ pui.layout.Layout = function() {
     }
     me.setPropertiesModel();
     return rv;
-  }
+  };
 
   this.updatePropertyInDesigner = function(propertyName, value) {
     if (!me.designMode) return false;
@@ -146,7 +146,7 @@ pui.layout.Layout = function() {
       return true;
     }
     return false;
-  }  
+  };
 
   this.stretch = function() {
     var dims = [];
@@ -154,7 +154,8 @@ pui.layout.Layout = function() {
       var container = me.stretchList[i];
       container.style.width = "";
       container.style.height = "";
-      container.style.display = "none";
+      //For Android, don't hide the container while it is resizing. Issue 2512.
+      if(!pui["is_android"]) container.style.display = "none";
     }
     for (var i = 0; i < me.stretchList.length; i++) {
       var container = me.stretchList[i];
@@ -177,13 +178,13 @@ pui.layout.Layout = function() {
     }
     me.sizeContainers();
     me.center();
-  }
+  };
   
   this.sizeContainers = function() {
     for (var i = 0; i < me.containers.length; i++) {
       sizeContainer(me.containers[i]);
     }
-  }
+  };
   
   this.center = function() {
     var hor = me.centerHor;
@@ -222,7 +223,7 @@ pui.layout.Layout = function() {
       }    
       me.layoutDiv.style.top = layoutTop + "px";
     }
-  }
+  };
 
   this.setProperty = function(property, value) {
     if (value == null) value = "";
@@ -349,7 +350,7 @@ pui.layout.Layout = function() {
             catch(err) {
               pui.alert(property.substr(0,1).toUpperCase() + property.substr(1) + " Error:\n" + err.message);        
             }
-          }
+          };
           me.layoutDiv[property] = func;
         }
         break;
@@ -425,7 +426,7 @@ pui.layout.Layout = function() {
             catch(err) {
               pui.alert("Onexpand Error:\n" + err.message);        
             }
-          }
+          };
         }
         break;
 
@@ -445,7 +446,7 @@ pui.layout.Layout = function() {
         }
         break;  
     }
-  }
+  };
   
   this.applyScrolling = function() {
     function setupiScroll() {
@@ -495,7 +496,7 @@ pui.layout.Layout = function() {
         keepTryingToSetupiScroll();
       }
     }      
-  }
+  };
 
   this.onresize = function() {
     if (me.assignHeightOnResize == true) {
@@ -513,7 +514,7 @@ pui.layout.Layout = function() {
       me.setProperty("height", height);
     }
     me.stretch();
-  }
+  };
   
   
   this.destroy = function() {
@@ -528,6 +529,6 @@ pui.layout.Layout = function() {
     me.templateProps = null;
     me.stretchList = null;
     me = null;
-  }
+  };
   
-}
+};
