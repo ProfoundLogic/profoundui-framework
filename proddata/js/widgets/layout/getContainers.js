@@ -42,19 +42,40 @@ pui.layout.template.getContainers = function(dom) {
   
   return containers;
  
-}
+};
 
-
-
-
+/**
+ * Return a list of each layout with screen positions. The list is ordered so that higher-level layouts 
+ * (those inside other layouts) are first in the list. A child layout should always appear in the list 
+ * before a parent layout, because checkLayouts() in Resizer.js expects that order.
+ * 
+ * @param {Object} designer     The Visual Designer object; e.g. window.toolbar.designer.
+ * @returns {Array}
+ */
 pui.layout.template.getContainerPositions = function(designer) {
   var positions = [];
   var layouts = designer.layouts;
-  layouts.sort(function(layout1, layout2) {
-    if (pui.designer.isDescendant(layout1.dom, layout2.dom, designer.container)) return 1;
-    if (pui.designer.isDescendant(layout2.dom, layout1.dom, designer.container)) return -1;
-    return 0;
+  
+  //Get the level of each layout into a map: temporary array to hold objects with position and sort-value.
+  //Use a map to improve sort performance: array.sort may call the comparison functions often. Screens 
+  //with many layouts may slow down each time the user clicks an item. 
+  //Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+  var mapped = designer.layouts.map(function(el, i){
+    return { index: i, value: el.getLayoutLevel() };
   });
+  
+  //Sort the list. Parent layouts should always be later in the list than child layouts. See issue 3662.
+  mapped.sort(function(layout1, layout2) {
+    if (layout1.value > layout2.value) return -1;  //the first has a higher level, so move it toward the beginning.
+    if (layout1.value < layout2.value) return 1;   //the first has a lower level, so move it toward the end.
+    return 0;   //the levels were the same, so leave them in the same positions in the list (relative to each other).
+  });
+  
+  //Get the sorted list of layouts.
+  var layouts = mapped.map(function(el){
+    return designer.layouts[ el.index ];
+  });
+  
   for (var i = 0; i < layouts.length; i++) {
     var layout = layouts[i];
     var div = layout.dom;
@@ -90,7 +111,7 @@ pui.layout.template.getContainerPositions = function(designer) {
   }
   designer.layoutContainerPositions = positions;
   return positions;
-}
+};
 
 
 
@@ -130,6 +151,6 @@ pui.layout.getContainerOffset = function(containerDom) {
   return {
     x: x,
     y: y
-  }
-}
+  };
+};
 
