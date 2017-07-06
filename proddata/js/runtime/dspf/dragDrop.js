@@ -202,7 +202,12 @@ pui.attachDragDrop = function(dom, properties) {
     executeEvent("ondragstart");
 
     function mousemove(event) {
-    
+      var y = getMouseY(event) - cursorStartY;
+      var x = getMouseX(event) - cursorStartX;
+
+      //For Issue 3634, Chrome has a bug where the mousemove would get called with a mousedown. This will let the click event occur if defined. 
+      if (x == 0 && y == 0) return true;
+
       if (!pui.hasParent(proxy)) {
         document.body.appendChild(proxy);
       }
@@ -215,8 +220,8 @@ pui.attachDragDrop = function(dom, properties) {
       
       }
     
-      var y = getMouseY(event) - cursorStartY + offsetY;
-      var x = getMouseX(event) - cursorStartX + offsetX;
+      y = y + offsetY;
+      x = x + offsetX;
       proxy.style.top = (startDomY + y) + "px";
       proxy.style.left = (startDomX + x) + "px";
       
