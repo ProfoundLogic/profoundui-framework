@@ -550,7 +550,7 @@ pui["runtimeMsg"]["de_DE"]["invalid high range"]      = "Wert muss kleiner oder 
 pui["runtimeMsg"]["de_DE"]["invalid range"]           = "Gültiger Bereich ist zwischen &1 und &2";
 pui["runtimeMsg"]["de_DE"]["unmonitored exception"]   = "Das Programm hat einen nicht überwachten Fehler gefunden. Bitte kontaktieren Sie ihren Systemadministrator.";
 pui["runtimeMsg"]["de_DE"]["loading"]		      = "übertragen...";
-
+pui["runtimeMsg"]["de_DE"]["subfile deletion"]        = "Wollen Sie wirklich die Subfile löschen?"; 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
 pui["runtimeText"]["de_DE"]["upload remove text"]   = "Entfernen";
@@ -953,6 +953,7 @@ pui["runtimeMsg"]["fr_FR"]["adding x"]                = "Ajout en cours de &1...
 pui["runtimeMsg"]["fr_FR"]["deleting x"]              = "Suppession en cours de &1 ...";
 pui["runtimeMsg"]["fr_FR"]["reassigning x"]           = "Réassignement en cuors de &1...";
 pui["runtimeMsg"]["fr_FR"]["loading"]                 = "Chargement...";
+pui["runtimeMsg"]["fr_FR"]["subfile deletion"]        = "Êtes-vous certain de vouloir supprimer le sous-fichier?";
 pui["runtimeMsg"]["fr_FR"]["saving"]                  = "Enregistrement en cours...";
 pui["runtimeMsg"]["fr_FR"]["x added"]                 = "&1 ajouté(e).";
 pui["runtimeMsg"]["fr_FR"]["x deleted"]               = "&1 supprimé(e).";
