@@ -78,7 +78,14 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
       }
       if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function"){
         pui["ontimeout"]();
-      }      
+      }
+      if (pui.genie != null && pui.genie["close atrium tab on timeout"] == true) {
+        if (window.parent != window && pui.checkForAtrium(window.parent)) {
+          window["Atrium"]["closeTab"]();
+          return;
+        }
+      }
+      
     },
     "onfail": function(req) {
       showMessage(document.body);
