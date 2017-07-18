@@ -594,7 +594,7 @@ pui.FieldFormat = {
         }
       }
       var parts;
-      if(obj.numSep){
+      if(obj.numSep === "true" || obj.numSep === true){
         if (commaDecimal) value = value.replace(/\./g, '');
         else value = value.replace(/,/g, '');
         parts = value.split(decimalChar);
