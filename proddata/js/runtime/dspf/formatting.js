@@ -579,9 +579,12 @@ pui.FieldFormat = {
     },
     revert: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
+      
       var decimalChar = ".";
       if (commaDecimal) decimalChar = ",";
-      var value = obj.value + '';
+      
+      var value = String(obj.value);
+      
       if (obj.edtWrd != null && obj.edtWrd != null) {
         var originalValue = value;
         value = "";
@@ -593,16 +596,15 @@ pui.FieldFormat = {
           value += ch;
         }
       }
-      var parts;
+
       if(obj.numSep === "true" || obj.numSep === true){
         if (commaDecimal) value = value.replace(/\./g, '');
         else value = value.replace(/,/g, '');
-        parts = value.split(decimalChar);
-        if(parts.length > 1){
-          if (commaDecimal) parts[0] = parts[0].replace(/\./g, '');
-          else parts[0] = parts[0].replace(/,/g, '');
-          value = parts.join('.');
-        }
+      }
+      
+      var parts = value.split(decimalChar);
+      if(parts.length > 1){
+        value = parts.join('.');
       }
       
       if (obj.curSym){
@@ -631,6 +633,7 @@ pui.FieldFormat = {
         }
         value = '-' + value;
       }
+      
       if (valid && value == "-") {
         valid = false;
       }
