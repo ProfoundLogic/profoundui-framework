@@ -645,7 +645,7 @@ pui["runtimeMsg"]["pt_PT"]["invalid high range"]      = "O valor deve ser menor 
 pui["runtimeMsg"]["pt_PT"]["invalid range"]           = "O Intervalo válido é de &1 a &2";
 pui["runtimeMsg"]["pt_PT"]["unmonitored exception"]   = "A aplicação encontrou uma excepção não monitorizada. Por favor conte o administrador de systema.";
 pui["runtimeMsg"]["pt_PT"]["loading"] 		      = "A carregar...";
-
+pui["runtimeMsg"]["pt_PT"]["subfile deletion"]        = "Tem certeza que deseja excluir o subarquivo?";  
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
 pui["runtimeText"]["pt_PT"]["upload remove text"]   = "Remover";
@@ -1379,7 +1379,7 @@ pui["runtimeMsg"]["it_IT"]["invalid high range"]      = "Il valore deve essere m
 pui["runtimeMsg"]["it_IT"]["invalid range"]           = "Intervallo valido da &1 a &2";
 pui["runtimeMsg"]["it_IT"]["unmonitored exception"]   = "Il programma ha raggiunto un'eccezione non gestita. Per assistenza, si prega di contattare l'amministratore di sistema.";
 pui["runtimeMsg"]["it_IT"]["loading"]                 = "Caricamento...";  
-
+pui["runtimeMsg"]["it_IT"]["subfile deletion"]        = "Sei sicuro di che voler eliminare il subfile?";
 pui["runtimeText"]["it_IT"]["upload select text"]   = "Seleziona File";
 pui["runtimeText"]["it_IT"]["upload clear text"]    = "Cancella";
 pui["runtimeText"]["it_IT"]["upload remove text"]   = "Rimuovi";
@@ -1567,6 +1567,8 @@ pui["runtimeMsg"]["nl_NL"]["invalid low range"]       = "Waarde moet zijn groter
 pui["runtimeMsg"]["nl_NL"]["invalid high range"]      = "Waarde moet zijn kleiner of gelijk aan &1";
 pui["runtimeMsg"]["nl_NL"]["invalid range"]           = "Waarde moet liggen tussen &1 en &2.";
 pui["runtimeMsg"]["nl_NL"]["unmonitored exception"]   = "Het programma heeft een fout ontdekt. Voor hulp neem contact op met de systeembeheerder.";
+pui["runtimeMsg"]["nl_NL"]["loading"]                 = "bezig met laden...";
+pui["runtimeMsg"]["nl_NL"]["subfile deletion"]        = "Weet u zeker dat u wilt verwijderen de subfile?";
 // Atrium
 pui["runtimeMsg"]["nl_NL"]["num sessions exceeded"]   = "Aantal toegestane sessies is overschreden.";
 pui["runtimeMsg"]["nl_NL"]["unable to load portal"]   = "Kan de portal instellingen of onderdelen van de navigatie niet laden.";
