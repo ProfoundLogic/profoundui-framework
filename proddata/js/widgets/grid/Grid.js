@@ -4386,7 +4386,10 @@ pui.Grid = function() {
         if (columnPointer != null) {
           columnPointer.style.display = "none";
           if (columnPointer.matchedCol != null) {
+            var itm = me.tableDiv.designItem;
+            itm.designer.undo.addSnapshot("Move Column", itm.designer);
             me.moveColumn(cell.col, columnPointer.matchedCol);
+            var columnWasMoved = true;
             columnPointer.matchedCol = null;            
             if (persistState) { 
               var colSequence = [];
@@ -4405,7 +4408,7 @@ pui.Grid = function() {
               var designer = itm.designer;
               if (designer.dropContainer != null) {
               
-                designer.undo.clear();
+                designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
                 var container = designer.dropContainer;
               
                 var top;
@@ -4459,7 +4462,7 @@ pui.Grid = function() {
                 if (inLayoutContainer) {              
                   if (designer.proxyDiv.style.display == "") {
                     // move outside of container onto the main screen
-                    designer.undo.clear(); 
+                    designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
 
                     var diffTop = parseInt(designer.proxyDiv.style.top) - parseInt(itm.dom.style.top);
                     var diffLeft = parseInt(designer.proxyDiv.style.left) - parseInt(itm.dom.style.left);              
@@ -4490,7 +4493,9 @@ pui.Grid = function() {
 
             }
             else {
-              me.tableDiv.designItem.designer.undo.removeLastGroup();
+              if (!columnWasMoved) {
+                me.tableDiv.designItem.designer.undo.removeLastGroup();
+              }
             }
           }
           me.sendToDesigner();
@@ -4509,10 +4514,12 @@ pui.Grid = function() {
         var selection = designer.selection;
         var undoText = "Move Selection";
         if (selection.resizers.length == 1) undoText = "Move Grid";
-        designer.undo.start(undoText);
-        designer.undo.noRefresh = true;
-        selection.addToUndo(["left", "top", "parent tab panel", "parent tab panel"]);
-        designer.undo.noRefresh = false;
+         if (!(me.hasHeader && cell.row == 0)) {
+          designer.undo.start(undoText);
+          designer.undo.noRefresh = true;
+          selection.addToUndo(["left", "top", "parent tab panel", "parent tab panel"]);
+          designer.undo.noRefresh = false;
+        }
       }      
     }
     addEvent(cell, "mousedown", mousedown);
@@ -5865,8 +5872,7 @@ pui.Grid = function() {
     if (me.designMode) {
       // adjust grid properties
       var changed = false; 
-      var itm = me.tableDiv.designItem;
-      itm.designer.undo.clear();
+      var itm = me.tableDiv.designItem;      
       var jsonAvailable = (JSON != null && typeof JSON.parse == "function" && typeof JSON.stringify == "function");
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
