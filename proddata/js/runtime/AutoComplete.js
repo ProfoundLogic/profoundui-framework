@@ -1146,8 +1146,9 @@ function applyAutoComp(properties, originalValue, domObj) {
             }
             
             if (query == "") return false;
-            query = query.replace(/'/g, "''");  // '
+            
             if (pui["secLevel"] > 0) {
+              
               if (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true") {
                 query = "%" + trim(query) + "%";
               }
@@ -1158,9 +1159,9 @@ function applyAutoComp(properties, originalValue, domObj) {
               baseParams["p1"] = query;
               pui.getSQLParams(properties, baseParams);
               
-              
             }
             else {
+              query = query.replace(/'/g, "''");  // escape single quotes only when secLevel=0
               baseParams["q"] = pui.aes.encryptString(sql.replace("!!QUERY!!", query));
             }
           } : null,
@@ -1255,7 +1256,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         if (pui["secLevel"] > 0) {
         
           req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(domObj)) + ".reverse";
-          req["postData"] += "&p1=" + encodeURIComponent(rtrim(domObj.value).replace("'", "''"));
+          req["postData"] += "&p1=" + encodeURIComponent(rtrim(domObj.value));
         
           var pstring = pui.getSQLParams(properties);
           if (pstring != "") {
