@@ -1443,6 +1443,7 @@ pui.renderFormat = function(parms) {
                     newDom.parentTab = dom.parentTab;                    
                     newDom.onblur = dom.onblur;
                     newDom.onchange = dom.onchange;
+                    newDom.oninput = dom.oninput;
                     newDom.onclick = dom.onclick;
                     newDom.ondblclick = dom.ondblclick;
                     newDom.onfocus = dom.onfocus;

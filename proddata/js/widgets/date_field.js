@@ -431,6 +431,9 @@ function calendar_select() {
   if (pui.currentDateField.onchange != null) {
     pui.currentDateField.onchange();
   }
+  if (pui.currentDateField.oninput != null) {
+    pui.currentDateField.oninput();
+  }
   pui.checkEmptyText(pui.currentDateField);
 }
 

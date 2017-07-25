@@ -346,6 +346,7 @@ function getPropertiesModel() {
     { name: "Events", category: true },
     { name: "onblur", type: "js", help: "Initiates a client-side script when the element loses focus." },
     { name: "onchange", type: "js", help: "Initiates a client-side script when the element value is changed." },
+    { name: "oninput", controls: ["combo box", "date field", "password field", "spinner", "text area", "textbox"], type: "js", help: "Initiates a client-side script immediately after any input is entered into the element without waiting for the element to lose focus." },
     { name: "onclick", type: "js", help: "Initiates a client-side script when the element is clicked." },
     { name: "ondblclick", type: "js", help: "Initiates a client-side script when the element is double-clicked." },
     { name: "ondbload", controls: ["select box", "combo box", "textbox", "chart"], type: "js", help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>" },
