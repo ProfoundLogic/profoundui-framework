@@ -4162,7 +4162,13 @@ pui.Grid = function() {
     if (hover == true && me.zoomIcon != null) me.zoomIcon.style.display = "";
   };
   
-  // set design events on a cell div
+  /**
+   * Setup design events on a cell div. Needed for Genie design mode and in Visual Designer.
+   * Handle dragging of cells to move the grid, including into and out of layouts.
+   * @param {Object} cell
+   * @param {Boolean} movableColumns
+   * @returns {undefined}
+   */
   function cellDesign(cell, movableColumns) {
     if (!me.designMode && movableColumns != true) return;
     if (!me.designMode && movableColumns == true) {
@@ -4383,13 +4389,14 @@ pui.Grid = function() {
           headerCellProxy = null;
           headerCellProxyContainer = null;
         }
+        var columnWasMoved = false;
         if (columnPointer != null) {
           columnPointer.style.display = "none";
           if (columnPointer.matchedCol != null) {
             var itm = me.tableDiv.designItem;
             itm.designer.undo.addSnapshot("Move Column", itm.designer);
             me.moveColumn(cell.col, columnPointer.matchedCol);
-            var columnWasMoved = true;
+            columnWasMoved = true;
             columnPointer.matchedCol = null;            
             if (persistState) { 
               var colSequence = [];
@@ -4407,83 +4414,12 @@ pui.Grid = function() {
 
               var designer = itm.designer;
               if (designer.dropContainer != null) {
-              
-                designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
-                var container = designer.dropContainer;
-              
-                var top;
-                var left;
-                if (designer.proxyDiv.style.display == "") {
-                  top = parseInt(designer.proxyDiv.style.top);
-                  left = parseInt(designer.proxyDiv.style.left);
-                }
-                else {
-                  top = parseInt(itm.dom.style.top);
-                  left = parseInt(itm.dom.style.left);
-                }
-                var offset = pui.layout.getContainerOffset(container);
-                left = left - offset.x;
-                top = top - offset.y;
-              
-                if (designer.selection.snapToGrid) {
-                  left = designer.selection.snap(left, pui.multX);
-                  top = designer.selection.snap(top, pui.multY);
-                }
-                
-                var diffTop = top - parseInt(itm.dom.style.top);
-                var diffLeft = left - parseInt(itm.dom.style.left);              
-                me.doThisToTableDivs(function(domObj) {
-                  domObj.parentNode.removeChild(domObj);
-                  container.appendChild(domObj);
-                  domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
-                  domObj.style.left = (parseInt(domObj.style.left) + diffLeft) + "px";
-                });
-                if (me.scrollbarObj != null) me.scrollbarObj.changeContainer(container);
-                if (me.pagingBar != null) me.pagingBar.changeContainer(container);
-                me.container = container;
-                if (me.tableDiv.sizeMe != null && typeof me.tableDiv.sizeMe == "function") me.tableDiv.sizeMe();
-                me.setScrollBar();
-
-                itm.properties.top = top + "px";
-                itm.properties.left = left + "px";
-                
-                designer.columnHiDiv.style.display = "none";
-                designer.proxyDiv.style.display = "none";
-                designer.dropContainer = null;            
-                designer.selection.clear();
-                designer.selection.add(itm);
-                designer.addSelectionToTabs();
-                pui.ide.refreshElementList();              
-              
-              }
-              
-              else {            
+                me.moveGridToDropContainer();
+              } else {            
               
                 if (inLayoutContainer) {              
                   if (designer.proxyDiv.style.display == "") {
-                    // move outside of container onto the main screen
-                    designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
-
-                    var diffTop = parseInt(designer.proxyDiv.style.top) - parseInt(itm.dom.style.top);
-                    var diffLeft = parseInt(designer.proxyDiv.style.left) - parseInt(itm.dom.style.left);              
-                    me.doThisToTableDivs(function(domObj) {
-                      domObj.parentNode.removeChild(domObj);
-                      designer.container.appendChild(domObj);
-                      domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
-                      domObj.style.left = (parseInt(domObj.style.left) + diffLeft) + "px";
-                    });                           
-                    if (me.scrollbarObj != null) me.scrollbarObj.changeContainer(designer.container);
-                    if (me.pagingBar != null) me.pagingBar.changeContainer(designer.container);
-                    me.container = designer.container;
-                    me.setScrollBar();
-                    
-                    itm.properties.top = designer.proxyDiv.style.top;
-                    itm.properties.left = designer.proxyDiv.style.left;                
-                    designer.proxyDiv.style.display = "none";               
-                    designer.selection.clear();
-                    designer.selection.add(itm);
-                    designer.addSelectionToTabs();
-                    pui.ide.refreshElementList();                  
+                    me.moveGridToMainCanvas();
                   }
                 }
                 designer.addSelectionToTabs();
@@ -4514,16 +4450,109 @@ pui.Grid = function() {
         var selection = designer.selection;
         var undoText = "Move Selection";
         if (selection.resizers.length == 1) undoText = "Move Grid";
-         if (!(me.hasHeader && cell.row == 0)) {
+        if (!(me.hasHeader && cell.row == 0)) {
           designer.undo.start(undoText);
           designer.undo.noRefresh = true;
           selection.addToUndo(["left", "top", "parent tab panel", "parent tab panel"]);
           designer.undo.noRefresh = false;
         }
-      }      
+      }
     }
     addEvent(cell, "mousedown", mousedown);
   }
+  
+  /**
+   * In Visual Designer, moves the grid inside a layout container. This is called on mouseup (when dragging the grid), or when
+   * the grid's record in the Designer Elements panel is moved into a layout record. designer.dropContainer must not be null.
+   * 
+   * @returns {undefined}
+   */
+  this.moveGridToDropContainer = function(){
+    var itm = me.tableDiv.designItem;
+    var designer = itm.designer;
+
+    designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
+    var container = designer.dropContainer;
+
+    var top;
+    var left;
+    if (designer.proxyDiv.style.display == "") {
+      top = parseInt(designer.proxyDiv.style.top);
+      left = parseInt(designer.proxyDiv.style.left);
+    }
+    else {
+      top = parseInt(itm.dom.style.top);
+      left = parseInt(itm.dom.style.left);
+    }
+    var offset = pui.layout.getContainerOffset(container);
+    left = left - offset.x;
+    top = top - offset.y;
+
+    if (designer.selection.snapToGrid) {
+      left = designer.selection.snap(left, pui.multX);
+      top = designer.selection.snap(top, pui.multY);
+    }
+
+    var diffTop = top - parseInt(itm.dom.style.top);
+    var diffLeft = left - parseInt(itm.dom.style.left);              
+    me.doThisToTableDivs(function(domObj) {
+      domObj.parentNode.removeChild(domObj);
+      container.appendChild(domObj);
+      domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
+      domObj.style.left = (parseInt(domObj.style.left) + diffLeft) + "px";
+    });
+    if (me.scrollbarObj != null) me.scrollbarObj.changeContainer(container);
+    if (me.pagingBar != null) me.pagingBar.changeContainer(container);
+    me.container = container;
+    if (me.tableDiv.sizeMe != null && typeof me.tableDiv.sizeMe == "function") me.tableDiv.sizeMe();
+    me.setScrollBar();
+
+    itm.properties.top = top + "px";
+    itm.properties.left = left + "px";
+
+    designer.columnHiDiv.style.display = "none";
+    designer.proxyDiv.style.display = "none";
+    designer.dropContainer = null;            
+    designer.selection.clear();
+    designer.selection.add(itm);
+    designer.addSelectionToTabs();
+    pui.ide.refreshElementList();
+  };
+  
+  /**
+   * In Visual Designer, move the grid to the main canvas. Called in mouseup handler or when the "Move to main canvas" button 
+   * was pressed in Designer Elements panel. Grid must be inLayoutContainer, inDesignMode when this is called.
+   * 
+   * @returns {undefined}
+   */
+  this.moveGridToMainCanvas = function(){
+    var designItem = me.tableDiv.designItem;
+    var designer = designItem.designer;
+    
+    // move outside of container onto the main screen
+    designer.undo.addSnapshot("Move " + designer.selection.getUndoDescription(), designer);
+
+    var diffTop = parseInt(designer.proxyDiv.style.top) - parseInt(designItem.dom.style.top);
+    var diffLeft = parseInt(designer.proxyDiv.style.left) - parseInt(designItem.dom.style.left);              
+    me.doThisToTableDivs(function(domObj) {
+      domObj.parentNode.removeChild(domObj);
+      designer.container.appendChild(domObj);
+      domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
+      domObj.style.left = (parseInt(domObj.style.left) + diffLeft) + "px";
+    });                           
+    if (me.scrollbarObj != null) me.scrollbarObj.changeContainer(designer.container);
+    if (me.pagingBar != null) me.pagingBar.changeContainer(designer.container);
+    me.container = designer.container;
+    me.setScrollBar();
+
+    designItem.properties.top = designer.proxyDiv.style.top;
+    designItem.properties.left = designer.proxyDiv.style.left;                
+    designer.proxyDiv.style.display = "none";               
+    designer.selection.clear();
+    designer.selection.add(designItem);
+    designer.addSelectionToTabs();
+    pui.ide.refreshElementList();  
+  };
   
   function moveCellContent(fromCell, toCell) {
     var objs = [];
@@ -4717,14 +4746,14 @@ pui.Grid = function() {
       if (i < lines.length - 1) me.rowHeight = parseInt(lines[i+1].style.top) - parseInt(lines[i].style.top);
       else me.rowHeight = parseInt(lines[i].style.top) - parseInt(lines[i-1].style.top);
       var curTop = top;
-      for (j = i + 1; j < lines.length; j++) {
+      for (var j = i + 1; j < lines.length; j++) {
         curTop += me.rowHeight;
         lines[j].style.top = curTop + "px";
       }
       curTop = top;
       var downto = 0;
       if (me.hasHeader) downto = 1;
-      for (j = i - 1; j >= downto; j = j - 1) {
+      for (var j = i - 1; j >= downto; j = j - 1) {
         curTop = curTop - me.rowHeight;
         lines[j].style.top = curTop + "px";
       }

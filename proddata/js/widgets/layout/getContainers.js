@@ -79,40 +79,48 @@ pui.layout.template.getContainerPositions = function(designer) {
   for (var i = 0; i < layouts.length; i++) {
     var layout = layouts[i];
     var div = layout.dom;
-    var divTop = div.offsetTop;
-    var divLeft = div.offsetLeft;
     var containers = pui.layout.template.getContainers(div);
     for (var j = 0; j < containers.length; j++) {
       var container = containers[j];
-      
-      var offset = pui.layout.getContainerOffset(container);
-      var left = offset.x;
-      var top = offset.y;
-      
-      var height = container.offsetHeight;
-      var width = container.offsetWidth;
-      var bottom = top + height;
-      var right = left + width;
-      height = height - 2;
-      if (height < 1) height = 1;
-      width = width - 2;
-      if (width < 1) width = 1;
-      positions.push({
-        layout: layout,
-        container: container,
-        top: top,
-        left: left,
-        bottom: bottom,
-        right: right,
-        height: height,
-        width: width
-      });
+      positions.push( pui.layout.getPosObjFromLayoutCont(layout, container) );
     }
   }
   designer.layoutContainerPositions = positions;
   return positions;
 };
 
+/**
+ * Given a layout and a container DOM node, get a positionObject. 
+ * Needed by pui.layout.template.getContainerPositions and in vdesigner.js, onNodeEnter.
+ * @param {Object} layout
+ * @param {Object} container  
+ * @returns {Object}          A wrapper for a layout & container, with positions offset for the canvas.
+ */
+pui.layout.getPosObjFromLayoutCont = function(layout, container){
+      
+  var offset = pui.layout.getContainerOffset(container);
+  var left = offset.x;
+  var top = offset.y;
+
+  var height = container.offsetHeight;
+  var width = container.offsetWidth;
+  var bottom = top + height;
+  var right = left + width;
+  height = height - 2;
+  if (height < 1) height = 1;
+  width = width - 2;
+  if (width < 1) width = 1;
+  return {
+    layout: layout,
+    container: container,
+    top: top,
+    left: left,
+    bottom: bottom,
+    right: right,
+    height: height,
+    width: width
+  };
+};
 
 
 
