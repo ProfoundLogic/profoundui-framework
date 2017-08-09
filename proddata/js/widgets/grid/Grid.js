@@ -5354,6 +5354,13 @@ pui.Grid = function() {
       var success = placeCursorOnCell(cell);
       if (success) return;
     }
+    
+    //In case placeCursor fails on every cell, something needs to be focused to keep pgup/pgdn 
+    //keys working. The Grid doesn't see pgup/pgdn when document.body has focus. #3727.
+    if (document.activeElement == document.body){
+      var activeEl = pui["getActiveContainer"]();
+      activeEl.focus();
+    }
   }
 
   /**
