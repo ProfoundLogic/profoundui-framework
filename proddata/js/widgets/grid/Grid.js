@@ -6444,16 +6444,19 @@ pui.Grid = function() {
           }
           var valueLower = value.toLowerCase();
           if (valueLower.indexOf(textLower) >= 0) {
-            if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-              me.highlighting.text = text;
-              var rec = i + 1;
-              if (me.recNum != rec) {
+            me.highlighting.text = text;
+            var rec = i + 1;
+            if (me.recNum != rec) {
+              if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
                 var rv = me.scrollbarObj.setScrollTopToRow(rec, false);
                 if (rv === false) me.getData();
-              }
-              else {
-                me.getData();
-              }
+              } else if (me.pagingBar){
+                 var lastPage = me["getRecordCount"]() - me.getSubfilePage() +1;
+                 if (rec > lastPage) me["scrollToRow"](lastPage);
+                 else me["scrollToRow"](rec);
+              } else me.getData();
+            } else {
+              me.getData();
             }
             done = true;
             break;
