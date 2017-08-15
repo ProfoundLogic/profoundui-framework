@@ -1568,7 +1568,7 @@ pui["runtimeMsg"]["nl_NL"]["invalid high range"]      = "Waarde moet zijn kleine
 pui["runtimeMsg"]["nl_NL"]["invalid range"]           = "Waarde moet liggen tussen &1 en &2.";
 pui["runtimeMsg"]["nl_NL"]["unmonitored exception"]   = "Het programma heeft een fout ontdekt. Voor hulp neem contact op met de systeembeheerder.";
 pui["runtimeMsg"]["nl_NL"]["loading"]                 = "bezig met laden...";
-pui["runtimeMsg"]["nl_NL"]["subfile deletion"]        = "Weet u zeker dat u wilt verwijderen de subfile?";
+pui["runtimeMsg"]["nl_NL"]["subfile deletion"]        = "Weet je het zeker dat je de subfile wilt verwijderen?";
 // Atrium
 pui["runtimeMsg"]["nl_NL"]["num sessions exceeded"]   = "Aantal toegestane sessies is overschreden.";
 pui["runtimeMsg"]["nl_NL"]["unable to load portal"]   = "Kan de portal instellingen of onderdelen van de navigatie niet laden.";
