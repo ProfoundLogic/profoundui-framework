@@ -338,6 +338,7 @@ function buildLabel(dom, labelText) {
     label.style.cursor = "pointer";
   }
   label.isLabel = true;
+  if (dom.labelObj != null) dom.parentNode.removeChild(dom.labelObj);
   dom.labelObj = label;
   dom.extraDomEls = [];
   dom.extraDomEls.push(label);
