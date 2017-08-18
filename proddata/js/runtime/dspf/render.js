@@ -612,7 +612,7 @@ pui.render = function(parms) {
       pui.appJob[prop] = parms.appJob[prop];
     }
   }
-  pui["layers"] = parms["layers"];
+  if (!parms["message"]) pui["layers"] = parms["layers"];
   if (parms["ctrlJob"] != null) {
     if (pui["ctrlJob"] == null) pui["ctrlJob"] = {};
     for (var prop in parms["ctrlJob"]) {
@@ -659,6 +659,22 @@ pui.render = function(parms) {
     
     pui.alert(translateError);
     
+  }
+  
+  if (parms["message"]) {
+    var format = parms["message"]["format"].toLowerCase();
+    pui["message"] = parms["message"]["message"];
+    if (pui.onmessageProps && pui.onmessageProps[format]) {
+      try {
+        eval('var message = pui["message"];');
+        eval(pui.onmessageProps[format]);
+      }
+      catch(err) {
+        pui.alert("Onmessage Error:\n" + err.message);
+      }      
+    }
+    pui.resetResponseValues();
+    return;
   }
   
   if (parms["html"]) {
@@ -778,6 +794,7 @@ pui.render = function(parms) {
     pui.widgetsToCleanup = [];
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
+    pui.onmessageProps = {};
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -2551,6 +2568,9 @@ pui.renderFormat = function(parms) {
         }
       }
       pui.onsubmitProp = screenProperties["onsubmit"];
+      if (screenProperties["onmessage"] && typeof screenProperties["record format name"] === "string") {
+        pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"];
+      }
     }
   
   }
