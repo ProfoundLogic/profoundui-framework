@@ -220,8 +220,11 @@ pui.attachDragDrop = function(dom, properties) {
       
       }
     
-      y = y + offsetY;
-      x = x + offsetX;
+      if (useProxy) {
+        y = y + offsetY;
+        x = x + offsetX;
+      }
+      
       proxy.style.top = (startDomY + y) + "px";
       proxy.style.left = (startDomX + x) + "px";
       
