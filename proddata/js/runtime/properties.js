@@ -500,6 +500,8 @@ function getScreenPropertiesModel(designScreen) {
   	var model = [
     	{ name: "Identification", category: true },
     	{ name: "screen name", help: "The screen name is used to save the current screen to the server.  The screen is saved to a .scn file under the selected skin.  In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false },
+      { name: "Window Subfile Options", category: true },
+      { name: "create combo boxes", variable: "pui.genie.config.createComboBoxesInWindow", choices: ["true", "false"], type: "boolean", help: "<i>Default = false</i>.<br> This flag determines whether the option column will be converted to a combo box when a subfile is detected in a window format. Due to the limited amount of space in a window format, this can overflow the window, so it is disabled by default." },
       { name: "Events", category: true },
       { name: "onpageload", type: "js", help: "Initiates a client-side script when the page loads but before screen design customizations are applied." },
       { name: "onload", type: "js", help: "Initiates a client-side script when the screen loads." }
