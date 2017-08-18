@@ -1261,15 +1261,28 @@ pui.Grid = function() {
     // code in runtime/dspf/render.js will replace this object with the real DOM element.
     
     if (el == null) {
-      var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
-      if (pui.responseElements[qualField] == null) {
-        pui.responseElements[qualField] = [{ 
-          responseValue: String(value),
-          modifiedBeforeRender: true
-        }];
+      
+      // Look for another row that has been rendered so
+      // we can get info about the DOM elements
+      // NOTE: This assumes the DOM elements for each row will be the same.
+      
+      var domTest = null;
+      for (var i in field.domEls) {
+        domTest = field.domEls[i];
+        break;
       }
-      if (pui.responseElements[qualField][0] !=null && pui.responseElements[qualField][0].modifiedBeforeRender) {
-        pui.responseElements[qualField][0].responseValue = String(value);
+      
+      if (domTest && pui.isInputCapableProperty("value", domTest)) {
+        var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+        if (pui.responseElements[qualField] == null) {
+          pui.responseElements[qualField] = [{ 
+            responseValue: String(value),
+            modifiedBeforeRender: true
+          }];
+        }
+        if (pui.responseElements[qualField][0] !=null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+          pui.responseElements[qualField][0].responseValue = String(value);
+        }
       }
       return false;
     }

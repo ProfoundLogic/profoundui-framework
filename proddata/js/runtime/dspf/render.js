@@ -1409,16 +1409,8 @@ pui.renderFormat = function(parms) {
                 pui.dupElements[qualField].push(dom);
               }
 
-              if ((propname == "response") ||
-                  (propname == "chart response") ||  
-                  (propname == "menu response") ||  
-                  (propname == "upload response") ||  
-                  (propname == "tab response") ||  
-                  (propname == "active tab") ||  
-                  (propname == "radio button group") ||  
-                  (propname == "page down response" && dom.grid != null && dom.grid.pagingBar != null) ||  
-                  (propname == "page up response" && dom.grid != null && dom.grid.pagingBar != null) ||  
-                  (propname == "value" && ((dom.tagName == "INPUT" && dom.type != "button") || dom.tagName == "SELECT"  || dom.tagName == "TEXTAREA" || dom.comboBoxWidget != null || dom.slider != null || dom.signaturePad != null || dom.onOffSwitch != null))) {
+              if (pui.isInputCapableProperty(propname, dom)) {
+                
                 var fieldName = pui.fieldUpper(formattingObj.fieldName);
                 var qualField = formatName + "." + fieldName;
                 if (pui.handler != null) qualField = fieldName;
@@ -5752,3 +5744,32 @@ pui["wikihelp"]["getScreenInfo"] = function() {
   return info;
 };
 
+
+pui.isInputCapableProperty = function(propname, dom) {
+  
+  if ((propname == "response") ||
+      (propname == "chart response") ||  
+      (propname == "menu response") ||  
+      (propname == "upload response") ||  
+      (propname == "tab response") ||  
+      (propname == "active tab") ||  
+      (propname == "radio button group") ||  
+      (propname == "page down response" && dom.grid != null && dom.grid.pagingBar != null) ||  
+      (propname == "page up response" && dom.grid != null && dom.grid.pagingBar != null) ||  
+      (propname == "value" 
+      && (
+          (dom.tagName == "INPUT" && dom.type != "button") 
+          || dom.tagName == "SELECT"  
+          || dom.tagName == "TEXTAREA" 
+          || dom.comboBoxWidget != null 
+          || dom.slider != null 
+          || dom.signaturePad != null 
+          || dom.onOffSwitch != null
+         )
+      )
+     ) {
+    return true;
+  }
+
+  return false;
+};
