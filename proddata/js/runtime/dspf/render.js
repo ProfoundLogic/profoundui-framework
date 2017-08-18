@@ -664,6 +664,9 @@ pui.render = function(parms) {
   if (parms["message"]) {
     var format = parms["message"]["format"].toLowerCase();
     pui["message"] = parms["message"]["message"];
+    pui.resetResponseValues();    
+    pui.hideWaitAnimation(true);
+    pui.hideWaitAnimation(true);
     if (pui.onmessageProps && pui.onmessageProps[format]) {
       try {
         eval('var message = pui["message"];');
@@ -673,7 +676,6 @@ pui.render = function(parms) {
         pui.alert("Onmessage Error:\n" + err.message);
       }      
     }
-    pui.resetResponseValues();
     return;
   }
   
