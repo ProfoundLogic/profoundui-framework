@@ -585,12 +585,15 @@ pui.FieldFormat = {
       
       var value = String(obj.value);
       
-      if (obj.edtWrd != null && obj.edtWrd != null) {
+      if (obj.edtWrd != null) {
+        var negSign = "-";
+        var g1 = /-/.test(value);
+        if(!g1) negSign = "";
         var originalValue = value;
         value = "";
         for (var i = 0; i < originalValue.length; i++) {
           var ch = originalValue.substr(i,1);
-          if ((ch < "0" || ch > "9") && (ch != decimalChar)) {
+          if ((ch < "0" || ch > "9") && (ch != decimalChar) && (ch != negSign)) {     // this enables the negative sign appear when editWord is applied with the sign "-".
             ch = "";
           }
           value += ch;
