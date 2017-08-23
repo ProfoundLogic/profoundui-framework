@@ -1001,7 +1001,7 @@ pui["keepAlive"] = function() {
     "sendAsBinary": false,
     "suppressAlert": true,
     "handler": function() {
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
       if (context == "dspf") {
         pui.screenIsReady = true;
@@ -1013,7 +1013,7 @@ pui["keepAlive"] = function() {
     },
     "onfail": function(req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
       if (context == "dspf") {
         pui.screenIsReady = true;

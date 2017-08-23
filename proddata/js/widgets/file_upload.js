@@ -546,7 +546,7 @@ pui["fileupload"].FileUpload = function(container) {
     if (context == "genie") {
     
       pui.submitLog(pui.genie.formSubmitted = false);
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
     
       // Finish here for Genie. 
       // For Rich UI, the result is checked in the 

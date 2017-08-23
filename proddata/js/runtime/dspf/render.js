@@ -665,8 +665,7 @@ pui.render = function(parms) {
     var format = parms["message"]["format"].toLowerCase();
     pui["message"] = parms["message"]["message"];
     pui.resetResponseValues();    
-    pui.hideWaitAnimation(true);
-    pui.hideWaitAnimation(true);
+    pui.hideWaitAnimation();
     if (pui.onmessageProps && pui.onmessageProps[format]) {
       try {
         eval('var message = pui["message"];');
@@ -3590,7 +3589,6 @@ pui.submitResponse = function(response, value) {
       "saveResponse": true,
       "suppressAlert": true,
       "handler": function(parms) {
-        pui.hideWaitAnimation();
         if (parms == null) {
           //document.body.style.backgroundColor = "#DFE8F6";
           document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
@@ -3611,7 +3609,7 @@ pui.submitResponse = function(response, value) {
       },
       "onfail": function(req) {
         if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
-        pui.hideWaitAnimation(true);
+        pui.hideWaitAnimation();
         pui.resetResponseValues();
         if (pui["onoffline"] != null) pui["onoffline"]();
       }      
@@ -3647,7 +3645,7 @@ pui.cancelResponse = function(messages) {
       tip.show();
     }    
   }
-  pui.hideWaitAnimation(true);
+  pui.hideWaitAnimation();
   for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
     var grid = pui.gridsDisplayed[i];
     grid.unMask();
@@ -3740,6 +3738,7 @@ pui.evalIndicatorExpression = function(expression, data) {
 
 
 pui.showWaitAnimation = function() {
+  pui.hideWaitAnimation();
   var animation;
   if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui.normalizeURL("/profoundui/proddata/images/loading.gif") && pui["loading animation"]["text"] == null) {
     animation = document.createElement("div");
@@ -3781,12 +3780,10 @@ pui.showWaitAnimation = function() {
 
 };
 
-pui.hideWaitAnimation = function(removeAnimationImage) {
-  if (removeAnimationImage == true) {
-    var animation = getObj("_pui_loading_animation");
-    if (animation != null && animation.parentNode != null) {
-      animation.parentNode.removeChild(animation);
-    }
+pui.hideWaitAnimation = function() {
+  var animation = getObj("_pui_loading_animation");
+  if (animation != null && animation.parentNode != null) {
+    animation.parentNode.removeChild(animation);
   }
 };
 
@@ -4156,7 +4153,6 @@ pui["run"] = function(config) {
       "saveResponse": true,
       "suppressAlert": true,
       "handler": function(parms) {
-        pui.hideWaitAnimation();
         parms.container = container;
 
         // If any items depend on external files, wait for those to load before
@@ -4164,7 +4160,7 @@ pui["run"] = function(config) {
         pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
       },
       "onfail": function(req) {
-        pui.hideWaitAnimation(true);
+        pui.hideWaitAnimation();
         setTimeout(function() {
           if (pui["onoffline"] == null) {
             if (!pui["suppress comm errors"])
@@ -4269,7 +4265,6 @@ pui["signon"] = function(config) {
     "saveResponse": true,
     "suppressAlert": true,
     "handler": function(parms) {
-      pui.hideWaitAnimation();
       parms.container = container;
       
       // If any items depend on external files, wait for those to load before
@@ -4277,7 +4272,7 @@ pui["signon"] = function(config) {
       pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
     },
     "onfail": function(req) {
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
       setTimeout(function() {
         if (pui["onoffline"] == null) {
           if (!pui["suppress comm errors"])
@@ -4310,7 +4305,6 @@ pui.runMVC = function(response) {
     "saveResponse": true,
     "suppressAlert": true,
     "handler": function(parms) {
-      pui.hideWaitAnimation();
       if (parms == null) {
         document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
         pui.closeSession();   //Without this, a parent atrium tab can't be closed by clicking [x].
@@ -4354,7 +4348,7 @@ pui.runMVC = function(response) {
     },
     "onfail": function(req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
       pui.resetResponseValues();
       if (pui["onoffline"] != null) pui["onoffline"]();
     }      
@@ -4617,7 +4611,7 @@ pui.setupWindowDiv = function(parms, layer) {
 
   var format = layer.formats[0];
 
-  pui.hideWaitAnimation(true);
+  pui.hideWaitAnimation();
 
   // disable elements of background screen
   function disableByTag(tag) {

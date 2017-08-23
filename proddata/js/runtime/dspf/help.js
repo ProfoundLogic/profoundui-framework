@@ -139,7 +139,7 @@ pui.help.show = function() {
         },
         "async": true,
         "handler": function(response) {
-          pui.hideWaitAnimation(true);
+          pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
             pui.help.renderHelpRecord(response["metaData"]);
@@ -178,7 +178,7 @@ pui.help.show = function() {
         },
         "async": true,
         "handler": function(response) {
-          pui.hideWaitAnimation(true);
+          pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
             pui.help.renderPanelGroup(response["html"], true, props);
@@ -378,7 +378,7 @@ pui.help.extendedHelp = function(props, container) {
     "params": params,
     "async": true,
     "handler": function(response) {
-      pui.hideWaitAnimation(true);
+      pui.hideWaitAnimation();
       var success = response["success"];
       if (success == true) {
         if (container != null) {
