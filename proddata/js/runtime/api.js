@@ -514,11 +514,7 @@ function getProgramURL(program, psid, useAuth) {
 
 }
 
-
-
-
-
-
+pui["getProgramURL"] = getProgramURL;
 
 // Sets a DOM property on an element -- catches exceptions.
 function setDOMAttribute(dom, attribute, value) {
