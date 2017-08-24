@@ -2563,8 +2563,8 @@ pui.renderFormat = function(parms) {
       pui.onsubmitProp = screenProperties["onsubmit"];
       if (screenProperties["onmessage"] && typeof screenProperties["record format name"] === "string") {
         pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"];  // save for display.screen.executeMessage() API
-        if (parms.msgInfo != null) {
-          pui["message"] = parms.msgInfo;
+        if (parms["msgInfo"] != null) {
+          pui["message"] = parms["msgInfo"];
           try {
             eval('var message = pui["message"];');
             eval(screenProperties["onmessage"]);
