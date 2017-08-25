@@ -161,7 +161,18 @@ pui.ExternalFiles = function() {
           	    pui.alert("Onload Error:\n" + err.message);
           	  }
           	}
-  
+
+            if (props["onmessage"] && parms["msgInfo"] != null) {
+              pui["message"] = parms["msgInfo"];
+              try {
+                eval('var message = pui["message"];');
+                eval(props["onmessage"]);
+              }
+              catch(err) {
+                pui.alert("Onmessage Error:\n" + err.message);
+              }          
+            }
+
           });
           idx++;
           path = pui.evalBoundProperty(props["external javascript " + idx], parms.data, parms.ref);

@@ -2563,7 +2563,8 @@ pui.renderFormat = function(parms) {
       pui.onsubmitProp = screenProperties["onsubmit"];
       if (screenProperties["onmessage"] && typeof screenProperties["record format name"] === "string") {
         pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"];  // save for display.screen.executeMessage() API
-        if (parms["msgInfo"] != null) {
+
+        if (parms["msgInfo"] != null && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
           pui["message"] = parms["msgInfo"];
           try {
             eval('var message = pui["message"];');
@@ -2573,6 +2574,7 @@ pui.renderFormat = function(parms) {
             pui.alert("Onmessage Error:\n" + err.message);
           }          
         }
+
       }
     }
   
