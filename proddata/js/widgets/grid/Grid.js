@@ -921,7 +921,9 @@ pui.Grid = function() {
       if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH; 
       if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
-        +"&"+ pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1&UTF8=Y";
+        +"&"+ pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1";
+      
+      if( pui["read db driven data as ebcdic"] !== true ) req["postData"] += "&UTF8=Y";
 
       var orderBy = me.dataProps["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
@@ -1507,7 +1509,7 @@ pui.Grid = function() {
           form.appendChild(field);
         }
         addField("delimiter", delimiter);
-        addField("UTF8", "Y");
+        if( pui["read db driven data as ebcdic"] !== true ) addField("UTF8", "Y");
         addField("decType", decType);
         addField("fileName", csvFile + ".csv");
         if (pui["secLevel"] > 0) {
@@ -5639,7 +5641,7 @@ pui.Grid = function() {
     } 
     req["postData"] += "&limit=" + limit + "&start=" + start;
     if (total != null && total == true) req["postData"] += "&getTotal=1";
-    req["postData"] += "&UTF8=Y";
+    if( pui["read db driven data as ebcdic"] !== true ) req["postData"] += "&UTF8=Y";
     
     var fetchCounter = me.dataProps["allow any select statement"];
     if (fetchCounter!=null && (fetchCounter=="true" || fetchCounter==true))

@@ -631,7 +631,7 @@ function AutoComplete(config) {
       }
     }
     
-    postData += "&UTF8=Y";
+    if( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
     
     if (hiddenField) autoCompQueries += 1;
     

@@ -639,7 +639,7 @@ pui.widgets.add({
           
          }
          postData += "&maxcount=" + maxCount;
-         postData += "&UTF8=Y";
+         if( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
          
          if (isMap) postData += "&isMap=Y"; //Tell PUI0009104 to use the correct XML for maps.
          

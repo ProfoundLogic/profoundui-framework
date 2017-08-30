@@ -198,7 +198,7 @@ pui.widgets.add({
           if (maxChoices != null && maxChoices != "") {
           	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
-          ajaxRequest["postData"] += "&UTF8=Y";
+          if( pui["read db driven data as ebcdic"] !== true ) ajaxRequest["postData"] += "&UTF8=Y";
           ajaxRequest["onsuccess"] = function() {
 
             var eventCode = parms.evalProperty("ondbload");
