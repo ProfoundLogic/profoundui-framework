@@ -36,8 +36,7 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
        (pui["encode hyperlink spaces"] == true) ) {
     text = text.replace(/ /g, "\u00a0");
   }
-  if (dom.style.color != null) a.style.color = dom.style.color;
-  if (dom.style.textDecoration != null) a.style.textDecoration = dom.style.textDecoration;
+  
   a.appendChild(document.createTextNode(text));
   if (pui["is_old_ie"] && noHref && (context == "dspf" || context == "genie")) {
     addEvent(a, "click", function(e) {
@@ -46,6 +45,7 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
       return false;      
     });
   }
+  
   dom.appendChild(a);
 }
 
@@ -56,6 +56,31 @@ pui.widgets.add({
   inlineEdit: true,
   defaults: {
     color: "#0066CC"
+  },
+  
+  globalPropertySetter: function(parms) {    
+    switch (parms.propertyName) {
+      case "color":          
+      case "font family":    
+      case "font size":      
+      case "font style":     
+      case "font variant":   
+      case "font weight":    
+      case "letter spacing": 
+      case "text align":     
+      case "text decoration":
+      case "text transform": 
+      case "word spacing":   
+      case "background color":   
+        var words = parms.propertyName.split(" ");
+        if (words.length == 2) words[1] = words[1].substr(0,1).toUpperCase() + words[1].substr(1);
+        var styleName = words.join("")
+        var domObj = parms.dom;
+        if (domObj.firstChild != null && domObj.firstChild.tagName == "A") {
+           domObj.firstChild.style[styleName] = parms.value;
+        }
+        break;
+    }
   },
   
   propertySetters: {
