@@ -4409,7 +4409,7 @@ pui.Grid = function() {
           columnPointer.style.display = "none";
           if (columnPointer.matchedCol != null) {
             var itm = me.tableDiv.designItem;
-            itm.designer.undo.addSnapshot("Move Column", itm.designer);
+            if (itm != null) itm.designer.undo.addSnapshot("Move Column", itm.designer);
             me.moveColumn(cell.col, columnPointer.matchedCol);
             columnWasMoved = true;
             columnPointer.matchedCol = null;            
