@@ -55,6 +55,7 @@ function AutoComplete(config) {
   var scrollbarWidth = getScrollbarWidth();
   var maxHeight = null;
   var inMouseClick = false;
+  var keyPressed = false;
   
   // Fields adjustable through config. object.
   var container;  
@@ -298,6 +299,7 @@ function AutoComplete(config) {
     textBox.addEventListener("keyup", doKeyUp, false);
     textBox.addEventListener("keydown", doKeyDown, false);      
     textBox.addEventListener("blur", doBlur, false);
+    textBox.addEventListener("input", onInput, false);
     window.addEventListener("resize", doResize, false);
   }
   else if (textBox.attachEvent) {
@@ -338,6 +340,7 @@ function AutoComplete(config) {
     removeEvent(textBox, "keyup", doKeyUp);
     removeEvent(textBox, "keydown", doKeyDown);
     removeEvent(textBox, "blur", doBlur);
+    removeEvent(textBox, "input", onInput);
     removeEvent(textBox, "resize", doResize);
     removeEvent(window, "resize", doResize);
     resultPane = null;               
@@ -402,7 +405,8 @@ function AutoComplete(config) {
   }
   
   function doKeyDown(event) {
-      
+    keyPressed = true;    //Signals onInput to not handle the query.
+    
     event = event || window.event;
     var keyCode = event.keyCode;
     
@@ -466,7 +470,8 @@ function AutoComplete(config) {
   }
   
   function doKeyUp(event) {
-
+    keyPressed = false;   //Clear the signal so onInput may handle a subsequent query.
+    
     event = event || window.event;
     var keyCode = event.keyCode;
     
@@ -502,8 +507,32 @@ function AutoComplete(config) {
         return;
         
       }
-    }    
+    }
+  }
   
+  /**
+   * Handle the textbox value changing as a result of pasting with the mouse or browser Edit menu. Added for issue 3817.
+   * @returns {undefined}
+   */
+  function onInput(){
+    if (keyPressed) return; //If keys were pressed, then doKeyUp will handle the changed text.
+    
+    // Hide the result pane if there are no characters in the box.
+    if (trim(textBox.value) == "") {
+      if (hiddenField) hiddenField.value = "";
+      hideResults();
+      return;
+    }
+    
+    if (textBox.value.replace(/ /g, "") != "") {
+      if (choices && values) {
+        doLookup(rtrim(textBox.value.toUpperCase()));
+      }
+      else {
+        cancelQuery = false;
+        doQuery(rtrim(textBox.value));  //This sets the TextBox value if a result returns.
+      }
+    }
   }
   
   function activateRecord(index, scrollIntoView) {
