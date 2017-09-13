@@ -2162,7 +2162,7 @@ pui.breakMessagesStartPoll = function(){
     if( pui.breakMessagesPollCheck() ){
       // We are the poller, so poll the server. Otherwise, do nothing.
       ajaxJSON({
-        "url": "PUI0009116.PGM",
+        "url": getProgramURL("PUI0009116.PGM"),
         "method": "post",
         "async": true,
         "suppressAlert": true, /*Popup alerts every interval would be very annoying.*/
