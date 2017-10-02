@@ -2831,87 +2831,151 @@ pui.setHtmlWithEjs = function(dom, html) {
 };
 
 /**
- * Create a xlsx file from a worksheet and cause a Save As dialog to appear in the browser asynchronously.
- * Loads the necessary JavaScript libraries the first time it is called.
- * @param {String} fileName
- * @param {pui.xlsx_worksheet} worksheet
+ * Create a XLSX workbook object that can contain a worksheet and images.
+ * @constructor
  * @returns {undefined}
  */
-pui.xlsx_workbook_download = function(fileName, worksheet){
+pui.xlsx_workbook = function(){
+  var fileName = "sheet";
+  var worksheet;
+  var drawing;
   
-  // If necessary, load the required JSZip library and FileSaver "polyfill".
-  var path = "/jszip/jszip.min.js";
-  if (typeof JSZip == "function")
-    loadSaveAsJS();
-  else
-    pui["loadJS"]({
-      "path": path,
-      "callback": loadSaveAsJS,
-      "onerror": function(){
-        console.log("Failed to load "+path);
-      }
-    });
+  var cbSetTempStatus;    //The grid's paging bar's setTempStatus function.
+  var cbDraw;             //The grid's paging bar's draw function.
+  
+  this.setFileName = function(fname){
+    fileName = fname;
+  };
+  
+  /**
+   * Set this workbook to contain a XLSX Worksheet.
+   * @param {pui.xlsx_worksheet} wks
+   * @returns {undefined}
+   */
+  this.setWorksheet = function(wks){
+    worksheet = wks;
+  };
+  
+  /**
+   * Set this workbook to contain an XLSX Drawing.
+   * @param {pui.xlsx_drawing} drwng
+   * @returns {undefined}
+   */
+  this.setDrawing = function(drwng){
+    drawing = drwng;
+  };
+  
+  /**
+   * Set callbacks to functions in the PagingBar to show download progress.
+   * @param {Function} setDLProg
+   * @param {Function} draw
+   * @returns {undefined}
+   */
+  this.setCallbacks = function(setDLProg, draw){
+    cbSetTempStatus = setDLProg;
+    cbDraw = draw;
+  };
+  
+  /**
+   * Create a xlsx file from the worksheet and cause a Save As dialog to appear in the browser asynchronously.
+   * Loads the necessary JavaScript libraries if they are not loaded already.
+   * @returns {undefined}
+   */
+  this.download = function(){
+    // If necessary, load the required JSZip library and FileSaver "polyfill".
+    var path = "/jszip/jszip.min.js";
+    if (typeof JSZip == "function")
+      loadSaveAsJS();
+    else
+      pui["loadJS"]({
+        "path": path,
+        "callback": loadSaveAsJS,
+        "onerror": function(){
+          console.log("Failed to load "+path);
+        }
+      });
+  };
   
   function loadSaveAsJS(){
     var path = "/jszip/FileSaver.min.js";
     // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
     // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
     if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null )
-      fullyloaded();
+      librariesLoaded();
     else
       pui["loadJS"]({
         "path": path,
-        "callback": fullyloaded,
+        "callback": librariesLoaded,
         "onerror": function(){
           console.log("Failed to load "+path);
         }
       });
   }
   
+  function librariesLoaded(){
+    if (drawing){
+      drawing.loadImages( fullyloaded, cbSetTempStatus );
+    }else{
+      fullyloaded();
+    }
+  }
+  
   // JSZip and the FileSaver are loaded, so build the Excel workbook.
   function fullyloaded(){
-
-    var xmlns_package_rels = "http://schemas.openxmlformats.org/package/2006/relationships";
-
+    if (drawing) cbDraw();  //Restore the PagingBar to its regular state.
+    
     // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
     // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
 
     //[Content_Types].xml
-    var content_types = worksheet.xmlstart
-    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    var content_types = pui.xmlstart
+    +'<Types xmlns="'+pui.xlsx_domain+'/package/2006/content-types">'
     +  '<Default Extension="rels" ContentType="'+pui.mime_openxml+'-package.relationships+xml"/>'
-    +  '<Default Extension="xml" ContentType="application/xml"/>'
-    +  '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
+    +  '<Default Extension="xml" ContentType="application/xml"/>';
+    if (drawing){
+      var extraExtensions = drawing.getExtensions();
+      for (var ext in extraExtensions ){
+        content_types += '<Default Extension="'+ext+'" ContentType="'+extraExtensions[ext]+'"/>';
+      }
+    }
+    content_types +=
+       '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
     +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+pui.mime_xlsx_base+'.worksheet+xml"/>'
     +  '<Override PartName="/xl/styles.xml" ContentType="'+pui.mime_xlsx_base+'.styles+xml"/>'
-    +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>'
-    +'</Types>';
+    +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>';
+    if (drawing != null){
+      content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+pui.mime_openxml+'-officedocument.drawing+xml"/>';
+    }
+    content_types += '</Types>';
 
     //_rels/.rels
-    var rels = worksheet.xmlstart
-    +'<Relationships xmlns="'+xmlns_package_rels+'">'
-    +  '<Relationship Id="rId1" Type="'+worksheet.rel_xmlns+'/officeDocument" Target="xl/workbook.xml"/>'
+    var rels = pui.xmlstart
+    +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
+    +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/officeDocument" Target="xl/workbook.xml"/>'
     +'</Relationships>';
 
     //xl/workbook.xml
     var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-    +'<workbook xmlns="'+worksheet.xmlns+'" xmlns:r="'+worksheet.rel_xmlns+'">'
+    +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
+    //Try the following 2 lines for iOS compatibility.
+//    +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'"'
+//    +' xmlns:mc="'+pui.xlsx_domain+'/markup-compatibility/2006" mc:Ignorable="x15 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">'
     +  '<sheets>'
     +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
     +  '</sheets>'
     +'</workbook>';
 
     //xl/_rels/workbook.xml.rels
-    var workbookrels = worksheet.xmlstart
-    +'<Relationships xmlns="'+xmlns_package_rels+'">'
-    +  '<Relationship Id="rId3" Type="'+worksheet.rel_xmlns+'/styles" Target="styles.xml"/>'
-    +  '<Relationship Id="rId1" Type="'+worksheet.rel_xmlns+'/worksheet" Target="worksheets/sheet1.xml"/>'
-    +  '<Relationship Id="rId4" Type="'+worksheet.rel_xmlns+'/sharedStrings" Target="sharedStrings.xml"/>'
+    var workbookrels = pui.xmlstart
+    +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
+    +  '<Relationship Id="rId3" Type="'+pui.xlsx_xmlns_officedoc_rels+'/styles" Target="styles.xml"/>'
+    +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/worksheet" Target="worksheets/sheet1.xml"/>'
+    +  '<Relationship Id="rId4" Type="'+pui.xlsx_xmlns_officedoc_rels+'/sharedStrings" Target="sharedStrings.xml"/>'
     +'</Relationships>';
 
     //x1/styles.xml - at least one of each font, fill, and border is required.
-    var styles = worksheet.xmlstart 
-    +'<styleSheet xmlns="'+worksheet.xmlns+'">'
+    var styles = pui.xmlstart 
+    +'<styleSheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'">'
     +  '<fonts count="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>'
     +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
     +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
@@ -2928,7 +2992,15 @@ pui.xlsx_workbook_download = function(fileName, worksheet){
     +  '</cellXfs>'
     +  '<dxfs count="0"/>'
     +'</styleSheet>';
-
+  
+    var sheetrels;
+    if (drawing){
+      sheetrels = pui.xmlstart 
+      + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
+      +   '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>'
+      + '</Relationships>';
+    }
+  
     var zip = new JSZip();
 
     zip["file"]("[Content_Types].xml", content_types);
@@ -2938,6 +3010,15 @@ pui.xlsx_workbook_download = function(fileName, worksheet){
     zip["file"]("xl/sharedStrings.xml", worksheet.getSharedStringsXML() );
     zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
     zip["file"]("xl/worksheets/sheet1.xml", worksheet.getSheetXML() );
+    if (drawing){
+      zip["file"]("xl/drawings/drawing1.xml", drawing.getDrawingXML());
+      zip["file"]("xl/drawings/_rels/drawing1.xml.rels", drawing.getDrawingRelsXML());
+      zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
+      var images = drawing.getImages();
+      for (var i=0; i < images.length; i++){
+        zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+      }
+    }
 
     if ( typeof Blob != "function" ){
       // IE8,IE9 can't prompt to SaveAs, so they need PUI0009106 to help get it.
@@ -2966,16 +3047,16 @@ pui.xlsx_worksheet = function(numcols){
   
   var me = this;
   
-  this.xmlstart = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-  this.xmlns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
-  this.rel_xmlns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-
   var numColumns = numcols;
   var rows = null;
   var sst = {}; //Shared strings table. mapping of strings to values used in dataset.
   var sst_count = 0;
+  var defaultRowHeightpx = 20;
+  var colWidths = [];
   
   var curCol = 0; //Needed for this.addCell.
+  
+  var useDrawing = false; //When true, one drawing reference is included in the sheet xml.
   
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
@@ -2998,6 +3079,33 @@ pui.xlsx_worksheet = function(numcols){
     if (rows == null) rows = [];
     rows.push([]);
     curCol = 0;
+  };
+  
+  /**
+   * Returns the current row of the sheet. If no rows have been added, returns -1.
+   * @returns {Number}
+   */
+  this.getCurRow = function(){
+    if (rows == null) return -1;
+    return rows.length - 1;
+  };
+  
+  /**
+   * 
+   * @param {Number} ht   Height in pixels.
+   * @returns {undefined}
+   */
+  this.setDefaultRowHeight = function(ht){
+    defaultRowHeightpx = ht;
+  };
+  
+  /**
+   * 
+   * @param {Object|Array} arr  An array with Numeric pixel values for each column in the grid.
+   * @returns {undefined}
+   */
+  this.setColumnWidths = function(arr){
+    colWidths = arr;
   };
   
   /**
@@ -3042,11 +3150,17 @@ pui.xlsx_worksheet = function(numcols){
    * Append a cell to the current row. Used in Load-all grids.
    * @param {String} value
    * @param {Null|String} format
-   * @returns {undefined}
+   * @returns {Number}      Returns the column number of the cell that was added.
    */
   this.addCell = function(value, format){
+    var retval = curCol;
     me.setCell(curCol, value, format);
     curCol++;
+    return retval;
+  };
+  
+  this.useDrawing = function(){
+    useDrawing = true;
   };
 
   /**
@@ -3093,7 +3207,7 @@ pui.xlsx_worksheet = function(numcols){
       sst_inorder[idx] = str;
     }
 
-    var xml = me.xmlstart + '<sst xmlns="'+me.xmlns+'" count="'
+    var xml = pui.xmlstart + '<sst xmlns="'+pui.xlsx_xmlns_spreadsheet+'" count="'
       + String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
     for (var i=0; i < sst_inorder.length; i++){
       xml += '<si><t>' + pui.xmlEscape(sst_inorder[i]) + '</t></si>';
@@ -3107,15 +3221,22 @@ pui.xlsx_worksheet = function(numcols){
    * @returns {String}
    */
   this.getSheetXML = function(){
-    var xml = me.xmlstart + '<worksheet xmlns="'+me.xmlns+'"'+' xmlns:r="'+me.rel_xmlns+'">'
-    +'<dimension ref="A1:'+ map[numColumns - 1] + rows.length + '"/><cols>';
+    var xml = pui.xmlstart + '<worksheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'"'+' xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
+    +'<dimension ref="A1:'+ map[numColumns - 1] + rows.length + '"/>'
+    // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
+    +'<sheetFormatPr defaultRowHeight="'+(defaultRowHeightpx * 0.75)+'" customHeight="1" />'
+    +'<cols>' ;
   
     // Configure each column with widths, and with styles for new cells.
     for (var col=0; col < numColumns; col++){
+      // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
+      // If widths are missing, then use the character count.
       // Calculate column width based on number of characters. Formula comes from:
       // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
       var width = 0;
-      if (charcounts[col] != null && ! isNaN(parseInt(charcounts[col],10)) )
+      if (colWidths[col] != null )
+        width = pui.round( (colWidths[col] - 5)/7, 2);
+      else if (charcounts[col] != null && ! isNaN(parseInt(charcounts[col],10)) )
         width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
       
       //If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
@@ -3153,7 +3274,11 @@ pui.xlsx_worksheet = function(numcols){
       
       xml += '</row>';
     }
-    xml += '</sheetData></worksheet>';
+    xml += '</sheetData>'; 
+    if (useDrawing){
+      xml += '<drawing r:id="rId1"/>';
+    }
+    xml += '</worksheet>';
     
     return xml;
   };
@@ -3191,6 +3316,180 @@ pui.xlsx_worksheet = function(numcols){
   
 };
 
+/**
+ * Object for creating XML strings for MS Excel 2007+ picture references.
+ * @constructor
+ * @returns {undefined}
+ */
+pui.xlsx_drawing = function(){
+  
+  var nameCtr = 1;     //Counter of image names.
+  var extensions = {}; //File extensions needed for the different types of images.
+  var rels = [];       //List of relationships; e.g. rId1 is ../media/image1.png, etc.
+  var anchors = [];    //List of row/columns and relationship IDs.
+  
+  /**
+   * Add URI and dimensions of an image to the drawing. 
+   * @param {Number} row
+   * @param {Number} column
+   * @param {String} imageURI   This should already be right-trimmed.
+   * @param {Object} dimens     Dimensions: top, left, width, height numeric values in pixels.
+   *                            These should never be null or undefined.
+   * @returns {undefined}
+   */
+  this.addImage = function(row, column, imageURI, dimens){
+    var matches = imageURI.match(/\.(jpe?g|gif|png)$/i);
+    if (matches == null){
+      console.log("Unsupported image type in URI:",imageURI);
+      return;
+    }
+    var ext = matches[1];
+    if (ext == "jpeg") ext = "jpg";
+    
+    //Look for the URL in a list of existing URLs.
+    var rel = -1;
+    for (var i=0; i < rels.length; i++){
+      if (rels[i].uri == imageURI ){
+        rel = i;
+        break;
+      }
+    }
+    if (rel < 0 ){   //There isn't a relationship for the URI; add it.
+      //Generate a new image name: Use the image name counter for base name.
+      var newName = "image"+nameCtr + "." + ext;
+      nameCtr++;
+      
+      //Choose the appropriate content-type: png: image/png; etc. Add to a collection.
+      extensions[ext] = "image/"+ext;
+      
+      rels.push({ name: newName, uri: imageURI });    //Store the relationship. 
+      rel = rels.length - 1;
+    }
+    //Store the picture position, rId, and dimensions.
+    anchors.push({row: row, col: column, rel: rel,
+      top: dimens.top, left: dimens.top, width: dimens.width, height: dimens.height
+    });
+  };
+  
+  // returns XML text for drawing1.xml
+  this.getDrawingXML = function(){
+    var xml = pui.xmlstart
+    + '<xdr:wsDr xmlns:xdr="'+pui.xlsx_domain+'/drawingml/2006/spreadsheetDrawing" xmlns:a="'+pui.xlsx_domain+'/drawingml/2006/main">';
+    for (var i=0; i < anchors.length; i++){
+      xml +=
+      '<xdr:twoCellAnchor editAs="oneCell">'
+      + '<xdr:from>'
+      +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
+      // Offsets are in English Metric Units (EMU): 914400 EMU per inch. At 96 pixels per inch, a pixel is 9525 EMUs.
+      // https://msdn.microsoft.com/en-us/library/ff531172(v=office.12).aspx
+      +   '<xdr:colOff>'+ Math.round(anchors[i].left * 9525) +'</xdr:colOff>'
+      +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
+      +   '<xdr:rowOff>'+ Math.round(anchors[i].top * 9525) +'</xdr:rowOff>'
+      + '</xdr:from>'
+      + '<xdr:to>'
+      +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
+      +   '<xdr:colOff>'+ Math.round((anchors[i].width + anchors[i].left)*9525) +'</xdr:colOff>'
+      +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
+      +   '<xdr:rowOff>'+ Math.round((anchors[i].height + anchors[i].top)*9525) +'</xdr:rowOff>'
+      + '</xdr:to>'
+      + '<xdr:pic>'
+      + '<xdr:nvPicPr>'
+      +   '<xdr:cNvPr id="'+(i+1)+'" name="Picture '+(i+1)+'"/>'
+      +   '<xdr:cNvPicPr>'
+      +     '<a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>'
+      +   '</xdr:cNvPicPr>'
+      + '</xdr:nvPicPr>'
+      +   '<xdr:blipFill>'
+      +     '<a:blip xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'" r:embed="rId'+(anchors[i].rel + 1)+'">'
+      +     '</a:blip>'
+      +     '<a:srcRect/>'
+      +     '<a:stretch>'
+      +       '<a:fillRect/>'
+      +     '</a:stretch>'
+      +   '</xdr:blipFill>'
+      +   '<xdr:spPr bwMode="auto">'
+      +     '<a:xfrm>'    //Note: Excel adds some "a" tags to xfrm. Omitting them seems fine.
+      +     '</a:xfrm>'
+      +     '<a:prstGeom prst="rect">'
+      +       '<a:avLst/>'
+      +     '</a:prstGeom>'
+      +     '<a:noFill/>'
+      +   '</xdr:spPr>'
+      + '</xdr:pic>'
+      + '<xdr:clientData/>'
+      + '</xdr:twoCellAnchor>';
+    }
+    xml += '</xdr:wsDr>';
+    return xml;
+  };
+  
+  /**
+   * Returns XML text for drawing1.xml.rels
+   * @returns {String}
+   */
+  this.getDrawingRelsXML = function(){
+    var xml = pui.xmlstart
+    + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
+    for (var i=0; i < rels.length; i++){
+      xml += '<Relationship Id="rId'+(i+1)+'" Type="'+pui.xlsx_xmlns_officedoc_rels + '/image" Target="../media/'+ rels[i].name +'"/>';
+    }
+    xml += '</Relationships>';
+    return xml;
+  };
+  
+  /**
+   * Download the images into this drawing object, then execute a callback.
+   * @param {Function} cbFinished       Runs when all images are loaded into blobs.
+   * @param {Function} cbSetTempStatus  Sets the PagingBar's temporary status text.
+   * @returns {undefined}
+   */
+  this.loadImages = function(cbFinished, cbSetTempStatus){
+    
+    var dlcount = 0;
+    
+    //Handler for XHR.onload. Waits until all XHRs are finished, moves the images to rel[i].image, then calls callback.
+    function checkDone(){
+      dlcount++;
+      if (rels.length > 0)
+        cbSetTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
+      if (dlcount < rels.length) return;  //Wait until all xhr's are finished.
+      
+      //All are finished, so extract the images.
+      for (var i=0; i < rels.length; i++){
+        rels[i].image = rels[i].xhr.response;
+        rels[i].xhr = null;
+        try{  delete rels[i].xhr;  }catch(exc){}
+      }
+      cbFinished();
+    }
+    
+    //Make XHRs for each image, and download all asynchronously.
+    for (var i=0; i < rels.length; i++){
+      rels[i].xhr = new XMLHttpRequest();
+      rels[i].xhr.open("GET", rels[i].uri, true );
+      rels[i].xhr["responseType"] = "blob";
+      rels[i].xhr.onload = checkDone;
+      rels[i].xhr.send();
+    }
+  };
+  
+  /**
+   * Return an array of objects: {name: imageName, image: blob }
+   * The images should have already been loaded with loadImages.
+   * @returns {Array}
+   */
+  this.getImages = function(){
+    return rels;
+  };
+  
+  /**
+   * Return a collection of file extensions for all images in the drawing.
+   * @returns {Object}
+   */
+  this.getExtensions = function(){
+    return extensions;
+  };
+};
 
 /**
  * Returns the column descriptions for a database file or SQL statement.

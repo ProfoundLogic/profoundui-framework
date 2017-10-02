@@ -31,6 +31,7 @@ pui.PagingBar = function() {
   this.width = 500;
   this.csvExport = false;
   this.xlsxExport = false;
+  this.xlsxExportPics = false;
   this.showPagingControls = false;
   this.showPageNumber = false;
   this.showBar = false;
@@ -59,6 +60,8 @@ pui.PagingBar = function() {
   var exportLink;
   var exportImgXLSX;
   var exportLinkXLSX;
+  var tempStatusDiv;
+  
   var spacesSpan1;
   var spacesSpan2;
   var pageSpan;
@@ -112,6 +115,15 @@ pui.PagingBar = function() {
     if (typeof div.style.MozUserSelect!="undefined") div.style.MozUserSelect = "none";
 
     me.container.appendChild(div);
+    
+    tempStatusDiv = document.createElement("div");   //An element that is shown temporarily for feedback.
+    tempStatusDiv.style.position = "absolute";
+    tempStatusDiv.style.top = "2px";
+    tempStatusDiv.style.left = "2px";
+    tempStatusDiv.style.width = "0px";
+    tempStatusDiv.style.padding = "0px";
+    tempStatusDiv.style.display = "none";
+    div.appendChild(tempStatusDiv);
 
     exportImg = document.createElement("div");
     exportImg.style.cursor = "pointer";
@@ -438,6 +450,8 @@ pui.PagingBar = function() {
     spacesSpan2 = null;
     pageSpan = null;
     
+    tempStatusDiv = null;
+    
     me = null;  
   };
   
@@ -454,11 +468,12 @@ pui.PagingBar = function() {
   };
   
   this.draw = function() {
+    tempStatusDiv.style.display = "none";    //By default, the temporary status div should not be visible.
 
     me.setClassName(me.grid.tableDiv.className);
 
     if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
-        me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {  
+        me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {
       me.position();
 
       var disp = me.csvExport ? "" : "none";
@@ -470,7 +485,7 @@ pui.PagingBar = function() {
       exportLinkXLSX.style.display = disp;
                                          
       // If both XLSX export and CSV export are set, use different text, and different position for XLSX link.
-      if (this.xlsxExport && this.csvExport){
+      if (me.xlsxExport && me.csvExport){
         exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["Excel CSV"]);
         exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["Excel XLSX"]);
         exportImgXLSX.style.left = "160px";
@@ -557,7 +572,7 @@ pui.PagingBar = function() {
       else {
         pageSpan.style.display = "none";
       }
-      
+  
     }
     
     else {
@@ -580,6 +595,33 @@ pui.PagingBar = function() {
     return div.offsetHeight;
   
   };
-
+  
+  /**
+   * Set the text on the temporary status div.
+   * @param {String} str   
+   * @returns {undefined}
+   */
+  this.setTempStatus = function(str){
+    tempStatusDiv.innerHTML = str;
+  };
+  
+  /**
+   * Show the temporary status div and hide everything else in the PagingBar.
+   * @returns {undefined}
+   */
+  this.showTempStatusDiv = function(){
+    exportImg.style.display = "none";
+    exportLink.style.display = "none";
+    exportImgXLSX.style.display = "none";
+    exportLinkXLSX.style.display = "none";
+    
+    me.prevImg.style.display = "none";
+    me.prevLink.style.display = "none";
+    me.nextImg.style.display = "none";
+    me.nextLink.style.display = "none";
+    pageSpan.style.display = "none";
+    
+    tempStatusDiv.style.display = "";
+  };
 };
 

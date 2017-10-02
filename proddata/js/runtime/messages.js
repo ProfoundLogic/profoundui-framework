@@ -166,6 +166,9 @@ pui["runtimeMsg"]["en_US"]["failed to load x"]        = "Failed to load &1.";
 pui["runtimeMsg"]["en_US"]["cannot rmv last col"]     = "You cannot remove the last column.";
 pui["runtimeMsg"]["en_US"]["cannot find col"]         = "Cannot find the specified columnId.";
 pui["runtimeMsg"]["en_US"]["subfile deletion"]        = "Are you sure you want to delete the subfile?";
+pui["runtimeMsg"]["en_US"]["downloading x"]           = "Downloading &1";
+pui["runtimeMsg"]["en_US"]["ie9 too low xlsxpics"]    = "Images cannot be exported using IE9 or lower.";
+
 // Atrium only.
 pui["runtimeMsg"]["en_US"]["num sessions exceeded"]   = "Number of allowed sessions exceeded.";
 pui["runtimeMsg"]["en_US"]["unable to load portal"]   = "Unable to load portal settings or navigation items.";

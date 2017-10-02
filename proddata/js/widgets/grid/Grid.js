@@ -707,12 +707,14 @@ pui.Grid = function() {
     var graphicData = [];
     var boundVisibility  = [];
     var boundDate = [];
+    var imageData = [];
     for (var i = 0; i < me.vLines.length - 1; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
       boundVisibility.push(false);
       boundDate.push(false);
+      imageData.push(false);
     }
         
     var tempformats = [];
@@ -729,6 +731,8 @@ pui.Grid = function() {
           }
           var val = itm["value"];
           if (itm["field type"] == "html container") val = itm["html"];
+          
+          if (itm["field type"] == "image" && exportXLSX) val = itm["image source"];
 
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
             var fieldName = pui.fieldUpper(val["fieldName"]);
@@ -747,18 +751,39 @@ pui.Grid = function() {
                 if (val["dataType"] == "graphic") {
                    graphicData[col] = true;
                 }
+                //If the item is an image, then it will be exported with XLSX.
+                if (exportXLSX && itm["field type"] == "image"){
+                  //Set base-line values in case the domEl isn't set--something that shouldn't happen.
+                  imageData[col] = { left: 2, top: 2, height: 16, width: 16 };
+                  // Look for a picture that is visible in the grid.
+                  if (itm.domEls != null && itm.domEls.length > 0)
+                    for (var domelid=0; domelid < itm.domEls.length; domelid++){
+                      if (itm.domEls[domelid] && itm.domEls[domelid].offsetWidth > 0 && itm.domEls[domelid].offsetHeight > 0 ){
+                        imageData[col] = { left: itm.domEls[domelid].offsetLeft, top: itm.domEls[domelid].offsetTop,
+                          height: itm.domEls[domelid].offsetHeight, width: itm.domEls[domelid].offsetWidth };
+                        break;
+                      }
+                    }
+                } //done setting up picture dimensions for XLSX export.
                 break;
               }
             }
-          }
-        }
+          } //end if value is bound, not indicator, not expression.
+        } //end if item column is valid.
       }
     }
     
     var data = "";    //CSV data.
     var worksheet;
+    var workbook;
+    var drawing;
+    var useDrawing = false;
     if (exportXLSX){
+      workbook = new pui.xlsx_workbook();
       worksheet = new pui.xlsx_worksheet(colcount);
+      worksheet.setDefaultRowHeight( me.rowHeight );
+      worksheet.setColumnWidths( me.getColumnWidths().split(",") );
+      drawing = new pui.xlsx_drawing();
       colcount = 0;
       // Look at each column containing a value, set the format. Use same order that cell values will use.
       for (var i = 0; i < columnArray.length; i++) {
@@ -770,7 +795,7 @@ pui.Grid = function() {
       tempformats = null;
     }
     
-    // build csv headings
+    //Build cell headings.
     if (me.hasHeader && me.exportWithHeadings) {
       if (exportXLSX) worksheet.newRow();
       
@@ -844,16 +869,45 @@ pui.Grid = function() {
           if (line != "") line += delimiter;
           line += '"' + rtrim(value) + '"';
           
-          if (exportXLSX) worksheet.addCell(rtrim(xlsxvalue) );
+          if (exportXLSX){
+            if (typeof imageData[j] == "object" && imageData[j] != null){   //The cell data is an image.
+              useDrawing = true;
+              var colNum = worksheet.addCell("");     //Add a blank cell.
+              if(xlsxvalue != null && xlsxvalue.length > 0)
+                drawing.addImage(worksheet.getCurRow(), colNum, xlsxvalue, imageData[j] );
+            }else{
+              worksheet.addCell(rtrim(xlsxvalue) );     //The cell data is a string or number and not an image.
+            }
+          }
         }
       }
       if (data != "") data += "\n";
       data += line;
     }
-
-    if (exportXLSX)
-      pui.xlsx_workbook_download(fileName, worksheet);
-    else
+    
+    if (exportXLSX){
+      if (useDrawing && me.pagingBar.xlsxExportPics ){
+        if (pui["ie_mode"] <= 9){
+          // Fail gracefully: notify the user that pics can't be exported, but still export the XLSX. 
+          me.pagingBar.setTempStatus( pui["getLanguageText"]("runtimeMsg", "ie9 too low xlsxpics") );
+          me.pagingBar.showTempStatusDiv();
+          setTimeout(me.pagingBar.draw, 2000);
+        }else{
+          // For IE >= 10 and other browsers, export with pictures.
+          worksheet.useDrawing();
+          workbook.setDrawing(drawing);
+          workbook.setCallbacks( me.pagingBar.setTempStatus, me.pagingBar.draw );
+          me.pagingBar.setTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]) );
+          me.pagingBar.showTempStatusDiv();
+        }
+      }
+      workbook.setFileName(fileName);
+      workbook.setWorksheet(worksheet);
+      if (pui["is_ie"])
+        setTimeout(workbook.download, 100);   //IE needs a delay to update the paging bar.
+      else
+        workbook.download();
+    } else
       pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
   };
   
@@ -959,6 +1013,7 @@ pui.Grid = function() {
       }
 
       var worksheet = new pui.xlsx_worksheet(numCols);
+      var workbook = new pui.xlsx_workbook();
       
       if (response["fields"] != null && response["results"].length > 0){
         // DB-Driven grid got PUI0009101 response; set the column formats if we can match column names.
@@ -1005,7 +1060,9 @@ pui.Grid = function() {
         }
       }
       
-      pui.xlsx_workbook_download(fileName, worksheet);
+      workbook.setFileName(fileName);
+      workbook.setWorksheet(worksheet);
+      workbook.download();
       me.unMask();
     }//end makexlsx().
   };
@@ -3659,6 +3716,10 @@ pui.Grid = function() {
           me.pagingBar.draw();
           positionIcons();
         }
+        break;
+        
+      case "xlsx export pics":
+        me.pagingBar.xlsxExportPics = (value == true || value == "true");
         break;
 
       case "export file name":
@@ -7103,7 +7164,8 @@ pui.Grid = function() {
       { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: "Specifies a response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
       
       { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
-      { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },      
+      { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
+      { name: "xlsx export pics", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Include pictures in the XLSX Export. This option only works for Load-All subfiles.", context: "dspf" },
       { name: "export file name", help: "Defines the name of the download file used to export grid data to CSV or XLSX formats.  The .xlsx or .csv extension is automatically appended to the name.  If omitted, the record format name is used." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },      
       { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context=="genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
       
