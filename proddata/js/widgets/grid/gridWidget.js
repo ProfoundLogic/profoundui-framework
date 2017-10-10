@@ -32,6 +32,8 @@ pui.widgets.add({
     "number of columns": "3",
     "column widths": "150,150,150",
     "column headings": "Heading 1,Heading 2,Heading 3"
+    //"show bar": "true",
+    //"xlsx export": "true"
   },
   
   globalPropertySetter: function(parms) {
@@ -42,7 +44,10 @@ pui.widgets.add({
       if (parms.design && !parms.dom.grid.designMode) {
         parms.dom.grid.enableDesign();
         parms.dom.grid.setProperty("show paging controls", parms.properties["show paging controls"]);
+        parms.dom.grid.setProperty("show page number", parms.properties["show page number"]);
+        parms.dom.grid.setProperty("show bar", parms.properties["show bar"]);
         parms.dom.grid.setProperty("csv export", parms.properties["csv export"]);
+        parms.dom.grid.setProperty("xlsx export", parms.properties["xlsx export"]);
       }
 
       // improve performance in IE (IE is very slow when setting the .scrollTop property on a div)
