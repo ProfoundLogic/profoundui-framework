@@ -21,6 +21,7 @@
 
 /**
  * Auto-Complete Class
+ * @param {Object} config Configuration.
  * @constructor
  */
 
@@ -1315,8 +1316,14 @@ function applyAutoComp(properties, originalValue, domObj) {
             firstField = i;
             break;
           }
-          if (firstField == null) domObj.value = "";
-          else domObj.value = firstRec[firstField];
+          if (firstField == null){
+            //If the field's value doesn't match any auto-complete results, then clear the value.
+            //If FACM is false, then the response value should be used, even when no autocomplete results match.
+            if(pui["force auto complete match"] !== false)
+              domObj.value = "";
+          }else{
+            domObj.value = firstRec[firstField];
+          }
         };
         autoCompQueries += 1;
         
