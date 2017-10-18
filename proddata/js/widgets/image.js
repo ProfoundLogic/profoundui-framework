@@ -108,6 +108,16 @@ pui.widgets.add({
     
     "image source": function(parms) {
       parms.dom.originalImage = pui.normalizeURL(parms.value, true);
+      //SVG images need a set width or height in Firefox in order to be moved around the designer canvas, 
+      //if the user does not set either when setting the source to svg, we will set the width. 
+      if (parms.design && parms.dom.originalImage["indexOf"]('.svg') != -1) {
+        if (!parms["properties"]["width"] && !parms["properties"]["height"]) {
+          var propModel = getPropertiesNamedModel();
+          var widthConfig = pui.getPropConfig(propModel, 'width');
+          parms.dom = applyPropertyToField(widthConfig, parms["properties"], parms.dom, '200px', parms.design, parms.designItem, parms.resizer);
+          parms.designItem.designer.propWindow.updateProperty('width', '200px', true);
+        }
+      } 
     },
 
     "hover image source": function(parms) {
