@@ -385,7 +385,8 @@ function TabPanel() {
         tabSpan.style.borderRight = "1px solid " + borderColor;
         if (i != me.selectedTab) {
           tabSpan.style.borderBottom = "1px solid " + borderColor;
-          tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
+          if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];  
+          else  tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
           if (context == "genie") {
             tabSpan.style.filter = "progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=white,endColorStr=#"+simpleSelectedTabBackgroundColor+")";
           }
@@ -855,7 +856,8 @@ function TabPanel() {
       // Use color of selected tab unless overridden by config option.
       if( pui["tabpanel scroll unsel style"] != true)
         tabSpan.style.backgroundColor = me.backColor;
-      else
+      else if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];
+      else  
         tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
     }
 
