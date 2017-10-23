@@ -63,12 +63,17 @@ function getEBCDICByteCount(charString) {
 
 // Prevents "blur-ing" field if the EBCDIC byte count of its data will overrun the amount available.
 function validateByteCount(event, field) {
+
 	if (field == null) {
 		event = event || window.event;
 		field = event.target || event.srcElement;		
 	}
 	if (!pui.isTextbox(field)) return;
 	if (field.choices != null) return;
+	
+	// If it's a DBCSDataType of "G", skip it...
+	if (field.fieldInfo["DBCSDataType"] && field.fieldInfo["DBCSDataType"] == "G") return;
+	
 	if (getEBCDICByteCount(rtrim(field.value)) > field.maxLength) {
 		if (field == null) {
 			event.cancelBubble = true;

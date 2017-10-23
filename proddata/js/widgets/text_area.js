@@ -78,6 +78,7 @@ function textArea_cleanUp(e) {
   
   var merge = false;
   var cursorLine;
+  var tstLineLength = 0;
   for (var i = 0; i < len; i++) {
     var ch = val.substr(i, 1);
     if (ch == "\n" || ch == "\r") {
@@ -94,7 +95,13 @@ function textArea_cleanUp(e) {
       }
     }
     else {
-      if (getEBCDICByteCount(lines[curLine]) >= lineLengths[curLine]) {
+      // If the current line we're on is from a unicode field of type "G" use the actual length...
+      if (obj.related[curLine].fieldInfo["DBCSDataType"] && obj.related[curLine].fieldInfo["DBCSDataType"] == "G") {
+        tstLineLength = lines[curLine].length;
+      } else {
+        tstLineLength = getEBCDICByteCount(lines[curLine]);
+      }
+      if (tstLineLength >= lineLengths[curLine]) {
         if (curLine >= lineLengths.length - 1) {
           break;
         }
