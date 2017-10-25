@@ -4741,7 +4741,7 @@ pui.getDimensions = function(screen) {
   // all of the widgets. That rectangle should be the size of the screen.
   var obj = screen.firstChild;
   while (obj != null) {
-    if (!obj.isPUIWindow && !obj.isPUIWindowMask && obj.style != null && obj.style.position == "absolute") {
+    if (!obj.isPUIWindow && !obj.isPUIWindowMask && obj.style != null && obj.style.position == "absolute" && obj.pui) {
       var x1 = obj.offsetLeft;
       var y1 = obj.offsetTop;
       var x2 = x1 + obj.offsetWidth;
