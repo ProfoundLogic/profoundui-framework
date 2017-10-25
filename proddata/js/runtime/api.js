@@ -2119,3 +2119,541 @@ pui["showLastError"] = function() {
   alert(message);
   
 }
+
+
+// pui.editCode( number, editCode, [length, [decPos]], [curSym], [options] );
+//
+//    number = JS number to format
+//  editCode = edit code (user defined codes not allowed)
+//    length = (optional) total number of digits in output. default = size of input
+//    decPos = (optional) number of decimal places in output, default = 0
+//    curSym = (optional) currency symbol. default = none
+//   options = (optional) object containing additional options
+//     .dateEdit = *ymd for year/month/day
+//     .dateEditSeparator = date separator to use
+//     .decimalEdit = string with 0 for leading zero, plus decimal format
+//                    for example, "0," for leading zero and commas.
+//                                 "." for no leading zero and periods, etc.
+//
+//  Examples:
+//     var foo = -0.123;
+//     pui.editCode(foo, "K");         output = " .123-"
+//     pui.editCode(foo, "K", 10, 5);  output = "     .12300-"
+
+pui["editCode"] = function(numeric, code) {
+
+  var parmLen = null;
+  var parmDec = 0;
+  var curSym = null;
+  var controlOptions = { };
+
+  // If the args after the edit code are numeric 
+  // they will be the length and decimal places
+  
+  var nextArg = 2;
+  if (typeof arguments[nextArg] === "number") {
+    
+    var parmLen = arguments[nextArg];
+    nextArg ++;
+
+    if (typeof arguments[nextArg] === "number") {
+      parmDec = arguments[nextArg];
+      nextArg ++;
+    }
+  }
+  
+  // if the next parameter is a string, it is the
+  // optional currency symbol
+  
+  if (typeof arguments[nextArg] === "string") {
+    curSym = arguments[nextArg];
+    nextArg ++;
+  }
+  
+  // if the next parameter is an object, it is
+  // the control options (replacing RPG's H-spec)
+  
+  if (typeof arguments[nextArg] === "object") {
+    controlOptions = arguments[nextArg];
+    nextArg ++;
+  }
+
+  var astFill = false;
+  if (curSym === "*astfill") {
+    astFill = true;
+    curSym = null;
+  }
+
+  
+  function formatAsDate(num, len) {
+    var patterns = [
+      "",            // 0
+      "",            // 1
+      "",            // 2
+      "nn/n",        // 3
+      "nn/nn",       // 4
+      "nn/nn/n",     // 5
+      "nn/nn/nn",    // 6
+      "nnn/nn/nn",   // 7
+      "nn/nn/nnnn",  // 8
+      "nnn/nn/nnnn"  // 9
+    ]
+    if (controlOptions["dateEdit"] === "*ymd") {
+      patterns[8] = "nnnn/nn/nn";
+      patterns[9] = "nnnnn/nn/nn";
+    }
+    var pattern = patterns[dataLength];
+    num = String(num);
+    num = num.replace(".", "");
+    num = num.replace(",", "");
+    num = num.replace("-", "");
+    num = "0000000000" + num;
+    num = num.substr(num.length - len);
+    var separator = "/";
+    if (controlOptions["dateEditSeparator"] != null) separator = controlOptions["dateEditSeparator"];
+    var useZeros = false;
+    var idx = 0;
+    var returnValue = "";
+    for (var i = 0; i < pattern.length; i++) {
+      var ch = pattern.substr(i, 1);
+      var ch2 = pattern.substr(i + 1, 1);
+      if (ch === "/" || ch2 === "/") useZeros = true;
+      if (ch === "/") {
+        ch = separator;
+      }
+      else {
+        ch = num.substr(idx, 1);
+        idx += 1;
+        if (ch === "0") {
+          if (!useZeros) ch = " ";
+        }
+        else {
+          useZeros = true;
+        }
+      }
+      returnValue += ch;
+    }
+    return returnValue;
+  }
+  
+  function leftPad(str, len, chr) {
+    str += '';
+    while(str.length < len){
+      str = chr + str;
+    }
+    return str;
+  }
+
+  function rightPad(str, len, chr) {
+    str += '';
+    while(str.length < len){
+      str += chr;
+    }
+    return str;
+  }
+  
+  function fill() {
+    var fillLen = dataLength;
+    fillLen += (decLength && !noDecimal ? 1 : 0);
+    if (numSep) fillLen += parseInt((dataLength - decLength - 1) / 3);
+    if (negNum === "999.00CR") fillLen += 2;
+    if (negNum === "999.00-") fillLen += 1;
+    if (negNum === "-999.00") fillLen += 1;
+    if (typeof curSym === "string") fillLen += curSym.length;
+    strValue = leftPad(strValue, fillLen, fillChar);
+  }
+
+  var zeroFill = false;
+  var negNum = null;
+  var numSep = false;
+  var zeroBalance = false;
+  var noDecimal = false;
+
+  var decimalFormat = " ";
+  if (pui.appJob && typeof pui.appJob["decimalFormat"] === "string") decimalFormat = pui.appJob["decimalFormat"];
+  
+  var commaDecimal = (decimalFormat === "I" || decimalFormat === "J");  
+  var leadingZeros = (decimalFormat === "J");
+  
+  if (controlOptions["decimalEdit"] != null) {
+    commaDecimal = (controlOptions["decimalEdit"] === "," || controlOptions["decimalEdit"] === "0,");
+    leadingZeros = (controlOptions["decimalEdit"] === "0." || controlOptions["decimalEdit"] === "0,");
+  }
+
+  if (code >= "1" && code <= "4") negNum = "999.00";
+  if (code >= "A" && code <= "D") negNum = "999.00CR";
+  if (code >= "J" && code <= "M") negNum = "999.00-";
+  if (code >= "N" && code <= "Q") negNum = "-999.00";
+  
+  if (code == "1" || code == "A" || code == "J" || code == "N" || 
+      code == "2" || code == "B" || code == "K" || code == "O") numSep = true;
+
+  if (code == "1" || code == "A" || code == "J" || code == "N" || 
+      code == "3" || code == "C" || code == "L" || code == "P") {
+    zeroBalance = true;
+  }
+  else {
+    zeroBalance = false;
+  }
+  
+  if (code == "Z") {
+    negNum = "999.00";
+  }
+  if (code === "X" || code === "Z") {
+    noDecimal = true;
+  }
+  if (code === "X") {
+    zeroFill = true;
+  }
+  
+  if (code >= "5" && code <= "9") {
+    pui.alert("User-defined edit code not supported: " + code + ".");
+  }
+  if (!(code >= "1" && code <= "9" || 
+        code >= "A" && code <= "D" || 
+        code >= "J" && code <= "Q" || 
+        code >= "X" && code <= "Z")) {
+    pui.alert("Invalid edit code: " + code + ".");
+  }
+
+  var strValue = (numeric || 0) + '';
+  var numValue = parseFloat(strValue, 10) || 0;
+  
+  var strInt;      
+  //scrap everything from decimal point on
+  strInt = strValue.replace(/\..*/, '');
+  if (strInt === "-0") strInt = "-";
+  if ((strInt == "" || strInt == "-") && leadingZeros) {
+    strInt = "0";
+  }
+  
+  var strDec;
+  //scrap everything up to and including decimal point      
+  var strValueWithDecimalPoint = strValue;
+  if (strValueWithDecimalPoint.indexOf(".") == -1) strValueWithDecimalPoint += ".";
+  strDec = strValueWithDecimalPoint.replace(/.*\./, ''); 
+
+  var dataLength = strInt.length;  // default length
+  var minDefaultLength = 3;
+  if (dataLength < minDefaultLength) dataLength = minDefaultLength;
+  var decLength = strDec.length;  // default decimal positions
+  
+  if (typeof parmLen === "number") dataLength = parmLen;
+  if (typeof parmDec === "number") decLength = parmDec;
+  
+  if (code == "Y") {
+    if (dataLength < 3 || dataLength > 9) {
+      pui.alert("Length not valid for edit code Y.");
+    }
+    return formatAsDate(numValue, dataLength);
+  }
+  
+  var decimalChar = ".";
+  if (commaDecimal) decimalChar = ",";
+  if (noDecimal) decimalChar = "";
+  
+  if (decLength > 0){
+    strDec = rightPad(strDec, decLength, '0');
+    if (strInt === "0" && !leadingZeros) strInt = "";
+    strValue = strInt + decimalChar + strDec;
+  }
+  
+  var fillChar = " ";
+  if (zeroFill) fillChar = "0";
+  if (astFill) fillChar = "*";
+  
+  if (numSep) {
+    var regex = /(\d+)(\d{3})/;
+    while(regex.test(strInt)){
+      strInt = strInt.replace(regex, '$1' + (commaDecimal ? '.' : ',') + '$2');
+    }
+    strValue = strInt + (decLength > 0 ? decimalChar + strDec : '');
+    var commaCount = dataLength - decLength - 1;
+    commaCount = (commaCount >= 0 ? commaCount : 0);
+  }
+  
+  //format negative numbers
+  var isNegative = numValue < 0;
+  strValue = strValue.replace(/-/g, '');
+  if (negNum === '(999.00)') {
+    if (isNegative) {
+      strValue = '(' + strValue + ')';
+    }
+  }
+  else if (negNum === '999.00-') {
+    if (isNegative) {
+      strValue += '-';
+    }
+    else {
+      strValue += ' ';
+    }
+  }
+  else if (negNum === '999.00CR') {
+    if (isNegative) {
+      strValue += 'CR';
+    }
+    else {
+      strValue += "  ";
+    }
+  }
+  else if (negNum === '-999.00') {
+    if (isNegative) {
+      strValue = '-' + strValue;
+    }
+  }
+
+  if (curSym) {
+    if (curSym == "EUR") {
+      strValue = strValue + " EUR";
+    }
+    else if (curSym == "$") {
+    if (strValue.substr(0,1) == "-") {
+        strValue = "-" + curSym + strValue.substr(1);
+      }
+      else {
+        strValue = curSym + strValue;
+      }
+    }
+    else {
+      strValue = curSym + strValue;
+    }
+  }
+
+  if (!zeroBalance) {
+    if (numValue === 0) {
+      strValue = '';
+    }
+  }
+  
+  fill();
+  
+  return strValue;
+}
+
+
+
+// pui.editWord( number, editWord, [options])
+//
+//    number = JS number to format
+//  editWord = edit word in standard IBM format
+//   options = (optional) object containing additional options
+//     .currencySymbol = symbol to use, $ is default. Must match
+//                        the character used in the edit word
+//     .decimalFormat = blank, I or J. Controls whether commas
+//                        or periods are used as the decimal
+//                        separator. Must match the character
+//                        used in the edit word.  Default is
+//                        to use the setting from the application
+//                        job, or blank (period) if running 
+//                        outside of a session.
+
+
+pui["editWord"] = function(value, edtwrd, parmOpts) {
+
+  var value = String(value);
+  var controlOptions = {};
+
+  if (typeof parmOpts === "object") {
+    controlOptions = parmOpts;
+  }
+  
+  // get currency symbol
+  var curSym = "$";
+  if (controlOptions["currencySymbol"] != null) curSym = controlOptions["currencySymbol"];
+  
+  // get zero suppression position
+  var zeroSuppressPos = edtwrd.indexOf("0") + 1;  
+  var zeroSuppressPos2 = edtwrd.indexOf("*") + 1;
+  if (zeroSuppressPos == 0 || (zeroSuppressPos2 != 0 && zeroSuppressPos2 < zeroSuppressPos)) {
+    zeroSuppressPos = zeroSuppressPos2;
+  }  
+  
+  // look for farthest right character that can be replaced by a digit
+  // to determine where the body part of the edit word ends
+  var bodyEndPos = -1;
+  for (var i = edtwrd.length - 1; i >= 0; i = i - 1) {
+    if (i + 1 == zeroSuppressPos || edtwrd.substr(i, 1) == " ") {
+      bodyEndPos = i;
+      break;
+    }
+  }
+  
+  // get body, status, and expansion parts of the edit word
+  var editBody = edtwrd.substr(0, bodyEndPos + 1);
+  var editStatus = "";
+  var editExpansion = "";
+  var done = false;
+  var encounteredSign = false;
+  var hasSign = (edtwrd.substr(bodyEndPos + 1).indexOf("-") >= 0 || edtwrd.substr(bodyEndPos + 1).indexOf("CR") >= 0);
+  for (var i = bodyEndPos + 1; i < edtwrd.length; i++) {
+    var ch = edtwrd.substr(i, 1);
+    if (edtwrd.substr(i, 2) == "CR") {
+      encounteredSign = true;
+      i++;
+      continue;
+    }
+    if (ch == "-") {
+      encounteredSign = true;
+      continue;
+    }
+    if (ch == "&") {
+      continue;
+    }
+    if (ch == "*" && !encounteredSign) {
+      continue;
+    }
+    if (ch.toUpperCase() >= "A" && ch.toUpperCase() <= "Z" && hasSign && !encounteredSign) {
+      edtwrd = edtwrd.substr(0,i) + " " + edtwrd.substr(i + 1);
+      continue;
+    }
+    editStatus = edtwrd.substring(bodyEndPos + 1, i);
+    editExpansion = edtwrd.substr(i);
+    done = true;
+    break;
+  }
+  if (!done) {
+    editStatus = edtwrd.substr(bodyEndPos + 1);
+  }
+
+  // Figure out which character is used for a decimal place in
+  // the edit word.
+  var decimalChar = ".";
+  var decimalFormat = " ";
+  if (pui.appJob && typeof pui.appJob["decimalFormat"] === "string") decimalFormat = pui.appJob["decimalFormat"];
+  if (typeof controlOptions["decimalFormat"] === "string") decimalFormat = controlOptions["decimalFormat"];
+  if (decimalFormat==="I" || decimalFormat==="J") decimalChar = ",";
+
+  // Count how many spaces come after the decimal place in the edit word pattern
+  // we need to pad to this position to make the decimals line up
+  
+  var editDecPos = 0;
+  var editDecPortion = editBody.split(decimalChar);
+  if (editDecPortion.length > 1) {
+    var editDecBlanks = editDecPortion[1].replace(/[^ ]/g, "");
+    editDecPos = editDecBlanks.length;
+  }
+  
+  // format value as a string of digits
+  
+  var charValue;
+  if (isNaN(Number(value))) {
+    charValue = "0";
+  }
+  else {
+    charValue = String(value);
+  }
+  
+  charValue = charValue.replace("-", "");  // remove negative sign
+  var numParts = charValue.split(".");     // since this came from a JS number, will never be comma
+  var intPortion = numParts[0];
+  var decPortion = "";
+  var decPos = null;
+  if (numParts.length > 1) decPortion = numParts[1];
+  if (decPos == null || isNaN(decPos)) {
+    decPos = editDecPos;
+  }
+  while (decPortion.length > decPos) {
+    decPortion = decPortion.substr(0, decPortion.length - 1);
+  }
+  while (decPos > decPortion.length) {
+    decPortion += "0";
+  }
+  charValue = intPortion + decPortion;
+  while (charValue.substr(0,1) == "0") {
+    charValue = charValue.substr(1);
+  }
+
+  // format body part of edit word  
+  var newValue = "";
+  var beforeSignificantDigits = false;
+  var asteriskProtection = false;
+  var floatingCurSym = false;
+  var zeroSuppress = false;
+  if (zeroSuppressPos == 0) zeroSuppress = true;
+  function getDigit() {
+    if (charValue.length > 0) {
+      var ch = charValue.substr(charValue.length - 1, 1);
+      charValue = charValue.substr(0, charValue.length - 1);
+      if (ch == "0" && charValue.length == 0 && zeroSuppress) {
+        if (asteriskProtection) ch = "*";
+        else ch = " ";
+      }
+    }
+    else {
+      ch = "0";
+      if (zeroSuppress) ch = " ";
+      if (asteriskProtection) ch = "*";
+    }
+    return ch;
+  }
+  for (var i = editBody.length - 1; i >= 0; i = i - 1) {
+    var ch = editBody.substr(i, 1);
+    var newCh = ch;
+    if (ch == " ") {
+      newCh = getDigit();
+    }
+    else if (ch == "&") {
+      newCh = " ";
+    }
+    else if (ch == "0" && i + 1 == zeroSuppressPos) {
+      newCh = getDigit();
+    }
+    else if (ch == "*") {
+      asteriskProtection = true;
+      newCh = getDigit();      
+    }
+    else if (ch == curSym) {
+      if (i + 2 == zeroSuppressPos) {
+        // floating currency symbol
+        newCh = getDigit();
+        floatingCurSym = true;
+      }
+    }
+    else if (ch == "." || ch == ",") {
+      if (beforeSignificantDigits) {
+        newCh = " ";
+        if (asteriskProtection) newCh = "*";
+      }
+    }
+    else {
+      if (beforeSignificantDigits) {
+        newCh = " ";
+        if (asteriskProtection) newCh = "*";
+      }
+    }
+    
+    newValue = newCh + newValue;
+    
+    if (i <= zeroSuppressPos) zeroSuppress = true;
+    if (zeroSuppress && charValue.length == 0) {
+      beforeSignificantDigits = true;
+    }
+  }
+  
+  // format status part of edit word
+  editStatus = editStatus.replace(/&/g, " ");
+  editStatus = editStatus.replace(/\*/g, " ");
+  if (value >= 0) {
+    editStatus = editStatus.replace("CR", "  ");
+    editStatus = editStatus.replace("-", " ");
+  }
+
+  // combine body, status, expansion results, and add floating currency symbol if applicable
+  var newValue = newValue + editStatus + editExpansion;
+  var len = newValue.length - 1;
+  var newValue = ltrim(newValue);
+  if (asteriskProtection && newValue.substr(0,1) != "*") newValue = "*" + newValue;
+  if (floatingCurSym) newValue = curSym + newValue;
+  
+  var sub = 0;
+  if (newValue[newValue.length-1] === '-') {
+    sub = 1;
+  }
+  
+  while (newValue.length <= len) {
+    newValue = " " + newValue;
+  }
+  
+  return newValue;
+
+}
