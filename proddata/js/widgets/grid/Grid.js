@@ -843,6 +843,7 @@ pui.Grid = function() {
       if (exportXLSX) worksheet.newRow();
       
       for (var j = 0; j < columnArray.length; j++) {
+        var forceDate = false;
         var idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
@@ -858,6 +859,7 @@ pui.Grid = function() {
             // Format CSV date same as rendered date; "0001-01-01" becomes "".
             value = pui.evalBoundProperty(boundDate[j], fieldData, me.ref);
             xlsxvalue = value;
+            forceDate = true;   //Even if the data type is not date, make sure it is formatted as a date.
           }
           value = value.replace(/"/g, '""');  // "
           if (boundVisibility[j] !== false) {
@@ -876,7 +878,8 @@ pui.Grid = function() {
               if(xlsxvalue != null && xlsxvalue.length > 0)
                 drawing.addImage(worksheet.getCurRow(), colNum, xlsxvalue, imageData[j] );
             }else{
-              worksheet.addCell(rtrim(xlsxvalue) );     //The cell data is a string or number and not an image.
+              //The cell data is a string or number and not an image.
+              worksheet.addCell(rtrim(xlsxvalue), (forceDate ? "date" : null) );
             }
           }
         }
