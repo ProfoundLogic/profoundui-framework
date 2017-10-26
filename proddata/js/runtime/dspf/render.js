@@ -5639,8 +5639,16 @@ pui["wikihelp"].sizeOverlay = function(el, overlay){
     ovheight += overlay["pui"].pagingBarHeight;
   }
   else if( overlay["pui"]["field type"] === "styled button" && !overlay["pui"].itemHeight ){
-    var dim = pui.getDimensions(el);
-    ovheight = dim.y2;
+    ovheight = 0;
+    // Look at the dimensions of each of the widget's child elements, and add overall height.
+    var buttonChild = el.firstChild;
+    while (buttonChild != null) {
+      if ( buttonChild.style != null && buttonChild.style.position == "absolute" ) {
+        var btnChildHgt = buttonChild.offsetTop + buttonChild.offsetHeight;
+        if (btnChildHgt > ovheight) ovheight = btnChildHgt;
+      }
+      buttonChild = buttonChild.nextSibling;
+    }
   }
 
   overlay.style.width = ovwidth + "px";
