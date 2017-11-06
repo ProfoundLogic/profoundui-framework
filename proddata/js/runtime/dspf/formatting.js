@@ -586,11 +586,14 @@ pui.FieldFormat = {
       var value = String(obj.value);
       
       if (obj.edtWrd != null) {
+        var negSign = "-";
+        var g1 = /-/.test(value);
+        if(!g1) negSign = "";  
         var originalValue = value;
         value = "";
         for (var i = 0; i < originalValue.length; i++) {
           var ch = originalValue.substr(i,1);
-          if ((ch < "0" || ch > "9") && (ch != decimalChar)) {     
+          if ((ch < "0" || ch > "9") && (ch != decimalChar) && (ch != negSign)) {     //this enables the negative sign appear when editword is applied with the sign '-'.
             ch = "";
           }
           value += ch;
@@ -613,6 +616,13 @@ pui.FieldFormat = {
 
       if(obj.units){
         value = value.replace(new RegExp(pui.formatting.escapeRe(obj.units) + '$'), '');
+      }
+      
+      if(obj.edtWrd != null && value.indexOf('-') != -1) {                           // checks for '-' in between the strings and replace it with empty string.
+        value = trim(value);
+        if(!(value.substring(0,1) == '-') && !(value.substring(value.length-1) == '-')){
+           value = value.replace(/-/g,''); 
+        }
       }
       
       var valid = true;
