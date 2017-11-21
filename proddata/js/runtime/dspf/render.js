@@ -879,21 +879,23 @@ pui.render = function(parms) {
           else if (pui.cursorValues.noFocus != "no focus on page") {
             try {
               pui.focusField.dom.focus();
-              if (pui["is_old_ie"] && pui.focusField.dom.tagName != "SELECT" && pui.focusField.dom.type != "checkbox" && pui.focusField.dom.type != "radio") {
-                if (pui.focusField.dom.createTextRange != null) {
-                  // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
-                  pui.focusField.dom.select();
-                  var tr = pui.focusField.dom.createTextRange();
-                  if (tr != null && tr.collapse !=  null && tr.select != null) {
-                    tr.collapse();
-                    tr.select();
+              if (pui.focusField.dom.tagName != "SELECT" && pui.focusField.dom.type != "checkbox" && pui.focusField.dom.type != "radio") {
+                if (pui["is_old_ie"]) {
+                  if (pui.focusField.dom.createTextRange != null) {
+                    // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
+                    pui.focusField.dom.select();
+                    var tr = pui.focusField.dom.createTextRange();
+                    if (tr != null && tr.collapse !=  null && tr.select != null) {
+                      tr.collapse();
+                      tr.select();
+                    }
+                  }
+                  else {
+                    pui["focusOnContainer"]();
                   }
                 }
-                else {
-                  pui["focusOnContainer"]();
-                }
+                if (pui["highlight on focus"]) pui.focusField.dom.select();
               }
-              if (pui["highlight on focus"]) pui.focusField.dom.select();
             }
             catch (e) {
               pui["focusOnContainer"]();
