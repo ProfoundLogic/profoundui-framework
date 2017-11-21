@@ -503,6 +503,8 @@ pui.FieldFormat = {
       //format negative numbers
       var isNegative = numValue < 0;
       strValue = strValue.replace(/-/g, '');
+      //Account for previously saved lowercase 'CR' value #4027
+      if(obj.negNum) obj.negNum = obj.negNum.toUpperCase();       
       if(obj.negNum == '(999.00)'){
         if(isNegative){
           strValue = '(' + strValue + ')';
