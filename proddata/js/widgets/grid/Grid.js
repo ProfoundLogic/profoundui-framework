@@ -861,6 +861,11 @@ pui.Grid = function() {
             xlsxvalue = value;
             forceDate = true;   //Even if the data type is not date, make sure it is formatted as a date.
           }
+          
+          //Convert value and xlsxvalue to Strings incase they are numbers #4085
+          if (typeof value === 'number') value = String(value);
+          if (typeof xlsxvalue === 'number') xlsxvalue = String(xlsxvalue);
+
           value = value.replace(/"/g, '""');  // "
           if (boundVisibility[j] !== false) {
             if (pui.evalBoundProperty(boundVisibility[j], fieldData, me.ref) == "hidden") {
