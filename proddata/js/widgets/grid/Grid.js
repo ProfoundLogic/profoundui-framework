@@ -1286,15 +1286,16 @@ pui.Grid = function() {
                 } else {
                     var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
                     if (pui.responseElements[qualField] == null) {
-                        pui.responseElements[qualField] = [{
-                            responseValue: String(value),
-                            modified: true,
-                            type: "grid selection",
-                            value: rowNewValue,
-                            subfileRow: rowNum,
-                            formattingInfo: me.selectionField,
-                            modifiedBeforeRender: true
-                        }];
+                        record.selection = {
+                          responseValue: String(value),
+                          modified: true,
+                          type: "grid selection",
+                          value: rowNewValue,
+                          subfileRow: rowNum,
+                          formattingInfo: me.selectionField,
+                          modifiedBeforeRender: true
+                        }
+                        pui.responseElements[qualField] = [record.selection];
                     }
                     if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
                         pui.responseElements[qualField][0].responseValue = String(value);
@@ -5187,15 +5188,13 @@ pui.Grid = function() {
                 //  Only do it if it's NOT a right click mouse event 
                 // -or-
                 //  It's a right click and they aren't on a selected row.
-                if (!isRight || (isRight && me.dataArray[clickedRow - 1].selected != true)) {
+                  var isRowSelected = me.dataArray[clickedRow - 1].selected;
+                  if (me.isFiltered()) isRowSelected = me.filteredDataArray[clickedRow - 1].selected;
+
+                  if (!isRight || (isRight && !isRowSelected)) {
                   if ((!e.ctrlKey && !e.metaKey) || (curRow != row)) {  
                     if (me.dataArray[i].selected == true) {
-                      pui.modified = true;
-                      me.dataArray[i].selected = false;
-                      if (me.selectionField != null && me.dataArray[i].selection != null) {
-                        me.dataArray[i].selection.modified = true;
-                        me.dataArray[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
-                      }
+                      handleSelection(me.dataArray[i], true, false);
                     }
                   }
                 }
@@ -5232,46 +5231,12 @@ pui.Grid = function() {
                 var curRow = i - me.recNum + 1;
                 if (i+1 >= fromRecordNum && i+1 <= toRecordNum) {
                   if (dataRecords[i].selected != true) {
-                    pui.modified = true;
-                    dataRecords[i].selected = true;
-                    if (me.selectionField != null) {
-                      if (dataRecords[i].selection == null) {
-                        dataRecords[i].selection = {
-                          type: "grid selection",
-                          subfileRow: i + 1,
-                          formattingInfo: me.selectionField
-                        };
-                        var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
-                        if (pui.responseElements[qualField] == null) {
-                          pui.responseElements[qualField] = [];
-                          pui.responseElements[qualField].push(dataRecords[i].selection);
-                        }
-                      }                    
-                      dataRecords[i].selection.modified = true;
-                      dataRecords[i].selection.value = me.selectionValue;
-                    }
+                    handleSelection(dataRecords[i], false, true);
                   }
                 }
                 else {
                   if (dataRecords[i].selected == true) {
-                    pui.modified = true;
-                    dataRecords[i].selected = false;
-                    if (me.selectionField != null) {
-                      if (dataRecords[i].selection == null) {
-                        dataRecords[i].selection = {
-                          type: "grid selection",
-                          subfileRow: i + 1,
-                          formattingInfo: me.selectionField
-                        };
-                        var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + (i + 1);
-                        if (pui.responseElements[qualField] == null) {
-                          pui.responseElements[qualField] = [];
-                          pui.responseElements[qualField].push(dataRecords[i].selection);
-                        }
-                      }
-                      dataRecords[i].selection.modified = true;
-                      dataRecords[i].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
-                    }
+                    handleSelection(dataRecords[i], true, false);
                   }
                 }
                 if ((curRow >= 0 && !me.hasHeader) || curRow >= 1) {
@@ -5288,9 +5253,13 @@ pui.Grid = function() {
                 dataRecords[adjustedRow - 1].selection.modified = true;
                 if (dataRecords[adjustedRow - 1].selected) {
                   dataRecords[adjustedRow - 1].selection.value = me.selectionValue;
+                  //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
+                  if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
                 }
                 else {
                   dataRecords[adjustedRow - 1].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+                  //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
+                  if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
                 }
               }
               pui.modified = true;
@@ -5351,6 +5320,30 @@ pui.Grid = function() {
             var cell = me.cells[row][0];
             placeCursorOnCell(cell);
           }
+        }
+      }
+
+      function handleSelection(record, isSelected, useSelectionValue) {
+        pui.modified = true;
+        record.selected = !isSelected;
+        if (me.selectionField != null) {
+          if (record.selection == null) {
+            record.selection = {
+              type: "grid selection",
+              subfileRow: i + 1,
+              formattingInfo: me.selectionField
+            };
+            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(record.fieldName) +  "." + (i + 1);
+            if (pui.responseElements[qualField] == null) {
+              pui.responseElements[qualField] = [];
+              pui.responseElements[qualField].push(record.selection);
+            }
+          }                    
+          record.selection.modified = true;
+          if (useSelectionValue) record.selection.value = me.selectionValue;
+          else record.selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+          //Set the response value for rows that have not been initally rendered but have been modified with setDataValue() #4041
+          if (record.selection.responseValue) record.selection.responseValue = record.selection.value;
         }
       }
     };
@@ -5488,7 +5481,7 @@ pui.Grid = function() {
       inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
     
       // Only INPUT and TEXTAREA have select or createTextRange methods.
-      if( tag == "INPUT" || tag == "TEXTAREA"){
+      if(tag == "INPUT" || tag == "TEXTAREA"){
         if (inputBox.createTextRange != null) {
           // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
           if (inputBox.select != null) inputBox.select();
@@ -7273,9 +7266,3 @@ pui.Grid = function() {
   };
   
 };
-
-
-
-
-
-
