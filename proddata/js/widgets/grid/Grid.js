@@ -5194,7 +5194,7 @@ pui.Grid = function() {
                   if (!isRight || (isRight && !isRowSelected)) {
                   if ((!e.ctrlKey && !e.metaKey) || (curRow != row)) {  
                     if (me.dataArray[i].selected == true) {
-                      handleSelection(me.dataArray[i], true, false);
+                      handleSelection(me.dataArray[i], true, false, i);
                     }
                   }
                 }
@@ -5231,12 +5231,12 @@ pui.Grid = function() {
                 var curRow = i - me.recNum + 1;
                 if (i+1 >= fromRecordNum && i+1 <= toRecordNum) {
                   if (dataRecords[i].selected != true) {
-                    handleSelection(dataRecords[i], false, true);
+                    handleSelection(dataRecords[i], false, true, i);
                   }
                 }
                 else {
                   if (dataRecords[i].selected == true) {
-                    handleSelection(dataRecords[i], true, false);
+                    handleSelection(dataRecords[i], true, false, i);
                   }
                 }
                 if ((curRow >= 0 && !me.hasHeader) || curRow >= 1) {
@@ -5323,17 +5323,22 @@ pui.Grid = function() {
         }
       }
 
-      function handleSelection(record, isSelected, useSelectionValue) {
+      function handleSelection(record, isSelected, useSelectionValue, index) {
         pui.modified = true;
         record.selected = !isSelected;
         if (me.selectionField != null) {
           if (record.selection == null) {
+            // if the row has not been rendered and is filtered or sorted use the subfileRow or beforeSort properties 
+            // else use the passed index as a fallback 
+            var row;
+            if (record.subfileRow || record.beforeSort) row = record.subfileRow || (record.beforeSort + 1);
+            else row = index + 1;
             record.selection = {
               type: "grid selection",
-              subfileRow: i + 1,
+              subfileRow: row,
               formattingInfo: me.selectionField
             };
-            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(record.fieldName) +  "." + (i + 1);
+            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) +  "." + row;
             if (pui.responseElements[qualField] == null) {
               pui.responseElements[qualField] = [];
               pui.responseElements[qualField].push(record.selection);
