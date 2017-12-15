@@ -5016,7 +5016,10 @@ pui.Grid = function() {
           if (event.preventDefault) event.preventDefault();
           if (event.stopPropagation) event.stopPropagation();
           event.cancelBubble = true;
-          event.returnValue = false;        
+          event.returnValue = false;
+          // remove the contextmenu event listener so that user 
+          // can retrieve the context menu when not in the grid 
+          document.body.oncontextmenu = null;        
           return false;
         }
         if (me.hasHeader && row == 0) {
@@ -5889,6 +5892,8 @@ pui.Grid = function() {
     vLine.style.fontSize = "0px";
     vLine.style.padding = "0px";
     vLine.style.zIndex = me.vBorderZIndex;
+    // disable context menu when right clicked on vLine
+    vLine.oncontextmenu = function(e) { return false; };
     me.container.appendChild(vLine);
     me.vLines[n] = vLine;
     setLineWidths();
@@ -6152,6 +6157,8 @@ pui.Grid = function() {
     if (bwidth !== null ) hLine.style.borderTopWidth = bwidth + "px";
     hLine.style.zIndex = me.hBorderZIndex;
     if (me.tableDiv.style.visibility == "hidden") hLine.style.visibility = "hidden";
+    // disable context menu when right clicked on hLine
+    hLine.oncontextmenu = function(e) { return false; };
     me.container.appendChild(hLine);
     me.hLines[n] = hLine;
     setLineHeights();

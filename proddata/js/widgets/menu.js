@@ -177,6 +177,7 @@ pui.MenuWidget = function() {
       }
 	  
       function assignEvents(td) {
+        td.oncontextmenu = function() { return false; }; 
         td.onmouseover = function() {
           td.animationDone = true;
           if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {

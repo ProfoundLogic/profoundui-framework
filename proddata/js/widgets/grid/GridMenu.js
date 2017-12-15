@@ -57,6 +57,7 @@ pui.GridMenu = function() {
     menuDiv.style.backgroundColor = "#f0f0f0";
     menuDiv.style.zIndex = me.grid.contextMenuZIndex;
     menuDiv.onselectstart = function(e) { return false; };
+    menuDiv.oncontextmenu = function(e) { return false; };
     if (typeof menuDiv.style.MozUserSelect!="undefined") menuDiv.style.MozUserSelect = "none";    
     
     table = document.createElement("table");
