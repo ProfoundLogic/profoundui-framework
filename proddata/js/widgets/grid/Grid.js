@@ -1133,7 +1133,7 @@ pui.Grid = function() {
     
     var obj = modelCell.firstChild;
     while (obj != null) {
-      if (obj.style.position == "absolute" && !obj.isSizie && !obj.isInlineEditBox) {
+      if (obj.style.position == "absolute" && !obj.isSizie && !obj.isInlineEditBox && !obj.isPctDiv) {
         var clone = obj.cloneNode(true);
         clone.id = "";
         if (clone.removeDesignEvents != null) clone.removeDesignEvents(clone);
