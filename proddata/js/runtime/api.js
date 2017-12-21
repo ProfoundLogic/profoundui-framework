@@ -452,7 +452,7 @@ function attachCalendar(id, format) {
 pui["detachCalendar"] = function(domObj) {
   if (typeof(domObj) == "string") domObj = getObj(domObj);
   if (domObj != null) pui.removeCal(domObj);
-}
+};
 
 // Creates a named DOM element. Necessary because IE has a non-standard way of doing this.
 function createNamedElement(type, name) {
@@ -645,13 +645,13 @@ pui.getMouseX = function(event) {
 
   return pui.getMouseXY(event).x;
 
-}
+};
 
 pui.getMouseY = function(event) {
 
   return pui.getMouseXY(event).y;
 
-}
+};
 
 pui.getMouseXY = function(event) {
 
@@ -677,7 +677,7 @@ pui.getMouseXY = function(event) {
   
   return xy;
 
-}
+};
 
 function showErrors() {
 
@@ -937,7 +937,7 @@ pui.Base64 = {
 			
 	}
 	
-}
+};
 
 
 
@@ -954,7 +954,7 @@ pui["downloadJSON"] = function() {
     catch(err) { }
   }
   pui.downloadAsAttachment("text/plain", "json.txt", json);  
-}
+};
 
 
 
@@ -1023,7 +1023,7 @@ pui["keepAlive"] = function() {
   });
 
   return true;
-}
+};
 
 
 
@@ -1055,14 +1055,14 @@ pui["getWindowSize"] = function() {
   return {
     "width": winW,
     "height": winH
-  }
+  };
 
-}
+};
 
 
 pui["openURL"] = function(url) {
   window.open(url);
-}
+};
 
 
 
@@ -1091,7 +1091,7 @@ pui.normalizeURL = function(url, mobileClientOnly) {
     return url;
   }
 
-}
+};
 
 
 
@@ -1214,7 +1214,7 @@ pui["animate"] = function(parms) {
     }, 1);
   }, 1);
 
-}
+};
 
 
 pui["getActiveElement"] = function() {
@@ -1224,7 +1224,7 @@ pui["getActiveElement"] = function() {
   else {
     return pui.activeElement;
   }
-}
+};
 
 
 // API to allow scripts to send field exit.
@@ -1243,7 +1243,7 @@ pui["fieldExit"] = function(minus) {
       pui.doFieldExit( obj );
    }
 	
-}
+};
 
 
 
@@ -1260,7 +1260,7 @@ pui["showCalendar"] = function(id) {
   else if (calimg.onclick != null && typeof calimg.onclick == "function") {
     setTimeout(function() { calimg.onclick(); }, 250 );
   }
-}
+};
 
 
 
@@ -1274,7 +1274,7 @@ pui.getComputedStyle = function(obj) {
     rtnStyle = obj.currentStyle;
   }
   return rtnStyle;
-}
+};
 
 
 
@@ -1451,7 +1451,7 @@ pui["upload"] = function(params, callback) {
       catch(e) {
         
         success = false;
-        error = "Server response missing or invalid."
+        error = "Server response missing or invalid.";
           
       }
       if (rsp) {
@@ -1499,11 +1499,11 @@ pui["upload"] = function(params, callback) {
       
     }  
     
-  }
+  };
   
   xhr.send(formData);  
   
-}
+};
 
 
 
@@ -1543,7 +1543,7 @@ pui["getCookie"] = function(check_name) {
   if (!b_cookie_found) {
   	return null;
   }
-}
+};
 
 pui["setCookie"] = function(name, value, expires, path, domain, secure) {
 	// set time, it's in milliseconds
@@ -1563,14 +1563,14 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure) {
 		( ( path ) ? ";path=" + path : "" ) + 
 		( ( domain ) ? ";domain=" + domain : "" ) +
 		( ( secure ) ? ";secure" : "" );
-}
+};
 
 pui["deleteCookie"] = function(name, path, domain) {
 	if ( pui["getCookie"](name) ) document.cookie = name + "=" +
 			( ( path ) ? ";path=" + path : "") +
 			( ( domain ) ? ";domain=" + domain : "" ) +
 			";expires=Thu, 01-Jan-1970 00:00:01 GMT";
-}
+};
 
 
 
@@ -1607,7 +1607,7 @@ pui["refresh"] = function(parms) {
   }
   if (url != null) window.location.href = url;
   else window.location.reload();
-}
+};
 
 pui["downloadURL"] = function (params) {
 
@@ -1645,7 +1645,7 @@ pui["downloadURL"] = function (params) {
   url += "&r=" + Math.floor(Math.random() * 1000000000);
 
   return url;
-}
+};
 
 pui["download"] = function (params) {
 
@@ -1666,7 +1666,7 @@ pui["download"] = function (params) {
      pui["link"](url);
   }
   
-}
+};
 
 pui["focusOnContainer"] = function() {
 
@@ -1706,7 +1706,7 @@ pui["focusOnContainer"] = function() {
       
     }, 1);
 
-}
+};
 
 
 
@@ -1722,7 +1722,7 @@ pui["addCSS"] = function(css) {
     style.innerHTML = css;
   }
   head.appendChild(style);
-}
+};
 
 pui["loadCSS"] = function(path) {
   if (pui.getLink(path) != null) return false;
@@ -1734,7 +1734,7 @@ pui["loadCSS"] = function(path) {
   css.setAttribute("href", pui.normalizeURL(path));
   head.appendChild(css);
   return true;
-}
+};
 
 pui["removeCSS"] = function(path) {
   var head = document.getElementsByTagName("head")[0];
@@ -1755,7 +1755,7 @@ pui["removeCSS"] = function(path) {
     head.removeChild(link);
     return true;
   }
-}
+};
 
 pui["loadJS"] = function(parms) {
   if (parms == null) return null;
@@ -1785,17 +1785,17 @@ pui["loadJS"] = function(parms) {
       if (!done && callback != null) callback();
       done = true;
     }
-  }
+  };
   script.onload = function() {
     if (test != null && typeof test == "function" && test() != true) return;
     if (!done && callback != null) callback();
     done = true;
-  }
+  };
   if (onerror) script["onerror"] = onerror;
   script.src = pui.normalizeURL(path);
   head.appendChild(script);
   return true;
-}
+};
 
 
 
@@ -1817,14 +1817,14 @@ pui["endOfSession"] = function(message) {
   if (navigator["app"] != null && navigator["app"]["exitApp"] != null) {
     document.body.innerHTML = "";
     if (message != null) {
-      pui.alert(message, function() { navigator["app"]["exitApp"]() });
+      pui.alert(message, function() { navigator["app"]["exitApp"](); });
     }
     else{
       navigator["app"]["exitApp"]();
     }      
     return;
   }
-}
+};
 
 
 
@@ -1843,16 +1843,16 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
   else {
     alert(msg);
   }
-}
+};
 
 
 pui["get"] = function(id) {
   return get(id);
-}
+};
 
 pui["set"] = function(id, val) {
   changeElementValue(id, val);
-}
+};
 
 pui["getActiveContainer"] = function() {
 
@@ -1891,7 +1891,7 @@ pui["getActiveContainer"] = function() {
   
   return pui.runtimeContainer;
 
-}
+};
 
 pui["getDisplayType"] = function() {
   
@@ -1900,15 +1900,38 @@ pui["getDisplayType"] = function() {
   else
     return (context == "dspf") ? "rdf" : "5250";
   
-}
+};
 
 function runPCCommand(arg) {
   
-  var listenerMode = 0;
+  var listenerMode = 0;    //The PC command implementation. Use the Integration Applet by default.
+  
+  // Support legacy options, "use pc listener" and "pc listener mode".
   if (pui["use pc listener"]) listenerMode = 1;
   if (window["HTTPS"]!=null && window["HTTPS"]=="ON" && listenerMode == 1) listenerMode = 2;
   if (pui["pc listener mode"]) listenerMode = parseInt(pui["pc listener mode"]);
 
+  // Parse value from config file. "pc command mode" overrides "use pc listener" and "pc listener mode";
+  if (typeof pui["pc command mode"] == "string"){
+    switch(pui["pc command mode"]){
+      case "applet":
+        listenerMode = 0;
+        break;
+      case "listener":
+        listenerMode = 1;
+        break;
+      case "listener_m2":
+        listenerMode = 2;
+        break;
+      case "launcher":
+        listenerMode = 3;
+        break;
+      default:
+        listenerMode = 0;
+        console.log("Unsupported pc command mode:",pui["pc command mode"]);
+    }
+  }
+  
   // Load Java Applet if needed.
   
   if (listenerMode == 0) {
@@ -1944,18 +1967,18 @@ function runPCCommand(arg) {
     var wait = commandList[nextCommand]["wait"];
     nextCommand += 1;
     
-    if (listenerMode >= 1) {
+    if (listenerMode == 1 || listenerMode == 2) {   //Use PC Listener (ajax or image version).
       
       var waitArg = (wait) ? "1" : "0";
       var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
-      var url = "http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) + "&wait=" + waitArg 
+      var url = "http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) + "&wait=" + waitArg;
       
-      if ( listenerMode >= 2 ) {
+      if ( listenerMode == 2 ) {   //The image version.
         url += "&type=image&rnd=" + String(Math.random()) + String(new Date().getTime());
         var cmdImg = new Image();
         cmdImg.onload = function() {
           doRunPCCommand();
-        }
+        };
         cmdImg.src = url;
       }
       else {
@@ -1968,15 +1991,56 @@ function runPCCommand(arg) {
               console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
               console.log("Command: " + command);
             }
-        }
+        };
         req.onsuccess = function() {
           doRunPCCommand();
-        }
+        };
         req.send();
       }
       return;
     }
     
+    if (listenerMode == 3) {     //Use the PC Command Launcher: custom protocol handler.
+      
+      // Encrypt the command via a CGI program so that the protocol handler will trust it.
+      ajaxJSON({
+        "url": getProgramURL("PUI0009117.pgm"),
+        "method": "post",
+        "params": {
+          "cmd": command,
+          "auth": pui["appJob"]["auth"]
+        },
+        "async": true,
+        "handler": function(response, err){
+          // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
+          // Note: no onload or onerror events fire for custom protocol iframes. Also,
+          // you can't use XMLHttpRequest to load custom protocols; you must use iframes.
+          if (response != null ) {
+            if (response["cmd"]){
+              var url = "puilaunch:" + encodeURIComponent(response["cmd"]);
+
+              var iframe = document.createElement("iframe");
+              iframe.style.display = "none";
+              iframe.src = url;
+              document.body.appendChild(iframe);
+
+              // This delay is necessary, because in some browsers (Chrome), the iframe isn't loaded without the delay.
+              setTimeout(function(){
+                document.body.removeChild(iframe); //Remove the iframe; it's no longer needed.
+                doRunPCCommand();
+              }, 0);
+            }
+            else if (response["error"]){
+              console.log("PC Command signing error:",response["error"]);
+            }
+          }else{
+            console.log("Empty response from PC command signing program.");
+          }
+        } //end handler().
+      });
+      
+      return;
+    }
     
     // When running multiple commands with the Java applet
     //  join them together into a single string.
@@ -1999,7 +2063,7 @@ function runPCCommand(arg) {
       applet["runCommand"](command);
     }
     catch(e) {
-      var msg = "Unable to execute \"" + command + "\".\n\n"
+      var msg = "Unable to execute \"" + command + "\".\n\n";
       if (e != null) {
         msg += e.name + ":\n\n" + e.message + ".";
       }
@@ -2017,7 +2081,7 @@ window["runCommandCb"] = function() {
   runPCCommand(pui.appletCommandData);
   pui.appletCommandData = null;  
 
-}
+};
 
 pui["runPCCommand"] = runPCCommand;
 
@@ -2118,7 +2182,7 @@ pui["showLastError"] = function() {
   
   alert(message);
   
-}
+};
 
 
 // pui.editCode( number, editCode, [length, [decPos]], [curSym], [options] );
@@ -2197,7 +2261,7 @@ pui["editCode"] = function(numeric, code) {
       "nnn/nn/nn",   // 7
       "nn/nn/nnnn",  // 8
       "nnn/nn/nnnn"  // 9
-    ]
+    ];
     if (controlOptions["dateEdit"] === "*ymd") {
       patterns[8] = "nnnn/nn/nn";
       patterns[9] = "nnnnn/nn/nn";
@@ -2428,7 +2492,7 @@ pui["editCode"] = function(numeric, code) {
   fill();
   
   return strValue;
-}
+};
 
 
 
@@ -2656,4 +2720,4 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
   
   return newValue;
 
-}
+};
