@@ -6723,13 +6723,13 @@ pui.Grid = function() {
    *    text or passed the expression.
    */
   this.testFilter = function(value, text) {
-    
+    var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
     if (text.substr(0,8).toLowerCase() == "between ") {
       var parts = text.substr(8).toLowerCase().split(" ");
       if (parts.length == 3 && parts[1] == "and") {
         var from = parts[0];
         var to = parts[2];
-        if (!isNaN(Number(from)) && !isNaN(Number(to))) {
+        if (!isNaN(from) && !isNaN(to)) {
           from = Number(from);
           to = Number(to);
           value = Number(value);
@@ -6765,7 +6765,7 @@ pui.Grid = function() {
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
-      if (isNaN(Number(text))) return value.toLowerCase() >= text.toLowerCase();
+      if (isNaN(text)) return value.toLowerCase() >= text.toLowerCase();
       else return (Number(value) >= Number(text));
     }
     else if (text.substr(0,2) == "<=") {
@@ -6773,14 +6773,14 @@ pui.Grid = function() {
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
-      if (isNaN(Number(text))) return value.toLowerCase() <= text.toLowerCase();
+      if (isNaN(text)) return value.toLowerCase() <= text.toLowerCase();
       else return (Number(value) <= Number(text));
     }
     else if (text.substr(0,2) == "!=" || text.substr(0,2) == "<>") {
       text = text.substr(2);
       if (text == "") return true;
       // Alphanumeric - matches if search text contains value. Numeric - must be exact match.
-      if (isNaN(Number(text))) return (value.toLowerCase().indexOf(text.toLowerCase()) < 0);
+      if (isNaN(text)) return (value.toLowerCase().indexOf(text.toLowerCase()) < 0);
       else return (Number(text) != Number(value));
     }
     else if (text.substr(0,1) == "=") {
@@ -6793,7 +6793,7 @@ pui.Grid = function() {
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
-      if (isNaN(Number(text))) return value.toLowerCase() > text.toLowerCase();
+      if (isNaN(text)) return value.toLowerCase() > text.toLowerCase();
       else return (Number(value) > Number(text));
     }
     else if (text.substr(0,1) == "<") {
@@ -6801,7 +6801,7 @@ pui.Grid = function() {
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
-      if (isNaN(Number(text))) return value.toLowerCase() < text.toLowerCase();
+      if (isNaN(text)) return value.toLowerCase() < text.toLowerCase();
       else return (Number(value) < Number(text));
     }
     else {
@@ -6810,11 +6810,14 @@ pui.Grid = function() {
 
     function prepareComparisonString(string){
       var string = string;
+      if (commaDecimal) {
+        // Strip all the thousand periods then change the comma to a decimal period
+        var temp = string.split('.').join('').replace(',', '.');
+        if (!isNaN(temp)) return temp;
+      }
       if (string.indexOf(',') != -1) {
         var temp = string.split(',').join('');
-        if (!isNaN(Number(temp))){
-          return temp;
-        } 
+        if (!isNaN(temp)) return temp; 
       } 
       return string;
     }
