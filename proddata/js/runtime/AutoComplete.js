@@ -1307,9 +1307,12 @@ function applyAutoComp(properties, originalValue, domObj) {
           
           var response = checkAjaxResponse(req, "Generate Auto-Complete Suggestions.");
           if (!response) {
-            domObj.value = "";
-            return;  
-          }        
+            //If FACM is false, then submit the value to the server, even when the query has an error.
+            //If FACM is not false, then a query error makes the value not submit to the server.
+            if(pui["force auto complete match"] !== false)
+              domObj.value = "";
+            return;
+          }
           var firstField;
           var firstRec = response.results[0];
           for (var i in firstRec) {
