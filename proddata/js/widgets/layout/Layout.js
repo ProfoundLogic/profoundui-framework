@@ -521,7 +521,7 @@ pui.layout.Layout = function() {
     removeEvent(window, "resize", me.onresize);
     removeEvent(document, "orientationchange", me.onresize);
     if (me.iScroll != null) {
-      me.iScroll.destroy();
+      me.iScroll["destroy"]();
       me.iScroll = null;
       delete me.iScroll;
     }
