@@ -407,7 +407,8 @@ pui.widgets.add({
   defaults: {
     "width": "100px",
     "height": "23px",
-    "button style": "Ice Blue"    
+    "button style": "Ice Blue",
+    "value": "Click Here"
   },
   
   propertySetters: {
