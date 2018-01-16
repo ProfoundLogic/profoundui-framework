@@ -63,7 +63,6 @@ function buildOutputField(parms, value, labelForId) {
 
 pui.widgets.add({
   name: "output field",
-  newValue: "New Output Field",
   inlineEdit: true,
 
   propertySetters: {
