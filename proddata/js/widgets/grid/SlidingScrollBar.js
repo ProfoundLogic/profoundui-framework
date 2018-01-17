@@ -66,6 +66,7 @@ pui.SlidingScrollBar = function() {
   
   var upImg;
   var downImg;
+  var innerDivOldHeight;  //Needed if Grid is in Accordion.
   
   this.init = function(gridDom) {
     me.gridDom = gridDom;
@@ -574,6 +575,7 @@ pui.SlidingScrollBar = function() {
     
     // show up/down arrows instead of scrollbar if there is only 1 row
     if (!me.designMode && me.ready && me.rowsPerPage == 1) {
+      innerDivOldHeight = innerDiv.style.height;
       innerDiv.style.height = "0px";
       outerDiv.style.overflow = "hidden";
       outerDiv.style.overflowX = "hidden";
@@ -609,6 +611,20 @@ pui.SlidingScrollBar = function() {
         outerDiv.appendChild(upImg);
         outerDiv.appendChild(downImg);
       }
+    }
+    
+    // For a grid in an Accordion, opening the section with the grid may cause the rowsPerPage to go from 1 to a higher
+    // number. If the upImg and downImg scroll buttons still exist, then the scrollbar is broken. Restore it. #4072.
+    if (!me.designMode && me.ready && me.rowsPerPage > 1 
+    && upImg != null && downImg != null && me.totalRows > 1){
+      outerDiv.removeChild(upImg);
+      outerDiv.removeChild(downImg);
+      upImg = null;
+      downImg = null;
+      innerDiv.style.height = innerDivOldHeight;
+      outerDiv.style.overflow = "";
+      outerDiv.style.overflowX = "hidden";
+      outerDiv.style.overflowY = "scroll";
     }
     
   };
