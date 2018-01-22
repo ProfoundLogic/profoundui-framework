@@ -7076,7 +7076,7 @@ pui.Grid = function() {
       { name: "description", help: "Describes the record format.", bind: false, context: "dspf" },
       { name: "parent window", attribute: "parentWindow", help: "Sets the window that this field belongs to.", context: "genie" },
       { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: "If set to true, this element will be used to detect the screen.  The identifier element should be a static output field that is unique to this screen.  For example, if the screen has a unique heading, it can be used as the identifier.  At least one element on the screen must be marked as an identifier before you can save the screen.  When appropriate, you can use a combination of several elements to uniquely identify the screen.", context: "genie" },
-      { name: "field type", choices: ["grid"], blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
+      { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
       { name: "value", help: "Sets the initialization value for the current element." },
       
       { name: "Subfile Settings", category: true, context: "dspf" },

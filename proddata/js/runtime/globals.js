@@ -202,3 +202,6 @@ pui.xlsx_domain = "http://schemas.openxmlformats.org";
 pui.xlsx_xmlns_spreadsheet    = pui.xlsx_domain+ "/spreadsheetml/2006/main";
 pui.xlsx_xmlns_package_rels   = pui.xlsx_domain+ "/package/2006/relationships";
 pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relationships";
+
+// Cross-ref to look up the "real" property name when a "display name" is used.
+pui.propertyAlias = {};
