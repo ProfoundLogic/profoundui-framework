@@ -3849,6 +3849,11 @@ pui.Grid = function() {
             if (parseInt(me.vLines[n-1].style.left) + 5 > left) {
               left = parseInt(me.vLines[n-1].style.left) + 5;
             }
+            // To account for bug where saving and reopening will add one width to last column to the Genie Desinger. #4149
+            if (context === 'genie') { 
+              var lastLineLeft = parseInt(me.vLines[n].style.left);
+              if (lastLineLeft && (left - lastLineLeft === 1)) left = lastLineLeft;
+            }
             me.vLines[n].style.left = left + "px";
             setLineWidths();
             if (me.designMode) me.sizeAllCells();
