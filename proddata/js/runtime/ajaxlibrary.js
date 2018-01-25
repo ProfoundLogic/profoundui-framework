@@ -260,7 +260,10 @@ function RPGspRequest(arg) {
                 
                 try {
                 
-                  xmlhttpObj.open(method, url, async, me["user"], me["password"]);
+                  if (typeof me["user"] == "string" && typeof me["password"] == "string")
+                    xmlhttpObj.open(method, url, async, me["user"], me["password"]);
+                  else
+                    xmlhttpObj.open(method, url, async);
                   
                   // Set any headers specified.
                   var userCT = false;
