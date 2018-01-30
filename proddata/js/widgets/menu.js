@@ -50,7 +50,10 @@ pui.MenuWidget = function() {
   function drawMenu(parms) {
     var container = parms.container;
     var parentTable = parms.parentTable;
-
+    // The showing property gets set in the Grid.js and gets checked when hiding the Menu.
+    // If the menu happens to have the same ID as another menu in a different record format, 
+    // the menu will be hidden after the other one is displayed. #3870
+    if (container.showing == undefined) container.showing = true;
     container.innerHTML = "";
     // Apply the styles from profoundui.css. 
     pui.addCssClass(container, "pui-menu");
