@@ -917,8 +917,8 @@ function AutoComplete(config) {
       resultPane.lastChild.setAttribute("recordIndex", String(i));        
     }
     for (var i = 0; i < resultPane.childNodes.length; i++) {
-      if (resultPane.childNodes[i].attachEvent) resultPane.childNodes[i].attachEvent("onmouseover", doMouseOver);
-      else if (resultPane.childNodes[i].addEventListener) resultPane.childNodes[i].addEventListener("mouseover", doMouseOver, false);    
+      if (resultPane.childNodes[i].attachEvent) resultPane.childNodes[i].attachEvent("onmousemove", doMouseMove);
+      else if (resultPane.childNodes[i].addEventListener) resultPane.childNodes[i].addEventListener("mousemove", doMouseMove, false);    
     }
 
   }
@@ -960,7 +960,7 @@ function AutoComplete(config) {
     return value;
   }
 
-  function doMouseOver(event) {
+  function doMouseMove(event) {
     if (scrollingIntoView) return;
   
     event = event || window.event;
