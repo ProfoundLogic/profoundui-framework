@@ -672,7 +672,8 @@ pui.FieldFormat = {
             valid = value.replace(/-/g,'').length <= obj.dataLength;
             errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid decimal", [ obj.value, obj.decPos ]);          }
           else if(value.indexOf('.') == value.length - 1){
-            valid = false;
+            if (pui["allow decimal ending"]) value = value + '0';
+            else valid = false;
           }
         }
       }
