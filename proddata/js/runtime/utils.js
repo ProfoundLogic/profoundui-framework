@@ -2272,9 +2272,13 @@ pui.breakMessagesStopPoll = function(){
  */
 pui.breakMessageDismiss = function(event){
   if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
-  || pui.appJob["user"] === "QTMHHTP1"  ){
+  || pui.appJob["user"] === "QTMHHTP1"){
     return;
   }
+  // So that when the close button is highlighted
+  // it will only dismiss if the user presses the enter key
+  preventEvent(event);
+  if (event.keyCode && event.keyCode != 13) return;
 
   var target = getTarget(event);
   var msgIdx = target["msgIdx"];
@@ -2283,8 +2287,9 @@ pui.breakMessageDismiss = function(event){
   // Try removing just the clicked element from the messages.
   try{
     brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-    if( brkMessages !== null && typeof(brkMessages.splice) === "function" ){
+    if(brkMessages !== null && typeof(brkMessages.splice) === "function") {
       // Remove the clicked message from the array.
+      if (!msgIdx && msgIdx != 0) msgIdx = brkMessages.length - 1;
       brkMessages.splice(msgIdx,1);
     }
     else
@@ -2310,11 +2315,12 @@ pui.breakMessageDismiss = function(event){
  *   
  * @returns {undefined}
  */
-pui.breakMessagesShow = function(messages ){
-  if( messages == null || typeof(messages.pop) !== "function" ) return;
+pui.breakMessagesShow = function(messages) {
+  pui.breakMessageShowing = false;
+  if(messages == null || typeof(messages.pop) !== "function") return;
   
   var bkmsgcont = document.getElementById("pui-break-messages");
-  if( ! bkmsgcont ) return;
+  if(!bkmsgcont) return;
 
   // Clear existing messages from the page. The messages argument contains the
   // same messages as the store, so make sure what is visible agrees with
@@ -2327,7 +2333,7 @@ pui.breakMessagesShow = function(messages ){
   }
 
   pui["maskScreen"]();
-
+  pui.breakMessageShowing = true;
   // Keep pushing the container to the top.
   pui.windowZIndex += 2;
   bkmsgcont.style.zIndex = pui.windowZIndex;
@@ -2353,12 +2359,13 @@ pui.breakMessagesShow = function(messages ){
     msgtitle.className = "title";
     msgtitlewrap.appendChild(msgtitle);
 
-    var closeImg = document.createElement("div");
+    var closeImg = document.createElement("button");
     closeImg.className = "closeImg";
     closeImg["msgIdx"] = i; // Needed for array splice upon click.
     msgtitlewrap.appendChild(closeImg);
 
     addEvent(closeImg, "click", pui.breakMessageDismiss);
+    addEvent(closeImg, "keydown", pui.breakMessageDismiss);
 	  
 	  var msgbody = document.createElement("div");
     msgbody.className = "msg-body";
@@ -2390,7 +2397,7 @@ pui.breakMessagesShow = function(messages ){
     left += 10;
   }
   // done showing each message.
-	
+	closeImg.focus();
   bkmsgcont = null;
 };
 

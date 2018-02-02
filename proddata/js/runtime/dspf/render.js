@@ -3805,11 +3805,17 @@ pui.hideWaitAnimation = function() {
 pui.handleHotKey = function(e, keyName) {
 
   if (context != "dspf" || pui.isHtml) return;
-  
+   
   if (!e) e = window.event;
   var key = e.keyCode;
   var fkey;
-  
+
+  // If a break message is showing, dismiss only if the user presses the enter key
+  if (pui.breakMessageShowing) {
+    pui.breakMessageDismiss(e);
+    return;
+  }
+
   fkey = key - 111;
 
   if (keyName == null) {
