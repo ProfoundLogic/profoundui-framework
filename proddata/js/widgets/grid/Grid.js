@@ -2695,8 +2695,14 @@ pui.Grid = function() {
           var fieldIdx = fieldXRef[parts[0]];
           if (fieldIdx != null) {
             var dom = pui.responseElements[fldName][0];
-            if (dom != null && dom.dataArrayIndex != null) {
-              var rowData = me.dataArray[dom.dataArrayIndex];
+            if (dom != null && dom.subfileRow != null) {
+              var rowData;
+              for (var i = 0; i < me.dataArray.length; i++) {
+                if (me.dataArray[i].subfileRow === dom.subfileRow) {
+                  rowData = me.dataArray[i];
+                  break;
+                }
+              }
               if (rowData != null) {
                 var value = dom.value;
                 if (dom.comboBoxWidget != null) {
@@ -2739,7 +2745,6 @@ pui.Grid = function() {
         }
       }
     }
-  	
   }
   
   function loadState() {
