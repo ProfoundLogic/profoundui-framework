@@ -1201,7 +1201,11 @@ function applyAutoComp(properties, originalValue, domObj) {
             // been done. This flag will be embedded into the dom object
             // at the end of this function.
             if (tpl) return;
-            if (domObj.autoCompSized != null) return;
+            if (domObj.autoCompSized != null) {
+              if (domObj.autoCompTemplate) autoComp.setTemplate(domObj.autoCompTemplate);
+              if (domObj.autoCompTotalWidth) autoComp.setWidth(domObj.autoCompTotalWidth);
+              return;
+            }
             
             var measureDiv = document.createElement("div");
             measureDiv.style.position = "absolute";
@@ -1255,9 +1259,13 @@ function applyAutoComp(properties, originalValue, domObj) {
               index++;
             }
             template += "</div>";
-            autoComp.setWidth(totalWidth + 20);
-            autoComp.setTemplate(template);
+            // Attach the template and totalWidth to the dom element so that if ApplyProperty is used
+            // to change the parameter markers it will save the template and width #4212
+            domObj.autoCompTemplate = template;
+            domObj.autoCompTotalWidth = totalWidth + 20;
             domObj.autoCompSized = true;
+            autoComp.setWidth(domObj.autoCompTotalWidth);
+            autoComp.setTemplate(domObj.autoCompTemplate);
             document.body.removeChild(measureDiv);
 
           },
