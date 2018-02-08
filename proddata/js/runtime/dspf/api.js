@@ -805,7 +805,63 @@ pui["captureData"] = function(nameOrData, value) {
       data[nameOrData] = value;
     }
   }
-  
   return data;
+}
 
+pui["getAllScreenProps"] = function(screen) {
+  if (screen && typeof screen != 'string') return false;
+  if (!pui.oldRenderParms || !pui.oldRenderParms['layers']) return false;
+  var layers = pui.oldRenderParms['layers'];
+  var screens = [];
+  for (var i = 0; i < layers.length; i++) {
+    var layer = layers[i];
+    var formats = layer.formats;
+    for (var z = 0; z < formats.length; z++){
+      var format = formats[z];
+      var formatName = format.name;
+      var data = format.data;
+      var screenProperties = format.metaData.screen;
+      var ref = format.metaData.ref;
+      var rec = {
+        formatName: formatName
+      };
+      for (var prop in screenProperties) {
+        if (prop == 'onload' || prop =='onsubmit' || prop == 'onmessage') continue;
+        rec[prop] =  pui.evalBoundProperty(screenProperties[prop], data, ref);
+      }
+      screens.push(rec);
+    }
+    // if the passed screen is the same as the current format, return the obj
+    if (screen && screen.toUpperCase() === formatName) return rec;
+  }
+  // return false if the screen is not found, else return the array
+  if (screen) return false;
+  return screens;
+}
+
+pui['getScreenProp'] = function(screen, propName) {
+  if (!screen || typeof screen != 'string') return false;
+  var screens = pui['getAllScreenProps']();
+  if (!screens) return false;
+  if (!propName){
+    propName = screen;
+    screen = currentFormatNames();
+    if (screen.length > 1) screen = screen[screen.length - 1];
+  } else {
+    screen = screen.toUpperCase();
+  }
+  propName = propName.toLowerCase();
+  var rec;
+  if (screens.length > 1) {
+    for (var i = 0; i < screens.length; i++) {
+      if (screens[i].formatName == screen) {
+        rec = screens[i];
+        break;
+      }
+    }
+  } else {
+    rec = screens[0];
+  }
+  if (rec && rec[propName]) return rec[propName]
+  else return false;
 }
