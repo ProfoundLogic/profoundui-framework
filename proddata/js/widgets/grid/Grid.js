@@ -2266,7 +2266,7 @@ pui.Grid = function() {
           pui.columnSortResponseGrid = null;
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
-          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.columnId);
+          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);
           if (me.fieldNameSortResponse == null) return;
           pui.fieldNameSortResponseGrid = me;
           var returnVal = pui.respond();
