@@ -304,7 +304,18 @@ pui.Grid = function() {
         var lastCol = me.vLines.length - 2;
         if (lastCol < 1) return;
         if (me.hasChildren(lastCol)) {
-          pui.alert("The column cannot be removed because it contains other elements that must be removed first.");
+           var arr1 = me.numberChildren(lastCol);
+           if (arr1 != null) {
+              if (!String.prototype.trim) {
+                String.prototype.trim = function () {
+                    return this.replace(/^\s+|\s+$/gm,'');
+                    };
+                }
+            pui.alert("The column cannot be removed because it contains other elements that must be removed first." + "\n" +
+		    "To remove column elements select the grid and go to the elements tab and search in the elements list for the ids listed below." + "\n" +
+                    "Select each element and click remove element." + "\n" + "\n" +
+                    "List of Element IDs" + "\n" + arr1.toString().trim());
+            }
           return;
         }
         var itm = me.tableDiv.designItem;
@@ -1097,6 +1108,30 @@ pui.Grid = function() {
     return false;
   };
   
+  this.numberChildren = function(colNumber) {   // function is to count number of element in the grid column
+    var arr2 = [];
+    var startCol = colNumber;
+    var endCol = colNumber;
+    if (colNumber == null) {
+      startCol = 0;
+      endCol = me.vLines.length - 2;
+    }
+    var row = 0;
+    if (me.hasHeader) row = 1;
+    for (var col = startCol; col <= endCol; col++) {
+      var cell = me.cells[row][col];
+      for (var i=0; i < cell.children.length; i++){
+        var temp = cell.children[i].id;
+        if (temp == "" || temp == null) { continue; }
+        else {
+          temp = " " + temp;
+          arr2.push(temp);
+        }
+      }
+    }
+    return arr2;
+  };
+
   this.getChildren = function() {
     var children = [];
     var designer = me.tableDiv.designItem.designer;
