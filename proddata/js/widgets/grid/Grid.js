@@ -304,18 +304,17 @@ pui.Grid = function() {
         var lastCol = me.vLines.length - 2;
         if (lastCol < 1) return;
         if (me.hasChildren(lastCol)) {
-           var arr1 = me.numberChildren(lastCol);
-           if (arr1 != null) {
-              if (!String.prototype.trim) {
-                String.prototype.trim = function () {
-                    return this.replace(/^\s+|\s+$/gm,'');
-                    };
-                }
-            pui.alert("The column cannot be removed because it contains other elements that must be removed first." + "\n" +
-		    "To remove column elements select the grid and go to the elements tab and search in the elements list for the ids listed below." + "\n" +
-                    "Select each element and click remove element." + "\n" + "\n" +
-                    "List of Element IDs" + "\n" + arr1.toString().trim());
+          var arr1 = me.numberChildren(lastCol);
+          if (arr1 != null) {
+            if (!String.prototype.trim) {
+              String.prototype.trim = function () {
+                return this.replace(/^\s+|\s+$/gm,'');
+              };
             }
+            pui.alert("The column cannot be removed because it contains other elements that must be removed first.\n\n" +
+              "To remove column elements, go to the Elements tab. Then, search the element list for the ID(s) listed below:\n" +
+              arr1.join("\n") + "\n\nSelect each element and click the Remove Element icon.");
+          }
           return;
         }
         var itm = me.tableDiv.designItem;
