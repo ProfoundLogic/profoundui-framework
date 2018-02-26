@@ -51,10 +51,7 @@ pui.widgets.add({
   newValue: "Accept",
   inlineEdit: true,
   defaults: {
-    "width": !pui["is_quirksmode"] ? "100px" : null,
-    "image source": "/profoundui/proddata/images/accept.png",
-    color: "#009933",
-    "font weight": "bold"
+    "width": !pui["is_quirksmode"] ? "100px" : null
   },
 
   propertySetters: {
