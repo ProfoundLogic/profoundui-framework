@@ -174,6 +174,7 @@ pui["show"] = function(parms) {
         pui["show"](parms);
       }
     }
+    if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
       ajaxParms["url"] = path;    
