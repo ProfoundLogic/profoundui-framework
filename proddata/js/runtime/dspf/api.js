@@ -155,6 +155,7 @@ pui["show"] = function(parms) {
   
   var data = parms["data"];
   if (data == null) data = {};
+  data["__pui_show"] = true;
   
   var handler = parms["handler"];
   

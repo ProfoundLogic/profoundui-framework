@@ -3680,6 +3680,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
   }
  
   var fieldName = formattingObj.fieldName;
+  if (data["__pui_show"] && formattingObj["longName"]) fieldName = formattingObj["longName"];
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
     fieldName = fieldName.toUpperCase();
   }
