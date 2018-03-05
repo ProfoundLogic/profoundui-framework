@@ -1,5 +1,5 @@
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2017 Profound Logic Software, Inc.
+//  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
@@ -23,7 +23,7 @@ pui.layout.getPropertiesModel = function() {
   var model = [
     { name: "Identification", category: true },
     { name: "id", maxLength: 75, attribute: "id", help: "Sets the ID of the layout element.", bind: false, canBeRemoved: false },
-    { name: "field type", choices: ["layout"], blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
+    { name: "field type", displayName: "widget type", choices: ["layout"], blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
     
     { name: "Template Settings", category: true, context: "dspf" },
     { name: "template", choices: pui.layout.getTemplateList(), blankChoice: false, help: "Specifies the name of the template used to render the layout.", bind: false, canBeRemoved: false },

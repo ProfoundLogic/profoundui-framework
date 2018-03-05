@@ -1,5 +1,5 @@
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2017 Profound Logic Software, Inc.
+//  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
@@ -50,7 +50,10 @@ pui.MenuWidget = function() {
   function drawMenu(parms) {
     var container = parms.container;
     var parentTable = parms.parentTable;
-
+    // The showing property gets set in the Grid.js and gets checked when hiding the Menu.
+    // If the menu happens to have the same ID as another menu in a different record format, 
+    // the menu will be hidden after the other one is displayed. #3870
+    if (container.showing == undefined) container.showing = true;
     container.innerHTML = "";
     // Apply the styles from profoundui.css. 
     pui.addCssClass(container, "pui-menu");
@@ -216,13 +219,13 @@ pui.MenuWidget = function() {
           if (!e) e = window.event;
           var tgt = e.relatedTarget;
           if (tgt == null) tgt = e.toElement;
-          
+    
           // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
           // instead of the <TD> that this routine expects.  This finds the <TD>...
           while (tgt!=null && ( tgt.tagName == "TABLE" 
                  || tgt.tagName == "TBODY" 
                  || tgt.tagName == "TR")) {
-            if (tgt.firstChild == null) break;
+            if (tgt.firstChild == null) break;            
             tgt = tgt.firstChild;
           }
           
@@ -232,6 +235,12 @@ pui.MenuWidget = function() {
               if (tgt == table) keep = true;
               if (parentTable != null && tgt == parentTable) keep = true;
               if (tgt.isSubMenuArrow) keep = true;
+              // if the customer added their own html in the options
+              if (!keep) {
+                var nextElmTable = getParentTable(tgt);
+                var curElmTable = getParentTable(td);
+                if (nextElmTable && nextElmTable === curElmTable ) keep = true;
+              }
             }
             if (!keep) {
               me.removeAllSubMenus();
@@ -364,6 +373,17 @@ pui.MenuWidget = function() {
   function hasSubMenu(idx) {
     if (idx >= me.choices.length - 1) return false;
     if (getLevel(idx) + 1 == getLevel(idx+1)) return true;  // next item is one level higher
+    return false;
+  }
+
+  function getParentTable(elm) {
+    var parent = elm;
+    while (parent) {
+      if (parent.tagName == 'TABLE') {
+        return parent;
+      }
+      parent = parent.parentElement;
+    }
     return false;
   }
 

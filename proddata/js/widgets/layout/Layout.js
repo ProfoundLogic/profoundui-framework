@@ -1,5 +1,5 @@
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2017 Profound Logic Software, Inc.
+//  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
@@ -42,7 +42,7 @@ pui.layout.Layout = function() {
       var child = container.childNodes[j];
       if (child.layout != null) {
         child.layout.stretch();
-        if (child.layout.iScroll != null) child.layout.iScroll.refresh();
+        if (child.layout.iScroll != null) child.layout.iScroll["refresh"]();
       }
       if (child.sizeMe != null && typeof child.sizeMe == "function") {
         if (pui.isPercent(child.style.width) || pui.isPercent(child.style.height) || child.grid != null) {
@@ -521,7 +521,7 @@ pui.layout.Layout = function() {
     removeEvent(window, "resize", me.onresize);
     removeEvent(document, "orientationchange", me.onresize);
     if (me.iScroll != null) {
-      me.iScroll.destroy();
+      me.iScroll["destroy"]();
       me.iScroll = null;
       delete me.iScroll;
     }

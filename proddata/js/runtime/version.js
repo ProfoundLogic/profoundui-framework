@@ -1,6 +1,6 @@
 
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2017 Profound Logic Software, Inc.
+//  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
@@ -21,4 +21,4 @@
 
 
 if (!window["pui"]) window["pui"] = {};
-window["pui"]["version"] = "5.12.0"; 
+window["pui"]["version"] = "5.13.0";

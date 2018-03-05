@@ -1,5 +1,5 @@
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
-//  Copyright (c) 2017 Profound Logic Software, Inc.
+//  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
 //
@@ -60,7 +60,7 @@ function getPropertiesModel() {
     { name: "id", attribute: "id", maxLength: 75, help: "Specifies the ID of the current element.  ID's are used to access the element using CSS and JavaScript code.", bind: false, canBeRemoved: false },
     { name: "parent window", attribute: "parentWindow", help: "Sets the window that this field belongs to.", context: "genie" },    
     { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: "If set to true, this element will be used to detect the screen.  The identifier element should be a static output field that is unique to this screen.  For example, if the screen has a unique heading, it can be used as the identifier.  At least one element on the screen must be marked as an identifier before you can save the screen.  When appropriate, you can use a combination of several elements to uniquely identify the screen.", context: "genie" },
-    { name: "field type", choices: pui.widgets.getWidgetList(false), blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
+    { name: "field type", displayName: "widget type", choices: pui.widgets.getWidgetList(false), blankChoice: false, help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
     { name: "description", help: "Use this property to provide a text description (or comment) for the element.", bind: false },
     { name: "button style", choices: pui.widgets.getButtonStyles, help: "Identifies the look and feel of the button.", controls: ["styled button"] },
     { name: "panel style", choices: pui.widgets.getPanelStyles, help: "Identifies the look and feel of the panel.", controls: ["panel"] },
@@ -563,6 +563,9 @@ function makeNamedModel(model) {
   var namedModel = {};
   for (var i = 0; i < model.length; i++) {
     namedModel[model[i].name] = model[i];
+    if (model[i].displayName) {
+      pui.propertyAlias[model[i].displayName] = model[i].name;
+    }
   }
   return namedModel;
 }
@@ -579,6 +582,9 @@ function getPropertiesNamedModel() {
 // API used to apply property values in customization scripts
 function applyDesignProperty(domObj, propertyName, propertyValue) {
 
+  // if an alias name ("display name") was used, revert it to the "real" name.
+  if (pui.propertyAlias[propertyName]) propertyName = pui.propertyAlias[propertyName];
+  
   // Accept either DOM object or id.
   if (typeof(domObj) == "string") domObj = getObj(domObj);
   
