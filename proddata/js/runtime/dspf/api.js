@@ -155,6 +155,7 @@ pui["show"] = function(parms) {
   
   var data = parms["data"];
   if (data == null) data = {};
+  data["__pui_show"] = true;
   
   var handler = parms["handler"];
   
@@ -174,6 +175,7 @@ pui["show"] = function(parms) {
         pui["show"](parms);
       }
     }
+    if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
       ajaxParms["url"] = path;    
