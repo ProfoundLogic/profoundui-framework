@@ -3595,39 +3595,63 @@ pui.submitResponse = function(response, value) {
   else {
     pui.timeoutMonitor.end();
     pui.showWaitAnimation();
-    ajaxJSON({
-      "url": url,
-      "method": "post",
-      "params": response,
-      "sendAsBinary": false,
-      "saveResponse": true,
-      "suppressAlert": true,
-      "handler": function(parms) {
-        if (parms == null) {
-          //document.body.style.backgroundColor = "#DFE8F6";
-          document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
-          var returnVal = shutDown();
-          if (returnVal == false) return;
-          pui.shutdownOnClose = false;
-          pui.confirmOnClose = false;
-          context = "";
-          return;
-        }        
-        parms.container = pui.runtimeContainer;
-        
-        // If any items depend on external files, wait for those to load before
-        // rendering. Otherwise, pui.render/render5250 is called without waiting.
-        if (pui.genie == null) pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
-        // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
-        else pui.render5250(parms);
-      },
-      "onfail": function(req) {
-        if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
-        pui.hideWaitAnimation();
-        pui.resetResponseValues();
-        if (pui["onoffline"] != null) pui["onoffline"]();
-      }      
-    });
+    
+    function sendRichDisplayScreen() {
+      
+      ajaxJSON({
+        "url": url,
+        "method": "post",
+        "params": response,
+        "sendAsBinary": false,
+        "saveResponse": true,
+        "suppressAlert": true,
+        "handler": function(parms) {
+          if (parms == null) {
+            //document.body.style.backgroundColor = "#DFE8F6";
+            document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+            var returnVal = shutDown();
+            if (returnVal == false) return;
+            pui.shutdownOnClose = false;
+            pui.confirmOnClose = false;
+            context = "";
+            return;
+          }
+          parms.container = pui.runtimeContainer;
+
+          /* Check for a session timeout message.  If retries are configured, 
+           * do them here. */
+          
+          var formatName = "";
+          var displayFile = "";
+          if (parms != null && parms["layers"] != null && parms["layers"][0]["formats"] != null 
+              && parms["layers"][0]["formats"][0]["name"] != null && parms["layers"][0]["formats"][0]["file"] != null) {
+            formatName = parms["layers"][0]["formats"][0]["name"]; 
+            displayFile = parms["layers"][0]["formats"][0]["file"]; 
+          }
+          if ( pui["session timeout retries"] > 0 && formatName === "TIMOUTSCRN" && displayFile === "PUISCREENS") {
+            pui.sessionRetryCount += 1;
+            if (pui.sessionRetryCount <= pui["session timeout retries"]) {
+              setTimeout( sendRichDisplayScreen, 2000 );
+              return;
+            }
+          }
+          pui.sessionRetryCount = 0;
+          
+          // If any items depend on external files, wait for those to load before
+          // rendering. Otherwise, pui.render/render5250 is called without waiting.
+          if (pui.genie == null) pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
+          // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
+          else pui.render5250(parms);
+        },
+        "onfail": function(req) {
+          if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
+          pui.hideWaitAnimation();
+          pui.resetResponseValues();
+          if (pui["onoffline"] != null) pui["onoffline"]();
+        }      
+      });
+    }
+    sendRichDisplayScreen();
   }
 };
 pui["submit"] = pui.submitResponse;  // short-hand
