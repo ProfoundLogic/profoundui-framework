@@ -802,7 +802,12 @@ pui.render = function(parms) {
       pui.lastWindow = null;
       pui.lastWindowLeft = null;
       pui.lastWindowTop = null;
-      parms.container.innerHTML = "";
+      parms.container.innerHTML = "";      
+      var animation = formats[0]["metaData"]["screen"]["transition animation"];
+      if (pui.canvasSize) animation = null;
+      if (animation) {
+        parms.container = pui.transitionAnimation.setup(parms.container, animation);
+      }
     }
     else {
       pui.setupWindowDiv(parms, layers[i]);
@@ -860,6 +865,8 @@ pui.render = function(parms) {
     pui.windowStack.push(parms.container);
     
   }
+  
+  if (animation) pui.transitionAnimation.animate();
 
   if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true) ) {
     var cell = pui.focusField.dom.parentNode;
@@ -5822,3 +5829,47 @@ pui.isInputCapableProperty = function(propname, dom) {
 
   return false;
 };
+
+
+pui.transitionAnimation = {
+  setup: function(container, animation) {
+    this.animation = animation;
+    
+    // Capture previous screen and remove any id's to avoid clashing when the new screen is rendered
+    var containerId = container.id;
+    this.prevScreen = container;
+    this.prevScreen.id = "pui-previous";
+    this.prevScreen.style.zIndex = 10;
+    var allElems = this.prevScreen.getElementsByTagName("*");
+    for (var i = 0; i < allElems.length; i++) {
+      var elem = allElems[i];
+      if (elem.hasAttribute("id")) elem.removeAttribute("id");
+    }
+
+    // Create new screen as brand new pui div
+    this.newScreen = document.createElement("div");
+    this.newScreen.id = containerId;
+    this.newScreen.style.zIndex = 20;
+    this.prevScreen.parentNode.appendChild(this.newScreen);
+    return this.newScreen;
+  },
+  
+  animate: function() {
+    var animatedScreen = this.newScreen;
+    if (this.animation === "slide-out") {  // certain types of animation are intended to remove the previous screen rather than introduce the new screen on top of the previous screen
+      this.prevScreen.style.zIndex = 30;
+      animatedScreen = this.prevScreen;
+    }
+    animatedScreen.addEventListener("animationend", function(event) {
+      pui.transitionAnimation.cleanup();
+    }, false);
+    animatedScreen.className = this.animation;
+  },
+  
+  cleanup: function() {
+    if (!this.prevScreen) return;
+    this.prevScreen.innerHTML = "";
+    if (this.prevScreen.parentNode) this.prevScreen.parentNode.removeChild(this.prevScreen);
+    this.prevScreen = null;
+  }
+}
