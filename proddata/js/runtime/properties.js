@@ -412,6 +412,7 @@ function getScreenPropertiesModel(designScreen) {
     	{ name: "design overlay formats", type: "list", help: "Specifies a list of additional record formats to render in the designer when this record format is selected.  This property is only used at design-time.  It is ignored at run-time.", bind: false },
 
     	{ name: "Behavior", category: true },
+      { name: "transition animation", help: "This property identifies the CSS class for the screen transition animation." },
     	{ name: "disable enter key", choices: ["true", "false"], type: "boolean", help: "This property determines if pressing the Enter key will cause a response to be sent to the server.  If set to true and the Enter key is not used as a shortcut key, the response will not be sent.  Otherwise, the response is sent automatically.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     	{ name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, help: "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program.  It represents the INZRCD keyword.", viewdesigner: false },
     	{ name: "protect", choices: ["true", "false"], type: "boolean", help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected.  The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
