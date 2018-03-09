@@ -802,11 +802,21 @@ pui.render = function(parms) {
       pui.lastWindow = null;
       pui.lastWindowLeft = null;
       pui.lastWindowTop = null;
-      parms.container.innerHTML = "";      
-      var animation = formats[0]["metaData"]["screen"]["transition animation"];
-      if (pui.canvasSize) animation = null;
+      var animation = pui.evalBoundProperty(formats[0].metaData.screen["animation"], formats[0].data, formats[0].ref);
+      if (pui.canvasSize || parms.designMode) animation = null;
       if (animation) {
-        parms.container = pui.transitionAnimation.setup(parms.container, animation);
+        pui.hideWaitAnimation();
+        var animatedScreen = 
+        parms.container = pui.transitionAnimation.setup({
+          container: parms.container,
+          animation: animation,
+          animatedScreenProperty: pui.evalBoundProperty(formats[0].metaData.screen["animated screen"], formats[0].data, formats[0].ref),
+          overlay: pui.evalBoundProperty(formats[0].metaData.screen["overlay screens"], formats[0].data, formats[0].ref)
+        });
+        pui.runtimeContainer = parms.container;
+      }
+      else {
+        parms.container.innerHTML = "";
       }
     }
     else {
@@ -5832,12 +5842,15 @@ pui.isInputCapableProperty = function(propname, dom) {
 
 
 pui.transitionAnimation = {
-  setup: function(container, animation) {
-    this.animation = animation;
+  setup: function(config) {
+    this.animation = config.animation;
+    this.animatedScreenProperty = config.animatedScreenProperty;
+    this.overlay = (config.overlay === "true" || config.overlay === true);
+    pui.transitionAnimation.cleanup();
     
     // Capture previous screen and remove any id's to avoid clashing when the new screen is rendered
-    var containerId = container.id;
-    this.prevScreen = container;
+    var containerId = config.container.id;
+    this.prevScreen = config.container;
     this.prevScreen.id = "pui-previous";
     this.prevScreen.style.zIndex = 10;
     var allElems = this.prevScreen.getElementsByTagName("*");
@@ -5850,20 +5863,29 @@ pui.transitionAnimation = {
     this.newScreen = document.createElement("div");
     this.newScreen.id = containerId;
     this.newScreen.style.zIndex = 20;
-    this.prevScreen.parentNode.appendChild(this.newScreen);
+    this.prevScreen.parentNode.appendChild(this.newScreen);    
     return this.newScreen;
   },
   
   animate: function() {
+    this.adjustHeight();
     var animatedScreen = this.newScreen;
-    if (this.animation === "slide-out") {  // certain types of animation are intended to remove the previous screen rather than introduce the new screen on top of the previous screen
+    if (this.animatedScreenProperty === "previous") {
       this.prevScreen.style.zIndex = 30;
       animatedScreen = this.prevScreen;
     }
-    animatedScreen.addEventListener("animationend", function(event) {
-      pui.transitionAnimation.cleanup();
-    }, false);
-    animatedScreen.className = this.animation;
+    if (!this.overlay || this.animatedScreenProperty === "previous") {
+      animatedScreen.addEventListener("animationend", function(event) {
+        pui.transitionAnimation.cleanup();
+      }, false);
+    }
+    else {
+      var mask = document.createElement("div");
+      mask.className = "pui-animation-mask";
+      if (this.prevScreen.firstChild) this.prevScreen.insertBefore(mask, this.prevScreen.firstChild);
+      else this.prevScreen.appendChild(mask);
+    }
+    animatedScreen.className = "pui-" + this.animation + "-" + this.animatedScreenProperty;
   },
   
   cleanup: function() {
@@ -5871,5 +5893,29 @@ pui.transitionAnimation = {
     this.prevScreen.innerHTML = "";
     if (this.prevScreen.parentNode) this.prevScreen.parentNode.removeChild(this.prevScreen);
     this.prevScreen = null;
+  },
+  
+  adjustHeight: function() {
+    // This logic was borrowed from Mobile Layout
+  
+    // If height is unset, IE returns "auto", and all others return "0px"    
+    var parentStyle = pui.getComputedStyle(this.newScreen);
+    if (parentStyle != null && ( parentStyle["height"]=="0px" || parentStyle["height"]=="auto" )) {
+      pui.restoreStyles["padding"] = document.body.style.padding;
+      document.body.style.padding = "0";
+      pui.restoreStyles["height"] = document.body.style.height;
+      document.body.style.height = "100%";
+      document.body.parentNode.style.padding = "0";
+      document.body.parentNode.style.height = "100%";
+      pui.restoreStyles["overflow"] = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      this.newScreen.style.padding = "0";
+      this.newScreen.style.height = "100%";
+    }
+    
+    // Layout widget also had some exceptions for iOS .. this should be tested and we should see if this logic needs to be added
+    
+    pui.resize();
+
   }
 }
