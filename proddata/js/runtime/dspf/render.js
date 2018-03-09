@@ -816,6 +816,7 @@ pui.render = function(parms) {
         pui.runtimeContainer = parms.container;
       }
       else {
+        pui.transitionAnimation.cleanup();
         parms.container.innerHTML = "";
       }
     }
