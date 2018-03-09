@@ -803,6 +803,10 @@ pui.render = function(parms) {
       pui.lastWindowLeft = null;
       pui.lastWindowTop = null;
       var animation = pui.evalBoundProperty(formats[0].metaData.screen["animation"], formats[0].data, formats[0].ref);
+      if (typeof animation === "string") {
+        animation = animation.trim();
+        if (animation === "") animation = null;
+      }
       if (pui.canvasSize || parms.designMode) animation = null;
       if (animation) {
         pui.hideWaitAnimation();
