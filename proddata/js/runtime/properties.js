@@ -201,7 +201,7 @@ function getPropertiesModel() {
     { name: "choice values", type: "list", help: "Specifies alternate option values to send to the application for a select box (dropdown or list box), text field with auto complete, combo box, or menu. The values should be comma separated.", controls: ["combo box", "menu", "select box", "textbox"] },
     { name: "hover background color", type: "color", help: "Defines the background color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
     { name: "hover text color", type: "color", help: "Defines the text color of a menu option when the user hovers the mouse over it." + colorHelp, controls: ["menu"] },
-    { name: "animate", choices: ["true", "false"], blankChoice: false, help: "Determines if hovering over menu options is animated.", controls: ["menu"] },
+    { name: "animate", choices: ["true", "false"], blankChoice: false, help: "Determines if hovering over menu options is animated. Defaults to true.", controls: ["menu"] },
     { name: "border color", type: "color", help: "The color of the border used for menu options." + colorHelp, controls: ["menu"] },
     { name: "menu option padding", choices: paddings, format: "px", help: "Sets the distance between the edge of the menu option and the menu option text." + measureHelp, controls: ["menu"] },
     { name: "menu option indent", choices: paddings, format: "px", help: "Sets the distance between the left edge of the menu option and the menu option text." + measureHelp, controls: ["menu"] },
@@ -406,13 +406,17 @@ function getScreenPropertiesModel(designScreen) {
       { name: "external css", type: "cssfile", multOccur: true, help: "Identifies the location of an external cascading style sheet file to apply to this screen.  To specify multiple files, right-click the property and select Add Another External CSS." },
       { name: "external javascript", type: "jsfile", multOccur: true, help: "Identifies the location of an external JavaScript file to load on this screen.  To specify multiple files, right-click the property and select Add Another External JavaScript." },
     	
+    	{ name: "Transition Animation", category: true },
+      { name: "animated screen", choices: ["previous", "new"], help: "Specifies whether the previous screen is animated away to reveal the new screen or the new screen is animated on top of the previous screen. The default is to animate the new screen." },
+      { name: "animation", choices: ["slide-right", "slide-left", "slide-down", "slide-up", "fade-in", "fade-out", "zoom-in", "zoom-out", "Other..."], help: "Identifies the CSS class for the screen transition animation. The \"animated screen\" property is appended to the \"animation\" property to select the appropriate CSS class." },
+      { name: "overlay screens", choices: ["true", "false"], type: "boolean", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
+
       { name: "Overlay", category: true },
     	{ name: "overlay", choices: ["true", "false"], type: "boolean", help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
     	{ name: "overlay range", help: "Specifies a range of row numbers for this record format.  This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false },
     	{ name: "design overlay formats", type: "list", help: "Specifies a list of additional record formats to render in the designer when this record format is selected.  This property is only used at design-time.  It is ignored at run-time.", bind: false },
-
-    	{ name: "Behavior", category: true },
-      { name: "transition animation", help: "This property identifies the CSS class for the screen transition animation." },
+          
+      { name: "Behavior", category: true },
     	{ name: "disable enter key", choices: ["true", "false"], type: "boolean", help: "This property determines if pressing the Enter key will cause a response to be sent to the server.  If set to true and the Enter key is not used as a shortcut key, the response will not be sent.  Otherwise, the response is sent automatically.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     	{ name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, help: "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program.  It represents the INZRCD keyword.", viewdesigner: false },
     	{ name: "protect", choices: ["true", "false"], type: "boolean", help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected.  The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
