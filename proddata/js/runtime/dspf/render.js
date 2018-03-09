@@ -807,7 +807,7 @@ pui.render = function(parms) {
         animation = animation.trim();
         if (animation === "") animation = null;
       }
-      if (pui.canvasSize || parms.designMode) animation = null;
+      if (pui.canvasSize || parms.designMode || pui.genie != null) animation = null;
       if (animation) {
         pui.hideWaitAnimation();
         var animatedScreen = 
