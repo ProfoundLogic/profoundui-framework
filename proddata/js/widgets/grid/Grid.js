@@ -2272,6 +2272,7 @@ pui.Grid = function() {
               headerRow[col].sortIndex = j;
               headerRow[col].fieldName = fieldName;
               headerRow[col].dataType = val["dataType"];
+              if (val["dateFormat"] ) headerRow[col].dateFormat = val["dateFormat"];
               if (!pui.iPadEmulation) {
                 headerRow[col].style.cursor = "pointer";
               }
@@ -2532,8 +2533,10 @@ pui.Grid = function() {
       }
 
       var fieldNameUpper = "";
+      var fieldDateFormat = null;
       if (typeof cell.fieldName == "string") fieldNameUpper = cell.fieldName.toUpperCase();
-      
+      if (cell.dateFormat) fieldDateFormat = cell.dateFormat;
+
       function doSort(row1, row2) {
         var value1 = row1[sortIndex];
         var value2 = row2[sortIndex];
@@ -2551,7 +2554,7 @@ pui.Grid = function() {
           }
         }
         if (typeof pui["gridSort"] == "function") {
-          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc);
+          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc, fieldDateFormat);
           if (typeof returnVal != "number") returnVal = 0;
           if (returnVal > 0) {
             if (desc) return -1;
