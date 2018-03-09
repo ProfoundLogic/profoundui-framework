@@ -408,7 +408,7 @@ function getScreenPropertiesModel(designScreen) {
     	
     	{ name: "Transition Animation", category: true },
       { name: "animated screen", choices: ["previous", "new"], help: "Specifies whether the previous screen is animated away to reveal the new screen or the new screen is animated on top of the previous screen. The default is to animate the new screen." },
-      { name: "animation", choices: ["slide-right", "slide-left", "slide-down", "slide-up", "fade-in", "fade-out", "zoom-in", "zoom-out", "Other..."], help: "Identifies the CSS class for the screen transition animation. The \"animated screen\" property is appended to the \"animation\" property to select the appropriate CSS class." },
+      { name: "animation", choices: ["slide-right", "slide-left", "slide-down", "slide-up", "fade", "zoom-in", "zoom-out", "Other..."], help: "Identifies the CSS class for the screen transition animation. The \"animated screen\" property is appended to the \"animation\" property to select the appropriate CSS class." },
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
 
       { name: "Overlay", category: true },
