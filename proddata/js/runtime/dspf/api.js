@@ -240,6 +240,7 @@ pui["show"] = function(parms) {
     "layers": layers,
     success: true
   }
+  if (parms["transition"]) obj.transition = parms["transition"];
   
   // Render screen after waiting for any existing PUI callbacks to complete, so
   // objects they reference aren't destroyed prematurely.
