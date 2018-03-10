@@ -5857,6 +5857,7 @@ pui.transitionAnimation = {
   setup: function(config) {
     this.animation = config.animation;
     this.animatedScreenProperty = config.animatedScreenProperty;
+    if (this.animatedScreenProperty !== "previous") this.animatedScreenProperty = "new";
     this.overlay = (config.overlay === "true" || config.overlay === true);
     pui.transitionAnimation.cleanup();
     
