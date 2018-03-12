@@ -125,7 +125,7 @@ pui["runtimeMsg"]["en_US"]["upload input limit"]      = "Total input size limit 
 pui["runtimeMsg"]["en_US"]["upload no session"]       = "Not connected to a valid session.";
 pui["runtimeMsg"]["en_US"]["upload timeout"]          = "Transaction timed out.";
 pui["runtimeMsg"]["en_US"]["upload invalid response"] = "The server response is missing or invalid.";  //Also used in Atrium for Ajax error.
-pui["runtimeMsg"]["en_US"]["upload cancelled"]		    = "Upload cancelled.";
+pui["runtimeMsg"]["en_US"]["upload cancelled"]        = "Upload cancelled.";
 pui["runtimeMsg"]["en_US"]["close browser text"]      = "To complete the log off process, please close your browser window.";
 pui["runtimeMsg"]["en_US"]["session ended text"]      = "Your session has ended.";
 pui["runtimeMsg"]["en_US"]["outside ucs2"]            = 'Characters are outside of UCS-2 range.';
@@ -457,6 +457,8 @@ pui["runtimeText"]["en_US"]["show menu search"]     = "Show menu search";
 pui["runtimeText"]["en_US"]["show menu search hlp"] = "Uncheck to disable the menu search feature.";
 pui["runtimeText"]["en_US"]["show fav sys"]         = "Show favorites system";
 pui["runtimeText"]["en_US"]["show fav sys hlp"]     = "Uncheck to disable the favorites system.";
+pui["runtimeText"]["en_US"]["show fav start"]       = "Show favorites on startup";
+pui["runtimeText"]["en_US"]["show fav start hlp"]   = "If checked, the Favorites panel is shown on startup. Otherwise the Navigation panel will be shown (default). This option will only be available if Favorites system is enabled.";
 pui["runtimeText"]["en_US"]["limit num sessn"]      = "Limit number of sessions";
 pui["runtimeText"]["en_US"]["limit num sessn hlp"]  = "Number of Atrium sessions allowed for this user/group. A value of zero allows for unlimited sessions. The limitation is applied per web browser.";
 // Atrium.help tool-tip - User/Group navigation preferences.
@@ -546,13 +548,13 @@ pui["runtimeMsg"]["de_DE"]["file required"]           = "Bitte mindestens eine D
 pui["runtimeMsg"]["de_DE"]["signature overflow"]      = "Die Größe der Signatur überschreitet die maximale Speichergröße. Bitte löschen und erneut versuchen.";
 pui["runtimeMsg"]["de_DE"]["validValues"]             = "Eingegebener Wert ist nicht gültig. Gültige Werte sind: ";
 pui["runtimeMsg"]["de_DE"]["upload invalid type"]     = "Eine oder mehrere Dateien haben den falschen Typcode.";
-pui["runtimeMsg"]["de_DE"]["invalid email"]          = "ungültige E-Mail-Adresse.";
+pui["runtimeMsg"]["de_DE"]["invalid email"]           = "ungültige E-Mail-Adresse.";
 pui["runtimeMsg"]["de_DE"]["session timed out"]       = "Ihre Sitzung ist abgelaufen.";
 pui["runtimeMsg"]["de_DE"]["invalid low range"]       = "Wert muss größer sein als &1";
 pui["runtimeMsg"]["de_DE"]["invalid high range"]      = "Wert muss kleiner oder gleich &1 sein";
 pui["runtimeMsg"]["de_DE"]["invalid range"]           = "Gültiger Bereich ist zwischen &1 und &2";
 pui["runtimeMsg"]["de_DE"]["unmonitored exception"]   = "Das Programm hat einen nicht überwachten Fehler gefunden. Bitte kontaktieren Sie ihren Systemadministrator.";
-pui["runtimeMsg"]["de_DE"]["loading"]		      = "übertragen...";
+pui["runtimeMsg"]["de_DE"]["loading"]                 = "übertragen...";
 pui["runtimeMsg"]["de_DE"]["subfile deletion"]        = "Wollen Sie wirklich die Subfile löschen?"; 
 pui["runtimeText"]["de_DE"]["upload select text"]   = "Dateiauswahl";
 pui["runtimeText"]["de_DE"]["upload clear text"]    = "Löschen";
@@ -625,7 +627,7 @@ pui["runtimeMsg"]["pt_PT"]["invalid choice"]          = '"&1" é inválido. Esco
 pui["runtimeMsg"]["pt_PT"]["invalid date"]            = '"&1" não é uma data válida. Exemplo de formato correcto: &2';
 pui["runtimeMsg"]["pt_PT"]["invalid time"]            = '"&1" não é um valor de tempo correcto. Exemplo de formato correcto: &2';
 pui["runtimeMsg"]["pt_PT"]["invalid time stamp"]      = '"&1" não é um registo de tempo válido. Exemplo de formato correcto: &2';
-pui["runtimeMsg"]["pt_PT"]["invalid percent"]         = '&1 não é  um valor décimal.';
+pui["runtimeMsg"]["pt_PT"]["invalid percent"]         = '&1 não é um valor décimal.';
 pui["runtimeMsg"]["pt_PT"]["invalid digits"]          = '"&1" contém demasiados dígitos. Max: &2';
 pui["runtimeMsg"]["pt_PT"]["exceeds whole"]           = '"&1" excede o número máximo de dígitos para a parte numérica do campo (&2 digits).';
 pui["runtimeMsg"]["pt_PT"]["exceeds decimal"]         = '"&1" excede o número máximo de dígitos para a parte décimal do campo (&2 digits).';
@@ -639,15 +641,15 @@ pui["runtimeMsg"]["pt_PT"]["MF"]                      = "Campo de preenchimento 
 pui["runtimeMsg"]["pt_PT"]["required"]                = "O valor não pode estar em branco. Este campo é requerido.";
 pui["runtimeMsg"]["pt_PT"]["file required"]           = "Deve seleccionar pelo menos um ficheiro.";
 pui["runtimeMsg"]["pt_PT"]["signature overflow"]      = "A imagem da assinatura excede o número máximo de bytes disponíveis para o seu armazenamento. Por favor limpe a caixa da assinatura e tente de novo.";
-pui["runtimeMsg"]["pt_PT"]["validValues"]              = "O valor introduzido não é válido. Valores válidos: ";
+pui["runtimeMsg"]["pt_PT"]["validValues"]             = "O valor introduzido não é válido. Valores válidos: ";
 pui["runtimeMsg"]["pt_PT"]["upload invalid type"]     = "Um ou mais ficheiros são de tipo inválido.";
-pui["runtimeMsg"]["pt_PT"]["invalid email"]          = "inválido e-mail.";
+pui["runtimeMsg"]["pt_PT"]["invalid email"]           = "inválido e-mail.";
 pui["runtimeMsg"]["pt_PT"]["session timed out"]       = "A sua sessão expirou.";
 pui["runtimeMsg"]["pt_PT"]["invalid low range"]       = "O valor deve ser maior ou igual a &1";
 pui["runtimeMsg"]["pt_PT"]["invalid high range"]      = "O valor deve ser menor ou igual a &1";
 pui["runtimeMsg"]["pt_PT"]["invalid range"]           = "O Intervalo válido é de &1 a &2";
 pui["runtimeMsg"]["pt_PT"]["unmonitored exception"]   = "A aplicação encontrou uma excepção não monitorizada. Por favor conte o administrador de systema.";
-pui["runtimeMsg"]["pt_PT"]["loading"] 		      = "A carregar...";
+pui["runtimeMsg"]["pt_PT"]["loading"]                 = "A carregar...";
 pui["runtimeMsg"]["pt_PT"]["subfile deletion"]        = "Tem certeza que deseja excluir o subarquivo?";  
 pui["runtimeText"]["pt_PT"]["upload select text"]   = "Ficheiros Selecionados";
 pui["runtimeText"]["pt_PT"]["upload clear text"]    = "Limpar";
@@ -709,7 +711,7 @@ pui["runtimeText"]["pt_BR"]["row"]                    = "fileira";
 pui["runtimeText"]["pt_BR"]["rows"]                   = "fileiras";
 pui["runtimeMsg"]["pt_BR"]["upload invalid type"]     = "Um ou mais arquivos são de tipo inválido.";
 pui["runtimeMsg"]["pt_BR"]["session timed out"]       = "A sua sessão expirou.";
-pui["runtimeMsg"]["pt_BR"]["loading"]		      = "Carregando...";
+pui["runtimeMsg"]["pt_BR"]["loading"]                 = "Carregando...";
 
 // ------------------------------------------------------------
 //  Spanish / Spain
@@ -753,7 +755,7 @@ pui["runtimeMsg"]["es_ES"]["file required"]           = "Debe seleccionar al men
 pui["runtimeMsg"]["es_ES"]["signature overflow"]      = "La imagen de la firma excede el número máximo de los bytes disponibles para su almacenaje. Por favor borre la caja de la firma e intente de nuevo .";
 pui["runtimeMsg"]["es_ES"]["validValues"]             = "El valor introducido es inválido. Valores válidos son: ";
 pui["runtimeMsg"]["es_ES"]["upload invalid type"]     = "Uno o más archivos son de tipo inválido.";
-pui["runtimeMsg"]["es_ES"]["invalid email"]          = "dirección de correo electrónico no es válida.";
+pui["runtimeMsg"]["es_ES"]["invalid email"]           = "dirección de correo electrónico no es válida.";
 pui["runtimeMsg"]["es_ES"]["session timed out"]       = "El tiempo de su sesión ha expirado.";
 pui["runtimeMsg"]["es_ES"]["invalid low range"]       = "El valor debe ser mayor o igual a &1";
 pui["runtimeMsg"]["es_ES"]["invalid high range"]      = "El valor debe ser menor o igual a &1";
@@ -768,7 +770,7 @@ pui["runtimeText"]["es_ES"]["upload upload text"]   = "Cargar";
 pui["runtimeText"]["es_ES"]["excel export text"]    = "Exportar para Excel";
 pui["runtimeText"]["es_ES"]["excel to x"]           = "Exportar para &1";
 pui["runtimeText"]["es_ES"]["filter text"]          = "Filtrar";
-pui["runtimeText"]["es_ES"]["remove filters text"]  = "Remover Todos os  Filtros";
+pui["runtimeText"]["es_ES"]["remove filters text"]  = "Remover Todos os Filtros";
 pui["runtimeText"]["es_ES"]["next link text"]       = "Próximo";
 pui["runtimeText"]["es_ES"]["previous link text"]   = "Anterior";
 pui["runtimeText"]["es_ES"]["sort ascending text"]  = "Ordenación Ascendente";
@@ -840,7 +842,7 @@ pui["runtimeMsg"]["es_MX"]["phone too long"]          = 'Número de Teléfono es
 pui["runtimeMsg"]["es_MX"]["ssno too long"]           = 'Número de Seguro Social muy largo. (Máximo: &1 dígitos)';
 pui["runtimeMsg"]["es_MX"]["invalid custom val"]      = 'Función de validación personalizada es inválida.';
 pui["runtimeMsg"]["es_MX"]["error custom val"]        = 'Error en la validación de la función personalizada.';
-pui["runtimeMsg"]["es_MX"]["invalid email"]          = "dirección de correo electrónico no es válida.";
+pui["runtimeMsg"]["es_MX"]["invalid email"]           = "dirección de correo electrónico no es válida.";
 pui["runtimeMsg"]["es_MX"]["ME"]                      = "Campo de entrada obligatorio. Debe ingresar los datos.";
 pui["runtimeMsg"]["es_MX"]["MF"]                      = "Campo de relleno obligatorio. Debe rellenar el cuadro de entrada completamente.";
 pui["runtimeMsg"]["es_MX"]["required"]                = "El valor no puede ser blanco. Este campo es requerido.";
@@ -864,6 +866,9 @@ pui["runtimeText"]["es_MX"]["sort descending text"]   = "Orden Descendente";
 pui["runtimeText"]["es_MX"]["row"]                    = "fila";
 pui["runtimeText"]["es_MX"]["rows"]                   = "filas";
 pui["runtimeText"]["es_MX"]["page"]                   = "Página";
+
+//pui["runtimeText"]["es_MX"]["show fav start"]       = "Mostrar favoritos en el arranque";
+//pui["runtimeText"]["es_MX"]["show fav start hlp"]   = "Si es seleccionado, el panel Favoritos se muestra en el arranque. De lo contrario el panel Navegación será el que se muestre (acción por omisión). Esta opción solo estará disponible si se habilita el sistema Favoritos.";
 
 
 // ------------------------------------------------------------
@@ -1199,6 +1204,8 @@ pui["runtimeText"]["fr_FR"]["show menu search"]     = "Afficher la zone de reche
 pui["runtimeText"]["fr_FR"]["show menu search hlp"] = "Décocher pour masquer la zone de recherche.";
 pui["runtimeText"]["fr_FR"]["show fav sys"]         = "Afficher les favoris";
 pui["runtimeText"]["fr_FR"]["show fav sys hlp"]     = "Décocher pour masquer les favoris.";
+pui["runtimeText"]["fr_FR"]["show fav start"]       = "Afficher les favoris au démarrage";
+pui["runtimeText"]["fr_FR"]["show fav start hlp"]   = "Si coché, le panneau des Favoris sera affiché au démarrage. Sinon, le Panneau de navigation sera affiché (par défaut). Cette option n'est disponible que si le système de Favoris est actifa été activé.";
 pui["runtimeText"]["fr_FR"]["limit num sessn"]      = "Limiter le nombre de sessions";
 pui["runtimeText"]["fr_FR"]["limit num sessn hlp"]  = "Nombre maximum de sessions autorisé par l'Atrium pour cet utilisateur/groupe. Une valeur de zéro correspond à un nombre illimité de sessions. La limite est fixée par navigateur.";
 // Atrium.help tool-tip - User/Group navigation preferences.
@@ -1426,6 +1433,8 @@ pui["runtimeText"]["it_IT"]["cancel"]               = "Cancella";
 pui["runtimeText"]["it_IT"]["find text"]            = "Trovare";
 pui["runtimeText"]["it_IT"]["remove filter"]        = "Rimuovi Filtro";
 
+//pui["runtimeText"]["it_IT"]["show fav start"]       = "Mostra i favoriti all’avvio";
+//pui["runtimeText"]["it_IT"]["show fav start hlp"]   = "Se selezionata, all’avvio sarà mostrato il pannello Favoriti. Altrimenti sarà mostrato il pannello di Navigazione (default). Tale opzione è disponibile soltanto se è abilitato il sistema dei Favoriti.";
 
 
 // ------------------------------------------------------------
@@ -1854,7 +1863,7 @@ pui["runtimeText"]["nl_NL"]["home page url hlp"]    = "Stelt de URL in met de lo
 pui["runtimeText"]["nl_NL"]["navi pnl title"]       = "Title van het navigatie panel";
 pui["runtimeText"]["nl_NL"]["navi pnl title hlp"]   = "Deze tekst wordt getoond in de titel bar van het navigatie panel.";
 pui["runtimeText"]["nl_NL"]["navi pnl width"]       = "Breedte van navigatie panel na het opstarten";
-pui["runtimeText"]["nl_NL"]["navi pnl width hlp"]   = "Stelt de breedte in pixels in van het navigatie panel na het opstarten. De gebruiker kan de grootte van het panel aanpassen of het panel, indien nodig, verbergen.  Geldige waarden: 0-2000 pixels.";
+pui["runtimeText"]["nl_NL"]["navi pnl width hlp"]   = "Stelt de breedte in pixels in van het navigatie panel na het opstarten. De gebruiker kan de grootte van het panel aanpassen of het panel, indien nodig, verbergen. Geldige waarden: 0-2000 pixels.";
 pui["runtimeText"]["nl_NL"]["navi type"]            = "Type navigatie";
 pui["runtimeText"]["nl_NL"]["navi type hlp"]        = "Stelt binnen de navigatie het type menu in, \"tree\" of \"accordion\". Deze instelling is niet van invloed op de toolbar.";
 pui["runtimeText"]["nl_NL"]["single click nav"]     = "Enkele muisklik navigatie";
