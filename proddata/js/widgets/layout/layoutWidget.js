@@ -102,6 +102,10 @@ pui.widgets.add({
         if (parms.propertyName == "field type") {
           parms.dom.layout.setProperty("width", parms.properties["width"]);
           parms.dom.layout.setProperty("height", parms.properties["height"]);
+          
+          if (parms.properties["inline style"])
+            addInlineCSS(parms.dom, parms.properties["inline style"], true);
+          
         }
       }
       parms.dom.layout.template = parms.properties["template"];
