@@ -3652,8 +3652,13 @@ pui.submitResponse = function(response, value) {
           
           var formatName = "";
           var displayFile = "";
-          if (parms != null && parms["layers"] != null && parms["layers"][0]["formats"] != null 
-              && parms["layers"][0]["formats"][0]["name"] != null && parms["layers"][0]["formats"][0]["file"] != null) {
+          if (parms != null 
+              && parms["layers"] != null 
+              && parms["layers"][0] != null 
+              && parms["layers"][0]["formats"] != null 
+              && parms["layers"][0]["formats"][0] != null 
+              && parms["layers"][0]["formats"][0]["name"] != null 
+              && parms["layers"][0]["formats"][0]["file"] != null) {
             formatName = parms["layers"][0]["formats"][0]["name"]; 
             displayFile = parms["layers"][0]["formats"][0]["file"]; 
           }
