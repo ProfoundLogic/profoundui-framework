@@ -228,8 +228,11 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		return targetDirectory;
 	};
 
-	// Returns an array containing names from selected File objects.
-	this.getFileNames = function() {
+  /**
+   * Returns an array containing names from user-selected File objects.
+   * @returns {Array}
+   */
+	this["getFileNames"] = function() {
 		var names = [];
 		for (var i = 0; i < selectors.length; i++) {
 			names.push(selectors[i].name);
@@ -268,7 +271,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 	};
 
 	this.validateNames = function() {
-		var arr = this.getFileNames();
+		var arr = this["getFileNames"]();
 		var used = {};
 		for (var i = 0; i < arr.length; i++) {
 			if (typeof(used[arr[i]]) !== "undefined") {
@@ -440,7 +443,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
 		if (uploadEvent && uploadEvent.length > 0) {
 			var obj = {};
 			obj["dir"] = this.getTargetDirectory();
-			obj["names"] = this.getFileNames();
+			obj["names"] = this["getFileNames"]();
 			var func = function() {
 				eval("var info = arguments[0];");
 				try {

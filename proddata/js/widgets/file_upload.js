@@ -211,7 +211,7 @@ pui["fileupload"].FileUpload = function(container) {
    * Return a list of file names selected.
    * @returns {Array} Returns an array of strings.
    */
-  this.getFileNames = function() {
+  this["getFileNames"] = function() {
   
     var names = [];
   
@@ -345,7 +345,7 @@ pui["fileupload"].FileUpload = function(container) {
   
     if (selectionMode == MODE_STANDARD) {
     
-      var arr = this.getFileNames();
+      var arr = this["getFileNames"]();
       var used = {};
       for (var i = 0; i < arr.length; i++) {
       
@@ -590,7 +590,7 @@ pui["fileupload"].FileUpload = function(container) {
     
       var obj = {};
       obj["dir"] = this.getTargetDirectory();
-      obj["names"] = this.getFileNames();
+      obj["names"] = this["getFileNames"]();
       
       var func = function() {
         eval("var info = arguments[0];");
@@ -1004,8 +1004,7 @@ pui.checkUploads = function(param) {
           var qualField = fileUpload.qualField;
           
           // Build response.
-          needResponse = true;
-          
+
           // Response looks like this: 
           
           // Header: 
@@ -1046,7 +1045,7 @@ pui.checkUploads = function(param) {
             
           }          
           
-          var namesArray = fileUpload.getFileNames();
+          var namesArray = fileUpload["getFileNames"]();
           var names = "";
           for (var j = 0; j < namesArray.length; j++) {
           

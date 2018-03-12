@@ -154,24 +154,25 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.overflowY = "auto";
     choicesDiv.style.height = fixedHeight + "px";
     choicesDiv.style.zIndex = 130; 
-	choicesDiv.className = "combo-options";
+	  choicesDiv.className = "combo-options";
   }
 
   this.draw = function() {
-	var boxWidth;  
-	var comWidth = me.div.style.width;	//get the width of the combo box
-	var newWidth = me.div.offsetWidth; //get the width in pixels
-	if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 0 
-	
-	if (comWidth [comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
-		boxWidth = (1 - (21 / newWidth)) * 100; //find the percent width for input box
-		box.style.width = boxWidth + "%";  //the new width + the % sign
-		box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
-	}
-	else{    //if the width of the combo box does not end in a % sign
-	    boxWidth = parseInt(comWidth) - 21;  //get the number of the width - 21 
-		box.style.width = boxWidth + "px";  //the new width + "px" 
-	}	
+    var boxWidth = 0;  
+    var comWidth = me.div.style.width;	//get the width of the combo box
+    var newWidth = me.div.offsetWidth; //get the width in pixels
+    
+    if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
+      boxWidth = (1 - (21 / newWidth)) * 100; //find the percent width for input box
+      if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
+      box.style.width = boxWidth + "%";  //the new width + the % sign
+      box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
+    }
+    else{    //if the width of the combo box does not end in a % sign
+      boxWidth = parseInt(comWidth) - 21;  //get the number of the width - 21
+      if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
+      box.style.width = boxWidth + "px";  //the new width + "px" 
+    }	
   }
   
   this.setStyleProperty = function(propertyName, propertyValue) {

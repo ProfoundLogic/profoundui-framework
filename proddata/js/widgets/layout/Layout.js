@@ -452,7 +452,10 @@ pui.layout.Layout = function() {
     function setupiScroll() {
       var parent = me.layoutDiv.parentNode;
       if (parent != null && parent.tagName == "DIV") {
-        me.iScroll = new iScroll(parent, {
+        var config = {
+          "scrollbars": true,
+          "mouseWheel": true,
+          "shrink": true,
           "onBeforeScrollStart": function (e) {
             var target = getTarget(e);
             while (target.nodeType != 1) target = target.parentNode;
@@ -461,7 +464,9 @@ pui.layout.Layout = function() {
               e.preventDefault();
             }
           }
-        });
+        }
+        if (typeof IScroll == "function") me.iScroll = new IScroll(parent, config);  // new version
+        else me.iScroll = new iScroll(parent, config);  // old version
       }
     }
     
@@ -473,7 +478,7 @@ pui.layout.Layout = function() {
         return;
       }
       setTimeout(function() {
-        if (typeof iScroll == "function") {    
+        if (typeof IScroll == "function" || typeof iScroll == "function") {  // as of version 5, the class name is IScroll (used to be iScroll)
           setupiScroll();
         }
         else {
@@ -482,7 +487,7 @@ pui.layout.Layout = function() {
       }, 200);
     }
   
-    if (typeof iScroll == "function") {    
+    if (typeof IScroll == "function" || typeof iScroll == "function") {  // as of version 5, the class name is IScroll (used to be iScroll)
       setupiScroll();
     }
     else {

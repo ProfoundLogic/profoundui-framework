@@ -113,6 +113,16 @@ pui.layout["templates"]["css panel"] = pui.layout.template.cssPanelTemplate;
 
 pui.layout["templates"]["accordion"] = pui.layout.template.accordionTemplate;
 
+pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;"
+ + " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', help:'The style of the element&apos;s border.'};"
+ + " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', help:'The width of the element&apos;s border.'};"
+ + " border-color:{property:'border color', type:'color', defaultValue:'black', help:'The color of the element&apos;s border.'};"
+//Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
+//In the future, this template may need to be implemented in JavaScript.
+ + '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'Alignment of the legend in the current element.(Left, Right, Center).\'}">'
+ + '{property: "legend", help:"Text to display in the fieldset&apos;s legend."}</legend>'
+ + '<div container="true" style="width:100%; height:100%; position:absolute;"></div>'
+ +'</fieldset>';
 
 /**
  * Returns an array of template name strings. pui.layout.getPropertiesModel calls this,
