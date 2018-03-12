@@ -125,7 +125,7 @@ pui["runtimeMsg"]["en_US"]["upload input limit"]      = "Total input size limit 
 pui["runtimeMsg"]["en_US"]["upload no session"]       = "Not connected to a valid session.";
 pui["runtimeMsg"]["en_US"]["upload timeout"]          = "Transaction timed out.";
 pui["runtimeMsg"]["en_US"]["upload invalid response"] = "The server response is missing or invalid.";  //Also used in Atrium for Ajax error.
-pui["runtimeMsg"]["en_US"]["upload cancelled"]        = "Upload cancelled.";
+pui["runtimeMsg"]["en_US"]["upload cancelled"]        = "Upload canceled.";
 pui["runtimeMsg"]["en_US"]["close browser text"]      = "To complete the log off process, please close your browser window.";
 pui["runtimeMsg"]["en_US"]["session ended text"]      = "Your session has ended.";
 pui["runtimeMsg"]["en_US"]["outside ucs2"]            = 'Characters are outside of UCS-2 range.';
@@ -450,7 +450,7 @@ pui["runtimeText"]["en_US"]["banner height hlp"]    = "Sets the height of the ba
 pui["runtimeText"]["en_US"]["banner url"]           = "Banner URL";
 pui["runtimeText"]["en_US"]["banner url hlp"]       = "Sets the URL where the banner content is located. Can be either an absolute or fully qualified URL.";
 pui["runtimeText"]["en_US"]["theme"]                = "Theme";
-pui["runtimeText"]["en_US"]["theme hlp"]            = "Sets the default theme. This can be overriden by individual users if <strong>\"Allow users to select theme\"</strong> is enabled.";
+pui["runtimeText"]["en_US"]["theme hlp"]            = "Sets the default theme. This can be overridden by individual users if <strong>\"Allow users to select theme\"</strong> is enabled.";
 pui["runtimeText"]["en_US"]["allow sel theme"]      = "Allow user to select theme";
 pui["runtimeText"]["en_US"]["allow sel theme hlp"]  = "If checked, users will have the ability to select their desired theme using a control in the toolbar.";
 pui["runtimeText"]["en_US"]["show menu search"]     = "Show menu search";
@@ -504,6 +504,14 @@ pui["runtimeText"]["en_US"]["parameter hlp"]        = "Optional: Specifies a par
 //  UK English -- just a copy of USA
 // ----------------------------------
 pui.copyAllLanguageText("en_US", "en_UK");
+pui["runtimeMsg"]["en_UK"]["upload cancelled"]      = "Upload cancelled.";
+pui["runtimeText"]["en_UK"]["favorites"]            = "Favourites";
+pui["runtimeText"]["en_UK"]["add to favorites"]     = "Add to Favourites";
+pui["runtimeText"]["en_UK"]["rmv from favorites"]   = "Remove from Favourites";
+pui["runtimeText"]["en_UK"]["show fav sys"]         = "Show favourites system";
+pui["runtimeText"]["en_UK"]["show fav sys hlp"]     = "Uncheck to disable the favourites system.";
+pui["runtimeText"]["en_UK"]["show fav start"]       = "Show favourites on startup";
+pui["runtimeText"]["en_UK"]["show fav start hlp"]   = "If checked, the Favourites panel is shown on startup. Otherwise the Navigation panel will be shown (default). This option will only be available if Favourites system is enabled.";
 
 
 // ----------------------------------
@@ -1244,7 +1252,7 @@ pui["runtimeText"]["fr_FR"]["opens once only hlp"]  = "Par défaut, si l'utilisa
 pui["runtimeText"]["fr_FR"]["icon"]                 = "Icône";
 pui["runtimeText"]["fr_FR"]["icon hlp"]             = "Optionnel. Définit l'icône utilisée dans le menu de navigation ou la barre d'outils. L'icône peut être au format GIF, JPG ou PNG. Les GIF transparents sont recommandés. Le chemin devra être spécifié en absolu depuis le répertoire racine d'installation de l'Atrium. Si aucune icône n'est spécifiée, l'Atrium utilisera l'icône par défaut pour les éléments de navigation. Aucune icône ne sera affichée pour les éléments de la barre d'outils sauf si spécifiée ici.";
 pui["runtimeText"]["fr_FR"]["parameter"]            = "Paramètre";
-pui["runtimeText"]["fr_FR"]["parameter hlp"]        = "Optionnel: Sépcifie un paramètre qui sera passé au program Rich Display lors de son exécution.";
+pui["runtimeText"]["fr_FR"]["parameter hlp"]        = "Optionnel: Spécifie un paramètre qui sera passé au program Rich Display lors de son exécution.";
 
 //--------------------------------------------------------------
 //  French Canadian Eh!
