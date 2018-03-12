@@ -77,6 +77,8 @@ pui.SlidingScrollBar = function() {
     outerDiv.style.overflowX = "hidden";
     outerDiv.style.padding = "0px";
     outerDiv.className = "pui-scrollbar";
+    // Add the main class of the grid if it exists, needed for new classes created for issue #4131
+    if (me.gridDom.grid && me.gridDom.grid.mainClass) outerDiv.className += ' ' + me.gridDom.grid.mainClass + '-pui-scrollbar';
     innerDiv = document.createElement("div");
     innerDiv.style.position = "absolute";
     innerDiv.style.left = "0px";
