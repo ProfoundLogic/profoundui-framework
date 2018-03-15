@@ -1,4 +1,4 @@
-﻿//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
+//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
 //  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
@@ -455,9 +455,9 @@ pui["runtimeText"]["en_US"]["allow sel theme"]      = "Allow user to select them
 pui["runtimeText"]["en_US"]["allow sel theme hlp"]  = "If checked, users will have the ability to select their desired theme using a control in the toolbar.";
 pui["runtimeText"]["en_US"]["show menu search"]     = "Show menu search";
 pui["runtimeText"]["en_US"]["show menu search hlp"] = "Uncheck to disable the menu search feature.";
-pui["runtimeText"]["en_US"]["show fav sys"]         = "Show favorites system";
-pui["runtimeText"]["en_US"]["show fav sys hlp"]     = "Uncheck to disable the favorites system.";
-pui["runtimeText"]["en_US"]["show fav start"]       = "Show favorites on startup";
+pui["runtimeText"]["en_US"]["show fav sys"]         = "Show Favorites system";
+pui["runtimeText"]["en_US"]["show fav sys hlp"]     = "Uncheck to disable the Favorites system.";
+pui["runtimeText"]["en_US"]["show fav start"]       = "Show Favorites on startup";
 pui["runtimeText"]["en_US"]["show fav start hlp"]   = "If checked, the Favorites panel is shown on startup. Otherwise the Navigation panel will be shown (default). This option will only be available if Favorites system is enabled.";
 pui["runtimeText"]["en_US"]["limit num sessn"]      = "Limit number of sessions";
 pui["runtimeText"]["en_US"]["limit num sessn hlp"]  = "Number of Atrium sessions allowed for this user/group. A value of zero allows for unlimited sessions. The limitation is applied per web browser.";
@@ -501,16 +501,16 @@ pui["runtimeText"]["en_US"]["parameter hlp"]        = "Optional: Specifies a par
 
 
 // ----------------------------------
-//  UK English -- just a copy of USA
+//  UK English -- just a copy of USA, with a couple of UK variant spelling corrections
 // ----------------------------------
 pui.copyAllLanguageText("en_US", "en_UK");
 pui["runtimeMsg"]["en_UK"]["upload cancelled"]      = "Upload cancelled.";
 pui["runtimeText"]["en_UK"]["favorites"]            = "Favourites";
 pui["runtimeText"]["en_UK"]["add to favorites"]     = "Add to Favourites";
 pui["runtimeText"]["en_UK"]["rmv from favorites"]   = "Remove from Favourites";
-pui["runtimeText"]["en_UK"]["show fav sys"]         = "Show favourites system";
-pui["runtimeText"]["en_UK"]["show fav sys hlp"]     = "Uncheck to disable the favourites system.";
-pui["runtimeText"]["en_UK"]["show fav start"]       = "Show favourites on startup";
+pui["runtimeText"]["en_UK"]["show fav sys"]         = "Show Favourites system";
+pui["runtimeText"]["en_UK"]["show fav sys hlp"]     = "Uncheck to disable the Favourites system.";
+pui["runtimeText"]["en_UK"]["show fav start"]       = "Show Favourites on startup";
 pui["runtimeText"]["en_UK"]["show fav start hlp"]   = "If checked, the Favourites panel is shown on startup. Otherwise the Navigation panel will be shown (default). This option will only be available if Favourites system is enabled.";
 
 
@@ -606,6 +606,9 @@ pui["runtimeText"]["de_DE"]["change password"]      = "Ändern Passwort";
 pui["runtimeText"]["de_DE"]["cancel"]               = "Abbrechen";
 pui["runtimeText"]["de_DE"]["find text"]            = "Finden";
 pui["runtimeText"]["de_DE"]["remove filter"]        = "Filter entfernen";
+// Translated for feature #2826, but rest of Atrium translations still required.
+//pui["runtimeText"]["de_DE"]["show fav start"]       = "Favoriten Anzeige in Startmaske";
+//pui["runtimeText"]["de_DE"]["show fav start hlp"]   = "Wenn ausgewählt, wird die Favoriten Anzeige in der Startmaske angezeigt. Ansonsten wird das Navigations Panel angezeigt (Standard). Diese Option ist nur verfügbar, wenn Favoriten aktiviert sind.";
 
 
 // ----------------------------------
@@ -874,8 +877,8 @@ pui["runtimeText"]["es_MX"]["sort descending text"]   = "Orden Descendente";
 pui["runtimeText"]["es_MX"]["row"]                    = "fila";
 pui["runtimeText"]["es_MX"]["rows"]                   = "filas";
 pui["runtimeText"]["es_MX"]["page"]                   = "Página";
-
-//pui["runtimeText"]["es_MX"]["show fav start"]       = "Mostrar favoritos en el arranque";
+// Translated for feature #2826, but rest of Atrium translations still required.
+//pui["runtimeText"]["es_MX"]["show fav start"]       = "Mostrar Favoritos en el arranque";
 //pui["runtimeText"]["es_MX"]["show fav start hlp"]   = "Si es seleccionado, el panel Favoritos se muestra en el arranque. De lo contrario el panel Navegación será el que se muestre (acción por omisión). Esta opción solo estará disponible si se habilita el sistema Favoritos.";
 
 
@@ -1049,8 +1052,8 @@ pui["runtimeText"]["fr_FR"]["remove filter"]        = "Supprimer le filtre";
 pui["runtimeText"]["fr_FR"]["settings"]             = "Paramètres";
 pui["runtimeText"]["fr_FR"]["favorites"]            = "Favoris";
 pui["runtimeText"]["fr_FR"]["type query press en"]  = "Saisir une requête, appuyer sur Entrée.";
-pui["runtimeText"]["fr_FR"]["add to favorites"]     = "Ajouter aux favoris";
-pui["runtimeText"]["fr_FR"]["rmv from favorites"]   = "Supprimer des favoris";
+pui["runtimeText"]["fr_FR"]["add to favorites"]     = "Ajouter aux Favoris";
+pui["runtimeText"]["fr_FR"]["rmv from favorites"]   = "Supprimer des Favoris";
 pui["runtimeText"]["fr_FR"]["please wait"]          = "Veuillez patienter...";
 pui["runtimeText"]["fr_FR"]["control panel"]        = "Panneau de contrôle";
 pui["runtimeText"]["fr_FR"]["my settings"]          = "Mes paramètres";
@@ -1210,9 +1213,9 @@ pui["runtimeText"]["fr_FR"]["allow sel theme"]      = "Autoriser l'utilisateur �
 pui["runtimeText"]["fr_FR"]["allow sel theme hlp"]  = "Si coché, les utilisateurs auront la possibilité de choisir le thème via un menu déroulant dans la barre d'outils.";
 pui["runtimeText"]["fr_FR"]["show menu search"]     = "Afficher la zone de recherche";
 pui["runtimeText"]["fr_FR"]["show menu search hlp"] = "Décocher pour masquer la zone de recherche.";
-pui["runtimeText"]["fr_FR"]["show fav sys"]         = "Afficher les favoris";
-pui["runtimeText"]["fr_FR"]["show fav sys hlp"]     = "Décocher pour masquer les favoris.";
-pui["runtimeText"]["fr_FR"]["show fav start"]       = "Afficher les favoris au démarrage";
+pui["runtimeText"]["fr_FR"]["show fav sys"]         = "Afficher les Favoris";
+pui["runtimeText"]["fr_FR"]["show fav sys hlp"]     = "Décocher pour masquer les Favoris.";
+pui["runtimeText"]["fr_FR"]["show fav start"]       = "Afficher les Favoris au démarrage";
 pui["runtimeText"]["fr_FR"]["show fav start hlp"]   = "Si coché, le panneau des Favoris sera affiché au démarrage. Sinon, le Panneau de navigation sera affiché (par défaut). Cette option n'est disponible que si le système de Favoris est actifa été activé.";
 pui["runtimeText"]["fr_FR"]["limit num sessn"]      = "Limiter le nombre de sessions";
 pui["runtimeText"]["fr_FR"]["limit num sessn hlp"]  = "Nombre maximum de sessions autorisé par l'Atrium pour cet utilisateur/groupe. Une valeur de zéro correspond à un nombre illimité de sessions. La limite est fixée par navigateur.";
@@ -1440,8 +1443,8 @@ pui["runtimeText"]["it_IT"]["change password"]      = "Cambia Password";
 pui["runtimeText"]["it_IT"]["cancel"]               = "Cancella";
 pui["runtimeText"]["it_IT"]["find text"]            = "Trovare";
 pui["runtimeText"]["it_IT"]["remove filter"]        = "Rimuovi Filtro";
-
-//pui["runtimeText"]["it_IT"]["show fav start"]       = "Mostra i favoriti all’avvio";
+// Translated for feature #2826, but rest of Atrium translations still required.
+//pui["runtimeText"]["it_IT"]["show fav start"]       = "Mostra i Favoriti all’avvio";
 //pui["runtimeText"]["it_IT"]["show fav start hlp"]   = "Se selezionata, all’avvio sarà mostrato il pannello Favoriti. Altrimenti sarà mostrato il pannello di Navigazione (default). Tale opzione è disponibile soltanto se è abilitato il sistema dei Favoriti.";
 
 
@@ -1708,8 +1711,8 @@ pui["runtimeText"]["nl_NL"]["no"]                   = "Nee";
 pui["runtimeText"]["nl_NL"]["settings"]             = "Instellingen";
 pui["runtimeText"]["nl_NL"]["favorites"]            = "Favorieten";
 pui["runtimeText"]["nl_NL"]["type query press en"]  = "Type vraag, druk op enter.";
-pui["runtimeText"]["nl_NL"]["add to favorites"]     = "Voeg toe aan favorieten";
-pui["runtimeText"]["nl_NL"]["rmv from favorites"]   = "Verwijder uit favorieten";
+pui["runtimeText"]["nl_NL"]["add to favorites"]     = "Voeg toe aan Favorieten";
+pui["runtimeText"]["nl_NL"]["rmv from favorites"]   = "Verwijder uit Favorieten";
 pui["runtimeText"]["nl_NL"]["please wait"]          = "Wachten aub...";
 pui["runtimeText"]["nl_NL"]["control panel"]        = "Control Panel";
 pui["runtimeText"]["nl_NL"]["my settings"]          = "Mijn instellingen";
@@ -1859,8 +1862,10 @@ pui["runtimeText"]["nl_NL"]["allow sel theme"]      = "Sta gebruikers toe om een
 pui["runtimeText"]["nl_NL"]["allow sel theme hlp"]  = "Als dit is aangevinkt, is het voor gebruikers mogelijk een eigen thema te selecteren met behulp van de control in de toolbar.";
 pui["runtimeText"]["nl_NL"]["show menu search"]     = "Toon zoekmenu";
 pui["runtimeText"]["nl_NL"]["show menu search hlp"] = "Haal vinkje weg om de menu zoekfaciliteit uit te schakelen.";
-pui["runtimeText"]["nl_NL"]["show fav sys"]         = "Toon de favorieten";
-pui["runtimeText"]["nl_NL"]["show fav sys hlp"]     = "Haal vinkje weg om de favorieten uit te schakelen.";
+pui["runtimeText"]["nl_NL"]["show fav sys"]         = "Toon de Favorieten";
+pui["runtimeText"]["nl_NL"]["show fav sys hlp"]     = "Haal vinkje weg om de Favorieten uit te schakelen.";
+pui["runtimeText"]["nl_NL"]["show fav start"]       = "Toon tab Favorieten bij het opstarten";
+pui["runtimeText"]["nl_NL"]["show fav start hlp"]   = "Indien aangevinkt, wordt de tab Favorieten weergegeven bij het opstarten. Anders wordt (standaard) de tab Navigatie getoond. Deze optie is alleen beschikbaar als Favorieten tonen is ingeschakeld.";
 pui["runtimeText"]["nl_NL"]["limit num sessn"]      = "Beperk het aantal sessies";
 pui["runtimeText"]["nl_NL"]["limit num sessn hlp"]  = "Het aantal toegestane Atrium sessies voor deze gebruiker/groep. De waarde nul staat voor een onbeperkt aantal sessies. De beperking geldt per web browser.";
 // Atrium.help tool-tip - User/Group navigation preferences.
