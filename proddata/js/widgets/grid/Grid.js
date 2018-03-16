@@ -4847,6 +4847,7 @@ pui.Grid = function() {
   }
   
   function doResize(x, y, lineIndex, isVertical, startTop, startLeft) {
+    var excelLike = true;
     var i = lineIndex;
     var lines;
     if (isVertical) lines = me.vLines;
@@ -4873,7 +4874,16 @@ pui.Grid = function() {
       }
     }
     if (!isVertical) line.style.top  = top + "px";
-    if (isVertical) line.style.left = left + "px";
+    if (isVertical) {
+      if (excelLike) {
+        var diff = left - line.offsetLeft;
+        for (var j = i + 1; j < lines.length; j++) {
+          var curLine = lines[j];
+          curLine.style.left = (curLine.offsetLeft + diff) + "px";
+        }
+      }
+      line.style.left = left + "px";
+    }
     if (!isVertical && (i != 0 || !me.hasHeader) && i != lines.length - 1) {
       if (i < lines.length - 1) me.rowHeight = parseInt(lines[i+1].style.top) - parseInt(lines[i].style.top);
       else me.rowHeight = parseInt(lines[i].style.top) - parseInt(lines[i-1].style.top);
@@ -4904,7 +4914,10 @@ pui.Grid = function() {
       setLineLefts();
     }
     if (isVertical && (lines.length - 1 == i || i == 0)) {
-      if (isVertical) setLineWidths();
+      setLineWidths();
+    }
+    else if (excelLike && isVertical) {
+      setLineWidths();
     }
     if (!isVertical) {
       setLineTops();
