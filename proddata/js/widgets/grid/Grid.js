@@ -4875,7 +4875,7 @@ pui.Grid = function() {
     }
     if (!isVertical) line.style.top  = top + "px";
     if (isVertical) {
-      if (excelLike) {
+      if (excelLike && i != 0) {
         var diff = left - line.offsetLeft;
         for (var j = i + 1; j < lines.length; j++) {
           var curLine = lines[j];
