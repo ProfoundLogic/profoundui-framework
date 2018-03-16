@@ -4847,7 +4847,8 @@ pui.Grid = function() {
   }
   
   function doResize(x, y, lineIndex, isVertical, startTop, startLeft) {
-    var excelLike = true;
+    var excelLike = (pui["grid column resize style"] !== "simple");
+    if (me.expandToLayout) excelLike = false;
     var i = lineIndex;
     var lines;
     if (isVertical) lines = me.vLines;
