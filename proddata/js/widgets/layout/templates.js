@@ -121,7 +121,7 @@ pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%
 //In the future, this template may need to be implemented in JavaScript.
  + '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'Alignment of the legend in the current element.(Left, Right, Center).\'}">'
  + '{property: "legend", help:"Text to display in the fieldset&apos;s legend."}</legend>'
- + '<div container="true" style="width:100%; height:100%; position:absolute;"></div>'
+ + '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>'
  +'</fieldset>';
 
 /**
