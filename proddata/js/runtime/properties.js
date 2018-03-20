@@ -381,7 +381,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "input field", label: "Bound Field", hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "" },
 
     	{ name: "HTTP Header", category: true },
-    	{ name: "content type", help: "Specifies an HTTP response content type.  If not specified, a default conent type based on the document type is used.", hideFormatting: true, validDataTypes: ["char"] },
+    	{ name: "content type", help: "Specifies an HTTP response content type.  If not specified, a default content type based on the document type is used.", hideFormatting: true, validDataTypes: ["char"] },
     	{ name: "attachment name", help: "Specifies an attachment file name.  When the attachment name is specified, the \"Content-Disposition: attachment\" header is sent as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char"] },
     	{ name: "no cache", choices: ["true", "false"], type: "boolean", help: "Specifies whether the \"Cache-Control: no-cache\" HTTP header is sent, which causes the browser not to cache the response.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     	{ name: "custom header", multOccur: true, type: "long", help: "Specifies custom HTTP headers to send as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char"] },
