@@ -1328,7 +1328,7 @@ pui.Grid = function() {
                           subfileRow: rowNum,
                           formattingInfo: me.selectionField,
                           modifiedBeforeRender: true
-                        }
+                        };
                         pui.responseElements[qualField] = [record.selection];
                     }
                     if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
@@ -2544,7 +2544,7 @@ pui.Grid = function() {
           value1 = Number(value1);
           value2 = Number(value2);
         }
-        if (cell.dataType == "reference") {
+        else if (cell.dataType == "reference") {
           var refObj = me.ref[cell.fieldName];
           if (refObj != null) {
             if (refObj.dataType == 7 || refObj.dataType == 9 ||  refObj.dataType == 10) {  // zoned, packed, floating
@@ -2552,6 +2552,10 @@ pui.Grid = function() {
               value2 = Number(value2);
             }
           }
+        }
+        else if (cell.dataType == "graphic"){
+          value1 = pui.formatting.decodeGraphic(value1);
+          value2 = pui.formatting.decodeGraphic(value2);
         }
         if (typeof pui["gridSort"] == "function") {
           var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc, fieldDateFormat);
