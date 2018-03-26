@@ -802,7 +802,10 @@ pui.render = function(parms) {
       pui.lastWindow = null;
       pui.lastWindowLeft = null;
       pui.lastWindowTop = null;
-      var animation = pui.evalBoundProperty(formats[0].metaData.screen["animation"], formats[0].data, formats[0].ref);
+      var animation = null;
+      if (formats.length > 0 && formats[0].metaData != null && formats[0].metaData.screen != null ){
+        animation = pui.evalBoundProperty(formats[0].metaData.screen["animation"], formats[0].data, formats[0].ref);
+      }
       if (parms.transition && parms.transition["animation"]) {
         animation = parms.transition["animation"];
       }
@@ -818,7 +821,7 @@ pui.render = function(parms) {
           animation: animation,
           animatedScreenProperty: pui.evalBoundProperty(formats[0].metaData.screen["animated screen"], formats[0].data, formats[0].ref),
           overlay: pui.evalBoundProperty(formats[0].metaData.screen["overlay screens"], formats[0].data, formats[0].ref)
-        }
+        };
         if (parms.transition && parms.transition["animation"]) {
           setupObj.animatedScreenProperty = parms.transition["screen"];
           setupObj.overlay = parms.transition["overlay"];
