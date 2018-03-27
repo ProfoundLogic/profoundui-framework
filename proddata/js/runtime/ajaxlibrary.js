@@ -57,6 +57,8 @@
 /*                                                                                                   */
 /* Version 1.5.7 chgs:  Only send Content-Length with a user Content-Type                            */
 /*                                                                                                   */
+/* Version 1.5.8 chgs:  Don't set Content-Length as it is now considered unsafe by browsers          */
+/*                                                                                                   */
 /* Supported browsers:  IE6+                                                                         */
 /*                      Firefox 1.5+ / Win                                                           */
 /*                      Netscape 8+ / Win                                                            */
@@ -275,13 +277,10 @@ function RPGspRequest(arg) {
                     }
                   }                  
                   
-                  // Set content-type and content-length headers if POST request.
+                  // Set content-type for POST request.
                   if (method == "POST") {
                     if (!userCT) {
                       xmlhttpObj.setRequestHeader('Content-type','application/x-www-form-urlencoded');
-                    }
-                    else {
-                      xmlhttpObj.setRequestHeader("Content-Length", (postData != null) ? postData.length : 0);
                     }
                   }
                   
