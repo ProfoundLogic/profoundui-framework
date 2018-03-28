@@ -168,9 +168,10 @@ pui.layout.Layout = function() {
     for (var i = 0; i < me.stretchList.length; i++) {
       var container = me.stretchList[i];
       var dim = dims[i];
-      dim.width -= 4;
+      // In design mode, we accommodate to be able to show the layout border, etc. At runtime, the calculation is more exact.
+      dim.width -= (me.designMode ? 4 : 2);
       if (dim.width < 0) dim.width = 0;
-      dim.height -= 4;
+      dim.height -= (me.designMode ? 4 : 2);
       if (dim.height < 0) dim.height = 0;
       container.style.width = dim.width + "px";
       container.style.height = dim.height + "px";
