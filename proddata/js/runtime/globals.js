@@ -206,4 +206,4 @@ pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relations
 // Cross-ref to look up the "real" property name when a "display name" is used.
 pui.propertyAlias = {};
 
-pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv)$/i;
+pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv|sh)$/i;
