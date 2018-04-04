@@ -30,14 +30,13 @@ pui.GridMenu = function() {
   var me = this;
   var menuDiv;
   var table;
-  
+  var menuSubDiv;
   var menuDivWidth = 185; //Used to avoid positioning off screen right.
-  
+  var menSubDivShowing = false;
   // Public Properties
   this.grid = null;
   this.clickEvent = null;
   this.cell = null;
-  
   // Public Methods
   this.init = function() {
     addEvent(document, "mousedown", function(e) {
@@ -46,11 +45,11 @@ pui.GridMenu = function() {
       while (obj != null) {
         if (obj == menuDiv) return;
         if (obj == me.cell) return;
+        if (menSubDivShowing) return;
         obj = obj.parentNode;
       }
       me.hide();
     });
-
     menuDiv = document.createElement("div");
     menuDiv.style.position = "absolute";
     menuDiv.style.border = "1px solid #718bb7";
@@ -149,12 +148,26 @@ pui.GridMenu = function() {
     menuDiv.style.left = left + "px";
     menuDiv.style.top = top + "px";
     menuDiv.style.display = "";
+    if (menuSubDiv) {
+      me.grid.container.appendChild(menuSubDiv);
+      menuSubDiv.style.display = '';
+      menuSubDiv.style.top = (top + menuSubDiv.row.offsetTop) + 'px';
+      if (menuDiv.offsetLeft === maxLeft || left + menuDiv.offsetWidth > maxLeft)  menuSubDiv.style.left = (menuDiv.offsetLeft - menuSubDiv.offsetWidth) + 'px';
+      else menuSubDiv.style.left = (menuDiv.offsetLeft + menuDiv.offsetWidth) + 'px';
+      menuSubDiv.style.display = 'none';
+    }
   };
   
   this.hide = function() {
     menuDiv.style.display = "none";
+    if (menuSubDiv) me.hideSub()
   };
-
+  this.hideSub = function() {
+    menuSubDiv.style.display = "none";
+  };
+  this.showSub = function() {
+    menuSubDiv.style.display = '';
+  }
   // Private functions
   function buildMenu() {
 
@@ -162,7 +175,7 @@ pui.GridMenu = function() {
     while(table.rows.length > 0) { 
       table.deleteRow(table.rows.length - 1);
     }
-  
+    if (menuSubDiv) menuSubDiv.parentNode.removeChild(menuSubDiv);
     // When using CSS url(), the URLs given must be qualified with https:// in SSL mode.
     // IE issues security warnings if this is not done.
     var imageBaseURL = "";
@@ -172,6 +185,7 @@ pui.GridMenu = function() {
     imageBaseURL += "/profoundui/proddata/images/";
 
     var menuOptions = [];
+    var menuLists = [];
     var menuIcons = [];
     var optionHandlers = [];
     if (me.grid.sortable && me.cell.sortColumn != null) {
@@ -232,42 +246,84 @@ pui.GridMenu = function() {
       menuIcons.push("icons/default.png");
       optionHandlers.push(function() {
        var properties = me.grid.cells[0][0].parentNode.pui.properties;
-        
+       
         me.grid["alignColumnTotals"]();
-
+        if (me.grid.hidableColumns) {
+          var headings = properties["column headings"].split(',');
+          var cols = me.grid.columnInfo.map(function(col) {
+            if (!col["showing"]) me.grid.hideShowColumn(col, true);
+          });
+          if (me.grid.columnInfo.colSequence) me.grid.columnInfo.colSequence = null;
+          while (headings.length < cols.length) headings.push('');
+        }
         // Restore column order.
         var headerRow = me.grid.cells[0];
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
           if (headerCell.col != headerCell.columnId)
-            me.grid.moveColumn(headerCell.col, headerCell.columnId );
+            me.grid.moveColumn(headerCell.col, headerCell.columnId);
         }
         
         // Reset column widths - must follow calls to moveColumn.
         var colWidths = properties["column widths"];
         me.grid.setColumnWidths(colWidths);
         me.grid.sizeAllCells();
-        
         me.grid.sortIcon = null; //Prevent sortIcon from being drawn.
-
-        me.grid.setHeadings(); //Redraws column headings, including icons; but if order wasn't restored, the headings don't match the content.
           
-         //if expand to layout is set true then expand the current grid for reset option 
-         if (properties["expand to layout"] == "true" || properties["expand to layout"] == true){
-             me.grid.doExpandToLayout();
-         }
+        //if expand to layout is set true then expand the current grid for reset option 
+        if (properties["expand to layout"] == "true" || properties["expand to layout"] == true){
+            me.grid.doExpandToLayout();
+        }
          
         // Reset sort order.
-        if (me.grid.isDataGrid() ){
+        if (me.grid.isDataGrid()){
           me.grid.sortBy = me.grid.initialSortColumn; //(Null is OK.)
         }else{
           //TODO: Load-all grid.
         }
-        
+        if (headings) me.columnHeadings = headings;
+        me.grid.setHeadings(); 
+
         me.grid["removeAllFilters"]();
         me.grid["clearState"]();
+		  });
+    }
 
-		});
+    if (me.grid.hidableColumns) {
+      //menuOptions.push(pui["getLanguageText"]("runtimeText", "hide columns text") + "...");
+      menuIcons.push("icons/grid.png");
+      menuOptions.push("Displayed Columns");
+      
+      var cols = me.grid.columnInfo;
+      // if the grid is movable and the user has moved the columns
+      // adjust the sequence the column options show in the menu
+      if (me.grid.movableColumns && cols.colSequence) {
+        var hiddenCols = [];
+        cols.filter(function(col){
+          if (col["currentColumn"] == -1 && !col["showing"]) {
+            hiddenCols.push(col);
+            return false;
+          }
+          return true;
+        })
+        .sort(function(a, b) {
+         var colA = a["currentColumn"];
+         var colB = b["currentColumn"];
+         if (colA == -1) colA = me.grid.getCurrentColumnFromId(a["columnId"]);
+         if (colB == -1) colB = me.grid.getCurrentColumnFromId(b["columnId"]);
+         if (colA > colB) return 1;
+         else return -1;
+        })
+        .forEach(function(col) { menuLists.push(col) });
+        hiddenCols.forEach(function(col) { menuLists.push(col) });
+      } else {
+        cols.forEach(function(col) { menuLists.push(col) })
+      }
+      
+      optionHandlers.push(function(colOption) {
+        me.grid["alignColumnTotals"]();
+        return me.grid.hideShowColumn(colOption);
+      });
     }
 	
     if ( (me.grid.exportOption == true) ||
@@ -311,22 +367,35 @@ pui.GridMenu = function() {
       }
       row.style.cursor = "pointer";
       row.style.padding = "3px";
+      row.optionHandler = optionHandlers[i];
+      if (menuOptions[i] != 'Displayed Columns') {
+        row.onclick = function(e) {
+          var obj = getTarget(e).parentNode;
+          obj.optionHandler();
+          me.hide();
+        };
+        row.isHideColOption = false;
+      } 
       row.onmouseover = function(e) {
         var obj = getTarget(e).parentNode;
+        if (obj.tagName == 'TD') obj = obj.parentNode;
         obj.style.backgroundColor = "#3399ff";
         obj.style.color = "#ffffff";
+        if (me.grid.hidableColumns && this.isHideColOption) me.showSub();
       };
       row.onmouseout = function(e) {
+        if (me.grid.hidableColumns && this.isHideColOption) {
+          // For IE 8, check if the event is defined
+          if (e) {
+            var tgt = e.relatedTarget || e.toTarget;
+            if (tgt && tgt == menuDiv) return;
+            me.hideSub();
+          }
+        }
         var obj = getTarget(e).parentNode;
+        if (obj.tagName == 'TD') obj = obj.parentNode;
         obj.style.backgroundColor = "";
         obj.style.color = "#333333";
-      };
-
-      row.optionHandler = optionHandlers[i];
-      row.onclick = function(e) {
-        var obj = getTarget(e).parentNode;
-        obj.optionHandler();
-        me.hide();
       };
 
       var imgCell = row.insertCell(0);
@@ -339,7 +408,82 @@ pui.GridMenu = function() {
       }
       imgCell.style.padding = "3px";
       var optionCell  = row.insertCell(1);
-      optionCell.innerHTML = menuOptions[i];
+      if (menuOptions[i] == 'Displayed Columns') {
+        var parent = document.createElement('div');
+        var subTable = document.createElement('table');
+        subTable.border = 0;
+        subTable.cellPadding = 3;
+        subTable.cellSpacing = 0;
+        optionCell.innerHTML = menuOptions[i];
+        var arrow = document.createElement("img");
+        arrow.src = pui.normalizeURL("/profoundui/proddata/images/menus/submenu-arrow.gif");
+        arrow.style.position = "absolute";
+        arrow.style.right = "3px";
+        arrow.style.paddingTop = "3px";
+        arrow.isSubMenuArrow = true;
+        optionCell.appendChild(arrow);
+        for (var z = 0; z < menuLists.length; z++) {
+          var col = menuLists[z];
+          var subRow = subTable.insertRow(z);
+          subRow.style.color = "#333333";
+          subRow.style.padding = "3px";
+          subRow.style.cursor = 'pointer';
+          subRow.onmouseover = function(e) {
+            var obj = getTarget(e).parentNode;
+            if (obj.tagName == 'TD') obj = obj.parentNode;
+            obj.style.backgroundColor = "#3399ff";
+            obj.style.color = "#ffffff";
+          };
+          subRow.onmouseout = function(e) {
+            var obj = getTarget(e).parentNode;
+            if (obj.tagName == 'TD') obj = obj.parentNode;
+            obj.style.backgroundColor = "";
+            obj.style.color = "#333333";
+          };
+          subRow.optionHandler = row.optionHandler;
+          subRow.col = col;
+          var checkBox = subRow.insertCell(0);
+          checkBox.innerHTML = '<input type="checkbox" style="transform:scale(1.25); cursor:pointer;"' + (col["showing"]? 'checked': '') + '/>';
+          var subCell = subRow.insertCell(1);
+          subCell.innerHTML = col["name"];
+          subCell.style.fontFamily = "Sans-serif";
+          subCell.style.fontSize = "12px";
+          subCell.style.padding = "3px 6px 3px 3px";
+          subCell.style.whiteSpace = "normal";
+          subRow.style.top = ((z + 1) * 25) + 'px';
+          subRow.onmousedown = function(e) {
+            menSubDivShowing = true;
+            var target = getTarget(e);
+            var obj = this;
+            var checkBox = this.getElementsByTagName('input')[0];
+            // If the user did not click on the checkbox, toggle the checkbox.
+            var col = obj.col;
+            var success = obj.optionHandler(col);
+            if (target.tagName != 'INPUT' && success) {
+              if (checkBox.checked) checkBox.checked = false;
+              else checkBox.checked = true;
+            }
+            // me.hide();
+          }
+        }
+        row.onclick = function() {
+          this.classList.add('active-item')
+        }
+        row.isHideColOption = true;
+        parent.row = row;
+        parent.appendChild(subTable);
+        parent.className = 'pui-hide-show-columns-list';
+        parent.onmouseover = function (e) {
+          menSubDivShowing = true;
+          me.showSub();
+        }
+        parent.onmouseout = function (e) {
+          menSubDivShowing = false;
+        }
+        menuSubDiv = parent;
+        me.hideSub();
+      }
+      else optionCell.innerHTML = menuOptions[i];
       optionCell.style.fontFamily = "Sans-serif";
       optionCell.style.fontSize = "12px";
       //optionCell.style.fontWeight = "bold";
@@ -352,8 +496,10 @@ pui.GridMenu = function() {
   
   this.destroy = function() {
     if (menuDiv != null) {
-      if (menuDiv.parentNode != null) menuDiv.parentNode.removeChild(menuDiv);      
+      if (menuDiv.parentNode != null) menuDiv.parentNode.removeChild(menuDiv);
+      if (menuSubDiv && menuSubDiv.parentNode != null) menuSubDiv.parentNode.removeChild(menuSubDiv);      
       menuDiv = null;
+      menuSubDiv = null;
       table = null;
       me.clickEvent = null;
       me.grid = null;
