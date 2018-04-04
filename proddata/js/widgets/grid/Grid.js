@@ -92,6 +92,7 @@ pui.Grid = function() {
   this.visibility = "";
   
   this.columnHeadings = [];
+  this.columnInfo = [];
 
   this.validationTips = {};
   
@@ -151,9 +152,12 @@ pui.Grid = function() {
   
   this.exportFileName = null;
   this.exportWithHeadings = false;
-  
+  this.exportVisableOnly = false;
+
   this.findOption = false;
   this.filterOption = false;
+  this.movableColumns = movableColumns;
+  this.hidableColumns = false;
   this.resetOption = false;
   this.exportOption = null;
   
@@ -205,7 +209,8 @@ pui.Grid = function() {
   };
   
   this.propagateScrollEvents = false;
-  
+  this.getCurrentColumnFromId = getCurrentColumnFromId;
+
   var me = this;
   
   var addRowIcon;
@@ -735,6 +740,7 @@ pui.Grid = function() {
       var itm = me.runtimeChildren[i];
       if (itm["visibility"] != "hidden") {
         var col = Number(itm["column"]);
+        if (me.hidableColumns && !me.exportVisableOnly) col = itm["columnId"];
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
           if (pui.isBound(itm["visibility"])) {
             boundVisibility[col] = itm["visibility"];
@@ -1048,12 +1054,19 @@ pui.Grid = function() {
           colNum++;
         }
       }
-      
       if (me.hasHeader && me.exportWithHeadings) {
         worksheet.newRow();
-        for (var i = 0; i < me.cells[0].length && i < numCols; i++) {
-          var heading = getInnerText(me.cells[0][i]);
-          worksheet.setCell(i, rtrim(heading), "char" );
+        if (me.hidableColumns) {
+          me.columnInfo.forEach(function(col, index) {
+            var heading = col["name"];
+            if (col["blankHeader"]) heading = "";
+            worksheet.setCell(index, rtrim(heading), "char" );
+          })
+        } else {
+          for (var i = 0; i < me.cells[0].length && i < numCols; i++) {
+            var heading = getInnerText(me.cells[0][i]);
+            worksheet.setCell(i, rtrim(heading), "char" );
+          }
         }
       }
       
@@ -1639,13 +1652,24 @@ pui.Grid = function() {
         }
         addField("AUTH", pui.appJob.auth);
         if (me.hasHeader && me.exportWithHeadings) {
-          var headings = "";
-          for (var i = 0; i < me.cells[0].length; i++) {
-            var heading = getInnerText(me.cells[0][i]);
-            heading = heading.replace(/"/g, '""');  // "
-            if (headings != "") headings += delimiter;
-            headings += '"' + heading + '"';
-          }          
+          if (me.hidableColumns) {
+            var headings = "";
+            me.columnInfo.forEach(function(col) {
+              var heading = col["name"];
+              if (col["blankHeader"]) heading = "";
+              heading = heading.replace(/"/g, '""')
+              if (headings) headings += delimiter;
+              headings += '"' + heading + '"';
+            })
+          } else {
+            var headings = "";
+            for (var i = 0; i < me.cells[0].length; i++) {
+              var heading = getInnerText(me.cells[0][i]);
+              heading = heading.replace(/"/g, '""');  // "
+              if (headings != "") headings += delimiter;
+              headings += '"' + heading + '"';
+            }    
+          }
           addField("headings", headings);
         }
         document.body.appendChild(form);
@@ -1790,7 +1814,10 @@ pui.Grid = function() {
         for (var j in record) {
           var rowNum = i + (me.hasHeader ? 1 : 0);
           var row = me.cells[rowNum];
-          if (colNum < row.length) {            
+          var rlength = row.length;
+          // If hidable columns, set the column length to the total amount of columns
+          if (me.hidableColumns && me.columnInfo.length) rlength = me.columnInfo.length;
+          if (colNum < rlength) {            
             var dataValue = record[j];
             var alignCSS = "";
             var idx;
@@ -1800,7 +1827,11 @@ pui.Grid = function() {
             else {
               idx = colNum;
             }
-            
+            // In case the user hides a column
+            if (me.hidableColumns && idx == undefined) {
+              colNum ++;
+              continue;
+            }
             if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
               alignCSS = " text-align:" + row[idx].style.textAlign;
             }            
@@ -1920,6 +1951,7 @@ pui.Grid = function() {
     delete me.hLines;
     delete me.cells;
     delete me.columnHeadings;
+    delete me.columnInfo;
     delete me.validationTips;
     delete me.cellProps;
     delete me;
@@ -2143,8 +2175,8 @@ pui.Grid = function() {
     
     return paddingCSS;
   }
-  
-  this.setHeadings = function() {
+  // Optional headings parameter to set the column headings for hideable columns
+  this.setHeadings = function(headings) {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var paddingCSS = getPaddingCSS();
@@ -2164,7 +2196,8 @@ pui.Grid = function() {
         if (headerCell.style.textAlign != null && headerCell.style.textAlign != "") {
           alignCSS = " text-align:" + headerCell.style.textAlign;
         }
-        headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + me.columnHeadings[i] + '</div>';
+        if (me.hidableColumns && headings) headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (headings[i]? headings[i]: "") + '</div>';
+        else headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (me.columnHeadings[i]? me.columnHeadings[i]: "") + '</div>';
         centerHeadingVertically(headerCell);
       }      
       // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.      
@@ -2245,6 +2278,7 @@ pui.Grid = function() {
          (me.dataProps["database fields"] != null && me.dataProps["database fields"] != "") ) {
       var fields = pui.getFieldList(me.dataProps["database fields"]);
       for (var i = 0; i < fields.length; i++) {
+        if (!headerRow[i]) continue;
         headerRow[i].fieldName = fields[i];
         attachClickEventForSQL(headerRow[i], i);
       }
@@ -2348,45 +2382,62 @@ pui.Grid = function() {
       return;
     }
     
-    // Restore saved column widths.
-    if (resizableColumns == true) {
-      
+      // Restore saved column widths.
+    if (resizableColumns && !me.hidableColumns) {
       var colWidths = state["colWidths"];
       if (colWidths != null) {
-        
         me.setColumnWidths(colWidths);
         me.sizeAllCells();
-        me.setHeadings();      
-        
+        me.setHeadings();       
       }
-    
     }    
         
     // Restore saved column sequence.
-    if (movableColumns == true) {
-      
+    if (movableColumns && !me.hidableColumns) {
       var colSequence = state["colSequence"];
-      if (colSequence != null) {
-        
+      if (colSequence != null) { 
         var cells = new Array(colSequence.length);
         for (var i = 0; i < cells.length; i++) {
-        
           cells[i] = me.cells[0][colSequence[i]];
-          
         }
-        
-        for (var i = 0; i < cells.length; i++) {
-          
+        for (var i = 0; i < cells.length; i++) { 
           var from = cells[i].col;
           var to = i;
-          
           me.moveColumn(from, to);  
-          
         }      
-        
       }
-    
     }
+    // restore hidable columns sequence
+    if (me.hidableColumns) {
+      var colState = state["hidableColState"];
+      var widths = state["colWidths"];
+      if (widths) widths = widths.filter(function(size){ return (size) });
+      if (colState) {
+        var cols = colState["cols"]; 
+        var headings = colState["headings"];
+        var colSequence = state["colSequence"];
+        if (cols != null) {
+          cols.forEach(function(col) {
+            if (col["columnId"] !== undefined) {
+              if (!col["showing"]) me["removeColumn"](col["columnId"]);
+              else if (movableColumns) {
+                var curCol = getCurrentColumnFromId(col["columnId"]);
+                if (curCol != col["savedColumn"]) me.moveColumn(curCol, col["savedColumn"]);
+              }
+            }
+          })
+          if (colSequence) cols.colSequence = colSequence;
+          me.columnInfo = cols;
+        }
+      }
+      if (widths) {
+        me.setColumnWidths(widths);
+        me.sizeAllCells();
+      }
+      if (me.expandToLayout) me.doExpandToLayout();
+      if (headings) me.setHeadings(headings);
+    }
+
         
     // Restore saved client-side column sort.
     if (me.sortable && !me.isDataGrid() && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
@@ -3611,6 +3662,7 @@ pui.Grid = function() {
       case "resizable columns":
         if (!me.designMode && (value == true || value == "true" )) {
           resizableColumns = true;
+          this.resizableColumns = true;
           for (var i = 0; i < me.vLines.length; i++) {
             lineDesign(me.vLines, i, true, true);
           }        
@@ -3620,6 +3672,7 @@ pui.Grid = function() {
       case "movable columns":
         if (!me.designMode && me.hasHeader && (value == true || value == "true" )) {
           movableColumns = true;
+          this.movableColumns = true;
           var headerRow = me.cells[0];
           if (headerRow == null) {  // rows have not been created yet, this is possible depending on the order of properties in the JSON
             me.addRow();
@@ -3661,10 +3714,37 @@ pui.Grid = function() {
       case "filter option":
         me.filterOption = (value == true || value == "true");
         break; 
-
-	  case "reset option":
-		me.resetOption = (value == true || value == "true");
-		break;
+      
+      case "hide columns option":
+        me.hidableColumns = (value == true || value == "true");
+        // Generate column info for each column
+        var colNum = me.vLines.length -1;
+        var colWidths = me.getColumnWidths()
+          .split(',')
+          .map(function(num){ return Number(num) });
+        for (var i = 0; i < colNum; i++) {
+          var header = me.columnHeadings[i];
+          var blankHeader = false;
+          if (!header) {
+            header = 'Column ' + (i + 1);
+            blankHeader = true;
+          }
+          var col = {
+            "name": header,
+            "columnId": i,
+            "currentColumn": i,
+            "width": colWidths[i],
+            "orginalWidth": colWidths[i],
+            "showing": true,
+            "blankHeader": blankHeader
+          }
+          me.columnInfo.push(col);
+        }
+        break;
+      
+      case "reset option":
+		    me.resetOption = (value == true || value == "true");
+		    break;
 
       case "export option":
         if (value == true || value == "true") {
@@ -3678,6 +3758,11 @@ pui.Grid = function() {
         }
         break;      
       
+      case "export only visible columns":
+        if (value == true || value == "true") me.exportVisableOnly = true;
+        else me.exportVisableOnly = false;
+        break;
+
       case "context menu id":
         if (!me.designMode) {
           removeEvent(document, "click", me.hideContextMenu);
@@ -4532,14 +4617,57 @@ pui.Grid = function() {
             var itm = me.tableDiv.designItem;
             if (itm != null) itm.designer.undo.addSnapshot("Move Column", itm.designer);
             me.moveColumn(cell.col, columnPointer.matchedCol);
-            columnWasMoved = true;
-            columnPointer.matchedCol = null;            
-            if (persistState) { 
+            // if hidable columns, update the column inforamtion and save the colSequence to the object
+            if (me.hidableColumns) {
+              var cols = me.columnInfo.map(function(col){
+                if (!col["showing"]) col["currentColumn"] = -1;
+                else {
+                  var curCol = getCurrentColumnFromId(col["columnId"]);
+                  col["currentColumn"] = curCol;
+                  col["savedColumn"] = curCol;
+                }
+                return col;
+              });
               var colSequence = [];
-              for (var i = 0; i < me.cells[0].length; i++) {
-                colSequence.push(me.cells[0][i].columnId);
-              }  
-              saveState(colSequence, "colSequence");
+              me.cells[0].forEach(function(cell) {
+                colSequence.push(cell.columnId);
+              })
+              cols.colSequence = colSequence;
+              me.columnInfo = cols;
+            }
+            columnWasMoved = true;
+            columnPointer.matchedCol = null;
+
+            if (persistState) {
+              // If hidable columns, we already have the colSequence 
+              if (!colSequence) {
+                var colSequence = [];
+                for (var i = 0; i < me.cells[0].length; i++) {
+                  colSequence.push(me.cells[0][i].columnId);
+                } 
+              }
+              saveState(colSequence, "colSequence"); 
+              if (me.hidableColumns){
+                var state = restoreStatePreCheck();
+                if (state) {
+                  var colState = state["hidableColState"];
+                  if (!colState) colState = { "cols": cols, "headings": me.columnHeadings };
+                  else {
+                    colState["cols"] = cols;
+                    colState["headings"] = me.columnHeadings;
+                  }
+                } else {
+                  var colState = { "cols": cols, "headings": me.columnHeadings };
+                }
+                var colWidths = me
+                    .getColumnWidths()
+                    .split(',')
+                    .map(function (size) { return Number(size) });
+                    
+                saveState(colState, "hidableColState");
+                saveState(colWidths,'colWidths')
+                me.columnInfo = cols;
+              }
             }
           }
         }
@@ -4596,6 +4724,8 @@ pui.Grid = function() {
     }
     addEvent(cell, "mousedown", mousedown);
   }
+
+
   
   /**
    * In Visual Designer, moves the grid inside a layout container. This is called on mouseup (when dragging the grid), or when
@@ -4850,6 +4980,7 @@ pui.Grid = function() {
     });  
   }
   
+
   function doResize(x, y, lineIndex, isVertical, startTop, startLeft) {
     var excelLike = (pui["grid column resize style"] !== "simple");
     if (me.expandToLayout) excelLike = false;
@@ -5925,7 +6056,7 @@ pui.Grid = function() {
     me.setScrollBar();  
   };
 
-  this.addColumn = function() {
+  this.addColumn = function(colId) {
     var n = me.vLines.length;
     var vLine = document.createElement("div");
     vLine.className = "grid-vline";
@@ -5967,7 +6098,9 @@ pui.Grid = function() {
       var columnId = n - 1;
       for (var row = 1; row < me.hLines.length; row++) {
         var cell = makeCell(row-1, columnId);
-        cell.columnId = columnId;
+        // Set the newly added column's id to the parameter id if hideable columns option. 
+        if (me.hidableColumns && (colId || colId == 0)) cell.columnId = colId;
+        else cell.columnId = columnId;
         cellDesign(cell);
       }
     }
@@ -6039,8 +6172,8 @@ pui.Grid = function() {
     positionIcons();
     me.setScrollBar();
   };
-  
-  this.moveColumn = function(from, to) {
+  // Pass the optional colObj for hideable columns
+  this.moveColumn = function(from, to, colObj) {
     for (var row = 0; row < me.cells.length; row++) {
       var cell = me.cells[row][from];
       me.cells[row].splice(to, 0, cell);  // insert a copy of the cell into the to position
@@ -6055,7 +6188,7 @@ pui.Grid = function() {
     }
     // adjust vertical lines
     for (var i = 1; i < me.vLines.length - 1; i++) {
-      me.vLines[i].style.left = (parseInt(me.vLines[i-1].style.left) + parseInt(me.cells[0][i-1].style.width)) + "px";
+      me.vLines[i].style.left = (pui.safeParseInt(me.vLines[i-1].style.left) + pui.safeParseInt(me.cells[0][i-1].style.width)) + "px";
     }
     if (me.designMode) {
       // adjust grid properties
@@ -6168,13 +6301,21 @@ pui.Grid = function() {
           var itm = me.runtimeChildren[i];
           var col = Number(itm["column"]);
           var newCol = col;
-          if (to > from) {
-            if (col > from && col < to) newCol = newCol - 1;
-            if (col == from) newCol = to - 1;
-          } 
-          if (from > to) {
-            if (col >= to && col < from) newCol = newCol + 1;
-            if (col == from) newCol = to;
+          if (me.hidableColumns && colObj) {
+            var colId = colObj["columnId"];
+            var cellId = itm['columnId'];
+            // Get the column Id of the and check if it is equal to runtimeChildren's column Id. 
+            // If it is move the the elements to the 'to' column.
+            // If any column was at the 'to' to 'from' columns, move them to the right one.
+            // The rest run our normal routine.
+            if (cellId == colId) {
+              newCol = to;
+            } else {
+              if (col >= to && col < from + 1) newCol = newCol + 1;
+              else newCol = handleColCheck(to, from, col, newCol);
+            }
+          } else {
+            newCol = handleColCheck(to, from, col, newCol);
           }
           if (col != newCol) itm["column"] = String(newCol);
         }
@@ -6186,6 +6327,17 @@ pui.Grid = function() {
       me.columnHeadings.splice(adjustedFrom, 1);  // remove the from cell
 
       me["alignColumnTotals"]();
+    }
+    function handleColCheck(to, from, col, newCol) {
+      if (to > from) {
+        if (col > from && col < to) newCol = newCol - 1;
+        if (col == from) newCol = to - 1;
+      } 
+      if (from > to) {
+        if (col >= to && col < from) newCol = newCol + 1;
+        if (col == from) newCol = to;
+      }
+      return newCol;
     }
   };
   
@@ -6749,7 +6901,7 @@ pui.Grid = function() {
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
       if (headerCell.filterText != null && headerCell.filterText != "") {
-        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId });
+        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
       }
     }
     if (filters.length < 1) {
@@ -7081,7 +7233,212 @@ pui.Grid = function() {
     if (record!=null && record.filteredOut!=null && record.filteredOut===true) result = true;
     return result;
   };
+  
+  /**
+ * Hide a column.
+ * @param {Number} columnId  The original columnId, as positioned in design-time.
+ * @returns {Boolean} True if successful, false if not
+ */
+  this["hideColumn"] = function(colId) {
+    return me.handleHideShow(colId, false);
+  }
 
+  /**
+ * Shows a hidden column.
+ * @param {Number} columnId  The original columnId, as positioned in design-time.
+ * @returns {Boolean} True if successful, false if not
+ */
+  this["showColumn"] = function(colId) {
+    return me.handleHideShow(colId, true);
+  }
+
+  // Handle the showColumn and hideColumn API's
+  this.handleHideShow = function (colId, toShow) {
+    if (!this.hidableColumns) return false;
+    if (typeof colId == 'string') colId = Number(colId);
+    if (!isNaN(colId)) {
+      var cols = me.columnInfo;
+      for (var i = 0; i < cols.length; i++) {
+        var col = cols[i];
+        if (col["columnId"] === colId) {
+          if (col["showing"] === toShow) return true;
+          else return me.hideShowColumn(col);
+        }
+      }
+    }
+    return false;
+  }
+
+  // Toggle the columns with the columnObject provided. If reset is passed, dont run the getData() method 
+  // Return false if hide columns is not set, or if there is only 1 column left, else returns true.
+  this.hideShowColumn = function(colObj, reset) { 
+    if (!this.hidableColumns) return false;
+    var numCols = me.vLines.length - 2;
+    var cols = me.columnInfo;
+    var checked = !colObj["showing"];
+    if (numCols < 1 && !checked) {
+      pui.alert(pui["getLanguageText"]("runtimeMsg","cannot rmv last col"));
+      return false;
+    }
+    var colId = colObj["columnId"];
+    var curCol = colObj["currentColumn"];
+    var colSequence = cols.colSequence;
+    var visibleCols = [];
+    var headerRow = me.cells[0];
+    var colWidths = [];
+    var totalRemovedWidth = 0;
+    var excelLike = (pui["grid column resize style"] !== "simple");
+    var currentColWidths = me
+        .getColumnWidths()
+        .split(',')
+        .map(function(num){ return Number(num) });
+   // Loop through the columns to toggle the current column selecte and get its current width
+   // get the current widths of all displayed columns
+   // add up all the hidden columns widths and remove any added adjustments from the total 
+    for (var i = 0; i < cols.length; i++) {
+      if (colObj === cols[i]) {
+        cols[i]["showing"] = checked;
+        if (!checked) {
+          var newCol = getCurrentColumnFromId(cols[i]["columnId"]);
+          cols[i]["width"] = currentColWidths[newCol];
+        }
+        colObj = cols[i];
+      } 
+      if (cols[i]["showing"]) {
+        var newCol = getCurrentColumnFromId(cols[i]["columnId"]);
+        if (newCol > -1) cols[i]["width"] = currentColWidths[newCol];
+        visibleCols.push(cols[i]);
+      } else {
+        totalRemovedWidth += cols[i]["width"] - (cols[i]["lastAdjustment"] || 0);
+      }
+    }
+    // remove the column selected
+    if (!checked) {
+      me["removeColumn"](colId);
+    } else {
+    // else add the column, and get its current position
+      me.addColumn(colId);
+      var newCol = getCurrentColumnFromId(colId);
+      var col = 0;
+      // If the column is movable and has been moved
+      if (movableColumns && colSequence) {
+        // If the column was hidden when the user moved a column 
+        // or if the column was previouly displayed past the current last column
+        // stick it to the end, do this check first to avoid a while loop
+        if (curCol == -1) col = newCol;
+        else {
+          // Verify the current column is in the correct position in the column mappings 
+          if (colSequence[curCol] === colId) {
+            // if it is, get the previous column and get its current position
+            // if the previous column is currently visible, place the column right after it.
+            // otherwise repeat until you find the column 
+            var prevColCount = curCol - 1;
+            var prevId = colSequence[prevColCount];
+            while (prevId >= 0) {
+              var prevCol = getCurrentColumnFromId(prevId);
+              if (prevCol != -1) {
+                if (prevCol <= prevColCount) col = prevCol + 1;
+                break;
+              } else {
+                prevColCount -= 1;
+                prevId = colSequence[prevColCount];
+              }
+            }
+          } 
+        }
+      // If the grid is not movable or the columns have not been moved
+      } else {
+        // Since we default with the first column, check to see if the user is re-displaying any column other than the first one.
+        if (colId > 0) {
+          // Filter out any columns that are after the current one 
+          // and reduce it down to the column right before the current one
+          var lastCol = visibleCols
+              .filter(function(col) { return col["columnId"] < colId })
+              .reduce(function (prev, cur) { return cur["columnId"] >= prev? cur["columnId"]: prev }, 0);
+          col = getCurrentColumnFromId(lastCol) + 1;
+        }
+      }
+      // We move the column to where it is meant to go, also will pass the colObj as a third parameter
+      // The colObj is used to move the correct data to the right column
+      me.moveColumn(newCol, col, colObj);
+      me.sizeAllCells();
+      me.setAllCellStyles(); 
+    }
+    // Redisplay the data shown in the grid, if a column is added or it is a database driven grid
+    // Dont get the data, if we are resetting the column order since it will call getData() later 
+    // And make the columns sortable is sorting is enabled
+    if (!reset && (checked || me.isDataGrid())) me.getData();
+    if (me.sortable) me.makeSortable();
+    // Get the positions of the headings and the new widths of the columns
+    var headings = [];
+    var widths = visibleCols
+        .sort(function(a, b) {
+          var colA = getCurrentColumnFromId(a["columnId"]);
+          var colB = getCurrentColumnFromId(b["columnId"]);
+          if (colA > colB) return 1;
+          else return -1;
+        })
+        .map(function(obj) {
+          if (obj["blankHeader"]) headings.push('');
+          else headings.push(obj["name"]);
+          if (me.expandToLayout || excelLike) {
+            if (me.resizableColumns) return obj["width"];
+            return obj["orginalWidth"];
+          }
+          var adjustedWidth = Math.floor(totalRemovedWidth / visibleCols.length);
+          var previousAdjust = obj["lastAdjustment"] || 0;
+          for (var i = 0; i < cols.length; i++) {
+            if (cols[i]["columnId"] === obj.columnId) {
+              cols[i]["lastAdjustment"] = adjustedWidth;
+              break;
+            }
+          }
+          var newWidth =  obj["width"] + adjustedWidth - previousAdjust;
+          if (newWidth < 0) return obj["width"];
+          else return newWidth;
+        })
+
+    if (persistState) {
+      // Get the last posistions of all the visible columns
+      var cols = cols.map(function (col) {
+        if (col["showing"]) col["savedColumn"] = getCurrentColumnFromId(col["columnId"]);
+        return col;
+      })
+      // Create a state object to save to local storage
+      var colState = {
+        "cols": cols,
+        "headings": headings
+      };
+      // Save the new widths, column sequence, and column state 
+      saveState(colState, "hidableColState");
+      saveState(widths, 'colWidths');
+      saveState(colSequence, 'colSequence');
+    }
+    // apply the new widths to the columns and restyle them 
+    me.setColumnWidths(widths);
+    me.sizeAllCells();
+    me.setAllCellStyles(); 
+    
+    // if it the columns are movable, enable the headers to be movable
+    if (movableColumns) {
+      for (var col = 0; col < headerRow.length; col++) {
+        cellDesign(headerRow[col], true);
+      }
+    } 
+    // if it the columns are resizable, enable the vLines to be resizable
+    if (resizableColumns) {
+      for (var i = 0; i < me.vLines.length; i++) {
+        lineDesign(me.vLines, i, true, true);
+      }        
+    } 
+    // expand to layout if set
+    if (me.expandToLayout) me.doExpandToLayout();
+    //Redraws column headings with the new headings
+    me.columnHeadings = headings;
+    me.setHeadings(); 
+    return true;
+  }
+  
   this.customSqlCallback = function(request) {
       var response, error;
       var headings = "", columnWidths = "";
@@ -7229,9 +7586,12 @@ pui.Grid = function() {
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
-	    //Reset the  browser cache Data for a table
+      { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },  
+
+      //Reset the  browser cache Data for a table
 	    { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },  
 	    { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
+      { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false.", context: "dspf" },
       { name: "context menu id", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char"] },
   
       { name: "Paging Bar", category: true, context: "dspf" },

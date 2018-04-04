@@ -1140,6 +1140,7 @@ pui.renderFormat = function(parms) {
       if (gridDom != null) {
         gridObj = gridDom.grid;
         var colNum = Number(items[i].column);
+        if (items[i]["columnId"] == undefined) items[i]["columnId"] = colNum;
         if (isDesignMode) {        
           var rowNum = (gridObj.hasHeader ? 1 : 0);
           container = gridObj.cells[rowNum][colNum];

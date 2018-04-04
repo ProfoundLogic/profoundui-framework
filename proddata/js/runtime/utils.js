@@ -352,6 +352,60 @@ function getTimeStamp() {
 
 }
 
+// Array polyfills for Internet Explorer 8
+// This will enable IE 8 to use array methods that it couldnt before.
+if (!Array.prototype.forEach) {
+  Array.prototype.forEach= function(action, that /*opt*/) {
+      for (var i= 0, n= this.length; i<n; i++)
+          if (i in this)
+              action.call(that, this[i], i, this);
+  };
+}
+if (!Array.prototype.map) {
+  Array.prototype.map= function(mapper, that /*opt*/) {
+      var other= new Array(this.length);
+      for (var i= 0, n= this.length; i<n; i++)
+          if (i in this)
+              other[i]= mapper.call(that, this[i], i, this);
+      return other;
+  };
+}
+if (!Array.prototype.filter) {
+  Array.prototype.filter= function(filter, that /*opt*/) {
+      var other= [], v;
+      for (var i=0, n= this.length; i<n; i++)
+          if (i in this && filter.call(that, v= this[i], i, this))
+              other.push(v);
+      return other;
+  };
+}
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function( callback /*, initialValue*/ ) {
+    'use strict';
+    if ( null === this || 'undefined' === typeof this ) {
+      throw new TypeError(
+         'Array.prototype.reduce called on null or undefined' );
+    }
+    if ( 'function' !== typeof callback ) {
+      throw new TypeError( callback + ' is not a function' );
+    }
+    var t = Object( this ), len = t.length >>> 0, k = 0, value;
+    if ( arguments.length >= 2 ) {
+      value = arguments[1];
+    } else {
+      while ( k < len && ! k in t ) k++; 
+      if ( k >= len )
+        throw new TypeError('Reduce of empty array with no initial value');
+      value = t[ k++ ];
+    }
+    for ( ; k < len ; k++ ) {
+      if ( k in t ) {
+         value = callback( value, t[k], k, t );
+      }
+    }
+    return value;
+  };
+}
 
 pui.getPropConfig = function(namedModel, propertyName) {
   var config = namedModel[propertyName];
