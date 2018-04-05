@@ -1679,7 +1679,18 @@ pui.renderFormat = function(parms) {
                 }                
               });
             }
+            var allowFieldExit = false;
+            if (( pui["always allow field exit"] == true || pui["always allow field exit"]=="true" )
+                && ( properties["field type"] == "combo box"
+                  || properties["field type"] == "date field"
+                  || properties["field type"] == "spinner"
+                  || properties["field type"] == "textbox" ) ) {
+              allowFieldExit = true;
+            }
             if (propname == "allow field exit" && propValue == "true") {
+              allowFieldExit = true;
+            }
+            if (allowFieldExit == true) {
               var boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();            
               if (pui.isBound(items[i]["value"]) && items[i]["value"]["rjZeroFill"] == "true") {

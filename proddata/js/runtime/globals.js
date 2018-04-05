@@ -207,3 +207,7 @@ pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relations
 pui.propertyAlias = {};
 
 pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv|sh)$/i;
+
+// config option to 'allow field exit' everywhere without setting the property on
+// every widget
+pui["always allow field exit"] = false;
