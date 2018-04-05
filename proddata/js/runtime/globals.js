@@ -205,3 +205,7 @@ pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relations
 
 // Cross-ref to look up the "real" property name when a "display name" is used.
 pui.propertyAlias = {};
+
+// config option to 'allow field exit' everywhere without setting the property on
+// every widget
+pui["always allow field exit"] = false;
