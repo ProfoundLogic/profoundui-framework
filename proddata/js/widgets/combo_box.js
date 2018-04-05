@@ -209,6 +209,9 @@ pui.ComboBoxWidget = function() {
   
   this.setClass = function(className) {
     box.className = className;
+    var classList = className.split(' ');
+    var lastClass = classList[classList.length - 1];
+    if (lastClass) pui.addCssClass(choicesDiv, lastClass + "-combo-options");
   }
   
   this.assignJSEvent = function(jsEventName, func) {
