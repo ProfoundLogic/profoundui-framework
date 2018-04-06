@@ -3193,7 +3193,9 @@ pui.Grid = function() {
               parent.onscroll =  function() {
                 me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
                 if (me.tableDiv.style.visibility != "hidden") {
-                  me.scrollbarObj.draw();
+                  // Pass true to the draw method to stop the scrollbar from scrolling 
+                  // and causing the grid to re-render the items #4262.  
+                  me.scrollbarObj.draw(true);
                 }
               };
             }
