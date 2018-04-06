@@ -999,24 +999,20 @@ pui["keepAlive"] = function() {
     "handler": function() {
       pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
-      if (context == "dspf") {
-        pui.screenIsReady = true;
-        for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
-          var grid = pui.gridsDisplayed[i];
-          grid.unMask();
-        }
+      if (context == "dspf") pui.screenIsReady = true;
+      for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+        var grid = pui.gridsDisplayed[i];
+        grid.unMask();
       }
     },
     "onfail": function(req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
-      if (context == "dspf") {
-        pui.screenIsReady = true;
-        for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
-          var grid = pui.gridsDisplayed[i];
-          grid.unMask();
-        }
+      if (context == "dspf") pui.screenIsReady = true;
+      for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+        var grid = pui.gridsDisplayed[i];
+        grid.unMask();
       }
       if (pui["onoffline"] != null) pui["onoffline"]();
     }      
