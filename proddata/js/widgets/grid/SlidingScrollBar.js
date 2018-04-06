@@ -510,7 +510,8 @@ pui.SlidingScrollBar = function() {
     animate();
   }
 
-  this.draw = function() {
+  // optional dontScroll flag to not make the scrollbar scroll. #4262
+  this.draw = function(dontScroll) {
     if (pui["is_old_ie"]) {
       multiplier = 25;
       if (me.totalRows > 1000) multiplier = 50;      
@@ -573,7 +574,7 @@ pui.SlidingScrollBar = function() {
     
     positionRowNum();
     
-    if (touchBar == null) me.doScroll();
+    if (touchBar == null && !dontScroll) me.doScroll();
     
     // show up/down arrows instead of scrollbar if there is only 1 row
     if (!me.designMode && me.ready && me.rowsPerPage == 1) {
