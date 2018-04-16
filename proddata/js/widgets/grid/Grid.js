@@ -2306,6 +2306,7 @@ pui.Grid = function() {
               headerRow[col].sortIndex = j;
               headerRow[col].fieldName = fieldName;
               headerRow[col].dataType = val["dataType"];
+              headerRow[col].fieldFormat = val;
               if (val["dateFormat"] ) headerRow[col].dateFormat = val["dateFormat"];
               if (!pui.iPadEmulation) {
                 headerRow[col].style.cursor = "pointer";
@@ -2585,8 +2586,10 @@ pui.Grid = function() {
 
       var fieldNameUpper = "";
       var fieldDateFormat = null;
+      var fieldFormat = {};
       if (typeof cell.fieldName == "string") fieldNameUpper = cell.fieldName.toUpperCase();
       if (cell.dateFormat) fieldDateFormat = cell.dateFormat;
+      if (cell.fieldFormat) fieldFormat = cell.fieldFormat;
 
       function doSort(row1, row2) {
         var value1 = row1[sortIndex];
@@ -2609,7 +2612,7 @@ pui.Grid = function() {
           value2 = pui.formatting.decodeGraphic(value2);
         }
         if (typeof pui["gridSort"] == "function") {
-          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc, fieldDateFormat);
+          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat);
           if (typeof returnVal != "number") returnVal = 0;
           if (returnVal > 0) {
             if (desc) return -1;
