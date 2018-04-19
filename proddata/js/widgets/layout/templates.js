@@ -124,6 +124,8 @@ pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%
  + '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>'
  +'</fieldset>';
 
+pui.layout["templates"]["responsive layout"] = pui.layout.template.responsiveLayoutTemplate;
+
 /**
  * Returns an array of template name strings. pui.layout.getPropertiesModel calls this,
  * allowing Designer to show the list of templates in the "template" property.

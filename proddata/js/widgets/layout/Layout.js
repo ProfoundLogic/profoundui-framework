@@ -230,10 +230,15 @@ pui.layout.Layout = function() {
     if (value == null) value = "";
     var panel = me.layoutDiv.panel;
     var accordion = me.layoutDiv.accordion;
+    var responsivelayout = me.layoutDiv.responsivelayout;
     
     switch (property) {
       case "id":
         me.layoutDiv.id = value;
+        if (responsivelayout != null){
+          //The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
+          responsivelayout.setRules();
+        }
         break;
       
       case "field type":
@@ -270,6 +275,7 @@ pui.layout.Layout = function() {
         me.layoutDiv.style[styleName] = value;
         if (panel != null) panel.resize();
         if (accordion != null) accordion.resize();
+        if (responsivelayout != null) responsivelayout.resize();
         me.stretch();
         
         // To allow inline-style setting and removing, cache the style property.
@@ -465,7 +471,7 @@ pui.layout.Layout = function() {
               e.preventDefault();
             }
           }
-        }
+        };
         if (typeof IScroll == "function") me.iScroll = new IScroll(parent, config);  // new version
         else me.iScroll = new iScroll(parent, config);  // old version
       }
