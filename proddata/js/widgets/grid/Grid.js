@@ -2572,7 +2572,6 @@ pui.Grid = function() {
 
     if (me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
       clientSortColumnId = cell.columnId;
-      saveResponsesToDataArray();
       pui.rrnTracker = {};   // to do -- problem ... rrn tracker doesn't handle multiple grids?
 
       if (!me.sorted) {
@@ -2583,6 +2582,10 @@ pui.Grid = function() {
       for (var i=0; i<me.dataArray.length; i++) {
       	me.dataArray[i].beforeSort = i;
       }
+      // Set me.sorted to true before calling saveResponsesToDataArray()
+      // so that it will use the subfileRow set earlier. #4365 #4143
+      me.sorted = true;
+      saveResponsesToDataArray();
 
       var fieldNameUpper = "";
       var fieldDateFormat = null;
@@ -2652,8 +2655,6 @@ pui.Grid = function() {
           }
         }
       }
-      
-      me.sorted = true;
 
       me.recNum = 1;
       if (me.sflrcdnbr>0 && (restoring || initialSort))  {
@@ -2792,10 +2793,16 @@ pui.Grid = function() {
             var dom = pui.responseElements[fldName][0];
             if (dom != null && dom.subfileRow != null) {
               var rowData;
-              for (var i = 0; i < me.dataArray.length; i++) {
-                if (me.dataArray[i].subfileRow === dom.subfileRow) {
-                  rowData = me.dataArray[i];
-                  break;
+              // if the subfile is not sorted use the dataArrayIndex. #4365 
+              // otherwise loop through the dataArray to find the subfileRow of the dom element. #4143
+              if (!me.sorted && dom.dataArrayIndex != null) {
+                rowData = me.dataArray[dom.dataArrayIndex];
+              } else {
+                for (var i = 0; i < me.dataArray.length; i++) {
+                  if (me.dataArray[i].subfileRow === dom.subfileRow) {
+                    rowData = me.dataArray[i];
+                    break;
+                  }
                 }
               }
               if (rowData != null) {
