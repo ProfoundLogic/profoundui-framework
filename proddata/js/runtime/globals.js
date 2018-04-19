@@ -203,6 +203,9 @@ pui.xlsx_xmlns_spreadsheet    = pui.xlsx_domain+ "/spreadsheetml/2006/main";
 pui.xlsx_xmlns_package_rels   = pui.xlsx_domain+ "/package/2006/relationships";
 pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relationships";
 
+// Namespace needed for creating SVG elements and polygons, circles, etc. Used in Designer Responsive Layout Editor.
+pui.SVGNS = "http://www.w3.org/2000/svg";
+
 // Cross-ref to look up the "real" property name when a "display name" is used.
 pui.propertyAlias = {};
 
