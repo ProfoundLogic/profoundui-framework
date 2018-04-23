@@ -302,7 +302,10 @@ pui["runtimeText"]["en_US"]["please wait"]          = "Please wait...";
 pui["runtimeText"]["en_US"]["control panel"]        = "Control Panel";
 pui["runtimeText"]["en_US"]["my settings"]          = "My Settings";
 pui["runtimeText"]["en_US"]["about atrium"]         = "About Atrium";
-pui["runtimeText"]["en_US"]["about atrium msg"]     = "Version: " + window["pui"]["version"] +  "<br /><br />"
+
+pui["runtimeText"]["en_US"]["about atrium msg"]     = "Version " 
+  + window["pui"]["baseVersion"]
+  + ', Fix Pack ' + window["pui"]["fixPackVersion"] + "<br /><br />"
   +"Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
   +"Warning: This computer program is protected by copyright law<br />"
   +"and international treaties. Unauthorized reproduction or<br />"
@@ -1058,7 +1061,9 @@ pui["runtimeText"]["fr_FR"]["please wait"]          = "Veuillez patienter...";
 pui["runtimeText"]["fr_FR"]["control panel"]        = "Panneau de contrôle";
 pui["runtimeText"]["fr_FR"]["my settings"]          = "Mes paramètres";
 pui["runtimeText"]["fr_FR"]["about atrium"]         = "À propos d'Atrium";
-pui["runtimeText"]["fr_FR"]["about atrium msg"]     = "Version: " + window["pui"]["version"] +  "<br /><br />"
+pui["runtimeText"]["fr_FR"]["about atrium msg"]     = "Version " 
+  + window["pui"]["baseVersion"]
+  + ', Fix Pack ' + window["pui"]["fixPackVersion"] + "<br /><br />"
   +"Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
   +"Attention: Ce logiciel est protégé par le code de la propriété intellectuelle<br />"
   +"et des traités internationaux. Toute reproduction non autorisée ou<br />"

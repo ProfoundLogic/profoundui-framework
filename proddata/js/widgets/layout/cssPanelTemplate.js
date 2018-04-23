@@ -46,6 +46,7 @@ pui.layout.template.cssPanelTemplate = function(parms) {
     ]);
   }
 
+  var dom;
   if (existingDom != null) {
     dom = existingDom.cloneNode(false);
   }
@@ -60,7 +61,7 @@ pui.layout.template.cssPanelTemplate = function(parms) {
   dom.panel = panel;
   dom.sizeMe = function() {
     dom.panel.resize();
-  }
+  };
   var headerText = properties["header text"];
   if (headerText != null) panel.setText(headerText);
   var headerTheme = properties["header theme"];
@@ -84,5 +85,4 @@ pui.layout.template.cssPanelTemplate = function(parms) {
 
   return dom;
 
-}
-
+};

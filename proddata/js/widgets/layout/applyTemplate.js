@@ -42,7 +42,7 @@ pui.layout.template.applyTemplate = function(parms) {
     return {
       success: false,
       msg: "The property cannot be applied because it removes a layout section that contains other widgets.  \n\nYou must remove the contained widgets first."
-    }
+    };
   }
   
   // move widgets from old container to the new container
@@ -76,15 +76,20 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.panel = newDom.panel;
     dom.sizeMe = function() {
       dom.panel.resize();
-    }
+    };
     dom.panel.container = dom;
   }
   if (newDom.accordion != null) {
     dom.accordion = newDom.accordion;
     dom.sizeMe = function() {
       dom.accordion.resize();
-    }
+    };
     dom.accordion.container = dom;
+  }
+  if (newDom.responsivelayout != null){
+    dom.responsivelayout = newDom.responsivelayout;
+    dom.sizeMe = dom.responsivelayout.resize;
+    dom.responsivelayout.container = dom;
   }
   
   return { 
@@ -92,7 +97,7 @@ pui.layout.template.applyTemplate = function(parms) {
     stretchList: stretchList,
     containers: newContainers
   };
-}
+};
 
 
 pui.layout.template.getProxy = function(defaults) {
@@ -107,5 +112,5 @@ pui.layout.template.getProxy = function(defaults) {
   if (defaults["height"] != null) proxy.style.height = defaults["height"];
   if (defaults["css class"] != null) proxy.className = defaults["css class"];
   return proxy;
-}
+};
 
