@@ -138,6 +138,7 @@ pui.PagingBar = function() {
       me.grid.exportCSV();
     };
     pui.addCssClass(exportImg,"export-image-icon");
+    pui.addCssClass(exportImg,"csv-export-image-icon");
     div.appendChild(exportImg);
 
     exportLink = document.createElement("span");
@@ -167,6 +168,7 @@ pui.PagingBar = function() {
       me.grid.exportCSV(null, true);
     };
     pui.addCssClass(exportImgXLSX,"export-image-icon");
+    pui.addCssClass(exportImgXLSX,"xlsx-export-image-icon");
     div.appendChild(exportImgXLSX);
     
     exportLinkXLSX = document.createElement("span");
@@ -493,21 +495,33 @@ pui.PagingBar = function() {
         
         // The paging links, page number may be too far left for all text; or the grid may not be wide enough.
         var leftcomp = exportLinkXLSX.parentNode.offsetWidth;
-        if (me.showPagingControls) leftcomp = me.prevImg.offsetLeft;
-        else if (me.showPageNumber) leftcomp = pageSpan.offsetLeft;
+        var parentWidth = leftcomp;
+        var rightComp = leftcomp;
+        if (me.showPagingControls) {
+          leftcomp = me.prevImg.offsetLeft;
+          rightComp = me.nextImg.offsetLeft + me.nextImg.offsetWidth;
+        }
+        else if (me.showPageNumber) {
+          leftcomp = pageSpan.offsetLeft
+          rightComp = pageSpan.offsetLeft + pageSpan.offsetWidth;
+        };
 
-        if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+        if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp || rightComp > parentWidth){
           // The text runs over, so use less.
           exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["CSV"]);
           exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "export to x", ["XLSX"]);
           exportImgXLSX.style.left = "122px";
           exportLinkXLSX.style.left = "144px";
-          if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+          if (me.showPagingControls) rightComp = me.nextImg.offsetLeft + me.nextImg.offsetWidth;
+          else if (me.showPagingControls) rightComp = pageSpan.offsetLeft + pageSpan.offsetWidth;
+          if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp || rightComp > parentWidth){
             // The text still runs over, so use less.
             exportLinkXLSX.innerHTML = "XLSX";
             exportImgXLSX.style.left = "124px";
             exportLinkXLSX.style.left = "144px";
-            if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp){
+            if (me.showPagingControls) rightComp = me.nextImg.offsetLeft + me.nextImg.offsetWidth;
+            else if (me.showPagingControls) rightComp = pageSpan.offsetLeft + pageSpan.offsetWidth;
+            if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp || rightComp > parentWidth){
               // The text still runs over, so use less.
               exportLink.innerHTML = "CSV";
               exportImgXLSX.style.left = "60px";
