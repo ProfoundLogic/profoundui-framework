@@ -81,11 +81,8 @@ pui.ComboBoxWidget = function() {
     box.style.fontFamily = "Trebuchet MS";
     box.style.fontWeight = "normal";
     box.style.outline = "none";
-    box.className = "input";
-    if (me.oldDom != null && me.oldDom.tagName == "INPUT") {
-      box.className = me.oldDom.className;
-    }
-    me.div.className = "input";
+    if (me.div.className == "")
+      me.div.className = "input";
     box.name = me.div.name;
     if (me.design) {
       box.style.cursor = "default";
@@ -153,8 +150,10 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.overflowX = "hidden";
     choicesDiv.style.overflowY = "auto";
     choicesDiv.style.height = fixedHeight + "px";
-    choicesDiv.style.zIndex = 130; 
-	  choicesDiv.className = "combo-options";
+    choicesDiv.style.zIndex = 130;
+    choicesDiv.className = "combo-options";
+    me.setClass(me.div.className.split(" ")[0]);
+    
   }
 
   this.draw = function() {
@@ -410,6 +409,22 @@ pui.widgets.add({
       parms.dom.comboBoxWidget.design = parms.design;
       var width = parms.evalProperty("width");
       parms.dom.comboBoxWidget.oldDom = parms.oldDom;
+      var base = "css class";
+      var suffix = "";
+      var cls = "";
+      while (typeof parms.properties[base + suffix] == "string") {
+        
+        if (cls != "")
+          cls += " ";
+        cls += parms.properties[base + suffix];
+        
+        if (suffix == "")
+          suffix = " 2";
+        else 
+          suffix = " " + (parseInt(suffix, 10) + 1);
+        
+      }
+      parms.dom.className = cls;
       parms.dom.comboBoxWidget.init();
       if (width != null && width != "") {
         parms.dom.style.width = width;
