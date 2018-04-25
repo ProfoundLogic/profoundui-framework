@@ -560,6 +560,20 @@ pui.widgets.add({
       }
       
       parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
+      if (parms.design && parms.properties["choices"]) {
+        
+        var nmodel = getPropertiesNamedModel();
+        var propConfig = nmodel["choices"];
+        applyPropertyToField(
+          propConfig,
+          parms.properties,
+          parms.designItem.dom,
+          parms.properties["choices"], 
+          true, 
+          parms.designItem
+        );    
+        
+      }
       return;
 
     },
