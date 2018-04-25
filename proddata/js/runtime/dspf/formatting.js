@@ -243,10 +243,16 @@ pui.formatting = {
     }
     return str;
   },
+  // Pad a string on the right with a specified number of pad characters.
+  // If the string is longer than "len", then the string is truncated. (Could happen with PJS, mobile, or PHP., issue4344.)
   rightPad: function(str, len, chr) {
-    str += '';
-    while(str.length < len){
-      str += chr;
+    str += ''; 
+    if (str.length > len){
+      str = str.substr(0, len);   //Truncate.
+    }else{
+      while(str.length < len){
+        str += chr;   //Pad.
+      }
     }
     return str;
   },
