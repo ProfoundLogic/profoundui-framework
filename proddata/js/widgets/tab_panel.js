@@ -318,8 +318,8 @@ function TabPanel() {
       if (hiddenTabs[i]) outerSpan.style.display = "none";
       
       if (i == me.selectedTab) {
-        if (me.container.pui.properties["css class"])
-          outerSpan.className = me.container.pui.properties["css class"] + "-";
+        if (me.container.className != "")
+          outerSpan.className = me.container.className.split(" ")[0] + "-";
         outerSpan.className += "selected-tab";
       }
       if (settings.leftWidth != null) {
