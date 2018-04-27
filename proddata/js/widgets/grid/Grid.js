@@ -5399,8 +5399,8 @@ pui.Grid = function() {
                 //  Only do it if it's NOT a right click mouse event 
                 // -or-
                 //  It's a right click and they aren't on a selected row.
-                  var isRowSelected = me.dataArray[clickedRow - 1].selected;
-                  if (me.isFiltered()) isRowSelected = me.filteredDataArray[clickedRow - 1].selected;
+                  var isRowSelected = (clickedRow <= me.dataArray.length) && me.dataArray[clickedRow - 1].selected;
+                  if (me.isFiltered()) isRowSelected = (clickedRow <= me.dataArray.length) && me.filteredDataArray[clickedRow - 1].selected;
 
                   if (!isRight || (isRight && !isRowSelected)) {
                   if ((!e.ctrlKey && !e.metaKey) || (curRow != row)) {  
