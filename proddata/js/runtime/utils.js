@@ -288,11 +288,10 @@ function buildLabel(dom, labelText) {
   label.style.borderStyle = "none";
   label.style.backgroundColor = "transparent";
   label.innerHTML = '<label for="' + dom.id + '">' + labelText + '</label>';
-  label.className = 'label-for ';
-  if (dom.className) {
-    var classList = dom.className.split(" ");
-    if (classList[0]) pui.addCssClass(label, 'label-for-' + classList[0]);
-  }
+  label.className = 'label-for';
+  var cls = trim(dom.className.split(" ")[0]);
+  if (cls != "")
+    pui.addCssClass(label, 'label-for-' + cls);
   
   // get z-index from the original element
   if (dom.currentStyle) {

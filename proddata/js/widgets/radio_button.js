@@ -135,7 +135,20 @@ pui.widgets.add({
         }
       
       }
-    }          
+    },
+    "css class": function(parms) {
+      
+      if (parms.design && parms.designItem.label) {
+      
+        parms.designItem.label.className = "label-for";
+        var cls = trim(parms.value.split(" ")[0]);
+        if (cls != "")
+          pui.addCssClass(parms.designItem.label, "label-for-" + cls);
+        
+      } 
+      
+    }
+    
   }
     
 });
