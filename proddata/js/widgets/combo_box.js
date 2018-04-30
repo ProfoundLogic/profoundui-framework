@@ -78,7 +78,7 @@ pui.ComboBoxWidget = function() {
     box.style.top = "0px";
     box.style.left = "1px";
     box.style.paddingTop = "1px";
-    box.style.fontFamily = "Trebuchet MS";
+    box.style.fontFamily = me.div.style.fontFamily;  
     box.style.fontWeight = "normal";
     box.style.outline = "none";
     if (me.div.className == "")
@@ -393,8 +393,7 @@ pui.widgets.add({
   name: "combo box",
   defaults: {
     "width": "80px",
-    "css class": "input",
-    "font family": "Trebuchet MS"
+    "css class": "input"
   },
 
   propertySetters: {
