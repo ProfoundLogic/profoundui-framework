@@ -1061,7 +1061,7 @@ pui.Grid = function() {
             var heading = col["name"];
             if (col["blankHeader"]) heading = "";
             worksheet.setCell(index, rtrim(heading), "char" );
-          })
+          });
         } else {
           for (var i = 0; i < me.cells[0].length && i < numCols; i++) {
             var heading = getInnerText(me.cells[0][i]);
@@ -1657,10 +1657,10 @@ pui.Grid = function() {
             me.columnInfo.forEach(function(col) {
               var heading = col["name"];
               if (col["blankHeader"]) heading = "";
-              heading = heading.replace(/"/g, '""')
+              heading = heading.replace(/"/g, '""');
               if (headings) headings += delimiter;
               headings += '"' + heading + '"';
-            })
+            });
           } else {
             var headings = "";
             for (var i = 0; i < me.cells[0].length; i++) {
@@ -1808,44 +1808,49 @@ pui.Grid = function() {
         cellMap[me.cells[0][i].columnId] = i;
       }
       
+      // For each returned record, put the data into grid cells.
       for (var i = 0; i < data.length; i++) {
         var record = data[i];
         var colNum = 0;
-        for (var j in record) {
-          var rowNum = i + (me.hasHeader ? 1 : 0);
-          var row = me.cells[rowNum];
-          var rlength = row.length;
-          // If hidable columns, set the column length to the total amount of columns
-          if (me.hidableColumns && me.columnInfo.length) rlength = me.columnInfo.length;
-          if (colNum < rlength) {            
-            var dataValue = record[j];
-            var alignCSS = "";
-            var idx;
-            if (pui["secLevel"] > 0) {
-              idx = cellMap[colNum];
-            }
-            else {
-              idx = colNum;
-            }
-            // In case the user hides a column
-            if (me.hidableColumns && idx == undefined) {
-              colNum ++;
-              continue;
-            }
-            if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
-              alignCSS = " text-align:" + row[idx].style.textAlign;
-            }            
-            row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
-            
-            // Highlight cells in the column.
-            if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
-              if (row[idx].tagName == "DIV"){
-                pui.highlightText(row[idx], me.highlighting.text);
-                row[idx].highlighted = true;
+        var rowNum = i + (me.hasHeader ? 1 : 0);
+        //Row could be null if grid is in layout, expand-to-layout true, and layout is changing number of rows.
+        var row = me.cells[rowNum];
+        
+        if (row != null){   //There are enough cells to hold this record.
+          for (var j in record) {
+            var rlength = row.length;
+            // If hidable columns, set the column length to the total amount of columns
+            if (me.hidableColumns && me.columnInfo.length) rlength = me.columnInfo.length;
+            if (colNum < rlength) {            
+              var dataValue = record[j];
+              var alignCSS = "";
+              var idx;
+              if (pui["secLevel"] > 0) {
+                idx = cellMap[colNum];
+              }
+              else {
+                idx = colNum;
+              }
+              // In case the user hides a column
+              if (me.hidableColumns && idx == undefined) {
+                colNum ++;
+                continue;
+              }
+              if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
+                alignCSS = " text-align:" + row[idx].style.textAlign;
+              }            
+              row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
+
+              // Highlight cells in the column.
+              if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
+                if (row[idx].tagName == "DIV"){
+                  pui.highlightText(row[idx], me.highlighting.text);
+                  row[idx].highlighted = true;
+                }
               }
             }
+            colNum++;
           }
-          colNum++;
         }
       }
       var numRows = me.cells.length;
@@ -2412,7 +2417,7 @@ pui.Grid = function() {
     if (me.hidableColumns) {
       var colState = state["hidableColState"];
       var widths = state["colWidths"];
-      if (widths) widths = widths.filter(function(size){ return (size) });
+      if (widths) widths = widths.filter(function(size){ return (size); });
       if (colState) {
         var cols = colState["cols"]; 
         var headings = colState["headings"];
@@ -2426,7 +2431,7 @@ pui.Grid = function() {
                 if (curCol != col["savedColumn"]) me.moveColumn(curCol, col["savedColumn"]);
               }
             }
-          })
+          });
           if (colSequence) cols.colSequence = colSequence;
           me.columnInfo = cols;
         }
@@ -3733,7 +3738,7 @@ pui.Grid = function() {
         var colNum = me.vLines.length -1;
         var colWidths = me.getColumnWidths()
           .split(',')
-          .map(function(num){ return Number(num) });
+          .map(function(num){ return Number(num); });
         for (var i = 0; i < colNum; i++) {
           var header = me.columnHeadings[i];
           var blankHeader = false;
@@ -3749,7 +3754,7 @@ pui.Grid = function() {
             "orginalWidth": colWidths[i],
             "showing": true,
             "blankHeader": blankHeader
-          }
+          };
           me.columnInfo.push(col);
         }
         break;
@@ -4643,7 +4648,7 @@ pui.Grid = function() {
               var colSequence = [];
               me.cells[0].forEach(function(cell) {
                 colSequence.push(cell.columnId);
-              })
+              });
               cols.colSequence = colSequence;
               me.columnInfo = cols;
             }
@@ -4674,10 +4679,10 @@ pui.Grid = function() {
                 var colWidths = me
                     .getColumnWidths()
                     .split(',')
-                    .map(function (size) { return Number(size) });
+                    .map(function (size) { return Number(size); });
                     
                 saveState(colState, "hidableColState");
-                saveState(colWidths,'colWidths')
+                saveState(colWidths,'colWidths');
                 me.columnInfo = cols;
               }
             }
@@ -7247,22 +7252,22 @@ pui.Grid = function() {
   };
   
   /**
- * Hide a column.
- * @param {Number} columnId  The original columnId, as positioned in design-time.
- * @returns {Boolean} True if successful, false if not
- */
+   * Hide a column.
+   * @param {Number} colId  The original columnId, as positioned in design-time.
+   * @returns {Boolean} True if successful, false if not
+   */
   this["hideColumn"] = function(colId) {
     return me.handleHideShow(colId, false);
-  }
+  };
 
   /**
- * Shows a hidden column.
- * @param {Number} columnId  The original columnId, as positioned in design-time.
- * @returns {Boolean} True if successful, false if not
- */
+   * Shows a hidden column.
+   * @param {Number} colId  The original columnId, as positioned in design-time.
+   * @returns {Boolean} True if successful, false if not
+   */
   this["showColumn"] = function(colId) {
     return me.handleHideShow(colId, true);
-  }
+  };
 
   // Handle the showColumn and hideColumn API's
   this.handleHideShow = function (colId, toShow) {
@@ -7279,7 +7284,7 @@ pui.Grid = function() {
       }
     }
     return false;
-  }
+  };
 
   // Toggle the columns with the columnObject provided. If reset is passed, dont run the getData() method 
   // Return false if hide columns is not set, or if there is only 1 column left, else returns true.
@@ -7303,7 +7308,7 @@ pui.Grid = function() {
     var currentColWidths = me
         .getColumnWidths()
         .split(',')
-        .map(function(num){ return Number(num) });
+        .map(function(num){ return Number(num); });
    // Loop through the columns to toggle the current column selecte and get its current width
    // get the current widths of all displayed columns
    // add up all the hidden columns widths and remove any added adjustments from the total 
@@ -7365,8 +7370,8 @@ pui.Grid = function() {
           // Filter out any columns that are after the current one 
           // and reduce it down to the column right before the current one
           var lastCol = visibleCols
-              .filter(function(col) { return col["columnId"] < colId })
-              .reduce(function (prev, cur) { return cur["columnId"] >= prev? cur["columnId"]: prev }, 0);
+              .filter(function(col) { return col["columnId"] < colId; })
+              .reduce(function (prev, cur) { return cur["columnId"] >= prev? cur["columnId"]: prev; }, 0);
           col = getCurrentColumnFromId(lastCol) + 1;
         }
       }
@@ -7408,14 +7413,14 @@ pui.Grid = function() {
           var newWidth =  obj["width"] + adjustedWidth - previousAdjust;
           if (newWidth < 0) return obj["width"];
           else return newWidth;
-        })
+        });
 
     if (persistState) {
       // Get the last posistions of all the visible columns
       var cols = cols.map(function (col) {
         if (col["showing"]) col["savedColumn"] = getCurrentColumnFromId(col["columnId"]);
         return col;
-      })
+      });
       // Create a state object to save to local storage
       var colState = {
         "cols": cols,
@@ -7449,7 +7454,7 @@ pui.Grid = function() {
     me.columnHeadings = headings;
     me.setHeadings(); 
     return true;
-  }
+  };
   
   this.customSqlCallback = function(request) {
       var response, error;
