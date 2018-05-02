@@ -44,7 +44,9 @@ pui.ResponsiveLayout = function(){
   var maxChecks = 500;
   var checkCount = 0;
   var tmo_checkwid = 0;
-  var origCssText;
+  var origCssText;    //The css text as set by setRules, after IDs are replaced.
+  
+  var origCssRulesText; //The "style rules" property as set by setRules, before the IDs are replaced.
   
   this.destroy = function(){
     if (me != null){
@@ -98,10 +100,16 @@ pui.ResponsiveLayout = function(){
   /**
    * Set CSS style. Placeholders, #_id_, are replaced with the container's ID or .x-dd-drag-proxy if in proxy mode.
    * Pre-Conditions: The container must be set on this.
-   * @param {String|Null} cssrulestxt  If null or undefined, existing rules are removed.
+   * @param {String|Null} cssrulestxt  If null or undefined: if origCssRulesText is null, existing rules are removed;
+   *                                                         Else rules are refreshed. e.g. ID has changed.
    * @returns {undefined}
    */
   this.setRules = function(cssrulestxt){
+    if (cssrulestxt == null){
+      cssrulestxt = origCssRulesText || "";
+    }
+    
+    origCssRulesText = cssrulestxt;
     if (!me.forProxy && me.container.id.length > 0){
       //When not in proxy mode, use the ID.
       origCssText = cssrulestxt.replace(/#_id_/g, "#" + me.container.id);
@@ -110,7 +118,7 @@ pui.ResponsiveLayout = function(){
       //In proxy mode in designer, apply style only to proxy.
       origCssText = cssrulestxt.replace(/#_id_ >/g, ".x-dd-drag-proxy");
     }
-    
+
     // Delete existing styles.
     if (me._stylenode != null){
       me._mainnode.removeChild(me._stylenode);
