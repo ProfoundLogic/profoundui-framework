@@ -311,24 +311,33 @@ pui.widgets.add({
         
         parms.dom.onOffSwitch.setMouseCursor("default");
         var nmodel = getPropertiesNamedModel();
-        var propConfig = nmodel["on text"];
-        applyPropertyToField(
-          propConfig,
-          parms.properties,
-          parms.designItem.dom,
-          parms.properties["on text"], 
-          true, 
-          parms.designItem
-        );
-        propConfig = nmodel["off text"];
-        applyPropertyToField(
-          propConfig,
-          parms.properties,
-          parms.designItem.dom,
-          parms.properties["off text"], 
-          true, 
-          parms.designItem
-        );
+        var propConfig;
+        if (parms.properties["on text"]) {
+          
+          propConfig = nmodel["on text"];
+          applyPropertyToField(
+            propConfig,
+            parms.properties,
+            parms.designItem.dom,
+            parms.properties["on text"], 
+            true, 
+            parms.designItem
+          );
+        
+        }
+        if (parms.properties["off text"]) {
+          
+          propConfig = nmodel["off text"];
+          applyPropertyToField(
+            propConfig,
+            parms.properties,
+            parms.designItem.dom,
+            parms.properties["off text"], 
+            true, 
+            parms.designItem
+          );
+        
+        }
         
       }
       else {
