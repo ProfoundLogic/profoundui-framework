@@ -29,7 +29,6 @@ pui.CSSButton = function() {
   this.designMode = null;
   this.forProxy = false;
   this.useSpan = false;  // instead of hyperlink tag
-
   var link;
   var innerSpan;
   var textSpan;
@@ -132,14 +131,23 @@ pui.CSSButton = function() {
     pui.addCssClass(link, "ui-btn-icon-" + pos);
   }
   
-  this.setIcon = function(icon) {
-    if (icon == "left arrow") icon = "arrow-l";
-    if (icon == "right arrow") icon = "arrow-r";
-    if (icon == "up arrow") icon = "arrow-u";
-    if (icon == "down arrow") icon = "arrow-d";
-    if (icon == null) icon = "";
-    if (icon !=  "") icon = " ui-icon-" + icon;
-    iconSpan.className = "ui-icon" + icon + iconShadowClass; 
+  this.setIcon = function(icon, iconType) {
+    if (icon && iconType == 'material') {
+      iconSpan.className = "pui-material-icons";
+      iconSpan.innerHTML = icon;
+    } else if (icon && iconType == 'fontAwesome') {
+      iconSpan.className = "pui-fa-icons fa-" + icon;
+      iconSpan.innerHTML = "";
+    } else {
+      if (icon == "left arrow") icon = "arrow-l";
+      if (icon == "right arrow") icon = "arrow-r";
+      if (icon == "up arrow") icon = "arrow-u";
+      if (icon == "down arrow") icon = "arrow-d";
+      if (icon == null) icon = "";
+      if (icon !=  "") icon = " ui-icon-" + icon;
+      iconSpan.className = "ui-icon" + icon + iconShadowClass;
+      iconSpan.innerHTML = ""; 
+    }
   }
   
   this.setMini = function(flag) {
@@ -358,12 +366,21 @@ pui.widgets.add({
       parms.dom.button.setText(parms.value);
     },
 
-    "icon": function(parms) {
-      parms.dom.button.setIcon(parms.value);
-    },
-
     "icon position": function(parms) {
       parms.dom.button.setIconPosition(parms.value);
+    },
+
+    "icon": function(parms) {
+      if (parms.value && parms.value.substr(0,9) == 'material:') {
+        var value = parms.value.substr(9);
+        parms.dom.button.setIcon(value, 'material');
+        return;
+      } else if (parms.value && parms.value.substr(0,12) == 'fontAwesome:') {
+        var value = parms.value.substr(12);
+        parms.dom.button.setIcon(value, 'fontAwesome');
+      } else {
+        parms.dom.button.setIcon(parms.value);     
+      }
     },
 
     "small button": function(parms) {
