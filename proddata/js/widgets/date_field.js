@@ -448,6 +448,7 @@ function cal(dateField, format) {
   newElem.style.position = "absolute";
   newElem.style.width = "16px";
   newElem.innerHTML = calHTML;
+  if (dateField["cal icon class"]) newElem.firstChild.className = dateField["cal icon class"];
   //newElem.style.left = findPosX(dateField) +  dateField.offsetWidth + 5 + "px";
   //newElem.style.top = findPosY(dateField) + "px";
   newElem.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
@@ -547,6 +548,7 @@ pui.widgets.add({
   tag: "input",
   newId: "Date",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/cal.gif"),
+  icon1Class: 'pui-cal pui-cal-input',
   defaults: {
     "css class": "input"
   },
@@ -645,6 +647,20 @@ pui.widgets.add({
         } else {
           parms.dom.calimg.style.visibility = "";
         }        
+      }
+    },
+    "css class": function(parms) {
+      var className = parms.value.split(" ").shift();
+      className = "pui-cal pui-cal-" + className;
+      if (parms.design) {
+        var icon = parms.designItem.icon1;
+        icon.className = className;
+      } else {
+        if (parms.dom.calimg) {
+          parms.dom.calimg.firstChild.className = className;
+        } else {
+          parms.dom["cal icon class"] = className;
+        }
       }
     }
   }
