@@ -26,7 +26,7 @@ function buildGraphicButton(parms) {
   var vectorIcon = parms.evalProperty("icon");
   var iconPosition = parms.evalProperty("icon position");
   var cssClass = parms.evalProperty("css class");
-
+  if (cssClass) cssClass = trim(cssClass);
   if (parms.properties["value"] == "script: value") {
     if (value == "") value = parms.dom.innerHTML;
     if (value.substr(0,5).toLowerCase() == "<img ") {
@@ -45,12 +45,13 @@ function buildGraphicButton(parms) {
   }
   var icon = "";
   if (vectorIcon && iconPosition) {
+    vectorIcon = trim(vectorIcon);
     if (vectorIcon.substr(0,9) == 'material:') {
-      vectorIcon = vectorIcon.substr(9);
+      vectorIcon = trim(vectorIcon.substr(9));
       icon = '<span class="pui-material-icons pui-material-icons-center ' + (cssClass? cssClass: '') +'">'+ vectorIcon + '</span>';
       if (value) value = '<span class="pui-material-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
     } else if (vectorIcon.substr(0,12) == 'fontAwesome:') {
-      vectorIcon = vectorIcon.substr(12);
+      vectorIcon = trim(vectorIcon.substr(12));
       icon = '<span class="pui-fa-icons pui-fa-icons-center fa-' + vectorIcon + ' ' + (cssClass? cssClass: '') +'"></span>';
       if (value) value = '<span class="pui-fa-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
     }
