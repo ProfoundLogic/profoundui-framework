@@ -23,6 +23,10 @@ function buildGraphicButton(parms) {
   var dom = parms.dom;
   var value = parms.evalProperty("value");
   var imageSource = parms.evalProperty("image source");
+  var vectorIcon = parms.evalProperty("icon");
+  var iconPosition = parms.evalProperty("icon position");
+  var cssClass = parms.evalProperty("css class");
+
   if (parms.properties["value"] == "script: value") {
     if (value == "") value = parms.dom.innerHTML;
     if (value.substr(0,5).toLowerCase() == "<img ") {
@@ -36,11 +40,26 @@ function buildGraphicButton(parms) {
     }
   }
   var graphic = "";
-  if (imageSource != null && imageSource != "") {
+  if (imageSource != null && imageSource != "" ) {
     graphic = '<img src="' + pui.normalizeURL(imageSource) + '" style="vertical-align:middle;padding-bottom:2px;" /> ';
   }
+  var icon = "";
+  if (vectorIcon && iconPosition) {
+    if (vectorIcon.substr(0,9) == 'material:') {
+      vectorIcon = vectorIcon.substr(9);
+      icon = '<span class="pui-material-icons pui-material-icons-center ' + (cssClass? cssClass: '') +'">'+ vectorIcon + '</span>';
+      if (value) value = '<span class="pui-material-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
+    } else if (vectorIcon.substr(0,12) == 'fontAwesome:') {
+      vectorIcon = vectorIcon.substr(12);
+      icon = '<span class="pui-fa-icons pui-fa-icons-center fa-' + vectorIcon + ' ' + (cssClass? cssClass: '') +'"></span>';
+      if (value) value = '<span class="pui-fa-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
+    }
+  } else {
+    icon = graphic;
+  }
   dom.setAttribute("type", "button");
-  dom.innerHTML = graphic + value;
+  if (iconPosition === 'right') dom.innerHTML = value + icon;
+  else dom.innerHTML = icon + value;
 }
 
 
@@ -51,7 +70,8 @@ pui.widgets.add({
   newValue: "Accept",
   inlineEdit: true,
   defaults: {
-    "width": !pui["is_quirksmode"] ? "100px" : null
+    "width": !pui["is_quirksmode"] ? "100px" : null,
+    "icon position": "left"
   },
 
   propertySetters: {
@@ -67,6 +87,18 @@ pui.widgets.add({
     
     "image source": function(parms) {
       parms.properties["image source"] = parms.value;
+      buildGraphicButton(parms);
+    },
+    "icon": function(parms) {
+      parms.properties["icon"] = parms.value;
+      buildGraphicButton(parms);
+    },
+    "icon position": function(parms) {
+      parms.properties["icon position"] = parms.value;
+      buildGraphicButton(parms);
+    },
+    "css class": function(parms) {
+      parms.properties["css class"] = parms.value;
       buildGraphicButton(parms);
     }
     
