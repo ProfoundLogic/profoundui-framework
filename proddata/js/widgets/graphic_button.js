@@ -72,7 +72,10 @@ pui.widgets.add({
   inlineEdit: true,
   defaults: {
     "width": !pui["is_quirksmode"] ? "100px" : null,
-    "icon position": "left"
+    "icon position": "left",
+    "image source": "/profoundui/proddata/images/accept.png",
+    "color": "#009933",
+    "font weight": "bold"
   },
 
   propertySetters: {
