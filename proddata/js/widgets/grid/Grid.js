@@ -2634,6 +2634,10 @@ pui.Grid = function() {
         }
         else {
           if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
+          else if (value1 == value2) {
+            if ((desc && row1.subfileRow < row2.subfileRow) || (!desc && row1.subfileRow > row2.subfileRow)) return -1 
+            else return 1;
+          }
           else return 1;
         }
       }
