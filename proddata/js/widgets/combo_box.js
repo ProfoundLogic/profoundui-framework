@@ -393,7 +393,8 @@ pui.widgets.add({
   name: "combo box",
   defaults: {
     "width": "80px",
-    "css class": "input"
+    "css class": "input",
+    "font family": "Trebuchet MS"
   },
 
   propertySetters: {
