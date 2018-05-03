@@ -313,22 +313,7 @@ pui.SignaturePad = function() {
 pui.widgets.add({
   name: "signature pad",
   defaults: {
-    "height": "150px",
-    "width": "450px",
-    "background color": "#ffffcc",
-    "border top style": "solid",
-    "border top width": "1px",
-    "border top color": "#000000",
-    "border left style": "solid",
-    "border left width": "1px",
-    "border left color": "#000000",
-    "border right style": "solid",
-    "border right width": "1px",
-    "border right color": "#000000",
-    "border bottom style": "solid",
-    "border bottom width": "1px",
-    "border bottom color": "#000000",
-    "color": "#333333"
+
   },
 
   propertySetters: {
