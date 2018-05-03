@@ -17,18 +17,23 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 function handleIcon(value, parms) {
+    if (value) value = trim(value);
     if (value.substr(0,9) == 'material:') {
         icon = value.substr(9);
-        parms.dom.innerText = icon;
+        parms.dom.innerText = trim(icon);
         //remove any font awesome icon if there
         pui.removeCssClass(parms.dom, 'pui-fa-icons');
-        if (parms.dom.faIcon) pui["removeCssClass"](parms.dom, 'fa-' + parms.dom.faIcon);
+        if (parms.dom.faIcon) pui.removeCssClass(parms.dom, 'fa-' + parms.dom.faIcon);
         var className = parms.dom.className;
         parms.dom.className = className + " pui-material-icons";
     } else if(value.substr(0,12) == 'fontAwesome:') {
-        icon = value.substr(12);
+        icon = trim(value.substr(12));
         //remove any material icon if there
         pui.removeCssClass(parms.dom, 'pui-material-icons');
+        if (parms.dom.faIcon) {
+            pui.removeCssClass(parms.dom, 'pui-fa-icons');
+            pui.removeCssClass(parms.dom, 'fa-' + parms.dom.faIcon);
+        }
         var className = parms.dom.className;
         parms.dom.faIcon = icon;
         parms.dom.className = className + ' pui-fa-icons fa-' + icon;
