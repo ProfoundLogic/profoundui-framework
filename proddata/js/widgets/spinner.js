@@ -206,6 +206,10 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     pui.checkEmptyText(dom);    
   }
 
+  this.setArrowClassNames = function(className) {
+    up.className = "input spinner-up-arrow-" + className;
+    down.className = "input spinner-down-arrow-" + className;
+  }
 }
 
 
@@ -215,6 +219,8 @@ pui.widgets.add({
   tag: "input",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/up.gif"),
   pickIcon2: pui.normalizeURL("/profoundui/proddata/images/down.gif"),
+  icon1Class: 'spinner-up-arrow-input',
+  icon2Class: 'spinner-down-arrow-input',
   defaults: {
     "css class": "input"
   },
@@ -263,6 +269,20 @@ pui.widgets.add({
       
       }
       
+    },
+    "css class": function(parms) {
+      var className = parms.value.split(' ').shift();
+      if (!parms.design) {
+        if (parms.dom.spinner) parms.dom.spinner.setArrowClassNames(className);
+        else setTimeout(function(){
+          parms.dom.spinner.setArrowClassNames(className);
+        }, 1)
+      } else {
+        var up = parms.designItem.icon1;
+        var down = parms.designItem.icon2;
+        up.className = "input spinner-up-arrow-" + className;
+        down.className = "input spinner-down-arrow-" + className; 
+      }
     }
 
   }
