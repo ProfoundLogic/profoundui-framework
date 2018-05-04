@@ -258,7 +258,16 @@ pui.ResponsiveLayout = function(){
           }
         }
         else if (rule.type == rule["STYLE_RULE"] ){
-          csstext += rule.cssText + " ";
+          // Copy each style from the CSSStyleRule's style object. (Note: we can't just use rule.cssText because
+          // Edge doesn't include grid-(row|column)-gap in cssText.)
+          var ruletext = rule.selectorText + "{";
+          for (var j=0; j < rule.style.length; j++){
+            var styleprop = rule.style[j];
+            var styleval = rule.style[styleprop];
+            ruletext += styleprop + ":" + styleval + "; ";
+          }
+          ruletext += "} ";
+          csstext += ruletext;
         }
       }
     }
