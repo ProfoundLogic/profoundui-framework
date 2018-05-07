@@ -672,6 +672,11 @@ pui.Grid = function() {
     me.zoomDiv.style.display = "";
   };
   
+  // Expose API call.
+  this["exportXLSX"] = function(fileName){
+    return me.exportCSV(fileName, true);
+  };
+  
   /**
    * Build a CSV or XLSX document, and show a Save-As prompt in the browser.
    * 
@@ -2635,7 +2640,7 @@ pui.Grid = function() {
         else {
           if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
           else if (value1 == value2) {
-            if ((desc && row1.subfileRow < row2.subfileRow) || (!desc && row1.subfileRow > row2.subfileRow)) return -1 
+            if ((desc && row1.subfileRow < row2.subfileRow) || (!desc && row1.subfileRow > row2.subfileRow)) return -1; 
             else return 1;
           }
           else return 1;
