@@ -5921,6 +5921,14 @@ pui.transitionAnimation = {
       if (this.prevScreen.firstChild) this.prevScreen.insertBefore(mask, this.prevScreen.firstChild);
       else this.prevScreen.appendChild(mask);
     }
+
+    // Remove class when animation completes to prevent scrollbars from appearing on iOS
+    if (this.animatedScreenProperty === "new") {
+      animatedScreen.addEventListener("animationend", function(event) {
+        animatedScreen.className = "";
+      }, false);
+    }
+	
     animatedScreen.className = "pui-" + this.animation + "-" + this.animatedScreenProperty;
   },
   
