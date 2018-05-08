@@ -251,6 +251,10 @@ pui.layout.Layout = function() {
           me.designItem.changed = true;
           me.designItem.designer.changedScreens[me.designItem.designer.currentScreen.screenId] = true;
           me.designItem.designer.propWindow.refresh();
+          if (panel)
+            panel.resize();
+          if (accordion)
+            accordion.resize();
         }
         break;
 
