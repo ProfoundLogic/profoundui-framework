@@ -6469,6 +6469,8 @@ pui.Grid = function() {
       console.log("scrollToRow cannot parseInt:",row);
       return;
     }
+    // if the record number is less than 1, set it back to 1. #4276.
+    if (row < 1) row = 1;
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(row);
     }
