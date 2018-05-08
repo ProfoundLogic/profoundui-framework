@@ -182,6 +182,11 @@ function show_calendar(dateField, str_datetime, format) {
 
   
   calobj = document.getElementById("popcal");
+  calobj.className = "pui-calendar";
+  var cls = trim(dateField.className.split(" ")[0]);
+  if (cls != "")
+    calobj.className += " pui-calendar-" + cls;
+  
   var clickobj = dateField.calimg;
   calobj.style.width ="180px";
   calobj.innerHTML = str_buffer;
