@@ -118,7 +118,7 @@ pui.widgets.add({
         addEvent(window, "resize", parms.dom.layout.onresize);
         addEvent(document, "orientationchange", parms.dom.layout.onresize);
       }
-      nmodel = makeNamedModel(pui.layout.getPropertiesModel());
+      var nmodel = makeNamedModel(pui.layout.getPropertiesModel());
       for (var prop in parms.properties) {
         if (!nmodel[prop]) parms.dom.layout.templateProps[prop] = parms.properties[prop];
       }
