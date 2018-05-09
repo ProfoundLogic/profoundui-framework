@@ -127,7 +127,7 @@ pui.setupMobileEmulator = function(){
 	document.body.appendChild(dropdown);
 
 	var rotateImage = document.createElement("img");
-	rotateImage.src = "/profoundui/proddata/images/dspfdesigner/icons24x24/rotate_canvas.png";
+	rotateImage.src = "/profoundui/proddata/images/FlatIcons/24x24/rotate.png"; 
 	rotateImage.style.position = "absolute";
 	rotateImage.style.top = "8px";
 	rotateImage.style.left = "260px";
