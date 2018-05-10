@@ -131,7 +131,7 @@ pui.widgets.tabStyles = {
   "CSS": {
     useImages: false,
     useDefaultStyles: false
-  },  
+  }
 };
 
 
