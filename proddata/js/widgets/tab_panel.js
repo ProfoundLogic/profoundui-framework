@@ -127,7 +127,11 @@ pui.widgets.tabStyles = {
     selColor: "#ffffff",
     borderColor: "#2763a5",
     separated: true
-  }
+  },
+  "CSS": {
+    useImages: false,
+    useDefaultStyles: false
+  },  
 };
 
 
@@ -244,9 +248,13 @@ function TabPanel() {
     me.container.innerHTML = "";
     me.container.style.backgroundColor = "";
     
-    if (!me.container.style.fontFamily) me.container.style.fontFamily = me.defaults.fontFamily;
-    if (!me.container.style.fontSize) me.container.style.fontSize = me.defaults.fontSize;
-    if (!me.container.style.color) me.container.style.color = me.defaults.color;
+    if (settings.useDefaultStyles !== false) {
+      
+      if (!me.container.style.fontFamily) me.container.style.fontFamily = me.defaults.fontFamily;
+      if (!me.container.style.fontSize) me.container.style.fontSize = me.defaults.fontSize;
+      if (!me.container.style.color) me.container.style.color = me.defaults.color;
+    
+    }
 
     var adjust = 7;
     if (settings.useImages) adjust = 1;
