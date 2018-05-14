@@ -260,6 +260,7 @@ function TabPanel() {
     if (settings.useImages) adjust = 1;
 
     var topDiv = document.createElement("div");
+    topDiv.className = "header-area";
     topDiv.style.position = "absolute";
     topDiv.style.left = "0px";
     topDiv.style.top = "0px";
