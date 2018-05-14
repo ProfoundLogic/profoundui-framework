@@ -544,6 +544,8 @@ function TabPanel() {
       }
 
       function scrollRight(){
+        // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
+        topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
         if( topDiv.scrollLeft < topDiv_scrollLeftMax){
           // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
           // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
