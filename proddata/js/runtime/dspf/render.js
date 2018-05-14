@@ -4524,16 +4524,8 @@ pui.start = function() {
 };
 
 
-pui.downloadJobLogs = function(jobLogs) {
-  
-  pui.downloadAsAttachment("text/plain", jobLogs[0].fileName, jobLogs[0].data);
-  
-  // The second joblog was not downloaded due to timing issue. Added a delay to fix, but
-  // would be better to know when the POST is complete.
-  setTimeout(function() {
-    pui.downloadAsAttachment("text/plain", jobLogs[1].fileName, jobLogs[1].data);
-  }, 500);
-
+pui.downloadJobLogs = function(jobLog) {
+  pui.downloadAsAttachment("text/plain", jobLog.fileName, jobLog.data);
 };
 
 pui.newSession = function() {
