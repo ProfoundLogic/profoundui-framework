@@ -48,6 +48,8 @@ pui.ResponsiveLayout = function(){
   
   var origCssRulesText; //The "style rules" property as set by setRules, before the IDs are replaced.
   
+  var DEFAULTNUMITEMS = 8;  //If "layout items" property isn't a number, use this default.
+  
   this.destroy = function(){
     if (me != null){
       me._stylenode = null;
@@ -64,6 +66,16 @@ pui.ResponsiveLayout = function(){
    * @returns {undefined}
    */
   this.setNumItems = function(numitems){
+    if (numitems == null || numitems == ""){
+      numitems = DEFAULTNUMITEMS;
+    }
+    else if (pui.isBound(numitems)){
+      if (numitems.designValue != null && typeof numitems.designValue == "number")
+        numitems = numitems.designValue;
+      else
+        numitems = DEFAULTNUMITEMS;
+    }
+    
     if(me._mainnode == null || numitems != me._numchildren){
       me._numchildren = numitems;
       
@@ -94,6 +106,7 @@ pui.ResponsiveLayout = function(){
   // Note: setRules runs after this, because setRules is last in responsiveLayoutTemplate.
   // So, changing the "use viewport" option causes rules to be re-evaluated.
   this.setUseViewport = function(usev){
+    if (usev == null || usev == "" || pui.isBound(usev)) return;
     useViewport = usev;
   };
   
@@ -107,6 +120,12 @@ pui.ResponsiveLayout = function(){
   this.setRules = function(cssrulestxt){
     if (cssrulestxt == null){
       cssrulestxt = origCssRulesText || "";
+    }
+    else if (pui.isBound(cssrulestxt)){
+      if (cssrulestxt.designValue != null && typeof cssrulestxt.designValue == "string")
+        cssrulestxt = cssrulestxt.designValue;
+      else
+        cssrulestxt = "";
     }
     
     origCssRulesText = cssrulestxt;
