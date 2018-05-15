@@ -152,7 +152,7 @@ pui.PagingBar = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
     };
-    exportLink.className = "paging-link";
+    exportLink.className = "paging-link csv-paging-link";
     div.appendChild(exportLink);
     
     exportImgXLSX = document.createElement("div");
@@ -183,7 +183,7 @@ pui.PagingBar = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV(null, true);
     };
-    exportLinkXLSX.className = "paging-link";
+    exportLinkXLSX.className = "paging-link xlsx-paging-link";
     div.appendChild(exportLinkXLSX);
 
     me.prevImg = document.createElement("div");
@@ -230,7 +230,7 @@ pui.PagingBar = function() {
     me.prevLink.onclick = function() {
       autoPageUp(true);
     };
-    me.prevLink.className = "paging-link";
+    me.prevLink.className = "paging-link previous-paging-link";
     div.appendChild(me.prevLink);
 
     spacesSpan1 = document.createElement("span");
@@ -242,6 +242,7 @@ pui.PagingBar = function() {
     pageSpan.style.fontSize = "11px";
     pageSpan.style.fontWeight = "bold";
     pageSpan.style.verticalAlign = "top";
+    pageSpan.className = 'paging-number';
     div.appendChild(pageSpan);
         
     spacesSpan2 = document.createElement("span");
@@ -267,7 +268,7 @@ pui.PagingBar = function() {
     me.nextLink.onclick = function() {
       autoPageDown(true);
     };
-    me.nextLink.className = "paging-link";
+    me.nextLink.className = "paging-link next-paging-link";
     div.appendChild(me.nextLink);
   
     me.nextImg = document.createElement("div");
