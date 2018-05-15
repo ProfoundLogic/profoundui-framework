@@ -463,7 +463,10 @@ pui.PagingBar = function() {
     if (div == null) return;
     if (cssClass == null) cssClass = "";
     cssClass = trim(cssClass);
-    if (cssClass != "") cssClass += "-paging-bar";
+    if (cssClass != ""){
+      cssClass = cssClass.split(' ').shift();
+      cssClass += "-paging-bar";
+    } 
     cssClass += " paging-bar";
     cssClass = trim(cssClass);
     if (div.className != cssClass) div.className = cssClass;
