@@ -309,8 +309,20 @@ pui.GridMenu = function() {
         .sort(function(a, b) {
          var colA = a["currentColumn"];
          var colB = b["currentColumn"];
-         if (colA == -1) colA = me.grid.getCurrentColumnFromId(a["columnId"]);
-         if (colB == -1) colB = me.grid.getCurrentColumnFromId(b["columnId"]);
+         var colAHidden = false;
+         var colBHidden = false;
+         if (colA == -1) {
+          colAHidden = true;
+          colA = me.grid.getCurrentColumnFromId(a["columnId"]);
+         }
+         if (colB == -1) {
+          colBHidden = true;
+          colB = me.grid.getCurrentColumnFromId(b["columnId"]);
+         }
+         if (colA == colB) {
+           if (colAHidden && !colBHidden) return 1;
+           else return -1;
+         }
          if (colA > colB) return 1;
          else return -1;
         })
