@@ -4523,9 +4523,8 @@ pui.start = function() {
   }
 };
 
-
-pui.downloadJobLogs = function(jobLog) {
-  pui.downloadAsAttachment("text/plain", jobLog.fileName, jobLog.data);
+pui["downloadJobLog"] = function(jobLog) {
+  pui.downloadAsAttachment("text/plain", jobLog["fileName"], jobLog["data"]);
 };
 
 pui.newSession = function() {
