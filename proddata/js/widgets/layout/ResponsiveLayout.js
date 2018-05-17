@@ -66,7 +66,7 @@ pui.ResponsiveLayout = function(){
    * @returns {undefined}
    */
   this.setNumItems = function(numitems){
-    if (numitems == null || numitems == ""){
+    if (numitems == null || numitems === ""){
       numitems = DEFAULTNUMITEMS;
     }
     else if (pui.isBound(numitems)){
@@ -106,7 +106,7 @@ pui.ResponsiveLayout = function(){
   // Note: setRules runs after this, because setRules is last in responsiveLayoutTemplate.
   // So, changing the "use viewport" option causes rules to be re-evaluated.
   this.setUseViewport = function(usev){
-    if (usev == null || usev == "" || pui.isBound(usev)) return;
+    if (usev == null || usev === "" || pui.isBound(usev)) return;
     useViewport = usev;
   };
   
