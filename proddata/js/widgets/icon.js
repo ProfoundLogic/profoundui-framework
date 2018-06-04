@@ -16,29 +16,39 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
-function handleIcon(value, parms) {
-    if (value) value = trim(value);
-    if (value.substr(0,9) == 'material:') {
-        icon = value.substr(9);
-        parms.dom.innerText = trim(icon);
-        //remove any font awesome icon if there
-        pui.removeCssClass(parms.dom, 'pui-fa-icons');
-        if (parms.dom.faIcon) pui.removeCssClass(parms.dom, 'fa-' + parms.dom.faIcon);
-        var className = parms.dom.className;
-        parms.dom.className = className + " pui-material-icons";
-    } else if(value.substr(0,12) == 'fontAwesome:') {
-        icon = trim(value.substr(12));
-        //remove any material icon if there
-        pui.removeCssClass(parms.dom, 'pui-material-icons');
-        if (parms.dom.faIcon) {
-            pui.removeCssClass(parms.dom, 'pui-fa-icons');
-            pui.removeCssClass(parms.dom, 'fa-' + parms.dom.faIcon);
-        }
-        var className = parms.dom.className;
-        parms.dom.faIcon = icon;
-        parms.dom.className = className + ' pui-fa-icons fa-' + icon;
-        parms.dom.innerText = '';
+function handleIcon(parms) {
+    var iconValue = parms.evalProperty("icon");
+    var cssClass = parms.evalProperty("css class");
+    var iconSize = parms.evalProperty("icon size");
+    var iconDiv = document.createElement('div');
+    // Remove the previous icon if it exists
+    parms.dom.innerHTML = ''; 
+
+    if (iconValue) iconValue = trim(iconValue);
+    if (iconValue.substr(0,9) == 'material:') {
+        var icon = iconValue.substr(9);
+        iconDiv.innerText = trim(icon);
+        iconDiv.className = 'pui-material-icons';
+    } else if(iconValue.substr(0,12) == 'fontAwesome:') {
+        var icon = trim(iconValue.substr(12));
+        iconDiv.className = 'pui-fa-icons fa-' + icon;
+        iconDiv.innerText = '';
     }
+    // Add the first css class set in the properties
+    if (cssClass) iconDiv.className = iconDiv.className + ' ' + cssClass;
+    // Set the last size set in the designer
+    if (iconSize) iconDiv.style.fontSize = iconSize;
+    parms.dom.appendChild(iconDiv);
+}
+
+function handleIconResize(parms, sizeType) {
+    var iconDiv = parms.dom.firstChild;
+    if(parseInt(parms.value) <= parseInt(parms.dom.style[sizeType]))
+        iconDiv.style.fontSize = parms.value;
+    else 
+        iconDiv.style.fontSize = parms.dom.style[sizeType];
+    
+    parms.properties["icon size"] = iconDiv.style.fontSize;
 }
 
 pui.widgets.add ({
@@ -50,29 +60,24 @@ pui.widgets.add ({
     },
     propertySetters: {
         "field type": function(parms) {
-            var value = parms.evalProperty("icon");
-            handleIcon(value, parms);
+            handleIcon(parms);
             parms.dom.style.textAlign = "center";
         },
         "icon": function(parms) {
-            var value = parms.value;
-            handleIcon(value, parms);
+            parms.properties["icon"] = parms.value;
+            handleIcon(parms);
         },
         "width": function(parms) {
-            if(parseInt(parms.value) <= parseInt(parms.dom.style.height)) {
-                parms.dom.style.fontSize = parms.value;
-            }
-            else {
-                parms.dom.style.fontSize = parms.dom.style.height;
-            }   
+            // check against height to set size
+            handleIconResize(parms, 'height');
         },
         "height": function(parms) {
-            if(parseInt(parms.value) <= parseInt(parms.dom.style.width)) {
-                parms.dom.style.fontSize = parms.value;
-            }
-            else {
-                parms.dom.style.fontSize = parms.dom.style.width;
-            }
+            // check against width to set size
+            handleIconResize(parms, 'width');
+        },
+        "css class": function(parms) {
+            parms.properties["css class"] = parms.value;
+            handleIcon(parms);
         }
     }
 });
