@@ -154,11 +154,14 @@ Atrium["expandNav"] = function() {
 	awin["Atrium"]["api"]["expandNav"]();
 }
 
-Atrium["setTabTitle"] = function(arg, title) {
+Atrium["setTabTitle"] = function() {
   
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null)
     return;
-  awin["Atrium"]["api"]["setTabTitle"](arg, title);
+  if (arguments.length == 1)
+    awin["Atrium"]["api"]["setTabTitle"](window, arguments[0]);
+  else if (arguments.length == 2)
+    awin["Atrium"]["api"]["setTabTitle"](arguments[0], arguments[1]);
   
 }
