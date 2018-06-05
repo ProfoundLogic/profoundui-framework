@@ -327,7 +327,7 @@ pui.SlidingScrollBar = function() {
           eval(onscrollEventCode);
         }
         catch(err) {
-          pui.alert("onscroll Error:\n" + err.message);
+          pui.scriptError(err, "onscroll Error:\n");
           return false;
         }
       }

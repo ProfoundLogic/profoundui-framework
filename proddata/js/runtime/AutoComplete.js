@@ -941,7 +941,7 @@ function AutoComplete(config) {
         if (typeof func == "function") func(selectedRecord, textBox);
       }
       catch(e) {
-        pui.alert("Onselect error:\n" + e.name + "\n" + e.message + ".");
+        pui.scriptError(e, "Onselect error:\n");
       }
     }
   }

@@ -158,7 +158,7 @@ pui.ExternalFiles = function() {
           	    eval(onloadProp);
           	  }
           	  catch(err) {
-          	    pui.alert("Onload Error:\n" + err.message);
+          	    pui.scriptError(err, "Onload Error:\n");
           	  }
           	}
 
@@ -169,7 +169,7 @@ pui.ExternalFiles = function() {
                 eval(props["onmessage"]);
               }
               catch(err) {
-                pui.alert("Onmessage Error:\n" + err.message);
+                pui.scriptError(err, "Onmessage Error:\n");
               }          
             }
 

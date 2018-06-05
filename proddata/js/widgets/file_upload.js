@@ -606,7 +606,7 @@ pui["fileupload"].FileUpload = function(container) {
         }
         catch (e) {
         
-          pui.alert("onupload Error:\n" + e.message);  
+          pui.scriptError(e, "onupload Error:\n");
                 
         }
         

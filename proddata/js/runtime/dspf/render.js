@@ -675,7 +675,7 @@ pui.render = function(parms) {
         eval(pui.onmessageProps[format]);
       }
       catch(err) {
-        pui.alert("Onmessage Error:\n" + err.message);
+        pui.scriptError(err, "Onmessage Error:\n");
       }      
     }
     return;
@@ -2605,7 +2605,7 @@ pui.renderFormat = function(parms) {
             eval(onloadProp);
           }
           catch(err) {
-            pui.alert("Onload Error:\n" + err.message);
+            pui.scriptError(err, "Onload Error:\n");
           }
         }
       }
@@ -2620,7 +2620,7 @@ pui.renderFormat = function(parms) {
             eval(screenProperties["onmessage"]);
           }
           catch(err) {
-            pui.alert("Onmessage Error:\n" + err.message);
+            pui.scriptError(err, "Onmessage Error:\n");
           }          
         }
 
@@ -2884,7 +2884,7 @@ pui.respond = function() {
       }
     }
     catch(err) {
-      pui.alert("Onsubmit Error:\n" + err.message);
+      pui.scriptError(err, "Onsubmit Error:\n");
       pui.rrnTracker = {};
       pui.keyName = "";
       return false;

@@ -359,7 +359,7 @@ pui.layout.Layout = function() {
               }
             }
             catch(err) {
-              pui.alert(property.substr(0,1).toUpperCase() + property.substr(1) + " Error:\n" + err.message);        
+              pui.scriptError(err, property.substr(0,1).toUpperCase() + property.substr(1) + " Error:\n");        
             }
           };
           me.layoutDiv[property] = func;
@@ -435,7 +435,7 @@ pui.layout.Layout = function() {
               return eval(value);
             }
             catch(err) {
-              pui.alert("Onexpand Error:\n" + err.message);        
+              pui.scriptError(err, "Onexpand Error:\n");
             }
           };
         }
