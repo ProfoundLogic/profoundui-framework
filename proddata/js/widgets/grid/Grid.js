@@ -2958,7 +2958,7 @@ pui.Grid = function() {
         if (returnVal == false) return false;
       }
       catch(err) {
-        pui.alert(eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n" + err.message);
+        pui.scriptError(err, eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n");
         return false;
       }
     }

@@ -1282,7 +1282,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           return eval(newValue);
         }
         catch(err) {
-          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
+          pui.scriptError(err, propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
     }
@@ -1294,7 +1294,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           eval(newValue);
         }
         catch(err) {
-          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
+          pui.scriptError(err, propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n");        
         }
       };
     }
@@ -1307,7 +1307,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           return eval(newValue);
         }
         catch(err) {
-          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
+          pui.scriptError(err, propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n");        
         }
       };
     }
@@ -1325,7 +1325,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           }
         }
         catch(err) {
-          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);    
+          pui.scriptError(err, propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n");    
         }
       };
     }
@@ -1350,7 +1350,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           }
         }
         catch(err) {
-          pui.alert(propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n" + err.message);        
+          pui.scriptError(err, propConfigName.substr(0,1).toUpperCase() + propConfigName.substr(1) + " Error:\n");        
         }
       };
     }

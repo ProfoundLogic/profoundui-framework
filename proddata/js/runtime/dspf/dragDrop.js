@@ -488,7 +488,7 @@ pui.attachDragDrop = function(dom, properties) {
         if (returnVal == false) return false;
       }
       catch(err) {
-        pui.alert(eventName + " Error:\n" + err.message);
+        pui.scriptError(err, eventName + " Error:\n");
         return false;
       }
     }

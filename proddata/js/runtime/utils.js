@@ -91,7 +91,7 @@ function preventDoubleSubmit(){
         if (onsubmitReturnVal == false) return false;
       }
       catch(err) {
-        pui.alert("Onsubmit Error:\n" + err.message);
+        pui.scriptError(err, "Onsubmit Error:\n");
         return false;
       }
     }
@@ -3640,9 +3640,51 @@ pui.executeDatabaseLoadEvent = function(func, success, widget) {
      }
    }
    catch(err) {
-     pui.alert("OndbLoad Error:\n" + err.message);
+     pui.scriptError(err, "OndbLoad Error:\n");
      return false;
    }
 
    return true;
 };
+
+pui.scriptError = function(error, prefix) {
+  
+  if (pui["alert script errors"] === false) {
+    
+    if (window.console && window.console.error) {
+     
+      if (error.stack) { // Stack is not available on IE < 10
+        
+        // FireFox does not include the error message in the first entry.
+        var message = error.stack.split("\n");
+        if (message[0] != error.toString())
+          message.splice(0, 0, error.toString());
+        message = message.join("\n");
+        
+        if (prefix != null)
+          message = prefix + message;
+        console.error(message);
+      
+      }
+      else {
+
+        var message = error.toString();
+        if (prefix != null)
+          message = prefix + message;
+        console.error(message);
+       
+      }
+      
+    }
+    
+  }
+  else {
+    
+    var message = error.message;
+    if (prefix != null)
+      message = prefix + message;
+    pui.alert(message);
+    
+  }
+  
+}

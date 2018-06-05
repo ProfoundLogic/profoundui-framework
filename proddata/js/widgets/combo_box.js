@@ -644,7 +644,7 @@ pui.widgets.add({
           eval(parms.value);
         }
         catch(err) {
-          pui.alert("Onselect Error:\n" + err.message);        
+          pui.scriptError(err, "Onselect Error:\n" + err.message);        
         }
       }
     },
