@@ -2043,8 +2043,8 @@ pui["breakMessagesInit"] = function(){
   // Do nothing if local storage isn't supported or break-messages not enabled.
   if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
   if( !pui.isLocalStorage() || typeof(JSON) !== "object") return;
-  // Do nothing if there is no user or user is QTMHHTP1.
-  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
+  // Do nothing if there is no user or user is QTMHHTP1. (user may not be set for PJS session.)
+  if(typeof(pui.appJob) !== "object" || pui.appJob["user"] == null || pui.appJob["user"].length <= 0
   || pui.appJob["user"] === "QTMHHTP1" ) return;
   
   // Ensure that polling interval is valid.
