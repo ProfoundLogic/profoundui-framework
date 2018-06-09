@@ -212,6 +212,8 @@ var es_ES = function(dict) {
             dictMsg["remove filter"]                = "Quitar filtro";
             dictMsg["chart"]                        = "Chart";
             dictMsg["section"]                      = "Section";
+            dictMsg["version"]                      = "Versión";
+            dictMsg["fixPack"]                      = "Fix Pack";
             // Atrium only.
             dictMsg["yes"]                          = "Yes";
             dictMsg["no"]                           = "No";
@@ -224,7 +226,7 @@ var es_ES = function(dict) {
             dictMsg["control panel"]                = "Control Panel";
             dictMsg["my settings"]                  = "My Settings";
             dictMsg["about atrium"]                 = "About Atrium";
-            dictMsg["about atrium msg"]             = "Version " + window["pui"]["baseVersion"] + ", Fix Pack " + window["pui"]["fixPackVersion"] + "<br /><br />"
+            dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
                                                     + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
                                                     + "Warning: This computer program is protected by copyright law<br />"
                                                     + "and international treaties. Unauthorized reproduction or<br />"
@@ -422,6 +424,10 @@ var es_ES = function(dict) {
             dictMsg["parameter hlp"]                = "Optional: Specifies a parameter that will be passed to your Rich Display program when it is launched.";
 
             break;
+
+        case "pjsRuntimeText":
+            dictMsg["pjs"]                          = "Profound.js";
+            dictMsg["pjs sign on"]                  = dictMsg["pjs"] + " Sign On";
 
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");

@@ -212,6 +212,8 @@ var nl_NL = function(dict) {
             dictMsg["remove filter"]                = "Verwijderen Filter";
             dictMsg["chart"]                        = "Chart";
             dictMsg["section"]                      = "Section";
+            dictMsg["version"]                      = "Versie";
+            dictMsg["fixPack"]                      = "Fixpack";
             // Atrium only.
             dictMsg["yes"]                          = "Ja";
             dictMsg["no"]                           = "Nee";
@@ -224,7 +226,7 @@ var nl_NL = function(dict) {
             dictMsg["control panel"]                = "Control Panel";
             dictMsg["my settings"]                  = "Mijn instellingen";
             dictMsg["about atrium"]                 = "Info Atrium";
-            dictMsg["about atrium msg"]             = "Version " + window["pui"]["baseVersion"] + ", Fix Pack " + window["pui"]["fixPackVersion"] + "<br /><br />"
+            dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
                                                     + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
                                                     + "Warning: This computer program is protected by copyright law<br />"
                                                     + "and international treaties. Unauthorized reproduction or<br />"
@@ -422,6 +424,10 @@ var nl_NL = function(dict) {
             dictMsg["parameter hlp"]                = "Optioneel: Geef een parameter mee die bij het starten aan het Rich Display programma wordt doorgegeven.";
 
             break;
+
+        case "pjsRuntimeText":
+            dictMsg["pjs"]                          = "Profound.js";
+            dictMsg["pjs sign on"]                  = dictMsg["pjs"] + " Sign On";
 
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");
