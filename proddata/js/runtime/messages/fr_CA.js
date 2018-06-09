@@ -212,6 +212,8 @@ var fr_CA = function(dict) {
             dictMsg["remove filter"]                = "Supprimer le filtre";
             dictMsg["chart"]                        = "Chart";  //TODO
             dictMsg["section"]                      = "Section";  //TODO
+            dictMsg["version"]                      = "Version";
+            dictMsg["fixPack"]                      = "Fix Pack";
             // Atrium only.
             dictMsg["yes"]                          = "Oui";
             dictMsg["no"]                           = "Non";
@@ -224,7 +226,7 @@ var fr_CA = function(dict) {
             dictMsg["control panel"]                = "Panneau de contrôle";
             dictMsg["my settings"]                  = "Mes paramètres";
             dictMsg["about atrium"]                 = "À propos d'Atrium";
-            dictMsg["about atrium msg"]             = "Version " + window["pui"]["baseVersion"] + ', Fix Pack ' + window["pui"]["fixPackVersion"] + "<br /><br />"
+            dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
                                                     + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
                                                     + "Attention: Ce logiciel est protégé par le code de la propriété intellectuelle<br />"
                                                     + "et des traités internationaux. Toute reproduction non autorisée ou<br />"
@@ -422,6 +424,10 @@ var fr_CA = function(dict) {
             dictMsg["parameter hlp"]                = "Optionnel: Spécifie un paramètre qui sera passé au program Rich Display lors de son exécution.";
 
             break;
+
+        case "pjsRuntimeText":
+            dictMsg["pjs"]                          = "Profound.js";
+            dictMsg["pjs sign on"]                  = dictMsg["pjs"] + " Sign On";
 
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");

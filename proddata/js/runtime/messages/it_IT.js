@@ -212,6 +212,8 @@ var it_IT = function(dict) {
             dictMsg["remove filter"]                = "Rimuovi Filtro";
             dictMsg["chart"]                        = "Grafico";
             dictMsg["section"]                      = "Sezione";
+            dictMsg["version"]                      = "Versione";
+            dictMsg["fixPack"]                      = "Fix Pack";
             // Atrium only.
             dictMsg["yes"]                          = "Sì";
             dictMsg["no"]                           = "No";
@@ -422,6 +424,10 @@ var it_IT = function(dict) {
             dictMsg["parameter hlp"]                = "Opzionale: specifica un parametro che verrà inviato al Rich Display program quando viene lanciato.";
 
             break;
+
+        case "pjsRuntimeText":
+            dictMsg["pjs"]                          = "Profound.js";
+            dictMsg["pjs sign on"]                  = dictMsg["pjs"] + " Sign On";
 
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");
