@@ -72,16 +72,16 @@ var fr_FR = function(dict) {
             dictMsg["invalid high range"]           = "La valeur doit être inférieure ou égale à &1";
             dictMsg["invalid range"]                = "La valeur doit être comprise entre &1 et &2.";
             dictMsg["unmonitored exception"]        = "Le programme a rencontré une erreur non prévue. Prière de contacter l'administrateur système pour toute assistance.";
-            dictMsg["loading x"]                    = "Loading &1...";  // TODO
-            dictMsg["data src not specfd x"]        = "Data source not specified for &1...";  // TODO
-            dictMsg["name fld not specfd x"]        = "Name field not specified for &1...";  // TODO
-            dictMsg["val fld not specfd x"]         = "Value field not specified for &1...";  // TODO
-            dictMsg["failed to load x"]             = "Failed to load &1.";  // TODO
-            dictMsg["cannot rmv last col"]          = "You cannot remove the last column.";  // TODO
-            dictMsg["cannot find col"]              = "Cannot find the specified columnId.";  // TODO
+            dictMsg["loading x"]                    = "Chargement de &1...";
+            dictMsg["data src not specfd x"]        = "Source des données non spécifiée pour &1...";
+            dictMsg["name fld not specfd x"]        = "Nom du champ non spécifié pour &1...";
+            dictMsg["val fld not specfd x"]         = "Valeur du champ non spécifiée pour &1...";
+            dictMsg["failed to load x"]             = "Échec du chargement de &1.";
+            dictMsg["cannot rmv last col"]          = "Vous ne pouvez pas supprimer la dernière colonne.";
+            dictMsg["cannot find col"]              = "Impossible de trouver la colonne indiquée.";
             dictMsg["subfile deletion"]             = "Êtes-vous certain de vouloir supprimer le sous-fichier?";
-            dictMsg["downloading x"]                = "Downloading &1";  // TODO
-            dictMsg["ie9 too low xlsxpics"]         = "Images cannot be exported using IE9 or lower.";  // TODO
+            dictMsg["downloading x"]                = "Téléchargement de &1";
+            dictMsg["ie9 too low xlsxpics"]         = "Les images ne peuvent pas être exportées sous IE9 ou version antérieure.";
 
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Nombre de sessions dépassé.";
@@ -167,8 +167,8 @@ var fr_FR = function(dict) {
             dictMsg["excel export text"]            = "Exporter vers Excel";    //Replaces "csv export text".
             dictMsg["export to x"]                  = "Exporter vers &1";
             dictMsg["filter text"]                  = "Filtrer ";
-            dictMsg["find text"]                    = "Find";  //TODO
-            dictMsg["reset data"]                   = "Reset";  //TODO
+            dictMsg["find text"]                    = "Trouver";
+            dictMsg["reset data"]                   = "Réinitialiser";
             dictMsg["remove filters text"]          = "Supprimer tous les filtres";
             dictMsg["next link text"]               = "Suivante";
             dictMsg["previous link text"]           = "Précédente";
@@ -210,8 +210,8 @@ var fr_FR = function(dict) {
             dictMsg["cancel"]                       = "Annuler";
             dictMsg["find text"]                    = "Trouver";
             dictMsg["remove filter"]                = "Supprimer le filtre";
-            dictMsg["chart"]                        = "Chart";  //TODO
-            dictMsg["section"]                      = "Section";  //TODO
+            dictMsg["chart"]                        = "Graphe";
+            dictMsg["section"]                      = "Section";
             dictMsg["version"]                      = "Version";
             dictMsg["fixPack"]                      = "Fix Pack";
             // Atrium only.
@@ -233,7 +233,7 @@ var fr_FR = function(dict) {
                                                     + "distribution de ce logiciel, même partielle, peut entraîner<br />"
                                                     + "de graves sanctions civiles ou pénales, et entraînera<br />"
                                                     + "les poursuites maximales possibles prévues par la loi.<br /><br />"
-                                                    + "Breveté. &nbsp;U.S. Brevet No. 8,667,405 B2.";  // TODO
+                                                    + "Breveté. &nbsp;U.S. Brevet No. 8,667,405 B2.";
             dictMsg["item"]                         = "Élément";
             dictMsg["open selected item"]           = "Ouvrir l'élément sélectionné";
             dictMsg["no results to dsp"]            = "Aucun résultat à afficher.";
@@ -328,7 +328,7 @@ var fr_FR = function(dict) {
             dictMsg["membership"]                   = "Appartenance";
             dictMsg["none"]                         = "Aucun";
             dictMsg["remove"]                       = "Supprimer";
-            dictMsg["appearance"]                   = "Appearance";
+            dictMsg["appearance"]                   = "Apparence";
             dictMsg["home page"]                    = "Page d'accueil";
             dictMsg["tree"]                         = "Ramification";
             dictMsg["accordion"]                    = "Accordéon";
