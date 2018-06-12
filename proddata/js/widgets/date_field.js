@@ -553,7 +553,7 @@ pui.widgets.add({
   tag: "input",
   newId: "Date",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/cal.gif"),
-  icon1Class: 'pui-cal pui-cal-input',
+  icon1Class: 'input pui-cal pui-cal-input',
   defaults: {
     "css class": "input"
   },
@@ -660,6 +660,7 @@ pui.widgets.add({
       if (parms.design) {
         var icon = parms.designItem.icon1;
         icon.className = className;
+        parms.dom["icon1 class"] = className;
       } else {
         if (parms.dom.calimg) {
           parms.dom.calimg.firstChild.className = className;
