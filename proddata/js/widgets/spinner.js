@@ -219,8 +219,8 @@ pui.widgets.add({
   tag: "input",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/up.gif"),
   pickIcon2: pui.normalizeURL("/profoundui/proddata/images/down.gif"),
-  icon1Class: 'spinner-up-arrow-input',
-  icon2Class: 'spinner-down-arrow-input',
+  icon1Class: 'input spinner-up-arrow-input',
+  icon2Class: 'input spinner-down-arrow-input',
   defaults: {
     "css class": "input"
   },
@@ -280,8 +280,12 @@ pui.widgets.add({
       } else {
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
-        up.className = "input spinner-up-arrow-" + className;
-        down.className = "input spinner-down-arrow-" + className; 
+        var upClass = "input spinner-up-arrow-" + className;
+        var downClass = "input spinner-down-arrow-" + className;
+        parms.dom["icon1 class"] = upClass;
+        parms.dom["icon2 class"] = downClass;
+        up.className = upClass;
+        down.className = downClass; 
       }
     }
 
