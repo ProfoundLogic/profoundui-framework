@@ -181,9 +181,11 @@ var it_IT = function(dict) {
             dictMsg["expandAll"]                    = "Espandi tutto";
             dictMsg["user"]                         = "Utente";
             dictMsg["password"]                     = "Password";
-            dictMsg["pui"]                          = "Profound UI";
-            dictMsg["pui sign on"]                  = "Accesso Profound UI";
             dictMsg["sign on"]                      = "Accesso";
+            dictMsg["pui"]                          = "Profound UI";
+            dictMsg["pui sign on"]                  = dictMsg["sign on"] + " " + dictMsg["pui"];
+            dictMsg["pjs"]                          = "Profound.js";
+            dictMsg["pjs sign on"]                  = dictMsg["sign on"] + " " + dictMsg["pjs"];
             dictMsg["message id"]                   = "Id Messaggio";
             dictMsg["ctlr job"]                     = "Job di controllo";
             dictMsg["app job"]                      = "Application job";
@@ -424,10 +426,6 @@ var it_IT = function(dict) {
             dictMsg["parameter hlp"]                = "Opzionale: specifica un parametro che verrà inviato al Rich Display program quando viene lanciato.";
 
             break;
-
-        case "pjsRuntimeText":
-            dictMsg["pjs"]                          = "Profound.js";
-            dictMsg["pjs sign on"]                  = dictMsg["pjs"] + " Sign On";
 
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");
