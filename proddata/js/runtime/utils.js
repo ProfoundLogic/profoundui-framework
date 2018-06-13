@@ -807,7 +807,7 @@ pui.beforeUnload = function(event) {
       catch(e) {
       }
     } 
-    if (context == "genie" || !inDesignMode() || recordFormats.isDirty()) {
+    if (context == "genie" || !inDesignMode() || (context == "dspf" && inDesignMode() && pui.ide.isDirty())) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
       else theCloseMessage = pui["getLanguageText"]("runtimeMsg", "closeMessage");
