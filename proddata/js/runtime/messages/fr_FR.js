@@ -238,6 +238,7 @@ var fr_FR = function(dict) {
                                                     + "Breveté. &nbsp;U.S. Brevet No. 8,667,405 B2.";
             dictMsg["item"]                         = "Élément";
             dictMsg["open selected item"]           = "Ouvrir l'élément sélectionné";
+            dictMsg["of"]                           = "de"
             dictMsg["no results to dsp"]            = "Aucun résultat à afficher.";
             dictMsg["displaying results"]           = "Résultats en cours d'affichage";
             dictMsg["search results"]               = "Recherche en cours";

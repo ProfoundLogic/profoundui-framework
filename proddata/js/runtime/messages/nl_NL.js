@@ -238,6 +238,7 @@ var nl_NL = function(dict) {
                                                     + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";
             dictMsg["item"]                         = "Item";
             dictMsg["open selected item"]           = "Open het geselecteerde item";
+            dictMsg["of"]                           = "van"
             dictMsg["no results to dsp"]            = "Geen resultaten";
             dictMsg["displaying results"]           = "Toon resultaat";
             dictMsg["search results"]               = "Zoek resultaat";
