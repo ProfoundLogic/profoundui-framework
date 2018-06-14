@@ -238,6 +238,7 @@ var it_IT = function(dict) {
                                                     + "Brevettato. &nbsp; Brevetto U.S. No. 8,667,405 B2.";
             dictMsg["item"]                         = "Elemento";
             dictMsg["open selected item"]           = "Apri elemento selezionato";
+            dictMsg["of"]                           = "di"
             dictMsg["no results to dsp"]            = "Nessun risultato da mostrare.";
             dictMsg["displaying results"]           = "Risultati";
             dictMsg["search results"]               = "Risultati della ricerca";

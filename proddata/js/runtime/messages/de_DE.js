@@ -238,6 +238,7 @@ var de_DE = function(dict) {
                                                     + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";  // TODO
             dictMsg["item"]                         = "Item";  // TODO
             dictMsg["open selected item"]           = "Open Selected Item";  // TODO
+            dictMsg["of"]                           = "von"
             dictMsg["no results to dsp"]            = "No results to display.";  // TODO
             dictMsg["displaying results"]           = "Displaying results";  // TODO
             dictMsg["search results"]               = "Search Results";  // TODO
