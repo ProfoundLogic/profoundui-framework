@@ -48,6 +48,7 @@ window.pui = {};
   pui["is_firefox"] = (agt.indexOf("firefox") != -1);
   pui["is_android"] = (agt.indexOf("android") != -1);
   pui["is_quirksmode"] = (document.compatMode == "BackCompat");
+  pui["is_ios"] = (agt.indexOf('iphone') != -1 || agt.indexOf('ipad') != -1 || agt.indexOf('ipod') != -1);
   
   // Looking at Trident will give the actual version of IE that is used, 
   // regardless of compatability view and document mode. Sometimes this is an 

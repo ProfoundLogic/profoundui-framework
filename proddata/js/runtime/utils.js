@@ -1916,9 +1916,11 @@ pui.dehighlightText = function(div) {
 pui.startMouseCapableMonitoring = function() {
 	if (pui["is_mouse_capable"]) {
 	  return;
-	}
-
+  }
+  
 	if (pui.isLocalStorage() && localStorage["pui-is-mouse-capable"] == "true") {
+    // if iOS or Android dont set the mouse_capable flag #4460
+    if (pui["is_android"] || pui["is_ios"]) return;
 		pui["is_mouse_capable"] = true;
 		return;
 	}
@@ -1933,6 +1935,12 @@ pui.startMouseCapableMonitoring = function() {
 	};
 	var onMouseMove = function () {
 		if (hadMouseOver) {
+      // if iOS or Android dont set the mouse_capable flag #4460
+      if (pui["is_android"] || pui["is_ios"]) {
+        removeEvent(docElement, 'mousedown', onMouseDown);
+        removeEvent(docElement, 'mousemove', onMouseMove);
+        return;
+      }
 			pui["is_mouse_capable"] = true;
 			if (pui.isLocalStorage()) {
 				localStorage.setItem("pui-is-mouse-capable", "true");
