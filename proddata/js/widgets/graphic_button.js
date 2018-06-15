@@ -95,6 +95,19 @@ pui.widgets.add({
     },
     "icon": function(parms) {
       parms.properties["icon"] = parms.value;
+      if (parms.design) {
+        var propModel = getPropertiesNamedModel();
+        if (!parms.properties["icon position"]) {
+            var iconPositionConfig = pui.getPropConfig(propModel, "icon position");
+            parms.dom = applyPropertyToField(iconPositionConfig, parms.properties, parms.dom, 'left', parms.design, parms.designItem, parms.resizer);
+            parms.designItem.designer.propWindow.updateProperty("icon position", 'left', true);
+        }
+        if (parms.properties["image source"]) {
+            var imageSourceConfig = pui.getPropConfig(propModel, "image source");
+            parms.dom = applyPropertyToField(imageSourceConfig, parms.properties, parms.dom, '', parms.design, parms.designItem, parms.resizer);
+            parms.designItem.designer.propWindow.updateProperty("icon source", 'left', true);
+        }   
+      }  
       buildGraphicButton(parms);
     },
     "icon position": function(parms) {
