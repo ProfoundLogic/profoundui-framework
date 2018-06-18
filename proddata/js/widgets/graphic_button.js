@@ -95,7 +95,7 @@ pui.widgets.add({
     },
     "icon": function(parms) {
       parms.properties["icon"] = parms.value;
-      if (parms.design) {
+      if (parms.design && parms.value && parms.resizer) {
         var propModel = getPropertiesNamedModel();
         if (!parms.properties["icon position"]) {
             var iconPositionConfig = pui.getPropConfig(propModel, "icon position");
@@ -105,7 +105,7 @@ pui.widgets.add({
         if (parms.properties["image source"]) {
             var imageSourceConfig = pui.getPropConfig(propModel, "image source");
             parms.dom = applyPropertyToField(imageSourceConfig, parms.properties, parms.dom, '', parms.design, parms.designItem, parms.resizer);
-            parms.designItem.designer.propWindow.updateProperty("icon source", 'left', true);
+            parms.designItem.designer.propWindow.updateProperty("image source", '', true);
         }   
       }  
       buildGraphicButton(parms);
