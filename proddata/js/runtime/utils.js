@@ -316,8 +316,7 @@ function buildLabel(dom, labelText) {
         label.style.left = dom.offsetLeft + width + "px";
         label.style.top = dom.offsetTop + "px";
     }
-  }
-  else {
+  } else {
     left = parseInt(dom.style.left);
     if (isNaN(left)) 
       left = 0;
@@ -325,8 +324,19 @@ function buildLabel(dom, labelText) {
     if (isNaN(top)) 
       top = 0;    
   }
-  label.style.left = left + width + "px";
-  label.style.top = top + "px";
+  if (dom.style.left.indexOf('calc') != -1) {
+    var calcString = trim(dom.style.left);
+    var lastParenth = calcString.lastIndexOf(')');
+    if (lastParenth != -1) {
+      var leftString = calcString.substr(0,lastParenth);
+      leftString += ' + ' + width + 'px';
+      label.style.left = leftString; 
+    }
+  } 
+  else label.style.left = left + width + "px";
+  if (dom.style.top.indexOf('calc') != -1) label.style.top = dom.style.top;
+  else label.style.top = top + "px";
+
   label.style.zIndex = dom.style.zIndex;
   label.style.visibility = dom.style.visibility;
   label.style.color = dom.style.color;
