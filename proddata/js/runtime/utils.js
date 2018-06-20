@@ -3706,3 +3706,25 @@ pui.scriptError = function(error, prefix) {
   }
   
 }
+
+pui.preFetchFontFiles = function() {
+  // The preload font api is still not supported in every browser
+  // One way to prefetch the icons is to make hidden divs that that
+  // use the CSS classes so that the browser will automattically fetch
+  // the icon files. 
+  var iconFileList = [
+    'pui-material-icons',
+    'pui-fa-icons',
+    'blueprint-defaults',
+    'office-copy-defaults'
+  ]
+  iconFileList.forEach(function(iconClass) {
+    var div = document.createElement('div');
+    div.innerText = 'face'
+    div.className = iconClass;
+    div.style.visibility = 'hidden';
+    div.style.left = '-1000px';
+    div.style.position = 'absolute';
+    document.body.appendChild(div);
+  })
+}
