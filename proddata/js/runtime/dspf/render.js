@@ -1342,8 +1342,8 @@ pui.renderFormat = function(parms) {
         properties[prop] = newValue;
       }
   
-      // retain information about tab panels and active tabs
-      if (properties["field type"] == "tab panel") {
+      // Retain information about tab panels/layouts and their active tabs.
+      if (properties["field type"] == "tab panel" || (properties["field type"] == "layout" && properties["template"] == "tab panel")) {
         var tabPanelId = properties["id"];
         tabPanels.push(tabPanelId);
         if (setTabActions[tabPanelId] != null) {
@@ -2516,11 +2516,17 @@ pui.renderFormat = function(parms) {
     }
   }
 
-  // set active tabs on tab panels
+  // set active tabs on tab panels and tab layouts.
   for (var i = 0; i < tabPanels.length; i++) {
-    var tabPanel = document.getElementById(tabPanels[i]).tabPanel;
-    if (activeTabs[i]) tabPanel.selectedTab = activeTabs[i];
-    tabPanel.draw();
+    var tabElem = document.getElementById(tabPanels[i]);
+    var tabPanel = tabElem.tabPanel;
+    if (!tabPanel){
+      tabPanel = tabElem.tabLayout;
+    }
+    if (tabPanel){
+      if (activeTabs[i]) tabPanel.selectedTab = activeTabs[i];
+      tabPanel.selectedTabChanged();  //Re draws the tabs.
+    }
   }
 
   if (isDesignMode) {
