@@ -27,7 +27,7 @@ pui.layout.template.applyTemplate = function(parms) {
   var processDOM = pui.layout.template.processDOM;
   
   var containers = getContainers(dom);
-  var newDom = processHTML(parms);
+  var newDom = processHTML(parms);  //A temporary element that isn't attached to the DOM. Is used to build layouts.
   processDOM(newDom);
   var newContainers = getContainers(newDom);
   var stretchList = [];
@@ -38,6 +38,8 @@ pui.layout.template.applyTemplate = function(parms) {
   }
   x += 1;
   
+  // Make sure changing the layout doesn't lose any widgets. If the function returns here, then the DOM and layout 
+  // object created in processHTML are discarded.
   if (x > newContainers.length) {
     return {
       success: false,
@@ -65,31 +67,66 @@ pui.layout.template.applyTemplate = function(parms) {
     }
   }
 
-  // replace with new dom
+  // Clear the child nodes from the element in the DOM, and move nodes from the temporary element into the DOM element.
   dom.innerHTML = "";
   var child = newDom.firstChild;
   while (child != null) {
     dom.appendChild(newDom.removeChild(child));
     child = newDom.firstChild;
   }
+  
+  // To the element in the DOM, attach references to classes and special layout properties.
+  // "sizeMe" is a special method that Designer and other code looks for in DOM elements sometimes.
+  // Make sure each layout object's .container property references the correct DOM element.
+  
   if (newDom.panel != null) {
     dom.panel = newDom.panel;
-    dom.sizeMe = function() {
-      dom.panel.resize();
-    };
+    dom.sizeMe = dom.panel.resize;
     dom.panel.container = dom;
   }
+  
   if (newDom.accordion != null) {
     dom.accordion = newDom.accordion;
-    dom.sizeMe = function() {
-      dom.accordion.resize();
-    };
+    dom.sizeMe = dom.accordion.resize;
     dom.accordion.container = dom;
   }
+  
   if (newDom.responsivelayout != null){
     dom.responsivelayout = newDom.responsivelayout;
     dom.sizeMe = dom.responsivelayout.resize;
     dom.responsivelayout.container = dom;
+  }
+  
+  if (newDom.tabLayout != null){
+    var selectedTab;
+    if (dom.tabLayout != null){
+      selectedTab = dom.tabLayout.selectedTab;
+    }
+    dom.tabLayout = newDom.tabLayout;
+    dom.sizeMe = dom.tabLayout.resize;
+    dom.tabLayout.container = dom;
+    
+    // Preserve the active tab when a template property is changed; e.g. tab names.
+    if (selectedTab != null && !isNaN(selectedTab) && selectedTab >= 0  
+    && selectedTab < dom.tabLayout.tabs.length && selectedTab != dom.tabLayout.selectedTab){
+      dom.tabLayout.selectedTab = selectedTab;
+      dom.tabLayout.selectedTabChanged();
+    }
+    
+    dom.tabLayout.containerInDom(); //Finish drawing things that require elements being in DOM.
+    
+    dom.sendTabResponse = newDom.sendTabResponse;
+    dom.sendActiveTab = newDom.sendActiveTab;
+    dom.responseAID = newDom.responseAID;
+    
+    if (!parms.designMode){
+      // Setup APIs.
+      dom.setTab = dom.tabLayout.setTab;
+      dom.getTab = dom.tabLayout.getTab;
+      dom.refresh = dom.tabLayout.refresh;
+      dom["hideTab"] = dom.tabLayout.hideTab;
+      dom["showTab"] = dom.tabLayout.showTab;
+    }
   }
   
   return { 

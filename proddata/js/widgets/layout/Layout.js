@@ -231,6 +231,7 @@ pui.layout.Layout = function() {
     var panel = me.layoutDiv.panel;
     var accordion = me.layoutDiv.accordion;
     var responsivelayout = me.layoutDiv.responsivelayout;
+    var tabLayout = me.layoutDiv.tabLayout;
     
     switch (property) {
       case "id":
@@ -251,10 +252,10 @@ pui.layout.Layout = function() {
           me.designItem.changed = true;
           me.designItem.designer.changedScreens[me.designItem.designer.currentScreen.screenId] = true;
           me.designItem.designer.propWindow.refresh();
-          if (panel)
-            panel.resize();
-          if (accordion)
-            accordion.resize();
+          if (panel) panel.resize();
+          if (accordion) accordion.resize();
+          if (responsivelayout) responsivelayout.resize();
+          if (tabLayout) tabLayout.resize();
         }
         break;
 
@@ -280,6 +281,7 @@ pui.layout.Layout = function() {
         if (panel != null) panel.resize();
         if (accordion != null) accordion.resize();
         if (responsivelayout != null) responsivelayout.resize();
+        if (tabLayout != null) tabLayout.resize();
         me.stretch();
         
         // To allow inline-style setting and removing, cache the style property.
@@ -423,6 +425,9 @@ pui.layout.Layout = function() {
           if (property == "font family" || property == "font size") {
             accordion.resize();
           }
+        }
+        if (tabLayout != null) {
+          tabLayout.setStyle(property, value);
         }
         me.templateProps[property] = value;
         break;
