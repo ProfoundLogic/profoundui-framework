@@ -125,6 +125,7 @@ pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%
  +'</fieldset>';
 
 pui.layout["templates"]["responsive layout"] = pui.layout.template.responsiveLayoutTemplate;
+pui.layout["templates"]["tab panel"] = pui.layout.template.tabTemplate;
 
 /**
  * Returns an array of template name strings. pui.layout.getPropertiesModel calls this,
@@ -155,4 +156,28 @@ pui.layout.mergeProps = function(templateProps) {
     }
   }
   return props;
+};
+
+/**
+ * Adopt everything from a standard widget property, excluding the "controls" list, allowing a layout to use the same text, bindings, etc.
+ * Note: if a layout uses this function and "controls" was set on the property, then DataFields.js::getPostData() and Designer.js::getJSON()
+ * need exceptions for the property and template.
+ * @param {String} propName
+ * @returns {Object}
+ */
+pui.layout.adoptNamedProperty = function(propName){
+  var ret = {name: propName};
+  var nmodel = getPropertiesNamedModel();
+  if (nmodel[propName]){
+    try{
+      var adopted = JSON.stringify(nmodel[propName]);
+      adopted = JSON.parse(adopted);
+      delete adopted["controls"];
+      ret = adopted;
+    }
+    catch(exc){
+      console.log("error adopting property:", exc);
+    }
+  }
+  return ret;
 };
