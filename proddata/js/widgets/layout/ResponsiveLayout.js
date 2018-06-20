@@ -161,7 +161,8 @@ pui.ResponsiveLayout = function(){
   
   /**
    * Resizes this layout when it is inside another layout and that layout's size changes, or when the
-   * window resizes. Called when moving item to main canvas or into container.
+   * window resizes. Called when moving item to main canvas or into container. Called with width or 
+   * height changes, because of Layout.js::setProperty.
    * @returns {undefined}
    */
   this.resize = function() {

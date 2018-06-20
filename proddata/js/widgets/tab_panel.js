@@ -165,6 +165,7 @@ pui.widgets.preloadTabStyle = function(tabStyle) {
 
 /**
  * Tab Panel Class
+ * Note: widgets/layout/pui.TabLayout inherits public properties from this object.
  * @constructor
  */
 
@@ -184,6 +185,9 @@ function TabPanel() {
   var scrollLeftIval = null;
   var scrollRightIval = null;
   
+  var leftScrollSpan = null; //These are set when scroll buttons are added.
+  var rightScrollSpan = null;
+  
   // These allow scrolling speed to increase the longer the button is held.
   var curScrollIncrement = 5;
   var scrollCounter = 0;
@@ -196,6 +200,14 @@ function TabPanel() {
   
   // This is used to hide tabs dynamically
   var hiddenTabs = {};
+  
+  // Tab style information when tab panel styles are hard-coded.
+  var settings;      //The settings for the set tab style.
+  var path;          //path to images for the style.
+  var extension;     //File extension for images in the style.
+  var borderColor;   //CSS borderColor for the tabs.
+  
+  var preValidationSelectedTab = 0;
   
   // Public Properties
   this.defaults = {};
@@ -210,21 +222,70 @@ function TabPanel() {
   
   this.tabStyle = "Simple";
   
+  this.INITIALLIST = "Tab 1,Tab 2,Tab 3";
+  
+  //Holds all the tabs. Needs to be in class for add/removeIconOnClick.
+  var topDiv = null;
   
   // Public Methods  
+  
+  /**
+   * Hide the tab. Hides the tab contents if that tab was active.
+   * @param {Number} index
+   * @returns {undefined}
+   */
   this.hideTab = function(index) {
     if (me.selectedTab == index) {
       me.selectedTab = 0;
       if (me.selectedTab == index) me.selectedTab = 1;
     }
     hiddenTabs[index] = true;
-    me.draw();
-  }
+    me.selectedTabChanged();
+  };
   
+  /**
+   * Un-hide a tab and re-draw the tabs and contents.
+   * @param {Number} index
+   * @returns {undefined}
+   */
   this.showTab = function(index) {
     hiddenTabs[index] = false;
-    me.draw();
-  }
+    me.selectedTabChanged();
+  };
+  
+  /**
+   * Returns true if the tab at the index is set to be hidden; else false. Needed by subclass.
+   * @param {Number} index
+   * @returns {Boolean}
+   */
+  this.isHidden = function(index){
+    return hiddenTabs[index];
+  };
+  
+  // API Methods attached as container element's properties of the same name.
+  
+  /**
+   * API. Change to the specified tab. This method should be attached as the container DOM element's setTab method.
+   * http://www.profoundlogic.com/docs/pages/viewpage.action?pageId=3276823
+   * @param {Number} tab
+   * @returns {undefined}
+   */
+  this.setTab = function(tab){
+    var changed = (me.selectedTab != tab);
+    me.selectedTab = tab;
+    if (changed) me.processTabChange(tab);
+  };
+  
+  this.getTab = function(){
+    return me.selectedTab;
+  };
+  
+  this.refresh = function(){
+    me.setTab( me.selectedTab );
+  };
+  
+  // Other public methods.
+  
   
   this.setDefaultBackColor = function() {
     var settings = pui.widgets.tabStyles[me.tabStyle];
@@ -233,17 +294,46 @@ function TabPanel() {
     }
   };
   
+  /**
+   * Handle selectedTab change. Show elements for this tab, hide elements in non-active tabs. (Overridden)
+   * Pre-Conditions: me.selectedTab is the active tab.
+   * @returns {undefined}
+   */
+  this.selectedTabChanged = function(){
+    me.draw();  //Just re-draw everything.
+  };
+  
+  /**
+   * Set the reference for the topDiv, the header area. (Needed by subclass.)
+   * @param {Object} headerArea
+   * @returns {undefined}
+   */
+  this.setTopDivReference = function(headerArea){
+    topDiv = headerArea;
+  };
+  
+  /**
+   * Clears the container and draws new elements for each tab, the content-area, the scroll
+   * buttons, and the -/+ buttons (in design mode). Called when the widget is resized,
+   * when any property is applied, or a new tab is selected.
+   * (Overridden in TabLayout subclass.)
+   * @returns {undefined}
+   */
   this.draw = function() {
+    // Load tab style settings.
     if (me.tabStyle == null || me.tabStyle == "") me.tabStyle = "Simple";
-    var settings = pui.widgets.tabStyles[me.tabStyle];
+    
+    settings = pui.widgets.tabStyles[me.tabStyle];
     if (settings == null) settings = pui.widgets.tabStyles["Simple"];  // a custom widget may not be installed on current system
-    var path = pui.normalizeURL("/profoundui/proddata/images/tabs/" + me.tabStyle.toLowerCase() + "/");
-    var extension = settings["imageFileExtension"];
+    
+    path = pui.normalizeURL("/profoundui/proddata/images/tabs/" + me.tabStyle.toLowerCase() + "/");
+    extension = settings["imageFileExtension"];
     if (extension == null) extension = "gif";
     if (extension.substr(0, 1) == ".") extension = extension.substr(1);
-      
-    var borderColor = "#aaaaaa";
+    
+    borderColor = "#aaaaaa";
     if (settings.borderColor != null) borderColor = settings.borderColor;
+    // done loading settings.
     
     me.container.innerHTML = "";
     me.container.style.backgroundColor = "";
@@ -259,7 +349,7 @@ function TabPanel() {
     var adjust = 7;
     if (settings.useImages) adjust = 1;
 
-    var topDiv = document.createElement("div");
+    topDiv = document.createElement("div");
     topDiv.className = "header-area";
     topDiv.style.position = "absolute";
     topDiv.style.left = "0px";
@@ -361,7 +451,7 @@ function TabPanel() {
       tabSpan.style.height = settings.height + "px";
       tabSpan.style.lineHeight = settings.height + "px";
       tabSpan.setAttribute("isTab", "true");
-      tabSpan.style.display = "inline-block";      
+      tabSpan.style.display = "inline-block";
       
       if (settings.useImages) {
         tabSpan.style.backgroundImage = "url(" + path + "middle" + (i == me.selectedTab ? "-sel" : "") + "." + extension + ")";
@@ -409,105 +499,11 @@ function TabPanel() {
       }
       
       
-      tabSpan.onmouseover = function(e) {
-        var obj = getTarget(e);
-        if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
-        if (obj.tabId == me.selectedTab) return; 
-        if (settings.useImages && settings.hiImages) {
-          obj.style.backgroundImage = "url(" + path + "middle-hi." + extension + ")";
-          obj.previousSibling.style.backgroundImage = "url(" + path + "left-hi." + extension + ")";
-          obj.nextSibling.style.backgroundImage = "url(" + path + "right-hi." + extension + ")";
-        }
-        if (settings.hiColor != null) {
-          obj.style.color = settings.hiColor;
-        }
-        if (settings.hiUnderline == true) {
-          obj.style.textDecoration = "underline";          
-        }
-      };
-      tabSpan.onmouseout = function(e) {
-        var obj = getTarget(e);
-        if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
-        if (obj.tabId == me.selectedTab) return;
-        if (settings.useImages && settings.hiImages) {
-          obj.style.backgroundImage = "url(" + path + "middle." + extension + ")";
-          obj.previousSibling.style.backgroundImage = "url(" + path + "left." + extension + ")";
-          obj.nextSibling.style.backgroundImage = "url(" + path + "right." + extension + ")";
-        }
-        if (settings.hiColor != null) {
-          obj.style.color = "";
-        }
-        if (settings.hiUnderline == true) {
-          obj.style.textDecoration = "";
-        }
-      };
-      tabSpan.ondblclick = function(e) {
-        var isDesign = inDesignMode();
-        if (isDesign) {
-          var dom = designUtils.getTarget(e);
-          if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
-          // Get the widget's outer-most div.
-          var itmDom = dom.parentNode.parentNode.parentNode;
-          var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
-          
-          // Add an inline edit-box and a handler for updating it.
-          if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
-            itm.designer.inlineEditBox.onUpdate = function(newName) {
-              var idx = dom.tabId;
-
-              // Replace the old name with the new name. Convert string to array,
-              // modify element, convert back to string.
-              var propValue = itm.properties["tab names"];
-              if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-              var tabNames = pui.parseCommaSeparatedList(propValue);
-              tabNames[idx] = newName;
-              propValue = tabNames.join(",");
-              
-              // Apply the new value to the "tab names" property.
-              var nmodel = getPropertiesNamedModel();
-              var propConfig = nmodel["tab names"];
-              itm.designer.undo.add(itm, propConfig.name);
-              applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
-              itm.propertiesChanged["tab names"] = true;
-              itm.changed = true;
-              itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
-              itm.designer.propWindow.refreshProperty("tab names");
-            };
-            itm.designer.inlineEditBox.show(itm, dom, "tab");
-          }
-        }
-      };
-      tabSpan.onclick = function(e) {
-        lastScrollLeft = topDiv.scrollLeft;
-        var target = getTarget(e);
-        if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
-        var tab = target.tabId;
-        if (me.container.ontabclick != null) {
-          var returnVal = me.container.ontabclick(tab);
-          if (returnVal == false) return;
-        }
-        if (me.container.tabKeys != null) {
-          var tabKeysArray = me.container.tabKeys.split(",");
-          if (tabKeysArray.length - 1 >= tab) {
-            var tabKey = tabKeysArray[tab];
-            tabKey = trim(tabKey);
-            if (tabKey != "") {
-              pressKey(tabKey);
-              return;
-            }
-          }
-        }        
-        var changed = false;
-        if (me.selectedTab != tab) changed = true;
-        if (changed) me.selectedTab = tab;
-        var design = inDesignMode();
-        if (design) {
-          var selection = toolbar.designer.selection;
-          if (selection.resizers.length > 1) selection.clear();
-        }
-        if (changed)
-          me.processTabChange(tab);
-      };
+      tabSpan.onmouseover = me.tabSpanOnmouseover;
+      tabSpan.onmouseout = me.tabSpanOnmouseout;
+      // This method could be called from Genie in Design mode, so it must always be attached.
+      tabSpan.ondblclick = me.tabSpanOndblclick;
+      tabSpan.onclick = me.tabSpanOnclick;
       // Add the tab container span to the widget. Add the left border if it
       // exists, add the tab itself, and add the right border if it exists.
       topDiv.appendChild(outerSpan);
@@ -518,209 +514,18 @@ function TabPanel() {
     // done iterating over each tab.
     me.container.appendChild(bottomDiv);
     me.container.appendChild(topDiv);
-        
-    // Calculate scrollLeftMax: how far from left is the element scrolled.
-    var topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
- 
-    // Let this be referenced in scope of "if(isDesign){}" block.
-    var rightScrollSpan = null;
     
-    // scrollLeftMax is 0 when nothing overflows. We only need buttons on overflow.
-    if( topDiv_scrollLeftMax > 0 ){
-      var leftScrollSpan = createScrollButton("left", settings, extension, path, borderColor);
-      rightScrollSpan = createScrollButton("right", settings, extension, path, borderColor);
-
-      function scrollLeft(){
-        if( topDiv.scrollLeft > 0){
-          topDiv.scrollLeft -= curScrollIncrement;
-        }else{
-          clearInterval(scrollLeftIval);
-          leftScrollSpan.style.display = "none";
-        }
-        rightScrollSpan.style.display = "inline-block";
-        scrollCounter++;
-        // Scroll faster the longer the button is held.
-        if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
-      }
-
-      function scrollRight(){
-        // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
-        topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
-        if( topDiv.scrollLeft < topDiv_scrollLeftMax){
-          // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
-          // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-          try{topDiv.scrollLeft += curScrollIncrement;}catch(exc){}
-        }else{
-          clearInterval(scrollRightIval);
-          rightScrollSpan.style.display = "none";
-        }
-        leftScrollSpan.style.display = "inline-block";
-        scrollCounter++;
-        // Scroll faster the longer the button is held.
-        if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
-      }
-      
-      // Setup the click handlers for both buttons.
-      leftScrollSpan.onmousedown = function(){
-        // Reset increment amount and speed counter. Start scrolling.
-        curScrollIncrement = beginScrollIncrement;
-        scrollCounter = 0;
-        scrollLeftIval = setInterval(scrollLeft, 42);
-      };
-      // Stop scrolling.
-      leftScrollSpan.onmouseup = function(){ clearInterval(scrollLeftIval); };
-      leftScrollSpan.onmouseout = leftScrollSpan.onmouseup;
-      leftScrollSpan.ondrag = leftScrollSpan.onmouseup;
-      
-      rightScrollSpan.onmousedown = function(){
-        curScrollIncrement = beginScrollIncrement;
-        scrollCounter = 0;
-        scrollRightIval = setInterval(scrollRight, 42);
-      };
-      rightScrollSpan.onmouseup = function(){ clearInterval(scrollRightIval); };
-      rightScrollSpan.onmouseout = rightScrollSpan.onmouseup;
-      rightScrollSpan.ondrag = rightScrollSpan.onmouseup;
-
-      me.container.appendChild(leftScrollSpan);
-      me.container.appendChild(rightScrollSpan);
-      
-      // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
-      // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
-      if( lastScrollLeft === null )
-      {
-        // The selected tab number should correspond to the array index of childNodes.
-        if( topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
-          var outerSpan = topDiv.childNodes[me.selectedTab];
-          // Put the selected tab in the middle of the tab panel.
-          lastScrollLeft = Math.round(outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2);
-        }
-        else lastScrollLeft = 0; //Or set to 0 for later math. (This case shouldn't normally happen.)
-      }
-      
-      // Avoid showing scroll buttons if we are close enough to an end. Fixes
-      // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
-      if( (topDiv_scrollLeftMax - lastScrollLeft) <= 3) lastScrollLeft = topDiv_scrollLeftMax;
-      else if( lastScrollLeft <= 3 ) lastScrollLeft = 0;
-      
-      // Restore the previous scrollLeft from before a tab was clicked, or to
-      // scroll to the active tab.
-      // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
-      // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-      try{topDiv.scrollLeft = lastScrollLeft;}catch(exc){}
-      
-      // Display either button only when needed.
-      if( topDiv.scrollLeft > 0 ) leftScrollSpan.style.display = "inline-block";
-      if( topDiv.scrollLeft < topDiv_scrollLeftMax) rightScrollSpan.style.display = "inline-block";
+    leftScrollSpan = null;
+    rightScrollSpan = null;
+    // Do the tabs need scroll buttons. scrollWidth > offsetWidth on overflow.
+    if( topDiv.scrollWidth - topDiv.offsetWidth > 0 ){
+      me.addScrollButtons(topDiv);
     }//done adding scroll buttons.
     
     var isDesign = inDesignMode();
 
     if (isDesign) {
-      var addIcon = designUtils.createAndAppendIcon("plus", "Add New Tab", me.container);
-      var removeIcon = designUtils.createAndAppendIcon("minus", "Remove Tab", me.container);
-      var x = me.container.offsetWidth - 20;
-      var y = 2;
-      addIcon.style.left = x + "px";
-      addIcon.style.top = y + "px";
-      x -= 14;
-      removeIcon.style.left = x + "px";
-      removeIcon.style.top = y + "px";
-      addIcon.onclick = function() {
-        var itm = toolbar.designer.getDesignItemByDomObj(me.container);
-        var propValue = itm.properties["tab names"];
-        if (pui.isTranslated(propValue)) {
-          // Number of tabs is controlled by this, 
-          // doesn't make sense to change.
-          return;
-        }
-        else if (pui.isBound(propValue)) {
-          var designValue = propValue.designValue;
-          if (designValue == null || designValue == "") designValue = "Tab 1,Tab 2,Tab 3";
-          designValue = pui.parseCommaSeparatedList(designValue);
-          designValue.push("Tab " + (designValue.length + 1));
-          propValue.designValue = designValue.join(",");
-        }
-        else {
-          if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-          propValue = pui.parseCommaSeparatedList(propValue);
-          propValue.push("New Tab");
-          propValue = propValue.join(",");
-        }
-        var nmodel = getPropertiesNamedModel();
-        var propConfig = nmodel["tab names"];
-        itm.designer.undo.start("Add New Tab");
-        itm.designer.undo.add(itm, propConfig.name);
-        applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
-        itm.propertiesChanged["tab names"] = true;
-        itm.changed = true;
-        itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
-        itm.designer.selection.clear();
-        itm.designer.selection.add(itm);
-        itm.designer.propWindow.refresh();
-        var tabNames;
-        if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) tabNames = pui.parseCommaSeparatedList(propValue);
-        else tabNames = pui.parseCommaSeparatedList(propValue.designValue);
-        me.selectedTab = tabNames.length - 1;
-        me.draw();
-      };
-      removeIcon.onclick = function() {
-        var itm = toolbar.designer.getDesignItemByDomObj(me.container);
-        var propValue = itm.properties["tab names"];
-        var tabNames;
-        if (pui.isTranslated(propValue)) {
-          // Number of tabs is controlled by this, 
-          // doesn't make sense to change.
-          return;          
-        }
-        else if (pui.isBound(propValue)) {
-          var designValue = propValue.designValue;
-          if (designValue == null || designValue == "") designValue = "Tab 1,Tab 2,Tab 3";
-          propValue.designValue = designValue;
-          tabNames = pui.parseCommaSeparatedList(designValue);
-        }
-        else {
-          if (propValue == "") propValue = "Tab 1,Tab 2,Tab 3";
-          tabNames = pui.parseCommaSeparatedList(propValue);
-        }
-        if (tabNames.length > 1) {
-          var canRemove = true;
-          for (var i = 0; i < itm.designer.items.length; i++) {
-            var elem = itm.designer.items[i].dom;
-            if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
-              if (elem.parentTab == tabNames.length - 1) {
-                canRemove = false;
-                break;
-              }
-            }
-          }
-          if (!canRemove) {
-            itm.designer.selection.clear();
-            itm.designer.selection.add(itm);
-            itm.designer.propWindow.refresh();
-            me.selectedTab = tabNames.length - 1;
-            me.draw();
-            pui.alert("The tab cannot be removed because it contains other elements that must be removed first.");
-          }
-          else {
-            tabNames.pop();
-            if (me.selectedTab > tabNames.length - 1) me.selectedTab = tabNames.length - 1;
-            if (pui.isBound(propValue) || pui.isTranslated(propValue)) propValue.designValue = tabNames.join(",");
-            else propValue = tabNames.join(",");
-            var nmodel = getPropertiesNamedModel();
-            var propConfig = nmodel["tab names"];
-            itm.designer.undo.start("Remove Tab");
-            itm.designer.undo.add(itm, propConfig.name);
-            applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
-            itm.propertiesChanged["tab names"] = true;
-            itm.changed = true;
-            itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
-            itm.designer.propWindow.refreshProperty("tab names");
-          }
-        }
-      };
-      
-      // Avoid overlapping the +/- buttons.
-      if(rightScrollSpan != null) rightScrollSpan.style.right = "35px";
+      me.createAddRemoveIcons();
     }
 
     processElements("div");
@@ -730,6 +535,8 @@ function TabPanel() {
     processElements("button");
     processElements("img");
         
+    // Get all elements in the page with the specified tag. Check if they belong in this tab panel.
+    // If they belong, show the ones in the active tab and hide the others.
     function processElements(tag) {
       var container;
       if (context == "dspf" && !isDesign) {
@@ -772,6 +579,21 @@ function TabPanel() {
   }; //end this.draw().
   
   /**
+   * Add +/- icons in top right of widget. Should be in design mode.
+   * (Also called by TabLayout subclass.)
+   * @returns {undefined}
+   */
+  this.createAddRemoveIcons = function(){
+    var addIcon = designUtils.createAndAppendIcon("plus", "Add New Tab", me.container);
+    var removeIcon = designUtils.createAndAppendIcon("minus", "Remove Tab", me.container);
+    addIcon.style.right = "2px";
+    removeIcon.style.right = "16px";
+    removeIcon.style.top = addIcon.style.top = "2px";
+    addIcon.onclick = me.addIconOnclick;
+    removeIcon.onclick = me.removeIconOnclick;
+  };
+    
+  /**
    * The user changed the tab by clicking on one that isn't the selectedTab
    * or by calling the API method, setTab, on a tab that isn't selectedTab.
    * A response value will be set if "tab response" is bound.
@@ -790,10 +612,13 @@ function TabPanel() {
           pui.keyName = dom.responseAID;
         }
         var returnVal = pui.respond();
-        if (returnVal == false) dom.responseValue = null;
+        if (returnVal == false){  
+          dom.responseValue = null;   //Validation failed; send no response.
+          me.selectedTab = preValidationSelectedTab; //Prevent selectedTab from being out of sync.
+        }
       }
       else {
-        me.draw();
+        me.selectedTabChanged();
         if (context == "dspf" && dom.sendActiveTab == true) {
           dom.responseValue = tab;
         }
@@ -802,16 +627,436 @@ function TabPanel() {
   };
   
   /**
+   * Restyle a tab using the settings when the mouse is over the tab.
+   * @param {MouseEvent} e
+   * @returns {undefined}
+   */
+  this.tabSpanOnmouseover = function(e) {
+    var obj = getTarget(e);
+    if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
+    if (obj.tabId == me.selectedTab) return; 
+    if (settings.useImages && settings.hiImages) {
+      obj.style.backgroundImage = "url(" + path + "middle-hi." + extension + ")";
+      obj.previousSibling.style.backgroundImage = "url(" + path + "left-hi." + extension + ")";
+      obj.nextSibling.style.backgroundImage = "url(" + path + "right-hi." + extension + ")";
+    }
+    if (settings.hiColor != null) {
+      obj.style.color = settings.hiColor;
+    }
+    if (settings.hiUnderline == true) {
+      obj.style.textDecoration = "underline";          
+    }
+  };
+  
+  /**
+   * Restore the tab's style using the settings when the mouse leaves the tab.
+   * @param {MouseEvent} e
+   * @returns {undefined}
+   */
+  this.tabSpanOnmouseout = function(e) {
+    var obj = getTarget(e);
+    if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
+    if (obj.tabId == me.selectedTab) return;
+    if (settings.useImages && settings.hiImages) {
+      obj.style.backgroundImage = "url(" + path + "middle." + extension + ")";
+      obj.previousSibling.style.backgroundImage = "url(" + path + "left." + extension + ")";
+      obj.nextSibling.style.backgroundImage = "url(" + path + "right." + extension + ")";
+    }
+    if (settings.hiColor != null) {
+      obj.style.color = "";
+    }
+    if (settings.hiUnderline == true) {
+      obj.style.textDecoration = "";
+    }
+  };
+  
+  /**
+   * Handler for clicking a tab; changes the tab.
+   * @param {MouseEvent} e
+   * @returns {undefined}
+   */
+  this.tabSpanOnclick = function(e) {
+    var target = getTarget(e);
+    lastScrollLeft = target.parentNode.parentNode.scrollLeft; //topDiv is 2 nodes up.
+    if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
+    var tab = target.tabId;
+    if (me.container.ontabclick != null) {
+      var returnVal = me.container.ontabclick(tab);
+      if (returnVal == false) return;
+    }
+    if (me.container.tabKeys != null) {
+      var tabKeysArray = me.container.tabKeys.split(",");
+      if (tabKeysArray.length - 1 >= tab) {
+        var tabKey = tabKeysArray[tab];
+        tabKey = trim(tabKey);
+        if (tabKey != "") {
+          pressKey(tabKey);
+          return;
+        }
+      }
+    }
+    preValidationSelectedTab = me.selectedTab; //In case validation fails with "tab response", selectedTab will be restored.
+    var changed = false;
+    if (me.selectedTab != tab) changed = true;
+    if (changed) me.selectedTab = tab;
+    var design = inDesignMode();
+    if (design) {
+      var selection = toolbar.designer.selection;
+      if (selection.resizers.length > 1) selection.clear();
+    }
+    if (changed)
+      me.processTabChange(tab);
+  };
+  
+  /**
+   * Event handler to show an inline Edit Box on a tab in Designer.
+   * @param {MouseEvent} e
+   * @returns {undefined}
+   */
+  this.tabSpanOndblclick = function(e) {
+    if ( inDesignMode() ) {
+      var dom = designUtils.getTarget(e);
+      if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
+      // Get the widget's outer-most div.
+      var itmDom = dom.parentNode.parentNode.parentNode;
+      var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
+
+      // Add an inline edit-box and a handler for updating it.
+      if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
+        // onUpdate gets called inside InlineEditBox.update, after a call to InlineEditBox.hide.
+        itm.designer.inlineEditBox.onUpdate = function(newName) {
+          var idx = dom.tabId;
+
+          // Replace the old name with the new name. Convert string to array,
+          // modify element, convert back to string.
+          var propValue = itm.properties["tab names"];
+          if (propValue == "" || propValue == null) propValue = me.INITIALLIST;
+          var tabNames = pui.parseCommaSeparatedList(propValue);
+
+          tabNames[idx] = newName;
+          var propValue = tabNames.join(",");
+
+          // Apply the new value to the "tab names" property.
+          var nmodel = getPropertiesNamedModel();
+          var propConfig = nmodel["tab names"];
+          itm.designer.undo.add(itm, propConfig.name);
+          applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+          itm.propertiesChanged["tab names"] = true;
+          itm.changed = true;
+          itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+          itm.designer.propWindow.refreshProperty("tab names");
+          
+          // Clear onUpdate's closure references.
+          itm.designer.inlineEditBox.onUpdate = null;
+          dom = itmDom = itm = null;
+        };
+        itm.designer.inlineEditBox.show(itm, dom, me.getInlineEditBoxType() );
+      }
+    }
+  };
+  
+  /**
+   * Determines how InlineEditBox renders its editor. (Overridden)
+   * @returns {String}
+   */
+  this.getInlineEditBoxType = function(){
+    return "tab";
+  };
+  
+  /**
+   * Handle clicking the [+] icon: add a new tab and refresh the properties window.
+   * @returns {undefined}
+   */
+  this.addIconOnclick = function() {
+    var itm = toolbar.designer.getDesignItemByDomObj(me.container);
+    var propValue = itm.properties["tab names"];
+    if (pui.isTranslated(propValue)) {
+      // Number of tabs is controlled by this, 
+      // doesn't make sense to change.
+      return;
+    }
+    else if (pui.isBound(propValue)) {
+      var designValue = propValue.designValue;
+      if (designValue == null || designValue == "") designValue = me.INITIALLIST;
+      designValue = pui.parseCommaSeparatedList(designValue);
+      designValue.push("Tab " + (designValue.length + 1));
+      propValue.designValue = designValue.join(",");
+    }
+    else {
+      if (propValue == "" || propValue == null) propValue = me.INITIALLIST;
+      propValue = pui.parseCommaSeparatedList(propValue);
+      propValue.push("New Tab");
+      propValue = propValue.join(",");
+    }
+    // The new tab should be the selected tab.
+    var tabNames;
+    if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) tabNames = pui.parseCommaSeparatedList(propValue);
+    else tabNames = pui.parseCommaSeparatedList(propValue.designValue);
+    
+    me.selectedTab = tabNames.length - 1;
+    
+    // Setup the tab area to scroll all the way to the right; happens when scroll buttons are handled.
+    if (topDiv){
+      lastScrollLeft = topDiv.scrollWidth;  //This is too large but will be fixed later.
+    }
+    
+    var nmodel = getPropertiesNamedModel();
+    var propConfig = nmodel["tab names"];
+    itm.designer.undo.start("Add New Tab");
+    itm.designer.undo.add(itm, propConfig.name);
+    applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+    itm.propertiesChanged["tab names"] = true;
+    itm.changed = true;
+    itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+    itm.designer.selection.clear();
+    itm.designer.selection.add(itm);
+    itm.designer.propWindow.refresh();
+    
+    tabLayoutPreserveValues(itm);
+  };
+  
+  /**
+   * Handle clicking [-] icon. Remove the last tab and refresh the properties window.
+   * @returns {undefined}
+   */
+  this.removeIconOnclick = function() {
+    var itm = toolbar.designer.getDesignItemByDomObj(me.container);
+    var propValue = itm.properties["tab names"];
+    var tabNames;
+    if (pui.isTranslated(propValue)) {
+      // Number of tabs is controlled by this, 
+      // doesn't make sense to change.
+      return;          
+    }
+    else if (pui.isBound(propValue)) {
+      var designValue = propValue.designValue;
+      if (designValue == null || designValue == "") designValue = me.INITIALLIST;
+      propValue.designValue = designValue;
+      tabNames = pui.parseCommaSeparatedList(designValue);
+    }
+    else {
+      if (propValue == "" || propValue == null) propValue = me.INITIALLIST;
+      tabNames = pui.parseCommaSeparatedList(propValue);
+    }
+    if (tabNames.length > 1) {
+      // See if the tab Panel's last panel contains items. If yes, don't allow remove.
+      if ( me.cannotRemoveTab(tabNames.length - 1, itm) ) {
+        itm.designer.selection.clear();
+        itm.designer.selection.add(itm);
+        itm.designer.propWindow.refresh();
+        me.selectedTab = tabNames.length - 1;
+        me.draw();
+        pui.alert("The tab cannot be removed because it contains other elements that must be removed first.");
+      }
+      else {
+        // The tab panel's last panel doesn't contain items, or this is a Tab Layout.
+        tabNames.pop();
+        var origSelectedTab = me.selectedTab;
+        if (me.selectedTab > tabNames.length - 1) me.selectedTab = tabNames.length - 1;
+        if (pui.isBound(propValue) || pui.isTranslated(propValue)) propValue.designValue = tabNames.join(",");
+        else propValue = tabNames.join(",");
+        var nmodel = getPropertiesNamedModel();
+        var propConfig = nmodel["tab names"];
+        itm.designer.undo.start("Remove Tab");
+        itm.designer.undo.add(itm, propConfig.name);
+        applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+        // Update designer with the new property value. (If the layout rejected the change, these are replaced later.)
+        itm.propertiesChanged["tab names"] = true;
+        itm.changed = true;
+        itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+        itm.designer.propWindow.refreshProperty("tab names");
+        
+        // If a new TabLayout wasn't created, then applyProperty failed, and selectedTab should be restored.
+        if (itm.dom.tabLayout != null && itm.dom.tabLayout == me){
+          me.selectedTab = origSelectedTab;
+        }
+      }
+      tabLayoutPreserveValues(itm);
+    }
+  };
+  
+  /**
+   * Upon changing tab names, preserve values by copying from this object onto its replacement.
+   * Apply property causes a new TabLayout to get created, causing some values to be lost in the subclass.
+   * @param {DesignItem|Object} itm
+   * @returns {undefined}
+   */
+  function tabLayoutPreserveValues(itm){
+    if (itm.dom.tabLayout != null && itm.dom.tabLayout != me ){
+      itm.dom.tabLayout.selectedTab = me.selectedTab;   //Make sure the new tab is selected.
+      itm.dom.tabLayout.setLastScrollLeft(lastScrollLeft);  //Scroll to the new tab.
+      itm.dom.tabLayout.selectedTabChanged();
+      itm.dom.tabLayout.checkScrollButtons(); //scrolls to active and shows buttons, if necessary.
+    }
+  }
+  
+  // Allow tabLayoutPreserveValues to set a private variable (inside a closure).
+  this.setLastScrollLeft = function(lsl){
+    lastScrollLeft = lsl;
+  };
+  
+  /**
+   * Returns true if widgets are associated with the specified tab; else false.
+   * (Overridden in subclass, TabLayout.)
+   * @param {Number} removeTabNum   The tab number we're checking for removal.
+   * @param {Object} itm            The design item for this tab panel widget.
+   * @returns {Boolean}
+   */
+  this.cannotRemoveTab = function(removeTabNum, itm){
+    for (var i = 0; i < itm.designer.items.length; i++) {
+      var elem = itm.designer.items[i].dom;
+      if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
+        if (elem.parentTab == removeTabNum) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  
+  /**
+   * Create buttons to scroll tabs left/right, styled like the tabs. (Note: the functions were moved to class methods
+   * instead of anoymous declarations here to avoid new functions+closures repeatedly being allocated on resize, etc.)
+   * @returns {undefined}
+   */
+  this.addScrollButtons = function(){
+
+    leftScrollSpan = me.createScrollButton("left");
+    rightScrollSpan = me.createScrollButton("right");
+    
+    // Avoid overlapping the +/- buttons.
+    if( inDesignMode() ) rightScrollSpan.style.right = "35px";
+
+    // Setup the click handlers for both buttons.
+    leftScrollSpan.onmousedown = leftScroll_onmousedown;
+    // Stop scrolling.
+    leftScrollSpan.onmouseup = leftScroll_onmouseup;
+    leftScrollSpan.onmouseout = leftScrollSpan.onmouseup;
+    leftScrollSpan.ondrag = leftScrollSpan.onmouseup;
+
+    rightScrollSpan.onmousedown = rightScroll_onmousedown;
+    rightScrollSpan.onmouseup = rightScroll_onmouseup;
+    rightScrollSpan.onmouseout = rightScrollSpan.onmouseup;
+    rightScrollSpan.ondrag = rightScrollSpan.onmouseup;
+
+    me.container.appendChild(leftScrollSpan);
+    me.container.appendChild(rightScrollSpan);
+    
+    // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
+    // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
+    if( lastScrollLeft === null )
+    {
+      // The selected tab number should correspond to the array index of childNodes.
+      if( topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
+        var outerSpan = topDiv.childNodes[me.selectedTab];
+        // Put the selected tab in the middle of the tab panel.
+        lastScrollLeft = Math.round(outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2);
+      }
+      else lastScrollLeft = 0; //Or set to 0 for later math. (This case shouldn't normally happen.)
+    }
+    
+    me.checkScrollButtons();
+  };
+  
+  /**
+   * Scroll the top header div to the left when a scroll button is held down.
+   * @returns {undefined}
+   */
+  function scrollLeft(){
+    if( topDiv.scrollLeft > 0){
+      topDiv.scrollLeft -= curScrollIncrement;
+    }else{
+      clearInterval(scrollLeftIval);
+      leftScrollSpan.style.display = "none";
+    }
+    rightScrollSpan.style.display = "inline-block";
+    scrollCounter++;
+    // Scroll faster the longer the button is held.
+    if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+  }
+  
+  /**
+   * Scroll the top header div to the right when a scroll button is held down.
+   * @returns {undefined}
+   */
+  function scrollRight(){
+    // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
+    var leftMax = topDiv.scrollWidth - topDiv.offsetWidth;
+    if( topDiv.scrollLeft < leftMax){
+      // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
+      // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
+      try{topDiv.scrollLeft += curScrollIncrement;}catch(exc){}
+    }else{
+      clearInterval(scrollRightIval);
+      rightScrollSpan.style.display = "none";
+    }
+    leftScrollSpan.style.display = "inline-block";
+    scrollCounter++;
+    // Scroll faster the longer the button is held.
+    if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+  }
+  
+  // Start scrolling.
+  function leftScroll_onmousedown(){
+    // Reset increment amount and speed counter. Start scrolling.
+    curScrollIncrement = beginScrollIncrement;
+    scrollCounter = 0;
+    scrollLeftIval = setInterval(scrollLeft, 42);
+  }
+  function rightScroll_onmousedown(){
+    curScrollIncrement = beginScrollIncrement;
+    scrollCounter = 0;
+    scrollRightIval = setInterval(scrollRight, 42);
+  }
+  
+  // Stop scrolling.
+  function leftScroll_onmouseup(){
+    clearInterval(scrollLeftIval);
+  }
+  function rightScroll_onmouseup(){
+    clearInterval(scrollRightIval);
+  }
+  
+  /**
+   * Check which scroll buttons should be visible, and show them.
+   * @returns {undefined}
+   */
+  this.checkScrollButtons = function(){
+    // Calculate scrollLeftMax: how far from left is the element scrolled.
+    var topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
+
+    // Avoid showing scroll buttons if we are close enough to an end. Fixes
+    // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
+    if( (topDiv_scrollLeftMax - lastScrollLeft) <= 3) lastScrollLeft = topDiv_scrollLeftMax;
+    else if( lastScrollLeft <= 3 ) lastScrollLeft = 0;
+
+    // Restore the previous scrollLeft from before a tab was clicked, or to
+    // scroll to the active tab.
+    // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
+    // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
+    try{topDiv.scrollLeft = lastScrollLeft;}catch(exc){}
+
+    // Display either button only when needed.
+    if( topDiv.scrollLeft > 0 ){
+      leftScrollSpan.style.display = "inline-block";
+    }else {
+      leftScrollSpan.style.display = "";  //Stylesheet defaults these spans' display to none.
+    }
+
+    if( topDiv.scrollLeft < topDiv_scrollLeftMax){
+      rightScrollSpan.style.display = "inline-block";
+    }else{
+      rightScrollSpan.style.display = "";
+    }
+  };
+  
+  /**
    * Create a scroll left or right button in the same style as the tabs.
-   * 
+   *   (Overridden in subclass.)
    * @param {String} cssClass     Extra CSS class: left or right.
-   * @param {Object} settings     From pui.widgets.tabStyles.
-   * @param {String} extension    File type of background image.
-   * @param {String} path         URI path of background image.
-   * @param {String} borderColor  CSS color.
    * @returns {Object}            A span DOM element as the tab.
    */
-  function createScrollButton(cssClass, settings, extension, path, borderColor ){
+  this.createScrollButton = function(cssClass ){
     // Create a parent span to encapsulate the button image, left, and right border.
     // Note: image is defined by CSS rule like :before { content: url(); }
     var outerSpan = document.createElement("span");
@@ -879,7 +1124,7 @@ function TabPanel() {
     if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
 
     return outerSpan;
-  }//end createScrollButton().
+  };//end createScrollButton().
   
 }//end TabPanel constructor.
 
@@ -930,24 +1175,12 @@ pui.widgets.add({
       }
       
       if (!parms.design) {
-        // set and get current tab api's
-        parms.dom.setTab = function(tab) {
-          var changed = (parms.dom.tabPanel.selectedTab != tab);
-          parms.dom.tabPanel.selectedTab = tab;
-          if (changed) parms.dom.tabPanel.processTabChange(tab);
-        };
-        parms.dom.getTab = function() {
-          return parms.dom.tabPanel.selectedTab;
-        };
-        parms.dom.refresh = function() {
-          parms.dom.setTab(parms.dom.getTab());
-        };
-        parms.dom["hideTab"] = function(index) {
-          parms.dom.tabPanel.hideTab(index);
-        };
-        parms.dom["showTab"] = function(index) {
-          parms.dom.tabPanel.showTab(index);
-        };
+        // set and get current tab api's to the DOM element.
+        parms.dom.setTab = parms.dom.tabPanel.setTab;
+        parms.dom.getTab = parms.dom.tabPanel.getTab;
+        parms.dom.refresh = parms.dom.tabPanel.refresh;
+        parms.dom["hideTab"] = parms.dom.tabPanel.hideTab;
+        parms.dom["showTab"] = parms.dom.tabPanel.showTab;
       }
     },
     
