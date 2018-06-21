@@ -166,18 +166,28 @@ pui.layout.mergeProps = function(templateProps) {
  * @returns {Object}
  */
 pui.layout.adoptNamedProperty = function(propName){
-  var ret = {name: propName};
-  var nmodel = getPropertiesNamedModel();
-  if (nmodel[propName]){
-    try{
-      var adopted = JSON.stringify(nmodel[propName]);
-      adopted = JSON.parse(adopted);
-      delete adopted["controls"];
-      ret = adopted;
-    }
-    catch(exc){
-      console.log("error adopting property:", exc);
+  if (pui.layout.adoptedProperty === null || typeof pui.layout.adoptedProperty != "object"){
+    pui.layout.adoptedProperty = {};
+  }
+  
+  if (pui.layout.adoptedProperty[propName] == null){
+    // Create another cached copy of the global property for use by templates.
+    pui.layout.adoptedProperty[propName] = {name: propName};
+    var nmodel = getPropertiesNamedModel();
+    if (nmodel[propName] != null && typeof nmodel[propName] == "object"){
+      try{
+        // Add references to the global property in the new object.
+        for (var key in nmodel[propName] ){
+          pui.layout.adoptedProperty[propName][key] = nmodel[propName][key];
+        }
+        delete pui.layout.adoptedProperty[propName]["controls"];
+        //This may be added after property definitions are setup and has cyclic references and isn't needed.
+        delete pui.layout.adoptedProperty[propName].selection;
+      }
+      catch(exc){
+        console.log("error adopting property:", exc.message);
+      }
     }
   }
-  return ret;
+  return pui.layout.adoptedProperty[propName];
 };
