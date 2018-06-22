@@ -522,6 +522,10 @@ pui.render = function(parms) {
     if (rv) parms = rv;
   }
 
+  if (parms["pjsVersion"] != null) {
+    pui.pjsVersion = parms["pjsVersion"];
+  }
+
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
   
