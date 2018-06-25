@@ -7713,7 +7713,7 @@ pui.Grid = function() {
       { name: "padding top", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: "Sets the distance between the top edge of a grid cell and the cell's content." },
 
       { name: "Misc", category: true },    
-      { name: "css class", multOccur: (context == "dspf" ? true : false), attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
+      { name: "css class", type: "cssClass", multOccur: (context == "dspf" ? true : false), attribute: "class", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
       { name: "tool tip", type: "long", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
       { name: "user defined data", multOccur: true, help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
       { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: "Determines whether the element is visible or hidden." },
