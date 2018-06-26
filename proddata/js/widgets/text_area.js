@@ -33,7 +33,7 @@ function textArea_cleanUp(e) {
   lines.push("");
   var curLine = 0;
   var cursorPos = textArea_getCursorPosition(obj); 
-  var origCursorPos = cursorPos; 
+  var origCursorPos = cursorPos;
   if (!e) e = window.event;
   var key = e.which;
   if (!key) key = e.keyCode;
@@ -43,6 +43,7 @@ function textArea_cleanUp(e) {
 
   if (key == 8 && ename == "keyup") return;
   if (key == 8 && ename == "keydown" && cursorPos > 0) {  // backspace
+    if (pui["is_ie"] && val.length < cursorPos) cursorPos = val.length;
     if (val.substr(cursorPos-1, 1) == "\n") {
       val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
       cursorPos = cursorPos - 1;
@@ -75,7 +76,6 @@ function textArea_cleanUp(e) {
       e.cancelBubble = true;
     }
   }
-  
   var merge = false;
   var cursorLine;
   var tstLineLength = 0;
@@ -123,7 +123,7 @@ function textArea_cleanUp(e) {
     newVal += lines[i];
     if (i != curLine) {
       newVal += "\n";
-      if (newVal.length-1 <= cursorPos) cursorPos += 1;
+      if (newVal.length-1 < cursorPos) cursorPos += 1;
     }
   }
   var oldVal = obj.value.replace(/\r/g, "");
@@ -254,7 +254,7 @@ function textArea_getCursorPosition(textarea){
       }
       while ((!before_finished || !selection_finished || !after_finished));
       // Untrimmed success test to make sure our results match what is actually in the textarea
-      // This can be removed once you’re confident it’s working correctly
+      // This can be removed once youï¿½re confident itï¿½s working correctly
       //var untrimmed_text = untrimmed_before_text + untrimmed_selection_text + untrimmed_after_text;
       //var untrimmed_successful = false;
       //if (textarea.value == untrimmed_text) {
