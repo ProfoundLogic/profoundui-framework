@@ -25,6 +25,7 @@ function buildGraphicButton(parms) {
   var imageSource = parms.evalProperty("image source");
   var vectorIcon = parms.evalProperty("icon");
   var iconPosition = parms.evalProperty("icon position");
+  var cursorStyle = parms.evalProperty("cursor");
   var cssClass = parms.evalProperty("css class");
   if (cssClass) cssClass = trim(cssClass);
   if (parms.properties["value"] == "script: value") {
@@ -48,7 +49,7 @@ function buildGraphicButton(parms) {
     vectorIcon = trim(vectorIcon);
     if (vectorIcon.substr(0,9) == 'material:') {
       vectorIcon = trim(vectorIcon.substr(9));
-      icon = '<span class="pui-material-icons pui-material-icons-center ' + (cssClass? cssClass: '') +'">'+ vectorIcon + '</span>';
+      icon = '<span class="pui-material-icons pui-material-icons-center ' + (cssClass? cssClass + '"': '"') + (cursorStyle? 'style="cursor:'+cursorStyle + '"': '') + '>'+ vectorIcon + '</span>';
       if (value) value = '<span class="pui-material-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
     } else if (vectorIcon.substr(0,12) == 'fontAwesome:') {
       vectorIcon = trim(vectorIcon.substr(12));
@@ -104,8 +105,11 @@ pui.widgets.add({
     "css class": function(parms) {
       parms.properties["css class"] = parms.value;
       buildGraphicButton(parms);
+    },
+    "cursor": function(parms) {
+      parms.properties["cursor"] = parms.value;
+      buildGraphicButton(parms);
     }
-    
   }
   
 });

@@ -20,6 +20,7 @@ function handleIcon(parms) {
     var iconValue = parms.evalProperty("icon");
     var cssClass = parms.evalProperty("css class");
     var iconSize = parms.evalProperty("icon size");
+    var cursorStyle = parms.evalProperty("cursor");
     var iconDiv = document.createElement('div');
     // Remove the previous icon if it exists
     parms.dom.innerHTML = ''; 
@@ -29,6 +30,7 @@ function handleIcon(parms) {
         var icon = iconValue.substr(9);
         iconDiv.innerText = trim(icon);
         iconDiv.className = 'pui-material-icons';
+        if (cursorStyle) iconDiv.style.cursor = cursorStyle;
     } else if(iconValue.substr(0,12) == 'fontAwesome:') {
         var icon = trim(iconValue.substr(12));
         iconDiv.className = 'pui-fa-icons fa-' + icon;
@@ -77,6 +79,10 @@ pui.widgets.add ({
         },
         "css class": function(parms) {
             parms.properties["css class"] = parms.value;
+            handleIcon(parms);
+        },
+        "cursor": function(parms) {
+            parms.properties["cursor"] = parms.value;
             handleIcon(parms);
         }
     }

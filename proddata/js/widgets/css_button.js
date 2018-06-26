@@ -220,6 +220,11 @@ pui.CSSButton = function() {
     if (parts.length == 2) {
       styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
     }
+    if (styleName == 'cursor') {
+      iconSpan.style[styleName] = styleValue;
+      link.style[styleName] = styleValue;
+      innerSpan.style[styleName] = styleValue;
+    }
     if (styleName == "textAlign") {
       link.style[styleName] = styleValue;
     }
@@ -422,9 +427,10 @@ pui.widgets.add({
           parms.dom.firstChild.style.display = "";
         }
       }
+    },
+    "cursor": function(parms) {
+      parms.dom.button.setStyle("cursor", parms.value);
     }
-
-
   }
   
 });
