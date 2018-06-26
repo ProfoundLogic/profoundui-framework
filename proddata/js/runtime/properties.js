@@ -599,9 +599,16 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
     pui.assignShortcutKey(propertyValue, domObj);
   }
   if (propertyName == "focus class") {
-    domObj.focusClass = trim(propertyValue);
-    addEvent(domObj, "focus", pui.applyFocusClass);
-    addEvent(domObj, "blur", pui.removeFocusClass);
+    if (domObj["pui"]["properties"]["field type"] === "combo box") {
+      var box = domObj.comboBoxWidget.getBox();
+      box.focusClass = trim(propertyValue);
+      addEvent(box, "focus", pui.applyFocusClass);
+      addEvent(box, "blur", pui.removeFocusClass);
+    } else {
+      domObj.focusClass = trim(propertyValue);
+      addEvent(domObj, "focus", pui.applyFocusClass);
+      addEvent(domObj, "blur", pui.removeFocusClass);
+    }
   }
   if (propertyName == "required") {
     domObj.puirequired = (propertyValue == "true");

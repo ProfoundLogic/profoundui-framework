@@ -1630,9 +1630,16 @@ pui.renderFormat = function(parms) {
               }              
             }            
             if (propname == "focus class" && !pui.isBound(propValue) && trim(propValue) != "") {
-              dom.focusClass = trim(propValue);
-              addEvent(dom, "focus", pui.applyFocusClass);
-              addEvent(dom, "blur", pui.removeFocusClass);
+              if (dom["pui"]["properties"]["field type"] === "combo box") {
+                var box = dom.comboBoxWidget.getBox();
+                box.focusClass = trim(propValue);
+                addEvent(box, "focus", pui.applyFocusClass);
+                addEvent(box, "blur", pui.removeFocusClass);
+              } else {
+                dom.focusClass = trim(propValue);
+                addEvent(dom, "focus", pui.applyFocusClass);
+                addEvent(dom, "blur", pui.removeFocusClass);
+              }
             }
             if (propname == "required" && propValue == "true") {
               dom.puirequired = true;
@@ -5095,6 +5102,17 @@ pui.applyFocusClass = function(e) {
     cssClass += " " + dom.focusClass;
   }
   dom.className = cssClass;
+  // For Combo Boxes
+  if (dom.parentNode && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
+    var parent = dom.parentNode;
+    var parentClass = parent.className;
+    if (parentClass == null) parentClass = "";
+    parentClass = trim(parentClass);
+    if (parentClass.indexOf(dom.focusClass) == -1) {
+      parentClass += " " + dom.focusClass;
+    }
+    parent.className = parentClass;
+  }
 };
 
 
@@ -5107,6 +5125,17 @@ pui.removeFocusClass = function(e) {
     cssClass = cssClass.replace(dom.focusClass, "");
   }
   dom.className = trim(cssClass);
+  // For Combo Boxes
+  if (dom.parentNode && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
+    var parent = dom.parentNode;
+    var parentClass = parent.className;
+    if (parentClass == null) parentClass = "";
+    parentClass = trim(parentClass);
+    while (parentClass.indexOf(dom.focusClass) >= 0) {
+      parentClass = parentClass.replace(dom.focusClass, "");
+    }
+    parent.className = parentClass;
+  }
 };
 
 
