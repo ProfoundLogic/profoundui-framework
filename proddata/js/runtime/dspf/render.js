@@ -1330,7 +1330,7 @@ pui.renderFormat = function(parms) {
               dom.fieldNameSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
             }
             if (prop == "subfile changed") {
-              pui.subfileChangedFields[properties["record format name"]] = propValue.fieldName;
+              pui.subfileChangedFields[properties["record format name"]["toLowerCase"]()] = pui.fieldUpper(propValue.fieldName);
             }
           }
         }
@@ -3398,7 +3398,7 @@ pui.buildResponse = function() {
             response[rrnName].push(dom.subfileRow);
             pui.rrnTracker[trackerName] = true;
           }
-          var subfileChangedField = pui.subfileChangedFields[sflName];
+          var subfileChangedField = pui.subfileChangedFields[sflName["toLowerCase"]()];
           if (subfileChangedField != null) {
             response[sflName + "." + subfileChangedField + "." + dom.subfileRow] = "1";
           }
