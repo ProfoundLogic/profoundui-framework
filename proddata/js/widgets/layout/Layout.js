@@ -468,10 +468,39 @@ pui.layout.Layout = function() {
     function setupiScroll() {
       var parent = me.layoutDiv.parentNode;
       if (parent != null && parent.tagName == "DIV") {
+        if (pui["is_ios"]) {
+          document.body.addEventListener('tap', function (e) {
+            e["preventDefault"]();
+            e["stopPropagation"]();
+            e["stopImmediatePropagation"]();
+            var event = new MouseEvent('click',{
+              view: window,
+              bubbles: true,
+              cancelable: true
+            })
+            var target = getTarget(e);
+            if (target) {
+              if (!/^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/.test(target.tagName)) {
+                setTimeout(function() {
+                  var isCanceled = target.dispatchEvent(event);
+                  if (!isCanceled) {
+                    event["preventDefault"]();
+                    event["stopPropagation"]();
+                  }
+                },10);
+              }
+            } 
+          }, false);
+        }
         var config = {
           "scrollbars": true,
           "mouseWheel": true,
           "shrink": true,
+          "tap": pui["is_ios"],
+          "disableMouse": pui["is_ios"],
+          "preventDefaultException": {
+            tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/
+          },
           "onBeforeScrollStart": function (e) {
             var target = getTarget(e);
             while (target.nodeType != 1) target = target.parentNode;
