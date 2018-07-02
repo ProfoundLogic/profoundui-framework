@@ -2021,10 +2021,16 @@ function runPCCommand(arg) {
               document.body.appendChild(iframe);
 
               // This delay is necessary, because in some browsers (Chrome), the iframe isn't loaded without the delay.
+              // A long enough delay is necessary; otherwise, the command is unreliable #4597.
+              // 0ms is too short. A longer delay keeps the node in memory longer but shouldn't hurt anything.
               setTimeout(function(){
-                document.body.removeChild(iframe); //Remove the iframe; it's no longer needed.
+                // The iframe could be orphaned from the DOM if the screen changed before it was removed.
+                if (iframe != null && iframe.parentNode != null){
+                  document.body.removeChild(iframe); //Remove the iframe; it's no longer needed.
+                }
+                iframe = null;
                 doRunPCCommand();
-              }, 0);
+              }, 5000);
             }
             else if (response["error"]){
               console.log("PC Command signing error:",response["error"]);
