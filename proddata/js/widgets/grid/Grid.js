@@ -4100,6 +4100,12 @@ pui.Grid = function() {
         break;
         
       case "css class":
+        if (me.designMode) {
+          me.mainClass = value;
+          if (me.slidingScrollBar) {
+            me.scrollbarObj.setClassName(value);
+          }
+        }
         if (me.pagingBar != null) me.pagingBar.setClassName(value);
         break; 
         
