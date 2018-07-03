@@ -700,10 +700,10 @@ pui.SlidingScrollBar = function() {
       var prevent = false;
       if (event.preventDefault) prevent = true;
       if (me.gridDom && me.gridDom.grid.propagateScrollEvents) prevent = false;
-      if (prevent)
+      if (prevent) {
         event.preventDefault();
-      
-      event.returnValue = false;
+        event.returnValue = false;
+      }
     }
     
     /** Initialization code. 
