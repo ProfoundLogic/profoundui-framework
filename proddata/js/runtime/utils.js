@@ -422,8 +422,8 @@ if (!Array.prototype.reduce) {
   };
 }
 
-if (!Array.from) {
-  Array.from = (function () {
+if (!Array["from"]) {
+  Array["from"] = (function () {
     var toStr = Object.prototype.toString;
     var isCallable = function (fn) {
       return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
