@@ -636,7 +636,12 @@ pui.SlidingScrollBar = function() {
     if (touchBar != null) touchBar.style.height = (parseInt(outerDiv.style.height) + y - 2) + "px";
     else outerDiv.style.height = (parseInt(outerDiv.style.height) + y) + "px";
   };
-    
+
+  this.setClassName = function(value) {
+    outerDiv.className = 'pui-scrollbar'
+    if (me.gridDom.grid && value) outerDiv.className += ' ' + value + '-pui-scrollbar';
+  };
+
   this.hide = function() {
     outerDiv.style.visibility = "hidden";
     outerDiv.style.display = "none";
