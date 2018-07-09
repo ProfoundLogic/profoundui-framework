@@ -154,6 +154,17 @@ pui.GridMenu = function() {
       menuSubDiv.style.top = (top + menuSubDiv.row.offsetTop) + 'px';
       if (menuDiv.offsetLeft === maxLeft || left + menuDiv.offsetWidth > maxLeft)  menuSubDiv.style.left = (menuDiv.offsetLeft - menuSubDiv.offsetWidth) + 'px';
       else menuSubDiv.style.left = (menuDiv.offsetLeft + menuDiv.offsetWidth) + 'px';
+      if (menuSubDiv.gridHeight && menuSubDiv.menuHeight) {
+        var menuHeight = menuSubDiv.menuHeight;
+        var gridHeight = menuSubDiv.gridHeight;
+        if (menuHeight > gridHeight / 2) {
+          menuSubDiv.style.height = gridHeight / 2 + 'px';
+          menuSubDiv.style.overflowY = 'scroll';
+        } else {
+          menuSubDiv.style.overflowY = 'initial';
+          menuSubDiv.style.height = 'auto';
+        }
+      }
       menuSubDiv.style.display = 'none';
     }
   };
@@ -491,6 +502,12 @@ pui.GridMenu = function() {
         }
         parent.onmouseout = function (e) {
           menSubDivShowing = false;
+        }
+        if (me.grid.tableDiv) {
+          var gridHeight = parseInt(me.grid.tableDiv.style.height);
+          var listHeight = (z + 1) * 25;
+          parent.menuHeight = listHeight; 
+          parent.gridHeight = gridHeight;
         }
         menuSubDiv = parent;
         me.hideSub();
