@@ -127,12 +127,21 @@ pui.GridMenu = function() {
             offset.x += acont.offsetLeft;
             offset.y += acont.offsetTop;
           }
+          // Handle overflow scroll for column list in an container
+          if (menuSubDiv) {
+            var containerHeight = gridParent["getBoundingClientRect"]()["height"];
+            menuSubDiv.gridHeight = containerHeight;
+          }
         }//endif container.
         // Grid is not inside a layout/container. See 2612 for test cases.
         else{
           var ctrOffset = pui.getOffset(gridParent);
           offset.x = ctrOffset[0];
           offset.y = ctrOffset[1];
+          // Handle overflow scroll for column list
+          if (menuSubDiv) {
+            menuSubDiv.gridHeight = window.innerHeight;
+          }
         }
       }
       // Grid is not in a display file.
@@ -504,10 +513,8 @@ pui.GridMenu = function() {
           menSubDivShowing = false;
         }
         if (me.grid.tableDiv) {
-          var gridHeight = parseInt(me.grid.tableDiv.style.height);
           var listHeight = (z + 1) * 25;
           parent.menuHeight = listHeight; 
-          parent.gridHeight = gridHeight;
         }
         menuSubDiv = parent;
         me.hideSub();
