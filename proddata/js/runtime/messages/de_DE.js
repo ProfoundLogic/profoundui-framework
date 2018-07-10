@@ -229,7 +229,7 @@ var de_DE = function(dict) {
             dictMsg["about atrium"]                 = "Über Atrium";
             dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
                                                     + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
-                                                    + "Warnung: Dieses Computerprogramm ist durch das Urheberrecht  <br />"
+                                                    + "Warnung: Dieses Computerprogramm ist durch das Urheberrecht<br />"
                                                     + "und internationale Verträge geschützt. Die unerlaubte Vervielfältigung<br />"
                                                     + "oder Verbreitung dieses Programms oder eines Teils davon kann zu schwerwiegenden<br />"
                                                     + "zivil- und strafrechtlichen Konsequenzen führen und wird im größtmöglichen<br />"
@@ -358,10 +358,10 @@ var de_DE = function(dict) {
             dictMsg["user name hlp"]                = "Der Anzeigename dieses Benutzerprofils.";
             dictMsg["access role"]                  = "Zugriffsrolle";
             dictMsg["access role hlp"]              = "Steuert die Zugriffsrolle dieses Benutzers. Administratoren können alle Gruppen und Benutzer verwalten und auch Anwendungsadministratoren steuern. Manager können Benutzer- und Gruppeneinstellungen in ihrer eigenen Gruppe konfigurieren. Benutzer haben keine besonderen Berechtigungen.";
-            dictMsg["can edit profile"]             = "Can edit profile";
+            dictMsg["can edit profile"]             = "Kann Profil bearbeiten";
             dictMsg["can edit profile hlp"]         = "Ermöglicht dem Benutzer, die Einstellung \"appearance\" und \"navigation\" zu bearbeiten und das Passwort zu ändern. Alle anderen Einstellungen können vom Benutzer nie bearbeitet werden.";
             dictMsg["user profile"]                 = "Benutzerprofil";
-            dictMsg["user profile hlp"]             = "The user profile name. Benutzerprofilnamen unterscheiden zwischen Groß- und Kleinschreibung, sofern keine IBM i-Profile verwendet werden.";
+            dictMsg["user profile hlp"]             = "Der Name des Benutzerprofils. Benutzerprofilnamen unterscheiden zwischen Groß- und Kleinschreibung, sofern keine IBM i-Profile verwendet werden.";
             dictMsg["password hlp"]                 = "Setzen/Zurücksetzen das Passwort. Passwörter unterscheiden zwischen Groß- und Kleinschreibung.";
             dictMsg["conf password"]                = "Bestätige das Passwort";
             dictMsg["conf password hlp"]            = "Beim Setzen / Zurücksetzen des Passworts muss dieses Feld genau mit dem neuen Passwort übereinstimmen. Passwörter unterscheiden zwischen Groß- und Kleinschreibung.";
@@ -415,9 +415,9 @@ var de_DE = function(dict) {
             dictMsg["url hlp"]                      = "Legt die URL der Webanwendung fest. Dies kann entweder als absoluter Pfad oder als vollständig qualifizierte URL angegeben werden. Query Zeichenfolgen Parameter können in der URL angegeben werden.";
             dictMsg["genie url"]                    = "Genie URL";
             dictMsg["genie url hlp"]                = "Gibt die URL an, die zum Starten von Genie verwendet wird. Wenn nicht angegeben, wird die Standard-Genie-URL /profoundui/auth/genie verwendet. Dieses Feld ist nützlich, wenn alternative URL-URLs oder Abfragezeichenfolgen erforderlich sind. Beispielsweise: /profoundui/auth/genie?skin=MyCompany";
-            dictMsg["open as"]                      = "Open as";
+            dictMsg["open as"]                      = "Öffnen als";
             dictMsg["open as hlp"]                  = "Legt fest, ob das Element als neue Registerkarte im Portal oder als neues Browserfenster oder als neue Registerkarte gestartet wird. Ob der Browser ein neues Fenster oder eine neue Registerkarte verwendet, hängt von den Browsereinstellungen des Benutzers ab.";
-            dictMsg["opens once only"]              = "Opens once only";
+            dictMsg["opens once only"]              = "Öffnet nur einmal";
             dictMsg["opens once only hlp"]          = "Wenn der Benutzer dieses Element standardmäßig startet, obwohl im Portal bereits eine Registerkarte geöffnet ist, wird eine weitere Registerkarte für das Element geöffnet. Die Anzahl der Registerkarten, die der Benutzer auf diese Weise öffnen kann, ist nicht begrenzt. Wenn dieses Öffnen aktiviert ist, kann der Benutzer nicht mehr als eine Registerkarte für dieses Element öffnen. Wenn bereits ein Tab für das Objekt geöffnet ist, wenn der Benutzer es auswählt, wird das vorhandene Tab aktiviert. Diese Option wird ignoriert, wenn das Element in einem neuen Browserfenster oder Tab geöffnet wird.";
             dictMsg["icon"]                         = "Symbol";
             dictMsg["icon hlp"]                     = "Wahlweise. Legt eine Symboldatei fest, die für den Navigations- oder Symbolleisteneintrag verwendet werden soll. Die Symboldatei kann im GIF-, JPG- oder PNG-Format vorliegen. Transparente GIFs werden empfohlen. Der Pfad sollte als absoluter Pfad vom Stamm der Atrium-Installation angegeben werden. Wenn kein Symbol angegeben ist, verwendet Atrium ein Standardsymbol für Navigationselemente. Für Symbolleistenelemente wird kein Symbol angezeigt, es sei denn, sie sind hier angegeben.";
