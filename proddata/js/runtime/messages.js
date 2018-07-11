@@ -134,5 +134,5 @@ pui["runtimeText"]["pt_BR"] = pt_BR("runtimeText");
 pui["runtimeMsg"]["pt_PT"] = pt_PT("runtimeMsg");
 pui["runtimeText"]["pt_PT"] = pt_PT("runtimeText");
 
-pui["runtimeMsg"]["zh_ZH"] = zh_ZH("runtimeMsg");
-pui["runtimeText"]["zh_ZH"] = zh_ZH("runtimeText");
+pui["runtimeMsg"]["zh_HK"] = zh_HK("runtimeMsg");
+pui["runtimeText"]["zh_HK"] = zh_HK("runtimeText");
