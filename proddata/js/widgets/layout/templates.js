@@ -26,16 +26,16 @@ pui.layout["templates"] = {};
  * @param {String} templateName   Name of the template, also part of the IFS file name.
  * @returns {undefined}
  */
-pui.layout.retrieveTemplate = function(templateName) {
-  
+pui.layout.retrieveTemplate = function (templateName) {
+
   var url = templateName;
-  
-  if ( templateName.substr(0, 1) != "/" 
-      && templateName.substr(0, 5).toLowerCase() != "http:" 
-      && templateName.substr(0, 6).toLowerCase() != "https:"  ) {
-    url = "/profoundui/userdata/layouts/" + templateName + ".html"; 
+
+  if (templateName.substr(0, 1) != "/" &&
+    templateName.substr(0, 5).toLowerCase() != "http:" &&
+    templateName.substr(0, 6).toLowerCase() != "https:") {
+    url = "/profoundui/userdata/layouts/" + templateName + ".html";
   }
-  
+
   //Synchronously fetch the template HTML so that it's ready before pui.render. Issue 3548. Note: this makes a deprecated
   //warning appear in the console. An alternative is to adapt the "dependencies" feature to load the template before pui.render.
   var req = new pui.Ajax({
@@ -47,17 +47,17 @@ pui.layout.retrieveTemplate = function(templateName) {
   req.send();
   if (req.ok()) {
     pui.layout["templates"][templateName] = req.getResponseText();
-  }else{
+  } else {
     //Note: processHTML will fall back to "simple container", because this template didn't exist.
-    console.log("Failed to load custom layout template:",templateName);
+    console.log("Failed to load custom layout template:", templateName);
   }
 };
 
-pui["retrieveCustomLayoutTemplate"] = function(templateName) {
+pui["retrieveCustomLayoutTemplate"] = function (templateName) {
   pui.layout.retrieveTemplate(templateName);
 };
 
-pui["maximizeLayout"] = function(e) {
+pui["maximizeLayout"] = function (e) {
   var itemDom = getTarget(e).parentNode;
   var designer = toolbar.designer;
   var item = designer.getDesignItemByDomObj(itemDom);
@@ -113,16 +113,17 @@ pui.layout["templates"]["css panel"] = pui.layout.template.cssPanelTemplate;
 
 pui.layout["templates"]["accordion"] = pui.layout.template.accordionTemplate;
 
-pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;"
- + " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', help:'The style of the element&apos;s border.'};"
- + " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', help:'The width of the element&apos;s border.'};"
- + " border-color:{property:'border color', type:'color', defaultValue:'black', help:'The color of the element&apos;s border.'};"
-//Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
-//In the future, this template may need to be implemented in JavaScript.
- + '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'Alignment of the legend in the current element.(Left, Right, Center).\'}">'
- + '{property: "legend", help:"Text to display in the fieldset&apos;s legend."}</legend>'
- + '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>'
- +'</fieldset>';
+pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;" +
+  " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', help:'The style of the element&apos;s border.'};" +
+  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', help:'The width of the element&apos;s border.'};" +
+  " border-color:{property:'border color', type:'color', defaultValue:'black', help:'The color of the element&apos;s border.'};"
+  //Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
+  //In the future, this template may need to be implemented in JavaScript.
+  +
+  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'Alignment of the legend in the current element.(Left, Right, Center).\'}">' +
+  '{property: "legend", help:"Text to display in the fieldset&apos;s legend."}</legend>' +
+  '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
+  '</fieldset>';
 
 pui.layout["templates"]["responsive layout"] = pui.layout.template.responsiveLayoutTemplate;
 pui.layout["templates"]["tab panel"] = pui.layout.template.tabTemplate;
@@ -132,7 +133,7 @@ pui.layout["templates"]["tab panel"] = pui.layout.template.tabTemplate;
  * allowing Designer to show the list of templates in the "template" property.
  * @returns {Array}
  */
-pui.layout.getTemplateList = function() {
+pui.layout.getTemplateList = function () {
   var templates = pui.layout["templates"];
   var list = [];
   for (var x in templates) {
@@ -142,16 +143,15 @@ pui.layout.getTemplateList = function() {
 };
 
 
-pui.layout.mergeProps = function(templateProps) {
+pui.layout.mergeProps = function (templateProps) {
   var props = [];
   var layoutProps = pui.layout.getPropertiesModel();
   for (var i = 0; i < layoutProps.length; i++) {
     if (layoutProps[i].templateProperties == true) {
       for (var j = 0; j < templateProps.length; j++) {
         props.push(templateProps[j]);
-      }      
-    }
-    else {
+      }
+    } else {
       props.push(layoutProps[i]);
     }
   }
@@ -165,26 +165,27 @@ pui.layout.mergeProps = function(templateProps) {
  * @param {String} propName
  * @returns {Object}
  */
-pui.layout.adoptNamedProperty = function(propName){
-  if (pui.layout.adoptedProperty === null || typeof pui.layout.adoptedProperty != "object"){
+pui.layout.adoptNamedProperty = function (propName) {
+  if (pui.layout.adoptedProperty === null || typeof pui.layout.adoptedProperty != "object") {
     pui.layout.adoptedProperty = {};
   }
-  
-  if (pui.layout.adoptedProperty[propName] == null){
+
+  if (pui.layout.adoptedProperty[propName] == null) {
     // Create another cached copy of the global property for use by templates.
-    pui.layout.adoptedProperty[propName] = {name: propName};
+    pui.layout.adoptedProperty[propName] = {
+      name: propName
+    };
     var nmodel = getPropertiesNamedModel();
-    if (nmodel[propName] != null && typeof nmodel[propName] == "object"){
-      try{
+    if (nmodel[propName] != null && typeof nmodel[propName] == "object") {
+      try {
         // Add references to the global property in the new object.
-        for (var key in nmodel[propName] ){
+        for (var key in nmodel[propName]) {
           pui.layout.adoptedProperty[propName][key] = nmodel[propName][key];
         }
         delete pui.layout.adoptedProperty[propName]["controls"];
         //This may be added after property definitions are setup and has cyclic references and isn't needed.
         delete pui.layout.adoptedProperty[propName].selection;
-      }
-      catch(exc){
+      } catch (exc) {
         console.log("error adopting property:", exc.message);
       }
     }
