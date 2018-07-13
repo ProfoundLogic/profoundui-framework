@@ -10,7 +10,7 @@
 //
 //  The Profound UI Runtime is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //  GNU Lesser General Public License for more details.
 //
 //  You should have received a copy of the GNU Lesser General Public License
@@ -1376,8 +1376,8 @@ pui.Grid = function () {
     var el = field.domEls[rowNum - 1];
 
     // If an element has never been rendered, there is no way to mark it "modified" because
-    // there is no DOM element.  As a workaround, we'll add a simple object containing 
-    // the value to the pui.responseElements array.  If this does get rendered, the
+    // there is no DOM element. As a workaround, we'll add a simple object containing 
+    // the value to the pui.responseElements array. If this does get rendered, the
     // code in runtime/dspf/render.js will replace this object with the real DOM element.
 
     if (el == null) {
@@ -2198,7 +2198,7 @@ pui.Grid = function () {
         else headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (me.columnHeadings[i] ? me.columnHeadings[i] : "") + '</div>';
         centerHeadingVertically(headerCell);
       }
-      // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.      
+      // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.     
       if (hasFilter) {
         me.setFilterIcon(headerCell);
       }
@@ -3185,7 +3185,7 @@ pui.Grid = function () {
                 me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
                 if (me.tableDiv.style.visibility != "hidden") {
                   // Pass true to the draw method to stop the scrollbar from scrolling 
-                  // and causing the grid to re-render the items #4262.  
+                  // and causing the grid to re-render the items #4262. 
                   me.scrollbarObj.draw(true);
                 }
               };
@@ -5334,7 +5334,7 @@ pui.Grid = function () {
 
         // It would be nice to just create and dispatch a 'MouseEvent' here.
         // However, the documentation on this is poor, and it was not clear how to set the 
-        // 'pageX' and 'pageY' properties on the created event through this interface.         
+        // 'pageX' and 'pageY' properties on the created event through this interface.        
         // The 'pui.getMouseX/Y' calls in the mousedown code look at these to position the menu. 
 
         e.button = 3;
@@ -5798,7 +5798,7 @@ pui.Grid = function () {
    * @param {Number} limit       max number of records to return - defaults to 99
    * @param {Number} start       starting record (allows for paging) - defaults to 1
    * @param {Function} callback  callback function; usually receiveData.
-   * @param {Boolean} total      optional total flag -- when true the server will return total record count on response object.  
+   * @param {Boolean} total      optional total flag -- when true the server will return total record count on response object. 
    * @param {String} customURL   optional custom url to process the request (overrides the standard process)
    * @param {Boolean} cache      True when pui.sqlcache should be used.
    * @returns {undefined|response.results|pui.sqlcache.results}
@@ -6619,7 +6619,7 @@ pui.Grid = function () {
 
     // Look at each runtimeChildren for any belonging to the headerCell's column.
     // We can't use headerCell.fieldName, because it only gets one of a column's
-    // fields. There may be multiple fields.   MD.
+    // fields. There may be multiple fields.  MD.
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
       var col = Number(itm["column"]);
@@ -7905,13 +7905,13 @@ pui.Grid = function () {
         name: "id",
         maxLength: 75,
         attribute: "id",
-        help: "Sets the ID of the grid.",
+        help: helpTextGridProperties("id","Sets the ID of the grid.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "record format name",
-        help: "Identifies the record format that is used to access this grid from server code.",
+        help: helpTextGridProperties("blank","Identifies the record format that is used to access this grid from server code.",[],""),
         maxLength: (pui.viewdesigner ? null : 10),
         bind: false,
         context: "dspf",
@@ -7919,21 +7919,21 @@ pui.Grid = function () {
       },
       {
         name: "description",
-        help: "Describes the record format.",
+        help: helpTextGridProperties("blank","Describes the record format.",[],""),
         bind: false,
         context: "dspf"
       },
       {
         name: "parent window",
         attribute: "parentWindow",
-        help: "Sets the window that this field belongs to.",
+        help: helpTextGridProperties("blank","Sets the window that this field belongs to.",[],""),
         context: "genie"
       },
       {
         name: "screen identifier",
         choices: ["true", "false"],
         blankChoice: false,
-        help: "If set to true, this element will be used to detect the screen.  The identifier element should be a static output field that is unique to this screen.  For example, if the screen has a unique heading, it can be used as the identifier.  At least one element on the screen must be marked as an identifier before you can save the screen.  When appropriate, you can use a combination of several elements to uniquely identify the screen.",
+        help: helpTextGridProperties("false","If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.",[],""),
         context: "genie"
       },
       {
@@ -7941,13 +7941,13 @@ pui.Grid = function () {
         displayName: "widget type",
         choices: ["grid"],
         blankChoice: false,
-        help: "Determines the type of control that is used to render the element.",
+        help: helpTextGridProperties("widget","Determines the type of control that is used to render the element.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "value",
-        help: "Sets the initialization value for the current element."
+        help: helpTextGridProperties("blank","Sets the initialization value for the current element.",[],"")
       },
 
       {
@@ -7960,7 +7960,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property tells the system when to display grid records.  It represents the SFLDSP keyword.",
+        help: helpTextGridProperties("true","This property tells the system when to display grid records. It represents the SFLDSP keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -7969,7 +7969,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property tells the system when to display the subfile control record.  It represents the SFLDSPCTL keyword.",
+        help: helpTextGridProperties("false","This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -7978,7 +7978,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property tells the system to initialize all records within the subfile.  It represents the SFLINZ keyword.",
+        help: helpTextGridProperties("false","This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -7986,7 +7986,7 @@ pui.Grid = function () {
         name: "subfile records not active",
         choices: ["true", "false"],
         bind: false,
-        help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records.  It represents the SFLRNA keyword.",
+        help: helpTextGridProperties("false","This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -7995,7 +7995,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property tells the system when to delete the subfile area.  It represents the SFLDLT keyword.",
+        help: helpTextGridProperties("false","This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8004,7 +8004,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property tells the system when to clear all records from the subfile.  It represents the SFLCLR keyword.",
+        help: helpTextGridProperties("false","This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8013,7 +8013,7 @@ pui.Grid = function () {
         format: "number",
         hideFormatting: true,
         validDataTypes: ["zoned"],
-        help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records).  If this property is not specified, the subfile page value plus one is used.  The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.",
+        help: helpTextGridProperties("blank","This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8022,21 +8022,21 @@ pui.Grid = function () {
         format: "number",
         hideFormatting: true,
         validDataTypes: ["zoned", "reference"],
-        help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."),
+        help: helpTextGridProperties("blank","This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."),[],""),
         context: "dspf"
       },
       {
         name: "position at top",
         choices: ["true", "false"],
         bind: false,
-        help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."),
+        help: helpTextGridProperties("false","When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."),[],""),
         context: "dspf"
       },
       {
         name: "place cursor",
         choices: ["true", "false"],
         bind: false,
-        help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."),
+        help: helpTextGridProperties("false","When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8044,7 +8044,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."),
+        help: helpTextGridProperties("false","This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8052,7 +8052,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records.  The program can cause a record to be changed so that a get-next-changed operation must read the record again.",
+        help: helpTextGridProperties("false","This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8062,13 +8062,13 @@ pui.Grid = function () {
         format: "number",
         hideFormatting: true,
         validDataTypes: ["zoned"],
-        help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."),
+        help: helpTextGridProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."),[],""),
         context: "dspf"
       },
       {
         name: "cursor progression",
         choices: ["left to right", "top to bottom"],
-        help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."),
+        help: helpTextGridProperties("left to right","This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8077,7 +8077,7 @@ pui.Grid = function () {
         format: "number",
         hideFormatting: true,
         validDataTypes: ["zoned", "reference"],
-        help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."),
+        help: helpTextGridProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8086,7 +8086,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["indicator"],
-        help: "Specifies a response indicator that is set on if the input data within the subfile is modified.",
+        help: helpTextGridProperties("bind","Specifies a response indicator that is set on if the input data within the subfile is modified.",[],""),
         context: "dspf"
       },
 
@@ -8102,7 +8102,7 @@ pui.Grid = function () {
         hideFormatting: true,
         validDataTypes: ["char"],
         defaultDataLength: 4,
-        help: "This property specifies a field that is used to select messages from a program message queue for display.  Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.",
+        help: helpTextGridProperties("bind","This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8111,7 +8111,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["char"],
-        help: "This property specifies a field that contains the name of the program message queue used to build a message subfile.  It represents the SFLPGMQ keyword on a subfile record format.",
+        help: helpTextGridProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile. It represents the SFLPGMQ keyword on a subfile record format.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8120,7 +8120,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["char"],
-        help: "This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property.  It represents the SFLPGMQ keyword on a subfile control record format.",
+        help: helpTextGridProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property. It represents the SFLPGMQ keyword on a subfile control record format.",[],""),
         context: "dspf",
         viewdesigner: false
       },
@@ -8132,58 +8132,58 @@ pui.Grid = function () {
       {
         name: "font family",
         choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."],
-        help: "The font face for the text inside the grid.  To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts."
+        help: helpTextGridProperties("css","The font face for the text inside the grid. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other", "font"],"")
       },
       {
         name: "font size",
         format: "px",
         choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."],
-        help: "The size of the text inside the grid.  To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes."
+        help: helpTextGridProperties("css","The size of the text inside the grid. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"],"")
       },
       {
         name: "font style",
         format: "italic / normal",
         choices: ["normal", "italic", "oblique", "Other..."],
-        help: "The style of the font in the grid.  To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles."
+        help: helpTextGridProperties("css","The style of the font in the grid. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"],"")
       },
       {
         name: "font variant",
         choices: ["normal", "small-caps", "Other..."],
-        help: "Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter."
+        help: helpTextGridProperties("css","Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter.",["other"],"")
       },
       {
         name: "font weight",
         format: "bold / normal",
         choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."],
-        help: "Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights."
+        help: helpTextGridProperties("css","Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"],"")
       },
       {
         name: "letter spacing",
         format: "px",
         choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."],
-        help: "Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
       {
         name: "text align",
         choices: ["left", "right", "center", "justify", "Other..."],
-        help: "Alignment of text inside cells of the grid element.  To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Alignment of text inside cells of the grid element. To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
       {
         name: "text decoration",
         format: "underline / none",
         choices: ["none", "underline", "overline", "line-through", "Other..."],
-        help: "Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
       {
         name: "text transform",
         choices: ["capitalize", "uppercase", "lowercase", "none", "Other..."],
-        help: "Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
       {
         name: "word spacing",
         format: "px",
         choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."],
-        help: "Spacing between each word in the cells of the grid.  To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
 
       {
@@ -8196,61 +8196,61 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Determines whether the grid has a header row."
+        help: helpTextGridProperties("true","Determines whether the grid has a header row.",[],"")
       },
       {
         name: "header height",
-        help: "Specifies the height of the header row.  This can also be specified by dragging the grid's top border with the mouse.",
+        help: helpTextGridProperties("theme","Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "header font family",
         choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."],
-        help: "The font face for the text inside the grid header row.  To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts."
+        help: helpTextGridProperties("css","The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other","font"],"")
       },
       {
         name: "header font size",
         format: "px",
         choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."],
-        help: "The size of the text inside the grid header row.  To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes."
+        help: helpTextGridProperties("css","The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"],"")
       },
       {
         name: "header font style",
         format: "bold / normal",
         choices: ["normal", "italic", "oblique", "Other..."],
-        help: "Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles."
+        help: helpTextGridProperties("css","Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"],"")
       },
       {
         name: "header font weight",
         format: "italic / normal",
         choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."],
-        help: "Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights."
+        help: helpTextGridProperties("css","Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"],"")
       },
       {
         name: "header text align",
         choices: ["left", "right", "center", "justify", "Other..."],
-        help: "Alignment of text inside the cells of the grid header row.  To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values."
+        help: helpTextGridProperties("css","Alignment of text inside the cells of the grid header row. To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values.",["other"],"")
       },
       {
         name: "header font color",
         type: "color",
-        help: "Defines the color of the text inside the header row.  To define a different color for each grid cell in the header row, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the color of the text inside the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["color"],"")
       },
       {
         name: "header background",
         type: "color",
-        help: "Defines the background color of the header row.  To define a different color for each grid cell in the header row, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the background color of the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["background color"],"")
       },
       {
         name: "header image",
         type: "image",
-        help: "Defines a repeating background image for the header row."
+        help: helpTextGridProperties("css","Defines a repeating background image for the header row.",[],"")
       },
       {
         name: "column headings",
         type: "list",
-        help: "Specifies a comma separated list of heading text for each column of the grid.",
+        help: helpTextGridProperties("placeholder","Specifies a comma separated list of heading text for each column of the grid.",[],""),
         translate: true
       },
 
@@ -8261,55 +8261,55 @@ pui.Grid = function () {
       {
         name: "odd row font color",
         type: "color",
-        help: "Defines the color of text inside the odd rows of the grid.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the color of text inside the odd rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color","note"],"This only applies to text displayed in a database driven grid.")
       },
       {
         name: "odd row background",
         type: "color",
-        help: "Defines the background color of the odd rows in the grid.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the background color of the odd rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"")
       },
       {
         name: "even row font color",
         type: "color",
-        help: "Defines the color of text inside the even rows of the grid.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the color of text inside the even rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color","note"],"This only applies to text displayed in a database driven grid.")
       },
       {
         name: "even row background",
         type: "color",
-        help: "Defines the background color of the even rows in the grid.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the background color of the even rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"")
       },
       {
         name: "row font color",
         type: "color",
-        help: "Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.",
+        help: helpTextGridProperties("css","Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.",["color", "note"],"This only applies to text displayed in a database driven grid. This property, if defined, will be used instead of <i>even row font color</i> and <i>odd row font color</i>."),
         context: "dspf"
       },
       {
         name: "row background",
         type: "color",
-        help: "Defines the background color of an individual row. You can define a dynamic background color for each record by binding this property to a field.",
+        help: helpTextGridProperties("css","Defines the background color of an individual row. You can define a dynamic background color for each record by binding this property to a field.",["background color", "note"],"This property, if defined, will be used instead of <i>even row background</i> and <i>odd row background</i>."),
         context: "dspf"
       },
       {
         name: "hover font color",
         type: "color",
-        help: "Defines the color of text when the user hovers the mouse cursor over a grid row.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the color of text when the user hovers the mouse cursor over a grid row. To define a different color for each grid column, specify a comma separated list of color values.",["color"],"")
       },
       {
         name: "hover background",
         type: "color",
-        help: "Defines the background color of a grid row when the user hovers the mouse cursor over it.  To define a different color for each grid column, specify a comma separated list of color values."
+        help: helpTextGridProperties("css","Defines the background color of a grid row when the user hovers the mouse cursor over it. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"")
       },
       {
         name: "selection font color",
         type: "color",
-        help: "Defines the color of text when the user selects a grid row.",
+        help: helpTextGridProperties("css","Defines the color of text when the user selects a grid row.",["color"],""),
         context: "dspf"
       },
       {
         name: "selection background",
         type: "color",
-        help: "Defines the background color of a grid row when the user selects it.",
+        help: helpTextGridProperties("css","Defines the background color of a grid row when the user selects it.",["background color"],""),
         context: "dspf"
       },
 
@@ -8319,19 +8319,19 @@ pui.Grid = function () {
       },
       {
         name: "number of rows",
-        help: "Specifies the number of rows in the grid, including the header row.",
+        help: helpTextGridProperties("theme","Specifies the number of rows in the grid, including the header row.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "number of columns",
-        help: "Specifies the number of columns in the grid.",
+        help: helpTextGridProperties("theme","Specifies the number of columns in the grid.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "row height",
-        help: "Specifies the height that will be applied to each row, not including the header row.  This can also be controlled by resizing the grid with the mouse.",
+        help: helpTextGridProperties("theme","Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse.",[],""),
         bind: false,
         canBeRemoved: false
       },
@@ -8341,17 +8341,17 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Determines whether the grid rows will be highlighted when the user hovers the mouse over them."
+        help: helpTextGridProperties("theme","Determines whether the grid rows will be highlighted when the user hovers the mouse over them.",[],"")
       },
       {
         name: "hover image",
         type: "image",
-        help: "Defines a repeating cell background image for the hover effect."
+        help: helpTextGridProperties("theme","Defines a repeating cell background image for the hover effect.",[],"")
       },
       {
         name: "row selection",
         choices: ["none", "single", "multiple (simple)", "multiple (extended)"],
-        help: "Determines if rows within the grid can be selected by the user with a click of the mouse.  <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys"
+        help: helpTextGridProperties("none","Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys",[],"")
       },
       {
         name: "selection field",
@@ -8360,36 +8360,36 @@ pui.Grid = function () {
         hideFormatting: true,
         validDataTypes: ["char", "indicator"],
         defaultDataLength: 1,
-        help: "This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record.  If a character field is specified, the selection value property will be used to populate the field when a row is selected.",
+        help: helpTextGridProperties("bind","This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected.",[],""),
         context: "dspf"
       },
       {
         name: "selection value",
-        help: "Specifies the value used to populate the selection field when a grid row is selected.",
+        help: helpTextGridProperties("blank","Specifies the value used to populate the selection field when a grid row is selected.",[],""),
         bind: false,
         context: "dspf"
       },
       {
         name: "selection image",
         type: "image",
-        help: "Defines a repeating cell background image for row selection."
+        help: helpTextGridProperties("theme","Defines a repeating cell background image for row selection.",[],"")
       },
       {
         name: "column widths",
         type: "list",
-        help: "Specifies a comma separated list of column widths for this grid.",
+        help: helpTextGridProperties("theme","Specifies a comma separated list of column widths for this grid.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "scrollbar",
         choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"],
-        help: (context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid.  If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid.  A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only."
+        help: helpTextGridProperties("sliding", ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only."),[],"")
       },
       {
         name: "scroll tool tip",
         choices: ["none", "row number", "row range"],
-        help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.",
+        help: helpTextGridProperties("true","Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.",[],""),
         context: "dspf"
       },
       {
@@ -8398,7 +8398,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.",
+        help: helpTextGridProperties("false","When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.",["other"],""),
         context: "dspf"
       },
       {
@@ -8407,24 +8407,24 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Enables column sorting.  If set to true, the user will be able to click on the column headings to resort the data.",
+        help: helpTextGridProperties("false","Enables column sorting. If set to true, the user will be able to click on the column headings to resort the data.",[],""),
         context: "dspf"
       },
       {
         name: "default sort order",
         choices: ["Ascending", "Descending", "Other..."],
-        help: "Specifies the default order for sortable columns.  When the user clicks a column, the default sort order is used initially.  To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list.  Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.",
+        help: helpTextGridProperties("Descending","Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.",["other"],""),
         context: "dspf"
       },
       {
         name: "initial sort column",
         format: "number",
-        help: "This property specifies the column used to for initial sorting.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",
+        help: helpTextGridProperties("blank","This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",[],""),
         context: "dspf"
       },
       {
         name: "initial sort field",
-        help: "This property specifies the field name used to identify the column for initial sorting.  If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",
+        help: helpTextGridProperties("blank","This property specifies the field name used to identify the column for initial sorting. If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",[],""),
         hideFormatting: true,
         validDataTypes: ["char"],
         context: "dspf"
@@ -8435,13 +8435,13 @@ pui.Grid = function () {
         hideFormatting: true,
         readOnly: true,
         validDataTypes: ["zoned"],
-        help: "Specifies a response variable to receive a column number for server-side sorting.  If omitted, client-side sorting is used.  The response is a numeric value that represents a column in the grid.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.",
+        help: helpTextGridProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.",[],""),
         context: "dspf"
       },
       {
         name: "field name sort response",
         readOnly: true,
-        help: "Specifies a response variable to receive a field name used for server-side sorting.  If omitted, client-side sorting is used.  The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.",
+        help: helpTextGridProperties("bind","Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.",[],""),
         hideFormatting: true,
         validDataTypes: ["char"],
         context: "dspf"
@@ -8452,7 +8452,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Allows the user to resize grid columns at run time.",
+        help: helpTextGridProperties("false","Allows the user to resize grid columns at run time.",[],""),
         context: "dspf"
       },
       {
@@ -8461,7 +8461,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Allows the user to rearrange grid columns at run time.",
+        help: helpTextGridProperties("false","Allows the user to rearrange grid columns at run time.",[],""),
         context: "dspf"
       },
       {
@@ -8470,7 +8470,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.",
+        help: helpTextGridProperties("false","Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.",[],""),
         context: "dspf"
       },
       {
@@ -8479,7 +8479,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Presents an option to search grid data when the grid heading is right-clicked.",
+        help: helpTextGridProperties("false","Presents an option to search grid data when the grid heading is right-clicked.",[],""),
         context: "dspf"
       },
       {
@@ -8488,7 +8488,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Presents an option to filter grid data when the grid heading is right-clicked.",
+        help: helpTextGridProperties("false","Presents an option to filter grid data when the grid heading is right-clicked.",[],""),
         context: "dspf"
       },
       {
@@ -8497,7 +8497,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.",
+        help: helpTextGridProperties("false","Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.",[],""),
         context: "dspf"
       },
 
@@ -8508,7 +8508,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.",
+        help: helpTextGridProperties("false","Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.",[],""),
         context: "dspf"
       },
       {
@@ -8517,7 +8517,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.",
+        help: helpTextGridProperties("false","Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.",[],""),
         context: "dspf"
       },
       {
@@ -8526,12 +8526,12 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false.",
+        help: helpTextGridProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false.",[],""),
         context: "dspf"
       },
       {
         name: "context menu id",
-        help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.",
+        help: helpTextGridProperties("blank","Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.",[],""),
         hideFormatting: true,
         validDataTypes: ["char"]
       },
@@ -8546,14 +8546,14 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "Displays links for navigating to the previous page and the next page of records."
+        help: helpTextGridProperties("false","Displays links for navigating to the previous page and the next page of records.",[],"")
       },
       {
         name: "show page number",
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "This property determines whether the page number should display within the paging bar.",
+        help: helpTextGridProperties("false","This property determines whether the page number should display within the paging bar.",[],""),
         context: "dspf"
       },
       {
@@ -8561,7 +8561,7 @@ pui.Grid = function () {
         format: "number",
         hideFormatting: true,
         validDataTypes: ["zoned"],
-        help: "Specifies the initial page number to use when the page number is displayed within the paging bar.  If not specified, page number 1 is used.",
+        help: helpTextGridProperties("1","Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used.",[],""),
         context: "dspf"
       },
       {
@@ -8569,7 +8569,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed.  This can be used to show miscellaneous information such as column totals.",
+        help: helpTextGridProperties("false","Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals.",[],""),
         context: "dspf"
       },
       {
@@ -8579,7 +8579,7 @@ pui.Grid = function () {
         readOnly: true,
         format: "true / false",
         type: "boolean",
-        help: "Determines if the next page link is enabled.",
+        help: helpTextGridProperties("bind","Determines if the next page link is enabled.",[],""),
         context: "dspf"
       },
       {
@@ -8588,7 +8588,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["indicator"],
-        help: "Specifies a response indicator that is returned to your program when the next page link is clicked.",
+        help: helpTextGridProperties("bind","Specifies a response indicator that is returned to your program when the next page link is clicked.",[],""),
         context: "dspf"
       },
       {
@@ -8598,7 +8598,7 @@ pui.Grid = function () {
         readOnly: true,
         format: "true / false",
         type: "boolean",
-        help: "Determines if the previous page link is enabled.",
+        help: helpTextGridProperties("bind","Determines if the previous page link is enabled.",[],""),
         context: "dspf"
       },
       {
@@ -8607,7 +8607,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["indicator"],
-        help: "Specifies a response indicator that is returned to your program when the previous page link is clicked.",
+        help: helpTextGridProperties("bind","Specifies a response indicator that is returned to your program when the previous page link is clicked.",[],""),
         context: "dspf"
       },
 
@@ -8617,7 +8617,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")
+        help: helpTextGridProperties("false","Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"")
       },
       {
         name: "xlsx export",
@@ -8625,7 +8625,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")
+        help: helpTextGridProperties("false","Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"")
       },
       {
         name: "xlsx export pics",
@@ -8633,12 +8633,12 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Include pictures in the XLSX Export. This option only works for Load-All subfiles.",
+        help: helpTextGridProperties("false","Include pictures in the XLSX Export. This option only works for Load-All subfiles.",[],""),
         context: "dspf"
       },
       {
         name: "export file name",
-        help: "Defines the name of the download file used to export grid data to CSV or XLSX formats.  The .xlsx or .csv extension is automatically appended to the name.  If omitted, the record format name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),
+        help: helpTextGridProperties("blank","Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the record format name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],""),
         translate: true
       },
       {
@@ -8647,7 +8647,7 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")
+        help: helpTextGridProperties("false","Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"")
       },
 
       {
@@ -8658,7 +8658,7 @@ pui.Grid = function () {
       {
         name: "fold multiple",
         choices: ["2", "3", "4", "Other..."],
-        help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.   The multiple represents the number of collapsed rows that can fit into one expanded row.",
+        help: helpTextGridProperties("blank","The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.",["other"],""),
         bind: false,
         context: "dspf"
       },
@@ -8667,7 +8667,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."),
+        help: helpTextGridProperties("false","Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8675,7 +8675,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."),
+        help: helpTextGridProperties("false","Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."),[],""),
         context: "dspf"
       },
       {
@@ -8684,7 +8684,7 @@ pui.Grid = function () {
         readOnly: true,
         hideFormatting: true,
         validDataTypes: ["char", "indicator"],
-        help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword.  The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."),
+        help: helpTextGridProperties("bind","This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."),[],""),
         context: "dspf"
       },
       {
@@ -8692,7 +8692,7 @@ pui.Grid = function () {
         choices: ["true", "false"],
         hideFormatting: true,
         validDataTypes: ["indicator", "expression"],
-        help: "Determines if a zoom icon is shown on collapsed rows.  Once the user clicks the icon, the row is expanded.  All other rows remain collapsed.",
+        help: helpTextGridProperties("false","Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.",[],""),
         context: "dspf"
       },
 
@@ -8704,14 +8704,14 @@ pui.Grid = function () {
         name: "database file",
         type: "file",
         uppercase: true,
-        help: "Database file to use for a grid that is tied directly to a database.  You can specify a 'database file' or 'library/database file'.  If library is omitted, the session's library list is used."
+        help: helpTextGridProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.",[],"")
       },
       {
         name: "database fields",
         type: "field",
         multiple: true,
         uppercase: true,
-        help: "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.",
+        help: helpTextGridProperties("blank","A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.",[],""),
         descriptionsHandler: function (descriptions) {
           if (!confirm("Update grid columns?")) return;
           // update the column headings
@@ -8729,19 +8729,19 @@ pui.Grid = function () {
       {
         name: "selection criteria",
         type: "long",
-        help: "Optional expression identifying which records should be retrieved from the database file."
+        help: helpTextGridProperties("blank","Optional expression identifying which records should be retrieved from the database file.",[],"")
       },
       {
         name: "order by",
         type: "field",
         multiple: true,
         uppercase: true,
-        help: "Optional expression identifying which fields determine the order of the records retrieved from the database file."
+        help: helpTextGridProperties("blank","Optional expression identifying which fields determine the order of the records retrieved from the database file.",[],"")
       },
       {
         name: "custom sql",
         type: "long",
-        help: "Specifies an sql statement to use to retrieve the records for a database-driven grid.",
+        help: helpTextGridProperties("blank","Specifies an sql statement to use to retrieve the records for a database-driven grid.",[],""),
         customSqlHandler: function (customSql) {
           if (!confirm("Adjust grid based on columns?")) return;
           var parm = {
@@ -8757,24 +8757,24 @@ pui.Grid = function () {
         choices: ["true", "false"],
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "<p>Allows any valid SELECT SQL statement.</p><p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>"
+        help: helpTextGridProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>",[],"")
       },
       {
         name: "parameter value",
         type: "long",
         secLevel: 1,
         multOccur: true,
-        help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value."
+        help: helpTextGridProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.",[],"")
       },
       {
         name: "data url",
         type: "long",
-        help: "Sets the url to a Web service that returns JSON data for a database-driven grid."
+        help: helpTextGridProperties("blank","Sets the url to a Web service that returns JSON data for a database-driven grid.",[],"")
       },
       {
         name: "data transform function",
         type: "long",
-        help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget."
+        help: helpTextGridProperties("blank","The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget.",[],"")
       },
 
       {
@@ -8784,18 +8784,18 @@ pui.Grid = function () {
       },
       {
         name: "starting row",
-        help: "Specifies the starting subfile row for retrieving data from the screen.",
+        help: helpTextGridProperties("blank","Specifies the starting subfile row for retrieving data from the screen.",[],""),
         context: "genie-nohandler"
       },
       {
         name: "ending row",
-        help: "Specifies the ending subfile row for retrieving data from the screen.",
+        help: helpTextGridProperties("blank","Specifies the ending subfile row for retrieving data from the screen.",[],""),
         context: "genie-nohandler"
       },
       {
         name: "data columns",
         type: "list",
-        help: "Specifies a comma separated list of column numbers for retrieving data from the screen.",
+        help: helpTextGridProperties("blank","Specifies a comma separated list of column numbers for retrieving data from the screen.",[],""),
         context: "genie-nohandler"
       },
 
@@ -8806,43 +8806,55 @@ pui.Grid = function () {
       {
         name: "left",
         format: "px",
-        help: "Represents the x-coordinate of the current element.",
+        help: helpTextGridProperties("position","Represents the x-coordinate of the current element.",[],""),
         canBeRemoved: false
       },
       {
         name: "top",
         format: "px",
-        help: "Represents the y-coordinate of the current element.",
+        help: helpTextGridProperties("position","Represents the y-coordinate of the current element.",[],""),
+        canBeRemoved: false
+      },
+      {
+        name: "right",
+        format: "px",
+        help: helpTextGridProperties("position","Represents the x-coordinate of the current element.",[],""),
+        canBeRemoved: false
+      },
+      {
+        name: "bottom",
+        format: "px",
+        help: helpTextGridProperties("position","Represents the y-coordinate of the current element.",[],""),
         canBeRemoved: false
       },
       {
         name: "height",
-        help: "Height of the grid.",
+        help: helpTextGridProperties("css","Height of the grid.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "width",
-        help: "Width of the grid.",
+        help: helpTextGridProperties("css","Width of the grid.",[],""),
         bind: false,
         canBeRemoved: false
       },
       {
         name: "expand to layout",
         choices: ["true", "false"],
-        help: "If set to true, the grid will automatically expand to the full size of a layout container.",
+        help: helpTextGridProperties("false","If set to true, the grid will automatically expand to the full size of a layout container.",[],""),
         context: "dspf",
         bind: false
       },
       {
         name: "z index",
         format: "number",
-        help: "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements."
+        help: helpTextGridProperties("css","The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.",[],"")
       },
       {
         name: "locked in place",
         choices: ["true", "false"],
-        help: "If set to true, the grid cannot be moved or sized in the Visual Designer.",
+        help: helpTextGridProperties("false","If set to true, the grid cannot be moved or sized in the Visual Designer.",[],""),
         bind: false
       },
 
@@ -8857,37 +8869,37 @@ pui.Grid = function () {
         type: "boolean",
         validDataTypes: ["indicator", "expression"],
         hideFormatting: true,
-        help: "This property determines if rows within the grid can be drag and dropped.",
+        help: helpTextGridProperties("false","This property determines if rows within the grid can be drag and dropped.",[],""),
         context: "dspf"
       },
       {
         name: "ondragstart",
         type: "js",
-        help: "Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""),
         context: "dspf"
       },
       {
         name: "drop targets",
         type: "list",
-        help: "Specifies a list of target element id's, which indentify where the row can be dropped.",
+        help: helpTextGridProperties("blank","Specifies a list of target element id's, which indentify where the row can be dropped.",[],""),
         context: "dspf"
       },
       {
         name: "ondragenter",
         type: "js",
-        help: "Initiates a client-side script when the user drags a row over a valid drop target.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""),
         context: "dspf"
       },
       {
         name: "ondragleave",
         type: "js",
-        help: "Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""),
         context: "dspf"
       },
       {
         name: "ondrop",
         type: "js",
-        help: "Initiates a client-side script when the mouse is released during a drag and drop operation.  Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""),
         context: "dspf"
       },
 
@@ -8897,17 +8909,17 @@ pui.Grid = function () {
       },
       {
         name: "parent tab panel",
-        help: "This property specifies the id of the Tab Panel to which this element belongs.  The property is set automatically when you drag and drop the element onto a Tab Panel.",
+        help: helpTextGridProperties("blank","This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.",[],""),
         bind: false
       },
       {
         name: "parent tab",
-        help: "This property specifies the tab index of the specific tab to which this element belongs.  Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on.  The property is set automatically when you drag and drop the element onto a Tab Panel.",
+        help: helpTextGridProperties("blank","This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.",[],""),
         bind: false
       },
       {
         name: "parent field set",
-        help: "This property specifies the if of the Field Set Panel to which this element belongs.  The property is set automatically when you drag and drop the element onto a Field Set Panel.",
+        help: helpTextGridProperties("blank","This property specifies the if of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.",[],""),
         bind: false
       },
 
@@ -8918,13 +8930,13 @@ pui.Grid = function () {
       {
         name: "border color",
         type: "color",
-        help: "The color of the grid's outer borders and inner separators."
+        help: helpTextGridProperties("css","The color of the grid's outer borders and inner separators.",[],"")
       },
       {
         name: "border width",
         format: "px",
         choices: ["0px", "1px", "2px", "3px", "4px", "5px", "Other..."],
-        help: "The thickness of the grid's outer borders and inner separators."
+        help: helpTextGridProperties("css","The thickness of the grid's outer borders and inner separators.",["other"],"")
       },
 
       {
@@ -8935,25 +8947,25 @@ pui.Grid = function () {
         name: "padding bottom",
         format: "px",
         choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."],
-        help: "Sets the distance between the bottom edge of a grid cell and the cell's content."
+        help: helpTextGridProperties("css","Sets the distance between the bottom edge of a grid cell and the cell's content.",["other"],"")
       },
       {
         name: "padding left",
         format: "px",
         choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."],
-        help: "Sets the distance between the left edge of a grid cell and the cell's content."
+        help: helpTextGridProperties("css","Sets the distance between the left edge of a grid cell and the cell's content.",["other"],"")
       },
       {
         name: "padding right",
         format: "px",
         choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."],
-        help: "Sets the distance between the right edge of a grid cell and the cell's content."
+        help: helpTextGridProperties("css","Sets the distance between the right edge of a grid cell and the cell's content.",["other"],"")
       },
       {
         name: "padding top",
         format: "px",
         choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."],
-        help: "Sets the distance between the top edge of a grid cell and the cell's content."
+        help: helpTextGridProperties("css","Sets the distance between the top edge of a grid cell and the cell's content.",["other"],"")
       },
 
       {
@@ -8965,24 +8977,24 @@ pui.Grid = function () {
         type: "cssClass",
         multOccur: (context == "dspf" ? true : false),
         attribute: "class",
-        help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "")
+        help: helpTextGridProperties("widget","Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : ""),[],"")
       },
       {
         name: "tool tip",
         type: "long",
-        help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.",
+        help: helpTextGridProperties("blank","Defines the text to appear in a tool tip when the user hovers the mouse over this element.",[],""),
         translate: true
       },
       {
         name: "user defined data",
         multOccur: true,
-        help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value."
+        help: helpTextGridProperties("blank","Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.",[],"")
       },
       {
         name: "visibility",
         format: "visible / hidden",
         choices: ["hidden", "visible"],
-        help: "Determines whether the element is visible or hidden."
+        help: helpTextGridProperties("css","Determines whether the element is visible or hidden.",[],"")
       },
 
       {
@@ -8992,55 +9004,55 @@ pui.Grid = function () {
       {
         name: "ondbload",
         type: "js",
-        help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>"
+        help: helpTextGridProperties("blank","Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>",[],"")
       },
       {
         name: "onfilterchange",
         type: "js",
-        help: "Initiates a client-side script when the filter has changed.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the filter has changed.",[],""),
         bind: false,
         context: "dspf"
       },
       {
         name: "onrowclick",
         type: "js",
-        help: "Initiates a client-side script when a row within the grid is clicked.  The script can determine the row number using the <b>row</b> variable.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when a row within the grid is clicked. The script can determine the row number using the <b>row</b> variable.",[],""),
         bind: false
       },
       {
         name: "onrowdblclick",
         type: "js",
-        help: "Initiates a client-side script when a row within the grid is double-clicked.  The script can determine the row number using the <b>row</b> variable.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when a row within the grid is double-clicked. The script can determine the row number using the <b>row</b> variable.",[],""),
         bind: false
       },
       {
         name: "onrowmouseover",
         type: "js",
-        help: "Initiates a client-side script when the mouse is moved over a row within the grid.  The script can determine the row number using the <b>row</b> variable.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the mouse is moved over a row within the grid. The script can determine the row number using the <b>row</b> variable.",[],""),
         bind: false
       },
       {
         name: "onrowmouseout",
         type: "js",
-        help: "Initiates a client-side script when the mouse is moved off of a row within the grid.  The script can determine the row number using the <b>row</b> variable.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the mouse is moved off of a row within the grid. The script can determine the row number using the <b>row</b> variable.",[],""),
         bind: false
       },
       {
         name: "onpagedown",
         type: "js",
-        help: "Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",[],""),
         bind: false
       },
       {
         name: "onpageup",
         type: "js",
-        help: "Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar.  To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",[],""),
         bind: false
       },
       {
         name: "onscroll",
         type: "js",
-        help: "Initiates a client-side script when the user scrolls using the grid's scrollbar.  The <b>row</b> variable in the script provides the top row of the grid.",
+        help: helpTextGridProperties("blank","Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid.",[],""),
         bind: false
       }
     ];
