@@ -91,7 +91,7 @@ function helpTextRuntimeProperties(defVal, descVal, descAdd, noteVal) {
     "<br>All other fonts must be imported in some manner.<br><br>Example:" + codeOpen + "<br>@font-face {" +
     "<br>&ensp; font-family: myCustomFont;" +
     "<br>&ensp; src: url('myCustomFont.ttf');" +
-    "<br>}<br><br>&#x1F6D1 Make sure your font file extension is supported in the browsers users will be using before attempting this." + codeClose + "<hr>";
+    "<br>}<br><br>&#x1F6D1 Make sure your font file extension is supported in the browsers users will be using before attempting this." + codeClose;
 
   var colorOptions = "<hr><span style='font-weight:bold;'>Usage</span>: Enter a color name, hex, or select a color." +
     "<hr><span style='font-weight:bold;'>Valid Color Names</span>: " +
@@ -712,7 +712,7 @@ function getPropertiesModel() {
       formattingProp: true
     },
     {
-      name: "font",
+      name: "font family",
       stylename: "fontFamily",
       choices: ["Arial", "Consolas", "Courier New", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."],
       help: helpTextRuntimeProperties("css", "The font face for the text of the current element.<br>Ex: <span style='font-family:arial;'>Arial</span>, <span style='font-family:times new roman;'>Times New Roman</span>, <span style='font-family:verdana;'>Verdana</span>, etc.", ["font", "other"], ""),
@@ -723,7 +723,7 @@ function getPropertiesModel() {
       stylename: "fontSize",
       format: "px",
       choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "0.75em", "1.00em", "1.25em", "1.50em", "1.75em", "2.00em", "Other..."],
-      help: helpTextRuntimeProperties("css", "The size of the text for the current element.<br>Ex: <span style='font-size:12px;'>12px</span> <span style='font-size:14px;'>14px</span> <span style='font-size:16px;'>16px</span>", ["other"], ""),
+      help: helpTextRuntimeProperties("css", "The size of the text for the current element.<br>Ex: <span style='font-size:12px;'>12px</span> <span style='font-size:14px;'>14px</span> <span style='font-size:16px;'>16px</span><br>", ["other"], ""),
       formattingProp: true
     },
     {
@@ -4423,7 +4423,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       propConfigName == "width" ||
       propConfigName == "label" ||
       propConfigName == "color" ||
-      propConfigName == "font" ||
+      propConfigName == "font family" ||
       propConfigName == "font size" ||
       propConfigName == "font style" ||
       propConfigName == "font weight") {

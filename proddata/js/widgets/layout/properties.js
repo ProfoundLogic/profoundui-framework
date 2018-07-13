@@ -71,6 +71,7 @@ function helpTextLayoutProperties(defVal, descVal, descAdd, noteVal) {
   } else {
     helpString += defVal;
   }
+  helpString += codeClose;
   // ------------------
   // Description:
   helpString += "<hr><b title='A general description of the widget's properties.'>Description: </b>";
