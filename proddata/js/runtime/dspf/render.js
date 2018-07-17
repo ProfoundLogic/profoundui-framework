@@ -3105,11 +3105,21 @@ pui.buildResponse = function() {
                 
                 // If set to false, don't use an empty hidden field value.
                 if (pui["force auto complete match"] != false || dom.autoCompValueField.value != "") {
-                 
                   value = dom.autoCompValueField.value;
-                  
                 }
                 
+                // Prevent character values from ever going into numeric fields by clearing the value: #4441.
+                // Formatting info tells the data type.
+                if ( dom.formattingInfo != null && dom.formattingInfo.dataType != "expression"
+                && pui.formatting.isNumericType( dom.formattingInfo.dataType )) {
+
+                  // See if the string has only characters that appear in numbers, including (0.00) 0,00 but not "CR".
+                  // This will clear out anything containing non-numeric characters.
+                  var numericRe = /^[0-9,.\- \(\)]+/;
+                  if (! numericRe.test(value) ){
+                    value = "";
+                  }
+                }
               }
               if (pui.isDup(value)) {
                 var dupMask = "";
@@ -3528,7 +3538,7 @@ pui.buildResponse = function() {
   }
   
   for (var i = 0; i < pui.setOffFields.length; i++) {
-    setOffField = pui.setOffFields[i];
+    var setOffField = pui.setOffFields[i];
     if (response[setOffField] == null) {  // not already set
       response[setOffField] = "0";
     }
@@ -6004,4 +6014,4 @@ pui.transitionAnimation = {
     pui.resize();
 
   }
-}
+};
