@@ -728,7 +728,14 @@ pui.Grid = function() {
     var boundVisibility  = [];
     var boundDate = [];
     var imageData = [];
-    for (var i = 0; i < me.vLines.length - 1; i++) {
+    var totalColumns = me.vLines.length - 1;
+    if (me.hidableColumns && !me.exportVisableOnly) {
+      totalColumns = me.columnInfo.length;
+      var sortedColumnInfo = me.columnInfo.sort(function(a, b){
+        return a["columnId"] - b["columnId"]
+      })
+    }
+    for (var i = 0; i < totalColumns; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
@@ -803,7 +810,13 @@ pui.Grid = function() {
       workbook = new pui.xlsx_workbook();
       worksheet = new pui.xlsx_worksheet(colcount);
       worksheet.setDefaultRowHeight( me.rowHeight );
-      worksheet.setColumnWidths( me.getColumnWidths().split(",") );
+      if (me.hidableColumns && !me.exportVisableOnly) {
+        worksheet.setColumnWidths(sortedColumnInfo.map(function(col){
+           return col["orginalWidth"]; 
+        }))
+      } else {
+        worksheet.setColumnWidths( me.getColumnWidths().split(",") );
+      }
       drawing = new pui.xlsx_drawing();
       colcount = 0;
       // Look at each column containing a value, set the format. Use same order that cell values will use.
@@ -819,13 +832,13 @@ pui.Grid = function() {
     //Build cell headings.
     if (me.hasHeader && me.exportWithHeadings) {
       if (exportXLSX) worksheet.newRow();
-      
       for (var i = 0; i < columnArray.length; i++) {
         var idx = columnArray[i];
         if (idx > -1) {
-          var heading = getInnerText(me.cells[0][i]);
-          if (exportXLSX)
-            worksheet.addCell(rtrim(heading), "char" );
+          var heading = "";
+          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["name"]
+          else heading = getInnerText(me.cells[0][i]);
+          if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
