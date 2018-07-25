@@ -3152,7 +3152,6 @@ pui.xlsx_workbook = function(){
     +  '<fonts count="2">'
     +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
     // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
-//    +    '<font><u/><sz val="11"/><color theme="10"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>' 
     +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
     +  '</fonts>'
     +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
@@ -3172,12 +3171,6 @@ pui.xlsx_workbook = function(){
     +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
     +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
     +  '</cellXfs>'
-    // Named cell styles. the xfId references a cellStyleXfs <xf> record.
-    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.cellstyles.aspx
-//    +  '<cellStyles count="2">'
-//    +    '<cellStyle name="Hyperlink" xfId="1" builtinId="8"/>'
-//    +    '<cellStyle name="Normal" xfId="0" builtinId="0"/>'
-//    +  '</cellStyles>'
     +  '<dxfs count="0"/>'
     +'</styleSheet>';
   

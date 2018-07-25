@@ -728,9 +728,7 @@ pui.Grid = function() {
     var graphicData = [];
     var boundVisibility  = [];
     var boundDate = [];
-    var imageData = [];
-//    var hyperlinkRefCols = [];   //If both hyperlink reference and value are bound, then this gets the index where the reference data is.
-    
+    var imageData = [];    
     var hyperlinks = [];
     
     var totalColumns = me.vLines.length - 1;
@@ -747,8 +745,6 @@ pui.Grid = function() {
       boundVisibility.push(false);
       boundDate.push(false);
       imageData.push(false);
-//      hyperlinkRefCols.push(-1);
-      
       hyperlinks.push(false);
     }
 
@@ -781,7 +777,6 @@ pui.Grid = function() {
               var fieldName = pui.fieldUpper(hyperlink["fieldName"]);
               for (var j = 0; j < me.fieldNames.length; j++ ) {
                 if (fieldName == me.fieldNames[j]) {
-//                  hyperlinkRefCols[col] = j;
                   hyperlinks[col].linkBound = j;
                   break;
                 }
