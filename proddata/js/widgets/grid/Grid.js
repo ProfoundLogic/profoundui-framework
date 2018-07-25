@@ -721,19 +721,24 @@ pui.Grid = function() {
 
     fileName = encodeURIComponent(fileName);
 
-    // initialize column array, each array element will hold the index to the dataArray
+    // initialize column array, each array element will hold the index to the dataArray, which has the records from the subfile.
+    // Multiple widgets may use the same field, so there isn't a one-to-one relationship between columnArray, dataArray, and the export.
     var columnArray = [];
     var numericData = [];
     var graphicData = [];
     var boundVisibility  = [];
     var boundDate = [];
     var imageData = [];
+//    var hyperlinkRefCols = [];   //If both hyperlink reference and value are bound, then this gets the index where the reference data is.
+    
+    var hyperlinks = [];
+    
     var totalColumns = me.vLines.length - 1;
     if (me.hidableColumns && !me.exportVisableOnly) {
       totalColumns = me.columnInfo.length;
       var sortedColumnInfo = me.columnInfo.sort(function(a, b){
-        return a["columnId"] - b["columnId"]
-      })
+        return a["columnId"] - b["columnId"];
+      });
     }
     for (var i = 0; i < totalColumns; i++) {
       columnArray.push(-1);
@@ -742,8 +747,11 @@ pui.Grid = function() {
       boundVisibility.push(false);
       boundDate.push(false);
       imageData.push(false);
+//      hyperlinkRefCols.push(-1);
+      
+      hyperlinks.push(false);
     }
-        
+
     var tempformats = [];
     var colcount = 0;
     
@@ -761,6 +769,34 @@ pui.Grid = function() {
           if (itm["field type"] == "html container") val = itm["html"];
           
           if (itm["field type"] == "image" && exportXLSX) val = itm["image source"];
+          
+          // Let hyperlinks export both bound values and bound references. (Feature 4579)
+          if (itm["field type"] == "hyperlink"){
+            var hyperlink = itm["hyperlink reference"];
+            hyperlinks[col] = {};
+            
+            if (pui.isBound(hyperlink) && hyperlink["dataType"] != "indicator" && hyperlink["dataType"] != "expression") {
+              // If the hyperlink reference is bound, then it should be exported with XLSX as a link.
+              // Find the column for the hyperlink-reference fieldname.
+              var fieldName = pui.fieldUpper(hyperlink["fieldName"]);
+              for (var j = 0; j < me.fieldNames.length; j++ ) {
+                if (fieldName == me.fieldNames[j]) {
+//                  hyperlinkRefCols[col] = j;
+                  hyperlinks[col].linkBound = j;
+                  break;
+                }
+              }
+              
+              if (!pui.isBound(val) || val["dataType"] == "indicator" || val["dataType"] == "expression") {
+                // The regular value is not bound (or is indicator/expression), so use the hyperlink reference as the binding.
+                hyperlinks[col].value = val;    //The value will be used as link text for each row.
+                val = hyperlink;  //make sure the column is exported.
+              }
+            }else if(hyperlink != null && hyperlink.length > 0){
+              // The link is hard-coded. The link will be used for every row.
+              hyperlinks[col].link = hyperlink;
+            }
+          } //done handling hyperlink field.
 
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
             var fieldName = pui.fieldUpper(val["fieldName"]);
@@ -780,22 +816,31 @@ pui.Grid = function() {
                    graphicData[col] = true;
                 }
                 //If the item is an image, then it will be exported with XLSX.
-                if (exportXLSX && itm["field type"] == "image"){
-                  //Set base-line values in case the domEl isn't set--something that shouldn't happen.
-                  imageData[col] = { left: 2, top: 2, height: 16, width: 16 };
-                  // Look for a picture that is visible in the grid.
-                  if (itm.domEls != null && itm.domEls.length > 0)
-                    for (var domelid=0; domelid < itm.domEls.length; domelid++){
-                      if (itm.domEls[domelid] && itm.domEls[domelid].offsetWidth > 0 && itm.domEls[domelid].offsetHeight > 0 ){
-                        imageData[col] = { left: itm.domEls[domelid].offsetLeft, top: itm.domEls[domelid].offsetTop,
-                          height: itm.domEls[domelid].offsetHeight, width: itm.domEls[domelid].offsetWidth };
-                        break;
+                if (exportXLSX){
+                  if (itm["field type"] == "image"){
+                    //Set base-line values in case the domEl isn't set--something that shouldn't happen.
+                    imageData[col] = { left: 2, top: 2, height: 16, width: 16 };
+                    // Look for a picture that is visible in the grid.
+                    if (itm.domEls != null && itm.domEls.length > 0){
+                      for (var domelid=0; domelid < itm.domEls.length; domelid++){
+                        if (itm.domEls[domelid] && itm.domEls[domelid].offsetWidth > 0 && itm.domEls[domelid].offsetHeight > 0 ){
+                          imageData[col] = { left: itm.domEls[domelid].offsetLeft, top: itm.domEls[domelid].offsetTop,
+                            height: itm.domEls[domelid].offsetHeight, width: itm.domEls[domelid].offsetWidth };
+                          break;
+                        }
                       }
                     }
-                } //done setting up picture dimensions for XLSX export.
+                  } //done setting up picture dimensions for XLSX export.
+                  else if (itm["field type"] == "hyperlink"){
+                    if (hyperlinks[col].value == null ){    //Link text was not hard-coded; val is the text.
+                      hyperlinks[col].valueBound = true;  //Flag that columnArray[col] has the location of the bound value.
+                    }
+                    //note: if val was the bound hyperlink, then hyperlinks[col].linkBound already has the location.
+                  }
+                } //done if exportXLSX.
                 break;
-              }
-            }
+              } //done handling found field name.
+            } //done finding field name column for bound field.
           } //end if value is bound, not indicator, not expression.
         } //end if item column is valid.
       }
@@ -805,7 +850,9 @@ pui.Grid = function() {
     var worksheet;
     var workbook;
     var drawing;
+    var hyperlinksXL = [];
     var useDrawing = false;
+    var useHyperlinks = false;
     if (exportXLSX){
       workbook = new pui.xlsx_workbook();
       worksheet = new pui.xlsx_worksheet(colcount);
@@ -813,7 +860,7 @@ pui.Grid = function() {
       if (me.hidableColumns && !me.exportVisableOnly) {
         worksheet.setColumnWidths(sortedColumnInfo.map(function(col){
            return col["orginalWidth"]; 
-        }))
+        }));
       } else {
         worksheet.setColumnWidths( me.getColumnWidths().split(",") );
       }
@@ -836,7 +883,7 @@ pui.Grid = function() {
         var idx = columnArray[i];
         if (idx > -1) {
           var heading = "";
-          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["name"]
+          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["name"];
           else heading = getInnerText(me.cells[0][i]);
           if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
@@ -882,6 +929,11 @@ pui.Grid = function() {
         if (idx > -1) {
           var value = record[idx];
           
+          if (hyperlinks[j] != null && hyperlinks[j].value != null){
+            // value was a hard-coded href link, use it as cell text.
+            value = hyperlinks[j].value;
+          }
+          
           if (graphicData[j]) {
              value = pui.formatting.decodeGraphic(value);
           } 
@@ -911,21 +963,34 @@ pui.Grid = function() {
           line += '"' + rtrim(value) + '"';
           
           if (exportXLSX){
+            
             if (typeof imageData[j] == "object" && imageData[j] != null){   //The cell data is an image.
               useDrawing = true;
               var colNum = worksheet.addCell("");     //Add a blank cell.
               if(xlsxvalue != null && xlsxvalue.length > 0)
                 drawing.addImage(worksheet.getCurRow(), colNum, xlsxvalue, imageData[j] );
-            }else{
+            }else{ 
               //The cell data is a string or number and not an image.
-              worksheet.addCell(rtrim(xlsxvalue), (forceDate ? "date" : null) );
-            }
+              var colNum = worksheet.addCell(rtrim(xlsxvalue), (forceDate ? "date" : null) );
+             
+              if (typeof hyperlinks[j] == "object" && hyperlinks[j] != null){
+                useHyperlinks = true;
+                var linkXL = { row: worksheet.getCurRow(), col: colNum };
+                if (hyperlinks[j].link != null){
+                  linkXL.target = hyperlinks[j].link; //hard-coded link
+                }else if(hyperlinks[j].linkBound != null){
+                  linkXL.target = record[ hyperlinks[j].linkBound ];  //bound link.
+                }
+                
+                hyperlinksXL.push(linkXL);
+              }
+            } //end else: cell data that is not an image.
           }
         }
       }
       if (data != "") data += "\n";
       data += line;
-    }
+    } //done building data from subfile records.
     
     if (exportXLSX){
       if (useDrawing && me.pagingBar.xlsxExportPics ){
@@ -943,14 +1008,21 @@ pui.Grid = function() {
           me.pagingBar.showTempStatusDiv();
         }
       }
+      
+      if (useHyperlinks){
+        worksheet.setHyperlinks(hyperlinksXL);
+        workbook.setHyperlinks(hyperlinksXL);
+      }
+      
       workbook.setFileName(fileName);
       workbook.setWorksheet(worksheet);
       if (pui["is_ie"])
         setTimeout(workbook.download, 100);   //IE needs a delay to update the paging bar.
       else
         workbook.download();
-    } else
+    } else {
       pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
+    }
   };
   
   /**

@@ -3001,6 +3001,8 @@ pui.xlsx_workbook = function(){
   var fileName = "sheet";
   var worksheet;
   var drawing;
+  var hyperlinks;   // An array of { text:"", target:"", row:"", col:""}.
+  // Let the relationship id, rId#, be +2 over the array index. E.g. hyperlink[0] is "rId2".
   
   var cbSetTempStatus;    //The grid's paging bar's setTempStatus function.
   var cbDraw;             //The grid's paging bar's draw function.
@@ -3025,6 +3027,15 @@ pui.xlsx_workbook = function(){
    */
   this.setDrawing = function(drwng){
     drawing = drwng;
+  };
+  
+  /**
+   * Allows hyperlink targets (the URLs) to be generated as "relationships" in the workbook.
+   * @param {Array} hlinks    Array of objects with .row, .col, and .target properties.
+   * @returns {undefined}
+   */
+  this.setHyperlinks = function(hlinks){
+    hyperlinks = hlinks;
   };
   
   /**
@@ -3138,29 +3149,53 @@ pui.xlsx_workbook = function(){
     //x1/styles.xml - at least one of each font, fill, and border is required.
     var styles = pui.xmlstart 
     +'<styleSheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'">'
-    +  '<fonts count="1"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font></fonts>'
+    +  '<fonts count="2">'
+    +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
+    // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
+//    +    '<font><u/><sz val="11"/><color theme="10"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>' 
+    +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
+    +  '</fonts>'
     +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
     +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
-    // CellStyleFormats (Formatting Records) - at least one must exist; it's referenced as xfId="0" in <xf> tags.
-    +  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' 
+    // CellStyleFormats (Formatting Records) - at least one must exist; these are referenced as xfId="0" in cellXfs and cellStyles <xf> tags.
+    +  '<cellStyleXfs count="2">'
+    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>'  //normal font.
+    +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>'  //blue font for hyperlinks
+    +'</cellStyleXfs>' 
     // Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
     // numFmtIds 0-49 are not defined explicitly:
     // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
     // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
     // For now, handle 2-decimal formating; everything else gets general formatting.
-    +  '<cellXfs count="2">'
+    +  '<cellXfs count="3">'
     +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
     +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
+    +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
     +  '</cellXfs>'
+    // Named cell styles. the xfId references a cellStyleXfs <xf> record.
+    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.cellstyles.aspx
+//    +  '<cellStyles count="2">'
+//    +    '<cellStyle name="Hyperlink" xfId="1" builtinId="8"/>'
+//    +    '<cellStyle name="Normal" xfId="0" builtinId="0"/>'
+//    +  '</cellStyles>'
     +  '<dxfs count="0"/>'
     +'</styleSheet>';
   
     var sheetrels;
-    if (drawing){
-      sheetrels = pui.xmlstart 
-      + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
-      +   '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>'
-      + '</Relationships>';
+    // Hyperlinks and drawings need sheet relationships.
+    if (drawing || hyperlinks){
+      sheetrels = pui.xmlstart + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
+      
+      if (drawing){
+        sheetrels += '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>';
+      }
+      if (hyperlinks != null && hyperlinks.length > 0){
+        for (var i=0; i < hyperlinks.length; i++){
+          sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'+hyperlinks[i].target+'" TargetMode="External"/>';
+        }
+      }
+      
+      sheetrels += '</Relationships>';
     }
   
     var zip = new JSZip();
@@ -3172,13 +3207,15 @@ pui.xlsx_workbook = function(){
     zip["file"]("xl/sharedStrings.xml", worksheet.getSharedStringsXML() );
     zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
     zip["file"]("xl/worksheets/sheet1.xml", worksheet.getSheetXML() );
-    if (drawing){
-      zip["file"]("xl/drawings/drawing1.xml", drawing.getDrawingXML());
-      zip["file"]("xl/drawings/_rels/drawing1.xml.rels", drawing.getDrawingRelsXML());
+    if (drawing || hyperlinks){
       zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
-      var images = drawing.getImages();
-      for (var i=0; i < images.length; i++){
-        zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+      if (drawing){
+        zip["file"]("xl/drawings/drawing1.xml", drawing.getDrawingXML());
+        zip["file"]("xl/drawings/_rels/drawing1.xml.rels", drawing.getDrawingRelsXML());
+        var images = drawing.getImages();
+        for (var i=0; i < images.length; i++){
+          zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+        }
       }
     }
 
@@ -3219,6 +3256,8 @@ pui.xlsx_worksheet = function(numcols){
   var curCol = 0; //Needed for this.addCell.
   
   var useDrawing = false; //When true, one drawing reference is included in the sheet xml.
+  
+  var hyperlinks;
   
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
@@ -3324,6 +3363,15 @@ pui.xlsx_worksheet = function(numcols){
   this.useDrawing = function(){
     useDrawing = true;
   };
+  
+  /**
+   * Allows hyperlink "relationships" to be associated with cells in the grid.
+   * @param {Array} hlinks    Array of objects with .row, .col, and .target properties.
+   * @returns {undefined}
+   */
+  this.setHyperlinks = function(hlinks){
+    hyperlinks = hlinks;
+  };
 
   /**
    * Set a cell value on the last row added to the sheet.
@@ -3388,6 +3436,19 @@ pui.xlsx_worksheet = function(numcols){
     // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
     +'<sheetFormatPr defaultRowHeight="'+(defaultRowHeightpx * 0.75)+'" customHeight="1" />'
     +'<cols>' ;
+    
+    // Build a map [row][col] to whether a cell has a hyperlink so we later can set the style.
+    var useHyperlinkStyle = {};
+    if (hyperlinks != null && hyperlinks.length > 0){
+      for (var i=0; i < hyperlinks.length; i++ ){
+        var hlinkrow = hyperlinks[i].row;
+        var hlinkcol = hyperlinks[i].col;
+        if (useHyperlinkStyle[hlinkrow] == null){
+          useHyperlinkStyle[hlinkrow] = {};
+        }
+        useHyperlinkStyle[hlinkrow][hlinkcol] = true; 
+      }
+    }
   
     // Configure each column with widths, and with styles for new cells.
     for (var col=0; col < numColumns; col++){
@@ -3427,9 +3488,13 @@ pui.xlsx_worksheet = function(numcols){
         if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
           // TODO: date/time values could be converted to native excel formats if all variations are handled.
           xml += ' t="s"';
+          if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
+            xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
+          }
         }else if(me.formats[col]["decPos"] == "2"){
           xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
         }
+        
         if (rows[row][col] == null) rows[row][col] = '';
         xml += '><v>' + rows[row][col] + '</v></c>';
       }
@@ -3439,6 +3504,16 @@ pui.xlsx_worksheet = function(numcols){
     xml += '</sheetData>'; 
     if (useDrawing){
       xml += '<drawing r:id="rId1"/>';
+    }
+    
+    // Hyperlinks reference cells; e.g. A2. Their texts are in the shared strings table.
+    if (hyperlinks != null && hyperlinks.length > 0){
+      xml += '<hyperlinks>';
+      for (var i=0; i < hyperlinks.length; i++ ){
+        var r = hyperlinks[i].row + 1;
+        xml += '<hyperlink ref="'+ map[hyperlinks[i].col] + r +'" r:id="rId'+(i+2)+'" />';
+      }
+      xml += '</hyperlinks>';
     }
     xml += '</worksheet>';
     
