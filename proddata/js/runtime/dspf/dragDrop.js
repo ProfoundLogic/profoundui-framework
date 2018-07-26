@@ -59,17 +59,23 @@ pui.attachDragDrop = function(dom, properties) {
   }
 
   function mousedown(event) {
+    if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
     var clickedOn = getTarget(event);
     var offset = pui.getOffset(dom.parentNode);
     var offsetX = offset[0];
     var offsetY = offset[1];    
     
     var touchEvent = false;
-    if (event != null && event.touches != null) {
-      if (event.touches.length != 1) return;
-      touchEvent = true;
+
+    if (event) {
+      if (event.touches != null) {
+        if (event.touches.length != 1) return;
+        touchEvent = true;
+      } else if (event["pointerType"] === 'touch') {
+        touchEvent = true;
+      }
     }
-  
+    if (touchEvent) event.preventDefault();
     // get grid row    
     var row;
     var requestNum = 0;
@@ -202,6 +208,7 @@ pui.attachDragDrop = function(dom, properties) {
     executeEvent("ondragstart");
 
     function mousemove(event) {
+      if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
       var y = getMouseY(event) - cursorStartY;
       var x = getMouseX(event) - cursorStartX;
 
@@ -477,8 +484,20 @@ pui.attachDragDrop = function(dom, properties) {
     };  
       
   }
-  addEvent(dom, "mousedown", mousedown);
-  addEvent(dom, "touchstart", mousedown);
+ 
+  // The updated version of iScroll in 5.14.0 and later uses Pointer Events
+  // These events get called before the mousedown event and get cancelled. 
+  // This causes drag and drop to not work correctly in web browsers.
+  // Add an event listener for pointerdown instead of mouse down and then
+  // stop the immediate propnagation so that drag and drop works smoothly. 
+  // #4632
+  if (window["PointerEvent"]) {
+    addEvent(dom, "pointerdown", mousedown);
+  } else {
+    addEvent(dom, "mousedown", mousedown);
+    addEvent(dom, "touchstart", mousedown);
+  }
+
 
   function executeEvent(eventName) {
     var eventCode = properties[eventName];    

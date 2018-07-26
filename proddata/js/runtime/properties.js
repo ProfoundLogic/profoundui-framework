@@ -4327,7 +4327,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     assignDomClasses(domObj, classes, dspAtrField);
   }
-
   // Attach Events
   if (propConfig.type == "js") {
     var func = null;
@@ -4377,8 +4376,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
-    } else if (propConfigName != "onselect") { // Handling for "onselect" one is provided inside the auto complete class.
-      func = function (e) {
+    }
+    else if (propConfigName != "onselect" && propConfigName != "ondragstart") { 
+      // Handling for "onselect" one is provided inside the auto complete class.
+      // Handling for "ondragstart" is in dragDrop.js
+      func = function(e) {
         if (pui.observer != null) return;
         if ((domObj.getAttribute != null && domObj.getAttribute("disabled") == "true") ||
           (domObj.disabled != null && domObj.disabled == true)) {
