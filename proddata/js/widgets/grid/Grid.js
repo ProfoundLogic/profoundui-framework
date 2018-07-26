@@ -7535,7 +7535,7 @@ pui.Grid = function () {
     var codeClose = "</code>";
 
     var falseSpan = "<span title='The default value of the property is false.'>false</span>";
-    var trueSpan = "<span title='The default value of the property is false.'>true</span>";
+    var trueSpan = "<span title='The default value of the property is true.'>true</span>";
 
     var blankSpan = "<span title='The default value of the property is unset or not defined.'>[blank]</span>";
 
