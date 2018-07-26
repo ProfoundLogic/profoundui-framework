@@ -21,7 +21,7 @@ function helpTextAccordionProperties(defVal, descVal, descAdd, noteVal) {
   var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
-  var trueSpan = "<span title='The default value of the property is false.'>true</span>";
+  var trueSpan = "<span title='The default value of the property is true.'>true</span>";
   var blankSpan = "<span title='The default value of the property is unset or not defined.'>[blank]</span>";
   var cssSpan = "[<span title='The default value is the value defined in the CSS &#010;(theme/developer CSS classes defined in a CSS&#010;file or \"style\" DOM attribute) for the element.'>CSS value</span>]";
   var placeholderSpan = "[<span title='The default value of the property is placeholder &#010;text, such as \"Lorem Ipsum...\" or \"HTML Content\".'>placeholder text</span>]";
