@@ -228,7 +228,8 @@ pui.Grid = function() {
   var resizableColumns = false;
   var columnSignature;
   var clientSortColumnId;
-  
+  var customGridSortFunction; 
+
   var headerCellProxy;
   var headerCellProxyContainer;
   var columnPointer; 
@@ -2704,18 +2705,24 @@ pui.Grid = function() {
           value1 = pui.formatting.decodeGraphic(value1);
           value2 = pui.formatting.decodeGraphic(value2);
         }
-        if (typeof pui["gridSort"] == "function") {
-          var returnVal = pui["gridSort"](value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat);
-          if (typeof returnVal != "number") returnVal = 0;
-          if (returnVal > 0) {
-            if (desc) return -1;
-            else return 1;
+        if (customGridSortFunction !== undefined) {
+          try {
+            var fieldName = fieldNameUpper;
+            var isDescending = desc;
+            var args = "value1, value2, fieldName, isDescending, fieldDateFormat, fieldFormat"
+            var sortingFunction = new Function(args,customGridSortFunction);
+            if (typeof sortingFunction == "function"){
+              return customSortHandler(sortingFunction, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat)
+            }
+          } catch (error) {
+            if (error) {
+              console.log("Sort function error: ")
+              console.error(error);
+            }
           }
-          if (returnVal < 0) {
-            if (desc) return 1;
-            else return -1;
-          }
-          return 0;
+        } 
+        else if (typeof pui["gridSort"] == "function") {
+          return customSortHandler(pui["gridSort"], value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat )
         }
         else {
           if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
@@ -2725,6 +2732,20 @@ pui.Grid = function() {
           }
           else return 1;
         }
+      }
+      // Handle the pui.gridSort and the screen level defined grid function. 
+      function customSortHandler(func, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat) {
+        var returnVal = func(value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat);
+        if (typeof returnVal != "number") returnVal = 0;
+        if (returnVal > 0) {
+          if (desc) return -1;
+          else return 1;
+        }
+        if (returnVal < 0) {
+          if (desc) return 1;
+          else return -1;
+        }
+        return 0;
       }
       
       me.dataArray.sort(doSort);
@@ -4232,7 +4253,11 @@ pui.Grid = function() {
           me.propagateScrollEvents = false;
         }
         break;
-
+       case "sort function":
+        if (value) {
+          customGridSortFunction = value;
+        }
+        break;
       default:
       if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
         pui.alert("Grid property not handled: " + property);
@@ -7695,6 +7720,7 @@ pui.Grid = function() {
       { name: "initial sort field", help: "This property specifies the field name used to identify the column for initial sorting.  If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
       { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned"], help: "Specifies a response variable to receive a column number for server-side sorting.  If omitted, client-side sorting is used.  The response is a numeric value that represents a column in the grid.  Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.  It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
       { name: "field name sort response", readOnly: true, help: "Specifies a response variable to receive a field name used for server-side sorting.  If omitted, client-side sorting is used.  The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.", hideFormatting: true, validDataTypes: ["char"], context: "dspf" },
+      { name: "sort function", type: "js", help:"Specifies a custom sort function that will called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> <b>value1</b> first field value to compare <br /> <b>value2</b> second field value to compare <br /><b>fieldName</b> name fo the field <br /> <b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> <b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> <b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf"},
       { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Allows the user to resize grid columns at run time.", context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
       { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns.  When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.", context: "dspf" },
