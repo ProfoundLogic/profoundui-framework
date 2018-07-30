@@ -30,7 +30,8 @@ pui.Grid = function () {
   if (pui.designer.DataFields != null) {
     this.dataFields = new pui.designer.DataFields();
     this.dataFields.forGrid = true;
-  } else {
+  }
+  else {
     // dummy object
     this.dataFields = {};
     this.dataFields.forGrid = true;
@@ -436,10 +437,12 @@ pui.Grid = function () {
       var firstRowNumber = me.cells[0][0].firstChild.subfileRow;
       if (firstRowNumber <= activeEl.subfileRow && firstRowNumber + numRows > activeEl.subfileRow) {
         me.recNum = firstRowNumber;
-      } else {
+      }
+      else{
         me.recNum = activeEl.subfileRow;
       }
-    } else if (me.scrollbarObj != null) {
+    }
+    else if(me.scrollbarObj != null ){
       me.scrollbarObj.setScrollTopToRow(me.recNum);
     }
 
@@ -592,7 +595,8 @@ pui.Grid = function () {
   this.toggle = function (button) {
     if (me["expanded"]) {
       me.collapse(button);
-    } else {
+    }
+    else {
       me.expand(button);
     }
   };
@@ -630,7 +634,9 @@ pui.Grid = function () {
             if (target.parentNode == me.zoomDiv) return;
             if (target.parentNode.parentNode == me.zoomDiv) return;
           }
-        } catch (e) {}
+        }
+        catch(e) {
+        }
         me.zoomDiv.style.display = "none";
       };
       me.tableDiv.parentNode.appendChild(me.zoomDiv);
@@ -689,7 +695,8 @@ pui.Grid = function () {
     if (typeof (pui["csv separator"]) == "string") {
       // This flag not defined by default.
       delimiter = pui["csv separator"];
-    } else {
+    }
+    else {
       delimiter = ",";
       if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
         delimiter = ";";
@@ -797,7 +804,8 @@ pui.Grid = function () {
                 colcount++;
                 if (val["formatting"] == "Number") {
                   numericData[col] = true;
-                } else if (val["formatting"] == "Date") {
+                }
+                else if(val["formatting"] == "Date"){
                   boundDate[col] = val; //Save this info so we can format later.
                 }
                 if (val["dataType"] == "graphic") {
@@ -900,7 +908,8 @@ pui.Grid = function () {
       var fieldData = {};
       if (record == null || record.length == 0) {
         fieldData.empty = true;
-      } else {
+      }
+      else {
         for (var j = 0; j < me.fieldNames.length; j++) {
           fieldData[me.fieldNames[j]] = record[j];
         }
@@ -927,7 +936,8 @@ pui.Grid = function () {
           var xlsxvalue = value; //XLSX can't use "," as decimal separator and needn't escape '"'.
           if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
             value = value.replace('.', ',');
-          } else if (typeof boundDate[j] === "object" && boundDate[j] != null) {
+          }
+          else if (typeof boundDate[j] === "object" && boundDate[j] != null ){
             // Format CSV date same as rendered date; "0001-01-01" becomes "".
             value = pui.evalBoundProperty(boundDate[j], fieldData, me.ref);
             xlsxvalue = value;
@@ -1032,7 +1042,8 @@ pui.Grid = function () {
     if (dataURL) {
       url = pui.appendAuth(dataURL);
       setupajax();
-    } else if (me.dataProps["database file"] && me.dataProps["database file"].length > 0) {
+    }
+    else if(me.dataProps["database file"] && me.dataProps["database file"].length > 0){
       // If URL is for database-driven grid, then we know the file and can fetch the column data types.
       // TODO: Change PUI0009102 to return the dataType and decPos, and remove this extra XHR.
       var dblib = "";
@@ -1073,8 +1084,8 @@ pui.Grid = function () {
       req["async"] = true;
       if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
       if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
-      req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv)) +
-        "&" + pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1";
+      req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
+        +"&"+ pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1";
 
       if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
@@ -1121,10 +1132,7 @@ pui.Grid = function () {
           // Find the field info for the current column.
           for (var i = 0; i < response["fields"].length; i++) {
             if (response["fields"][i]["field"] == colid) {
-              var fld = {
-                "dataType": response["fields"][i]["type"],
-                "decPos": response["fields"][i]["decPos"]
-              };
+              var fld = { "dataType": response["fields"][i]["type"], "decPos": response["fields"][i]["decPos"] };
               worksheet.setColumnFormat(colNum, fld);
               break;
             }
@@ -1212,9 +1220,8 @@ pui.Grid = function () {
       var cell = me.cells[row][col];
       for (var i = 0; i < cell.children.length; i++) {
         var temp = cell.children[i].id;
-        if (temp == "" || temp == null) {
-          continue;
-        } else {
+        if (temp == "" || temp == null) { continue; }
+        else {
           temp = " " + temp;
           arr2.push(temp);
         }
@@ -1251,7 +1258,8 @@ pui.Grid = function () {
     if (me.hasHeader) {
       modelCell = me.cells[1][col];
       startRow = 2;
-    } else {
+    }
+    else {
       modelCell = me.cells[0][col];
       startRow = 1;
     }
@@ -1347,7 +1355,8 @@ pui.Grid = function () {
             return elem.responseValue;
           else
             return elem.value;
-        } else {
+        }
+        else {
           return getElementValue(elem);
         }
       }
@@ -1390,10 +1399,10 @@ pui.Grid = function () {
       if (idx != null) {
         record[idx] = value;
         // If this is the "selection field" we should also update record.selected (Redmine #3458)
-        if (me.selectionEnabled &&
-          me.selectionField &&
-          me.selectionField.fieldName &&
-          fieldName == pui.fieldUpper(me.selectionField.fieldName)) {
+        if (me.selectionEnabled
+        && me.selectionField
+        && me.selectionField.fieldName
+        && fieldName == pui.fieldUpper(me.selectionField.fieldName)) {
           var rowIsSelected = (value == me.selectionValue);
           var rowNewValue = rowIsSelected ? me.selectionValue : me.selectionField.dataType == "indicator" ? "0" : " ";
           if (record.selected != rowIsSelected) {
@@ -1497,8 +1506,8 @@ pui.Grid = function () {
 
     }
 
-    if ((pui.usingGenieHandler && me.atTop()) ||
-      (!pui.usingGenieHandler && context == "genie")) {
+    if ( (pui.usingGenieHandler && me.atTop())
+        || (!pui.usingGenieHandler && context=="genie")) {
       pressKey("pageup");
       return;
     }
@@ -1511,7 +1520,8 @@ pui.Grid = function () {
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
       if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) me.getData();
-    } else {
+    }
+    else {
       me.getData();
     }
     setTimeout(function () {
@@ -1550,8 +1560,8 @@ pui.Grid = function () {
 
     }
 
-    if ((pui.usingGenieHandler && me.atBottom()) ||
-      (!pui.usingGenieHandler && context == "genie")) {
+    if ( (pui.usingGenieHandler && me.atBottom())
+      || (!pui.usingGenieHandler && context=="genie")) {
       pressKey("pagedown");
       return;
     }
@@ -1579,7 +1589,8 @@ pui.Grid = function () {
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(me.recNum);
       if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) me.getData();
-    } else {
+    }
+    else {
       me.getData();
     }
     setTimeout(function () {
@@ -1690,7 +1701,6 @@ pui.Grid = function () {
         var form = document.createElement("form");
         form.action = getProgramURL("PUI0009107.pgm");
         form.method = "post";
-
         function addField(fieldName, fieldValue) {
           var field = createNamedElement("input", fieldName);
           field.type = "hidden";
@@ -1720,7 +1730,8 @@ pui.Grid = function () {
 
           }
 
-        } else {
+        }
+        else {
 
           addField("q", pui.aes.encryptString(sql));
 
@@ -1766,12 +1777,14 @@ pui.Grid = function () {
         // When doing Find, startRow may be one higher than me.recNum. Then, if the CGI program
         // returns nothing because nothing was found, we can leave the grid cells as they were.
         startRow = findStartRow;
-      } else
+      }
+      else
         // We aren't doing a server-side Find, so clear all cells.
         me.clearData();
 
       runSQL(sql, numRows, startRow, receiveData, (me.totalRecs == null), dataURL, true);
-    } else if (context == "dspf" || pui.usingGenieHandler) {
+    }
+    else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
       if (me.isFiltered()) dataRecords = me.filteredDataArray;
       me.tableDiv.cursorRRN = 0;
@@ -1798,7 +1811,8 @@ pui.Grid = function () {
         var valuesData = dataRecords[i - 1];
         if (valuesData == null || valuesData.length == 0) {
           fieldData.empty = true;
-        } else {
+        }
+        else {
           for (var j = 0; j < me.fieldNames.length; j++) {
             fieldData[me.fieldNames[j]] = valuesData[j];
           }
@@ -1899,7 +1913,8 @@ pui.Grid = function () {
               var idx;
               if (pui["secLevel"] > 0) {
                 idx = cellMap[colNum];
-              } else {
+              }
+              else {
                 idx = colNum;
               }
               // In case the user hides a column
@@ -1936,7 +1951,8 @@ pui.Grid = function () {
             }
           }
           me.scrollbarObj.reset();
-        } else if (me.scrollbarObj.type == "sliding") {
+        }
+        else if (me.scrollbarObj.type == "sliding") {
           if (me.totalRecs != null) {
             me.scrollbarObj.totalRows = me.totalRecs;
             if (matchRow > 0) { //If this response is the result of a Find.
@@ -1978,7 +1994,8 @@ pui.Grid = function () {
             elem.style.display = "none";
             elem.redisplay = true;
             me.tableDiv.appendChild(elem);
-          } else {
+          }
+          else {
             cell.removeChild(elem);
           }
           elem = cell.firstChild;
@@ -2037,7 +2054,8 @@ pui.Grid = function () {
       var width = parseInt(me.vLines[i].style.left) - parseInt(me.vLines[i - 1].style.left);
       if (widths == "") {
         widths += String(width);
-      } else {
+      }
+      else {
         widths += "," + String(width);
       }
     }
@@ -2111,7 +2129,8 @@ pui.Grid = function () {
     if (itm.properties[propertyName] != stringValue) {
       if (pui.isBound(itm.properties[propertyName])) {
         if (propertyName == "top" || propertyName == "left") itm.properties[propertyName].designValue = stringValue;
-      } else {
+      }
+      else {
         itm.properties[propertyName] = stringValue;
       }
       itm.propertiesChanged[propertyName] = true;
@@ -2130,7 +2149,8 @@ pui.Grid = function () {
       handle.style.height = "6px";
       handle.style.width = "6px";
       handle.style.padding = "0px";
-    } else {
+    }
+    else {
       handle.style.height = "3px";
       handle.style.width = "3px";
       handle.style.padding = "1px";
@@ -2184,7 +2204,6 @@ pui.Grid = function () {
         }
         psBar.set(me.tableDiv.designItem);
       }
-
       function mouseup() {
         designUtils.removeEvent(document, "mousemove", mousemove);
         designUtils.removeEvent(document, "mouseup", mouseup);
@@ -2201,7 +2220,8 @@ pui.Grid = function () {
               }
               if (addedSome) me.mirrorDownAll();
             }
-          } else {
+          }
+          else {
             me.rowHeight = parseInt(me.hLines[me.hLines.length - 1].style.top) - parseInt(me.hLines[me.hLines.length - 2].style.top);
           }
         }
@@ -2261,7 +2281,8 @@ pui.Grid = function () {
       }
       if (me.columnHeadings.length <= i) {
         headerCell.innerHTML = "";
-      } else {
+      }
+      else {
         var alignCSS = "";
         if (headerCell.style.textAlign != null && headerCell.style.textAlign != "") {
           alignCSS = " text-align:" + headerCell.style.textAlign;
@@ -2278,9 +2299,11 @@ pui.Grid = function () {
       if (me.designMode == false && me.sortable == true && me.sortIcon != null) {
         if (clientSortColumnId == headerCell.columnId) {
           placeSortIcon = true;
-        } else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
+        }
+        else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
           placeSortIcon = true;
-        } else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
+        }
+        else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
           placeSortIcon = true;
         }
         if (placeSortIcon) {
@@ -2350,8 +2373,9 @@ pui.Grid = function () {
         headerRow[i].fieldName = fields[i];
         attachClickEventForSQL(headerRow[i], i);
       }
-    } else if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "") ||
-      (me.dataProps["data url"] != null && me.dataProps["data url"] != "")) {
+    }
+    else if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
+          || (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ){
 
       // Custom SQL and data URL grids can sort given the column number.
       var numCols = me.vLines.length - 1;
@@ -2387,7 +2411,8 @@ pui.Grid = function () {
       }
       if (me.initialSortColumn != null) {
         sortColumn(headerRow[me.initialSortColumn], false, true);
-      } else if (me.initialSortField != null) {
+      }
+      else if (me.initialSortField != null) {
         var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
         if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], false, true);
       }
@@ -2400,13 +2425,15 @@ pui.Grid = function () {
           pui.columnSortResponseGrid = me;
           var returnVal = pui.respond();
           pui.columnSortResponseGrid = null;
-        } else if (me.tableDiv.fieldNameSortResponseField != null) {
+        }
+        else if (me.tableDiv.fieldNameSortResponseField != null) {
           me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);
           if (me.fieldNameSortResponse == null) return;
           pui.fieldNameSortResponseGrid = me;
           var returnVal = pui.respond();
           pui.fieldNameSortResponseGrid = null;
-        } else {
+        }
+        else {
           sortColumn(cell);
         }
       }
@@ -2476,9 +2503,7 @@ pui.Grid = function () {
     if (me.hidableColumns) {
       var colState = state["hidableColState"];
       var widths = state["colWidths"];
-      if (widths) widths = widths.filter(function (size) {
-        return (size);
-      });
+      if (widths) widths = widths.filter(function(size){ return (size); });
       if (colState) {
         var cols = colState["cols"];
         var headings = colState["headings"];
@@ -2603,7 +2628,8 @@ pui.Grid = function () {
     if (me.defaultSortOrderArray.length == 0) return false;
     if (me.defaultSortOrderArray.length == 1) {
       sortOrder = me.defaultSortOrderArray[0];
-    } else {
+    }
+    else {
       sortOrder = me.defaultSortOrderArray[col];
     }
     if (sortOrder == null) return false;
@@ -2630,7 +2656,8 @@ pui.Grid = function () {
     if (me.sortIcon == null) {
       me.sortIcon = document.createElement("img");
       me.sortIcon.style.paddingLeft = "3px";
-    } else {
+    }
+    else {
       if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
     }
 
@@ -2664,7 +2691,8 @@ pui.Grid = function () {
         if (cell.dataType == "zoned" || cell.dataType == "floating") {
           value1 = Number(value1);
           value2 = Number(value2);
-        } else if (cell.dataType == "reference") {
+        }
+        else if (cell.dataType == "reference") {
           var refObj = me.ref[cell.fieldName];
           if (refObj != null) {
             if (refObj.dataType == 7 || refObj.dataType == 9 || refObj.dataType == 10) { // zoned, packed, floating
@@ -2672,7 +2700,8 @@ pui.Grid = function () {
               value2 = Number(value2);
             }
           }
-        } else if (cell.dataType == "graphic") {
+        }
+        else if (cell.dataType == "graphic"){
           value1 = pui.formatting.decodeGraphic(value1);
           value2 = pui.formatting.decodeGraphic(value2);
         }
@@ -2700,7 +2729,8 @@ pui.Grid = function () {
           else if (value1 == value2) {
             if (row1.subfileRow < row2.subfileRow) return -1; 
             else return 1;
-          } else return 1;
+      }
+          else return 1;
         }
       }
       // Handle the pui.gridSort and the screen level defined grid function. 
@@ -2808,7 +2838,8 @@ pui.Grid = function () {
     if (me.sortIcon == null) {
       me.sortIcon = document.createElement("img");
       me.sortIcon.style.paddingLeft = "3px";
-    } else {
+    }
+    else {
       if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
     }
     me.sortBy = cell.columnId + 1; //column number works fine in db-driven and custom sql queries.
@@ -2898,7 +2929,8 @@ pui.Grid = function () {
                   value = "";
                   if (dom.onOffSwitch.isOn && dom.onOffSwitch.onValue != null) {
                     value = dom.onOffSwitch.onValue;
-                  } else if (!dom.onOffSwitch.isOn && dom.onOffSwitch.offValue != null) {
+                  }
+                  else if (!dom.onOffSwitch.isOn && dom.onOffSwitch.offValue != null) {
                     value = dom.onOffSwitch.offValue;
                   }
                 }
@@ -2906,7 +2938,8 @@ pui.Grid = function () {
                   if (dom.checked) {
                     if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
                     else value = "1";
-                  } else {
+                  }
+                  else {
                     if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue;
                     else value = " ";
                   }
@@ -2941,7 +2974,8 @@ pui.Grid = function () {
 
         state = JSON.parse(localStorage[me.storageKey]);
 
-      } catch (e) {
+      }
+      catch(e) {
 
       }
 
@@ -2959,7 +2993,8 @@ pui.Grid = function () {
       // Root object.
       stg = value;
 
-    } else {
+    }
+    else {
 
       stg = loadState();
       if (stg == null) {
@@ -3022,7 +3057,8 @@ pui.Grid = function () {
         }
         var returnVal = eval(eventCode);
         if (returnVal == false) return false;
-      } catch (err) {
+      }
+      catch(err) {
         pui.scriptError(err, eventName.substr(0, 1).toUpperCase() + eventName.substr(1) + " Error:\n");
         return false;
       }
@@ -3092,7 +3128,8 @@ pui.Grid = function () {
             left = parseInt(obj.style.left);
             top = parseInt(obj.style.top);
             fieldInfo = obj.fieldInfo;
-          } else {
+          }
+          else {
             text = obj.innerHTML;
             objClass = obj.className;
             left = parseInt(obj.style.left);
@@ -3214,7 +3251,8 @@ pui.Grid = function () {
               me.getData();
             }
             return true;
-          } else if (context == "dspf" || pui.usingGenieHandler) {
+          }
+          else if (context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -3223,7 +3261,8 @@ pui.Grid = function () {
                 me.setScrollBar();
               }, 250);
             }
-          } else if (context == "genie") {
+          }
+          else if (context == "genie") {
             pressKey("PageUp");
             return true;
           }
@@ -3238,7 +3277,8 @@ pui.Grid = function () {
             me.recNum += numRows;
             me.getData();
             return true;
-          } else if (context == "dspf" || pui.usingGenieHandler) {
+          }
+          else if (context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -3247,7 +3287,8 @@ pui.Grid = function () {
                 me.setScrollBar();
               }, 250);
             }
-          } else if (context == "genie") {
+          }
+          else if (context == "genie") {
             pressKey("PageDown");
             return true;
           }
@@ -3305,10 +3346,12 @@ pui.Grid = function () {
         if (me.scrollToolTip == "row number") {
           me.scrollbarObj.showRowNum = true;
           me.scrollbarObj.showRowRange = false;
-        } else if (me.scrollToolTip == "row range") {
+        }
+        else if (me.scrollToolTip == "row range") {
           me.scrollbarObj.showRowNum = false;
           me.scrollbarObj.showRowRange = true;
-        } else {
+        }
+        else {
           me.scrollbarObj.showRowNum = false;
           me.scrollbarObj.showRowRange = false;
         }
@@ -3322,7 +3365,8 @@ pui.Grid = function () {
       if (me.tableDiv.style.visibility != "hidden") {
         me.scrollbarObj.draw();
       }
-    } else {
+    }
+    else {
       if (me.scrollbarObj != null) {
         me.scrollbarObj.destroy();
         me.scrollbarObj = null;
@@ -3363,7 +3407,8 @@ pui.Grid = function () {
     if (n > 0) {
       x = parseInt(me.hLines[n - 1].style.left);
       y = parseInt(me.hLines[n - 1].style.top) - 20;
-    } else {
+    }
+    else {
       x = me.getStyleAsInt("left");
       y = me.getStyleAsInt("top") - 20;
     }
@@ -3377,7 +3422,8 @@ pui.Grid = function () {
     if (n > 0) {
       x = parseInt(me.vLines[n - 1].style.left) - 20;
       y = parseInt(me.vLines[n - 1].style.top) + 5;
-    } else {
+    }
+    else {
       x = me.getStyleAsInt("left") - 20;
       y = me.getStyleAsInt("top") + 5;
     }
@@ -3529,7 +3575,8 @@ pui.Grid = function () {
       case "header text align":
         if (value == "" && me.cellPropDefaults[property] != null) {
           me.cellProps[property] = me.cellPropDefaults[property];
-        } else {
+        }
+        else {
           me.cellProps[property] = value;
         }
         if (me.designMode) {
@@ -3551,20 +3598,20 @@ pui.Grid = function () {
           if (value == "single") {
             me.singleSelection = true;
             me.extendedSelection = false;
-          } else {
+          }
+          else {
             me.singleSelection = false;
             if (value == "multiple (extended)") me.extendedSelection = true;
             else me.extendedSelection = false;
           }
           if (typeof (pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
-            me.tableDiv.onselectstart = function (e) {
-              return false;
-            };
+            me.tableDiv.onselectstart = function(e) { return false; };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
           }
-        } else {
+        }
+        else {
           me.selectionEnabled = false;
-          me.singleSelection = false;
+          me.singleSelection = false;        
           me.extendedSelection = false;
         }
         break;
@@ -3718,7 +3765,8 @@ pui.Grid = function () {
         if (!me.designMode) {
           if (value == null) {
             me.defaultSortOrderArray = [];
-          } else {
+          }
+          else {
             me.defaultSortOrderArray = value.split(",");
           }
           resetDefaultSort(); //Make sure after applyProperty the first click to sort gets correct order.
@@ -3800,9 +3848,7 @@ pui.Grid = function () {
         var colNum = me.vLines.length - 1;
         var colWidths = me.getColumnWidths()
           .split(',')
-          .map(function (num) {
-            return Number(num);
-          });
+          .map(function(num){ return Number(num); });
         for (var i = 0; i < colNum; i++) {
           var header = me.columnHeadings[i];
           var blankHeader = false;
@@ -3830,14 +3876,16 @@ pui.Grid = function () {
       case "export option":
         if (value == true || value == "true") {
           me.exportOption = true;
-        } else if (value == false || value == "false") {
+        }
+        else if (value == false || value == "false") {
           me.exportOption = false;
-        } else {
+        }
+        else {
           me.exportOption = null;
         }
-        break;
-
-      case "export only visible columns":
+        break;      
+      
+            case "export only visible columns":
         if (value == true || value == "true") me.exportVisableOnly = true;
         else me.exportVisableOnly = false;
         break;
@@ -3852,17 +3900,15 @@ pui.Grid = function () {
 
           }
           if (pui["is_touch"]) {
-            me.tableDiv.onselectstart = function (e) {
-              return false;
-            };
-            if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
+            me.tableDiv.onselectstart = function(e) { return false; };
+            if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";                     
             if (typeof me.tableDiv.style.webkitUserSelect != "undefined") me.tableDiv.style.webkitUserSelect = "none";
-          }
+          }                     
           addEvent(document, "click", me.hideContextMenu);
         }
         break;
-
-      case "show paging controls":
+        
+              case "show paging controls":
         me.pagingBar.showPagingControls = (value == true || value == "true");
         if (me.designMode) {
           me.pagingBar.draw();
@@ -3982,7 +4028,8 @@ pui.Grid = function () {
           else me.pagingScrollBar = false;
           me.sizeAllCells();
           me.setScrollBar();
-        } else {
+        }
+        else {
           me.slidingScrollBar = true;
           me.pagingScrollBar = false;
           if (value == "none") {
@@ -3993,7 +4040,8 @@ pui.Grid = function () {
             me.slidingScrollBar = false;
             if (me.isDataGrid()) {
               me.pagingScrollBar = true;
-            } else {
+            }
+            else {
               //me.pagingScrollBar = false;
               me.pagingScrollBar = true;
             }
@@ -4139,7 +4187,8 @@ pui.Grid = function () {
           if (value == "hidden") {
             me.tableDiv.style.filter = "alpha(opacity=30)";
             me.tableDiv.style.opacity = 0.30;
-          } else {
+          }
+          else {
             me.tableDiv.style.filter = "";
             me.tableDiv.style.opacity = "";
           }
@@ -4199,7 +4248,8 @@ pui.Grid = function () {
       case "propagate scroll events":
         if (value === true || value === "true") {
           me.propagateScrollEvents = true;
-        } else {
+        }
+        else {
           me.propagateScrollEvents = false;
         }
         break;
@@ -4244,7 +4294,8 @@ pui.Grid = function () {
       if (me.isFiltered()) dataRecords = me.filteredDataArray;
       if (dataRecords[me.tableDiv.cursorRRN - 1] == null || dataRecords[me.tableDiv.cursorRRN - 1].length == 0) {
         me.tableDiv.cursorRRN = 0;
-      } else if (dataRecords[me.tableDiv.cursorRRN - 1].subfileRow != null) {
+      }
+      else if (dataRecords[me.tableDiv.cursorRRN - 1].subfileRow != null) {
         me.tableDiv.cursorRRN = dataRecords[me.tableDiv.cursorRRN - 1].subfileRow;
       }
     }
@@ -4273,7 +4324,8 @@ pui.Grid = function () {
       setTimeout(function () {
         placeCursorOnRow(row);
       }, 1);
-    } else {
+    }
+    else {
       placeCursorOnRow(row);
     }
   };
@@ -4374,8 +4426,7 @@ pui.Grid = function () {
           }
         }
       }
-    }
-    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
+    }    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
 
     var rowFontColor = null;
     if (me.rowFontColorField != null) {
@@ -4406,7 +4457,8 @@ pui.Grid = function () {
       if (colors.length > 1) {
         if (colNum < colors.length) {
           color = colors[colNum];
-        } else {
+        }
+        else {
           color = colors[0];
         }
       }
@@ -4425,17 +4477,20 @@ pui.Grid = function () {
         setColor(cols[i], me.cellProps["selection font color"], i);
         if (me.cellProps["selection background"] == null) {
           cols[i].style.backgroundColor = "";
-        } else {
+        }
+        else {
           cols[i].style.backgroundColor = me.cellProps["selection background"];
         }
         var selectionImage = me.cellProps["selection image"];
         if (selectionImage == null || selectionImage == "") {
           cols[i].style.backgroundImage = "";
-        } else {
+        }
+        else {
           cols[i].style.backgroundImage = "url('" + pui.normalizeURL(selectionImage, true) + "')";
         }
         pui.addCssClass(cols[i], "selected");
-      } else if (hover == true) {
+      }
+      else if (hover == true) {
         setColor(cols[i], me.cellProps["hover font color"], i);
         cols[i].style.backgroundColor = me.cellProps["hover background"];
         if (me.cellProps["hover image"] != null && me.cellProps["hover image"] != "") {
@@ -4443,7 +4498,8 @@ pui.Grid = function () {
           cols[i].style.backgroundRepeat = "repeat-x";
         }
         pui.addCssClass(cols[i], "hover");
-      } else {
+      }
+      else {
         if (rowFontColor == null || rowFontColor == "") {
           rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
         }
@@ -4453,7 +4509,8 @@ pui.Grid = function () {
         setColor(cols[i], rowFontColor, i);
         if (rowBackground == null) {
           cols[i].style.backgroundColor = "";
-        } else {
+        }
+        else {
           cols[i].style.backgroundColor = rowBackground;
         }
         cols[i].style.backgroundImage = "";
@@ -4482,7 +4539,6 @@ pui.Grid = function () {
     }
 
     cell.style.cursor = "default";
-
     function mousedown(event) {
       if (me.designMode) {
         me.tableDiv.designItem.designer.hideDialogs();
@@ -4510,7 +4566,8 @@ pui.Grid = function () {
         }
         me.tableDiv.designItem.startValues.left = me.tableDiv.style.left;
         me.tableDiv.designItem.startValues.top = me.tableDiv.style.top;
-      } else {
+      }
+      else {
         if (me.gridMenu != null && !pui.isRightClick(event)) me.gridMenu.hide();
       }
 
@@ -4557,7 +4614,8 @@ pui.Grid = function () {
               if (me.designMode) {
                 //Note: in Designer, the mouseLeft is only used in a comparison, not in positioning columnPointer.
                 mouseLineDiffX += me.tableDiv.designItem.designer.getLeftOffset();
-              } else {
+              }
+              else {
                 //Get the runtimeContainer's position relative to the page. The bounding rectangle handles
                 //positions of any parent DIV elements the customer's start.html may have added. #3344.
                 var rect = pui.runtimeContainer.getBoundingClientRect();
@@ -4612,10 +4670,7 @@ pui.Grid = function () {
                 var prt = line.parentNode;
                 var top = parseInt(line.style.top) - 10;
                 var left = parseInt(line.style.left) - 4;
-                var offset = {
-                  x: 0,
-                  y: 0
-                };
+                var offset = {x:0, y:0};
                 //Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
                 if (!me.designMode) {
                   //In RDF or Genie, the previous mouse calculations can be used because the
@@ -4684,7 +4739,6 @@ pui.Grid = function () {
         psBar.set(me.tableDiv.designItem);
         psBar.show();
       }
-
       function mouseup() {
         me.dragging = false;
         if (headerCellProxy != null) {
@@ -4734,26 +4788,18 @@ pui.Grid = function () {
                 var state = restoreStatePreCheck();
                 if (state) {
                   var colState = state["hidableColState"];
-                  if (!colState) colState = {
-                    "cols": cols,
-                    "headings": me.columnHeadings
-                  };
+                  if (!colState) colState = { "cols": cols, "headings": me.columnHeadings };
                   else {
                     colState["cols"] = cols;
                     colState["headings"] = me.columnHeadings;
                   }
                 } else {
-                  var colState = {
-                    "cols": cols,
-                    "headings": me.columnHeadings
-                  };
+                  var colState = { "cols": cols, "headings": me.columnHeadings };
                 }
                 var colWidths = me
                   .getColumnWidths()
                   .split(',')
-                  .map(function (size) {
-                    return Number(size);
-                  });
+                    .map(function (size) { return Number(size); });
 
                 saveState(colState, "hidableColState");
                 saveState(colWidths, 'colWidths');
@@ -4782,7 +4828,8 @@ pui.Grid = function () {
                 if (context == "dspf") pui.ide.refreshRibbon();
               }
 
-            } else {
+            }
+            else {
               if (!columnWasMoved) {
                 me.tableDiv.designItem.designer.undo.removeLastGroup();
               }
@@ -4835,7 +4882,8 @@ pui.Grid = function () {
     if (designer.proxyDiv.style.display == "") {
       top = parseInt(designer.proxyDiv.style.top);
       left = parseInt(designer.proxyDiv.style.left);
-    } else {
+    }
+    else {
       top = parseInt(itm.dom.style.top);
       left = parseInt(itm.dom.style.left);
     }
@@ -4939,7 +4987,6 @@ pui.Grid = function () {
     if (isVertical) line.style.cursor = "w-resize";
     if (!isVertical) lines[i].style.cursor = "n-resize";
     me.selectMe();
-
     function mousedown(event) {
 
       if (me.designMode) {
@@ -4957,7 +5004,8 @@ pui.Grid = function () {
           designUtils.preventEvent(event);
           return;
         }
-      } else {
+      }
+      else {
         if (me.gridMenu != null) me.gridMenu.hide();
       }
       line.dragging = true;
@@ -4967,8 +5015,7 @@ pui.Grid = function () {
       var startLeft = parseInt(line.style.left);
       var startTop = parseInt(line.style.top);
       me.selectMe();
-
-      function mousemove(event) {
+      function mousemove(event) {        
         var y = getMouseY(event) - cursorStartY;
         var x = getMouseX(event) - cursorStartX;
         doResize(x, y, i, isVertical, startTop, startLeft);
@@ -4979,7 +5026,8 @@ pui.Grid = function () {
         }
         if (me.designMode) {
           psBar.set(me.tableDiv.designItem);
-        } else {
+        }
+        else {
           me["alignColumnTotals"]();
         }
       }
@@ -4989,7 +5037,6 @@ pui.Grid = function () {
       line.style.borderColor = "#333333";
       if (!isVertical) line.style.borderTopStyle = "solid";
       if (isVertical) line.style.borderRightStyle = "solid";
-
       function mouseup() {
         line.dragging = false;
         me.dragging = false;
@@ -5012,7 +5059,8 @@ pui.Grid = function () {
               }
               if (addedSome) me.mirrorDownAll();
             }
-          } else {
+          }
+          else {
             me.rowHeight = parseInt(lines[lines.length - 1].style.top) - parseInt(lines[lines.length - 2].style.top);
           }
         }
@@ -5020,7 +5068,8 @@ pui.Grid = function () {
           me.doExpandToLayout();
           me.sendToDesigner();
           psBar.hide();
-        } else {
+        }
+        else {
           me["alignColumnTotals"]();
           if (isVertical && persistState) {
             var colWidths = new Array(me.cells[0].length);
@@ -5139,7 +5188,8 @@ pui.Grid = function () {
     }
     if (isVertical && (lines.length - 1 == i || i == 0)) {
       setLineWidths();
-    } else if (excelLike && isVertical) {
+    }
+    else if (excelLike && isVertical) {
       setLineWidths();
     }
     if (!isVertical) {
@@ -5200,7 +5250,8 @@ pui.Grid = function () {
     var height = content.offsetHeight;
     if (height > 0) {
       content.style.marginTop = (-parseInt(height / 2)) + "px";
-    } else {
+    }
+    else {
       content.style.position = "relative";
       content.style.webkitTransform = "translateY(-50%)";
       content.style.mozTransform = "translateY(-50%)";
@@ -5293,7 +5344,6 @@ pui.Grid = function () {
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
-
         function stopContextMenu(event) {
           if (!event) event = window.event;
           if (event.preventDefault) event.preventDefault();
@@ -5357,15 +5407,13 @@ pui.Grid = function () {
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode; // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
 
-          var offset = {
-            x: 0,
-            y: 0
-          };
+          var offset = {x:0, y:0};
           if (context == "dspf" && parent.getAttribute("container") == "true") {
 
             offset = pui.layout.getContainerOffset(parent);
 
-          } else if (parent.isPUIWindow) {
+          }
+          else if (parent.isPUIWindow) {
 
             offset.x = parent.offsetLeft;
             offset.y = parent.offsetTop;
@@ -5383,9 +5431,7 @@ pui.Grid = function () {
 
           x -= contextMenu.clientWidth / 2;
 
-          contextMenu.onselectstart = function (e) {
-            return false;
-          };
+          contextMenu.onselectstart = function(e) { return false; };
           if (typeof contextMenu.style.MozUserSelect != "undefined") contextMenu.style.MozUserSelect = "none";
           if (typeof contextMenu.style.webkitUserSelect != "undefined") contextMenu.style.webkitUserSelect = "none";
 
@@ -5523,7 +5569,8 @@ pui.Grid = function () {
                   if (dataRecords[i].selected != true) {
                     handleSelection(dataRecords[i], false, true, i);
                   }
-                } else {
+                }
+                else {
                   if (dataRecords[i].selected == true) {
                     handleSelection(dataRecords[i], true, false, i);
                   }
@@ -5534,7 +5581,8 @@ pui.Grid = function () {
                   }
                 }
               }
-            } else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
+            }
+            else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
               if (dataRecords[adjustedRow - 1].selected == true && !isRight) dataRecords[adjustedRow - 1].selected = false;
               else dataRecords[adjustedRow - 1].selected = true;
               if (me.selectionField != null && dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].selection != null) {
@@ -5543,7 +5591,8 @@ pui.Grid = function () {
                   dataRecords[adjustedRow - 1].selection.value = me.selectionValue;
                   //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
                   if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
-                } else {
+                }
+                else {
                   dataRecords[adjustedRow - 1].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
                   //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
                   if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
@@ -5695,7 +5744,8 @@ pui.Grid = function () {
             itm.designer.inlineEditBox.show(itm, cell, "grid");
           }
         }
-      } else {
+      }
+      else {      
         if (!me.hasHeader) executeEvent("onrowdblclick", row + 1, null, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowdblclick", row, null, e, col);
       }
@@ -5784,7 +5834,8 @@ pui.Grid = function () {
         }
         if (pui["highlight on focus"]) inputBox.select();
       }
-    } catch (e) {}
+    }
+    catch (e) {}
 
     return true;
   }
@@ -5803,7 +5854,8 @@ pui.Grid = function () {
     if (propValues.length > 1) {
       if (col < propValues.length) {
         propValue = propValues[col];
-      } else {
+      }
+      else {
         propValue = propValues[0];
       }
     }
@@ -5814,10 +5866,12 @@ pui.Grid = function () {
     }
     try {
       cell.style[styleName] = propValue;
-    } catch (e) {}
+    }
+    catch(e) {
+    }
   }
 
-  function setCellStyles(cell, header, even, col) {
+    function setCellStyles(cell, header, even, col) {
     setCellStyle(cell, col, "fontFamily", header ? "header font family" : "font family");
     setCellStyle(cell, col, "fontSize", header ? "header font size" : "font size");
     setCellStyle(cell, col, "fontStyle", header ? "header font style" : "font style");
@@ -5838,12 +5892,14 @@ pui.Grid = function () {
       if (headerImage != null && headerImage != "") {
         cell.style.backgroundImage = "url('" + pui.normalizeURL(headerImage, true) + "')";
         cell.style.backgroundRepeat = "repeat-x";
-      } else {
+      }
+      else {
         cell.style.backgroundImage = "";
         cell.style.backgroundRepeat = "";
       }
       cssClass = "cell header-cell";
-    } else {
+    }
+    else {
       cell.style.backgroundImage = "";
       cell.style.backgroundRepeat = "";
       cssClass = "cell";
@@ -5946,7 +6002,8 @@ pui.Grid = function () {
         if (callback != null) {
           callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs, pui.sqlcache[start]["matchRow"]);
           return;
-        } else {
+    		}
+    		else {
           return pui.sqlcache.results;
         }
       }
@@ -5979,7 +6036,8 @@ pui.Grid = function () {
 
       }
 
-    } else {
+    }
+    else {
 
       req["postData"] += "&q=" + pui.aes.encryptString(sql);
 
@@ -6003,13 +6061,15 @@ pui.Grid = function () {
           var fn = eval("window." + me.dataProps["data transform function"]);
           response = fn(req.getResponseText());
 
-        } catch (e) {
+        }         
+        catch(e) {
 
           pui.logException(e);
 
         }
 
-      } else {
+      }
+      else {
 
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
 
@@ -6028,7 +6088,8 @@ pui.Grid = function () {
         }
         if (callback != null) {
           callback(response.results, response.totalRecs, response["matchRow"]);
-        } else returnVal = response.results;
+        }
+        else returnVal = response.results;
         successful = true;
       }
       if (ondbload) pui.executeDatabaseLoadEvent(ondbload, successful, me.tableDiv.id);
@@ -6055,7 +6116,8 @@ pui.Grid = function () {
       (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ||
       (me.dataProps["database file"] != null && me.dataProps["database file"] != "")) {
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   };
@@ -6164,9 +6226,7 @@ pui.Grid = function () {
     vLine.style.padding = "0px";
     vLine.style.zIndex = me.vBorderZIndex;
     // disable context menu when right clicked on vLine
-    vLine.oncontextmenu = function (e) {
-      return false;
-    };
+    vLine.oncontextmenu = function(e) { return false; };
     me.container.appendChild(vLine);
     me.vLines[n] = vLine;
     setLineWidths();
@@ -6272,7 +6332,6 @@ pui.Grid = function () {
       var changed = false;
       var itm = me.tableDiv.designItem;
       var jsonAvailable = (JSON != null && typeof JSON.parse == "function" && typeof JSON.stringify == "function");
-
       function movePropertyParts(propName) {
         var value = itm.properties[propName];
         if (value == null || value == "" || pui.isBound(value)) return;
@@ -6373,7 +6432,8 @@ pui.Grid = function () {
           fields.splice(adjustedFrom, 1); // remove the from cell
           me.dataProps["database fields"] = fields.join(",");
         }
-      } else {
+      }
+      else {
         for (var i = 0; i < me.runtimeChildren.length; i++) {
           var itm = me.runtimeChildren[i];
           var col = Number(itm["column"]);
@@ -6405,7 +6465,6 @@ pui.Grid = function () {
 
       me["alignColumnTotals"]();
     }
-
     function handleColCheck(to, from, col, newCol) {
       if (to > from) {
         if (col > from && col < to) newCol = newCol - 1;
@@ -6453,9 +6512,7 @@ pui.Grid = function () {
     hLine.style.zIndex = me.hBorderZIndex;
     if (me.tableDiv.style.visibility == "hidden") hLine.style.visibility = "hidden";
     // disable context menu when right clicked on hLine
-    hLine.oncontextmenu = function (e) {
-      return false;
-    };
+    hLine.oncontextmenu = function(e) { return false; };
     me.container.appendChild(hLine);
     me.hLines[n] = hLine;
     setLineHeights();
@@ -6527,7 +6584,8 @@ pui.Grid = function () {
     if (row < 1) row = 1;
     if (me.slidingScrollBar) {
       me.scrollbarObj.setScrollTopToRow(row);
-    } else {
+    }
+    else {
       me.recNum = row;
       me.getData();
     }
@@ -6577,7 +6635,8 @@ pui.Grid = function () {
     var count;
     if (me.isDataGrid()) {
       count = me.totalRecs;
-    } else {
+    }
+    else {
       count = me.dataArray.length;
     }
     if (count == null) count = 0;
@@ -6604,11 +6663,10 @@ pui.Grid = function () {
 
         }
 
-      } else {
+      }
+      else {
 
-        try {
-          delete localStorage[me.storageKey];
-        } catch (exc) {}
+        try{ delete localStorage[me.storageKey]; }catch(exc){}
 
       }
 
@@ -6642,7 +6700,8 @@ pui.Grid = function () {
 
             if (me.dataArray[i].selected) count++;
 
-          } else if (me.dataArray[i][idx] == me.selectionValue) count++;
+          }
+          else if (me.dataArray[i][idx] == me.selectionValue) count++;
 
         }
 
@@ -6822,9 +6881,9 @@ pui.Grid = function () {
           var record = dataRecords[i];
           var value = record[idx];
           // If the header has a format for the current field, then use it.
-          if (headerCell["pui"] && headerCell["pui"].formats &&
-            headerCell["pui"].formats[j] != null &&
-            typeof headerCell["pui"].formats[j] == "object") {
+          if( headerCell["pui"] && headerCell["pui"].formats
+           && headerCell["pui"].formats[j] != null
+           && typeof headerCell["pui"].formats[j] == "object"){
             headerCell["pui"].formats[j].value = value;
             value = pui.FieldFormat.format(headerCell["pui"].formats[j]);
           }
@@ -6883,7 +6942,8 @@ pui.Grid = function () {
     var headerCell = me.ffbox.headerCell;
     if (text == "") {
       me["removeFilter"](headerCell);
-    } else {
+    }
+    else {
       me["setFilter"](headerCell, text);
     }
   };
@@ -6916,7 +6976,8 @@ pui.Grid = function () {
       me.recNum = 1; // Show record 1 on row 1.
 
       me.mask(); // disable UI until server responds.
-    } else {
+    }
+    else{
       // Do client-side filtering.
       var idxes = headerCell.searchIndexes;
       var col = headerCell.columnId;
@@ -6930,9 +6991,9 @@ pui.Grid = function () {
           var ignoreTest = false;
           if (headerCell["pui"] != null) {
             // If the header has a format for the current field, then use it.
-            if (headerCell["pui"].formats != null &&
-              headerCell["pui"].formats[j] != null &&
-              typeof headerCell["pui"].formats[j] == "object") {
+            if( headerCell["pui"].formats != null
+             && headerCell["pui"].formats[j] != null
+             && typeof headerCell["pui"].formats[j] == "object" ){
 
               var curfmt = headerCell["pui"].formats[j];
               curfmt.value = value;
@@ -6941,16 +7002,16 @@ pui.Grid = function () {
 
             // If the field is hidden explicitly or by position, then ignore its
             // value in the filter.
-            if (headerCell["pui"].rtIdxs != null &&
-              headerCell["pui"].rtIdxs[j] != null &&
-              me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null &&
-              typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object") {
+            if( headerCell["pui"].rtIdxs != null
+             && headerCell["pui"].rtIdxs[j] != null
+             && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
+             && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
 
               var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
               var rtleft = parseInt(rtChild["left"], 10);
               var rttop = parseInt(rtChild["top"], 10);
-              if (rtChild["visibility"] == "hidden" ||
-                (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
+              if( rtChild["visibility"] == "hidden"
+              || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
                 ignoreTest = true;
             }
           }
@@ -6979,16 +7040,13 @@ pui.Grid = function () {
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
       if (headerCell.filterText != null && headerCell.filterText != "") {
-        filters.push({
-          "text": headerCell.filterText,
-          "column": headerCell.columnId,
-          "curCol": headerCell.col
-        });
+        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
       }
     }
     if (filters.length < 1) {
       me["clearState"]("filters");
-    } else {
+    }
+    else {
       saveState(filters, "filters");
     }
   };
@@ -7031,7 +7089,8 @@ pui.Grid = function () {
           from = Number(from);
           to = Number(to);
           value = Number(value);
-        } else {
+        }
+        else {
           value = value.toLowerCase();
         }
         return (value >= from && value <= to);
@@ -7047,52 +7106,61 @@ pui.Grid = function () {
         if (value.toLowerCase() == text) return true;
       }
       return false;
-    } else if (text.substr(0, 12).toLowerCase() == "starts with ") {
+    }
+    else if (text.substr(0,12).toLowerCase() == "starts with ") {
       var text = text.substr(12).toLowerCase();
       return (text == value.substr(0, text.length).toLowerCase());
-    } else if (text.substr(0, 2) == "==") {
+    }
+    else if (text.substr(0,2) == "==") {
       text = text.substr(2);
       if (text == "") return true;
       return (text.toLowerCase() == value.toLowerCase());
-    } else if (text.substr(0, 2) == ">=") {
+    }
+    else if (text.substr(0,2) == ">=") {
       text = text.substr(2);
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
       if (isNaN(text)) return value.toLowerCase() >= text.toLowerCase();
       else return (Number(value) >= Number(text));
-    } else if (text.substr(0, 2) == "<=") {
+    }
+    else if (text.substr(0,2) == "<=") {
       text = text.substr(2);
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
       if (isNaN(text)) return value.toLowerCase() <= text.toLowerCase();
       else return (Number(value) <= Number(text));
-    } else if (text.substr(0, 2) == "!=" || text.substr(0, 2) == "<>") {
+    }
+    else if (text.substr(0,2) == "!=" || text.substr(0,2) == "<>") {
       text = text.substr(2);
       if (text == "") return true;
       // Alphanumeric - matches if search text contains value. Numeric - must be exact match.
       if (isNaN(text)) return (value.toLowerCase().indexOf(text.toLowerCase()) < 0);
       else return (Number(text) != Number(value));
-    } else if (text.substr(0, 1) == "=") {
+    }
+    else if (text.substr(0,1) == "=") {
       text = text.substr(1);
       if (text == "") return true;
       return (text.toLowerCase() == value.toLowerCase());
-    } else if (text.substr(0, 1) == ">") {
+    }
+    else if (text.substr(0,1) == ">") {
       text = text.substr(1);
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
       if (isNaN(text)) return value.toLowerCase() > text.toLowerCase();
       else return (Number(value) > Number(text));
-    } else if (text.substr(0, 1) == "<") {
+    }
+    else if (text.substr(0,1) == "<") {
       text = text.substr(1);
       if (text == "") return true;
       text = prepareComparisonString(text);
       value = prepareComparisonString(value);
       if (isNaN(text)) return value.toLowerCase() < text.toLowerCase();
       else return (Number(value) < Number(text));
-    } else {
+    }
+    else {
       return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
     }
 
@@ -7126,9 +7194,9 @@ pui.Grid = function () {
     var matches = text.match(btwnreg);
     // between a and z
     if (matches != null && matches.length == 3) {
-      retval = "&fltrtype" + filtNum + "=BET" +
-        "&fltrval" + filtNum + "_0=" + encodeURIComponent(matches[1]) +
-        "&fltrval" + filtNum + "_1=" + encodeURIComponent(matches[2]);
+      retval = "&fltrtype"+filtNum+"=BET"
+        + "&fltrval"+filtNum+"_0="+encodeURIComponent(matches[1])
+        + "&fltrval"+filtNum+"_1="+encodeURIComponent(matches[2]);
     }
     // values a,b,c
     else if (text.substr(0, 7) == "VALUES ") {
@@ -7149,21 +7217,29 @@ pui.Grid = function () {
     // starts with - assume character data type. CGI will put in quotes: locate('text',field) = 1
     else if (text.substr(0, 12) == "STARTS WITH ") {
       retval = "&fltrtype" + filtNum + "=STW&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(12));
-    } else if (text.substr(0, 2) == "==") {
+    }
+    else if(text.substr(0,2) == "=="){
       retval = "&fltrtype" + filtNum + "=%3D&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(2));
-    } else if (text.substr(0, 1) == "=") {
+    }
+    else if(text.substr(0,1) == "="){
       retval = "&fltrtype" + filtNum + "=%3D&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(1));
-    } else if (text.substr(0, 2) == ">=") {
+    }
+    else if(text.substr(0,2) == ">="){
       retval = "&fltrtype" + filtNum + "=%3E%3D&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(2));
-    } else if (text.substr(0, 2) == "<=") {
+    }
+    else if(text.substr(0,2) == "<="){
       retval = "&fltrtype" + filtNum + "=%3C%3D&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(2));
-    } else if (text.substr(0, 2) == "!=" || text.substr(0, 2) == "<>") {
+    }
+    else if(text.substr(0,2) == "!=" || text.substr(0,2) == "<>" ){
       retval = "&fltrtype" + filtNum + "=!%3D&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(2));
-    } else if (text.substr(0, 1) == ">") {
+    }
+    else if(text.substr(0,1) == ">"){
       retval = "&fltrtype" + filtNum + "=%3E&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(1));
-    } else if (text.substr(0, 1) == "<") {
+    }
+    else if(text.substr(0,1) == "<"){
       retval = "&fltrtype" + filtNum + "=%3C&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(1));
-    } else {
+    }
+    else{
       // Field CONTAINS text.
       retval = "&fltrtype" + filtNum + "=CON&fltrval" + filtNum + "=" + encodeURIComponent(text);
     }
@@ -7195,7 +7271,8 @@ pui.Grid = function () {
       me.recNum = 1; // Show record 1 on row 1.
 
       me.mask(); // disable UI until server responds.
-    } else {
+    }
+    else{
       // Remove client-side filtering.
       var col = headerCell.columnId;
       me.filteredDataArray = [];
@@ -7353,9 +7430,7 @@ pui.Grid = function () {
     var currentColWidths = me
       .getColumnWidths()
       .split(',')
-      .map(function (num) {
-        return Number(num);
-      });
+        .map(function(num){ return Number(num); });
     // Loop through the columns to toggle the current column selecte and get its current width
     // get the current widths of all displayed columns
     // add up all the hidden columns widths and remove any added adjustments from the total 
@@ -7417,12 +7492,8 @@ pui.Grid = function () {
           // Filter out any columns that are after the current one 
           // and reduce it down to the column right before the current one
           var lastCol = visibleCols
-            .filter(function (col) {
-              return col["columnId"] < colId;
-            })
-            .reduce(function (prev, cur) {
-              return cur["columnId"] >= prev ? cur["columnId"] : prev;
-            }, 0);
+              .filter(function(col) { return col["columnId"] < colId; })
+              .reduce(function (prev, cur) { return cur["columnId"] >= prev? cur["columnId"]: prev; }, 0);
           col = getCurrentColumnFromId(lastCol) + 1;
         }
       }
@@ -7509,16 +7580,17 @@ pui.Grid = function () {
 
   this.customSqlCallback = function (request) {
     var response, error;
-    var headings = "",
-      columnWidths = "";
+      var headings = "", columnWidths = "";
     var itm = me.tableDiv.designItem;
 
     if (request.getStatus() != 200) {
       error = "HTTP " + request.getStatus() + " - " + request.getStatusText() + ".";
-    } else {
+      }
+      else {
       try {
         response = eval("(" + request.getResponseText() + ")");
-      } catch (e) {
+        }
+        catch(e) {
         error = "The server response is missing or invalid."; // Invalid JSON response.
       }
       if (error == null && response.success != true) { // Program-reported error.
@@ -7533,9 +7605,9 @@ pui.Grid = function () {
       if (headings != '') {
         headings += ',';
       }
-      headings += trim(response.fields[i]["DB2_LABEL"]) ||
-        trim(response.fields[i]["DB2_COLUMN_NAME"]) ||
-        trim(response.fields[i]["DB2_SYSTEM_COLUMN_NAME"]);
+    	headings += trim(response.fields[i]["DB2_LABEL"]) 
+    	         || trim(response.fields[i]["DB2_COLUMN_NAME"]) 
+                 || trim(response.fields[i]["DB2_SYSTEM_COLUMN_NAME"]);
 
       if (columnWidths != '') {
         columnWidths += ',';
@@ -7996,7 +8068,7 @@ pui.Grid = function () {
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: helpTextGridProperties("id","Sets the ID of the grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "record format name", help: helpTextGridProperties("blank","Identifies the record format that is used to access this grid from server code.",[],""), maxLength: (pui.viewdesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
+      { name: "record format name", help: helpTextGridProperties("blank","Specifies the record format that is used to access this grid from server code.",[],""), maxLength: (pui.viewdesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
       { name: "description", help: helpTextGridProperties("blank","Describes the record format.",[],""), bind: false, context: "dspf" },
       { name: "parent window", attribute: "parentWindow", help: helpTextGridProperties("blank","Sets the window that this field belongs to.",[],""), context: "genie" },
       { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: helpTextGridProperties("false","If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.",[],""), context: "genie" },
@@ -8122,27 +8194,28 @@ pui.Grid = function () {
 
       { name: "Grid Data", category: true },
       { name: "database file", type: "file", uppercase: true, help: helpTextGridProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.",[],"") },
-      {
-        name: "database fields",
-        type: "field",
-        multiple: true,
-        uppercase: true,
-        help: helpTextGridProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""),
-        descriptionsHandler: function (descriptions) {
-          if (!confirm("Update grid columns?")) return; // update the column headings   
+      { name: "database fields", type: "field", multiple: true, uppercase: true, help: helpTextGridProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
+          if (!confirm("Update grid columns?")) return; 
+          // update the column headings   
           me.setProperty("column headings", descriptions);
           var itm = me.tableDiv.designItem;
           sendPropertyToDesigner(itm, "column headings", descriptions);
-          itm.designer.propWindow.refreshProperty("column headings"); // update the number of columns based on the number of headings   
+          itm.designer.propWindow.refreshProperty("column headings"); 
+          // update the number of columns based on the number of headings   
           var count = descriptions.split(',').length;
           me.setProperty("number of columns", count);
           sendPropertyToDesigner(itm, "number of columns", count);
           itm.designer.propWindow.refreshProperty("number of columns");
-        }
-      },
+        }},
       { name: "selection criteria", type: "long", help: helpTextGridProperties("blank","Optional expression identifying which records should be retrieved from the database file.",[],"") },
       { name: "order by", type: "field", multiple: true, uppercase: true, help: helpTextGridProperties("blank","Optional expression identifying which fields determine the order of the records retrieved from the database file.",[],"") },
-      { name: "custom sql", type: "long", help: helpTextGridProperties("blank","Specifies an sql statement to use to retrieve the records for a database-driven grid.",[],""), customSqlHandler: function (customSql) {   if (!confirm("Adjust grid based on columns?")) return;   var parm = {     "customSql": customSql   };   pui.getFieldDescriptions(parm, me.customSqlCallback); } },
+      { name: "custom sql", type: "long", help: helpTextGridProperties("blank","Specifies a sql statement to use to retrieve the records for a database-driven grid.",[],""), 
+          customSqlHandler: function (customSql) {   
+              if (!confirm("Adjust grid based on columns?")) return;   
+              var parm = {     "customSql": customSql   };   
+              pui.getFieldDescriptions(parm, me.customSqlCallback); 
+          } 
+      },
 
       { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: helpTextGridProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>",[],"") },
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: helpTextGridProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.",[],"") },
@@ -8205,8 +8278,8 @@ pui.Grid = function () {
       { name: "onpageup", type: "js", help: helpTextGridProperties("blank","Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",[],""), bind: false },
       { name: "onscroll", type: "js", help: helpTextGridProperties("blank","Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid.",[],""), bind: false }
     ];
-
+    
     return model;
   };
-
+  
 };
