@@ -45,7 +45,7 @@ function helpTextTemplatesProperties(defVal, descVal, descAdd, noteVal) {
   // <c>value</c>
   var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.includes(defVal)) {
+  if (posDefVals.indexOf(defVal) != -1) {
     if (defVal === "true") {
       helpString += trueSpan;
     } else if (defVal === "blank") {
@@ -82,11 +82,11 @@ function helpTextTemplatesProperties(defVal, descVal, descAdd, noteVal) {
   helpString += descVal;
 
   // Other...
-  if (descAdd.includes("other")) {
+  if (descAdd.indexOf("other") != -1) {
     helpString += otherText;
   }
   // Note: Text...
-  if (descAdd.includes("note")) {
+  if (descAdd.indexOf("note") != -1) {
     helpString += "<br><br><b>Note: </b>" + noteVal;
   }
   // ------------------
