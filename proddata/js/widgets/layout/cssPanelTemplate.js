@@ -45,7 +45,7 @@ function helpTextPanelProperties(defVal, descVal, descAdd, noteVal) {
   // <c>value</c>
   var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.includes(defVal)) {
+  if (posDefVals.indexOf(defVal) != -1) {
     if (defVal === "true") {
       helpString += trueSpan;
     } else if (defVal === "blank") {
@@ -82,15 +82,15 @@ function helpTextPanelProperties(defVal, descVal, descAdd, noteVal) {
   helpString += descVal;
 
   // Other...
-  if (descAdd.includes("other")) {
+  if (descAdd.indexOf("other") != -1) {
     helpString += otherText;
   }
   // Font Family Examples:
-  if (descAdd.includes("pixel")) {
+  if (descAdd.indexOf("pixel") != -1) {
     helpString += pixelText;
   }
   // Note: Text...
-  if (descAdd.includes("note")) {
+  if (descAdd.indexOf("note") != -1) {
     helpString += "<br><br><b style='color: red;'>Note: </b>" + noteVal;
   }
   // ------------------
