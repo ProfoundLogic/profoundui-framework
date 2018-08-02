@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function helpTextAccordionProperties(defVal, descVal, descAdd, noteVal) {
+pui.layout.template.helpTextAccordionProperties = function (defVal, descVal, descAdd, noteVal) {
   var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
@@ -107,38 +107,38 @@ pui.layout.template.accordionTemplate = function (parms) {
     return pui.layout.mergeProps([{
         name: "section names",
         type: "list",
-        help: helpTextAccordionProperties("placeholder","Specifies a comma separate list of section names for the accordion.", [], ""),
+        help: pui.layout.template.helpTextAccordionProperties("placeholder","Specifies a comma separate list of section names for the accordion.", [], ""),
         translate: true
       },
       {
         name: "active section",
         format: "number",
-        help: helpTextAccordionProperties("0","This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on.", [], "")
+        help: pui.layout.template.helpTextAccordionProperties("0","This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on.", [], "")
       },
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: helpTextAccordionProperties("","Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the header the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the header the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: helpTextAccordionProperties("","Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
       },
       {
         name: "small sections",
         choices: ["true", "false"],
-        help: helpTextAccordionProperties("false","This property uses CSS to provide a smaller, more compact version of the header sections.", [], "")
+        help: pui.layout.template.helpTextAccordionProperties("false","This property uses CSS to provide a smaller, more compact version of the header sections.", [], "")
       },
       {
         name: "allow collapse",
         choices: ["true", "false"],
-        help: helpTextAccordionProperties("true","Determines if the accordion can be fully collapsed.", [], "")
+        help: pui.layout.template.helpTextAccordionProperties("true","Determines if the accordion can be fully collapsed.", [], "")
       },
       {
         name: "straight edge",
         choices: ["all", "left", "right", "top", "bottom"],
-        help: helpTextAccordionProperties("blank","Determines which parts of the element will have a straight edge instead of rounded corners.", [], "")
+        help: pui.layout.template.helpTextAccordionProperties("blank","Determines which parts of the element will have a straight edge instead of rounded corners.", [], "")
       },
       pui.layout.adoptNamedProperty("color"),
       pui.layout.adoptNamedProperty("font family"),
@@ -151,7 +151,7 @@ pui.layout.template.accordionTemplate = function (parms) {
       {
         name: "onsectionclick",
         type: "js",
-        help: helpTextAccordionProperties("","Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded.", [], "")
+        help: pui.layout.template.helpTextAccordionProperties("blank","Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded.", [], "")
       }
     ]);
   }

@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function helpTextLayoutProperties(defVal, descVal, descAdd, noteVal) {
+pui.layout.helpTextLayoutProperties = function(defVal, descVal, descAdd, noteVal) {
   var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
@@ -115,49 +115,49 @@ function helpTextLayoutProperties(defVal, descVal, descAdd, noteVal) {
 pui.layout.getPropertiesModel = function () {
   var model = [
     { name: "Identification", category: true },
-    { name: "id", maxLength: 75, attribute: "id", help: helpTextLayoutProperties("id", "Sets the ID of the layout element.",[]), bind: false, canBeRemoved: false },
-    { name: "field type", displayName: "widget type", choices: ["layout"], blankChoice: false, help: helpTextLayoutProperties("widget", "Determines the type of control that is used to render the element.",[]), bind: false, canBeRemoved: false },
+    { name: "id", maxLength: 75, attribute: "id", help: pui.layout.helpTextLayoutProperties("id", "Sets the ID of the layout element.",[]), bind: false, canBeRemoved: false },
+    { name: "field type", displayName: "widget type", choices: ["layout"], blankChoice: false, help: pui.layout.helpTextLayoutProperties("widget", "Determines the type of control that is used to render the element.",[]), bind: false, canBeRemoved: false },
 
     { name: "Template Settings", category: true, context: "dspf" },
-    { name: "template", choices: pui.layout.getTemplateList(), blankChoice: false, help: helpTextLayoutProperties("widget", "Specifies the name of the template used to render the layout.",[]), bind: false, canBeRemoved: false },
+    { name: "template", choices: pui.layout.getTemplateList(), blankChoice: false, help: pui.layout.helpTextLayoutProperties("widget", "Specifies the name of the template used to render the layout.",[]), bind: false, canBeRemoved: false },
     { templateProperties: true },
 
     { name: "Position", category: true },
-    { name: "left", format: "px", help: helpTextLayoutProperties("position", "Represents the x-coordinate of the current layout.",[]) },
-    { name: "top", format: "px", help: helpTextLayoutProperties("position", "Represents the y-coordinate of the current layout.",[]) },
-    { name: "right", format: "px", help: helpTextLayoutProperties("blank", "Position of the layout from the right of the screen or another layout container.",[]) },
-    { name: "bottom", format: "px", help: helpTextLayoutProperties("blank", "Position of the layout from the bottom of the screen or another layout container.",[]) },
-    { name: "center horizontally", choices: ["true", "false"], type: "boolean", help: helpTextLayoutProperties("false", "Centers the layout horizontally within its parent container.",[]), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
-    { name: "center vertically", choices: ["true", "false"], type: "boolean", help: helpTextLayoutProperties("false", "Centers the layout vertically within its parent container.",[]), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
-    { name: "height", fromat: "px", help: helpTextLayoutProperties("widget", "Height of the layout.",[]), bind: false, canBeRemoved: false },
-    { name: "width", format: "px", help: helpTextLayoutProperties("widget", "Width of the layout.",[]), bind: false, canBeRemoved: false },
-    { name: "min height", format: "px", help: helpTextLayoutProperties("css", "Minimum height of the layout.",[]) },
-    { name: "min width", format: "px", help: helpTextLayoutProperties("css", "Minimum width of the layout.",[]) },
-    { name: "max height", format: "px", help: helpTextLayoutProperties("css", "Maximum height of the layout.",[]) },
-    { name: "max width", format: "px", help: helpTextLayoutProperties("css", "Maximum width of the layout.",[]) },
-    { name: "z index", format: "number", help: helpTextLayoutProperties("css", "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.",[]) },
-    { name: "locked in place", choices: ["true", "false"], help: helpTextLayoutProperties("false", "If set to true, the element cannot be moved or sized.",[]), bind: false },
+    { name: "left", format: "px", help: pui.layout.helpTextLayoutProperties("position", "Represents the x-coordinate of the current layout.",[]) },
+    { name: "top", format: "px", help: pui.layout.helpTextLayoutProperties("position", "Represents the y-coordinate of the current layout.",[]) },
+    { name: "right", format: "px", help: pui.layout.helpTextLayoutProperties("blank", "Position of the layout from the right of the screen or another layout container.",[]) },
+    { name: "bottom", format: "px", help: pui.layout.helpTextLayoutProperties("blank", "Position of the layout from the bottom of the screen or another layout container.",[]) },
+    { name: "center horizontally", choices: ["true", "false"], type: "boolean", help: pui.layout.helpTextLayoutProperties("false", "Centers the layout horizontally within its parent container.",[]), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+    { name: "center vertically", choices: ["true", "false"], type: "boolean", help: pui.layout.helpTextLayoutProperties("false", "Centers the layout vertically within its parent container.",[]), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+    { name: "height", fromat: "px", help: pui.layout.helpTextLayoutProperties("widget", "Height of the layout.",[]), bind: false, canBeRemoved: false },
+    { name: "width", format: "px", help: pui.layout.helpTextLayoutProperties("widget", "Width of the layout.",[]), bind: false, canBeRemoved: false },
+    { name: "min height", format: "px", help: pui.layout.helpTextLayoutProperties("css", "Minimum height of the layout.",[]) },
+    { name: "min width", format: "px", help: pui.layout.helpTextLayoutProperties("css", "Minimum width of the layout.",[]) },
+    { name: "max height", format: "px", help: pui.layout.helpTextLayoutProperties("css", "Maximum height of the layout.",[]) },
+    { name: "max width", format: "px", help: pui.layout.helpTextLayoutProperties("css", "Maximum width of the layout.",[]) },
+    { name: "z index", format: "number", help: pui.layout.helpTextLayoutProperties("css", "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.",[]) },
+    { name: "locked in place", choices: ["true", "false"], help: pui.layout.helpTextLayoutProperties("false", "If set to true, the element cannot be moved or sized.",[]), bind: false },
 
     { name: "Tabs", category: true },
-    { name: "parent tab panel", help: helpTextLayoutProperties("blank", "This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.",[]), bind: false },
-    { name: "parent tab", help: helpTextLayoutProperties("blank", "This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.",[]), bind: false },
-    { name: "parent field set", help: helpTextLayoutProperties("blank", "This property specifies the id of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.",[]), bind: false },
+    { name: "parent tab panel", help: pui.layout.helpTextLayoutProperties("blank", "This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.",[]), bind: false },
+    { name: "parent tab", help: pui.layout.helpTextLayoutProperties("blank", "This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.",[]), bind: false },
+    { name: "parent field set", help: pui.layout.helpTextLayoutProperties("blank", "This property specifies the id of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.",[]), bind: false },
 
     { name: "Misc", category: true },
-    { name: "css class", type: "cssClass", multOccur: true, attribute: "class", help: helpTextLayoutProperties("theme", "Defines a custom cascading style sheet class to assign to the element. To specify multiple classes, right-click the property and select Add Another CSS Class.",[]) },
-    { name: "tool tip", type: "long", help: helpTextLayoutProperties("blank", "Defines the text to appear in a tool tip when the user hovers the mouse over this element.",[]), translate: true },
-    { name: "user defined data", multOccur: true, help: helpTextLayoutProperties("blank", "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.",[]) },
-    { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: helpTextLayoutProperties("css", "Determines whether the element is visible or hidden.",[]) },
-    { name: "inline style", type: "long", attribute: "style", help: helpTextLayoutProperties("blank", "This property lets you define CSS properties that will be applied to the widget. These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon. You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\"",[]) },
+    { name: "css class", type: "cssClass", multOccur: true, attribute: "class", help: pui.layout.helpTextLayoutProperties("theme", "Defines a custom cascading style sheet class to assign to the element. To specify multiple classes, right-click the property and select Add Another CSS Class.",[]) },
+    { name: "tool tip", type: "long", help: pui.layout.helpTextLayoutProperties("blank", "Defines the text to appear in a tool tip when the user hovers the mouse over this element.",[]), translate: true },
+    { name: "user defined data", multOccur: true, help: pui.layout.helpTextLayoutProperties("blank", "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.",[]) },
+    { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: pui.layout.helpTextLayoutProperties("css", "Determines whether the element is visible or hidden.",[]) },
+    { name: "inline style", type: "long", attribute: "style", help: pui.layout.helpTextLayoutProperties("blank", "This property lets you define CSS properties that will be applied to the widget. These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon. You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\"",[]) },
 
     { name: "Events", category: true },
-    { name: "onclick", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the element is clicked.",[]) },
-    { name: "ondblclick", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the element is double-clicked.",[]) },
-    { name: "onmousedown", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is pressed down on this element.",[]) },
-    { name: "onmousemove", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moving within this element.",[]) },
-    { name: "onmouseout", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moved off this element.",[]) },
-    { name: "onmouseover", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moved over this element.",[]) },
-    { name: "onmouseup", type: "js", help: helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse button is released off this element.",[]) }
+    { name: "onclick", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the element is clicked.",[]) },
+    { name: "ondblclick", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the element is double-clicked.",[]) },
+    { name: "onmousedown", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is pressed down on this element.",[]) },
+    { name: "onmousemove", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moving within this element.",[]) },
+    { name: "onmouseout", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moved off this element.",[]) },
+    { name: "onmouseover", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse is moved over this element.",[]) },
+    { name: "onmouseup", type: "js", help: pui.layout.helpTextLayoutProperties("blank", "Initiates a client-side script when the mouse button is released off this element.",[]) }
   ];
 
   return model;
