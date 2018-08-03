@@ -32,6 +32,12 @@ pui.layout.helpTextLayoutProperties = function(defVal, descVal, descAdd, noteVal
   var bindSpan = "<span title='This property requires being bound and a value passed by an RPG program.'>[bound value]</span>";
   var otherText = " The 'Other...' option can be selected to write in a custom value.";
   var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
+  var placeholderSpan = "";
+  var skinSpan = "";
+  var colorOptions = "";
+  var bgColorOptions = "";
+  var fontOptions = "";
+  var overflowOptions = "";
 
   var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
   // var optionsClose = "</li></ul>";
@@ -110,7 +116,7 @@ pui.layout.helpTextLayoutProperties = function(defVal, descVal, descAdd, noteVal
   helpString += "<hr><br>";
 
   return helpString;
-}
+};
 
 pui.layout.getPropertiesModel = function () {
   var model = [
