@@ -122,6 +122,8 @@ pui.designer = {};
 pui.designer["initial keywords"] = [];   // for example, customer could change it as follows... pui.designer["initial keywords"] = ["INDARA"];
 pui.designer.currentDisplay = {};
 pui.ide = {};
+pui.cloud = {};
+pui.cloud.views = {};
 pui.cnv = {};
 pui.cnv.handlers = {};
 
