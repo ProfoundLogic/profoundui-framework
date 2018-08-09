@@ -3707,11 +3707,14 @@ pui.submitResponse = function(response, value) {
             formatName = parms["layers"][0]["formats"][0]["name"]; 
             displayFile = parms["layers"][0]["formats"][0]["file"]; 
           }
-          if ( pui["session timeout retries"] > 0 && formatName === "TIMOUTSCRN" && displayFile === "PUISCREENS") {
-            pui.sessionRetryCount += 1;
-            if (pui.sessionRetryCount <= pui["session timeout retries"]) {
-              setTimeout( sendRichDisplayScreen, 2000 );
-              return;
+          if (pui["session timeout retries"] > 0 ) {
+            if ((formatName === "TIMOUTSCRN" && displayFile === "PUISCREENS")
+                 || (pui.genie && parms != null && parms["exception"] == "PUI0003")) {
+              pui.sessionRetryCount += 1;
+              if (pui.sessionRetryCount <= pui["session timeout retries"]) {
+                setTimeout( sendRichDisplayScreen, 2000 );
+                return;
+              }
             }
           }
           pui.sessionRetryCount = 0;
