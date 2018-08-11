@@ -124,6 +124,7 @@ pui.designer.currentDisplay = {};
 pui.ide = {};
 pui.cloud = {};
 pui.cloud.views = {};
+pui.social = {};
 pui.cnv = {};
 pui.cnv.handlers = {};
 
