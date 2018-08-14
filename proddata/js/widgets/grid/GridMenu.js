@@ -180,14 +180,14 @@ pui.GridMenu = function() {
   
   this.hide = function() {
     menuDiv.style.display = "none";
-    if (menuSubDiv) me.hideSub()
+    if (menuSubDiv) me.hideSub();
   };
   this.hideSub = function() {
     menuSubDiv.style.display = "none";
   };
   this.showSub = function() {
     menuSubDiv.style.display = '';
-  }
+  };
   // Private functions
   function buildMenu() {
 
@@ -310,9 +310,8 @@ pui.GridMenu = function() {
     }
 
     if (me.grid.hidableColumns) {
-      //menuOptions.push(pui["getLanguageText"]("runtimeText", "hide columns text") + "...");
       menuIcons.push("icons/grid.png");
-      menuOptions.push("Displayed Columns");
+      menuOptions.push(pui["getLanguageText"]("runtimeText", "displayed columns"));
       
       var cols = me.grid.columnInfo;
       // if the grid is movable and the user has moved the columns
@@ -346,10 +345,10 @@ pui.GridMenu = function() {
          if (colA > colB) return 1;
          else return -1;
         })
-        .forEach(function(col) { menuLists.push(col) });
-        hiddenCols.forEach(function(col) { menuLists.push(col) });
+        .forEach(function(col) { menuLists.push(col); });
+        hiddenCols.forEach(function(col) { menuLists.push(col); });
       } else {
-        cols.forEach(function(col) { menuLists.push(col) })
+        cols.forEach(function(col) { menuLists.push(col); });
       }
       
       optionHandlers.push(function(colOption) {
@@ -400,7 +399,7 @@ pui.GridMenu = function() {
       row.style.cursor = "pointer";
       row.style.padding = "3px";
       row.optionHandler = optionHandlers[i];
-      if (menuOptions[i] != 'Displayed Columns') {
+      if (menuOptions[i] != pui["getLanguageText"]("runtimeText", "displayed columns")) {
         row.onclick = function(e) {
           var obj = getTarget(e).parentNode;
           obj.optionHandler();
@@ -440,7 +439,7 @@ pui.GridMenu = function() {
       }
       imgCell.style.padding = "3px";
       var optionCell  = row.insertCell(1);
-      if (menuOptions[i] == 'Displayed Columns') {
+      if (menuOptions[i] == pui["getLanguageText"]("runtimeText", "displayed columns")) {
         var parent = document.createElement('div');
         var subTable = document.createElement('table');
         subTable.border = 0;
@@ -496,11 +495,11 @@ pui.GridMenu = function() {
               else checkBox.checked = true;
             }
             // me.hide();
-          }
+          };
         }
         row.onclick = function() {
-          this.classList.add('active-item')
-        }
+          this.classList.add('active-item');
+        };
         row.isHideColOption = true;
         parent.row = row;
         parent.appendChild(subTable);
@@ -508,10 +507,10 @@ pui.GridMenu = function() {
         parent.onmouseover = function (e) {
           menSubDivShowing = true;
           me.showSub();
-        }
+        };
         parent.onmouseout = function (e) {
           menSubDivShowing = false;
-        }
+        };
         if (me.grid.tableDiv) {
           var listHeight = (z + 1) * 25;
           parent.menuHeight = listHeight; 
