@@ -189,6 +189,13 @@ pui.attachDragDrop = function(dom, properties) {
       proxy.style.filter = "alpha(opacity=60)";
       proxy.style.border = "1px solid #333333";
     }
+    // For centering horizontal and vertical options. 
+    if (proxy.style.top.indexOf('calc') !== -1) {
+      proxy.style.top = window.getComputedStyle(dom, null).getPropertyValue("top");
+    }
+    if (proxy.style.left.indexOf('calc') !== -1) {
+      proxy.style.left = window.getComputedStyle(dom, null).getPropertyValue("left");
+    }
 
     var cursorStartX = getMouseX(event);
     var cursorStartY = getMouseY(event);
