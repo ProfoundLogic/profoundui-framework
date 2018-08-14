@@ -1917,12 +1917,18 @@ pui.Grid = function () {
               else {
                 idx = colNum;
               }
-              // In case the user hides a column
-              if (me.hidableColumns && idx == undefined) {
-                colNum++;
-                continue;
-              }
-              if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
+              // In case the user hides a column, if the current column is hidden continue
+              // else check if the user has set the text align
+              if (me.hidableColumns) {
+                if (idx == undefined) {
+                  colNum++;
+                  continue;
+                }
+                if (me.cellProps["text align"]) {
+                  var textAlignArr = me.cellProps["text align"].split(',');
+                  if (textAlignArr[colNum]) alignCSS = " text-align:" + textAlignArr[colNum];
+                }
+              } else if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
                 alignCSS = " text-align:" + row[idx].style.textAlign;
               }
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
