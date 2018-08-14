@@ -161,8 +161,6 @@ pui.GridMenu = function() {
       me.grid.container.appendChild(menuSubDiv);
       menuSubDiv.style.display = '';
       menuSubDiv.style.top = (top + menuSubDiv.row.offsetTop) + 'px';
-      if (menuDiv.offsetLeft === maxLeft || left + menuDiv.offsetWidth > maxLeft)  menuSubDiv.style.left = (menuDiv.offsetLeft - menuSubDiv.offsetWidth) + 'px';
-      else menuSubDiv.style.left = (menuDiv.offsetLeft + menuDiv.offsetWidth) + 'px';
       if (menuSubDiv.gridHeight && menuSubDiv.menuHeight) {
         var menuHeight = menuSubDiv.menuHeight;
         var gridHeight = menuSubDiv.gridHeight;
@@ -174,6 +172,13 @@ pui.GridMenu = function() {
           menuSubDiv.style.height = 'auto';
         }
       }
+      if (menuDiv.offsetLeft === maxLeft || left + menuDiv.offsetWidth > maxLeft) {
+        // the offsetWidth changes when you change the left
+        var menuSubDivWidth = menuSubDiv.offsetWidth;
+        menuSubDiv.style.left = (menuDiv.offsetLeft - menuSubDiv.offsetWidth) + 'px';
+        if (menuSubDiv.offsetWidth !== menuSubDivWidth)  menuSubDiv.style.left = (menuDiv.offsetLeft - menuSubDiv.offsetWidth) + 'px';
+      }  
+      else menuSubDiv.style.left = (menuDiv.offsetLeft + menuDiv.offsetWidth) + 'px';
       menuSubDiv.style.display = 'none';
     }
   };
