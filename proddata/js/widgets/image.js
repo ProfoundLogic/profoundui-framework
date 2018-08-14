@@ -71,6 +71,7 @@ pui.widgets.add({
     "field type": function(parms) {
       parms.dom.onselectstart = function(e) { return false };
       parms.dom.ondragstart = function(e) { return false };
+      parms.dom.setAttribute('draggable', 'false');
       if (typeof parms.dom.style.MozUserSelect!="undefined") parms.dom.style.MozUserSelect = "none";
       parms.dom.originalImage = parms.evalProperty("image source");
       parms.dom.src = parms.dom.originalImage;
