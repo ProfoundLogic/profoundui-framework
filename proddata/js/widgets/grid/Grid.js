@@ -5078,10 +5078,17 @@ pui.Grid = function () {
         else {
           me["alignColumnTotals"]();
           if (isVertical && persistState) {
-            var colWidths = new Array(me.cells[0].length);
-            for (var j = 0; j < me.cells[0].length; j++) {
-              var cell = me.cells[0][j];
-              colWidths[cell.columnId] = cell.clientWidth;
+            if (!me.hidableColumns) {
+              var colWidths = new Array(me.cells[0].length);
+              for (var j = 0; j < me.cells[0].length; j++) {
+                var cell = me.cells[0][j];
+                colWidths[cell.columnId] = cell.clientWidth;
+              }
+            } else {
+              var colWidths = me
+                  .getColumnWidths()
+                  .split(',')
+                  .map(function (size) { return Number(size); });
             }
             saveState(colWidths, "colWidths");
           }
