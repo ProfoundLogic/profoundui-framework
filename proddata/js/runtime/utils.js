@@ -500,6 +500,36 @@ if (!Array["from"]) {
   }());
 }
 
+// Polyfill for Array.indexOf. Needed for IE8.
+// Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
+if (!Array.prototype.indexOf)  Array.prototype.indexOf = (function(Object, max, min){
+  "use strict";
+  return function indexOf(member, fromIndex) {
+    if(this===null||this===undefined)throw TypeError("Array.prototype.indexOf called on null or undefined");
+    
+    var that = Object(this), Len = that.length >>> 0, i = min(fromIndex | 0, Len);
+    if (i < 0) i = max(0, Len+i); else if (i >= Len) return -1;
+    
+    if(member===void 0){ for(; i !== Len; ++i) if(that[i]===void 0 && i in that) return i; // undefined
+    }else if(member !== member){   for(; i !== Len; ++i) if(that[i] !== that[i]) return i; // NaN
+    }else                           for(; i !== Len; ++i) if(that[i] === member) return i; // all else
+
+    return -1; // if the value was not found, then return -1
+  };
+})(Object, Math.max, Math.min);
+
+// Polyfill to avoid crashing Visual Designer in IE8, which doesn't do Object.create.
+//(Lets people using IE8 still run Visual Designer even though they cannot use Responsive Layout.) Needed by TabLayout.
+// Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create 
+if(typeof Object.create!=="function"){ Object.create=function(proto,propertiesObject){
+  if(typeof proto!=='object'&&typeof proto!=='function'){ throw new TypeError(
+  'Object prototype may only be an Object: '+proto); }else if(proto===null){
+  throw new Error("This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.");}
+  if(typeof propertiesObject!='undefined'){ throw new Error(
+  "This browser's implementation of Object.create is a shim and doesn't support a second argument.");}
+  function F(){} F.prototype=proto;return new F();};
+}
+
 pui.getPropConfig = function(namedModel, propertyName) {
   var config = namedModel[propertyName];
   if (config == null) {
