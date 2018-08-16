@@ -89,6 +89,7 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.accordion = newDom.accordion;
     dom.sizeMe = dom.accordion.resize;
     dom.accordion.container = dom;
+    dom.layout.getActiveContainerNumbers = newDom.accordion.getActiveContainerNumbers; //Needed by lazy-load.
   }
   
   if (newDom.responsivelayout != null){
@@ -105,6 +106,8 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.tabLayout = newDom.tabLayout;
     dom.sizeMe = dom.tabLayout.resize;
     dom.tabLayout.container = dom;
+    dom.layout.getActiveContainerNumbers = newDom.tabLayout.getActiveContainerNumbers; //Needed by lazy-load.
+    dom.layout.notifyvisibleOnce = newDom.tabLayout.checkScrollButtons; //Needed for scroll buttons when child is in hidden tab/section.
     
     // Preserve the active tab when a template property is changed; e.g. tab names.
     if (selectedTab != null && !isNaN(selectedTab) && selectedTab >= 0  

@@ -35,8 +35,27 @@ pui.layout.Layout = function() {
   this.centerHor = false;
   this.centerVert = false;
   
-  var me = this;
+  //Function. Some child layouts have code that only works when the DOM element is visible and attached. For TabLayout and 
+  //accordion, their child layouts' notifyvisibleOnce is called when section/tab changes. assigned in applyTemplate.js.
+  this.notifyvisibleOnce = null;
   
+  //When a lazy-loaded container is rendered, onlazyload script runs.
+  this.onlazyload = null;
+  //When a template implements lazy loading, this will be set to a function by applyTemplate.js.
+  // Expect return type: Array of Numbers.
+  this.getActiveContainerNumbers = null;
+  
+  var me = this;
+    
+  // Lazy-loading
+  var renderParms;
+  var lazyChildren = {}; //Properties to render child items later. Keys: container numbers; values: arrays of properties objects.
+  
+  /**
+   * For each child in the specified container, stretch, sizeMe, and positionMe, if necessary.
+   * @param {Object} container
+   * @returns {undefined}
+   */
   function sizeContainer(container) {
     for (var j = 0; j < container.childNodes.length; j++) {
       var child = container.childNodes[j];
@@ -51,6 +70,22 @@ pui.layout.Layout = function() {
       }
       if (child.positionMe != null && typeof child.positionMe == "function")
         child.positionMe(); 
+    }
+  }
+  
+  /**
+   * For each child layout in the specified container, notify that it is visible. This is necessary if certain code
+   * in the child layout doesn't work until the layout is on the DOM and visible; e.g. tabLayout scroll buttons.
+   * @param {Object} container
+   * @returns {undefined}
+   */
+  function notifyContainerVisible(container){
+    for (var j = 0; j < container.childNodes.length; j++) {
+      var child = container.childNodes[j];
+      if (child.layout != null && typeof child.layout.notifyvisibleOnce == "function") {
+        child.layout.notifyvisibleOnce();
+        delete child.layout.notifyvisibleOnce; //Only need to notify once.
+      }
     }
   }
   
@@ -186,6 +221,22 @@ pui.layout.Layout = function() {
   this.sizeContainers = function() {
     for (var i = 0; i < me.containers.length; i++) {
       sizeContainer(me.containers[i]);
+    }
+  };
+  
+  /**
+   * For all visible containers in layouts that hide containers, notify those child layouts which container is visible.
+   * @returns {undefined}
+   */
+  this.notifyContainersVisible = function(){
+    if (typeof me.getActiveContainerNumbers == "function"){
+      var containerNums = me.getActiveContainerNumbers();
+      for (var i = 0; i < containerNums.length; i++) {
+        if (containerNums[i] >= 0 && me.containers.length > containerNums[i]){
+          var container = me.containers[ containerNums[i] ];
+          notifyContainerVisible(container);
+        }
+      }
     }
   };
   
@@ -447,8 +498,13 @@ pui.layout.Layout = function() {
           };
         }
         break;
+        
+      case "onlazyload":
+        if (!me.designMode && typeof value == "string" && value.length > 0){
+          me.onlazyload = value;
+        }
+        break;
 
-      
       default: 
         var savedValue = me.templateProps[property];
         me.templateProps[property] = value;
@@ -479,7 +535,7 @@ pui.layout.Layout = function() {
               view: window,
               bubbles: true,
               cancelable: true
-            })
+            });
             var target = getTarget(e);
             if (target) {
               if (!/^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/.test(target.tagName)) {
@@ -569,6 +625,112 @@ pui.layout.Layout = function() {
   };
   
   
+  /**
+   * Save data from pui.renderFormat to allow lazy loading widgets inside a layout.
+   * Properties set here should not be ones set by grids. (rowNum, subfileRow, dataArrayIndex, highlighting)
+   *   me.renderItems sets some others.
+   *   onload should not be set, because it only fires for the main format.
+   * @param {Object} parms
+   * @returns {undefined}
+   */
+  this.saveFormat = function(parms){
+    renderParms = {
+      active: parms.active,
+      data: parms.data,
+      designMode: parms.designMode,
+      "errors": parms["errors"],
+      "file": parms["file"],
+      "fileId": parms["fileId"],
+      lastFormat: parms.lastFormat,
+      lastLayer: parms.lastLayer,
+      "library": parms["library"],
+      metaData: {
+        screen: {
+          "record format name": parms.metaData.screen["record format name"]
+        }
+      },
+      "msgInfo": parms["msgInfo"],
+      name: parms.name,
+      ref: parms.ref,
+      runOnload: parms.runOnload,
+      subfiles: parms.subfiles
+    };
+  };
+  
+  /**
+   * Store an item's properties so it can be rendered later. (Called by pui.renderFormat.) Makes a copy of the properties
+   * and removes the .layout reference. Stores the item in a collection keyed to the specified container.
+   * @param {Number} container  The layout's container number in which the item belongs. Zero-based index.
+   * @param {Object} item       The rendering properties.
+   * @returns {undefined}
+   */
+  this.deferLazyChild = function(container, item){
+    if (lazyChildren[container] == null){
+      lazyChildren[container] = [];
+    }
+    var myid = me.layoutDiv.id;
+    var itemCopy = {};
+    // Copy item properties except references to the layout.
+    for (var key in item){
+      // If item is in this layout, then omit item's container and layout properties.
+      //   (because item's container will be one in this layout)
+      // If item is not in this layout, then include container and layout properties.
+      //   (because it will be inside a grid or another layout that's inside this one.)
+      if (item["layout"] != myid || (key != "container" && key != "layout" ) ){
+        if (typeof item[key] == "object" && item[key] != null){
+          try {
+            itemCopy[key] = JSON.parse( JSON.stringify(item[key]) ); //Bound properties are objects.
+          } catch(exc){}
+        }else{
+          itemCopy[key] = item[key];
+        }
+      }
+    }
+    lazyChildren[container].push(itemCopy);
+  };
+  
+  /**
+   * Render items for the currently visible containers if the items haven't already been rendered.
+   * Called by layout template classes when visible container changes and once in pui.renderFormat (rendering the main format).
+   * @param {Array|undefined} containerNums    List of indices of containers. When undefined, getActiveContainerNumbers will be called.
+   * @returns {undefined}
+   */
+  this.renderItems = function( containerNums ){
+    //All items have been rendered, or lazy load wasn't implemented for the layout, or saveFormat wasn't called yet.
+    if (renderParms == null) return;
+    
+    if ((containerNums == null || containerNums.length < 1 )){
+      // The parameter didn't provide container numbers, so fetch from the layout template's class.
+      if (typeof me.getActiveContainerNumbers == "function"){
+        containerNums = me.getActiveContainerNumbers();
+      }else{
+        return; //Do nothing.
+      }
+    }
+    
+    // Look at each container specified by the layout template's class. (Usually only one is specified.)
+    for (var i=0; i < containerNums.length; i++){
+      var cnum = containerNums[i];
+      
+      if ( lazyChildren[cnum] != null ){
+        renderParms.container = me.containers[cnum];
+        renderParms.lazyContainerNum = cnum;
+        renderParms.metaData.items = lazyChildren[cnum];
+        renderParms.onlazyload = me.onlazyload;
+        pui.renderFormat(renderParms);
+        delete lazyChildren[cnum]; //Prevents rendering same items again after they're already rendered.
+      }
+    }
+    // Free up format data from this widget once all items are rendered. Data could be large. (Note: IE8 doesn't have Object.keys.)
+    if (typeof Object["keys"] == "function" && Object["keys"](lazyChildren).length == 0){
+      renderParms = null;
+    }
+  };
+  
+  /**
+   * Called by pui.cleanup. Dereference variables.
+   * @returns {undefined}
+   */
   this.destroy = function() {
     removeEvent(window, "resize", me.onresize);
     removeEvent(document, "orientationchange", me.onresize);
@@ -580,6 +742,11 @@ pui.layout.Layout = function() {
     me.layoutDiv = null;
     me.templateProps = null;
     me.stretchList = null;
+    delete me.getActiveContainerNumbers;
+    delete me.onlazyload;
+    delete me.notifyvisibleOnce;
+    renderParms = null;
+    lazyChildren = null;
     me = null;
   };
   

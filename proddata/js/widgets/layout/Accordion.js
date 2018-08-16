@@ -175,6 +175,15 @@ pui.Accordion = function() {
         headerButton.setIcon("minus");
         headerButton.setDisabled(!allowCollapse);
         bodyDiv.style.display = "";
+        
+        if (me.container.layout != null){
+          if (!me.designMode){
+            //Lazy loads the items, if they weren't already.
+            me.container.layout.renderItems( [sectionNumber] );
+          }
+          //Make sure any child layouts know they are visible. e.g. child tablayouts may need scrollbars.
+          me.container.layout.notifyContainersVisible();
+        }
       }
       else {
         headerButton.setIcon("plus");
@@ -310,6 +319,16 @@ pui.Accordion = function() {
     me.container.style.height = height;
     me.resize(height);
   };
+  
+  /**
+   * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
+   * @returns {Array}   Returns an array of numbers. In this class, returns just the expanded section.
+   */
+  this.getActiveContainerNumbers = function(){
+    return [expandedSection];
+  };
+  
+  // Private methods.
 
   // copied mostly from tab_panel addIcon.onclick.
   function addIconOnclick(){

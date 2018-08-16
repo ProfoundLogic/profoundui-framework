@@ -151,6 +151,16 @@ pui.TabLayout = function() {
       if (i == me.selectedTab){
         bodyDivs[i].style.display = "";
         tabSpans[i].parentNode.className = "selected-tab";
+        
+        if (me.container.layout != null){
+          if (!me.designMode){
+            //Lazy loads the items, if they weren't already.
+            me.container.layout.renderItems( [me.selectedTab] );
+          }
+          //Make sure any child layouts know they are visible. Child tablayouts may need scrollbars.
+          me.container.layout.notifyContainersVisible();
+        }
+        
       }else{
         bodyDivs[i].style.display = "none";
         tabSpans[i].parentNode.className = "";
@@ -317,6 +327,14 @@ pui.TabLayout = function() {
     }
   };
   
+  /**
+   * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
+   * @returns {Array}   Returns an array of numbers. In this class, returns just the selected tab.
+   */
+  this.getActiveContainerNumbers = function(){
+    return [Number(me.selectedTab)];
+  };
+  
   // Private Methods
   
   /**
@@ -342,9 +360,8 @@ pui.TabLayout = function() {
       me.checkScrollButtons();
     }else if (checkCount < maxChecks){
       setTimeout(checkWidthOnTimeout,1);
-    }else{
-      console.log("Timed out waiting for parent width > 0.");
     }
+    //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
   }
   
 };
