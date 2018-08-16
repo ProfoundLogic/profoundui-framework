@@ -204,6 +204,8 @@ pui.ResponsiveLayout = function(){
     }else if (checkCount < maxChecks){
       setTimeout(checkWidth,1);
     }else{
+      // TODO: if this appears much in the console, then implement what the TabLayout has:
+      // notifyvisibleOnce, 
       console.log("Timed out waiting for parent width > 0.");
     }
   }

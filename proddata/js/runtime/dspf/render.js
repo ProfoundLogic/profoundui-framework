@@ -358,7 +358,7 @@ pui.overlayAdjust = function(formats) {
       if (format["subfiles"] != null) {
         var oRange = format["metaData"]["screen"]["overlay range"];
         if (oRange != null) {
-          oRangeArr = oRange.split("-");
+          var oRangeArr = oRange.split("-");
           if (oRangeArr.length == 2) {
             oHigh = Number(oRangeArr[1]);
             var items = format["metaData"]["items"];
@@ -379,7 +379,7 @@ pui.overlayAdjust = function(formats) {
       var format = formats[i];
       var oRange = format["metaData"]["screen"]["overlay range"];
       if (oRange != null) {
-        oRangeArr = oRange.split("-");
+        var oRangeArr = oRange.split("-");
         if (oRangeArr.length == 2) {
           var oLow = Number(oRangeArr[0]);
           if (!isNaN(oLow) && oLow > oHigh) {  // overlay range low of this format is higher than the overlow range high of the subfile control format
@@ -950,23 +950,42 @@ pui.render = function(parms) {
 
   pui.screenIsReady = true;
 
-  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
-    var grid = pui.gridsDisplayed[i];
-    if (grid.scrollbarObj != null) {
-      if (grid.scrollbarObj.attachOnScroll != null && typeof grid.scrollbarObj.attachOnScroll == "function") {
-        grid.scrollbarObj.attachOnScroll();
-      }
-      grid.scrollbarObj.ready = true;
-      if (grid.scrollbarObj.rowsPerPage == 1) grid.scrollbarObj.draw();
-    }
-  }
-
+  pui.setupGridsDisplayedScrollBar();
+  
   if (pui.observed != null) pui.observed.update();
 
   // Does nothing if in design mode or break messages aren't enabled.
   pui["breakMessagesInit"]();
 };
 
+/**
+ * Setup scrollbars for grids displayed. This should happen after all formats are rendered and
+ * grids are displayed. renderFormat will call this again to setup scrollbars for grids added lazily.
+ * @returns {undefined}
+ */
+pui.setupGridsDisplayedScrollBar = function(){
+  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+    var grid = pui.gridsDisplayed[i];
+    if (grid.scrollbarObj != null && !grid.scrollBarsSetupAfterRender) {
+      if (grid.scrollbarObj.attachOnScroll != null && typeof grid.scrollbarObj.attachOnScroll == "function") {
+        grid.scrollbarObj.attachOnScroll();
+      }
+      grid.scrollbarObj.ready = true;
+      if (grid.scrollbarObj.rowsPerPage == 1) grid.scrollbarObj.draw();
+      //Needed so grids in lazy-load layouts are processed, but no grids are processed twice.
+      grid.scrollBarsSetupAfterRender = true;
+    }
+  }
+};
+
+/**
+ * Render a record format, items in a grid row, or items inside a lazily-loaded layout.
+ * This gets called once by pui.render for a record format, and it can be called again by a Grid or Layout.
+ * Some code runs for either of those cases; some should only run for one of those cases.
+ * When called by lazy layouts, most of the code should behave the same as when called by pui.render().
+ * @param {Object} parms
+ * @returns {undefined}
+ */
 pui.renderFormat = function(parms) {
   // retrieve parameters
   var isDesignMode = parms.designMode;
@@ -979,6 +998,9 @@ pui.renderFormat = function(parms) {
   var isWin = false;
   var ctlErrors = [];
   var ctlErrorMap = {};
+  
+  // Detect when code should only run if renderFormat is called for the record format (not grid or layout).
+  var isMainFormat = parms.rowNum == null && parms.lazyContainerNum == null;
 
   if (pui["controller"] != null && screenProperties != null) {
     
@@ -1001,7 +1023,7 @@ pui.renderFormat = function(parms) {
     
   }
   
-  if (!isDesignMode && parms.subfileRow == null) {
+  if (!isDesignMode && parms.subfileRow == null && parms.lazyContainerNum == null) {
     pui.currentFormatNames.push(formatName);
   }
   
@@ -1010,7 +1032,8 @@ pui.renderFormat = function(parms) {
     if (screenProperties["window reference"] != null && screenProperties["window reference"] != "") isWin = true;
   }
   
-  if (!isDesignMode && parms.rowNum == null) {
+  // Setup cursor and bypass validation.
+  if (!isDesignMode && isMainFormat) {
     pui.keyMap[formatName] = {};
     var obj = parms.metaData.screen["return cursor record"];
     if (pui.isBound(obj)) pui.cursorFields.record = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
@@ -1065,7 +1088,7 @@ pui.renderFormat = function(parms) {
     }
   }
   
-  // set record format level properties
+  // set record format level properties in Designer.
   if (isDesignMode) {
     designer.currentScreen.name = screenProperties["record format name"];
     if (designer.currentScreen.name == null || designer.currentScreen.name == "") {
@@ -1092,7 +1115,7 @@ pui.renderFormat = function(parms) {
     }    
   }
   
-  if (!isDesignMode && parms.rowNum == null) {
+  if (!isDesignMode && isMainFormat) {
     if (pui.evalBoundProperty(screenProperties["disable enter key"], data, parms.ref) == "true") {
       pui.disableEnter = true;
     }
@@ -1103,6 +1126,10 @@ pui.renderFormat = function(parms) {
   var tabPanels = [];
   var activeTabs = [];  
   var gridsToRender = [];
+  var lazyLayouts = {};   //Collection of layouts whose contents load later. key: DOM ID of layout;
+    // value: when value is a pui.Layout, then it is a lazy-loaded layout being rendered on this pass.
+    //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that 
+    //  is inside the lazy layout, and this container will be rendered on a later pass.
   for (var i = 0; i < items.length; i++) {
 
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
@@ -1137,12 +1164,12 @@ pui.renderFormat = function(parms) {
     if(items[i]["csv file name"] != null && items[i]["export file name"] == null)
       items[i]["export file name"] = items[i]["csv file name"];
   
-    // create dom element for item
+    // Detect the item's container: a grid or layout.
     var gridObj = null;
     var container = null;
     var gridId = items[i].grid;
     var layoutId = items[i]["layout"];
-    if (gridId != null) {  // item belongs to a grid
+    if (gridId != null) {  // item belongs to a grid. Note: in parms.items, grid must come before its items; else, item won't render in grid.
       var gridDom = getObj(gridId);
       if (gridDom != null) {
         gridObj = gridDom.grid;
@@ -1163,23 +1190,66 @@ pui.renderFormat = function(parms) {
           }
         }
       }
+      else if ( lazyLayouts[gridId] != null ){
+        // The item is inside a grid that is a child of a lazy layout.
+        saveItemForLazyLoad(gridId);
+        continue;
+      }
     }
     else if (layoutId != null) {
       var layoutDom = getObj(layoutId);
+      // The layout must already exist in the DOM; otherwise, the item goes into the main container.
+      // (Meaning, the parms.items object must place the layouts before items that reference them.)
       if (layoutDom != null && layoutDom.layout != null) {
         var containerNumber = Number(items[i]["container"]);
-        container = layoutDom.layout.containers[containerNumber - 1];
+        
+        // The item is within a lazy-load layout.
+        if ( lazyLayouts[layoutId] != null ){
+          saveItemForLazyLoad(layoutId, containerNumber);
+          continue;
+        }
+        else {
+          // The item is in a non-lazy layout.
+          container = layoutDom.layout.containers[containerNumber - 1];
+        }
+      }
+      else if ( lazyLayouts[layoutId] != null ){
+        // The item is inside a layout that is a child of a lazy layout.
+        saveItemForLazyLoad(layoutId);
+        continue;
+      }
+    }
+    // Save an item to render later when a lazy-load layout contains it (directly or indirectly).
+    // If the item is directly in a layout being rendered on this pass, then contNum parameter must be set.
+    function saveItemForLazyLoad(containerId, contNum){
+      var lazylayout;
+      // The item is in a container (grid/layout) that is in a lazy-layout.
+      if (lazyLayouts[containerId].root != null && lazyLayouts[containerId].container != null){
+        lazylayout = lazyLayouts[containerId].root;
+        contNum = lazyLayouts[containerId].container;
+      }else{
+        // The item is directly in a lazy-layout. (contNum parameter must be set.)
+        lazylayout = lazyLayouts[containerId];
+      }
+      
+      lazylayout.deferLazyChild( contNum - 1, items[i]);  //Save for later.
+      
+      // If this item can contain other items, then this allows this item's items to be deferred.
+      if (items[i]["field type"] == "layout" || items[i]["field type"] == "grid"){
+        lazyLayouts[items[i]["id"]] = { root: lazylayout, container: contNum };
       }
     }
     
+    // If the item wasn't in a grid or layout, set its container to the canvas or a parameter.
     if (container == null) {
       if (isDesignMode) container = designer.container;
       else container = parms.container;
     }
     
+    // Create dom element for item.
     var dom;
     if (!isDesignMode && parms.subfileRow != null && items[i].domEls != null && items[i].domEls[parms.subfileRow-1] != null) {
-    
+      // Item is already created inside a grid, so use that element.
       dom = items[i].domEls[parms.subfileRow-1];
       if (container != null) {
         container.appendChild(dom);
@@ -1262,7 +1332,7 @@ pui.renderFormat = function(parms) {
         }
       }
       
-      // get properties      
+      // get properties for the item and put them into the "properties" object.
       for (var prop in items[i]) {
         if (prop == "domEls") continue;
         var propValue = items[i][prop];
@@ -1346,7 +1416,7 @@ pui.renderFormat = function(parms) {
         properties[prop] = newValue;
       }
   
-      // Retain information about tab panels/layouts and their active tabs.
+      // Retain information about tab panels, tab-layouts and their active tabs.
       if (properties["field type"] == "tab panel" || (properties["field type"] == "layout" && properties["template"] == "tab panel")) {
         var tabPanelId = properties["id"];
         tabPanels.push(tabPanelId);
@@ -1357,7 +1427,7 @@ pui.renderFormat = function(parms) {
           activeTabs.push(evalPropertyValue(properties["active tab"], "", dom));
         }
       }
-            
+      
       // apply all properties
       for (var propname in properties) {
         var propConfig;
@@ -1744,6 +1814,7 @@ pui.renderFormat = function(parms) {
               dom.blankValues.push(propValue);
               var box = dom;
               if (dom.comboBoxWidget != null) box = dom.comboBoxWidget.getBox();
+              var boxValue;
               if (box.tagName == "DIV") boxValue = getInnerText(box);
               else boxValue = box.value;
               if (boxValue == propValue) {
@@ -1886,7 +1957,7 @@ pui.renderFormat = function(parms) {
           
         }
         
-      }
+      } //done processing each in properties.
 
       // assign auto tabbing events to input boxes
       if (pui["auto tab"] == true && properties["prevent auto tab"] != "true") {
@@ -1958,7 +2029,7 @@ pui.renderFormat = function(parms) {
       if ( !isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
            pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" ) {
-        crow = properties["cursor row"];
+        var crow = properties["cursor row"];
         if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
           var adj = parseInt(crow, 10);
           if (dom.parentNode.parentNode.grid.hasHeader) {
@@ -2234,7 +2305,7 @@ pui.renderFormat = function(parms) {
       if (isDesignMode && properties["field type"] == "layout") {
         designer.layouts.push(designItem);
       }
-          
+      
       // call widget's initialize function
       var fieldType = properties["field type"];
       if (fieldType != null) {
@@ -2250,7 +2321,14 @@ pui.renderFormat = function(parms) {
       }
       
       if (!isDesignMode && properties["field type"] == "layout") {
+        // A list of layouts to be destroyed when pui.cleanup is called.
         pui.layoutsDisplayed.push(dom.layout);
+        // Items in lazy-loaded layouts will render later. Store the format's fields and data
+        // in case any of the items need them.
+        if (properties["lazy load"] == "true" && typeof dom.layout.saveFormat == "function" ){
+          lazyLayouts[ properties["id"] ] = dom.layout;
+          dom.layout.saveFormat( parms );
+        }
       }
       
       // get grid data
@@ -2604,10 +2682,18 @@ pui.renderFormat = function(parms) {
     grid.restoreState();
   }
   
+  // Render the items inside the lazy-loaded layouts' currently visible container if it wasn't already rendered.
+  // (Needed by accordions. tabPanel.selectedTabChanged causes a tab layout's items to render before this.)
+  for (var layoutid in lazyLayouts ){
+    if (typeof lazyLayouts[layoutid].renderItems == "function"){
+      lazyLayouts[layoutid].renderItems();
+    }
+  }
+  
   if (!isDesignMode) {
 
     // execute global onload event
-    if (pui["onload"] != null && typeof pui["onload"] == "function" && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
+    if (pui["onload"] != null && typeof pui["onload"] == "function" && isMainFormat && parms.runOnload !== false && !pui.usingGenieHandler) {
       pui["onload"](parms);
     }
 
@@ -2630,7 +2716,7 @@ pui.renderFormat = function(parms) {
       if (screenProperties["onmessage"] && typeof screenProperties["record format name"] === "string") {
         pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"];  // save for display.screen.executeMessage() API
 
-        if (parms["msgInfo"] != null && parms.rowNum == null && parms.runOnload !== false && !pui.usingGenieHandler) {
+        if (parms["msgInfo"] != null && isMainFormat && parms.runOnload !== false && !pui.usingGenieHandler) {
           pui["message"] = parms["msgInfo"];
           try {
             eval('var message = pui["message"];');
@@ -2643,7 +2729,24 @@ pui.renderFormat = function(parms) {
 
       }
     }
-  
+    
+    if ( parms.lazyContainerNum != null ){
+      if (pui.screenIsReady){
+        // This layout loaded after pui.render() finished, so new grids need scrollbars setup here.
+        pui.setupGridsDisplayedScrollBar();
+      }
+
+      // A container inside a lazy-loaded layout has just been rendered, so fire an event.
+      if ( parms.onlazyload != null ){
+        try{
+          eval('var lazyContainerNum = "'+parms.lazyContainerNum+'";');
+          eval(parms.onlazyload);
+        }
+        catch(err){
+          pui.scriptError(err, "OnLazyLoad Error:\n");
+        }
+      }
+    }
   }
 };
 
@@ -2677,7 +2780,7 @@ pui.attachResponse = function(dom) {
     // function independently of one another.
     var doms = [];
     if (dom.shortcutKey != null && !dom.parentPagingBar) {
-      for (formatName in pui.keyMap) {
+      for (var formatName in pui.keyMap) {
         var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
         if (keyMapDomArray != null) {
           for (var i = 0; i < keyMapDomArray.length; i++) {

@@ -210,6 +210,8 @@ pui.Grid = function () {
 
   this.propagateScrollEvents = false;
   this.getCurrentColumnFromId = getCurrentColumnFromId;
+  // Prevents attaching on scroll events and drawing scrollbar twice. Needed for grids in lazy load layouts.
+  this.scrollBarsSetupAfterRender = false;
 
   var me = this;
 
