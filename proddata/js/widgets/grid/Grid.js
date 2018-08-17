@@ -2917,9 +2917,19 @@ pui.Grid = function () {
             if (dom != null && dom.subfileRow != null) {
               var rowData;
               // if the subfile is not sorted use the dataArrayIndex. #4365 
+              // when filtered check to see if the subfileRow is the same as the dom subfileRow. #4716
               // otherwise loop through the dataArray to find the subfileRow of the dom element. #4143
               if (!me.sorted && dom.dataArrayIndex != null) {
-                rowData = me.dataArray[dom.dataArrayIndex];
+                if (me.dataArray[dom.dataArrayIndex] && me.dataArray[dom.dataArrayIndex].subfileRow != undefined && me.dataArray[dom.dataArrayIndex].subfileRow !== dom.dataArrayIndex) {
+                  for (var i = 0; i < me.dataArray.length; i++) {
+                    if (me.dataArray[i].subfileRow === dom.subfileRow) {
+                      rowData = me.dataArray[i];
+                      break;
+                    }
+                  }
+                } else {
+                  rowData = me.dataArray[dom.dataArrayIndex];
+                }
               } else {
                 for (var i = 0; i < me.dataArray.length; i++) {
                   if (me.dataArray[i].subfileRow === dom.subfileRow) {
