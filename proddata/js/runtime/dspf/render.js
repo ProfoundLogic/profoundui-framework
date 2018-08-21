@@ -587,6 +587,7 @@ pui.render = function(parms) {
   if (success == null) success = true;
   if (!success) {    
     document.body.innerHTML = "<h1>Unrecoverable Error</h1> <p>Unrecoverable error <strong>" + parms["exception"] + "</strong> occurred while handling an exception. The original exception id is <strong>" + parms["cause"] + "</strong>.</p> <p>Please contact the server administrator to determine the cause of the problem.";
+    pui.screenIsReady = true; //Allow Atrium tabs to be closed when there is an Unrecoverable Error.
     return;
   }
 
