@@ -3775,7 +3775,9 @@ pui.submitResponse = function(response, value) {
     pui.showWaitAnimation();
     
     function sendRichDisplayScreen() {
-      
+
+      if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
+
       ajaxJSON({
         "url": url,
         "method": "post",
@@ -4310,6 +4312,9 @@ pui["run"] = function(config) {
     "log": log,
     "workstnid": workstnid
   };
+  if (pui["isCloud"]) {
+    ajaxParams["workspace_id"] = pui.cloud.ws.id;
+  }
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
   }  
@@ -4458,6 +4463,9 @@ pui["signon"] = function(config) {
     "workstnid": workstnid,
     "atrium_item": atriumitem    
   };
+  if (pui["isCloud"]) {
+    ajaxParams["workspace_id"] = pui.cloud.ws.id;
+  }  
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
   }
