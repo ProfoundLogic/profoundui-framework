@@ -955,16 +955,20 @@ pui["unload"] = function() {
 	  }
 	}	
     if (navigator != null && typeof navigator["sendBeacon"] == "function") {
-      navigator["sendBeacon"](url, "shutdown=1");
+      navigator["sendBeacon"](url, "shutdown=1" + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : ""));
     }
     else {
+      var ajaxParams = {
+        "shutdown": "1"
+      }
+      if (pui["isCloud"]) {
+        ajaxParams["workspace_id"] = pui.cloud.ws.id;
+      }
       ajax({
         url: url,
         method: "post",
         suppressAlert: true,
-        params: {
-          "shutdown": "1"
-        }
+        params: ajaxParams
       });
     }
     pui.shutdownOnClose = false;

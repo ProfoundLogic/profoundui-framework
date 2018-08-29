@@ -988,12 +988,15 @@ pui["keepAlive"] = function() {
   if (context == "dspf") pui.screenIsReady = false;
   pui.showWaitAnimation();
 
+  var params = {
+    "keepalive": "1"
+  }
+  if (pui["isCloud"]) params["workspace_id"] = pui.cloud.ws.id;
+  
   ajax({
     "url": url,
     "method": "post",
-    "params": {
-      "keepalive": "1"
-    },
+    "params": params,
     "sendAsBinary": false,
     "suppressAlert": true,
     "handler": function() {

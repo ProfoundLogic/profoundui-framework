@@ -54,14 +54,18 @@ pui.timeoutMonitor.showTimeOutScreen = function() {
     url = getProgramURL("PUI0002110.pgm");    // 5250 session controller
   }
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
+  var ajaxParams = {
+    "timeout": "1"
+  }
+  if (pui["isCloud"]) {
+    ajaxParams["workspace_id"] = pui.cloud.ws.id;
+  }
   ajaxJSON({
     "url": url,
     "method": "post",
     "sendAsBinary": false,
     "suppressAlert": true,
-    "params": {
-      "timeout": "1"
-    },
+    "params": ajaxParams,
     "handler": function(response) {
       if (pui.genie != null) {
         // When used outside of Genie, the 'onload' processing in the 
