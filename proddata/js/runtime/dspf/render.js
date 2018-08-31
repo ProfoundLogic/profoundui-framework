@@ -1357,7 +1357,16 @@ pui.renderFormat = function(parms) {
           else {
           
             if (pui.isSQLProp(prop)) dom.hasBoundSQLProps = true;
-          
+            if (propValue["longName"] && propValue.fieldName) {
+              if (!propValue["lowerCaseField"] && pui.hanlder == null) {
+                pui.longFieldNameTable[propValue["longName"].toUpperCase()] =  propValue.fieldName.toUpperCase();
+                pui.longFieldNameTable[propValue.fieldName.toUpperCase()] = propValue["longName"].toUpperCase();
+              } else {
+                pui.longFieldNameTable[propValue["longName"]] =  propValue.fieldName;
+                pui.longFieldNameTable[propValue.fieldName] = propValue["longName"];
+              }
+            }
+
             newValue = pui.evalBoundProperty(propValue, data, parms.ref);
             
             if (prop == "value" || prop == "html") {
