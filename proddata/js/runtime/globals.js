@@ -127,7 +127,7 @@ pui.cloud.views = {};
 pui.social = {};
 pui.cnv = {};
 pui.cnv.handlers = {};
-
+pui.longFieldNameTable = {};
 // the definitions are here to handle the calls, however this is only needed in the design ide
 pui.toolbox = {};
 pui.toolbox.add = function() {};

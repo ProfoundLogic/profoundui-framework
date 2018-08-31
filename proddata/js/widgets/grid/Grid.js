@@ -1344,7 +1344,7 @@ pui.Grid = function () {
     var record = getDataArrayForRow(row, true);
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
-
+    if (fieldName.length > 10) fieldName = pui.longFieldNameTable[fieldName];
     // check changed values in response elements first
     var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + row;
     var elems = pui.responseElements[qualField];
@@ -1382,7 +1382,9 @@ pui.Grid = function () {
     for (var y = 0; y < dataRecords.length; y++) {
       var record = {};
       for (var x = 0; x < me.fieldNames.length; x++) {
-        record[me.fieldNames[x]] = dataRecords[y][x];
+        var fieldName = me.fieldNames[x];
+        if (pui.longFieldNameTable[fieldName]) fieldName = pui.longFieldNameTable[fieldName];
+        record[fieldName] = dataRecords[y][x];
       }
       result.push(record);
     }
@@ -1395,6 +1397,7 @@ pui.Grid = function () {
 
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
+    if (fieldName.length > 10) fieldName = pui.longFieldNameTable[fieldName];
     var record = getDataArrayForRow(rowNum, true);
     if (record != null) {
       var idx = getColumnIndex(fieldName);
