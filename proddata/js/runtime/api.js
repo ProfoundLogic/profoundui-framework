@@ -1378,6 +1378,9 @@ pui["upload"] = function(params, callback) {
   url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
   url += "&mode=ajax";
   url += "&r=" + Math.floor(Math.random() * 1000000000);
+  if (pui["isCloud"]) {
+    url += "&workspace_id=" + pui.cloud.ws.id;
+  }
   
   var formData = new FormData();
   formData.append("dir", dir);

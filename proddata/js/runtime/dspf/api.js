@@ -575,6 +575,9 @@ pui["capturePhoto"] = function(parms) {
       var url = getProgramURL("PUI0009109.PGM");
       url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
       url += "&mode=ajax";
+      if (pui["isCloud"]) {
+        url += "&workspace_id=" + pui.cloud.ws.id;
+      }
       ft["upload"](imageURI, 
                 encodeURI(url),
                 function(response) {
@@ -628,6 +631,9 @@ pui.uploadDataUrl = function(params, callback) {
   url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
   url += "&mode=ajax";
   url += "&r=" + Math.floor(Math.random() * 1000000000);
+  if (pui["isCloud"]) {
+    url += "&workspace_id=" + pui.cloud.ws.id;
+  }
   
   var myForm = [
     {
