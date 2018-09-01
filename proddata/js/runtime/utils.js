@@ -991,6 +991,9 @@ pui.downloadAsAttachment = function(contentType, fileName, data) {
 
   var form = document.createElement("form");
   form.action = getProgramURL("PUI0009106.pgm") + "?contentType=" + contentType + "&fileName=" + fileName;
+  if (pui["isCloud"]) {
+    form.action += "&workspace_id=" + pui.cloud.ws.id;
+  }
   form.method = "post";
   var hiddenField = createNamedElement("input", "data");
   hiddenField.type = "hidden";
