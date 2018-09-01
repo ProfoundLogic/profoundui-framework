@@ -318,6 +318,9 @@ pui["fileUploadDND"].FileUpload = function(container) {
 			}
 			postURL += "&trans=" + encodeURIComponent(transactionId);
 			postURL += "&id=" + encodeURIComponent(mainBox.id);
+      if (pui["isCloud"]) {
+        postURL += "&workspace_id=" + pui.cloud.ws.id;
+      }
 
 			// Use FormData object here instead of HTML form elements.
 			// XHR accepts FormData objects, and we aren't using a form.

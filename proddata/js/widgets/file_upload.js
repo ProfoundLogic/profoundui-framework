@@ -445,6 +445,9 @@ pui["fileupload"].FileUpload = function(container) {
   		}   
   		form.action += "&trans=" + encodeURIComponent(transactionId);
   		form.action += "&id=" + encodeURIComponent(mainBox.id);     
+      if (pui["isCloud"]) {
+        form.action += "&workspace_id=" + pui.cloud.ws.id;
+      }
       
       form.elements["flimit"].value = fileLimit;
       form.elements["slimit"].value = sizeLimit;
