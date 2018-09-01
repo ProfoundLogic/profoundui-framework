@@ -1592,6 +1592,13 @@ pui.getNoConnectionMessage = function(req) {
     msg += "\n" + req.getStatusMessage();
   
   }
+  
+  if (pui["isCloud"]) {
+    var details = req.getResponseText();
+    if (details) {
+      msg += "\n\nError details:\n" + details;
+    }
+  }
 
   return msg;
 
