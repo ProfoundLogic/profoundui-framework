@@ -521,6 +521,11 @@ pui.widgets.add({
             ajaxRequest["postData"] += "&q=" + pui.aes.encryptString(sql);
            
           }
+
+          if (pui["isCloud"]) {
+            ajaxRequest["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+          }
+
           if (maxChoices != null && maxChoices != "") {
           	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
