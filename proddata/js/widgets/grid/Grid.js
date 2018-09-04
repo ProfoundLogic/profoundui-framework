@@ -1064,7 +1064,8 @@ pui.Grid = function () {
           "context": "genie", //Makes PUI0009101 use SyncJob so it works if the URL does/doesn't have "/auth".
           "file": dbfile,
           "library": dblib,
-          "AUTH": (context == "genie" ? GENIE_AUTH : pui.appJob.auth)
+          "AUTH": (context == "genie" ? GENIE_AUTH : pui.appJob.auth),
+          "workspace_id": (pui["isCloud"] && pui.cloud.ws.id ? pui.cloud.ws.id : "")
         },
         "async": true,
         "handler": function (response) {

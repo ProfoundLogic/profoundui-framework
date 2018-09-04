@@ -3796,6 +3796,7 @@ pui.getFieldDescriptions = function(parm, cb){
     request["postData"] = "file=" + encodeURIComponent(file);
     request["postData"] += "&library=" + encodeURIComponent(library);
     request["postData"] += "&customSql=" + encodeURIComponent(customSql);
+    if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
     
     console.log(request["postData"]);
     
