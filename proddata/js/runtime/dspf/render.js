@@ -3713,6 +3713,14 @@ pui.buildResponse = function() {
 
 pui.submitResponse = function(response, value) {
 
+  if (pui["isCloudPreview"]) {    
+    setTimeout(function() {
+      pui.screenIsReady = true;
+      pui.hideWaitAnimation();
+    }, 500);
+    return;
+  }
+
   if (pui.isHtml) {
     if (!pui.screenIsReady) return false;
     pui.screenIsReady = false;
