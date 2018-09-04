@@ -43,7 +43,7 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
   // for backward compat w/old pui["fileupload"][xxx] support.
   
   if ((dict=="runtimeMsg"||dict=="runtimeText") && msgid.substr(0,7) == "upload " 
-       && typeof(pui["fileupload"][msgid.substr(8)]) != "undefined") {
+  && pui["fileupload"] != null && typeof(pui["fileupload"][msgid.substr(8)]) != "undefined") {
     msg = pui["fileupload"][msgid.substr(8)];
     if (msgid == "upload file limit") 
        msg = msg.replace("{FILE_LIMIT}", "&1");
