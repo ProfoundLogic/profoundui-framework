@@ -2521,7 +2521,11 @@ pui.Grid = function () {
         var headings = colState["headings"];
         var colSequence = state["colSequence"];
         if (cols != null) {
-          cols.forEach(function (col) {
+		  cols.sort(function(a, b) {
+			if (a["savedColumn"] > b["savedColumn"]) return 1;
+			else return -1;
+		  })
+		  .forEach(function (col) {
             if (col["columnId"] !== undefined) {
               if (!col["showing"]) me["removeColumn"](col["columnId"]);
               else if (movableColumns) {
