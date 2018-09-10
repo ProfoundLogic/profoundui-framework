@@ -954,8 +954,13 @@ pui["unload"] = function() {
 	  catch(e) {
 	  }
 	}	
-    if (navigator != null && typeof navigator["sendBeacon"] == "function") {
-      navigator["sendBeacon"](url, "shutdown=1" + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : ""));
+    // Redmine #4624
+    // Use Blob to set Content-Type: application/x-www-form-urlencoded
+    // Otherwise, Profound.js controller is unable to parse the POST.
+    if (navigator != null && typeof navigator["sendBeacon"] == "function" && typeof window["Blob"] == "function") {
+      var data = "shutdown=1" + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
+      var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
+      navigator["sendBeacon"](url, blob);
     }
     else {
       var ajaxParams = {
