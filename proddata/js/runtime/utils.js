@@ -1820,7 +1820,7 @@ pui.hasParent = function(node) {
 }
 
 pui.appendAuth = function(url) {  
- 	if (!inDesignMode() && typeof url == "string" && url.search("AUTH=") == -1) {
+ 	if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
  	  if (url.search(/\?/) == -1) url += '?';
  	  else url += '&';
     url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);

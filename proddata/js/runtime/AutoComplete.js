@@ -1078,7 +1078,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       // Create sql query and base params.
       var baseParams = new Object();
       if (context == "genie") baseParams["AUTH"] = GENIE_AUTH;
-      if (context == "dspf") baseParams["AUTH"] = pui.appJob.auth;
+      if (context == "dspf" && !pui.nodejs) baseParams["AUTH"] = pui.appJob.auth;
       if (url == "" && choices[0] == "" && values[0] == "") {
           var containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
           var sql = "SELECT DISTINCT ";
