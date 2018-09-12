@@ -81,6 +81,8 @@ pui.currentFormatNames = [];
 pui["no focus"] = false;
 pui.restoreStyles = {};
 pui.windowStack = null;
+//Needed for assigning unique attribute to these layouts in background layers so their styles appear. Incremented in each ResponsiveLayout constructor.
+pui.responsiveLayoutTracker = 0;
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -4865,7 +4867,13 @@ pui["unmaskScreen"] = function() {
 };
 
 
-
+/**
+ * Called by pui.render when a layer is not the first.
+ * Disables background elements and removes "id" attributes of elements.
+ * @param {Object} parms  Parameters passed to pui.render.
+ * @param {Object} layer  The current layer being rendered in pui.render.
+ * @returns {undefined}
+ */
 pui.setupWindowDiv = function(parms, layer) {
 
   var format = layer.formats[0];
@@ -4882,6 +4890,10 @@ pui.setupWindowDiv = function(parms, layer) {
       elem.removeAttribute("id");
       elem.disabled = true;
       elem.readOnly = true;
+      
+      if (typeof elem.sentToBackground == "function"){
+        elem.sentToBackground();
+      }
     }        
   }
   disableByTag("a");

@@ -50,6 +50,19 @@ pui.ResponsiveLayout = function(){
   
   var DEFAULTNUMITEMS = 8;  //If "layout items" property isn't a number, use this default.
   
+  //If the layout goes into a background layer, this helps identify it instead of using the container ID.
+  var backgroundFallback = pui.responsiveLayoutTracker++;
+  
+  /**
+   * Called when pui.render sets elements to be in the background of another layer and lose their IDs.
+   * (Function is assigned to DOM by applyTemplate.js)
+   * @returns {undefined}
+   */
+  this.sentToBackground = function(){
+    me.container.setAttribute("puirespbg", backgroundFallback);
+    me.setRules(); //Refresh the rules, using attribute selectors instead of IDs.
+  };
+  
   this.destroy = function(){
     if (me != null){
       me._stylenode = null;
@@ -133,9 +146,13 @@ pui.ResponsiveLayout = function(){
       //When not in proxy mode, use the ID.
       origCssText = cssrulestxt.replace(/#_id_/g, "#" + me.container.id);
     }
-    else{
+    else if (me.forProxy){
       //In proxy mode in designer, apply style only to proxy.
       origCssText = cssrulestxt.replace(/#_id_ >/g, ".x-dd-drag-proxy");
+    }
+    else {
+      //Assume the layout is in the background, because the ID isn't set. Rules use an attribute selector on the container.
+      origCssText = cssrulestxt.replace(/#_id_/g, "div[puirespbg=\""+backgroundFallback+"\"]");
     }
 
     // Delete existing styles.
