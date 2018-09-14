@@ -17,22 +17,27 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
-
-
-
-function textArea_cleanUp(e) {
+/**
+ * Event handler for textarea change and paste events. Make sure the text fits inside the bounds set when the textarea 
+ * has maximum lengths per line, as set by the JSON, which would be set from field lengths server side.
+ * When pasting, the newlines should be preserved, even if lines are wrapped.
+ * Test cases: see Issue 4766.
+ * @param {Event|Object} e
+ * @returns {undefined}
+ */
+pui.textArea_cleanUp = function(e) {
   var obj = getTarget(e);
+  //An array of strings with numbers indicating the allowed length of each line. index 0 is the first line, etc.
   var lineLengths = obj.lineLengths;
   if (lineLengths == null) return;
   var val = obj.value;
   var len = val.length;
+  // A model of the green-screen fields. Array of strings that is used to wrap and fit the text in the textarea.
   var lines = [];
+  
   lines.push("");
   var curLine = 0;
-  var cursorPos = textArea_getCursorPosition(obj); 
+  var cursorPos = pui.textArea_getCursorPosition(obj);
   var origCursorPos = cursorPos;
   if (!e) e = window.event;
   var key = e.which;
@@ -40,6 +45,17 @@ function textArea_cleanUp(e) {
   var ename = e.type;
   if (ename == "keydown" && key == 17) obj.controlKeyDown = true;
   if (ename == "keyup") obj.controlKeyDown = false;
+  
+  // When the user pastes, work with the pasted text, not the existing value of the textarea.
+  if (ename == "paste"){
+    // Handle pasted data. Taken from https://developer.mozilla.org/en-US/docs/Web/Events/paste
+    e.preventDefault();
+    e.stopPropagation();
+    var paste = (e.clipboardData || window.clipboardData).getData("text");
+    if (paste == null || paste.length == 0) return false;
+    val = paste;
+    len = val.length;
+  }
 
   if (key == 8 && ename == "keyup") return;
   if (key == 8 && ename == "keydown" && cursorPos > 0) {  // backspace
@@ -77,19 +93,21 @@ function textArea_cleanUp(e) {
     }
   }
   var merge = false;
-  var cursorLine;
-  var tstLineLength = 0;
+  var cursorLine;         //Gets the last line number in the model.
+  var tstLineLength = 0;  //Length of the latest line being built. Needed to know when to wrap.
+  
+  // Look at each character in the field. Populate the model of fields with the text-area data. Wrap when necessary.
   for (var i = 0; i < len; i++) {
     var ch = val.substr(i, 1);
     if (ch == "\n" || ch == "\r") {
-      if (i < origCursorPos) cursorPos = cursorPos - 1;
+      if (i < origCursorPos) cursorPos = cursorPos - 1;  //Shrink the length by one.
       if (ch == "\n") {
         if (!merge) {
           if (curLine >= lineLengths.length - 1) {
             break;
           }
           curLine++;
-          lines.push("");
+          lines.push("");   //Start a new line because there was \n.
         }
         merge = false;
       }
@@ -106,15 +124,20 @@ function textArea_cleanUp(e) {
           break;
         }
         curLine++;
-        lines.push("");
-        merge = true;
+        lines.push("");   //Start a new line because this line is at its maximum length.
+        if (ename != "paste"){
+          // Skips the next newline. Necessary when typing will shift things past the end of the line.
+          // Don't merge when pasting, otherwise the user's formatting gets lost. Issue 4766.
+          merge = true;
+        }
       }
       lines[curLine] += ch;
     }
     if (origCursorPos == i) {
       cursorLine = curLine;
     }
-  }
+  } //end for
+  
   if (origCursorPos == len) {
     cursorLine= curLine;
   }
@@ -127,7 +150,7 @@ function textArea_cleanUp(e) {
     }
   }
   var oldVal = obj.value.replace(/\r/g, "");
-  if (ename == "keydown" && !obj.controlKeyDown && textArea_isNormalKey(key)) {
+  if (ename == "keydown" && !obj.controlKeyDown && pui.textArea_isNormalKey(key)) {
     if (lines.length >= lineLengths.length && cursorLine != null) {
       var full = true;
       for (var i = cursorLine; i < lineLengths.length; i++) {
@@ -147,22 +170,22 @@ function textArea_cleanUp(e) {
   }
   if (newVal != oldVal) {
     obj.value = newVal;
-    textArea_setSelRange(obj, cursorPos, cursorPos);
+    pui.textArea_setSelRange(obj, cursorPos, cursorPos);
   }
-}
+};
 
 
-function textArea_isNormalKey(key) {
+pui.textArea_isNormalKey = function(key) {
   if (key >= 48 && key <= 90) return true;
   if (key >= 96 && key <= 111) return true;
   if (key >= 186 && key <= 192) return true;
   if (key >= 219 && key <= 222) return true;
   if (key == 32) return true;
   return false;
-}
+};
 
 
-function textArea_setSelRange(inputEl, selStart, selEnd) { 
+pui.textArea_setSelRange = function(inputEl, selStart, selEnd) { 
  if (inputEl.setSelectionRange) { 
   inputEl.focus(); 
   inputEl.setSelectionRange(selStart, selEnd); 
@@ -173,7 +196,7 @@ function textArea_setSelRange(inputEl, selStart, selEnd) {
   range.moveStart('character', selStart); 
   range.select(); 
  } 
-}
+};
 
 
 
@@ -182,7 +205,7 @@ function textArea_setSelRange(inputEl, selStart, selEnd) {
 
 
 
-function textArea_getCursorPosition(textarea){
+pui.textArea_getCursorPosition = function(textarea){
   // get selection in firefox, opera, ...
   if (typeof(textarea.selectionStart) == "number") {
     return textarea.selectionStart;
@@ -228,7 +251,7 @@ function textArea_getCursorPosition(textarea){
             selection_finished = true;
           } 
           else {
-            selection_range.moveEnd("character", -1)
+            selection_range.moveEnd("character", -1);
             if (selection_range.text == selection_text) {
               untrimmed_selection_text += "\r\n";
             } 
@@ -242,7 +265,7 @@ function textArea_getCursorPosition(textarea){
             after_finished = true;
           }
           else {
-            after_range.moveEnd("character", -1)
+            after_range.moveEnd("character", -1);
             if (after_range.text == after_text) {
               untrimmed_after_text += "\r\n";
             } 
@@ -265,7 +288,7 @@ function textArea_getCursorPosition(textarea){
       return startPoint;
     }
   }
-}
+};
 
 
 
