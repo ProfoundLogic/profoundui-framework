@@ -5418,6 +5418,9 @@ pui.goToClosestElement = function(baseElem, direction) {
     var elem;
     for (var i = 0; i < elemsForThisTag.length; i++) {
       elem = elemsForThisTag[i];
+      if (elem.tagName == "A" && elem.parentNode.pui != null && elem.parentNode.pui.properties != null && elem.parentNode.pui.properties["field type"] == "hyperlink" && elem.parentNode.tabIndex == -1 ){
+        continue; //Hyperlink widgets are A wrapped in DIV with tabIndex set on the DIV. Make sure to see the tabIndex. #4771.
+      }
       if ((elem.tagName.toUpperCase() == "INPUT" && elem.type.toUpperCase() == "BUTTON") || elem.tabIndex == -1) continue;
       elems.push(elem);
     }
