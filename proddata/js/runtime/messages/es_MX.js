@@ -171,6 +171,7 @@ var es_MX = function(dict) {
             dictMsg["reset data"]                   = "Reset";
             dictMsg["remove filters text"]          = "Eliminar todos los filtros";
             dictMsg["next link text"]               = "Siguiente";
+            dictMsg["displayed columns"]            = "Displayed Columns";
             dictMsg["previous link text"]           = "Anterior";
             dictMsg["sort ascending text"]          = "Orden Ascendente";
             dictMsg["sort descending text"]         = "Orden Descendente";
@@ -238,7 +239,7 @@ var es_MX = function(dict) {
                                                     + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";
             dictMsg["item"]                         = "Item";
             dictMsg["open selected item"]           = "Open Selected Item";
-            dictMsg["of"]                           = "de"
+            dictMsg["of"]                           = "de";
             dictMsg["no results to dsp"]            = "No results to display.";
             dictMsg["displaying results"]           = "Displaying results";
             dictMsg["search results"]               = "Search Results";

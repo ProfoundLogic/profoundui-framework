@@ -170,6 +170,7 @@ var he_IL = function(dict) {
             dictMsg["find text"]                    = "Find";
             dictMsg["reset data"]                   = "Reset";
             dictMsg["remove filters text"]          = " הסר את כל המסננים ";
+            dictMsg["displayed columns"]            = "Displayed Columns";
             dictMsg["next link text"]               = " הבאה ";
             dictMsg["previous link text"]           = " הקודם ";
             dictMsg["sort ascending text"]          = " מיין לפי סדר עולה ";
@@ -238,7 +239,7 @@ var he_IL = function(dict) {
                                                     + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";
             dictMsg["item"]                         = "Item";
             dictMsg["open selected item"]           = "Open Selected Item";
-            dictMsg["of"]                           = "שֶׁל"
+            dictMsg["of"]                           = "שֶׁל";
             dictMsg["no results to dsp"]            = "No results to display.";
             dictMsg["displaying results"]           = "Displaying results";
             dictMsg["search results"]               = "Search Results";
