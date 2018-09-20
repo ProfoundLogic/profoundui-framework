@@ -170,6 +170,7 @@ var zh_HK = function(dict) {
             dictMsg["find text"]                    = "尋找";
             dictMsg["reset data"]                   = "重置";
             dictMsg["remove filters text"]          = "移除所有篩選";
+            dictMsg["displayed columns"]            = "Displayed Columns";
             dictMsg["next link text"]               = "下一個";
             dictMsg["previous link text"]           = "上一個";
             dictMsg["sort ascending text"]          = "按由小而大順序";
@@ -238,7 +239,7 @@ var zh_HK = function(dict) {
                                                     + "。”美國專利號8,667,405 B2。";
             dictMsg["item"]                         = "項目";
             dictMsg["open selected item"]           = "打開已選的項目";
-            dictMsg["of"]                           = "的"
+            dictMsg["of"]                           = "的";
             dictMsg["no results to dsp"]            = "沒有結果顯示";
             dictMsg["displaying results"]           = "結果顯示中";
             dictMsg["search results"]               = "搜索結果";

@@ -170,6 +170,7 @@ var it_IT = function(dict) {
             dictMsg["find text"]                    = "Cerca";
             dictMsg["reset data"]                   = "Ripristina i dati";
             dictMsg["remove filters text"]          = "Rimuovi tutti i filtri";
+            dictMsg["displayed columns"]            = "Displayed Columns";
             dictMsg["next link text"]               = "Successivo";
             dictMsg["previous link text"]           = "Precedente";
             dictMsg["sort ascending text"]          = "Ordinare in Senso Ascendente";
@@ -238,7 +239,7 @@ var it_IT = function(dict) {
                                                     + "Brevettato. &nbsp; Brevetto U.S. No. 8,667,405 B2.";
             dictMsg["item"]                         = "l'Elemento";
             dictMsg["open selected item"]           = "Apri l'elemento selezionato";
-            dictMsg["of"]                           = "di"
+            dictMsg["of"]                           = "di";
             dictMsg["no results to dsp"]            = "Nessun risultato da mostrare.";
             dictMsg["displaying results"]           = "Risultati";
             dictMsg["search results"]               = "Risultati della ricerca";

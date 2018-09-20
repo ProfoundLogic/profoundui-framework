@@ -170,6 +170,7 @@ var fr_CA = function(dict) {
             dictMsg["find text"]                    = "Trouver";
             dictMsg["reset data"]                   = "Réinitialiser";
             dictMsg["remove filters text"]          = "Enlever les filtres";
+            dictMsg["displayed columns"]            = "Colonnes affichées";
             dictMsg["next link text"]               = "Suivante";
             dictMsg["previous link text"]           = "Précédente";
             dictMsg["sort ascending text"]          = "Tri ascendant";
@@ -238,7 +239,7 @@ var fr_CA = function(dict) {
                                                     + "Breveté. &nbsp;U.S. Brevet No. 8,667,405 B2.";
             dictMsg["item"]                         = "Élément";
             dictMsg["open selected item"]           = "Ouvrir l'élément sélectionné";
-            dictMsg["of"]                           = "de"
+            dictMsg["of"]                           = "de";
             dictMsg["no results to dsp"]            = "Aucun résultat à afficher.";
             dictMsg["displaying results"]           = "Résultats en cours d'affichage";
             dictMsg["search results"]               = "Recherche en cours";

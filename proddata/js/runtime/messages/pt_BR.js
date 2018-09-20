@@ -170,6 +170,7 @@ var pt_BR = function(dict) {
             dictMsg["find text"]                    = "Procurar";
             dictMsg["reset data"]                   = "Reset";
             dictMsg["remove filters text"]          = "Remover Todos os Filtros";
+            dictMsg["displayed columns"]            = "Displayed Columns";
             dictMsg["next link text"]               = "Próximo";
             dictMsg["previous link text"]           = "Anterior";
             dictMsg["sort ascending text"]          = "Ordenar Ascendentemente";
@@ -234,8 +235,11 @@ var pt_BR = function(dict) {
                                                     + "e tratados internacionais. Qualquer reprodução ou distribuição não autorizada ou qualquer parte do mesmo pode reseultar em<br />"
                                                     + "severas penalizações e processos criminais até ao limite máximo da lei.<br /><br />"
                                                     + "Patenteado. &nbsp;U.S. Patente No. 8,667,405 B2.";
+                                                    //
+                                                    // Portuguese copyright message was trimmed
             dictMsg["item"]                         = "Item";
             dictMsg["open selected item"]           = "Abrir o Item seleccionado";
+            dictMsg["of"]                           = "de";
             dictMsg["no results to dsp"]            = "Não existem resultados para mostrar.";
             dictMsg["displaying results"]           = "Mostrando os resultados";
             dictMsg["search results"]               = "Resultados da pesquisa";
