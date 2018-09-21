@@ -4698,6 +4698,19 @@ pui.closeSession = function() {
     window["Atrium"]["closeTab"]();  
     return;
   }
+  
+  if (window.parent != window && window.parent.pui["isCloud"]) {
+    var ext = window.parent["Ext"];
+    if (ext && ext["getCmp"]) {
+      var stopButton = ext["getCmp"]("_south_panel_stop");
+      if (stopButton) {
+        if (typeof stopButton["handler"] === "function") {
+          stopButton["handler"]();
+          return;
+        }
+      }
+    }
+  }
  
   //document.body.style.backgroundColor = "#DFE8F6";
   document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
