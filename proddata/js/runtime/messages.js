@@ -125,6 +125,9 @@ pui["runtimeText"]["he_IL"] = he_IL("runtimeText");
 pui["runtimeMsg"]["it_IT"] = it_IT("runtimeMsg");
 pui["runtimeText"]["it_IT"] = it_IT("runtimeText");
 
+pui["runtimeMsg"]["ja_JP"] = ja_JP("runtimeMsg");
+pui["runtimeText"]["ja_JP"] = ja_JP("runtimeText");
+
 pui["runtimeMsg"]["nl_NL"] = nl_NL("runtimeMsg");
 pui["runtimeText"]["nl_NL"] = nl_NL("runtimeText");
 
