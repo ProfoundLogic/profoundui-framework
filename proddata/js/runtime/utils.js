@@ -983,11 +983,13 @@ pui["unload"] = function() {
 pui.assignUnloadEvents = function() {
   if (window.attachEvent) {
     window.attachEvent("onbeforeunload", pui.beforeUnload);
-    window.attachEvent("onunload", pui["unload"]);
+    if (!inDesignMode())
+      window.attachEvent("onunload", pui["unload"]);
   }
   else if (window.addEventListener) {
     window.addEventListener("beforeunload", pui.beforeUnload, false);
-    window.addEventListener("unload", pui["unload"], false);        
+    if (!inDesignMode())
+      window.addEventListener("unload", pui["unload"], false);        
   }
 }
 
