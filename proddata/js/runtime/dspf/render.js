@@ -649,6 +649,9 @@ pui.render = function(parms) {
   pui.modified = false;
   pui.ctlRecModified = {};
   pui.confirmOnClose = true;
+  if (pui["isCloud"]) {
+    pui.confirmOnClose = false;
+  }
   pui.shutdownOnClose = true;
   pui.keyName = "";
   pui.dragDropFields = {};
