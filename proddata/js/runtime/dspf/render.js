@@ -5502,7 +5502,7 @@ pui.goToClosestElement = function(baseElem, direction) {
 
 pui.fieldUpper = pui.formatUpper = function(fieldName) {
   if (fieldName == null) return "";
-  if (pui.handler != null || pui.viewdesigner) return fieldName;
+  if (pui.handler != null || pui.viewdesigner || pui["pjsDefaultMode"] === "case-sensitive") return fieldName;
   else return fieldName.toUpperCase(); 
 };
 

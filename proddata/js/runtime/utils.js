@@ -2954,9 +2954,10 @@ pui.ejs = function(html) {
           flags[ind] = value;
         }
         else {
-          // make availalbe in both lower and upper case
+          // make availalbe in lower, upper case, and original case
           data[name.toLowerCase()] = value;
           data[name.toUpperCase()] = value;
+          data[name] = value;
         }
       }
       if (format.subfiles) {
@@ -2975,16 +2976,18 @@ pui.ejs = function(html) {
                 flags[ind] = recordArray[k];
               }
               else {
-                // make availalbe in both lower and upper case
+                // make availalbe lower, upper, and original case
                 record[fieldName.toLowerCase()] = recordArray[k];
                 record[fieldName.toUpperCase()] = recordArray[k];
+                record[fieldName] = recordArray[k];
               }
             }
             list.push(record);
           }
-          // make availalbe in both lower and upper case
+          // make availalbe lower, upper, and original case
           data[subfile.toLowerCase()] = list;
           data[subfile.toUpperCase()] = list;
+          data[subfile] = list;
         }
       }
     }
