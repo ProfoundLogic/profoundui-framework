@@ -4620,6 +4620,7 @@ pui.Grid = function () {
             headerCellProxy.style.zIndex = me.moveColumnZIndex;
             headerCellProxyContainer = document.createElement("div");
             headerCellProxyContainer.className = me.tableDiv.className;
+            headerCellProxyContainer.style.borderColor = "transparent";
             cell.parentNode.parentNode.appendChild(headerCellProxyContainer);
             headerCellProxyContainer.appendChild(headerCellProxy);
             // don't display proxy immediately to allow a potential double-click to register
