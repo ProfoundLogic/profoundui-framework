@@ -94,6 +94,7 @@ var de_DE = function(dict) {
             dictMsg["unable to add x"]              = "Kann &1 nicht hinzufügen.";
             dictMsg["unable to rename x"]           = "Kann &1 nicht umbenennen.";
             dictMsg["unable to delete x"]           = "Kann &1 nicht löschen.";
+            dictMsg["unable to update x"]           = "Kann &1 nicht aktualisieren.";
             dictMsg["unable to reassn x"]           = "Kann &1 nicht zuweisen.";
             dictMsg["unable to reorder items"]      = "Die Artikel können nicht neu sortiert werden.";
             dictMsg["unable to save theme"]         = "Die Designeinstellung konnte nicht gespeichert werden.";
