@@ -846,7 +846,7 @@ pui["getAllScreenProps"] = function(screen) {
       screens.push(rec);
     }
     // if the passed screen is the same as the current format, return the obj
-    if (screen && screen.toUpperCase() === formatName) return rec;
+    if (screen && pui.formatUpper(screen) === formatName) return rec;
   }
   // return false if the screen is not found, else return the array
   if (screen) return false;
@@ -862,7 +862,7 @@ pui['getScreenProp'] = function(screen, propName) {
     screen = currentFormatNames();
     if (screen.length > 1) screen = screen[screen.length - 1];
   } else {
-    screen = screen.toUpperCase();
+    screen = pui.formatUpper(screen);
   }
   propName = propName.toLowerCase();
   var rec;

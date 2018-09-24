@@ -1048,9 +1048,9 @@ pui.renderFormat = function(parms) {
     obj = parms.metaData.screen["return cursor position"];
     if (pui.isBound(obj)) pui.cursorFields.position = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor row"];
-    if (pui.isBound(obj)) pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["return cursor column"];    
-    if (pui.isBound(obj)) pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["changed"];
     if (pui.isBound(obj)) pui.changedFields[formatName] = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window left"];
@@ -1058,7 +1058,7 @@ pui.renderFormat = function(parms) {
     obj = parms.metaData.screen["window top"];
     if (pui.isBound(obj)) pui.windowTopField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["valid command key"];
-    if (pui.isBound(obj)) pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + obj["fieldName"].toUpperCase();
+    if (pui.isBound(obj)) pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["back button"];
     if (pui.isBound(obj)) pui.backButtonField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd element id"];
@@ -1073,7 +1073,7 @@ pui.renderFormat = function(parms) {
     var idx = 1;
     obj = parms.metaData.screen["set off"];
     while (pui.isBound(obj)) {
-      pui.setOffFields.push(formatName + "." + obj["fieldName"].toUpperCase());
+      pui.setOffFields.push(formatName + "." + pui.fieldUpper(obj["fieldName"]));
       idx++;
       obj = parms.metaData.screen["set off " + idx];
     }
@@ -1364,8 +1364,8 @@ pui.renderFormat = function(parms) {
             if (pui.isSQLProp(prop)) dom.hasBoundSQLProps = true;
             if (propValue["longName"] && propValue.fieldName) {
               if (!propValue["lowerCaseField"] && pui.hanlder == null) {
-                pui.longFieldNameTable[propValue["longName"].toUpperCase()] =  propValue.fieldName.toUpperCase();
-                pui.longFieldNameTable[propValue.fieldName.toUpperCase()] = propValue["longName"].toUpperCase();
+                pui.longFieldNameTable[pui.fieldUpper(propValue["longName"])] =  pui.fieldUpper(propValue.fieldName);
+                pui.longFieldNameTable[pui.fieldUpper(propValue.fieldName)] = pui.fieldUpper(propValue["longName"]);
               } else {
                 pui.longFieldNameTable[propValue["longName"]] =  propValue.fieldName;
                 pui.longFieldNameTable[propValue.fieldName] = propValue["longName"];
@@ -1527,7 +1527,7 @@ pui.renderFormat = function(parms) {
               }
               
               if (propname == "dup key response" && properties["allow dup key"] == "true") {
-                var fieldName = formattingObj.fieldName.toUpperCase();
+                var fieldName = pui.fieldUpper(formattingObj.fieldName);
                 var qualField = formatName + "." + fieldName;
                 if (pui.handler != null) qualField = fieldName;
                 if (parms.subfileRow != null) {
@@ -2673,7 +2673,7 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && typeof screenProperties["record format name"] === "string"
         && grid.scrollbarObj.type == "paging" ) {
         var formatName = screenProperties["record format name"];
-        var formatNameUC = formatName.toUpperCase();
+        var formatNameUC = pui.formatUpper(formatName);
         // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
         // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
         if( pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null )
@@ -3916,7 +3916,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
   var fieldName = formattingObj.fieldName;
   if (data["__pui_show"] && formattingObj["longName"]) fieldName = formattingObj["longName"];
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
-    fieldName = fieldName.toUpperCase();
+    fieldName = pui.fieldUpper(fieldName);
   }
   var dataValue;
   if (formattingObj.dataType == "expression") {
