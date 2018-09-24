@@ -4622,6 +4622,13 @@ pui.Grid = function () {
             headerCellProxyContainer.className = me.tableDiv.className;
             cell.parentNode.parentNode.appendChild(headerCellProxyContainer);
             headerCellProxyContainer.appendChild(headerCellProxy);
+            // don't display proxy immediately to allow a potential double-click to register
+            headerCellProxy.style.display = "none";
+            setTimeout(function() {
+              if (headerCellProxy != null) {  // still there
+                headerCellProxy.style.display = "";
+              }
+            }, 150);
           }
           headerCellProxy.style.top = (me.tableDiv.startTop + y) + "px";
           headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + x) + "px";
