@@ -1363,7 +1363,7 @@ pui.renderFormat = function(parms) {
           
             if (pui.isSQLProp(prop)) dom.hasBoundSQLProps = true;
             if (propValue["longName"] && propValue.fieldName) {
-              if (!propValue["lowerCaseField"] && pui.hanlder == null) {
+              if (!propValue["lowerCaseField"] && pui.handler == null) {
                 pui.longFieldNameTable[pui.fieldUpper(propValue["longName"])] =  pui.fieldUpper(propValue.fieldName);
                 pui.longFieldNameTable[pui.fieldUpper(propValue.fieldName)] = pui.fieldUpper(propValue["longName"]);
               } else {
@@ -1372,8 +1372,14 @@ pui.renderFormat = function(parms) {
               }
             }
 
-            newValue = pui.evalBoundProperty(propValue, data, parms.ref);
-            
+            if ( prop == "row background" && items[i]["field type"] == "grid" ){
+              // The grid's "row background" property is a per-record field; it can be different per record. So `data` won't contain an entry for the "row background"
+              // field. To avoid letting an indicator's off-value become the color for each row, this must be a blank string. Issue 4775.
+              newValue = "";
+            }else{
+              newValue = pui.evalBoundProperty(propValue, data, parms.ref);
+            }
+
             if (prop == "value" || prop == "html") {
               // assign cursor record and field
               dom.cursorRecord = formatName;

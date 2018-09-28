@@ -4440,6 +4440,7 @@ pui.Grid = function () {
         if (me.isFiltered()) dataRecords = me.filteredDataArray;
         if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
           if (me.rowBackgroundFieldIndex == null) {
+            // Find which column contains the data for this field.
             for (var i = 0; i < me.fieldNames.length; i++) {
               if (pui.fieldUpper(me.rowBackgroundField.fieldName) == me.fieldNames[i]) {
                 me.rowBackgroundFieldIndex = i;
@@ -4447,12 +4448,19 @@ pui.Grid = function () {
               }
             }
           }
+          // If there is data matching the row-bg field, then set this row's background to it. The field data may be a bound value or an indicator, needing evaluation.
+          // Test cases for bound character and bound indicator: Issue 4775.
           if (me.rowBackgroundFieldIndex != null) {
-            rowBackground = dataRecords[adjustedRow - 1][me.rowBackgroundFieldIndex];
+            var fielddata = {};       //Prepare arguments for evalBoundProperty.
+            var bgfieldname = me.fieldNames[me.rowBackgroundFieldIndex];  //Upper case, because evalBoundProperty makes it uppercase.
+            fielddata[bgfieldname] = dataRecords[adjustedRow - 1][me.rowBackgroundFieldIndex];
+            
+            rowBackground = pui.evalBoundProperty(me.rowBackgroundField, fielddata, me.ref);
           }
         }
       }
-    }    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
+    }
+    if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
 
     var rowFontColor = null;
     if (me.rowFontColorField != null) {
