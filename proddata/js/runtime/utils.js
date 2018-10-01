@@ -3929,3 +3929,24 @@ pui.preFetchFontFiles = function() {
     document.body.appendChild(div);
   })
 }
+
+pui.fetchMonacoIntelliSenseLibraries = function () {
+  ['profoundjs.d.ts', 'profoundui.d.ts'].forEach(function(file) {
+    var url = '/profoundui/proddata/typings/' + file;
+    var request = new pui.Ajax(url);
+    request["async"] = true;
+    request["suppressAlert"] = true;
+    request["onsuccess"] = function(req) {
+      var lib = req["getResponseText"]();
+      if (lib) {
+        if (!window["monaco"] || pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
+        window["monaco"]["languages"]["typescript"]["javascriptDefaults"]["addExtraLib"](lib, file);
+        window["monaco"]["languages"]["typescript"]["typescriptDefaults"]["addExtraLib"](lib, file);
+      }
+    };
+    request["onfail"] = function(req) {
+      console.error(req["getStatusMessage"]())
+    }
+    request.send();
+  })
+}
