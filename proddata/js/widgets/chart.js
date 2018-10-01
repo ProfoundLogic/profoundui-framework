@@ -643,6 +643,9 @@ pui.widgets.add({
          
          if (isMap) postData += "&isMap=Y"; //Tell PUI0009104 to use the correct XML for maps.
          
+         if (pui["isCloud"])
+           postData += "&workspace_id=" + pui.cloud.ws.id;
+
          var ajaxRequest = new pui.Ajax(url);
          ajaxRequest["method"] = "post";
          ajaxRequest["async"] = true;
