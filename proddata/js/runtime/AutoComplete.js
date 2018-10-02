@@ -1077,8 +1077,10 @@ function applyAutoComp(properties, originalValue, domObj) {
    
       // Create sql query and base params.
       var baseParams = new Object();
+      if (pui["isCloud"])
+        baseParams["workspace_id"] = pui.cloud.ws.id;
       if (context == "genie") baseParams["AUTH"] = GENIE_AUTH;
-      if (context == "dspf" && !pui.nodejs) baseParams["AUTH"] = pui.appJob.auth;
+      if (context == "dspf" && (url == "" || !pui.nodejs)) baseParams["AUTH"] = pui.appJob.auth;
       if (url == "" && choices[0] == "" && values[0] == "") {
           var containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
           var sql = "SELECT DISTINCT ";
@@ -1310,6 +1312,8 @@ function applyAutoComp(properties, originalValue, domObj) {
         
         }
         req["postData"] += "&limit=1";
+        if (pui["isCloud"])
+          req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
         req["onready"] = function(req) {
           autoCompQueries -= 1;
           
