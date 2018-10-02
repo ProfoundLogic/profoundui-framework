@@ -2726,13 +2726,21 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
 
       if( pui.widgets[fieldtype] != null && pui.widgets[fieldtype]["dependencies"] != null 
       && pui.widgets[fieldtype]["dependencies"].length > 0 ){
-      
+        // List of dependencies that the Visual Designer will ignore and not fetch.
+        var designerIgnoredDependencies = ['/FusionChartsXT/js/pui-fusioncharts.js'];
         // Used to avoid loading redundant dependencies.
         var scripts = document.getElementsByTagName("script");
         var links = document.getElementsByTagName("link");
 
         var widdep = pui.widgets[fieldtype]["dependencies"];
-        
+        if (inDesignMode() && widdep.length > 0) {
+          widdep = widdep.filter(function(file) {
+            if (designerIgnoredDependencies.indexOf(file) !== -1) {
+              return false
+            }
+            return true;
+          })
+        }
         // Get the protocol, domain, and port for comparison because some script.src include those.
         var origin = "";
         var re = /^(https?:\/\/[^\/]+)\//i;
