@@ -883,6 +883,7 @@ pui.Grid = function () {
           var heading = "";
           if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["name"];
           else heading = getInnerText(me.cells[0][i]);
+          heading = heading.replace(/<br>/g, " ");
           if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
