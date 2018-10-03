@@ -3487,7 +3487,7 @@ pui.xlsx_worksheet = function(numcols){
    */
   this.getSheetXML = function(){
     var xml = pui.xmlstart + '<worksheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'"'+' xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
-    +'<dimension ref="A1:'+ map[numColumns - 1] + rows.length + '"/>'
+    +'<dimension ref="A1:'+ map[numColumns - 1] + (rows == null ? 1 : rows.length) + '"/>'
     // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
     +'<sheetFormatPr defaultRowHeight="'+(defaultRowHeightpx * 0.75)+'" customHeight="1" />'
     +'<cols>' ;
@@ -3525,36 +3525,38 @@ pui.xlsx_worksheet = function(numcols){
     xml += '</cols><sheetData>';
     
     // Output each row with either numeric data or reference to shared-strings table.
-    for (var row=0; row < rows.length; row++){
-      var r = String(row+1);
-      xml += '<row r="'+r+'">';
-      
-      for (var col=0; col < numColumns; col++){
-        xml += '<c r="' + map[col] + r + '"';
+    if (rows != null) {
+      for (var row=0; row < rows.length; row++){
+        var r = String(row+1);
+        xml += '<row r="'+r+'">';
         
-        var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
-        
-        // Some cells (e.g. headers) override default format; extract value and format.
-        if (typeof rows[row][col] == "object" && rows[row][col].format != null){
-          fmt = rows[row][col].format;
-          rows[row][col] = rows[row][col].value;
-        }
-        
-        if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
-          // TODO: date/time values could be converted to native excel formats if all variations are handled.
-          xml += ' t="s"';
-          if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
-            xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
+        for (var col=0; col < numColumns; col++){
+          xml += '<c r="' + map[col] + r + '"';
+          
+          var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
+          
+          // Some cells (e.g. headers) override default format; extract value and format.
+          if (typeof rows[row][col] == "object" && rows[row][col].format != null){
+            fmt = rows[row][col].format;
+            rows[row][col] = rows[row][col].value;
           }
-        }else if(me.formats[col]["decPos"] == "2"){
-          xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
+          
+          if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
+            // TODO: date/time values could be converted to native excel formats if all variations are handled.
+            xml += ' t="s"';
+            if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
+              xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
+            }
+          }else if(me.formats[col]["decPos"] == "2"){
+            xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
+          }
+          
+          if (rows[row][col] == null) rows[row][col] = '';
+          xml += '><v>' + rows[row][col] + '</v></c>';
         }
         
-        if (rows[row][col] == null) rows[row][col] = '';
-        xml += '><v>' + rows[row][col] + '</v></c>';
+        xml += '</row>';
       }
-      
-      xml += '</row>';
     }
     xml += '</sheetData>'; 
     if (useDrawing){
