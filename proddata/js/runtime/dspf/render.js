@@ -4342,6 +4342,7 @@ pui["run"] = function(config) {
   };
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
+    ajaxParams["workspace_url"] = location.href;    
   }
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
@@ -4493,6 +4494,7 @@ pui["signon"] = function(config) {
   };
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
+    ajaxParams["workspace_url"] = location.href;
   }  
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
