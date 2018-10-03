@@ -1713,6 +1713,8 @@ pui.Grid = function () {
           field.value = fieldValue;
           form.appendChild(field);
         }
+        if (pui["isCloud"])
+          addField("workspace_id", pui.cloud.ws.id);
         addField("delimiter", delimiter);
         if (pui["read db driven data as ebcdic"] !== true) addField("UTF8", "Y");
         addField("decType", decType);
