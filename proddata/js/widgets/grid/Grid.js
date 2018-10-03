@@ -1345,7 +1345,7 @@ pui.Grid = function () {
     var record = getDataArrayForRow(row, true);
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
-    if (fieldName.length > 10) fieldName = pui.longFieldNameTable[fieldName];
+    if (fieldName.length > 10 && !(pui["pjsDefaultMode"] === "case-sensitive")) fieldName = pui.longFieldNameTable[fieldName];
     // check changed values in response elements first
     var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + row;
     var elems = pui.responseElements[qualField];
@@ -1398,7 +1398,7 @@ pui.Grid = function () {
 
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
-    if (fieldName.length > 10) fieldName = pui.longFieldNameTable[fieldName];
+    if (fieldName.length > 10 && !(pui["pjsDefaultMode"] === "case-sensitive")) fieldName = pui.longFieldNameTable[fieldName];
     var record = getDataArrayForRow(rowNum, true);
     if (record != null) {
       var idx = getColumnIndex(fieldName);
