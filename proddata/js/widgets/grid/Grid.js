@@ -8123,7 +8123,7 @@ pui.Grid = function () {
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: me.helpTextGridProperties("id","Sets the ID of the grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "record format name", help: me.helpTextGridProperties("blank","Specifies the record format that is used to access this grid from server code.",[],""), maxLength: (pui.viewdesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
+      { name: "record format name", help: me.helpTextGridProperties("blank","Specifies the record format that is used to access this grid from server code.",[],""), maxLength: (pui.viewdesigner|| pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
       { name: "description", help: me.helpTextGridProperties("blank","Describes the record format.",[],""), bind: false, context: "dspf" },
       { name: "parent window", attribute: "parentWindow", help: me.helpTextGridProperties("blank","Sets the window that this field belongs to.",[],""), context: "genie" },
       { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: me.helpTextGridProperties("false","If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.",[],""), context: "genie" },
