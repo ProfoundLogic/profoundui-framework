@@ -1100,6 +1100,8 @@ pui.Grid = function () {
       var fetchCounter = me.dataProps["allow any select statement"];
       if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
         req["postData"] += "&FetchCounter=Y";
+      if (pui["isCloud"])
+        req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
 
       req["onready"] = function (req) {
         var response = checkAjaxResponse(req, "Run SQL SELECT Query");
