@@ -88,6 +88,7 @@ function RPGspRequest(arg) {
   this["headers"]        = {};
   this["params"]         = null;
   this["sendAsBinary"]   = true;
+  this["overrideMimeType"] = null;
   
   // Private fields.
   var xmlhttpObj     = null;  
@@ -281,6 +282,12 @@ function RPGspRequest(arg) {
                   if (method == "POST") {
                     if (!userCT) {
                       xmlhttpObj.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+                    }
+                  }
+
+                  if (typeof me["overrideMimeType"] == 'string') {
+                    if (typeof xmlhttpObj["overrideMimeType"] == 'function') {
+                      xmlhttpObj["overrideMimeType"](me["overrideMimeType"]);
                     }
                   }
                   

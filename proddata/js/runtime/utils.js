@@ -3941,15 +3941,19 @@ pui.preFetchFontFiles = function() {
 }
 
 pui.fetchMonacoIntelliSenseLibraries = function () {
+  if (pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
   ['profoundjs.d.ts', 'profoundui.d.ts'].forEach(function(file) {
     var url = '/profoundui/proddata/typings/' + file;
     var request = new pui.Ajax(url);
     request["async"] = true;
+    request["headers"] = { "Content-Type": "text/plain" }
+    request["overrideMimeType"] = 'text/plain';
     request["suppressAlert"] = true;
     request["onsuccess"] = function(req) {
       var lib = req["getResponseText"]();
       if (lib) {
-        if (!window["monaco"] || pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
+        // monaco/ace may not be loaded in the first check, so check again.
+        if (!window["monaco"] || pui["useAceEditor"]) return;
         window["monaco"]["languages"]["typescript"]["javascriptDefaults"]["addExtraLib"](lib, file);
         window["monaco"]["languages"]["typescript"]["typescriptDefaults"]["addExtraLib"](lib, file);
       }
