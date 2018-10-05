@@ -802,7 +802,7 @@ function getScreenPropertiesModel(designScreen) {
   if (pui.codeBased) {
     var model = [
       { name: "Identification", category: true }, 
-      { name: "record format name", help: pui.helpTextRuntimeProperties("blank", "Identifies the record format name used by server-side code to read input or write output.", [], ""), maxLength: 10, bind: false, canBeRemoved: false }, 
+      { name: "record format name", help: pui.helpTextRuntimeProperties("blank", "Identifies the screen name used by server-side code to read input or write output.", [], ""), maxLength: 10, bind: false, canBeRemoved: false }, 
       { name: "description", help: pui.helpTextRuntimeProperties("blank", "Describes the record format.", [], ""), bind: false }, 
       { name: "document type", choices: ["html", "json", "xml", "text", "csv"], help: pui.helpTextRuntimeProperties("blank", "Specifies the type of document used to define the record format. This determines the default content type and affects the syntax highlighting within the editor.", [], ""), hideFormatting: true, validDataTypes: ["char"] }, 
       
@@ -829,8 +829,8 @@ function getScreenPropertiesModel(designScreen) {
   if (context == "dspf") {
     var model = [
       { name: "Identification", category: true }, 
-      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextRuntimeProperties("blank", "Identifies the record format that is used to access this screen from server code.", [], ""), maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
-      { name: "description", help: pui.helpTextRuntimeProperties("blank", "Describes the record format.", [], ""), bind: false }, 
+      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextRuntimeProperties("blank", "Identifies the name that is used to access this screen from server code.", [], ""), maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
+      { name: "description", help: pui.helpTextRuntimeProperties("blank", "Describes the screen.", [], ""), bind: false }, 
       { name: "document title", help: pui.helpTextRuntimeProperties("blank", "Specifies the document title to use when this screen is displayed. Web browsers usually display the document title in a window's title bar when the window is open, and in the task bar when the window is minimized.", [], "") },
 
       { name: "External Files", category: true }, 
@@ -903,7 +903,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "window reference", help: pui.helpTextRuntimeProperties("blank", "Use this property to refer to a record format name where the window and its properties have been defined.", [], ""), maxLength: 10, bind: false, viewdesigner: false },
 
       { name: "Cursor Location", category: true }, 
-      { name: "return cursor record", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextRuntimeProperties("bind", "This property can be bound to a character field, which will be used to receive the name of the record format on which the cursor is located.", [], "") }, 
+      { name: "return cursor record", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextRuntimeProperties("bind", "This property can be bound to a character field, which will be used to receive the name of the record format or screen on which the cursor is located.", [], "") }, 
       { name: "return cursor field", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextRuntimeProperties("bind", "This property can be bound to a character field, which will be used to receive the name of the field on which the cursor is located.", [], "") }, 
       { name: "return cursor position", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextRuntimeProperties("bind", "This property can be bound to a numeric field, which will be used to reveive the relative position of the cursor within an element.", [], "") }, 
       { name: "return cursor row", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextRuntimeProperties("bind", "This property can be bound to a numeric field, which will contain the row on which the cursor is located. The row number is based on the <i>cursor row</i> property assigned to the widgets on the screen.", [], ""), viewdesigner: false }, 
@@ -926,7 +926,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "onmessage", type: "js", help: pui.helpTextRuntimeProperties("blank", "Initiates a client-side script that receives a message from the Profound.js display.screen.write(), display.screen.execute(), or the display.screen.executeMessage() API, which allows you to partially update screen content instead of re-rendering the entire screen. The message is received in a variable named <b>message</b>.", [], "") },
 
       { name: "Misc", category: true }, 
-      { name: "user defined data", multOccur: true, help: pui.helpTextRuntimeProperties("blank", "Specifies user-defined general purpose data associated with the record format. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.", [], "") }
+      { name: "user defined data", multOccur: true, help: pui.helpTextRuntimeProperties("blank", "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.", [], "") }
 
     ];
     return model;
