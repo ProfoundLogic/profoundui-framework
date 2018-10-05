@@ -829,7 +829,7 @@ function getScreenPropertiesModel(designScreen) {
   if (context == "dspf") {
     var model = [
       { name: "Identification", category: true }, 
-      { name: "record format name", help: pui.helpTextRuntimeProperties("blank", "Identifies the record format that is used to access this screen from server code.", [], ""), maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
+      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextRuntimeProperties("blank", "Identifies the record format that is used to access this screen from server code.", [], ""), maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
       { name: "description", help: pui.helpTextRuntimeProperties("blank", "Describes the record format.", [], ""), bind: false }, 
       { name: "document title", help: pui.helpTextRuntimeProperties("blank", "Specifies the document title to use when this screen is displayed. Web browsers usually display the document title in a window's title bar when the window is open, and in the task bar when the window is minimized.", [], "") },
 
