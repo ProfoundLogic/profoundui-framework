@@ -8250,8 +8250,8 @@ pui.Grid = function () {
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.",[],""), context: "dspf" },
 
       { name: "Grid Data", category: true },
-      { name: "database file", type: "file", uppercase: true, help: me.helpTextGridProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.",[],"") },
-      { name: "database fields", type: "field", multiple: true, uppercase: true, help: me.helpTextGridProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
+      { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", uppercase: (pui.nodedesigner !== true), help: me.helpTextGridProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.",[],"") },
+      { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: me.helpTextGridProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
           if (!confirm("Update grid columns?")) return; 
           // update the column headings   
           me.setProperty("column headings", descriptions);
