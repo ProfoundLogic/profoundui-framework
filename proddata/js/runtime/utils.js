@@ -357,7 +357,8 @@ function buildLabel(dom, labelText) {
   dom.labelObj = label;
   dom.extraDomEls = [];
   dom.extraDomEls.push(label);
-  dom.parentNode.appendChild(label);  
+  if (dom.parentNode != null)     //If a grid column was removed, then parentNode could be null. #4855.
+    dom.parentNode.appendChild(label);  //If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
 }
 
 // Returns the PC-side timestamp in milliseconds since 1970/01/01 as a string.
