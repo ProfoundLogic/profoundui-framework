@@ -150,8 +150,8 @@ pui["show"] = function(parms) {
   
   // the name of the format or multiple formats to be displayed should be provided
   // if omitted, the first format in the meta data is used
-  var format = parms["format"];
-  var formats = parms["formats"];
+  var format = parms["format"] || parms["screen"];
+  var formats = parms["formats"] || parms["screens"];
   
   var data = parms["data"];
   if (data == null) data = {};
