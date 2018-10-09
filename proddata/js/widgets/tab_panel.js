@@ -750,19 +750,12 @@ function TabPanel() {
           itm.designer.inlineEditBox.onUpdate = null;
           dom = itmDom = itm = null;
         };
-        itm.designer.inlineEditBox.show(itm, dom, me.getInlineEditBoxType() );
+
+        itm.designer.inlineEditBox.show(itm, dom, "tab" );
       }
     }
   };
-  
-  /**
-   * Determines how InlineEditBox renders its editor. (Overridden)
-   * @returns {String}
-   */
-  this.getInlineEditBoxType = function(){
-    return "tab";
-  };
-  
+    
   /**
    * Handle clicking the [+] icon: add a new tab and refresh the properties window.
    * @returns {undefined}
