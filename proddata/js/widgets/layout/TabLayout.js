@@ -275,14 +275,6 @@ pui.TabLayout = function() {
   };
   
   /**
-   * Ensure that InlineEditBox does not look for a tabPanel when editing TabLayout tabs. (Overrides)
-   * @returns {String}
-   */
-  this.getInlineEditBoxType = function(){
-    return "tab layout";
-  };
-  
-  /**
    * Create a scroll left or right button. Styles must be set in CSS stylesheet. (Overrides)
    * @param {String} cssClass
    * @returns {undefined}
