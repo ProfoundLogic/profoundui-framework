@@ -881,7 +881,7 @@ pui.Grid = function () {
         var idx = columnArray[i];
         if (idx > -1) {
           var heading = "";
-          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["name"];
+          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["blankHeader"] ? "" : sortedColumnInfo[i]["name"];
           else heading = getInnerText(me.cells[0][i]);
           heading = heading.replace(/<br>/g, " ");
           if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
@@ -2523,18 +2523,25 @@ pui.Grid = function () {
       if (widths) widths = widths.filter(function(size){ return (size); });
       if (colState) {
         var cols = colState["cols"];
-        var headings = colState["headings"];
+        // var headings = [];
         var colSequence = state["colSequence"];
         if (cols != null) {
-		  cols.sort(function(a, b) {
-			if (a["savedColumn"] > b["savedColumn"]) return 1;
-			else return -1;
-		  })
-		  .forEach(function (col) {
-            if (col["columnId"] !== undefined) {
-              if (!col["showing"]) me["removeColumn"](col["columnId"]);
+		      cols.sort(function(a, b) {
+			      if (a["savedColumn"] > b["savedColumn"]) return 1;
+			      else return -1;
+		      })
+		      .forEach(function (col) {
+            var columnId = col["columnId"];
+            if (columnId !== undefined) {
+              me.columnInfo.every(function(orgCol) {
+                if (orgCol["columnId"] === columnId) {
+                  col["name"] = orgCol["name"];
+                  return false;
+                }
+              })
+              if (!col["showing"]) me["removeColumn"](columnId);
               else if (movableColumns) {
-                var curCol = getCurrentColumnFromId(col["columnId"]);
+                var curCol = getCurrentColumnFromId(columnId);
                 if (curCol != col["savedColumn"]) me.moveColumn(curCol, col["savedColumn"]);
               }
             }
@@ -2548,7 +2555,7 @@ pui.Grid = function () {
         me.sizeAllCells();
       }
       if (me.expandToLayout) me.doExpandToLayout();
-      if (headings) me.setHeadings(headings);
+      me.setHeadings(me.getHeadings(me.columnInfo));
     }
 
 
@@ -3883,7 +3890,7 @@ pui.Grid = function () {
         for (var i = 0; i < colNum; i++) {
           var header = me.columnHeadings[i];
           var blankHeader = false;
-          if (!header) {
+          if (!header || typeof header === 'string' && !header["trim"]()) {
             header = 'Column ' + (i + 1);
             blankHeader = true;
           }
@@ -5251,7 +5258,8 @@ pui.Grid = function () {
       setLineHeights();
     }
     if (isVertical && me.hasHeader) {
-      me.setHeadings();
+      if (me.hidableColumns) me.setHeadings(me.getHeadings(me.columnInfo));
+      else me.setHeadings();
     }
     me.sizeAllCells();
     positionIcons();
@@ -7634,6 +7642,25 @@ pui.Grid = function () {
     me.setHeadings();
     return true;
   };
+
+  // Takes column info as an optional parm.
+  // return column headings as an array. 
+  this.getHeadings = function (colsInfo) {
+    if (typeof colsInfo !== 'object') return me.columnHeadings.split(',');
+    return colsInfo.filter(function(col) {
+      return col["showing"];
+    })
+    .sort(function(a, b) {
+      var colA = getCurrentColumnFromId(a["columnId"]);
+      var colB = getCurrentColumnFromId(b["columnId"]);
+      if (colA > colB) return 1;
+      else return -1;
+    })
+    .map(function(col){
+      if (col["blankHeader"]) return '';
+      return col["name"];
+    })
+  }
 
   this.customSqlCallback = function (request) {
     var response, error;
