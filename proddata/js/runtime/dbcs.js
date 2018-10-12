@@ -72,7 +72,8 @@ function validateByteCount(event, field) {
 	if (field.choices != null) return;
 	
 	// If it's a DBCSDataType of "G", skip it...
-	if (field.fieldInfo["DBCSDataType"] && field.fieldInfo["DBCSDataType"] == "G") return;
+    // Note: When some screens' textboxes have autocomplete, fieldInfo could be null because of AutoComplete.js line ~156. See #4784
+	if (field.fieldInfo != null && field.fieldInfo["DBCSDataType"] && field.fieldInfo["DBCSDataType"] == "G") return;
 	
 	if (getEBCDICByteCount(rtrim(field.value)) > field.maxLength) {
 		if (field == null) {
