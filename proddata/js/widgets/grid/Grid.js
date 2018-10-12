@@ -2522,7 +2522,9 @@ pui.Grid = function () {
       var widths = state["colWidths"];
       if (widths) widths = widths.filter(function(size){ return (size); });
       if (colState) {
-        var cols = colState["cols"];
+        var savedCols = colState["cols"];
+        // return newCols array
+        var cols = savedCols.map(function (col) { return col });
         // var headings = [];
         var colSequence = state["colSequence"];
         if (cols != null) {
@@ -2538,6 +2540,7 @@ pui.Grid = function () {
                   col["name"] = orgCol["name"];
                   return false;
                 }
+                return true;
               })
               if (!col["showing"]) me["removeColumn"](columnId);
               else if (movableColumns) {
@@ -2548,6 +2551,18 @@ pui.Grid = function () {
           });
           if (colSequence) cols.colSequence = colSequence;
           me.columnInfo = cols;
+          // Resort columnInfo array based on saved state. 
+          me.columnInfo.sort(function(a, b) {
+            var indexA = null; 
+            var indexB = null;
+            savedCols.every(function (col, index) {
+              if (a["columnId"] === col["columnId"]) indexA = index;
+              if (b["columnId"] === col["columnId"]) indexB = index;
+              if (indexA !== null && indexB !== null) return false;
+              return true;
+            })
+            return indexA > indexB ? 1: -1;
+          })
         }
       }
       if (widths) {
