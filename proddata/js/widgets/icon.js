@@ -21,9 +21,10 @@ function handleIcon(parms) {
     var cssClass = parms.evalProperty("css class");
     var iconSize = parms.evalProperty("icon size");
     var cursorStyle = parms.evalProperty("cursor");
+    var fontFamily = parms.evalProperty("font family");
     var iconDiv = document.createElement('div');
     // Remove the previous icon if it exists
-    parms.dom.innerHTML = ''; 
+    parms.dom.innerHTML = '';
 
     if (iconValue) iconValue = trim(iconValue);
     if (iconValue.substr(0,9) == 'material:') {
@@ -40,6 +41,8 @@ function handleIcon(parms) {
     if (cssClass) iconDiv.className = iconDiv.className + ' ' + cssClass;
     // Set the last size set in the designer
     if (iconSize) iconDiv.style.fontSize = iconSize;
+    // Add font family to the icon div, if set.
+    if (fontFamily) iconDiv.style.fontFamily = fontFamily;
     parms.dom.appendChild(iconDiv);
 }
 
@@ -83,6 +86,10 @@ pui.widgets.add ({
         },
         "cursor": function(parms) {
             parms.properties["cursor"] = parms.value;
+            handleIcon(parms);
+        },
+        "font family": function(parms) {
+            parms.properties["font family"] = parms.value;
             handleIcon(parms);
         }
     }
