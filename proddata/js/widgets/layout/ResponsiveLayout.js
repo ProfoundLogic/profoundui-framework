@@ -157,7 +157,9 @@ pui.ResponsiveLayout = function(){
 
     // Delete existing styles.
     if (me._stylenode != null){
-      me._mainnode.removeChild(me._stylenode);
+      //Note: if containers were adjusted with spinner widget in Responsive Editor, 
+      //then _stylenode may be detached from the DOM already due to setNumItems() being called again.
+      if(me._mainnode.contains(me._stylenode)) me._mainnode.removeChild(me._stylenode);
       me._stylenode = null;
     }
     
