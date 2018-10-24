@@ -46,14 +46,14 @@ pui.textArea_cleanUp = function(e) {
   if (ename == "keydown" && key == 17) obj.controlKeyDown = true;
   if (ename == "keyup") obj.controlKeyDown = false;
   
-  // When the user pastes, work with the pasted text, not the existing value of the textarea.
+  // When the user pastes, work with the pasted text. Insert it into the existing value.
   if (ename == "paste"){
     // Handle pasted data. Taken from https://developer.mozilla.org/en-US/docs/Web/Events/paste
     e.preventDefault();
     e.stopPropagation();
     var paste = (e.clipboardData || window.clipboardData).getData("text");
     if (paste == null || paste.length == 0) return false;
-    val = paste;
+    val = val.substr(0, cursorPos) + paste + val.substr(cursorPos);
     len = val.length;
   }
 
