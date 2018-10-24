@@ -124,6 +124,15 @@ pui.ResponsiveLayout = function(){
   };
   
   /**
+   * Returns true if this layout should resize when the canvas resizes. Needed by Designer when Canvas Size 
+   * changes and layout dimensions are not percentages. (See applyTemplate.js~94 and vdesigner.js~4374)
+   * @returns {Boolean}
+   */
+  this.resizeOnCanvasResize = function(){
+    return useViewport && me.designMode;
+  };
+  
+  /**
    * Set CSS style. Placeholders, #_id_, are replaced with the container's ID or .x-dd-drag-proxy if in proxy mode.
    * Pre-Conditions: The container must be set on this.
    * @param {String|Null} cssrulestxt  If null or undefined: if origCssRulesText is null, existing rules are removed;
@@ -170,7 +179,9 @@ pui.ResponsiveLayout = function(){
     else if (origCssText != ""){  //Attach style tag if there are style rules.
       addStyleNode();
       
-      if (!useViewport){  //Instead of using the viewport for widths, use the parent container.
+      //If !useViewport: instead of using the viewport for widths, use the parent container.
+      //In design mode if useViewport is true, then the canvas will decide media query matches. (Note: !u || (u && d) simplifies to !u || d).
+      if (!useViewport || me.designMode){
         checkCount = 0;
         clearTimeout(tmo_checkwid);
         tmo_checkwid = setTimeout(checkWidth,1);    //Causes a wait until our container has a width.
@@ -185,7 +196,7 @@ pui.ResponsiveLayout = function(){
    * @returns {undefined}
    */
   this.resize = function() {
-    if (!useViewport && origCssText != ""){
+    if ((!useViewport || me.designMode) && origCssText != ""){
       me._stylenode.textContent = origCssText;
       manipulateCSSOM();
     }
@@ -215,7 +226,8 @@ pui.ResponsiveLayout = function(){
   // then manipulates the CSSOM.
   function checkWidth(){
     checkCount++;
-    if (me.container.offsetWidth > 0){
+    var containerToCheck = getContainerToCheck();
+    if (containerToCheck.offsetWidth > 0){
       //An instance of Responsive Layout may not be attached to the DOM. Only process one that's attached.
       if (me._stylenode.sheet != null){
         manipulateCSSOM();
@@ -230,12 +242,25 @@ pui.ResponsiveLayout = function(){
   }
   
   /**
+   * Return the DIV.puiresp element or the design mode canvas element, depending on useViewport and designMode.
+   * In design mode, use the canvas, not the browser viewport. It's confusing for customers that the canvas isn't the viewport. #4820
+   * @returns {WebElement|Object}
+   */
+  function getContainerToCheck(){
+    var containerToCheck = me.container;
+    if (me.designMode && useViewport) containerToCheck = getObj(appContainerId);
+    return containerToCheck;
+  }
+  
+  /**
    * Recursively look inside the style nodes for dimensions in media queries that would satisfy the parent 
-   * container's width. Any media queries that don't match are removed from the CSSOM. 
+   * container's width. Any media queries that don't match are removed from the CSSOM.
+   * For media query that matches, the styles are set, and the media query itself is dropped.
    * @returns {undefined}
    */
   function manipulateCSSOM(){
     
+    var containerToCheck = getContainerToCheck();
     
     // This only checks min|max width|height and orientation. Other features aren't checked.
     // Assume rules are split by "and", because our tool creates them that way. In the future we can do more.
@@ -274,18 +299,18 @@ pui.ResponsiveLayout = function(){
                   var dim = parseInt(matches_minmax[3],10);
 
                   if (matches_minmax[1] == "min"){
-                    if ((widhgt == "width" && me.container.offsetWidth < dim) || (widhgt == "height" && me.container.offsetHeight < dim))
+                    if ((widhgt == "width" && containerToCheck.offsetWidth < dim) || (widhgt == "height" && containerToCheck.offsetHeight < dim))
                       ruleSatisfies = false;    //The rule was min-width|height, but the container was narrower|shorter than the rule.
                   }
                   else{
-                    if ((widhgt == "width" && me.container.offsetWidth > dim) || (widhgt == "height" && me.container.offsetHeight > dim))
+                    if ((widhgt == "width" && containerToCheck.offsetWidth > dim) || (widhgt == "height" && containerToCheck.offsetHeight > dim))
                       ruleSatisfies = false;    //The rule was max-width|height, but the container was wider|taller than the rule.
                   }
                 }
                 else if (matches_orient != null){
-                  if (matches_orient[1] == "portrait" && me.container.offsetHeight < me.container.offsetWidth )
+                  if (matches_orient[1] == "portrait" && containerToCheck.offsetHeight < containerToCheck.offsetWidth )
                     ruleSatisfies = false;    //The rule was portrait, but the container was not.
-                  else if (matches_orient[1] == "landscape" && me.container.offsetHeight > me.container.offsetWidth )
+                  else if (matches_orient[1] == "landscape" && containerToCheck.offsetHeight > containerToCheck.offsetWidth )
                     ruleSatisfies = false;    //The rule was landscape, but the container was not.
                 }
               }
