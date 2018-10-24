@@ -16,6 +16,7 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
+
 function handleIcon(parms) {
     var iconValue = parms.evalProperty("icon");
     var cssClass = parms.evalProperty("css class");
@@ -23,10 +24,17 @@ function handleIcon(parms) {
     var cursorStyle = parms.evalProperty("cursor");
     var fontFamily = parms.evalProperty("font family");
     var iconDiv = document.createElement('div');
+
     // Remove the previous icon if it exists
     parms.dom.innerHTML = '';
-
+    var iconSets = pui.getDefaultIconSets();
     if (iconValue) iconValue = trim(iconValue);
+    if (pui["customIconList"] && pui["customIconList"]) {
+        if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
+          iconSets =  pui["customIconList"]["icons"];
+        }
+      }
+
     if (iconValue.substr(0,9) == 'material:') {
         var icon = iconValue.substr(9);
         iconDiv.innerText = trim(icon);
@@ -36,6 +44,27 @@ function handleIcon(parms) {
         var icon = trim(iconValue.substr(12));
         iconDiv.className = 'pui-fa-icons fa-' + icon;
         iconDiv.innerText = '';
+    } else {
+        var iconValueArr = iconValue.split(':');
+        var iconValueType =  iconValueArr.shift().split('-');
+        var iconValueClassList = iconValueType.pop();
+        iconValueType = iconValueType.join('-');
+        var iconVal = iconValueArr.pop();
+        iconSets.every(function(iconSet) {
+            var type = iconSet["type"];
+            var iconClassName = iconSet["classList"][iconValueClassList];
+            if (iconValueType === type) {
+                if (type === 'materialIcons') {
+                    iconDiv.innerText = trim(iconVal);
+                    iconDiv.className = iconClassName;
+                } else {
+                    iconDiv.className = iconClassName + iconVal;
+                    iconDiv.innerText = '';
+                }
+                return false;
+            } 
+            return true;
+        })
     }
     // Add the first css class set in the properties
     if (cssClass) iconDiv.className = iconDiv.className + ' ' + cssClass;
