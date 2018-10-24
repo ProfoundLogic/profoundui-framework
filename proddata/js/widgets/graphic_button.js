@@ -55,6 +55,37 @@ function buildGraphicButton(parms) {
       vectorIcon = trim(vectorIcon.substr(12));
       icon = '<span class="pui-fa-icons pui-fa-icons-center fa-' + vectorIcon + ' ' + (cssClass? cssClass: '') +'"></span>';
       if (value) value = '<span class="pui-fa-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
+    } else {
+      var iconSets = pui.getDefaultIconSets();
+      vectorIcon = trim(vectorIcon);
+      if (pui["customIconList"] && pui["customIconList"]) {
+        if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
+          iconSets =  pui["customIconList"]["icons"];
+        }
+      }
+        var iconValueArr = vectorIcon.split(':');
+        var iconValueType =  iconValueArr.shift().split('-');
+        var iconValueClassList = iconValueType.pop();
+        iconValueType = iconValueType.join('-');
+        var iconVal = iconValueArr.pop();
+        iconSets.every(function(iconSet) {
+            var type = iconSet["type"];
+            var iconClassName = iconSet["classList"][iconValueClassList];
+            if (iconValueType === type) {
+                if (type === 'materialIcons') {
+                  icon = '<span class="' + iconClassName + ' pui-material-icons-center ' + (cssClass? cssClass + '"': '"') + (cursorStyle? 'style="cursor:'+cursorStyle + '"': '') + '>'+ iconVal + '</span>';
+                  if (value) value = '<span class="pui-material-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
+                } else if (type === 'fontAwesomeFree') {
+                  icon = '<span class="pui-fa-icons-center ' + iconClassName + iconVal + ' ' + (cssClass? cssClass: '') +'"></span>';
+                  if (value) value = '<span class="pui-fa-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';            
+                } else {
+                  icon = '<span class="pui-icons-center ' + iconClassName + iconVal + ' ' + (cssClass? cssClass: '') +'"></span>';
+                  if (value) value = '<span class="' + (cssClass? cssClass: '') + '">' + value + '</span>';            
+                }
+                return false;
+            } 
+            return true;
+        })
     }
   } else {
     icon = graphic;

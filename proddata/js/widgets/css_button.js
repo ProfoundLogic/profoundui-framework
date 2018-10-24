@@ -139,14 +139,44 @@ pui.CSSButton = function() {
       iconSpan.className = "pui-fa-icons fa-" + icon;
       iconSpan.innerHTML = "";
     } else {
-      if (icon == "left arrow") icon = "arrow-l";
-      if (icon == "right arrow") icon = "arrow-r";
-      if (icon == "up arrow") icon = "arrow-u";
-      if (icon == "down arrow") icon = "arrow-d";
-      if (icon == null) icon = "";
-      if (icon !=  "") icon = " ui-icon-" + icon;
-      iconSpan.className = "ui-icon" + icon + iconShadowClass;
-      iconSpan.innerHTML = ""; 
+      if (icon && icon.indexOf(':') !== -1) {
+        var iconSets = pui.getDefaultIconSets();
+        icon = trim(icon);
+        if (pui["customIconList"] && pui["customIconList"]) {
+          if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
+            iconSets =  pui["customIconList"]["icons"];
+          }
+        }
+        var iconValueArr = icon.split(':');
+        var iconValueType =  iconValueArr.shift().split('-');
+        var iconValueClassList = iconValueType.pop();
+        iconValueType = iconValueType.join('-');
+        var iconVal = iconValueArr.pop();
+        iconSets.every(function(iconSet) {
+            var type = iconSet["type"];
+            var iconClassName = iconSet["classList"][iconValueClassList];
+            if (iconValueType === type) {
+                if (type === 'materialIcons') {
+                    iconSpan.innerHTML = trim(iconVal);
+                    iconSpan.className = iconClassName;
+                } else {
+                    iconSpan.className = iconClassName + iconVal;
+                    iconSpan.innerHTML= '';
+                }
+                return false;
+            } 
+            return true;
+        })
+      } else {
+        if (icon == "left arrow") icon = "arrow-l";
+        if (icon == "right arrow") icon = "arrow-r";
+        if (icon == "up arrow") icon = "arrow-u";
+        if (icon == "down arrow") icon = "arrow-d";
+        if (icon == null) icon = "";
+        if (icon !=  "") icon = " ui-icon-" + icon;
+        iconSpan.className = "ui-icon" + icon + iconShadowClass;
+        iconSpan.innerHTML = ""; 
+      }
     }
   }
   
@@ -379,11 +409,11 @@ pui.widgets.add({
       if (parms.value) parms.value = trim(parms.value);
       if (parms.value.substr(0,9) == 'material:') {
         var value = trim(parms.value.substr(9));
-        parms.dom.button.setIcon(value, 'material');
+        parms.dom.button.setIcon(value, 'material:');
         return;
       } else if (parms.value.substr(0,12) == 'fontAwesome:') {
         var value = trim(parms.value.substr(12));
-        parms.dom.button.setIcon(value, 'fontAwesome');
+        parms.dom.button.setIcon(value, 'fontAwesome:');
       } else {
         parms.dom.button.setIcon(parms.value);     
       }
