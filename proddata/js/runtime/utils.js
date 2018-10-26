@@ -3984,7 +3984,7 @@ pui.getDefaultIconSets = function() {
       }
     }, {
       "type": "jQueryIcons",
-      "title": "JQuery Mobile Icons",
+      "title": "jQuery Mobile Icons",
       "classList": {
         "regular": "ui-icon ui-icon-"
       }
