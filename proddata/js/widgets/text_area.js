@@ -37,7 +37,7 @@ pui.textArea_cleanUp = function(e) {
   
   lines.push("");
   var curLine = 0;
-  var cursorPos = pui.textArea_getCursorPosition(obj);
+  var cursorPos = textArea_getCursorPosition(obj);
   var origCursorPos = cursorPos;
   if (!e) e = window.event;
   var key = e.which;
@@ -53,7 +53,8 @@ pui.textArea_cleanUp = function(e) {
     e.stopPropagation();
     var paste = (e.clipboardData || window.clipboardData).getData("text");
     if (paste == null || paste.length == 0) return false;
-    val = val.substr(0, cursorPos) + paste + val.substr(cursorPos);
+    // Replaces selected text or inserts text at the cursor when there is no selection. Requires IE9 or newer standard browser.
+    val = val.substr(0, obj.selectionStart) + paste + val.substr(obj.selectionEnd);
     len = val.length;
   }
 
@@ -150,7 +151,7 @@ pui.textArea_cleanUp = function(e) {
     }
   }
   var oldVal = obj.value.replace(/\r/g, "");
-  if (ename == "keydown" && !obj.controlKeyDown && pui.textArea_isNormalKey(key)) {
+  if (ename == "keydown" && !obj.controlKeyDown && textArea_isNormalKey(key)) {
     if (lines.length >= lineLengths.length && cursorLine != null) {
       var full = true;
       for (var i = cursorLine; i < lineLengths.length; i++) {
@@ -170,130 +171,118 @@ pui.textArea_cleanUp = function(e) {
   }
   if (newVal != oldVal) {
     obj.value = newVal;
-    pui.textArea_setSelRange(obj, cursorPos, cursorPos);
+    textArea_setSelRange(obj, cursorPos, cursorPos);
   }
-};
+  
 
-
-pui.textArea_isNormalKey = function(key) {
-  if (key >= 48 && key <= 90) return true;
-  if (key >= 96 && key <= 111) return true;
-  if (key >= 186 && key <= 192) return true;
-  if (key >= 219 && key <= 222) return true;
-  if (key == 32) return true;
-  return false;
-};
-
-
-pui.textArea_setSelRange = function(inputEl, selStart, selEnd) { 
- if (inputEl.setSelectionRange) { 
-  inputEl.focus(); 
-  inputEl.setSelectionRange(selStart, selEnd); 
- } else if (inputEl.createTextRange) { 
-  var range = inputEl.createTextRange(); 
-  range.collapse(true); 
-  range.moveEnd('character', selEnd); 
-  range.moveStart('character', selStart); 
-  range.select(); 
- } 
-};
-
-
-
-
-
-
-
-
-pui.textArea_getCursorPosition = function(textarea){
-  // get selection in firefox, opera, ...
-  if (typeof(textarea.selectionStart) == "number") {
-    return textarea.selectionStart;
+  function textArea_isNormalKey(key) {
+    if (key >= 48 && key <= 90) return true;
+    if (key >= 96 && key <= 111) return true;
+    if (key >= 186 && key <= 192) return true;
+    if (key >= 219 && key <= 222) return true;
+    if (key == 32) return true;
+    return false;
   }
-  else if(document.selection) {
-    var selection_range = document.selection.createRange().duplicate();
-    if (selection_range.parentElement() == textarea) { // Check that the selection is actually in our textarea
-      // Create three ranges, one containing all the text before the selection,
-      // one containing all the text in the selection (this already exists), and one containing all
-      // the text after the selection.
-      var before_range = document.body.createTextRange();
-      before_range.moveToElementText(textarea); // Selects all the text
-      before_range.setEndPoint("EndToStart", selection_range); // Moves the end where we need it
-      var after_range = document.body.createTextRange();
-      after_range.moveToElementText(textarea); // Selects all the text
-      after_range.setEndPoint("StartToEnd", selection_range); // Moves the start where we need it
-      var before_finished = false, selection_finished = false, after_finished = false;
-      var before_text, untrimmed_before_text, selection_text, untrimmed_selection_text, after_text, untrimmed_after_text;
-      // Load the text values we need to compare
-      before_text = untrimmed_before_text = before_range.text;
-      selection_text = untrimmed_selection_text = selection_range.text;
-      after_text = untrimmed_after_text = after_range.text;
-      // Check each range for trimmed newlines by shrinking the range by 1 character and seeing
-      // if the text property has changed. If it has not changed then we know that IE has trimmed
-      // a \r\n from the end.
-      do {
-        if (!before_finished) {
-          if (before_range.compareEndPoints("StartToEnd", before_range) == 0) {
-            before_finished = true;
-          } 
-          else {
-            before_range.moveEnd("character", -1);
-            if (before_range.text == before_text) {
-              untrimmed_before_text += "\r\n";
-            } 
-            else {
+  
+  function textArea_setSelRange(inputEl, selStart, selEnd) { 
+   if (inputEl.setSelectionRange) { 
+    inputEl.focus(); 
+    inputEl.setSelectionRange(selStart, selEnd); 
+   } else if (inputEl.createTextRange) { 
+    var range = inputEl.createTextRange(); 
+    range.collapse(true); 
+    range.moveEnd('character', selEnd); 
+    range.moveStart('character', selStart); 
+    range.select(); 
+   } 
+  }
+  
+  function textArea_getCursorPosition(textarea){
+    // get selection in firefox, opera, ...
+    if (typeof(textarea.selectionStart) == "number") {
+      return textarea.selectionStart;
+    }
+    else if(document.selection) {
+      var selection_range = document.selection.createRange().duplicate();
+      if (selection_range.parentElement() == textarea) { // Check that the selection is actually in our textarea
+        // Create three ranges, one containing all the text before the selection,
+        // one containing all the text in the selection (this already exists), and one containing all
+        // the text after the selection.
+        var before_range = document.body.createTextRange();
+        before_range.moveToElementText(textarea); // Selects all the text
+        before_range.setEndPoint("EndToStart", selection_range); // Moves the end where we need it
+        var after_range = document.body.createTextRange();
+        after_range.moveToElementText(textarea); // Selects all the text
+        after_range.setEndPoint("StartToEnd", selection_range); // Moves the start where we need it
+        var before_finished = false, selection_finished = false, after_finished = false;
+        var before_text, untrimmed_before_text, selection_text, untrimmed_selection_text, after_text, untrimmed_after_text;
+        // Load the text values we need to compare
+        before_text = untrimmed_before_text = before_range.text;
+        selection_text = untrimmed_selection_text = selection_range.text;
+        after_text = untrimmed_after_text = after_range.text;
+        // Check each range for trimmed newlines by shrinking the range by 1 character and seeing
+        // if the text property has changed. If it has not changed then we know that IE has trimmed
+        // a \r\n from the end.
+        do {
+          if (!before_finished) {
+            if (before_range.compareEndPoints("StartToEnd", before_range) == 0) {
               before_finished = true;
-            }
-          }
-        }
-        if (!selection_finished) {
-          if (selection_range.compareEndPoints("StartToEnd", selection_range) == 0) {
-            selection_finished = true;
-          } 
-          else {
-            selection_range.moveEnd("character", -1);
-            if (selection_range.text == selection_text) {
-              untrimmed_selection_text += "\r\n";
             } 
             else {
+              before_range.moveEnd("character", -1);
+              if (before_range.text == before_text) {
+                untrimmed_before_text += "\r\n";
+              } 
+              else {
+                before_finished = true;
+              }
+            }
+          }
+          if (!selection_finished) {
+            if (selection_range.compareEndPoints("StartToEnd", selection_range) == 0) {
               selection_finished = true;
-            }
-          }
-        }
-        if (!after_finished) {
-          if (after_range.compareEndPoints("StartToEnd", after_range) == 0) {
-            after_finished = true;
-          }
-          else {
-            after_range.moveEnd("character", -1);
-            if (after_range.text == after_text) {
-              untrimmed_after_text += "\r\n";
             } 
             else {
+              selection_range.moveEnd("character", -1);
+              if (selection_range.text == selection_text) {
+                untrimmed_selection_text += "\r\n";
+              } 
+              else {
+                selection_finished = true;
+              }
+            }
+          }
+          if (!after_finished) {
+            if (after_range.compareEndPoints("StartToEnd", after_range) == 0) {
               after_finished = true;
             }
+            else {
+              after_range.moveEnd("character", -1);
+              if (after_range.text == after_text) {
+                untrimmed_after_text += "\r\n";
+              } 
+              else {
+                after_finished = true;
+              }
+            }
           }
         }
+        while ((!before_finished || !selection_finished || !after_finished));
+        // Untrimmed success test to make sure our results match what is actually in the textarea
+        // This can be removed once you�re confident it�s working correctly
+        //var untrimmed_text = untrimmed_before_text + untrimmed_selection_text + untrimmed_after_text;
+        //var untrimmed_successful = false;
+        //if (textarea.value == untrimmed_text) {
+        //  untrimmed_successful = true;
+        //}
+        // ** END Untrimmed success test
+        var startPoint = untrimmed_before_text.length;
+        return startPoint;
       }
-      while ((!before_finished || !selection_finished || !after_finished));
-      // Untrimmed success test to make sure our results match what is actually in the textarea
-      // This can be removed once you�re confident it�s working correctly
-      //var untrimmed_text = untrimmed_before_text + untrimmed_selection_text + untrimmed_after_text;
-      //var untrimmed_successful = false;
-      //if (textarea.value == untrimmed_text) {
-      //  untrimmed_successful = true;
-      //}
-      // ** END Untrimmed success test
-      var startPoint = untrimmed_before_text.length;
-      return startPoint;
     }
-  }
-};
-
-
-
-
-
+  } //end textArea_getCursorPosition().
+  
+};  //end of pui.textArea_cleanUp().
 
 pui.widgets.add({
   name: "text area",
