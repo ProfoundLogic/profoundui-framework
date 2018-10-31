@@ -170,7 +170,7 @@ var ja_JP = function(dict) {
             dictMsg["find text"]                    = "検索";
             dictMsg["reset data"]                   = "リセット";
             dictMsg["remove filters text"]          = "全てのフィルターの除去";
-            dictMsg["displayed columns"]            = "Displayed Columns";
+            dictMsg["displayed columns"]            = "表示列";
             dictMsg["next link text"]               = "次へ";
             dictMsg["previous link text"]           = "前へ";
             dictMsg["sort ascending text"]          = "昇順に並び替え";
@@ -215,8 +215,8 @@ var ja_JP = function(dict) {
             dictMsg["remove filter"]                = "フィルターの除去";
             dictMsg["chart"]                        = "チャート";
             dictMsg["section"]                      = "セクション";
-            dictMsg["version"]                      = "Version";
-            dictMsg["fixPack"]                      = "Fix Pack";
+            dictMsg["version"]                      = "バージョン";
+            dictMsg["fixPack"]                      = "フィックスパック";
             // Atrium only.
             dictMsg["yes"]                          = "Yes";
             dictMsg["no"]                           = "No";
@@ -231,12 +231,12 @@ var ja_JP = function(dict) {
             dictMsg["about atrium"]                 = "Atriumについて";
             dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
                                                     + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
-                                                    + "Warning: This computer program is protected by copyright law<br />"
-                                                    + "and international treaties. Unauthorized reproduction or<br />"
-                                                    + "distribution of this program, or any portion of it, may result in<br />"
-                                                    + "severe civil and criminal penalties, and will be prosecuted to the<br />"
-                                                    + "maximum extent possible under the law.<br /><br />"
-                                                    + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";
+                                                    + "警告：このコンピュータプログラムは、著作権法および国際条約によって保護されています。<br />"
+                                                    + "このプログラムまたはその一部の無断転載または配布は、<br />"
+                                                    + "重大な民事刑法違反の罰金を科す可能性があり、法律により可能な限り告発されます。<br /><br />"
+                                                    + "特許取得済み &nbsp;米国特許第8,667,405号B2";
+
+            // Intentional blank lines to preserve consistent line numbers across all message files.
             dictMsg["item"]                         = "アイテム";
             dictMsg["open selected item"]           = "選択されたアイテムを開く";
             dictMsg["of"]                           = "of";
@@ -421,7 +421,7 @@ var ja_JP = function(dict) {
             dictMsg["open as"]                      = "開く";
             dictMsg["open as hlp"]                  = "アイテムをポータルの新しいタブとして起動するか、新しいブラウザとして起動するかを設定します。ブラウザが新しいウィンドウまたはタブを使用するかはユーザーのブラウザ設定によって異なります。";
             dictMsg["opens once only"]              = "1回のみ開く";
-            dictMsg["opens once only hlp"]          = "デフォルトでは、ポータルですでにタブが開いているときにユーザーがこのアイテムを起動すると、アイテムの別のタブが開きます。このようにして開くことができるタブの数に制限があります。このアイテムの複数のタブを開くことはできません。ユーザーがアイテムを選択したときにこのアイテムのタブが既に開いている場合は、既存のタブが有効になります。ウィンドウまたはタブ。";
+            dictMsg["opens once only hlp"]          = "デフォルトでは、ポータルですでにタブが開いている状態でユーザーがこのアイテムを起動すると、アイテムに対して別のタブが開かれます。このようにユーザーが開くことができるタブの数に制限はありません。このオプションをオンにすると、ユーザーはこのアイテムに複数のタブを開くことができなくなります。ユーザーが項目を選択したときにアイテムに対してすでに開いているタブがある場合、既存のタブがアクティブになります。このオプションは、新しいブラウザのウィンドウまたはタブでアイテムを開くときは無視されます。";
             dictMsg["icon"]                         = "アイコン";
             dictMsg["icon hlp"]                     = "オプション。ナビゲーションまたはツールバー項目に使用するアイコンファイルを設定します。アイコンファイルは GIF、JPG、またはPNG形式にすることができます。透過GIFを推奨します。パスはAtrium導入のルートから絶対パスとして指定する必要があります。アイコンが指定されていない場合、Atriumはナビゲーション項目のデフォルトアイコンを使用します。ここに指定されていない限り、ツールバー項目のアイコンは表示されません。";
             dictMsg["parameter"]                    = "パラメータr";
