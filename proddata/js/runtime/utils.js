@@ -169,7 +169,25 @@ function alphabeticOnly(e) {
   allowedUnicodes.push(8, 9, 13, 16, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 110);
   allowKeys(allowedUnicodes, e);
 }
-
+function inhibitKeyboard(e) {
+  e = e || window.event;
+  if (typeof e.keyCode != "undefined") { // onkeydown
+    if (e.ctrlKey == true && e.keyCode == 86) {
+      disableAction(e);
+      return false;
+    }
+    var allowed = allowKeys([13,112,123,144,145,112,113,114,115,116,117,118,119,120,121,122,123], e);
+    if (!allowed) {
+      if (!pui.isFieldExit(e) && !e.shiftKey && !e.altKey && !e.ctrlKey && e.key.length == 1)
+        pui.alert(pui["getLanguageText"]("runtimeMsg", "keyboard input inhibited"));
+      return false;
+    }
+  }
+  else { // oncontextmenu
+    disableAction(e);
+    return false;
+  }
+}
 
 function defaultField(e){
   var allowedUnicodes = new Array(256)
