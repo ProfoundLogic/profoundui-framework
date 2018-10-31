@@ -80,7 +80,7 @@ var es_MX = function(dict) {
             dictMsg["cannot rmv last col"]          = "No se puede remover la ultima columna.";
             dictMsg["cannot find col"]              = "No se puede encontrar el id de columna especificado.";
             dictMsg["subfile deletion"]             = "Esta seguro que desea borrar el subarchivo ?";
-            dictMsg["downloading x"]                = "Cargando &1";
+            dictMsg["downloading x"]                = "Descargando &1";
             dictMsg["ie9 too low xlsxpics"]         = "Las imágenes no pueden ser exportadas usando IE9 o inferior.";
 
             // Atrium only.
@@ -230,13 +230,13 @@ var es_MX = function(dict) {
             dictMsg["my settings"]                  = "Mis Ajustes";
             dictMsg["about atrium"]                 = "Sobre Atrium";
             dictMsg["about atrium msg"]             = dictMsg["version"] + " " + window["pui"]["baseVersion"] + ", " + dictMsg["fixPack"] + " " + window["pui"]["fixPackVersion"] + "<br /><br />"
-                                                    + "Copyright &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
-                                                    + "Warning: This computer program is protected by copyright law<br />"
-                                                    + "and international treaties. Unauthorized reproduction or<br />"
-                                                    + "distribution of this program, or any portion of it, may result in<br />"
-                                                    + "severe civil and criminal penalties, and will be prosecuted to the<br />"
-                                                    + "maximum extent possible under the law.<br /><br />"
-                                                    + "Patented. &nbsp;U.S. Patent No. 8,667,405 B2.";
+                                                    + "Derechos de autor &copy 1999-" + new Date().getFullYear() + " Profound Logic Software, Inc.<br /><br />"
+                                                    + "Advertencia: Este programa de computador está protegido por leyes de derecho de autor<br />"
+                                                    + "y tratados internacionales. La reproducción no autorizada o<br />"
+                                                    + "distribución de este programa, o alguna porción de el puede resultar en<br />"
+                                                    + "sanciones civiles y penales severas, y será procesada<br />"
+                                                    + "con la máxima extensión posible permitida por la ley.<br /><br />"
+                                                    + "Patentado. &nbsp;U.S. Patente No. 8,667,405 B2.";
             dictMsg["item"]                         = "Ítem";
             dictMsg["open selected item"]           = "Abrir ítem seleccionado";
             dictMsg["of"]                           = "de";
