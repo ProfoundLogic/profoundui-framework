@@ -20,15 +20,15 @@
 
 
 function getTarget(e) {
-	var targ;
-	if (!e) e = window.event;
-	if (e.touches != null && e.touches.length == 1) {  // detect touch screen device like iPad
-	  return e.touches[0].target;
-	}
-	if (e.target) targ = e.target;
-	else if (e.srcElement) targ = e.srcElement;
-	if (targ.nodeType == 3) // defeat Safari bug
-		targ = targ.parentNode;
+  var targ;
+  if (!e) e = window.event;
+  if (e.touches != null && e.touches.length == 1) {  // detect touch screen device like iPad
+    return e.touches[0].target;
+  }
+  if (e.target) targ = e.target;
+  else if (e.srcElement) targ = e.srcElement;
+  if (targ.nodeType == 3) // defeat Safari bug
+    targ = targ.parentNode;
   return targ;
 }
 
@@ -71,8 +71,8 @@ function disableAction(e){
     if (e.stopPropagation) e.stopPropagation();
   }
   else{
-  	e.preventDefault();
-  	e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
   }
 }
 
@@ -145,14 +145,14 @@ function numericOnly(e){
 function numericDecimalOnly(e){
   if(!e) e = window.event;
   var target = e.srcElement || e.target;
-  if (target.autoComp != null) return;	
+  if (target.autoComp != null) return;  
   var allowedUnicodes = new Array(8,9,13,16,17,18,19,20,27,32,33,34,35,36,37,38,39,40,45,46,48,49,50,51,52,53,54,55,56,57,91,93,96,97,98,99,100,101,102,103,104,105,110,112,123,144,145,188,190,112,113,114,115,116,117,118,119,120,121,122,123,189,109);
   allowKeys(allowedUnicodes, e);
 }
 function numericSignOnly(e){
   if(!e) e = window.event;
   var target = e.srcElement || e.target;
-  if (target.autoComp != null) return;	
+  if (target.autoComp != null) return;  
   var allowedUnicodes = new Array(8,9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,48,49,50,51,52,53,54,55,56,57,91,93,96,97,98,99,100,101,102,103,104,105,109,112,123,144,145,112,113,114,115,116,117,118,119,120,121,122,123,189,pui["field exit key"]);
   allowKeys(allowedUnicodes, e);
 }
@@ -160,7 +160,7 @@ function alphabeticOnly(e) {
   if(!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
-  // As per 5250 manual, allow a-z, A-Z, comma, dot, hyphen, and space.	
+  // As per 5250 manual, allow a-z, A-Z, comma, dot, hyphen, and space.  
   var allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,.- ";
   var allowedUnicodes = new Array();
   for (var i = 0; i < allowedChars.length; i++) {
@@ -236,49 +236,49 @@ function inDesignMode() {
 // Returns either standard response object or false to indicate error with the response.
 function checkAjaxResponse(ajaxRequest, operation) {
 
-	// Check for HTTP-layer error.
-	var errorId;
-	var error   = "";
-	var error2  = "";
-	var responseObj;	
-	var isXML = false;
-	if (ajaxRequest.getStatus() != 200) {
-		errorId = "HTTP " + ajaxRequest.getStatus();
-		error = ajaxRequest.getStatusText() + ".";
-	}
-	// Check for application-layer error.
-	// Assume success if there is an XML response (charting). 	
-	else {
-		isXML = (ajaxRequest.getResponseText().indexOf("<?xml") != -1);
-		if (isXML == false) {
-			try {
-				responseObj = eval("(" + ajaxRequest.getResponseText() + ")");
-				if (responseObj.success != true) {
-					errorId = responseObj.errorId;
-					error   = responseObj.errorText;
-					error2  = responseObj.errorText2;
-				}
-			}
-			catch(e) {
-				errorId = "CPF9897";
-				error = "The server response is missing or invalid.";
-			}
-		}
-	}
-	if (errorId != null) {
-		errors.push({
-			operation: operation,
-			id: errorId,
-			text: error,
-			text2: error2
-		});		
-		return false;
-	}
-	else {
-		if (isXML == true) return ajaxRequest.getResponseText();
-		else return responseObj.response;
-	}
-	
+  // Check for HTTP-layer error.
+  var errorId;
+  var error   = "";
+  var error2  = "";
+  var responseObj;  
+  var isXML = false;
+  if (ajaxRequest.getStatus() != 200) {
+    errorId = "HTTP " + ajaxRequest.getStatus();
+    error = ajaxRequest.getStatusText() + ".";
+  }
+  // Check for application-layer error.
+  // Assume success if there is an XML response (charting).   
+  else {
+    isXML = (ajaxRequest.getResponseText().indexOf("<?xml") != -1);
+    if (isXML == false) {
+      try {
+        responseObj = eval("(" + ajaxRequest.getResponseText() + ")");
+        if (responseObj.success != true) {
+          errorId = responseObj.errorId;
+          error   = responseObj.errorText;
+          error2  = responseObj.errorText2;
+        }
+      }
+      catch(e) {
+        errorId = "CPF9897";
+        error = "The server response is missing or invalid.";
+      }
+    }
+  }
+  if (errorId != null) {
+    errors.push({
+      operation: operation,
+      id: errorId,
+      text: error,
+      text2: error2
+    });    
+    return false;
+  }
+  else {
+    if (isXML == true) return ajaxRequest.getResponseText();
+    else return responseObj.response;
+  }
+  
 }
 
 
@@ -775,16 +775,16 @@ function allowKeys(allowedUnicodes, e) {
     }
   } 
   if (key == 38 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // up key
-  	
-  	// Do not process up key if the field is an auto complete field and the 
-  	// result pane is open.
-  	if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
-  	  if (!pui.genie.config.browserAutoComplete) {
-	      goUp(obj);
-	      disableAction(e);
-	      return false;
-	    }
-  	}
+    
+    // Do not process up key if the field is an auto complete field and the 
+    // result pane is open.
+    if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
+      if (!pui.genie.config.browserAutoComplete) {
+        goUp(obj);
+        disableAction(e);
+        return false;
+      }
+    }
   }   
   if (key == 39) {     // right key
     if (isTextbox) {
@@ -806,16 +806,16 @@ function allowKeys(allowedUnicodes, e) {
     }
   }
   if (key == 40 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // down key
-  	
-  	// Do not process up key if the field is an auto complete field and the 
-  	// result pane is open.  	
-  	if (obj.autoComp == null || obj.autoComp.isOpen() == false) {  	
-  	  if (!pui.genie.config.browserAutoComplete) {
-  	    goDown(obj);
-  	    disableAction(e);
-  	    return false;
-  	  }
-  	}
+    
+    // Do not process up key if the field is an auto complete field and the 
+    // result pane is open.    
+    if (obj.autoComp == null || obj.autoComp.isOpen() == false) {    
+      if (!pui.genie.config.browserAutoComplete) {
+        goDown(obj);
+        disableAction(e);
+        return false;
+      }
+    }
     
   }
   if (isTextbox && pui.isFieldExit(e)) {    
@@ -866,7 +866,7 @@ function fieldExit(obj, minus) {
   if (pos == null) return false;
   if (pos < 0) return false;
   if (pos >= 0) {
-	needsOnchange = (obj.value !== obj.value.substr(0, pos)); 
+  needsOnchange = (obj.value !== obj.value.substr(0, pos)); 
     obj.value = obj.value.substr(0, pos);
     blankFill = obj.getAttribute('blankFill');
     if (signedNumeric!=null && signedNumeric=='Y') blankFill = "Y";
@@ -898,7 +898,7 @@ function fieldExit(obj, minus) {
     }
   }
   if (needsOnchange && typeof obj.onchange === 'function') {
-	  obj.onchange();
+    obj.onchange();
   }
   goNext(obj);
   return true;
@@ -948,13 +948,13 @@ pui["unload"] = function() {
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
     if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
-	if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
-	  try {
-	    url = pui["overrideSubmitUrl"](url);
-	  }
-	  catch(e) {
-	  }
-	}	
+  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+    try {
+      url = pui["overrideSubmitUrl"](url);
+    }
+    catch(e) {
+    }
+  }  
     // Redmine #4624
     // Use Blob to set Content-Type: application/x-www-form-urlencoded
     // Otherwise, Profound.js controller is unable to parse the POST.
@@ -1161,18 +1161,18 @@ pui.autoKeepAlive.check = function() {
 
 
 pui.isRightClick = function(e) {
-	if (!e) var e = window.event;
-	if (e.which != null) {
-		if (e.which > 1) {
-			return true;
-		}
-	}
-	if (e.button != null) {
-		if (e.button > 1) {
-			return true;
-		}
-	}
-	return false;
+  if (!e) var e = window.event;
+  if (e.which != null) {
+    if (e.which > 1) {
+      return true;
+    }
+  }
+  if (e.button != null) {
+    if (e.button > 1) {
+      return true;
+    }
+  }
+  return false;
 }
 
 
@@ -1361,13 +1361,13 @@ pui.getFieldList = function(propVal, stopAtFrom) {
       break;
     }
     
-  	character =  propVal.charAt(i);
-  	if (!inQuote) {
-    	if (character == "("){
+    character =  propVal.charAt(i);
+    if (!inQuote) {
+      if (character == "("){
         parenLevel += 1;
         frompos = 0;
       }
-    	else if (character == ")"){
+      else if (character == ")"){
         parenLevel -= 1;
         frompos = 0;
       }
@@ -1383,18 +1383,18 @@ pui.getFieldList = function(propVal, stopAtFrom) {
           frompos = 0; //" from " didn't match, so reset position.
       }
       
-    	if (parenLevel < 1) parenLevel = 0;
-  	}
-  	else {
-  		if (character == "'") inQuote = false;
-  	}
-  	if (character == "," && parenLevel == 0 && !inQuote) {
-  	  fields.push(trim(field));
-  	  field = "";
+      if (parenLevel < 1) parenLevel = 0;
+    }
+    else {
+      if (character == "'") inQuote = false;
+    }
+    if (character == "," && parenLevel == 0 && !inQuote) {
+      fields.push(trim(field));
+      field = "";
       frompos = 0;
     }
     else {
-  	  field += character;
+      field += character;
     }
   }
   fields.push(trim(field));
@@ -1823,12 +1823,12 @@ pui.hasParent = function(node) {
 }
 
 pui.appendAuth = function(url) {  
- 	if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
- 	  if (url.search(/\?/) == -1) url += '?';
- 	  else url += '&';
+   if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
+     if (url.search(/\?/) == -1) url += '?';
+     else url += '&';
     url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
- 	}
- 	return url;
+   }
+   return url;
 }
 
 
@@ -1930,15 +1930,15 @@ pui.isLocalStorage = function() {
 
 try {
 if (localStorage != null && typeof(window.localStorage) != "undefined")
-		return true;
-	
-	else
-		return false;
-	}
-	
+    return true;
+  
+  else
+    return false;
+  }
+  
 catch(e){
-	return false;
-	}
+  return false;
+  }
 }
 
 
@@ -2054,58 +2054,58 @@ pui.dehighlightText = function(div) {
 
 
 pui.startMouseCapableMonitoring = function() {
-	if (pui["is_mouse_capable"]) {
-	  return;
+  if (pui["is_mouse_capable"]) {
+    return;
   }
   
-	if (pui.isLocalStorage() && localStorage["pui-is-mouse-capable"] == "true") {
+  if (pui.isLocalStorage() && localStorage["pui-is-mouse-capable"] == "true") {
     // if iOS or Android dont set the mouse_capable flag #4460
     if (pui["is_android"] || pui["is_ios"]) return;
-		pui["is_mouse_capable"] = true;
-		return;
-	}
+    pui["is_mouse_capable"] = true;
+    return;
+  }
 
-	var docElement = document.documentElement;
-	if (docElement == null) return;
+  var docElement = document.documentElement;
+  if (docElement == null) return;
 
-	// Look for 2 consecutive 'mousemove' events without an intervening
-	// 'mousedown'; this excludes touch screen tap events
-	var onMouseDown = function () {
-		hadMouseOver = false;
-	};
-	var onMouseMove = function () {
-		if (hadMouseOver) {
+  // Look for 2 consecutive 'mousemove' events without an intervening
+  // 'mousedown'; this excludes touch screen tap events
+  var onMouseDown = function () {
+    hadMouseOver = false;
+  };
+  var onMouseMove = function () {
+    if (hadMouseOver) {
       // if iOS or Android dont set the mouse_capable flag #4460
       if (pui["is_android"] || pui["is_ios"]) {
         removeEvent(docElement, 'mousedown', onMouseDown);
         removeEvent(docElement, 'mousemove', onMouseMove);
         return;
       }
-			pui["is_mouse_capable"] = true;
-			if (pui.isLocalStorage()) {
-				localStorage.setItem("pui-is-mouse-capable", "true");
-			}
-			if (pui.gridsDisplayed != null && pui.gridsDisplayed.length > 0) {
-			  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
-			    var grid = pui.gridsDisplayed[i];
-			    if (grid != null && typeof grid.setScrollBar == "function") {
-			      if (grid.scrollbarObj != null) {
-			        if (grid.scrollbarObj.destroy == "function") grid.scrollbarObj.destroy();
+      pui["is_mouse_capable"] = true;
+      if (pui.isLocalStorage()) {
+        localStorage.setItem("pui-is-mouse-capable", "true");
+      }
+      if (pui.gridsDisplayed != null && pui.gridsDisplayed.length > 0) {
+        for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+          var grid = pui.gridsDisplayed[i];
+          if (grid != null && typeof grid.setScrollBar == "function") {
+            if (grid.scrollbarObj != null) {
+              if (grid.scrollbarObj.destroy == "function") grid.scrollbarObj.destroy();
               grid.scrollbarObj = null;
-			      }
-			      grid.setScrollBar();
-			    }
-			  }
-			}
-			removeEvent(docElement, 'mousedown', onMouseDown);
-			removeEvent(docElement, 'mousemove', onMouseMove);
-		}
-		hadMouseOver = true;
-	};
+            }
+            grid.setScrollBar();
+          }
+        }
+      }
+      removeEvent(docElement, 'mousedown', onMouseDown);
+      removeEvent(docElement, 'mousemove', onMouseMove);
+    }
+    hadMouseOver = true;
+  };
 
-	var hadMouseOver = false;
-	addEvent(docElement, 'mousedown', onMouseDown);
-	addEvent(docElement, 'mousemove', onMouseMove);
+  var hadMouseOver = false;
+  addEvent(docElement, 'mousedown', onMouseDown);
+  addEvent(docElement, 'mousemove', onMouseMove);
 }
 
 pui.killFrames = function() {
@@ -2535,8 +2535,8 @@ pui.breakMessagesShow = function(messages) {
   bkmsgcont.innerHTML = "";
   
   if( messages.length == 0) {
-	  pui["unmaskScreen"]();
-	  return;
+    pui["unmaskScreen"]();
+    return;
   }
 
   pui["maskScreen"]();
@@ -2573,8 +2573,8 @@ pui.breakMessagesShow = function(messages) {
 
     addEvent(closeImg, "click", pui.breakMessageDismiss);
     addEvent(closeImg, "keydown", pui.breakMessageDismiss);
-	  
-	  var msgbody = document.createElement("div");
+    
+    var msgbody = document.createElement("div");
     msgbody.className = "msg-body";
     
     // Use the user-defined formatter if it exists.
@@ -2592,19 +2592,19 @@ pui.breakMessagesShow = function(messages) {
       }
       catch(exc){ console.log(exc); }
     }
-	  
-	  msgwrap.appendChild(msgbody);
-	  bkmsgcont.appendChild(msgwrap);
-	  msgbody = null;
-	  msgwrap = null;
-	  msgtitle = null;
+    
+    msgwrap.appendChild(msgbody);
+    bkmsgcont.appendChild(msgwrap);
+    msgbody = null;
+    msgwrap = null;
+    msgtitle = null;
     curmsg = null;
     
     top += 1;
     left += 10;
   }
   // done showing each message.
-	closeImg.focus();
+  closeImg.focus();
   bkmsgcont = null;
 };
 
@@ -3806,9 +3806,9 @@ pui.xlsx_drawing = function(){
  *  
  */
 pui.getFieldDescriptions = function(parm, cb){
-	var library=parm["library"] || "", 
-	    file=parm["file"] || "", 
-	    customSql=parm["customSql"] || "";
+  var library=parm["library"] || "", 
+      file=parm["file"] || "", 
+      customSql=parm["customSql"] || "";
     if (context == "genie") url = getProgramURL("PUI0009101.PGM");
     if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
     var request = new pui.Ajax(url);
@@ -3824,9 +3824,9 @@ pui.getFieldDescriptions = function(parm, cb){
     if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
     request["postData"] += "&context=" + context;
     request["suppressAlert"] = true;
-	var theCallback = function() {
-		cb(request);
-	}
+  var theCallback = function() {
+    cb(request);
+  }
     request["onready"] = theCallback;
     request.send();
 };
