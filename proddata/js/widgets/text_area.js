@@ -36,7 +36,7 @@ pui.textArea_cleanUp = function(e) {
   var lines = [];
   
   lines.push("");
-  var curLine = 0;
+  var curLine = 0;    //Tracks which string in the "lines" model that characters are added to.
   var cursorPos = textArea_getCursorPosition(obj);
   var origCursorPos = cursorPos;
   if (!e) e = window.event;
@@ -45,18 +45,96 @@ pui.textArea_cleanUp = function(e) {
   var ename = e.type;
   if (ename == "keydown" && key == 17) obj.controlKeyDown = true;
   if (ename == "keyup") obj.controlKeyDown = false;
-  
-  // When the user pastes, work with the pasted text. Insert it into the existing value.
+    
+  // Handle paste differently than what happens with user typing, because ACS does things that way.
+  // This tries to handle pasting similarly to ACS while still making sense for web input. Issue 4766.
   if (ename == "paste"){
-    // Handle pasted data. Taken from https://developer.mozilla.org/en-US/docs/Web/Events/paste
     e.preventDefault();
     e.stopPropagation();
     var paste = (e.clipboardData || window.clipboardData).getData("text");
     if (paste == null || paste.length == 0) return false;
-    // Replaces selected text or inserts text at the cursor when there is no selection. Requires IE9 or newer standard browser.
+    paste = paste.replace(/\r/g, "");  //remove all CR.
+    paste = paste.replace(/\t/g, " "); //replace tabs with spaces.
+    if (paste.length == 0) return;
+    // Replaces selected text or inserts text at the cursor when there is no selection.
+    // (.selectionStart|End Require IE9 or newer standard browser.)
     val = val.substr(0, obj.selectionStart) + paste + val.substr(obj.selectionEnd);
     len = val.length;
-  }
+    
+    // Pre-process: split text by words, preserve \n, ignore \r, replace \t with space.      
+    var words = [];
+    var startpos = 0;
+    for (var i=0; i < len; i++){
+      var ch = val.substr(i,1);
+      if (ch == "\n" || ch == " "){
+        if (startpos < i){
+          words.push( val.substring(startpos, i) );   //There was a previous word; queue it.
+        }
+        startpos = i + 1;     //The next word starts after this position.
+        words.push(ch);       //The space is a word.
+      }
+      else if (i == len - 1 && startpos < len){
+        words.push( val.substring(startpos) ); //At end of the string; paste the word.
+      }
+    }
+    
+    var curword = 0;
+    var atStartOfLine = true;
+    // Look at each word. Populate the model of fields with the words. Wrap when necessary.
+    while (curword < words.length){
+      var curLineLengthMax = parseInt(lineLengths[curLine],10); //lineLengths are strings. Assume they parse.
+      if (words[curword] == "\n"){
+        if (!madeNewLine()) break;
+        atStartOfLine = true;
+        curword++;
+      }
+      else if (words[curword] == " "){
+        // If there is room left on the current line, add the space.
+        if (getCurLineLength() < curLineLengthMax ){
+          lines[curLine] += " ";
+          atStartOfLine = false;
+        }
+        else{   // Else, it is ignored. But a new line is begun.
+          if (!madeNewLine()) break;
+          atStartOfLine = true;
+        }
+        curword++;
+      }
+      else{ //The word is more than a whitespace character.
+        var curLineLength = getCurLineLength();
+        if (curLineLength + words[curword].length <= curLineLengthMax){   //If space is available.
+          //Add the word to the line
+          lines[curLine] += words[curword];
+          curword++;
+          atStartOfLine = false;
+        }
+        else{   //No space for the word is available on this line.
+          if (atStartOfLine){
+            var bigword = words[curword];
+            words.splice(curword, 1 );  //Remove the big word.
+            var splitat = 0;
+            var addcount = 0;   // Used so each added word is inserted after the previous.
+            // Split the big word up and add it to the list of words until it's all there.
+            while (splitat < bigword.length){
+              words.splice(curword + addcount, 0, bigword.substr(splitat, curLineLengthMax) );  //Insert part of the word.
+              splitat += curLineLengthMax;
+              addcount++;
+            }
+            // The loop will start over on the new word.
+          }
+          else{ //Start a new line. The next loop iteration will handle it.
+            if (!madeNewLine()){
+              //There are no more lines. Add as many characters as will fit.
+              var roomonline = curLineLengthMax - curLineLength;
+              lines[curLine] += words[curword].substr(0, roomonline);
+              break;
+            }
+            atStartOfLine = true;
+          }
+        }
+      }
+    }
+  } //done handling paste.
 
   if (key == 8 && ename == "keyup") return;
   if (key == 8 && ename == "keydown" && cursorPos > 0) {  // backspace
@@ -95,49 +173,33 @@ pui.textArea_cleanUp = function(e) {
   }
   var merge = false;
   var cursorLine;         //Gets the last line number in the model.
-  var tstLineLength = 0;  //Length of the latest line being built. Needed to know when to wrap.
-  
-  // Look at each character in the field. Populate the model of fields with the text-area data. Wrap when necessary.
-  for (var i = 0; i < len; i++) {
-    var ch = val.substr(i, 1);
-    if (ch == "\n" || ch == "\r") {
-      if (i < origCursorPos) cursorPos = cursorPos - 1;  //Shrink the length by one.
-      if (ch == "\n") {
-        if (!merge) {
-          if (curLine >= lineLengths.length - 1) {
-            break;
+ 
+  if (ename != "paste"){  //Wrapping when typing is different than wrapping when pasting.
+    // Look at each character in the field. Populate the model of fields with the text-area data. Wrap when necessary.
+    for (var i = 0; i < len; i++) {
+      var ch = val.substr(i, 1);
+      if (ch == "\n" || ch == "\r") {
+        if (i < origCursorPos) cursorPos = cursorPos - 1;  //Shrink the length by one; \r and \n are not part of the text.
+        if (ch == "\n") {
+          if (!merge) {
+            if (!madeNewLine()) break;
           }
-          curLine++;
-          lines.push("");   //Start a new line because there was \n.
+          merge = false;
         }
-        merge = false;
       }
-    }
-    else {
-      // If the current line we're on is from a unicode field of type "G" use the actual length...
-      if (obj.related[curLine].fieldInfo["DBCSDataType"] && obj.related[curLine].fieldInfo["DBCSDataType"] == "G") {
-        tstLineLength = lines[curLine].length;
-      } else {
-        tstLineLength = getEBCDICByteCount(lines[curLine]);
-      }
-      if (tstLineLength >= lineLengths[curLine]) {
-        if (curLine >= lineLengths.length - 1) {
-          break;
-        }
-        curLine++;
-        lines.push("");   //Start a new line because this line is at its maximum length.
-        if (ename != "paste"){
+      else {
+        if (getCurLineLength() >= lineLengths[curLine] ) {  // The current line has no more space.
+          if (!madeNewLine()) break;
           // Skips the next newline. Necessary when typing will shift things past the end of the line.
-          // Don't merge when pasting, otherwise the user's formatting gets lost. Issue 4766.
           merge = true;
         }
+        lines[curLine] += ch;
       }
-      lines[curLine] += ch;
-    }
-    if (origCursorPos == i) {
-      cursorLine = curLine;
-    }
-  } //end for
+      if (origCursorPos == i) {
+        cursorLine = curLine;
+      }
+    } //end for
+  }
   
   if (origCursorPos == len) {
     cursorLine= curLine;
@@ -147,7 +209,8 @@ pui.textArea_cleanUp = function(e) {
     newVal += lines[i];
     if (i != curLine) {
       newVal += "\n";
-      if (newVal.length-1 < cursorPos) cursorPos += 1;
+      //Move cursor past the newline. Don't do for paste, because cursor stays put then.
+      if (newVal.length-1 < cursorPos && ename != "paste") cursorPos += 1;
     }
   }
   var oldVal = obj.value.replace(/\r/g, "");
@@ -174,6 +237,24 @@ pui.textArea_cleanUp = function(e) {
     textArea_setSelRange(obj, cursorPos, cursorPos);
   }
   
+  // Length of the latest line being built.
+  function getCurLineLength(){
+    // If the current line we're on is from a unicode field of type "G" use the actual length...
+    if (obj.related[curLine].fieldInfo["DBCSDataType"] && obj.related[curLine].fieldInfo["DBCSDataType"] == "G") {
+      return lines[curLine].length;
+    }
+    return getEBCDICByteCount(lines[curLine]);
+  }
+  
+  // Makes a new line for wrapping or returns false when there are no lines available.
+  function madeNewLine(){
+    if (curLine >= lineLengths.length - 1) {
+      return false;
+    }
+    curLine++;
+    lines.push("");
+    return true;
+  }
 
   function textArea_isNormalKey(key) {
     if (key >= 48 && key <= 90) return true;
