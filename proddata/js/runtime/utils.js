@@ -770,12 +770,12 @@ function allowKeys(allowedUnicodes, e) {
     //  return false;
     //}
   //} 
-  if (key == 35 && isTextbox) {     // end key
+  else if (key == 35 && isTextbox) {     // end key
     if (obj.value != rtrim(obj.value)) {
       obj.value = rtrim(obj.value);
     }  
   }
-  if (key == 37) {     // left key
+  else if (key == 37) {     // left key
     if (isTextbox) {
       pos = getCursorPosition(obj);
       if (pos == 0) {
@@ -791,8 +791,8 @@ function allowKeys(allowedUnicodes, e) {
         return false;        
       }
     }
-  } 
-  if (key == 38 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // up key
+  }
+  else if (key == 38 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // up key
     
     // Do not process up key if the field is an auto complete field and the 
     // result pane is open.
@@ -803,8 +803,8 @@ function allowKeys(allowedUnicodes, e) {
         return false;
       }
     }
-  }   
-  if (key == 39) {     // right key
+  }
+  else if (key == 39) {     // right key
     if (isTextbox) {
       maxLength = Number(obj.getAttribute('maxLength'));    
       pos = getCursorPosition(obj);
@@ -823,7 +823,7 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
   }
-  if (key == 40 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // down key
+  else if (key == 40 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // down key
     
     // Do not process up key if the field is an auto complete field and the 
     // result pane is open.    
@@ -835,6 +835,15 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
     
+  }
+  else if (key == 45 && pui["is_ie"] && isTextbox && context == "genie" && e.shiftKey != true && e.ctrlKey != true){   // insert key
+    // When a Genie field is full of whitespace and a user types Insert, then IE won't let them type because the field
+    // is full because gotFocusField() in 5250/utils.js filled it. Trim after the caret to allow typing. Issue 4592.
+    var selectEnd = obj.selectionEnd;
+    var curval = obj.value.substring(0, selectEnd);
+    curval += rtrim(obj.value.substring(selectEnd));
+    obj.value = curval;
+    obj.setSelectionRange(selectEnd, selectEnd); //setting value changed cursor position, so reset it.
   }
   if (isTextbox && pui.isFieldExit(e)) {    
     pui.storeCursorPosition(obj);
