@@ -2794,18 +2794,21 @@ pui.attachResponse = function(dom) {
     
     }
     
-    // Little fix here: Do not pickup doms with matching shortcut key if 
-    // we are dealing with a grid paging bar item. 
-    
-    // This allows paging controls for grids in same control format to 
-    // function independently of one another.
     var doms = [];
-    if (dom.shortcutKey != null && !dom.parentPagingBar) {
+    if (dom.shortcutKey != null) {
+      // If this is a grid paging bar item, do not pickup doms with matching shortcut key in other grids.
+      // This allows paging controls for grids in same control format to function independently of one another.
+      if (dom.parentPagingBar){
+        doms.push(dom);
+      }
+      
       for (var formatName in pui.keyMap) {
         var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
         if (keyMapDomArray != null) {
           for (var i = 0; i < keyMapDomArray.length; i++) {
-            doms.push(keyMapDomArray[i]);
+            if (!keyMapDomArray[i].parentPagingBar){    //Push if this item isn't in a grid. See issue 4807.
+              doms.push(keyMapDomArray[i]);
+            }
           }
         }
       }
