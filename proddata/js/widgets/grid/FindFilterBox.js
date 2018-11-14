@@ -26,101 +26,101 @@
 
 pui.FindFilterBox = function() {
 
-	// Private Properties
-	var me = this;
-	var div;
-	var contentDiv;
-	var box;
+  // Private Properties
+  var me = this;
+  var div;
+  var contentDiv;
+  var box;
   var timeoutId = null; //Needed for clearTimeout in the keyup handler.
-  
+
   // Don't re-evaluate the filter if what the user typed wouldn't change the input.
   var ignoreKeys = [16,17,18, 35,36, 37,38,39,40]; //shift,ctl,alt; home,end; left,up,right,down.
 
-	// Public Properties
-	this.container = null;
-	this.grid = null;
-	this.headerCell = null;
-	this.type = null;  // can be "find" or "filter"
-  
+  // Public Properties
+  this.container = null;
+  this.grid = null;
+  this.headerCell = null;
+  this.type = null;  // can be "find" or "filter"
+
   this.interval = 100; //How long to wait after the user stops typing to find/filter.
 
-	// Public Methods
-	this.init = function() {
-		div = document.createElement("div");
-		div.className = "pui-find-filter";
-		div.style.display = "none";
-		contentDiv = document.createElement("div");
-		contentDiv.className = "pui-find-filter-content";  
-		box = document.createElement("input");
-		box.className = "pui-find-filter-box";
-		addEvent(box, "keyup", function(e) {
+  // Public Methods
+  this.init = function() {
+    div = document.createElement("div");
+    div.className = "pui-find-filter";
+    div.style.display = "none";
+    contentDiv = document.createElement("div");
+    contentDiv.className = "pui-find-filter-content";
+    box = document.createElement("input");
+    box.className = "pui-find-filter-box";
+    addEvent(box, "keyup", function(e) {
       if (!e) e = window.event;
       var key = e.keyCode;
-		  if (key == 13 ) return;  // Enter: Let the keydown handler process this.
-      if( pui.arrayIndexOf(ignoreKeys,key) >= 0) return; //non-character keys, ignore.
-			var text = box.value;
-			if (typeof me.onsearch === "function") {
+      if (key == 13 ) return;  // Enter: Let the keydown handler process this.
+      if ( pui.arrayIndexOf(ignoreKeys, key) >= 0) return; //non-character keys, ignore.
+      var text = box.value;
+      if (typeof me.onsearch === "function") {
         clearTimeout(timeoutId); // remove the previously queued timout event.
         function keyuptimeout(){
           me.onsearch(text);
         }
         // Enqueue the find/filter event; avoids re-rendering the grid every keystroke.
         timeoutId = setTimeout(keyuptimeout, me.interval );
-			}
-		});
-		addEvent(box, "keydown", function(e) {
+      }
+    });
+    addEvent(box, "keydown", function(e) {
       if (!e) e = window.event;
       var key = e.keyCode;
-		  if (key == 13) {  // Enter
-		    if (me.type == "find") {
-    			if (typeof me.onsearch === "function") {
-      			var text = box.value;
-    				me.onsearch(text, true);
-    			}
-		    }
-		    if (me.type == "filter") {
-    		  me.grid.highlighting.text = "";
-    		  me.grid.getData();
-		      me.hide();
-		    }
-		    preventEvent(e);
-		  }
-		  else if (key == 27) {  // Escape
-  		  me.grid.highlighting.text = "";
-  		  me.grid.getData();
-  		  me.hide();
-		    preventEvent(e);
-		  }
-		});
-		addEvent(box, "blur", function(e) {
-		  me.grid.highlighting.text = "";
-		  me.grid.getData();
-		  me.hide();
-		});
-		contentDiv.appendChild(box);
-		div.appendChild(contentDiv);
-		me.container.appendChild(div);
-	};
+      if (key == 13) {  // Enter
+        if (me.type == "find") {
+          if (typeof me.onsearch === "function") {
+            var text = box.value;
+            me.onsearch(text, true);
+          }
+        }
+        if (me.type == "filter") {
+          me.grid.highlighting.text = "";
+          me.grid.getData();
+          me.hide();
+        }
+        preventEvent(e);
+      }
+      else if (key == 27) {  // Escape
+        me.grid.highlighting.text = "";
+        me.grid.getData();
+        me.hide();
+        preventEvent(e);
+      }
+    });
+    addEvent(box, "blur", function(e) {
+      me.grid.highlighting.text = "";
+      me.grid.getData();
+      me.hide();
+    });
+    contentDiv.appendChild(box);
+    div.appendChild(contentDiv);
+    me.container.appendChild(div);
+  };
 
-	this.show = function() {
-		div.style.display = "";
-	};
+  this.show = function() {
+    div.style.display = "";
+  };
 
-	this.hide = function() {
-		div.style.display = "none";
-	};
+  this.hide = function() {
+    div.style.display = "none";
+  };
 
-	this.positionByGridColumn = function(cell) {
-		var grid = cell.parentNode;
-		if (grid == null) return;
-		var gridParent = grid.parentNode;
-		if (gridParent == null) return;
-		
-		var left, top, width;
-		left = grid.offsetLeft + cell.offsetLeft;
-		top = grid.offsetTop - 40;
-		width = cell.offsetWidth;
-		
+  this.positionByGridColumn = function(cell) {
+    var grid = cell.parentNode;
+    if (grid == null) return;
+    var gridParent = grid.parentNode;
+    if (gridParent == null) return;
+
+    var left, top, width;
+    left = grid.offsetLeft + cell.offsetLeft;
+    top = grid.offsetTop - 40;
+    width = cell.offsetWidth;
+
     // Compensate if the grid is inside a window. Fixes "center window"
     // positioning issues. See issue 2544 for test cases.
     var acont = pui["getActiveContainer"]();
@@ -129,48 +129,48 @@ pui.FindFilterBox = function() {
       top += acont.offsetTop;
     }
 
-		if (gridParent.getAttribute("container") == "true") {
-			var offset = pui.layout.getContainerOffset(gridParent);
-			top += offset.y;
-			left += offset.x;
-		} 	 
+    if (gridParent.getAttribute("container") == "true") {
+      var offset = pui.layout.getContainerOffset(gridParent);
+      top += offset.y;
+      left += offset.x;
+    }
 
-		me.setPosition(left, top, width);    
-	};
-	
-	this.changeContainer = function(newContainer) {
+    me.setPosition(left, top, width);
+  };
+
+  this.changeContainer = function(newContainer) {
     if (me.container === newContainer) return;
     me.container.removeChild(div);
     me.container = newContainer;
     newContainer.appendChild(div);
-    
-	};
 
-	this.setPosition = function(left, top, width) {
-		if (width == null) width = 200;
-		var boxWidth = width - 15;
-		if (boxWidth < 20) boxWidth = 20;
-		div.style.left = left + "px";
-		div.style.top = top + "px";
-		div.style.width = width + "px";
-		box.style.width = boxWidth + "px";
-	};
-	
-	this.setPlaceholder = function(placeholder) {
-		box["placeholder"] = placeholder;
-	};
-	
-	this.focus = function() {
-	  box.focus();
-	};
-	
-	this.clear = function() {
-	  box.value = "";
-	};
+  };
 
-	this.setText = function(text) {
-	  box.value = text;
-	};
+  this.setPosition = function(left, top, width) {
+    if (width == null) width = 200;
+    var boxWidth = width - 15;
+    if (boxWidth < 20) boxWidth = 20;
+    div.style.left = left + "px";
+    div.style.top = top + "px";
+    div.style.width = width + "px";
+    box.style.width = boxWidth + "px";
+  };
+
+  this.setPlaceholder = function(placeholder) {
+    box["placeholder"] = placeholder;
+  };
+
+  this.focus = function() {
+    box.focus();
+  };
+
+  this.clear = function() {
+    box.value = "";
+  };
+
+  this.setText = function(text) {
+    box.value = text;
+  };
 
 };
 
