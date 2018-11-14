@@ -2524,7 +2524,7 @@ pui.Grid = function () {
       if (colState) {
         var savedCols = colState["cols"];
         // return newCols array
-        var cols = savedCols.map(function (col) { return col });
+        var cols = savedCols.map(function (col) { return col; });
         // var headings = [];
         var colSequence = state["colSequence"];
         if (cols != null) {
@@ -2541,7 +2541,7 @@ pui.Grid = function () {
                   return false;
                 }
                 return true;
-              })
+              });
               if (!col["showing"]) me["removeColumn"](columnId);
               else if (movableColumns) {
                 var curCol = getCurrentColumnFromId(columnId);
@@ -2560,9 +2560,9 @@ pui.Grid = function () {
               if (b["columnId"] === col["columnId"]) indexB = index;
               if (indexA !== null && indexB !== null) return false;
               return true;
-            })
+            });
             return indexA > indexB ? 1: -1;
-          })
+          });
         }
       }
       if (widths) {
@@ -7504,7 +7504,6 @@ pui.Grid = function () {
     var colSequence = cols.colSequence;
     var visibleCols = [];
     var headerRow = me.cells[0];
-    var colWidths = [];
     var totalRemovedWidth = 0;
     var excelLike = (pui["grid column resize style"] !== "simple");
     var currentColWidths = me
@@ -7655,8 +7654,23 @@ pui.Grid = function () {
     //Redraws column headings with the new headings
     me.columnHeadings = headings;
     me.setHeadings();
+    resetCellDOMOrder();
     return true;
   };
+  
+  /**
+   * Moves child nodes of the grid DOM element so that they are in the same order as in me.cells. When a column is added or moved, then
+   * me.cells is not in the same order as the DOM elements. Tab order of input elements gets broken when DOM elements are out of order. #4917
+   */
+  function resetCellDOMOrder(){
+    var rows = me.cells.length;
+    var cols = me.cells[0].length;
+    for(var i=0; i < rows; i++){
+      for(var j=0; j < cols; j++){
+        me.tableDiv.appendChild( me.cells[i][j] ); //When you an element already exists, appendChild moves it.
+      }
+    }
+  }
 
   // Takes column info as an optional parm.
   // return column headings as an array. 
@@ -7674,8 +7688,8 @@ pui.Grid = function () {
     .map(function(col){
       if (col["blankHeader"]) return '';
       return col["name"];
-    })
-  }
+    });
+  };
 
   this.customSqlCallback = function (request) {
     var response, error;
