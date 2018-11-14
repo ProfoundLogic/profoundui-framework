@@ -1095,7 +1095,18 @@ pui.Grid = function () {
 
       var orderBy = me.dataProps["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
-      if (orderBy && orderBy != "") req["postData"] += "&order=" + orderBy;
+      if (orderBy && orderBy != "") {
+
+        req["postData"] += "&order=" + orderBy;
+
+      }
+      else if (pui["dbDriver"] == "mssql") {
+
+        // Order by is required for OFFSET/FETCH.
+        // This should give the same sort as if order by was not used.
+        req["postData"] += "&order=(select null)";
+
+      }
 
       var fetchCounter = me.dataProps["allow any select statement"];
       if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
@@ -1738,6 +1749,13 @@ pui.Grid = function () {
           if (orderBy && orderBy != "") {
 
             addField("order", orderBy);
+
+          }
+          else if (pui["dbDriver"] == "mssql") {
+
+            // Order by is required for OFFSET/FETCH.
+            // This should give the same sort as if order by was not used.
+            addField("order", "(select null)");
 
           }
 
@@ -6103,6 +6121,13 @@ pui.Grid = function () {
       if (orderBy && orderBy != "") {
 
         req["postData"] += "&order=" + orderBy;
+
+      }
+      else if (pui["dbDriver"] == "mssql") {
+
+        // Order by is required for OFFSET/FETCH.
+        // This should give the same sort as if order by was not used.
+        req["postData"] += "&order=(select null)";
 
       }
 
