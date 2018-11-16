@@ -242,12 +242,14 @@ pui.GridMenu = function() {
       });
     }
   
-    if (me.grid.filterOption) {
-      menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
-      menuIcons.push("icons/filter.png");
-      optionHandlers.push(function() {
-        me.grid["startFilter"](me.cell);
-      });
+    //Show Filter... if enabled. If it's a paging grid, only allow filtering up to the maximum specified in "filter response column max" property.
+    if (me.grid.filterOption && (!me.grid.usePagingFilter() || me.grid.getFilterCount() < me.grid.filterResponseColMax )) {
+      
+        menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
+        menuIcons.push("icons/filter.png");
+        optionHandlers.push(function() {
+          me.grid["startFilter"](me.cell);
+        });
     }
 	
     if (me.grid.filterOption && me.cell.filterIcon != null) {

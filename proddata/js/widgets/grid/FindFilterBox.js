@@ -40,10 +40,10 @@ pui.FindFilterBox = function() {
   this.container = null;
   this.grid = null;
   this.headerCell = null;
-  this.type = null;  // can be "find" or "filter"
+  this.type = null;  // can be "find" or "filter" or "pgfilter"
 
   this.interval = 100; //How long to wait after the user stops typing to find/filter.
-
+  
   // Public Methods
   this.init = function() {
     div = document.createElement("div");
@@ -58,6 +58,7 @@ pui.FindFilterBox = function() {
       var key = e.keyCode;
       if (key == 13 ) return;  // Enter: Let the keydown handler process this.
       if ( pui.arrayIndexOf(ignoreKeys, key) >= 0) return; //non-character keys, ignore.
+      if (me.type == "pgfilter") return; //A paging filter should not start filtering until Enter is pressed; else page submits before it's typed.
       var text = box.value;
       if (typeof me.onsearch === "function") {
         clearTimeout(timeoutId); // remove the previously queued timout event.
@@ -78,10 +79,15 @@ pui.FindFilterBox = function() {
             me.onsearch(text, true);
           }
         }
-        if (me.type == "filter") {
+        else if (me.type == "filter") {
           me.grid.highlighting.text = "";
           me.grid.getData();
           me.hide();
+        }
+        else if (me.type == "pgfilter"){
+          if (typeof me.onsearch === "function") {
+            me.onsearch(box.value); //These don't start filtering until Enter is pressed.
+          }
         }
         preventEvent(e);
       }

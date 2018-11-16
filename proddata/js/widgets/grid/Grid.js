@@ -171,6 +171,9 @@ pui.Grid = function () {
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
   this.selectedRecordNum = null;
+  this.filterResponseTextMax = 20;
+  this.filterResponseColMax = 3;
+  this.filterResponse = null; //Indicates a column was filtered for paging grid; also used by pui.respond.
 
   this.rowFontColorField = null;
   this.rowFontColorFieldIndex = null;
@@ -2070,6 +2073,7 @@ pui.Grid = function () {
     columnPointer = null;
     delete me.dataArray;
     delete me.filteredDataArray;
+    delete me.filterResponse;
     delete me.runtimeChildren;
     delete me.fieldNames;
     delete me.ref;
@@ -3582,7 +3586,7 @@ pui.Grid = function () {
       case "selection field":
 
       case "column sort response":
-
+      
       case "right":
       case "bottom":
 
@@ -3956,7 +3960,7 @@ pui.Grid = function () {
         }
         break;      
       
-            case "export only visible columns":
+      case "export only visible columns":
         if (value == true || value == "true") me.exportVisableOnly = true;
         else me.exportVisableOnly = false;
         break;
@@ -3979,7 +3983,7 @@ pui.Grid = function () {
         }
         break;
         
-              case "show paging controls":
+      case "show paging controls":
         me.pagingBar.showPagingControls = (value == true || value == "true");
         if (me.designMode) {
           me.pagingBar.draw();
@@ -4038,6 +4042,24 @@ pui.Grid = function () {
           me.pagingBar.pageDownResponseDefined = true;
           me.pagingBar.pageDownHotKeyDefined = true;
         }
+        break;
+        
+      case "filter response": //render.js also handles this property by setting dom.filterResponseField, which gets recfmt.field.
+        // Decide from the server response if headers should show filters.
+        if (!me.designMode) parseFilterResponse(value);
+        break;
+        
+      case "filter response text max":
+        var newval = parseInt(value,10);
+        me.filterResponseTextMax = isNaN(newval) ? 20 : newval;
+        if (me.filterResponseTextMax < 1) me.filterResponseTextMax = 1;
+        if (!me.designMode) parseFilterResponse();  //Reprocess filter response, which should come first.
+        break;
+      case "filter response column max":
+        var newval = parseInt(value,10);
+        me.filterResponseColMax = isNaN(newval) ? 3 : newval;
+        if (me.filterResponseColMax < 1) me.filterResponseColMax = 1;
+        if (!me.designMode) parseFilterResponse();  //Reprocess filter response, which should come first.
         break;
 
       case "csv export":
@@ -4324,7 +4346,7 @@ pui.Grid = function () {
           me.propagateScrollEvents = false;
         }
         break;
-       case "sort function":
+      case "sort function":
         if (value) {
           customGridSortFunction = value;
         }
@@ -7025,7 +7047,7 @@ pui.Grid = function () {
     if (headerCell == null) return;
     me.ffbox.grid = me;
     me.ffbox.headerCell = headerCell;
-    me.ffbox.type = "filter";
+    me.ffbox.type = me.usePagingFilter() ? "pgfilter" : "filter";
     me.ffbox.onsearch = me.doFilter;
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
     me.ffbox.positionByGridColumn(headerCell);
@@ -7068,6 +7090,7 @@ pui.Grid = function () {
     if (me.waitingOnRequest) return;
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
+    if (me.usePagingFilter()) return setPagingFilter(headerCell, text);
     me.setSearchIndexes(headerCell);
     me.highlighting.columnId = headerCell.columnId; //need to set when called from API w/o startFilter.
     me.highlighting.col = headerCell.col;
@@ -7370,8 +7393,11 @@ pui.Grid = function () {
     me.highlighting.text = "";
     me.removeFilterIcon(headerCell);
     headerCell.filterText = null;
-
-    if (me.isDataGrid()) {
+    
+    if (me.usePagingFilter()){
+      return setPagingFilter(headerCell, "");  //Clears filter, looks for other filters, submits.
+    }
+    else if (me.isDataGrid()) {
       me.totalRecs = null; // make sure the CGI gives us count of results.
       me.recNum = 1; // Show record 1 on row 1.
 
@@ -7406,6 +7432,8 @@ pui.Grid = function () {
       me.removeFilterIcon(headerCell);
       headerCell.filterText = null;
     }
+    if (me.usePagingFilter()) return submitPagingFilter("", ""); //Clears the field, submits screen.
+    
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
       record.filteredOutArray = null;
@@ -7435,7 +7463,12 @@ pui.Grid = function () {
     return count;
   };
 
+  /**
+   * Returns true if client-side filtering is enabled. Usually used to decide to use me.filteredDataArray versus me.dataArray.
+   * @returns {Boolean}
+   */
   this.isFiltered = function () {
+    if (me.filterResponse != null) return false; //With server-side filtering for paging grids, me.dataArray should be used.
     var headerRow = me.cells[0];
     if (headerRow == null) return false;
     for (var i = 0; i < headerRow.length; i++) {
@@ -7477,6 +7510,114 @@ pui.Grid = function () {
     if (record != null && record.filteredOut != null && record.filteredOut === true) result = true;
     return result;
   };
+  
+  /**
+   * Returns true if the grid uses server-side filtering on a paging grid.
+   * @returns {Boolean}
+   */
+  this.usePagingFilter = function(){
+    return me.tableDiv.filterResponseField != null;
+  };
+
+  /**
+   * Pack the response for paging-grid server-side filtering and submit it.
+   * @param {Object} headerCell   DOM element.
+   * @param {String} text         If text is empty, then it's not included in the response, and the server-side program should remove the filter.
+   */
+  function setPagingFilter(headerCell, text){
+    var headerRow = me.cells[0];
+    if (typeof headerCell.columnId != "number" || headerCell.columnId < 0 || headerCell.columnId >= headerRow.length) return;
+    if (typeof text != "string") text = "";
+    var colnums = "";
+    var fltrtexts = "";
+    var responseCount = 0;
+    headerCell.filterText = text;
+    if (text.length > 0) addFilterToResponse(headerCell);
+
+    //Look for all other filter texts and build the response.
+    for (var i=0; i < headerRow.length && responseCount < me.filterResponseColMax; i++) {
+      var colId = headerRow[i].columnId; 
+      var ftext = headerRow[i].filterText;
+      if (typeof colId == "number" && colId >= 0 && colId != headerCell.columnId && typeof ftext == "string" && ftext.length > 0 ){
+        //This isn't the filter just set and it has text.
+        addFilterToResponse(headerRow[i]);
+      }
+    }
+    submitPagingFilter(colnums, fltrtexts);
+    
+    //Given a cell, add its filter text and column ID to the response.
+    function addFilterToResponse(hcell){
+      // This column has a filter.
+      var colnum = String(hcell.columnId + 1);    //Let the columns in RPG be 1-based.
+      if (colnum.length > 3){  //This should not happen. If it does, zero out the column.
+        colnum = "000";
+      }else{
+        while (colnum.length < 3) colnum = "0" + colnum;  //left-fill with zeroes.
+      }
+      // Make sure the filtertext is the exact length it should be.
+      var fltrtext = hcell.filterText.substring(0, me.filterResponseTextMax);
+      if (fltrtext.length < me.filterResponseTextMax){
+        fltrtext = fltrtext + " ".repeat(me.filterResponseTextMax - fltrtext.length);
+      }
+      colnums += colnum;
+      fltrtexts += fltrtext;
+      responseCount++;
+    }
+  } //end setPagingFilter
+  
+  /**
+   * Ensure colnums data fits the data-structure and submit the filter response.
+   * @param {String} colnums
+   * @param {String} filtertexts
+   */
+  function submitPagingFilter(colnums, filtertexts){
+    // Make sure the column number fields are the correct length; filter text can be empty.
+    if (colnums.length < 3 * me.filterResponseColMax ){
+      colnums += " ".repeat(3 * me.filterResponseColMax - colnums.length);
+    }
+    me.filterResponse = colnums + filtertexts;
+    pui.filterResponseGrid = me;
+    pui.respond();
+    pui.filterResponseGrid = null;
+  }
+  
+  /**
+   * Parse the value of "filter response" and decide if and where the grid should show filter icons.
+   * Sets headerCell.filterText. 
+   * @param {String|Undefined} value  When undefined, reprocess the existing value; other props may have changed.
+   */
+  function parseFilterResponse(value){
+    if (value == null || value == ""){
+       if (me.filterResponse != null && me.filterResponse != ""){
+         value = me.filterResponse;
+       }else{
+         return;
+       }
+    }
+    var headerRow = me.cells[0];
+    me.filterResponse = value;  //Signals to isFiltered() to return false so me.dataArray is used so that grid draws rows.
+    // Look for each column number and filter text. 
+    for (var i=0; i < me.filterResponseColMax; i++){
+      var colnum = value.substring(i*3, i*3 + 3); //each colnum is only 3 digits long.
+      colnum = parseInt(colnum,10);
+      var startpos = i * me.filterResponseTextMax + 3 * me.filterResponseColMax;  //Start after the columnnum array.
+      var filtertext = value.substring(startpos, startpos + me.filterResponseTextMax );
+      filtertext = rtrim(filtertext);
+      if (!isNaN(colnum) && colnum > 0 && filtertext != "" ){
+        colnum -= 1; //Server starts columns at 1; grid starts at 0.
+        // Look at each headerCell for the one matching this columnId.
+        for (var j=0; j < headerRow.length; j++){
+          if (headerRow[j].columnId == colnum){
+            headerRow[j].filterText = filtertext;
+            me.setFilterIcon(headerRow[j]);
+            break;
+          }
+        }
+      }else{
+        break;  //Stop adding filters when response has no more.
+      }
+    }
+  }
 
   /**
    * Hide a column.
@@ -7739,7 +7880,7 @@ pui.Grid = function () {
       pui.alert("Unable to retrieve field listing:\n" + error);
       return;
     }
-    for (i = 0; i < response.fields.length; i++) {
+    for (var i = 0; i < response.fields.length; i++) {
       if (headings != '') {
         headings += ',';
       }
@@ -8300,12 +8441,16 @@ pui.Grid = function () {
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to search grid data when the grid heading is right-clicked.",[],""), context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to filter grid data when the grid heading is right-clicked.",[],""), context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.",[],""), context: "dspf" },
-
+      
       //Reset the  browser cache Data for a table
       { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.",[],""), context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.",[],""), context: "dspf" },
       { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false.",[],""), context: "dspf" },
       { name: "context menu id", help: me.helpTextGridProperties("blank","Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.",[],""), hideFormatting: true, validDataTypes: ["char"] },
+      { name: "filter response", hideFormatting: true, validDataTypes: ["char"], help: me.helpTextGridProperties("bind","Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. The data structure should be defined as follows:<pre>"
+        + "Dcl-Ds filterinfo qualified;\n  colnum zoned(3:0) dim(c);\n  fltrtext char(s) dim(c);\nEnd-Ds;</pre>Where <b>c</b> is the value of the 'filter response column max' property, and <b>s</b> is the value of 'filter response text max'. The length should be c(3 + s); e.g. default length of 20 char with 3 column max filters is 69.",[],""), context: "dspf" },
+      { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("20","The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value.",[],""), context: "dspf" },
+      { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("3","This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure.",[],""), context: "dspf" },
 
       { name: "Paging Bar", category: true, context: "dspf" },
       { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Displays links for navigating to the previous page and the next page of records.",[],"") },

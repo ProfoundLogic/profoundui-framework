@@ -1408,19 +1408,22 @@ pui.renderFormat = function(parms) {
             if (prop == "cursor record number") {
               pui.cursorRRNs[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
-            if (prop == "subfile return rrn") {
+            else if (prop == "subfile return rrn") {
               pui.returnRRNs[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
-            if (prop == "return mode") {
+            else if (prop == "return mode") {
               pui.sflModes[(pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName)] = dom;
             }
-            if (prop == "column sort response") {
+            else if (prop == "column sort response") {
               dom.columnSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
             }
-            if (prop == "field name sort response") {
+            else if (prop == "field name sort response") {
               dom.fieldNameSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
             }
-            if (prop == "subfile changed") {
+            else if (prop == "filter response") {
+              dom.filterResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
+            }
+            else if (prop == "subfile changed") {
               pui.subfileChangedFields[properties["record format name"]["toLowerCase"]()] = pui.fieldUpper(propValue.fieldName);
             }
           }
@@ -3632,6 +3635,14 @@ pui.buildResponse = function() {
   if (pui.fieldNameSortResponseGrid != null) {
     var field = pui.fieldNameSortResponseGrid.tableDiv.fieldNameSortResponseField;
     var value = pui.fieldNameSortResponseGrid.fieldNameSortResponse;
+    if (field != null && value != null) {
+      response[field] = value;
+    }
+  }
+  
+  if (pui.filterResponseGrid != null) {
+    var field = pui.filterResponseGrid.tableDiv.filterResponseField;
+    var value = pui.filterResponseGrid.filterResponse;
     if (field != null && value != null) {
       response[field] = value;
     }
