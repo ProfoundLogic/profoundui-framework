@@ -82,7 +82,8 @@ var es_MX = function(dict) {
             dictMsg["subfile deletion"]             = "Esta seguro que desea borrar el subarchivo ?";
             dictMsg["downloading x"]                = "Descargando &1";
             dictMsg["ie9 too low xlsxpics"]         = "Las imágenes no pueden ser exportadas usando IE9 o inferior.";
-
+			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Se excedió el numero de sesiones permitido.";
             dictMsg["unable to load portal"]        = "No es posible cargar la configuración del portal o los ítems de navegación.";

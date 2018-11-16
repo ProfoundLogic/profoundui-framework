@@ -82,7 +82,8 @@ var ja_JP = function(dict) {
             dictMsg["subfile deletion"]             = "サブファイルを削除しても良いですか？";
             dictMsg["downloading x"]                = "Downloading &1";
             dictMsg["ie9 too low xlsxpics"]         = "IE9以下では画像を書き出すことはできません。";
-
+			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "許可されたセッションの上限を超えました。";
             dictMsg["unable to load portal"]        = "ポータル設定、またはナビゲーション項目を読み込めません。";

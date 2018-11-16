@@ -82,7 +82,8 @@ var nl_NL = function(dict) {
             dictMsg["subfile deletion"]             = "Weet je het zeker dat je de subfile wilt verwijderen?";
             dictMsg["downloading x"]                = "Downloaden &1.";
             dictMsg["ie9 too low xlsxpics"]         = "Afbeeldingen kunnen niet worden geëxporteerd met IE9 of eerdere versies.";
-
+			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Aantal toegestane sessies is overschreden.";
             dictMsg["unable to load portal"]        = "Kan de portal instellingen of onderdelen van de navigatie niet laden.";

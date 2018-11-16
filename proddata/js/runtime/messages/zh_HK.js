@@ -82,7 +82,8 @@ var zh_HK = function(dict) {
             dictMsg["subfile deletion"]             = "你確定要刪除子檔案嗎？";
             dictMsg["downloading x"]                = "正在下載 &1";
             dictMsg["ie9 too low xlsxpics"]         = "不能在IE9或更低版本之下導出圖像";
-
+			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "已超出允許的階段作業總數";
             dictMsg["unable to load portal"]        = "不能載入入口設置或導航項目";
