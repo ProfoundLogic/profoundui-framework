@@ -2450,7 +2450,9 @@ pui.breakMessagesStartPoll = function(){
             
             // Send the message to Atrium.
             if( window != window.parent && pui.checkForAtrium(window.parent)){
-              window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
+              //Send to Atrium if Ext.msgbox is being shown. Avoid triggering a custom function twice; a storage event will trigger breakMessagesShow.
+              if (typeof window.parent["Atrium"]["brkmsg handler"] !== "function")
+                window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
             }
             else {
               // Non-Atrium: show the message
@@ -2550,6 +2552,7 @@ pui.breakMessageDismiss = function(event){
  * @returns {undefined}
  */
 pui.breakMessagesShow = function(messages) {
+  if (typeof pui["brkmsg handler"] == "function") return pui["brkmsg handler"](messages); //Let the end-pgmr-defined function handle the messages.
   pui.breakMessageShowing = false;
   if(messages == null || typeof(messages.pop) !== "function") return;
   
