@@ -41,11 +41,11 @@ pui.ComboBoxWidget = function() {
 
   this["showChoices"] = function() {
     showChoices();
-  }
+  };
 
   this["hideChoices"] = function() {
     hideChoices();
-  }
+  };
 
   this.init = function() {
     if (me.div == null) {
@@ -102,12 +102,12 @@ pui.ComboBoxWidget = function() {
     arrow.combo = true;
     arrow.onmousedown = function(e) {
       preventEvent(e);
-    }
+    };
     arrow.onmouseup = function(e) {
       if (choicesDiv.style.display == "none" && !box.disabled) showChoices();
       else hideChoices();
       preventEvent(e);      
-    }
+    };
  
     var win;
     var prt = me.div.parentNode;
@@ -154,7 +154,7 @@ pui.ComboBoxWidget = function() {
     choicesDiv.className = "combo-options";
     me.setClass(me.div.className.split(" ")[0]);
     
-  }
+  };
 
   this.draw = function() {
     var boxWidth = 0;  
@@ -172,44 +172,44 @@ pui.ComboBoxWidget = function() {
       if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
       box.style.width = boxWidth + "px";  //the new width + "px" 
     }	
-  }
+  };
   
   this.setStyleProperty = function(propertyName, propertyValue) {
     var words = propertyName.split(" ");
     if (words.length == 2) words[1] = words[1].substr(0,1).toUpperCase() + words[1].substr(1);
-    var styleName = words.join("")
+    var styleName = words.join("");
     box.style[styleName] = propertyValue;  
-  }
+  };
   
   this.setValue = function(value) {
     box.value = value;    
     pui.checkEmptyText(box);
-  }
+  };
 
   this.getValue = function() {
     return box.value;
-  }
+  };
   
   this.setReadOnly = function(isReadOnly) {
     box.readOnly = isReadOnly;
-  }
+  };
 
   this.setDisabled = function(isDisabled) {
     box.disabled = isDisabled;
-  }
+  };
 
   this.setMaxLength = function(maxLength) {
     box.maxLength = maxLength;
-  }
+  };
   
   this.setBoxAttribute = function(attr, value) {
     box.setAttribute(attr, value);
-  }
+  };
   
   this.setClass = function(className) {
     box.className = className;
     pui.addCssClass(choicesDiv, box.className.split(" ")[0] + "-combo-options");
-  }
+  };
   
   this.assignJSEvent = function(jsEventName, func) {
     // re-assign event to the box and remove it from the main div element of the combo box
@@ -217,22 +217,22 @@ pui.ComboBoxWidget = function() {
     if (me.div[jsEventName] != null) {
       me.div[jsEventName] = function() {};
     }
-  }
+  };
 
   this.clear = function() {
     me["choices"] = [];
     me["choice values"] = [];
     box.value = "";
     pui.checkEmptyText(box);
-  }
+  };
   
   this.getBox = function() {
     return box;
-  }
+  };
   
   this.setFocus = function() {  
     box.focus();
-  }
+  };
 
   function hideChoices() {
     choicesDiv.innerHTML = "";
@@ -324,14 +324,14 @@ pui.ComboBoxWidget = function() {
       optDiv.onmouseover = function(e) {
         var target = getTarget(e);
 		target.className = "combo-option-select";
-      }
+      };
       optDiv.onmouseout = function(e) {
         var target = getTarget(e);
 		target.className = "combo-option";
-      }
+      };
       optDiv.onmousedown = function(e) {
         preventEvent(e);
-      }
+      };
       optDiv.onclick = function(e) {
         var target = getTarget(e);
         if (!box.readOnly && !me.design) {
@@ -359,7 +359,7 @@ pui.ComboBoxWidget = function() {
           me.div.selectEvent(box.value, target.choiceText, me.div);
         }
         preventEvent(e);
-      }
+      };
       choicesDiv.appendChild(optDiv);
     }
     var top = parseInt(choicesDiv.style.top, 10);
@@ -373,7 +373,7 @@ pui.ComboBoxWidget = function() {
   }
 
 
-}
+};
 
 
 
@@ -443,11 +443,14 @@ pui.widgets.add({
           var opts = response;
           for (var i = 0; i < opts.length; i++) {
             var opt = opts[i];
+            if (opt != null && opt.nodeType != "OPTION" && opt.text != null && opt.value != null){
+              opt = new Option(opt.text, opt.value);  //Option data can be JSON object; make into DOM element. Issue 4900.
+            }
             parms.dom.comboBoxWidget["choices"].push(opt.text);
             parms.dom.comboBoxWidget["choice values"].push(opt.value);
-          }               
+          }
           parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
-      	}
+      	};
         parms.dom.comboBoxWidget.clear();
         parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
       	req.send();
@@ -551,12 +554,15 @@ pui.widgets.add({
             var opts = response;
             for (var i = 0; i < opts.length; i++) {
               var opt = opts[i];
+              if (opt != null && opt.nodeType != "OPTION" && opt.text != null && opt.value != null){
+                opt = new Option(opt.text, opt.value);  //Option can be JSON object; make into DOM element. Issue 4900.
+              }
               parms.dom.comboBoxWidget["choices"].push(opt.text);
               parms.dom.comboBoxWidget["choice values"].push(opt.value);
             }               
             parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
             if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id); 
-        }
+        };
           parms.dom.comboBoxWidget.clear();
           parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
           ajaxRequest.send();
@@ -651,7 +657,7 @@ pui.widgets.add({
         catch(err) {
           pui.scriptError(err, "Onselect Error:\n" + err.message);        
         }
-      }
+      };
     },
 
     "input type": function(parms) {
@@ -678,7 +684,7 @@ pui.widgets.add({
       case "text transform": 
       case "word spacing":   
       case "background color":   
-        parms.dom.comboBoxWidget.setStyleProperty(parms.propertyName, parms.value)
+        parms.dom.comboBoxWidget.setStyleProperty(parms.propertyName, parms.value);
         break;
     }
   },

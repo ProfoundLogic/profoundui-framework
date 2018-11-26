@@ -36,7 +36,7 @@ pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
     }
     dom.choices[optionValue] = optionText;
   }  
-}
+};
 
 pui.setSelectBoxValue = function(value, dom) {
   
@@ -79,7 +79,7 @@ pui.setSelectBoxValue = function(value, dom) {
       }
     }
   }
-}
+};
 
 
 pui.widgets.add({
@@ -102,24 +102,28 @@ pui.widgets.add({
       	req["async"] = true;
       	req["suppressAlert"] = true;
       	req["onready"] = function() {
-    	    if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
-    	    parms.dom.choices = {};
+          if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
+          parms.dom.choices = {};
           var response = checkAjaxResponse(req, "Generate Dropdown Box Options");        	  
-    	    if (!response) return;
+          if (!response) return;
           var opts = response;
           for (var i = 0; i < opts.length; i++) {
+            var option = opts[i];
             if (parms.dom.tagName == "SELECT") {
               try {
-                parms.dom.add(opts[i]);
+                if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null){
+                  option = new Option(option.text, option.value);  //Option can be JSON object; make into DOM element. Issue 4900.
+                }
+                parms.dom.add(option);
               }
               catch(e) {
-                parms.dom.add(opts[i], null);
+                parms.dom.add(option, null);
               }
             }
-            parms.dom.choices[opts[i].value] = opts[i].text;
+            parms.dom.choices[option.value] = option.text;
           }
           pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
-        }
+        };
         if (parms.dom.tagName == "SELECT") {
           parms.dom.options.length = 0;
           parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
@@ -223,19 +227,23 @@ pui.widgets.add({
             }
             var opts = response;            
             for (var i = 0; i < opts.length; i++) {
+              var option = opts[i];
               if (parms.dom.tagName == "SELECT") {
                 try {
-                  parms.dom.add(opts[i]);
+                  if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null){
+                    option = new Option(option.text, option.value);  //Option can be JSON object; make into DOM element. Issue 4900.
+                  }
+                  parms.dom.add(option);
                 }
                 catch(e) {
-                  parms.dom.add(opts[i], null);
+                  parms.dom.add(option, null);
                 }
               }
-              parms.dom.choices[opts[i].value] = opts[i].text;
+              parms.dom.choices[option.value] = option.text;
             }               
             pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
             if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id); 
-          }
+          };
           if (parms.dom.tagName == "SELECT") {
             parms.dom.options.length = 0;
             parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
