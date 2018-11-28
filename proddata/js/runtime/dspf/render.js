@@ -4166,6 +4166,7 @@ pui.handleHotKey = function(e, keyName) {
   if  (processKey) {
     var doms = [];
     var mustRespond = false;
+    var pagingLinksUseKey = false;
     for (var formatName in pui.keyMap) {
       var domArray = pui.keyMap[formatName][keyName];
       if (domArray != null) {
@@ -4226,10 +4227,15 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-          }  
+          }
+          if (dom.prevPage == true || dom.nextPage == true){
+            pagingLinksUseKey = true;
+          }
           doms.push(dom);
         }
-        if (doms.length >= 1 && typeof doms[0].onclick == "function" && dom.nextPage != true && dom.prevPage != true) {
+        // I'm guessing the following block's purpose is to click when onclick is defined, but only when the shortcut key isn't also 
+        // for a grid's pageUp/pageDown. So, I added the "pagingLinksUseKey". For more explanation, see issue 4807.
+        if (doms.length >= 1 && typeof doms[0].onclick == "function" && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
           doms[0].onclick();
           pui.runtimeContainer.focus();
           preventEvent(e);
