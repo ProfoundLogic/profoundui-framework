@@ -170,7 +170,7 @@ pui.Grid = function () {
   this.selectionField = null;
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
-  this.selectedRecordNum = null;
+  this.selectedRecordNum = null;  //Determines where a range starts to handle shift+click multiple selections.
   this.filterResponseTextMax = 20;
   this.filterResponseColMax = 3;
   this.filterResponse = null; //Indicates a column was filtered for paging grid; also used by pui.respond.
@@ -5622,20 +5622,18 @@ pui.Grid = function () {
 
         var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
 
-        // if (isRight && me.contextMenuId!=null && getObj(me.contextMenuId)!=null)
-        //  prevent = true;
-
+        // Select the clicked row and deselect others, or deselect the clicked row.
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
           if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-
-            if (!e) e = window.event;
-
+            var numRows = me.hLines.length - 1;   //Number of visible rows.
+            
+            // Deselect other records than the one clicked, including not visible or filtered ones.
             if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey && !e.metaKey)) {
-              var numRows = me.hLines.length - 1;
               var clickedRow = row + me.recNum - (me.hasHeader ? 1 : 0);
 
+              var headerOffset = (me.hasHeader ? 1 : 0);
               for (var i = 0; i < me.dataArray.length; i++) {
-                var curRow = i - me.recNum + 1 + (me.hasHeader ? 1 : 0);
+                var curRow = i - me.recNum + 1 + headerOffset;
 
                 // this condition allows the user to unselect a record using the ctrl key.
                 //  Only do it if it's NOT a right click mouse event 
@@ -5644,10 +5642,12 @@ pui.Grid = function () {
                 var isRowSelected = (clickedRow <= me.dataArray.length) && me.dataArray[clickedRow - 1].selected;
                 if (me.isFiltered()) isRowSelected = (clickedRow <= me.dataArray.length) && me.filteredDataArray[clickedRow - 1].selected;
 
-                if (!isRight || (isRight && !isRowSelected)) {
+                // When right-clicking a row that isn't selected, deselect other rows.
+                // When left-click + ctrl/meta key was used, deselect the clicked row.
+                if (!isRight || !isRowSelected) {
                   if ((!e.ctrlKey && !e.metaKey) || (curRow != row)) {
                     if (me.dataArray[i].selected == true) {
-                      handleSelection(me.dataArray[i], true, false, i);
+                      handleSelection(me.dataArray[i], false, i); //Deselect.
                     }
                   }
                 }
@@ -5659,16 +5659,14 @@ pui.Grid = function () {
               }
 
               if (me.isFiltered()) {
-                for (var curRow = (me.hasHeader ? 1 : 0); curRow < numRows; curRow++) {
-                  me.setRowBackground(curRow);
-                }
+                setAllVisibleBackgrounds();
               }
-
-            }
+            } //done deselecting others.
 
             var dataRecords = me.dataArray;
             if (me.isFiltered()) dataRecords = me.filteredDataArray;
             var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+            // Handle shift+click extended selection. Selects some, may deselect some.
             if (me.extendedSelection && e.shiftKey) {
               if (me.selectedRecordNum == null) me.selectedRecordNum = adjustedRow;
               var fromRecordNum = me.selectedRecordNum;
@@ -5678,18 +5676,18 @@ pui.Grid = function () {
                 fromRecordNum = toRecordNum;
                 toRecordNum = tempRecordNum;
               }
-              var numRows = me.hLines.length - 1;
+              // For each record, set bg color, select if in range of the most recent 2 shift+clicks. Deselect if out of range.
               for (var i = 0; i < dataRecords.length; i++) {
 
                 var curRow = i - me.recNum + 1;
-                if (i + 1 >= fromRecordNum && i + 1 <= toRecordNum) {
+                if (i + 1 >= fromRecordNum && i + 1 <= toRecordNum) { 
                   if (dataRecords[i].selected != true) {
-                    handleSelection(dataRecords[i], false, true, i);
+                    handleSelection(dataRecords[i], true, i);  //Select a row that isn't selected.
                   }
                 }
                 else {
                   if (dataRecords[i].selected == true) {
-                    handleSelection(dataRecords[i], true, false, i);
+                    handleSelection(dataRecords[i], false, i);  //Deselect a selected row that is not between from/to.
                   }
                 }
                 if ((curRow >= 0 && !me.hasHeader) || curRow >= 1) {
@@ -5699,28 +5697,19 @@ pui.Grid = function () {
                 }
               }
             }
+            // Else: select the clicked row, including multiple selections.
             else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-              if (dataRecords[adjustedRow - 1].selected == true && !isRight) dataRecords[adjustedRow - 1].selected = false;
-              else dataRecords[adjustedRow - 1].selected = true;
-              if (me.selectionField != null && dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].selection != null) {
-                dataRecords[adjustedRow - 1].selection.modified = true;
-                if (dataRecords[adjustedRow - 1].selected) {
-                  dataRecords[adjustedRow - 1].selection.value = me.selectionValue;
-                  //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
-                  if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
-                }
-                else {
-                  dataRecords[adjustedRow - 1].selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
-                  //Set the response value for rows that have not been initally rendered but have been modified with setDataValue()
-                  if (dataRecords[adjustedRow - 1].selection.responseValue) dataRecords[adjustedRow - 1].selection.responseValue = dataRecords[adjustedRow - 1].selection.value;
-                }
-              }
-              pui.modified = true;
+              // I don't know why when record.selection was null, the previous code here didn't set it up like it does in other calls to handleSelection.
+              // But, to avoid breaking things I didn't consider, I added a new parameter to handleSelection, and it does what previous code here did. MD.
+              if (dataRecords[adjustedRow - 1].selected == true && !isRight)
+                handleSelection(dataRecords[adjustedRow - 1], false, adjustedRow - 1, true); //deselect
+              else
+                handleSelection(dataRecords[adjustedRow - 1], true, adjustedRow - 1, true); //select
               me.setRowBackground(row, true);
             }
             me.selectedRecordNum = adjustedRow;
           }
-        }
+        } //done selecting/deselecting.
 
         if (me.runtimeChildren.length > 0 && me.runtimeChildren[0].id == "_msgsfltext") {
           var cell = me.cells[row][0];
@@ -5773,35 +5762,6 @@ pui.Grid = function () {
             var cell = me.cells[row][0];
             placeCursorOnCell(cell);
           }
-        }
-      }
-
-      function handleSelection(record, isSelected, useSelectionValue, index) {
-        pui.modified = true;
-        record.selected = !isSelected;
-        if (me.selectionField != null) {
-          if (record.selection == null) {
-            // if the row has not been rendered and is filtered or sorted use the subfileRow or beforeSort properties 
-            // else use the passed index as a fallback 
-            var row;
-            if (record.subfileRow || record.beforeSort) row = record.subfileRow || (record.beforeSort + 1);
-            else row = index + 1;
-            record.selection = {
-              type: "grid selection",
-              subfileRow: row,
-              formattingInfo: me.selectionField
-            };
-            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) + "." + row;
-            if (pui.responseElements[qualField] == null) {
-              pui.responseElements[qualField] = [];
-              pui.responseElements[qualField].push(record.selection);
-            }
-          }
-          record.selection.modified = true;
-          if (useSelectionValue) record.selection.value = me.selectionValue;
-          else record.selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
-          //Set the response value for rows that have not been initally rendered but have been modified with setDataValue() #4041
-          if (record.selection.responseValue) record.selection.responseValue = record.selection.value;
         }
       }
     };
@@ -5875,7 +5835,124 @@ pui.Grid = function () {
     me.cells[row][col] = cell;
     if (me.designMode) sizeCell(row, col);
     return cell;
+  } //end makeCell().
+  
+  /**
+   * Select or deselect a record. If selection field enabled, set it up for the record, if necessary.
+   * @param {Object} record   One record from me.dataArray or filteredDataArray.
+   * @param {Boolean} select  When true, selects record; when false, deselects record.
+   * @param {Number} index  Used when grid not sorted; should be RRN - 1 or index in me.dataArray.
+   * @param {Boolean|Undefined} leaveNullSel  When true: if record.selection is null, leave it null.
+   */
+  function handleSelection(record, select, index, leaveNullSel) {
+    pui.modified = true;
+    record.selected = select;
+    if (me.selectionField != null) {
+      if (record.selection == null) {
+        if (leaveNullSel === true) return;
+        // if the row has not been rendered and is filtered or sorted use the subfileRow or beforeSort properties 
+        // else use the passed index as a fallback 
+        var row;
+        if (record.subfileRow) row = record.subfileRow;
+        else if (record.beforeSort) row = record.beforeSort + 1;
+        else row = index + 1;
+        record.selection = {
+          type: "grid selection",
+          subfileRow: row,
+          formattingInfo: me.selectionField
+        };
+        var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) + "." + row;
+        if (pui.responseElements[qualField] == null) {
+          pui.responseElements[qualField] = [];
+          pui.responseElements[qualField].push(record.selection);
+        }
+      }
+      record.selection.modified = true;
+      if (select) record.selection.value = me.selectionValue;
+      else record.selection.value = (me.selectionField.dataType == "indicator" ? "0" : " ");
+      //Set the response value for rows that have not been initally rendered but have been modified with setDataValue() #4041
+      if (record.selection.responseValue) record.selection.responseValue = record.selection.value;
+    }
   }
+  
+  /**
+   * Set row backgrounds of all visible rows.
+   */
+  function setAllVisibleBackgrounds(){
+    var numRows = me.hLines.length - 1;
+    for (var i = (me.hasHeader ? 1 : 0); i < numRows; i++){
+      me.setRowBackground(i);
+    }
+  }
+  
+  /**
+   * Select the specified row, possibly deselecting other rows. Also sets where shift+click range begins next.
+   * @param {Number} row    Relative record number of the row to select. should match RRN used in RPG program when row written.
+   *   If row is out of bounds, or if record is already selected, Does nothing.
+   * @param {Boolean} append   When true, other rows are not deselected when multiple-selection is allowed. When false, others are
+   *   deselected if multiple-selection is allowed. If single-selection, other selected records are deselected regardless of argument.
+   */
+  this["selectRow"] = function(row, append){
+    if (!me.selectionEnabled || row < 1 || row > me.dataArray.length ) return;
+    // Before sorting and filtering, the index of dataArray maps to the RRN. 
+    var useIndex = (!me.isFiltered() && (typeof me.sorted == "undefined" || me.sorted !== true));
+    
+    // Look at each record in the grid. Note: when you select a row, filter out that row, and then submit, the selected
+    // record is still in the response; so, we make sure to check all records, even filtered out ones.
+    for (var i = 0; i < me.dataArray.length; i++) {
+      // The current loop row is the one specified.
+      if ((useIndex && i == row - 1) || (!useIndex && me.dataArray[i].subfileRow == row) ){
+        if (me.dataArray[i].selected != true ){
+          handleSelection(me.dataArray[i], true, i); //select the specified record.
+          if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0 ){
+            me.selectedRecordNum = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+          }
+        }
+      }
+      else{
+        // Multiple-selection is not allowed or append is false, and record is selected.
+        if ((me.singleSelection || !append) && me.dataArray[i].selected == true){
+          handleSelection(me.dataArray[i], false, i); //deselect.
+        }
+      }
+      
+    }
+    setAllVisibleBackgrounds();
+  };
+  
+  /**
+   * Deselect the specified row.
+   * @param {Number} row    Relative record number of the row to select. should match RRN used in RPG program when row written.
+   *   If row is out of bounds, or if record is not selected, does nothing.
+   */
+  this["deselectRow"] = function(row){
+    if (!me.selectionEnabled || row < 1 || row > me.dataArray.length ) return;
+    var isFiltered = me.isFiltered();
+    // Before sorting and filtering, the index of dataArray maps to the row.
+    if (!isFiltered && (typeof me.sorted == "undefined" || me.sorted !== true)){
+      if ( me.dataArray[row - 1].selected == true) deselect(row - 1);
+    }
+    else{
+      // After sorting or filtering, find the record to deselect in the grid.
+      for (var i = 0; i < me.dataArray.length; i++) {
+        if ( me.dataArray[i].subfileRow == row && me.dataArray[i].selected == true ){
+          deselect(i);
+          break;
+        }
+      }
+    }
+    function deselect(index){
+      handleSelection(me.dataArray[index], false, index);
+      if (isFiltered) setAllVisibleBackgrounds();  //We don't know which cell, so set all.
+      else if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0){
+        // Translate the data row to a row in the visible grid.
+        var hdrOffset = me.hasHeader ? 1 : 0;
+        var gridrow = index - me.recNum + 1 + hdrOffset; //note: recNum maps to dataArray index + 1.
+        if (gridrow < me.hLines.length - 1 && gridrow >= hdrOffset)
+          me.setRowBackground(gridrow);
+      }
+    }
+  };
 
   /**
    * Try to place the cursor on the first input element in the row.
