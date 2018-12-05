@@ -795,8 +795,8 @@ pui.render = function(parms) {
     pui.cursorFields.position = null;
     pui.cursorFields.row = null;
     pui.cursorFields.column = null;
-    pui.cursorValues.record = null;
-    pui.cursorValues.field = null;
+    pui.cursorValues.record = null; 
+    pui.cursorValues.field = null; 
     pui.cursorValues.position = null;
     pui.cursorValues.elementId = null;
     pui.cursorValues.row = null;
@@ -1041,34 +1041,52 @@ pui.renderFormat = function(parms) {
   // Setup cursor and bypass validation.
   if (!isDesignMode && isMainFormat) {
     pui.keyMap[formatName] = {};
+    var namePrefix = pui.handler == null ? formatName + "." : "";
+    // Note: all "return cursor location", RTNCSRLOC, fields need to be output for each format that uses them, even with overlays. Issue 4920.
     var obj = parms.metaData.screen["return cursor record"];
-    if (pui.isBound(obj)) pui.cursorFields.record = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)){
+      if (pui.cursorFields.record == null) pui.cursorFields.record = {};
+      pui.cursorFields.record[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
+    }
     obj = parms.metaData.screen["return cursor field"];
-    if (pui.isBound(obj)) pui.cursorFields.field = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)){
+      if (pui.cursorFields.field == null) pui.cursorFields.field = {};
+      pui.cursorFields.field[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
+    }
     obj = parms.metaData.screen["return cursor position"];
-    if (pui.isBound(obj)) pui.cursorFields.position = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)){
+      if (pui.cursorFields.position == null) pui.cursorFields.position = {};
+      pui.cursorFields.position[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
+    }
     obj = parms.metaData.screen["return cursor row"];
-    if (pui.isBound(obj)) pui.cursorFields.row = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)){
+      if (pui.cursorFields.row == null) pui.cursorFields.row = {};
+      pui.cursorFields.row[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
+    }
     obj = parms.metaData.screen["return cursor column"];    
-    if (pui.isBound(obj)) pui.cursorFields.column = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)){
+      if (pui.cursorFields.column == null) pui.cursorFields.column = {};
+      pui.cursorFields.column[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
+    }
+    
     obj = parms.metaData.screen["changed"];
-    if (pui.isBound(obj)) pui.changedFields[formatName] = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.changedFields[formatName] = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window left"];
-    if (pui.isBound(obj)) pui.windowLeftField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.windowLeftField = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window top"];
-    if (pui.isBound(obj)) pui.windowTopField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.windowTopField = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["valid command key"];
-    if (pui.isBound(obj)) pui.validCommandKeyField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.validCommandKeyField = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["back button"];
-    if (pui.isBound(obj)) pui.backButtonField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.backButtonField = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd element id"];
-    if (pui.isBound(obj)) pui.dragDropFields.ddElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.ddElementId = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["dd record number"];
-    if (pui.isBound(obj)) pui.dragDropFields.ddRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.ddRecordNumber = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target element id"];
-    if (pui.isBound(obj)) pui.dragDropFields.targetElementId = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.targetElementId = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target record number"];
-    if (pui.isBound(obj)) pui.dragDropFields.targetRecordNumber = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(obj["fieldName"]);
+    if (pui.isBound(obj)) pui.dragDropFields.targetRecordNumber = namePrefix + pui.fieldUpper(obj["fieldName"]);
     
     var idx = 1;
     obj = parms.metaData.screen["set off"];
@@ -3567,21 +3585,25 @@ pui.buildResponse = function() {
     }    
   }
   
-  if (pui.cursorFields.record != null && pui.cursorFields.record != "" && pui.cursorValues.record != null && pui.cursorValues.record != "") {
-    response[pui.cursorFields.record] = pui.cursorValues.record;
+  // Handle "return cursor location" fields, which may be collections. Each format that uses these types of fields should get values,
+  // even when overlaid. See issue 4920 for test case.
+  function fillReturnCursorData(field, value){
+    if (field != null && field != "" && value != null && value != "") {
+      if (typeof field == "object"){
+        for (var qualfield in field){
+          response[qualfield] = value;
+        }
+      }else{
+        response[field] = value;
+      }
+    }
   }
-  if (pui.cursorFields.field != null && pui.cursorFields.field != "" && pui.cursorValues.field != null && pui.cursorValues.field != "") {
-    response[pui.cursorFields.field] = pui.cursorValues.field;
-  }
-  if (pui.cursorFields.position != null && pui.cursorFields.position != "" && pui.cursorValues.position != null && pui.cursorValues.position != "") {
-    response[pui.cursorFields.position] = pui.cursorValues.position;
-  }
-  if (pui.cursorFields.row != null && pui.cursorFields.row != "" && pui.cursorValues.row != null && pui.cursorValues.row != "") {
-    response[pui.cursorFields.row] = pui.cursorValues.row;
-  }
-  if (pui.cursorFields.column != null && pui.cursorFields.column != "" && pui.cursorValues.column != null && pui.cursorValues.column != "") {
-    response[pui.cursorFields.column] = pui.cursorValues.column;
-  }
+  fillReturnCursorData(pui.cursorFields.record, pui.cursorValues.record);
+  fillReturnCursorData(pui.cursorFields.field, pui.cursorValues.field);
+  fillReturnCursorData(pui.cursorFields.position, pui.cursorValues.position);
+  fillReturnCursorData(pui.cursorFields.row, pui.cursorValues.row);
+  fillReturnCursorData(pui.cursorFields.column, pui.cursorValues.column);
+  
   var rowNum = Number(pui.cursorValues.row);
   if (!isNaN(rowNum) && rowNum > 0) response["row"] = String(rowNum);
   var columnNum = Number(pui.cursorValues.column);
