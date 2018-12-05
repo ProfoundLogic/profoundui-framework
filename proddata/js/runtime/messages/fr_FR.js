@@ -82,7 +82,7 @@ var fr_FR = function(dict) {
             dictMsg["subfile deletion"]             = "Êtes-vous certain de vouloir supprimer le sous-fichier?";
             dictMsg["downloading x"]                = "Téléchargement de &1";
             dictMsg["ie9 too low xlsxpics"]         = "Les images ne peuvent pas être exportées sous IE9 ou version antérieure.";
-			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			dictMsg["keyboard input inhibited"]     = "Saisie interdite dans ce champ.";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Nombre de sessions dépassé.";
