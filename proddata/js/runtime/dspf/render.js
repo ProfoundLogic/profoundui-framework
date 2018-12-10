@@ -528,6 +528,13 @@ pui.render = function(parms) {
     pui.pjsVersion = parms["pjsVersion"];
   }
 
+  if (typeof pui.pjsDefaultMode_original == "undefined")
+    pui.pjsDefaultMode_original = pui["pjsDefaultMode"] || null;
+  if (parms["pjsDefaultMode"])
+    pui["pjsDefaultMode"] = parms["pjsDefaultMode"];
+  else
+    pui["pjsDefaultMode"] = pui.pjsDefaultMode_original;
+
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
   
