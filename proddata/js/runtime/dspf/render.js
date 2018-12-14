@@ -315,6 +315,19 @@ pui.rangeOverlap = function(range1, range2) {
 // determine if record formats below subfiles need to be pushed down and by how much
 // also handle "clear line" property
 pui.overlayAdjust = function(formats) {
+  function isValueInMultOccurProperty(value, obj, baseProp) {
+    var name = baseProp;
+    var i = 1;
+
+    while (obj[name] != null && obj[name] != "") {
+      if (obj[name] === value) {
+        return true;
+      }
+      i++;
+      name = baseProp + " " + i;
+    }
+    return false;
+  }
 
   var oHigh = null;
   var oGrid = null;
@@ -413,7 +426,7 @@ pui.overlayAdjust = function(formats) {
               var itm = items[j];
               if (itm["grid"] != null) continue;
               var itmType = itm["field type"];
-              if (itmType != "panel" && itmType != "css panel" && !pui.isBound(itm["top"]) && itm["css class"] != "stationary" && itm["css class 2"] != "stationary") {
+              if (itmType != "panel" && itmType != "css panel" && !pui.isBound(itm["top"]) && !isValueInMultOccurProperty("stationary", itm, "css class")) {
                 itm["top"] = (parseInt(itm["top"]) + pushDown) + "px";
               }
             }
