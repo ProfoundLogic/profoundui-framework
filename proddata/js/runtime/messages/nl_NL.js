@@ -82,7 +82,7 @@ var nl_NL = function(dict) {
             dictMsg["subfile deletion"]             = "Weet je het zeker dat je de subfile wilt verwijderen?";
             dictMsg["downloading x"]                = "Downloaden &1.";
             dictMsg["ie9 too low xlsxpics"]         = "Afbeeldingen kunnen niet worden geëxporteerd met IE9 of eerdere versies.";
-			dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+			dictMsg["keyboard input inhibited"]     = "Toetsenbord invoer niet toegestaan in dit veld.";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Aantal toegestane sessies is overschreden.";
