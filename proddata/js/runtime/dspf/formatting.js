@@ -414,7 +414,7 @@ pui.FieldFormat = {
     revert: function(obj) {
       var value = obj.value + '';
       value = value.replace(/\s+$/g, '');
-      if (obj.blankFill == "true" && obj.dataType == "char") {
+      if (obj.blankFill == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
         var dataLength = Number(obj.dataLength);
         if (!isNaN(dataLength)) {
           value = pui.formatting.leftPad(value, dataLength, " ");
@@ -684,11 +684,11 @@ pui.FieldFormat = {
         }
       }
 
-      if (valid && obj.zeroFill == "true" && obj.dataType == "char") {
+      if (valid && obj.zeroFill == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
         value = pui.formatting.leftPad(value, parseInt(obj.dataLength, 10), '0');
       }      
       
-      if (valid && obj["numBlankFill"] == "true" && obj.dataType == "char") {
+      if (valid && obj["numBlankFill"] == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
         var dataLength = Number(obj.dataLength);
         if (!isNaN(dataLength)) {
           value = pui.formatting.leftPad(value, dataLength, " ");
@@ -807,7 +807,7 @@ pui.FieldFormat = {
           value = "0" + value;
         }
       }      
-      if (obj.dataType == "char") {
+      if (obj.dataType == "char" || obj.dataType == "varchar") {
         // check for omitted leading zero and autopad it with a "0"
         if ( ((value.length == 7) && (dateFormat == "m/d/y" || dateFormat == "d/m/y")) ||
              ((value.length == 9) && (dateFormat == "m/d/Y" || dateFormat == "d/m/Y")) ) {
@@ -833,17 +833,17 @@ pui.FieldFormat = {
         d = pui.formatting.Date.parse(value, dateFormat, locale);
       }
       if (dateFormat == "m/d/y" || dateFormat == "d/m/y") {
-        if (value == "00/00/00" && obj.dataType == "char") return "0";
+        if (value == "00/00/00" && (obj.dataType == "char" || obj.dataType == "varchar")) return "0";
         if (value == "00/00/00") return "0";
       }
       if (dateFormat == "m/d/Y" || dateFormat == "d/m/Y") {
-        if (value == "00/00/0000" && obj.dataType == "char") return "";
+        if (value == "00/00/0000" && (obj.dataType == "char" || obj.dataType == "varchar")) return "";
         if (value == "00/00/0000") return "0";
       }
       if (obj.dataType == "zoned" && value == "") {
         return "0";
       }
-      if (obj.dataType == "char") {
+      if (obj.dataType == "char" || obj.dataType == "varchar") {
         return value;
       }
       if (d) {
@@ -998,7 +998,7 @@ pui.FieldFormat = {
           // But 12:00:01 (AM) must produce 00:00:01.
           // Replace 'R' formatting character with 'H' before sending back to the server to prevent a time greater than '24:00:00'
           parsedKWs.internal = parsedKWs.internal.replace(/([^\\]?)R/g, '$1' + 'H');
-           if(obj.dataType == "char" && (obj.timeFormat == "H:i" || obj.timeFormat == "H:i:s")){
+           if ((obj.dataType == "char" || obj.dataType == "varchar") && (obj.timeFormat == "H:i" || obj.timeFormat == "H:i:s")){
             //parseKWs.internal has a common value H.i.s/R.i.s which is now change if obj.timeFormat is different. 
            parsedKWs.internal = "H:i:s";
           }
@@ -1363,6 +1363,7 @@ pui.FieldFormat = {
   
     var types = {
       "char": { def: '',  rx: '.*' },
+      "varchar": { def: '',  rx: '.*' },
       "graphic": { def: '',  rx: '.*' },
       "zoned": { def: '0', rx: '-?\\d*\\.?\\d*' },
       "indicator": { def: '0', rx: '[01]' },
@@ -1383,6 +1384,7 @@ pui.FieldFormat = {
   
     var invalid = {
       "char": {},
+      "varchar": {},
       "graphic": {
         "Number": true,
         "Indicator": true,
