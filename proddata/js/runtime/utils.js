@@ -3478,7 +3478,7 @@ pui.xlsx_worksheet = function(numcols){
     var fmt = me.formats[col]["dataType"];   // Default format is set per column.
     if (format != null) fmt = format;     // Cell overrides default column format.
     
-    if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
+    if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
       // Store time/date types as strings. In the future we could translate their values to native Excel data.
       
       if (sst[value] == null) sst[value] = sst_count++; //store the unique shared string and its ID, then increment the ID.
@@ -3572,7 +3572,7 @@ pui.xlsx_worksheet = function(numcols){
             rows[row][col] = rows[row][col].value;
           }
           
-          if (fmt == "char" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time"){
+          if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
             // TODO: date/time values could be converted to native excel formats if all variations are handled.
             xml += ' t="s"';
             if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
