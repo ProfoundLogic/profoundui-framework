@@ -54,17 +54,12 @@ function handleIcon(parms) {
             var type = iconSet["type"];
             var iconClassName = iconSet["classList"][iconValueClassList];
             if (iconValueType === type) {
-                if (type === 'materialIcons') {
-                    iconDiv.innerText = trim(iconVal);
-                    iconDiv.className = iconClassName;
-                } else {
-                    iconDiv.className = iconClassName + iconVal;
-                    iconDiv.innerText = '';
-                }
-                return false;
-            } 
+              iconDiv.className = iconClassName + iconVal;
+              iconDiv.innerText = '';
+              return false;
+            }
             return true;
-        })
+        });
     }
     // Add the first css class set in the properties
     if (cssClass) iconDiv.className = iconDiv.className + ' ' + cssClass;

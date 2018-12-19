@@ -3998,14 +3998,14 @@ pui.fetchMonacoIntelliSenseLibraries = function () {
 
 pui.getDefaultIconSets = function() {
   return [{
-      "type": "materialIcons",
+      "type": "material",
       "title": "Material Icons",
       "classList": {
-        "regular": "pui-material-icons"
+        "": "pui-material-icons"
       }
     },
     {
-      "type": "fontAwesomeFree",
+      "type": "fontAwesome",
       "title": "Font Awesome Icons",
       "classList": {
         "brands": "pui-fa-brands-icons fa-",
@@ -4016,8 +4016,8 @@ pui.getDefaultIconSets = function() {
       "type": "jQueryIcons",
       "title": "jQuery Mobile Icons",
       "classList": {
-        "regular": "ui-icon ui-icon-"
+        "": "ui-icon ui-icon-"
       }
     }
-  ]
+  ];
 };
