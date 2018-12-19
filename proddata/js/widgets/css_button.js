@@ -156,17 +156,12 @@ pui.CSSButton = function() {
             var type = iconSet["type"];
             var iconClassName = iconSet["classList"][iconValueClassList];
             if (iconValueType === type) {
-                if (type === 'materialIcons') {
-                    iconSpan.innerHTML = trim(iconVal);
-                    iconSpan.className = iconClassName;
-                } else {
-                    iconSpan.className = iconClassName + iconVal;
-                    iconSpan.innerHTML= '';
-                }
-                return false;
-            } 
+              iconSpan.className = iconClassName + iconVal;
+              iconSpan.innerHTML= '';
+              return false;
+            }
             return true;
-        })
+        });
       } else {
         if (icon == "left arrow") icon = "arrow-l";
         if (icon == "right arrow") icon = "arrow-r";
@@ -178,7 +173,7 @@ pui.CSSButton = function() {
         iconSpan.innerHTML = ""; 
       }
     }
-  }
+  };
   
   this.setMini = function(flag) {
     if (flag == true) pui.addCssClass(link, "ui-mini");
@@ -409,11 +404,11 @@ pui.widgets.add({
       if (parms.value) parms.value = trim(parms.value);
       if (parms.value.substr(0,9) == 'material:') {
         var value = trim(parms.value.substr(9));
-        parms.dom.button.setIcon(value, 'material:');
+        parms.dom.button.setIcon(value, 'material');
         return;
       } else if (parms.value.substr(0,12) == 'fontAwesome:') {
         var value = trim(parms.value.substr(12));
-        parms.dom.button.setIcon(value, 'fontAwesome:');
+        parms.dom.button.setIcon(value, 'fontAwesome');
       } else {
         parms.dom.button.setIcon(parms.value);     
       }

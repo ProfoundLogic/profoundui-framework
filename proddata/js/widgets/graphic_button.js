@@ -72,10 +72,7 @@ function buildGraphicButton(parms) {
             var type = iconSet["type"];
             var iconClassName = iconSet["classList"][iconValueClassList];
             if (iconValueType === type) {
-                if (type === 'materialIcons') {
-                  icon = '<span class="' + iconClassName + ' pui-material-icons-center ' + (cssClass? cssClass + '"': '"') + (cursorStyle? 'style="cursor:'+cursorStyle + '"': '') + '>'+ iconVal + '</span>';
-                  if (value) value = '<span class="pui-material-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';
-                } else if (type === 'fontAwesomeFree') {
+                if (type === 'fontAwesome') {
                   icon = '<span class="pui-fa-icons-center ' + iconClassName + iconVal + ' ' + (cssClass? cssClass: '') +'"></span>';
                   if (value) value = '<span class="pui-fa-icons-text ' + (cssClass? cssClass: '') + '">' + value + '</span>';            
                 } else {
@@ -85,7 +82,7 @@ function buildGraphicButton(parms) {
                 return false;
             } 
             return true;
-        })
+        });
     }
   } else {
     icon = graphic;
