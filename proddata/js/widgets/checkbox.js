@@ -50,6 +50,9 @@ pui.widgets.add({
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
         parms.dom.uncheckedValue = uncheckedValue;
+        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) && 
+            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) && 
+            (objValue === "1" || objValue === "true" || objValue === true)) parms.dom.checked = true;
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
         if (labelText != "") buildLabel(parms.dom, labelText);
@@ -68,10 +71,18 @@ pui.widgets.add({
     },
     
     "value": function(parms) {
-      var checkedValue = parms.evalProperty("checked value");
+      var checkedValue = parms.evalProperty("checked value");      
       parms.dom.checkedValue = checkedValue;
       if (parms.value == checkedValue) parms.dom.checked = true;
-      else parms.dom.checked = false;    
+      else parms.dom.checked = false;
+
+      if (!parms.design) {
+        var uncheckedValue = parms.evalProperty("unchecked value");
+        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) && 
+            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) && 
+            (parms.value === "1" || parms.value === "true" || parms.value === true)) parms.dom.checked = true;
+      }
+
       // Fixes printing problem for IE8. 
       // -- DR.
       pui.fixCheckPrint(parms.dom);        
