@@ -1464,6 +1464,10 @@ pui.renderFormat = function(parms) {
             else if (prop == "subfile changed") {
               pui.subfileChangedFields[properties["record format name"]["toLowerCase"]()] = pui.fieldUpper(propValue.fieldName);
             }
+            if (prop == "column sort response" || prop == "field name sort response") {
+              if (pui.isBound(items[i]["return sort order"]))
+                dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
+            }
           }
         }
         else {
@@ -3672,11 +3676,21 @@ pui.buildResponse = function() {
     if (field != null && value != null) {
       response[field] = value;
     }
+    field = pui.columnSortResponseGrid.tableDiv.returnSortOrderField;
+    value = pui.columnSortResponseGrid.returnSortOrder;
+    if (field != null && value != null) {
+      response[field] = value;
+    }
   }
 
   if (pui.fieldNameSortResponseGrid != null) {
     var field = pui.fieldNameSortResponseGrid.tableDiv.fieldNameSortResponseField;
     var value = pui.fieldNameSortResponseGrid.fieldNameSortResponse;
+    if (field != null && value != null) {
+      response[field] = value;
+    }
+    field = pui.fieldNameSortResponseGrid.tableDiv.returnSortOrderField;
+    value = pui.fieldNameSortResponseGrid.returnSortOrder;
     if (field != null && value != null) {
       response[field] = value;
     }

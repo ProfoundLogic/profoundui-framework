@@ -194,6 +194,7 @@ pui.Grid = function () {
   this.initialSortField = null;
   this.columnSortResponse = null;
   this.fieldNameSortResponse = null;
+  this.returnSortOrder = null;
   this.contextMenuId = null;
 
   this.dataConsumed = false;
@@ -2467,7 +2468,10 @@ pui.Grid = function () {
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
           me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);
-          if (me.fieldNameSortResponse == null) return;
+          if (me.fieldNameSortResponse == null) {
+            me.returnSortOrder = null;
+            return;
+          }
           pui.fieldNameSortResponseGrid = me;
           var returnVal = pui.respond();
           pui.fieldNameSortResponseGrid = null;
@@ -3595,6 +3599,9 @@ pui.Grid = function () {
 
       case "field name sort response":
         // nothing to do here
+        break;
+
+      case "return sort order":
         break;
 
       case "record format name":
@@ -8511,6 +8518,7 @@ pui.Grid = function () {
       { name: "initial sort field", help: me.helpTextGridProperties("blank","This property specifies the field name used to identify the column for initial sorting. If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",[],""), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
       { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.",[],""), context: "dspf" },
       { name: "field name sort response", readOnly: true, help: me.helpTextGridProperties("bind","Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.",[],""), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+      { name: "return sort order", readOnly: true, help: me.helpTextGridProperties("bind","Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used.",[],""), hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
       { name: "sort function", type: "js", help:me.helpTextGridProperties( "blank","Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", [], ""), context: "dspf"},
       { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Allows the user to resize grid columns at run time.",[],""), context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Allows the user to rearrange grid columns at run time.",[],""), context: "dspf" },
