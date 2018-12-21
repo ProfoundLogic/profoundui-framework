@@ -218,12 +218,16 @@ pui.GridMenu = function() {
       menuIcons.push("icons/sort_ascending.png");
       optionHandlers.push(function() {
         me.cell.sortDescending = true;
+        if (me.grid.tableDiv.returnSortOrderField != null)
+          me.grid.returnSortOrder = "A";
         me.cell.sortColumn();
       });
       menuOptions.push(pui["getLanguageText"]("runtimeText", "sort descending text"));
       menuIcons.push("icons/sort_descending.png");
       optionHandlers.push(function() {
         me.cell.sortDescending = false;
+        if (me.grid.tableDiv.returnSortOrderField != null)
+          me.grid.returnSortOrder = "D";
         me.cell.sortColumn();
       });
     }
