@@ -56,14 +56,13 @@ pui.widgets.add({
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
         if (labelText != "") buildLabel(parms.dom, labelText);
-        if (context == "dspf") {
-          addEvent(parms.dom, "click", function() {
-            if (parms.dom.readOnly) {
-              if (parms.dom.checked == false) parms.dom.checked = true;
-              else if (parms.dom.checked == true) parms.dom.checked = false;
-            }
-          });
-        }
+        // For "read only" checkboxes, don't allow the user to check or uncheck the box, because that would change the value. #4925.
+        addEvent(parms.dom, "click", function() {
+          if (parms.dom.readOnly) {
+            if (parms.dom.checked == false) parms.dom.checked = true;
+            else if (parms.dom.checked == true) parms.dom.checked = false;
+          }
+        });
       }
       // Fixes printing problem for IE8. 
       // -- DR.
