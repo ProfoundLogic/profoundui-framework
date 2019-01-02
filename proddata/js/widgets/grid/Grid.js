@@ -2794,12 +2794,17 @@ pui.Grid = function () {
           return customSortHandler(pui["gridSort"], value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat );
         }
         else {
-          if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;
+          // Decide if the value in one row is higher/lower than next row. See issues 5030, 4631, and 4297 for test cases.
+          // If sort order is descending, then value1 should be before value2 if value1 is lower.
+          if ((desc && value1 < value2) || (!desc && value1 > value2)) return -1;   //value1 should appear before value2 in the grid when order is ascending.
           else if (value1 == value2) {
-            if (row1.subfileRow < row2.subfileRow) return -1; 
+            // If the values are the same, then this secondarily sorts by the initial order that records were written to the subfile. That keeps records from 
+            // jumping around (#4297). By changing the sort order when "desc" changes, grids with all same values can sort in a reverse direction than the initial order (#5030).
+            // Note: this code keeps things the way #4631 likes it, but we don't yet have a secondary sort order feature, so I don't think 4631 is actually a bug. MD.
+            if ((!desc && row1.subfileRow < row2.subfileRow) || (desc && row1.subfileRow > row2.subfileRow)) return -1;
             else return 1;
-      }
-          else return 1;
+          }
+          else return 1;  //value1 should appear after value2 in the grid when order is ascending.
         }
       }
       // Handle the pui.gridSort and the screen level defined grid function. 
