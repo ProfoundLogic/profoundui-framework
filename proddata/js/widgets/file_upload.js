@@ -122,37 +122,37 @@ pui["fileupload"].FileUpload = function(container) {
       var name = names[i] + ((selectionMode == MODE_ENHANCED) ? " (" + formatBytes(sizes[i], 2) + ")" : ""); 
       var row = tBody.insertRow(-1);
       row.className = "row";
-	    if (i % 2 == 0) {
-	      row.className += " even";
-	    }
-	    else {
-	      row.className += " odd";
-	    }      
-	    var col = row.insertCell(-1);
-	    col.className = "name-col";
-	    col.title = name;
-	    col.appendChild(document.createTextNode(name));
-	    
-	    if (selectionMode == MODE_STANDARD) {
+      if (i % 2 == 0) {
+        row.className += " even";
+      }
+      else {
+        row.className += " odd";
+      }      
+      var col = row.insertCell(-1);
+      col.className = "name-col";
+      col.title = name;
+      col.appendChild(document.createTextNode(name));
+      
+      if (selectionMode == MODE_STANDARD) {
         // Show the Remove link for each file selected in standard mode.
-	          
-  	    col = row.insertCell(-1);
-  	    col.className = "remove-col";
-  	    var a = document.createElement("a");
-  	    a.href = "javascript: void(0);";
-  	    a.className = "remove";
-  	    a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
-  	    a.puiFileIndex = i;
-  	    if (a.attachEvent) {
-  	      a.attachEvent("onclick", removeFile);
-  	    }
-  	    else if (a.addEventListener) {
-  	      a.addEventListener("click", removeFile, false);
-  	    }
-  	    col.appendChild(a);
-  	    
-	    }
-	    
+            
+        col = row.insertCell(-1);
+        col.className = "remove-col";
+        var a = document.createElement("a");
+        a.href = "javascript: void(0);";
+        a.className = "remove";
+        a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
+        a.puiFileIndex = i;
+        if (a.attachEvent) {
+          a.attachEvent("onclick", removeFile);
+        }
+        else if (a.addEventListener) {
+          a.addEventListener("click", removeFile, false);
+        }
+        col.appendChild(a);
+        
+      }
+      
     }      
   
   };
@@ -441,10 +441,10 @@ pui["fileupload"].FileUpload = function(container) {
       if (pui["appJob"] && pui["appJob"]["auth"]) {
   
         form.action += encodeURIComponent(pui["appJob"]["auth"]);
-  		
-  		}   
-  		form.action += "&trans=" + encodeURIComponent(transactionId);
-  		form.action += "&id=" + encodeURIComponent(mainBox.id);     
+      
+      }   
+      form.action += "&trans=" + encodeURIComponent(transactionId);
+      form.action += "&id=" + encodeURIComponent(mainBox.id);     
       if (pui["isCloud"]) {
         form.action += "&workspace_id=" + pui.cloud.ws.id;
       }
@@ -625,7 +625,7 @@ pui["fileupload"].FileUpload = function(container) {
   this["clear"] = function() {
   
     if (submitHandle == null && !disabled) {
-	  
+    
       while(selectors.length > 0) {
       
         selectors[selectors.length - 1].parentNode.removeChild(selectors[selectors.length - 1]);
@@ -641,63 +641,63 @@ pui["fileupload"].FileUpload = function(container) {
 
   // Private methods.
 
-	function createForm() {
-		
-		form = document.createElement("form");
-		form.enctype = "multipart/form-data";
-		form.encoding = "multipart/form-data"; // For IE7/8.
-		form.method = "post";
-		form.target = "frame_" + mainBox.id;
-		form.className = "upload-form";
-		
-		var hidden = createNamedElement("input", "flimit");
-		hidden.type = "hidden";
-		form.appendChild(hidden);	
-						
-		hidden = createNamedElement("input", "slimit");
-		hidden.type = "hidden";
-		form.appendChild(hidden);	
-						
-		hidden = createNamedElement("input", "altname");
-		hidden.type = "hidden";
-		form.appendChild(hidden);		
-					
-		hidden = createNamedElement("input", "dir");
-		hidden.type = "hidden";
-		form.appendChild(hidden);	
-		
-		hidden = createNamedElement("input", "overwrite");
-		hidden.type = "hidden";
-		form.appendChild(hidden);	
-						
-		
-		mainBox.appendChild(form);			
-		
-	}
-	
-	function createIFrame() {
-	
-	  iframe = createNamedElement("iframe", "frame_" + mainBox.id);
-	  iframe.src = pui.normalizeURL("/profoundui/proddata/html/blank.html");
-	  iframe.className = "upload-frame";
-	  iframe.style.display = "none";
-	  mainBox.appendChild(iframe);
-	
-	}
-	
-	function createControlBox() {
-	
-	  controlBox = document.createElement("div");
-	  controlBox.className = "control-box";
-	  form.appendChild(controlBox);
-	
-	}
-	
-	function createSelector() {
-	
-	  // For standard selection mode, remove current selector if unused.
-	  // Otherwise, hide it before a new one is created.
-	  var selector;
+  function createForm() {
+    
+    form = document.createElement("form");
+    form.enctype = "multipart/form-data";
+    form.encoding = "multipart/form-data"; // For IE7/8.
+    form.method = "post";
+    form.target = "frame_" + mainBox.id;
+    form.className = "upload-form";
+    
+    var hidden = createNamedElement("input", "flimit");
+    hidden.type = "hidden";
+    form.appendChild(hidden);  
+            
+    hidden = createNamedElement("input", "slimit");
+    hidden.type = "hidden";
+    form.appendChild(hidden);  
+            
+    hidden = createNamedElement("input", "altname");
+    hidden.type = "hidden";
+    form.appendChild(hidden);    
+          
+    hidden = createNamedElement("input", "dir");
+    hidden.type = "hidden";
+    form.appendChild(hidden);  
+    
+    hidden = createNamedElement("input", "overwrite");
+    hidden.type = "hidden";
+    form.appendChild(hidden);  
+            
+    
+    mainBox.appendChild(form);      
+    
+  }
+  
+  function createIFrame() {
+  
+    iframe = createNamedElement("iframe", "frame_" + mainBox.id);
+    iframe.src = pui.normalizeURL("/profoundui/proddata/html/blank.html");
+    iframe.className = "upload-frame";
+    iframe.style.display = "none";
+    mainBox.appendChild(iframe);
+  
+  }
+  
+  function createControlBox() {
+  
+    controlBox = document.createElement("div");
+    controlBox.className = "control-box";
+    form.appendChild(controlBox);
+  
+  }
+  
+  function createSelector() {
+  
+    // For standard selection mode, remove current selector if unused.
+    // Otherwise, hide it before a new one is created.
+    var selector;
     if (selectionMode == MODE_STANDARD) {
     
         if (selectors.length > 0) {
@@ -711,69 +711,69 @@ pui["fileupload"].FileUpload = function(container) {
           }
           else {
           
-            selector.style.display = "none";	
+            selector.style.display = "none";  
           
           }
         
         }
     
     }  
-	
-	  selector = document.createElement("a");
-	  selector.className = "control-proxy";
-	  selector.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload select text")));
-	  
-	  var input = document.createElement("input");
-		input.name = "file";
-		input.type = "file";
-		input.className = "control";
-		
-		if (selectionMode == MODE_ENHANCED) {
-		
-			input.multiple = true;
+  
+    selector = document.createElement("a");
+    selector.className = "control-proxy";
+    selector.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload select text")));
+    
+    var input = document.createElement("input");
+    input.name = "file";
+    input.type = "file";
+    input.className = "control";
+    
+    if (selectionMode == MODE_ENHANCED) {
+    
+      input.multiple = true;
       if(typeof(input.files) == "undefined") selectionMode = MODE_STANDARD; //Fallback for older browsers.
-			
-			
-		}
-		
-		if (input.attachEvent) {
-			
-			input.attachEvent("onchange", me.render);
-			selector.attachEvent("onclick", checkSelect);
+      
+      
+    }
+    
+    if (input.attachEvent) {
+      
+      input.attachEvent("onchange", me.render);
+      selector.attachEvent("onclick", checkSelect);
 
-		}
-		else if (input.addEventListener) {
+    }
+    else if (input.addEventListener) {
 
-			input.addEventListener("change", me.render, false);
-			selector.addEventListener("click", checkSelect, false);
+      input.addEventListener("change", me.render, false);
+      selector.addEventListener("click", checkSelect, false);
 
-		}		
+    }    
 
-		selector.input = input;				
-		selectors.push(selector);				
-		selector.appendChild(input);				
-		
-		if (clearLink == null) {
-		
-		  clearLink = document.createElement("a");
-		  clearLink.href = "javascript: void(0);";
-		  clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
-		  clearLink.className = "clear";
-		  
-		  if (clearLink.attachEvent) {
-		  
-		    clearLink.attachEvent("onclick", clearFiles);
-		  
-		  }
-		  else if (clearLink.addEventListener) {
-		  
-		    clearLink.addEventListener("click", clearFiles, false); 
-		  
-		  }
-		  
-		  controlBox.appendChild(clearLink);  
-		
-		}
+    selector.input = input;        
+    selectors.push(selector);        
+    selector.appendChild(input);        
+    
+    if (clearLink == null) {
+    
+      clearLink = document.createElement("a");
+      clearLink.href = "javascript: void(0);";
+      clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
+      clearLink.className = "clear";
+      
+      if (clearLink.attachEvent) {
+      
+        clearLink.attachEvent("onclick", clearFiles);
+      
+      }
+      else if (clearLink.addEventListener) {
+      
+        clearLink.addEventListener("click", clearFiles, false); 
+      
+      }
+      
+      controlBox.appendChild(clearLink);  
+    
+    }
 
     if (clearLink == null) {
     
@@ -790,32 +790,32 @@ pui["fileupload"].FileUpload = function(container) {
     
       if (uploadLink == null) {
     
-  		  uploadLink = document.createElement("a");
-  		  uploadLink.href = "javascript: void(0);";
-  		  uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
-  		  uploadLink.className = "upload"; 
-		  
-		  } 
-		  
-		  if (uploadLink.attachEvent) {
-		  
-		    uploadLink.attachEvent("onclick", uploadFiles);
-		  
-		  }
-		  else if (uploadLink.addEventListener) {
-		  
-		    uploadLink.addEventListener("click", uploadFiles, false); 
-		  
-		  }	
-		  
-		  controlBox.appendChild(uploadLink);	      
+        uploadLink = document.createElement("a");
+        uploadLink.href = "javascript: void(0);";
+        uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
+        uploadLink.className = "upload"; 
+      
+      } 
+      
+      if (uploadLink.attachEvent) {
+      
+        uploadLink.attachEvent("onclick", uploadFiles);
+      
+      }
+      else if (uploadLink.addEventListener) {
+      
+        uploadLink.addEventListener("click", uploadFiles, false); 
+      
+      }  
+      
+      controlBox.appendChild(uploadLink);        
     
     }
         
-	}
-	
-	function createListBox() {
-	
+  }
+  
+  function createListBox() {
+  
     listBox = document.createElement("div");
     listBox.className = "list-box";
     
@@ -824,34 +824,34 @@ pui["fileupload"].FileUpload = function(container) {
     listBox.appendChild(table);
     
     form.appendChild(listBox);
-	  
-	}
-	
-	function checkSelect(e) {
-	
-	  e = e || window.event;
-	  
-	  if (submitHandle != null) {
-	  
-  	  e.cancelBubble = true;
-  	  e.returnValue = false;
-  	  if (e.preventDefault) e.preventDefault();
-  	  if (e.stopPropagation) e.stopPropagation();
-  	  return false;	  	
-	  
-	  }
-	
-	}
-	
-	function removeFile(e) {
-	
-	  e = e || window.event;
-	  var target = e.target || e.srcElement;
-	  
-	  if (submitHandle == null) {
-	  
-  	  // Remove specified selector.
-  	  var index = target.puiFileIndex;
+    
+  }
+  
+  function checkSelect(e) {
+  
+    e = e || window.event;
+    
+    if (submitHandle != null) {
+    
+      e.cancelBubble = true;
+      e.returnValue = false;
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      return false;      
+    
+    }
+  
+  }
+  
+  function removeFile(e) {
+  
+    e = e || window.event;
+    var target = e.target || e.srcElement;
+    
+    if (submitHandle == null) {
+    
+      // Remove specified selector.
+      var index = target.puiFileIndex;
       selectors[index].parentNode.removeChild(selectors[index]);
       selectors.splice(index, 1);
       
@@ -859,34 +859,34 @@ pui["fileupload"].FileUpload = function(container) {
     
     }
     
-	  e.cancelBubble = true;
-	  e.returnValue = false;
-	  if (e.preventDefault) e.preventDefault();
-	  if (e.stopPropagation) e.stopPropagation();
-	  return false;
-	
-	}
-	
-	function clearFiles(e) {
-	
-	  e = e || window.event;
-	  
-	  me["clear"]();
-	  
-	  e.cancelBubble = true;
-	  e.returnValue = false;
-	  if (e.preventDefault) e.preventDefault();
-	  if (e.stopPropagation) e.stopPropagation();
-	  return false;
-  	  
-	}	
-	
-	function uploadFiles(e) {
-	
-	  e = e || window.event;
-	
-	  if (submitHandle == null && !inDesignMode() && !pui.genie.formSubmitted) {
-	  
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    return false;
+  
+  }
+  
+  function clearFiles(e) {
+  
+    e = e || window.event;
+    
+    me["clear"]();
+    
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    return false;
+      
+  }  
+  
+  function uploadFiles(e) {
+  
+    e = e || window.event;
+  
+    if (submitHandle == null && !inDesignMode() && !pui.genie.formSubmitted) {
+    
       // Validate here, for Rich UI, validation is done as part of the 
       // main screen submit process.
   
@@ -915,21 +915,21 @@ pui["fileupload"].FileUpload = function(container) {
       }
       
       me.upload();
-	  
-	  }
-	
+    
+    }
+  
     if (e) {
     
-  	  e.cancelBubble = true;
-  	  e.returnValue = false;
-  	  if (e.preventDefault) e.preventDefault();
-  	  if (e.stopPropagation) e.stopPropagation();
-  	  return false;
-  	  
-	  }	
-	
-	}
-	
+      e.cancelBubble = true;
+      e.returnValue = false;
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      return false;
+      
+    }  
+  
+  }
+  
   function formatBytes(bytes, precision) {  
   
     var units = ["B", "KB", "MB", "GB", "TB"];  
@@ -940,7 +940,7 @@ pui["fileupload"].FileUpload = function(container) {
     precision = (typeof(precision) == "number" ? precision : 0);  
     return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
   
-  }	
+  }  
 
 };
 
