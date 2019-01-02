@@ -74,7 +74,9 @@ pui["fileUploadDND"].FileUpload = function(container) {
   var targetDirectory = "";
   var altName = "";
   var overwrite = false;
+  var generateNames = false;
   var allowedTypes = []; // List of accepted MIME file types.
+  var actualFileNames = [];
 
   var uploadEvent; // The user-defined onupload property.
 
@@ -209,6 +211,11 @@ pui["fileUploadDND"].FileUpload = function(container) {
       overwrite = value;
     }
   };
+  this.setGenerateNames = function(value) {
+    if (value === "true" || value === true) {
+      generateNames = value;
+    }
+  };
   this.setUploadEvent = function(value) {
     uploadEvent = value;
   };
@@ -240,6 +247,14 @@ pui["fileUploadDND"].FileUpload = function(container) {
     return names;
   };
 
+  /**
+   * Returns an array containing actual file names saved to server.
+   * @returns {Array}
+   */
+  this["getActualFileNames"] = function() {
+    return actualFileNames.slice();
+  };
+  
   /**
    * Return the number of files dragged into the widget ready for upload.
    * 
@@ -330,6 +345,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
       formData.append('dir', targetDirectory);
       formData.append('altname', (fileLimit > 1 ? "" : altName) );
       formData.append('overwrite', (overwrite ? "1" : "0"));
+      formData.append('generateNames', (generateNames ? "1" : "0"));
       // For each file in our list, put it into the FormData object.
       for (var i = 0; i < selectors.length; i++) {
         formData.append('file', selectors[i]);
@@ -414,6 +430,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
       for(var i=0; i < selectors.length; i++) {
         selectors[i].done = true;
       }
+      actualFileNames = responseObj["fileNames"];
     }
     
     // Redraw so the table shows success next to each file; otherwise error.
@@ -446,7 +463,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
     if (uploadEvent && uploadEvent.length > 0) {
       var obj = {};
       obj["dir"] = this.getTargetDirectory();
-      obj["names"] = this["getFileNames"]();
+      obj["names"] = this["getActualFileNames"]();
       var func = function() {
         eval("var info = arguments[0];");
         try {
@@ -1159,6 +1176,11 @@ pui.widgets.add({
       if (parms.design)
         return;
       parms.dom["fileUpload"].setOverwrite(parms.value);
+    },
+    "generate unique names": function(parms) {
+      if (parms.design)
+        return;
+      parms.dom["fileUpload"].setGenerateNames(parms.value);
     },
     "onupload": function(parms) {
       if (parms.design)
