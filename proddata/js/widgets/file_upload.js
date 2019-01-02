@@ -59,8 +59,10 @@ pui["fileupload"].FileUpload = function(container) {
   var targetDirectory = "";
   var altName = "";
   var overwrite = false;
+  var generateNames = false;
   var allowedTypes = [];
   var uploadEvent; 
+  var actualFileNames = [];
 
   // Constructor.
   createIFrame();
@@ -242,6 +244,16 @@ pui["fileupload"].FileUpload = function(container) {
   
   };
   
+  /**
+   * Returns an array containing actual file names saved to server.
+   * @returns {Array}
+   */
+  this["getActualFileNames"] = function() {
+    
+    return actualFileNames.slice();
+    
+  };
+  
   this.setTargetDirectory = function(value) {
   
     if (typeof(value) == "string") {
@@ -283,6 +295,16 @@ pui["fileupload"].FileUpload = function(container) {
     if (typeof(value) == "boolean") {
     
       overwrite = value;
+    
+    }    
+  
+  };
+  
+  this.setGenerateNames = function(value) {
+  
+    if (typeof(value) == "boolean") {
+    
+      generateNames = value;
     
     }    
   
@@ -379,6 +401,7 @@ pui["fileupload"].FileUpload = function(container) {
       var params = {};
       params["dir"] = targetDirectory;
       params["overwrite"] = overwrite;
+      params["generateNames"] = generateNames;
       params["flimit"] = fileLimit;
       params["slimit"] = sizeLimit;
       params["altname"] = altName;
@@ -454,6 +477,7 @@ pui["fileupload"].FileUpload = function(container) {
       form.elements["dir"].value = targetDirectory;
       form.elements["altname"].value = altName;
       form.elements["overwrite"].value = (overwrite) ? "1" : "0";
+      form.elements["generateNames"].value = (generateNames) ? "1" : "0";
       var els = [].slice(form.querySelectorAll("input[name=\"type\"]"));
       while (els.length > 0) {
         var el = els.pop();
@@ -535,6 +559,11 @@ pui["fileupload"].FileUpload = function(container) {
          error = error.replace("&1", sizeLimit);
     
     }
+    else {
+      
+      actualFileNames = responseObj["fileNames"];
+      
+    }
     
     // This is disabled before submit.
     if (selectionMode == MODE_STANDARD) {
@@ -593,7 +622,7 @@ pui["fileupload"].FileUpload = function(container) {
     
       var obj = {};
       obj["dir"] = this.getTargetDirectory();
-      obj["names"] = this["getFileNames"]();
+      obj["names"] = this["getActualFileNames"]();
       
       var func = function() {
         eval("var info = arguments[0];");
@@ -667,6 +696,10 @@ pui["fileupload"].FileUpload = function(container) {
     form.appendChild(hidden);  
     
     hidden = createNamedElement("input", "overwrite");
+    hidden.type = "hidden";
+    form.appendChild(hidden);  
+    
+    hidden = createNamedElement("input", "generateNames");
     hidden.type = "hidden";
     form.appendChild(hidden);  
             
@@ -1048,7 +1081,7 @@ pui.checkUploads = function(param) {
             
           }          
           
-          var namesArray = fileUpload["getFileNames"]();
+          var namesArray = fileUpload["getActualFileNames"]();
           var names = "";
           for (var j = 0; j < namesArray.length; j++) {
           
@@ -1182,6 +1215,14 @@ pui.widgets.add({
       if (parms.design) return;
     
       parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);   
+    
+    },
+    
+    "generate unique names": function(parms) {
+    
+      if (parms.design) return;
+    
+      parms.dom["fileUpload"].setGenerateNames(parms.value == "true" || parms.value == true);   
     
     },
     
