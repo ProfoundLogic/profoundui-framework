@@ -1236,7 +1236,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.cursor = domObj.style.cursor;
       newDomObj.style.visibility = domObj.style.visibility;
       newDomObj.id = domObj.id;
-      newDomObj.name = domObj.name;
+      if (typeof domObj.name == "string")
+        newDomObj.name = domObj.name;
       if (context == "dspf") {
         if (newDomObj["pui"] == null) newDomObj["pui"] = {};
 
