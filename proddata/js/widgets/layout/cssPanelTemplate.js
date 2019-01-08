@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.layout.template.helpTextPanelProperties = function (defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
+  var codeOpen = "<code class='propdefault'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
   var trueSpan = "<span title='The default value of the property is true.'>true</span>";
@@ -43,34 +43,31 @@ pui.layout.template.helpTextPanelProperties = function (defVal, descVal, descAdd
   // Default Value:
   var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
   // <c>value</c>
-  var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.indexOf(defVal) != -1) {
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    }
+  if (defVal === "true") {
+    helpString += trueSpan;
+  } else if (defVal === "blank") {
+    helpString += blankSpan;
+  } else if (defVal === "css") {
+    helpString += cssSpan;
+  } else if (defVal === "false") {
+    helpString += falseSpan;
+  } else if (defVal === "placeholder") {
+    helpString += placeholderSpan;
+  } else if (defVal === "browser") {
+    helpString += browserSpan;
+  } else if (defVal === "theme") {
+    helpString += themeSpan;
+  } else if (defVal === "skin") {
+    helpString += skinSpan;
+  } else if (defVal === "id") {
+    helpString += idSpan;
+  } else if (defVal === "bind") {
+    helpString += bindSpan;
+  } else if (defVal === "widget") {
+    helpString += widgetSpan;
+  } else if (defVal === "position") {
+    helpString += positionSpan;
   } else {
     helpString += defVal;
   }
@@ -97,7 +94,7 @@ pui.layout.template.helpTextPanelProperties = function (defVal, descVal, descAdd
   helpString += "<hr><br>";
 
   return helpString;
-}
+};
 
 pui.layout.template.cssPanelTemplate = function (parms) {
 
@@ -126,12 +123,12 @@ pui.layout.template.cssPanelTemplate = function (parms) {
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.", ["other","note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.", ["other","note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
       },
       {
         name: "straight edge",
