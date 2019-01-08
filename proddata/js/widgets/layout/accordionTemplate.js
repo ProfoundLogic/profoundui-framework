@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.layout.template.helpTextAccordionProperties = function (defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
+  var codeOpen = "<code class='propdefault'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
   var trueSpan = "<span title='The default value of the property is true.'>true</span>";
@@ -33,44 +33,36 @@ pui.layout.template.helpTextAccordionProperties = function (defVal, descVal, des
   var positionSpan = "[<span title='The default values are determined by where the &#010;widget is dropped/placed on the Designer grid.'>user drop point</span>]";
   var bindSpan = "<span title='This property requires being bound and a value passed by an RPG program.'>[bound value]</span>";
   var otherText = " The 'Other...' option can be selected to write in a custom value.";
-  var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
-
-  // var listStyleTag = "<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>";
-  // var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-  // var optionsClose = "</li></ul>";
 
   // ------------------
   // Default Value:
   var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
   // <c>value</c>
-  var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.indexOf(defVal) != -1) {
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    }
+  if (defVal === "true") {
+    helpString += trueSpan;
+  } else if (defVal === "blank") {
+    helpString += blankSpan;
+  } else if (defVal === "css") {
+    helpString += cssSpan;
+  } else if (defVal === "false") {
+    helpString += falseSpan;
+  } else if (defVal === "placeholder") {
+    helpString += placeholderSpan;
+  } else if (defVal === "browser") {
+    helpString += browserSpan;
+  } else if (defVal === "theme") {
+    helpString += themeSpan;
+  } else if (defVal === "skin") {
+    helpString += skinSpan;
+  } else if (defVal === "id") {
+    helpString += idSpan;
+  } else if (defVal === "bind") {
+    helpString += bindSpan;
+  } else if (defVal === "widget") {
+    helpString += widgetSpan;
+  } else if (defVal === "position") {
+    helpString += positionSpan;
   } else {
     helpString += defVal;
   }
@@ -93,7 +85,7 @@ pui.layout.template.helpTextAccordionProperties = function (defVal, descVal, des
   helpString += "<hr><br>";
 
   return helpString;
-}
+};
 
 pui.layout.template.accordionTemplate = function (parms) {
 
@@ -118,12 +110,12 @@ pui.layout.template.accordionTemplate = function (parms) {
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the header the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code style='color:blue;'>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        help: pui.layout.template.helpTextAccordionProperties("theme","Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
       },
       {
         name: "small sections",

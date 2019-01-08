@@ -28,7 +28,7 @@ var cachedScreens = {};
 pui.suppressPropertyScriptingErrors = false;
 
 pui.helpTextRuntimeProperties = function(defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
+  var codeOpen = "<code class='propdefault'>";
   var codeClose = "</code>";
 
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
@@ -392,34 +392,31 @@ pui.helpTextRuntimeProperties = function(defVal, descVal, descAdd, noteVal) {
   // Default Value:
   var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
   // <c>value</c>
-  var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.indexOf(defVal) != -1) {
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    }
+  if (defVal === "true") {
+    helpString += trueSpan;
+  } else if (defVal === "blank") {
+    helpString += blankSpan;
+  } else if (defVal === "css") {
+    helpString += cssSpan;
+  } else if (defVal === "false") {
+    helpString += falseSpan;
+  } else if (defVal === "placeholder") {
+    helpString += placeholderSpan;
+  } else if (defVal === "browser") {
+    helpString += browserSpan;
+  } else if (defVal === "theme") {
+    helpString += themeSpan;
+  } else if (defVal === "skin") {
+    helpString += skinSpan;
+  } else if (defVal === "id") {
+    helpString += idSpan;
+  } else if (defVal === "bind") {
+    helpString += bindSpan;
+  } else if (defVal === "widget") {
+    helpString += widgetSpan;
+  } else if (defVal === "position") {
+    helpString += positionSpan;
   } else {
     helpString += defVal;
   }
@@ -462,7 +459,7 @@ pui.helpTextRuntimeProperties = function(defVal, descVal, descAdd, noteVal) {
   helpString += "<hr><br>";
 
   return helpString;
-}
+};
 
 // Provides list of properties and their definitions
 function getPropertiesModel() {
@@ -502,7 +499,7 @@ function getPropertiesModel() {
     { name: "response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "char", "zoned"], help: pui.helpTextRuntimeProperties("bind", "Specifies a response indicator to be returned to your program when the element is clicked.", [], ""), controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button", "icon"], context: "dspf" },
     { name: "menu response", readOnly: true, hideFormatting: true, help: pui.helpTextRuntimeProperties("bind", "Specifies a response field to be returned to your program containing the value of the selected menu option. The menu option values are set with the 'choice values' property.", [], ""), controls: ["menu"], context: "dspf" },
     { name: "tab response", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextRuntimeProperties("bind", "Specifies a numeric response field to be returned to your program when a tab is selected containing the index of the selected tab. Each of the Tab Panel's tabs are identified by a sequential index, starting from 0. For example, 0 refers to the first tab, 1 refers to the second tab, etc.", [], ""), controls: ["tab panel"], context: "dspf" },
-    { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextRuntimeProperties("bind", "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. The data structure should be defined as follows (**FREE):<br>" + "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>" +  "&nbsp;&nbsp;DCL-DS UPLOADINFO QUALIFIED;<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;NUMFILES  ZONED(3:0);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;DIRECTORY CHAR(256);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;FILES     CHAR(256) DIM(6);<br>" + "&nbsp;&nbsp;END-DS UPLOADINFO;" + "</code>", [], ""), controls: ["file upload", "file upload dnd"], context: "dspf" },
+    { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextRuntimeProperties("bind", "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. The data structure should be defined as follows (**FREE):<br>" + "<code class='propdefault'>" +  "&nbsp;&nbsp;DCL-DS UPLOADINFO QUALIFIED;<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;NUMFILES  ZONED(3:0);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;DIRECTORY CHAR(256);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;FILES     CHAR(256) DIM(6);<br>" + "&nbsp;&nbsp;END-DS UPLOADINFO;" + "</code>", [], ""), controls: ["file upload", "file upload dnd"], context: "dspf" },
     { name: "radio button group", readOnly: true, help: pui.helpTextRuntimeProperties("bind", "Specifies a response field to be returned to your program that allows you to associate multiple radio buttons together. The field name should be unique.", [], ""), controls: ["radio button"], context: "dspf" }, 
     { name: "chart response", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar"], help: pui.helpTextRuntimeProperties("bind", "Specifies a response field to be returned to your program containing the name of the data point selected by the user.", [], ""), controls: ["chart"], context: "dspf" },
     { name: "Alternate Destination", category: true, controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true }, 
