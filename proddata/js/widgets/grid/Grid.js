@@ -6858,6 +6858,40 @@ pui.Grid = function () {
     if (count == null) count = 0;
     return count;
   };
+  
+  this["clear"] = function(refresh) {
+    me.dataArray = [];
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      me.runtimeChildren[i].domEls = [];
+    }
+    if (refresh) me.refresh();
+  }
+  
+  this["push"] = function(record, refresh) {
+    var entry = [];
+    for (var i = 0; i < me.fieldNames.length; i++) {
+      var fieldName = me.fieldNames[i];
+      var value = record[fieldName];
+      if (!value) value = "";
+      entry.push(value);
+    }
+    me.dataArray.push(entry);
+    if (refresh) me.refresh();
+  }
+  
+  this["addRecords"] = function(records, refresh) {
+    for (var i = 0; i < records.length; i++) {
+      var record = records[i];
+      me["push"](record);
+    }
+    if (refresh) me.refresh();
+  }
+
+  this["replaceRecords"] = function(records, refresh) {
+    me["clear"]();
+    me["addRecords"](records);
+    if (refresh) me.refresh();
+  }
 
   this["clearState"] = function (part) {
 
