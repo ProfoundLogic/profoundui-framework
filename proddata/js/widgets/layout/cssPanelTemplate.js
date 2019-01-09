@@ -17,85 +17,11 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.layout.template.helpTextPanelProperties = function (defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code class='propdefault'>";
-  var codeClose = "</code>";
-  var falseSpan = "<span title='The default value of the property is false.'>false</span>";
-  var trueSpan = "<span title='The default value of the property is true.'>true</span>";
-  var blankSpan = "<span title='The default value of the property is unset or not defined.'>[blank]</span>";
-  var cssSpan = "[<span title='The default value is the value defined in the CSS &#010;(theme/developer CSS classes defined in a CSS&#010;file or \"style\" DOM attribute) for the element.'>CSS value</span>]";
-  var placeholderSpan = "[<span title='The default value of the property is placeholder &#010;text, such as \"Lorem Ipsum...\" or \"HTML Content\".'>placeholder text</span>]";
-  var browserSpan = "[<span title='The default is determined by the browser for the element.'>browser setting</span>]";
-  var widgetSpan = "[<span title='The default value of this property is determined by the selected widget.'>selected widget</span>]";
-  var themeSpan = "[<span title='The default value of this property is based on the selected widget and its theme/template/purpose.'>selected widget</span>]";
-  var skinSpan = "[<span title='The default value of this property is determined by &#010;the selected skin and it's defaults, CSS, and/or JavaScript customizations.'>selected skin</span>]";
-  var idSpan = "[<span title='The default ID is based on the name of the selected &#010;widget with no spaces and the first letter of each word capitalized.'>WidgetName</span>][<span title='A whole number value starting from 1 determined by how many of the same widget have previously been added to the Design grid.'>number</span>]";
-  var positionSpan = "[<span title='The default values are determined by where the &#010;widget is dropped/placed on the Designer grid.'>user drop point</span>]";
-  var bindSpan = "<span title='This property requires being bound and a value passed by an RPG program.'>[bound value]</span>";
-  var otherText = " The 'Other...' option can be selected to write in a custom value.";
-  var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
-
-  // var listStyleTag = "<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>";
-  // var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-  // var optionsClose = "</li></ul>";
-  
-  // ------------------
-  // Default Value:
-  var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
-  // <c>value</c>
-  helpString += codeOpen;
-  if (defVal === "true") {
-    helpString += trueSpan;
-  } else if (defVal === "blank") {
-    helpString += blankSpan;
-  } else if (defVal === "css") {
-    helpString += cssSpan;
-  } else if (defVal === "false") {
-    helpString += falseSpan;
-  } else if (defVal === "placeholder") {
-    helpString += placeholderSpan;
-  } else if (defVal === "browser") {
-    helpString += browserSpan;
-  } else if (defVal === "theme") {
-    helpString += themeSpan;
-  } else if (defVal === "skin") {
-    helpString += skinSpan;
-  } else if (defVal === "id") {
-    helpString += idSpan;
-  } else if (defVal === "bind") {
-    helpString += bindSpan;
-  } else if (defVal === "widget") {
-    helpString += widgetSpan;
-  } else if (defVal === "position") {
-    helpString += positionSpan;
-  } else {
-    helpString += defVal;
-  }
-  helpString += codeClose;
-  // ------------------
-  // Description:
-  helpString += "<hr><b title='A general description of the widget's properties.'>Description: </b>";
-  // Description text...
-  helpString += descVal;
-
-  // Other...
-  if (descAdd.indexOf("other") != -1) {
-    helpString += otherText;
-  }
-  // Font Family Examples:
-  if (descAdd.indexOf("pixel") != -1) {
-    helpString += pixelText;
-  }
-  // Note: Text...
-  if (descAdd.indexOf("note") != -1) {
-    helpString += "<br><br><b style='color: red;'>Note: </b>" + noteVal;
-  }
-  // ------------------
-  helpString += "<hr><br>";
-
-  return helpString;
-};
-
+/**
+ * Returns template properties for the layout (when parms.returnProps is true). Or returns a DIV element to contain the widget.
+ * @param {Object} parms
+ * @returns {Element|Object}
+ */
 pui.layout.template.cssPanelTemplate = function (parms) {
 
   var properties = parms.properties;
@@ -108,32 +34,32 @@ pui.layout.template.cssPanelTemplate = function (parms) {
     return pui.layout.mergeProps([{
         name: "has header",
         choices: ["true", "false"],
-        help: pui.layout.template.helpTextPanelProperties("theme","Determines whether the panel has a header.",[],"")
+        help: pui.helpTextProperties("theme","Determines whether the panel has a header.")
       },
       {
         name: "header height",
         format: "number",
-        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the height of the panel header.",[],"")
+        help: pui.helpTextProperties("theme","Specifies the height of the panel header.")
       },
       {
         name: "header text",
-        help: pui.layout.template.helpTextPanelProperties("placeholder","Specifies the text that will appear in the panel header.",[],""),
+        help: pui.helpTextProperties("placeholder","Specifies the text that will appear in the panel header."),
         translate: true
       },
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.", ["other","note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.layout.template.helpTextPanelProperties("theme","Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.", ["other", "note"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
       },
       {
         name: "straight edge",
         choices: ["all", "left", "right", "top", "bottom"],
-        help: pui.layout.template.helpTextPanelProperties("theme","Determines which parts of the element will have a straight edge instead of rounded corners.",[],"")
+        help: pui.helpTextProperties("theme","Determines which parts of the element will have a straight edge instead of rounded corners.")
       },
       pui.layout.adoptNamedProperty("color"),
       pui.layout.adoptNamedProperty("font family"),

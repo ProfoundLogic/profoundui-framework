@@ -8030,575 +8030,141 @@ pui.Grid = function () {
     itm.designer.propWindow.refreshProperty("column widths");
   };
 
-  this.helpTextGridProperties = function(defVal, descVal, descAdd, noteVal) {
-    var codeOpen = "<code class='propdefault'>";
-    var codeClose = "</code>";
-
-    var falseSpan = "<span title='The default value of the property is false.'>false</span>";
-    var trueSpan = "<span title='The default value of the property is true.'>true</span>";
-
-    var blankSpan = "<span title='The default value of the property is unset or not defined.'>[blank]</span>";
-
-    var cssSpan = "[<span title='The default value is the value defined in the CSS &#010;(theme/developer CSS classes defined in a CSS&#010;file or \"style\" DOM attribute) for the element.'>CSS value</span>]";
-
-    var placeholderSpan = "[<span title='The default value of the property is placeholder &#010;text, such as \"Lorem Ipsum...\" or \"HTML Content\".'>placeholder text</span>]";
-
-    var browserSpan = "[<span title='The default is determined by the browser for the element.'>browser setting</span>]";
-
-    var widgetSpan = "[<span title='The default value of this property is determined by the selected widget.'>selected widget</span>]";
-
-    var themeSpan = "[<span title='The default value of this property is based on the selected widget and its theme/template/purpose.'>selected widget</span>]";
-
-    var skinSpan = "[<span title='The default value of this property is determined by &#010;the selected skin and it's defaults, CSS, and/or JavaScript customizations.'>selected skin</span>]";
-
-    var idSpan = "[<span title='The default ID is based on the name of the selected &#010;widget with no spaces and the first letter of each word capitalized.'>WidgetName</span>][<span title='A whole number value starting from 1 determined by how many of the same widget have previously been added to the Design grid.'>number</span>]";
-
-    var positionSpan = "[<span title='The default values are determined by where the &#010;widget is dropped/placed on the Designer grid.'>user drop point</span>]";
-
-    var bindSpan = "<span title='This property requires being bound and a value passed by an RPG program.'>[bound value]</span>";
-
-    var otherText = " The 'Other...' option can be selected to write in a custom value.";
-    var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
-
-    var listStyleTag = "<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>";
-    var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-    // var optionsClose = "</li></ul>";
-    var overflowOptions = listStyleTag + optionsOpen +
-      codeOpen + "visible" + codeClose + " - lets the content flow beyond the dimensions of the element without a scrollbar.</li><li>" +
-      codeOpen + "hidden" + codeClose + " - does not display a scrollbar and hides overflowing content.</li><li>" +
-      codeOpen + "scroll" + codeClose + " - always displays the scrollbar.</li><li>" +
-      codeOpen + "auto" + codeClose + " - displays the scrollbar only when the element's content goes beyond the elements dimensions.</li></ul>";
-
-    var fontOptions = "<hr><span style='font-weight:bold;'>Valid Font Families</span>: <select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-      "<option>Font Family List</option>" +
-      "<optgroup label='Serif'>" +
-      "<option style='font-family: Georgia, serif !important;'>Georgia, serif</option>" +
-      "<option style='font-family:'Palatino Linotype', 'Book Antiqua', Palatino, serif !important;'>'Palatino Linotype', 'Book Antiqua', Palatino, serif</option>" +
-      "<option style='font-family: 'Times New Roman', Times, serif !important;'>'Times New Roman', Times, serif</option>" +
-      "</optgroup>" +
-      "<optgroup label='Sans-Serif'>" +
-      "<option style='font-family: Arial, Helvetica, sans-serif !important;'>Arial, Helvetica, sans-serif</option>" +
-      "<option style='font-family: 'Arial Black', Gadget, sans-serif !important;'>'Arial Black', Gadget, sans-serif</option>" +
-      "<option style='font-family: 'Comic Sans MS', cursive, sans-serif !important;'>'Comic Sans MS', cursive, sans-serif</option>" +
-      "<option style='font-family: Impact, Charcoal, sans-serif !important;'>&nbsp;&nbsp;&nbsp;Impact, Charcoal, sans-serif</option>" +
-      "<option style='font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif !important;'>'Lucida Sans Unicode', 'Lucida Grande', sans-serif</option>" +
-      "<option style='font-family: Tahoma, Geneva, sans-serif !important;'>Tahoma, Geneva, sans-serif</option>" +
-      "<option style='font-family: 'Trebuchet MS', Helvetica, sans-serif !important;'>'Trebuchet MS', Helvetica, sans-serif</option>" +
-      "<option style='font-family: Verdana, Geneva, sans-serif !important;'>Verdana, Geneva, sans-serif</option>" +
-      "</optgroup>" +
-      "<optgroup label='Monospace'>" +
-      "<option style='font-family: 'Courier New', Courier, monospace !important;'>'Courier New', Courier, monospace</option>" +
-      "<option style='font-family: 'Lucida Console', Monaco, monospace !important;'>'Lucida Console', Monaco, monospace</option>" +
-      "</optgroup>" +
-      "</select>" +
-      "<br>All other fonts must be imported in some manner.<br><br>Example:" + codeOpen + "<br>@font-face {" +
-      "<br>&ensp; font-family: myCustomFont;" +
-      "<br>&ensp; src: url('myCustomFont.ttf');" +
-      "<br>}<br><br>&#x1F6D1 Make sure your font file extension is supported in the browsers users will be using before attempting this." + codeClose + "<hr>";
-
-    var colorOptions = "<hr><span style='font-weight:bold;'>Usage</span>: Enter a color name, hex, or select a color." +
-      "<hr><span style='font-weight:bold;'>Valid Color Names</span>: " +
-      "<select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-      "<option>Text Colors</option>" +
-      "<option style='font-weight: bold; background-color: #71706F !important; color: AliceBlue;'>AliceBlue</option>" +
-      "<option style='font-weight: bold; background-color: #716363 !important; color: AntiqueWhite;'>AntiqueWhite</option>" +
-      "<option style='font-weight: bold; background-color: #716363 !important; color: Aqua;'>Aqua</option>" +
-      "<option style='font-weight: bold; background-color: #716363 !important; color: Aquamarine;'>Aquamarine</option>" +
-      "<option style='font-weight: bold; background-color: #8A6C6C !important; color: Azure;'>Azure</option>" +
-      "<option style='font-weight: bold; background-color: #716C6F !important; color: Beige;'>Beige</option>" +
-      "<option style='font-weight: bold; background-color: #686964 !important; color: Bisque;'>Bisque</option>" +
-      "<option style='font-weight: bold; background-color: #828282 !important; color: Black;'>Black</option>" +
-      "<option style='font-weight: bold; background-color: #825A5A !important; color: BlanchedAlmond;'>BlanchedAlmond</option>" +
-      "<option style='font-weight: bold; background-color: #E6E6D3 !important; color: Blue;'>Blue</option>" +
-      "<option style='font-weight: bold; background-color: #E3E3E2 !important; color: BlueViolet;'>BlueViolet</option>" +
-      "<option style='font-weight: bold; background-color: #D9D2D2 !important; color: Brown;'>Brown</option>" +
-      "<option style='font-weight: bold; background-color: #483723 !important; color: BurlyWood;'>BurlyWood</option>" +
-      "<option style='font-weight: bold; background-color: #201822 !important; color: CadetBlue;'>CadetBlue</option>" +
-      "<option style='font-weight: bold; background-color: #465040 !important; color: Chartreuse;'>Chartreuse</option>" +
-      "<option style='font-weight: bold; background-color: #080901 !important; color: Chocolate;'>Chocolate</option>" +
-      "<option style='font-weight: bold; background-color: #372821 !important; color: Coral;'>Coral</option>" +
-      "<option style='font-weight: bold; background-color: #241A20 !important; color: CornflowerBlue; '>CornflowerBlue</option>" +
-      "<option style='font-weight: bold; background-color: #695C30 !important; color: Cornsilk;'>Cornsilk</option>" +
-      "<option style='font-weight: bold; background-color: #F6F6F3 !important; color: Crimson;'>Crimson</option>" +
-      "<option style='font-weight: bold; background-color: #4A5469 !important; color: Cyan;'>Cyan</option>" +
-      "<option style='font-weight: bold; background-color: #95A5A2 !important; color: DarkBlue;'>DarkBlue</option>" +
-      "<option style='font-weight: bold; background-color: #0B040E !important; color: DarkCyan;'>DarkCyan</option>" +
-      "<option style='font-weight: bold; background-color: #211412 !important; color: DarkGoldenRod;'>DarkGoldenRod</option>" +
-      "<option style='font-weight: bold; background-color: #2C2C2C !important; color: DarkGray;'>DarkGray</option>" +
-      "<option style='font-weight: bold; background-color: #CCCCCC !important; color: DarkGreen;'>DarkGreen</option>" +
-      "<option style='font-weight: bold; background-color: #403129 !important; color: DarkKhaki;'>DarkKhaki</option>" +
-      "<option style='font-weight: bold; background-color: #C3D4D9 !important; color: DarkMagenta;'>DarkMagenta</option>" +
-      "<option style='font-weight: bold; background-color: #DEE7ED !important; color: DarkOliveGreen;'>DarkOliveGreen</option>" +
-      "<option style='font-weight: bold; background-color: #372C21 !important; color: DarkOrange;'>DarkOrange</option>" +
-      "<option style='font-weight: bold; background-color: #E4E6D6 !important; color: DarkOrchid;'>DarkOrchid</option>" +
-      "<option style='font-weight: bold; background-color: #BBBFAC !important; color: DarkRed;'>DarkRed</option>" +
-      "<option style='font-weight: bold; background-color: #3A2923 !important; color: DarkSalmon;'>DarkSalmon</option>" +
-      "<option style='font-weight: bold; background-color: #16353F !important; color: DarkSeaGreen;'>DarkSeaGreen</option>" +
-      "<option style='font-weight: bold; background-color: #D9CBCB !important; color: DarkSlateBlue;'>DarkSlateBlue</option>" +
-      "<option style='font-weight: bold; background-color: #D1D1D1 !important; color: DarkSlateGray;'>DarkSlateGray</option>" +
-      "<option style='font-weight: bold; background-color: #1D393B !important; color: DarkTurquoise;'>DarkTurquoise</option>" +
-      "<option style='font-weight: bold; background-color: #EBEDED !important; color: DarkViolet;'>DarkViolet</option>" +
-      "<option style='font-weight: bold; background-color: #1B0E1E !important; color: DeepPink;'>DeepPink</option>" +
-      "<option style='font-weight: bold; background-color: #053725 !important; color: DeepSkyBlue;'>DeepSkyBlue</option>" +
-      "<option style='font-weight: bold; background-color: #EBEBEB !important; color: DimGray;'>DimGray</option>" +
-      "<option style='font-weight: bold; background-color: #2A1237 !important; color: DodgerBlue;'>DodgerBlue</option>" +
-      "<option style='font-weight: bold; background-color: #E0E6CE !important; color: FireBrick;'>FireBrick</option>" +
-      "<option style='font-weight: bold; background-color: #69604C !important; color: FloralWhite;'>FloralWhite</option>" +
-      "<option style='font-weight: bold; background-color: #01030E !important; color: ForestGreen;'>ForestGreen</option>" +
-      "<option style='font-weight: bold; background-color: #370537 !important; color: Fuchsia;'>Fuchsia</option>" +
-      "<option style='font-weight: bold; background-color: #5F4C4C !important; color: Gainsboro;'>Gainsboro</option>" +
-      "<option style='font-weight: bold; background-color: #615B69 !important; color: GhostWhite;'>GhostWhite</option>" +
-      "<option style='font-weight: bold; background-color: #504930 !important; color: Gold;'>Gold</option>" +
-      "<option style='font-weight: bold; background-color: #442E2C !important; color: GoldenRod;'>GoldenRod</option>" +
-      "<option style='font-weight: bold; background-color: #020202 !important; color: Gray;'>Gray</option>" +
-      "<option style='font-weight: bold; background-color: #BCE8D6 !important; color: Green;'>Green</option>" +
-      "<option style='font-weight: bold; background-color: #275C69 !important; color: GreenYellow;'>GreenYellow</option>" +
-      "<option style='font-weight: bold; background-color: #4C6269 !important; color: HoneyDew;'>HoneyDew</option>" +
-      "<option style='font-weight: bold; background-color: #501130 !important; color: HotPink;'>HotPink</option>" +
-      "<option style='font-weight: bold; background-color: #000402 !important; color: IndianRed;'>IndianRed</option>" +
-      "<option style='font-weight: bold; background-color: #A3B0B6 !important; color: Indigo;'>Indigo</option>" +
-      "<option style='font-weight: bold; background-color: #695D58 !important; color: Ivory;'>Ivory</option>" +
-      "<option style='font-weight: bold; background-color: #5A5208 !important; color: Khaki;'>Khaki</option>" +
-      "<option style='font-weight: bold; background-color: #5C5064 !important; color: Lavender;'>Lavender</option>" +
-      "<option style='font-weight: bold; background-color: #825463 !important; color: LavenderBlush;'>LavenderBlush</option>" +
-      "<option style='font-weight: bold; background-color: #4B4D4B !important; color: LawnGreen;'>LawnGreen</option>" +
-      "<option style='font-weight: bold; background-color: #69605D !important; color: LemonChiffon;'>LemonChiffon</option>" +
-      "<option style='font-weight: bold; background-color: #334850 !important; color: LightBlue;'>LightBlue</option>" +
-      "<option style='font-weight: bold; background-color: #5A0C0C !important; color: LightCoral;'>LightCoral</option>" +
-      "<option style='font-weight: bold; background-color: #5D5C69 !important; color: LightCyan;'>LightCyan</option>" +
-      "<option style='font-weight: bold; background-color: #64605C !important; color: LightGoldenRodYellow;'>LightGoldenRodYellow</option>" +
-      "<option style='font-weight: bold; background-color: #6F4343 !important; color: LightGray;'>LightGray</option>" +
-      "<option style='font-weight: bold; background-color: #355158 !important; color: LightGreen;'>LightGreen</option>" +
-      "<option style='font-weight: bold; background-color: #50404B !important; color: LightPink;'>LightPink</option>" +
-      "<option style='font-weight: bold; background-color: #373430 !important; color: LightSalmon;'>LightSalmon</option>" +
-      "<option style='font-weight: bold; background-color: #242B35 !important; color: LightSeaGreen;'>LightSeaGreen</option>" +
-      "<option style='font-weight: bold; background-color: #034B3C !important; color: LightSkyBlue;'>LightSkyBlue</option>" +
-      "<option style='font-weight: bold; background-color: #240535 !important; color: LightSlateGray;'>LightSlateGray</option>" +
-      "<option style='font-weight: bold; background-color: #074845 !important; color: LightSteelBlue;'>LightSteelBlue</option>" +
-      "<option style='font-weight: bold; background-color: #69605C !important; color: LightYellow;'>LightYellow</option>" +
-      "<option style='font-weight: bold; background-color: #165869 !important; color: Lime;'>Lime</option>" +
-      "<option style='font-weight: bold; background-color: #233237 !important; color: LimeGreen;'>LimeGreen</option>" +
-      "<option style='font-weight: bold; background-color: #645A50 !important; color: Linen;'>Linen</option>" +
-      "<option style='font-weight: bold; background-color: #370537 !important; color: Magenta;'>Magenta</option>" +
-      "<option style='font-weight: bold; background-color: #CEB291 !important; color: Maroon;'>Maroon</option>" +
-      "<option style='font-weight: bold; background-color: #2C3732 !important; color: MediumAquaMarine;'>MediumAquaMarine</option>" +
-      "<option style='font-weight: bold; background-color: #CCA5E7 !important; color: MediumBlue;'>MediumBlue</option>" +
-      "<option style='font-weight: bold; background-color: #160D3D !important; color: MediumOrchid;'>MediumOrchid</option>" +
-      "<option style='font-weight: bold; background-color: #28012C !important; color: MediumPurple;'>MediumPurple</option>" +
-      "<option style='font-weight: bold; background-color: #073336 !important; color: MediumSeaGreen;'>MediumSeaGreen</option>" +
-      "<option style='font-weight: bold; background-color: #0B013F !important; color: MediumSlateBlue;'>MediumSlateBlue</option>" +
-      "<option style='font-weight: bold; background-color: #644463 !important; color: MediumSpringGreen;'>MediumSpringGreen</option>" +
-      "<option style='font-weight: bold; background-color: #2C3D54 !important; color: MediumTurquoise;'>MediumTurquoise</option>" +
-      "<option style='font-weight: bold; background-color: #E3EDFB !important; color: MediumVioletRed;'>MediumVioletRed</option>" +
-      "<option style='font-weight: bold; background-color: #A4859B !important; color: MidnightBlue;'>MidnightBlue</option>" +
-      "<option style='font-weight: bold; background-color: #446469 !important; color: MintCream;'>MintCream</option>" +
-      "<option style='font-weight: bold; background-color: #695450 !important; color: MistyRose;'>MistyRose</option>" +
-      "<option style='font-weight: bold; background-color: #695454 !important; color: Moccasin;'>Moccasin</option>" +
-      "<option style='font-weight: bold; background-color: #695454 !important; color: NavajoWhite;'>NavajoWhite</option>" +
-      "<option style='font-weight: bold; background-color: #CE7EBE !important; color: Navy;'>Navy</option>" +
-      "<option style='font-weight: bold; background-color: #675A48 !important; color: OldLace;'>OldLace</option>" +
-      "<option style='font-weight: bold; background-color: #050535 !important; color: Olive;'>Olive</option>" +
-      "<option style='font-weight: bold; background-color: #110D02 !important; color: OliveDrab;'>OliveDrab</option>" +
-      "<option style='font-weight: bold; background-color: #373232 !important; color: Orange;'>Orange</option>" +
-      "<option style='font-weight: bold; background-color: #370E00 !important; color: OrangeRed;'>OrangeRed</option>" +
-      "<option style='font-weight: bold; background-color: #231E2B !important; color: Orchid;'>Orchid</option>" +
-      "<option style='font-weight: bold; background-color: #585224 !important; color: PaleGoldenRod;'>PaleGoldenRod</option>" +
-      "<option style='font-weight: bold; background-color: #596561 !important; color: PaleGreen;'>PaleGreen</option>" +
-      "<option style='font-weight: bold; background-color: #0C5858 !important; color: PaleTurquoise;'>PaleTurquoise</option>" +
-      "<option style='font-weight: bold; background-color: #450117 !important; color: PaleVioletRed;'>PaleVioletRed</option>" +
-      "<option style='font-weight: bold; background-color: #825453 !important; color: PapayaWhip;'>PapayaWhip</option>" +
-      "<option style='font-weight: bold; background-color: #504C49 !important; color: PeachPuff;'>PeachPuff</option>" +
-      "<option style='font-weight: bold; background-color: #372516 !important; color: Peru;'>Peru</option>" +
-      "<option style='font-weight: bold; background-color: #693A5C !important; color: Pink;'>Pink</option>" +
-      "<option style='font-weight: bold; background-color: #3A3347 !important; color: Plum;'>Plum</option>" +
-      "<option style='font-weight: bold; background-color: #4A5982 !important; color: PowderBlue;'>PowderBlue</option>" +
-      "<option style='font-weight: bold; background-color: #BAC9CE !important; color: Purple;'>Purple</option>" +
-      "<option style='font-weight: bold; background-color: #BDCDC8 !important; color: RebeccaPurple;'>RebeccaPurple</option>" +
-      "<option style='font-weight: bold; background-color: #370000 !important; color: Red;'>Red</option>" +
-      "<option style='font-weight: bold; background-color: #580505 !important; color: RosyBrown;'>RosyBrown</option>" +
-      "<option style='font-weight: bold; background-color: #F2FBE2 !important; color: RoyalBlue;'>RoyalBlue</option>" +
-      "<option style='font-weight: bold; background-color: #D9D1CB !important; color: SaddleBrown;'>SaddleBrown</option>" +
-      "<option style='font-weight: bold; background-color: #642119 !important; color: Salmon;'>Salmon</option>" +
-      "<option style='font-weight: bold; background-color: #45382F !important; color: SandyBrown;'>SandyBrown</option>" +
-      "<option style='font-weight: bold; background-color: #010E27 !important; color: SeaGreen;'>SeaGreen</option>" +
-      "<option style='font-weight: bold; background-color: #825E45 !important; color: SeaShell;'>SeaShell</option>" +
-      "<option style='font-weight: bold; background-color: #E8EAEE !important; color: Sienna;'>Sienna</option>" +
-      "<option style='font-weight: bold; background-color: #5C4A4A !important; color: Silver;'>Silver</option>" +
-      "<option style='font-weight: bold; background-color: #1F4455 !important; color: SkyBlue;'>SkyBlue</option>" +
-      "<option style='font-weight: bold; background-color: #FFF2CD !important; color: SlateBlue;'>SlateBlue</option>" +
-      "<option style='font-weight: bold; background-color: #13102C !important; color: SlateGray;'>SlateGray</option>" +
-      "<option style='font-weight: bold; background-color: #826464 !important; color: Snow;'>Snow</option>" +
-      "<option style='font-weight: bold; background-color: #546469 !important; color: SpringGreen;'>SpringGreen</option>" +
-      "<option style='font-weight: bold; background-color: #09141E !important; color: SteelBlue;'>SteelBlue</option>" +
-      "<option style='font-weight: bold; background-color: #554737 !important; color: Tan;'>Tan</option>" +
-      "<option style='font-weight: bold; background-color: #202835 !important; color: Teal;'>Teal</option>" +
-      "<option style='font-weight: bold; background-color: #744256 !important; color: Thistle;'>Thistle</option>" +
-      "<option style='font-weight: bold; background-color: #372C2A !important; color: Tomato;'>Tomato</option>" +
-      "<option style='font-weight: bold; background-color: #2E557C !important; color: Turquoise;'>Turquoise</option>" +
-      "<option style='font-weight: bold; background-color: #710F71 !important; color: Violet;'>Violet</option>" +
-      "<option style='font-weight: bold; background-color: #785757 !important; color: Wheat;'>Wheat</option>" +
-      "<option style='font-weight: bold; background-color: #827373 !important; color: White;'>White</option>" +
-      "<option style='font-weight: bold; background-color: #786A6A !important; color: WhiteSmoke;'>WhiteSmoke</option>" +
-      "<option style='font-weight: bold; background-color: #82695C !important; color: Yellow;'>Yellow</option>" +
-      "<option style='font-weight: bold; background-color: #504C43 !important; color: YellowGreen;'>YellowGreen</option>" +
-      "</select>" +
-      "<br>All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>)<br>&ensp;";
-
-    var bgColorOptions = "<hr><span style='font-weight:bold;'>Usage</span>: Enter a color name, hex, or select a color." +
-      "<hr><span style='font-weight:bold;'>Valid Color Names</span>: " +
-      "<select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-      "<option>Background Colors</option>" +
-      "<option style='font-weight: bold; color: #71706F !important; background-color: AliceBlue !important;'>AliceBlue</option>" +
-      "<option style='font-weight: bold; color: #716363 !important; background-color: AntiqueWhite !important;'>AntiqueWhite</option>" +
-      "<option style='font-weight: bold; color: #716363 !important; background-color: Aqua !important;'>Aqua</option>" +
-      "<option style='font-weight: bold; color: #716363 !important; background-color: Aquamarine !important;'>Aquamarine</option>" +
-      "<option style='font-weight: bold; color: #8A6C6C !important; background-color: Azure !important;'>Azure</option>" +
-      "<option style='font-weight: bold; color: #716C6F !important; background-color: Beige !important;'>Beige</option>" +
-      "<option style='font-weight: bold; color: #686964 !important; background-color: Bisque !important;'>Bisque</option>" +
-      "<option style='font-weight: bold; color: #828282 !important; background-color: Black !important;'>Black</option>" +
-      "<option style='font-weight: bold; color: #825A5A !important; background-color: BlanchedAlmond !important;'>BlanchedAlmond</option>" +
-      "<option style='font-weight: bold; color: #E6E6D3 !important; background-color: Blue !important;'>Blue</option>" +
-      "<option style='font-weight: bold; color: #E3E3E2 !important; background-color: BlueViolet !important;'>BlueViolet</option>" +
-      "<option style='font-weight: bold; color: #D9D2D2 !important; background-color: Brown !important;'>Brown</option>" +
-      "<option style='font-weight: bold; color: #483723 !important; background-color: BurlyWood !important;'>BurlyWood</option>" +
-      "<option style='font-weight: bold; color: #201822 !important; background-color: CadetBlue !important;'>CadetBlue</option>" +
-      "<option style='font-weight: bold; color: #465040 !important; background-color: Chartreuse !important;'>Chartreuse</option>" +
-      "<option style='font-weight: bold; color: #080901 !important; background-color: Chocolate !important;'>Chocolate</option>" +
-      "<option style='font-weight: bold; color: #372821 !important; background-color: Coral !important;'>Coral</option>" +
-      "<option style='font-weight: bold; color: #241A20 !important; background-color: CornflowerBlue !important; '>CornflowerBlue</option>" +
-      "<option style='font-weight: bold; color: #695C30 !important; background-color: Cornsilk !important;'>Cornsilk</option>" +
-      "<option style='font-weight: bold; color: #F6F6F3 !important; background-color: Crimson !important;'>Crimson</option>" +
-      "<option style='font-weight: bold; color: #4A5469 !important; background-color: Cyan !important;'>Cyan</option>" +
-      "<option style='font-weight: bold; color: #95A5A2 !important; background-color: DarkBlue !important;'>DarkBlue</option>" +
-      "<option style='font-weight: bold; color: #0B040E !important; background-color: DarkCyan !important;'>DarkCyan</option>" +
-      "<option style='font-weight: bold; color: #211412 !important; background-color: DarkGoldenRod !important;'>DarkGoldenRod</option>" +
-      "<option style='font-weight: bold; color: #2C2C2C !important; background-color: DarkGray !important;'>DarkGray</option>" +
-      "<option style='font-weight: bold; color: #CCCCCC !important; background-color: DarkGreen !important;'>DarkGreen</option>" +
-      "<option style='font-weight: bold; color: #403129 !important; background-color: DarkKhaki !important;'>DarkKhaki</option>" +
-      "<option style='font-weight: bold; color: #C3D4D9 !important; background-color: DarkMagenta !important;'>DarkMagenta</option>" +
-      "<option style='font-weight: bold; color: #DEE7ED !important; background-color: DarkOliveGreen !important;'>DarkOliveGreen</option>" +
-      "<option style='font-weight: bold; color: #372C21 !important; background-color: DarkOrange !important;'>DarkOrange</option>" +
-      "<option style='font-weight: bold; color: #E4E6D6 !important; background-color: DarkOrchid !important;'>DarkOrchid</option>" +
-      "<option style='font-weight: bold; color: #BBBFAC !important; background-color: DarkRed !important;'>DarkRed</option>" +
-      "<option style='font-weight: bold; color: #3A2923 !important; background-color: DarkSalmon !important;'>DarkSalmon</option>" +
-      "<option style='font-weight: bold; color: #16353F !important; background-color: DarkSeaGreen !important;'>DarkSeaGreen</option>" +
-      "<option style='font-weight: bold; color: #D9CBCB !important; background-color: DarkSlateBlue !important;'>DarkSlateBlue</option>" +
-      "<option style='font-weight: bold; color: #D1D1D1 !important; background-color: DarkSlateGray !important;'>DarkSlateGray</option>" +
-      "<option style='font-weight: bold; color: #1D393B !important; background-color: DarkTurquoise !important;'>DarkTurquoise</option>" +
-      "<option style='font-weight: bold; color: #EBEDED !important; background-color: DarkViolet !important;'>DarkViolet</option>" +
-      "<option style='font-weight: bold; color: #1B0E1E !important; background-color: DeepPink !important;'>DeepPink</option>" +
-      "<option style='font-weight: bold; color: #053725 !important; background-color: DeepSkyBlue !important;'>DeepSkyBlue</option>" +
-      "<option style='font-weight: bold; color: #EBEBEB !important; background-color: DimGray !important;'>DimGray</option>" +
-      "<option style='font-weight: bold; color: #2A1237 !important; background-color: DodgerBlue !important;'>DodgerBlue</option>" +
-      "<option style='font-weight: bold; color: #E0E6CE !important; background-color: FireBrick !important;'>FireBrick</option>" +
-      "<option style='font-weight: bold; color: #69604C !important; background-color: FloralWhite !important;'>FloralWhite</option>" +
-      "<option style='font-weight: bold; color: #01030E !important; background-color: ForestGreen !important;'>ForestGreen</option>" +
-      "<option style='font-weight: bold; color: #370537 !important; background-color: Fuchsia !important;'>Fuchsia</option>" +
-      "<option style='font-weight: bold; color: #5F4C4C !important; background-color: Gainsboro !important;'>Gainsboro</option>" +
-      "<option style='font-weight: bold; color: #615B69 !important; background-color: GhostWhite !important;'>GhostWhite</option>" +
-      "<option style='font-weight: bold; color: #504930 !important; background-color: Gold !important;'>Gold</option>" +
-      "<option style='font-weight: bold; color: #442E2C !important; background-color: GoldenRod !important;'>GoldenRod</option>" +
-      "<option style='font-weight: bold; color: #020202 !important; background-color: Gray !important;'>Gray</option>" +
-      "<option style='font-weight: bold; color: #BCE8D6 !important; background-color: Green !important;'>Green</option>" +
-      "<option style='font-weight: bold; color: #275C69 !important; background-color: GreenYellow !important;'>GreenYellow</option>" +
-      "<option style='font-weight: bold; color: #4C6269 !important; background-color: HoneyDew !important;'>HoneyDew</option>" +
-      "<option style='font-weight: bold; color: #501130 !important; background-color: HotPink !important;'>HotPink</option>" +
-      "<option style='font-weight: bold; color: #000402 !important; background-color: IndianRed !important;'>IndianRed</option>" +
-      "<option style='font-weight: bold; color: #A3B0B6 !important; background-color: Indigo !important;'>Indigo</option>" +
-      "<option style='font-weight: bold; color: #695D58 !important; background-color: Ivory !important;'>Ivory</option>" +
-      "<option style='font-weight: bold; color: #5A5208 !important; background-color: Khaki !important;'>Khaki</option>" +
-      "<option style='font-weight: bold; color: #5C5064 !important; background-color: Lavender !important;'>Lavender</option>" +
-      "<option style='font-weight: bold; color: #825463 !important; background-color: LavenderBlush !important;'>LavenderBlush</option>" +
-      "<option style='font-weight: bold; color: #4B4D4B !important; background-color: LawnGreen !important;'>LawnGreen</option>" +
-      "<option style='font-weight: bold; color: #69605D !important; background-color: LemonChiffon !important;'>LemonChiffon</option>" +
-      "<option style='font-weight: bold; color: #334850 !important; background-color: LightBlue !important;'>LightBlue</option>" +
-      "<option style='font-weight: bold; color: #5A0C0C !important; background-color: LightCoral !important;'>LightCoral</option>" +
-      "<option style='font-weight: bold; color: #5D5C69 !important; background-color: LightCyan !important;'>LightCyan</option>" +
-      "<option style='font-weight: bold; color: #64605C !important; background-color: LightGoldenRodYellow !important;'>LightGoldenRodYellow</option>" +
-      "<option style='font-weight: bold; color: #6F4343 !important; background-color: LightGray !important;'>LightGray</option>" +
-      "<option style='font-weight: bold; color: #355158 !important; background-color: LightGreen !important;'>LightGreen</option>" +
-      "<option style='font-weight: bold; color: #50404B !important; background-color: LightPink !important;'>LightPink</option>" +
-      "<option style='font-weight: bold; color: #373430 !important; background-color: LightSalmon !important;'>LightSalmon</option>" +
-      "<option style='font-weight: bold; color: #242B35 !important; background-color: LightSeaGreen !important;'>LightSeaGreen</option>" +
-      "<option style='font-weight: bold; color: #034B3C !important; background-color: LightSkyBlue !important;'>LightSkyBlue</option>" +
-      "<option style='font-weight: bold; color: #240535 !important; background-color: LightSlateGray !important;'>LightSlateGray</option>" +
-      "<option style='font-weight: bold; color: #074845 !important; background-color: LightSteelBlue !important;'>LightSteelBlue</option>" +
-      "<option style='font-weight: bold; color: #69605C !important; background-color: LightYellow !important;'>LightYellow</option>" +
-      "<option style='font-weight: bold; color: #165869 !important; background-color: Lime !important;'>Lime</option>" +
-      "<option style='font-weight: bold; color: #233237 !important; background-color: LimeGreen !important;'>LimeGreen</option>" +
-      "<option style='font-weight: bold; color: #645A50 !important; background-color: Linen !important;'>Linen</option>" +
-      "<option style='font-weight: bold; color: #370537 !important; background-color: Magenta !important;'>Magenta</option>" +
-      "<option style='font-weight: bold; color: #CEB291 !important; background-color: Maroon !important;'>Maroon</option>" +
-      "<option style='font-weight: bold; color: #2C3732 !important; background-color: MediumAquaMarine !important;'>MediumAquaMarine</option>" +
-      "<option style='font-weight: bold; color: #CCA5E7 !important; background-color: MediumBlue !important;'>MediumBlue</option>" +
-      "<option style='font-weight: bold; color: #160D3D !important; background-color: MediumOrchid !important;'>MediumOrchid</option>" +
-      "<option style='font-weight: bold; color: #28012C !important; background-color: MediumPurple !important;'>MediumPurple</option>" +
-      "<option style='font-weight: bold; color: #073336 !important; background-color: MediumSeaGreen !important;'>MediumSeaGreen</option>" +
-      "<option style='font-weight: bold; color: #0B013F !important; background-color: MediumSlateBlue !important;'>MediumSlateBlue</option>" +
-      "<option style='font-weight: bold; color: #644463 !important; background-color: MediumSpringGreen !important;'>MediumSpringGreen</option>" +
-      "<option style='font-weight: bold; color: #2C3D54 !important; background-color: MediumTurquoise !important;'>MediumTurquoise</option>" +
-      "<option style='font-weight: bold; color: #E3EDFB !important; background-color: MediumVioletRed !important;'>MediumVioletRed</option>" +
-      "<option style='font-weight: bold; color: #A4859B !important; background-color: MidnightBlue !important;'>MidnightBlue</option>" +
-      "<option style='font-weight: bold; color: #446469 !important; background-color: MintCream !important;'>MintCream</option>" +
-      "<option style='font-weight: bold; color: #695450 !important; background-color: MistyRose !important;'>MistyRose</option>" +
-      "<option style='font-weight: bold; color: #695454 !important; background-color: Moccasin !important;'>Moccasin</option>" +
-      "<option style='font-weight: bold; color: #695454 !important; background-color: NavajoWhite !important;'>NavajoWhite</option>" +
-      "<option style='font-weight: bold; color: #CE7EBE !important; background-color: Navy !important;'>Navy</option>" +
-      "<option style='font-weight: bold; color: #675A48 !important; background-color: OldLace !important;'>OldLace</option>" +
-      "<option style='font-weight: bold; color: #050535 !important; background-color: Olive !important;'>Olive</option>" +
-      "<option style='font-weight: bold; color: #110D02 !important; background-color: OliveDrab !important;'>OliveDrab</option>" +
-      "<option style='font-weight: bold; color: #373232 !important; background-color: Orange !important;'>Orange</option>" +
-      "<option style='font-weight: bold; color: #370E00 !important; background-color: OrangeRed !important;'>OrangeRed</option>" +
-      "<option style='font-weight: bold; color: #231E2B !important; background-color: Orchid !important;'>Orchid</option>" +
-      "<option style='font-weight: bold; color: #585224 !important; background-color: PaleGoldenRod !important;'>PaleGoldenRod</option>" +
-      "<option style='font-weight: bold; color: #596561 !important; background-color: PaleGreen !important;'>PaleGreen</option>" +
-      "<option style='font-weight: bold; color: #0C5858 !important; background-color: PaleTurquoise !important;'>PaleTurquoise</option>" +
-      "<option style='font-weight: bold; color: #450117 !important; background-color: PaleVioletRed !important;'>PaleVioletRed</option>" +
-      "<option style='font-weight: bold; color: #825453 !important; background-color: PapayaWhip !important;'>PapayaWhip</option>" +
-      "<option style='font-weight: bold; color: #504C49 !important; background-color: PeachPuff !important;'>PeachPuff</option>" +
-      "<option style='font-weight: bold; color: #372516 !important; background-color: Peru !important;'>Peru</option>" +
-      "<option style='font-weight: bold; color: #693A5C !important; background-color: Pink !important;'>Pink</option>" +
-      "<option style='font-weight: bold; color: #3A3347 !important; background-color: Plum !important;'>Plum</option>" +
-      "<option style='font-weight: bold; color: #4A5982 !important; background-color: PowderBlue !important;'>PowderBlue</option>" +
-      "<option style='font-weight: bold; color: #BAC9CE !important; background-color: Purple !important;'>Purple</option>" +
-      "<option style='font-weight: bold; color: #BDCDC8 !important; background-color: RebeccaPurple !important;'>RebeccaPurple</option>" +
-      "<option style='font-weight: bold; color: #370000 !important; background-color: Red !important;'>Red</option>" +
-      "<option style='font-weight: bold; color: #580505 !important; background-color: RosyBrown !important;'>RosyBrown</option>" +
-      "<option style='font-weight: bold; color: #F2FBE2 !important; background-color: RoyalBlue !important;'>RoyalBlue</option>" +
-      "<option style='font-weight: bold; color: #D9D1CB !important; background-color: SaddleBrown !important;'>SaddleBrown</option>" +
-      "<option style='font-weight: bold; color: #642119 !important; background-color: Salmon !important;'>Salmon</option>" +
-      "<option style='font-weight: bold; color: #45382F !important; background-color: SandyBrown !important;'>SandyBrown</option>" +
-      "<option style='font-weight: bold; color: #010E27 !important; background-color: SeaGreen !important;'>SeaGreen</option>" +
-      "<option style='font-weight: bold; color: #825E45 !important; background-color: SeaShell !important;'>SeaShell</option>" +
-      "<option style='font-weight: bold; color: #E8EAEE !important; background-color: Sienna !important;'>Sienna</option>" +
-      "<option style='font-weight: bold; color: #5C4A4A !important; background-color: Silver !important;'>Silver</option>" +
-      "<option style='font-weight: bold; color: #1F4455 !important; background-color: SkyBlue !important;'>SkyBlue</option>" +
-      "<option style='font-weight: bold; color: #FFF2CD !important; background-color: SlateBlue !important;'>SlateBlue</option>" +
-      "<option style='font-weight: bold; color: #13102C !important; background-color: SlateGray !important;'>SlateGray</option>" +
-      "<option style='font-weight: bold; color: #826464 !important; background-color: Snow !important;'>Snow</option>" +
-      "<option style='font-weight: bold; color: #546469 !important; background-color: SpringGreen !important;'>SpringGreen</option>" +
-      "<option style='font-weight: bold; color: #09141E !important; background-color: SteelBlue !important;'>SteelBlue</option>" +
-      "<option style='font-weight: bold; color: #554737 !important; background-color: Tan !important;'>Tan</option>" +
-      "<option style='font-weight: bold; color: #202835 !important; background-color: Teal !important;'>Teal</option>" +
-      "<option style='font-weight: bold; color: #744256 !important; background-color: Thistle !important;'>Thistle</option>" +
-      "<option style='font-weight: bold; color: #372C2A !important; background-color: Tomato !important;'>Tomato</option>" +
-      "<option style='font-weight: bold; color: #2E557C !important; background-color: Turquoise !important;'>Turquoise</option>" +
-      "<option style='font-weight: bold; color: #710F71 !important; background-color: Violet !important;'>Violet</option>" +
-      "<option style='font-weight: bold; color: #785757 !important; background-color: Wheat !important;'>Wheat</option>" +
-      "<option style='font-weight: bold; color: #827373 !important; background-color: White !important;'>White</option>" +
-      "<option style='font-weight: bold; color: #786A6A !important; background-color: WhiteSmoke !important;'>WhiteSmoke</option>" +
-      "<option style='font-weight: bold; color: #82695C !important; background-color: Yellow !important;'>Yellow</option>" +
-      "<option style='font-weight: bold; color: #504C43 !important; background-color: YellowGreen !important;'>YellowGreen</option>" +
-      "</select>" +
-      "<br>All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>)<br>&ensp;";
-    // ------------------
-    // Default Value:
-    var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
-    // <c>value</c>
-    helpString += codeOpen;
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    } else {
-      helpString += defVal;
-    }
-    helpString += codeClose;
-    // ------------------
-    // Description:
-    helpString += "<hr><b title='A general description of the widget's properties.'>Description: </b>";
-    // Description text...
-    helpString += descVal;
-
-    // Other...
-    if (descAdd.indexOf("other") != -1) {
-      helpString += otherText;
-    }
-    // Color Examples:
-    if (descAdd.indexOf("color") != -1) {
-      helpString += colorOptions;
-    }
-    // Background Color Examples:
-    if (descAdd.indexOf("background color") != -1) {
-      helpString += bgColorOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("font") != -1) {
-      helpString += fontOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("overflow") != -1) {
-      helpString += overflowOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("pixel") != -1) {
-      helpString += pixelText;
-    }
-    // Note: Text...
-    if (descAdd.indexOf("note") != -1) {
-      helpString += "<br><br><b style='color: red;'>Note: </b>" + noteVal;
-    }
-    // ------------------
-    helpString += "<hr><br>";
-
-    return helpString;
-  };
-
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
-      { name: "id", maxLength: 75, attribute: "id", help: me.helpTextGridProperties("id","Specifies the ID that is used to access the grid from client-side code.",[],""), bind: false, canBeRemoved: false },
-      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: me.helpTextGridProperties("blank","Specifies the name that is used to access this grid from server code.",[],""), maxLength: (pui.viewdesigner|| pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
-      { name: "description", help: me.helpTextGridProperties("blank","Describes the grid.",[],""), bind: false, context: "dspf" },
-      { name: "parent window", attribute: "parentWindow", help: me.helpTextGridProperties("blank","Sets the window that this field belongs to.",[],""), context: "genie" },
-      { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: me.helpTextGridProperties("false","If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.",[],""), context: "genie" },
-      { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, help: me.helpTextGridProperties("widget","Determines the type of control that is used to render the element.",[],""), bind: false, canBeRemoved: false },
-      { name: "value", help: me.helpTextGridProperties("blank","Sets the initialization value for the current element.",[],"") },
+      { name: "id", maxLength: 75, attribute: "id", help: pui.helpTextProperties("id","Specifies the ID that is used to access the grid from client-side code."), bind: false, canBeRemoved: false },
+      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextProperties("blank","Specifies the name that is used to access this grid from server code."), maxLength: (pui.viewdesigner|| pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
+      { name: "description", help: pui.helpTextProperties("blank","Describes the grid."), bind: false, context: "dspf" },
+      { name: "parent window", attribute: "parentWindow", help: pui.helpTextProperties("blank","Sets the window that this field belongs to."), context: "genie" },
+      { name: "screen identifier", choices: ["true", "false"], blankChoice: false, help: pui.helpTextProperties("false","If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen."), context: "genie" },
+      { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, help: pui.helpTextProperties("widget","Determines the type of control that is used to render the element."), bind: false, canBeRemoved: false },
+      { name: "value", help: pui.helpTextProperties("blank","Sets the initialization value for the current element.") },
 
       { name: "Subfile Settings", category: true, context: "dspf" },
-      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("true","This property tells the system when to display grid records. It represents the SFLDSP keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "subfile records not active", choices: ["true", "false"], bind: false, help: me.helpTextGridProperties("false","This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.",[],""), context: "dspf", viewdesigner: false },
-      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("blank","This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.",[],""), context: "dspf", viewdesigner: false },
-      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], help: me.helpTextGridProperties("blank","This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."),[],""), context: "dspf" },
-      { name: "position at top", choices: ["true", "false"], bind: false, help: me.helpTextGridProperties("false","When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."),[],""), context: "dspf" },
-      { name: "place cursor", choices: ["true", "false"], bind: false, help: me.helpTextGridProperties("false","When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."),[],""), context: "dspf" },
-      { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."),[],""), context: "dspf" },
-      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.",[],""), context: "dspf", viewdesigner: false },
-      { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."),[],""), context: "dspf" },
-      { name: "cursor progression", choices: ["left to right", "top to bottom"], help: me.helpTextGridProperties("left to right","This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."),[],""), context: "dspf" },
-      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], help: me.helpTextGridProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."),[],""), context: "dspf" },
-      { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: me.helpTextGridProperties("bind","Specifies a response indicator that is set on if the input data within the subfile is modified.",[],""), context: "dspf" },
+      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("true","This property tells the system when to display grid records. It represents the SFLDSP keyword."), context: "dspf", viewdesigner: false },
+      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword."), context: "dspf", viewdesigner: false },
+      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword."), context: "dspf", viewdesigner: false },
+      { name: "subfile records not active", choices: ["true", "false"], bind: false, help: pui.helpTextProperties("false","This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword."), context: "dspf", viewdesigner: false },
+      { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property tells the system when to delete the subfile area. It represents the SFLDLT keyword."), context: "dspf", viewdesigner: false },
+      { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword."), context: "dspf", viewdesigner: false },
+      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("blank","This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present."), context: "dspf", viewdesigner: false },
+      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], help: pui.helpTextProperties("blank","This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword.")), context: "dspf" },
+      { name: "position at top", choices: ["true", "false"], bind: false, help: pui.helpTextProperties("false","When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword.")), context: "dspf" },
+      { name: "place cursor", choices: ["true", "false"], bind: false, help: pui.helpTextProperties("false","When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword.")), context: "dspf" },
+      { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword.")), context: "dspf" },
+      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again."), context: "dspf", viewdesigner: false },
+      { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword.")), context: "dspf" },
+      { name: "cursor progression", choices: ["left to right", "top to bottom"], help: pui.helpTextProperties("left to right","This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword.")), context: "dspf" },
+      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], help: pui.helpTextProperties("bind","This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword.")), context: "dspf" },
+      { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind","Specifies a response indicator that is set on if the input data within the subfile is modified."), context: "dspf" },
 
       { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false },
-      { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, help: me.helpTextGridProperties("bind","This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.",[],""), context: "dspf", viewdesigner: false },
-      { name: "subfile program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: me.helpTextGridProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile. It represents the SFLPGMQ keyword on a subfile record format.",[],""), context: "dspf", viewdesigner: false },
-      { name: "subfile control program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: me.helpTextGridProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property. It represents the SFLPGMQ keyword on a subfile control record format.",[],""), context: "dspf", viewdesigner: false },
+      { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, help: pui.helpTextProperties("bind","This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format."), context: "dspf", viewdesigner: false },
+      { name: "subfile program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile. It represents the SFLPGMQ keyword on a subfile record format."), context: "dspf", viewdesigner: false },
+      { name: "subfile control program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextProperties("bind","This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property. It represents the SFLPGMQ keyword on a subfile control record format."), context: "dspf", viewdesigner: false },
 
       { name: "Font and Text", category: true },
-      { name: "font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], help: me.helpTextGridProperties("css","The font face for the text inside the grid. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other", "font"],"") },
-      { name: "font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], help: me.helpTextGridProperties("css","The size of the text inside the grid. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"],"") },
-      { name: "font style", format: "italic / normal", choices: ["normal", "italic", "oblique", "Other..."], help: me.helpTextGridProperties("css","The style of the font in the grid. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"],"") },
-      { name: "font variant", choices: ["normal", "small-caps", "Other..."], help: me.helpTextGridProperties("css","Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter.",["other"],"") },
-      { name: "font weight", format: "bold / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], help: me.helpTextGridProperties("css","Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"],"") },
-      { name: "letter spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], help: me.helpTextGridProperties("css","Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
-      { name: "text align", choices: ["left", "right", "center", "justify", "Other..."], help: me.helpTextGridProperties("css","Alignment of text inside cells of the grid element. To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
-      { name: "text decoration", format: "underline / none", choices: ["none", "underline", "overline", "line-through", "Other..."], help: me.helpTextGridProperties("css","Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
-      { name: "text transform", choices: ["capitalize", "uppercase", "lowercase", "none", "Other..."], help: me.helpTextGridProperties("css","Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
-      { name: "word spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], help: me.helpTextGridProperties("css","Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
+      { name: "font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], help: pui.helpTextProperties("css","The font face for the text inside the grid. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other", "font"]) },
+      { name: "font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], help: pui.helpTextProperties("css","The size of the text inside the grid. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"]) },
+      { name: "font style", format: "italic / normal", choices: ["normal", "italic", "oblique", "Other..."], help: pui.helpTextProperties("css","The style of the font in the grid. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"]) },
+      { name: "font variant", choices: ["normal", "small-caps", "Other..."], help: pui.helpTextProperties("css","Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter.",["other"]) },
+      { name: "font weight", format: "bold / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], help: pui.helpTextProperties("css","Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"]) },
+      { name: "letter spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], help: pui.helpTextProperties("css","Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
+      { name: "text align", choices: ["left", "right", "center", "justify", "Other..."], help: pui.helpTextProperties("css","Alignment of text inside cells of the grid element. To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
+      { name: "text decoration", format: "underline / none", choices: ["none", "underline", "overline", "line-through", "Other..."], help: pui.helpTextProperties("css","Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
+      { name: "text transform", choices: ["capitalize", "uppercase", "lowercase", "none", "Other..."], help: pui.helpTextProperties("css","Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
+      { name: "word spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], help: pui.helpTextProperties("css","Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
 
       { name: "Header", category: true },
-      { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("true","Determines whether the grid has a header row.",[],"") },
-      { name: "header height", help: me.helpTextGridProperties("theme","Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse.",[],""), bind: false, canBeRemoved: false },
-      { name: "header font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], help: me.helpTextGridProperties("css","The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other","font"],"") },
-      { name: "header font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], help: me.helpTextGridProperties("css","The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"],"") },
-      { name: "header font style", format: "bold / normal", choices: ["normal", "italic", "oblique", "Other..."], help: me.helpTextGridProperties("css","Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"],"") },
-      { name: "header font weight", format: "italic / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], help: me.helpTextGridProperties("css","Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"],"") },
-      { name: "header text align", choices: ["left", "right", "center", "justify", "Other..."], help: me.helpTextGridProperties("css","Alignment of text inside the cells of the grid header row. To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values.",["other"],"") },
-      { name: "header font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of the text inside the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["color"],"") },
-      { name: "header background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["background color"],"") },
-      { name: "header image", type: "image", help: me.helpTextGridProperties("css","Defines a repeating background image for the header row.",[],"") },
-      { name: "column headings", type: "list", help: me.helpTextGridProperties("placeholder","Specifies a comma separated list of heading text for each column of the grid.",[],""), translate: true },
+      { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("true","Determines whether the grid has a header row.") },
+      { name: "header height", help: pui.helpTextProperties("theme","Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse."), bind: false, canBeRemoved: false },
+      { name: "header font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], help: pui.helpTextProperties("css","The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.",["other","font"]) },
+      { name: "header font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], help: pui.helpTextProperties("css","The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.",["other"]) },
+      { name: "header font style", format: "bold / normal", choices: ["normal", "italic", "oblique", "Other..."], help: pui.helpTextProperties("css","Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.",["other"]) },
+      { name: "header font weight", format: "italic / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], help: pui.helpTextProperties("css","Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.",["other"]) },
+      { name: "header text align", choices: ["left", "right", "center", "justify", "Other..."], help: pui.helpTextProperties("css","Alignment of text inside the cells of the grid header row. To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values.",["other"]) },
+      { name: "header font color", type: "color", help: pui.helpTextProperties("css","Defines the color of the text inside the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["color"]) },
+      { name: "header background", type: "color", help: pui.helpTextProperties("css","Defines the background color of the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.",["background color"]) },
+      { name: "header image", type: "image", help: pui.helpTextProperties("css","Defines a repeating background image for the header row.") },
+      { name: "column headings", type: "list", help: pui.helpTextProperties("placeholder","Specifies a comma separated list of heading text for each column of the grid."), translate: true },
 
       { name: "Colors", category: true },
-      { name: "odd row font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of text inside the odd rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color","note"],"This only applies to text displayed in a database driven grid.") },
-      { name: "odd row background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of the odd rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"") },
-      { name: "even row font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of text inside the even rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color","note"],"This only applies to text displayed in a database driven grid.") },
-      { name: "even row background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of the even rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"") },
-      { name: "row font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.",["color", "note"],"This only applies to text displayed in a database driven grid. This property, if defined, will be used instead of <i>even row font color</i> and <i>odd row font color</i>."), context: "dspf" },
-      { name: "row background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of an individual row. You can define a dynamic background color for each record by binding this property to a field.",["background color", "note"],"This property, if defined, will be used instead of <i>even row background</i> and <i>odd row background</i>."), context: "dspf" },
-      { name: "hover font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of text when the user hovers the mouse cursor over a grid row. To define a different color for each grid column, specify a comma separated list of color values.",["color"],"") },
-      { name: "hover background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of a grid row when the user hovers the mouse cursor over it. To define a different color for each grid column, specify a comma separated list of color values.",["background color"],"") },
-      { name: "selection font color", type: "color", help: me.helpTextGridProperties("css","Defines the color of text when the user selects a grid row.",["color"],""), context: "dspf" },
-      { name: "selection background", type: "color", help: me.helpTextGridProperties("css","Defines the background color of a grid row when the user selects it.",["background color"],""), context: "dspf" },
+      { name: "odd row font color", type: "color", help: pui.helpTextProperties("css","Defines the color of text inside the odd rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color"],"This only applies to text displayed in a database driven grid.") },
+      { name: "odd row background", type: "color", help: pui.helpTextProperties("css","Defines the background color of the odd rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"]) },
+      { name: "even row font color", type: "color", help: pui.helpTextProperties("css","Defines the color of text inside the even rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.",["color"],"This only applies to text displayed in a database driven grid.") },
+      { name: "even row background", type: "color", help: pui.helpTextProperties("css","Defines the background color of the even rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.",["background color"]) },
+      { name: "row font color", type: "color", help: pui.helpTextProperties("css","Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.",["color"],"This only applies to text displayed in a database driven grid. This property, if defined, will be used instead of <i>even row font color</i> and <i>odd row font color</i>."), context: "dspf" },
+      { name: "row background", type: "color", help: pui.helpTextProperties("css","Defines the background color of an individual row. You can define a dynamic background color for each record by binding this property to a field.",["background color"],"This property, if defined, will be used instead of <i>even row background</i> and <i>odd row background</i>."), context: "dspf" },
+      { name: "hover font color", type: "color", help: pui.helpTextProperties("css","Defines the color of text when the user hovers the mouse cursor over a grid row. To define a different color for each grid column, specify a comma separated list of color values.",["color"]) },
+      { name: "hover background", type: "color", help: pui.helpTextProperties("css","Defines the background color of a grid row when the user hovers the mouse cursor over it. To define a different color for each grid column, specify a comma separated list of color values.",["background color"]) },
+      { name: "selection font color", type: "color", help: pui.helpTextProperties("css","Defines the color of text when the user selects a grid row.",["color"]), context: "dspf" },
+      { name: "selection background", type: "color", help: pui.helpTextProperties("css","Defines the background color of a grid row when the user selects it.",["background color"]), context: "dspf" },
 
       { name: "Grid Settings", category: true },
-      { name: "number of rows", help: me.helpTextGridProperties("theme","Specifies the number of rows in the grid, including the header row.",[],""), bind: false, canBeRemoved: false },
-      { name: "number of columns", help: me.helpTextGridProperties("theme","Specifies the number of columns in the grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "row height", help: me.helpTextGridProperties("theme","Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse.",[],""), bind: false, canBeRemoved: false },
-      { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("theme","Determines whether the grid rows will be highlighted when the user hovers the mouse over them.",[],"") },
-      { name: "hover image", type: "image", help: me.helpTextGridProperties("theme","Defines a repeating cell background image for the hover effect.",[],"") },
-      { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], help: me.helpTextGridProperties("none","Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys",[],"") },
-      { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, help: me.helpTextGridProperties("bind","This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected.",[],""), context: "dspf" },
-      { name: "selection value", help: me.helpTextGridProperties("blank","Specifies the value used to populate the selection field when a grid row is selected.",[],""), bind: false, context: "dspf" },
-      { name: "selection image", type: "image", help: me.helpTextGridProperties("theme","Defines a repeating cell background image for row selection.",[],"") },
-      { name: "column widths", type: "list", help: me.helpTextGridProperties("theme","Specifies a comma separated list of column widths for this grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: me.helpTextGridProperties("sliding", ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only."),[],"") },
-      { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: me.helpTextGridProperties("true","Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.",[],""), context: "dspf" },
-      { name: "propagate scroll events", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.",["other"],""), context: "dspf" },
-      { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Enables column sorting. If set to true, the user will be able to click on the column headings to resort the data.",[],""), context: "dspf" },
-      { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: me.helpTextGridProperties("Descending","Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.",["other"],""), context: "dspf" },
-      { name: "initial sort column", format: "number", help: me.helpTextGridProperties("blank","This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",[],""), context: "dspf" },
-      { name: "initial sort field", help: me.helpTextGridProperties("blank","This property specifies the field name used to identify the column for initial sorting. If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.",[],""), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-      { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.",[],""), context: "dspf" },
-      { name: "field name sort response", readOnly: true, help: me.helpTextGridProperties("bind","Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.",[],""), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-      { name: "return sort order", readOnly: true, help: me.helpTextGridProperties("bind","Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used.",[],""), hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
-      { name: "sort function", type: "js", help:me.helpTextGridProperties( "blank","Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", [], ""), context: "dspf"},
-      { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Allows the user to resize grid columns at run time.",[],""), context: "dspf" },
-      { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Allows the user to rearrange grid columns at run time.",[],""), context: "dspf" },
-      { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed.",[],""), context: "dspf" },
-      { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to search grid data when the grid heading is right-clicked.",[],""), context: "dspf" },
-      { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to filter grid data when the grid heading is right-clicked.",[],""), context: "dspf" },
-      { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.",[],""), context: "dspf" },
+      { name: "number of rows", help: pui.helpTextProperties("theme","Specifies the number of rows in the grid, including the header row."), bind: false, canBeRemoved: false },
+      { name: "number of columns", help: pui.helpTextProperties("theme","Specifies the number of columns in the grid."), bind: false, canBeRemoved: false },
+      { name: "row height", help: pui.helpTextProperties("theme","Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse."), bind: false, canBeRemoved: false },
+      { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("theme","Determines whether the grid rows will be highlighted when the user hovers the mouse over them.") },
+      { name: "hover image", type: "image", help: pui.helpTextProperties("theme","Defines a repeating cell background image for the hover effect.") },
+      { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], help: pui.helpTextProperties("none","Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys") },
+      { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, help: pui.helpTextProperties("bind","This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected."), context: "dspf" },
+      { name: "selection value", help: pui.helpTextProperties("blank","Specifies the value used to populate the selection field when a grid row is selected."), bind: false, context: "dspf" },
+      { name: "selection image", type: "image", help: pui.helpTextProperties("theme","Defines a repeating cell background image for row selection.") },
+      { name: "column widths", type: "list", help: pui.helpTextProperties("theme","Specifies a comma separated list of column widths for this grid."), bind: false, canBeRemoved: false },
+      { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: pui.helpTextProperties("sliding", ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only.")) },
+      { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: pui.helpTextProperties("true","Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid."), context: "dspf" },
+      { name: "propagate scroll events", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.",["other"]), context: "dspf" },
+      { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Enables column sorting. If set to true, the user will be able to click on the column headings to resort the data."), context: "dspf" },
+      { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: pui.helpTextProperties("Descending","Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.",["other"]), context: "dspf" },
+      { name: "initial sort column", format: "number", help: pui.helpTextProperties("blank","This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered."), context: "dspf" },
+      { name: "initial sort field", help: pui.helpTextProperties("blank","This property specifies the field name used to identify the column for initial sorting. If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered."), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+      { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties."), context: "dspf" },
+      { name: "field name sort response", readOnly: true, help: pui.helpTextProperties("bind","Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties."), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+      { name: "return sort order", readOnly: true, help: pui.helpTextProperties("bind","Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used."), hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
+      { name: "sort function", type: "js", help:pui.helpTextProperties( "blank","Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", [], ""), context: "dspf"},
+      { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows the user to resize grid columns at run time."), context: "dspf" },
+      { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows the user to rearrange grid columns at run time."), context: "dspf" },
+      { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed."), context: "dspf" },
+      { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to search grid data when the grid heading is right-clicked."), context: "dspf" },
+      { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to filter grid data when the grid heading is right-clicked."), context: "dspf" },
+      { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false."), context: "dspf" },
       
       //Reset the  browser cache Data for a table
-      { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.",[],""), context: "dspf" },
-      { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.",[],""), context: "dspf" },
-      { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false.",[],""), context: "dspf" },
-      { name: "context menu id", help: me.helpTextGridProperties("blank","Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.",[],""), hideFormatting: true, validDataTypes: ["char", "varchar"] },
-      { name: "filter response", hideFormatting: true, validDataTypes: ["char"], help: me.helpTextGridProperties("bind","Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. The data structure should be defined as follows:<pre>"
+      { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to reset the persistent state for this grid when the grid heading is right-clicked."), context: "dspf" },
+      { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked."), context: "dspf" },
+      { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false."), context: "dspf" },
+      { name: "context menu id", help: pui.helpTextProperties("blank","Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row."), hideFormatting: true, validDataTypes: ["char", "varchar"] },
+      { name: "filter response", hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextProperties("bind","Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. The data structure should be defined as follows:<pre>"
         + "Dcl-Ds filterinfo qualified;\n  colnum zoned(3:0) dim(c);\n  fltrtext char(s) dim(c);\nEnd-Ds;</pre>Where <b>c</b> is the value of the 'filter response column max' property, and <b>s</b> is the value of 'filter response text max'. The length should be c(3 + s); e.g. default length of 20 char with 3 column max filters is 69.",[],""), context: "dspf" },
-      { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("20","The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value.",[],""), context: "dspf" },
-      { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("3","This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure.",[],""), context: "dspf" },
+      { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("20","The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value."), context: "dspf" },
+      { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("3","This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure."), context: "dspf" },
 
       { name: "Paging Bar", category: true, context: "dspf" },
-      { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Displays links for navigating to the previous page and the next page of records.",[],"") },
-      { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","This property determines whether the page number should display within the paging bar.",[],""), context: "dspf" },
-      { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: me.helpTextGridProperties("1","Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used.",[],""), context: "dspf" },
-      { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals.",[],""), context: "dspf" },
-      { name: "page down condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: me.helpTextGridProperties("bind","Determines if the next page link is enabled.",[],""), context: "dspf" },
-      { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: me.helpTextGridProperties("bind","Specifies a response indicator that is returned to your program when the next page link is clicked.",[],""), context: "dspf" },
-      { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: me.helpTextGridProperties("bind","Determines if the previous page link is enabled.",[],""), context: "dspf" },
-      { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: me.helpTextGridProperties("bind","Specifies a response indicator that is returned to your program when the previous page link is clicked.",[],""), context: "dspf" },
+      { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","Displays links for navigating to the previous page and the next page of records.") },
+      { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","This property determines whether the page number should display within the paging bar."), context: "dspf" },
+      { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("1","Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used."), context: "dspf" },
+      { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals."), context: "dspf" },
+      { name: "page down condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: pui.helpTextProperties("bind","Determines if the next page link is enabled."), context: "dspf" },
+      { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind","Specifies a response indicator that is returned to your program when the next page link is clicked."), context: "dspf" },
+      { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", help: pui.helpTextProperties("bind","Determines if the previous page link is enabled."), context: "dspf" },
+      { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind","Specifies a response indicator that is returned to your program when the previous page link is clicked."), context: "dspf" },
 
-      { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"") },
-      { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"") },
-      { name: "xlsx export pics", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Include pictures in the XLSX Export. This option only works for Load-All subfiles.",[],""), context: "dspf" },
-      { name: "export file name", help: me.helpTextGridProperties("blank","Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the grid name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],""), translate: true },
-      { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""),[],"") },
+      { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")) },
+      { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")) },
+      { name: "xlsx export pics", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Include pictures in the XLSX Export. This option only works for Load-All subfiles."), context: "dspf" },
+      { name: "export file name", help: pui.helpTextProperties("blank","Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the grid name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")), translate: true },
+      { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "")) },
 
       { name: "Row Folding", category: true, context: "dspf" },
-      { name: "fold multiple", choices: ["2", "3", "4", "Other..."], help: me.helpTextGridProperties("blank","The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.",["other"],""), bind: false, context: "dspf" },
-      { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."),[],""), context: "dspf" },
-      { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."),[],""), context: "dspf" },
-      { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], help: me.helpTextGridProperties("bind","This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."),[],""), context: "dspf" },
-      { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: me.helpTextGridProperties("false","Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.",[],""), context: "dspf" },
+      { name: "fold multiple", choices: ["2", "3", "4", "Other..."], help: pui.helpTextProperties("blank","The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.",["other"]), bind: false, context: "dspf" },
+      { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword.")), context: "dspf" },
+      { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword.")), context: "dspf" },
+      { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], help: pui.helpTextProperties("bind","This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode.")), context: "dspf" },
+      { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false","Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed."), context: "dspf" },
 
       { name: "Grid Data", category: true },
-      { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", uppercase: (pui.nodedesigner !== true), help: me.helpTextGridProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.",[],"") },
-      { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: me.helpTextGridProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
+      { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.") },
+      { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
           if (!confirm("Update grid columns?")) return; 
           // update the column headings   
           me.setProperty("column headings", descriptions);
@@ -8611,9 +8177,9 @@ pui.Grid = function () {
           sendPropertyToDesigner(itm, "number of columns", count);
           itm.designer.propWindow.refreshProperty("number of columns");
         }},
-      { name: "selection criteria", type: "long", help: me.helpTextGridProperties("blank","Optional expression identifying which records should be retrieved from the database file.",[],"") },
-      { name: "order by", type: "field", multiple: true, uppercase: true, help: me.helpTextGridProperties("blank","Optional expression identifying which fields determine the order of the records retrieved from the database file.",[],"") },
-      { name: "custom sql", type: "long", help: me.helpTextGridProperties("blank","Specifies a sql statement to use to retrieve the records for a database-driven grid.",[],""), 
+      { name: "selection criteria", type: "long", help: pui.helpTextProperties("blank","Optional expression identifying which records should be retrieved from the database file.") },
+      { name: "order by", type: "field", multiple: true, uppercase: true, help: pui.helpTextProperties("blank","Optional expression identifying which fields determine the order of the records retrieved from the database file.") },
+      { name: "custom sql", type: "long", help: pui.helpTextProperties("blank","Specifies a sql statement to use to retrieve the records for a database-driven grid."), 
           customSqlHandler: function (customSql) {   
               if (!confirm("Adjust grid based on columns?")) return;   
               var parm = {     "customSql": customSql   };   
@@ -8621,66 +8187,66 @@ pui.Grid = function () {
           } 
       },
 
-      { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>",[],"") },
-      { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: me.helpTextGridProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.",[],"") },
-      { name: "data url", type: "long", help: me.helpTextGridProperties("blank","Sets the url to a Web service that returns JSON data for a database-driven grid.",[],"") },
-      { name: "data transform function", type: "long", help: me.helpTextGridProperties("blank","The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget.",[],"") },
+      { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>") },
+      { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: pui.helpTextProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.") },
+      { name: "data url", type: "long", help: pui.helpTextProperties("blank","Sets the url to a Web service that returns JSON data for a database-driven grid.") },
+      { name: "data transform function", type: "long", help: pui.helpTextProperties("blank","The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget.") },
 
       { name: "Grid Data from Screen", category: true, context: "genie-nohandler" },
-      { name: "starting row", help: me.helpTextGridProperties("blank","Specifies the starting subfile row for retrieving data from the screen.",[],""), context: "genie-nohandler" },
-      { name: "ending row", help: me.helpTextGridProperties("blank","Specifies the ending subfile row for retrieving data from the screen.",[],""), context: "genie-nohandler" },
-      { name: "data columns", type: "list", help: me.helpTextGridProperties("blank","Specifies a comma separated list of column numbers for retrieving data from the screen.",[],""), context: "genie-nohandler" },
+      { name: "starting row", help: pui.helpTextProperties("blank","Specifies the starting subfile row for retrieving data from the screen."), context: "genie-nohandler" },
+      { name: "ending row", help: pui.helpTextProperties("blank","Specifies the ending subfile row for retrieving data from the screen."), context: "genie-nohandler" },
+      { name: "data columns", type: "list", help: pui.helpTextProperties("blank","Specifies a comma separated list of column numbers for retrieving data from the screen."), context: "genie-nohandler" },
 
       { name: "Position", category: true },
-      { name: "left", format: "px", help: me.helpTextGridProperties("position","Represents the x-coordinate of the current element.",[],""), canBeRemoved: false },
-      { name: "top", format: "px", help: me.helpTextGridProperties("position","Represents the y-coordinate of the current element.",[],""), canBeRemoved: false },
-      { name: "right", format: "px", help: me.helpTextGridProperties("position","Represents the x-coordinate of the current element.",[],""), canBeRemoved: false },
-      { name: "bottom", format: "px", help: me.helpTextGridProperties("position","Represents the y-coordinate of the current element.",[],""), canBeRemoved: false },
-      { name: "height", help: me.helpTextGridProperties("css","Height of the grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "width", help: me.helpTextGridProperties("css","Width of the grid.",[],""), bind: false, canBeRemoved: false },
-      { name: "expand to layout", choices: ["true", "false"], help: me.helpTextGridProperties("false","If set to true, the grid will automatically expand to the full size of a layout container.",[],""), context: "dspf", bind: false },
-      { name: "z index", format: "number", help: me.helpTextGridProperties("css","The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.",[],"") },
-      { name: "locked in place", choices: ["true", "false"], help: me.helpTextGridProperties("false","If set to true, the grid cannot be moved or sized in the Visual Designer.",[],""), bind: false },
+      { name: "left", format: "px", help: pui.helpTextProperties("position","Represents the x-coordinate of the current element."), canBeRemoved: false },
+      { name: "top", format: "px", help: pui.helpTextProperties("position","Represents the y-coordinate of the current element."), canBeRemoved: false },
+      { name: "right", format: "px", help: pui.helpTextProperties("position","Represents the x-coordinate of the current element."), canBeRemoved: false },
+      { name: "bottom", format: "px", help: pui.helpTextProperties("position","Represents the y-coordinate of the current element."), canBeRemoved: false },
+      { name: "height", help: pui.helpTextProperties("css","Height of the grid."), bind: false, canBeRemoved: false },
+      { name: "width", help: pui.helpTextProperties("css","Width of the grid."), bind: false, canBeRemoved: false },
+      { name: "expand to layout", choices: ["true", "false"], help: pui.helpTextProperties("false","If set to true, the grid will automatically expand to the full size of a layout container."), context: "dspf", bind: false },
+      { name: "z index", format: "number", help: pui.helpTextProperties("css","The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.") },
+      { name: "locked in place", choices: ["true", "false"], help: pui.helpTextProperties("false","If set to true, the grid cannot be moved or sized in the Visual Designer."), bind: false },
 
       { name: "Drag and Drop", category: true, context: "dspf" },
-      { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: me.helpTextGridProperties("false","This property determines if rows within the grid can be drag and dropped.",[],""), context: "dspf" },
-      { name: "ondragstart", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""), context: "dspf" },
-      { name: "drop targets", type: "list", help: me.helpTextGridProperties("blank","Specifies a list of target element id's, which indentify where the row can be dropped.",[],""), context: "dspf" },
-      { name: "ondragenter", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""), context: "dspf" },
-      { name: "ondragleave", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""), context: "dspf" },
-      { name: "ondrop", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.",[],""), context: "dspf" },
+      { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","This property determines if rows within the grid can be drag and dropped."), context: "dspf" },
+      { name: "ondragstart", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
+      { name: "drop targets", type: "list", help: pui.helpTextProperties("blank","Specifies a list of target element id's, which indentify where the row can be dropped."), context: "dspf" },
+      { name: "ondragenter", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
+      { name: "ondragleave", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
+      { name: "ondrop", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
 
       { name: "Tabs", category: true },
-      { name: "parent tab panel", help: me.helpTextGridProperties("blank","This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.",[],""), bind: false },
-      { name: "parent tab", help: me.helpTextGridProperties("blank","This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.",[],""), bind: false },
-      { name: "parent field set", help: me.helpTextGridProperties("blank","This property specifies the if of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.",[],""), bind: false },
+      { name: "parent tab panel", help: pui.helpTextProperties("blank","This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel."), bind: false },
+      { name: "parent tab", help: pui.helpTextProperties("blank","This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel."), bind: false },
+      { name: "parent field set", help: pui.helpTextProperties("blank","This property specifies the if of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel."), bind: false },
 
       { name: "Borders", category: true },
-      { name: "border color", type: "color", help: me.helpTextGridProperties("css","The color of the grid's outer borders and inner separators.",[],"") },
-      { name: "border width", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "Other..."], help: me.helpTextGridProperties("css","The thickness of the grid's outer borders and inner separators.",["other"],"") },
+      { name: "border color", type: "color", help: pui.helpTextProperties("css","The color of the grid's outer borders and inner separators.") },
+      { name: "border width", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "Other..."], help: pui.helpTextProperties("css","The thickness of the grid's outer borders and inner separators.",["other"]) },
 
       { name: "Padding", category: true },
-      { name: "padding bottom", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: me.helpTextGridProperties("css","Sets the distance between the bottom edge of a grid cell and the cell's content.",["other"],"") },
-      { name: "padding left", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: me.helpTextGridProperties("css","Sets the distance between the left edge of a grid cell and the cell's content.",["other"],"") },
-      { name: "padding right", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: me.helpTextGridProperties("css","Sets the distance between the right edge of a grid cell and the cell's content.",["other"],"") },
-      { name: "padding top", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: me.helpTextGridProperties("css","Sets the distance between the top edge of a grid cell and the cell's content.",["other"],"") },
+      { name: "padding bottom", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: pui.helpTextProperties("css","Sets the distance between the bottom edge of a grid cell and the cell's content.",["other"]) },
+      { name: "padding left", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: pui.helpTextProperties("css","Sets the distance between the left edge of a grid cell and the cell's content.",["other"]) },
+      { name: "padding right", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: pui.helpTextProperties("css","Sets the distance between the right edge of a grid cell and the cell's content.",["other"]) },
+      { name: "padding top", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], help: pui.helpTextProperties("css","Sets the distance between the top edge of a grid cell and the cell's content.",["other"]) },
 
       { name: "Misc", category: true },
-      { name: "css class", type: "cssClass", multOccur: (context == "dspf" ? true : false), attribute: "class", help: me.helpTextGridProperties("widget","Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : ""),[],"") },
-      { name: "tool tip", type: "long", help: me.helpTextGridProperties("blank","Defines the text to appear in a tool tip when the user hovers the mouse over this element.",[],""), translate: true },
-      { name: "user defined data", multOccur: true, help: me.helpTextGridProperties("blank","Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.",[],"") },
-      { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: me.helpTextGridProperties("css","Determines whether the element is visible or hidden.",[],"") },
+      { name: "css class", type: "cssClass", multOccur: (context == "dspf" ? true : false), attribute: "class", help: pui.helpTextProperties("widget","Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "")) },
+      { name: "tool tip", type: "long", help: pui.helpTextProperties("blank","Defines the text to appear in a tool tip when the user hovers the mouse over this element."), translate: true },
+      { name: "user defined data", multOccur: true, help: pui.helpTextProperties("blank","Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.") },
+      { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], help: pui.helpTextProperties("css","Determines whether the element is visible or hidden.") },
 
       { name: "Events", category: true },
-      { name: "ondbload", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>",[],"") },
-      { name: "onfilterchange", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the filter has changed.",[],""), bind: false, context: "dspf" },
-      { name: "onrowclick", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when a row within the grid is clicked. The script can determine the row number using the <b>row</b> variable.",[],""), bind: false },
-      { name: "onrowdblclick", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when a row within the grid is double-clicked. The script can determine the row number using the <b>row</b> variable.",[],""), bind: false },
-      { name: "onrowmouseover", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the mouse is moved over a row within the grid. The script can determine the row number using the <b>row</b> variable.",[],""), bind: false },
-      { name: "onrowmouseout", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the mouse is moved off of a row within the grid. The script can determine the row number using the <b>row</b> variable.",[],""), bind: false },
-      { name: "onpagedown", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",[],""), bind: false },
-      { name: "onpageup", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.",[],""), bind: false },
-      { name: "onscroll", type: "js", help: me.helpTextGridProperties("blank","Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid.",[],""), bind: false }
+      { name: "ondbload", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>") },
+      { name: "onfilterchange", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the filter has changed."), bind: false, context: "dspf" },
+      { name: "onrowclick", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when a row within the grid is clicked. The script can determine the row number using the <b>row</b> variable."), bind: false },
+      { name: "onrowdblclick", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when a row within the grid is double-clicked. The script can determine the row number using the <b>row</b> variable."), bind: false },
+      { name: "onrowmouseover", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the mouse is moved over a row within the grid. The script can determine the row number using the <b>row</b> variable."), bind: false },
+      { name: "onrowmouseout", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the mouse is moved off of a row within the grid. The script can determine the row number using the <b>row</b> variable."), bind: false },
+      { name: "onpagedown", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>."), bind: false },
+      { name: "onpageup", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>."), bind: false },
+      { name: "onscroll", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid."), bind: false }
     ];
     
     return model;
