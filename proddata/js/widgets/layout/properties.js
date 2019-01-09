@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.layout.helpTextLayoutProperties = function(defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code style='color: blue; letter-spacing: 0px; font-weight: bold;'>";
+  var codeOpen = "<code class='propdefault'>";
   var codeClose = "</code>";
   var falseSpan = "<span title='The default value of the property is false.'>false</span>";
   var trueSpan = "<span title='The default value of the property is true.'>true</span>";
@@ -39,41 +39,35 @@ pui.layout.helpTextLayoutProperties = function(defVal, descVal, descAdd, noteVal
   var fontOptions = "";
   var overflowOptions = "";
 
-  var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-  // var optionsClose = "</li></ul>";
-
   // ------------------
   // Default Value:
   var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
   // <c>value</c>
-  var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
   helpString += codeOpen;
-  if (posDefVals.indexOf(defVal) != -1) {
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    }
+  if (defVal === "true") {
+    helpString += trueSpan;
+  } else if (defVal === "blank") {
+    helpString += blankSpan;
+  } else if (defVal === "css") {
+    helpString += cssSpan;
+  } else if (defVal === "false") {
+    helpString += falseSpan;
+  } else if (defVal === "placeholder") {
+    helpString += placeholderSpan;
+  } else if (defVal === "browser") {
+    helpString += browserSpan;
+  } else if (defVal === "theme") {
+    helpString += themeSpan;
+  } else if (defVal === "skin") {
+    helpString += skinSpan;
+  } else if (defVal === "id") {
+    helpString += idSpan;
+  } else if (defVal === "bind") {
+    helpString += bindSpan;
+  } else if (defVal === "widget") {
+    helpString += widgetSpan;
+  } else if (defVal === "position") {
+    helpString += positionSpan;
   } else {
     helpString += defVal;
   }
