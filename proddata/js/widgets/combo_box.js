@@ -72,7 +72,8 @@ pui.ComboBoxWidget = function() {
     }
 
     box.type = "text";
-    box.setAttribute("autocomplete", "off");
+    if (box.getAttribute("autocomplete") == null) // Default off if not already set by 'html auto complete' property.
+      box.setAttribute("autocomplete", "off");
     box.style.position = "absolute";
     box.style.border = "0px none";
     box.style.top = "0px";
@@ -666,6 +667,11 @@ pui.widgets.add({
           parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value);
       }
       catch(e) { }
+    },
+    
+    "html autocomplete": function(parms) {
+      if (!parms.design && parms.dom.comboBoxWidget != null)
+        parms.dom.comboBoxWidget.getBox().setAttribute("autocomplete", parms.value);
     }
 
   },

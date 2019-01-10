@@ -29,18 +29,27 @@ pui.widgets.add({
   
     "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
-      if (!parms.design && pui.iPadEmulation && !pui.iPhoneEmulation) {
-        addEvent(parms.dom, "focus", function(event) {
-          getObj("ipadKeyboard").style.display = "";
-        });
-        addEvent(parms.dom, "blur", function(event) {
-          getObj("ipadKeyboard").style.display = "none";
-        });
+      if (!parms.design) {
+        if (pui.iPadEmulation && !pui.iPhoneEmulation) {
+          addEvent(parms.dom, "focus", function(event) {
+            getObj("ipadKeyboard").style.display = "";
+          });
+          addEvent(parms.dom, "blur", function(event) {
+            getObj("ipadKeyboard").style.display = "none";
+          });
+        }
+        if (parms.dom.getAttribute("autocomplete") == null) // Default off if not set by 'html auto complete' property.
+          parms.dom.setAttribute("autocomplete", "off");
       }
     },
     
     "value": function(parms) {
       parms.dom.value = parms.value;
+    },
+    
+    "html autocomplete": function(parms) {
+      if (!parms.design)
+        parms.dom.setAttribute("autocomplete", parms.value);
     }
   
   }

@@ -236,6 +236,8 @@ pui.widgets.add({
             parms.dom.spinner.positionSpinnButtons();
           }
         }, 1);
+        if (parms.dom.getAttribute("autocomplete") == null) // Default off if not set by 'html auto complete' property.
+          parms.dom.setAttribute("autocomplete", "off");
       }
       else {
         parms.dom.sizeMe = function() {
@@ -287,6 +289,11 @@ pui.widgets.add({
         up.className = upClass;
         down.className = downClass; 
       }
+    },
+    
+    "html autocomplete": function(parms) {
+      if (!parms.design)
+        parms.dom.setAttribute("autocomplete", parms.value);
     }
 
   }
