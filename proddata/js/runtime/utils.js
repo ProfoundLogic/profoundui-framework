@@ -2112,18 +2112,6 @@ pui.startMouseCapableMonitoring = function() {
       if (pui.isLocalStorage()) {
         localStorage.setItem("pui-is-mouse-capable", "true");
       }
-      if (pui.gridsDisplayed != null && pui.gridsDisplayed.length > 0) {
-        for (var i = 0; i < pui.gridsDisplayed.length; i++) {
-          var grid = pui.gridsDisplayed[i];
-          if (grid != null && typeof grid.setScrollBar == "function") {
-            if (grid.scrollbarObj != null) {
-              if (grid.scrollbarObj.destroy == "function") grid.scrollbarObj.destroy();
-              grid.scrollbarObj = null;
-            }
-            grid.setScrollBar();
-          }
-        }
-      }
       removeEvent(docElement, 'mousedown', onMouseDown);
       removeEvent(docElement, 'mousemove', onMouseMove);
     }
