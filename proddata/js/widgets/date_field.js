@@ -598,6 +598,8 @@ pui.widgets.add({
             }
             
           }, 1);
+          if (parms.dom.getAttribute("autocomplete") == null) // Default off if not set by 'html auto complete' property.
+            parms.dom.setAttribute("autocomplete", "off");
         }
         if (pui.iPadEmulation && !pui.iPhoneEmulation) {
           addEvent(parms.dom, "focus", function(event) {
@@ -668,6 +670,10 @@ pui.widgets.add({
           parms.dom["cal icon class"] = className;
         }
       }
+    },
+    "html autocomplete": function(parms) {
+      if (!parms.design)
+        parms.dom.setAttribute("autocomplete", parms.value);
     }
   }
   

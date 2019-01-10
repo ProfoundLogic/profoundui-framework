@@ -46,6 +46,8 @@ pui.widgets.add({
           parms.dom.spellcheck = pui["allow spellcheck"];
         //If they are changing a date field to a textbox, remove the calendar
         if(parms.dom.calimg) pui.removeCal(parms.dom);
+        if (parms.dom.getAttribute("autocomplete") == null) // Default off if not set by 'html auto complete' property.
+          parms.dom.setAttribute("autocomplete", "off");
       }
       if (parms.design) { 
         parms.dom.readOnly = true;
@@ -72,6 +74,11 @@ pui.widgets.add({
           parms.dom.setAttribute("type", parms.value);
         } catch(e) { }
       }
+    },
+    
+    "html autocomplete": function(parms) {
+      if (!parms.design)
+        parms.dom.setAttribute("autocomplete", parms.value);
     }
   
   }
