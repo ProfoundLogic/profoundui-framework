@@ -4615,9 +4615,19 @@ pui.Grid = function () {
       else {
         if (rowFontColor == null || rowFontColor == "") {
           rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
+          if (rowFontColor){
+        	  var rowFontColors = rowFontColor.split(",");
+        	  if (rowFontColors.length > 1)
+        		  rowFontColor = rowFontColors[i];
+          }
         }
         if (rowBackground == null || rowBackground == "") {
           rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
+          if (rowBackground){
+        	  var rowBackgrounds = rowBackground.split(",");
+        	  if (rowBackgrounds.length > 1)
+        		  rowBackground = rowBackgrounds[i];
+          }
         }
         setColor(cols[i], rowFontColor, i);
         if (rowBackground == null) {
