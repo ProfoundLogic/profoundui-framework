@@ -38,7 +38,8 @@ pui.widgets.add({
             getObj("ipadKeyboard").style.display = "none";
           });
         }
-        if (parms.dom.getAttribute("autocomplete") == null) // Default off if not set by 'html auto complete' property.
+        // Default off if not set by 'html auto complete' property.
+        if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete))
           parms.dom.setAttribute("autocomplete", "off");
       }
     },
@@ -47,7 +48,7 @@ pui.widgets.add({
       parms.dom.value = parms.value;
     },
     
-    "html autocomplete": function(parms) {
+    "browser auto complete": function(parms) {
       if (!parms.design)
         parms.dom.setAttribute("autocomplete", parms.value);
     }
