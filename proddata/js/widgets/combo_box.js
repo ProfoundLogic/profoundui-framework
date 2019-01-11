@@ -72,7 +72,8 @@ pui.ComboBoxWidget = function() {
     }
 
     box.type = "text";
-    if (box.getAttribute("autocomplete") == null) // Default off if not already set by 'html auto complete' property.
+    // Default off if not set by 'html auto complete' property.
+    if (box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete))
       box.setAttribute("autocomplete", "off");
     box.style.position = "absolute";
     box.style.border = "0px none";
@@ -669,7 +670,7 @@ pui.widgets.add({
       catch(e) { }
     },
     
-    "html autocomplete": function(parms) {
+    "browser auto complete": function(parms) {
       if (!parms.design && parms.dom.comboBoxWidget != null)
         parms.dom.comboBoxWidget.getBox().setAttribute("autocomplete", parms.value);
     }
