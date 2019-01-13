@@ -6877,7 +6877,7 @@ pui.Grid = function () {
     if (refresh) me.refresh();
   }
   
-  this["push"] = function(record, refresh) {
+  function buildEntryFromObject(record) {
     var entry = [];
     for (var i = 0; i < me.fieldNames.length; i++) {
       var fieldName = me.fieldNames[i];
@@ -6885,9 +6885,14 @@ pui.Grid = function () {
       if (!value) value = "";
       entry.push(value);
     }
+    return entry;
+  }
+  
+  this["push"] = function(record, refresh) {    
+    var entry = buildEntryFromObject(record);
     me.dataArray.push(entry);
     if (refresh) me.refresh();
-  }
+  } 
   
   this["addRecords"] = function(records, refresh) {
     for (var i = 0; i < records.length; i++) {
@@ -6902,7 +6907,64 @@ pui.Grid = function () {
     me["addRecords"](records);
     if (refresh) me.refresh();
   }
+  
+  this["splice"] = function(start, deleteCount) {
+    // Adjust start assumming record number (not index) is passed in
+    start = start - 1;    
 
+    // Splice data array
+    var refresh = false;
+    var args = [start, deleteCount];
+    var args2 = [start, deleteCount];
+    for (var i = 2; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (typeof arg === "boolean" && i + 1 === arguments.length) refresh = true;
+      if (typeof arg !== "object") continue;      
+      var entry = buildEntryFromObject(arg);
+      args.push(entry);
+      args2.push(undefined);
+    }
+    me.dataArray.splice.apply(me.dataArray, args);    
+
+    // Splice domEls
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var domEls = me.runtimeChildren[i].domEls;
+      domEls.splice.apply(domEls, args2);
+    }
+    
+    if (refresh) me.refresh();
+  }
+
+  this["insertRow"] = function(start) {
+    var refresh = false;
+    var args = [start, 0];
+    for (var i = 1; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (typeof arg === "boolean" && i + 1 === arguments.length) refresh = true;
+      if (typeof arg !== "object") continue;
+      args.push(arg);
+    }
+    me["splice"].apply(me, args);
+  }
+
+  this["unshiftRow"] = function() {
+    var refresh = false;
+    var args = [1, 0];
+    for (var i = 0; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (typeof arg === "boolean" && i + 1 === arguments.length) refresh = true;
+      if (typeof arg !== "object") continue;
+      args.push(arg);
+    }
+    me["splice"].apply(me, args);
+    if (refresh) me.refresh();
+  }
+
+  this["removeRow"] = function(row, refresh) {
+    me["splice"](row, 1);
+    if (refresh) me.refresh();
+  }
+  
   this["clearState"] = function (part) {
 
     var stg = loadState();
