@@ -98,6 +98,20 @@ pui.FindFilterBox = function() {
         preventEvent(e);
       }
     });
+    addEvent(box, "paste", function(e) {
+      if (me.type == "pgfilter") return; //A paging filter should not start filtering until Enter is pressed; else page submits before it's typed.
+      setTimeout(function(){
+          var text = box.value;
+          if (typeof me.onsearch === "function") {
+            clearTimeout(timeoutId); // remove the previously queued timout event.
+            function keyuptimeout(){
+              me.onsearch(text);
+            }
+            // Enqueue the find/filter event; avoids re-rendering the grid every keystroke.
+            timeoutId = setTimeout(keyuptimeout, me.interval );
+          }
+      });
+    });
     addEvent(box, "blur", function(e) {
       me.grid.highlighting.text = "";
       me.grid.getData();
