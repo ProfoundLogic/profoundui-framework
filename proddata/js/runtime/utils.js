@@ -1009,16 +1009,16 @@ pui["unload"] = function() {
 }
 
 pui.assignUnloadEvents = function() {
-  if (window.attachEvent) {
-    window.attachEvent("onbeforeunload", pui.beforeUnload);
-    if (!inDesignMode())
-      window.attachEvent("onunload", pui["unload"]);
-  }
-  else if (window.addEventListener) {
+  if (window.addEventListener) {
     window.addEventListener("beforeunload", pui.beforeUnload, false);
     if (!inDesignMode())
       window.addEventListener("unload", pui["unload"], false);        
-  }
+  }	
+  else if (window.attachEvent) {
+    window.attachEvent("onbeforeunload", pui.beforeUnload);
+    if (!inDesignMode())
+      window.attachEvent("onunload", pui["unload"]);
+  }  
 }
 
 
