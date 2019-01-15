@@ -2433,12 +2433,23 @@ pui.renderFormat = function(parms) {
         // Convert PHP-style grid data (array of name/value pairs) to normal grid format (2-dimensional array of data and an array of field names) 
         if (pui.handler != null && subfileData == null) {
           subfileData = data[pui.formatUpper(properties["record format name"])];
-          if (subfileData != null && subfileData.length > 0) {
+		  if (!subfileData) subfileData = [];
             fieldNames = [];
             var dataArray = [];
-            for (var fieldName in subfileData[0]) { 
-              fieldNames.push(fieldName);
+			var fieldNamesObj = {};
+            for (var j = 0; j < items.length; j++) {
+              var gridItem = items[j];
+              if (gridItem["grid"] === properties.id) {
+                for (var gridItemProp in gridItem) {
+                  var gridItemValue = gridItem[gridItemProp];
+                  if (pui.isBound(gridItemValue)) {
+                    fieldNamesObj[gridItemValue["fieldName"]] = true;
+                  }
+                }
+              }
             }
+            fieldNames = Object.keys(fieldNamesObj);
+			
             for (var j = 0; j < subfileData.length; j++) {
               var entry = [];
               var record = subfileData[j];
@@ -2451,7 +2462,6 @@ pui.renderFormat = function(parms) {
             dom.grid.dataArray = dataArray; 
             dom.grid.fieldNames = fieldNames; 
             subfile = {};
-          }
         }
         
         if (ref != null) dom.grid.ref = ref;
