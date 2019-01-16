@@ -291,7 +291,7 @@ pui.Grid = function () {
           var itm = me.tableDiv.designItem;
           itm.designer.undo.start("Remove Grid Row");
           itm.designer.undo.add(itm, "number of rows");
-          me.removeRow();
+          me.removeLastRowCells();
           me.doExpandToLayout();
           me.selectMe();
         }
@@ -543,7 +543,7 @@ pui.Grid = function () {
     if (!me.subfileHidden) {
       me.setProperty("row height", me.rowHeight * me.foldMultiple);
       for (var i = 0; i < rowCount; i++) {
-        me.removeRow();
+        me.removeLastRowCells();
       }
       me.sizeAllCells();
       me.setAllCellStyles();
@@ -2251,7 +2251,7 @@ pui.Grid = function () {
           var tableBottom = parseInt(me.hLines[me.hLines.length - 1].style.top);
           var minRow = me.hasHeader ? 2 : 1;
           if (me.cells.length > minRow) {
-            me.removeRow();
+            me.removeLastRowCells();
             if (tableBottom > parseInt(me.hLines[me.hLines.length - 1].style.top) + me.rowHeight - 3) {
               var addedSome = false;
               while (parseInt(me.hLines[me.hLines.length - 1].style.top) < tableBottom) {
@@ -3720,7 +3720,7 @@ pui.Grid = function () {
           me.mirrorDownAll();
         }
         if (newNumRows < oldNumRows) {
-          while (newNumRows < me.hLines.length - 1) me.removeRow();
+          while (newNumRows < me.hLines.length - 1) me.removeLastRowCells();
         }
         if (me.tableDiv.designItem != null) me.tableDiv.designItem.properties[property] = value;
         me.sendToDesigner();
@@ -5181,7 +5181,7 @@ pui.Grid = function () {
           var tableBottom = parseInt(line.style.top);
           var minRow = me.hasHeader ? 2 : 1;
           if (me.cells.length > minRow) {
-            me.removeRow();
+            me.removeLastRowCells();
             if (tableBottom > parseInt(lines[lines.length - 1].style.top) + me.rowHeight - 3) {
               var addedSome = false;
               while (parseInt(lines[lines.length - 1].style.top) < tableBottom) {
@@ -6755,8 +6755,11 @@ pui.Grid = function () {
     me.setScrollBar();
   };
 
-  this.removeRow = function () {
-    n = me.hLines.length;
+  /**
+   * Remove DOM elements located in the last row, including the DIV and horizontal line element.
+   */
+  this.removeLastRowCells = function () {
+    var n = me.hLines.length;
     if (n <= 0) return;
     n = n - 1;
     me.hLines[n].parentNode.removeChild(me.hLines[n]);
