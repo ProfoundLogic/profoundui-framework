@@ -129,7 +129,10 @@ pui.Grid = function () {
     this.cellPropDefaults[prop] = this.cellProps[prop];
   }
 
-  this.dataProps = {};
+  /**
+   * An object with properties like "starting row" set when Genie detects subfiles, and database-driven properties like "database file". Exported for #5079.
+   */
+  this["dataProps"] = {};
 
   this.paddingProps = {};
 
@@ -1044,17 +1047,17 @@ pui.Grid = function () {
     if (limit == null) limit = 9999;
 
     var url = getProgramURL("PUI0009102.PGM");
-    var dataURL = me.dataProps["data url"];
+    var dataURL = me["dataProps"]["data url"];
     if (dataURL == "") dataURL = null;
     if (dataURL) {
       url = pui.appendAuth(dataURL);
       setupajax();
     }
-    else if(me.dataProps["database file"] && me.dataProps["database file"].length > 0){
+    else if(me["dataProps"]["database file"] && me["dataProps"]["database file"].length > 0){
       // If URL is for database-driven grid, then we know the file and can fetch the column data types.
       // TODO: Change PUI0009102 to return the dataType and decPos, and remove this extra XHR.
       var dblib = "";
-      var dbfile = me.dataProps["database file"].split("/");
+      var dbfile = me["dataProps"]["database file"].split("/");
       if (dbfile.length > 1) {
         dblib = dbfile[0];
         dbfile = dbfile[1];
@@ -1093,11 +1096,11 @@ pui.Grid = function () {
       if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
       if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
-        +"&"+ pui.getSQLParams(me.dataProps) + "&limit=" + limit + "&start=1";
+        +"&"+ pui.getSQLParams(me["dataProps"]) + "&limit=" + limit + "&start=1";
 
       if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
-      var orderBy = me.dataProps["order by"];
+      var orderBy = me["dataProps"]["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
       if (orderBy && orderBy != "") {
 
@@ -1112,7 +1115,7 @@ pui.Grid = function () {
 
       }
 
-      var fetchCounter = me.dataProps["allow any select statement"];
+      var fetchCounter = me["dataProps"]["allow any select statement"];
       if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
         req["postData"] += "&FetchCounter=Y";
       if (pui["isCloud"])
@@ -1685,14 +1688,14 @@ pui.Grid = function () {
     }
 
     // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
-    var sql = me.dataProps["custom sql"];
+    var sql = me["dataProps"]["custom sql"];
     var orderBy = "";
     // There was no "custom sql", so build the string from DB-driven properties.
     if (sql == null || sql == "") {
-      var file = me.dataProps["database file"];
-      var fields = me.dataProps["database fields"];
-      var whereClause = me.dataProps["selection criteria"];
-      orderBy = me.dataProps["order by"];
+      var file = me["dataProps"]["database file"];
+      var fields = me["dataProps"]["database fields"];
+      var whereClause = me["dataProps"]["selection criteria"];
+      orderBy = me["dataProps"]["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
       if (fields != null && fields != "" && file != null && file != "") {
         sql = "SELECT " + fields + " FROM " + file;
@@ -1707,7 +1710,7 @@ pui.Grid = function () {
       // Allow the cache comparison know if sorting changed.
       sql += " ORDER BY " + me.sortBy;
     }
-    var dataURL = me.dataProps["data url"];
+    var dataURL = me["dataProps"]["data url"];
     if (dataURL == "") dataURL = null;
     if (sql == null) sql = "";
     if (sql != "" || dataURL != null) {
@@ -1742,7 +1745,7 @@ pui.Grid = function () {
           addField("q", encodeURIComponent(pui.getSQLVarName(me.tableDiv)));
 
           var params = {};
-          pui.getSQLParams(me.dataProps, params);
+          pui.getSQLParams(me["dataProps"], params);
 
           for (var fieldName in params) {
 
@@ -2403,19 +2406,19 @@ pui.Grid = function () {
     if (me.cells.length <= 0) return;
     var headerRow = me.cells[0];
     // Setup click events for DB-driven grid; it knows the fieldNames at this point. Custom SQL doesn't.
-    if ((me.dataProps["database file"] != null && me.dataProps["database file"] != "") &&
-      (me.dataProps["custom sql"] == null || me.dataProps["custom sql"] == "") &&
-      (me.dataProps["data url"] == null || me.dataProps["data url"] == "") &&
-      (me.dataProps["database fields"] != null && me.dataProps["database fields"] != "")) {
-      var fields = pui.getFieldList(me.dataProps["database fields"]);
+    if ((me["dataProps"]["database file"] != null && me["dataProps"]["database file"] != "") &&
+      (me["dataProps"]["custom sql"] == null || me["dataProps"]["custom sql"] == "") &&
+      (me["dataProps"]["data url"] == null || me["dataProps"]["data url"] == "") &&
+      (me["dataProps"]["database fields"] != null && me["dataProps"]["database fields"] != "")) {
+      var fields = pui.getFieldList(me["dataProps"]["database fields"]);
       for (var i = 0; i < fields.length; i++) {
         if (!headerRow[i]) continue;
         headerRow[i].fieldName = fields[i];
         attachClickEventForSQL(headerRow[i], i);
       }
     }
-    else if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "")
-          || (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ){
+    else if ((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "")
+          || (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "") ){
 
       // Custom SQL and data URL grids can sort given the column number.
       var numCols = me.vLines.length - 1;
@@ -3152,16 +3155,16 @@ pui.Grid = function () {
   this.consumeDataFromScreen = function (multiple, newGrid) {
     if (me.dataConsumed) return;
     me.dataConsumed = true;
-    var startRow = Number(me.dataProps["starting row"]);
-    var endRow = Number(me.dataProps["ending row"]);
+    var startRow = Number(me["dataProps"]["starting row"]);
+    var endRow = Number(me["dataProps"]["ending row"]);
     if (isNaN(startRow) || isNaN(endRow)) return;
-    if (me.dataProps["data columns"] == null) return;
+    if (me["dataProps"]["data columns"] == null) return;
 
     var colArray = [];
     for (var x = 0; x < multiple; x++) {
       var prop = "data columns";
       if (x > 0) prop += " " + (x + 1);
-      var dataColumns = me.dataProps[prop];
+      var dataColumns = me["dataProps"][prop];
       colArray[x] = dataColumns.split(",");
     }
 
@@ -3549,7 +3552,7 @@ pui.Grid = function () {
 
     if (property.indexOf("parameter value") == 0) {
 
-      me.dataProps[property] = value;
+      me["dataProps"][property] = value;
       return;
 
     }
@@ -4175,7 +4178,7 @@ pui.Grid = function () {
       case "data columns 2":
       case "data columns 3":
       case "data columns 4":
-        me.dataProps[property] = value;
+        me["dataProps"][property] = value;
         break;
 
       case "hover effect":
@@ -6178,7 +6181,7 @@ pui.Grid = function () {
     var pstring = null;
     if (pui["secLevel"] > 0) {
       // Setup parameters that are needed now for sqlcache comparison and later for postData.
-      pstring = pui.getSQLParams(me.dataProps);
+      pstring = pui.getSQLParams(me["dataProps"]);
 
       if (me.isFiltered()) {
         var headerRow = me.cells[0];
@@ -6201,7 +6204,7 @@ pui.Grid = function () {
       }
 
       // Allow dataURL grids to sort. 
-      if (me.dataProps["data url"] != null && me.dataProps["data url"] != "" && me.sortBy != null) {
+      if (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "" && me.sortBy != null) {
         pstring += "&order=" + me.sortBy;
       }
 
@@ -6237,7 +6240,7 @@ pui.Grid = function () {
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
 
-      var orderBy = me.dataProps["order by"];
+      var orderBy = me["dataProps"]["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
       if (orderBy && orderBy != "") {
 
@@ -6269,7 +6272,7 @@ pui.Grid = function () {
     if (total != null && total == true) req["postData"] += "&getTotal=1";
     if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
-    var fetchCounter = me.dataProps["allow any select statement"];
+    var fetchCounter = me["dataProps"]["allow any select statement"];
     if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
       req["postData"] += "&FetchCounter=Y";
     
@@ -6280,11 +6283,11 @@ pui.Grid = function () {
       me.unMask();
       var response;
       var successful = false;
-      if (me.dataProps["data transform function"] && req.getStatus() == 200) {
+      if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
 
         try {
 
-          var fn = eval("window." + me.dataProps["data transform function"]);
+          var fn = eval("window." + me["dataProps"]["data transform function"]);
           response = fn(req.getResponseText());
 
         }         
@@ -6338,9 +6341,9 @@ pui.Grid = function () {
   };
 
   this.isDataGrid = function () {
-    if ((me.dataProps["custom sql"] != null && me.dataProps["custom sql"] != "") ||
-      (me.dataProps["data url"] != null && me.dataProps["data url"] != "") ||
-      (me.dataProps["database file"] != null && me.dataProps["database file"] != "")) {
+    if ((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") ||
+      (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "") ||
+      (me["dataProps"]["database file"] != null && me["dataProps"]["database file"] != "")) {
       return true;
     }
     else {
@@ -6649,14 +6652,14 @@ pui.Grid = function () {
     me.sizeAllCells();
     if (!me.designMode) {
       if (me.isDataGrid()) {
-        var fields = me.dataProps["database fields"];
+        var fields = me["dataProps"]["database fields"];
         if (fields != null && fields != "") {
           fields = fields.split(",");
           fields.splice(to, 0, fields[from]); // insert from field into the to position
           var adjustedFrom = from;
           if (to <= from) adjustedFrom++; // from has moved - we inserted something infront of it 
           fields.splice(adjustedFrom, 1); // remove the from cell
-          me.dataProps["database fields"] = fields.join(",");
+          me["dataProps"]["database fields"] = fields.join(",");
         }
       }
       else {
@@ -8104,7 +8107,7 @@ pui.Grid = function () {
     sendPropertyToDesigner(itm, "column widths", columnWidths);
     itm.designer.propWindow.refreshProperty("column widths");
   };
-
+  
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: pui.helpTextProperties("id","Specifies the ID that is used to access the grid from client-side code."), bind: false, canBeRemoved: false },
