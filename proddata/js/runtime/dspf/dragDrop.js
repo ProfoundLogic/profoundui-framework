@@ -78,7 +78,7 @@ pui.attachDragDrop = function(dom, properties) {
     if (touchEvent) event.preventDefault();
     // get grid row    
     var row;
-    var requestNum = 0;
+    var requestNum = 0;     //This is used to avoid calling tryScroll too many times when the mouse moves.
     var recordNumber;
 
     if (isHTMLContainer) {
@@ -386,7 +386,14 @@ pui.attachDragDrop = function(dom, properties) {
             return false;
           }
           if (canScrollUp() || canScrollDown()) {
-            tryScroll(requestNum);
+            var scrollDelay = 0;
+            if (typeof pui["drop scroll wait"] == 'number'){
+              scrollDelay = pui["drop scroll wait"];
+            }
+            // If "wait" is -1, then do not scroll. This allows the customer to set the initial delay before scrolling starts.
+            if (scrollDelay >= 0){
+              setTimeout(function(){ tryScroll(requestNum); }, scrollDelay);
+            }
           }
         }
       }
@@ -520,7 +527,7 @@ pui.attachDragDrop = function(dom, properties) {
     }
   }
 
-}
+};
 
 
 
