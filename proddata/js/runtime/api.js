@@ -1005,7 +1005,7 @@ pui["keepAlive"] = function() {
       if (context == "dspf") pui.screenIsReady = true;
       for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
         var grid = pui.gridsDisplayed[i];
-        grid.unMask();
+        grid["unMask"]();
       }
     },
     "onfail": function(req) {
@@ -1015,7 +1015,7 @@ pui["keepAlive"] = function() {
       if (context == "dspf") pui.screenIsReady = true;
       for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
         var grid = pui.gridsDisplayed[i];
-        grid.unMask();
+        grid["unMask"]();
       }
       if (pui["onoffline"] != null) pui["onoffline"]();
     }      

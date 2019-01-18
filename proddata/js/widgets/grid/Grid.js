@@ -1128,7 +1128,7 @@ pui.Grid = function () {
             response["fields"] = fields;
           makexlsx(response);
         } else
-          me.unMask();
+          me["unMask"]();
       };
       req.send();
       me.mask();
@@ -1204,7 +1204,7 @@ pui.Grid = function () {
       workbook.setFileName(fileName);
       workbook.setWorksheet(worksheet);
       workbook.download();
-      me.unMask();
+      me["unMask"]();
     } //end makexlsx().
   };
 
@@ -1552,7 +1552,7 @@ pui.Grid = function () {
       me.getData();
     }
     setTimeout(function () {
-      me.unMask();
+      me["unMask"]();
       if (typeof (pui.cursorValues.noFocus) == "undefined" || pui.cursorValues.noFocus == false) {
         // place cursor on first row
         var rowNum = 0;
@@ -1621,7 +1621,7 @@ pui.Grid = function () {
       me.getData();
     }
     setTimeout(function () {
-      me.unMask();
+      me["unMask"]();
       if (typeof (pui.cursorValues.noFocus) == "undefined" || pui.cursorValues.noFocus == false) {
         // place cursor on first row
         var rowNum = 0;
@@ -1634,7 +1634,7 @@ pui.Grid = function () {
     }, 1);
   };
 
-  this.unMask = function () {
+  this["unMask"] = function () {
     if (maskCover != null) maskCover.style.display = "none";
   };
 
@@ -6211,7 +6211,7 @@ pui.Grid = function () {
     } //done creating sql query parameters.
 
     if (cache) {
-      me.unMask();
+      me["unMask"]();
       if (pui.sqlcache == null) pui.sqlcache = {};
       if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
       if (pui.sqlcache[start].sql === sql &&
@@ -6280,7 +6280,7 @@ pui.Grid = function () {
       req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
 
     req["onready"] = function (req) {
-      me.unMask();
+      me["unMask"]();
       var response;
       var successful = false;
       if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
