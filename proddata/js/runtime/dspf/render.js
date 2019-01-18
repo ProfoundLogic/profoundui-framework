@@ -3982,7 +3982,7 @@ pui.cancelResponse = function(messages) {
   pui.hideWaitAnimation();
   for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
     var grid = pui.gridsDisplayed[i];
-    grid.unMask();
+    grid["unMask"]();
   }
   pui["unmaskScreen"]();
   pui.resetResponseValues();
