@@ -498,6 +498,14 @@ pui.cleanup = function() {
 
 
 pui.resize = function(inEmulator) {
+  // On mobile devices, the popup keyboard injects itself to the bottom of the body thus tripping this resize event
+  // If the current active active has this special jobGotFocus, we can just get skip this event...
+  if (pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
+    inEmulator.preventDefault();
+    inEmulator.stopImmediatePropagation();
+    return;
+  }
+	  
   var container = pui.runtimeContainer;
   if (container == null) return;
   for (var j = 0; j < container.childNodes.length; j++) {
@@ -2207,6 +2215,16 @@ pui.renderFormat = function(parms) {
           addEvent(boxDom, "mouseup", pui.storeEventCursorPosition);
           addEvent(boxDom, "mousedown", pui.storeEventCursorPosition);
           addEvent(boxDom, "keyup", pui.storeEventCursorPosition);
+          
+          // This is to prevent expanding layouts on mobile devices when virtual keyboards changes
+          if (pui["is_touch"]) {
+            addEvent(boxDom, "click", function(evt) { 
+              evt.srcElement.justGotFocus = true;
+              setTimeout(function(input) {
+                delete input.justGotFocus;
+              }, 500, evt.srcElement);
+            });
+          }
           
           addEvent(boxDom, "keydown", function(event) {
             event = event || window.event;
