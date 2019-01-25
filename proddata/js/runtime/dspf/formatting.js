@@ -457,6 +457,9 @@ pui.FieldFormat = {
       }
       var numValue = parseFloat(strValue, 10) || 0;
       
+      // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
+      strValue = strValue.replace(/-/g, '');
+
       var strInt;      
       //scrap everything from decimal point on
       strInt = strValue.replace(/\..*/, '');
@@ -487,10 +490,7 @@ pui.FieldFormat = {
         if (commaDecimal) keyFilter += ',';
         else keyFilter += '\\.';
       }
-      
-      // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
-      strValue = strValue.replace(/-/g, '');
-
+           
       if(obj.zeroFill === true || obj.zeroFill === "true"){
         strValue = pui.formatting.leftPad(strValue, dataLength + (decLength ? 1 : 0), '0');
       }
