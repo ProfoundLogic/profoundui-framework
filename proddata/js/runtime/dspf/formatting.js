@@ -488,6 +488,9 @@ pui.FieldFormat = {
         else keyFilter += '\\.';
       }
       
+      // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
+      strValue = strValue.replace(/-/g, '');
+
       if(obj.zeroFill === true || obj.zeroFill === "true"){
         strValue = pui.formatting.leftPad(strValue, dataLength + (decLength ? 1 : 0), '0');
       }
@@ -508,7 +511,6 @@ pui.FieldFormat = {
 
       //format negative numbers
       var isNegative = numValue < 0;
-      strValue = strValue.replace(/-/g, '');
       //Account for previously saved lowercase 'CR' value #4027
       if(obj.negNum) obj.negNum = obj.negNum.toUpperCase();       
       if(obj.negNum == '(999.00)'){
