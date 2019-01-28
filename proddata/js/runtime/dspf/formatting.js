@@ -595,6 +595,8 @@ pui.FieldFormat = {
       
       var value = String(obj.value);
       
+      // Remove all chars except 0-9, decimal char, and negative sign (remove decimal char if used
+      // for formatting, but leave it if used as a decimal sign)
       if (obj.edtWrd != null) {
         var negSign = "-";
         var g1 = /-/.test(value);
@@ -603,7 +605,7 @@ pui.FieldFormat = {
         value = "";
         for (var i = 0; i < originalValue.length; i++) {
           var ch = originalValue.substr(i,1);
-          if ((ch < "0" || ch > "9") && (ch != decimalChar) && (ch != negSign)) {     //this enables the negative sign appear when editword is applied with the sign '-'.
+          if ((ch < "0" || ch > "9") && (ch != decimalChar || obj.decPos == 0) && (ch != negSign)) {     //this enables the negative sign appear when editword is applied with the sign '-'.
             ch = "";
           }
           value += ch;
