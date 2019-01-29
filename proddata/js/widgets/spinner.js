@@ -237,8 +237,11 @@ pui.widgets.add({
           }
         }, 1);
         // Default off if not set by 'html auto complete' property.
-        if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete))
+        if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
+          if (context == "dspf")
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+        }
       }
       else {
         parms.dom.sizeMe = function() {
@@ -293,8 +296,15 @@ pui.widgets.add({
     },
     
     "browser auto complete": function(parms) {
-      if (!parms.design)
+      if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
+        if (context == "dspf") {
+          if (parms.value == "off")
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          else
+            parms.dom.removeAttribute("name");
+        }
+      }
     }
 
   }
