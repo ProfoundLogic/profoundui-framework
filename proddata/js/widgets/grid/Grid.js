@@ -6488,16 +6488,28 @@ pui.Grid = function () {
   // Pass the optional colObj for hideable columns
   this.moveColumn = function (from, to, colObj) {
     for (var row = 0; row < me.cells.length; row++) {
-      var cell = me.cells[row][from];
+      var cellBeingMoved = cell = me.cells[row][from];
+
+      // Rearrange dom cells so tabbing is correct
+      if (me.cells[row].length > to) {
+    	  var moveBefore = me.cells[row][to];
+          cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
+      } else {
+    	  var moveAfter = me.cells[row][me.cells[row].length-1];
+    	  cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
+      }
+
       me.cells[row].splice(to, 0, cell); // insert a copy of the cell into the to position
       var adjustedFrom = from;
       if (to <= from) adjustedFrom++; // from has moved - we inserted something infront of it 
       me.cells[row].splice(adjustedFrom, 1); // remove the from cell
+
       // adjust col numbers on cells
       for (var col = 0; col < me.cells[row].length; col++) {
         cell = me.cells[row][col];
         cell.col = col;
       }
+
     }
     // adjust vertical lines
     for (var i = 1; i < me.vLines.length - 1; i++) {
