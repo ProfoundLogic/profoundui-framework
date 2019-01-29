@@ -73,8 +73,11 @@ pui.ComboBoxWidget = function() {
 
     box.type = "text";
     // Default off if not set by 'html auto complete' property.
-    if (box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete))
+    if (box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
       box.setAttribute("autocomplete", "off");
+      if (context == "dspf")
+        box.setAttribute("name", pui.randomTextBoxName());
+    }
     box.style.position = "absolute";
     box.style.border = "0px none";
     box.style.top = "0px";
@@ -85,7 +88,8 @@ pui.ComboBoxWidget = function() {
     box.style.outline = "none";
     if (me.div.className == "")
       me.div.className = "input";
-    box.name = me.div.name;
+    if (typeof me.div.name == "string")
+      box.name = me.div.name;
     if (me.design) {
       box.style.cursor = "default";
       box.readOnly = true;
@@ -671,8 +675,15 @@ pui.widgets.add({
     },
     
     "browser auto complete": function(parms) {
-      if (!parms.design && parms.dom.comboBoxWidget != null)
+      if (!parms.design && parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget.getBox().setAttribute("autocomplete", parms.value);
+        if (context == "dspf") {
+          if (parms.value == "off")
+            parms.dom.comboBoxWidget.getBox().setAttribute("name", pui.randomTextBoxName());
+          else
+            parms.dom.comboBoxWidget.getBox().removeAttribute("name");
+        }
+      }
     }
 
   },
