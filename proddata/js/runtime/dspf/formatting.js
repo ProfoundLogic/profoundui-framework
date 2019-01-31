@@ -1435,6 +1435,7 @@ pui.FieldFormat = {
         "Indicator": true,
         "Special": true
       },
+      "jsstring": {},
       "reference": {}
     };
     
