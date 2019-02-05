@@ -562,6 +562,7 @@ pui.SlidingScrollBar = function() {
       // IE div height limitation of 1,342,177 pixels
       var limit = 9999990;
       if (pui["is_old_ie"]) limit = 1342177;
+      else if (pui["is_ie"]) limit = 1533917; //IE10-11 have this limit, on testing; also, found that limit on MSDN forum. (Issue 5123)
       while (innerHeight > limit && multiplier > 1) {
         multiplier -= 1;
         innerHeight = (me.totalRows - me.rowsPerPage) * multiplier + height;
