@@ -1389,6 +1389,7 @@ pui.FieldFormat = {
     var invalid = {
       "char": {},
       "varchar": {},
+      "string": {},
       "graphic": {
         "Number": true,
         "Indicator": true,
@@ -1435,7 +1436,6 @@ pui.FieldFormat = {
         "Indicator": true,
         "Special": true
       },
-      "jsstring": {},
       "reference": {}
     };
     
