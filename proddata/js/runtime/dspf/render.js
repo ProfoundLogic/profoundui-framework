@@ -5466,29 +5466,33 @@ pui.isDup = function(parm) {
 pui.goToNextElement = function(target) {
     
   function findNextObj(obj) {
-  
-     var cell = obj.parentNode;
-     var rtnObj = obj.nextSibling;
-  
-     if (rtnObj != null && rtnObj.grid != null) {
-       if (rtnObj.grid.hasHeader) rtnObj = rtnObj.grid.cells[1][0].firstChild;
-       else rtnObj = rtnObj.grid.cells[0][0].firstChild;      
-     }
-  
-     // if within grid, go to elements in the next cell  
-     if (rtnObj == null && cell.parentNode.grid != null) {
-       if (cell.nextSibling != null) {
-         rtnObj = cell.nextSibling.firstChild;
-       }
-       else {
-         rtnObj = findNextObj(cell.parentNode.nextSibling);
-       } 
-     }
-
-     return rtnObj;     
+	  var beforeElements = [];
+	  var afterElements = [];
+	  
+	  var allInputs = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
+	  var element = null;
+	  var objIdx = null;
+	  for(var iCnt=0;iCnt<allInputs.length;iCnt++){
+		  element = allInputs[iCnt];
+		  
+		  // 1. We don't need to keep track of current obj.
+		  // 2. We don't care about hidden, readonly or not focusable elements (this will not drop all 100% of them... but close)
+		  // 3. We want the element in the propery order (starting at current Obj)
+		  if (element == obj) objIdx = iCnt;
+		  else if (!element.clientHeight || !element.clientWidth || element.readOnly == "true" || element.disabled == "true" || element.tabIndex == "-1" ) continue;
+		  else if (!objIdx) beforeElements.push(element);
+		  else afterElements.push(element);
+	  }
+	  
+	  // We want the afterElements to be before the beforeElements (so that it is in the proper order from current obj)
+	  var allElements = afterElements.concat(beforeElements);
+	  // Whatever the first element is, should be the next element we take them to...
+	  if (allElements.length > 0)
+		  return allElements[0];
+	  
+	  return null;
   }
   
-  if (target.parentNode.comboBoxWidget != null) target = target.parentNode;
   var nextObj = target;
   
   while ((nextObj = findNextObj(nextObj)) != null) {
@@ -5501,6 +5505,10 @@ pui.goToNextElement = function(target) {
       if (!nextObjBox.readOnly && !nextObjBox.disabled && nextObj.style.visibility != "hidden" && nextObjBox.tabIndex != "-1" ) {
         try {
           nextObjBox.focus();
+          // If the element we are trying to force focus doesn't get focus -- then it has something else causing this field to not allow it to be focused
+          // This should catch 100% of the other causes.
+          if (document.activeElement != nextObjBox)
+        	  continue;
           if (pui["highlight on focus"]) nextObjBox.select();
           setTimeout(function() {
             pui.returnCursor(null, nextObjBox);
