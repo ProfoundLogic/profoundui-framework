@@ -519,6 +519,10 @@ pui["capturePhoto"] = function(parms) {
   getPictureParm["destinationType"] = navigator["camera"]["DestinationType"]["FILE_URI"];
   getPictureParm["sourceType"] = navigator["camera"]["PictureSourceType"]["CAMERA"];
 
+  //Setting config option to correct the orientation of the image Issue 5102
+  getPictureParm["correctOrientation"] = true;
+ 
+
   var handler = parms["handler"];
   if (handler == null) {
     handler = function(response) {
