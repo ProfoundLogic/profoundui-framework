@@ -4563,29 +4563,26 @@ pui.Grid = function () {
         pui.addCssClass(cols[i], "hover");
       }
       else {
-        if (rowFontColor == null || rowFontColor == "") {
-          rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
-          if (rowFontColor){
+        rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
+        if (!rowFontColor || !rowFontColor.trim())
+        	rowFontColor = me.cellProps["row font color"];
+
+        if (rowFontColor && rowFontColor.trim()){
         	  var rowFontColors = rowFontColor.split(",");
         	  if (rowFontColors.length > 1)
-        		  rowFontColor = rowFontColors[i];
-          }
+        		  rowFontColor = rowFontColors[i].trim();
         }
-        if (rowBackground == null || rowBackground == "") {
-          rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
-          if (rowBackground){
-        	  var rowBackgrounds = rowBackground.split(",");
-        	  if (rowBackgrounds.length > 1)
-        		  rowBackground = rowBackgrounds[i];
-          }
+        setColor(cols[i], rowFontColor || " ", i);
+
+        rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
+        if (!rowBackground || !rowBackground.trim()) 
+          rowBackground = me.cellProps["row background"];
+        if (rowBackground && rowBackground.trim()){
+      	  var rowBackgrounds = rowBackground.split(",");
+      	  if (rowBackgrounds.length > 1)
+      		  rowBackground = rowBackgrounds[i].trim();
         }
-        setColor(cols[i], rowFontColor, i);
-        if (rowBackground == null) {
-          cols[i].style.backgroundColor = "";
-        }
-        else {
-          cols[i].style.backgroundColor = rowBackground;
-        }
+        cols[i].style.backgroundColor = rowBackground || " ";
         cols[i].style.backgroundImage = "";
       }
     }
