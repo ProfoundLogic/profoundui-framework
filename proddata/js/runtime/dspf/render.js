@@ -4467,18 +4467,25 @@ pui["run"] = function(config) {
     }
   }
   if (config["mode"] == "preview") {
-    if (window.opener == null || window.opener.pui == null || window.opener.pui["generatePreview"] == null) {
+    var genPreview = null;
+    if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
+    if (window.parent && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function") genPreview = window.parent.noderun["generatePreview"];
+    if (!genPreview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
     }
     else {
-      var preview = window.opener.pui["generatePreview"]();
+      var preview = genPreview();
       preview.container = container;
       pui.isPreview = true;
-      if (window.opener.pui.viewdesigner || window.opener.pui.nodedesigner) {
+      dummySubmit = false;
+      if (window.opener && window.opener.pui && window.opener.pui.viewdesigner) dummySubmit = true;
+      if (window.opener && window.opener.pui && window.opener.pui.nodedesigner) dummySubmit = true;
+      if (window.parent && window.parent.noderun) dummySubmit = true;
+      if (dummySubmit) {
         pui.handler = function(response) {
           ajaxJSON({
-            "url": "dummy_url",
+            "url": "/profoundui/dummy_submit",
             "method": "post",
             "params": response,
             "sendAsBinary": false,
