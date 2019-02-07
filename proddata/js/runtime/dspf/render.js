@@ -4469,7 +4469,7 @@ pui["run"] = function(config) {
   if (config["mode"] == "preview") {
     var genPreview = null;
     if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
-    if (window.parent && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function") genPreview = window.parent.noderun["generatePreview"];
+    if (window.parent && window.parent != window && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function") genPreview = window.parent.noderun["generatePreview"];
     if (!genPreview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
@@ -4481,7 +4481,7 @@ pui["run"] = function(config) {
       dummySubmit = false;
       if (window.opener && window.opener.pui && window.opener.pui.viewdesigner) dummySubmit = true;
       if (window.opener && window.opener.pui && window.opener.pui.nodedesigner) dummySubmit = true;
-      if (window.parent && window.parent.noderun) dummySubmit = true;
+      if (window.parent && window.parent != window && window.parent.noderun) dummySubmit = true;
       if (dummySubmit) {
         pui.handler = function(response) {
           ajaxJSON({
@@ -4821,7 +4821,7 @@ pui.closeSession = function() {
     return;
   }
   
-  if (window.parent != window && window.parent.pui["isCloud"]) {
+  if (window.parent != window && window.parent.pui && window.parent.pui["isCloud"]) {
     var ext = window.parent["Ext"];
     if (ext && ext["getCmp"]) {
       var stopButton = ext["getCmp"]("_south_panel_stop");
@@ -4832,6 +4832,11 @@ pui.closeSession = function() {
         }
       }
     }
+  }
+  
+  if (window.parent != window && window.parent.noderun && typeof window.parent.noderun["stopApp"] === "function") {
+    window.parent.noderun["stopApp"]();
+    return;
   }
  
   //document.body.style.backgroundColor = "#DFE8F6";
