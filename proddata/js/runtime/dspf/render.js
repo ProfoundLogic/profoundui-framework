@@ -4475,7 +4475,7 @@ pui["run"] = function(config) {
       var preview = window.opener.pui["generatePreview"]();
       preview.container = container;
       pui.isPreview = true;
-      if (window.opener.pui.viewdesigner) {
+      if (window.opener.pui.viewdesigner || window.opener.pui.nodedesigner) {
         pui.handler = function(response) {
           ajaxJSON({
             "url": "dummy_url",
