@@ -4572,7 +4572,7 @@ pui.Grid = function () {
         	  if (rowFontColors.length > 1)
         		  rowFontColor = rowFontColors[i].trim();
         }
-        setColor(cols[i], rowFontColor || " ", i);
+        setColor(cols[i], rowFontColor || "", i);
 
         rowBackground = me.cellProps["row background"];
         if (!rowBackground || !rowBackground.trim()) 
@@ -4583,7 +4583,7 @@ pui.Grid = function () {
       	  if (rowBackgrounds.length > 1)
       		  rowBackground = rowBackgrounds[i].trim();
         }
-        cols[i].style.backgroundColor = rowBackground || " ";
+        cols[i].style.backgroundColor = rowBackground || "";
         cols[i].style.backgroundImage = "";
       }
     }
