@@ -498,11 +498,13 @@ pui.cleanup = function() {
 
 
 pui.resize = function(inEmulator) {
-  // On mobile devices, the popup keyboard injects itself to the bottom of the body thus tripping this resize event
+	  
+  // On mobile devices, the virtual keyboard injects itself to the bottom of the body thus firing this resize event, thus causing focus to be lost
   // If the current active active has this special jobGotFocus, we can just get skip this event...
   if (pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
-    inEmulator.preventDefault();
-    inEmulator.stopImmediatePropagation();
+	inEmulator.cancel=true; 
+    if (inEmulator.preventDefault) inEmulator.preventDefault();
+    if (inEmulator["stopImmediatePropagation"]) inEmulator["stopImmediatePropagation"]();
     return;
   }
 	  
@@ -2222,7 +2224,7 @@ pui.renderFormat = function(parms) {
               evt.srcElement.justGotFocus = true;
               setTimeout(function(input) {
                 delete input.justGotFocus;
-              }, 500, evt.srcElement);
+              }, 1000, evt.srcElement);
             });
           }
           
