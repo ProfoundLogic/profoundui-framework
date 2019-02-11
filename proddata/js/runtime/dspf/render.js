@@ -2051,7 +2051,8 @@ pui.renderFormat = function(parms) {
             }
             var box = target;
             if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
-            if (printableChar && box.value.length == box.maxLength && getCursorPosition(box) >= box.maxLength) {
+
+            if (printableChar && box.value.length == box.maxLength && (pui["is_touch"] || (getCursorPosition(box) >= box.maxLength))) {
               pui.goToNextElement(target);
               preventEvent(event);
               return false;
@@ -5445,7 +5446,7 @@ pui.autoAdvanceOnKeyUp = function(event) {
   }
   var box = target;
   if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
-  if (box.value.length == box.maxLength && getCursorPosition(box) >= box.maxLength) {
+  if (box.value.length == box.maxLength && (pui["is_touch"] || (getCursorPosition(box) >= box.maxLength))) {
     pui.keyName = "Enter";
     pui.click();
   }
