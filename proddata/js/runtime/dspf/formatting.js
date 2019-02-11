@@ -933,6 +933,47 @@ pui.FieldFormat = {
         display: displayPattern
       };
       
+    },    
+
+    // return index where keyword DATFMT is found or -1 otherewise; cloned from parseKeywords()
+    findDatFmtIndex: function(keywords) {          
+      
+      if(keywords && keywords.length > 0) {
+        var datFmtRegex = /^\s*DATFMT\s*\(\s*(\*\w{3})\s*\)\s*$/i;
+        for (var i=0; i < keywords.length; i++) {
+          if (datFmtRegex.test(keywords[i]))
+            return i;   // return found index          
+        }
+      }
+
+      return -1;        // return -1 for not found
+    } ,
+
+    // return date in *ISO format, for compare 
+    getDateISO: function(boxValue, formattingObj) {
+
+      var returnBoxValue = boxValue;                                      // assume in *ISO format already                   
+  
+      // return date in *ISO format
+      // "boxValue" is in format of DDS keyword for the date field to be compared, with default of *ISO. 
+      // Need to use normalized *ISO value for compare.
+      // Note that if there's no DDS keyword, then "boxValue" is in *ISO format already.
+  
+      if (typeof formattingObj.keywords != "undefined") {                 // some DDS keyword specified
+        // need to replace any DATFMT() keyword with DATFMT(*ISO)
+        // Note that there maybe more than one keywords specfied (e.g. DATSEP); we need to keep that
+        var   indexSave;
+        indexSave = this.findDatFmtIndex(formattingObj.keywords);  
+        if (indexSave >= 0) {                                             // keyword DATFMT found
+          var   keyWordSave; 
+          keyWordSave = formattingObj.keywords[indexSave];
+          formattingObj.keywords[indexSave] = "DATFMT(*ISO)";
+          returnBoxValue = pui.FieldFormat.format(formattingObj);         // convert to *ISO YYYY-MM-DD format
+          formattingObj.keywords[indexSave] = keyWordSave;                // put back saved value
+        }                                                                 // ENDIF keyword DATFMT found
+      }                                                                   // ENDIF some DDS keyword specified
+  
+      return returnBoxValue;
     }
   },
   "Time": {
