@@ -1386,11 +1386,17 @@ pui.renderFormat = function(parms) {
         }
       }
       
+      var rangeLowDateISO   = null;
+      var rangeHighDateISO  = null;
+      
       // get properties for the item and put them into the "properties" object.
       for (var prop in items[i]) {
+
         if (prop == "domEls") continue;
+
         var propValue = items[i][prop];
         var newValue;
+      
         if (pui.isBound(propValue)) {
           if (isDesignMode) {
             designer.dataFields.addUsage({
@@ -1425,7 +1431,23 @@ pui.renderFormat = function(parms) {
               // field. To avoid letting an indicator's off-value become the color for each row, this must be a blank string. Issue 4775.
               newValue = "";
             }else{
+
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
+
+              // normalize range low/high for date data type   
+              if ((prop == "range low" || prop == "range high") && propValue.dataType == "date") {
+                var   dateFormatSave = propValue.dateFormat;
+                var   dateISO;
+
+                propValue.dateFormat = "Y-m-d";                         // convert to *ISO format YYYY-DD-DD
+                dateISO = pui.evalBoundProperty(propValue, data, parms.ref);
+                propValue.dateFormat = dateFormatSave;                  // put back saved value
+
+                if (prop == "range low") 
+                  rangeLowDateISO  = dateISO;
+                else
+                  rangeHighDateISO = dateISO;
+              }
             }
 
             if (prop == "value" || prop == "html") {
@@ -1479,18 +1501,43 @@ pui.renderFormat = function(parms) {
                 dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
             }
           }
-        }
-        else {
+        }       // endif bound to a field
+        else {  // not bound to a field
           if (!isDesignMode && container != null && container.isPUIWindow) {
             if (container.signature == null) container.signature = "";
             if (prop == "id" || prop == "top" || prop == "left") {
               container.signature += propValue;
             }
           }
-          newValue = propValue;
-        }
+
+          newValue = propValue;                 // resolved value for property NOT bound to a field
+          
+          // normalize range low/high for date data type, for specified literals              
+          if ((prop == "range low" || prop == "range high") && items[i].value.dataType == "date") {
+            var   dateFieldValue = items[i].value;
+            var   formattingObjTemp = {};
+            var   dateISO;
+            
+            // dummy up an object to pass to pui.FieldFormat.format() to convert to *ISO
+            // this formattingObjTemp has no keyword, so the "To-Format" would be *ISO
+            formattingObjTemp.dataType    = dateFieldValue.dataType;
+            formattingObjTemp.dateFormat  = dateFieldValue.dateFormat;        // "From-Format": date format in json
+            formattingObjTemp.formatting  = dateFieldValue.formatting;
+            formattingObjTemp.locale      = dateFieldValue.locale;
+            formattingObjTemp.value       = newValue;                         // rangeLow/rangeHigh value in json format
+            formattingObjTemp.revert      = true;                             // back to *ISO format
+            dateISO                       = pui.FieldFormat.format(formattingObjTemp);
+
+            if (prop == "range low")
+              rangeLowDateISO  = dateISO;
+            else
+              rangeHighDateISO = dateISO;            
+          }
+        } // endif not bound to a field
+
         properties[prop] = newValue;
-      }
+
+      } // endfor thru all properties
   
       // Retain information about tab panels, tab-layouts and their active tabs.
       if (properties["field type"] == "tab panel" || (properties["field type"] == "layout" && properties["template"] == "tab panel")) {
@@ -1905,12 +1952,19 @@ pui.renderFormat = function(parms) {
             if (propname == "comparison value" && propValue != null && propValue != "") {
               dom.compValue = propValue;
             }
+
             if (propname == "range low" && propValue != null && propValue != "") {
               dom.rangeLow = propValue;
+              if (rangeLowDateISO != null)
+                dom.rangeLowDateISO = rangeLowDateISO;
             }
+
             if (propname == "range high" && propValue != null && propValue != "") {
               dom.rangeHigh = propValue;
+              if (rangeHighDateISO != null)
+                dom.rangeHighDateISO = rangeHighDateISO;
             }
+                      
             if (propname == "checked value") {
               dom.checkedValue = propValue;
             }
@@ -3554,15 +3608,27 @@ pui.buildResponse = function() {
             }
           }
   
+          var   boxValueDateISO = null;
+
           if (typeof dom.rangeLow == "string") {
+
             var rangeLow = dom.rangeLow;
             var boxValue = value;
+
             if (formattingObj.formatting == "Number") {
               rangeLow = Number(rangeLow);
               boxValue = Number(boxValue);
             }
+
             if (typeof rangeLow == "string") rangeLow = rtrim(rangeLow);
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
+
+            if (formattingObj.formatting == "Date") {
+              boxValueDateISO = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);  // *ISO format for compare
+              boxValue        = boxValueDateISO;                                           
+              rangeLow        = dom.rangeLowDateISO; 
+            }
+
             if (boxValue < rangeLow) {
               var rangeLowDisp = dom.rangeLow;
               if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
@@ -3581,15 +3647,27 @@ pui.buildResponse = function() {
           }
   
           if (typeof dom.rangeHigh == "string") {
+            
             var rangeHigh = dom.rangeHigh;
             var boxValue = value;
+
             if (formattingObj.formatting == "Number") {
               rangeHigh = Number(rangeHigh);
               boxValue = Number(boxValue);
             }
+
+            if (formattingObj.formatting == "Date") {
+              if (boxValueDateISO == null)                                                  // not done yet
+                boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);     // *ISO format for compare
+              else
+                boxValue = boxValueDateISO;                
+              rangeHigh = dom.rangeHighDateISO;                         
+            }
+
             if (typeof rangeHigh == "string") rangeHigh = rtrim(rangeHigh);
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
-            if (boxValue > rangeHigh) {
+
+            if (boxValue > rangeHigh) {  
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
               var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [ rangeHighDisp ]);
