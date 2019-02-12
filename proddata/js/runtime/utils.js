@@ -1504,11 +1504,13 @@ pui.getSQLParams = function(properties, obj) {
 
     var try1 = "choices parameter value";
     var try2 = "parameter value";
+    var try3 = "blob parameter value";
     
     if (idx > 1) {
     
       try1 += " " + idx;
       try2 += " " + idx;
+      try3 += " " + idx;
     
     }
     
@@ -1516,6 +1518,11 @@ pui.getSQLParams = function(properties, obj) {
     if (propVal == "") {
     
       propVal = evalPropertyValue(properties[try2]);
+    
+    }
+    if (propVal == "") {
+      
+      propVal = evalPropertyValue(properties[try3]);
     
     }
     
