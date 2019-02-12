@@ -62,6 +62,33 @@ pui.imageElementMouseUp = function(image) {
   }
 }
 
+pui.imageGetDatabase = function(parms) {
+  
+  if (parms.design) return null;
+  
+  var dbfile = parms.evalProperty("blob table");
+  var blobCol = parms.evalProperty("blob column");
+  
+  if (dbfile!=null && blobCol!=null && dbfile!="" && blobCol!="") {
+    
+    var params = {};
+    var queryStr = "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"])
+                 + "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+    
+    pui.getSQLParams(parms.properties, params);
+    for (var name in params) {
+      queryStr += "&" + encodeURIComponent(name) + "=" + params[name];
+    }
+    
+    queryStr += "&rnd=" + String(Math.random()) + String(new Date().getTime());
+    
+    return getProgramURL("PUI0009118.PGM") + queryStr;
+    
+  }
+  
+  return null;
+}
+
 pui.widgets.add({
   name: "image",
   tag: "img",
@@ -74,6 +101,8 @@ pui.widgets.add({
       parms.dom.setAttribute('draggable', 'false');
       if (typeof parms.dom.style.MozUserSelect!="undefined") parms.dom.style.MozUserSelect = "none";
       parms.dom.originalImage = parms.evalProperty("image source");
+      var blobURL = pui.imageGetDatabase(parms);
+      if (blobURL) parms.dom.originalImage = blobURL;
       parms.dom.src = parms.dom.originalImage;
       
       function preload(imageSrc) {
@@ -119,6 +148,12 @@ pui.widgets.add({
           parms.designItem.designer.propWindow.updateProperty('width', '200px', true);
         }
       } 
+    },
+    
+    "blob column": function(parms) {
+      var blobURL = pui.imageGetDatabase(parms);
+      if (blobURL) parms.dom.originalImage = blobURL;
+      parms.dom.src = parms.dom.originalImage;
     },
 
     "hover image source": function(parms) {
