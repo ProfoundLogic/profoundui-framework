@@ -80,6 +80,7 @@ function AutoComplete(config) {
   var values;
   var recordSet;
   var ondbload;
+  var sentsequence = 0; //Helps prevent out-of-order results.
 
   /* CONSTRUCTOR */
 
@@ -211,7 +212,7 @@ function AutoComplete(config) {
   if (typeof(config.template) != "undefined") template = config.template;
   
   // Assign type ahead delay. Default to 0.2 second.
-  if (typeof(config.typeAheadDelay) != "undefined") typeAheadDelay = config.typeAheadDelay;
+  if (typeof config.typeAheadDelay === "number") typeAheadDelay = config.typeAheadDelay;
   else typeAheadDelay = 200;
   
   // Take scrollable/maxHeight from config. default=false 
@@ -670,8 +671,14 @@ function AutoComplete(config) {
     req["async"] = true;
     req["suppressAlert"] = true;
     req["postData"] = postData;
+    req["sequence"] = sentsequence;    //Helps avoid using out-of-sequence results.
     req["onready"] = function(req) {
       if (hiddenField) autoCompQueries -= 1;
+      
+      if (req["sequence"] != null){
+        if (req["sequence"] < sentsequence) return; //Newer results have been received, so discard this out-of-sequence one. #5136.
+        sentsequence++;
+      }
       
       var response = checkAjaxResponse(req, "Generate Auto-Complete Suggestions");
       if (!response) {
@@ -976,18 +983,6 @@ function AutoComplete(config) {
     activateRecord(Number(recordIndex));
     
   }
-
-  function getObjOffset(obj) {
-    var curleft = 0;
-    var curtop = 0;
-    if (obj && obj.parentNode) {
-      do {
-        if (obj.offsetLeft) curleft += obj.offsetLeft;
-        if (obj.offsetTop) curtop += obj.offsetTop;
-      } while (obj = obj.parentNode);
-    }
-    return { left: curleft, top: curtop };
-  }
   
   function isOnScrollbar(event) {
     if (usingScrollbar && scrollbarWidth!=null && resultPane.offsetWidth!=null) {
@@ -1157,6 +1152,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           template: tpl,
           onselect: onselect,
           ondbload: onDbLoadProp,
+          typeAheadDelay: pui["autocomplete typeahead delay"],
           valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
           beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
             
@@ -1288,8 +1284,8 @@ function applyAutoComp(properties, originalValue, domObj) {
         if (where != "") sql2 += " AND (" + where + ")";          
         
         var req = new pui.Ajax(getProgramURL("PUI0009102.PGM"));
-        req["method"] = "post",
-        req["async"] = true,
+        req["method"] = "post";
+        req["async"] = true;
         req["suppressAlert"] = true;
         if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
         if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
