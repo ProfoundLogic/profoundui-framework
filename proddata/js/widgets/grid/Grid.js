@@ -378,6 +378,7 @@ pui.Grid = function () {
     }
     positionIcons();
     me.setScrollBar();
+    me.pagingBar.attachDragDropEvents(cellDesign);
     me.sendToDesigner();
   };
 

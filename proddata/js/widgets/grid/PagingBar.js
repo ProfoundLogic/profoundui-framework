@@ -641,5 +641,13 @@ pui.PagingBar = function() {
     
     tempStatusDiv.style.display = "";
   };
+  
+  /**
+   * Attach Grids Drag-n-Drop events to this PagingBar.
+   * @returns {undefined}
+   */
+  this.attachDragDropEvents = function(dragDropCallback){
+    dragDropCallback(div);
+  };
 };
 
