@@ -1766,6 +1766,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         if (subfileRow != null) {
           eval("row = " + subfileRow + ";");
         }
+        eval("var rrn;");
+        if (subfileRow != null) {
+          eval("rrn = " + subfileRow + ";");
+        }
+        eval("var rowNumber;");
+        if (domObj.dataArrayIndex != null) {
+            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+        }
         pui["temp_event"] = e;
         eval("var event = pui.temp_event;");
         try {
