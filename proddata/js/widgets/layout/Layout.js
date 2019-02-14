@@ -206,9 +206,9 @@ pui.layout.Layout = function() {
       var overflowX = parent.style.overflowX;
       var overflowY = parent.style.overflowY;
       // In design mode, we accommodate to be able to show the layout border, etc. At runtime, the calculation is more exact.
-      dim.width -= ((me.designMode && me.template !== 'mobile device' || overflowX === 'auto' || overflowX === 'scroll') ? 4 : 2);
+      dim.width -= ((me.designMode && me.template !== 'mobile device' || overflowX === 'auto' || overflowX === 'scroll' || me.template == "table") ? 4 : 2);
       if (dim.width < 0) dim.width = 0;
-      dim.height -= ((me.designMode && me.template !== 'mobile device' || overflowY === 'auto' || overflowY === 'scroll') ? 4 : 2);
+      dim.height -= ((me.designMode && me.template !== 'mobile device' || overflowY === 'auto' || overflowY === 'scroll' || me.template == "table") ? 4 : 2);
       if (dim.height < 0) dim.height = 0;
       container.style.width = dim.width + "px";
       container.style.height = dim.height + "px";
