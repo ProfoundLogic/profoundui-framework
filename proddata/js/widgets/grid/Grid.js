@@ -2903,20 +2903,6 @@ pui.Grid = function () {
 
   }
 
-  function removeAllResponseElements() {
-    saveResponsesToDataArray();
-    var toRemove = [];
-    var startsWith = pui.formatUpper(me.recordFormatName) + ".";
-    for (var fldName in pui.responseElements) {
-      if (fldName.substr(0, startsWith.length) == startsWith) {
-        toRemove.push(fldName);
-      }
-    }
-    for (var i = 0; i < toRemove.length; i++) {
-      delete pui.responseElements[toRemove[i]];
-    }
-  }
-
   function saveResponsesToDataArray() {
     var fieldXRef = {};
     for (var i = 0; i < me.fieldNames.length; i++) {
@@ -6785,18 +6771,6 @@ pui.Grid = function () {
     me.setProperty("number of rows", String(numRows));
     me.sizeAllCells();
     me.setAllCellStyles();
-
-    // Found this code to be losing changes to components after grid resize for 
-    // 'expand to layout'. This causes auto-complete box to clear (due to lost hidden value)
-    // and also general loss of user edits to input fields due to 'removeAllResponseElements'. 
-
-    // It was not clear why it would need to do this, so we will disable it for now -- DR.
-
-    //for (var i = 0; i < me.runtimeChildren.length; i++) {
-    //  me.runtimeChildren[i].domEls = [];
-    //}
-    //removeAllResponseElements();
-
     me.getData();
   };
 
@@ -6839,7 +6813,7 @@ pui.Grid = function () {
       me.runtimeChildren[i].domEls = [];
     }
     if (refresh) me.refresh();
-  }
+  };
   
   function buildEntryFromObject(record) {
     var entry = [];
@@ -6856,7 +6830,7 @@ pui.Grid = function () {
     var entry = buildEntryFromObject(record);
     me.dataArray.push(entry);
     if (refresh) me.refresh();
-  } 
+  };
   
   this["addRecords"] = function(records, refresh) {
     for (var i = 0; i < records.length; i++) {
@@ -6864,13 +6838,13 @@ pui.Grid = function () {
       me["push"](record);
     }
     if (refresh) me.refresh();
-  }
+  };
 
   this["replaceRecords"] = function(records, refresh) {
     me["clear"]();
     me["addRecords"](records);
     if (refresh) me.refresh();
-  }
+  };
   
   this["splice"] = function(start, deleteCount) {
     // Adjust start assumming record number (not index) is passed in
@@ -6897,7 +6871,7 @@ pui.Grid = function () {
     }
     
     if (refresh) me.refresh();
-  }
+  };
 
   this["insertRow"] = function(start) {
     var refresh = false;
@@ -6909,7 +6883,7 @@ pui.Grid = function () {
       args.push(arg);
     }
     me["splice"].apply(me, args);
-  }
+  };
 
   this["unshiftRow"] = function() {
     var refresh = false;
@@ -6922,12 +6896,12 @@ pui.Grid = function () {
     }
     me["splice"].apply(me, args);
     if (refresh) me.refresh();
-  }
+  };
 
   this["removeRow"] = function(row, refresh) {
     me["splice"](row, 1);
     if (refresh) me.refresh();
-  }
+  };
   
   this["clearState"] = function (part) {
 
