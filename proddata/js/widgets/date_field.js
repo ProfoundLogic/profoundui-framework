@@ -202,7 +202,7 @@ function show_calendar(dateField, str_datetime, format) {
   }    
 
   var winSize = pui["getWindowSize"]();
-  var maxLeft = winSize.width - 230; // 230 is the width of the popup calendar plus the scrollbar
+  var maxLeft = winSize["width"] - 230; // 230 is the width of the popup calendar plus the scrollbar
   if (maxLeft < 0) maxLeft = 0;
   if (left > maxLeft) left = maxLeft;
   
