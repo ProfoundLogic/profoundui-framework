@@ -1045,6 +1045,11 @@ pui["getWindowSize"] = function() {
     winH = window.innerHeight;
   }
   
+  if (window.visualViewport && window.visualViewport.width && window.visualViewport.height) {
+	winW = window.visualViewport.width;
+	winH = window.visualViewport.height;
+  }
+  
   if (winW == null && screen != null) winW = screen.width;
   if (winH == null && screen != null) winH = screen.height;
   
