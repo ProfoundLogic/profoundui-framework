@@ -1967,7 +1967,7 @@ pui.checkForAtrium = function(parentWindow) {
 pui.windowAccessible = function(parentWindow) {
   var accessible = false;
   try {
-    if (parentWindow.location.url != null) accessible = true; //Throws exception if parent has different origin.
+    if (parentWindow.location["host"] != null) accessible = true; //Throws exception if parent has different origin.
   }
   catch(exc){}
   return accessible;
