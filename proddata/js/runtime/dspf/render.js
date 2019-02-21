@@ -4550,7 +4550,8 @@ pui["run"] = function(config) {
   if (config["mode"] == "preview") {
     var genPreview = null;
     if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
-    if (window.parent && window.parent != window && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function") genPreview = window.parent.noderun["generatePreview"];
+    if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function")
+      genPreview = window.parent.noderun["generatePreview"];
     if (!genPreview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
@@ -4559,10 +4560,10 @@ pui["run"] = function(config) {
       var preview = genPreview();
       preview.container = container;
       pui.isPreview = true;
-      dummySubmit = false;
+      var dummySubmit = false;
       if (window.opener && window.opener.pui && window.opener.pui.viewdesigner) dummySubmit = true;
       if (window.opener && window.opener.pui && window.opener.pui.nodedesigner) dummySubmit = true;
-      if (window.parent && window.parent != window && window.parent.noderun) dummySubmit = true;
+      if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) dummySubmit = true;
       if (dummySubmit) {
         pui.handler = function(response) {
           ajaxJSON({
@@ -4902,7 +4903,9 @@ pui.closeSession = function() {
     return;
   }
   
-  if (window.parent != window && window.parent.pui && window.parent.pui["isCloud"]) {
+  var parentAccessible = pui.windowAccessible(window.parent); //Avoid exception when session is in iframe in different origin than parent. #5165.
+  
+  if (window.parent != window && parentAccessible && window.parent.pui && window.parent.pui["isCloud"]) {
     var ext = window.parent["Ext"];
     if (ext && ext["getCmp"]) {
       var stopButton = ext["getCmp"]("_south_panel_stop");
@@ -4915,12 +4918,11 @@ pui.closeSession = function() {
     }
   }
   
-  if (window.parent != window && window.parent.noderun && typeof window.parent.noderun["stopApp"] === "function") {
+  if (window.parent != window && parentAccessible && window.parent.noderun && typeof window.parent.noderun["stopApp"] === "function") {
     window.parent.noderun["stopApp"]();
     return;
   }
  
-  //document.body.style.backgroundColor = "#DFE8F6";
   document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
