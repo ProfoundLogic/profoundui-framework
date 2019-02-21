@@ -1957,8 +1957,21 @@ pui.checkForAtrium = function(parentWindow) {
   }
 
   return hasAtrium;
-}
+};
 
+/**
+ * Return true if the parent window can be accessed via script. False indicates cross-origin exception. Fix for issue 5165.
+ * @param {Object} parentWindow
+ * @returns {Boolean}
+ */
+pui.windowAccessible = function(parentWindow) {
+  var accessible = false;
+  try {
+    if (parentWindow.location.url != null) accessible = true; //Throws exception if parent has different origin.
+  }
+  catch(exc){}
+  return accessible;
+};
 
 pui.isLocalStorage = function() {
 
