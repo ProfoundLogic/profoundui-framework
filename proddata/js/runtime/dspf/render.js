@@ -4479,6 +4479,7 @@ pui.handleF1 = function(e) {
 
 pui["run"] = function(config) {
   var mobile = (config["mobile"] === true);
+  var screenshot = (config["screenshot"] === true);
   var parameter = config["parameter"];
   var program = config["program"];
   if (program == null) program = "";
@@ -4527,7 +4528,8 @@ pui["run"] = function(config) {
   };
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
-    ajaxParams["workspace_url"] = location.href;    
+    ajaxParams["workspace_url"] = location.href;
+    if (screenshot) ajaxParams["screenshot"] = "1";
   }
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
@@ -4642,6 +4644,7 @@ pui["run"] = function(config) {
 
 pui["signon"] = function(config) {
   var mobile = (config["mobile"] === true);
+  var screenshot = (config["screenshot"] === true);
   var container = config["container"];
   var debug = config["debug"];
   var workstnid = config["workstnid"];
@@ -4688,6 +4691,7 @@ pui["signon"] = function(config) {
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
+    if (screenshot) ajaxParams["screenshot"] = "1";
   }  
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
@@ -4836,6 +4840,7 @@ pui.start = function() {
   var mode = parms["mode"];
   var controller = parms["controller"];
   var mobile = (parms["mobile"] === "1");
+  var screenshot = (parms["screenshot"] === "1");
   var observe = (parms["observe"] === "1");
   if (observe) pui.observed.enabled = true;
   var params = {};
@@ -4866,6 +4871,7 @@ pui.start = function() {
     "suffixid": suffixid,
     "duplicateid": duplicateid,    
     "mobile": mobile,
+    "screenshot": screenshot,
     "params": params,
     "observe": observe
   };
