@@ -515,35 +515,12 @@ pui.widgets.add({
       // Enable dragging if within window      
       var windowDiv = parms.dom.parentNode;      
       if (!parms.design && windowDiv != null && windowDiv.isPUIWindow == true) {
-        function mousedown(event) {
-          var cursorStartX = getMouseX(event);
-          var cursorStartY = getMouseY(event);
-          var startLeft = parseInt(windowDiv.style.left);
-          var startTop = parseInt(windowDiv.style.top);    
-          function mousemove(event) {            
-            var x = getMouseX(event);
-            var y = getMouseY(event);
-            if (x < 0) x = 0;
-            if (y < 0) y = 0;
-            windowDiv.style.top  = (startTop - cursorStartY + y) + "px";
-            windowDiv.style.left = (startLeft - cursorStartX + x) + "px";
-          }
-          function mouseup() {
-            removeEvent(document, "mousemove", mousemove);
-            removeEvent(document, "mouseup", mouseup);
-          }
-          addEvent(document, "mousemove", mousemove);
-          addEvent(document, "mouseup",   mouseup);
-          preventEvent(event);      
-        }
-        addEvent(panel.textDiv, "mousedown", mousedown);
-        addEvent(panel.topLeftDiv, "mousedown", mousedown);
-        addEvent(panel.topRightDiv, "mousedown", mousedown);        
-
+        
+        pui.makeMovable({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv, boundat: 'click' });
 
         addEvent(panel.textDiv, "touchstart", function(e) {
           if (e.touches.length != 1) return;  // Only deal with one finger
-          var touch = e.touches[0]
+          var touch = e.touches[0];
           windowDiv.touch = {};
           windowDiv.touch.startX = touch.pageX;
           windowDiv.touch.startY = touch.pageY;
