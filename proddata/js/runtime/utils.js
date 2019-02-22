@@ -2775,10 +2775,10 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
         if (inDesignMode() && widdep.length > 0) {
           widdep = widdep.filter(function(file) {
             if (designerIgnoredDependencies.indexOf(file) !== -1) {
-              return false
+              return false;
             }
             return true;
-          })
+          });
         }
         // Get the protocol, domain, and port for comparison because some script.src include those.
         var origin = "";
@@ -3826,8 +3826,8 @@ pui.xlsx_drawing = function(){
 
 /**
  * Returns the column descriptions for a database file or SQL statement.
- * @param {parm} object with "file" optionally "library", or "customSQL" 
- * @param  cb - gets called with the {request} object
+ * @param {Object} parm   object with "file" optionally "library", or "customSQL" 
+ * @param {Function} cb - gets called with the {request} object
  * 
  *  **** IMPORTANT NOTE ******************************************
  *   The fields array returned for database file is different than
@@ -3864,7 +3864,7 @@ pui.getFieldDescriptions = function(parm, cb){
     request["suppressAlert"] = true;
   var theCallback = function() {
     cb(request);
-  }
+  };
     request["onready"] = theCallback;
     request.send();
 };
@@ -3955,7 +3955,7 @@ pui.scriptError = function(error, prefix) {
     
   }
   
-}
+};
 
 pui.preFetchFontFiles = function() {
   // The preload font api is still not supported in every browser
@@ -3967,17 +3967,17 @@ pui.preFetchFontFiles = function() {
     'pui-fa-icons',
     'blueprint-defaults',
     'office-copy-defaults'
-  ]
+  ];
   iconFileList.forEach(function(iconClass) {
     var div = document.createElement('div');
-    div.innerText = 'face'
+    div.innerText = 'face';
     div.className = iconClass;
     div.style.visibility = 'hidden';
     div.style.left = '-1000px';
     div.style.position = 'absolute';
     document.body.appendChild(div);
-  })
-}
+  });
+};
 
 pui.fetchMonacoIntelliSenseLibraries = function () {
   if (pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
@@ -3985,7 +3985,7 @@ pui.fetchMonacoIntelliSenseLibraries = function () {
     var url = '/profoundui/proddata/typings/' + file;
     var request = new pui.Ajax(url);
     request["async"] = true;
-    request["headers"] = { "Content-Type": "text/plain" }
+    request["headers"] = { "Content-Type": "text/plain" };
     request["overrideMimeType"] = 'text/plain';
     request["suppressAlert"] = true;
     request["onsuccess"] = function(req) {
@@ -3998,11 +3998,11 @@ pui.fetchMonacoIntelliSenseLibraries = function () {
       }
     };
     request["onfail"] = function(req) {
-      console.error(req["getStatusMessage"]())
-    }
+      console.error(req["getStatusMessage"]());
+    };
     request.send();
-  })
-}
+  });
+};
 
 pui.getDefaultIconSets = function() {
   return [{
@@ -4034,4 +4034,90 @@ pui.randomTextBoxName = function() {
 
   return Math.random().toString(36).replace(/[^a-z]+/g, "");
 
-}
+};
+
+/**
+ * Attach a mousedown listener on an element allowing an element to be moved by dragging the mouse.
+ * Assume the listener is destroyed when the element is. Element can be fully or partially prevented from going off screen/container.
+ * @param {Object} params  Properties:
+ *   attachto:  element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
+ *   move:      element to move by setting its .style.top and .style.left.
+ *   boundat:   optional. defaults to 'border'. 'click' makes panel stop at bounds where mouse was clicked.
+ *   lbound:    optional. default to 0. 
+ *   tbound:    optional. default to 0.
+ *   rbound:    optional. default to no bounds.
+ *   bbound:    optional. default to no bounds.
+ *   downcb:    optional Function. callback for mousedown.
+ *   movecb:    optional Function. callback for mousemove.
+ *   upcb:      optional Function. callback for mouseup.
+ *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the moved element to this 
+ *                from mousedown until mouseup.
+ */
+pui.makeMovable = function(params){
+  var cursorStartX, cursorStartY, startLeft, startTop;
+  if (typeof params.lbound !== 'number') params.lbound = 0;
+  if (typeof params.tbound !== 'number') params.tbound = 0;
+  var mousemoveF = params.boundat === 'click' ? moveBoundAtClick : moveBoundAtBorder;
+  
+  if (params.attachto instanceof Array){
+    for (var i=0; i < params.attachto.length; i++){
+      addEvent(params.attachto[i], 'mousedown', mousedown );
+    }
+  }
+  else if(params.attachto != null){
+    addEvent(params.attachto, 'mousedown', mousedown );
+  }
+  
+  function mousedown(e){
+    preventEvent(e); //prevent selection start.
+    cursorStartX = pui.getMouseX(e);
+    cursorStartY = pui.getMouseY(e);
+    startLeft = params.move.offsetLeft;
+    startTop = params.move.offsetTop;
+    
+    if (typeof params.opacity === 'number'){
+      params.move.style.filter = 'alpha(opacity='+params.opacity+')';   //IE
+      params.move.style.opacity = '0.'+params.opacity;
+    }
+    
+    addEvent(document, 'mousemove', mousemoveF);
+    addEvent(document, 'mouseup', mouseup);
+  }
+  // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
+  function moveBoundAtClick(e){
+    var xy = pui.getMouseXY(e);
+    if (xy.x < params.lbound) xy.x = params.lbound;
+    if (xy.y < params.tbound) xy.y = params.tbound;
+    if (typeof params.rbound === 'number' && xy.x > params.rbound) xy.x = params.rbound;
+    if (typeof params.bbound === 'number' && xy.y > params.bbound) xy.y = params.bbound;
+    
+    params.move.style.left = (startLeft - cursorStartX + xy.x) + 'px';
+    params.move.style.top = (startTop - cursorStartY + xy.y) + 'px';
+    
+    if (typeof params.downcb === 'function') params.downcb();
+  }
+  // Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
+  function moveBoundAtBorder(e){
+    var xy = pui.getMouseXY(e);
+    var newx = startLeft + xy.x - cursorStartX;
+    var newy = startTop + xy.y - cursorStartY;
+    if (newx < params.lbound) newx = params.lbound;
+    if (newy < params.tbound) newy = params.tbound;
+    if (typeof params.rbound === 'number' && newx > params.rbound) newx = params.rbound;
+    if (typeof params.bbound === 'number' & newy > params.bbound) newy = params.bbound;
+    
+    params.move.style.left = newx + 'px';
+    params.move.style.top = newy + 'px';
+    
+    if (typeof params.movecb === 'function') params.movecb();
+  }
+  function mouseup(){
+    removeEvent(document, 'mousemove', mousemoveF);
+    removeEvent(document, 'mouseup', mouseup);
+    if (typeof params.upcb === 'function') params.upcb();
+    if (typeof params.opacity === 'number'){
+      params.move.style.filter = '';
+      params.move.style.opacity = '';
+    }
+  }
+};

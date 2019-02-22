@@ -271,28 +271,8 @@ pui.CSSPanel = function() {
   
   this.makeDraggable = function() {
     var windowDiv = me.container.parentNode;
-    function mousedown(event) {
-      var cursorStartX = getMouseX(event);
-      var cursorStartY = getMouseY(event);
-      var startLeft = parseInt(windowDiv.style.left);
-      var startTop = parseInt(windowDiv.style.top);    
-      function mousemove(event) {            
-        var x = getMouseX(event);
-        var y = getMouseY(event);
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        windowDiv.style.top  = (startTop - cursorStartY + y) + "px";
-        windowDiv.style.left = (startLeft - cursorStartX + x) + "px";
-      }
-      function mouseup() {
-        removeEvent(document, "mousemove", mousemove);
-        removeEvent(document, "mouseup", mouseup);
-      }
-      addEvent(document, "mousemove", mousemove);
-      addEvent(document, "mouseup",   mouseup);
-      preventEvent(event);      
-    }
-    addEvent(headerDiv, "mousedown", mousedown);
+    
+    pui.makeMovable({attachto: headerDiv, move: windowDiv, boundat: 'click'});
   
     addEvent(headerDiv, "touchstart", function(e) {
       if (e.touches.length != 1) return;  // Only deal with one finger
