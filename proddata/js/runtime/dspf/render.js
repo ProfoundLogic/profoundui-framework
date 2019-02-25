@@ -1798,6 +1798,7 @@ pui.renderFormat = function(parms) {
             }
             
             if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
+              if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
               pui.keyMap[formatName][propValue].push(dom);
               dom.shortcutKey = propValue;
