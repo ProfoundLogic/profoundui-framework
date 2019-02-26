@@ -601,7 +601,7 @@ pui.render = function(parms) {
     pui.resizeEventAssigned = true;
   }
 
-  if (!pui.backButtonSetup && history.pushState != null && history.replaceState != null) {
+  if (!pui.isPreview && !pui.backButtonSetup && history.pushState != null && history.replaceState != null) {
     history.replaceState({ puipage: "previous" }, document.title);
     history.pushState({ puipage: "current" }, document.title);
     addEvent(window, "popstate", pui.popstate);
