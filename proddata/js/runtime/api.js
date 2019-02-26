@@ -1851,7 +1851,10 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
       if (buttonName == null) buttonName = "OK";
       window["navigator"]["notification"].alert(msg, alertCallback, title, buttonName);
     }
-  }
+  }  
+  else if (pui.isPreview && window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) {  // noderun embed preview
+    // do nothing
+  }  
   else {
     alert(msg);
   }
