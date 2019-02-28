@@ -560,7 +560,7 @@ pui.render = function(parms) {
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
-  
+
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = null;
     var parmVersion = parms["version"].split('.');
@@ -925,7 +925,7 @@ pui.render = function(parms) {
         pui.lastFormatName = null;
       }
     }
-
+    
     if (i > 0 && formats.length > 0 && pui.evalBoundProperty(formats[0].metaData.screen["center window"], formats[0].data, formats[0].ref) == "true") {
       pui.centerWindow();
     }
@@ -934,6 +934,9 @@ pui.render = function(parms) {
     
   }
   
+  if (!pui.lastFormatName && pui["format"])
+	pui.lastFormatName = pui["format"];
+
   if (animation) pui.transitionAnimation.animate();
 
   if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true) ) {
@@ -1070,6 +1073,7 @@ pui.renderFormat = function(parms) {
   
   // Setup cursor and bypass validation.
   if (!isDesignMode && isMainFormat) {
+	formatName = formatName ?? pui["format"];
     pui.keyMap[formatName] = {};
     var namePrefix = pui.handler == null ? formatName + "." : "";
     // Note: all "return cursor location", RTNCSRLOC, fields need to be output for each format that uses them, even with overlays. Issue 4920.
