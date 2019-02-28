@@ -1073,7 +1073,7 @@ pui.renderFormat = function(parms) {
   
   // Setup cursor and bypass validation.
   if (!isDesignMode && isMainFormat) {
-	formatName = formatName ?? pui["format"];
+	formatName = formatName || pui["format"];
     pui.keyMap[formatName] = {};
     var namePrefix = pui.handler == null ? formatName + "." : "";
     // Note: all "return cursor location", RTNCSRLOC, fields need to be output for each format that uses them, even with overlays. Issue 4920.
