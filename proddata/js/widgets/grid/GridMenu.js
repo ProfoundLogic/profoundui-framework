@@ -213,23 +213,28 @@ pui.GridMenu = function() {
     var menuLists = [];
     var menuIcons = [];
     var optionHandlers = [];
-    if (me.grid.sortable && me.cell.sortColumn != null) {
-      menuOptions.push(pui["getLanguageText"]("runtimeText", "sort ascending text"));
-      menuIcons.push("icons/sort_ascending.png");
-      optionHandlers.push(function() {
-        me.cell.sortDescending = true;
-        if (me.grid.tableDiv.returnSortOrderField != null)
-          me.grid.returnSortOrder = "A";
-        me.cell.sortColumn();
-      });
-      menuOptions.push(pui["getLanguageText"]("runtimeText", "sort descending text"));
-      menuIcons.push("icons/sort_descending.png");
-      optionHandlers.push(function() {
-        me.cell.sortDescending = false;
-        if (me.grid.tableDiv.returnSortOrderField != null)
-          me.grid.returnSortOrder = "D";
-        me.cell.sortColumn();
-      });
+    if (me.grid.sortable) {
+      if (me.cell.sortColumn != null){
+        menuOptions.push(pui["getLanguageText"]("runtimeText", "sort ascending text"));
+        menuIcons.push("icons/sort_ascending.png");
+        optionHandlers.push(function() {
+          me.cell.sortDescending = true;
+          if (me.grid.tableDiv.returnSortOrderField != null)
+            me.grid.returnSortOrder = "A";
+          me.cell.sortColumn();
+        });
+        menuOptions.push(pui["getLanguageText"]("runtimeText", "sort descending text"));
+        menuIcons.push("icons/sort_descending.png");
+        optionHandlers.push(function() {
+          me.cell.sortDescending = false;
+          if (me.grid.tableDiv.returnSortOrderField != null)
+            me.grid.returnSortOrder = "D";
+          me.cell.sortColumn();
+        });
+      }
+      menuOptions.push(pui['getLanguageText']('runtimeText','sort...'));
+      menuIcons.push('icons/grid.png');
+      optionHandlers.push(me.grid.showMultiSortPanel);
     }
         
     if ( menuOptions.length > 0 && (me.grid.findOption || me.grid.filterOption) ) {
@@ -272,7 +277,7 @@ pui.GridMenu = function() {
       });
     }
     
-	if (me.grid.resetOption) {
+    if (me.grid.resetOption) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "reset data"));
       menuIcons.push("icons/default.png");
       optionHandlers.push(function() {
@@ -317,7 +322,7 @@ pui.GridMenu = function() {
 
         me.grid["removeAllFilters"]();
         me.grid["clearState"]();
-		  });
+      });
     }
 
     if (me.grid.hidableColumns) {

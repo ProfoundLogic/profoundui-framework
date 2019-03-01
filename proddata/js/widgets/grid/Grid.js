@@ -193,11 +193,14 @@ pui.Grid = function () {
   this.placeCursorRRN = null;
 
   this.defaultSortOrderArray = [];
-  this.initialSortColumn = null;
+  this.initialSortColumn = null;      //Value is null or a number value.
   this.initialSortField = null;
   this.columnSortResponse = null;
   this.fieldNameSortResponse = null;
   this.returnSortOrder = null;
+  this.initialSortColumnMulti = null; //Array if "initial sort column" is a comma-separated list.
+  this.initialSortFieldMulti = null; //Array if "initial sort field" is a comma-separated list.
+  
   this.contextMenuId = null;
 
   this.dataConsumed = false;
@@ -219,7 +222,7 @@ pui.Grid = function () {
   this.getCurrentColumnFromId = getCurrentColumnFromId;
   // Prevents attaching on scroll events and drawing scrollbar twice. Needed for grids in lazy load layouts.
   this.scrollBarsSetupAfterRender = false;
-
+  
   var me = this;
 
   var addRowIcon;
@@ -258,6 +261,9 @@ pui.Grid = function () {
   var findStartRow;
 
   var ondbload = null;
+  
+  var sortMultiOrder = [];    //Order of priority of sorting multiple columns.
+  var sortMultiPanel = null;  //UI for picking multiple sort columns.
 
   this.enableDesign = function () {
     me.designMode = true;
@@ -2023,6 +2029,8 @@ pui.Grid = function () {
     if (removeColumnIcon != null) removeColumnIcon.parentNode.removeChild(removeColumnIcon);
     if (columnPointer != null) columnPointer.parentNode.removeChild(columnPointer);
     columnPointer = null;
+    sortMultiOrder = null;
+    sortMultiPanel = null;
     delete me.dataArray;
     delete me.filteredDataArray;
     delete me.filterResponse;
@@ -2257,7 +2265,12 @@ pui.Grid = function () {
 
     return paddingCSS;
   }
-  // Optional headings parameter to set the column headings for hideable columns
+  
+  /**
+   * Set all column headings. This is called many times when the grid is created. Removes and restores icons in each column.
+   * It's also called on mouse moves of resizing columns or the grid.
+   * @param {Array} headings    Array of strings with headings. Optional parameter to set column headings for hideable columns.
+   */
   this.setHeadings = function (headings) {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
@@ -2266,10 +2279,18 @@ pui.Grid = function () {
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
       var hasFilter = false;
-      if (me.designMode == false && headerCell.filterIcon != null) {
-        hasFilter = true;
-        me.removeFilterIcon(headerCell);
+      var multiSort = null;
+      if (me.designMode == false) {
+        if (headerCell.filterIcon != null){
+          hasFilter = true;
+          me.removeFilterIcon(headerCell);
+        }
+        if (headerCell.multiSortIcon != null){
+          multiSort = headerCell.multiSortIcon;
+          if (multiSort.parentNode != null) multiSort.parentNode.removeChild(multiSort);
+        }
       }
+      
       if (me.columnHeadings.length <= i) {
         headerCell.innerHTML = "";
       }
@@ -2282,30 +2303,33 @@ pui.Grid = function () {
         else headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (me.columnHeadings[i] ? me.columnHeadings[i] : "") + '</div>';
         centerHeadingVertically(headerCell);
       }
+      
       // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.     
       if (hasFilter) {
         me.setFilterIcon(headerCell);
       }
+      
       var placeSortIcon = false;
-      if (me.designMode == false && me.sortable == true && me.sortIcon != null) {
-        if (clientSortColumnId == headerCell.columnId) {
-          placeSortIcon = true;
+      
+      if (me.designMode == false && me.sortable == true) {        // Add the multisort or regular sort icon to this column.
+        if (multiSort != null){
+          appendIcon(headerCell, multiSort);    //For load-all grids with multisort icons.
         }
-        else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
-          placeSortIcon = true;
-        }
-        else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
-          placeSortIcon = true;
-        }
-        if (placeSortIcon) {
-          if (me.sortIcon.parentNode != null) {
-            me.sortIcon.parentNode.removeChild(me.sortIcon);
+        else if (me.sortIcon != null) {
+          if (clientSortColumnId == headerCell.columnId) {
+            placeSortIcon = true;
           }
-          var destination = headerCell;
-          if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
-            destination = destination.firstChild;
+          else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
+            placeSortIcon = true;
           }
-          destination.appendChild(me.sortIcon);
+          else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
+            placeSortIcon = true;
+          }
+
+          if (placeSortIcon) {
+            detachSortIcon();
+            appendIcon(headerCell, me.sortIcon);
+          }
         }
       }
     }
@@ -2338,11 +2362,12 @@ pui.Grid = function () {
     addEvent(cell, "click", doSort);
     cell.sortColumn = doSort;
 
-    cell.sortDescending = !isDefaultSortDescending(col);
+    if (typeof cell.sortDescendingRestored === 'undefined')    //Else: restoreStateDataGrid already set it. Avoid losing ascending sort direction.
+      cell.sortDescending = !isDefaultSortDescending(col);
   }
 
   /**
-   * Setup the UI to allow sorting a column.
+   * Setup the UI to allow sorting a column. Parse server response for sort column and direction when available.
    * Called when the "sortable columns" property is set; i.e. when rendering (for genie),
    * and always near the end of pui.renderFormat() for each gridsToRender.
    * @returns {undefined}
@@ -2400,7 +2425,27 @@ pui.Grid = function () {
           }
         }
       }
-      if (me.initialSortColumn != null) {
+      
+      // Setup sort icons based on initial/default fields or server response.
+      if (me.initialSortColumnMulti instanceof Array){
+        function matches (arrEl, hcell, i){
+          if (parseInt(arrEl,10) !== hcell.columnId) return false;
+          if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
+          return true;
+        }
+        convertArrToMultiSort(me.initialSortColumnMulti, matches);
+        sortColumn(null, false, true);
+      }
+      else if (me.initialSortFieldMulti instanceof Array ){
+        function matches (arrEl, hcell, i){         //Compare element to header cell, set ascending when needed.
+          if (arrEl !== hcell.fieldName) return false;
+          if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
+          return true;
+        }
+        convertArrToMultiSort(me.initialSortFieldMulti, matches);
+        sortColumn(null, false, true);
+      }
+      else if (me.initialSortColumn != null) {
         sortColumn(headerRow[me.initialSortColumn], false, true);
       }
       else if (me.initialSortField != null) {
@@ -2555,21 +2600,26 @@ pui.Grid = function () {
     if (me.sortable && !me.isDataGrid() && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
 
       var sort = state["sort"];
-      if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
+      if (sort != null){
+        if (sort["columnId"] != null && sort["descending"] != null) {
 
-        var sortCell;
-        for (var i = 0; i < me.cells[0].length; i++) {
+          var sortCell;
+          for (var i = 0; i < me.cells[0].length; i++) {
 
-          if (me.cells[0][i].columnId == sort["columnId"]) {
+            if (me.cells[0][i].columnId == sort["columnId"]) {
 
-            sortCell = me.cells[0][i];
-            sortCell.sortDescending = !sort["descending"];
+              sortCell = me.cells[0][i];
+              sortCell.sortDescending = !sort["descending"];
 
+            }
           }
 
+          sortColumn(sortCell, true, false);
         }
-
-        sortColumn(sortCell, true, false);
+        else if (sort['multiSort'] instanceof Array){
+          restoreMultiSortOrder(sort['multiSort']);
+          sortColumn(null, true, false);
+        }
       }
     }
 
@@ -2587,7 +2637,7 @@ pui.Grid = function () {
     }
 
   };
-
+  
   /**
    * Restore filter and sort order of a data grid. This should be called only once:
    * the first time getData is called. This does not cause new AJAX calls.
@@ -2609,11 +2659,16 @@ pui.Grid = function () {
           if (me.cells[0][i].columnId == sort["columnId"]) {
             sortCell = me.cells[0][i];
             sortCell.sortDescending = !sort["descending"];
+            sortCell.sortDescendingRestored = true;   //Prevent attachClickEventForSQL from overwriting sortDescending.
           }
         }
 
         // Set the column properties without causing a request.
         sortColumnUsingSQL(sortCell, true);
+      }
+      else if (sort['multiSort'] instanceof Array){
+        restoreMultiSortOrder(sort['multiSort']);
+        sortColumnUsingSQL(null, true);
       }
     }
 
@@ -2642,6 +2697,38 @@ pui.Grid = function () {
     }
 
   }
+  
+  /**
+   * For each element in an array, compare it to header cells, adding to sortMultiOrder if matching.
+   * @param {Array} arr           Each element is iterated over, and for each, header cells are searched.
+   * @param {Function} matches    Comparator callback function.
+   */
+  function convertArrToMultiSort(arr, matches ){
+    for (var i=0; i < arr.length; i++){
+      for (var j=0; j < me.cells[0].length; j++){
+        var hcell = me.cells[0][j];
+        if (matches(arr[i], hcell, i)){
+          sortMultiOrder.push(hcell);
+          break;
+        }
+      }
+    }
+  }
+  
+  /**
+   * Set sortMultiOrder based on argument (from local storage). Called when state is restored.
+   * @param {Array} arr   Array of objects with columnId and sortDescending properties.
+   */
+  function restoreMultiSortOrder(arr){
+    sortMultiOrder = [];
+    function matches(arrEl, hcell){
+      if (hcell.columnId !== arrEl['columnId']) return false;
+      hcell.sortDescending = arrEl['descending'];
+      hcell.sortDescendingRestored = true;
+      return true;
+    }
+    convertArrToMultiSort(arr, matches);
+  }
 
   function isDefaultSortDescending(col) {
     var sortOrder = null;
@@ -2665,24 +2752,97 @@ pui.Grid = function () {
       headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); //use .columnId in case column moved.
     }
   }
-
-  function sortColumn(cell, restoring, initialSort) {
-    if (me.gridMenu != null) me.gridMenu.hide();
-    if (cell == null) return;
-    var sortIndex = cell.sortIndex;
-    var desc = cell.sortDescending;
+  
+  /**
+   * Set which columns are in the multi-sort, set the direction, and execute the sort.
+   * @param {Array} colPriority   An array of objects with keys, col and asc; columnId and do-sort-ascending.
+   * @returns {undefined}
+   */
+  this.multisort = function(colPriority){
+    clientSortColumnId = null;
+    sortMultiOrder = [];
+    if (!(colPriority instanceof Array)) return;
+    
     resetDefaultSort();
-    if (desc == null) desc = true;
-    if (me.sortIcon == null) {
-      me.sortIcon = document.createElement("img");
-      me.sortIcon.style.paddingLeft = "3px";
+    
+    var returnOrder = '';
+    var columnResponse = '';
+    var fieldNameResponse = '';
+    var comma = '';
+    
+    // Find columns specified in argument and place them in sortMultiOrder. Also build comma-separated lists.
+    function matches(arrEl, hcell){
+      if (arrEl.cid !== hcell.columnId) return false;
+      hcell.sortDescending = arrEl.desc;
+      returnOrder += comma + (arrEl.desc ? 'D' : 'A');
+      columnResponse += comma + arrEl.cid;
+      if (me.tableDiv.fieldNameSortResponseField != null) fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.col );
+      comma = ',';
+      return true;
+    }
+    convertArrToMultiSort(colPriority, matches);
+    
+    // Respond, or send db-driven request, or do client-side sorting.
+    if (me.tableDiv.columnSortResponseField != null) {
+      me.columnSortResponse = columnResponse;
+      pui.columnSortResponseGrid = me;
+      if (me.tableDiv.returnSortOrderField != null) me.returnSortOrder = returnOrder;
+      pui.respond();
+      pui.columnSortResponseGrid = null;
+    }
+    else if (me.tableDiv.fieldNameSortResponseField != null) {
+      me.fieldNameSortResponse = fieldNameResponse;
+      if (me.fieldNameSortResponse == null) {
+        me.returnSortOrder = null;
+        return;
+      }
+      if (me.tableDiv.returnSortOrderField != null) me.returnSortOrder = returnOrder;
+      pui.fieldNameSortResponseGrid = me;
+      pui.respond();
+      pui.fieldNameSortResponseGrid = null;
+    }
+    else if (me.isDataGrid()) {
+      sortColumnUsingSQL(null, false);
     }
     else {
-      if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+      sortColumn(null, false, false);
     }
+  };
 
+  /**
+   * When a grid header is clicked, this is called to sort the internal data. Multi-column sort may also call this.
+   * @param {Object|Null} cell  DOM element of header cell. When null, a multi-column sort must be the caller.
+   * @param {Boolean} restoring
+   * @param {Boolean} initialSort
+   * @returns {undefined}
+   */
+  function sortColumn(cell, restoring, initialSort) {
+    if (me.gridMenu != null) me.gridMenu.hide();
+    if (cell == null && sortMultiOrder.length < 1) return;
+    
+    var desc;   //Was descending; sort will be ascending if true. The cell was descending when clicked, so the user is switching the order.
+                //With multi-sort, the cell.sortDescending should have previously been set to the desired direction.
+    if (cell != null){
+      desc = cell.sortDescending;
+      resetDefaultSort();
+      if (desc == null) desc = true;
+    }
+    
+    var sortingFunction;
+    if (customGridSortFunction !== undefined) {
+      try {
+        var args = 'value1, value2, fieldName, isDescending, fieldDateFormat, fieldFormat, multiFields';
+        sortingFunction = new Function(args, customGridSortFunction);
+      } catch (error) {
+        if (error) {
+          console.log('Sort function error: ');
+          console.error(error);
+        }
+      }
+    }
+    
     if (me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
-      clientSortColumnId = cell.columnId;
+      if (cell != null) clientSortColumnId = cell.columnId;
       pui.rrnTracker = {}; // to do -- problem ... rrn tracker doesn't handle multiple grids?
 
       if (!me.sorted) {
@@ -2698,51 +2858,89 @@ pui.Grid = function () {
       me.sorted = true;
       saveResponsesToDataArray();
 
+      // Populate arguments for the custom sort functions.
       var fieldNameUpper = "";
       var fieldDateFormat = null;
       var fieldFormat = {};
-      if (typeof cell.fieldName == "string") fieldNameUpper = cell.fieldName.toUpperCase();
-      if (cell.dateFormat) fieldDateFormat = cell.dateFormat;
-      if (cell.fieldFormat) fieldFormat = cell.fieldFormat;
+      var multiFields = null;
+      function loadFieldInfo(hcell){
+        if (typeof hcell.fieldName === 'string') fieldNameUpper = hcell.fieldName.toUpperCase();
+        if (hcell.dateFormat) fieldDateFormat = hcell.dateFormat;
+        if (hcell.fieldFormat) fieldFormat = hcell.fieldFormat;
+      }
+      
+      if (cell != null) { 
+        loadFieldInfo(cell);
+      }
+      else if (customGridSortFunction !== undefined || typeof pui['gridSort'] == 'function'){
+        multiFields = [];
+        
+        for (var i=0; i < sortMultiOrder.length; i++){
+          loadFieldInfo(sortMultiOrder[i]);
+          multiFields.push({ 'fieldName': fieldNameUpper, 'fieldDateFormat': fieldDateFormat, 'fieldFormat': fieldFormat });
+        }
+      }
+      // done preparing for custom sort functions.
 
       function doSort(row1, row2) {
-        var value1 = row1[sortIndex];
-        var value2 = row2[sortIndex];
-        if (cell.dataType == "zoned" || cell.dataType == "floating") {
-          value1 = Number(value1);
-          value2 = Number(value2);
-        }
-        else if (cell.dataType == "reference") {
-          var refObj = me.ref[cell.fieldName];
-          if (refObj != null) {
-            if (refObj.dataType == 7 || refObj.dataType == 9 || refObj.dataType == 10) { // zoned, packed, floating
-              value1 = Number(value1);
-              value2 = Number(value2);
+        var value1, value2;
+        
+        function loadValues(sIndex, dataType, fieldName){
+          value1 = row1[sIndex];
+          value2 = row2[sIndex];
+          
+          if (dataType == "zoned" || dataType == "floating") {
+            value1 = Number(value1);
+            value2 = Number(value2);
+          }
+          else if (dataType == "reference") {
+            var refObj = me.ref[fieldName];
+            if (refObj != null) {
+              if (refObj.dataType == 7 || refObj.dataType == 9 || refObj.dataType == 10) { // zoned, packed, floating
+                value1 = Number(value1);
+                value2 = Number(value2);
+              }
             }
           }
+          else if (dataType == "graphic"){
+            value1 = pui.formatting.decodeGraphic(value1);
+            value2 = pui.formatting.decodeGraphic(value2);
+          }
         }
-        else if (cell.dataType == "graphic"){
-          value1 = pui.formatting.decodeGraphic(value1);
-          value2 = pui.formatting.decodeGraphic(value2);
+
+        if (cell != null){
+          loadValues(cell.sortIndex, cell.dataType, cell.fieldName);
         }
-        if (customGridSortFunction !== undefined) {
-          try {
-            var fieldName = fieldNameUpper;
-            var isDescending = desc;
-            var args = "value1, value2, fieldName, isDescending, fieldDateFormat, fieldFormat";
-            var sortingFunction = new Function(args,customGridSortFunction);
-            if (typeof sortingFunction == "function"){
-              return customSortHandler(sortingFunction, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat);
+        else {
+          // Get values from columns in order of sort priority.
+          var foundDiff = false;
+          var useVal1, useVal2;
+          for (var i=0; i < sortMultiOrder.length; i++){
+            var tmpcell = sortMultiOrder[i];
+            loadValues(tmpcell.sortIndex, tmpcell.dataType, tmpcell.fieldName);
+            
+            if (customGridSortFunction !== undefined || typeof pui['gridSort'] == 'function'){
+              multiFields[i]['value1'] = value1;
+              multiFields[i]['value2'] = value2;
             }
-          } catch (error) {
-            if (error) {
-              console.log("Sort function error: ");
-              console.error(error);
+
+            if (!foundDiff && value1 != value2){      //Values used for comparison are the first differences found.
+              desc = !tmpcell.sortDescending;  //In multi-sort, sortDescending has the desired direction, but the sort function expects the opposite.
+              useVal1 = value1;
+              useVal2 = value2;
+              foundDiff = true;
             }
           }
-        } 
+          if (desc == null) desc = true;
+          if (useVal1 != null) value1 = useVal1;
+          if (useVal2 != null) value2 = useVal2;
+        }
+
+        if (typeof sortingFunction == 'function'){
+          return customSortHandler(sortingFunction, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat, multiFields);
+        }
         else if (typeof pui["gridSort"] == "function") {
-          return customSortHandler(pui["gridSort"], value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat );
+          return customSortHandler(pui["gridSort"], value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat, multiFields );
         }
         else {
           // Decide if the value in one row is higher/lower than next row. See issues 5030 and 4297 for test cases.
@@ -2759,8 +2957,8 @@ pui.Grid = function () {
         }
       }
       // Handle the pui.gridSort and the screen level defined grid function. 
-      function customSortHandler(func, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat) {
-        var returnVal = func(value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat);
+      function customSortHandler(func, value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat, multiFields) {
+        var returnVal = func(value1, value2, fieldNameUpper, desc, fieldDateFormat, fieldFormat, multiFields);
         if (typeof returnVal != "number") returnVal = 0;
         if (returnVal > 0) {
           if (desc) return -1;
@@ -2826,26 +3024,37 @@ pui.Grid = function () {
 
     }
 
-    desc = !desc;
-    cell.sortDescending = desc;
-    me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
-    var destination = cell;
-    if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
-      destination = destination.firstChild;
+    if (cell != null){
+      desc = !desc;
+      cell.sortDescending = desc;
+      setSortIcon(cell, desc);
     }
-    destination.appendChild(me.sortIcon);
+    else {
+      detachSortIcon();
+      setMultiSortIcons();
+    }
 
     if (persistState && !restoring) {
 
       var obj = {};
-      obj["columnId"] = cell.columnId;
-      obj["descending"] = cell.sortDescending;
+      if (cell != null){
+        obj["columnId"] = cell.columnId;
+        obj["descending"] = cell.sortDescending;
+      } else if(sortMultiOrder.length > 0 ) {
+        obj['multiSort'] = [];
+        for (var i=0; i < sortMultiOrder.length; i++){
+          obj['multiSort'].push({
+            'columnId': sortMultiOrder[i].columnId,
+            'descending': sortMultiOrder[i].sortDescending
+          });
+        }
+      }
       saveState(obj, "sort");
 
     }
 
   }
-
+  
   /**
    * Update the UI to show a column as sorted, set the sort column, and reload
    * the grid when not restoring.
@@ -2855,22 +3064,29 @@ pui.Grid = function () {
    */
   function sortColumnUsingSQL(cell, restoring) {
     if (me.gridMenu != null) me.gridMenu.hide();
-    if (cell == null) return;
-    clientSortColumnId = cell.columnId;
-    var desc = cell.sortDescending;
-    resetDefaultSort();
-    if (desc == null) desc = true;
-    if (me.sortIcon == null) {
-      me.sortIcon = document.createElement("img");
-      me.sortIcon.style.paddingLeft = "3px";
+    if (cell == null && sortMultiOrder.length < 1) return;
+    
+    var desc; //When user clicked: false means sort will be descending.
+    
+    if (cell != null){
+      clientSortColumnId = cell.columnId;
+      var desc = cell.sortDescending;
+      resetDefaultSort();
+      if (desc == null) desc = true;
+    }
+    
+    if (cell != null){
+      me.sortBy = cell.columnId + 1; //column number works fine in db-driven and custom sql queries.
+      desc = !desc;
+      if (desc) me.sortBy += " DESC";
     }
     else {
-      if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+      me.sortBy = '';
+      for (var i=0; i < sortMultiOrder.length; i++){
+        desc = sortMultiOrder[i].sortDescending;
+        me.sortBy += (i > 0 ? ', ' : '') + (sortMultiOrder[i].columnId + 1) + (desc ? ' DESC' : '');
+      }
     }
-    me.sortBy = cell.columnId + 1; //column number works fine in db-driven and custom sql queries.
-    desc = !desc;
-    if (desc) me.sortBy += " DESC";
-
     me.sorted = true;
 
     // Avoid creating an XHR when restoring, which happens before the first XHR for data grids.
@@ -2884,23 +3100,94 @@ pui.Grid = function () {
       me.getData();
     }
 
-    cell.sortDescending = desc;
+    if (cell != null){
+      cell.sortDescending = desc;
+      setSortIcon(cell, desc);
+    }
+    else {
+      detachSortIcon();
+      setMultiSortIcons();
+    }
+
+    if (persistState && !restoring) {
+      
+      if (cell != null) {
+        var obj = {};
+        obj["columnId"] = cell.columnId;
+        obj["descending"] = cell.sortDescending;
+      }
+      else if (sortMultiOrder.length > 0){
+        obj['multiSort'] = [];
+        for (var i=0; i < sortMultiOrder.length; i++){
+          obj['multiSort'].push({
+            'columnId': sortMultiOrder[i].columnId,
+            'descending': sortMultiOrder[i].sortDescending
+          });
+        }
+      }
+      saveState(obj, "sort");
+    }
+
+  }
+  // Detach the sortIcon from its parent (header/div).
+  function detachSortIcon(){
+    if (me.sortIcon != null && me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+  }
+  // Add sortIcon to a header cell, moving it from other cells if it existed.
+  function setSortIcon(hcell, desc){
+    hideMultiSortIcons();
+    
+    if (me.sortIcon == null) {
+      me.sortIcon = document.createElement("img");
+      me.sortIcon.style.paddingLeft = "3px";
+    }
+    else {      // Remove existing icon from its previous parent.
+      if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
+    }
+    
     me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
-    var destination = cell;
+    appendIcon(hcell, me.sortIcon);
+  }
+  // Attach icon element to header cell or first DIV of header. Icon must be an element not already in DOM.
+  function appendIcon(hcell, iconEl){
+    var destination = hcell;
     if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
       destination = destination.firstChild;
     }
-    destination.appendChild(me.sortIcon);
-
-    if (persistState && !restoring) {
-
-      var obj = {};
-      obj["columnId"] = cell.columnId;
-      obj["descending"] = cell.sortDescending;
-      saveState(obj, "sort");
-
+    destination.appendChild(iconEl);
+  }
+  
+  // Hide any existing icons.
+  function hideMultiSortIcons(){
+    for (var i=0; i < me.cells[0].length; i++){
+      var hcell = me.cells[0][i];
+      if (hcell.multiSortIcon != null){
+        hcell.multiSortIcon.style.display = 'none';
+      }
     }
-
+  }
+  
+  // Display multi-sort icons for sorted columns.
+  function setMultiSortIcons(){
+    hideMultiSortIcons();
+    
+    for (var i=0; i < sortMultiOrder.length; i++){
+      var hcell = sortMultiOrder[i];
+      if (hcell.multiSortIcon == null) {
+        hcell.multiSortIcon = document.createElement('img');
+        hcell.multiSortIcon.style.paddingLeft = '3px';
+        hcell.multiSortIcon.style.cursor = 'pointer';
+        hcell.multiSortIcon.onclick = function(e){
+          if (!pui.isRightClick(e)){
+            preventEvent(e);
+            me.showMultiSortPanel();
+          }
+        };
+        appendIcon(hcell, hcell.multiSortIcon);
+      }
+      hcell.multiSortIcon.src = pui.normalizeURL('/profoundui/proddata/images/grids/' + (hcell.sortDescending === true ? 'descending.gif' : 'ascending.gif') );
+      hcell.multiSortIcon.style.display = '';
+    }
   }
 
   function saveResponsesToDataArray() {
@@ -3778,6 +4065,12 @@ pui.Grid = function () {
           me.columnHeadings = pui.parseCommaSeparatedList(value);
         }
         me.setHeadings();
+        
+        if (me.designMode && me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
+          for (var i=0; i < me.columnInfo.length && i < me.columnHeadings.length; i++){
+            me.columnInfo[i]['name'] = me.columnHeadings[i];
+          }
+        }
         break;
 
       case "sortable columns":
@@ -3801,12 +4094,22 @@ pui.Grid = function () {
         if (!me.designMode) {
           me.initialSortColumn = parseInt(value);
           if (isNaN(me.initialSortColumn)) me.initialSortColumn = null;
+          
+          if (typeof value === 'string'){
+            me.initialSortColumnMulti = value.split(',');
+            if (me.initialSortColumnMulti.length <= 1) me.initialSortColumnMulti = null;
+          }
         }
         break;
 
       case "initial sort field":
         if (!me.designMode) {
           me.initialSortField = value;
+          
+          if (typeof value === 'string'){
+            me.initialSortFieldMulti = value.split(',');
+            if (me.initialSortFieldMulti.length <= 1) me.initialSortFieldMulti = null;
+          }
         }
         break;
 
@@ -7627,7 +7930,10 @@ pui.Grid = function () {
       if (destination.firstChild != null && destination.firstChild.tagName == "DIV") {
         destination = destination.firstChild;
       }
+      // Insert the icon before the sort icon (or multisort icon).
       if (me.sortIcon != null && me.sortIcon.parentNode === destination) destination.insertBefore(headerCell.filterIcon, me.sortIcon);
+      else if (headerCell.multiSortIcon != null && headerCell.multiSortIcon.parentNode === destination)
+        destination.insertBefore(headerCell.filterIcon, headerCell.multiSortIcon);
       else destination.appendChild(headerCell.filterIcon);
     }
   };
@@ -8040,6 +8346,247 @@ pui.Grid = function () {
     itm.designer.propWindow.refreshProperty("column widths");
   };
   
+  this.showMultiSortPanel = function() {
+    if (me.tableDiv.parentNode == null) return;
+    
+    if (sortMultiPanel == null){
+      sortMultiPanel = document.createElement('div');
+      sortMultiPanel.className = 'grid-multisort' + (me.mainClass != '' ? ' ' + me.mainClass + '-multisort' : '');
+      sortMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+      sortMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      
+      var header = document.createElement('div');
+
+      pui.makeMovable({ attachto: header, move: sortMultiPanel });
+      
+      var btn = document.createElement('button');
+      btn.className = 'pui-material-icons';
+      btn.innerHTML = 'close';
+      addEvent(btn, 'click', function(){
+        sortMultiPanel.style.display = 'none';
+      });
+      header.appendChild(btn);
+      btn = document.createElement('button');
+      btn.className = 'pui-material-icons';
+      btn.innerHTML = 'check';
+      addEvent(btn, 'click', function(){
+        sortMultiPanel.style.display = 'none';
+        var sortparam = [];
+        for (var i=0; i < includetable.tBodies[0].rows.length; i++){
+          var tr = includetable.tBodies[0].rows[i];
+          if (tr.order >= 0){
+            sortparam.push({cid: tr.columnId, desc: tr.sortDescending});
+          }
+        }
+        me.multisort(sortparam);
+      });
+      header.appendChild(btn);
+      header.appendChild(document.createTextNode(pui['getLanguageText']('runtimeText','sort multiple')));
+      sortMultiPanel.appendChild(header);
+      
+      var includetable = document.createElement('table');
+      var thead = includetable.createTHead();
+      var tr = thead.insertRow();
+      tr['ondrop'] = move_drop;         //drag/drop: allow moving items to first row.
+      tr['ondragover'] = move_dragover;
+      tr['ondragleave'] = move_dragleave;
+      var td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','sort');
+      td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','order');
+      td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','column');
+      td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','direction');
+      
+      var tbody = document.createElement('tbody');
+      includetable.appendChild(tbody);
+
+      // If sort order was restored, sortMultiOrder may be set before the UI is made, so put things in correct order.
+      // Get a list of column info while calculating order based on sortMultiOrder being set on a column.
+      var rows = me.cells[0].map(function(hcell){
+        var order = -1;
+        for (var i=0; i < sortMultiOrder.length; i++){
+          if (hcell === sortMultiOrder[i]){
+            order = i;
+            break;
+          }
+        }
+        return { columnId: hcell.columnId, name: hcell['textContent'], sortDescending: hcell.sortDescending, order: order };
+      });
+      rows.sort(function(a,b){
+        if (a.order >= 0 && b.order >= 0) return a.order - b.order; //a is a smaller number; a comes before b.
+        if (a.order >= 0 && b.order < 0) return -1; //a is checked, b is not; a comes before b.
+        if (a.order < 0 && b.order >= 0) return 1; //b is checked, a is not; a comes after b.
+        return 0;  //Leave alone; a and b are not checked.
+      });
+      
+      for (var i=0; i < rows.length; i++){
+        var colname = rows[i].name;
+        var cid = rows[i].columnId;
+        var desc = rows[i].sortDescending;
+        
+        tr = tbody.insertRow();
+        tr.draggable = true;
+        tr.columnId = cid;
+        tr.sortDescending = desc;
+        tr.order = rows[i].order;
+        tr.ondragstart = move_dragstart;
+        tr['ondragend']   = move_dragend;
+        tr['ondrop']      = move_drop;
+        tr['ondragover']  = move_dragover;
+        tr['ondragleave'] = move_dragleave;
+
+        td = tr.insertCell();
+        var chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.name = colname + '_sort';
+        chk.onclick = checkonclick;
+        chk.checked = tr.order >= 0;
+        td.appendChild(chk);
+
+        td = tr.insertCell();
+        td.innerHTML = tr.order >= 0 ? tr.order : '&nbsp;';
+
+        td = tr.insertCell();
+        td.innerHTML = colname;
+        td.draggable = true;
+
+        td = tr.insertCell();
+        btn = document.createElement('button');
+        btn.className = 'pui-material-icons';
+        btn.innerHTML = tr.sortDescending ? 'arrow_downward' : 'arrow_upward';
+        btn.style.visibility = tr.order >= 0 ? '' : 'hidden';
+        addEvent(btn, 'click', function(e){
+          var tr = e.target.parentNode.parentNode;
+          if (e.target.innerHTML == 'arrow_downward'){
+            e.target.innerHTML = 'arrow_upward';
+            tr.sortDescending = false;
+          } else {
+            e.target.innerHTML = 'arrow_downward';
+            tr.sortDescending = true;
+          }
+        });
+        btn.enabled = false;
+        td.appendChild(btn);
+      }
+      sortMultiPanel.appendChild(includetable);
+      me.tableDiv.parentNode.appendChild(sortMultiPanel);
+    }
+    else if (sortMultiPanel.style.display == ''){
+      sortMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User clicked sort, but panel is already showing. Maybe it's behind something.
+      sortMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+    }
+    sortMultiPanel.style.display = '';
+    
+    function gettargetrow(e){
+      var target = e.target;
+      if (target.tagName == 'TD') target = target.parentNode;
+      if (target.tagName != 'TR') return null;
+      return target;
+    }
+    function move_dragstart(e){   // Handle dragging field rows up and down to re-order them.
+      var target = gettargetrow(e);
+      if (target) {
+        e.stopPropagation();
+        sortMultiPanel.move_srctr = target;
+        pui.addCssClass(target, 'move_origin');
+        try{
+          e.dataTransfer.setData('text/plain', target.columnId);  //Firefox requires setData before other drag events fire.
+        }catch(exc){}
+      }
+    }
+    function move_dragend(e){ //The drag sequence of events is finished.
+      var target = gettargetrow(e);
+      if (target){
+        pui.removeCssClass(target,'move_origin');
+        sortMultiPanel.move_srctr = null;  //Prevent "move" drag from reacting to another type of drag.
+      }
+    }    
+    function move_drop(e){    //A column name was dropped over another row. Handle the move. Note: e.dataTransfer.getData isn't needed.
+      preventEvent(e);  //Prevent page from redirecting as a link.
+      var target_tr = gettargetrow(e);
+      if (!target_tr) return;
+      
+      // Clear dragover visual feedback.
+      var table = target_tr.parentNode.parentNode;
+      if ( target_tr.parentNode == table.tHead ){
+        pui.removeCssClass(table.tHead.lastChild, 'move_valid'); //The line was below table head.
+      }else{
+        pui.removeCssClass(target_tr, 'move_valid');
+      }
+      
+      if (sortMultiPanel.move_srctr == null){
+        console.log('Origin row not set.');
+        return;
+      }
+      
+      var targetidx = target_tr.sectionRowIndex;
+      if (target_tr.parentNode == table.tHead) targetidx = -1; //insert before first tBodies[0] row.
+      targetidx++;    //document.element only has insertBefore(), so look to the next element.
+      target_tr = table.tBodies[0].rows[targetidx];
+      
+      if (sortMultiPanel.move_srctr !== target_tr){
+        table.tBodies[0].removeChild(sortMultiPanel.move_srctr);
+        table.tBodies[0].insertBefore(sortMultiPanel.move_srctr, target_tr);
+      }
+      recalcRows(table.tBodies[0]);
+    }
+    function move_dragover(e){    //Show visual feedback to indicate where a row may be dropped.
+      if (sortMultiPanel.move_srctr == null) return; //Prevent drop from other.
+      var target_tr = gettargetrow(e);
+      if (target_tr == null) return;
+      var table = target_tr.parentNode.parentNode;
+      
+      if (target_tr.parentNode == table.tHead ){   //Target is in the table heading; allow, and show feedback.
+        preventEvent(e); //without this the move_drop does not fire.
+        e.dataTransfer.dropEffect = 'move';
+        pui.addCssClass(table.tHead.lastChild,'move_valid');  //Show visual feedback for drop.
+      }
+      // Target row is in table body. Don't drop on self or on one above self.
+      else if ( target_tr != sortMultiPanel.move_srctr
+      && target_tr.sectionRowIndex != sortMultiPanel.move_srctr.sectionRowIndex - 1 ){
+        preventEvent(e); //without this the drop is not allowed.
+        e.dataTransfer.dropEffect = 'move';
+        pui.addCssClass(target_tr,'move_valid');  //Show visual feedback for drop.
+      }
+    }
+    function move_dragleave(e){   //Remove the visual feedback that had indicated where a row may have been dropped.
+      preventEvent(e);
+      var target = gettargetrow(e);
+      if (target) {
+        var table = target.parentNode.parentNode;
+        if (target.parentNode == table.tHead ){
+          target = table.tHead.lastChild; //The border was below the last header tr.
+        }
+        pui.removeCssClass(target,'move_valid'); //clear feedback.
+      }
+    }
+    function checkonclick(e){
+      recalcRows(e.target.parentNode.parentNode.parentNode);  //input, td, tr, tbody.
+    }
+    function recalcRows(tbody){
+      var order = 0;
+      // Re-calculate the order numbers, show/hide buttons.
+      for (var i=0; i < tbody.rows.length; i++){
+        var tr = tbody.rows[i];
+        var chk = tr.cells[0].children[0];
+        var ordercell = tr.cells[1];
+        var btn = tr.cells[3].children[0];
+        if (chk.checked){
+          tr.order = order;
+          ordercell.innerHTML = order;
+          order++;
+          btn.style.visibility = '';
+        }else{
+          tr.order = -1;
+          ordercell.innerHTML = '';
+          btn.style.visibility = 'hidden';
+        }
+      }
+    }
+  };
+  
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: pui.helpTextProperties("id","Specifies the ID that is used to access the grid from client-side code."), bind: false, canBeRemoved: false },
@@ -8128,7 +8675,7 @@ pui.Grid = function () {
       { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], help: pui.helpTextProperties("Descending","Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.",["other"]), context: "dspf" },
       { name: "initial sort column", format: "number", help: pui.helpTextProperties("blank","This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the \"initial sort field\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered."), context: "dspf" },
       { name: "initial sort field", help: pui.helpTextProperties("blank","This property specifies the field name used to identify the column for initial sorting. If this property and the \"initial sort column\" property are omitted or set to blanks, sorting is not initiated when the grid is first rendered."), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-      { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties."), context: "dspf" },
+      { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned","char"], help: pui.helpTextProperties("bind","Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties."), context: "dspf" },
       { name: "field name sort response", readOnly: true, help: pui.helpTextProperties("bind","Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties."), hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
       { name: "return sort order", readOnly: true, help: pui.helpTextProperties("bind","Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used."), hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
       { name: "sort function", type: "js", help:pui.helpTextProperties( "blank","Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", [], ""), context: "dspf"},
