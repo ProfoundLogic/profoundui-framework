@@ -602,10 +602,13 @@ pui.render = function(parms) {
   }
 
   if (!pui.isPreview && !pui.backButtonSetup && history.pushState != null && history.replaceState != null) {
-    history.replaceState({ puipage: "previous" }, document.title);
-    history.pushState({ puipage: "current" }, document.title);
-    addEvent(window, "popstate", pui.popstate);
-    pui.backButtonSetup = true;
+    var withinNodeRunEmbedBox = (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun);
+    if (!withinNodeRunEmbedBox) {
+      history.replaceState({ puipage: "previous" }, document.title);
+      history.pushState({ puipage: "current" }, document.title);
+      addEvent(window, "popstate", pui.popstate);
+      pui.backButtonSetup = true;
+    }
   }
 
   pui.cleanup();
