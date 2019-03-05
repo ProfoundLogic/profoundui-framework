@@ -7068,6 +7068,8 @@ pui.Grid = function () {
       me.recNum = row;
       me.getData();
     }
+    
+    return me.getRRN(row);
   };
 
   this["setNumberOfRows"] = function (numRows) {
@@ -8075,6 +8077,42 @@ pui.Grid = function () {
   this["showColumn"] = function (colId) {
     return me.handleHideShow(colId, true);
   };
+  
+  this["getRowNumber"] = function (rrn) {
+	var idx = rrn;
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+        
+    if (idx < 1) idx = 1;
+    if (idx > dataRecords.length) idx = dataRecords.length;
+    
+    // if data array has been sorted, we need to get the record
+    // based on it's original subfile row rather than
+    // it's position in the array.
+    if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
+      for (var i = 0; i < dataRecords.length; i++) {
+        if (dataRecords[i].subfileRow == idx) {
+          idx = i+1;
+          break;
+        }
+      }
+    }
+
+    return idx;
+  }
+
+  this["getRRN"] = function (rowNum) {
+	var row = rowNum;
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+
+    if (row < 1) row = 1;
+    if (row > dataRecords.length) row = dataRecords.length;
+
+    var record = dataRecords[row - 1];
+        
+    return record.subfileRow || row;
+  }
 
   // Handle the showColumn and hideColumn API's
   this.handleHideShow = function (colId, toShow) {
