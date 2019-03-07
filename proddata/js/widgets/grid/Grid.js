@@ -7069,7 +7069,7 @@ pui.Grid = function () {
       me.getData();
     }
     
-    return me.getRRN(row);
+    return me["getRRN"](row);
   };
 
   this["setNumberOfRows"] = function (numRows) {
