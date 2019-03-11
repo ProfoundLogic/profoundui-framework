@@ -36,7 +36,7 @@ pui.ResponsiveLayout = function(){
   this._numchildren = 0;
   this._stylenode = null;
   this._mainnode = null;      //The DIV to contain the container DIVs. This DIV gets the css template rules.
-  this._containerNames = null;       //List of box container names to aid in designing screens.
+  this._containerNames = [];       //List of box container names to aid in designing screens.
   
   // Private.
   var me = this;
@@ -104,14 +104,7 @@ pui.ResponsiveLayout = function(){
         var div = document.createElement("div");
         div.setAttribute("container", "true"); //Allows other widgets to go into this div.
 
-        var conttext = (i + 1) + (me._containerNames != null && typeof me._containerNames[i] === 'string' && me._containerNames[i].length > 0 ? ' ('+me._containerNames[i]+')' : '');
-        if (me.previewMode){
-          //Content of box is the DIV number and a descriptive name if provided. e.g. it displays like: "1 (Header)".
-          div.innerHTML = conttext;
-        }
-        else if (me.designMode){
-          div.setAttribute("containername", conttext); //This will be pulled out in the CSS rules.
-        }
+        setContainerName(i, div);
         
         me._mainnode.appendChild(div);
       } 
@@ -210,18 +203,50 @@ pui.ResponsiveLayout = function(){
     sizeContainers();
   };
   
+  /**
+   * Set list of container names for designer or the dialog.
+   * @param {String|Array} nameList
+   * @returns {undefined}
+   */
   this.setContainerNames = function(nameList){
-    me._containerNames = null;
+    me._containerNames = [];
     if (nameList != null && nameList != ""){
       if (pui.isBound(nameList)){
         var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
-        if (tmplist.length == 0 ) me._containerNames = null;
+        if (tmplist.length == 0 ) me._containerNames = [];
         else me._containerNames = tmplist;   //Use the bound value saved in designer.
+      } else if(nameList instanceof Array) {
+        me._containerNames = nameList;
       } else {
         me._containerNames = pui.parseCommaSeparatedList(nameList);
       }
     }
+
+    if((me.previewMode || me.designMode) && me._mainnode != null){    // If setNumItems has already run, then modify existing names.
+      for (var i = 0; i < me._mainnode.childNodes.length; i++) {
+        var div = me._mainnode.childNodes[i];
+        if (div.tagName === 'DIV'){
+          setContainerName(i, div);     //All divs should come before the <style> tag, so childNodes[i] should match _containerNames[i].
+        }
+      } 
+    }
   };
+  
+  /**
+   * Assign some text to a preview div or container in Designer.
+   * @param {Number} idx
+   * @param {Object} div
+   */
+  function setContainerName(idx, div){
+    var text = (idx + 1) + (typeof me._containerNames[idx] === 'string' && me._containerNames[idx].length > 0 ? ' ('+me._containerNames[idx]+')' : '');
+    if (me.previewMode){
+      //Content of box is the DIV number and a descriptive name if provided. e.g. it displays like: "1 (Header)".
+      div.innerHTML = text;
+    }
+    else if (me.designMode){
+      div.setAttribute("containername", text); //This will be pulled out in the CSS rules.
+    }            
+  }
   
   function sizeContainers(){
     if (me.container.layout != null) {
