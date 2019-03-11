@@ -814,13 +814,21 @@ pui.Grid = function () {
       workbook = new pui.xlsx_workbook();
       worksheet = new pui.xlsx_worksheet(colcount);
       worksheet.setDefaultRowHeight( me.rowHeight );
+      var widthsUse = [];
+      var widths;
       if (me.hidableColumns && !me.exportVisableOnly) {
-        worksheet.setColumnWidths(sortedColumnInfo.map(function(col){
+        widths = sortedColumnInfo.map(function(col){
            return col["orginalWidth"]; 
-        }));
+        });
       } else {
-        worksheet.setColumnWidths( me.getColumnWidths().split(",") );
+        widths = me.getColumnWidths().split(",");
       }
+      for (var i = 0; i < columnArray.length && i < widths.length; i++) { //Get column widths. Omit any columns that are not being exported.
+        if (columnArray[i] > -1) {
+          widthsUse.push(widths[i]);
+        }
+      }
+      worksheet.setColumnWidths( widthsUse );
       drawing = new pui.xlsx_drawing();
       colcount = 0;
       // Look at each column containing a value, set the format. Use same order that cell values will use.
