@@ -6337,6 +6337,8 @@ pui.transitionAnimation = {
     for (var i = 0; i < allElems.length; i++) {
       var elem = allElems[i];
       if (elem.hasAttribute("id")) elem.removeAttribute("id");
+      
+      if (typeof elem.sentToBackground == "function") elem.sentToBackground();  //Fix 5044.
     }
 
     // Create new screen as brand new pui div
