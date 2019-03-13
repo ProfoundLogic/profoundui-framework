@@ -2127,7 +2127,10 @@ pui.Grid = function () {
     changed = sendPropertyToDesigner(itm, "top", me.tableDiv.style.top) || changed;
     changed = sendPropertyToDesigner(itm, "height", me.tableDiv.style.height) || changed;
     changed = sendPropertyToDesigner(itm, "width", me.tableDiv.style.width) || changed;
-    if (changed) itm.designer.makeDirty();
+    if (changed){
+      itm.designer.makeDirty();
+      if (context === 'dspf') pui.ide.refreshRibbon();
+    }
     if (changed || forced) itm.designer.propWindow.refresh();
   };
 
