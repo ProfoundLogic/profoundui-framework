@@ -255,6 +255,12 @@ pui["fileUploadDND"].FileUpload = function(container) {
     return actualFileNames.slice();
   };
   
+  this["getGenerateNames"] = function() {
+
+    return generateNames;
+
+  };
+
   /**
    * Return the number of files dragged into the widget ready for upload.
    * 
@@ -463,7 +469,7 @@ pui["fileUploadDND"].FileUpload = function(container) {
     if (uploadEvent && uploadEvent.length > 0) {
       var obj = {};
       obj["dir"] = this.getTargetDirectory();
-      obj["names"] = this["getActualFileNames"]();
+      obj["names"] = (generateNames) ? this["getActualFileNames"]() : this["getFileNames"]();
       var func = function() {
         eval("var info = arguments[0];");
         try {
