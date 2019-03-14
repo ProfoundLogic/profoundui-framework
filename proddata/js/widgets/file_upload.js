@@ -254,6 +254,12 @@ pui["fileupload"].FileUpload = function(container) {
     
   };
   
+  this["getGenerateNames"] = function() {
+
+    return generateNames;
+
+  };
+
   this.setTargetDirectory = function(value) {
   
     if (typeof(value) == "string") {
@@ -622,7 +628,7 @@ pui["fileupload"].FileUpload = function(container) {
     
       var obj = {};
       obj["dir"] = this.getTargetDirectory();
-      obj["names"] = this["getActualFileNames"]();
+      obj["names"] = (generateNames) ? this["getActualFileNames"]() : this["getFileNames"]();
       
       var func = function() {
         eval("var info = arguments[0];");
@@ -1081,7 +1087,7 @@ pui.checkUploads = function(param) {
             
           }          
           
-          var namesArray = fileUpload["getActualFileNames"]();
+          var namesArray = (fileUpload["getGenerateNames"]()) ? fileUpload["getActualFileNames"]() : fileUpload["getFileNames"]();
           var names = "";
           for (var j = 0; j < namesArray.length; j++) {
           
