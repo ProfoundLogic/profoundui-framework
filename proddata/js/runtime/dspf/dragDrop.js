@@ -122,7 +122,7 @@ pui.attachDragDrop = function(dom, properties) {
         recordNumber = dataRecords[recordNumber - 1].subfileRow;
       }      
     }
-  
+    
     var dropTargetIds = properties["drop targets"];
     var dropTargets = [];
     if (dropTargetIds != null && dropTargetIds != "") {
@@ -216,8 +216,10 @@ pui.attachDragDrop = function(dom, properties) {
 
     function mousemove(event) {
       if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
-      var y = getMouseY(event) - cursorStartY;
-      var x = getMouseX(event) - cursorStartX;
+      var mousey = getMouseY(event);
+      var mousex = getMouseX(event);
+      var y = mousey - cursorStartY;
+      var x = mousex - cursorStartX;
 
       //For Issue 3634, Chrome has a bug where the mousemove would get called with a mousedown. This will let the click event occur if defined. 
       if (x == 0 && y == 0) return true;
@@ -266,7 +268,21 @@ pui.attachDragDrop = function(dom, properties) {
           var altRight2 = right2 - tgt.offsetWidth + tgt.parentNode.offsetWidth - tgt.offsetLeft;
           if (altRight2 < right2) right2 = altRight2;
         }
-        if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top)) {
+        
+        // Check if the mouse is outside the grid of this target. Allows large rows to be more easily dragged in side-by-side grids. #5192.
+        var mouseOutsideGrid = false;
+        if (tgt.relatedGrid != null){
+          var tgrdoff = pui.getOffset(tgt.relatedGrid.tableDiv);  //[left,top].
+          
+          var tgrdright = tgrdoff[0] + tgt.relatedGrid.tableDiv.offsetWidth;
+          var tgrdbot = tgrdoff[1] + tgt.relatedGrid.tableDiv.offsetHeight;
+          if ( mousex > tgrdright || mousex < tgrdoff[0] || mousey > tgrdbot || mousey < tgrdoff[1] ){
+            mouseOutsideGrid = true;
+          }
+        }
+        
+        // Do not use this as a drop-target, because one's already picked or it's not near the proxy or mouse.
+        if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top) || mouseOutsideGrid) {
           if (tgt.relatedGrid != null) {
             pui.removeCssClass(tgt, "grid-drop-target");
           }
