@@ -953,7 +953,7 @@ pui.beforeUnload = function(event) {
       catch(e) {
       }
     } 
-    if (context == "genie" || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && pui.ide.isDirty())) {
+    if (context == "genie" || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && typeof pui.ide.isDirty === 'function' && pui.ide.isDirty())) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
       else theCloseMessage = pui["getLanguageText"]("runtimeMsg", "closeMessage");
@@ -964,7 +964,7 @@ pui.beforeUnload = function(event) {
       return theCloseMessage;
     }
   }
-}
+};
 
 pui["unload"] = function() {
   if (pui.shutdownOnClose && pui.observer == null) {
