@@ -6298,6 +6298,7 @@ pui.isInputCapableProperty = function(propname, dom) {
       (propname == "upload response") ||  
       (propname == "tab response") ||  
       (propname == "active tab") ||  
+      (propname == "active section") || 
       (propname == "radio button group") ||  
       (propname == "page down response" && dom.grid != null && dom.grid.pagingBar != null) ||  
       (propname == "page up response" && dom.grid != null && dom.grid.pagingBar != null) ||  

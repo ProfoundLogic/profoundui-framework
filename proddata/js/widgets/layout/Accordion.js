@@ -175,6 +175,7 @@ pui.Accordion = function() {
         headerButton.setIcon("minus");
         headerButton.setDisabled(!allowCollapse);
         bodyDiv.style.display = "";
+        me.container.responseValue = sectionNumber;
         
         if (me.container.layout != null){
           if (!me.designMode){
