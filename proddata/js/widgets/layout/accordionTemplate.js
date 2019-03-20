@@ -40,7 +40,7 @@ pui.layout.template.accordionTemplate = function (parms) {
       {
         name: "active section",
         format: "number",
-        help: pui.helpTextProperties("0","This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on.")
+        help: pui.helpTextProperties("0","This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program.")
       },
       {
         name: "header theme",
