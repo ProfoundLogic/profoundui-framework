@@ -1777,6 +1777,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         pui["temp_event"] = e;
         eval("var event = pui.temp_event;");
         try {
+          if (pui["is_ios"]) {  
+            delete pui.iscrolltapped;  //Allow next CSS button tap to fire onclick. #5169.
+          }
+          
           var customFunction = eval(newValue);
           if (typeof customFunction == "function") {
             if (!e) e = window.event;
