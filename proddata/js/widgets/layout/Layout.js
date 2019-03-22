@@ -527,6 +527,7 @@ pui.layout.Layout = function() {
       var parent = me.layoutDiv.parentNode;
       if (parent != null && parent.tagName == "DIV") {
         if (pui["is_ios"]) {
+          
           document.body.addEventListener('tap', function (e) {
             e["preventDefault"]();
             e["stopPropagation"]();
@@ -539,13 +540,18 @@ pui.layout.Layout = function() {
             var target = getTarget(e);
             if (target) {
               if (!/^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/.test(target.tagName)) {
-                setTimeout(function() {
-                  var isCanceled = target.dispatchEvent(event);
-                  if (!isCanceled) {
-                    event["preventDefault"]();
-                    event["stopPropagation"]();
-                  }
-                },10);
+                
+                // Avoid firing onclick more than once per tap, as happens in 'scroller' classes. If last handled click was > 2 seconds ago, just fire. #5169.
+                if (pui.iscrolltapped == null || (new Date() - pui.iscrolltapped) > 2000 ){
+                  setTimeout(function() {
+                    var isCanceled = target.dispatchEvent(event);
+                    if (!isCanceled) {
+                      event["preventDefault"]();
+                      event["stopPropagation"]();
+                    }
+                  },10);
+                }
+                pui.iscrolltapped = new Date();  //Prevent next click; this will be cleared in 'onclick' in properties.js.
               }
             } 
           }, false);
