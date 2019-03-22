@@ -79,6 +79,10 @@ pui.layout.template.applyTemplate = function(parms) {
   // "sizeMe" is a special method that Designer and other code looks for in DOM elements sometimes.
   // Make sure each layout object's .container property references the correct DOM element.
   
+  if (dom.layout != null){
+    dom.layout.notifyvisibleOnce = dom.layout.stretch;  //Make sure layout and its children get size setup once it becomes visible. #4711.
+  }
+  
   if (newDom.panel != null) {
     dom.panel = newDom.panel;
     dom.sizeMe = dom.panel.resize;
@@ -109,7 +113,7 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.sizeMe = dom.tabLayout.resize;
     dom.tabLayout.container = dom;
     dom.layout.getActiveContainerNumbers = newDom.tabLayout.getActiveContainerNumbers; //Needed by lazy-load.
-    dom.layout.notifyvisibleOnce = newDom.tabLayout.checkScrollButtons; //Needed for scroll buttons when child is in hidden tab/section.
+    dom.layout.notifyvisibleOnce = newDom.tabLayout.resize;  //Needed for scroll buttons when child is in hidden tab/section. Also for #4711.
     
     // Preserve the active tab when a template property is changed; e.g. tab names.
     if (selectedTab != null && !isNaN(selectedTab) && selectedTab >= 0  
