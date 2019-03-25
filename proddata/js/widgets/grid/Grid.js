@@ -7236,7 +7236,32 @@ pui.Grid = function () {
             break;
 
           }
+        }
+        
+        if (me.hidableColumns){
+          // If hidable columns is true, then the column order is also in hidableColState and must be reset. #5262.
+          if (part === 'colsequence' && stg['hidableColState'] && stg['hidableColState']['cols']){
+            if (stg['colWidths'] instanceof Array){
+              var origwidths = stg['colWidths'].map(function(col){ return col; });  //get copy of current widths.
+              stg['colWidths'] = [];
+            }
 
+            // The order of hidableColState.cols is the unmoved sequence; restore sequence and save the correct widths.
+            var sequence = 0;
+            for (var j=0; j < stg['hidableColState']['cols'].length; j++){
+              var col = stg['hidableColState']['cols'][j];
+              if (col['savedColumn'] != null && col['savedColumn'] >= 0 && col['showing'] ){
+                if (origwidths) stg['colWidths'].push( origwidths[ col['savedColumn'] ] );
+
+                col['savedColumn'] = sequence++;
+              }
+            }
+          }
+          else if (part == 'hidablecolstate'){
+            delete stg['colWidths'];    //Reset saved widths to avoid using the wrong width.
+          }
+          
+          saveState(stg);
         }
 
       }
