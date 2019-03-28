@@ -352,7 +352,7 @@ pui.SlidingScrollBar = function() {
    * 
    * @param {Number} rowNum             Assume calling function parsed any strings into integers.
    * @param {Boolean} setPrevStartRow   When true, this.doScroll should return, doing nothing.
-   * @returns {Boolean}
+   * @returns {Boolean}                 Returns true if position of scrollbar changed, false if unchanged.
    */
   this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
     if (touchHandle != null) {
@@ -376,7 +376,10 @@ pui.SlidingScrollBar = function() {
       }
       var prevTop = outerDiv.scrollTop;
       outerDiv.scrollTop = (rowNum - 1) * multiplier; //fires "scroll", so doScroll is now in the event queue.
-      return (prevTop != outerDiv.scrollTop);  // return false if position of scrollbar not changed
+
+      if (prevTop != outerDiv.scrollTop) return true;
+      me.targetRow = null;  //Avoids breaking scrollbar when calling scrollToRow on current row. #5261.
+      return false;
     }
   };
   

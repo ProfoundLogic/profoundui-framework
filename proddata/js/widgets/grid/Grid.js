@@ -8135,7 +8135,7 @@ pui.Grid = function () {
     }
 
     return idx;
-  }
+  };
 
   this["getRRN"] = function (rowNum) {
 	var row = rowNum;
@@ -8147,8 +8147,8 @@ pui.Grid = function () {
 
     var record = dataRecords[row - 1];
         
-    return record.subfileRow || row;
-  }
+    return record != null && record.subfileRow ? record.subfileRow : row;
+  };
 
   // Handle the showColumn and hideColumn API's
   this.handleHideShow = function (colId, toShow) {
