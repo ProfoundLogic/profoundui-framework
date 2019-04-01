@@ -1520,7 +1520,7 @@ pui.renderFormat = function(parms) {
           newValue = propValue;                 // resolved value for property NOT bound to a field
           
           // normalize range low/high for date data type, for specified literals              
-          if ((prop == "range low" || prop == "range high") && items[i].value.dataType == "date") {
+          if ((prop == "range low" || prop == "range high") && items[i].value && items[i].value.dataType == "date") {
             var   dateFieldValue = items[i].value;
             var   formattingObjTemp = {};
             var   dateISO;
