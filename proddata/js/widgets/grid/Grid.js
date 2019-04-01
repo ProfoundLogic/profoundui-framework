@@ -1797,7 +1797,7 @@ pui.Grid = function () {
       me.clearData();
       var rowNum = (me.hasHeader ? 1 : 0);
       var lastRow = me.recNum + numRows - 1;
-      if (dataRecords.length < lastRow && me.scrollbarObj != null) {
+      if (dataRecords.length < lastRow) {     //If filter causes RRN to be too high, put RRN in range of records.
         me.recNum = me.recNum - lastRow + dataRecords.length;
         if (me.recNum < 1) me.recNum = 1;
         lastRow = dataRecords.length;
