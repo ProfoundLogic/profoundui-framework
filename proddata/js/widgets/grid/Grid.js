@@ -8114,6 +8114,23 @@ pui.Grid = function () {
     return me.handleHideShow(colId, true);
   };
   
+  /**
+   * Return true if a columnId is hidden.
+   * @param {Number} colId
+   * @returns {Boolean} True if column is hidden, false if visible or if colId was NaN or if colId was out of bounds.
+   */
+  this["isColumnHidden"] = function (colId){
+    if (typeof colId == 'string') colId = Number(colId);
+    if (!isNaN(colId)) {
+      for (var i=0; i < me.columnInfo.length; i++){
+        if (me.columnInfo[i]['columnId'] === colId ){
+          return me.columnInfo[i]['showing'] !== true;
+        }
+      }
+    }
+    return false;
+  };
+  
   this["getRowNumber"] = function (rrn) {
 	var idx = rrn;
     var dataRecords = me.dataArray;
