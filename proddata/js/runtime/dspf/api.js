@@ -507,22 +507,22 @@ pui["capturePhoto"] = function(parms) {
   var fileName = parms["fileName"];
   if (fileName == null) fileName = "image.jpg";
 
-  var getPictureParm = {};
-  //targetWidth and targetHeight must be used together according
-  //to the cordova-plugin-camera API documentation
-  if (parms["targetWidth"] != null && parms["targetHeight"] != null){
-    getPictureParm["targetWidth"] = parms["targetWidth"];
-    getPictureParm["targetHeight"] = parms["targetHeight"];
+  var cameraOptions = JSON.parse(JSON.stringify(parms));
+
+  // Set up some required/sane defaults and make sure certain options are used correctly
+  if (cameraOptions["quality"] == null) cameraOptions["quality"] = 50;
+  cameraOptions["destinationType"] = navigator["camera"]["DestinationType"]["FILE_URI"];
+  cameraOptions["sourceType"] = navigator["camera"]["PictureSourceType"]["CAMERA"];
+  
+  // targetWidth and targetHeight must be used together according to the cordova-plugin-camera API documentation
+  if (cameraOptions["targetWidth"] == null || cameraOptions["targetHeight"] == null) {
+    delete cameraOptions["targetWidth"];
+    delete cameraOptions["targetHeight"];
   }
-  getPictureParm["quality"] = parms["quality"];
-  if (getPictureParm["quality"] == null) getPictureParm["quality"] = 50;
-  getPictureParm["destinationType"] = navigator["camera"]["DestinationType"]["FILE_URI"];
-  getPictureParm["sourceType"] = navigator["camera"]["PictureSourceType"]["CAMERA"];
 
-  //Setting config option to correct the orientation of the image Issue 5102
-  getPictureParm["correctOrientation"] = true;
- 
-
+  // Ensure orientation is preserved, unless caller already set it
+  if (cameraOptions["correctOrientation"] == null) cameraOptions["correctOrientation"] = true;
+  
   var handler = parms["handler"];
   if (handler == null) {
     handler = function(response) {
@@ -538,7 +538,6 @@ pui["capturePhoto"] = function(parms) {
     }
   }
   
-  
   if (navigator["camera"] == null) {
     handler({
       "success": false,
@@ -546,18 +545,15 @@ pui["capturePhoto"] = function(parms) {
     });
     return;
   }
-  
-  
-
+    
   // Retrieve image file location from specified source
   // If we change sourcetype to Camera.PictureSourceType.CAMERA,
   // We can pull up the camera and take a picture and use that picture.
-  
   navigator["camera"]["getPicture"](uploadPhoto,
-                              function(msg) { 
-                                handler({ "success": false, "error": msg });
-                              },
-                              getPictureParm
+    function (msg) {
+      handler({ "success": false, "error": msg });
+    },
+    cameraOptions
   );
 
   function uploadPhoto(imageURI) {
