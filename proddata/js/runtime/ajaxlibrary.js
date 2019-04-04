@@ -23,7 +23,7 @@
 /*                                                                                                   */
 /* RPGsp AJAX Library Core                                                                           */
 /* Profound Logic Software, Inc.                                                                     */
-/* Version: 1.5.7                                                                                    */
+/* Version: 1.5.9                                                                                    */
 /* Author: David Russo / Alex Roytman                                                                */
 /* Created on: 07/09/2008                                                                            */
 /*                                                                                                   */
@@ -59,6 +59,10 @@
 /*                                                                                                   */
 /* Version 1.5.8 chgs:  Don't set Content-Length as it is now considered unsafe by browsers          */
 /*                                                                                                   */
+/* Version 1.5.9 chgs:  Allow reqData (alias for postData) and allow its use in both PUT and POST    */         
+/*                      requests. When sending non-form data, any name/value pairs should go onto    */
+/*                      URL instead of onto postData.                                                */
+/*                                                                                                   */
 /* Supported browsers:  IE6+                                                                         */
 /*                      Firefox 1.5+ / Win                                                           */
 /*                      Netscape 8+ / Win                                                            */
@@ -77,6 +81,7 @@ function RPGspRequest(arg) {
   // Public fields.
   this["method"]         = null;
   this["postData"]       = null;
+  this["reqData"]        = null;
   this["url"]            = null;
   this["async"]          = null;
   this["user"]           = null;
@@ -151,14 +156,17 @@ function RPGspRequest(arg) {
                   }                
                 }
                 
-                if (method == "POST") {
-                  if (me["postData"] != null) {
-                    if (typeof me["postData"] != "string") {
+                if (method == "POST" || method == "PUT") {
+                  if (me["reqData"] != null) {
+                    postData = me["reqData"];
+                  }
+                  else if (me["postData"] != null) {
+                    postData = me["postData"];
+                  }
+                  if (postData != null) {
+                    if (typeof postData != "string") {
                       alertFn('Invalid value for property: "postData".');
                       return;
-                    }
-                    else {
-                      postData = me["postData"];
                     }
                   }
                   else {
@@ -220,9 +228,22 @@ function RPGspRequest(arg) {
                   }
                 }
 
+                // Determine if postData is a set of name/value pairs (i.e. url-encoded form)
+                var isForm = true;
+                if (postData != null) {
+                  for (var name in me["headers"]) {
+                    if (name.toUpperCase() == "CONTENT-TYPE") {
+                       var ctype = me["headers"][name].toLowerCase();
+                       if (ctype.indexOf("www-form-urlencoded") == -1) {
+                         isForm = false;
+                       }
+                    }
+                  }                                    
+                }
+
                 // Handle params object.      
                 var url = me["url"];
-                var params = me["params"];
+                var params = me["params"];                
               
                 if (typeof(params) == "object") {
                   var paramString = "";  
@@ -243,7 +264,7 @@ function RPGspRequest(arg) {
                     }
                   }
                   if (paramString != "") {
-                    if (method.toUpperCase() == "POST") {
+                    if (isForm && (method == "POST" || method == "PUT")) {
                       if (postData != null && postData != "") postData += "&";
                       else postData = "";
                       postData += paramString;  
