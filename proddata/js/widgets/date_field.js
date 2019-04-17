@@ -387,7 +387,7 @@ function findPosX(obj){
   var curleft = 0;
   if(obj.offsetParent)
     while(1){
-      curleft += obj.offsetLeft;
+      curleft += obj.offsetLeft - obj.scrollLeft; //Subtract scrollLeft in case element is in scrolled layout. #2211
       if(!obj.offsetParent) break;
       obj = obj.offsetParent;
     }
@@ -398,7 +398,7 @@ function findPosY(obj){
   var curtop = 0;
   if(obj.offsetParent)
     while(1){
-      curtop += obj.offsetTop;
+      curtop += obj.offsetTop - obj.scrollTop;  //Subtract scrollTop in case element is in scrolled layout. #2211.
       if(!obj.offsetParent) break;
       obj = obj.offsetParent;
     }
@@ -431,7 +431,7 @@ function calendar_select() {
     pui.removeCssClass(pui.currentDateField, tip.getInvalidClass());
   }
 
-  try { pui.currentDateField.focus() }
+  try { pui.currentDateField.focus(); }
   catch(e) {};
   if (pui.currentDateField.onchange != null) {
     pui.currentDateField.onchange();
@@ -486,7 +486,7 @@ function cal(dateField, format) {
       if (e.stopPropagation) e.stopPropagation(); 
     }
     return false;
-  }
+  };
   if (dateField.parentTab!=null && dateField.parentTabPanel!=null) {
     newElem.parentTab = dateField.parentTab;
     newElem.parentTabPanel = dateField.parentTabPanel;
@@ -532,12 +532,12 @@ pui.moveCal = function(dateField){
   top += parseInt((dateField.offsetHeight - 22) / 2);
   gCalImage.style.top = top + "px";
   gCalImage.style.display = "block";
-}
+};
 pui.moveCals = function() {
   for (var i = 0; i < gDateCount; i++) {
     pui.moveCal(gDateField[i]);
   }
-}
+};
 
 pui.removeCal = function(dateField) {
   var cal = dateField.calimg;
@@ -545,7 +545,7 @@ pui.removeCal = function(dateField) {
     cal.parentNode.removeChild(cal);
     dateField.calimg = null;
   }
-}
+};
 
 
 pui.widgets.add({
@@ -615,10 +615,10 @@ pui.widgets.add({
         }
         parms.dom.sizeMe = function() {
           pui.moveCal(parms.dom);
-        }
+        };
         parms.dom.positionMe = function() {
           pui.moveCal(parms.dom);
-        }
+        };
       }
       if (parms.design) {
         parms.dom.readOnly = true;
@@ -626,12 +626,12 @@ pui.widgets.add({
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
-        }
+        };
         parms.dom.positionMe = function() {
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
-        }        
+        };
       }
     },
     "value": function(parms) {
