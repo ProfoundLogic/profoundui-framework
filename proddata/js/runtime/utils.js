@@ -1491,40 +1491,45 @@ pui.getSQLVarName = function(dom) {
   
   return varName;
 
-}
+};
 
+/**
+ * Generate SQL parameters in the form of a URL-encoded string based on supplied properties.   Test cases: see #5221.
+ * Pre-Conditions: Parameter names are mutually exclusive; e.g. "parameter value" isn't used when "choices parameter value" is.
+ * @param {Object} properties   Input. Key-value pairs of property names and values for the widget.
+ * @param {Object|Null} obj     Output. Not null for image widget; gets p1: val2, p2: val2, etc.
+ * @returns {String}
+ */
 pui.getSQLParams = function(properties, obj) {
 
   var isTextbox = (properties["field type"] == "textbox");
   var idx = 1;
   var propVal = "";
-  var paramString = "";
+  var paramString = "";       //The returned URL string.
+  var paramStringAnd = "";    //URL parameter separator. Becomes "&" after first parameter is set.
+  var pnameregex = /^(choices |blob )?(parameter value)( \d+)?/;
+  var suffix = "";
   
+  // Determine which property name is given and what the maximum parameter number is. There may be gaps between numbers.
+  var maxidx = 1;
+  var propname;
+  for (var p in properties){
+    var matches = pnameregex.exec(p);
+    if (matches){
+      if (propname == null){
+        propname = (matches[1] ? matches[1] : "") + matches[2];
+      }
+      if (matches[3] != null){
+        maxidx = Math.max(maxidx, parseInt(matches[3],10));
+      }
+    }
+  }
+  if (propname == null) return datetimestring();
+  
+  // Get each non-empty parameter in numerical order.
   do {
-
-    var try1 = "choices parameter value";
-    var try2 = "parameter value";
-    var try3 = "blob parameter value";
-    
-    if (idx > 1) {
-    
-      try1 += " " + idx;
-      try2 += " " + idx;
-      try3 += " " + idx;
-    
-    }
-    
-    propVal = evalPropertyValue(properties[try1]);
-    if (propVal == "") {
-    
-      propVal = evalPropertyValue(properties[try2]);
-    
-    }
-    if (propVal == "") {
-      
-      propVal = evalPropertyValue(properties[try3]);
-    
-    }
+        
+    propVal = evalPropertyValue(properties[propname + suffix]);
     
     if (propVal != "") {
     
@@ -1536,44 +1541,37 @@ pui.getSQLParams = function(properties, obj) {
       
       }    
     
-      if (paramString != "") {
-      
-        paramString += "&";
-      
-      } 
-      
-      paramString += "p" + paramNum + "=" + encodeURIComponent(propVal); 
+      paramString += paramStringAnd + "p" + paramNum + "=" + encodeURIComponent(propVal);
+      paramStringAnd = "&";
       
       if (obj != null) {
       
         obj["p" + paramNum] = propVal;
       
       }
-    
     }
   
     idx++;
+    
+    suffix = " " + idx;
   
-  } while (propVal != "");
+  } while (idx <= maxidx);
   
-  if (paramString != "") {
+  return datetimestring();
   
-    paramString += "&";
-  
+  function datetimestring(){
+    var dateFmt = pui.getSQLDateFmt();
+    var timeFmt = pui.getSQLTimeFmt();
+
+    paramString += paramStringAnd + "datfmt=" + encodeURIComponent(dateFmt.fmt);
+    paramString += "&datsep=" + encodeURIComponent(dateFmt.sep);
+    paramString += "&timfmt=" + encodeURIComponent(timeFmt.fmt);
+    paramString += "&timsep=" + encodeURIComponent(timeFmt.sep);
+    
+    return paramString;
   }
-  
-  var dateFmt = pui.getSQLDateFmt();
-  var timeFmt = pui.getSQLTimeFmt();
-  
-  paramString += "datfmt=" + encodeURIComponent(dateFmt.fmt);
-  paramString += "&datsep=" + encodeURIComponent(dateFmt.sep);
-  paramString += "&timfmt=" + encodeURIComponent(timeFmt.fmt);
-  paramString += "&timsep=" + encodeURIComponent(timeFmt.sep);
-  
-  return paramString;
 
-}
-
+};
 
 
 pui.isPercent = function(value) {
@@ -1582,7 +1580,7 @@ pui.isPercent = function(value) {
   if (value == "") return false;
   if (value.substr(value.length - 1, 1) == "%") return true;
   return false;
-}
+};
 
 
 pui.isNumericString = function(value) {
@@ -1592,7 +1590,7 @@ pui.isNumericString = function(value) {
   if (isNaN(num)) return false;
   if (String(num) === value) return true;
   return false;
-}
+};
 
 // Returns checks for position/dimension style given as a number and 
 // assigns px unit, if so. 
