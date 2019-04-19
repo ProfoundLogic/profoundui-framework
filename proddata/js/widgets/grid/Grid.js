@@ -4864,7 +4864,7 @@ pui.Grid = function () {
         pui.addCssClass(cols[i], "hover");
       }
       else {
-        rowFontColor = me.cellProps["row font color"];
+        rowFontColor = rowFontColor || me.cellProps["row font color"];
         if (!rowFontColor || !rowFontColor.trim())
         	rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
 
@@ -4875,7 +4875,7 @@ pui.Grid = function () {
         }
         setColor(cols[i], rowFontColor || "", i);
 
-        rowBackground = me.cellProps["row background"];
+        rowBackground = rowBackground || me.cellProps["row background"];
         if (!rowBackground || !rowBackground.trim()) 
           rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
         
