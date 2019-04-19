@@ -2677,7 +2677,7 @@ pui.Grid = function () {
         // Set the column properties without causing a request.
         sortColumnUsingSQL(sortCell, true);
       }
-      else if (sort['multiSort'] instanceof Array){
+      else if (sort != null && sort['multiSort'] instanceof Array){
         restoreMultiSortOrder(sort['multiSort']);
         sortColumnUsingSQL(null, true);
       }
@@ -3128,6 +3128,7 @@ pui.Grid = function () {
         obj["descending"] = cell.sortDescending;
       }
       else if (sortMultiOrder.length > 0){
+        var obj = {};
         obj['multiSort'] = [];
         for (var i=0; i < sortMultiOrder.length; i++){
           obj['multiSort'].push({
