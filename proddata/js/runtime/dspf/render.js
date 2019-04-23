@@ -5494,7 +5494,7 @@ pui.applyFocusClass = function(e) {
   }
   dom.className = cssClass;
   // For Combo Boxes
-  if (dom.parentNode && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
+  if (dom.parentNode && dom.parentNode["pui"] && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
     var parent = dom.parentNode;
     var parentClass = parent.className;
     if (parentClass == null) parentClass = "";
@@ -5517,7 +5517,7 @@ pui.removeFocusClass = function(e) {
   }
   dom.className = trim(cssClass);
   // For Combo Boxes
-  if (dom.parentNode && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
+  if (dom.parentNode && dom.parentNode["pui"] && dom.parentNode["pui"]["properties"]["field type"] === "combo box") {
     var parent = dom.parentNode;
     var parentClass = parent.className;
     if (parentClass == null) parentClass = "";
