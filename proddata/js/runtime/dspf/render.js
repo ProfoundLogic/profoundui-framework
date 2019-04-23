@@ -94,13 +94,6 @@ pui.pagingBarHeight = 27;
 pui["vertical button spacing"] = 33;     // this accounts for the height of the button as well, used in non-window formats
 pui["horizontal button spacing"] = 90;   // this accounts for the width of the button as well, used in window formats
 
-pui["dup"] = {};
-pui["dup"]["char"] = "\u25CF";  // this is a character that looks like a round circle
-pui["dup"]["keyCode"] = 45;     // Insert (the default dup key is Shift-Insert)
-pui["dup"]["shift"] = true;
-pui["dup"]["ctrl"] = false;
-pui["dup"]["alt"] = false;
-
 pui["highlight on focus"] = false;
 
 pui["window mask color"] = "#CCCCCC";
@@ -1864,35 +1857,7 @@ pui.renderFormat = function(parms) {
               addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
             }
             if (propname == "allow dup key" && propValue == "true") {
-              addEvent(dom, "keydown", function(event) {
-                event = event || window.event;                
-                var key = event.keyCode;
-                if (key == pui["dup"]["keyCode"]) {
-                  if (pui["dup"]["shift"] && !event.shiftKey) return;
-                  if (pui["dup"]["ctrl"] && !event.ctrlKey) return;
-                  if (pui["dup"]["alt"] && !event.altKey) return;
-                  var target = getTarget(event);
-                  var value = target.value;
-                  var maxLen = target.maxLength;
-                  if (maxLen == null) maxLen = 0;
-                  maxLen = Number(maxLen);
-                  if (isNaN(maxLen)) maxLen = 0;
-                  var pos = getCursorPosition(target);
-                  if (pos < 0) pos = 0;
-                  value = value.substr(0, pos );
-                  while (value.length < pos) {
-                    value += " ";
-                  }
-                  while (value.length < maxLen) {
-                    value += pui["dup"]["char"];
-                  }
-                  target.value = value;
-                  setModified(event);
-                  pui.goToNextElement(target);
-                  preventEvent(event);
-                  return false;
-                }                
-              });
+              addEvent(dom, "keydown", pui.dupKey);
             }
             var allowFieldExit = false;
             if (( pui["always allow field exit"] == true || pui["always allow field exit"]=="true" )
@@ -2211,15 +2176,7 @@ pui.renderFormat = function(parms) {
       // attach events that keep track of modified state / cursor, apply a key filter, set max length
       if (!isDesignMode) {
         function setModified(e) {
-          if (!pui.screenIsReady) return;
-          var target = getTarget(e);
-          target.modified = true;
-          if (target.parentNode != null && target.parentNode.comboBoxWidget != null) target.parentNode.modified = true;
-          pui.modified = true;
-          if (target.id != null && target.id.indexOf(".") == -1) {
-            // not a subfile field being modified
-            pui.ctlRecModified[formatName] = true;
-          }
+          pui.setModified(e, formatName);
         }
         // textboxes and text areas    
         if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
@@ -5559,16 +5516,6 @@ pui.translateDataType = function(dtype) {
     case 18: return "timestamp";
     default: return "char";
   }
-};
-
-
-pui.isDup = function(parm) {
-  var value = "";
-  if (typeof parm == "string") value = parm;
-  if (typeof parm == "object") value = parm.value;
-  if (value == null) value = "";
-  if (typeof value != "string") value = String(value);
-  return (value.indexOf(pui["dup"]["char"]) != -1);
 };
 
 

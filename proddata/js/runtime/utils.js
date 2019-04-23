@@ -4119,3 +4119,88 @@ pui.makeMovable = function(params){
     }
   }
 };
+
+pui.setModified = function(e, formatName) {
+  if (context == "dspf") {
+    if (!pui.screenIsReady) return;
+    var target = getTarget(e);
+    target.modified = true;
+    if (target.parentNode != null && target.parentNode.comboBoxWidget != null) target.parentNode.modified = true;
+    pui.modified = true;
+    if (target.id != null && target.id.indexOf(".") == -1) {
+      // not a subfile field being modified
+      pui.ctlRecModified[formatName] = true;
+    }
+  }
+  else {
+    // This check is here because the 'onchange' event on entry fields fires in Chrome
+    // when the pui.runtimeContainer contents are cleared.
+    // That causes input from prior screen to get put into response object!
+    // -- DR
+    if (!pui.genie.rendered) return;
+    var target = getTarget(e);
+    if (target == null) return;
+    var fieldInfo = target.fieldInfo;
+    if (fieldInfo == null) return;
+    var idx = fieldInfo["idx"];
+    if (idx == null) return;
+    idx = String(idx);
+    if (target.guiIndex != null) idx = "s" + idx + "." + target.guiIndex;
+    pui.response[idx] = target;
+
+    // Allow SNGCHCFLD radio buttons to be unchecked if allowRadioClear is set true.
+    if (target.type == "radio" && pui["genie"]["allowRadioClear"] && target.className.indexOf("selection-field-single") >= 0){
+      if (e.type == "click"){
+        // Delay handling until after "change" so we can know the field just changed. Not all browsers
+        // fire click before change, so the timeout also makes this approach cross-browser safe.
+        setTimeout(function(){
+          if (pui["ie_mode"] == 8 && target.checked != target.puiinitial ) target.justChanged = true;
+          if (target.checked && !target.justChanged ) target.checked = false;
+          target.justChanged = false;
+        },0);
+      }
+      else if (e.type == "change"){
+        target.justChanged = true;
+      }
+    } //done special handling of SNGCHCFLD.
+  }
+}
+
+pui.dupKey = function(event) {
+  event = event || window.event;
+  var key = event.keyCode;
+  if (key == pui["dup"]["keyCode"]) {
+    if (pui["dup"]["shift"] && !event.shiftKey) return;
+    if (pui["dup"]["ctrl"] && !event.ctrlKey) return;
+    if (pui["dup"]["alt"] && !event.altKey) return;
+    var target = getTarget(event);
+    var value = target.value;
+    var maxLen = target.maxLength;
+    if (maxLen == null) maxLen = 0;
+    maxLen = Number(maxLen);
+    if (isNaN(maxLen)) maxLen = 0;
+    var pos = getCursorPosition(target);
+    if (pos < 0) pos = 0;
+    value = value.substr(0, pos );
+    while (value.length < pos) {
+      value += " ";
+    }
+    while (value.length < maxLen) {
+      value += pui["dup"]["char"];
+    }
+    target.value = value;
+    pui.setModified(event);
+    pui.goToNextElement(target);
+    preventEvent(event);
+    return false;
+  }
+}
+
+pui.isDup = function(parm) {
+  var value = "";
+  if (typeof parm == "string") value = parm;
+  if (typeof parm == "object") value = parm.value;
+  if (value == null) value = "";
+  if (typeof value != "string") value = String(value);
+  return (value.indexOf(pui["dup"]["char"]) != -1);
+};
