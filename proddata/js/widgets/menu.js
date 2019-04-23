@@ -538,13 +538,16 @@ pui.widgets.add({
       else {
         parms.dom.menuWidget.choices = ["Option 1", "Option 2", "Option 3"];
       }
-      var choiceValues = parms.evalProperty("choice values");
-      if (choiceValues != null && choiceValues != ""){
-        //If the customer has applied "choice values" property before this, then use those. #4695.
-        parms.dom.menuWidget.choiceValues = pui.parseCommaSeparatedList(choiceValues);
-      }
-      else {
-        parms.dom.menuWidget.choiceValues = [];
+      
+      if (pui["onoptionclick value is text"] !== true){   // Disables fix for 4695, for issue 5336.
+        var choiceValues = parms.evalProperty("choice values");
+        if (choiceValues != null && choiceValues != ""){
+          //If the customer has applied "choice values" property before this, then use those. #4695.
+          parms.dom.menuWidget.choiceValues = pui.parseCommaSeparatedList(choiceValues);
+        }
+        else {
+          parms.dom.menuWidget.choiceValues = [];
+        }
       }
       
       parms.dom.menuWidget.container = parms.dom;
