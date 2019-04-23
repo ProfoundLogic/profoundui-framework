@@ -218,3 +218,10 @@ pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv|sh|md|sql
 // config option to 'allow field exit' everywhere without setting the property on
 // every widget
 pui["always allow field exit"] = false;
+
+pui["dup"] = {};
+pui["dup"]["char"] = "\u25CF";  // this is a character that looks like a round circle
+pui["dup"]["keyCode"] = 45;     // Insert (the default dup key is Shift-Insert)
+pui["dup"]["shift"] = true;
+pui["dup"]["ctrl"] = false;
+pui["dup"]["alt"] = false;
