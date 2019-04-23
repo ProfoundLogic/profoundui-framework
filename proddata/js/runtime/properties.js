@@ -1828,7 +1828,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (propConfigName == "id" || propConfigName == "field type" || propConfigName == "value") {
         pui.ide.refreshElementList();
       }
-      if (!designItem.isProxy) designItem.designer.makeDirty();
+      if (!designItem.isProxy){
+        designItem.designer.makeDirty();
+        pui.ide.refreshRibbon();  //Enable Save on toolbar
+      }
     }
   }
 
