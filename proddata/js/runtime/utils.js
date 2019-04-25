@@ -3306,7 +3306,8 @@ pui.xlsx_workbook = function(){
         zip["file"]("xl/drawings/_rels/drawing1.xml.rels", drawing.getDrawingRelsXML());
         var images = drawing.getImages();
         for (var i=0; i < images.length; i++){
-          zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+          if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
+            zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
         }
       }
     }
@@ -3669,7 +3670,7 @@ pui.xlsx_drawing = function(){
    * @returns {undefined}
    */
   this.addImage = function(row, column, imageURI, dimens){
-    var matches = imageURI.match(/\.(jpe?g|gif|png)$/i);
+    var matches = imageURI.match(/\.(jpe?g|gif|png)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
     if (matches == null){
       console.log("Unsupported image type in URI:",imageURI);
       return;
@@ -3775,19 +3776,22 @@ pui.xlsx_drawing = function(){
    * @returns {undefined}
    */
   this.loadImages = function(cbFinished, cbSetTempStatus){
+    if (rels.length < 1){   //It's possible image URLs didn't parse, but don't stop the download. #5342.
+      cbFinished();
+      return;
+    }
     
     var dlcount = 0;
     
     //Handler for XHR.onload. Waits until all XHRs are finished, moves the images to rel[i].image, then calls callback.
     function checkDone(){
       dlcount++;
-      if (rels.length > 0)
-        cbSetTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
+      cbSetTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
       if (dlcount < rels.length) return;  //Wait until all xhr's are finished.
       
       //All are finished, so extract the images.
       for (var i=0; i < rels.length; i++){
-        rels[i].image = rels[i].xhr.response;
+        if (rels[i].xhr.status == 200 ) rels[i].image = rels[i].xhr.response;
         rels[i].xhr = null;
         try{  delete rels[i].xhr;  }catch(exc){}
       }
