@@ -6788,6 +6788,7 @@ pui.Grid = function () {
   // Pass the optional colObj for hideable columns
   this.moveColumn = function (from, to, colObj) {
     for (var row = 0; row < me.cells.length; row++) {
+      var cell;
       var cellBeingMoved = cell = me.cells[row][from];
 
       // Rearrange dom cells so tabbing is correct
@@ -6906,6 +6907,7 @@ pui.Grid = function () {
       if (changed) {
         itm.designer.makeDirty();
         itm.designer.propWindow.refresh();
+        if (context == 'dspf') pui.ide.refreshRibbon();  //Enable Save button.
       }
     } //end if me.designMode.
     me.sizeAllCells();
