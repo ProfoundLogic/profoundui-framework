@@ -8573,6 +8573,14 @@ pui.Grid = function () {
     }
     sortMultiPanel.style.display = '';
     
+    // Fix when there isn't enough space in a layout to show all the columns: make scrollable. 5344.
+    var msHeaderHeight = 54;
+    if (me.tableDiv.parentNode.getAttribute('container') == 'true' && me.tableDiv.parentNode.offsetHeight > 0 ){
+      if (sortMultiPanel.offsetHeight > me.tableDiv.parentNode.offsetHeight - msHeaderHeight){
+        sortMultiPanel.style.height = me.tableDiv.parentNode.offsetHeight - msHeaderHeight + 'px';
+      }
+    }
+    
     function gettargetrow(e){
       var target = e.target;
       if (target.tagName == 'TD') target = target.parentNode;
