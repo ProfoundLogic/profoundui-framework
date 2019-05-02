@@ -3670,13 +3670,14 @@ pui.xlsx_drawing = function(){
    * @returns {undefined}
    */
   this.addImage = function(row, column, imageURI, dimens){
-    var matches = imageURI.match(/\.(jpe?g|gif|png)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
+    var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
     if (matches == null){
       console.log("Unsupported image type in URI:",imageURI);
       return;
     }
-    var ext = matches[1];
+    var ext = matches[1].toLowerCase();   //Upper-case content-types will break the spreadsheet. #5356.
     if (ext == "jpeg") ext = "jpg";
+    else if (ext == "tif") ext = "tiff";  //Excel expects image/tiff as content-type.
     
     //Look for the URL in a list of existing URLs.
     var rel = -1;
