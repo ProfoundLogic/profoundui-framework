@@ -1730,6 +1730,18 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         eval("var value = arguments[0];");
         eval("var increment = arguments[1];");
         eval("var spinner = arguments[2];");
+        eval("var row;");
+        if (subfileRow != null) {
+          eval("row = " + subfileRow + ";");
+        }
+        eval("var rrn;");
+        if (subfileRow != null) {
+          eval("rrn = " + subfileRow + ";");
+        }
+        eval("var rowNumber;");
+        if (domObj.dataArrayIndex != null) {
+            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+        }
         try {
           return eval(newValue);
         } catch (err) {
