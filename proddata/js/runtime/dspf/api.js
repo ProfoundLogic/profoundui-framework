@@ -231,6 +231,7 @@ pui["show"] = function(parms) {
   if (container != null && typeof container == "string") container = getObj(parms["container"]);
 
   if (container == null) pui.runtimeContainer = getObj("pui");
+  else pui.runtimeContainer = container;
   
   var layers = [{ "formats": formatList }];
   
