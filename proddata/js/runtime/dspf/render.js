@@ -604,7 +604,10 @@ pui.render = function(parms) {
     }
   }
 
-  pui.cleanup();
+  // React can render multiple screens as components, so we can't clean up other components when a new one is rendered
+  if (!window["React"]) {
+    pui.cleanup();
+  }
 
   pui.oldRenderParms = parms;
 

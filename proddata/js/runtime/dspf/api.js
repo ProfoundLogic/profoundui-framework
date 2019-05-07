@@ -246,19 +246,16 @@ pui["show"] = function(parms) {
   // Render screen after waiting for any existing PUI callbacks to complete, so
   // objects they reference aren't destroyed prematurely.
   setTimeout(function () {
-    if (container == null) {
-      pui.handler = handler;
-      if (pui.handler == null) pui.handler = function() { };
-      pui.render(obj);
+    pui.handler = handler;
+    if (pui.handler == null) pui.handler = function() { };
+    pui.render(obj);
+
+    if (parms["setDims"]) {
+      var screenDims = pui.getDimensions(container);
+      container.style.width = screenDims.x2 + "px";
+      container.style.height = screenDims.y2 + "px";
     }
-    else {
-      container.innerHTML = "";
-      var format = layers[0]["formats"][0];
-      format.lastLayer = true;
-      format.lastFormat = true;
-      format.container = container;
-      pui.renderFormat(format);
-    }
+
   }, 0);
 
 
