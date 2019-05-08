@@ -170,7 +170,6 @@ pui.detectMobileEmulation = function(container) {
     }
     return;  
   }
-  useFinger=true;
   if (useFinger) {
     var finger = document.createElement("img");
     finger.src = "/profoundui/proddata/images/ipad/finger.png";
