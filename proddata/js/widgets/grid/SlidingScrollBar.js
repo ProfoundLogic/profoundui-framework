@@ -56,9 +56,8 @@ pui.SlidingScrollBar = function() {
 
   var outerDiv;
   var innerDiv;
-  var innerDiv2;
-  var touchBar;
-  var touchHandle;
+  var touchBar;     //A track that touchHandle slides along for touch-capable devices. Hides when not scrolling.
+  var touchHandle;  //A scrollbar shown in touch-capable devices when the grid is scrolling.
   var rowNumDiv;
   var multiplier = 25;
   var prevStartRow = -1;
@@ -120,7 +119,7 @@ pui.SlidingScrollBar = function() {
       outerDiv.style.display = "none";
       
       touchHandle.style.opacity = fadeOutOpacity;
-
+      
       if (pui.iPadEmulation) {
         function mousedown(e) {
           var target = getTarget(e);
@@ -188,6 +187,12 @@ pui.SlidingScrollBar = function() {
       }
 
       if (!pui.iPadEmulation) {
+        var touchlastX, touchlastY;
+        
+        // Make the first movement after start be the required movement: if it causes scrolling, subsequent movements always must.
+        // If first movement does not cause scrolling, subsequent movements never can.
+        var scrollpage;
+        
         function touchstart(e) {
           if (e.touches.length != 1) return;  // Only deal with one finger
           var target = e.target;
@@ -215,6 +220,11 @@ pui.SlidingScrollBar = function() {
           if (touchHandle.lastTop != null) touchHandle.touch.startTop = touchHandle.lastTop;
           else touchHandle.touch.startTop = parseInt(touchHandle.style.top);
           //e.preventDefault();
+          
+          touchlastX = touch.pageX;
+          touchlastY = touch.pageY;
+          
+          scrollpage = null;
         }
         addEvent(touchHandle, "touchstart", touchstart);
         addEvent(gridDom, "touchstart", touchstart);
@@ -224,35 +234,53 @@ pui.SlidingScrollBar = function() {
           touchHandle.style.opacity = 1;          
           var touch = e.touches[0];
           var y = touch.pageY;
-          var now = new Date().getTime();
-          touchHandle.touch.duration = now - touchHandle.touch.lastTime;
-          touchHandle.touch.lastTime = now;
-          var deltaAdjustment = (me.totalRows / me.rowsPerPage) / 6;
-          if (deltaAdjustment < 1) deltaAdjustment = 1;
-          if (deltaAdjustment > 40) deltaAdjustment = 40;
-          touchHandle.touch.distance = (y - touchHandle.touch.lastY) / deltaAdjustment;
-          touchHandle.touch.lastY = y;
-          var top = touchHandle.touch.startTop;
-          var delta = y - touchHandle.touch.startY;
-          if (touchHandle.touch.reverse) delta = -delta;
-          delta /= deltaAdjustment;
-          top += delta;
-          var minTop = parseInt(touchBar.style.top);
-          var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
-          if (maxTop < minTop) maxTop = minTop;
-          if (top < minTop) top = minTop;
-          if (top > maxTop) top = maxTop;        
-          touchHandle.lastTop = top;
-          touchHandle.style.top = parseInt(top) + "px";
-          var pct = (top - minTop) / (maxTop - minTop);
-          if (isNaN(pct)) pct = 0;
-          var row = (me.totalRows - me.rowsPerPage) * pct;
-          row = Math.round(row) + 1;
-          me.doScroll(row);
-          var prevent = true;
-          if (me.gridDom && me.gridDom.grid.propagateScrollEvents) prevent = false;
-          if (prevent)
-             e.preventDefault();
+          
+          var deltaX = touch.pageX - touchlastX;
+          var deltaY = touch.pageY - touchlastY;
+          touchlastX = touch.pageX;
+          touchlastY = touch.pageY;
+          
+          if (scrollpage == null){
+            // Scroll the page on this touch if the first movement has more of an x component than y. #5320.
+            scrollpage = (Math.abs(deltaX) - Math.abs(deltaY) > 0);
+          }
+          
+          var propagate = me.gridDom && me.gridDom.grid.propagateScrollEvents;
+          
+          if (!scrollpage || propagate){
+            var now = new Date().getTime();
+            touchHandle.touch.duration = now - touchHandle.touch.lastTime;
+            touchHandle.touch.lastTime = now;
+            var deltaAdjustment = (me.totalRows / me.rowsPerPage) / 6;
+            if (deltaAdjustment < 1) deltaAdjustment = 1;
+            if (deltaAdjustment > 40) deltaAdjustment = 40;
+            touchHandle.touch.distance = (y - touchHandle.touch.lastY) / deltaAdjustment;
+            touchHandle.touch.lastY = y;
+            var top = touchHandle.touch.startTop;
+            var delta = y - touchHandle.touch.startY;
+            if (touchHandle.touch.reverse) delta = -delta;
+            delta /= deltaAdjustment;
+            top += delta;
+            var minTop = parseInt(touchBar.style.top);
+            var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
+            if (maxTop < minTop) maxTop = minTop;
+            if (top < minTop) top = minTop;
+            if (top > maxTop) top = maxTop;        
+            touchHandle.lastTop = top;
+            touchHandle.style.top = parseInt(top) + "px";
+            var pct = (top - minTop) / (maxTop - minTop);
+            if (isNaN(pct)) pct = 0;
+            var row = (me.totalRows - me.rowsPerPage) * pct;
+            row = Math.round(row) + 1;
+            me.doScroll(row);
+            var prevent = true;
+            if (propagate || scrollingPastEnd(delta, touchHandle.touch.reverse) ) prevent = false;
+            if (prevent){
+              e.preventDefault();
+            }else{
+              scrollpage = true;    //Once the page begins scrolling, do not scroll the grid. #5320.
+            }
+          }
         }
         addEvent(touchHandle, "touchmove", touchmove);
         addEvent(gridDom, "touchmove", touchmove);
@@ -642,7 +670,7 @@ pui.SlidingScrollBar = function() {
   };
 
   this.setClassName = function(value) {
-    outerDiv.className = 'pui-scrollbar'
+    outerDiv.className = 'pui-scrollbar';
     if (me.gridDom.grid && value) outerDiv.className += ' ' + value + '-pui-scrollbar';
   };
 
@@ -673,10 +701,10 @@ pui.SlidingScrollBar = function() {
       outerDiv.scrollTop -= delta * multiplier;
     }
     
-    /** Event handler for mouse wheel event.
-     * @param {Object} event    Mouse event.
+    /** Event handler for mouse wheel event. (Handles deprecated events)
+     * @param {Object} event    Mouse event. A deprecated MouseWheel or DOMMouseScroll.
      */
-    function wheel(event){
+    function mousewheel(event){
       var delta = 0;
       if (!event) event = window.event;  // For IE.
       if (event.wheelDelta) { // IE/Opera.
@@ -691,6 +719,46 @@ pui.SlidingScrollBar = function() {
                */
               delta = -event.detail/3;
       }
+      deltaEvent(delta, event);
+    }
+    
+    /**
+     * Handle newer, non-deprecated mouse wheel event. Normalize the deltaY, which is different for each implementation.
+     * @param {WheelEvent} event
+     */
+    function wheel(event){
+      var delta = 0;
+      // Old mousewheel code expects negative to mean scrolling down, positive to mean scrolling up.
+      if (pui['is_firefox']) {
+        // In Firefox, deltaY is multiple of 3, negative = wheel pushed forward/up, positive = wheel pulled back/down. deltaMode: 1
+        delta = event.deltaY / -3;
+      }
+      else if (pui['is_ie']){
+        // IE10-11, deltaY is multiple of 144.3000030517578, same sign as Firefox.   deltaMode: 0.
+        // Edge, deltaY is multiple of 144.4499969482422, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 120.
+        delta = event.deltaY / -144;
+      }
+      else if (pui['is_chrome']) {
+        // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
+        delta = event.deltaY / -100;
+      }
+      else if (pui['is_safari']){
+        // Safari, deltaY is multiple of 4.000244140625, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 12.
+        delta = event.deltaY / -4;
+      }
+      else if (typeof event.deltaY == 'number' && (event.deltaY > 0 || event.deltaY < 0)){
+        delta = event.deltaY / event.deltaY * -1; //Handle other, let value be either +1 or -1. Assume sign is same as other browser.
+      }
+      
+      deltaEvent(delta, event);
+    }
+    
+    /**
+     * Process the event captured by mousewheel, wheel, or DOMMouseScroll listeners.
+     * @param {Number} delta
+     * @param {Event} event
+     */
+    function deltaEvent(delta, event){
       /** If delta is nonzero, handle it.
        * Basically, delta is now positive if wheel was scrolled up,
        * and negative, if wheel was scrolled down.
@@ -703,7 +771,7 @@ pui.SlidingScrollBar = function() {
        */
       var prevent = false;
       if (event.preventDefault) prevent = true;
-      if (me.gridDom && me.gridDom.grid.propagateScrollEvents) prevent = false;
+      if (me.gridDom && (me.gridDom.grid.propagateScrollEvents || scrollingPastEnd(delta) )) prevent = false;
       if (prevent) {
         event.preventDefault();
         event.returnValue = false;
@@ -713,12 +781,34 @@ pui.SlidingScrollBar = function() {
     /** Initialization code. 
      * If you use your own event management code, change it as required.
      */
-    if (gridDom.addEventListener)
-            /** DOMMouseScroll is for mozilla. */
-            gridDom.addEventListener('DOMMouseScroll', wheel, false);
-    /** IE/Opera. */
-    gridDom.onmousewheel = wheel;    
+    if (typeof WheelEvent == 'function'){ //MDN recommends using the standard "wheel" event as of 5/3/2019.
+      gridDom.addEventListener('wheel', wheel, false);
+    }
+    else {
+      // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019
+      if (gridDom.addEventListener)
+              /** DOMMouseScroll is for mozilla. */
+              gridDom.addEventListener('DOMMouseScroll', mousewheel, false);
+      /** IE/Opera. */
+      gridDom.onmousewheel = mousewheel;
+    }
+    
   };
+  
+  /**
+   * Return true if the grid is at the bottom and scrolling down or if grid is at top and scrolling up. Else, false. #5320.
+   * @param {Number} deltaY   negative when scrolling down, positive when scrolling up.
+   * @param {Boolean|Undefined} reverse  When true, deltaY is positive when scrolling down, negative when scrolling up. 
+   * @returns {Boolean}
+   */
+  function scrollingPastEnd(deltaY, reverse){
+    if (me.gridDom){
+      if (reverse) deltaY = -deltaY;
+      if ((me.gridDom && deltaY < 0 && me.gridDom.grid.atBottom())
+      || (me.gridDom && deltaY > 0 && me.gridDom.grid.atTop())) return true;
+    }
+    return false;
+  }
 
   this.changeContainer = function(newContainer) {
     me.container = newContainer;
