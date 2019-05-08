@@ -4125,16 +4125,34 @@ pui.makeMovable = function(params){
   }
 };
 
+pui.updateReactState = function(dom) {
+  if (window["React"] && dom != null && dom.pui && dom.pui.data && dom.pui.dataProp) {
+    var els = {};
+    els[dom.pui.dataProp] = [dom];
+    var response = pui.buildResponse(els);
+    dom.pui.data[dom.pui.dataProp] = response[dom.pui.dataProp];
+  }
+}
+
 pui.setModified = function(e, formatName) {
   if (context == "dspf") {
     if (!pui.screenIsReady) return;
     var target = getTarget(e);
     target.modified = true;
-    if (target.parentNode != null && target.parentNode.comboBoxWidget != null) target.parentNode.modified = true;
+    if (target.parentNode != null && target.parentNode.comboBoxWidget != null) {
+      target = target.parentNode;
+      target.modified = true;
+    }
     pui.modified = true;
-    if (target.id != null && target.id.indexOf(".") == -1) {
+    if (target.id != null && target.id.indexOf(".") == -1 && formatName) {
       // not a subfile field being modified
       pui.ctlRecModified[formatName] = true;
+    }
+
+    if (window["React"] && target.pui.data && target.pui.dataProp) {
+      setTimeout(function() {  // allow the change to take affect before caputring the value
+        pui.updateReactState(target);
+      }, 0);
     }
   }
   else {

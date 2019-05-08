@@ -415,6 +415,7 @@ function hide_calendar(){
 
 function calendar_select() {
   pui.currentDateField.modified = true;
+  pui.updateReactState(pui.currentDateField);
   if (pui.currentDateField.id != null && pui.currentDateField.id.indexOf(".") == -1 && pui.currentDateField.cursorRecord != null) {
     // not a subfile field being modified
     pui.ctlRecModified[pui.currentDateField.cursorRecord] = true;

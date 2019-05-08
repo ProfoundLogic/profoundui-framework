@@ -280,6 +280,7 @@ function changeElementValue(id, val) {
   }
   if (context == "dspf" || (pui.usingGenieHandler && elem.fieldInfo == null)) {
     elem.modified = true;
+    pui.updateReactState(elem);
     var tip = elem.validationTip;
     if (elem.id != null && elem.id.indexOf(".") == -1 && elem.cursorRecord != null) {
       // not a subfile field being modified
