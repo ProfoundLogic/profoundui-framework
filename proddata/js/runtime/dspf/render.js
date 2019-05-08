@@ -4107,7 +4107,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
     if (dataValue == null) dataValue = "";
   }              
   formattingObj.value = dataValue;
-  if (formattingObj.dataType == "reference") {
+  if (formattingObj.dataType == "reference" && ref != null) {
     var referenceObj = ref[fieldName];
     if (referenceObj != null) {
       formattingObj.dataType = pui.translateDataType(referenceObj.dataType);
