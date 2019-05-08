@@ -3555,6 +3555,9 @@ pui.xlsx_worksheet = function(numcols){
       else if (charcounts[col] != null && ! isNaN(parseInt(charcounts[col],10)) )
         width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
       
+      if (width < 0) width = 0;    //Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
+      else if (width > 255) width = 255;
+      
       //If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
       var style = me.formats[col]["decPos"] == "2" ? 's="1"' : '';
       
