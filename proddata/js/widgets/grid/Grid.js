@@ -818,7 +818,7 @@ pui.Grid = function () {
       var widths;
       if (me.hidableColumns && !me.exportVisableOnly) {
         widths = sortedColumnInfo.map(function(col){
-           return col["orginalWidth"]; 
+           return pui.safeParseInt(col["orginalWidth"]);
         });
       } else {
         widths = me.getColumnWidths().split(",");
