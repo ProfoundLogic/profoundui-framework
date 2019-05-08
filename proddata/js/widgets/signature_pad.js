@@ -67,6 +67,7 @@ pui.SignaturePad = function() {
   
   function setModified() {
     me.container.modified = true;
+    pui.updateReactState(me.container);
   }
   
   function startDrawing(event) {
@@ -131,6 +132,7 @@ pui.SignaturePad = function() {
         removeEvent(canvas, "mouseup", stopDrawing);
         removeEvent(document, "mouseup", stopDrawing);
       }
+      pui.updateReactState(me.container);
     }
 
     if (pui.isRightClick(event)) {

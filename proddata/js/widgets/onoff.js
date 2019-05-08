@@ -272,6 +272,7 @@ pui.OnOffSwitch = function() {
 
   this.setModified = function(event) {
     me.container.modified = true;
+    pui.updateReactState(me.container);
     if (context == "genie" && me.container.fieldInfo != null && me.container.fieldInfo["idx"] != null) {
       pui.response[me.container.fieldInfo["idx"]] = me.container;
     }

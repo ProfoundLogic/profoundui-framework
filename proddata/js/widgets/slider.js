@@ -128,6 +128,7 @@ pui.Slider = function() {
         if (value != me.value) {        
           me.setValue(value);
           me.div.modified = true;
+          pui.updateReactState(me.div);
           if (context == "genie" && me.div.fieldInfo != null && me.div.fieldInfo["idx"] != null) {
             pui.response[me.div.fieldInfo["idx"]] = me.div;
           }

@@ -199,6 +199,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
     dom.value = num;
     dom.modified = true;
+    pui.updateReactState(dom);
     if (context == "genie" && dom.fieldInfo != null && dom.fieldInfo["idx"] != null) {
       pui.response[dom.fieldInfo["idx"]] = dom;
     }

@@ -2178,17 +2178,31 @@ pui.renderFormat = function(parms) {
       
       // attach events that keep track of modified state / cursor, apply a key filter, set max length
       if (!isDesignMode) {
+
         function setModified(e) {
           pui.setModified(e, formatName);
         }
+        
+        if (window["React"] && dom.formattingInfo) {
+          if (dom["pui"] == null ) dom["pui"] = {};          
+          dom.pui.data = data;
+          if (parms.gridRecord) {
+            dom.pui.data = parms.gridRecord;
+          }
+          dom.pui.dataProp = dom.formattingInfo.fieldName;
+        }
+        
         // textboxes and text areas    
         if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
+          
           var boxDom = dom;
           if (dom.comboBoxWidget != null) {
             dom.comboBoxWidget.formatName = formatName;
             boxDom = dom.comboBoxWidget.getBox();
           }
+
           if (dom.formattingInfo != null && dom.formattingInfo.maxLength != null) {
+
             boxDom.maxLength = dom.formattingInfo.maxLength;
             if (dom.tagName == "TEXTAREA") {
               addEvent(dom, "keyup", function(e) {
@@ -2504,6 +2518,7 @@ pui.renderFormat = function(parms) {
             }
             dom.grid.dataArray = dataArray; 
             dom.grid.fieldNames = fieldNames; 
+            dom.grid.gridRecordData = subfileData;
             subfile = {};
         }
         
@@ -3157,48 +3172,55 @@ pui.respond = function() {
   return true;
 };
 
-pui.buildResponse = function() {
+pui.buildResponse = function(customResponseElements) {
     
   var response = {};
+  
+  if (!customResponseElements) {
 
-  for (var fieldName in pui.changeResponseElements) {
-    var domArr = pui.changeResponseElements[fieldName];
-    for (var i = 0; i < domArr.length; i++) {
-      var dom = domArr[i];
-      if (dom.modified && (pui["controller"] != null || pui.bypassValidation != "true")) {
-        response[fieldName] = "1";
-        break;
+    for (var fieldName in pui.changeResponseElements) {
+      var domArr = pui.changeResponseElements[fieldName];
+      for (var i = 0; i < domArr.length; i++) {
+        var dom = domArr[i];
+        if (dom.modified && (pui["controller"] != null || pui.bypassValidation != "true")) {
+          response[fieldName] = "1";
+          break;
+        }
       }
+      if (response[fieldName] != "1") response[fieldName] = "0";
     }
-    if (response[fieldName] != "1") response[fieldName] = "0";
+
+    for (var fieldName in pui.isBlankElements) {
+      var domArr = pui.isBlankElements[fieldName];
+      for (var i = 0; i < domArr.length; i++) {
+        var dom = domArr[i];
+        if (typeof dom.value == "string" && trim(dom.value) == "") {
+          response[fieldName] = "1";
+          break;
+        }
+      }
+      if (response[fieldName] != "1") response[fieldName] = "0";
+    }
+
+    for (var fieldName in pui.dupElements) {
+      var domArr = pui.dupElements[fieldName];
+      for (var i = 0; i < domArr.length; i++) {
+        var dom = domArr[i];
+        if (pui.isDup(dom)) {
+          response[fieldName] = "1";
+          break;
+        }
+      }
+      if (response[fieldName] != "1") response[fieldName] = "0";
+    }
+    
   }
 
-  for (var fieldName in pui.isBlankElements) {
-    var domArr = pui.isBlankElements[fieldName];
-    for (var i = 0; i < domArr.length; i++) {
-      var dom = domArr[i];
-      if (typeof dom.value == "string" && trim(dom.value) == "") {
-        response[fieldName] = "1";
-        break;
-      }
-    }
-    if (response[fieldName] != "1") response[fieldName] = "0";
-  }
+  var responseElements = pui.responseElements;
+  if (customResponseElements) responseElements = customResponseElements;
 
-  for (var fieldName in pui.dupElements) {
-    var domArr = pui.dupElements[fieldName];
-    for (var i = 0; i < domArr.length; i++) {
-      var dom = domArr[i];
-      if (pui.isDup(dom)) {
-        response[fieldName] = "1";
-        break;
-      }
-    }
-    if (response[fieldName] != "1") response[fieldName] = "0";
-  }
-
-  for (var fieldName in pui.responseElements) {
-    var doms = pui.responseElements[fieldName];
+  for (var fieldName in responseElements) {
+    var doms = responseElements[fieldName];
     var dom = doms[0];
     
     // If it's a 'radio button' control we want to change the 
@@ -3672,6 +3694,11 @@ pui.buildResponse = function() {
       }
     }
   }
+  
+  if (customResponseElements) {
+    return response;
+  }
+  
   if (pui.keyName != null && pui.keyName != "") {
     var fkey = pui.fkeyValues[pui.keyName];
     if (fkey != null && fkey > 0) { 

@@ -344,6 +344,7 @@ pui.ComboBoxWidget = function() {
           box.value = target.choiceValue;
           box.modified = true;
           me.div.modified = true;
+          pui.updateReactState(me.div);
           if (me.formatName != null && pui.ctlRecModified != null) {
             pui.ctlRecModified[me.formatName] = true;
           }

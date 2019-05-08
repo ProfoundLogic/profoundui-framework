@@ -1805,6 +1805,11 @@ pui.Grid = function () {
       me.hideTips();
       for (var i = me.recNum; i <= lastRow; i++) {
 
+        if (me.gridRecordData) {
+          var gridRecord = me.gridRecordData[i - 1];
+        }
+        if (!gridRecord) gridRecord = {};
+
         var fieldData = {};
         var valuesData = dataRecords[i - 1];
         if (valuesData == null || valuesData.length == 0) {
@@ -1830,6 +1835,7 @@ pui.Grid = function () {
               items: me.runtimeChildren
             },
             data: fieldData,
+            gridRecord: gridRecord,
             ref: me.ref,
             errors: me.errors,
             rowNum: rowNum,
