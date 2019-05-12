@@ -179,6 +179,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (dom.readOnly) return;
     var num = Number(dom.value);
     if (isNaN(num)) num = 0;
+    var originalNum = num;
     num += byValue;
     num = Math.round(num * 10000) / 10000;
     if (minValue != null && num < minValue) num = minValue;
@@ -191,7 +192,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
     var onspin = dom["onspin"];
     if (onspin != null) {
-      var newValue = onspin(dom.value, byValue, dom);
+      var newValue = onspin(dom.value, byValue, dom, num);
       if (typeof newValue == "string" || typeof newValue == "number"){
         num = newValue;
       }
