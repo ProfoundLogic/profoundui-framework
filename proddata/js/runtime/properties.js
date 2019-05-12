@@ -1727,9 +1727,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       };
     } else if (propConfigName == "onspin") {
       func = function () {
+        var code = newValue;
         eval("var value = arguments[0];");
         eval("var increment = arguments[1];");
         eval("var spinner = arguments[2];");
+        eval("var newValue = arguments[3];");
         eval("var row;");
         if (subfileRow != null) {
           eval("row = " + subfileRow + ";");
@@ -1743,7 +1745,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
             eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
         }
         try {
-          return eval(newValue);
+          return eval(code);
         } catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
