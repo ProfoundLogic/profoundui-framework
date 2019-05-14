@@ -121,6 +121,7 @@ pui.attachDragDrop = function(dom, properties) {
           dataRecords[recordNumber - 1].subfileRow != null) {
         recordNumber = dataRecords[recordNumber - 1].subfileRow;
       }      
+      dom.grid.dragdropBusy = true; //Prevent the page from scrolling as a result of the touch event.
     }
     
     var dropTargetIds = properties["drop targets"];
@@ -500,7 +501,11 @@ pui.attachDragDrop = function(dom, properties) {
         dom.style.top = startDomY + "px";
       }
       
-    }
+      if (isGrid){
+        dom.grid.dragdropBusy = false;
+      }
+    } //end mouseup.
+    
     if (touchEvent) {
       addEvent(document, "touchmove", mousemove);
       addEvent(document, "touchend",   mouseup);
@@ -512,8 +517,8 @@ pui.attachDragDrop = function(dom, properties) {
     document.onselectstart = function(e) { 
       return false; 
     };  
-      
-  }
+     
+  } //end mousedown.
  
   // The updated version of iScroll in 5.14.0 and later uses Pointer Events
   // These events get called before the mousedown event and get cancelled. 

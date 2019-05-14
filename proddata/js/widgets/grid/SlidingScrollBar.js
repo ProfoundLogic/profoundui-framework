@@ -245,9 +245,14 @@ pui.SlidingScrollBar = function() {
             scrollpage = (Math.abs(deltaX) - Math.abs(deltaY) > 0);
           }
           
-          var propagate = me.gridDom && me.gridDom.grid.propagateScrollEvents;
+          var propagate = false;
+          var dragdrop = false;
+          if (me.gridDom){
+            propagate = me.gridDom.grid.propagateScrollEvents;
+            if (me.gridDom.grid.dragdropBusy) dragdrop = true; //Don't scroll the page when drag-and-drop is in progress.
+          }
           
-          if (!scrollpage || propagate){
+          if (!scrollpage || propagate || dragdrop){
             var now = new Date().getTime();
             touchHandle.touch.duration = now - touchHandle.touch.lastTime;
             touchHandle.touch.lastTime = now;
@@ -275,6 +280,7 @@ pui.SlidingScrollBar = function() {
             me.doScroll(row);
             var prevent = true;
             if (propagate || scrollingPastEnd(delta, touchHandle.touch.reverse) ) prevent = false;
+            if (dragdrop && !propagate) prevent = true;
             if (prevent){
               e.preventDefault();
             }else{
