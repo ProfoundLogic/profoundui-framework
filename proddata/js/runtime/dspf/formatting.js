@@ -719,7 +719,7 @@ pui.FieldFormat = {
         obj.keyFilter = new RegExp('[' + pui.formatting.escapeRe(on + off) + ']');
       }
       obj.maxLength = (on.length > off.length ? on.length : off.length);
-      return (value === '1' ? on : off);
+      return (value === '1' || obj.value === true ? on : off);
     },
     revert: function(obj) {
       var value = obj.value + '';
