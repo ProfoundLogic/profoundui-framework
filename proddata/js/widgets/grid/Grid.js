@@ -141,6 +141,7 @@ pui.Grid = function () {
   this.designMode = false;
   this.lockedInPlace = false;
   this.dragging = false;
+  this.dragdropBusy = false;    //Sliding scrollbar should avoid scrolling the page when this is true. set in dragDrop.js.
   this.hBorderZIndex = 96;
   this.vBorderZIndex = 97;
   this.scrollZIndex = 97;
