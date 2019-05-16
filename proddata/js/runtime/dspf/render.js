@@ -3002,6 +3002,40 @@ pui.showErrors = function(errors, rrn) {
     if (err["encoded"]) {
       msg = pui.formatting.decodeGraphic(msg);  
     }
+	
+    // if error message is scripted, then resolve the value
+    // this logic is cloned from properties.js.evalPropertyValue() where a scripted property value is resolved
+    var js = null;
+    var msgSave;
+    
+    if (String(msg).substr(0, 3).toLowerCase() == "js:") {
+      js = msg.substr(3);
+    }
+    if (String(msg).substr(0, 11).toLowerCase() == "javascript:") {
+      js = msg.substr(11);
+    }
+    if (String(msg).substr(0, 7).toLowerCase() == "script:") {
+      js = msg.substr(7);
+    }
+    if (js !== null && trim(js) !== "") {
+      msgSave = msg;                                // saved/restored if msg not found
+      try {
+        msg = eval(js);
+      } catch (err) {
+        if (!pui.suppressPropertyScriptingErrors) {
+          pui.suppressPropertyScriptingErrors = true;
+          setTimeout(function () {
+            pui.alert("Expression '" + trim(js) + "' contains an error:\n\n" + err.message);
+            pui.suppressPropertyScriptingErrors = false;
+          }, 1);
+        } 
+      } 
+      
+      if (typeof(msg) == "undefined") {             // saved/restored if msg not found
+        msg = msgSave;
+      }
+    }     
+    
     // replace system formatting options
     msg = msg.replace(/&N/g, "<br/>");
     msg = msg.replace(/&P/g, "<br/>");

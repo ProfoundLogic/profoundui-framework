@@ -155,6 +155,9 @@ var en_US = function(dict) {
             dictMsg["would you like add ano"]       = "Would you like to add another?";
             dictMsg["already in suppl grp x"]       = "User is already in supplemental group \"&1\".";
 
+            // Jumpstart only.
+            dictMsg["subfile full"]        			    = "There are more than 9,999 records; only the first 9,999 records are displayed.";
+            
             break;
 
         case "runtimeText":
