@@ -1868,6 +1868,10 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
 };
 
 
+pui["applyProperty"] = function(domObj, propertyName, propertyValue) {
+  return window["applyProperty"](domObj, propertyName, propertyValue)
+};
+
 pui["get"] = function(id) {
   return get(id);
 };
