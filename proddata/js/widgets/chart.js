@@ -398,6 +398,15 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   dom.appendChild(img);
 };
 
+pui.widgets.getChartXMLStart = function(chartOptions){
+  var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart';
+  if (typeof chartOptions == "string" && chartOptions.length > 0) {
+    chartXML += " " + chartOptions;
+  }
+  chartXML += '>';
+  return chartXML;
+};
+
 
 pui.widgets.add({
   name: "chart",
@@ -502,27 +511,26 @@ pui.widgets.add({
           return;        
         }
         
-        if (url == "" && jsonURL == "") {
+        var customSQL = parms.evalProperty("custom sql").toUpperCase();
+        var orderBy   = parms.evalProperty("order by").toUpperCase();
+        var maxCount  = parms.evalProperty("record limit").toUpperCase();
+        var chartOptions = parms.evalProperty("chart options");
+        
+        if (url == "" && jsonURL == "" && customSQL == "") {
           // The chart data is provided by the properties "names" and "values",
           // or the chart is database-driven.
           var file             = parms.evalProperty("database file").toUpperCase();
           var nameField        = parms.evalProperty("name field").toUpperCase();
           var valueField       = parms.evalProperty("value field").toUpperCase();
           var summaryOption    = parms.evalProperty("summary option");
-          var maxCount         = parms.evalProperty("record limit").toUpperCase();
           var where            = parms.evalProperty("selection criteria").toUpperCase();
-          var orderBy          = parms.evalProperty("order by").toUpperCase();
           var nameList         = parms.evalProperty("names");
           var valueList        = parms.evalProperty("values");
-          var chartOptions     = parms.evalProperty("chart options");
+          
           
           if (trim(nameList) != "" && trim(valueList) != "") {
             // The chart data is in the "names" and "values" properties.
-            var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart';
-            if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "") {
-              chartXML += " " + chartOptions;
-            }
-            chartXML += '>';
+            var chartXML = pui.widgets.getChartXMLStart(chartOptions);
             var nameArray = pui.parseCommaSeparatedList(nameList);
             var valueArray = pui.parseCommaSeparatedList(valueList);
             var n = nameArray.length;
@@ -601,43 +609,43 @@ pui.widgets.add({
             }
           }
           
-         var sql = "SELECT ";          
-         if (summary != "") {
-           valueField = summary + valueField + ")";
-         }
-         sql += nameField + ", ";
-         sql += valueField + " ";
-         sql += " FROM " + file;
-         if (where != "") {
-          sql += " WHERE " + where;
-         }           
-         if (summary != "") {
-           sql += " GROUP BY " + nameField + " ";
-         }
-         if (summary == "" && orderBy != "") sql += " ORDER BY " + orderBy;
-         else sql += " ORDER BY " + nameField;
-
-         url =  getProgramURL("PUI0009104.PGM");
-         var postData = "AUTH=";
-         if (context == "genie") postData += GENIE_AUTH;
-         if (context == "dspf") postData += pui.appJob.auth;
-         if (pui["secLevel"] > 0) {
+          var sql = "SELECT ";
+          if (summary != "") {
+            valueField = summary + valueField + ")";
+          }
+          sql += nameField + ", ";
+          sql += valueField + " ";
+          sql += " FROM " + file;
+          if (where != "") {
+            sql += " WHERE " + where;
+          }
+          if (summary != "") {
+            sql += " GROUP BY " + nameField + " ";
+          }
+          if (summary == "" && orderBy != "") sql += " ORDER BY " + orderBy;
+          else sql += " ORDER BY " + nameField;
+          
+          url =  getProgramURL("PUI0009104.PGM");
+          var postData = "AUTH=";
+          if (context == "genie") postData += GENIE_AUTH;
+          if (context == "dspf") postData += pui.appJob.auth;
+          if (pui["secLevel"] > 0) {
          
-          postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+            postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
           
-          var pstring = pui.getSQLParams(parms.properties);
-          if (pstring != "") {
+            var pstring = pui.getSQLParams(parms.properties);
+            if (pstring != "") {
           
-            postData += "&" + pstring;
+              postData += "&" + pstring;
           
-          }          
+            }
+            
+          }
+          else {
          
-         }
-         else {
-         
-          postData  += "&q=" + pui.aes.encryptString(sql);
-          
-         }
+            postData  += "&q=" + pui.aes.encryptString(sql);
+            
+          }
          postData += "&maxcount=" + maxCount;
          if( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
          
@@ -728,7 +736,9 @@ pui.widgets.add({
             
           }
         }
-        else {     //jsonURL.
+        
+        else if(jsonURL != "") {
+          
           //We make AJAX request to avoid non-Chrome problem with some URLs in FusionCharts.
           ajax({
             url: jsonURL,
@@ -745,7 +755,80 @@ pui.widgets.add({
             }
           });
         }
-      }
+        
+        else if(customSQL != ""){
+          
+          var postData = 'AUTH=' + (context == 'genie' ? GENIE_AUTH : pui.appJob.auth);
+          if (pui["secLevel"] > 0) {
+            postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+            var pstring = pui.getSQLParams(parms.properties);
+            if (pstring != "") {
+              postData += "&" + pstring;
+            }
+          }
+          else {
+            var sql = customSQL;
+            if (orderBy != "") sql += " ORDER BY " + orderBy;
+            postData  += "&q=" + pui.aes.encryptString(sql);
+          }
+          postData += "&limit=" + maxCount;
+          if ( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
+          
+          var xhr = new pui.Ajax(getProgramURL("PUI0009102.PGM"));
+          xhr['method'] = 'post';
+          xhr['async'] = true;
+          xhr['postData'] = postData;
+          xhr['suppressAlert'] = true;
+          xhr['onsuccess'] = function(){
+            var chartXML = pui.widgets.getChartXMLStart(chartOptions);
+            var response = checkAjaxResponse(xhr, "Custom SQL query");
+            if (! response || response['results'] == null){
+              var error = errors.pop();
+              if (error != null && typeof error == 'object'){
+                var domel = getObj(domId);
+                if (domel){
+                  domel.innerHTML = '<ul style="overflow-y:auto; white-space:normal"><li>Chart operation: ' + error.operation 
+                          + '<li>Id: ' + error.id + '<li>Message: ' + error.text + '<li>'+ error.text2 + '</ul>';
+                } else {
+                  console.log(error);
+                }
+              }
+              return;
+            }
+            var attrname = isMap ? 'id' : 'label';  //Maps use different attribute than charts.
+            // 9102 returns an array of objects with column-name / value pairs for each column. Get each record.
+            for (var i=0, n=response['results'].length; i < n; i++){
+              // All but the last property are used as labels.
+              var keycount = Object.keys(response['results'][i]).length;
+              var label = '';
+              var value = '';
+              var colCount = 0;
+              // Get each column in this record.
+              for (var colname in response['results'][i]){
+                colCount++;
+                var val = response['results'][i][colname];
+                if (colCount < keycount){
+                  label += ' ' + val;
+                }
+                else {
+                  value = val;
+                }
+              }
+              chartXML += '<set '+attrname+'="'+pui.xmlEscape(trim(label))+'" value="' + pui.xmlEscape(trim(value)) + '" />'; 
+            }
+            chartXML += '</chart>';
+
+            pui.widgets.renderChart({
+              dom: parms.dom,
+              domId: domId,
+              type: chartType,
+              transparent: (parms.properties["chart overlay"] != "true"),
+              xmlData: chartXML
+            });           
+          };
+          xhr.send();
+        }
+      } //end else, not design mode.
     },
     
     "width": function(parms) {
