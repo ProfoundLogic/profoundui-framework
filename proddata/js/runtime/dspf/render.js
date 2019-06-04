@@ -2758,9 +2758,7 @@ pui.renderFormat = function(parms) {
     }
   }
 
-  // render grid data
-  for (var i = 0; i < gridsToRender.length; i++) {
-    var grid = gridsToRender[i];
+  gridsToRender.forEach(function(grid) {
     if (pui.focusField != null && pui.focusField.setFocusFlag == true) {
       grid.placeCursorRRN = null;  // "set focus" takes precedence over "place cursor" 
     }
@@ -2768,10 +2766,10 @@ pui.renderFormat = function(parms) {
       grid.collapse(getObj(grid.tableDiv.id + "_expander"));
     }
     else {
-      if (grid.subfileHidden) continue;
+      if (grid.subfileHidden) return;
       grid.getData();
     }
-    if (grid.subfileHidden) continue;
+    if (grid.subfileHidden) return;
     if (grid.recNum > 1 && grid.scrollbarObj != null && grid.scrollbarObj.type == "sliding") {
       grid.scrollbarObj.setScrollTopToRow(grid.recNum, true);
     }
@@ -2814,7 +2812,7 @@ pui.renderFormat = function(parms) {
     }
     grid.makeSortable();
     grid.restoreState();
-  }
+  });
   
   // Render the items inside the lazy-loaded layouts' currently visible container if it wasn't already rendered.
   // (Needed by accordions. tabPanel.selectedTabChanged causes a tab layout's items to render before this.)
