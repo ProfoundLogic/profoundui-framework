@@ -146,7 +146,7 @@ pui.ResponsiveLayout = function(){
       if (cssrulestxt.designValue != null && typeof cssrulestxt.designValue == "string")
         cssrulestxt = cssrulestxt.designValue;
       else
-        cssrulestxt = "";
+        cssrulestxt = "@media screen { #_id_ > .puiresp { display:grid; } }";
     }
     
     origCssRulesText = cssrulestxt;
