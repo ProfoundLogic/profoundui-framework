@@ -953,7 +953,7 @@ pui.beforeUnload = function(event) {
       catch(e) {
       }
     } 
-    if (context == "genie" || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && typeof pui.ide.isDirty === 'function' && pui.ide.isDirty())) {
+    if (pui.genie != null || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && typeof pui.ide.isDirty === 'function' && pui.ide.isDirty())) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
       else theCloseMessage = pui["getLanguageText"]("runtimeMsg", "closeMessage");
@@ -1011,12 +1011,12 @@ pui["unload"] = function() {
 pui.assignUnloadEvents = function() {
   if (window.addEventListener) {
     window.addEventListener("beforeunload", pui.beforeUnload, false);
-    if (!pui.designer.Designer)
+    if (!pui.designer.Designer || pui.genie != null)
       window.addEventListener("unload", pui["unload"], false);        
   }	
   else if (window.attachEvent) {
     window.attachEvent("onbeforeunload", pui.beforeUnload);
-    if (!pui.designer.Designer)
+    if (!pui.designer.Designer || pui.genie != null)
       window.attachEvent("onunload", pui["unload"]);
   }  
 }
