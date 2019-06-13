@@ -105,25 +105,7 @@ function preventDoubleSubmit(){
     cursorPos -= 1;  // set to last character
   }
   document.getElementById('cursorPos').value = cursorPos;
-  if (!pui.genie.config.useAjax) return true;
-  var form = document.forms['main'];
-  
-  var hiddenField = createNamedElement("input", "ajax");
-  hiddenField.type = "hidden";
-  hiddenField.value = "Y";
-  form.appendChild(hiddenField);
-  ajaxSubmit(form, function(response) {
-    newScreenHTML = response;
-    prevScreenHTML = document.getElementById(appContainerId).innerHTML;
-    document.getElementById(appContainerId).innerHTML = newScreenHTML;
-    var scripts = document.getElementById(appContainerId).getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-      var script = scripts[i].innerHTML;
-      eval(script);
-    }
-    genie(); 
-  });
-  return false;
+  return true;
 }
 
 
