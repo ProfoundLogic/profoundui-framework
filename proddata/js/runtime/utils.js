@@ -4110,8 +4110,9 @@ pui.makeMovable = function(params){
   }
 };
 
+// Update React or Vue state
 pui.updateReactState = function(dom) {
-  if (window["React"] && dom != null && dom.pui && dom.pui.data && dom.pui.dataProp) {
+  if ((window["React"] || window["Vue"]) && dom != null && dom.pui && dom.pui.data && dom.pui.dataProp) {
     var els = {};
     els[dom.pui.dataProp] = [dom];
     var response = pui.buildResponse(els);
@@ -4134,7 +4135,7 @@ pui.setModified = function(e, formatName) {
       pui.ctlRecModified[formatName] = true;
     }
 
-    if (window["React"] && target.pui.data && target.pui.dataProp) {
+    if ((window["React"] || window["Vue"]) && target.pui.data && target.pui.dataProp) {
       setTimeout(function() {  // allow the change to take affect before caputring the value
         pui.updateReactState(target);
       }, 0);
