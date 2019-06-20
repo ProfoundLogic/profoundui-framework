@@ -605,7 +605,7 @@ pui.render = function(parms) {
   }
 
   // React can render multiple screens as components, so we can't clean up other components when a new one is rendered
-  if (!window["React"]) {
+  if (!window["React"] && !window["Vue"]) {
     pui.cleanup();
   }
 
@@ -2183,7 +2183,7 @@ pui.renderFormat = function(parms) {
           pui.setModified(e, formatName);
         }
         
-        if (window["React"] && dom.formattingInfo) {
+        if ((window["React"] || window["Vue"]) && dom.formattingInfo) {
           if (dom["pui"] == null ) dom["pui"] = {};          
           dom.pui.data = data;
           if (parms.gridRecord) {
