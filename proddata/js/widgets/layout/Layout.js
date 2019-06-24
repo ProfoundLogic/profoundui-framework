@@ -74,8 +74,8 @@ pui.layout.Layout = function() {
   }
   
   /**
-   * For each child layout in the specified container, notify that it is visible. This is necessary if certain code
-   * in the child layout doesn't work until the layout is on the DOM and visible; e.g. tabLayout scroll buttons.
+   * For each child in the specified container, notify that it is visible. This is necessary if certain code
+   * in the child layout doesn't work until the layout is on the DOM and visible; e.g. tabLayout scroll buttons and date fields.
    * @param {Object} container
    * @returns {undefined}
    */
@@ -85,6 +85,9 @@ pui.layout.Layout = function() {
       if (child.layout != null && typeof child.layout.notifyvisibleOnce == "function") {
         child.layout.notifyvisibleOnce();
         delete child.layout.notifyvisibleOnce; //Only need to notify once.
+      }
+      if (child.positionMe != null && typeof child.positionMe == "function"){
+        child.positionMe();   //Make sure date_field calendar icons are positioned correctly.
       }
     }
   }
@@ -225,7 +228,7 @@ pui.layout.Layout = function() {
   };
   
   /**
-   * For all visible containers in layouts that hide containers, notify those child layouts which container is visible.
+   * For all visible containers in layouts that hide containers, notify children of those containers that they are visible.
    * @returns {undefined}
    */
   this.notifyContainersVisible = function(){
