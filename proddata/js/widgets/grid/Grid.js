@@ -1798,7 +1798,10 @@ pui.Grid = function () {
       me.clearData();
       var rowNum = (me.hasHeader ? 1 : 0);
       var lastRow = me.recNum + numRows - 1;
-      if (dataRecords.length < lastRow) {     //If filter causes RRN to be too high, put RRN in range of records.
+      // If filter causes RRN to be too high, put RRN in range of records (#5259). Or, if there is a scrollbar, scroll to the end.
+      // Note: it is expected behavior that empty rows will exist when there is no scrollbar (#5524)
+      if (dataRecords.length < lastRow && (me.isFiltered() || me.scrollbarObj != null) ) {
+        
         me.recNum = me.recNum - lastRow + dataRecords.length;
         if (me.recNum < 1) me.recNum = 1;
         lastRow = dataRecords.length;
