@@ -86,19 +86,19 @@ function AutoComplete(config) {
 
   // Apply configuration options.
   url = config.url;
-  valueField = config.valueField;
+  valueField = config.valueField; 
   
-  // Text box can be either id or dom object.
+  // Text box can be either id or dom object. 
   if (typeof(config.textBox) == "object") textBox = config.textBox;
   else textBox = document.getElementById(config.textBox);
-  textBox.setAttribute("autocomplete", "off");
+  textBox.setAttribute("autocomplete", "off"); 
   if (config.container) {
     container = config.container;
-  }
+  } 
   else {
-    container = textBox.parentNode;
+    container = textBox.parentNode; 
   }
-  // Set maxLength to a large number.
+  // Set maxLength to a large number. 
   // Removing the attribute using removeAttribute() causes -1
   // to be assigned in FF, causing problems.
   if (context == "genie") textBox.setAttribute("maxLength", "133");
@@ -611,34 +611,29 @@ function AutoComplete(config) {
     // Send dummy record in onload event so that template can be created.
     onload({results:[{"field1": ""}]});
 
-    var startIndex;
+    records = new Array();
+    
     for (var i = 0; i < recordSet.length; i++) {
-      if (recordSet[i][0].toUpperCase().indexOf(query) == 0) {  // Item starts with 'query'.
-        startIndex = i;
-        break;
+      if (config.containsMatch) {
+        if (recordSet[i][0].toUpperCase().indexOf(query) != -1) {
+          records.push({"field1": recordSet[i][0], "field2": recordSet[i][1]});
+        } 
       }
-    }
-    if (startIndex != null) {
-    
-      records = new Array();
-      for (var i = startIndex; i < recordSet.length; i++) {
-        records.push({"field1": recordSet[i][0], "field2": recordSet[i][1]});
-      }
-      
-      if (hiddenField && records.length == 1 && textBox.value.toUpperCase() == records[0][firstField].toUpperCase()) {
-        hiddenField.value = getRecordValue(records[0], valueField);
-        hideResults();
-      }      
       else {
-        showResults();
+        if (recordSet[i][0].toUpperCase().indexOf(query) == 0) {
+          records.push({"field1": recordSet[i][0], "field2": recordSet[i][1]});
+        }    
       }
-      
     }
-    else {
+
+    if (hiddenField && records.length == 1 && textBox.value.toUpperCase() == records[0][firstField].toUpperCase()) {
+      hiddenField.value = getRecordValue(records[0], valueField);
       hideResults();
+    }      
+    else {
+      showResults();
     }
-    
-  }
+  }  
   
   function doQuery(query) {
     
@@ -1032,6 +1027,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     var url  = evalPropertyValue(properties["choices url"], originalValue, domObj);
     var valueField = evalPropertyValue(properties["choice values field"], originalValue, domObj);
     var limit = evalPropertyValue(properties["max choices"], originalValue, domObj);
+    var containsMatch = (evalPropertyValue(properties["contains match"]) == "true");
     var choices = evalPropertyValue(properties["choices"], originalValue, domObj);
     choices = pui.parseCommaSeparatedList(choices);
     if (choices.length == 0) choices = [""];
@@ -1146,6 +1142,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           url: (url != "") ? url : getProgramURL("PUI0009102.PGM"),
           baseParams: baseParams,
           container: container,
+          containsMatch : containsMatch,
           choices: (choices[0] != "") ? choices : null,
           values: (values[0] != "") ? values : null,
           limit: (limit != "") ? limit : null,
