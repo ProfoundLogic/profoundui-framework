@@ -1865,9 +1865,19 @@ pui.isTranslated = function(propVal) {
 
 pui.taphold = function(target, handler, threshold) {
 
-  if (!pui["is_touch"] || !target || !target.addEventListener) return;
+  // Some notes:
+  //   1) We do not check pui["is_touch"] here because some Windows-based
+  //      touch devices will return 'false' for that.  Instead, we add the
+  //      event listeners for touchstart/end with a try/catch.
+  //   2) threshold is set to 475ms because at 500ms some browsers will 
+  //      bring up their own context menus, we want to take control 
+  //      before that happens. (If a customer finds 475 to be too short,
+  //      we should consider making this a configurable option so that
+  //      anyone can tune it to their own liking.) -SK
+
+  if (!target || !target.addEventListener) return;
   if (typeof handler != "function") return;
-  if (typeof threshold != "number") threshold = 750;
+  if (typeof threshold != "number") threshold = 475;
   
   var timeoutId;
 
@@ -1889,8 +1899,13 @@ pui.taphold = function(target, handler, threshold) {
       
   }  
   
-  target.addEventListener("touchstart", start, false);
-  target.addEventListener("touchend", stop, false);  
+  try {
+    target.addEventListener("touchstart", start, false);
+    target.addEventListener("touchend", stop, false);  
+  }
+  catch (e) {
+    /* ignore error */
+  }
   
 }
 
