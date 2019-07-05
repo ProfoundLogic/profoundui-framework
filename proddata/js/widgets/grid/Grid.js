@@ -5863,28 +5863,16 @@ pui.Grid = function () {
 
     // Map a 'tap/hold' gesture on touch devices to the cell mousedown event.
 
-    // Interestingly, Chrome on Android seems to fire a 'onmousedown' event with the mouse button 
-    // button number set to correspond to a right click when a tap/hold gesture is done. So, the 
-    // normal mouse code works fine there.
+    pui.taphold(cell, function (e) {
 
-    // On IOS Safari/Chrome and also the Android browser, this doesn't happen. Which is expected, as 
-    // the behavior on Chrome for Android is not standard...
+      // It would be nice to just create and dispatch a 'MouseEvent' here.
+      // However, the documentation on this is poor, and it was not clear how to set the 
+      // 'pageX' and 'pageY' properties on the created event through this interface.        
+      // The 'pui.getMouseX/Y' calls in the mousedown code look at these to position the menu. 
+      e.button = 3;
+      cell.onmousedown(e);
 
-    if (pui["is_touch"] && !pui["is_mouse_capable"] && !pui.is_chrome) {
-
-      pui.taphold(cell, function (e) {
-
-        // It would be nice to just create and dispatch a 'MouseEvent' here.
-        // However, the documentation on this is poor, and it was not clear how to set the 
-        // 'pageX' and 'pageY' properties on the created event through this interface.        
-        // The 'pui.getMouseX/Y' calls in the mousedown code look at these to position the menu. 
-
-        e.button = 3;
-        cell.onmousedown(e);
-
-      });
-
-    }
+    });
 
     cell.onclick = function (e) {
 
