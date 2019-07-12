@@ -4640,11 +4640,18 @@ pui["run"] = function(config) {
       "saveResponse": true,
       "suppressAlert": true,
       "handler": function(parms) {
+        function loadMobileExtensionFilesCompletion() {
+          pui.render(parms);
+        }
+        function loadDependencyFilesCompletion () {
+          pui.loadMobileExtensionFiles(mobile, loadMobileExtensionFilesCompletion);
+        }
         parms.container = container;
 
         // If any items depend on external files, wait for those to load before
-        // rendering. Otherwise, pui.render is called without waiting.
-        pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
+        // rendering. Then, if mobile, wait to load files from userdata/extension/mobile
+        // before rendering. Otherwise, pui.render is called without waiting.
+        pui.loadDependencyFiles(parms, loadDependencyFilesCompletion);
       },
       "onfail": function(req) {
         pui.hideWaitAnimation();
