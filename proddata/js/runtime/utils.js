@@ -2945,6 +2945,69 @@ pui.loadDependencyFiles = function(parm, callback ){
 
 };
 
+
+/**
+ * For mobile apps, load JS and CSS files from userdata/extension/mobile. When loading is complete,
+ * the callback function is called.
+ */
+pui.loadMobileExtensionFiles = function (isMobile, callback) {
+  if (isMobile) {
+    // Get list of files to load
+    ajaxJSON({
+      "url": getProgramURL("PUI0009120.pgm?r=" + Date.now()),
+      "method": "GET",
+      "suppressAlert": true,
+      "handler": function (response) {
+        if (response && response["status"] === 'success') {
+          loadFiles(response["data"]["files"]);
+        } else {
+          callback();
+        }
+      },
+      "onfail": function () {
+        callback();
+      }
+    });
+  } else {
+    callback();
+  }
+
+  // Load JS and CSS files. The last completion handler to get called will call the callback.
+  function loadFiles(files) {
+    files.forEach(function (file) {
+      var basename = file.split("?")[0];
+
+      if (basename.substr(-3).toLowerCase() == '.js') {
+        pui["loadJS"]({
+          "path": file,
+          "callback": loadFilesCompletion,
+          "onerror": function () {
+            console.log("Failed to load " + file);
+            loadFilesCompletion();
+          }
+        });
+
+      } else if (basename.substr(-4).toLowerCase() == '.css') {
+        pui["loadCSS"](file);
+        setTimeout(loadFilesCompletion, 0);        
+      }
+
+      // Call callback when last file has been loaded
+      function loadFilesCompletion() {
+        var i = files.indexOf(file);
+
+        if (i >= 0) {
+          files.splice(i, 1);
+        }
+        if (files.length == 0) {
+          callback();
+        }
+      }
+    });
+  }
+};
+
+
 /**
  * Round to a specified number of decimals.
  * Source:
