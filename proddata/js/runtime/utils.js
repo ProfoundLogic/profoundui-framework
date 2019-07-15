@@ -2947,8 +2947,8 @@ pui.loadDependencyFiles = function(parm, callback ){
 
 
 /**
- * For mobile apps, load JS and CSS files from userdata/extension/mobile. When loading is complete,
- * the callback function is called.
+ * For mobile apps, load any JS and CSS files in userdata/extension/mobile.
+ * When loading is complete, the callback function is called.
  */
 pui.loadMobileExtensionFiles = function (isMobile, callback) {
   if (isMobile) {
@@ -2975,10 +2975,11 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
   // Load JS and CSS files. The last completion handler to get called will call the callback.
   function loadFiles(files) {
     files.forEach(function (file) {
+      var loaded = false;
       var basename = file.split("?")[0];
 
       if (basename.substr(-3).toLowerCase() == '.js') {
-        pui["loadJS"]({
+        loaded = pui["loadJS"]({
           "path": file,
           "callback": loadFilesCompletion,
           "onerror": function () {
@@ -2989,6 +2990,9 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
 
       } else if (basename.substr(-4).toLowerCase() == '.css') {
         pui["loadCSS"](file);
+      }
+      
+      if (!loaded || loaded == false) {
         setTimeout(loadFilesCompletion, 0);        
       }
 
