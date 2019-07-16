@@ -45,9 +45,9 @@ pui.ResponsiveLayout = function(){
   var maxChecks = 500;
   var checkCount = 0;
   var tmo_checkwid = 0;
-  var origCssText;    //The css text as set by setRules, after IDs are replaced.
+  var origCssText = "";    //The css text as set by setRules, after IDs are replaced.
   
-  var origCssRulesText; //The "style rules" property as set by setRules, before the IDs are replaced.
+  var origCssRulesText = ""; //The "style rules" property as set by setRules, before the IDs are replaced.
   
   var DEFAULTNUMITEMS = 8;  //If "layout items" property isn't a number, use this default.
   
@@ -175,7 +175,7 @@ pui.ResponsiveLayout = function(){
     if (me.previewMode){
       addStyleNode();
     }
-    else if (origCssText != ""){  //Attach style tag if there are style rules.
+    else if (origCssText != "" && origCssText != null){  //Attach style tag if there are style rules.
       addStyleNode();
       
       //If !useViewport: instead of using the viewport for widths, use the parent container.
@@ -195,7 +195,7 @@ pui.ResponsiveLayout = function(){
    * @returns {undefined}
    */
   this.resize = function() {
-    if ((!useViewport || me.designMode) && origCssText != ""){
+    if ((!useViewport || me.designMode) && origCssText != "" && origCssText != null && me._stylenode != null){
       me._stylenode.textContent = origCssText;
       manipulateCSSOM();
     }
