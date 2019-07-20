@@ -613,19 +613,18 @@ function AutoComplete(config) {
 
     records = new Array();
 
-    if (config.containsMatch) {
-      for (var i = 0; i < recordSet.length; i++) {
+    for (var i = 0; i < recordSet.length; i++) {
+      if (config.containsMatch) {
         if (recordSet[i][0].toUpperCase().indexOf(query) != -1) {
           records.push({"field1": recordSet[i][0], "field2": recordSet[i][1]});
         } 
       }  
-    }
-    else { //Contains match is false. Only adds records that begin with query
-      for (var i = 0; i < recordSet.length; i++) {
+
+      else { //Contains match is false. Only adds records that begin with query
         if (recordSet[i][0].toUpperCase().indexOf(query) == 0) {
           records.push({"field1": recordSet[i][0], "field2": recordSet[i][1]});
         }
-      }    
+      }
     }
    
     if (records.length == 0) { //The function ends here if there were no matches
