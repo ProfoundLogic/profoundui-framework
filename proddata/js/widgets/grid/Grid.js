@@ -1596,7 +1596,10 @@ pui.Grid = function () {
       }
     }, 1);
   };
-
+  
+  // Expose recNum -- the current grid record number. Needed for testing pageUp and pageDown in obfuscated code.
+  this["getRecNum"] = function(){ return me.recNum; };
+  
   this["unMask"] = function () {
     if (maskCover != null) maskCover.style.display = "none";
   };
