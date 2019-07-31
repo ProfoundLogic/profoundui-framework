@@ -802,6 +802,7 @@ function getPropertiesModel() {
     { name: "onmouseout", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moved off this element.") },
     { name: "onmouseover", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moved over this element.") },
     { name: "onmouseup", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse button is released off this element.") },
+    { name: "onoptiondisplay", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'."), controls: ["combo box"] },
     { name: "onselect", controls: ["combo box", "textbox"], type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields.") },
     { name: "onspin", controls: ["spinner"], type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the up or down arrow is clicked on a spinner element.") }
   ];
@@ -1768,6 +1769,48 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
       };
     }
+    else if (propConfigName == "onoptiondisplay") {
+      func = function () {
+        eval("var row;");
+        if (subfileRow != null) {
+          eval("row = " + subfileRow + ";");
+        }
+        eval("var rrn;");
+        if (subfileRow != null) {
+          eval("rrn = " + subfileRow + ";");
+        }
+        eval("var rowNumber;");
+        if (domObj.dataArrayIndex != null) {
+            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+        }
+        eval("var choices;");
+        if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choices"] != null) {
+            pui["temp_value"] = domObj.comboBoxWidget["choices"]; 
+            eval("choices = pui.temp_value.slice(0);");
+        }
+        eval("var values;");
+        if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choice values"] != null) {
+            pui["temp_value"] = domObj.comboBoxWidget["choices"]; 
+            eval("values = pui.temp_value.slice(0);");
+        }
+        try {
+          var customFunction = eval(newValue);
+          if (typeof customFunction == "function") {
+            customFunction();
+          }
+        } catch (err) {
+          pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
+        }
+        if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choices"] != null) {
+          eval("pui.temp_value = choices;");
+          domObj.comboBoxWidget["choices"] = pui["temp_value"].slice(0);
+        }
+        if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choice values"] != null) {
+          eval("pui.temp_value = values;");
+          domObj.comboBoxWidget["choice values"] = pui["temp_value"].slice(0);
+        }
+      };
+    }
     else if (propConfigName != "onselect" && propConfigName != "ondragstart") { 
       // Handling for "onselect" one is provided inside the auto complete class.
       // Handling for "ondragstart" is in dragDrop.js
@@ -1809,7 +1852,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (!isDesignMode && func != null) {
       domObj[propConfigName] = func;
       if (domObj.comboBoxWidget != null) {
-        if (propConfigName != "onselect") domObj.comboBoxWidget.assignJSEvent(propConfigName, func);
+        if (propConfigName != "onselect" && propConfigName != "onoptiondisplay") domObj.comboBoxWidget.assignJSEvent(propConfigName, func);
       }
     }
   }

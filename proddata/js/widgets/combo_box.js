@@ -1,4 +1,3 @@
-//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
 //  Copyright (c) 2018 Profound Logic Software, Inc.
 //
 //  This file is part of the Profound UI Runtime
@@ -296,6 +295,10 @@ pui.ComboBoxWidget = function() {
   }
 
   function showChoices() {
+    
+    if (typeof(me.div["onoptiondisplay"]) == "function") {
+      me.div["onoptiondisplay"]();
+    }
     
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
