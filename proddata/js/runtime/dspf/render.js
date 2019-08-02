@@ -2249,6 +2249,7 @@ pui.renderFormat = function(parms) {
           addEvent(boxDom, "keydown", pui.setActiveElement);
           addEvent(boxDom, "change", setModified);
           addEvent(boxDom, "paste", setModified);
+          addEvent(boxDom, "input", setModified); //Make sure to catch that Chrome X changed the field. #5602.
           
           boxDom.cursorPosition = 0;
           addEvent(boxDom, "mouseup", pui.storeEventCursorPosition);
