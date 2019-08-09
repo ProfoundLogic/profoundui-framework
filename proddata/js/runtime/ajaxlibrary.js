@@ -464,8 +464,6 @@ function RPGspRequest(arg) {
 
 function ajax(url, handler) {
 
-  var ajaxRequest;
-  
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
@@ -498,7 +496,7 @@ function ajax(url, handler) {
       async = false;
     }
   }
-  var ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest  = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
@@ -518,8 +516,6 @@ function ajax(url, handler) {
 
 function ajaxXML(url, handler) {
 
-  var ajaxRequest;
-  
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
@@ -553,7 +549,7 @@ function ajaxXML(url, handler) {
       async = false;
     }
   }
-  var ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest  = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
@@ -607,7 +603,7 @@ function ajaxJSON(url, handler) {
       async = false;
     }
   }
-  var ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest  = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();

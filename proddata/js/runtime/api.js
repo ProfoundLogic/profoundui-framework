@@ -75,7 +75,7 @@ function setCursor(row, col) {
 // hide an element by id or object reference
 // example: hideElement('D_1_29')
 function hideElement(obj) {
-  if (typeof(obj) == "string") var obj = getObj(obj);
+  if (typeof(obj) == "string") obj = getObj(obj);
   if (obj!=null) obj.style.visibility = 'hidden';
 }
 
@@ -2249,7 +2249,7 @@ pui["editCode"] = function(numeric, code) {
   var nextArg = 2;
   if (typeof arguments[nextArg] === "number") {
     
-    var parmLen = arguments[nextArg];
+    parmLen = arguments[nextArg];
     nextArg ++;
 
     if (typeof arguments[nextArg] === "number") {
@@ -2546,7 +2546,7 @@ pui["editCode"] = function(numeric, code) {
 
 pui["editWord"] = function(value, edtwrd, parmOpts) {
 
-  var value = String(value);
+  value = String(value);
   var controlOptions = {};
 
   if (typeof parmOpts === "object") {
@@ -2735,9 +2735,9 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
   }
 
   // combine body, status, expansion results, and add floating currency symbol if applicable
-  var newValue = newValue + editStatus + editExpansion;
+  newValue = newValue + editStatus + editExpansion;
   var len = newValue.length - 1;
-  var newValue = ltrim(newValue);
+  newValue = ltrim(newValue);
   if (asteriskProtection && newValue.substr(0,1) != "*") newValue = "*" + newValue;
   if (floatingCurSym) newValue = curSym + newValue;
   
