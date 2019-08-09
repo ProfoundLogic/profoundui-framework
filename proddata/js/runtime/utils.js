@@ -53,7 +53,7 @@ function preventEvent(event) {
 function getElementByName_iefix(elemName) {
   var form = document.forms["main"];
   var n = form.length;
-  for(i = 0; i < n; i++ ) {
+  for(var i = 0; i < n; i++ ) {
     var obj = form.elements[i];
     if (obj.name == elemName) {
       return obj;
@@ -1170,7 +1170,7 @@ pui.autoKeepAlive.check = function() {
 
 
 pui.isRightClick = function(e) {
-  if (!e) var e = window.event;
+  if (!e) e = window.event;
   if (e.which != null) {
     if (e.which > 1) {
       return true;
@@ -2352,7 +2352,7 @@ pui.breakMessagesPollCheck = function(){
   // Look at all users from storage and see if they have been inactive too long.
   for(var i=0; i < userIds.length; i++){
     if( userIds[i] !== pui.appJob["user"]){
-      var lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+userIds[i]));
+      lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+userIds[i]));
       if(isNaN(lastPoll)) lastPoll = 0;
 
       // Users keys should be cleared.
