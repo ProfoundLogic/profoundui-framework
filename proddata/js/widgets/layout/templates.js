@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.layout.helpTextTemplatesProperties = function(defVal, descVal, descAdd, noteVal) {
+pui.layout.helpTextTemplatesProperties = function(defVal, descVal) {
   var codeOpen = "<code>";
   var codeClose = "</code>";
   var falseSpan = "<span>false</span>";
@@ -32,13 +32,7 @@ pui.layout.helpTextTemplatesProperties = function(defVal, descVal, descAdd, note
   var idSpan = "[<span>WidgetName</span>][<span>number</span>]";
   var positionSpan = "[<span>user drop point</span>]";
   var bindSpan = "<span>[bound value]</span>";
-  var otherText = " The &apos;Other...&apos; option can be selected to write in a custom value.";
-  var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
-
-  // var listStyleTag = "<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>";
-  // var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-  // var optionsClose = "</li></ul>";
-
+  
   // ------------------
   // Default Value:
   var helpString = "<hr><b>Default Value:</b> ";
@@ -81,19 +75,11 @@ pui.layout.helpTextTemplatesProperties = function(defVal, descVal, descAdd, note
   // Description text...
   helpString += descVal;
 
-  // Other...
-  if (descAdd.indexOf("other") != -1) {
-    helpString += otherText;
-  }
-  // Note: Text...
-  if (descAdd.indexOf("note") != -1) {
-    helpString += "<br><br><b>Note: </b>" + noteVal;
-  }
   // ------------------
   helpString += "<hr><br>";
 
   return helpString;
-}
+};
 
 pui.layout["templates"] = {};
 
@@ -167,17 +153,15 @@ pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue:
 
 //pui.layout.retrieveTemplate("table");
 
-//pui.layout.retrieveTemplate("test");
+pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a horizontal scrollbar should be displayed.") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a vertical scrollbar should be displayed.") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
 
-pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a horizontal scrollbar should be displayed.", [], "") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a vertical scrollbar should be displayed.", [], "") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
-
-pui.layout["templates"]["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', help: '" + pui.layout.helpTextTemplatesProperties("2","Specifies the number of table rows for this layout.", [], "") + "' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" repeat=\"{ property: 'columns', help: '" + pui.layout.helpTextTemplatesProperties("2","Specifies the number of table columns for this layout.", [], "") + "' }\"><div stretch=\"true\" container=\"true\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr></table>";
+pui.layout["templates"]["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', help: '" + pui.layout.helpTextTemplatesProperties("2","Specifies the number of table rows for this layout.") + "' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" repeat=\"{ property: 'columns', help: '" + pui.layout.helpTextTemplatesProperties("2","Specifies the number of table columns for this layout.") + "' }\"><div stretch=\"true\" container=\"true\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr></table>";
 pui.layout["templates"]["table"] += pui.layout.maximizeIcon;
 
 pui.layout["templates"]["mobile device"] = "<table cellpadding=\"0\" cellspacing=\"0\">";
-pui.layout["templates"]["mobile device"] += "<tr condition=\"{ property: 'top bar', choices: ['true','false'], help: '" + pui.layout.helpTextTemplatesProperties("true","Determines whether the mobile layout should have a top bar.", [], "") + "' }\"><td class=\"top-bar\"><div container=\"true\" class=\"top-bar\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr>";
+pui.layout["templates"]["mobile device"] += "<tr condition=\"{ property: 'top bar', choices: ['true','false'], help: '" + pui.layout.helpTextTemplatesProperties("true","Determines whether the mobile layout should have a top bar.") + "' }\"><td class=\"top-bar\"><div container=\"true\" class=\"top-bar\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr>";
 pui.layout["templates"]["mobile device"] += "<tr><td class=\"content-section\"><div class=\"content-section\" stretch=\"true\" container=\"true\"></div></td></tr>";
-pui.layout["templates"]["mobile device"] += "<tr condition=\"{ property: 'bottom bar', choices: ['true','false'], help: '" + pui.layout.helpTextTemplatesProperties("true","Determines whether the mobile layout should have a bottom bar.", [], "") + "' }\"><td class=\"bottom-bar\"><div container=\"true\" class=\"bottom-bar\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr>";
+pui.layout["templates"]["mobile device"] += "<tr condition=\"{ property: 'bottom bar', choices: ['true','false'], help: '" + pui.layout.helpTextTemplatesProperties("true","Determines whether the mobile layout should have a bottom bar.") + "' }\"><td class=\"bottom-bar\"><div container=\"true\" class=\"bottom-bar\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr>";
 pui.layout["templates"]["mobile device"] += "</table>";
 pui.layout["templates"]["mobile device"] += pui.layout.maximizeIcon;
 
@@ -186,14 +170,15 @@ pui.layout["templates"]["css panel"] = pui.layout.template.cssPanelTemplate;
 pui.layout["templates"]["accordion"] = pui.layout.template.accordionTemplate;
 
 pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;" +
-  " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', help:'" + pui.layout.helpTextTemplatesProperties("solid","The style of the element&apos;s border.", [], "") + "'};" +
-  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', help:'" + pui.layout.helpTextTemplatesProperties("1px","The width of the element&apos;s border.", [], "") + "'};" +
-  " border-color:{property:'border color', type:'color', defaultValue:'black', help:'" + pui.layout.helpTextTemplatesProperties("black","The color of the element&apos;s border.", [], "") + "'};"
+  " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', help:'" + pui.layout.helpTextTemplatesProperties("solid","The style of the element&apos;s border.") + "'};" +
+  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', help:'" + pui.layout.helpTextTemplatesProperties("1px","The width of the element&apos;s border.") + "'};" +
+  " border-color:{property:'border color', type:'color', defaultValue:'black', help:'" + pui.layout.helpTextTemplatesProperties("black","The color of the element&apos;s border.") + "'};"
   //Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
   //In the future, this template may need to be implemented in JavaScript.
   +
-  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'' + pui.layout.helpTextTemplatesProperties("left","The width of the element&apos;s border.", [], "") + '\'}">' +
-  '{property: "legend", help:\'' + pui.layout.helpTextTemplatesProperties("Field Set","Text to display in the field set&apos;s legend.", [], "") + '\'}</legend>' +
+  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'' + pui.layout.helpTextTemplatesProperties("left","The width of the element&apos;s border.") + '\'}"' +
+  ' style="{property:\'legend style\', help:\''+ pui.layout.helpTextTemplatesProperties("", "Styling for the legend text.") +'\', type:\'long\'}">' +
+  '{property: "legend", help:\'' + pui.layout.helpTextTemplatesProperties("Field Set","Text to display in the field set&apos;s legend.") + '\'}</legend>' +
   '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
   '</fieldset>';
 
