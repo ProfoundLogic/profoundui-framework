@@ -449,7 +449,9 @@ pui.MenuWidget = function() {
     }
     if (td.orientation == "vertical") {
       td.subMenuContainer.style.top = (parentContainer.offsetTop + td.offsetTop) + "px";
-      td.subMenuContainer.style.left = (parentContainer.offsetLeft + parentContainer.offsetWidth - 1) + "px";
+      // If the menu has a scrollbar, then make sure the submenu is over it so it can be hovered over. #5266, 5583.
+      var sbWidth = parentContainer.offsetWidth - parentContainer.clientWidth;
+      td.subMenuContainer.style.left = (parentContainer.offsetLeft + parentContainer.offsetWidth - 1 - sbWidth) + "px";
     }
     else {
       td.subMenuContainer.style.top = (parentContainer.offsetTop + td.offsetTop + td.offsetHeight - 1) + "px";
