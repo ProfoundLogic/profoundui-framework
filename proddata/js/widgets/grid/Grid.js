@@ -2449,33 +2449,7 @@ pui.Grid = function () {
           }
         }
       }
-      
-      // Setup sort icons based on initial/default fields or server response.
-      if (me.initialSortColumnMulti instanceof Array){
-        function matches (arrEl, hcell, i){
-          if (parseInt(arrEl,10) !== hcell.columnId) return false;
-          if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
-          return true;
-        }
-        convertArrToMultiSort(me.initialSortColumnMulti, matches);
-        sortColumn(null, false, true);
-      }
-      else if (me.initialSortFieldMulti instanceof Array ){
-        function matches (arrEl, hcell, i){         //Compare element to header cell, set ascending when needed.
-          if (arrEl !== hcell.fieldName) return false;
-          if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
-          return true;
-        }
-        convertArrToMultiSort(me.initialSortFieldMulti, matches);
-        sortColumn(null, false, true);
-      }
-      else if (me.initialSortColumn != null) {
-        sortColumn(headerRow[me.initialSortColumn], false, true);
-      }
-      else if (me.initialSortField != null) {
-        var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
-        if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], false, true);
-      }
+      doInitialSort(headerRow);
     }
 
     function attachClickEvent(cell) {
@@ -2483,7 +2457,7 @@ pui.Grid = function () {
         if (me.tableDiv.columnSortResponseField != null) {
           me.columnSortResponse = String(cell.columnId);
           pui.columnSortResponseGrid = me;
-          var returnVal = pui.respond();
+          pui.respond();
           pui.columnSortResponseGrid = null;
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
@@ -2493,7 +2467,7 @@ pui.Grid = function () {
             return;
           }
           pui.fieldNameSortResponseGrid = me;
-          var returnVal = pui.respond();
+          pui.respond();
           pui.fieldNameSortResponseGrid = null;
         }
         else {
@@ -2504,6 +2478,44 @@ pui.Grid = function () {
       cell.sortColumn = doSort;
     }
   };
+  
+  /**
+   * Does the initial sort when loading a grid loaded from handler data, if fields were set.
+   * @returns {Boolean}   Returns true if initial sort fields were set; false if none were.
+   */
+  function doInitialSort(){
+    var headerRow = me.cells[0];
+    // Setup sort icons based on initial/default fields or server response.
+    if (me.initialSortColumnMulti instanceof Array){
+      function matches (arrEl, hcell, i){
+        if (parseInt(arrEl,10) !== hcell.columnId) return false;
+        if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
+        return true;
+      }
+      convertArrToMultiSort(me.initialSortColumnMulti, matches);
+      sortColumn(null, false, true);
+    }
+    else if (me.initialSortFieldMulti instanceof Array ){
+      function matches (arrEl, hcell, i){         //Compare element to header cell, set ascending when needed.
+        if (arrEl !== hcell.fieldName) return false;
+        if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
+        return true;
+      }
+      convertArrToMultiSort(me.initialSortFieldMulti, matches);
+      sortColumn(null, false, true);
+    }
+    else if (me.initialSortColumn != null) {
+      sortColumn(headerRow[me.initialSortColumn], false, true);
+    }
+    else if (me.initialSortField != null) {
+      var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
+      if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], false, true);
+    }
+    else {
+      return false;
+    }
+    return true;
+  }
 
   /**
    * Returns undefined if persistState isn't enabled or not setup.
@@ -2804,7 +2816,7 @@ pui.Grid = function () {
       comma = ',';
       return true;
     }
-    convertArrToMultiSort(colPriority, matches);
+    convertArrToMultiSort(colPriority, matches);    //changes sortMultiOrder array.
     
     // Respond, or send db-driven request, or do client-side sorting.
     if (me.tableDiv.columnSortResponseField != null) {
@@ -2818,18 +2830,27 @@ pui.Grid = function () {
       me.fieldNameSortResponse = fieldNameResponse;
       if (me.fieldNameSortResponse == null) {
         me.returnSortOrder = null;
-        return;
       }
-      if (me.tableDiv.returnSortOrderField != null) me.returnSortOrder = returnOrder;
-      pui.fieldNameSortResponseGrid = me;
-      pui.respond();
-      pui.fieldNameSortResponseGrid = null;
-    }
-    else if (me.isDataGrid()) {
-      sortColumnUsingSQL(null, false);
+      else {
+        if (me.tableDiv.returnSortOrderField != null) me.returnSortOrder = returnOrder;
+        pui.fieldNameSortResponseGrid = me;
+        pui.respond();
+        pui.fieldNameSortResponseGrid = null;
+      }
     }
     else {
-      sortColumn(null, false, false);
+      if (sortMultiOrder.length == 0){
+        // User submitted the multi-sort with all columns unchecked.
+        if(!doInitialSort()) restoreOriginalSortOrder();
+      }
+      else {
+        if (me.isDataGrid()) {
+          sortColumnUsingSQL(null, false);
+        }
+        else {
+          sortColumn(null, false, false);
+        }
+      } 
     }
   };
 
@@ -2998,25 +3019,7 @@ pui.Grid = function () {
       me.dataArray.sort(doSort);
       if (me.isFiltered()) me.filteredDataArray.sort(doSort);
 
-      //
-      // update the data array index in pui.responseElements
-      //  to point to the new data array index (after sorting)
-      //
-      var indexXRef = [];
-      for (i = 0; i < me.dataArray.length; i++) {
-        indexXRef[me.dataArray[i].beforeSort] = i;
-      }
-      var startsWith = pui.formatUpper(me.recordFormatName) + ".";
-      for (var fldName in pui.responseElements) {
-        if (fldName.substr(0, startsWith.length) == startsWith) {
-          var shortFieldName = fldName.substr(startsWith.length);
-          var parts = shortFieldName.split(".");
-          if (parts.length == 2) {
-            var dom = pui.responseElements[fldName][0];
-            dom.dataArrayIndex = indexXRef[dom.dataArrayIndex];
-          }
-        }
-      }
+      updateResponseElementsDataArrayIndex();
 
       me.recNum = 1;
       if (me.sflrcdnbr > 0 && (restoring || initialSort)) {
@@ -3077,6 +3080,61 @@ pui.Grid = function () {
 
     }
 
+  }
+  
+  /**
+   * Update the data array index in pui.responseElements to point to the new data array index (after sorting).
+   * @returns {undefined}
+   */
+  function updateResponseElementsDataArrayIndex(){
+    var indexXRef = [];
+    for (var i = 0; i < me.dataArray.length; i++) {
+      indexXRef[me.dataArray[i].beforeSort] = i;
+    }
+    var startsWith = pui.formatUpper(me.recordFormatName) + ".";
+    for (var fldName in pui.responseElements) {
+      if (fldName.substr(0, startsWith.length) == startsWith) {
+        var shortFieldName = fldName.substr(startsWith.length);
+        var parts = shortFieldName.split(".");
+        if (parts.length == 2) {
+          var dom = pui.responseElements[fldName][0];
+          dom.dataArrayIndex = indexXRef[dom.dataArrayIndex];
+        }
+      }
+    }
+  }
+  
+  /**
+   * Put the grid data in the same order that the handler responded with or in the order that DBD grid load without order-by.
+   * @returns {undefined}
+   */
+  function restoreOriginalSortOrder(){
+    function doInternalSort(row1, row2){
+      return row1.subfileRow > row2.subfileRow ? 1 : -1;
+    }
+    
+    detachSortIcon();
+    hideMultiSortIcons();
+    me.recNum = 1;
+    
+    if (me.isDataGrid()){
+      me.sortBy = "";
+      me.mask();
+      dataGridDidInitialSort = false;   //Use "initial sort column".
+    }
+    else {
+      me.dataArray.sort(doInternalSort);
+      if (me.isFiltered()) me.filteredDataArray.sort(doInternalSort);
+      updateResponseElementsDataArrayIndex();
+    }
+    
+    if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
+      me.scrollbarObj.setScrollTopToRow(me.recNum);
+    }
+    
+    me.getData();
+    
+    me["clearState"]("sort"); //Clear sort order for persist state.
   }
   
   /**
