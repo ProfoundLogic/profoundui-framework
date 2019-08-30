@@ -1006,7 +1006,7 @@ pui.Grid = function () {
 
     var limit = me.totalRecs;
     if (limit == null) limit = 9999;
-
+    
     var url = getProgramURL("PUI0009102.PGM");
     var dataURL = me["dataProps"]["data url"];
     if (dataURL == "") dataURL = null;
@@ -1057,7 +1057,7 @@ pui.Grid = function () {
       if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
       if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
-        +"&"+ pui.getSQLParams(me["dataProps"]) + "&limit=" + limit + "&start=1";
+        +"&"+ pui.getSQLParams(me["dataProps"]) + "&limit=" + limit + "&start=1" + me.filterString;
 
       if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
@@ -1760,6 +1760,16 @@ pui.Grid = function () {
           }
           addField("headings", headings);
         }
+
+        // add the filterString as input fields
+        if (me.filterString !== "") {
+          var pairs = me.filterString.substring(1).split('&');
+          pairs.forEach(function(pair) {
+              pair = pair.split('=');
+              addField(pair[0], decodeURIComponent(pair[1]));
+          });
+        }
+
         document.body.appendChild(form);
         pui.skipConfirm = true;
         form.submit();
@@ -6489,6 +6499,10 @@ pui.Grid = function () {
       // Setup parameters that are needed now for sqlcache comparison and later for postData.
       pstring = pui.getSQLParams(me["dataProps"]);
 
+      //  filter logic when loading data from server
+      //  need to include this logic when exporting data also
+      me.filterString = "";   // format here and then pass to export function
+
       if (me.isFiltered()) {
         var headerRow = me.cells[0];
         // Look in each column for filter text.
@@ -6496,8 +6510,9 @@ pui.Grid = function () {
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
           if (headerCell.columnId >= 0 && headerCell.filterText != null) {
-            pstring += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1);
-            pstring += me.prepareFilterText(String(filtNum), headerCell.filterText);
+            me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1);
+            me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
+            pstring += me.filterString;
             filtNum++;
           }
         }
