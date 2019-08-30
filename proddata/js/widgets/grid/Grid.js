@@ -1641,18 +1641,18 @@ pui.Grid = function () {
     if (me.hasHeader) numRows = numRows - 1;
     if (numRows < 1) return;
 
-    // Only once, setup a column to be sorted as the "initial sort column" property for data grids.
-    if (me.initialSortColumn != null && !dataGridDidInitialSort && me.isDataGrid()) {
-      dataGridDidInitialSort = true;
-      sortColumnUsingSQL(me.cells[0][me.initialSortColumn], true); //Set initial sort column without causing XHR.
+    // Do some things before making the first XHR for data grids.
+    if (me.isDataGrid()){
+      if (!dataGridDidInitialSort && doInitialSort(true) ){
+        dataGridDidInitialSort = true;
+      }
+      // Only once, load any stored filter and sort options.
+      if (!dataGridDidRestoreState) {
+        restoreStateDataGrid();
+        dataGridDidRestoreState = true; //Only restore filters/sort once.
+      }
     }
-
-    // Load any stored filter and sort options before making the first XHR for data grids.
-    if (!me.dataGridDidRestoreState && me.isDataGrid()) {
-      restoreStateDataGrid();
-      me.dataGridDidRestoreState = true; //Only restore filters/sort once.
-    }
-
+    
     // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
     var sql = me["dataProps"]["custom sql"];
     var orderBy = "";
@@ -2313,15 +2313,15 @@ pui.Grid = function () {
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
       var hasFilter = false;
-      var multiSort = null;
+      var multiSortIcon = null;
       if (me.designMode == false) {
         if (headerCell.filterIcon != null){
           hasFilter = true;
           me.removeFilterIcon(headerCell);
         }
         if (headerCell.multiSortIcon != null){
-          multiSort = headerCell.multiSortIcon;
-          if (multiSort.parentNode != null) multiSort.parentNode.removeChild(multiSort);
+          multiSortIcon = headerCell.multiSortIcon;
+          if (multiSortIcon.parentNode != null) multiSortIcon.parentNode.removeChild(multiSortIcon);
         }
       }
       
@@ -2346,8 +2346,8 @@ pui.Grid = function () {
       var placeSortIcon = false;
       
       if (me.designMode == false && me.sortable == true) {        // Add the multisort or regular sort icon to this column.
-        if (multiSort != null){
-          appendIcon(headerCell, multiSort);    //For load-all grids with multisort icons.
+        if (multiSortIcon != null){
+          appendIcon(headerCell, multiSortIcon);    //For load-all grids with multisort icons.
         }
         else if (me.sortIcon != null) {
           if (clientSortColumnId == headerCell.columnId) {
@@ -2379,25 +2379,21 @@ pui.Grid = function () {
 
   /**
    * Add "click" handler to header cell.
-   * (Called by makeSortable and by receiveData when grid is custom SQL.)
+   * (Called when grid is custom SQL by makeSortable, called by renderFormat after getData.)
    * @param {Object} cell  Header cell DOM element.
-   * @param {Number} col   The current column number of the cell.
    * @returns {undefined}
    */
-  function attachClickEventForSQL(cell, col) {
+  function attachClickEventForSQL(cell) {
     if (!pui.iPadEmulation) {
       cell.style.cursor = "pointer";
     }
 
     function doSort() {
       if (!me.waitingOnRequest) //Respond to clicks only when data is not loading.
-        sortColumnUsingSQL(cell);
+        sortColumnUsingSQL(cell, false);
     }
     addEvent(cell, "click", doSort);
-    cell.sortColumn = doSort;
-
-    if (typeof cell.sortDescendingRestored === 'undefined')    //Else: restoreStateDataGrid already set it. Avoid losing ascending sort direction.
-      cell.sortDescending = !isDefaultSortDescending(col);
+    cell.sortColumn = doSort;    
   }
 
   /**
@@ -2421,7 +2417,7 @@ pui.Grid = function () {
       for (var i = 0; i < fields.length; i++) {
         if (!headerRow[i]) continue;
         headerRow[i].fieldName = fields[i];
-        attachClickEventForSQL(headerRow[i], i);
+        attachClickEventForSQL(headerRow[i]);
       }
     }
     else if ((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "")
@@ -2430,11 +2426,11 @@ pui.Grid = function () {
       // Custom SQL and data URL grids can sort given the column number.
       var numCols = me.vLines.length - 1;
       for (var i = 0; i < numCols; i++) {
-        attachClickEventForSQL(headerRow[i], i);
+        attachClickEventForSQL(headerRow[i]);
       }
-
-    } else {
-      // Make each header cell of a Load-All grid respond to sort clicks. (Custom SQL is setup after data loads.)
+    }
+    else {
+      // Make each header cell of a Load-All or Page-at-a-time grid respond to sort clicks. (Custom SQL is setup after data loads.)
       for (var i = 0; i < me.runtimeChildren.length; i++) {
         var itm = me.runtimeChildren[i];
         var col = Number(itm["column"]);
@@ -2453,13 +2449,12 @@ pui.Grid = function () {
                 headerRow[col].style.cursor = "pointer";
               }
               attachClickEvent(headerRow[col]);
-              headerRow[col].sortDescending = !isDefaultSortDescending(col);
               break;
             }
           }
         }
       }
-      doInitialSort(headerRow);
+      doInitialSort();
     }
 
     function attachClickEvent(cell) {
@@ -2471,7 +2466,7 @@ pui.Grid = function () {
           pui.columnSortResponseGrid = null;
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
-          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);
+          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.columnId);
           if (me.fieldNameSortResponse == null) {
             me.returnSortOrder = null;
             return;
@@ -2490,32 +2485,47 @@ pui.Grid = function () {
   };
   
   /**
-   * Does the initial sort when loading a grid loaded from handler data, if fields were set.
+   * This does the initial sorting or setup of the grid when "initial sort field|column" properties are set, or when the multi-sort
+   * dialog is submitted with nothing checked, this resets the sorting to the initial sort columns/fields. Initially, for load-all
+   * grids the grid data is sorted; for DBD grids, the columns are setup.
+   * @param {Boolean|undefined} suppressXHR     For DBD grids avoid making XMLHTTPRequest when true.
    * @returns {Boolean}   Returns true if initial sort fields were set; false if none were.
    */
-  function doInitialSort(){
+  function doInitialSort(suppressXHR){
+    function headerIsSortCol(arrEl, hcell){
+      return parseInt(arrEl,10) === hcell.columnId;
+    }
+    function headerIsSortField(arrEl, hcell){
+      return arrEl === hcell.fieldName;
+    }
+    function getIsDescending(arrEl, hdrcell){
+      return isDefaultSortDescending(hdrcell.columnId);
+    }
+    
     var headerRow = me.cells[0];
-    // Setup sort icons based on initial/default fields or server response.
+    // Setup sort direction and icons based on initial/default fields or server response.
     if (me.initialSortColumnMulti instanceof Array){
-      function matches (arrEl, hcell, i){
-        if (parseInt(arrEl,10) !== hcell.columnId) return false;
-        if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
-        return true;
+      importArrIntoMultiSort(me.initialSortColumnMulti, headerIsSortCol, getIsDescending);
+      if (me.isDataGrid()){
+        sortColumnUsingSQL(null, suppressXHR);  //Setup columns but do not make XHR.
+      } 
+      else {
+        sortColumn(null, false, true);
       }
-      convertArrToMultiSort(me.initialSortColumnMulti, matches);
-      sortColumn(null, false, true);
     }
     else if (me.initialSortFieldMulti instanceof Array ){
-      function matches (arrEl, hcell, i){         //Compare element to header cell, set ascending when needed.
-        if (arrEl !== hcell.fieldName) return false;
-        if (me.defaultSortOrderArray.length > i && me.defaultSortOrderArray[i] === 'A') hcell.sortDescending = false;
-        return true;
-      }
-      convertArrToMultiSort(me.initialSortFieldMulti, matches);
+      importArrIntoMultiSort(me.initialSortFieldMulti, headerIsSortField, getIsDescending);
       sortColumn(null, false, true);
     }
     else if (me.initialSortColumn != null) {
-      sortColumn(headerRow[me.initialSortColumn], false, true);
+      if (headerRow[me.initialSortColumn]){
+        if (me.isDataGrid()){
+          sortColumnUsingSQL(headerRow[me.initialSortColumn], suppressXHR);
+        }
+        else {
+          sortColumn(headerRow[me.initialSortColumn], false, true);
+        }
+      }
     }
     else if (me.initialSortField != null) {
       var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
@@ -2641,33 +2651,7 @@ pui.Grid = function () {
       me.setHeadings(me.getHeadings(me.columnInfo));
     }
 
-
-    // Restore saved client-side column sort.
-    if (me.sortable && !me.isDataGrid() && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
-
-      var sort = state["sort"];
-      if (sort != null){
-        if (sort["columnId"] != null && sort["descending"] != null) {
-
-          var sortCell;
-          for (var i = 0; i < me.cells[0].length; i++) {
-
-            if (me.cells[0][i].columnId == sort["columnId"]) {
-
-              sortCell = me.cells[0][i];
-              sortCell.sortDescending = !sort["descending"];
-
-            }
-          }
-
-          sortColumn(sortCell, true, false);
-        }
-        else if (sort['multiSort'] instanceof Array){
-          restoreMultiSortOrder(sort['multiSort']);
-          sortColumn(null, true, false);
-        }
-      }
-    }
+    restoreSort(state, true, sortColumn);
 
     var filters = state["filters"];
     if (filters != null && !me.isDataGrid()) {
@@ -2685,6 +2669,50 @@ pui.Grid = function () {
   };
   
   /**
+   * Parse the persisted sort order and call the appropriate sorting function.
+   * @param {Object} state            From the localStorage data.
+   * @param {Boolean} skipIfDataGrid  When true, prevent sort from happening twice for DBD grids.
+   * @param {Function} sortFunc       sortColumn or sortColumnUsingSQL depending on grid type.
+   * @returns {undefined}
+   */
+  function restoreSort(state, skipIfDataGrid, sortFunc){
+    var skip = skipIfDataGrid && me.isDataGrid();
+    
+    if (me.sortable && !skip && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
+
+      var sort = state["sort"];
+      if (sort != null){
+        if (sort["columnId"] != null && sort["descending"] != null) {
+          var sortCell;
+          for (var i = 0; i < me.cells[0].length; i++) {
+
+            if (me.cells[0][i].columnId == sort["columnId"]) {
+              sortCell = me.cells[0][i];
+              sortCell.sortDescending = !sort["descending"];
+              break;
+            }
+          }
+          if (sortCell){
+            sortFunc(sortCell, true, false);
+          }
+        }
+        else if (sort['multiSort'] instanceof Array){
+          sortMultiOrder = [];
+          function matches(arrEl, hcell){
+            return hcell.columnId === arrEl['columnId'];
+          }
+          function getIsDescending(arrEl){
+            return arrEl['descending'];
+          }
+          importArrIntoMultiSort(sort['multiSort'], matches, getIsDescending);
+          
+          sortFunc(null, true, false);
+        }
+      }
+    }
+  }
+  
+  /**
    * Restore filter and sort order of a data grid. This should be called only once:
    * the first time getData is called. This does not cause new AJAX calls.
    * @returns {undefined}
@@ -2695,28 +2723,7 @@ pui.Grid = function () {
       return;
     }
 
-    // Restore saved client-side column sort.
-    if (me.sortable && me.tableDiv.columnSortResponseField == null && me.tableDiv.fieldNameSortResponseField == null) {
-      var sort = state["sort"];
-      if (sort != null && sort["columnId"] != null && sort["descending"] != null) {
-        var sortCell;
-        for (var i = 0; i < me.cells[0].length; i++) {
-
-          if (me.cells[0][i].columnId == sort["columnId"]) {
-            sortCell = me.cells[0][i];
-            sortCell.sortDescending = !sort["descending"];
-            sortCell.sortDescendingRestored = true;   //Prevent attachClickEventForSQL from overwriting sortDescending.
-          }
-        }
-
-        // Set the column properties without causing a request.
-        sortColumnUsingSQL(sortCell, true);
-      }
-      else if (sort != null && sort['multiSort'] instanceof Array){
-        restoreMultiSortOrder(sort['multiSort']);
-        sortColumnUsingSQL(null, true);
-      }
-    }
+    restoreSort(state, false, sortColumnUsingSQL);
 
     var filters = state["filters"];
     if (filters != null) {
@@ -2741,19 +2748,23 @@ pui.Grid = function () {
         }
       }
     }
-
   }
   
   /**
-   * For each element in an array, compare it to header cells, adding to sortMultiOrder if matching.
-   * @param {Array} arr           Each element is iterated over, and for each, header cells are searched.
-   * @param {Function} matches    Comparator callback function.
+   * For each element in an array: compare it to header cells, add to sortMultiOrder if matching, and set the sortDescending property
+   * based on the callback if matching.
+   * @param {Array} arr           List of column numbers, field names, etc.
+   * @param {Function} matches    Compares array element to a property in the header cell, returning true if matching.
+   * @param {Function} getIsDescending    Returns true if the header is to be set descending; else false. Called for each matching header.
    */
-  function convertArrToMultiSort(arr, matches ){
+  function importArrIntoMultiSort(arr, matches, getIsDescending ){
+    var headerRow = me.cells[0];
     for (var i=0; i < arr.length; i++){
-      for (var j=0; j < me.cells[0].length; j++){
-        var hcell = me.cells[0][j];
-        if (matches(arr[i], hcell, i)){
+      // Find the header cell that matches the current element.
+      for (var col=0; col < headerRow.length; col++){
+        var hcell = headerRow[col];
+        if (matches(arr[i], hcell)){
+          hcell.sortDescending = getIsDescending(arr[i], hcell);
           sortMultiOrder.push(hcell);
           break;
         }
@@ -2762,20 +2773,30 @@ pui.Grid = function () {
   }
   
   /**
-   * Set sortMultiOrder based on argument (from local storage). Called when state is restored.
-   * @param {Array} arr   Array of objects with columnId and sortDescending properties.
+   * Clear all sortMultiOrder entries and make the argument the one entry. 
+   * (Called by either sortColumn or sortColumnUsingSQL when cell clicked, initial sort is set, or restore one sort column happens.)
+   * Post-Conditions: headerCell.sortDescending has 
+   * @param {Number} columnId   
+   * @param {Boolean} ascending     The value to set the header.sortDescending property to.
+   * @returns {undefined}
    */
-  function restoreMultiSortOrder(arr){
-    sortMultiOrder = [];
+  function multiSortOnlyUseThis( columnId, ascending ){
     function matches(arrEl, hcell){
-      if (hcell.columnId !== arrEl['columnId']) return false;
-      hcell.sortDescending = arrEl['descending'];
-      hcell.sortDescendingRestored = true;
-      return true;
+      return hcell.columnId == arrEl;
     }
-    convertArrToMultiSort(arr, matches);
+    function getIsDescending(){
+      return ascending;
+    }
+    sortMultiOrder = [];
+    importArrIntoMultiSort( [ columnId ], matches, getIsDescending );
   }
-
+  
+  /**
+   * Return whether the column's default sort direction is descending. If there is only one entry in defaultSortOrderArray, then all
+   * columns use that value.
+   * @param {Number} col  The columnId to check for a value in "default sort order".
+   * @returns {Boolean}   Default direction is false, meaning the default direction for a column is ascending.
+   */
   function isDefaultSortDescending(col) {
     var sortOrder = null;
     if (me.defaultSortOrderArray.length == 0) return false;
@@ -2788,14 +2809,18 @@ pui.Grid = function () {
     if (sortOrder == null) return false;
     if (sortOrder.length < 1) return false;
     sortOrder = sortOrder.substr(0, 1).toUpperCase();
-    if (sortOrder == "D") return true;
-    else return false;
+    return (sortOrder == "D");
   }
 
-  function resetDefaultSort() {
+  /**
+   * Set .sortDescending on all header cells to default values. Necessary because other columns may have been sorted previously; when
+   * one or more columns are being sorted now, those other columns can be sorted in the correct direction when clicked in the future.
+   * @returns {undefined}
+   */
+  function resetAllDefaultSortDescending() {
     var headerRow = me.cells[0];
     for (var col = 0; col < headerRow.length; col++) {
-      headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); //use .columnId in case column moved.
+      headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); //use .columnId instead of .col in case column moved.
     }
   }
   
@@ -2809,24 +2834,32 @@ pui.Grid = function () {
     sortMultiOrder = [];
     if (!(colPriority instanceof Array)) return;
     
-    resetDefaultSort();
+    resetAllDefaultSortDescending();
     
     var returnOrder = '';
     var columnResponse = '';
     var fieldNameResponse = '';
     var comma = '';
     
-    // Find columns specified in argument and place them in sortMultiOrder. Also build comma-separated lists.
-    function matches(arrEl, hcell){
-      if (arrEl.cid !== hcell.columnId) return false;
-      hcell.sortDescending = arrEl.desc;
-      returnOrder += comma + (arrEl.desc ? 'D' : 'A');
-      columnResponse += comma + arrEl.cid;
-      if (me.tableDiv.fieldNameSortResponseField != null) fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.col );
-      comma = ',';
-      return true;
+    function elementMatchesHeaderCell(arrEl, hcell){
+      return arrEl.cid === hcell.columnId;
     }
-    convertArrToMultiSort(colPriority, matches);    //changes sortMultiOrder array.
+    function getIsDescendingAndSetResponseFields(arrEl, hcell){
+      columnResponse += comma + arrEl.cid;
+      if (me.tableDiv.fieldNameSortResponseField != null){
+        fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.columnId );
+      }
+      comma = ',';
+      return arrEl.desc;
+    }
+    importArrIntoMultiSort(colPriority, elementMatchesHeaderCell, getIsDescendingAndSetResponseFields);
+    
+    // Build the returnSortOrder response value, which requires a value for every column.
+    comma = '';
+    for (var i=0; i < me.cells[0].length; i++){
+      returnOrder += comma + (me.cells[0][i].sortDescending ? 'D' : 'A');
+      comma = ',';
+    }
     
     // Respond, or send db-driven request, or do client-side sorting.
     if (me.tableDiv.columnSortResponseField != null) {
@@ -2851,7 +2884,7 @@ pui.Grid = function () {
     else {
       if (sortMultiOrder.length == 0){
         // User submitted the multi-sort with all columns unchecked.
-        if(!doInitialSort()) restoreOriginalSortOrder();
+        if(!doInitialSort(false)) restoreOriginalSortOrder();
       }
       else {
         if (me.isDataGrid()) {
@@ -2867,6 +2900,7 @@ pui.Grid = function () {
   /**
    * When a grid header is clicked, this is called to sort the internal data. Multi-column sort may also call this.
    * @param {Object|Null} cell  DOM element of header cell. When null, a multi-column sort must be the caller.
+   *                            When not null, the cell becomes the only entry in the multi-column sort priority.
    * @param {Boolean} restoring
    * @param {Boolean} initialSort
    * @returns {undefined}
@@ -2875,12 +2909,15 @@ pui.Grid = function () {
     if (me.gridMenu != null) me.gridMenu.hide();
     if (cell == null && sortMultiOrder.length < 1) return;
     
-    var desc;   //Was descending; sort will be ascending if true. The cell was descending when clicked, so the user is switching the order.
-                //With multi-sort, the cell.sortDescending should have previously been set to the desired direction.
+    var desc;   //Was descending; sort will become ascending if true. The cell was descending when clicked, so the user is switching the order.
+                //With multi-sort and doInitialSort, the cell.sortDescending should have previously been set to the desired direction.
     if (cell != null){
       desc = cell.sortDescending;
-      resetDefaultSort();
-      if (desc == null) desc = true;
+      resetAllDefaultSortDescending();
+      if (desc == null){
+        desc = cell.sortDescending;  //Use the default that was just set. false here means sort will become ascending.
+      }
+      multiSortOnlyUseThis( cell.columnId, ! desc );
     }
     
     var sortingFunction;
@@ -3115,7 +3152,7 @@ pui.Grid = function () {
   }
   
   /**
-   * Put the grid data in the same order that the handler responded with or in the order that DBD grid load without order-by.
+   * Put the grid data in the same order that the handler responded with or in the order that DBD grid loaded without order-by.
    * @returns {undefined}
    */
   function restoreOriginalSortOrder(){
@@ -3151,38 +3188,45 @@ pui.Grid = function () {
    * Update the UI to show a column as sorted, set the sort column, and reload
    * the grid when not restoring.
    * @param {Object} cell         The header cell of the column to sort.
-   * @param {Boolean} restoring   (optional) When true, a new XHR isn't made.
+   * @param {Boolean} restoringOrAvoidXHR   When true, a new XHR isn't made.
    * @returns {undefined}
    */
-  function sortColumnUsingSQL(cell, restoring) {
+  function sortColumnUsingSQL(cell, restoringOrAvoidXHR) {
+    var desc;
     if (me.gridMenu != null) me.gridMenu.hide();
     if (cell == null && sortMultiOrder.length < 1) return;
-    
-    var desc; //When user clicked: false means sort will be descending.
-    
+
+    // The cell was clicked, meaning the user is switching the order, initial sort is sorting one column, or restoreSort is sorting it.
     if (cell != null){
       clientSortColumnId = cell.columnId;
-      var desc = cell.sortDescending;
-      resetDefaultSort();
-      if (desc == null) desc = true;
-    }
-    
-    if (cell != null){
-      me.sortBy = cell.columnId + 1; //column number works fine in db-driven and custom sql queries.
-      desc = !desc;
-      if (desc) me.sortBy += " DESC";
+      
+      desc = cell.sortDescending;     //desc means "was descending". true here means sort will become ascending.
+      resetAllDefaultSortDescending();
+      if (desc == null){
+        desc = cell.sortDescending;  //Use the default that was just set. false here means sort will become ascending.
+      }
+      desc = !desc;   //desc means "the desired sort order" after this line. true means sort should become descending.
+
+      multiSortOnlyUseThis( cell.columnId, desc );
+      
+      // Set the "ORDER BY" SQL clause. A column number works fine in db-driven and custom sql queries.
+      me.sortBy = cell.columnId + 1 + (desc ? " DESC" : "");
     }
     else {
+      // With multi-sort and doInitialSort, the sortDescending should have previously been set to the desired direction.
       me.sortBy = '';
+      var comma = '';
       for (var i=0; i < sortMultiOrder.length; i++){
         desc = sortMultiOrder[i].sortDescending;
-        me.sortBy += (i > 0 ? ', ' : '') + (sortMultiOrder[i].columnId + 1) + (desc ? ' DESC' : '');
+        if (desc == null) desc = isDefaultSortDescending(cell.columnId);
+        me.sortBy += comma + (sortMultiOrder[i].columnId + 1) + (desc ? ' DESC' : '');
+        comma = ', ';
       }
     }
     me.sorted = true;
 
     // Avoid creating an XHR when restoring, which happens before the first XHR for data grids.
-    if (!restoring) {
+    if (!restoringOrAvoidXHR) {
 
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         me.scrollbarObj.setScrollTopToRow(1);
@@ -3193,7 +3237,7 @@ pui.Grid = function () {
     }
 
     if (cell != null){
-      cell.sortDescending = desc;
+      cell.sortDescending = desc; //note: multiSortOnlyUseThis already causes this to be set, so this may be redundant.
       setSortIcon(cell, desc);
     }
     else {
@@ -3201,7 +3245,7 @@ pui.Grid = function () {
       setMultiSortIcons();
     }
 
-    if (persistState && !restoring) {
+    if (persistState && !restoringOrAvoidXHR) {
       
       if (cell != null) {
         var obj = {};
@@ -4179,7 +4223,6 @@ pui.Grid = function () {
           else {
             me.defaultSortOrderArray = value.split(",");
           }
-          resetDefaultSort(); //Make sure after applyProperty the first click to sort gets correct order.
         }
         break;
 
@@ -8580,7 +8623,11 @@ pui.Grid = function () {
             break;
           }
         }
-        return { columnId: hcell.columnId, name: hcell['textContent'], sortDescending: hcell.sortDescending, order: order };
+        var desc = hcell.sortDescending;
+        if (desc == null){
+          desc = isDefaultSortDescending(hcell.columnId);
+        }
+        return { columnId: hcell.columnId, name: hcell['textContent'], sortDescending: desc, order: order };
       });
       rows.sort(function(a,b){
         if (a.order >= 0 && b.order >= 0) return a.order - b.order; //a is a smaller number; a comes before b.
@@ -8644,6 +8691,31 @@ pui.Grid = function () {
     else if (sortMultiPanel.style.display == ''){
       sortMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User clicked sort, but panel is already showing. Maybe it's behind something.
       sortMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+    }
+    else {
+      // Panel is not showing but exists.
+      var tBody = sortMultiPanel.querySelector("table").tBodies[0];
+      // Reset the checkboxes, and buttons on each row.
+      for (var i=0; i < tBody.childNodes.length; i++){
+        var tr = tBody.childNodes[i];
+        var found = false;
+        for (var j=0; j < sortMultiOrder.length; j++){
+          if (tr.columnId == sortMultiOrder[j].columnId ){
+            tr.sortDescending = sortMultiOrder[j].sortDescending;
+            tr.childNodes[0].firstChild.checked = true;
+            var button = tr.childNodes[3].firstChild;
+            if (button){
+              button.innerHTML = tr.sortDescending ? 'arrow_downward' : 'arrow_upward';
+            }
+            found = true;
+            break;
+          }
+        }
+        if (!found){
+          tr.childNodes[0].firstChild.checked = false;
+        }
+      }
+      recalcRows(tBody);
     }
     sortMultiPanel.style.display = '';
     
