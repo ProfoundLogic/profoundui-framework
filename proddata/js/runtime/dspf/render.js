@@ -1025,6 +1025,8 @@ pui.setupGridsDisplayedScrollBar = function(){
  * @returns {undefined}
  */
 pui.renderFormat = function(parms) {
+
+  var time = timer();
   // retrieve parameters
   var isDesignMode = parms.designMode;
   if (isDesignMode == null) isDesignMode = false;
@@ -2881,6 +2883,9 @@ pui.renderFormat = function(parms) {
       }
     }
   }
+  time = timer(time);
+  if (pui.renderLog)
+    console.log("Format " + formatName + " rendered in " + time + "ms");
 };
 
 
@@ -4519,6 +4524,7 @@ pui["run"] = function(config) {
   var log = config["log"];
   if (debug == null) debug = "0";
   if (log == null) log = "0";
+  pui.renderLog = (config["renderLog"] === true);
   var library = "*LIBL";
   var progParts = program.split("/");
   if (progParts.length == 2) {
@@ -4688,6 +4694,7 @@ pui["signon"] = function(config) {
   if (workstnid == null) workstnid = "";
   workstnid = workstnid.toUpperCase();
   var log = config["log"];
+  pui.renderLog = (config["renderLog"] === true);
   if (container == null) container = "pui";
   if (debug == null) debug = "0";
   if (log == null) log = "0";
@@ -4878,6 +4885,7 @@ pui.start = function() {
   var screenshot = (parms["screenshot"] === "1");
   var observe = (parms["observe"] === "1");
   if (observe) pui.observed.enabled = true;
+  pui.renderLog = (parms["renderLog"] === "1");
   var params = {};
   if (pui.detectMobileEmulation != null && typeof pui.detectMobileEmulation == "function") pui.detectMobileEmulation(container);
   for (var i = 1; i <= 255; i++) {
@@ -4908,7 +4916,8 @@ pui.start = function() {
     "mobile": mobile,
     "screenshot": screenshot,
     "params": params,
-    "observe": observe
+    "observe": observe,
+    "renderLog": pui.renderLog
   };
   if (program == null && jsonURL == null && mode == null) {
     // Signed in session. Look for Atrium item 
@@ -6427,3 +6436,12 @@ pui.transitionAnimation = {
 
   }
 };
+
+function timer(time) {
+
+  var now = new Date().getTime();
+  if (time)
+    now -= time;
+  return now;
+
+}
