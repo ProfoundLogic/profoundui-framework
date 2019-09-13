@@ -2258,7 +2258,7 @@ pui.renderFormat = function(parms) {
           
           // This is to prevent expanding layouts on mobile devices when virtual keyboards changes
           if (pui["is_touch"]) {
-            addEvent(boxDom, "click", function(evt) { 
+            addEvent(boxDom, "focus", function(evt) { 
               evt.srcElement.justGotFocus = true;
               setTimeout(function(input) {
                 delete input.justGotFocus;
