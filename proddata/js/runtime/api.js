@@ -262,7 +262,7 @@ function changeElementValue(id, val) {
       elem.innerHTML = val;
     }
   }
-  if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
+  else if (elem.tagName == "INPUT" || elem.tagName == "SELECT" || elem.tagName == "TEXTAREA") {
     if (elem.tagName == "INPUT" && elem.type == "checkbox") {
       if (typeof val == "boolean") {
         elem.checked = val;
@@ -275,9 +275,13 @@ function changeElementValue(id, val) {
       }
     }
     else {
+      if (context == "genie" && val != elem.value){
+        pui.genie.markFieldAndRelatedDirty(elem);   //Issue 5671. Ensure the field is marked dirty so that the mandatory entry check passes.
+      }
       elem.value = val;
     }
   }
+  
   if (context == "dspf" || (pui.usingGenieHandler && elem.fieldInfo == null)) {
     elem.modified = true;
     pui.updateReactState(elem);
@@ -1869,7 +1873,7 @@ pui.alert = function(msg, alertCallback, title, buttonName) {
 
 
 pui["applyProperty"] = function(domObj, propertyName, propertyValue) {
-  return window["applyProperty"](domObj, propertyName, propertyValue)
+  return window["applyProperty"](domObj, propertyName, propertyValue);
 };
 
 pui["get"] = function(id) {
