@@ -4200,7 +4200,7 @@ pui.updateReactState = function(dom) {
     var response = pui.buildResponse(els);
     dom.pui.data[dom.pui.dataProp] = response[dom.pui.dataProp];
   }
-}
+};
 
 pui.setModified = function(e, formatName) {
   if (context == "dspf") {
@@ -4255,7 +4255,7 @@ pui.setModified = function(e, formatName) {
       }
     } //done special handling of SNGCHCFLD.
   }
-}
+};
 
 pui.dupKey = function(event) {
   event = event || window.event;
@@ -4285,7 +4285,7 @@ pui.dupKey = function(event) {
     preventEvent(event);
     return false;
   }
-}
+};
 
 pui.isDup = function(parm) {
   var value = "";
@@ -4294,4 +4294,28 @@ pui.isDup = function(parm) {
   if (value == null) value = "";
   if (typeof value != "string") value = String(value);
   return (value.indexOf(pui["dup"]["char"]) != -1);
+};
+
+/**
+ * Ensure that a config option is a regular expression and global, if necessary. Patterns can be string or RegExp. #5078.
+ * @param {String|RegExp} stringOrObj   From a configuration option for regular expressions; e.g. pui["special key pattern"].
+ * @param {Boolean|undefined} forceGlobal  If true, then the pattern is forced to use global match.
+ * @returns {RegExp|Boolean}  Returns false if argument was not a regular expression.
+ */
+pui.ensureRegExFrom = function(stringOrObj, forceGlobal){
+  var regex = stringOrObj;
+  if (typeof stringOrObj === "string" && stringOrObj.length > 0){
+    var flags = forceGlobal ? "ig" : "i";
+    regex = new RegExp(stringOrObj, flags);
+  }
+  
+  if ( typeof regex === "object" && regex instanceof RegExp ){
+    if (forceGlobal && !regex.global){
+      regex = new RegExp(regex.source, "ig");  //Pattern must be global.
+    }
+  }
+  else {
+    regex = false;
+  }
+  return regex;
 };
