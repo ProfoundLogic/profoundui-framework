@@ -1825,8 +1825,8 @@ pui["loadJS"] = function(parms) {
 pui["endOfSession"] = function(message) {
   pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
-  if (window["puiMobileClient"] != null && window["puiMobileClient"]["showConnections"] != null) {
-    window["puiMobileClient"]["showConnections"]();
+  if (window["puiMobileClient"] != null) {
+    window.location.href = "index.html";
     if (message != null) pui.alert(message);
     return;
   }
