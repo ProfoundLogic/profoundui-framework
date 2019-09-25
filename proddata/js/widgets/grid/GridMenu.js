@@ -311,12 +311,9 @@ pui.GridMenu = function() {
             me.grid.doExpandToLayout();
         }
          
-        // Reset sort order.
-        if (me.grid.isDataGrid()){
-          me.grid.sortBy = me.grid.initialSortColumn; //(Null is OK.)
-        }else{
-          //TODO: Load-all grid.
-        }
+        // Resets sort order to initial sort column|field, or sets sort to same order returned by handler or CGI program.
+        me.grid.multisort([]);
+        
         if (headings) me.columnHeadings = headings;
         me.grid.setHeadings(); 
 

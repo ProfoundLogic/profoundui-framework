@@ -2510,12 +2510,12 @@ pui.Grid = function () {
         sortColumnUsingSQL(null, suppressXHR);  //Setup columns but do not make XHR.
       } 
       else {
-        sortColumn(null, false, true);
+        sortColumn(null, true);
       }
     }
     else if (me.initialSortFieldMulti instanceof Array ){
       importArrIntoMultiSort(me.initialSortFieldMulti, headerIsSortField, getIsDescending);
-      sortColumn(null, false, true);
+      sortColumn(null, true);
     }
     else if (me.initialSortColumn != null) {
       if (headerRow[me.initialSortColumn]){
@@ -2523,13 +2523,13 @@ pui.Grid = function () {
           sortColumnUsingSQL(headerRow[me.initialSortColumn], suppressXHR);
         }
         else {
-          sortColumn(headerRow[me.initialSortColumn], false, true);
+          sortColumn(headerRow[me.initialSortColumn], true);
         }
       }
     }
     else if (me.initialSortField != null) {
       var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
-      if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], false, true);
+      if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], true);
     }
     else {
       return false;
@@ -2693,7 +2693,7 @@ pui.Grid = function () {
             }
           }
           if (sortCell){
-            sortFunc(sortCell, true, false);
+            sortFunc(sortCell, true);
           }
         }
         else if (sort['multiSort'] instanceof Array){
@@ -2706,7 +2706,7 @@ pui.Grid = function () {
           }
           importArrIntoMultiSort(sort['multiSort'], matches, getIsDescending);
           
-          sortFunc(null, true, false);
+          sortFunc(null, true);
         }
       }
     }
@@ -2891,7 +2891,7 @@ pui.Grid = function () {
           sortColumnUsingSQL(null, false);
         }
         else {
-          sortColumn(null, false, false);
+          sortColumn(null, false);
         }
       } 
     }
@@ -2901,11 +2901,10 @@ pui.Grid = function () {
    * When a grid header is clicked, this is called to sort the internal data. Multi-column sort may also call this.
    * @param {Object|Null} cell  DOM element of header cell. When null, a multi-column sort must be the caller.
    *                            When not null, the cell becomes the only entry in the multi-column sort priority.
-   * @param {Boolean} restoring
-   * @param {Boolean} initialSort
+   * @param {Boolean} restoringOrInitialSort
    * @returns {undefined}
    */
-  function sortColumn(cell, restoring, initialSort) {
+  function sortColumn(cell, restoringOrInitialSort) {
     if (me.gridMenu != null) me.gridMenu.hide();
     if (cell == null && sortMultiOrder.length < 1) return;
     
@@ -3069,7 +3068,7 @@ pui.Grid = function () {
       updateResponseElementsDataArrayIndex();
 
       me.recNum = 1;
-      if (me.sflrcdnbr > 0 && (restoring || initialSort)) {
+      if (me.sflrcdnbr > 0 && restoringOrInitialSort) {
 
         // These are automatic sorts at render time. 
         // Need to set grid 'recNum' property (data array sequence number)
@@ -3108,7 +3107,7 @@ pui.Grid = function () {
       setMultiSortIcons();
     }
 
-    if (persistState && !restoring) {
+    if (persistState && !restoringOrInitialSort) {
 
       var obj = {};
       if (cell != null){
