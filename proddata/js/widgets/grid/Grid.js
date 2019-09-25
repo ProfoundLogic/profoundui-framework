@@ -4123,12 +4123,19 @@ pui.Grid = function () {
           me.hLines[i].style.top = curTop + "px";
         }
         setLineHeights();
-        if (me.designMode) me.sizeAllCells();
+        if (me.designMode){
+          if (me.expandToLayout){
+            me.doExpandToLayout();  //Row height affects grid height and number of rows, so re-evaluate those.
+          }
+          else {
+            me.sizeAllCells();  //doExpandToLayout->setNumberOfRows calls this; avoid calling 2x.
+          }
+        }
         positionIcons();
         me.setScrollBar();
         me.sendToDesigner();
         break;
-
+        
       case "header height":
         if (isNaN(parseInt(value)) || parseInt(value) <= 0) {
           me.sendToDesigner(true);
@@ -8906,7 +8913,7 @@ pui.Grid = function () {
       { name: "selection background", type: "color", help: pui.helpTextProperties("css","Defines the background color of a grid row when the user selects it.",["background color"]), context: "dspf" },
 
       { name: "Grid Settings", category: true },
-      { name: "number of rows", help: pui.helpTextProperties("theme","Specifies the number of rows in the grid, including the header row."), bind: false, canBeRemoved: false },
+      { name: "number of rows", help: pui.helpTextProperties("theme","Specifies the number of rows in the grid, including the header row. When the &quot;expand to layout&quot; grid property is true, this is set automatically."), bind: false, canBeRemoved: false },
       { name: "number of columns", help: pui.helpTextProperties("theme","Specifies the number of columns in the grid."), bind: false, canBeRemoved: false },
       { name: "row height", help: pui.helpTextProperties("theme","Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse."), bind: false, canBeRemoved: false },
       { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("theme","Determines whether the grid rows will be highlighted when the user hovers the mouse over them.") },
@@ -9007,7 +9014,7 @@ pui.Grid = function () {
       { name: "top", format: "px", help: pui.helpTextProperties("position","Represents the y-coordinate of the current element."), canBeRemoved: false },
       { name: "right", format: "px", help: pui.helpTextProperties("position","Represents the x-coordinate of the current element."), canBeRemoved: false },
       { name: "bottom", format: "px", help: pui.helpTextProperties("position","Represents the y-coordinate of the current element."), canBeRemoved: false },
-      { name: "height", help: pui.helpTextProperties("css","Height of the grid."), bind: false, canBeRemoved: false },
+      { name: "height", help: pui.helpTextProperties("css","Height of the grid. When the &quot;expand to layout&quot; grid property is true, this is set automatically."), bind: false, canBeRemoved: false },
       { name: "width", help: pui.helpTextProperties("css","Width of the grid."), bind: false, canBeRemoved: false },
       { name: "expand to layout", choices: ["true", "false"], help: pui.helpTextProperties("false","If set to true, the grid will automatically expand to the full size of a layout container."), context: "dspf", bind: false },
       { name: "z index", format: "number", help: pui.helpTextProperties("css","The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements.") },
@@ -9057,4 +9064,18 @@ pui.Grid = function () {
     return model;
   };
   
+  /**
+   * Return true if the properties window should prevent the user from changing a property under certain circumstances.
+   * @param {String} property
+   * @returns {Boolean}
+   */
+  this.isPropertyReadOnly = function(property){
+    switch (property){
+      case "number of rows":
+      case "height":
+        return me.expandToLayout;
+    }
+    return false;
+  };
+
 };
