@@ -65,7 +65,7 @@ pui.imageElementMouseUp = function(image) {
 pui.imageGetDatabase = function(parms) {
   
   if (parms.design) return null;
-  
+     
   var dbfile = parms.evalProperty("blob table");
   var blobCol = parms.evalProperty("blob column");
   

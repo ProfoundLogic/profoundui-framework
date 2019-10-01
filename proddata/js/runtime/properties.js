@@ -658,6 +658,7 @@ function getPropertiesModel() {
     { name: "custom sql", type: "long", help: pui.helpTextProperties("blank","Specifies an SQL statement to use to retrieve the records for a database-driven chart. The last column is used as the chart values. Earlier columns are concatenated into the chart labels."), controls: ["chart"]},
     
     { name: "Database-Driven Image Data", category: true, controls: ["image"] },
+    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("Local", "Name of database where file is located. Used only if data to be retrieved is stored on a remote server."), controls: ["textbox", "combo box", "select box", "grid", "chart", "image"]},
     { name: "blob table", type: "file", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database table that contains a blob for this image."), controls: ["image"] },
     { name: "blob column", type: "field", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Blob column in database table that image will be loaded from."), controls: ["image"] },
     { name: "blob selection criteria", type: "long", help: pui.helpTextProperties("blank", "Expression expression identifying which row to load image blob from."), controls: ["image"] },

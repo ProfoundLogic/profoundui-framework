@@ -470,12 +470,12 @@ pui.widgets.add({
       // Use database file settings, if given.
       if (parms.evalProperty("choices database file") != "") {
         if (!parms.design) {
-          var maxChoices  = parms.evalProperty("max choices");
-          var file        = parms.evalProperty("choices database file");
-          var textFields   = pui.getFieldList(parms.evalProperty("choice options field")); 
-          var valueField  = parms.evalProperty("choice values field");
-          if (valueField == null || valueField == "") valueField = textFields[0];
-          var whereClause = parms.evalProperty("choices selection criteria");
+          var maxChoices    = parms.evalProperty("max choices");
+          var file          = parms.evalProperty("choices database file");
+          var textFields    = pui.getFieldList(parms.evalProperty("choice options field")); 
+          var valueField    = parms.evalProperty("choice values field");
+          if (valueField   == null || valueField == "") valueField = textFields[0];
+          var whereClause   = parms.evalProperty("choices selection criteria");
           var orderByFields = pui.getFieldList(parms.evalProperty("order by"));
           
           if (orderByFields[0] != "") {
@@ -543,6 +543,7 @@ pui.widgets.add({
           	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
           if( pui["read db driven data as ebcdic"] !== true ) ajaxRequest["postData"] += "&UTF8=Y";
+
           ajaxRequest["onsuccess"] = function() {
           	              	
             var eventCode = parms.evalProperty("ondbload");
