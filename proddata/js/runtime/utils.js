@@ -1414,6 +1414,7 @@ pui.getFieldList = function(propVal, stopAtFrom) {
 
 pui.sqlProps = {
             
+  "remote system name" : null,
   "database file" : null,
   "database fields" : null,
   "selection criteria" : null,
