@@ -808,6 +808,16 @@ function getPropertiesModel() {
     { name: "onspin", controls: ["spinner"], type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the up or down arrow is clicked on a spinner element.") }
   ];
 
+  //Remove remote server property if PJS. Not yet ready to implement.
+  if (pui.nodedesigner === true) {
+    var elemIndex = cachedPropertiesModel.map( function(elem) {
+      return elem.name;
+    }).indexOf("remote system name");
+
+    cachedPropertiesModel.splice(elemIndex, 1);
+
+  }
+
   return cachedPropertiesModel;
 }
 

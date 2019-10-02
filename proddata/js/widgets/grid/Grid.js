@@ -9062,6 +9062,15 @@ pui.Grid = function () {
       { name: "onpageup", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>."), bind: false },
       { name: "onscroll", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid."), bind: false }
     ];
+
+    //Remove remote server property if PJS. Not yet ready to implement.
+    if (pui.nodedesigner === true) {
+      var elemIndex = model.map( function(elem) {
+        return elem.name;
+      }).indexOf("remote system name");
+
+      model.splice(elemIndex, 1);
+    }
     
     return model;
   };
