@@ -4320,3 +4320,15 @@ pui.ensureRegExFrom = function(stringOrObj, forceGlobal){
   }
   return regex;
 };
+
+/**
+ * Replace characters that cause problems being made upper-case and lower-case. When toLower is true, replace all upper-case ẞ
+ * (U+7838) in a string with lower-case ß (U+223). Do the reverse when toLower is false. Issue 5369.
+ * @param {String} str
+ * @param {Boolean} toLower   When true, the function is preparing screen input for the response. When false, server output is prepared for display.
+ * @returns {String}
+ */
+pui.replaceProblemCaseChars = function(str, toLower){
+  //return toLower ? str.replace(/\u7838/g, 'ß') : str.replace(/\u223/g, 'ẞ');
+  return toLower ? str.replace(/ẞ/g, 'ß') : str.replace(/ß/g, 'ẞ');
+};
