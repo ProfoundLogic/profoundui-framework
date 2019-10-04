@@ -648,6 +648,9 @@ function getPropertiesModel() {
     { name: "Database-Driven Auto-Complete", category: true, controls: ["textbox"] },
     { name: "Database-Driven Selection", category: true, controls: ["combo box", "select box"] },
     { name: "Database-Driven Chart", category: true, controls: ["chart"] },
+    { name: "Database-Driven Image Data", category: true, controls: ["image"] },
+
+    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("Local", "Name of database where file is located. Used only if data to be retrieved is stored on a remote server."), controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
     { name: "database file", type: "file", displayName: (pui.nodedesigner ? "database table" : undefined), uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database table to use for the chart's data source."), controls: ["chart"] },
     { name: "name field", type: "field", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database field that determines the names by which records would be represented in the chart."), controls: ["chart"] },
     { name: "value field", type: "field", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database field that determines the numerical values from which the chart is to be built."), controls: ["chart"] },
@@ -657,8 +660,6 @@ function getPropertiesModel() {
     { name: "record limit", format: "number", help: pui.helpTextProperties("blank", "Sets a limit on how many records are to be used in the chart."), controls: ["chart"] },    
     { name: "custom sql", type: "long", help: pui.helpTextProperties("blank","Specifies an SQL statement to use to retrieve the records for a database-driven chart. The last column is used as the chart values. Earlier columns are concatenated into the chart labels."), controls: ["chart"]},
     
-    { name: "Database-Driven Image Data", category: true, controls: ["image"] },
-    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("Local", "Name of database where file is located. Used only if data to be retrieved is stored on a remote server."), controls: ["textbox", "combo box", "select box", "grid", "chart", "image"]},
     { name: "blob table", type: "file", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database table that contains a blob for this image."), controls: ["image"] },
     { name: "blob column", type: "field", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Blob column in database table that image will be loaded from."), controls: ["image"] },
     { name: "blob selection criteria", type: "long", help: pui.helpTextProperties("blank", "Expression expression identifying which row to load image blob from."), controls: ["image"] },
