@@ -2975,6 +2975,10 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
 
   // Load JS and CSS files. The last completion handler to get called will call the callback.
   function loadFiles(files) {
+    if (files.length === 0) {
+      callback();
+    }
+
     files.forEach(function (file) {
       var loaded = false;
       var basename = file.split("?")[0];
