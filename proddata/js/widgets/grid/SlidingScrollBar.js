@@ -737,23 +737,23 @@ pui.SlidingScrollBar = function() {
       // Old mousewheel code expects negative to mean scrolling down, positive to mean scrolling up.
       if (pui['is_firefox']) {
         // In Firefox, deltaY is multiple of 3, negative = wheel pushed forward/up, positive = wheel pulled back/down. deltaMode: 1
-        delta = event["deltaY"] / -3;
+        delta = event.deltaY / -3;
       }
       else if (pui['is_ie']){
         // IE10-11, deltaY is multiple of 144.3000030517578, same sign as Firefox.   deltaMode: 0.
         // Edge, deltaY is multiple of 144.4499969482422, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 120.
-        delta = event["deltaY"] / -144;
+        delta = event.deltaY / -144;
       }
       else if (pui['is_chrome']) {
         // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
-        delta = event["deltaY"] / -100;
+        delta = event.deltaY / -100;
       }
       else if (pui['is_safari']){
         // Safari, deltaY is multiple of 4.000244140625, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 12.
-        delta = event["deltaY"] / -4;
+        delta = event.deltaY / -4;
       }
-      else if (typeof event["deltaY"] == 'number' && (event["deltaY"] > 0 || event["deltaY"] < 0)){
-        delta = event["deltaY"] / event["deltaY"] * -1; //Handle other, let value be either +1 or -1. Assume sign is same as other browser.
+      else if (typeof event.deltaY == 'number' && (event.deltaY > 0 || event.deltaY < 0)){
+        delta = event.deltaY / event.deltaY * -1; //Handle other, let value be either +1 or -1. Assume sign is same as other browser.
       }
       
       deltaEvent(delta, event);
