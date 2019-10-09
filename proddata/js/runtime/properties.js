@@ -1577,6 +1577,24 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     } else {
       try {
         var posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
+        
+        // Prevent German eszett from being changed to "SS" by changing it to captial eszett. 5369.
+        if (propConfig.stylename == "textTransform" && effectiveValue == "uppercase"){
+          function comboInputFilter(e){
+            e.target.value = pui.replaceProblemCaseChars(e.target.value, false);
+          }
+          
+          if ((domObj.tagName == "INPUT" && domObj.type == "text") || domObj.tagName == "TEXTAREA"){
+            domObj.value = pui.replaceProblemCaseChars(domObj.value, false);
+            domObj.addEventListener("input", comboInputFilter);
+          }
+          else if(domObj.comboBoxWidget != null){
+            var comboInput = domObj.comboBoxWidget.getBox();
+            comboInput.value = pui.replaceProblemCaseChars(comboInput.value, false);
+            comboInput.addEventListener("input", comboInputFilter);
+          }
+        }
+        
         domObj.style[propConfig.stylename] = posdim;
 
         // To allow inline-style setting and removing, cache the style property.
