@@ -183,6 +183,11 @@ pui.ComboBoxWidget = function() {
     var words = propertyName.split(" ");
     if (words.length == 2) words[1] = words[1].substr(0,1).toUpperCase() + words[1].substr(1);
     var styleName = words.join("");
+    
+    if (propertyName == "text transform" && propertyValue == "uppercase"){
+      box.value = pui.replaceProblemCaseChars(box.value, false);  //Prevent German eszett from becoming "SS". lower-case eszett becomes capital eszett.
+    }
+    
     box.style[styleName] = propertyValue;  
   };
   

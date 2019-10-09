@@ -396,6 +396,8 @@ pui.FieldFormat = {
       }
 
       if(obj.textTransform == 'uppercase'){
+        // German eszett becomes capital eszett character. Should happen for both A and C/G data types before displaying.
+        value = pui.replaceProblemCaseChars(value, false);
         value = value.toUpperCase();
       }
       else if(obj.textTransform == 'lowercase'){
@@ -421,7 +423,13 @@ pui.FieldFormat = {
         }
       }      
       if(obj.textTransform == 'uppercase'){
+        // In case the field did not have text-transform style also set to "uppercase": replace any lower-case ß with upper to avoid becoming SS due to toUpperCase().
+        value = pui.replaceProblemCaseChars(value, false);
         value = value.toUpperCase();
+        if (obj.dataType == "char"){
+          // German capital eszett becomes lower-case eszett character. Only convert back for Char, because EBCDIC doesn't support the upper, but unicode does.
+          value = pui.replaceProblemCaseChars(value, true);
+        }
       }
       else if(obj.textTransform == 'lowercase'){
         value = value.toLowerCase();
