@@ -3533,7 +3533,7 @@ pui.buildResponse = function(customResponseElements) {
       
       var formattingObj = dom.formattingInfo;
       if (formattingObj != null && formattingObj.dataType != "expression") {
-        if (formattingObj.textTransform != "uppercase" && dom.pui.properties["text transform"] == "uppercase" && formattingObj.dataType == "char"){
+        if (formattingObj.textTransform != "uppercase" && dom.pui && dom.pui.properties && dom.pui.properties["text transform"] == "uppercase" && formattingObj.dataType == "char"){
           value = pui.replaceProblemCaseChars(value, true);   //Capital ẞ isn't supported in EBCDIC, so lower-case it for char.
         }
         formattingObj.value = value;
