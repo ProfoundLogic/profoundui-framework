@@ -124,10 +124,15 @@ pui.textArea_cleanUp = function(e) {
       }
     }
   } //done handling paste.
-
+  
   // Handle backspace on keydown. Removes \n, then \r, then the character before those. Note: this manually changes the textarea 
-  // value; when character keys are pressed, the change to the textarea value is visible on "input" and "keyup".
+  // value; when character keys or the Delete key are pressed, then the change to the textarea value is visible on "input" and
+  // "keyup". The browser handles Delete by removing a character.
   if (key == 8 && ename == "keyup") return;
+  
+  // When deleting doesn't add new lines, don't skip '\n' when Delete/Backspace were pressed.
+  var erasing = key == 8;
+  var erasingSplitAdjust = 0;   //Long text shouldn't be split up at the newlines.
   if (key == 8 && ename == "keydown" && cursorPos > 0) {  // backspace
     if (pui["is_ie"] && val.length < cursorPos) cursorPos = val.length;
     if (val.substr(cursorPos-1, 1) == "\n") {
@@ -139,7 +144,11 @@ pui.textArea_cleanUp = function(e) {
       cursorPos = cursorPos - 1;
     }
     val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
+    if (cursorPos <= lineLengths[0]){
+      erasingSplitAdjust = 1;
+    }
     cursorPos = cursorPos - 1;
+    
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
     e.cancelBubble = true;
@@ -149,9 +158,17 @@ pui.textArea_cleanUp = function(e) {
   // Make sure NL are not skipped when Del was typed and 'input' handles wrap. 'input' events don't know what key was typed.
   else if (key == 46 && ename == 'keydown'){
     obj.doNotSkipNL = true;
+    if (cursorPos <= lineLengths[0]){
+      obj.erasingSplitAdjust = true;
+    }
   }
   else if (key == 46 && ename == 'keyup'){
     delete obj.doNotSkipNL;
+    delete obj.erasingSplitAdjust;
+  }
+  else if (ename == 'input'){
+    erasing = obj.doNotSkipNL === true;
+    erasingSplitAdjust = obj.erasingSplitAdjust === true ? 1 : 0;
   }
   // done handling backspace and delete.
   
@@ -179,18 +196,17 @@ pui.textArea_cleanUp = function(e) {
   
   // When the field uses CNTFIELD the field should word wrap on client-side. (The server doesn't add a "wrapped" property in the JSON response for CNTFIELD.)
   var isContinuedEntryField = obj.related != null && obj.related[0] != null && obj.related[0].fieldInfo != null && obj.related[0].fieldInfo["wrapped"] !== true;
-  // When deleting doesn't add new lines, don't skip '\n' when Delete/Backspace were pressed.
-  var isDel = obj.doNotSkipNL === true || key == 8;
+  var isLongSpecialCase = false;
   
   // Wrap by word. Note: because val is manually changed on Backspace, we must handle that change on keydown and key 8. 
   //   Listen on 'input' instead of 'keyup' to solve when holding a key down would corrupt the value.
-  if (isContinuedEntryField && (ename == 'input' || (ename == 'keydown' && key == 8)) ){    
+  if (isContinuedEntryField && (ename == 'input' || (ename == 'keydown' && key == 8)) ){
     
     var words = splitTextByWords();
     i=0;    //Used here to track what characters have been added, so that cursorPos and cursorLine can be adjusted.
     var skipNextNL = false;
     var atStartOfLine = true;
-    
+
     // Look at each word. Populate the model of fields with the words. Wrap when necessary.
     while (words.length > 0){
       if (words[0] == '\n'){
@@ -200,13 +216,15 @@ pui.textArea_cleanUp = function(e) {
           atStartOfLine = true;
         }
         skipNextNL = false;
-        if (i < cursorPos) cursorPos--;
+        if (i < cursorPos){
+          cursorPos--;
+        }
         words.shift();
       }
       else if (words[0] == ' '){
         if (getLineLength(curLine) >= lineLengths[curLine]){  //Make a new line if no room is left on the current line.
           if (!madeNewLine()) break;
-          if (!isDel) skipNextNL = true;
+          if (!erasing) skipNextNL = true;
         } 
         lines[curLine] += ' ';
         atStartOfLine = false;
@@ -230,11 +248,13 @@ pui.textArea_cleanUp = function(e) {
           var word = words.shift();  
           words.splice(1, 0, word, ' ' );    //Move the word to after the '\n' to be with that word. Also add a space.
           
-          if (i < cursorPos && !isDel) cursorPos++;
+          if (i < cursorPos && !erasing){
+            cursorPos++;
+          }
         }
         // Word is 1 char from end of line and would collide with word on next line if next ch typed is not a space, and the end space is not being deleted/backspaced.
         else if ( curLineLength + words[0].length == lineLengths[curLine] - 1 && words.length >= 3 && words[1] == '\n' && words[2] != ' '
-        && (!isDel || i >= cursorPos ) ){
+        && (!erasing || i >= cursorPos ) ){
           words.splice(1, 0, ' ');  //Add space.
         }
         // Room is available.
@@ -242,7 +262,7 @@ pui.textArea_cleanUp = function(e) {
           //Add the word to the line
           lines[curLine] += words[0];
           atStartOfLine = false;
-                    
+
           i += words[0].length;
           words.shift();
         }
@@ -257,19 +277,20 @@ pui.textArea_cleanUp = function(e) {
               var roomonline = lineLengths[curLine] - curLineLength;
               lines[curLine] += bigword.substr(splitat, roomonline);
               splitat += roomonline;
-            
-              if (!madeNewLine()){
+
+              if (splitat >= bigword.length || !madeNewLine()){
                 words = [];  //Stops the outside loop.
                 break;
               }
             }
             atStartOfLine = true;
             skipNextNL = true;
+            isLongSpecialCase = true;
           }
           else { //Start a new line. The next loop iteration will handle the word.
             
             if (!madeNewLine()) break;
-            if (!isDel) skipNextNL = true;
+            if (!erasing) skipNextNL = true;
             
             // There should be a space between the wrapped word and the next.
             if (words.length >= 3 && words[1] == '\n' ){ //Word is at end of line.
@@ -306,7 +327,9 @@ pui.textArea_cleanUp = function(e) {
     for (var i = 0; i < len; i++) {
       var ch = val.charAt(i);
       if (ch == "\n" || ch == "\r") {
-        if (i < origCursorPos) cursorPos = cursorPos - 1;  //Shrink the length by one; \r and \n are not part of the text.
+        if (i < origCursorPos){
+          cursorPos = cursorPos - 1;  //Shrink the length by one; \r and \n are not part of the text.
+        }
         if (ch == "\n") {
           if (!skipNextNL && !madeNewLine()) break;
           skipNextNL = false;
@@ -334,8 +357,10 @@ pui.textArea_cleanUp = function(e) {
     newVal += lines[i];
     if (i != curLine) {
       newVal += "\n";
-      //Move cursor past the newline. Don't do for paste, because cursor stays put then.
-      if (newVal.length-1 < cursorPos && ename != "paste") cursorPos += 1;
+      // Move cursor past the newline. Don't do for paste, because cursor stays put then. Don't do for special case.
+      if (newVal.length-1 < cursorPos && ename != "paste" && !isLongSpecialCase){
+        cursorPos += 1;
+      }
     }
   }
   var oldVal = obj.value.replace(/\r/g, "");
@@ -516,9 +541,12 @@ pui.textArea_cleanUp = function(e) {
       // Look for words that could fill a line. Assume CNTFIELD have line lengths all the same.
       // Note: '\n' are added to textarea.value to cause wrapping, potentially splitting big words.
       for (var i=0; i < words.length; i++){
+        var lineLength = lineLengths[0];
+        lineLength -= erasingSplitAdjust;  //Erasing a character would shorten the line, but a big word would still fill the first line. Wrap back.
+        erasingSplitAdjust = 0;            //Only adjust for first line.
         if (words.length > i + 2){
           // If this word fills a line, and the next word is not space, then merge the next word into this one.
-          if (words[i].length >= lineLengths[0] && words[i+1] === '\n' && words[i+2] !== ' ' && words[i+2] !== '\n' ){
+          if (words[i].length >= lineLength && words[i+1] === '\n' && words[i+2] !== ' ' && words[i+2] !== '\n' ){
             words[i] += words[i+2];     //Add next word to current.
             words.splice(i+1, 2);       //Remove the NL; the user didn't add it. Also remove next word.
             i--; //In case word is very long, repeat this check on the next word.
