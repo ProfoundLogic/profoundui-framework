@@ -448,7 +448,7 @@ pui.textArea_cleanUp = function(e) {
         // by moving words to next lines and adding spaces. Otherwise, do wrapping.
         
         // Word is at end of line and would collide with word on next line after submitting screen.
-        if ( curLineLength + words[0].length == lineLengths[curLine] && words.length >= 3 && words[1] == '\n' && words[2] != ' ' ){
+        if (!pasting && curLineLength + words[0].length == lineLengths[curLine] && words.length >= 3 && words[1] == '\n' && words[2] != ' ' ){
           if (!madeNewLine()) break;
           skipNextNL = true;    //Note: skip even when Del/Bksp, because deleting space at beginning of line would add unnecessary new line.
           atStartOfLine = true;
