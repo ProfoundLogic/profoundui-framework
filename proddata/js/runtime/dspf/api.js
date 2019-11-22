@@ -167,7 +167,7 @@ pui["show"] = function(parms) {
   
   if (meta == null) {    
     var ajaxParms = {      
-      "method": "post",
+      "method": "get",
       "handler": function(metaObj) {
         parms["meta"] = metaObj;
         parms["appJob"] = appJob;
@@ -175,7 +175,6 @@ pui["show"] = function(parms) {
         pui["show"](parms);
       }
     }
-    if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
       ajaxParms["url"] = path;    
