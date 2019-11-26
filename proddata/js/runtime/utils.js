@@ -3018,6 +3018,41 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
 
 
 /**
+ * Given a URL string, returns a new URL string with a new "cache buster" query string
+ * parameter added or existing one updated to a new value.
+ * @param {string} url
+ * @param {string} [method] - http method (optional) - For convenience; if not `get` then url is returned unchanged
+ * @returns {string} New url
+ * 
+ * ```
+ *  Example:
+ *   Input:  "http://www.example.com/page?name=Fred&age=21"
+ *   Output: "http://www.example.com/page?name=Fred&age=21&r=1574721438278"
+ * ```
+ */
+pui.addCacheBuster = function (url, method) {
+  var cb = Date.now();
+
+  if (typeof method === "string" && method.toLowerCase() !== "get") {
+    return url;
+  }
+
+  // Replace old cache buster query string with new one, if one exists
+  if (/[&?]r=[^&]+/.test(url)) {
+    url = url.replace(/([&?]r=)[^&]+/, function (match, p1) {
+      return p1 + cb;
+    });
+  // Otherwise add new cache buster onto URL
+  } else {
+    var separator = (url.indexOf('?') == -1) ? '?' : '&';
+    url = url + separator + "r=" + cb;
+  }
+
+  return url;
+}
+
+
+/**
  * Round to a specified number of decimals.
  * Source:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round

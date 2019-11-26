@@ -175,13 +175,14 @@ pui["show"] = function(parms) {
         pui["show"](parms);
       }
     }
+    if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
-      ajaxParms["url"] = path;    
+      ajaxParms["url"] = pui.addCacheBuster(path, ajaxParms["method"]);
       ajaxJSON(ajaxParms);
     }
     else {
-      ajaxParms["url"]= getProgramURL("PUI0001102.pgm");
+      ajaxParms["url"]= pui.addCacheBuster(getProgramURL("PUI0001102.pgm"), ajaxParms["method"]);
       ajaxParms["params"]= memberInfo;
       ajaxParms["handler"] = function(json) {
         json = json.replace(/''/g, "'");  // decode single quotes
