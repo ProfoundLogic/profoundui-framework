@@ -4147,27 +4147,21 @@ pui.randomTextBoxName = function() {
 };
 
 /**
- * Attach a mousedown listener on an element allowing an element to be moved by dragging the mouse.
- * Assume the listener is destroyed when the element is. Element can be fully or partially prevented from going off screen/container.
- * @param {Object} params  Properties:
+ * A generic method to attach mousedown on an element, and mouseup and mousemove listeners are also attached.
+ * @param {Object} params
  *   attachto:  element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
- *   move:      element to move by setting its .style.top and .style.left.
- *   boundat:   optional. defaults to 'border'. 'click' makes panel stop at bounds where mouse was clicked.
- *   lbound:    optional. default to 0. 
- *   tbound:    optional. default to 0.
- *   rbound:    optional. default to no bounds.
- *   bbound:    optional. default to no bounds.
+ *   mousedown: Implementation specific function; Is provided a reference object with .cursorStartX and .cursorStartY.
+ *   mousemove: Implementation specific function; Is provided a reference object with .x and .y.
  *   downcb:    optional Function. callback for mousedown.
  *   movecb:    optional Function. callback for mousemove.
  *   upcb:      optional Function. callback for mouseup.
- *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the moved element to this 
+ *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the opEl element to this value
  *                from mousedown until mouseup.
+ *   opel:      optional Object. Element whose opacity is set on mousedown and cleared on mouseup.
+ * @returns {undefined}
  */
-pui.makeMovable = function(params){
-  var cursorStartX, cursorStartY, startLeft, startTop;
-  if (typeof params.lbound !== 'number') params.lbound = 0;
-  if (typeof params.tbound !== 'number') params.tbound = 0;
-  var mousemoveF = params.boundat === 'click' ? moveBoundAtClick : moveBoundAtBorder;
+pui.listenMouse = function(params){
+  var ref = {};
   
   if (params.attachto instanceof Array){
     for (var i=0; i < params.attachto.length; i++){
@@ -4180,37 +4174,88 @@ pui.makeMovable = function(params){
   
   function mousedown(e){
     preventEvent(e); //prevent selection start.
-    cursorStartX = pui.getMouseX(e);
-    cursorStartY = pui.getMouseY(e);
-    startLeft = params.move.offsetLeft;
-    startTop = params.move.offsetTop;
+    var xy = pui.getMouseXY(e);
+    ref.cursorStartX = xy.x;
+    ref.cursorStartY = xy.y;
+    params.mousedown(ref);
     
     if (typeof params.opacity === 'number'){
-      params.move.style.filter = 'alpha(opacity='+params.opacity+')';   //IE
-      params.move.style.opacity = '0.'+params.opacity;
+      params.opel.style.filter = 'alpha(opacity='+params.opacity+')';   //IE
+      params.opel.style.opacity = '0.'+params.opacity;
     }
     
-    addEvent(document, 'mousemove', mousemoveF);
+    addEvent(document, 'mousemove', mousemove);
     addEvent(document, 'mouseup', mouseup);
-  }
-  // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
-  function moveBoundAtClick(e){
-    var xy = pui.getMouseXY(e);
-    if (xy.x < params.lbound) xy.x = params.lbound;
-    if (xy.y < params.tbound) xy.y = params.tbound;
-    if (typeof params.rbound === 'number' && xy.x > params.rbound) xy.x = params.rbound;
-    if (typeof params.bbound === 'number' && xy.y > params.bbound) xy.y = params.bbound;
-    
-    params.move.style.left = (startLeft - cursorStartX + xy.x) + 'px';
-    params.move.style.top = (startTop - cursorStartY + xy.y) + 'px';
     
     if (typeof params.downcb === 'function') params.downcb();
   }
-  // Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
-  function moveBoundAtBorder(e){
+
+  function mousemove(e){
     var xy = pui.getMouseXY(e);
-    var newx = startLeft + xy.x - cursorStartX;
-    var newy = startTop + xy.y - cursorStartY;
+    ref.x = xy.x;
+    ref.y = xy.y;
+    params.mousemove(ref);
+    
+    if (typeof params.movecb === 'function') params.movecb();
+  }
+
+  function mouseup(){
+    removeEvent(document, 'mousemove', mousemove);
+    removeEvent(document, 'mouseup', mouseup);
+    if (typeof params.upcb === 'function') params.upcb();
+    if (typeof params.opacity === 'number'){
+      params.opel.style.filter = '';
+      params.opel.style.opacity = '';
+    }
+    ref = {};
+  }
+};
+
+/**
+ * Attach a mousedown listener on an element allowing an element to be moved by dragging the mouse.
+ * Assume the listener is destroyed when the element is. Element can be fully or partially prevented from going off screen/container.
+ * @param {Object} params  Properties:
+ *   attachto:  element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
+ *   move:      element to move by setting its .style.top and .style.left. 
+ *              Or element to resize by setting its .style.height and/or .style.width.
+ *   boundat:   optional. defaults to 'border'. 'click' makes panel stop at bounds where mouse was clicked.
+ *   lbound:    optional. default to 0. Left bound.
+ *   tbound:    optional. default to 0. Top bound.
+ *   rbound:    optional. default to no bounds. Right bound.
+ *   bbound:    optional. default to no bounds. Bottom bound.
+ *   downcb:    optional Function. callback for mousedown.
+ *   movecb:    optional Function. callback for mousemove.
+ *   upcb:      optional Function. callback for mouseup.
+ *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the moved element to this 
+ *                from mousedown until mouseup.
+ */
+pui.makeMovable = function(params){
+  if (typeof params.lbound !== 'number') params.lbound = 0;
+  if (typeof params.tbound !== 'number') params.tbound = 0;
+  var mousemoveF = params.boundat === 'click' ? moveBoundAtClick : moveBoundAtBorder;
+  
+  pui.listenMouse({attachto: params.attachto, downcb: params.downcb, movecb: params.movecb, upcb: params.upcb,
+    opacity: params.opacity, opel: params.move, mousedown: mdown, mousemove: mousemoveF });
+  
+  function mdown(ref){
+    ref.startX = params.move.offsetLeft;
+    ref.startY = params.move.offsetTop;
+  }
+  
+  // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
+  function moveBoundAtClick(ref){
+    if (ref.x < params.lbound) ref.x = params.lbound;
+    if (ref.y < params.tbound) ref.y = params.tbound;
+    if (typeof params.rbound === 'number' && ref.x > params.rbound) ref.x = params.rbound;
+    if (typeof params.bbound === 'number' && ref.y > params.bbound) ref.y = params.bbound;
+    
+    params.move.style.left = (ref.startX - ref.cursorStartX + ref.x) + 'px';
+    params.move.style.top = (ref.startY - ref.cursorStartY + ref.y) + 'px';
+  }
+  // Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
+  function moveBoundAtBorder(ref){
+    var newx = ref.startX + ref.x - ref.cursorStartX;
+    var newy = ref.startY + ref.y - ref.cursorStartY;
     if (newx < params.lbound) newx = params.lbound;
     if (newy < params.tbound) newy = params.tbound;
     if (typeof params.rbound === 'number' && newx > params.rbound) newx = params.rbound;
@@ -4218,16 +4263,49 @@ pui.makeMovable = function(params){
     
     params.move.style.left = newx + 'px';
     params.move.style.top = newy + 'px';
-    
-    if (typeof params.movecb === 'function') params.movecb();
   }
-  function mouseup(){
-    removeEvent(document, 'mousemove', mousemoveF);
-    removeEvent(document, 'mouseup', mouseup);
-    if (typeof params.upcb === 'function') params.upcb();
-    if (typeof params.opacity === 'number'){
-      params.move.style.filter = '';
-      params.move.style.opacity = '';
+};
+
+/**
+ * Allow an element to be resized.
+ * @param {Object} params
+ *   attachto:  element to attach the mousedown. Assume the attachto element is on the border of the resizeEl and moves when resizeEl changes.
+ *   resizeEl:  element to resize by setting its .style.height and/or .style.width.
+ *   resize:    1=width (default), 2=height, 3=both.
+ *   minw:      optional. default to 0. Minimum width.
+ *   maxw:      optional. default to no bounds. Maximum width.
+ *   minh:      optional. default to 0. Minimum height.
+ *   maxh:      optional. default to no bounds. Maximum height.
+ *   downcb:    optional Function. callback for mousedown.
+ *   movecb:    optional Function. callback for mousemove.
+ *   upcb:      optional Function. callback for mouseup.
+ */
+pui.makeResizable = function(params){
+  if (typeof params.minw != 'number' || params.minw < 0) params.minw = 0;
+  if (typeof params.minh != 'number' || params.minh < 0) params.minh = 0;
+  if (typeof params.resize != 'number' || params.resize < 1 || params.resize > 3) params.resize = 1;
+  var doWidth = (params.resize & 1) == 1;  //true for 1 or 3.
+  var doHeight = (params.resize & 2) == 2; //true for 2 or 3.
+  
+  pui.listenMouse({attachto: params.attachto, mousedown: mdown, mousemove: mmove,
+    downcb: params.downcb, movecb: params.movecb, upcb: params.upcb  });
+  
+  function mdown(ref){
+    ref.startX = params.resizeEl.offsetWidth;
+    ref.startY = params.resizeEl.offsetHeight;
+  }
+  function mmove(ref){
+    if (doWidth){
+      var width = ref.startX + ref.x - ref.cursorStartX;
+      if (width < params.minw) width = params.minw;
+      if (typeof params.maxw === 'number' && width > params.maxw) width = params.maxw;
+      params.resizeEl.style.width = width + 'px';
+    }
+    if (doHeight){
+      var height = ref.startY + ref.y - ref.cursorStartY;
+      if (height < params.minh) height = params.minh;
+      if (typeof params.maxh === 'number' && height > params.maxh) height = params.maxh;
+      params.resizeEl.style.height = height + 'px';
     }
   }
 };
