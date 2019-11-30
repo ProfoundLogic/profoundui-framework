@@ -154,6 +154,9 @@ var nl_NL = function(dict) {
             dictMsg["add libl entry"]               = "Voeg een entry toe aan de lijst met bibliotheken";
             dictMsg["would you like add ano"]       = "Wilt u een nog een toevoegen?";
             dictMsg["already in suppl grp x"]       = "Gebruiker is reeds opgenomen in de aanvullende groep \"&1\".";
+            dictMsg["cannot move screen"]           = "Kan macroscherm niet verplaatsen";
+            dictMsg["ready to add"]                 = "(Klaar om acties toe te voegen op dit scherm)";
+            dictMsg["duplicate actions"]            = "Dubbele actie(s) gevonden voor deze rij / kolom, er kunnen onvoorspelbare resultaten optreden. Controleer acties en verwijder duplicaten.";
 
             break;
 

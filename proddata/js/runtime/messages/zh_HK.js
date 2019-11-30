@@ -154,6 +154,9 @@ var zh_HK = function(dict) {
             dictMsg["add libl entry"]               = "檔案庫列表添加內容";
             dictMsg["would you like add ano"]       = "你想添加另一個嗎？";
             dictMsg["already in suppl grp x"]       = "用戶已存在補充組別\"&1\".";
+            dictMsg["cannot move screen"]           = "無法移動屏幕";
+            dictMsg["ready to add"]                 = "（可在此屏幕上操作）";
+            dictMsg["duplicate actions"]            = "該行/列重複操作，或會發生不可預測的結果。請查看並刪除重複項。";
 
             break;
 

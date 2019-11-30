@@ -154,6 +154,9 @@ var de_DE = function(dict) {
             dictMsg["add libl entry"]               = "Bibliothekslisteneintrag hinzufügen";
             dictMsg["would you like add ano"]       = "Möchten Sie ein anderes hinzufügen?";
             dictMsg["already in suppl grp x"]       = "Der Benutzer ist bereits in der Ergänzungsgruppe \"&1\".";
+            dictMsg["cannot move screen"]           = "Macro Bildschirm nicht verschiebbar";
+            dictMsg["ready to add"]                 = "(Bereit Aktion(en) hinzuzufügen)";
+            dictMsg["duplicate actions"]            = "Identische Aktion(en) für diese Reihe/Spalte gefunden, unvorhersehbares Verhalten möglich. Bitte Aktionen überprüfen und Duplikate löschen.";
 
             break;
 
