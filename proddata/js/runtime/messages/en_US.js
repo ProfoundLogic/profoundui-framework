@@ -154,6 +154,9 @@ var en_US = function(dict) {
             dictMsg["add libl entry"]               = "Add library list entry";
             dictMsg["would you like add ano"]       = "Would you like to add another?";
             dictMsg["already in suppl grp x"]       = "User is already in supplemental group \"&1\".";
+            dictMsg["cannot move screen"]           = "Unable to move Macro Screen";
+            dictMsg["ready to add"]                 = "(Ready to add actions on this screen)";
+            dictMsg["duplicate actions"]            = "Duplicate action(s) found for this row/column, unpredictable results could occur. Please review actions and delete duplicates.";
 
             // Jumpstart only.
             dictMsg["subfile full"]        			    = "There are more than 9,999 records; only the first 9,999 records are displayed.";

@@ -154,6 +154,9 @@ var fr_FR = function(dict) {
             dictMsg["add libl entry"]               = "Ajouter une entrée dans la liste de bibliothèque";
             dictMsg["would you like add ano"]       = "Voulez-vous en ajouter une autre ?";
             dictMsg["already in suppl grp x"]       = "L'utilisateur figure déjà dans le groupe supplémentaire \"&1\".";
+            dictMsg["cannot move screen"]           = "Impossible de déplacer la Macro Écran";
+            dictMsg["ready to add"]                 = "(Prêt à ajouter des actions sur cet écran)";
+            dictMsg["duplicate actions"]            = "Action(s) en double trouvée(s) pour cette ligne/colonne, des résultats imprévisibles peuvent se produire. Veuillez consulter les actions et supprimer les doublons.";
 
             break;
 

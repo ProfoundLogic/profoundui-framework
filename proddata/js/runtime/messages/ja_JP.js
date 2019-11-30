@@ -154,6 +154,9 @@ var ja_JP = function(dict) {
             dictMsg["add libl entry"]               = "ライブラリリストエントリーに追加";
             dictMsg["would you like add ano"]       = "別のものを追加しますか？";
             dictMsg["already in suppl grp x"]       = "ユーザーは既に補足グループ \"&1\"にあります。";
+            dictMsg["cannot move screen"]           = "マクロ画面を移動できません";
+            dictMsg["ready to add"]                 = "（この画面にアクションを追加する準備ができています）";
+            dictMsg["duplicate actions"]            = "この行/列に対して重複したアクションが見つかり、予測できない結果が生じる可能性があります。アクションを確認し、重複を削除してください。";
 
             break;
 

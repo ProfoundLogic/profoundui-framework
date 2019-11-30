@@ -154,6 +154,9 @@ var it_IT = function(dict) {
             dictMsg["add libl entry"]               = "Aggiungi voce alla lista librerie";
             dictMsg["would you like add ano"]       = "Vuoi aggiungerne un'altra?";
             dictMsg["already in suppl grp x"]       = "L'utente è già nel gruppo supplementare \"&1\".";
+            dictMsg["cannot move screen"]           = "Impossibile spostare il Macro Screen";
+            dictMsg["ready to add"]                 = "(La schermata è pronta per l’aggiunta di azioni)";
+            dictMsg["duplicate actions"]            = "Sono presenti azioni duplicate per questa riga/colonna; potrebbero verificarsi risultati imprevisti. Si prega di rivedere le azioni e cancellare i duplicati.";
 
             break;
 
