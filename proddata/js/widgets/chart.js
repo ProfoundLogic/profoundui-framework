@@ -860,7 +860,7 @@ pui.widgets.add({
         }
         else {
         
-          parms.dom.chart.style.display = "";
+          parms.dom.chart.style.display = "inline-block";
         
         }        
       
