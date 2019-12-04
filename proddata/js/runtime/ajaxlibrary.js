@@ -87,6 +87,7 @@ function RPGspRequest(arg) {
   this["user"]           = null;
   this["password"]       = null;
   this["suppressAlert"]  = null;
+  this["cacheBuster"]    = null;
   this["onsuccess"]      = null;
   this["onfail"]         = null;
   this["onready"]        = null;
@@ -280,6 +281,10 @@ function RPGspRequest(arg) {
                       }
                     }
                   }
+                }
+
+                if (method === "GET" && (me["cacheBuster"] === null || me["cacheBuster"] === true)) {
+                  url = pui["addUrlCacheBuster"](url);
                 }
                 
                 try {
