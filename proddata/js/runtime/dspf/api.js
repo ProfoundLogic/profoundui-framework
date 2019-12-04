@@ -168,6 +168,7 @@ pui["show"] = function(parms) {
   if (meta == null) {    
     var ajaxParms = {      
       "method": "get",
+      "cacheBuster": true,
       "handler": function(metaObj) {
         parms["meta"] = metaObj;
         parms["appJob"] = appJob;
@@ -178,11 +179,11 @@ pui["show"] = function(parms) {
     if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
-      ajaxParms["url"] = pui.addCacheBuster(path, ajaxParms["method"]);
+      ajaxParms["url"] = path;
       ajaxJSON(ajaxParms);
     }
     else {
-      ajaxParms["url"]= pui.addCacheBuster(getProgramURL("PUI0001102.pgm"), ajaxParms["method"]);
+      ajaxParms["url"]= getProgramURL("PUI0001102.pgm");
       ajaxParms["params"]= memberInfo;
       ajaxParms["handler"] = function(json) {
         json = json.replace(/''/g, "'");  // decode single quotes
