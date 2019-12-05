@@ -178,186 +178,196 @@ pui.MenuWidget = function() {
           td.appendChild(arrow);
         }
       }
-	  
-      function assignEvents(td) {
-        td.oncontextmenu = function() { return false; }; 
-        td.onmouseover = function() {
-          td.animationDone = true;
-          if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
-            td.style.backgroundColor = me.hoverBackgroundColor;
-          }
-          else{
-            // Set the class so a user can define custom style (when bg color isn't set).
-            td.className = "menu-hover";
-          }
-          
-          if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
-          // If hover-image property is set, then set it as inline BG image.
-          if (me.optionHoverImage != null && me.optionHoverImage != "") {
-            td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
-            // Set the background-repeat style on the cell if the "background repeat"
-            // property was set. Otherwise, allow CSS to handle it.
-            if( me.repeat != null && me.repeat.length > 0){
-              td.style.backgroundRepeat = me.repeat;
-              if (me.repeat == "no-repeat") {
-                td.style.backgroundPosition = "left center";
-              }
-            }
-          }
-          else {
-            if (td.optionImage != null && td.optionImage != "") {
-              td.style.backgroundImage = "url('" + td.optionImage + "')";
-            }
-            else {
-              td.style.backgroundImage = "";
-            }
-          }
-          removeSameOrHigherLevelMenus(td);
-          me.showSubMenu(td);
-        };
-        td.onmouseout = function(e) {
-          if (!e) e = window.event;
-          var tgt = e.relatedTarget;
-          if (tgt == null) tgt = e.toElement;
-    
-          // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
-          // instead of the <TD> that this routine expects.  This finds the <TD>...
-          while (tgt!=null && ( tgt.tagName == "TABLE" 
-                 || tgt.tagName == "TBODY" 
-                 || tgt.tagName == "TR")) {
-            if (tgt.firstChild == null) break;            
-            tgt = tgt.firstChild;
-          }
-          
-          if (tgt == null || tgt.level == null || tgt.tagName != "TD" || tgt.menuId != me.container.id) {
-            var keep = false;
-            if (tgt != null) {
-              if (tgt == table) keep = true;
-              if (parentTable != null && tgt == parentTable) keep = true;
-              if (tgt.isSubMenuArrow) keep = true;
-              // if the customer added their own html in the options
-              if (!keep) {
-                var nextElmTable = getParentTable(tgt);
-                var curElmTable = getParentTable(td);
-                if (nextElmTable && nextElmTable === curElmTable ) keep = true;
-              }
-            }
-            if (!keep) {
-              me.removeAllSubMenus();
-            }
-          }
-          else if (td.subMenuContainer != null) {
-            var hideMenu = true;
-            while (tgt != null) {
-              if (td.subMenuContainer == tgt) {
-                hideMenu = false;
-                break;
-              }
-              tgt = tgt.parentNode;
-            }
-            if (hideMenu) {
-              me.removeSubMenu(td);
-            }
-          }
-          if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = "";
-          // If option-image property was set, restore the background to it.
-          if (td.optionImage != null && td.optionImage != "") {
-            td.style.backgroundImage = "url('" + td.optionImage + "')";
-            td.style.backgroundRepeat = me.repeat;
-          }
-          else {
-            td.style.backgroundImage = "";
-          }
-          if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
-            td.animationDone = false;
-            if (me.animate) {
-              function animate(opacity) {
-                opacity = opacity - 10;
-                if (opacity < 40) {;
-                  if (!td.animationDone) {
-                    td.style.backgroundColor = "";
-                  }
-                  td.animationDone = true;
-                }
-                if (td.animationDone) opacity = 100;
-                td.style.filter = "alpha(opacity=" + opacity + ")";
-                td.style.opacity = opacity / 100;
-                if (td.animationDone) return;
-                setTimeout(function() { animate(opacity); }, 60);
-              }
-              animate(100);
-            }
-            else {
-              td.style.backgroundColor = "";
-            }
-          }
-          else {
-            //when bg color isn't set, clear class. (for potential custom css).
-            td.className = "";
-          }
-          
-        };
-        td.onclick = function() {
-          if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
-          if (me.container["onoptionclick"] != null) {
-            if (inDesignMode()) return;
-            if (td.subMenuFrom != null) return;
-            me.container["onoptionclick"](td.choiceValue, getInnerText(td));            
-          }
-          else if (context == "dspf") {
-            if (td.subMenuFrom != null) return;
-            var dom = me.container;
-            if (dom.responseValue == null) return;
-            if (dom.disabled == true) return;
-            dom.responseValue = td.choiceValue;
-            if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
-              pui.bypassValidation = dom.bypassValidation;
-            }
-            var returnVal = pui.respond();
-            if (returnVal == false) dom.responseValue = "";
-          }
-        };
-        // Allow editing of a top-menu value by double-clicking.
-        td.ondblclick = function(e) {
-          var isDesign = inDesignMode();
-          if (isDesign && td.orientation == "vertical" && td.level == 0) {
-            var dom = designUtils.getTarget(e);
-            var itmDom = dom.parentNode;
-            while (itmDom.tagName != "DIV") {
-              itmDom = itmDom.parentNode;
-            }
-            var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
-            // Add an inline editor if the field isn't bound, translated,
-            // and if the edited choice can be determined.
-            if (!pui.isBound(itm.properties["choices"])
-            && !pui.isTranslated(itm.properties["choices"])
-            && typeof(dom.choiceNum) === "number" ) {
-              itm.designer.inlineEditBox.onUpdate = function(newName) {
-                var propValue = itm.properties["choices"];
-                if (propValue == "") propValue = "Option 1,Option 2,Option 3";
-                var optionNames = propValue.split(",");
-                optionNames[dom.choiceNum] = newName;
-                propValue = optionNames.join(",");
-                var nmodel = getPropertiesNamedModel();
-                var propConfig = nmodel["choices"];
-                itm.designer.undo.add(itm, propConfig.name);
-                applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
-                itm.propertiesChanged["choices"] = true;
-                itm.changed = true;
-                itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
-                itm.designer.propWindow.refreshProperty("choices");
-              };
-              itm.designer.inlineEditBox.show(itm, dom, "menu");
-            }
-          }
-        };
-      }
       assignEvents(td);
       prevTR = tr;
     }
     container.appendChild(table);
-  }
+    
+    function assignEvents(td) {
+      td.oncontextmenu = function() { return false; }; 
+      td.onmouseover = function() {
+        td.animationDone = true;
+        if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
+          td.style.backgroundColor = me.hoverBackgroundColor;
+        }
+        else{
+          // Set the class so a user can define custom style (when bg color isn't set).
+          td.className = "menu-hover";
+        }
 
+        if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
+        // If hover-image property is set, then set it as inline BG image.
+        if (me.optionHoverImage != null && me.optionHoverImage != "") {
+          td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
+          // Set the background-repeat style on the cell if the "background repeat"
+          // property was set. Otherwise, allow CSS to handle it.
+          if( me.repeat != null && me.repeat.length > 0){
+            td.style.backgroundRepeat = me.repeat;
+            if (me.repeat == "no-repeat") {
+              td.style.backgroundPosition = "left center";
+            }
+          }
+        }
+        else {
+          if (td.optionImage != null && td.optionImage != "") {
+            td.style.backgroundImage = "url('" + td.optionImage + "')";
+          }
+          else {
+            td.style.backgroundImage = "";
+          }
+        }
+        removeSameOrHigherLevelMenus(td);
+        me.showSubMenu(td);
+      };
+      td.onmouseout = function(e) {
+        if (!e) e = window.event;
+        var tgt = e.relatedTarget;
+        if (tgt == null) tgt = e.toElement;
+
+        // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
+        // instead of the <TD> that this routine expects.  This finds the <TD>...
+        while (tgt!=null && ( tgt.tagName == "TABLE" 
+               || tgt.tagName == "TBODY" 
+               || tgt.tagName == "TR")) {
+          if (tgt.firstChild == null) break;            
+          tgt = tgt.firstChild;
+        }
+
+        if (tgt == null || tgt.level == null || tgt.tagName != "TD" || tgt.menuId != me.container.id) {
+          var keep = false;
+          if (tgt != null) {
+            if (tgt == table) keep = true;
+            if (parentTable != null && tgt == parentTable) keep = true;
+            if (tgt.isSubMenuArrow) keep = true;
+            // if the customer added their own html in the options
+            if (!keep) {
+              var nextElmTable = getParentTable(tgt);
+              var curElmTable = getParentTable(td);
+              if (nextElmTable && nextElmTable === curElmTable ) keep = true;
+            }
+          }
+          if (!keep) {
+            me.removeAllSubMenus();
+          }
+        }
+        else if (td.subMenuContainer != null) {
+          var hideMenu = true;
+          while (tgt != null) {
+            if (td.subMenuContainer == tgt) {
+              hideMenu = false;
+              break;
+            }
+            tgt = tgt.parentNode;
+          }
+          if (hideMenu) {
+            me.removeSubMenu(td);
+          }
+        }
+        if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = "";
+        // If option-image property was set, restore the background to it.
+        if (td.optionImage != null && td.optionImage != "") {
+          td.style.backgroundImage = "url('" + td.optionImage + "')";
+          td.style.backgroundRepeat = me.repeat;
+        }
+        else {
+          td.style.backgroundImage = "";
+        }
+        if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
+          td.animationDone = false;
+          if (me.animate) {
+            function animate(opacity) {
+              opacity = opacity - 10;
+              if (opacity < 40) {;
+                if (!td.animationDone) {
+                  td.style.backgroundColor = "";
+                }
+                td.animationDone = true;
+              }
+              if (td.animationDone) opacity = 100;
+              td.style.filter = "alpha(opacity=" + opacity + ")";
+              td.style.opacity = opacity / 100;
+              if (td.animationDone) return;
+              setTimeout(function() { animate(opacity); }, 60);
+            }
+            animate(100);
+          }
+          else {
+            td.style.backgroundColor = "";
+          }
+        }
+        else {
+          //when bg color isn't set, clear class. (for potential custom css).
+          td.className = "";
+        }
+
+      };
+      
+      // Allow touch-to-click on HTML elements inside the TD: catch the event bubbling up to the TD on mobile. #5786.
+      if (pui["is_touch"] && !pui["is_mouse_capable"] && td.children.length > 0){
+        //Note: touchend is non-standard as of 12/5/19 but is a recommended spec. ontouchstart is less supported than adding the event listener.
+        td.addEventListener("touchend", itemChosen, false);
+      }
+      else {
+        // Normally a mouse button fires click. Mobile devices emulate a mouse by firing click only when onclick is registered on the target element.
+        td.onclick = itemChosen;
+      }
+
+      // Allow editing of a top-menu value by double-clicking.
+      td.ondblclick = function(e) {
+        var isDesign = inDesignMode();
+        if (isDesign && td.orientation == "vertical" && td.level == 0) {
+          var dom = designUtils.getTarget(e);
+          var itmDom = dom.parentNode;
+          while (itmDom.tagName != "DIV") {
+            itmDom = itmDom.parentNode;
+          }
+          var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
+          // Add an inline editor if the field isn't bound, translated,
+          // and if the edited choice can be determined.
+          if (!pui.isBound(itm.properties["choices"])
+          && !pui.isTranslated(itm.properties["choices"])
+          && typeof(dom.choiceNum) === "number" ) {
+            itm.designer.inlineEditBox.onUpdate = function(newName) {
+              var propValue = itm.properties["choices"];
+              if (propValue == "") propValue = "Option 1,Option 2,Option 3";
+              var optionNames = propValue.split(",");
+              optionNames[dom.choiceNum] = newName;
+              propValue = optionNames.join(",");
+              var nmodel = getPropertiesNamedModel();
+              var propConfig = nmodel["choices"];
+              itm.designer.undo.add(itm, propConfig.name);
+              applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+              itm.propertiesChanged["choices"] = true;
+              itm.changed = true;
+              itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+              itm.designer.propWindow.refreshProperty("choices");
+            };
+            itm.designer.inlineEditBox.show(itm, dom, "menu");
+          }
+        }
+      };
+      function itemChosen() {
+        if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
+        if (me.container["onoptionclick"] != null) {
+          if (inDesignMode()) return;
+          if (td.subMenuFrom != null) return;
+          me.container["onoptionclick"](td.choiceValue, getInnerText(td));            
+        }
+        else if (context == "dspf") {
+          if (td.subMenuFrom != null) return;
+          var dom = me.container;
+          if (dom.responseValue == null) return;
+          if (dom.disabled == true) return;
+          dom.responseValue = td.choiceValue;
+          if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
+            pui.bypassValidation = dom.bypassValidation;
+          }
+          var returnVal = pui.respond();
+          if (returnVal == false) dom.responseValue = "";
+        }
+      }
+    }
+  }
 
   function getLevel(idx) {
     var choice = me.choices[idx];
