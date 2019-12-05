@@ -1260,7 +1260,63 @@ pui["fieldExit"] = function(minus) {
 	
 };
 
+pui["gotoNextElement"] = function(currentElement) {
+  gotoElement(currentElement, true)
+};
 
+pui["gotoPreviousElement"] = function(currentElement) {
+  gotoElement(currentElement, false)
+};
+
+function gotoElement(currentElement, forward) {
+  var increment = forward ? 1 : -1;         // go forward (next) or backward (previous)
+  var inputElements = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
+  var nbrElm = inputElements.length;
+  if (nbrElm < 2)                           // nowhere to go
+    return;
+    
+  var currentIndex = Array.prototype.indexOf.call(inputElements, currentElement);
+  var nextIndex = currentIndex + increment;
+  var nextElement;
+  while (true) {
+    if (nextIndex === currentIndex)         // no other focusable element; stay where you are
+      break;
+    if (nextIndex === nbrElm) {             // end of list; loop around to start
+      nextIndex = 0;
+      continue;
+    }
+    if (nextIndex === -1) {                 // start of list; loop around to end
+      nextIndex = (nbrElm - 1);
+      continue;
+    }
+    nextElement = inputElements[nextIndex];
+
+    var nextObjBox = nextElement;
+    if (nextElement != null && nextElement.comboBoxWidget != null) 
+      nextObjBox = nextElement.comboBoxWidget.getBox();
+
+    if (nextObjBox.readOnly || nextObjBox.disabled || nextObjBox.style.visibility === "hidden" || 
+        nextObjBox.tabIndex === "-1" || !nextObjBox.clientHeight || !nextObjBox.clientWidth ) {
+      nextIndex = nextIndex + increment;
+      continue;                 // skip these elements
+    }
+
+    try {
+      nextObjBox.focus();
+      // If the element we are trying to force focus doesn't get focus -- then it has 
+      // something else causing this field to not allow it to be focused; go to next element
+      if (document.activeElement != nextObjBox) {
+        nextIndex = nextIndex + increment;
+        continue;
+      }
+      setTimeout(function() {
+        pui.returnCursor(null, nextObjBox);
+      }, 0);
+    }
+    catch(e) {}
+    break;
+  }   // endwhile looping thru the elments until finding correct one to focus on
+}
 
 pui["showCalendar"] = function(id) {
   var obj = id;

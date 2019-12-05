@@ -4364,7 +4364,7 @@ pui.dupKey = function(event) {
     }
     target.value = value;
     pui.setModified(event);
-    pui.goToNextElement(target);
+    pui.gotoNextElementAndPossiblySelect(target);
     preventEvent(event);
     return false;
   }

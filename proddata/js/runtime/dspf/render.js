@@ -2085,7 +2085,7 @@ pui.renderFormat = function(parms) {
             if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
 
             if (printableChar && box.value.length == box.maxLength && (pui["is_touch"] || (getCursorPosition(box) >= box.maxLength))) {
-              pui.goToNextElement(target);
+              pui.gotoNextElementAndPossiblySelect(target);
               preventEvent(event);
               return false;
             }
@@ -5601,7 +5601,7 @@ pui.translateDataType = function(dtype) {
 };
 
 
-pui.goToNextElement = function(target) {
+pui.gotoNextElementAndPossiblySelect = function(target) {
     
   function findNextObj(obj) {
 	  var beforeElements = [];
@@ -5799,7 +5799,7 @@ pui.doFieldExit = function(target) {
     pui.click();
   }
   else {
-    pui.goToNextElement(target);
+    pui.gotoNextElementAndPossiblySelect(target);
   }
     
   return false;
