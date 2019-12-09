@@ -388,7 +388,7 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
     
   }
   var img = document.createElement("img");
-  img.src = "/profoundui/proddata/images/charts/" + chartType + ".jpg";
+  img.src = "/profoundui/proddata/images/charts/" + chartType + ".jpg?v=2";
   img.style.position = "absolute";
   img.style.left = "0px";
   img.style.top = "0px";
