@@ -788,6 +788,10 @@ pui.FieldFormat = {
           value = pui.formatting.leftPad(value, 6, '0');
         } 
       }
+
+      if (obj.dataType == "timestamp")
+        parsedKWs.internal = pui.formatting.Date.stdTimeStampPattern;
+
       var d = pui.formatting.Date.parse(value, parsedKWs.internal, locale);
       if (d) {
         if (d.format('Y-m-d', 'en_US') == '0001-01-01') value = "";
@@ -1004,6 +1008,10 @@ pui.FieldFormat = {
         format6 += "s";
         value6 += "00";
       }
+
+      if (obj.dataType == "timestamp")
+        format6 = pui.formatting.Date.stdTimeStampPattern;
+
       var d = pui.formatting.Date.parse(value6, format6, locale);
       if(d){
         if(obj.timeFormat === ''){
