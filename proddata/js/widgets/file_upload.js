@@ -22,31 +22,43 @@
 pui["fileupload"] = {};
 
 /**
- * File Upload Class
+ * File Upload Class. Parent class of FileUploadDND.
  * @param {Object} container
+ * @param {Null|Object} extras    Extra parameters needed by child constructors.
  * @constructor
  */
-
-pui["fileupload"].FileUpload = function(container) {
+pui["fileupload"].FileUpload = function(container, extras) {
 
   // Private fields.
   var me = this;
   var mainBox = container;
-  var formAction = getProgramURL("PUI0009109.PGM");
   
-  var form;
-  var iframe;
+  if (extras == null){
+    extras = {
+      alwaysShowProgressBar: false,
+      selectFilesLink: true,
+      clearLinkClass: "clear",
+      uploadLinkClass: "upload",
+      validateBeforeUpload: true    //Avoid duplicate names, too many files
+    };
+  }
+  
   var controlBox;
   var listBox;
-  var table;  
-  var selectors = [];
+  var table;
   var clearLink;
-  var uploadLink;
-  var transactionId = 1;
-  var submitHandle;
+  var uploadLink;     //Used only in Genie.
+  var progressBar;
+  var abortLink = null; // visible when upload starts. hidden when stopped.
+  var selector;   //The Select Files link containing the input element.
+  
+  var transactionId = 1;  // This is used to avoid submitting twice? Or to prevent browser caching responses.
+  var submitHandle = null;
   var timeout = 86400000;
-  var error = "";  
+  var error = "";   // This holds error from the last upload attempt. If non-empty, assume selectors haven't been marked "done".
   var disabled = false;
+  
+  var xhr = null;  // XMLHttpRequest. Referenced here to allow aborting.
   
   var MODE_STANDARD = 0;
   var MODE_ENHANCED = 1;
@@ -63,65 +75,34 @@ pui["fileupload"].FileUpload = function(container) {
   var allowedTypes = [];
   var uploadEvent; 
   var actualFileNames = [];
-
+  
+  // An array of File objects added to after the browser lets the user drop or choose a file.
+  this.fileList = [];
+  
   // Constructor.
-  createIFrame();
-  createForm();
+  if (typeof extras.preConstruct == 'function') extras.preConstruct();
   createControlBox();
   createListBox();
-
+  
   // Public methods. 
   
+  /**
+   * Render the widget's internal elements to reflect their states.
+   * render is called in onchange/change events, this.clear, and when "field type" property is set.
+   */
   this.render = function() {
-
-    // Create selector only if not done before, or if we 
-    // are in standard select mode.
-    
-    // In standard-select mode it is necessary to add a new selector once one is used to provide 
-    // multiple file upload. In any mode, at least one selector is needed.
-    if (selectionMode == MODE_STANDARD || selectors.length == 0) {
-    
-      createSelector();
-      
-    }
     
     if (table.tBodies.length > 0) {
-    
       table.removeChild(table.tBodies[0]);
-    
     }
-    
     var tBody = table.appendChild(document.createElement("tbody"));
-    
-    var names = [];
-    var sizes = [];
-    if (selectionMode == MODE_ENHANCED) {
-    
-      for (var i = 0; i < selectors[0].input.files.length; i++) {
-      
-        names.push(selectors[0].input.files[i].name);
-        sizes.push(selectors[0].input.files[i].size);
-      
-      }
-    
-    }
-    else {
-    
-      for (var i = 0; i < selectors.length; i++) {
-      
-        if (selectors[i].input.value != "") {
-        
-          names.push(selectors[i].input.value.substr(selectors[i].input.value.lastIndexOf("\\") + 1));
-          
-        }
-      
-      }        
-    
-    }       
-    
-    for (var i = 0; i < names.length; i++) {
-    
-      var name = names[i] + ((selectionMode == MODE_ENHANCED) ? " (" + formatBytes(sizes[i], 2) + ")" : ""); 
+
+    if (error.length > 0) me.showError(error);
+    else me.clearErrors();
+
+    var filesPending = false;
+    for (var i = 0; i < me.fileList.length; i++) {
+      var name = me.fileList[i].name + (" (" + formatBytes(me.fileList[i].size, 2) + ")");
       var row = tBody.insertRow(-1);
       row.className = "row";
       if (i % 2 == 0) {
@@ -135,48 +116,62 @@ pui["fileupload"].FileUpload = function(container) {
       col.title = name;
       col.appendChild(document.createTextNode(name));
       
-      if (selectionMode == MODE_STANDARD) {
-        // Show the Remove link for each file selected in standard mode.
-            
+      // Indicate success for the file.
+      if( me.fileList[i].done ) {
         col = row.insertCell(-1);
         col.className = "remove-col";
-        var a = document.createElement("a");
-        a.href = "javascript: void(0);";
-        a.className = "remove";
-        a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
-        a.puiFileIndex = i;
-        if (a.attachEvent) {
-          a.attachEvent("onclick", removeFile);
-        }
-        else if (a.addEventListener) {
-          a.addEventListener("click", removeFile, false);
-        }
-        col.appendChild(a);
         
+        col = row.insertCell(-1);
+        col.className = "status-col";
+        var txt = document.createTextNode(pui["getLanguageText"]("runtimeText","upload finished text"));
+        col.appendChild(txt);
       }
-      
-    }      
-  
+      // Add a "remove" link.
+      else {
+        filesPending = true;
+        
+        if (selectionMode == MODE_STANDARD) {
+          // Show the Remove link for each file selected in standard mode.
+          // (Note: assume mode is always STANDARD for the child DND class, so it should show a remove link here.)
+          col = row.insertCell(-1);
+          col.className = "remove-col";
+
+          var a = document.createElement("a");
+          a.href = "javascript: void(0);";
+          a.className = "remove";
+          a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
+          a.puiFileIndex = i;
+          a.addEventListener("click", removeFile, false);
+
+          col.appendChild(a);
+        }
+      }
+    }
+    
+    uploadLink.style.display = (context == "genie" && filesPending) ? "": "none";
+    clearLink.style.display = (filesPending || me.fileList.length > 0) ? "" : "none";
+    progressBar.style.display = extras.alwaysShowProgressBar ? "" : "none";
+    abortLink.style.display = "none";   //render shouldn't be called while uploading, so this can hide.
   };
   
   this.setFileLimit = function(newLimit) {
-  
     if (newLimit != null && !isNaN(newLimit)) {
-    
-      fileLimit = newLimit; 
-    
+      fileLimit = newLimit;
     }
+  };
   
+  this.getFileLimit = function(){
+    return fileLimit;
   };
   
   this.setSizeLimit = function(newLimit) {
-  
     if (newLimit != null && !isNaN(newLimit)) {
-    
-      sizeLimit = newLimit; 
-    
+      sizeLimit = newLimit;
     }
+  };
   
+  this.getSizeLimit = function(){
+    return sizeLimit;
   };
   
   /**
@@ -200,6 +195,11 @@ pui["fileupload"].FileUpload = function(container) {
       if (selectionMode != MODE_SINGLE) doclear = true;
       selectionMode = MODE_SINGLE;
     }
+    
+    if (selector && selector.input){
+      selector.input.multiple = (selectionMode == MODE_ENHANCED);
+    }
+    
     if (doclear) this["clear"]();
   };
   
@@ -210,38 +210,20 @@ pui["fileupload"].FileUpload = function(container) {
   };
   
   /**
-   * Return a list of file names selected.
+   * Return a list of file names uploaded in RDF. In Genie, return number selected to upload.
+   * @param {Boolean} validate  When true, only add those that are not done. Else add those that are.
    * @returns {Array} Returns an array of strings.
    */
-  this["getFileNames"] = function() {
-  
+  this["getFileNames"] = function(validate) {
     var names = [];
-  
-    if (selectionMode == MODE_ENHANCED) {
-    
-      for (var i = 0; i < selectors[0].input.files.length; i++) {
-      
-        names.push(selectors[0].input.files[i].name);
-      
+    for (var i=0; i < me.fileList.length; i++) {
+      if (context != "genie" 
+        || ( validate && me.fileList[i].done != true )
+        || (!validate && me.fileList[i].done)){
+        names.push(me.fileList[i].name);
       }
-    
     }
-    else {
-    
-      for (var i = 0; i < selectors.length; i++) {
-      
-        if (selectors[i].input.value != "") {
-        
-          names.push(selectors[i].input.value.substr(selectors[i].input.value.lastIndexOf("\\") + 1));
-          
-        }
-      
-      }        
-    
-    }
-    
-    return names;   
-  
+    return names;
   };
   
   /**
@@ -286,14 +268,11 @@ pui["fileupload"].FileUpload = function(container) {
   };
   
   this.setDisabled = function(state) {
-  
     disabled = state;
-    for (var i = 0; i < selectors.length; i++) {
-    
-      selectors[i].input.disabled = disabled;
-    
-    }  
+  };
   
+  this.isDisabled = function(){
+    return disabled;
   };
   
   this.setOverwrite = function(value) {
@@ -332,32 +311,31 @@ pui["fileupload"].FileUpload = function(container) {
   
   };
   
+  this.getAllowedTypes = function(){
+    return allowedTypes;
+  };
+  
   /**
-   * Return the number of files selected.
+   * Return the number of files that were uploaded or selected. Needed for submitting response.
+   * In Genie, needed for validation and to know if autoUpload can occur.
    * @returns {Number}
    */
   this.getCount = function() {
-  
-    if (selectionMode == MODE_ENHANCED) {
-    
-      return selectors[0].input.files.length;
-    
+    var count = 0;
+    for (var i = 0; i < me.fileList.length; i++) {
+      if (context != "genie" || me.fileList[i].done != true)
+        count++;
     }
-    else if (selectionMode == MODE_SINGLE){
-      return (selectors[0] != null && selectors[0].input.value != "" ? 1 : 0);
-    }
-    else {
-    
-      // Current selector is always unused.
-      return selectors.length - 1;
-    
-    }
-  
+    return count;
   };
   
+  /**
+   * Check if number of files selected is too high Called by pui.buildResponse or by Genie uploadLinkClick.
+   * @returns {undefined|String}
+   */
   this.validateCount = function() {
   
-    if (this.getCount() > fileLimit) {
+    if (me.getCount() > fileLimit) {
     
       return pui["getLanguageText"]("runtimeMsg", "upload file limit", [ fileLimit ]);
     
@@ -367,13 +345,14 @@ pui["fileupload"].FileUpload = function(container) {
   
   /**
    * Check for duplicate file names in standard selection.
+   * Called by pui.buildResponse and the Genie uploadLinkClick.
    * @returns {String|undefined}  Returns a string error message if a duplicate was found.
    */
   this.validateNames = function() {
   
     if (selectionMode == MODE_STANDARD) {
     
-      var arr = this["getFileNames"]();
+      var arr = me["getFileNames"](true);
       var used = {};
       for (var i = 0; i < arr.length; i++) {
       
@@ -390,220 +369,149 @@ pui["fileupload"].FileUpload = function(container) {
     }
   
   };
-
+  
+  /**
+   * Send the upload XMLHTTPRequest. called by pui.processUpload() after user clicked a bound button.
+   * In Genie, this is after user clicks Upload.
+   * Note: this checked for Cordova in the past to use FormElements instead of iframes.
+   *   Iframes were replaced, but the tests for Cordova remain to preserve previous behavior. The tests could possibly be removed.
+   */
   this.upload = function() {
-  
-    if (submitHandle != null || (context == "genie" && pui.genie.formSubmitted)) {
+    if (disabled) return;
+    var cordova = (typeof window["cordova"] != "undefined");
     
+    if (submitHandle != null || (context == "genie" && pui.genie.formSubmitted)) {  
       return;
+    }
     
-    }  
-  
+    // Hide these links while uploading.
+    clearLink.style.display = "none";
+    uploadLink.style.display = "none";
+    
     submitHandle = {}; // Will be set to true value later.
-    error = "";
-      
-    if (typeof(window["cordova"]) != "undefined") {
+    me.clearErrors();
     
-      var params = {};
-      params["dir"] = targetDirectory;
-      params["overwrite"] = overwrite;
-      params["generateNames"] = generateNames;
-      params["flimit"] = fileLimit;
-      params["slimit"] = sizeLimit;
-      params["altname"] = altName;
-      params["allowedTypes"] = allowedTypes;      
-      params["files"] = [];
+    if (!cordova && context == "genie") {
+      pui.submitLog(pui.genie.formSubmitted = true); 
+      pui.showWaitAnimation();
+    }
+
+    var params = {};
+    params["dir"] = targetDirectory;
+    params["overwrite"] = overwrite;
+    params["generateNames"] = (generateNames ? "1" : "0");
+    params["flimit"] = fileLimit;
+    params["slimit"] = sizeLimit;
+    params["altname"] = altName;
+    me.addAllowedTypesParam(params);
+    params["files"] = [];
+    for (var i = 0; i < me.fileList.length; i++) {
+      if (me.fileList[i].done != true)
+        params["files"].push(me.fileList[i]);
+    }
+    
+    if (!cordova) {
+      // Set a timer function to run if the transaction fails to complete.
+      // We won't use the XHR ontimeout event because that only works for
+      // asynchronous requests, and ours is synchronous.
+      // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+      submitHandle = setTimeout(function(){
+        completeTransaction(transactionId, {
+          "success": false,
+          "error": pui["getLanguageText"]("runtimeMsg", "upload timeout")
+        });
+      }, timeout);
+
+      uploadLink.style.display = "none";
       
-      if (selectionMode == MODE_ENHANCED) {
-        
-        for (var i = 0; i < selectors[0].input.files.length; i++) {
-        
-          params["files"].push(selectors[0].input.files[i]);
-          
-        }
-        
-      }
-      else if (selectionMode == MODE_STANDARD) {
-       
-        for (var i = 0; i < selectors.length - 1; i++) { // Prevent last unused control from posting.
-          
-          params["files"][i] = selectors[i].input.files[0];
-          
-        }        
-        
-      }
-      else if (selectionMode == MODE_SINGLE) {
-        if (selectors[0] != null && selectors[0].input.value != ""){
-          params["files"][0] = selectors[0].input.files[0];
-        }
-      }
-      
-      pui.upload(params, function(success, errorMsg) {
-        
+      params["onprogress"] = xhronprogress;
+      params["onabort"] = xhronabort;
+      params["onload"] = xhrFinished;
+    }
+    
+    // Always upload in Cordova. (This was the behavior before 12/17/19.)
+    if (cordova){
+      xhr = pui.upload(params, function(success, errorMsg) {
         if (!success) {
-          
           error = errorMsg;
-          
         }
         submitHandle = null;
-        
       });
-      
+    }
+    // Else only call upload when files are chosen.
+    else if (params["files"].length > 0){
+      abortLink.style.display = "";
+      xhr = pui.upload(params);
     }
     else {
-    
-      if (context == "genie") {
-        
-        pui.submitLog(pui.genie.formSubmitted = true); 
-        pui.showWaitAnimation();
-      
-      }      
-      
-      // These 3 values are always passed on the form action URL.
-      // This is because they are absolutely necessary in order to 
-      // notify the browser when the form submit is complete. 
-      
-      // Form POST data may not be available if the input buffer size is 
-      // exceeded, for example.
-      form.action = formAction;
-      form.action += "?AUTH=";
-      if (pui["appJob"] && pui["appJob"]["auth"]) {
-  
-        form.action += encodeURIComponent(pui["appJob"]["auth"]);
-      
-      }   
-      form.action += "&trans=" + encodeURIComponent(transactionId);
-      form.action += "&id=" + encodeURIComponent(mainBox.id);     
-      if (pui["isCloud"]) {
-        form.action += "&workspace_id=" + pui.cloud.ws.id;
-      }
-      
-      form.elements["flimit"].value = fileLimit;
-      form.elements["slimit"].value = sizeLimit;
-      form.elements["dir"].value = targetDirectory;
-      form.elements["altname"].value = altName;
-      form.elements["overwrite"].value = (overwrite) ? "1" : "0";
-      form.elements["generateNames"].value = (generateNames) ? "1" : "0";
-      var els = [].slice(form.querySelectorAll("input[name=\"type\"]"));
-      while (els.length > 0) {
-        var el = els.pop();
-        el.parentNode.removeChild(el);
-      }
-      for (var i = 0; i < allowedTypes.length; i++) {
-      
-        var hidden = createNamedElement("input", "type");
-        hidden.type = "hidden";
-        hidden.value = allowedTypes[i];
-        form.appendChild(hidden);
-      
-      } 
-      
-      submitHandle = setTimeout(function() {
-      
-        me.completeTransaction(transactionId, {"success":false,"error": pui["getLanguageText"]("runtimeMsg", "upload timeout")});
-      
-      }, timeout);
-      
-      // This prevents unused control from being posted.
-      if (selectionMode == MODE_STANDARD) {
-      
-        selectors[selectors.length - 1].input.disabled = true;
-      
-      }
-      
-      form.submit();
-    
+      submitHandle = null;
     }
-  
   };
-  
-  this["completeTransaction"] = function(id, response) {
-  
+    
+  /**
+   * Handle a completed upload. Clear the timeout. Populate this.error if necessary.
+   * @param {Number} id
+   * @param {Object|String} response
+   */
+  function completeTransaction(id, response) {
     // Quit if no current submit or if transaction id is not current.
     // This indicates completion of transaction that has already been aborted. 
     if (submitHandle == null || id != transactionId) {
-    
       return;
-    
     }
-  
     clearTimeout(submitHandle);
     
     var responseObj;
     if (typeof(response) == "string") {
-    
       try {
-      
         responseObj = eval("(" + response + ")");
-        
       }
       catch(e) {
-      
         responseObj = {"success":false,"error": pui["getLanguageText"]("runtimeMsg", "upload invalid response")}; 
-      
       }
-      
     }
     else {
-    
-      // Passed as object already when timed out.
       responseObj = response;
-    
     }
     
     if (!responseObj["success"]) {
-    
       if (responseObj["key"]) {
-      
         responseObj["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + responseObj["key"] );
-      
       }
       error = responseObj["error"];
       if (responseObj["key"] == "file limit")
-         error = error.replace("&1", fileLimit);
+        error = error.replace("&1", fileLimit);
       if (responseObj["key"] == "size limit")
-         error = error.replace("&1", sizeLimit);
-    
+        error = error.replace("&1", sizeLimit);
     }
+    // Success:
     else {
-      
+      // Mark all files as done.
+      for (var i=0; i < me.fileList.length; i++) {
+        me.fileList[i].done = true;
+      }
       actualFileNames = responseObj["fileNames"];
-      
     }
-    
-    // This is disabled before submit.
-    if (selectionMode == MODE_STANDARD) {
-    
-      selectors[selectors.length - 1].input.disabled = false;
-    
-    }    
     
     submitHandle = null;
-    transactionId++;  
+    transactionId++;
     
     if (context == "genie") {
-    
       pui.submitLog(pui.genie.formSubmitted = false);
       pui.hideWaitAnimation();
-    
       // Finish here for Genie. 
       // For Rich UI, the result is checked in the 
       // main screen submit processing.
       if (responseObj["success"] == true) {
-      
-        this.doUploadEvent();
-      
+        doUploadEvent();
       }
-      else {
-      
-        pui.alert(responseObj["error"]);
-      
-      }    
-    
     }
+    me.render();  //Make sure hidden elements are no longer hidden if unnecessary. Show errors.
   
+    xhr = null;
   };
   
+  // Overridden in child classes.
   this.isSubmitting = function() {
   
     return (submitHandle != null);
@@ -611,9 +519,7 @@ pui["fileupload"].FileUpload = function(container) {
   };
   
   this.getError = function() {
-  
     return error;
-  
   };
   
   this.getId = function() {
@@ -622,142 +528,116 @@ pui["fileupload"].FileUpload = function(container) {
   
   };
   
-  this.doUploadEvent = function() {
-  
-    if (uploadEvent && uploadEvent != "") {
-    
+  /**
+   * Handle the user-defined code from the onupload property. Genie only.
+   */
+  function doUploadEvent() {
+    if (uploadEvent && uploadEvent.length > 0) {
       var obj = {};
-      obj["dir"] = this.getTargetDirectory();
-      obj["names"] = (generateNames) ? this["getActualFileNames"]() : this["getFileNames"]();
+      obj["dir"] = me.getTargetDirectory();
+      obj["names"] = (generateNames) ? me["getActualFileNames"]() : me["getFileNames"](false);
       
       var func = function() {
         eval("var info = arguments[0];");
         try {
-        
           var func2 = eval(uploadEvent);
           if (typeof(func2) == "function") {
-          
             func2(arguments[0]);
-          
           }
-          
         }
         catch (e) {
-        
-          pui.scriptError(e, "onupload Error:\n");
-                
+          me.uploadEventException(e);
         }
-        
       };
     
       func(obj);
-    
-    }  
-  
+    }
   };
+  
+  this.uploadEventException = function(e){
+    pui.scriptError(e, "onupload Error:\n");
+  };
+  
+  /**
+   * Handler for the "[x]" abort link in the control box.
+   * @param {Event} e
+   * @returns {Boolean}
+   */
+  function abortUpload(e) {
+    if(e.preventDefault) e.preventDefault();
+    if(e.stopPropagation) e.stopPropagation();
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if( xhr && xhr.abort ) {
+      xhr.abort();
+    }
+    return false;
+  }
   
   // API methods.
-  this["clear"] = function() {
   
+  /**
+   * Remove all files, errors, and re-renders the widget.
+   */
+  this["clear"] = function() {
     if (submitHandle == null && !disabled) {
-    
-      while(selectors.length > 0) {
-      
-        selectors[selectors.length - 1].parentNode.removeChild(selectors[selectors.length - 1]);
-        selectors.pop();
-      
+      while(me.fileList.length > 0) {
+        me.fileList.pop();
       }
       
-      this.render();
-    
-    }  
-  
+      me.clearErrors();
+
+      me.render();
+    }
   };
-
+  
   // Private methods.
-
-  function createForm() {
-    
-    form = document.createElement("form");
-    form.enctype = "multipart/form-data";
-    form.encoding = "multipart/form-data"; // For IE7/8.
-    form.method = "post";
-    form.target = "frame_" + mainBox.id;
-    form.className = "upload-form";
-    
-    var hidden = createNamedElement("input", "flimit");
-    hidden.type = "hidden";
-    form.appendChild(hidden);  
-            
-    hidden = createNamedElement("input", "slimit");
-    hidden.type = "hidden";
-    form.appendChild(hidden);  
-            
-    hidden = createNamedElement("input", "altname");
-    hidden.type = "hidden";
-    form.appendChild(hidden);    
-          
-    hidden = createNamedElement("input", "dir");
-    hidden.type = "hidden";
-    form.appendChild(hidden);  
-    
-    hidden = createNamedElement("input", "overwrite");
-    hidden.type = "hidden";
-    form.appendChild(hidden);  
-    
-    hidden = createNamedElement("input", "generateNames");
-    hidden.type = "hidden";
-    form.appendChild(hidden);  
-            
-    
-    mainBox.appendChild(form);      
-    
-  }
   
-  function createIFrame() {
-  
-    iframe = createNamedElement("iframe", "frame_" + mainBox.id);
-    iframe.src = pui.normalizeURL("/profoundui/proddata/html/blank.html");
-    iframe.className = "upload-frame";
-    iframe.style.display = "none";
-    mainBox.appendChild(iframe);
-  
-  }
-  
+  /**
+   * Create a container for Select Files link, clear link, upload link, progress bar, and abort link.
+   */
   function createControlBox() {
-  
     controlBox = document.createElement("div");
     controlBox.className = "control-box";
-    form.appendChild(controlBox);
-  
+    
+    // Add a "Select Files" link with an input element unless the child class does not want it.
+    if (extras.selectFilesLink) createSelectFilesLink();
+
+    clearLink = document.createElement("a");
+    clearLink.href = "javascript: void(0);";
+    clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
+    clearLink.className = extras.clearLinkClass;
+    clearLink.addEventListener("click", clearFiles, false);
+    clearLink.style.display = "none";
+    controlBox.appendChild(clearLink);
+    
+    // Only used in Genie.
+    uploadLink = document.createElement("a");
+    uploadLink.href = "javascript: void(0);";
+    uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
+    uploadLink.className = extras.uploadLinkClass;
+    uploadLink.addEventListener("click", uploadLinkClick, false);
+    controlBox.appendChild(uploadLink);
+    
+    progressBar = document.createElement("progress");
+    progressBar.id = "progbar_" + mainBox.id;
+    progressBar.max = 100;
+    progressBar.value = 0;
+    progressBar.style.display = (extras.alwaysShowProgressBar ? "" : "none");
+    controlBox.appendChild(progressBar);
+    
+    abortLink = document.createElement("a");
+    abortLink.className = "abort-upload";
+    abortLink.innerHTML = "[x]";
+    abortLink.style.display = "none";
+    abortLink.addEventListener("click", abortUpload);
+    controlBox.appendChild(abortLink);
+    
+    mainBox.appendChild(controlBox);
   }
-  
-  function createSelector() {
-  
-    // For standard selection mode, remove current selector if unused.
-    // Otherwise, hide it before a new one is created.
-    var selector;
-    if (selectionMode == MODE_STANDARD) {
+
+  function createSelectFilesLink() {
     
-        if (selectors.length > 0) {
-        
-          selector = selectors[selectors.length - 1];
-          if (selector.input.value == "") {
-          
-            selector.parentNode.removeChild(selector);
-            selectors.splice(selectors.length - 1, 1);
-          
-          }
-          else {
-          
-            selector.style.display = "none";  
-          
-          }
-        
-        }
-    
-    }  
-  
     selector = document.createElement("a");
     selector.className = "control-proxy";
     selector.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload select text")));
@@ -767,94 +647,44 @@ pui["fileupload"].FileUpload = function(container) {
     input.type = "file";
     input.className = "control";
     
-    if (selectionMode == MODE_ENHANCED) {
+    input.addEventListener("change", fileOnChange, false);
+    selector.addEventListener("click", checkSelect, false);
     
-      input.multiple = true;
-      if(typeof(input.files) == "undefined") selectionMode = MODE_STANDARD; //Fallback for older browsers.
-      
-      
-    }
+    selector.input = input;
+    selector.appendChild(input);
     
-    if (input.attachEvent) {
-      
-      input.attachEvent("onchange", me.render);
-      selector.attachEvent("onclick", checkSelect);
-
-    }
-    else if (input.addEventListener) {
-
-      input.addEventListener("change", me.render, false);
-      selector.addEventListener("click", checkSelect, false);
-
-    }    
-
-    selector.input = input;        
-    selectors.push(selector);        
-    selector.appendChild(input);        
-    
-    if (clearLink == null) {
-    
-      clearLink = document.createElement("a");
-      clearLink.href = "javascript: void(0);";
-      clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
-      clearLink.className = "clear";
-      
-      if (clearLink.attachEvent) {
-      
-        clearLink.attachEvent("onclick", clearFiles);
-      
-      }
-      else if (clearLink.addEventListener) {
-      
-        clearLink.addEventListener("click", clearFiles, false); 
-      
-      }
-      
-      controlBox.appendChild(clearLink);  
-    
-    }
-
-    if (clearLink == null) {
-    
-      controlBox.appendChild(selector);
-    
-    }
-    else {
-    
-      controlBox.insertBefore(selector, clearLink);
-    
-    }
-    
-    if (context == "genie") {
-    
-      if (uploadLink == null) {
-    
-        uploadLink = document.createElement("a");
-        uploadLink.href = "javascript: void(0);";
-        uploadLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload upload text")));
-        uploadLink.className = "upload"; 
-      
-      } 
-      
-      if (uploadLink.attachEvent) {
-      
-        uploadLink.attachEvent("onclick", uploadFiles);
-      
-      }
-      else if (uploadLink.addEventListener) {
-      
-        uploadLink.addEventListener("click", uploadFiles, false); 
-      
-      }  
-      
-      controlBox.appendChild(uploadLink);        
-    
-    }
-        
+    controlBox.appendChild(selector);
   }
   
-  function createListBox() {
+  function fileOnChange(e){
+    var files = e.target.files;
+    if (selectionMode != MODE_STANDARD) {
+      // For single selection or extended, existing choices get replaced with new choices.
+      me.fileList = [];
+    }
+    
+    me.checkAndRemoveFiles();
+    
+    for(var i=0; i < files.length; i++){
+      me.fileList.push(files[i]);
+    }
+    me.render();
+  }
   
+  /**
+   * Remove files if any were already uploaded. Or if there was an error, remove all files.
+   * Called when SelectFiles clicked or boxdrop in FileUploadDND.
+   */
+  this.checkAndRemoveFiles = function(){
+    if( me.fileList.length > 0 && me.fileList[0] && (me.fileList[0].done || me.getError().length > 0 )) {
+      while (me.fileList.length > 0) {
+        me.fileList.pop();
+      }
+    }
+  };
+  
+  function createListBox() {
+    
     listBox = document.createElement("div");
     listBox.className = "list-box";
     
@@ -862,8 +692,48 @@ pui["fileupload"].FileUpload = function(container) {
     table.className = "list";
     listBox.appendChild(table);
     
-    form.appendChild(listBox);
-    
+    mainBox.appendChild(listBox);
+  }
+  
+  /**
+   * Handler for xhr.onload event; i.e. the XMLHttpRequest finished.
+   * @param {Event} event   onload event.
+   */
+  function xhrFinished(event) {
+    progressBar.value = 100;
+    var responseObj;
+    try {
+      var responsetxt = event.target.responseText.replace(/'/g, "\""); // Single-quoted strings throw exceptions.
+      responseObj = JSON.parse(responsetxt);
+    }
+    catch(ignored){
+      responseObj = {
+        "success": false,
+        "error": pui["getLanguageText"]("runtimeMsg", "upload invalid response")
+      };
+    }
+    completeTransaction(transactionId, responseObj);
+  }
+   
+  /**
+   * Handler for xhr.onprogress event.
+   * @param {type} event
+   */
+  function xhronprogress(event) {
+    if (event.lengthComputable) {
+      var complete = (event.loaded / event.total * 100 | 0);
+      progressBar.value = complete;
+      progressBar.style.display = "";
+    }
+  }
+  
+  /**
+   * Handler for xhr.onabort event.
+   */
+  function xhronabort() {
+    me.resetProgressBar();
+    var responseObj = {"success": false, "error": pui["getLanguageText"]("runtimeMsg", "upload cancelled")};
+    completeTransaction(transactionId, responseObj);
   }
   
   function checkSelect(e) {
@@ -882,107 +752,142 @@ pui["fileupload"].FileUpload = function(container) {
   
   }
   
+  /**
+   * Handler for a "remove" link onclick event.
+   * Remove a file from the selectors list and re-render.
+   * @param {type} e
+   * @returns {Boolean}
+   */
   function removeFile(e) {
-  
     e = e || window.event;
-    var target = e.target || e.srcElement;
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
     
-    if (submitHandle == null) {
-    
-      // Remove specified selector.
-      var index = target.puiFileIndex;
-      selectors[index].parentNode.removeChild(selectors[index]);
-      selectors.splice(index, 1);
-      
-      me.render();
-    
+    // Ignore clicks while upload is in progress.
+    if (submitHandle !== null) {
+      return false;
     }
     
-    e.cancelBubble = true;
-    e.returnValue = false;
-    if (e.preventDefault) e.preventDefault();
-    if (e.stopPropagation) e.stopPropagation();
+    var target = e.target || e.srcElement;
+    // Remove specified file.
+    var index = target.puiFileIndex;
+    me.fileList.splice(index, 1);
+    
+    me.clearErrors();
+    me.render();
+    
     return false;
-  
   }
   
-  function clearFiles(e) {
-  
+  function clearFiles(e){
     e = e || window.event;
-    
     me["clear"]();
-    
     e.cancelBubble = true;
     e.returnValue = false;
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
     return false;
-      
-  }  
+  }
   
-  function uploadFiles(e) {
-  
+  // Handle click on the uploadLink, Genie only.
+  function uploadLinkClick(e) {
     e = e || window.event;
-  
     if (submitHandle == null && !inDesignMode() && !pui.genie.formSubmitted) {
-    
-      // Validate here, for Rich UI, validation is done as part of the 
-      // main screen submit process.
-  
-      if (me.getCount() == 0) {
+      // Let user attempt to upload again in case there was an error.
+      // e.g. attempt to drop in file when there already was a file ready to upload.
+      me.clearErrors(); 
       
-        pui.alert(pui["getLanguageText"]("runtimeMsg", "upload no files"));
-        return;
-      
-      }
-      else {
-      
+      // Genie must validate here. In Rich UI validation is done as part of the main screen submit process.
+      // DragDrop already does validation upon dropping. Assumes uploadLink cannot be clicked unless files are chosen.
+      if (extras.validateBeforeUpload){
+        // Count the files that were not already uploaded (those which did not have "Finished" indicated, if any).
         var err = me.validateCount();
         if (!err) {
-        
           err = me.validateNames();
-        
         }
-        
         if (err) {
-        
-          pui.alert(err);
-          return;
-        
+          me.showError(err);
+          return false;
         }
-      
       }
       
       me.upload();
-    
     }
-  
-    if (e) {
-    
-      e.cancelBubble = true;
-      e.returnValue = false;
-      if (e.preventDefault) e.preventDefault();
-      if (e.stopPropagation) e.stopPropagation();
-      return false;
-      
-    }  
-  
+    e.cancelBubble = true;
+    e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    return false;
   }
   
-  function formatBytes(bytes, precision) {  
-  
-    var units = ["B", "KB", "MB", "GB", "TB"];  
-    var bytes = Math.max(bytes, 0);  
-    var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024)); 
-    pow = Math.min(pow, units.length - 1);  
-    bytes = bytes / Math.pow(1024, pow);  
-    precision = (typeof(precision) == "number" ? precision : 0);  
+  /**
+   * Format the file size picking the most relevant units.
+   * @param {Number} bytes
+   * @param {Number|String} precision
+   * @returns {String}
+   */
+  function formatBytes(bytes, precision){
+    var units = ["B", "KB", "MB", "GB", "TB"];
+    bytes = Math.max(bytes, 0);
+    var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024));
+    pow = Math.min(pow, units.length - 1);
+    bytes = bytes / Math.pow(1024, pow);
+    precision = (typeof(precision) == "number" ? precision : 0);
+
     return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
+  }
   
-  }  
+  // Methods needed by child classes.
+  
+  this.getSubmitHandle = function(){ return submitHandle; };
+  this.resetProgressBar = function(){ progressBar.value = 0; };
+  
+  this.addAllowedTypesParam = function(params){
+    params["allowedTypes"] = allowedTypes;
+  };
+
+  /**
+   * Show an error as a validation tip next to the upload widget. (FileUploadDND calls this directly.)
+   * E.g. error tip happens with too many files, when drag/drop and autoSubmit true, when cancelling uploads.
+   * @param {String} message
+   */
+  this.showError = function(message){
+    
+    if (mainBox.validationTip != null) mainBox.validationTip.hide();  //Hide with animation--takes time.
+    mainBox.validationTip = new pui.ValidationTip(mainBox); //New element can appear without waiting.
+    mainBox.validationTip.setMessage(message);
+    mainBox.validationTip.show();
+  };
+  
+  this.setError = function(message){
+    error = message;
+  };
+  
+  /**
+   * Hide error tip, reset progress bar, clear internal "error".
+   */
+  this.clearErrors = function(){
+    error = "";
+    me.resetProgressBar();
+    
+    if (mainBox.validationTip != null && typeof mainBox.validationTip.hide == 'function'){
+      mainBox.validationTip.hide();
+    }
+  };
 
 };
 
+//
+// Global utility functions.
+//
+
+/**
+ * Called by pui.respond to start uploading and to know when something is uploading.
+ * @param {Object} param    Response object that gets passed on 
+ * @returns {Boolean}
+ */
 pui.processUpload = function(param) {
 
   if (pui.fileUploadElements.length > 0) {
@@ -1006,6 +911,10 @@ pui.processUpload = function(param) {
 
 };
 
+/**
+ * If necessary, cycle until uploads are complete, then submit or cancel a response.
+ * @param {Object} param    Response object from pui.respond.
+ */
 pui.checkUploads = function(param) {
 
     var interval = 250;
@@ -1087,7 +996,7 @@ pui.checkUploads = function(param) {
             
           }          
           
-          var namesArray = (fileUpload["getGenerateNames"]()) ? fileUpload["getActualFileNames"]() : fileUpload["getFileNames"]();
+          var namesArray = (fileUpload["getGenerateNames"]()) ? fileUpload["getActualFileNames"]() : fileUpload["getFileNames"](false);
           var names = "";
           for (var j = 0; j < namesArray.length; j++) {
           
@@ -1136,6 +1045,106 @@ pui.checkUploads = function(param) {
 
 };
 
+// Property setters. Some are re-used in child classes.
+
+pui["fileupload"].propset = {
+  "field type": function(parms) {
+
+      if (parms.dom["fileUpload"] == null) {
+
+        parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
+        if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
+
+      }
+
+      // Process multiple occurence property.
+      var suffix = 1;
+      var prop = "allowed type";
+      var types = [];
+      while (typeof(parms.properties[prop]) == "string") {
+
+        types.push(parms.evalProperty(prop)); 
+        prop = "allowed type " + (++suffix);
+
+      }
+      parms.dom["fileUpload"].setAllowedTypes(types);
+
+      parms.dom["fileUpload"].render();
+
+  },
+
+  "selection mode": function(parms) {
+
+    parms.dom["fileUpload"].setMode(parms.value); 
+
+  },
+
+  "number of files": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setFileLimit(parseInt(parms.value, 10)); 
+
+  },
+
+  "size limit": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setSizeLimit(parseInt(parms.value, 10)); 
+
+  },
+
+  "target directory": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setTargetDirectory(trim(parms.value));   
+
+  },
+
+  "rename to": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setAltName(trim(parms.value));   
+
+  },
+
+  "overwrite files": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);   
+
+  },
+
+  "generate unique names": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setGenerateNames(parms.value == "true" || parms.value == true);   
+
+  },
+
+  "onupload": function(parms) {
+
+    if (parms.design) return;
+
+    parms.dom["fileUpload"].setUploadEvent(parms.newValue);
+
+  },
+
+  "disabled": function(parms) {
+
+    if (parms.design) return;
+
+    var disabled = (parms.value == "true");
+    parms.dom["fileUpload"].setDisabled(disabled);
+
+  }
+};
+
 pui.widgets.add({
 
   name: "file upload",
@@ -1151,104 +1160,6 @@ pui.widgets.add({
     "overwrite files": "false" 
   },
   
-  propertySetters: {
-  
-    "field type": function(parms) {
-
-        if (parms.dom["fileUpload"] == null) {
-        
-          parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
-          if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
-        
-        }
-        
-        // Process multiple occurence property.
-        var suffix = 1;
-        var prop = "allowed type";
-        var types = [];
-        while (typeof(parms.properties[prop]) == "string") {
-       
-          types.push(parms.evalProperty(prop)); 
-          prop = "allowed type " + (++suffix);
-        
-        }
-        parms.dom["fileUpload"].setAllowedTypes(types);
-
-        parms.dom["fileUpload"].render();
-
-    },
-    
-    "selection mode": function(parms) {
-    
-      parms.dom["fileUpload"].setMode(parms.value); 
-    
-    },
-    
-    "number of files": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setFileLimit(parseInt(parms.value, 10)); 
-    
-    },
-    
-    "size limit": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setSizeLimit(parseInt(parms.value, 10)); 
-    
-    },
-    
-    "target directory": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setTargetDirectory(trim(parms.value));   
-    
-    },
-    
-    "rename to": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setAltName(trim(parms.value));   
-    
-    },
-    
-    "overwrite files": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);   
-    
-    },
-    
-    "generate unique names": function(parms) {
-    
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setGenerateNames(parms.value == "true" || parms.value == true);   
-    
-    },
-    
-    "onupload": function(parms) {
-
-      if (parms.design) return;
-    
-      parms.dom["fileUpload"].setUploadEvent(parms.newValue);
-    
-    },
-    
-    "disabled": function(parms) {
-    
-      if (parms.design) return;
-      
-      var disabled = (parms.value == "true");
-      parms.dom["fileUpload"].setDisabled(disabled);
-    
-    }
-    
-  }
+  propertySetters: pui["fileupload"].propset
   
 });
