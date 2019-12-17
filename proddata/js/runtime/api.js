@@ -1261,11 +1261,11 @@ pui["fieldExit"] = function(minus) {
 };
 
 pui["gotoNextElement"] = function(currentElement) {
-  gotoElement(currentElement, true)
+  gotoElement(currentElement, true);
 };
 
 pui["gotoPreviousElement"] = function(currentElement) {
-  gotoElement(currentElement, false)
+  gotoElement(currentElement, false);
 };
 
 function gotoElement(currentElement, forward) {
@@ -1348,7 +1348,12 @@ pui.getComputedStyle = function(obj) {
 };
 
 
-
+/**
+ * Upload one or more files via XMLHTTPRequest and calls an optional callback.
+ * @param {Object} params
+ * @param {Function} callback
+ * @returns {XMLHTTPRequest} The XHR handling the upload.
+ */
 pui["upload"] = function(params, callback) {
   
   var dir = params["dir"];
@@ -1460,6 +1465,9 @@ pui["upload"] = function(params, callback) {
   formData.append("flimit", flimit);
   formData.append("slimit", slimit); 
   formData.append("altname", altname);
+  if (typeof params["generateNames"] == 'string'){
+    formData.append("generateNames", params["generateNames"]);
+  }
   
   for (var i = 0; i < allowedTypes.length; i++) {
     
@@ -1575,8 +1583,12 @@ pui["upload"] = function(params, callback) {
     
   };
   
-  xhr.send(formData);  
+  if (typeof params["onabort"] == "function") xhr["onabort"] = params["onabort"];
+  if (typeof params["onprogress"] == "function" && "upload" in xhr) xhr["upload"]["onprogress"] = params["onprogress"];  //Fired periodically while uploading.
+  if (typeof params["onload"] == "function") xhr["onload"] = params["onload"];    //Fires when finished.
   
+  xhr.send(formData);  
+  return xhr;
 };
 
 
@@ -1940,7 +1952,7 @@ pui["addUrlCacheBuster"] = function (url, method) {
   }
 
   return url;
-}
+};
 
 
 pui.alert = function(msg, alertCallback, title, buttonName) {
