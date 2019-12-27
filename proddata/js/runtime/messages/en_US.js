@@ -425,6 +425,8 @@ var en_US = function(dict) {
             // Atrium.help tool-tip - Navigation / Toolbar items.
             dictMsg["item name"]                    = "Item name";
             dictMsg["item name hlp"]                = "Sets the display name of the navigation or toolbar item.";
+            dictMsg["keywords"]                     = "Keywords";
+            dictMsg["keywords hlp"]                 = "Optional. Sets the keywords for the item used in search.";
             dictMsg["action type"]                  = "Action type";
             dictMsg["action type hlp"]              = "Sets the type of application that this item launches.";
             dictMsg["url"]                          = "URL";
