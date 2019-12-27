@@ -410,7 +410,7 @@ pui.widgets.getChartXMLStart = function(chartOptions){
 
 pui.widgets.add({
   name: "chart",
-  "dependencies": ["/FusionChartsXT/js/pui-fusioncharts.js"],
+  "dependencies": ["/fusionchartsxt/js/pui-fusioncharts.js"],
   defaults: {
     width: "300px",
     height: "200px",
@@ -449,7 +449,7 @@ pui.widgets.add({
 
         if (mapType.toLowerCase().indexOf("maps/") == 0)
           mapType = mapType.substr(5);
-        mapType = "/FusionChartsXT/js/maps/" + mapType;
+        mapType = "/fusionchartsxt/js/maps/" + mapType;
         chartType = mapType;
         
       }
