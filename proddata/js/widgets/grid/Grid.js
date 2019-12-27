@@ -1085,6 +1085,15 @@ pui.Grid = function () {
       req["onready"] = function (req) {
         var response = checkAjaxResponse(req, "Run SQL SELECT Query");
         if (response && response["results"] && response["results"].length > 0) {
+          if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
+            try {         // transform data before export, if needed
+              var fn = eval("window." + me["dataProps"]["data transform function"]);
+              response = fn(req.getResponseText());
+            }         
+            catch(e) {
+              pui.logException(e);
+            }
+          }
           if (fields != null)
             response["fields"] = fields;
           makexlsx(response);
@@ -6656,24 +6665,16 @@ pui.Grid = function () {
       var response;
       var successful = false;
       if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
-
         try {
-
           var fn = eval("window." + me["dataProps"]["data transform function"]);
           response = fn(req.getResponseText());
-
         }         
         catch(e) {
-
           pui.logException(e);
-
         }
-
       }
       else {
-
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
-
       }
       if (response) {
         if (cache) {
