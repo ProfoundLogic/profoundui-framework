@@ -169,7 +169,7 @@ pui.PagingScrollBar = function() {
     else {
       scrollTop = midPoint;
     }
-    if (!me.grid.dontSetPagingScrollTop) {
+    if (!me.grid || !me.grid.dontSetPagingScrollTop) {
       outerDiv.scrollTop = scrollTop;
     }
   }
