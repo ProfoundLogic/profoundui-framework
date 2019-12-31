@@ -50,6 +50,8 @@ pui.PagingScrollBar = function() {
   
   this.init = function() {    
     outerDiv = document.createElement("div");
+    if (me.id)
+      outerDiv.id = me.id;
     outerDiv.style.position = "absolute";
     outerDiv.style.width = "23px";
     outerDiv.style.overflowY = "scroll";
