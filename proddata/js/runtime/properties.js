@@ -1167,6 +1167,9 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
 // Applies property value to field in design mode or at run-time
 function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow) {
 
+  if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type")
+    return domObj;
+
   if (newValue == "Other..." && isDesignMode && propConfig.name != "value") return domObj;
 
   var dom = domObj;
