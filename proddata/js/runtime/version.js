@@ -22,5 +22,5 @@
 
 if (!window["pui"]) window["pui"] = {};
 window["pui"]["baseVersion"] = '6';
-window["pui"]["fixPackVersion"] = '4.1';
+window["pui"]["fixPackVersion"] = '5.0';
 window["pui"]["version"] = window["pui"]["baseVersion"] + "." + window["pui"]["fixPackVersion"];
