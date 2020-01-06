@@ -25,7 +25,7 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
   dom.innerHTML = "";
   var a = document.createElement("a");
   var noHref = false;
-  if (designMode == true || href == null)  { 
+  if (designMode == true || href == null || href.trim() === "")  { 
     href = "javascript:void(0)";
     noHref = true;
   }
