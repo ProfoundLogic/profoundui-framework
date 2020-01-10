@@ -2365,7 +2365,8 @@ pui.Grid = function () {
           else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
             placeSortIcon = true;
           }
-          else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.columnId)) {
+          else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && 
+                   me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.col)) { // use .col, not .columnId
             placeSortIcon = true;
           }
 
@@ -2475,7 +2476,7 @@ pui.Grid = function () {
           pui.columnSortResponseGrid = null;
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
-          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.columnId);
+          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);    // use .col, not .columnId
           if (me.fieldNameSortResponse == null) {
             me.returnSortOrder = null;
             return;
@@ -2853,23 +2854,43 @@ pui.Grid = function () {
     function elementMatchesHeaderCell(arrEl, hcell){
       return arrEl.cid === hcell.columnId;
     }
+
     function getIsDescendingAndSetResponseFields(arrEl, hcell){
       columnResponse += comma + arrEl.cid;
       if (me.tableDiv.fieldNameSortResponseField != null){
-        fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.columnId );
+        fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.col );   // use .col, not .columnId
       }
       comma = ',';
       return arrEl.desc;
     }
+
     importArrIntoMultiSort(colPriority, elementMatchesHeaderCell, getIsDescendingAndSetResponseFields);
-    
+
     // Build the returnSortOrder response value, which requires a value for every column.
+    // There may be some hidden columns; need to return the default sort order
+    // for those hidden columns also.
     comma = '';
-    for (var i=0; i < me.cells[0].length; i++){
-      returnOrder += comma + (me.cells[0][i].sortDescending ? 'D' : 'A');
-      comma = ',';
+    var columnIdMax = me.runtimeChildren[me.runtimeChildren.length-1].columnId;
+    for (var columnId=0; columnId <= columnIdMax; columnId++) {
+      // check if this columnId is displayed; if yes, return sort order as stored in me.cells[0]
+      // otherwise, return default sort order for that columnId
+      var columnDisplayed = false;
+      for (var i=0; i < me.cells[0].length; i++) {
+        if (me.cells[0][i].columnId === columnId ) {                  // column is displayed
+          returnOrder += comma + (me.cells[0][i].sortDescending ? 'D' : 'A');
+          comma = ',';
+          columnDisplayed = true;
+          break;
+        }
+      }
+      if (!columnDisplayed) {
+        // note the "not" in front of isDefaultSortDescending();
+        // see similar logic in resetAllDefaultSortDescending()
+        returnOrder += comma + (!isDefaultSortDescending(columnId) ? 'D' : 'A');
+        comma = ',';
+      }
     }
-    
+
     // Respond, or send db-driven request, or do client-side sorting.
     if (me.tableDiv.columnSortResponseField != null) {
       me.columnSortResponse = columnResponse;
