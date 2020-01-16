@@ -642,18 +642,28 @@ pui["fileupload"].FileUpload = function(container, extras) {
     selector.className = "control-proxy";
     selector.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload select text")));
     
+    selector.addEventListener("click", checkSelect, false);
+    initFileInputElement();
+    controlBox.appendChild(selector);
+  }
+  
+  function initFileInputElement(){
+    if (selector.input != null){
+      // IE10 does not allow the input's value to change via JS, so the old input must be replaced upon the user clicking clear or remove.
+      selector.input.removeEventListener("change", fileOnChange, false);
+      selector.removeChild(selector.input);
+    }
+    
     var input = document.createElement("input");
     input.name = "file";
     input.type = "file";
     input.className = "control";
+    input.style.display = "none";   //Avoid odd Firefox problem where input overlaps link and cursor isn't a pointer.
     
     input.addEventListener("change", fileOnChange, false);
-    selector.addEventListener("click", checkSelect, false);
     
     selector.input = input;
     selector.appendChild(input);
-    
-    controlBox.appendChild(selector);
   }
   
   function fileOnChange(e){
@@ -662,6 +672,8 @@ pui["fileupload"].FileUpload = function(container, extras) {
       // For single selection or extended, existing choices get replaced with new choices.
       me.fileList = [];
     }
+    
+    initFileInputElement(); // Ensure that onchange always fires after choosing another file. #5876.
     
     me.checkAndRemoveFiles();
     
@@ -749,7 +761,7 @@ pui["fileupload"].FileUpload = function(container, extras) {
       return false;      
     
     }
-  
+    selector.input.click(); //If the input is hidden, then regular clicks won't reach it. Force clicks to reach it.
   }
   
   /**
