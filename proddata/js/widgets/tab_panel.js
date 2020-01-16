@@ -922,13 +922,17 @@ function TabPanel() {
 
     // Setup the click handlers for both buttons.
     leftScrollSpan.onmousedown = leftScroll_onmousedown;
+    leftScrollSpan["ontouchstart"] = leftScroll_onmousedown;
     // Stop scrolling.
     leftScrollSpan.onmouseup = leftScroll_onmouseup;
+    leftScrollSpan["ontouchend"] = leftScroll_onmouseup;
     leftScrollSpan.onmouseout = leftScrollSpan.onmouseup;
     leftScrollSpan.ondrag = leftScrollSpan.onmouseup;
 
     rightScrollSpan.onmousedown = rightScroll_onmousedown;
+    rightScrollSpan["ontouchstart"] = rightScroll_onmousedown;
     rightScrollSpan.onmouseup = rightScroll_onmouseup;
+    rightScrollSpan["ontouchend"] = rightScroll_onmouseup;
     rightScrollSpan.onmouseout = rightScrollSpan.onmouseup;
     rightScrollSpan.ondrag = rightScrollSpan.onmouseup;
 
