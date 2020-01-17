@@ -4152,7 +4152,7 @@ pui.listenMouse = function(params){
     addEvent(document, 'mousemove', mousemove);
     addEvent(document, 'mouseup', mouseup);
     
-    if (typeof params.downcb === 'function') params.downcb();
+    if (typeof params.downcb === 'function') params.downcb(ref);
   }
 
   function mousemove(e){
@@ -4161,13 +4161,13 @@ pui.listenMouse = function(params){
     ref.y = xy.y;
     params.mousemove(ref);
     
-    if (typeof params.movecb === 'function') params.movecb();
+    if (typeof params.movecb === 'function') params.movecb(ref);
   }
 
   function mouseup(){
     removeEvent(document, 'mousemove', mousemove);
     removeEvent(document, 'mouseup', mouseup);
-    if (typeof params.upcb === 'function') params.upcb();
+    if (typeof params.upcb === 'function') params.upcb(ref);
     if (typeof params.opacity === 'number'){
       params.opel.style.filter = '';
       params.opel.style.opacity = '';
@@ -4265,12 +4265,14 @@ pui.makeResizable = function(params){
       if (width < params.minw) width = params.minw;
       if (typeof params.maxw === 'number' && width > params.maxw) width = params.maxw;
       params.resizeEl.style.width = width + 'px';
+      ref.width = width;
     }
     if (doHeight){
       var height = ref.startY + ref.y - ref.cursorStartY;
       if (height < params.minh) height = params.minh;
       if (typeof params.maxh === 'number' && height > params.maxh) height = params.maxh;
       params.resizeEl.style.height = height + 'px';
+      ref.height = height;
     }
   }
 };
