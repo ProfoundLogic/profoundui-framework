@@ -37,7 +37,7 @@ pui.ComboBoxWidget = function() {
   var arrow;
   var choicesDiv;
   var fixedHeight = 110;
-
+  var spacerDiv = null;
   this["showChoices"] = function() {
     showChoices();
   };
@@ -50,16 +50,10 @@ pui.ComboBoxWidget = function() {
     if (me.div == null) {
       me.div = document.createElement("div");
       if (me.container != null) me.container.appendChild(me.div);
-      me.div.style.position = "absolute";      
-      me.div.style.top = "100px";      
-      me.div.style.left = "100px";
     }
+  
     
-    me.div.style.backgroundColor = "#ffffff";
-    me.div.style.overflow = "hidden";
-    me.div.style.border = "1px solid #7f9db9";
     if (me.div.style.width == null) me.div.style.width = "80px";
-    me.div.style.height = "20px";
     if (pui["is_quirksmode"]) {
       if (pui["is_old_ie"]) me.div.style.height = "22px";
       else me.div.style.height = "19px";
@@ -77,16 +71,8 @@ pui.ComboBoxWidget = function() {
       if (context == "dspf")
         box.setAttribute("name", pui.randomTextBoxName());
     }
-    box.style.position = "absolute";
-    box.style.border = "0px none";
-    box.style.top = "0px";
-    box.style.left = "1px";
-    box.style.paddingTop = "1px";
+    
     box.style.fontFamily = me.div.style.fontFamily;  
-    box.style.fontWeight = "normal";
-    box.style.outline = "none";
-    if (me.div.className == "")
-      me.div.className = "input";
     if (typeof me.div.name == "string")
       box.name = me.div.name;
     if (me.design) {
@@ -95,15 +81,10 @@ pui.ComboBoxWidget = function() {
     }
     
     if (arrow == null) {
-      arrow = document.createElement("img");
+      arrow = document.createElement("div");
       me.div.appendChild(arrow);
     }
-    arrow.src = pui.normalizeURL("/profoundui/proddata/images/combo/down_arrow.gif");
-    arrow.style.position = "absolute";
-    arrow.style.top = "0px";
-    arrow.style.right = "0px";
-    arrow.style.width = "18px";
-    arrow.style.height = "20px";
+    arrow.className = "combo-arrow";
     arrow.combo = true;
     arrow.onmousedown = function(e) {
       preventEvent(e);
@@ -151,13 +132,9 @@ pui.ComboBoxWidget = function() {
       });
     }
     choicesDiv.style.display = "none";
-    choicesDiv.style.position = "absolute";
-    choicesDiv.style.overflowX = "hidden";
-    choicesDiv.style.overflowY = "auto";
     choicesDiv.style.height = fixedHeight + "px";
-    choicesDiv.style.zIndex = 130;
     choicesDiv.className = "combo-options";
-    me.setClass(me.div.className.split(" ")[0]);
+    me.setClass(me.div.className.split(" ")[1]);
     
   };
 
@@ -217,8 +194,12 @@ pui.ComboBoxWidget = function() {
   };
   
   this.setClass = function(className) {
-    box.className = className;
-    pui.addCssClass(choicesDiv, box.className.split(" ")[0] + "-combo-options");
+    box.className = "combo-main-box " + className;
+    pui.addCssClass(choicesDiv, box.className.split(" ")[1] + "-combo-options");
+    pui.addCssClass(arrow, box.className.split(" ")[1] + "-combo-arrow");
+    if(spacerDiv != null) {
+      pui.addCssClass(spacerDiv, box.className.split(" ")[1] + "-combo-spacer");
+    }
   };
   
   this.assignJSEvent = function(jsEventName, func) {
@@ -318,15 +299,12 @@ pui.ComboBoxWidget = function() {
     var minWidth = parseInt(me.div.style.width);
     if (pui["is_old_ie"] && me["choices"].length > 5) minWidth = minWidth - 22;
     if (minWidth < 20) minWidth = 20;
-    var spacerDiv = document.createElement("div");
+
+    spacerDiv = document.createElement("div");
+    spacerDiv.className = "combo-spacer";
     spacerDiv.style.width = minWidth + "px";
-    spacerDiv.style.height = "0px";
-    spacerDiv.style.fontSize = "0px";
-    spacerDiv.style.padding = "0px";
-    spacerDiv.style.margin = "0px";
-    spacerDiv.style.border = "0px none";
-    spacerDiv.style.cursor = "default";
     choicesDiv.appendChild(spacerDiv);
+
     for (var i = 0; i < me["choices"].length; i++) {
       var optDiv = document.createElement("div");
       optDiv.innerHTML = me["choices"][i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -386,7 +364,7 @@ pui.ComboBoxWidget = function() {
     choicesDiv.style.top = top + "px";    
         
   }
-
+  
 
 };
 
@@ -437,7 +415,7 @@ pui.widgets.add({
           suffix = " " + (parseInt(suffix, 10) + 1);
         
       }
-      parms.dom.className = cls;
+      parms.dom.className = "combo-main " + cls;
       parms.dom.comboBoxWidget.init();
       if (width != null && width != "") {
         parms.dom.style.width = width;
@@ -725,8 +703,16 @@ pui.widgets.add({
       parms.dom.comboBoxWidget.getBox().setAttribute("tabindex", parms.value);
     
     }
-  
+    
+  },
+  globalAfterSetter: function(parms) {
+    if (parms.propertyName.substr(0, 9) == "css class") {
+      if (parms.dom.className.indexOf("combo-main") == -1) {
+        parms.dom.className = "combo-main " + parms.dom.className;
+      }
+    }
   }
+
   
 });
 
