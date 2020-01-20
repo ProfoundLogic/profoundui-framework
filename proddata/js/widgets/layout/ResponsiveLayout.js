@@ -54,6 +54,18 @@ pui.ResponsiveLayout = function(){
   //If the layout goes into a background layer, this helps identify it instead of using the container ID.
   var backgroundFallback = pui.responsiveLayoutTracker++;
   
+  var genieStylenode;
+  if (pui.runtimeContainer && pui.runtimeContainer.id == "5250"){
+    // Used to set inline styles for the 5250 div ensuring the layout isn't cramped at the top. #5311.
+    genieStylenode = document.querySelector('style[forcegenieheight="true"]');
+    if (!genieStylenode){
+      // The style was not already set by another responsive layout, so set it now.
+      var tmpnode = addStyleNode('div[id="5250"] { height: inherit; }', pui.runtimeContainer);
+      tmpnode.setAttribute("forcegenieheight", "true");
+      // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
+    }
+  }
+  
   /**
    * Called when pui.render sets elements to be in the background of another layer and lose their IDs.
    * (Function is assigned to DOM by applyTemplate.js)
@@ -173,10 +185,10 @@ pui.ResponsiveLayout = function(){
     
     // Attach the style tag if in previewMode: responsive editor requires a style node. (even when blank)
     if (me.previewMode){
-      addStyleNode();
+      me._stylenode = addStyleNode(origCssText, me._mainnode);
     }
     else if (origCssText != "" && origCssText != null){  //Attach style tag if there are style rules.
-      addStyleNode();
+      me._stylenode = addStyleNode(origCssText, me._mainnode);
       
       //If !useViewport: instead of using the viewport for widths, use the parent container.
       //In design mode if useViewport is true, then the canvas will decide media query matches. (Note: !u || (u && d) simplifies to !u || d).
@@ -254,16 +266,21 @@ pui.ResponsiveLayout = function(){
     }
   }
   
-  // Attach a <style> node to the DOM using the stored CSS text.
-  function addStyleNode(){
-    me._stylenode = document.createElement("style");
-    me._stylenode.type = "text/css";
-    if (me._stylenode.styleSheet){    //IE
-      me._stylenode.cssText = origCssText;
+  /**
+   * Create and attach a <style> node to the DOM using the specified CSS text at the specified node.
+   * @param {String} cssText
+   * @param {Object} parentNode  HTML Element.
+   * @returns {Object}    Returns the new <style> node.
+   */
+  function addStyleNode(cssText, parentNode){
+    var stylenode = document.createElement("style");
+    stylenode.type = "text/css";
+    if (stylenode.styleSheet){    //IE
+      stylenode.cssText = cssText;
     }else{
-      me._stylenode.appendChild( document.createTextNode(origCssText) );
+      stylenode.appendChild( document.createTextNode(cssText) );
     }
-    me._mainnode.appendChild(me._stylenode);
+    return parentNode.appendChild(stylenode);
   }
   
   // Callback for setTimeout when "use viewport" is false. Waits for the container to have a width, 
