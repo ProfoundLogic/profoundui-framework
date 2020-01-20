@@ -50,6 +50,10 @@ pui.ComboBoxWidget = function() {
     if (me.div == null) {
       me.div = document.createElement("div");
       if (me.container != null) me.container.appendChild(me.div);
+      me.div.style.position = "absolute";
+      me.div.style.top = "100px";
+      me.div.style.left = "100px";
+ 
     }
   
     
