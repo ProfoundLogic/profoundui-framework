@@ -1583,18 +1583,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         
         // Prevent German eszett from being changed to "SS" by changing it to captial eszett. 5369.
         if (propConfig.stylename == "textTransform" && effectiveValue == "uppercase"){
-          function comboInputFilter(e){
-            e.target.value = pui.replaceProblemCaseChars(e.target.value, false);
-          }
-          
           if ((domObj.tagName == "INPUT" && domObj.type == "text") || domObj.tagName == "TEXTAREA"){
             domObj.value = pui.replaceProblemCaseChars(domObj.value, false);
-            domObj.addEventListener("input", comboInputFilter);
+            domObj.addEventListener("input", pui.onProblemInput);
           }
           else if(domObj.comboBoxWidget != null){
             var comboInput = domObj.comboBoxWidget.getBox();
             comboInput.value = pui.replaceProblemCaseChars(comboInput.value, false);
-            comboInput.addEventListener("input", comboInputFilter);
+            comboInput.addEventListener("input", pui.onProblemInput);
           }
         }
         
