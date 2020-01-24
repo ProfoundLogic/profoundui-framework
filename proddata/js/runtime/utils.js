@@ -4416,3 +4416,20 @@ pui.replaceProblemCaseChars = function(str, toLower){
   if (str == null) return str;
   return toLower ? str.replace(/\u1E9E/g, "\u00DF") : str.replace(/\u00DF/g, "\u1E9E");
 };
+
+/**
+ * Listener for input events on a couple of Genie input elements.
+ * Ensure typed or pasted ß characters become the upper-case version to avoid becomming "SS". Issue 5369. See also 5785 for test cases.
+ * @param {Object} e
+ */
+pui.onProblemInput = function(e){
+  if (e.target.value.match(/\u00DF/)){
+    // Only adjust the value if the target matches ß. Avoid IE11 in Win7-8 focus jumping bug. Issue 5785.
+    var cursorOrigPosition = e.target.selectionStart;
+    e.target.value = pui.replaceProblemCaseChars(e.target.value, false);
+    if (pui["is_ie"]){
+      // position the cursor to the original cursor position. Needed for Windows 7-8. Issue 5785.
+      e.target.setSelectionRange( cursorOrigPosition, cursorOrigPosition );
+    }
+  }
+};
