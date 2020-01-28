@@ -1182,22 +1182,66 @@ pui.isRightClick = function(e) {
     }
   }
   return false;
-}
+};
 
-
-pui.getOffset = function(obj) {
+/**
+ * Returns the left and top offset of the object relative to the page origin.
+ * @param {Object} obj
+ * @param {Boolean|undefined} handleZoom      When obj is the canvas or inside it, then this should be true.
+ * @returns {Array.<Number>}    [ left, top ].
+ */
+pui.getOffset = function(obj, handleZoom) {
   var curleft = 0;
   var curtop = 0;
+  var countdown = -1;   // When it reaches zero, compensate that element's scroll for zoom.
+
+  // Elements inside the scaled designer canvas need adjustments.
+  handleZoom = handleZoom === true && context == "dspf" && toolbar != null && toolbar.designer != null && toolbar.designer.container != null
+    // Avoid calculating for zoom when element is not related to the canvas; e.g. Responsive Editor.
+    && toolbar.designer.container.parentNode != null && toolbar.designer.container.parentNode.parentNode != null
+    && toolbar.designer.container.parentNode.parentNode.contains(obj);
+  
   // Get offsets from obj and each offsetParent until there are no more parents.
   while(obj != null ){
+    var subtractScroll = true;
 
-    curleft += obj.offsetLeft;
-    curtop += obj.offsetTop;
+    var tmpleft = obj.offsetLeft;
+    var tmptop = obj.offsetTop;
+
+    if (handleZoom){
+      // obj is the mobile-device-looking div, which is the parent of the canvas.
+      if (obj.isCanvasOutline){
+        // Include the zoom-adjusted offsets and borders but not the scroll left/top.
+        tmpleft = Math.round((obj.offsetLeft + obj.clientLeft) * toolbar.zoomDecimal);
+        tmptop = Math.round((obj.offsetTop + obj.clientTop) * toolbar.zoomDecimal);
+        countdown = 1; //two parents up from this should adjust for zoom.
+        subtractScroll = false;
+      }
+      // obj has scrollbars affected by zoom. this is "dspfDesignerN_" when there's no mobile div, 
+      else if (countdown == 0){
+        tmpleft -= Math.round(obj.scrollLeft * toolbar.zoomDecimal);
+        tmptop -= Math.round(obj.scrollTop * toolbar.zoomDecimal);
+        subtractScroll = false;
+        handleZoom = false;
+      }
+      else {
+        countdown--;
+        // Include the offset and the border width, subtract scroll, adjusted for zoom.
+        tmpleft = Math.round((obj.offsetLeft + obj.clientLeft - obj.scrollLeft) * toolbar.zoomDecimal);
+        tmptop = Math.round((obj.offsetTop + obj.clientTop - obj.scrollTop) * toolbar.zoomDecimal);
+        subtractScroll = false;
+        //obj is the canvas. One parent up from this should adjust for zoom. (unless isCanvasOutline is reached first).
+        if (obj == toolbar.designer.container) countdown = 0;
+      }
+    }
+
+    curleft += tmpleft;
+    curtop += tmptop;
 
     // Compensate for content scroll position, but not for the body tag.
     // body.scrollTop/Left in Chrome, Safari, and Opera is the window scroll 
     // top/left. Offset shouldn't change when the page scrolls.
-    if( obj.tagName !== "BODY") {
+    if( obj.tagName !== "BODY" && subtractScroll) {
       curleft -= obj.scrollLeft;
       curtop -= obj.scrollTop;
     }
@@ -1223,7 +1267,9 @@ pui.getOffset = function(obj) {
       }
 
     }
-    obj = obj.offsetParent;
+    // Note: when handling zoom using offsetParent would skip elements that need to be detected.
+    // Omit TD nodes to avoid double counting offsets; e.g. elements inside table or mobile scroller layouts.
+    obj = handleZoom && obj.parentNode && obj.parentNode.tagName != 'TD' ? obj.parentNode : obj.offsetParent;
   }
   return [curleft,curtop];
 };
@@ -4432,4 +4478,49 @@ pui.onProblemInput = function(e){
       e.target.setSelectionRange( cursorOrigPosition, cursorOrigPosition );
     }
   }
+};
+
+/*
+ * Return a number representing units of change for a mouse wheel's Y value, returning the same number for different browser implementations of wheel.
+ * @param {Object} event
+ * @returns {Number}
+ */
+pui.normalizeWheelDelta = function(event){
+  var delta = 0;
+  if (pui['is_firefox']) {
+    // In Firefox, deltaY is multiple of 3, negative = wheel pushed forward/up, positive = wheel pulled back/down. deltaMode: 1
+    delta = event.deltaY / 3;
+  }
+  else if (pui['is_ie']){
+    if (event.wheelDelta){
+      delta = event.wheelDelta / -120;   //The event is a deprecated MouseWheel instead of the recommened standard, WheelEvent. Sign is reversed.
+    }
+    else {
+      // IE10-11, deltaY is multiple of 144.3000030517578, same sign as Firefox.   deltaMode: 0.
+      // Edge, deltaY is multiple of 144.4499969482422, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 120.
+      delta = event.deltaY / 144;  
+    }
+  }
+  else if (pui['is_chrome']) {
+    if (event.wheelDelta) {   //Edge started being considered Chrome, but its wheelDelta value exists for WheelEvents, and the number is different than Chrome. 1/23/2020.
+      delta = event.wheelDelta / -120;
+    }
+    else {
+      // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
+      delta = event.deltaY / 100;
+    }
+  }
+  else if (pui['is_safari']){
+    // Safari, deltaY is multiple of 4.000244140625, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 12.
+    delta = event.deltaY / 4;
+  }
+  else if (typeof event.deltaY == 'number' && (event.deltaY > 0 || event.deltaY < 0)){
+    if (event.wheelDelta) {   //Browser is Opera.
+      delta = event.wheelDelta / 120;
+    }
+    else {
+      delta = event.deltaY / event.deltaY; //Handle other, let value be either +1 or -1. Assume sign is same as other browsers.
+    }
+  }
+  return delta;
 };

@@ -5117,10 +5117,73 @@ pui.Grid = function () {
       if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
         inLayoutContainer = true;
       }
+      
+      // Note: the following variables and calculations are used in mousemove but run here to be faster so the UI isn't as jumpy.
+      var mouseLineDiff = {x:0, y:0};   //The difference between the mouse X,Y and a vLine's left,top offsets.
+      if (me.designMode) {
+        var containerOffsets = pui.getOffset(me.tableDiv.designItem.designer.container, true);
+        mouseLineDiff.x += containerOffsets[0];
+      }
+      else {
+        // Get the runtimeContainer's position relative to the page. The bounding rectangle handles
+        // positions of any parent DIV elements the customer's start.html may have added. #3344.
+        var rect = pui.runtimeContainer.getBoundingClientRect();
+        
+        // BoundingClientRect is relative to the viewport, so adjust for scroll position.
+        if (typeof window.pageXOffset == "number") {
+          mouseLineDiff.x = rect.left + window.pageXOffset;
+          mouseLineDiff.y = rect.top + window.pageYOffset;
+        } else {
+          // window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
+          // See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+          mouseLineDiff.x = rect.left + document.documentElement.scrollLeft;
+          mouseLineDiff.y = rect.top + document.documentElement.scrollTop;
+        }
+        
+        // Compensate if the grid is inside a window. (See #3532 for test cases.)
+        var windowDiv = me.tableDiv.parentNode;
+        var acont = pui["getActiveContainer"]();
+        if (windowDiv.isPUIWindow == true) {
+          mouseLineDiff.x += parseInt(windowDiv.style.left);
+          mouseLineDiff.y += parseInt(windowDiv.style.top);
+        }
+        else if (acont != null && acont.isPUIWindow === true) {
+          // Note: in RDF, the active container is a PUIWindow. In Genie, pui.runtimeContainer is
+          // the active container but not a PUIWindow. So, the same offset isn't added twice.
+          mouseLineDiff.x += acont.offsetLeft;
+          mouseLineDiff.y += acont.offsetTop;
+        }
+      }
+
+      if (inLayoutContainer) {
+        //In Rich Display or Designer, compensate when the grid is in a container.
+        var layContOff = pui.layout.getContainerOffset(me.tableDiv.parentNode);
+        mouseLineDiff.x += layContOff.x;
+        mouseLineDiff.y += layContOff.y;
+      }
+      
+      var offset = {x:0, y:0};
+      // Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
+      if (!me.designMode) {
+        // In RDF or Genie, the previous mouse calculations can be used because the
+        // columnPointer's parent is <body>, and the mouse position is based on <body>.
+        offset.y = mouseLineDiff.y;
+        offset.x = mouseLineDiff.x;
+      } else if (inLayoutContainer) {
+        // We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
+        // parent is a designer div, not the body. So the mouse calculation cannot be used.
+        offset = layContOff;
+      }
 
       function mousemove(event) {
-        var y = pui.getMouseY(event) - cursorStartY;
-        var x = pui.getMouseX(event) - cursorStartX;
+        var mouseXY = pui.getMouseXY(event);
+        var deltay = mouseXY.y - cursorStartY;
+        var deltax = mouseXY.x - cursorStartX;
+        // Compensate for elements being visually in a different place than the event coordinates when designer canvas is zoomed.
+        if (context == "dspf" && me.designMode){
+          deltay = Math.round(deltay * toolbar.zoomFactor);
+          deltax = Math.round(deltax * toolbar.zoomFactor);
+        }
         if (me.hasHeader && cell.row == 0) {
           // move header column
           if (headerCellProxy == null) {
@@ -5140,60 +5203,23 @@ pui.Grid = function () {
               }
             }, 150);
           }
-          headerCellProxy.style.top = (me.tableDiv.startTop + y) + "px";
-          headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + x) + "px";
+          headerCellProxy.style.top = (me.tableDiv.startTop + deltay) + "px";
+          headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + deltax) + "px";
           var matchedCol = null;
-          if (y > -25 && y < parseInt(me.tableDiv.style.height)) {
+          // The mouse is within 25px above the grid or over the grid.
+          if (deltay > -25 && deltay < parseInt(me.tableDiv.style.height)) {
             //Look at each vLine and decide which the mouse is nearest.
             //Adjust the mouse coordinates to the vLine's frame of reference so they can be compared.
             for (var i = 0; i < me.vLines.length; i++) {
               var line = me.vLines[i];
               var lineLeft = parseInt(line.style.left);
-              var mouseLeft = x + cursorStartX; //mouseLeft is now same as pui.getMouseX(event);
+              var mouseLeft = mouseXY.x;
 
-              var mouseLineDiffX = 0; //The difference between the mouse X and the vLine's left offset.
-              var mouseLineDiffY = 0;
-
-              if (me.designMode) {
-                //Note: in Designer, the mouseLeft is only used in a comparison, not in positioning columnPointer.
-                mouseLineDiffX += me.tableDiv.designItem.designer.getLeftOffset();
+              if (me.designMode && context == "dspf") {
+                lineLeft = Math.round(lineLeft * toolbar.zoomDecimal);    //Match with the scaled canvas so the mouse and elements appear together.
               }
-              else {
-                //Get the runtimeContainer's position relative to the page. The bounding rectangle handles
-                //positions of any parent DIV elements the customer's start.html may have added. #3344.
-                var rect = pui.runtimeContainer.getBoundingClientRect();
-                //BoundingClientRect is relative to the viewport, so adjust for scroll position.
-                if (typeof window.pageXOffset == "number") {
-                  mouseLineDiffX = rect.left + window.pageXOffset;
-                  mouseLineDiffY = rect.top + window.pageYOffset;
-                } else {
-                  //window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
-                  //See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-                  mouseLineDiffX = rect.left + document.documentElement.scrollLeft;
-                  mouseLineDiffY = rect.top + document.documentElement.scrollTop;
-                }
-
-                //Compensate if the grid is inside a window. (See #3532 for test cases.)
-                var windowDiv = me.tableDiv.parentNode;
-                var acont = pui["getActiveContainer"]();
-                if (windowDiv.isPUIWindow == true) {
-                  mouseLineDiffX += parseInt(windowDiv.style.left);
-                  mouseLineDiffY += parseInt(windowDiv.style.top);
-                } else if (acont != null && acont.isPUIWindow === true) {
-                  //Note: in RDF, the active container is a PUIWindow. In Genie, pui.runtimeContainer is
-                  //the active container but not a PUIWindow. So, the same offset isn't added twice.
-                  mouseLineDiffX += acont.offsetLeft;
-                  mouseLineDiffY += acont.offsetTop;
-                }
-              }
-
-              if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
-                //In Rich Display or Designer, compensate when the grid is in a container.
-                mouseLineDiffX += pui.layout.getContainerOffset(me.tableDiv.parentNode).x;
-                mouseLineDiffY += pui.layout.getContainerOffset(me.tableDiv.parentNode).y;
-              }
-
-              mouseLeft -= mouseLineDiffX;
+              
+              mouseLeft -= mouseLineDiff.x;
 
               var diff = Math.abs(lineLeft - mouseLeft);
               if (diff < 15) {
@@ -5210,21 +5236,9 @@ pui.Grid = function () {
                   if (me.designMode) toolbar.designer.container.appendChild(columnPointer);
                   else document.body.appendChild(columnPointer);
                 }
-                var prt = line.parentNode;
                 var top = parseInt(line.style.top) - 10;
                 var left = parseInt(line.style.left) - 4;
-                var offset = {x:0, y:0};
-                //Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
-                if (!me.designMode) {
-                  //In RDF or Genie, the previous mouse calculations can be used because the
-                  //columnPointer's parent is <body>, and the mouse position is based on <body>.
-                  offset.y = mouseLineDiffY;
-                  offset.x = mouseLineDiffX;
-                } else if (context == "dspf" && prt.getAttribute("container") == "true") {
-                  //We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
-                  //parent is a designer div, not the body. So the mouse calculation cannot be used.
-                  offset = pui.layout.getContainerOffset(prt);
-                }
+                
                 top += offset.y;
                 left += offset.x;
                 columnPointer.style.display = "";
@@ -5242,11 +5256,12 @@ pui.Grid = function () {
           }
           return;
         }
+        
         var designItem = me.tableDiv.designItem;
         if (designItem != null) {
           pui.designer.testDragOverGridOrLayout({
-            x: x + cursorStartX,
-            y: y + cursorStartY,
+            x: mouseXY.x,
+            y: mouseXY.y,
             designer: designItem.designer,
             inGridCell: false,
             inLayoutContainer: inLayoutContainer,
@@ -5255,22 +5270,23 @@ pui.Grid = function () {
             cursorStartX: cursorStartX,
             cursorStartY: cursorStartY,
             canBelongToGrid: false,
-            canBelongToLayout: true
+            canBelongToLayout: true,
+            zoomFactor: toolbar.zoomFactor
           });
 
           var selection = designItem.designer.selection;
           if (selection.snapToGrid) {
-            x += me.tableDiv.startLeft;
-            y += me.tableDiv.startTop;
-            x = selection.snap(x, pui.multX);
-            y = selection.snap(y, pui.multY, (context == "genie" ? 3 : 0));
-            x -= me.tableDiv.startLeft;
-            y -= me.tableDiv.startTop;
+            deltax += me.tableDiv.startLeft;
+            deltay += me.tableDiv.startTop;
+            deltax = selection.snap(deltax, pui.multX);
+            deltay = selection.snap(deltay, pui.multY, (context == "genie" ? 3 : 0));
+            deltax -= me.tableDiv.startLeft;
+            deltay -= me.tableDiv.startTop;
           }
         }
         me.doThisToTableDivs(function (domObj) {
-          domObj.style.top = (domObj.startTop + y) + "px";
-          domObj.style.left = (domObj.startLeft + x) + "px";
+          domObj.style.top = (domObj.startTop + deltay) + "px";
+          domObj.style.left = (domObj.startLeft + deltax) + "px";
         });
         if (designItem != null) designItem.moved = true;
         me.setScrollBar();
@@ -5531,6 +5547,8 @@ pui.Grid = function () {
     if (!isVertical) lines[i].style.cursor = "n-resize";
     me.selectMe();
     function mousedown(event) {
+      
+      
 
       if (me.designMode) {
         var psBar = pui.designer.psBar;
@@ -5558,9 +5576,14 @@ pui.Grid = function () {
       var startLeft = parseInt(line.style.left);
       var startTop = parseInt(line.style.top);
       me.selectMe();
-      function mousemove(event) {        
-        var y = getMouseY(event) - cursorStartY;
-        var x = getMouseX(event) - cursorStartX;
+      function mousemove(event) {
+        var mouseXY = pui.getMouseXY(event);
+        var y = mouseXY.y - cursorStartY;
+        var x = mouseXY.x - cursorStartX;
+        if (context == "dspf" && me.designMode){
+          y = Math.round(y * toolbar.zoomFactor);
+          x = Math.round(x * toolbar.zoomFactor);
+        }
         doResize(x, y, i, isVertical, startTop, startLeft);
         if (!isVertical && i == lines.length - 1 && lines.length > 2 && me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
           var addHeight = y;
