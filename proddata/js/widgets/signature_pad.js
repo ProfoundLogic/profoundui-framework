@@ -76,7 +76,11 @@ pui.SignaturePad = function() {
     
     if (canvasContext == null) return;
     
-    var offset = pui.getOffset(me.container);
+    // Make sure signature location is correct when designer canvas is zoomed.
+    var zoomFactor = 1;
+    if (context == "dspf" && toolbar && toolbar.designer && toolbar.designer.container) zoomFactor = toolbar.zoomFactor;
+    
+    var offset = pui.getOffset(me.container, true);
     
     var touchEvent = false;
     if (event != null && event.touches != null) {
@@ -87,8 +91,8 @@ pui.SignaturePad = function() {
     }
     
     strokes.push([]);  // new stroke
-    previous.x = getMouseX(event) - offset[0];
-    previous.y = getMouseY(event) - offset[1];
+    previous.x = (getMouseX(event) - offset[0]) * zoomFactor;
+    previous.y = (getMouseY(event) - offset[1]) * zoomFactor;
     canvasContext.beginPath();
     drawLine(previous.x, previous.y, previous.x, previous.y);
     var stroke = strokes[strokes.length - 1];
@@ -106,8 +110,8 @@ pui.SignaturePad = function() {
         }
       }
 
-      var x = getMouseX(event) - offset[0];
-      var y = getMouseY(event) - offset[1];      
+      var x = (getMouseX(event) - offset[0]) * zoomFactor;
+      var y = (getMouseY(event) - offset[1]) * zoomFactor;
 
       //drawLine(previous.x, previous.y, x, y);
       drawLine(x, y);
