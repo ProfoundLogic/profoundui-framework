@@ -89,36 +89,27 @@ function show_calendar(dateField, str_datetime, format) {
   var today = new Date();
 
   var str_buffer = new String (
-    "<table cellspacing=\"0\" border=\"0\" width=\"100%\">\n"+
+    "<table class=\"pui-calendar-outer-table\">\n"+
     "<tr><td class=\"brndrow1\">\n"+
-    "<table cellspacing=\"0\" cellpadding=\"4\" border=\"0\" width=\"100%\">\n"+
+    "<table class=\"pui-calendar-inner-table\">\n"+
     "<tr>\n  <td class=\"brndrow1\">" + 
 
-    "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+ dt2dtstr(dt_prev_year)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/prev_year.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
-    " alt=\"previous month\"></span>" +
-
-    "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+ dt2dtstr(dt_prev_month)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/prev_month.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
-    " alt=\"previous month\"></span>" +
+    "<span arrow=\"1\" class=\"pui-calendar-arrow-prev-year\" onclick=\"show_calendar(pui.currentDateField"+
+    ", '"+ dt2dtstr(dt_prev_year)+"'+document.cal.time.value, '" + format + "');\"></span>" +
+    
+    "<span arrow=\"1\" class=\"pui-calendar-arrow-prev-month\" onclick=\"show_calendar(pui.currentDateField"+
+    ", '"+ dt2dtstr(dt_prev_month)+"'+document.cal.time.value, '" + format + "');\"></span>" +
     
     "</td>\n" +
-    "  <td class=\"calendar\" align=\"center\" class=\"brndrow1\" colspan=\"5\">"+
-    "<font color=\"white\" face=\"tahoma, verdana\"><b>"
-    +arr_months[dt_datetime.getMonth()]+" "+dt_datetime.getFullYear()+"</b></font></td>\n"+
-    "  <td class=\"brndrow1\" align=\"right\">" + 
+    "  <td class=\"calendar brndrow1 pui-calendar-month-year-header\" colspan=\"5\">"+
+    arr_months[dt_datetime.getMonth()]+" "+dt_datetime.getFullYear()+"</td>\n"+
+    "  <td class=\"brndrow1 pui_calendar_brndrow1_right\">" + 
     
-    "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+dt2dtstr(dt_next_month)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/next_month.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
-    " alt=\"next month\"></span>" + 
+    "<span arrow=\"1\" class=\"pui-calendar-arrow-next-month\" onclick=\"show_calendar(pui.currentDateField"+
+    ", '"+dt2dtstr(dt_next_month)+"'+document.cal.time.value, '" + format + "');\"></span>" + 
     
-    "<span arrow=\"1\" style=\"cursor:pointer\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+dt2dtstr(dt_next_year)+"'+document.cal.time.value, '" + format + "');\">"+
-    "<img arrow=\"1\" src=\"" + pui.normalizeURL("\/profoundui\/proddata\/images\/next_year.png") + "\" width=\"16\" height=\"16\" border=\"0\""+
-    " alt=\"next month\"></span>" + 
+    "<span arrow=\"1\" class=\"pui-calendar-arrow-next-year\" onclick=\"show_calendar(pui.currentDateField"+
+    ", '"+dt2dtstr(dt_next_year)+"'+document.cal.time.value, '" + format + "');\"></span>" + 
     
     "</td>\n</tr>\n"
   );
@@ -126,9 +117,8 @@ function show_calendar(dateField, str_datetime, format) {
   // print weekdays titles
   str_buffer += "<tr>\n";
   for (var n=0; n<7; n++)
-    str_buffer += "  <td class=\"calendar brndrow2\" align=\"center\">"+
-    "<font color=\"white\" face=\"verdana, tahoma\">"+
-    week_days[(n_weekstart+n)%7]+"</font></td>\n";
+    str_buffer += "  <td class=\"calendar brndrow2 pui-calendar-weekday-header\">"+
+    week_days[(n_weekstart+n)%7]+"</td>\n";
   // print calendar table
   str_buffer += "</tr>\n";
   while (dt_current_day.getMonth() == dt_datetime.getMonth() ||
@@ -139,34 +129,33 @@ function show_calendar(dateField, str_datetime, format) {
       if (dt_current_day.getDate() == dt_datetime.getDate() &&
           dt_current_day.getMonth() == dt_datetime.getMonth()) {
         // print current date
-        str_buffer += "  <td class=\"calendar\" onmouseover=\"this.style.backgroundColor='yellow'\" onmouseout=\"this.style.backgroundColor='#FFB6C1'\" bgcolor=\"#FFB6C1\" align=\"right\"";
+        str_buffer += "  <td class=\"calendar pui-calendar-selected-date";
       }
       else if (dt_current_day.getDay() == 0 || dt_current_day.getDay() == 6) {
         // weekend days
-        str_buffer += "  <td class=\"calendar\" onmouseover=\"this.style.backgroundColor='yellow'\" onmouseout=\"this.style.backgroundColor='#eeeeee'\" bgcolor=\"#eeeeee\" align=\"right\"";
+        str_buffer += "  <td class=\"calendar pui-calendar-weekend-date";
       }
       else {
         // print working days of current month
-        str_buffer += "  <td class=\"calendar\" onmouseover=\"this.style.backgroundColor='yellow'\" onmouseout=\"this.style.backgroundColor='white'\" bgcolor=\"white\" align=\"right\"";
+        str_buffer += "  <td class=\"calendar pui-calendar-workday-date";
       }
       if (dt_current_day.getDate() == today.getDate() &&
          dt_current_day.getMonth() == today.getMonth() &&
          dt_current_day.getYear() == today.getYear()) {
         // print today's date
-        str_buffer += "  style=\"border: 2px solid #CCCCFF;\"";
+        str_buffer += " pui-calendar-current-date";
       }
       if (dt_current_day.getMonth() == dt_datetime.getMonth()) {
-        str_buffer += " onclick=\"javascript:pui.currentDateField"+
-        ".value='"+usa_dt(dt_current_day,format,dateField.formattingInfo)+"'; calendar_select();\">"+
-        "<font color=\"black\" face=\"verdana, tahoma\">";
+        str_buffer += " pui-calendar-day-active-month";
       }
       else {
-        // print days of other months
-        str_buffer += " onclick=\"javascript:pui.currentDateField"+
-        ".value='"+usa_dt(dt_current_day,format,dateField.formattingInfo)+"'; calendar_select();\">"+
-        "<font color=\"gray\" face=\"verdana, tahoma\">";
+        str_buffer += " pui-calendar-day-inactive-month";
       }
-      str_buffer += dt_current_day.getDate()+"</font></td>\n";
+      str_buffer += "\" onclick=\"javascript:pui.currentDateField.value='" +
+        usa_dt(dt_current_day,format,dateField.formattingInfo)+ "'; " +
+        "calendar_select();\">" + 
+        dt_current_day.getDate()+"</td>\n";
+      
       dt_current_day.setDate(dt_current_day.getDate()+1);
     }
     // print row footer
@@ -188,11 +177,10 @@ function show_calendar(dateField, str_datetime, format) {
     calobj.className += " pui-calendar-" + cls;
   
   var clickobj = dateField.calimg;
-  calobj.style.width ="180px";
   calobj.innerHTML = str_buffer;
   
   var left = findPosX(clickobj) + 6;
-  var top = findPosY(clickobj) + 1 + clickobj.firstChild.height;
+  var top = findPosY(clickobj) + 1 + clickobj.offsetHeight; 
 
 
 
@@ -205,7 +193,6 @@ function show_calendar(dateField, str_datetime, format) {
   var maxLeft = winSize["width"] - 230; // 230 is the width of the popup calendar plus the scrollbar
   if (maxLeft < 0) maxLeft = 0;
   if (left > maxLeft) left = maxLeft;
-  
   calobj.style.left = left + "px";
   calobj.style.top = top + "px";
 
@@ -449,14 +436,9 @@ function cal(dateField, format) {
     else format = pui.defaultDateFormat;
   }
   if (format == null || format == "") format = "MM/DD/YY";  // default
-  var calHTML = '<img src="' + pui.normalizeURL('/profoundui/proddata/images/cal.gif') + '" width="16px" height="16px" border="0" alt="">';
   var newElem = document.createElement("div");
-  newElem.style.position = "absolute";
-  newElem.style.width = "16px";
-  newElem.innerHTML = calHTML;
-  if (dateField["cal icon class"]) newElem.firstChild.className = dateField["cal icon class"];
-  //newElem.style.left = findPosX(dateField) +  dateField.offsetWidth + 5 + "px";
-  //newElem.style.top = findPosY(dateField) + "px";
+  newElem.className = "pui-calendar-icon";
+  if (dateField["cal icon class"]) newElem.className = "pui-calendar-icon " + dateField["cal icon class"]; 
   newElem.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
   var top = parseInt(dateField.style.top);
   top += parseInt((dateField.offsetHeight - 22) / 2);
@@ -474,8 +456,6 @@ function cal(dateField, format) {
     }
   }
   
-  newElem.style.display = "none";
-  newElem.style.cursor = "pointer";
   if (dateField.style.zIndex != null) newElem.style.zIndex = dateField.style.zIndex;
   newElem.onclick = function(e) {
     show_calendar(dateField, usa_dtstr2str(dateField.value, format, dateField.formattingInfo), format);
@@ -514,9 +494,6 @@ function cal(dateField, format) {
       hide_calendar();
     });
     var popcalDiv = document.createElement("div");
-    popcalDiv.style.position = "absolute";
-    popcalDiv.style.width = "180px";
-    popcalDiv.style.zIndex = 100;
     popcalDiv.style.visibility = "hidden";
     popcalDiv.id = "popcal";
     document.body.appendChild(popcalDiv);
@@ -526,8 +503,6 @@ pui.moveCal = function(dateField){
   var gCalImage = dateField.calimg;
   if (gCalImage == null) return;
   gCalImage.style.display = "none";
-  //gCalImage.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
-  //var top = parseInt(dateField.style.top);
   gCalImage.style.left = dateField.offsetLeft + dateField.offsetWidth + 5 + "px";
   var top = dateField.offsetTop;
   top += parseInt((dateField.offsetHeight - 22) / 2);
@@ -670,7 +645,7 @@ pui.widgets.add({
         parms.dom["icon1 class"] = className;
       } else {
         if (parms.dom.calimg) {
-          parms.dom.calimg.firstChild.className = className;
+          parms.dom.calimg.className = className; 
         } else {
           parms.dom["cal icon class"] = className;
         }
