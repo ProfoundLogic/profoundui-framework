@@ -278,8 +278,16 @@ pui.SlidingScrollBar = function() {
             var row = (me.totalRows - me.rowsPerPage) * pct;
             row = Math.round(row) + 1;
             me.doScroll(row);
+            
+            // Decide whether to prevent the page from scrolling or to start ignoring subsequent touch events.
             var prevent = true;
-            if (propagate || scrollingPastEnd(delta, touchHandle.touch.reverse) ) prevent = false;
+            if (propagate) prevent = false;
+            else if (scrollingPastEnd(delta, touchHandle.touch.reverse)){
+              prevent = false;
+              // Ensure the bar reaches the end when small movements don't move the bar enough but do set the grid on a boundary record. #5320.
+              if (delta > 0) touchHandle.style.top = maxTop + "px";
+              else touchHandle.style.top = minTop + "px";
+            }
             if (dragdrop && !propagate) prevent = true;
             if (prevent){
               e.preventDefault();
