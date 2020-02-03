@@ -36,7 +36,6 @@ pui.ComboBoxWidget = function() {
   var box;
   var arrow;
   var choicesDiv;
-  var fixedHeight = 110;
   var spacerDiv = null;
   this["showChoices"] = function() {
     showChoices();
@@ -116,6 +115,7 @@ pui.ComboBoxWidget = function() {
 
     if (choicesDiv == null) {
       choicesDiv = document.createElement("div");
+      choicesDiv.className = "combo-options";
       if (context == "dspf" && inDesignMode()) {
         toolbar.designer.container.appendChild(choicesDiv);
       }
@@ -125,7 +125,7 @@ pui.ComboBoxWidget = function() {
         }
         else {
           pui.runtimeContainer.appendChild(choicesDiv);
-        }
+        } 
       }
       addEvent(document, "click", function(e) {
         
@@ -136,7 +136,6 @@ pui.ComboBoxWidget = function() {
       });
     }
     choicesDiv.style.display = "none";
-    choicesDiv.style.height = fixedHeight + "px";
     choicesDiv.className = "combo-options";
     me.setClass(me.div.className.split(" ")[1]);
     
@@ -146,15 +145,16 @@ pui.ComboBoxWidget = function() {
     var boxWidth = 0;  
     var comWidth = me.div.style.width;	//get the width of the combo box
     var newWidth = me.div.offsetWidth; //get the width in pixels
+    var arrowWidth = arrow.offsetWidth + 3;
     
     if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
-      boxWidth = (1 - (21 / newWidth)) * 100; //find the percent width for input box
+      boxWidth = (1 - (arrowWidth / newWidth)) * 100; //find the percent width for input box
       if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
       box.style.width = boxWidth + "%";  //the new width + the % sign
       box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
     }
     else{    //if the width of the combo box does not end in a % sign
-      boxWidth = parseInt(comWidth) - 21;  //get the number of the width - 21
+      boxWidth = parseInt(comWidth) - arrowWidth ;  //get the number of the width - width of arrow div (arrowWidth)
       if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
       box.style.width = boxWidth + "px";  //the new width + "px" 
     }	
@@ -198,7 +198,7 @@ pui.ComboBoxWidget = function() {
   };
   
   this.setClass = function(className) {
-    box.className = "combo-main-box " + className;
+    box.className = "combo-main-box " + className.split(" ")[0];
     pui.addCssClass(choicesDiv, box.className.split(" ")[1] + "-combo-options");
     pui.addCssClass(arrow, box.className.split(" ")[1] + "-combo-arrow");
     if(spacerDiv != null) {
@@ -293,10 +293,10 @@ pui.ComboBoxWidget = function() {
     choicesDiv.innerHTML = "";
     choicesDiv.style.display = "";
     if (me["choices"].length > 5 || me["choices"].length == 0) {
-      choicesDiv.style.height = fixedHeight + "px";
+      choicesDiv.style.height = "";
     }
     else {
-      choicesDiv.style.height = "";
+      choicesDiv.style.height = "auto";
     }
     
     setChoicesPos();
