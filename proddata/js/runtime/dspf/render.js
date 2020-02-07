@@ -2295,6 +2295,18 @@ pui.renderFormat = function(parms) {
             })();
           }
           if (dom.formattingInfo != null && dom.formattingInfo.edtMsk != null && dom.formattingInfo.edtMsk != "") {
+            boxDom.needChangeEvent = false;
+            addEvent(boxDom, "focus", function(e) {
+              var target = getTarget(e);
+              target.needChangeEvent = false;
+            });
+            addEvent(boxDom, "blur", function(e) {
+              var target = getTarget(e);
+              if (target.needChangeEvent) {
+                target.onchange(e);
+                target.needChangeEvent = false;
+              }
+            });
             addEvent(boxDom, "keyup", function(e) {
               pui.applyEditMask(getTarget(e), e);
             });
@@ -2341,6 +2353,7 @@ pui.renderFormat = function(parms) {
                 if (key == 8 && pos > 0) pos = pos - 1;
                 target.value = value.substr(0, pos) + String(digit) + value.substr(pos + 1);
                 if (key != 46 && key != 8) pos++;
+                target.needChangeEvent = true;
                 preventEvent(event);
                 pui.applyEditMask(target, event, pos);
                 if (pui["is_old_ie"]) {
