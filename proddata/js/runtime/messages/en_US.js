@@ -276,6 +276,7 @@ var en_US = function(dict) {
             dictMsg["action"]                       = "Action";
             dictMsg["actions"]                      = "Actions";
             dictMsg["detect once"]                  = "Detect Once";
+            dictMsg["detect always"]                = "Detect Always";
             dictMsg["delete screen"]                = "Delete Screen";
             dictMsg["genie macros"]                 = "Genie Macros";
             dictMsg["screen name"]                  = "Screen name";
