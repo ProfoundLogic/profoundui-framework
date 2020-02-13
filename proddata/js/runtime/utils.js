@@ -4337,6 +4337,11 @@ pui.setModified = function(e, formatName) {
   if (context == "dspf") {
     if (!pui.screenIsReady) return;
     var target = getTarget(e);
+    
+    // Don't set modified when target is ready only
+    if (target.pui && target.pui.properties["read only"] === "true")
+      return;
+
     target.modified = true;
     if (target.parentNode != null && target.parentNode.comboBoxWidget != null) {
       target = target.parentNode;
