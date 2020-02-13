@@ -3978,8 +3978,6 @@ pui.getFieldDescriptions = function(parm, cb){
     request["postData"] += "&customSql=" + encodeURIComponent(customSql);
     if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
     
-    console.log(request["postData"]);
-    
     if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
     request["postData"] += "&context=" + context;
     request["suppressAlert"] = true;
