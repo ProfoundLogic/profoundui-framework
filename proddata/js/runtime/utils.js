@@ -3380,10 +3380,13 @@ pui.xlsx_workbook = function(){
     // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
     // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
     // For now, handle 2-decimal formating; everything else gets general formatting.
-    +  '<cellXfs count="3">'
+    +  '<cellXfs count="4">'
     +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
     +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
     +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
+    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">'   // general, no formatting, align wrap.
+    +      '<alignment wrapText="1"/>'
+    +    '</xf>'
     +  '</cellXfs>'
     +  '<dxfs count="0"/>'
     +'</styleSheet>';
@@ -3600,17 +3603,31 @@ pui.xlsx_worksheet = function(numcols){
     var fmt = me.formats[col]["dataType"];   // Default format is set per column.
     if (format != null) fmt = format;     // Cell overrides default column format.
     
+    var storedVal;
     if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
       // Store time/date types as strings. In the future we could translate their values to native Excel data.
       
-      if (sst[value] == null) sst[value] = sst_count++; //store the unique shared string and its ID, then increment the ID.
-      value = sst[value]; //Value is the ID from the shared strings table.
+      var sst_val = sst[value];
+      if (sst_val == null){
+        storedVal = {};
+        storedVal.value = sst_count++;  //store the unique shared string and its ID, then increment the ID.
+        storedVal.hasNL = /[\n\r]/.test(value);    //Determines when to add wrap alignment.
+        sst[value] = storedVal;
+      }
+      else {
+        storedVal = sst_val; //Reference the object from the shared strings table.
+      }
+    }
+    else {
+      storedVal = {value: value};
     }
 
     // If the cell overrides the default column format, then store as object.
-    if (format != null && format != me.formats[col]["dataType"]) value = {value:value, format:format};
+    if (format != null && format != me.formats[col]["dataType"]){
+      storedVal.format = format;
+    }
     
-    rows[rows.length - 1][col] = value;
+    rows[rows.length - 1][col] = storedVal;
   };
   
   /**
@@ -3621,7 +3638,8 @@ pui.xlsx_worksheet = function(numcols){
     // Order the shared strings by the index id. Assume there are no gaps in indices.
     var sst_inorder = [];
     for( var str in sst ){
-      var idx = sst[str];
+      var obj = sst[str];
+      var idx = obj.value;
       sst_inorder[idx] = str;
     }
 
@@ -3657,7 +3675,7 @@ pui.xlsx_worksheet = function(numcols){
         useHyperlinkStyle[hlinkrow][hlinkcol] = true; 
       }
     }
-  
+    
     // Configure each column with widths, and with styles for new cells.
     for (var col=0; col < numColumns; col++){
       // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
@@ -3691,10 +3709,9 @@ pui.xlsx_worksheet = function(numcols){
           
           var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
           
-          // Some cells (e.g. headers) override default format; extract value and format.
-          if (typeof rows[row][col] == "object" && rows[row][col].format != null){
+          // Some cells (e.g. headers) override default format; extract format.
+          if (rows[row][col].format != null){
             fmt = rows[row][col].format;
-            rows[row][col] = rows[row][col].value;
           }
           
           if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
@@ -3703,12 +3720,17 @@ pui.xlsx_worksheet = function(numcols){
             if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
               xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
             }
-          }else if(me.formats[col]["decPos"] == "2"){
+            else if (rows[row][col].hasNL){
+              xml += ' s="3"'; //If there is a newline then use the wrapText alignment style.
+            }
+          }
+          else if(me.formats[col]["decPos"] == "2"){
             xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
           }
           
-          if (rows[row][col] == null) rows[row][col] = '';
-          xml += '><v>' + rows[row][col] + '</v></c>';
+          var val = rows[row][col].value;
+          if (val == null) val = '';
+          xml += '><v>' + val + '</v></c>';
         }
         
         xml += '</row>';
