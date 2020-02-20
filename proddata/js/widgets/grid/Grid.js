@@ -2409,10 +2409,11 @@ pui.Grid = function () {
   /**
    * Setup the UI to allow sorting a column. Parse server response for sort column and direction when available.
    * Called when the "sortable columns" property is set; i.e. when rendering (for genie),
-   * and always near the end of pui.renderFormat() for each gridsToRender.
+   * and always near the end of pui.renderFormat() for each gridsToRender. And when showing a hidden column.
+   * @param {undefined|Boolean} skipInitialSort   True when called for hide-show columns. (See issue 5913.)
    * @returns {undefined}
    */
-  this.makeSortable = function () {
+  this.makeSortable = function (skipInitialSort) {
     if (!me.sortable) return;
     if (context != "dspf" && !pui.usingGenieHandler) return;
     if (!me.hasHeader) return;
@@ -2446,6 +2447,7 @@ pui.Grid = function () {
         var col = Number(itm["column"]);
         var val = itm["value"];
         if (itm["field type"] == "html container") val = itm["html"];
+        // Note: checking for .sortIndex avoids attaching sort handlers multiple times.
         if (pui.isBound(val) && !isNaN(col) && col < headerRow.length && headerRow[col].sortIndex == null) {
           var fieldName = pui.fieldUpper(val["fieldName"]);
           for (var j = 0; j < me.fieldNames.length; j++) {
@@ -2464,7 +2466,7 @@ pui.Grid = function () {
           }
         }
       }
-      doInitialSort();
+      if (!skipInitialSort) doInitialSort();
     }
 
     function attachClickEvent(cell) {
@@ -5060,9 +5062,10 @@ pui.Grid = function () {
    * Handle dragging of cells to move the grid, including into and out of layouts.
    * @param {Object} cell
    * @param {Boolean} movableColumns
+   * @param {undefined|Boolean} sortableCols  Set when called by hideShowColumn to avoid clearing cursor.
    * @returns {undefined}
    */
-  function cellDesign(cell, movableColumns) {
+  function cellDesign(cell, movableColumns, sortableCols) {
     if (!me.designMode && movableColumns != true) return;
     if (!me.designMode && movableColumns == true) {
       me.tableDiv.parentNode.onselectstart = function (e) {
@@ -5073,7 +5076,9 @@ pui.Grid = function () {
       };
     }
 
-    cell.style.cursor = "default";
+    // Cursor is default unless columns were hidden or shown and the cursor isn't already set to pointer for sorting. #5913.
+    if (sortableCols != true && cell.style.cursor != "pointer") cell.style.cursor = "default";
+    
     function mousedown(event) {
       if (me.designMode) {
         me.tableDiv.designItem.designer.hideDialogs();
@@ -8453,9 +8458,9 @@ pui.Grid = function () {
     }
     // Redisplay the data shown in the grid, if a column is added or it is a database driven grid
     // Dont get the data, if we are resetting the column order since it will call getData() later 
-    // And make the columns sortable is sorting is enabled
+    // And, make the columns sortable if sorting is enabled.
     if (!reset && (checked || me.isDataGrid())) me.getData();
-    if (me.sortable) me.makeSortable();
+    if (me.sortable) me.makeSortable(true);
     // Get the positions of the headings and the new widths of the columns
     var headings = [];
     var widths = visibleCols
@@ -8509,7 +8514,7 @@ pui.Grid = function () {
     // if it the columns are movable, enable the headers to be movable
     if (movableColumns) {
       for (var col = 0; col < headerRow.length; col++) {
-        cellDesign(headerRow[col], true);
+        cellDesign(headerRow[col], true, me.sortable);
       }
     }
     // if it the columns are resizable, enable the vLines to be resizable
