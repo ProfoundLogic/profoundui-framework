@@ -6496,8 +6496,17 @@ pui.Grid = function () {
     if (pui.isBound(propValue) || pui.isTranslated(propValue)) return;
     var propValues = propValue.split(",");
     if (propValues.length > 1) {
+      var index;
+
+      // Set the "header font color" for the correct column header for scenario
+      // with hidden columns. This logic may be needed for other properties also?
+      if (propNameParm === "header font color")
+        index = cell.columnId;
+      else
+        index = col;
+
       if (col < propValues.length) {
-        propValue = propValues[col];
+        propValue = propValues[index];
       }
       else {
         propValue = propValues[0];
