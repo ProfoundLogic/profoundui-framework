@@ -3304,16 +3304,15 @@ pui.Grid = function () {
   // Add sortIcon to a header cell, moving it from other cells if it existed.
   function setSortIcon(hcell, desc){
     hideMultiSortIcons();
-    
+    hcell.setAttribute("sortorder", 0); 
     if (me.sortIcon == null) {
-      me.sortIcon = document.createElement("img");
-      me.sortIcon.style.paddingLeft = "3px";
+      me.sortIcon = document.createElement("div");
     }
     else {      // Remove existing icon from its previous parent.
       if (me.sortIcon.parentNode != null) me.sortIcon.parentNode.removeChild(me.sortIcon);
     }
     
-    me.sortIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/") + (desc ? "descending.gif" : "ascending.gif");
+    me.sortIcon.className = (desc ? "grid-sort-arrow-descending" : "grid-sort-arrow-ascending");
     appendIcon(hcell, me.sortIcon);
   }
   // Attach icon element to header cell or first DIV of header. Icon must be an element not already in DOM.
@@ -3329,6 +3328,7 @@ pui.Grid = function () {
   function hideMultiSortIcons(){
     for (var i=0; i < me.cells[0].length; i++){
       var hcell = me.cells[0][i];
+      hcell.removeAttribute("sortorder");
       if (hcell.multiSortIcon != null){
         hcell.multiSortIcon.style.display = 'none';
       }
@@ -3341,10 +3341,9 @@ pui.Grid = function () {
     
     for (var i=0; i < sortMultiOrder.length; i++){
       var hcell = sortMultiOrder[i];
+      hcell.setAttribute("sortorder", i); //keeps track of sort level (primary, secondary, etc) for each sorted column
       if (hcell.multiSortIcon == null) {
-        hcell.multiSortIcon = document.createElement('img');
-        hcell.multiSortIcon.style.paddingLeft = '3px';
-        hcell.multiSortIcon.style.cursor = 'pointer';
+        hcell.multiSortIcon = document.createElement('div');
         hcell.multiSortIcon.onclick = function(e){
           if (!pui.isRightClick(e)){
             preventEvent(e);
@@ -3353,7 +3352,7 @@ pui.Grid = function () {
         };
         appendIcon(hcell, hcell.multiSortIcon);
       }
-      hcell.multiSortIcon.src = pui.normalizeURL('/profoundui/proddata/images/grids/' + (hcell.sortDescending === true ? 'descending.gif' : 'ascending.gif') );
+      hcell.multiSortIcon.className = (hcell.sortDescending === true ? "grid-sort-arrow-descending" : "grid-sort-arrow-ascending");
       hcell.multiSortIcon.style.display = '';
     }
   }
