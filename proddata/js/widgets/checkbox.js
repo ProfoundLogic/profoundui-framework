@@ -17,7 +17,14 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
+// Prevent the user from checking or unchecking "read only" boxes, because that would change the value. #4925.
+pui.checkboxOnClick = function(evt) {
+  var target = evt.target;
+  if (target.readOnly) {
+    if (target.checked == false) target.checked = true;
+    else if (target.checked == true) target.checked = false;
+  }
+};
 
 pui.widgets.add({
   name: "checkbox",
@@ -57,12 +64,9 @@ pui.widgets.add({
         var labelText = parms.evalProperty("label");
         if (labelText != "") buildLabel(parms.dom, labelText);
         // For "read only" checkboxes, don't allow the user to check or uncheck the box, because that would change the value. #4925.
-        addEvent(parms.dom, "click", function() {
-          if (parms.dom.readOnly) {
-            if (parms.dom.checked == false) parms.dom.checked = true;
-            else if (parms.dom.checked == true) parms.dom.checked = false;
-          }
-        });
+        addEvent(parms.dom, "click", pui.checkboxOnClick);
+        // Double-clicking in IE10, IE11, or Edge should not change the clicked state. #2865.
+        if (pui["is_ie"] || pui["is_edge"]) addEvent(parms.dom, "dblclick", pui.checkboxOnClick);
       }
       // Fixes printing problem for IE8. 
       // -- DR.

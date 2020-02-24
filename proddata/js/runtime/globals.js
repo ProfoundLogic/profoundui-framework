@@ -41,10 +41,11 @@ window.pui = {};
 
   var agt = navigator.userAgent.toLowerCase();
 
+  pui["is_edge"] = agt.indexOf("edge/") != -1;
   pui["is_ie"] = false;
   pui["is_opera"] = (agt.indexOf("opera") != -1 || agt.indexOf("opr/") != -1);
-  pui["is_chrome"] = (agt.indexOf("chrome") != -1);
-  pui["is_safari"] = (!pui["is_chrome"] && agt.indexOf("safari") != -1);
+  pui["is_chrome"] = (!pui["is_edge"] && agt.indexOf("chrome") != -1);
+  pui["is_safari"] = (!pui["is_edge"] && !pui["is_chrome"] && agt.indexOf("safari") != -1);
   pui["is_firefox"] = (agt.indexOf("firefox") != -1);
   pui["is_android"] = (agt.indexOf("android") != -1);
   pui["is_quirksmode"] = (document.compatMode == "BackCompat");
