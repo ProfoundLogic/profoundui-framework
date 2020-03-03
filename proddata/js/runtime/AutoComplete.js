@@ -434,6 +434,10 @@ function AutoComplete(config) {
     else if (keyCode == 9 && activeRecord != null) {
       selectRecord();
     }
+    else if (keyCode == 9 && activeRecord == null && pui["autocomplete tab selects"] == true) {
+      activeRecord = 0;
+      selectRecord();   //First record is selected if it exists. If no records exist, nothing happens. #5954.
+    }
     // Select record if enter is pressed, the result pane is shown and a record is highlighted.
     // Hide the result pane if it is shown and a record is not selected.
     else if (keyCode == 13) {
