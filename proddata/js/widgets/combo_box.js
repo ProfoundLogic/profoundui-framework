@@ -31,6 +31,7 @@ pui.ComboBoxWidget = function() {
   this.design = false;
   this["choices"] = [];
   this["choice values"]= [];  
+  this["select box placement"] = "";
   
   var me = this;
   var box;
@@ -360,12 +361,17 @@ pui.ComboBoxWidget = function() {
       choicesDiv.appendChild(optDiv);
     }
     var top = parseInt(choicesDiv.style.top, 10);
-    var scrollTop = pui.getWindowScrollTop();
-    if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
-      var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
-      if (newTop - scrollTop >= 0) top = newTop;
+
+    if (me["select box placement"] === "above") {
+      choicesDiv.style.top = top - me.div.offsetHeight - choicesDiv.offsetHeight + "px"
+    } else if (me["select box placement"] !== "below") {
+      var scrollTop = pui.getWindowScrollTop();
+      if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
+        var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
+        if (newTop - scrollTop >= 0) top = newTop;
+      }
+      choicesDiv.style.top = top + "px";    
     }
-    choicesDiv.style.top = top + "px";    
         
   }
   
@@ -676,6 +682,14 @@ pui.widgets.add({
             parms.dom.comboBoxWidget.getBox().removeAttribute("name");
         }
       }
+    },
+
+    "select box placement": function(parms) {
+      try {
+        if (!parms.design && parms.dom.comboBoxWidget != null) 
+          parms.dom.comboBoxWidget["select box placement"] = parms.value;
+      }
+      catch(e) { }
     }
 
   },
