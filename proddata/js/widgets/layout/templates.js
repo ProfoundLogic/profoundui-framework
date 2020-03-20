@@ -178,7 +178,7 @@ pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%
   +
   '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], help:\'' + pui.layout.helpTextTemplatesProperties("left","The width of the element&apos;s border.") + '\'}"' +
   ' style="{property:\'legend style\', help:\''+ pui.layout.helpTextTemplatesProperties("", "Styling for the legend text.") +'\', type:\'long\'}">' +
-  '{property: "legend", help:\'' + pui.layout.helpTextTemplatesProperties("Field Set","Text to display in the field set&apos;s legend.") + '\'}</legend>' +
+  '{property: "legend", help:\'' + pui.layout.helpTextTemplatesProperties("Field Set","Text to display in the field set&apos;s legend.") + '\', "translate": true}</legend>' +
   '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
   '</fieldset>';
 
