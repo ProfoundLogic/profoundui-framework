@@ -41,6 +41,7 @@ pui.timeoutMonitor.keepalive.action = function() {
 }
 
 pui.timeoutMonitor.showTimeOutScreen = function() {
+  hide_calendar();
   function showMessage(container) {
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.backgroundImage = "none";
