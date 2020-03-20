@@ -530,6 +530,7 @@ pui.widgets.add({
   newId: "Date",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/cal.gif"),
   icon1Class: 'input pui-cal pui-cal-input',
+  pickIcon1IsDiv: true, 
   defaults: {
     "css class": "input"
   },
@@ -638,7 +639,7 @@ pui.widgets.add({
     },
     "css class": function(parms) {
       var className = parms.value.split(" ").shift();
-      className = "pui-cal pui-cal-" + className;
+      className = "pui-cal pui-cal-" + className + " pui-calendar-icon";
       if (parms.design) {
         var icon = parms.designItem.icon1;
         icon.className = className;
