@@ -4245,6 +4245,15 @@ pui.Grid = function () {
             me.columnInfo[i]['name'] = me.columnHeadings[i];
           }
         }
+
+        // normally, "column headings" is processed before "hide columns option",
+        // but just in case it's not, we need to perform "hide columns option" logic here
+        // to make data in me.columnInfo[] accurate, since that's based on me.columnHeadings[]
+        if (me.hidableColumns) {
+          me.columnInfo = [];
+          me.setProperty("hide columns option", true);
+        }
+          
         break;
 
       case "sortable columns":
