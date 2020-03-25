@@ -773,6 +773,8 @@ pui.widgets.add({
           }
           postData += "&limit=" + maxCount;
           if ( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
+          if (pui["isCloud"])
+            postData += "&workspace_id=" + pui.cloud.ws.id;
           
           var xhr = new pui.Ajax(getProgramURL("PUI0009102.PGM"));
           xhr['method'] = 'post';
