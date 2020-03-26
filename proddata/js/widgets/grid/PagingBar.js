@@ -117,12 +117,7 @@ pui.PagingBar = function() {
     me.container.appendChild(div);
     
     tempStatusDiv = document.createElement("div");   //An element that is shown temporarily for feedback.
-    tempStatusDiv.style.position = "absolute";
-    tempStatusDiv.style.top = "2px";
-    tempStatusDiv.style.left = "2px";
-    tempStatusDiv.style.width = "0px";
-    tempStatusDiv.style.padding = "0px";
-    tempStatusDiv.style.display = "none";
+    tempStatusDiv.className = "tempStatus";
     div.appendChild(tempStatusDiv);
 
     exportImg = document.createElement("div");
@@ -506,7 +501,7 @@ pui.PagingBar = function() {
           rightComp = me.nextImg.offsetLeft + me.nextImg.offsetWidth;
         }
         else if (me.showPageNumber) {
-          leftcomp = pageSpan.offsetLeft
+          leftcomp = pageSpan.offsetLeft;
           rightComp = pageSpan.offsetLeft + pageSpan.offsetWidth;
         };
 
@@ -617,10 +612,11 @@ pui.PagingBar = function() {
   /**
    * Set the text on the temporary status div.
    * @param {String} str   
-   * @returns {undefined}
+   * @returns {Object}
    */
   this.setTempStatus = function(str){
     tempStatusDiv.innerHTML = str;
+    return tempStatusDiv;
   };
   
   /**
@@ -639,11 +635,12 @@ pui.PagingBar = function() {
     me.nextLink.style.display = "none";
     pageSpan.style.display = "none";
     
-    tempStatusDiv.style.display = "";
+    tempStatusDiv.style.display = "block";
   };
   
   /**
    * Attach Grids Drag-n-Drop events to this PagingBar.
+   * @param {Function} dragDropCallback 
    * @returns {undefined}
    */
   this.attachDragDropEvents = function(dragDropCallback){
