@@ -1051,59 +1051,125 @@ pui.Grid = function () {
 
     // Call CGI program or webservice to fetch data. Called directly or in callback.
     function setupajax(fields) {
-      var req = new pui.Ajax(url);
-      req["method"] = "post";
-      req["async"] = true;
-      if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
-      if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
-      req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv))
-        +"&"+ pui.getSQLParams(me["dataProps"]) + "&limit=" + limit + "&start=1" + me.filterString;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      var formData = new FormData();
 
-      if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
-
+      if (context == "genie") formData.append("AUTH", GENIE_AUTH);
+      if (context == "dspf") formData.append("AUTH", pui.appJob.auth);
+      formData.append("q", encodeURIComponent(pui.getSQLVarName(me.tableDiv)));
+      pui.getSQLParams(me["dataProps"], null, formData);
+      formData.append("limit", limit);
+      formData.append("start", "1");
+      
+      if (me.filterString !== "") {
+        var pairs = me.filterString.substring(1).split('&');
+        pairs.forEach(function(pair) {
+          pair = pair.split('=');
+          formData.append(pair[0], pair[1]);
+        });
+      }
+      
+      if (pui["read db driven data as ebcdic"] !== true) formData.append("UTF8", "Y");
+      
       var orderBy = me["dataProps"]["order by"];
       if (me.sortBy != null) orderBy = me.sortBy;
       if (orderBy && orderBy != "") {
-
-        req["postData"] += "&order=" + orderBy;
+        
+        formData.append("order", orderBy);
 
       }
       else if (pui["dbDriver"] == "mssql") {
 
         // Order by is required for OFFSET/FETCH.
         // This should give the same sort as if order by was not used.
-        req["postData"] += "&order=(select null)";
+        formData.append("order", "(select null)");
 
       }
 
       var fetchCounter = me["dataProps"]["allow any select statement"];
       if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
-        req["postData"] += "&FetchCounter=Y";
+        formData.append("FetchCounter", "Y");
       if (pui["isCloud"])
-        req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+        formData.append("workspace_id", pui.cloud.ws.id);
 
-      req["onready"] = function (req) {
-        var response = checkAjaxResponse(req, "Run SQL SELECT Query");
-        if (response && response["results"] && response["results"].length > 0) {
-          if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
+      var cancelHTML = '<span class="cancel">cancel</span> ';
+      var tempStatusDiv = me.pagingBar.setTempStatus(cancelHTML + pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
+      tempStatusDiv.style.cursor = 'pointer';
+      // Handle download abort.
+      tempStatusDiv.onclick = function(){
+        tempStatusDiv.style.cursor = '';
+        tempStatusDiv.style.opacity = '0';
+        tempStatusDiv.onclick = null;
+        me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "cancelled"));
+        xhr.abort();
+        setTimeout(function(){
+          me.pagingBar.draw();
+          tempStatusDiv.style.opacity = '';
+        }, 2500);
+      };
+      me.pagingBar.showTempStatusDiv();
+      
+      xhr.onreadystatechange = function() {
+        // state 4=done, status 0 happens upon abort; no need to alert on abort.
+        if (xhr.readyState != 4 || xhr.status == 0) return;
+        try {
+          if (xhr.status != 200) throw 'XMLHTTPRequest status: ' + xhr.status;
+          
+          var responseObj = JSON.parse(xhr.responseText);
+          if (!responseObj || responseObj["success"] != true) throw 'Failed';
+          var response = responseObj["response"];
+          if (response == null || response["results"] == null) throw 'Invalid Response';
+
+          if (me["dataProps"]["data transform function"]) {
             try {         // transform data before export, if needed
               var fn = eval("window." + me["dataProps"]["data transform function"]);
-              response = fn(req.getResponseText());
-            }         
+              response = fn(xhr.responseText);
+            }
             catch(e) {
               pui.logException(e);
             }
           }
-          if (fields != null)
+          if (fields != null){
             response["fields"] = fields;
+          }
           makexlsx(response);
-        } else
+        }
+        catch (exc) {
+          var msg = pui["getLanguageText"]("runtimeText", "excel export text");
+          console.warn(msg, exc);
+          pui.alert( msg +":\n"+ exc.toString() );
           me["unMask"]();
+          me.pagingBar.draw();
+        }
       };
-      req.send();
+      
+      // Show the download progress to the user on the paging bar.
+      var firstTS=0, lastTS=0;
+      xhr.addEventListener('progress', function(progress){
+        var msg = pui.formatBytes(progress["loaded"], 1);
+        var total = progress["timeStamp"] - firstTS;
+        if (firstTS == 0){
+          firstTS = progress["timeStamp"];
+        }
+        else if(total > 0){
+          var rate = progress["loaded"] / total * 1000;
+          var seconds = Math.round(total / 1000);
+          msg += ' ('+ pui.formatBytes(rate, 0) +'/s; '+ seconds +'s)';
+          
+          // Throttle updates to wait 500ms since last timestamp before updating.
+          if (progress["timeStamp"] - lastTS < 250){
+            return;
+          }
+        }
+        me.pagingBar.setTempStatus(cancelHTML + pui["getLanguageText"]("runtimeMsg", "downloading x", [msg]));
+        lastTS = progress["timeStamp"];
+      });
+
+      xhr.send(formData);
       me.mask();
     }
-
+    
     // Take the data retrieved, create and download an excel file.
     function makexlsx(response) {
       var numCols = 0;
@@ -1118,6 +1184,7 @@ pui.Grid = function () {
 
       var worksheet = new pui.xlsx_worksheet(numCols);
       var workbook = new pui.xlsx_workbook();
+      workbook.setCallbacks(me.pagingBar.setTempStatus, me.pagingBar.draw);
 
       if (response["fields"] != null && response["results"].length > 0) {
         // DB-Driven grid got PUI0009101 response; set the column formats if we can match column names.

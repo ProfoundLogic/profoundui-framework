@@ -102,7 +102,7 @@ pui["fileupload"].FileUpload = function(container, extras) {
 
     var filesPending = false;
     for (var i = 0; i < me.fileList.length; i++) {
-      var name = me.fileList[i].name + (" (" + formatBytes(me.fileList[i].size, 2) + ")");
+      var name = me.fileList[i].name + (" (" + pui.formatBytes(me.fileList[i].size, 2) + ")");
       var row = tBody.insertRow(-1);
       row.className = "row";
       if (i % 2 == 0) {
@@ -832,23 +832,6 @@ pui["fileupload"].FileUpload = function(container, extras) {
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
     return false;
-  }
-  
-  /**
-   * Format the file size picking the most relevant units.
-   * @param {Number} bytes
-   * @param {Number|String} precision
-   * @returns {String}
-   */
-  function formatBytes(bytes, precision){
-    var units = ["B", "KB", "MB", "GB", "TB"];
-    bytes = Math.max(bytes, 0);
-    var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024));
-    pow = Math.min(pow, units.length - 1);
-    bytes = bytes / Math.pow(1024, pow);
-    precision = (typeof(precision) == "number" ? precision : 0);
-
-    return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
   }
   
   // Methods needed by child classes.

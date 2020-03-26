@@ -1527,9 +1527,10 @@ pui.getSQLVarName = function(dom) {
  * Pre-Conditions: Parameter names are mutually exclusive; e.g. "parameter value" isn't used when "choices parameter value" is.
  * @param {Object} properties   Input. Key-value pairs of property names and values for the widget.
  * @param {Object|Null} obj     Output. Not null for image widget; gets p1: val2, p2: val2, etc.
+ * @param {FormData|undefined} formData  Output. When not undefined, this gets appended to. (for Grid XLSX data-grid export.)
  * @returns {String}
  */
-pui.getSQLParams = function(properties, obj) {
+pui.getSQLParams = function(properties, obj, formData) {
 
   var isTextbox = (properties["field type"] == "textbox");
   var idx = 1;
@@ -1570,14 +1571,18 @@ pui.getSQLParams = function(properties, obj) {
       
       }    
     
-      paramString += paramStringAnd + "p" + paramNum + "=" + encodeURIComponent(propVal);
-      paramStringAnd = "&";
+      var tmpval = encodeURIComponent(propVal);
+      paramString += paramStringAnd + "p" + paramNum + "=" + tmpval;
       
+      if (formData != null) formData.append("p" + paramNum, tmpval);
+
       if (obj != null) {
       
         obj["p" + paramNum] = propVal;
       
       }
+      
+      paramStringAnd = "&";
     }
   
     idx++;
@@ -1591,11 +1596,22 @@ pui.getSQLParams = function(properties, obj) {
   function datetimestring(){
     var dateFmt = pui.getSQLDateFmt();
     var timeFmt = pui.getSQLTimeFmt();
+    
+    var tmpval = encodeURIComponent(dateFmt.fmt);
+    paramString += paramStringAnd + "datfmt=" + encodeURIComponent(tmpval);
+    if (formData != null) formData.append("datfmt", tmpval);
 
-    paramString += paramStringAnd + "datfmt=" + encodeURIComponent(dateFmt.fmt);
-    paramString += "&datsep=" + encodeURIComponent(dateFmt.sep);
-    paramString += "&timfmt=" + encodeURIComponent(timeFmt.fmt);
-    paramString += "&timsep=" + encodeURIComponent(timeFmt.sep);
+    tmpval = encodeURIComponent(dateFmt.sep);
+    paramString += "&datsep=" + tmpval;
+    if (formData != null) formData.append("datsep", tmpval);
+    
+    tmpval = encodeURIComponent(timeFmt.fmt);
+    paramString += "&timfmt=" + tmpval;
+    if (formData != null) formData.append("timfmt", tmpval);
+    
+    tmpval = encodeURIComponent(timeFmt.sep);
+    paramString += "&timsep=" + tmpval;
+    if (formData != null) formData.append("timsep", tmpval);
     
     return paramString;
   }
@@ -3218,8 +3234,8 @@ pui.xlsx_workbook = function(){
   var hyperlinks;   // An array of { text:"", target:"", row:"", col:""}.
   // Let the relationship id, rId#, be +2 over the array index. E.g. hyperlink[0] is "rId2".
   
-  var cbSetTempStatus;    //The grid's paging bar's setTempStatus function.
-  var cbDraw;             //The grid's paging bar's draw function.
+  var setPgBarStatus;           //The grid's paging bar's setTempStatus function.
+  var restorePgBar;             //The grid's paging bar's draw function.
   
   this.setFileName = function(fname){
     fileName = fname;
@@ -3259,8 +3275,8 @@ pui.xlsx_workbook = function(){
    * @returns {undefined}
    */
   this.setCallbacks = function(setDLProg, draw){
-    cbSetTempStatus = setDLProg;
-    cbDraw = draw;
+    setPgBarStatus = setDLProg;
+    restorePgBar = draw;
   };
   
   /**
@@ -3301,16 +3317,16 @@ pui.xlsx_workbook = function(){
   
   function librariesLoaded(){
     if (drawing){
-      drawing.loadImages( fullyloaded, cbSetTempStatus );
+      drawing.loadImages( fullyloaded, setPgBarStatus );
     }else{
       fullyloaded();
     }
   }
   
   // JSZip and the FileSaver are loaded, so build the Excel workbook.
-  function fullyloaded(){
-    if (drawing) cbDraw();  //Restore the PagingBar to its regular state.
-    
+  function fullyloaded(){    
+    if (typeof setPgBarStatus == 'function') setPgBarStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
+
     // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
     // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
 
@@ -3430,20 +3446,29 @@ pui.xlsx_workbook = function(){
       }
     }
 
+    var resolved, zipconfig;
+    function cleanup(){
+      if (typeof restorePgBar == 'function') restorePgBar();
+    }
     if ( typeof Blob != "function" ){
       // IE8,IE9 can't prompt to SaveAs, so they need PUI0009106 to help get it.
-      var promise = zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"});
-      promise["then"](function (bstr){
+      zipconfig = {"type": "base64", "compression": "DEFLATE"};
+      resolved = function (bstr){
+        cleanup();
         pui.downloadAsAttachment(pui.mime_xlsx_base+".sheet", fileName + ".xlsx", bstr);
-      });
-    }else{
-      // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
-      var promise = zip["generateAsync"]({"type": "blob", "compression": "DEFLATE",
-        "mimeType": pui.mime_xlsx_base+".sheet" });
-      promise["then"](function (blob){
-        saveAs(blob, fileName + ".xlsx");
-      });
+      };
     }
+    else{
+      // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
+      zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": pui.mime_xlsx_base+".sheet"};
+      resolved = function (blob){
+        cleanup();
+        saveAs(blob, fileName + ".xlsx");
+      };
+    }
+    
+    var promise = zip["generateAsync"](zipconfig);
+    promise["then"](resolved, cleanup);
   } //end fullyloaded().
 };
 
@@ -4548,4 +4573,21 @@ pui.normalizeWheelDelta = function(event){
     }
   }
   return delta;
+};
+
+/**
+ * Format the byte size using the most relevant units.
+ * @param {Number} bytes
+ * @param {Number|String} precision
+ * @returns {String}
+ */
+pui.formatBytes = function(bytes, precision){
+  var units = ["B", "KB", "MB", "GB", "TB"];
+  bytes = Math.max(bytes, 0);
+  var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024));
+  pow = Math.min(pow, units.length - 1);
+  bytes = bytes / Math.pow(1024, pow);
+  precision = (typeof(precision) == "number" ? precision : 0);
+
+  return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
 };
