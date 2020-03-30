@@ -3662,6 +3662,8 @@ pui.Grid = function () {
             }
             obj = getObj(id);
             if (obj == null) continue;
+            if (me.scrollbarObj.type == "paging")
+              me.scrollbarObj.enableMouseWheel(obj);  
             if (!obj.readOnly) continue;
             text = obj.value;
             text = text.replace(/ /g, "&nbsp;");
@@ -3678,6 +3680,8 @@ pui.Grid = function () {
             top = parseInt(obj.style.top);
             fieldInfo = obj.fieldInfo;
             obj.parentNode.removeChild(obj);
+            if (me.scrollbarObj.type == "paging")
+              me.scrollbarObj.enableMouseWheel(obj);
           }
           if (objClass == null || objClass == "" || objClass == "A20") {
             objClass = "";
@@ -3835,6 +3839,7 @@ pui.Grid = function () {
             return true;
           }
         };
+        me.scrollbarObj.enableMouseWheel(me.tableDiv);
       }
 
       me.scrollbarObj.init(me.tableDiv);
