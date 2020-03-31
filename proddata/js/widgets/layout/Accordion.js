@@ -56,7 +56,7 @@ pui.Accordion = function() {
   this.setSectionNames = function(nameList) {
     if (nameList == null || nameList == "")
       nameList = INITIALLIST;
-    else if (pui.isBound(nameList)){
+    else if (pui.isBound(nameList) || pui.isTranslated(nameList)) {
       var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
       if (tmplist.length == 0 ) nameList = INITIALLIST;
       else nameList = nameList.designValue;   //Use the bound value saved in designer.
