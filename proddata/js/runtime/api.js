@@ -399,6 +399,9 @@ function preventEvent(event) {
     event.cancelBubble = true;
     event.preventDefault();
   }
+  if(event.stopPropagation){
+    event.stopPropagation();
+  }
 }
 
 
