@@ -172,7 +172,7 @@ function inhibitKeyboard(e) {
 }
 
 function defaultField(e){
-  var allowedUnicodes = new Array(256)
+  var allowedUnicodes = new Array(256);
   
   
   for(var i = 0; i <= 255; i++) {
@@ -315,7 +315,7 @@ function buildLabel(dom, labelText) {
     dom.positionMe = function() {
         label.style.left = dom.offsetLeft + width + "px";
         label.style.top = dom.offsetTop + "px";
-    }
+    };
   } else {
     left = parseInt(dom.style.left);
     if (isNaN(left)) 
@@ -561,7 +561,7 @@ pui.getPropConfig = function(namedModel, propertyName) {
     }
   }
   return config;
-}
+};
 
 
 // Returns index of element in array, if found, or -1 if not.
@@ -572,7 +572,7 @@ pui.arrayIndexOf = function (array, element) {
   }
   return -1;
 
-}
+};
 
 // Calls a function for each array element.
 pui.arrayForEach = function(array, func) {
@@ -581,7 +581,7 @@ pui.arrayForEach = function(array, func) {
     func(array[i]);
   }
   
-}
+};
 
 
 pui.safeParseInt = function(stringValue, nanValue) {
@@ -589,7 +589,7 @@ pui.safeParseInt = function(stringValue, nanValue) {
   var number = parseInt(stringValue, 10);
   if (isNaN(number)) number = nanValue;
   return number;
-}
+};
 
 /*  usage:
       addEvent(obj, 'keypress', function(e) {
@@ -3547,10 +3547,8 @@ pui.xlsx_worksheet = function(numcols){
   
   /**
    * Set a column's format internally. The format determines XLSX style and whether a column's
-   * cells need to be in the Shared Strings Table. For now, these are stored as strings:
-   *   "char", "graphic", "date", "timestamp", "time".
-   * Anything else is sent by value.
-   * 
+   * cells need to be in the Shared Strings Table. All are stored as strings except:
+   *   "zoned", "packed", and "floating", which are stored as literal value.
    * @param {Number} col      The zero-based column index.
    * @param {Object} format   References bound value object from grid's me.runtimeChildren. Includes properties:
    *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); maxLength; etc.
@@ -3629,22 +3627,32 @@ pui.xlsx_worksheet = function(numcols){
     if (format != null) fmt = format;     // Cell overrides default column format.
     
     var storedVal;
-    if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
+    switch (fmt){
+      case "floating":
+      case "packed":
+      case "zoned":
+        storedVal = {value: value};
+        break;
+      // Non-integer or floating points must go into the shared strings table.
+      case "char":
+      case "varchar":
+      case "graphic":
+      // String is a data type for node designer and viewdesigner added on 2/5/19, 5f706f3.
+      case "string":
       // Store time/date types as strings. In the future we could translate their values to native Excel data.
-      
-      var sst_val = sst[value];
-      if (sst_val == null){
-        storedVal = {};
-        storedVal.value = sst_count++;  //store the unique shared string and its ID, then increment the ID.
-        storedVal.hasNL = /[\n\r]/.test(value);    //Determines when to add wrap alignment.
-        sst[value] = storedVal;
-      }
-      else {
-        storedVal = sst_val; //Reference the object from the shared strings table.
-      }
-    }
-    else {
-      storedVal = {value: value};
+      case "date":
+      case "timestamp":
+      case "time":
+      // The XLSX is invalid if strings get into value tags, so default all else to strings in case data type isn't defined yet.
+      default:
+        storedVal = sst[value];   //Reference the object from the shared strings table.
+        if (storedVal == null){
+          storedVal = {};
+          storedVal.value = sst_count++;  //store the unique shared string and its ID, then increment the ID.
+          storedVal.hasNL = /[\n\r]/.test(value);    //Determines when to add wrap alignment.
+          sst[value] = storedVal;
+        }
+        break;
     }
 
     // If the cell overrides the default column format, then store as object.
@@ -3734,25 +3742,38 @@ pui.xlsx_worksheet = function(numcols){
           
           var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
           
-          // Some cells (e.g. headers) override default format; extract format.
+          // Some cells (e.g. headers, forced dates) override default format; extract format.
           if (rows[row][col].format != null){
             fmt = rows[row][col].format;
           }
           
-          if (fmt == "char" || fmt == "varchar" || fmt == "graphic" || fmt == "date" || fmt == "timestamp" || fmt == "time") {
+          switch (fmt){
+            case "floating":
+            case "packed":
+            case "zoned":
+              if(me.formats[col]["decPos"] == "2"){
+                xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
+              }
+              break;
+            case "char":
+            case "varchar":
+            case "graphic":
+            case "string":
             // TODO: date/time values could be converted to native excel formats if all variations are handled.
-            xml += ' t="s"';
-            if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
-              xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
-            }
-            else if (rows[row][col].hasNL){
-              xml += ' s="3"'; //If there is a newline then use the wrapText alignment style.
-            }
+            case "date":
+            case "timestamp":
+            case "time":
+            default:
+              xml += ' t="s"';
+              if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
+                xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
+              }
+              else if (rows[row][col].hasNL){
+                xml += ' s="3"'; //If there is a newline then use the wrapText alignment style.
+              }
+              break;
           }
-          else if(me.formats[col]["decPos"] == "2"){
-            xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
-          }
-          
+
           var val = rows[row][col].value;
           if (val == null) val = '';
           xml += '><v>' + val + '</v></c>';
