@@ -6138,7 +6138,7 @@ pui.Grid = function () {
 
       e = e || window.event;
       var target = getTarget(e);
-      if (target.tagName == "IMG" && target.combo)
+      if (target.combo)
         return;
 
       var isRight = pui.isRightClick(e);
