@@ -179,20 +179,25 @@ function show_calendar(dateField, str_datetime, format) {
   var clickobj = dateField.calimg;
   calobj.innerHTML = str_buffer;
   
-  var left = findPosX(clickobj) + 6;
-  var top = findPosY(clickobj) + 1 + clickobj.offsetHeight; 
+  var offset = pui.getOffset(clickobj);
+  var left = offset[0] + 6;
+  var top = offset[1] + 1 + clickobj.offsetHeight; 
 
 
 
-  if (parseInt(dateField.style.top) > 250) {  // don't want calendar to bellow the bottom of the screen
+  if (dateField.offsetTop > 250) {  // don't want calendar to go below the bottom of the screen
     top -= 150;
     left += 11;
   }    
 
   var winSize = pui["getWindowSize"]();
-  var maxLeft = winSize["width"] - 230; // 230 is the width of the popup calendar plus the scrollbar
-  if (maxLeft < 0) maxLeft = 0;
-  if (left > maxLeft) left = maxLeft;
+  var max = winSize["width"] - 230; // 230 is the width of the popup calendar plus the scrollbar
+  if (max < 0) max = 0;
+  if (left > max) left = max;
+  
+  max = Math.max(0, winSize["height"] - 170 + window.pageYOffset); //the popup height + 11px.
+  if (top > max) top = max;
+  
   calobj.style.left = left + "px";
   calobj.style.top = top + "px";
 
@@ -369,28 +374,6 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
 }
 function dt2tmstr (dt_datetime) {
   return (new String (dt_datetime.getHours()+":"+dt_datetime.getMinutes()+":"+dt_datetime.getSeconds()));
-}
-function findPosX(obj){
-  var curleft = 0;
-  if(obj.offsetParent)
-    while(1){
-      curleft += obj.offsetLeft - obj.scrollLeft; //Subtract scrollLeft in case element is in scrolled layout. #2211
-      if(!obj.offsetParent) break;
-      obj = obj.offsetParent;
-    }
-  else if(obj.x) curleft += obj.x;
-  return curleft;
-}
-function findPosY(obj){
-  var curtop = 0;
-  if(obj.offsetParent)
-    while(1){
-      curtop += obj.offsetTop - obj.scrollTop;  //Subtract scrollTop in case element is in scrolled layout. #2211.
-      if(!obj.offsetParent) break;
-      obj = obj.offsetParent;
-    }
-  else if(obj.y) curtop += obj.y;
-  return curtop;
 }
 function hide_calendar(){
   var id = 'popcal';
