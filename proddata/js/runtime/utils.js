@@ -1269,7 +1269,12 @@ pui.getOffset = function(obj, handleZoom) {
     }
     // Note: when handling zoom using offsetParent would skip elements that need to be detected.
     // Omit TD nodes to avoid double counting offsets; e.g. elements inside table or mobile scroller layouts.
-    obj = handleZoom && obj.parentNode && obj.parentNode.tagName != 'TD' ? obj.parentNode : obj.offsetParent;
+    // offsetParent is the next non-static element, but div.puiresp are static and can have scroll. Don't skip their scroll. #6005.
+    if (obj.parentNode && obj.parentNode.tagName != 'TD'
+    && (handleZoom || (obj.parentNode.className == 'puiresp' && (obj.parentNode.scrollTop > 0 || obj.parentNode.scrollLeft > 0)))){
+      obj = obj.parentNode;
+    }
+    else obj = obj.offsetParent;
   }
   return [curleft,curtop];
 };
