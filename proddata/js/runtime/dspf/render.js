@@ -4138,7 +4138,7 @@ pui.cancelResponse = function(messages) {
 
 
 pui.evalBoundProperty = function(propValue, data, ref) {
-  if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) return propValue;
+  if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isWorkflow(propValue)) return propValue;
   
   var formattingObj = propValue;
 

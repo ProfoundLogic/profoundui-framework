@@ -1931,6 +1931,10 @@ pui.isTranslated = function(propVal) {
     && typeof propVal["translations"].length == "number");
 };
 
+pui.isWorkflow = function(propVal) {
+  return (propVal != null && typeof propVal == "object" && typeof propVal["wfName"] == "string");
+};
+
 pui.taphold = function(target, handler, threshold) {
 
   // Some notes:

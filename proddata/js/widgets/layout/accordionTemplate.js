@@ -78,6 +78,7 @@ pui.layout.template.accordionTemplate = function (parms) {
       {
         name: "onsectionclick",
         type: "js",
+        wf: true,
         help: pui.helpTextProperties("blank","Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded.")
       },
       { name: "lazy load", choices: ["true", "false"],
