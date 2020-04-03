@@ -226,3 +226,17 @@ pui["dup"]["keyCode"] = 45;     // Insert (the default dup key is Shift-Insert)
 pui["dup"]["shift"] = true;
 pui["dup"]["ctrl"] = false;
 pui["dup"]["alt"] = false;
+
+pui.wf = {
+  enabled: false,
+  qTypes: {},   // question types
+  selectionSources: {},
+  plugins: {
+    add: function(plugin) {        
+      var plugins = pui.wf.plugins;
+      var category = plugin.category;
+      if (!plugins[category]) plugins[category] = {};
+      plugins[category][plugin.name] = plugin;
+    }
+  }
+}

@@ -56,8 +56,8 @@ pui.layout.getPropertiesModel = function () {
     { name: "inline style", type: "long", attribute: "style", help: pui.helpTextProperties("blank", "This property lets you define CSS properties that will be applied to the widget. These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon. You can learn more about CSS properties at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\"") },
 
     { name: "Events", category: true },
-    { name: "onclick", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the element is clicked.") },
-    { name: "ondblclick", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the element is double-clicked.") },
+    { name: "onclick", wf: true, type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the element is clicked.") },
+    { name: "ondblclick", wf: true, type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the element is double-clicked.") },
     { name: "onmousedown", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is pressed down on this element.") },
     { name: "onmousemove", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moving within this element.") },
     { name: "onmouseout", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moved off this element.") },
