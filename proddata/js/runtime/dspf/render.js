@@ -1558,6 +1558,7 @@ pui.renderFormat = function(parms) {
       
       // apply all properties
       for (var propname in properties) {
+
         var propConfig;
         if (dom.propertiesNamedModel == null) propConfig = pui.getPropConfig(namedModel, propname);
         else propConfig = pui.getPropConfig(dom.propertiesNamedModel, propname);
@@ -1787,6 +1788,12 @@ pui.renderFormat = function(parms) {
             if (propname == "selection field" && properties["field type"] == "grid") {
               if (pui.isBound(items[i]["selection field"])) {
                 dom.grid.selectionField = items[i]["selection field"];
+              }
+            }
+
+            if (propname == "row is hidden field" && properties["field type"] == "grid") {
+              if (pui.isBound(items[i]["row is hidden field"])) {
+                dom.grid.hiddenField = items[i]["row is hidden field"];
               }
             }
 
@@ -2686,7 +2693,7 @@ pui.renderFormat = function(parms) {
           dom.grid.placeCursorRRN = recNum;
           pui.placeCursorOnSubfile = true;
         }
-        
+        dom.grid.setupHiddenRows();
         gridsToRender.push(dom.grid);
         pui.gridsDisplayed.push(dom.grid);
       }
@@ -3524,6 +3531,9 @@ pui.buildResponse = function(customResponseElements) {
           }        
         }
         if (dom.type == "grid selection") {
+          value = dom.value;  // this is not a real dom element
+        }
+        if (dom.type == "grid hidden field") {
           value = dom.value;  // this is not a real dom element
         }
       }

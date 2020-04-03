@@ -172,6 +172,8 @@ pui.Grid = function () {
   this.singleSelection = false;
   this.extendedSelection = false;
   this.selectionField = null;
+  this.hiddenField = null;
+  this.hiddenFieldIndex = null;
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
   this.selectedRecordNum = null;  //Determines where a range starts to handle shift+click multiple selections.
@@ -870,7 +872,7 @@ pui.Grid = function () {
     for (var i = 0; i < dataRecords.length; i++) {
       var line = "";
       var record = dataRecords[i];
-
+      if(record.hideRow != null && record.hideRow == true) continue;
       // build fieldData for use with pui.evalBoundProperties
       //  Note that fieldData is not necessarily in the same sequence as columnArray
       //    but this doesn't matter, since pui.evalBoundProperties does lookup by
@@ -1921,21 +1923,27 @@ pui.Grid = function () {
         if (fieldData.empty != true) {
           var subfileRow = dataRecords[i - 1].subfileRow;
           if (subfileRow == null) subfileRow = i;
-          pui.renderFormat({
-            designMode: false,
-            name: pui.formatUpper(me.recordFormatName),
-            metaData: {
-              items: me.runtimeChildren
-            },
-            data: fieldData,
-            gridRecord: gridRecord,
-            ref: me.ref,
-            errors: me.errors,
-            rowNum: rowNum,
-            subfileRow: subfileRow,
-            dataArrayIndex: i - 1,
-            highlighting: me.highlighting
-          });
+         
+          if (checkRowHidden(valuesData)) { 
+            lastRow++;
+          }
+          else {
+            pui.renderFormat({
+              designMode: false,
+              name: pui.formatUpper(me.recordFormatName),
+              metaData: {
+                items: me.runtimeChildren
+              },
+              data: fieldData,
+              gridRecord: gridRecord,
+              ref: me.ref,
+              errors: me.errors,
+              rowNum: rowNum,
+              subfileRow: subfileRow,
+              dataArrayIndex: i - 1,
+              highlighting: me.highlighting
+            });
+          }
           if (me.selectionEnabled && me.selectionField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) + "." + subfileRow;
             if (pui.responseElements[qualField] == null) {
@@ -1950,8 +1958,26 @@ pui.Grid = function () {
               pui.responseElements[qualField].push(dataRecords[i - 1].selection);
             }
           }
+          if (me.hiddenField != null) {
+            var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.hiddenField.fieldName) + "." + subfileRow;
+            if (pui.responseElements[qualField] == null) {
+              dataRecords[i - 1].hiddenFieldInfo = {
+                modified: false,
+                type: "grid hidden field",
+                value: "0",
+                subfileRow: subfileRow,
+                formattingInfo: me.hiddenField
+              };
+              pui.responseElements[qualField] = [];
+              pui.responseElements[qualField].push(dataRecords[i - 1].hiddenFieldInfo);
+            }
+            
+          }
         }
-        rowNum++;
+        
+        if (fieldData.empty || !valuesData.hideRow) {
+          rowNum++;
+        }
       }
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         me.scrollbarObj.totalRows = dataRecords.length;
@@ -4056,6 +4082,7 @@ pui.Grid = function () {
       case "return mode":
 
       case "selection field":
+      case "row is hidden field":
 
       case "column sort response":
       
@@ -4931,6 +4958,41 @@ pui.Grid = function () {
     }
   };
 
+  function checkRowHidden(record) {
+
+    var hidden = false;
+
+    if (record.hideRow == null) {
+      if (me.hiddenField != null) {
+        if (me.hiddenFieldIndex == null) {
+          for (var i = 0; i < me.fieldNames.length; i++) {
+            if (pui.fieldUpper(me.hiddenField.fieldName) == me.fieldNames[i]) { 
+              //checks for hiddenField field name in dataArray
+              me.hiddenFieldIndex = i;
+              break;
+            }
+          }
+        }
+        if (me.hiddenFieldIndex != null) {
+          //check if hiddenField value is 1
+          if (record[me.hiddenFieldIndex] == "1") {
+            record.hideRow = true;
+          }
+        }
+      }
+    }
+    if (record.hideRow == true) {
+      hidden = true;
+    }
+    return hidden;
+  }
+
+  this.setupHiddenRows = function() {
+    for(var i = 0; i < me.dataArray.length; i++){
+      var record = me.dataArray[i];
+      checkRowHidden(record);
+    }
+  }
 
   function checkSelected(record) {
 
@@ -7485,6 +7547,51 @@ pui.Grid = function () {
     me["splice"](row, 1);
     if (refresh) me.refresh();
   };
+
+  this.handleHideRow = function(rrn, status) {
+    
+    var row  = me.getRowInDataArray(me.dataArray, rrn);
+    if(row == null) return;
+    var record = me.dataArray[row - 1];
+    record.hideRow = status;
+
+    if (me.isFiltered()) {
+      row  = me.getRowInDataArray(me.filteredDataArray, rrn);
+      if(row != null){
+        var filteredRecord = me.filteredDataArray[row - 1];
+        filteredRecord.hideRow = status;
+      }
+    }
+    me.getData();
+    pui.modified = true;
+    if (me.hiddenField != null) {
+      if (record.hiddenFieldInfo == null) {
+        record.hiddenFieldInfo = {
+          type: "grid hidden field",
+          subfileRow: rrn,
+          formattingInfo: me.hiddenField
+        };
+        var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.hiddenField.fieldName) + "." + rrn;
+        if (pui.responseElements[qualField] == null) {
+          pui.responseElements[qualField] = [];
+          pui.responseElements[qualField].push(record.hiddenFieldInfo);
+        }
+      }
+      record.hiddenFieldInfo.modified = true;
+      record.hiddenFieldInfo.value = (status) ? "1" : "0";
+      if (record.hiddenFieldInfo.responseValue) record.hiddenFieldInfo.responseValue = record.hiddenFieldInfo.value;
+
+      if(me.isFiltered() && filteredRecord != null){
+        filteredRecord.hiddenFieldInfo = record.hiddenFieldInfo;
+      }
+    }
+  }
+  this["hideRow"] = function(rrn) {
+    me.handleHideRow(rrn, true);
+  }
+  this["showRow"] = function(rrn) {
+    me.handleHideRow(rrn, false);
+  }
   
   this["clearState"] = function (part) {
 
@@ -8398,29 +8505,36 @@ pui.Grid = function () {
     return false;
   };
   
-  this["getRowNumber"] = function (rrn) {
-	var idx = rrn;
-    var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
-        
-    if (idx < 1) idx = 1;
-    if (idx > dataRecords.length) idx = dataRecords.length;
-    
+  this.getRowInDataArray = function (dataRecords, rrn) {
+    var idx = rrn;
+    var found = true;
     // if data array has been sorted, we need to get the record
     // based on it's original subfile row rather than
     // it's position in the array.
     if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
+      found = false;
       for (var i = 0; i < dataRecords.length; i++) {
         if (dataRecords[i].subfileRow == idx) {
           idx = i+1;
+          found = true;
           break;
         }
       }
-    }
-
+    } 
+    if (idx < 1 || idx > dataRecords.length || found == false ) idx = null;
     return idx;
   };
 
+  this["getRowNumber"] = function (rrn) {
+    var dataRecords = me.dataArray;
+    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    var idx = me.getRowInDataArray(dataRecords, rrn);
+    if (idx == null) idx = rrn;
+    if (idx < 1) idx = 1;
+    if (idx > dataRecords.length) idx = dataRecords.length;
+    return idx;
+  };
+  
   this["getRRN"] = function (rowNum) {
 	var row = rowNum;
     var dataRecords = me.dataArray;
@@ -9062,6 +9176,7 @@ pui.Grid = function () {
       { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, help: pui.helpTextProperties("bind","This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected."), context: "dspf" },
       { name: "selection value", help: pui.helpTextProperties("blank","Specifies the value used to populate the selection field when a grid row is selected."), bind: false, context: "dspf" },
       { name: "selection image", type: "image", help: pui.helpTextProperties("theme","Defines a repeating cell background image for row selection.") },
+      { name: "row is hidden field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], defaultDataLength: 1, help: pui.helpTextProperties("bind","This property must be bound to an indicator field, which will be used to return whether a row has been hidden."), context: "dspf" },
       { name: "column widths", type: "list", help: pui.helpTextProperties("theme","Specifies a comma separated list of column widths for this grid."), bind: false, canBeRemoved: false },
       { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], help: pui.helpTextProperties("sliding", ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only.")) },
       { name: "scroll tool tip", choices: ["none", "row number", "row range"], help: pui.helpTextProperties("true","Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid."), context: "dspf" },
