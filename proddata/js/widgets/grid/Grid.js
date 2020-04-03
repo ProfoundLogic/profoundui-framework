@@ -6197,14 +6197,12 @@ pui.Grid = function () {
     });
 
     cell.onclick = function (e) {
-
-      e = e || window.event;
       var target = getTarget(e);
       if (target.combo)
         return;
-
+      
       var isRight = pui.isRightClick(e);
-      if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION") {
+      if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION" && target.tagName != "BUTTON") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
@@ -6212,7 +6210,7 @@ pui.Grid = function () {
 
         me.setCursorRRN(row);
 
-        var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT") && !target.disabled && !target.readOnly);
+        var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT" ||  target.tagName == "BUTTON") && !target.disabled && !target.readOnly);
 
         // Select the clicked row and deselect others, or deselect the clicked row.
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
@@ -6349,7 +6347,7 @@ pui.Grid = function () {
         // Don't do this when text selection flag is set, as the browser removes text selection
         // when a box receives focus.
         if (typeof (pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
-          if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "TEXTAREA") {
+          if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "TEXTAREA" && target.tagName != "BUTTON") {
             // position to input box in first column, if it is present
             var cell = me.cells[row][0];
             placeCursorOnCell(cell);
