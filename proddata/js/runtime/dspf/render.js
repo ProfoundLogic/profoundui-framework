@@ -1157,6 +1157,23 @@ pui.renderFormat = function(parms) {
       var propValue = screenProperties[propname];
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
+
+      if (pui.wf.enabled && pui.isWorkflow(propValue)) {
+        if (isDesignMode) {
+         var wfData = {};
+         if (typeof pui.display.workflows === "object" && pui.display.workflows[propValue.wfName] === "object") {
+          wfData = pui.display.workflows[propValue.wfName];
+         }
+          pui.wf.tracker.update({
+            name: propValue.wfName,
+            designItem: "Screen",
+            designer: designer,
+            property: propname,
+            data: wfData
+          });
+        }
+      }
+
       if (pui.isBound(propValue)) {
         designer.dataFields.addUsage({
           fieldName: propValue.fieldName,
@@ -1401,6 +1418,22 @@ pui.renderFormat = function(parms) {
 
         var propValue = items[i][prop];
         var newValue;
+
+        if (pui.wf.enabled && pui.isWorkflow(propValue)) {
+          if (isDesignMode) {
+           var wfData = {};
+           if (typeof pui.display.workflows === "object" && pui.display.workflows[propValue.wfName] === "object") {
+            wfData = pui.display.workflows[propValue.wfName];
+           }
+           pui.wf.tracker.update({
+              name: propValue.wfName,
+              designItem: designItem,
+              designer: designer,
+              property: prop,
+              data: wfData
+            });
+          }
+        }        
       
         if (pui.isBound(propValue)) {
           if (isDesignMode) {
