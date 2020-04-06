@@ -1161,7 +1161,7 @@ pui.renderFormat = function(parms) {
       if (pui.wf.enabled && pui.isWorkflow(propValue)) {
         if (isDesignMode) {
          var wfData = {};
-         if (typeof pui.display.workflows === "object" && pui.display.workflows[propValue.wfName] === "object") {
+         if (typeof pui.display.workflows === "object" && typeof pui.display.workflows[propValue.wfName] === "object") {
           wfData = pui.display.workflows[propValue.wfName];
          }
           pui.wf.tracker.update({
@@ -1422,7 +1422,7 @@ pui.renderFormat = function(parms) {
         if (pui.wf.enabled && pui.isWorkflow(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display.workflows === "object" && pui.display.workflows[propValue.wfName] === "object") {
+           if (typeof pui.display.workflows === "object" && typeof pui.display.workflows[propValue.wfName] === "object") {
             wfData = pui.display.workflows[propValue.wfName];
            }
            pui.wf.tracker.update({
