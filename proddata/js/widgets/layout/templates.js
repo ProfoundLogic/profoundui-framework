@@ -102,7 +102,7 @@ pui.layout.retrieveTemplate = function (templateName) {
   //warning appear in the console. An alternative is to adapt the "dependencies" feature to load the template before pui.render.
   var req = new pui.Ajax({
     "url": pui.normalizeURL(url),
-    "method": "post",
+    "method": "get",
     "suppressAlert": true
   });
   req["async"] = false;
