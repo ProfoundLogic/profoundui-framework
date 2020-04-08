@@ -1187,7 +1187,7 @@ pui.isRightClick = function(e) {
 /**
  * Returns the left and top offset of the object relative to the page origin.
  * @param {Object} obj
- * @param {Boolean|undefined} handleZoom      When obj is the canvas or inside it, then this should be true.
+ * @param {Boolean|undefined} handleZoom      Pass true when handling mouse events on the design canvas or items inside of it
  * @returns {Array.<Number>}    [ left, top ].
  */
 pui.getOffset = function(obj, handleZoom) {
