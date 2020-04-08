@@ -3068,13 +3068,8 @@ pui.attachResponse = function(dom, executeImmediately) {
       pui.bypassValidation = "false";
     }    
   }
-  
-  if (executeImmediately) {
-    clickEvent();
-  }
-  else {
-    addEvent(dom, "click", clickEvent);
-  }
+
+  addEvent(dom, "click", clickEvent);
 };
 
 
