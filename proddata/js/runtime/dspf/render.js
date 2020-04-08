@@ -1614,9 +1614,9 @@ pui.renderFormat = function(parms) {
                 }
                 if (gridId == null) {
                   dom.responseValue = "0";
-                }
-                pui.responseWorkflow = formattingObj.wfName;
+                }                
                 if (properties["onclick"] == null || properties["onclick"] == "") {
+                  dom.responseWorkflow = formattingObj.wfName;
                   pui.attachResponse(dom);
                 }
               }
@@ -3053,6 +3053,8 @@ pui.attachResponse = function(dom, executeImmediately) {
       }
       
     }    
+
+    pui.responseWorkflow = dom.responseWorkflow;
 
     var returnVal = pui.respond();
     
