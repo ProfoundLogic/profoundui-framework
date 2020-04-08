@@ -1741,8 +1741,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     var func = null;
     if (pui.isWorkflow(newValue)) {
       func = function() {
-        pui.responseWorkflow = newValue.wfName;
-        pui.attachResponse(domObj, true);
+        pui["runWorkflow"](newValue["wfName"]);        
       }
     }
     else if (propConfigName == "ontabclick") {
