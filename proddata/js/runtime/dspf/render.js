@@ -838,6 +838,7 @@ pui.render = function(parms) {
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
     pui.onmessageProps = {};
+    pui.responseWorkflow = null;
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -1601,6 +1602,26 @@ pui.renderFormat = function(parms) {
           
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
+            
+            if (pui.isWorkflow(formattingObj)) {
+              if (propname == "response") {
+                var shortcutKey = properties["shortcut key"];
+                if (shortcutKey != null && shortcutKey != "") {
+                  if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
+                  if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
+                  pui.keyMap[formatName][shortcutKey].push(dom);
+                  dom.shortcutKey = shortcutKey;
+                }
+                if (gridId == null) {
+                  dom.responseValue = "0";
+                }
+                pui.responseWorkflow = formattingObj.wfName;
+                if (properties["onclick"] == null || properties["onclick"] == "") {
+                  pui.attachResponse(dom);
+                }
+              }
+            }
+            
             if (pui.isBound(formattingObj)) {
             
               formattingObj["revert"] = false;
@@ -1842,7 +1863,7 @@ pui.renderFormat = function(parms) {
               }
             }
             
-            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
+            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"]) && !pui.isWorkflow(items[i]["response"])) {
               if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
               pui.keyMap[formatName][propValue].push(dom);
@@ -2942,7 +2963,7 @@ pui.renderFormat = function(parms) {
 };
 
 
-pui.attachResponse = function(dom) {
+pui.attachResponse = function(dom, executeImmediately) {
   function clickEvent() {
     if (dom.disabled == true) return;
     if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
@@ -3047,7 +3068,13 @@ pui.attachResponse = function(dom) {
       pui.bypassValidation = "false";
     }    
   }
-  addEvent(dom, "click", clickEvent);
+  
+  if (executeImmediately) {
+    clickEvent();
+  }
+  else {
+    addEvent(dom, "click", clickEvent);
+  }
 };
 
 
@@ -3790,6 +3817,10 @@ pui.buildResponse = function(customResponseElements) {
         }
       }
     }
+  }
+  
+  if (pui.responseWorkflow) {
+    response["workflow"] = pui.responseWorkflow;
   }
   
   if (customResponseElements) {
