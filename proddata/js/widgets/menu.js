@@ -412,10 +412,6 @@ pui.MenuWidget = function() {
   
   // Public Methods
   this.draw = function() {
-    // Use timeout to avoid unnecessary, repeated drawing when multiple
-    // properties are set.
-    if( me.renderTimeout > 0 ) clearTimeout(me.renderTimeout);
-    me.renderTimeout = setTimeout(function(){
       
       drawMenu({
         container: me.container,
@@ -424,9 +420,6 @@ pui.MenuWidget = function() {
         to: me.choices.length - 1
       });
 
-      me.renderTimeout = null;
-      try{ delete me.renderTimeout;}catch(exc){}
-    }, 0);
   };
   
   this.showSubMenu = function(td) {
@@ -724,6 +717,17 @@ pui.widgets.add({
         }
         break;
     }
+  },
+
+  globalAfterSetter: function(parms) {
+
+    // This prevents the class from being lost in some cases.
+    // The applyPropertyToField() process overwrites dom.className with classes from the properties, so
+    // internally assigned classes can be wiped out.
+    // See Redmine #6042
+    if (parms.propertyName.indexOf("css class") === 0)
+      pui.addCssClass(parms.dom, "pui-menu");
+
   }
   
 });
