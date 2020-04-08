@@ -878,3 +878,8 @@ pui['getScreenProp'] = function(screen, propName) {
   if (rec && rec[propName]) return rec[propName]
   else return false;
 }
+
+pui["runWorkflow"] = function(workflowName) {
+  pui.responseWorkflow = workflowName;
+  pui.click();
+}

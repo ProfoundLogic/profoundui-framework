@@ -1739,7 +1739,13 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   // Attach Events
   if (propConfig.type == "js") {
     var func = null;
-    if (propConfigName == "ontabclick") {
+    if (pui.isWorkflow(newValue)) {
+      func = function() {
+        pui.responseWorkflow = newValue.wfName;
+        pui.attachResponse(domObj, true);
+      }
+    }
+    else if (propConfigName == "ontabclick") {
       func = function () {
         eval("var tab = arguments[0];");
         try {
