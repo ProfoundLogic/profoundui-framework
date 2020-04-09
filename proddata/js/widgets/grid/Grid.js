@@ -3766,7 +3766,6 @@ pui.Grid = function () {
     if (isNaN(me.pagingBar.width) || me.pagingBar.width < 10) me.pagingBar.width = 10;
     me.pagingBar.width = me.pagingBar.width - 2;
     if (!me.designMode) {
-      me.pagingBar.width = me.pagingBar.width - 2;
       me.pagingBar.draw();
     }
     me.pagingBar.position();
