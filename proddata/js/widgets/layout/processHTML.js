@@ -89,6 +89,7 @@ pui.layout.template.processHTML = function(parms) {
       var propValue = null;
       if (prop != null) propValue = properties[prop];
       if (propValue == null) propValue = obj["defaultValue"];
+      if (propValue == null && designMode) propValue = obj["designValue"];
       if (propValue == null) propValue = "";
       if (typeof propValue == "object") return evalProperty(propValue);
       return propValue;
