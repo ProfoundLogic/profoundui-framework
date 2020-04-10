@@ -34,7 +34,7 @@ pui.layout.getPropertiesModel = function () {
     { name: "bottom", format: "px", help: pui.helpTextProperties("blank", "Position of the layout from the bottom of the screen or another layout container.") },
     { name: "center horizontally", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Centers the layout horizontally within its parent container."), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
     { name: "center vertically", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Centers the layout vertically within its parent container."), hideFormatting: true, validDataTypes: ["indicator", "expression"] },
-    { name: "height", fromat: "px", help: pui.helpTextProperties("widget", "Height of the layout."), bind: false, canBeRemoved: false },
+    { name: "height", format: "px", help: pui.helpTextProperties("widget", "Height of the layout."), bind: false, canBeRemoved: false },
     { name: "width", format: "px", help: pui.helpTextProperties("widget", "Width of the layout."), bind: false, canBeRemoved: false },
     { name: "min height", format: "px", help: pui.helpTextProperties("css", "Minimum height of the layout.") },
     { name: "min width", format: "px", help: pui.helpTextProperties("css", "Minimum width of the layout.") },
