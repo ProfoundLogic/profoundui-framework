@@ -228,15 +228,14 @@ pui["dup"]["ctrl"] = false;
 pui["dup"]["alt"] = false;
 
 pui.wf = {
-  enabled: false,
+  enabled: (location["search"] === "?workflows" || location["search"] === "?workflows/"),   // temporary way to enable through query string
   qTypes: {},   // question types
   selectionSources: {},
-  plugins: {
-    add: function(plugin) {        
-      var plugins = pui.wf.plugins;
-      var category = plugin.category;
-      if (!plugins[category]) plugins[category] = {};
-      plugins[category][plugin.name] = plugin;
-    }
+  plugins: {},
+  addPlugin: function(plugin) {
+    var plugins = pui.wf.plugins;
+    var category = plugin.category;
+    if (!plugins[category]) plugins[category] = {};
+    plugins[category][plugin.name] = plugin;
   }
 }
