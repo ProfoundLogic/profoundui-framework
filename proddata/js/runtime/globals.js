@@ -41,7 +41,7 @@ window.pui = {};
 
   var agt = navigator.userAgent.toLowerCase();
 
-  pui["is_edge"] = agt.indexOf("edge/") != -1;
+  pui["is_edge"] = agt.indexOf("edg/") != -1;   //Chromium Edge uses "Edg/", and pre-Chromium uses "Edge/". #6054.
   pui["is_ie"] = false;
   pui["is_opera"] = (agt.indexOf("opera") != -1 || agt.indexOf("opr/") != -1);
   pui["is_chrome"] = (!pui["is_edge"] && agt.indexOf("chrome") != -1);

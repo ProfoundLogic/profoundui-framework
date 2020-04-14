@@ -65,8 +65,9 @@ pui.widgets.add({
         if (labelText != "") buildLabel(parms.dom, labelText);
         // For "read only" checkboxes, don't allow the user to check or uncheck the box, because that would change the value. #4925.
         addEvent(parms.dom, "click", pui.checkboxOnClick);
-        // Double-clicking in IE10, IE11, or Edge should not change the clicked state. #2865.
-        if (pui["is_ie"] || pui["is_edge"]) addEvent(parms.dom, "dblclick", pui.checkboxOnClick);
+        // Double-clicking in IE10, IE11, or pre-Chromium Edge should not change the clicked state. #2865.
+        if (pui["is_ie"] || navigator.userAgent.indexOf("Edge/") != -1)
+          addEvent(parms.dom, "dblclick", pui.checkboxOnClick);
       }
       // Fixes printing problem for IE8. 
       // -- DR.
