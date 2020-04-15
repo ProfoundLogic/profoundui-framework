@@ -214,7 +214,7 @@ pui.SVGNS = "http://www.w3.org/2000/svg";
 // Cross-ref to look up the "real" property name when a "display name" is used.
 pui.propertyAlias = {};
 
-pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv|sh|md|sql|scn|lst|xml|conf|php|log|ts|less|scss|cpp|ejs)$/i;
+pui["text file name pattern"] = /.+\.(css|js|json|html|htm|xml|txt|csv|sh|md|sql|scn|lst|xml|conf|php|log|ts|less|scss|cpp|ejs|vue|ts|jsx)$/i;
 
 // config option to 'allow field exit' everywhere without setting the property on
 // every widget
