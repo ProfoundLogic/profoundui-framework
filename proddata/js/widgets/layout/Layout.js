@@ -721,7 +721,7 @@ pui.layout.Layout = function() {
     for (var i=0; i < containerNums.length; i++){
       var cnum = containerNums[i];
       
-      if ( lazyChildren[cnum] != null ){
+      if ( lazyChildren[cnum] != null && me.containers[cnum] != null){
         renderParms.container = me.containers[cnum];
         renderParms.lazyContainerNum = cnum;
         renderParms.metaData.items = lazyChildren[cnum];
