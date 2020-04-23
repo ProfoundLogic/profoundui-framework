@@ -117,7 +117,7 @@ pui.help.show = function() {
         if (helpLibrary == null || helpLibrary == "") helpLibrary = "*LIBL";
       }
       else {
-        helpFileParts = helpFile.split("/");
+        var helpFileParts = helpFile.split("/");
         if (helpFileParts.length == 2) {
           helpLibrary = helpFileParts[0];
           helpFile = helpFileParts[1];
@@ -191,7 +191,7 @@ pui.help.show = function() {
     }
   }
 
-}
+};
 
 
 pui.help.renderHelpRecord = function(meta) {
@@ -202,6 +202,9 @@ pui.help.renderHelpRecord = function(meta) {
   container.style.width = "1000px";
   container.style.height = "750px";
   container.style.zIndex = 999;
+  if (pui.windowZIndex > 999){
+    container.style.zIndex = pui.windowZIndex + 1;
+  }
   container.style.position = "absolute";
   container.style.backgroundColor = "white";
   pui.runtimeContainer.appendChild(container);
@@ -228,7 +231,7 @@ pui.help.renderHelpRecord = function(meta) {
         container.innerHTML = "";
         container.parentNode.removeChild(container);
         container = null;
-      }
+      };
     }
   
     // apply all properties
@@ -244,7 +247,7 @@ pui.help.renderHelpRecord = function(meta) {
   	    	        
   }
 
-}
+};
 
 
 
@@ -261,19 +264,18 @@ pui.help.error = function(response) {
   
   pui.alert(text);
 
-}
+};
 
 
 
 pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
 
   var container = document.createElement("div");
-  container.style.width = "1000px";
-  container.style.height = "750px";
+  container.className = "help-panel-group";
   container.style.zIndex = 999;
-  container.style.position = "absolute";
-  container.style.backgroundColor = "white";
-  container.style.padding = "10px";
+  if (pui.windowZIndex > 999){
+    container.style.zIndex = pui.windowZIndex + 1;
+  }
   pui.runtimeContainer.appendChild(container);
 
   container.innerHTML = html;
@@ -286,7 +288,7 @@ pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
     container.innerHTML = "";
     container.parentNode.removeChild(container);
     container = null;
-  }
+  };
   container.appendChild(returnButton);
   
   if (showExtendedHelpButton == true) {
@@ -296,19 +298,19 @@ pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
     extendedHelpButton.value = "Extended Help";
     extendedHelpButton.onclick = function() {
       pui.help.extendedHelp(props, container);
-    }
+    };
     container.appendChild(extendedHelpButton);
   }
   
   if (pui["help panel group toc"] == false) {
-    tocDiv = container.firstChild;
+    var tocDiv = container.firstChild;
     if (tocDiv != null && tocDiv.nodeType == 3) tocDiv = tocDiv.nextSibling;  // skip text node
     if (tocDiv != null && tocDiv.tagName == "DIV" && tocDiv.firstChild != null && tocDiv.firstChild.tagName == "A" && tocDiv.firstChild.name == "TOC") {
       tocDiv.style.display = "none";
     }
   }
   
-}
+};
 
 
 
@@ -317,7 +319,7 @@ pui.help.extendedHelp = function(props, container) {
   var params = {
     "modules": 0,
     "AUTH": pui.appJob["auth"]
-  }
+  };
 
   var done = false;
   var idx = 1;
@@ -397,6 +399,6 @@ pui.help.extendedHelp = function(props, container) {
   
   return true;
 
-}
+};
 
 
