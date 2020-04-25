@@ -1741,7 +1741,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     var func = null;
     if (pui.isLogicSeq(newValue)) {
       func = function() {
-        pui["runLogic"](newValue["wfName"]);        
+        if (!domObj.responseLogicSeq) {
+          pui["runLogic"](newValue["sequenceName"]);
+        }
       }
     }
     else if (propConfigName == "ontabclick") {

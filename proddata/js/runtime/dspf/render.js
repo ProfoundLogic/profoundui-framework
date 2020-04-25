@@ -67,6 +67,7 @@ pui.gridsDisplayed = [];
 pui.widgetsToCleanup = [];
 pui.layoutsDisplayed = [];
 pui.bypassValidation = "false";
+pui.responseLogicSeq = null;
 pui.ddBypassValidation = "false";
 pui.lastFormatName = null;
 pui.placeCursorOnSubfile = false;
@@ -691,6 +692,7 @@ pui.render = function(parms) {
   pui.subfileChangedFields = {};
   pui.sqlcache = {};
   pui.bypassValidation = "false";
+  pui.responseLogicSeq = null;
   pui.placeCursorOnSubfile = false;
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
@@ -1162,11 +1164,11 @@ pui.renderFormat = function(parms) {
       if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
         if (isDesignMode) {
          var wfData = {};
-         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.wfName] === "object") {
-          wfData = pui.display.logic[propValue.wfName];
+         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.sequenceName] === "object") {
+          wfData = pui.display.logic[propValue.sequenceName];
          }
           pui.wf.tracker.update({
-            name: propValue.wfName,
+            name: propValue.sequenceName,
             designItem: "Screen",
             designer: designer,
             property: propname,
@@ -1423,11 +1425,11 @@ pui.renderFormat = function(parms) {
         if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.wfName] === "object") {
-            wfData = pui.display.logic[propValue.wfName];
+           if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.sequenceName] === "object") {
+            wfData = pui.display.logic[propValue.sequenceName];
            }
            pui.wf.tracker.update({
-              name: propValue.wfName,
+              name: propValue.sequenceName,
               designItem: designItem,
               designer: designer,
               property: prop,
@@ -1616,7 +1618,7 @@ pui.renderFormat = function(parms) {
             //      dom.responseValue = "0";
             //    }                
             //    if (properties["onclick"] == null || properties["onclick"] == "") {
-            //      dom.responseLogicSeq = formattingObj.wfName;
+            //      dom.responseLogicSeq = formattingObj.sequenceName;
             //      pui.attachResponse(dom);
             //    }
             //  }
@@ -1815,7 +1817,8 @@ pui.renderFormat = function(parms) {
                   if (gridId == null) {
                     dom.responseValue = "0";
                   }
-                  if (properties["onclick"] == null || properties["onclick"] == "") {
+                  if (properties["onclick"] == null || properties["onclick"] == "" || pui.isLogicSeq(properties["onclick"])) {
+                    if (pui.isLogicSeq(properties["onclick"])) dom.responseLogicSeq = properties["onclick"].sequenceName;
                     pui.attachResponse(dom);
                   }
                 }
@@ -1863,7 +1866,7 @@ pui.renderFormat = function(parms) {
               }
             }
             
-            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"]) && !pui.isLogicSeq(items[i]["response"])) {
+            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
               if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
               pui.keyMap[formatName][propValue].push(dom);
@@ -1871,7 +1874,8 @@ pui.renderFormat = function(parms) {
               if (gridId == null) {
                 dom.responseValue = "0";
               }
-              if (properties["onclick"] == null || properties["onclick"] == "") {
+              if (properties["onclick"] == null || properties["onclick"] == "" || pui.isLogicSeq(properties["onclick"])) {
+                if (pui.isLogicSeq(properties["onclick"])) dom.responseLogicSeq = properties["onclick"].sequenceName;
                 pui.attachResponse(dom);
               }
             }
@@ -2963,7 +2967,7 @@ pui.renderFormat = function(parms) {
 };
 
 
-pui.attachResponse = function(dom, executeImmediately) {
+pui.attachResponse = function(dom) {
   function clickEvent() {
     if (dom.disabled == true) return;
     if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
@@ -3068,6 +3072,7 @@ pui.attachResponse = function(dom, executeImmediately) {
         doms[i].responseValue = "0";
       }
       pui.bypassValidation = "false";
+      pui.responseLogicSeq = null;
     }    
   }
 
@@ -4520,7 +4525,7 @@ pui.handleHotKey = function(e, keyName) {
         }
         // I'm guessing the following block's purpose is to click when onclick is defined, but only when the shortcut key isn't also 
         // for a grid's pageUp/pageDown. So, I added the "pagingLinksUseKey". For more explanation, see issue 4807.
-        if (doms.length >= 1 && typeof doms[0].onclick == "function" && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
+        if (doms.length >= 1 && typeof doms[0].onclick == "function" && !doms[0].responseLogicSeq && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
           doms[0].onclick();
           pui.runtimeContainer.focus();
           preventEvent(e);
@@ -4554,17 +4559,21 @@ pui.handleHotKey = function(e, keyName) {
       for (var i = 0; i < doms.length; i++) {
         doms[i].responseValue = "1";
         if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
-          pui.bypassValidation = doms[i].bypassValidation;
+          pui.bypassValidation = doms[i].bypassValidation;          
+        }
+        if (doms[i].responseLogicSeq) {
+          pui.responseLogicSeq = doms[i].responseLogicSeq;
         }
       }
 
-      var returnVal = pui.respond();;
+      var returnVal = pui.respond();
       
       if (returnVal == false) {
         for (var i = 0; i < doms.length; i++) {
           doms[i].responseValue = "0";
         }  
         pui.bypassValidation = "false";
+        pui.responseLogicSeq = null;
       }    
 
       preventEvent(e);
