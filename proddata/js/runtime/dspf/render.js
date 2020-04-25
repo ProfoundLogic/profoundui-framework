@@ -838,7 +838,7 @@ pui.render = function(parms) {
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
     pui.onmessageProps = {};
-    pui.responseWorkflow = null;
+    pui.responseLogicSeq = null;
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -1159,11 +1159,11 @@ pui.renderFormat = function(parms) {
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
 
-      if (pui.wf.enabled && pui.isWorkflow(propValue)) {
+      if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
         if (isDesignMode) {
          var wfData = {};
-         if (typeof pui.display.workflows === "object" && typeof pui.display.workflows[propValue.wfName] === "object") {
-          wfData = pui.display.workflows[propValue.wfName];
+         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.wfName] === "object") {
+          wfData = pui.display.logic[propValue.wfName];
          }
           pui.wf.tracker.update({
             name: propValue.wfName,
@@ -1420,11 +1420,11 @@ pui.renderFormat = function(parms) {
         var propValue = items[i][prop];
         var newValue;
 
-        if (pui.wf.enabled && pui.isWorkflow(propValue)) {
+        if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display.workflows === "object" && typeof pui.display.workflows[propValue.wfName] === "object") {
-            wfData = pui.display.workflows[propValue.wfName];
+           if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.wfName] === "object") {
+            wfData = pui.display.logic[propValue.wfName];
            }
            pui.wf.tracker.update({
               name: propValue.wfName,
@@ -1603,7 +1603,7 @@ pui.renderFormat = function(parms) {
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
             
-            //if (pui.isWorkflow(formattingObj)) {
+            //if (pui.isLogicSeq(formattingObj)) {
             //  if (propname == "response") {
             //    var shortcutKey = properties["shortcut key"];
             //    if (shortcutKey != null && shortcutKey != "") {
@@ -1616,7 +1616,7 @@ pui.renderFormat = function(parms) {
             //      dom.responseValue = "0";
             //    }                
             //    if (properties["onclick"] == null || properties["onclick"] == "") {
-            //      dom.responseWorkflow = formattingObj.wfName;
+            //      dom.responseLogicSeq = formattingObj.wfName;
             //      pui.attachResponse(dom);
             //    }
             //  }
@@ -1863,7 +1863,7 @@ pui.renderFormat = function(parms) {
               }
             }
             
-            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"]) && !pui.isWorkflow(items[i]["response"])) {
+            if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"]) && !pui.isLogicSeq(items[i]["response"])) {
               if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
               pui.keyMap[formatName][propValue].push(dom);
@@ -3054,7 +3054,7 @@ pui.attachResponse = function(dom, executeImmediately) {
       
     }    
 
-    pui.responseWorkflow = dom.responseWorkflow;
+    pui.responseLogicSeq = dom.responseLogicSeq;
 
     var returnVal = pui.respond();
     
@@ -3816,8 +3816,8 @@ pui.buildResponse = function(customResponseElements) {
     }
   }
   
-  if (pui.responseWorkflow) {
-    response["workflow"] = pui.responseWorkflow;
+  if (pui.responseLogicSeq) {
+    response["logic_sequence"] = pui.responseLogicSeq;
   }
   
   if (customResponseElements) {
@@ -4209,7 +4209,7 @@ pui.cancelResponse = function(messages) {
 
 
 pui.evalBoundProperty = function(propValue, data, ref) {
-  if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isWorkflow(propValue)) return propValue;
+  if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isLogicSeq(propValue)) return propValue;
   
   var formattingObj = propValue;
 

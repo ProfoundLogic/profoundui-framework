@@ -879,7 +879,7 @@ pui['getScreenProp'] = function(screen, propName) {
   else return false;
 }
 
-pui["runWorkflow"] = function(workflowName) {
-  pui.responseWorkflow = workflowName;
+pui["runLogic"] = function(logicSequenceName) {
+  pui.responseLogicSeq = logicSequenceName;
   pui.click();
 }
