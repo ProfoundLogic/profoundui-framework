@@ -1603,24 +1603,24 @@ pui.renderFormat = function(parms) {
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
             
-            if (pui.isWorkflow(formattingObj)) {
-              if (propname == "response") {
-                var shortcutKey = properties["shortcut key"];
-                if (shortcutKey != null && shortcutKey != "") {
-                  if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
-                  if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
-                  pui.keyMap[formatName][shortcutKey].push(dom);
-                  dom.shortcutKey = shortcutKey;
-                }
-                if (gridId == null) {
-                  dom.responseValue = "0";
-                }                
-                if (properties["onclick"] == null || properties["onclick"] == "") {
-                  dom.responseWorkflow = formattingObj.wfName;
-                  pui.attachResponse(dom);
-                }
-              }
-            }
+            //if (pui.isWorkflow(formattingObj)) {
+            //  if (propname == "response") {
+            //    var shortcutKey = properties["shortcut key"];
+            //    if (shortcutKey != null && shortcutKey != "") {
+            //      if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
+            //      if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
+            //      pui.keyMap[formatName][shortcutKey].push(dom);
+            //      dom.shortcutKey = shortcutKey;
+            //    }
+            //    if (gridId == null) {
+            //      dom.responseValue = "0";
+            //    }                
+            //    if (properties["onclick"] == null || properties["onclick"] == "") {
+            //      dom.responseWorkflow = formattingObj.wfName;
+            //      pui.attachResponse(dom);
+            //    }
+            //  }
+            //}
             
             if (pui.isBound(formattingObj)) {
             
