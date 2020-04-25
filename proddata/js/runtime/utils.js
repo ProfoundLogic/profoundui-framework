@@ -1931,7 +1931,7 @@ pui.isTranslated = function(propVal) {
     && typeof propVal["translations"].length == "number");
 };
 
-pui.isWorkflow = function(propVal) {
+pui.isLogicSeq = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["wfName"] == "string");
 };
 
