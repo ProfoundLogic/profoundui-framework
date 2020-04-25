@@ -347,9 +347,13 @@ pui.widgets["doChartLink"] = function(param) {
       pui.bypassValidation = dom.bypassValidation;
       
     }
-    
+
+    pui.responseLogicSeq = dom.responseLogicSeq;
     var returnVal = pui.respond();
-    if (returnVal == false) dom.responseValue = "";  
+    if (returnVal == false) {
+      dom.responseValue = "";
+      pui.responseLogicSeq = null;
+    }
   
   }
   else if (typeof(dom["onchartclick"]) == "function") {
@@ -868,6 +872,12 @@ pui.widgets.add({
       
       }
     
+    },
+    
+    "onchartclick": function(parms) {
+      if (pui.isLogicSeq(parms.newValue)) {
+        parms.dom.responseLogicSeq = parms.newValue.sequenceName;
+      }
     }
     
   }  

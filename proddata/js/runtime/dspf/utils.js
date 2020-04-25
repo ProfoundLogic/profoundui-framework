@@ -270,7 +270,7 @@ pui.assignShortcutKey = function(shortcutKey, dom) {
   if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
   pui.keyMap[formatName][shortcutKey].push(dom);
 
-  if (dom["onclick"] == null || dom.responseValue == null) {
+  if (dom["onclick"] == null || dom.responseValue == null) {    
     pui.attachResponse(dom);
   }
 }

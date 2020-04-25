@@ -3583,6 +3583,10 @@ pui.Grid = function () {
   function executeEvent(eventName) {
     if (me.designMode) return;
     var eventCode = me.events[eventName];
+    if (pui.isLogicSeq(eventCode)) {
+      pui["runLogic"](eventCode.sequenceName);
+      return;
+    }
     if (eventCode != null && eventCode != "") {
       try {
         pui["temporary_property"] = me;
@@ -4032,7 +4036,7 @@ pui.Grid = function () {
     return returnValue;
   };
 
-  this.setProperty = function (property, value) {
+  this.setProperty = function (property, value, unevaledValue) {
     if (value == null) value = "";
 
     if (property.indexOf("parameter value") == 0) {
@@ -4865,7 +4869,7 @@ pui.Grid = function () {
       case "onpageup":
       case "onscroll":
       case "onfilterchange":
-        me.events[property] = value;
+        me.events[property] = unevaledValue;
         break;
 
       case "ondbload":
@@ -9279,7 +9283,7 @@ pui.Grid = function () {
       { name: "drop targets", type: "list", help: pui.helpTextProperties("blank","Specifies a list of target element id's, which indentify where the row can be dropped."), context: "dspf" },
       { name: "ondragenter", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
       { name: "ondragleave", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
-      { name: "ondrop", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
+      { name: "ondrop", type: "js", wf: true, help: pui.helpTextProperties("blank","Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object."), context: "dspf" },
 
       { name: "Tabs", category: true },
       { name: "parent tab panel", help: pui.helpTextProperties("blank","This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel."), bind: false },

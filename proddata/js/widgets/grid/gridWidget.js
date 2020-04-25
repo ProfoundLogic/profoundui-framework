@@ -128,7 +128,7 @@ pui.widgets.add({
       setPropIfThere("border width");
       if (parms.design) setTimeout(function() { setPropIfThere("expand to layout") }, 0);
     }
-    parms.dom.grid.setProperty(parms.propertyName, parms.value);
+    parms.dom.grid.setProperty(parms.propertyName, parms.value, parms.newValue);
   },
   
   initialize: function(parms) {

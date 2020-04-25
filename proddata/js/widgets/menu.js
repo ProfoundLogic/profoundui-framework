@@ -348,7 +348,7 @@ pui.MenuWidget = function() {
       };
       function itemChosen() {
         if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
-        if (me.container["onoptionclick"] != null) {
+        if (me.container["onoptionclick"] != null && !me.usesLogic) {
           if (inDesignMode()) return;
           if (td.subMenuFrom != null) return;
           me.container["onoptionclick"](td.choiceValue, getInnerText(td));            
@@ -362,8 +362,14 @@ pui.MenuWidget = function() {
           if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
             pui.bypassValidation = dom.bypassValidation;
           }
+          if (me.usesLogic) {
+            pui.responseLogicSeq = me.sequenceName;
+          }
           var returnVal = pui.respond();
-          if (returnVal == false) dom.responseValue = "";
+          if (returnVal == false) {
+            dom.responseValue = "";
+            pui.responseLogicSeq = null;
+          }
         }
       }
     }
@@ -536,6 +542,10 @@ pui.widgets.add({
   
     "field type": function(parms) {
       parms.dom.menuWidget = new pui.MenuWidget();
+      parms.dom.menuWidget.usesLogic = pui.isLogicSeq(parms.properties["onoptionclick"]);
+      if (parms.dom.menuWidget.usesLogic) {
+        parms.dom.menuWidget.sequenceName = parms.properties["onoptionclick"].sequenceName;
+      }
       var choices = parms.evalProperty("choices");
       if (choices != null && choices != "") {
         parms.dom.menuWidget.choices = pui.parseCommaSeparatedList(choices);

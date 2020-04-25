@@ -1932,7 +1932,7 @@ pui.isTranslated = function(propVal) {
 };
 
 pui.isLogicSeq = function(propVal) {
-  return (propVal != null && typeof propVal == "object" && typeof propVal["wfName"] == "string");
+  return (propVal != null && typeof propVal == "object" && typeof propVal["sequenceName"] == "string");
 };
 
 pui.taphold = function(target, handler, threshold) {

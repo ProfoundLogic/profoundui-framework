@@ -46,6 +46,7 @@ pui.click = function(button, skipjs) {
     }
     var returnVal = pui.respond();
     pui.bypassValidation = "false";
+    pui.responseLogicSeq = null;
     
     if (returnVal == false && button != null) {
       button.responseValue = originalResponseValue;
