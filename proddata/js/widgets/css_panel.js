@@ -68,7 +68,7 @@ pui.CSSPanelSection = function() {
   
   this.setText = function(text) {
     if (me.type != "header") return;
-    if (text == null || pui.isBound(text) || pui.isTranslated(text) || pui.isLogicSeq(text)) text = "";
+    if (text == null || pui.isBound(text) || pui.isTranslated(text) || pui.isRoutine(text)) text = "";
     textSpan.innerHTML = text;
   }
   

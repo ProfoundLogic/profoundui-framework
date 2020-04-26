@@ -348,11 +348,11 @@ pui.widgets["doChartLink"] = function(param) {
       
     }
 
-    pui.responseLogicSeq = dom.responseLogicSeq;
+    pui.responseRoutine = dom.responseRoutine;
     var returnVal = pui.respond();
     if (returnVal == false) {
       dom.responseValue = "";
-      pui.responseLogicSeq = null;
+      pui.responseRoutine = null;
     }
   
   }
@@ -875,8 +875,8 @@ pui.widgets.add({
     },
     
     "onchartclick": function(parms) {
-      if (pui.isLogicSeq(parms.newValue)) {
-        parms.dom.responseLogicSeq = parms.newValue.sequenceName;
+      if (pui.isRoutine(parms.newValue)) {
+        parms.dom.responseRoutine = parms.newValue.routine;
       }
     }
     

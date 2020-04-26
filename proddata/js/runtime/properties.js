@@ -948,7 +948,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "bypass validation", choices: ["true", "false", "send data"], type: "boolean", help: pui.helpTextProperties("false", "This property specifies that a drag and drop operation will not trigger client-side validation and will automatically discard all data modified by the user on the screen. You can select 'send data' to bypass all client-side validation except for field data type validation and still send all data modified by the user."), validDataTypes: ["char", "indicator", "expression"] },
 
       { name: "Events", category: true }, 
-      { name: "initial logic sequence", wf: true, bind: false, readOnly: true, help: pui.helpTextProperties("blank", "Executes server-side logic before the screen is displayed.") }, 
+      { name: "initial routine", wf: true, bind: false, readOnly: true, help: pui.helpTextProperties("blank", "Executes server-side logic before the screen is displayed.") }, 
       { name: "onload", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the screen loads.") }, 
       { name: "onsubmit", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script or expression before a response is submitted to the screen. This typically occurs when a button or a hyperlink is clicked. If the expression evaluates to <i>false</i>, the response is not submitted.") }, 
       { name: "onmessage", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script that receives a message from the Profound.js display.screen.write(), display.screen.execute(), or the display.screen.executeMessage() API, which allows you to partially update screen content instead of re-rendering the entire screen. The message is received in a variable named <b>message</b>.") },
@@ -1739,10 +1739,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   // Attach Events
   if (propConfig.type == "js") {
     var func = null;
-    if (pui.isLogicSeq(newValue)) {
+    if (pui.isRoutine(newValue)) {
       func = function() {
-        if (!domObj.responseLogicSeq) {
-          pui["runLogic"](newValue["sequenceName"]);
+        if (!domObj.responseRoutine) {
+          pui["runLogic"](newValue["routine"]);
         }
       }
     }
@@ -1920,7 +1920,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (context == "dspf") {
       if (propConfigName == "id") {
         pui.ide.refreshFieldList();
-        pui.ide.refreshLogicSequenceList();
+        pui.ide.refreshlogicRoutineList();
       }
       if (propConfigName == "id" || propConfigName == "field type" || propConfigName == "value") {
         pui.ide.refreshElementList();
@@ -2030,7 +2030,7 @@ function evalPropertyValue(propertyValue) {
 
   var effectiveValue = "";
 
-  if (pui.isBound(propertyValue) || pui.isTranslated(propertyValue) || pui.isLogicSeq(propertyValue)) {
+  if (pui.isBound(propertyValue) || pui.isTranslated(propertyValue) || pui.isRoutine(propertyValue)) {
     if (propertyValue.designValue != null) effectiveValue = propertyValue.designValue;
     return effectiveValue;
   }

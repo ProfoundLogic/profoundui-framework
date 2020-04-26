@@ -3583,8 +3583,8 @@ pui.Grid = function () {
   function executeEvent(eventName) {
     if (me.designMode) return;
     var eventCode = me.events[eventName];
-    if (pui.isLogicSeq(eventCode)) {
-      pui["runLogic"](eventCode.sequenceName);
+    if (pui.isRoutine(eventCode)) {
+      pui["runLogic"](eventCode.routine);
       return;
     }
     if (eventCode != null && eventCode != "") {

@@ -363,12 +363,12 @@ pui.MenuWidget = function() {
             pui.bypassValidation = dom.bypassValidation;
           }
           if (me.usesLogic) {
-            pui.responseLogicSeq = me.sequenceName;
+            pui.responseRoutine = me.routine;
           }
           var returnVal = pui.respond();
           if (returnVal == false) {
             dom.responseValue = "";
-            pui.responseLogicSeq = null;
+            pui.responseRoutine = null;
           }
         }
       }
@@ -542,9 +542,9 @@ pui.widgets.add({
   
     "field type": function(parms) {
       parms.dom.menuWidget = new pui.MenuWidget();
-      parms.dom.menuWidget.usesLogic = pui.isLogicSeq(parms.properties["onoptionclick"]);
+      parms.dom.menuWidget.usesLogic = pui.isRoutine(parms.properties["onoptionclick"]);
       if (parms.dom.menuWidget.usesLogic) {
-        parms.dom.menuWidget.sequenceName = parms.properties["onoptionclick"].sequenceName;
+        parms.dom.menuWidget.routine = parms.properties["onoptionclick"].routine;
       }
       var choices = parms.evalProperty("choices");
       if (choices != null && choices != "") {
