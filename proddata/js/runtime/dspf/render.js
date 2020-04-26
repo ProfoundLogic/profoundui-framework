@@ -67,7 +67,7 @@ pui.gridsDisplayed = [];
 pui.widgetsToCleanup = [];
 pui.layoutsDisplayed = [];
 pui.bypassValidation = "false";
-pui.responseLogicSeq = null;
+pui.responseRoutine = null;
 pui.ddBypassValidation = "false";
 pui.lastFormatName = null;
 pui.placeCursorOnSubfile = false;
@@ -692,7 +692,7 @@ pui.render = function(parms) {
   pui.subfileChangedFields = {};
   pui.sqlcache = {};
   pui.bypassValidation = "false";
-  pui.responseLogicSeq = null;
+  pui.responseRoutine = null;
   pui.placeCursorOnSubfile = false;
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
@@ -840,7 +840,7 @@ pui.render = function(parms) {
     pui.layoutsDisplayed = [];
     pui.fileUploadElements = [];
     pui.onmessageProps = {};
-    pui.responseLogicSeq = null;
+    pui.responseRoutine = null;
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -1161,14 +1161,14 @@ pui.renderFormat = function(parms) {
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
 
-      if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
+      if (pui.wf.enabled && pui.isRoutine(propValue)) {
         if (isDesignMode) {
          var wfData = {};
-         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.sequenceName] === "object") {
-          wfData = pui.display.logic[propValue.sequenceName];
+         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+          wfData = pui.display.logic[propValue.routine];
          }
           pui.wf.tracker.update({
-            name: propValue.sequenceName,
+            name: propValue.routine,
             designItem: "Screen",
             designer: designer,
             property: propname,
@@ -1422,14 +1422,14 @@ pui.renderFormat = function(parms) {
         var propValue = items[i][prop];
         var newValue;
 
-        if (pui.wf.enabled && pui.isLogicSeq(propValue)) {
+        if (pui.wf.enabled && pui.isRoutine(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.sequenceName] === "object") {
-            wfData = pui.display.logic[propValue.sequenceName];
+           if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+            wfData = pui.display.logic[propValue.routine];
            }
            pui.wf.tracker.update({
-              name: propValue.sequenceName,
+              name: propValue.routine,
               designItem: designItem,
               designer: designer,
               property: prop,
@@ -1605,7 +1605,7 @@ pui.renderFormat = function(parms) {
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
             
-            //if (pui.isLogicSeq(formattingObj)) {
+            //if (pui.isRoutine(formattingObj)) {
             //  if (propname == "response") {
             //    var shortcutKey = properties["shortcut key"];
             //    if (shortcutKey != null && shortcutKey != "") {
@@ -1618,7 +1618,7 @@ pui.renderFormat = function(parms) {
             //      dom.responseValue = "0";
             //    }                
             //    if (properties["onclick"] == null || properties["onclick"] == "") {
-            //      dom.responseLogicSeq = formattingObj.sequenceName;
+            //      dom.responseRoutine = formattingObj.routine;
             //      pui.attachResponse(dom);
             //    }
             //  }
@@ -1817,8 +1817,8 @@ pui.renderFormat = function(parms) {
                   if (gridId == null) {
                     dom.responseValue = "0";
                   }
-                  if (properties["onclick"] == null || properties["onclick"] == "" || pui.isLogicSeq(properties["onclick"])) {
-                    if (pui.isLogicSeq(properties["onclick"])) dom.responseLogicSeq = properties["onclick"].sequenceName;
+                  if (properties["onclick"] == null || properties["onclick"] == "" || pui.isRoutine(properties["onclick"])) {
+                    if (pui.isRoutine(properties["onclick"])) dom.responseRoutine = properties["onclick"].routine;
                     pui.attachResponse(dom);
                   }
                 }
@@ -1874,8 +1874,8 @@ pui.renderFormat = function(parms) {
               if (gridId == null) {
                 dom.responseValue = "0";
               }
-              if (properties["onclick"] == null || properties["onclick"] == "" || pui.isLogicSeq(properties["onclick"])) {
-                if (pui.isLogicSeq(properties["onclick"])) dom.responseLogicSeq = properties["onclick"].sequenceName;
+              if (properties["onclick"] == null || properties["onclick"] == "" || pui.isRoutine(properties["onclick"])) {
+                if (pui.isRoutine(properties["onclick"])) dom.responseRoutine = properties["onclick"].routine;
                 pui.attachResponse(dom);
               }
             }
@@ -3058,7 +3058,7 @@ pui.attachResponse = function(dom) {
       
     }    
 
-    pui.responseLogicSeq = dom.responseLogicSeq;
+    pui.responseRoutine = dom.responseRoutine;
 
     var returnVal = pui.respond();
     
@@ -3072,7 +3072,7 @@ pui.attachResponse = function(dom) {
         doms[i].responseValue = "0";
       }
       pui.bypassValidation = "false";
-      pui.responseLogicSeq = null;
+      pui.responseRoutine = null;
     }    
   }
 
@@ -3821,8 +3821,8 @@ pui.buildResponse = function(customResponseElements) {
     }
   }
   
-  if (pui.responseLogicSeq) {
-    response["logic_sequence"] = pui.responseLogicSeq;
+  if (pui.responseRoutine) {
+    response["routine"] = pui.responseRoutine;
   }
   
   if (customResponseElements) {
@@ -4214,7 +4214,7 @@ pui.cancelResponse = function(messages) {
 
 
 pui.evalBoundProperty = function(propValue, data, ref) {
-  if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isLogicSeq(propValue)) return propValue;
+  if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isRoutine(propValue)) return propValue;
   
   var formattingObj = propValue;
 
@@ -4525,7 +4525,7 @@ pui.handleHotKey = function(e, keyName) {
         }
         // I'm guessing the following block's purpose is to click when onclick is defined, but only when the shortcut key isn't also 
         // for a grid's pageUp/pageDown. So, I added the "pagingLinksUseKey". For more explanation, see issue 4807.
-        if (doms.length >= 1 && typeof doms[0].onclick == "function" && !doms[0].responseLogicSeq && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
+        if (doms.length >= 1 && typeof doms[0].onclick == "function" && !doms[0].responseRoutine && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
           doms[0].onclick();
           pui.runtimeContainer.focus();
           preventEvent(e);
@@ -4561,8 +4561,8 @@ pui.handleHotKey = function(e, keyName) {
         if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
           pui.bypassValidation = doms[i].bypassValidation;          
         }
-        if (doms[i].responseLogicSeq) {
-          pui.responseLogicSeq = doms[i].responseLogicSeq;
+        if (doms[i].responseRoutine) {
+          pui.responseRoutine = doms[i].responseRoutine;
         }
       }
 
@@ -4573,7 +4573,7 @@ pui.handleHotKey = function(e, keyName) {
           doms[i].responseValue = "0";
         }  
         pui.bypassValidation = "false";
-        pui.responseLogicSeq = null;
+        pui.responseRoutine = null;
       }    
 
       preventEvent(e);

@@ -1931,8 +1931,8 @@ pui.isTranslated = function(propVal) {
     && typeof propVal["translations"].length == "number");
 };
 
-pui.isLogicSeq = function(propVal) {
-  return (propVal != null && typeof propVal == "object" && typeof propVal["sequenceName"] == "string");
+pui.isRoutine = function(propVal) {
+  return (propVal != null && typeof propVal == "object" && typeof propVal["routine"] == "string");
 };
 
 pui.taphold = function(target, handler, threshold) {

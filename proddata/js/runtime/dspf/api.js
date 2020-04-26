@@ -46,7 +46,7 @@ pui.click = function(button, skipjs) {
     }
     var returnVal = pui.respond();
     pui.bypassValidation = "false";
-    pui.responseLogicSeq = null;
+    pui.responseRoutine = null;
     
     if (returnVal == false && button != null) {
       button.responseValue = originalResponseValue;
@@ -880,7 +880,7 @@ pui['getScreenProp'] = function(screen, propName) {
   else return false;
 }
 
-pui["runLogic"] = function(logicSequenceName) {
-  pui.responseLogicSeq = logicSequenceName;
+pui["runLogic"] = function(logicRoutineName) {
+  pui.responseRoutine = logicRoutineName;
   pui.click();
 }

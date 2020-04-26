@@ -490,7 +490,7 @@ pui.attachDragDrop = function(dom, properties) {
               pui.bypassValidation = pui.ddBypassValidation;
               pui.respond();
               pui.bypassValidation = "false";
-              pui.responseLogicSeq = null;
+              pui.responseRoutine = null;
             }
           }
         }
@@ -537,8 +537,8 @@ pui.attachDragDrop = function(dom, properties) {
 
   function executeEvent(eventName) {
     var eventCode = properties[eventName];
-    if (pui.isLogicSeq(eventCode)) {
-      pui["runLogic"](eventCode.sequenceName);
+    if (pui.isRoutine(eventCode)) {
+      pui["runLogic"](eventCode.routine);
     }
     else if (eventCode != null && eventCode != "") {
       try {
