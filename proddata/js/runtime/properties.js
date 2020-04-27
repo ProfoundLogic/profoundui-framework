@@ -1167,7 +1167,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
 }
 
 // Applies property value to field in design mode or at run-time
-function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow) {
+function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
 
   if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type")
     return domObj;
@@ -1925,7 +1925,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (propConfigName == "id" || propConfigName == "field type" || propConfigName == "value") {
         pui.ide.refreshElementList();
       }
-      if (!designItem.isProxy){
+      if (!designItem.isProxy && skipDirty !== true){
         designItem.designer.makeDirty();
         pui.ide.refreshRibbon();  //Enable Save on toolbar
       }
