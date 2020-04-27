@@ -1271,7 +1271,7 @@ pui.renderFormat = function(parms) {
       }
       else if ( lazyLayouts[gridId] != null ){
         // The item is inside a grid that is a child of a lazy layout.
-        saveItemForLazyLoad(gridId);
+        saveItemForLazyLoad(gridId, items[i]);
         continue;
       }
     }
@@ -1284,7 +1284,7 @@ pui.renderFormat = function(parms) {
         
         // The item is within a lazy-load layout.
         if ( lazyLayouts[layoutId] != null ){
-          saveItemForLazyLoad(layoutId, containerNumber);
+          saveItemForLazyLoad(layoutId, items[i], containerNumber);
           continue;
         }
         else {
@@ -1294,28 +1294,8 @@ pui.renderFormat = function(parms) {
       }
       else if ( lazyLayouts[layoutId] != null ){
         // The item is inside a layout that is a child of a lazy layout.
-        saveItemForLazyLoad(layoutId);
+        saveItemForLazyLoad(layoutId, items[i]);
         continue;
-      }
-    }
-    // Save an item to render later when a lazy-load layout contains it (directly or indirectly).
-    // If the item is directly in a layout being rendered on this pass, then contNum parameter must be set.
-    function saveItemForLazyLoad(containerId, contNum){
-      var lazylayout;
-      // The item is in a container (grid/layout) that is in a lazy-layout.
-      if (lazyLayouts[containerId].root != null && lazyLayouts[containerId].container != null){
-        lazylayout = lazyLayouts[containerId].root;
-        contNum = lazyLayouts[containerId].container;
-      }else{
-        // The item is directly in a lazy-layout. (contNum parameter must be set.)
-        lazylayout = lazyLayouts[containerId];
-      }
-      
-      lazylayout.deferLazyChild( contNum - 1, items[i]);  //Save for later.
-      
-      // If this item can contain other items, then this allows this item's items to be deferred.
-      if (items[i]["field type"] == "layout" || items[i]["field type"] == "grid"){
-        lazyLayouts[items[i]["id"]] = { root: lazylayout, container: contNum };
       }
     }
     
@@ -2964,6 +2944,32 @@ pui.renderFormat = function(parms) {
   time = timer(time);
   if (pui.renderLog)
     console.log("Format " + formatName + " rendered in " + time + "ms");
+  
+  /**
+   * Save an item to render later when a lazy-load layout contains it (directly or indirectly).
+   * If the item is directly in a layout being rendered on this pass, then contNum parameter must be set.
+   * @param {String} containerId
+   * @param {Object} item
+   * @param {Undefined|Number} contNum
+   */
+  function saveItemForLazyLoad(containerId, item, contNum){
+    var lazylayout;
+    // The item is in a container (grid/layout) that is in a lazy-layout.
+    if (lazyLayouts[containerId].root != null && lazyLayouts[containerId].container != null){
+      lazylayout = lazyLayouts[containerId].root;
+      contNum = lazyLayouts[containerId].container;
+    }
+    else{
+      // The item is directly in a lazy-layout. (contNum parameter must be set.)
+      lazylayout = lazyLayouts[containerId];
+    }
+    lazylayout.deferLazyChild( contNum - 1, item);  //Save for later.
+
+    // If this item can contain other items, then this allows this item's items to be deferred.
+    if (item["field type"] == "layout" || item["field type"] == "grid"){
+      lazyLayouts[item["id"]] = { root: lazylayout, container: contNum };
+    }
+  }
 };
 
 
