@@ -1742,6 +1742,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (pui.isRoutine(newValue)) {
       func = function() {
         if (!domObj.responseRoutine) {
+          if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
+            pui.bypassValidation = domObj.bypassValidation;
+          }
           pui["runLogic"](newValue["routine"]);
         }
       }

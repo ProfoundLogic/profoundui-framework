@@ -538,6 +538,7 @@ pui.attachDragDrop = function(dom, properties) {
   function executeEvent(eventName) {
     var eventCode = properties[eventName];
     if (pui.isRoutine(eventCode)) {
+      pui.bypassValidation = pui.ddBypassValidation;
       pui["runLogic"](eventCode.routine);
     }
     else if (eventCode != null && eventCode != "") {
