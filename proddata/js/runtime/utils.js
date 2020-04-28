@@ -281,12 +281,23 @@ function checkAjaxResponse(ajaxRequest, operation) {
   
 }
 
-
-function buildLabel(dom, labelText) {
-  var label = document.createElement("div");
-  label.style.position = "absolute";
-  label.style.borderStyle = "none";
-  label.style.backgroundColor = "transparent";
+/**
+ * Build and position a label element to the right of another element, and associate the label with the element.
+ * Called in runtime when rendering checkboxes and radio buttons. Also called in design time.
+ * @param {Object} dom
+ * @param {String} labelText
+ * @param {Object|undefined} label    Only passed by DesignItem.js drawIcon when in design mode.
+ */
+pui.buildLabel = function(dom, labelText, label) {
+  var designMode = true;
+  if (label == null){
+    designMode = false;
+    var label = document.createElement("div");
+    label.style.position = "absolute";
+    label.style.borderStyle = "none";
+    label.style.backgroundColor = "transparent";
+  }
+  
   label.innerHTML = '<label for="' + dom.id + '">' + labelText + '</label>';
   label.className = 'label-for';
   var cls = trim(dom.className.split(" ")[0]);
@@ -303,63 +314,88 @@ function buildLabel(dom, labelText) {
   else {
     label.style.zIndex = 20;  // default z-index for input fields
   }      
-  var left;
-  var top;
-  var width = dom.offsetWidth;
-  if (width < 20) width = 20;
-  dom.positionMe = null;
-  if (pui.isPercent(dom.style.top) || pui.isPercent(dom.style.left) || pui.isPercent(dom.style.bottom) || pui.isPercent(dom.style.right)) {
-    top = dom.offsetTop;
-    left = dom.offsetLeft;
-    if (dom.parentNode.getAttribute("container") == "true")
-    dom.positionMe = function() {
-        label.style.left = dom.offsetLeft + width + "px";
-        label.style.top = dom.offsetTop + "px";
-    };
-  } else {
-    left = parseInt(dom.style.left);
-    if (isNaN(left)) 
-      left = 0;
-    top = parseInt(dom.style.top);
-    if (isNaN(top)) 
-      top = 0;    
-  }
-  if (dom.style.left.indexOf('calc') != -1) {
-    var calcString = trim(dom.style.left);
-    var lastParenth = calcString.lastIndexOf(')');
-    if (lastParenth != -1) {
-      var leftString = calcString.substr(0,lastParenth);
-      leftString += ' + ' + width + 'px';
-      label.style.left = leftString; 
-    }
-  } 
-  else label.style.left = left + width + "px";
-  if (dom.style.top.indexOf('calc') != -1) label.style.top = dom.style.top;
-  else label.style.top = top + "px";
+
+  // Set the Y position of the label to the input's Y position.
+  if (dom.style.top != "") label.style.top = dom.style.top;
+  else if (dom.style.bottom != "") label.style.bottom = dom.style.bottom;
 
   label.style.zIndex = dom.style.zIndex;
   label.style.visibility = dom.style.visibility;
+  label.style.filter = dom.style.filter;
+  label.style.opacity = dom.style.opacity;
   label.style.color = dom.style.color;
   label.style.fontFamily = dom.style.fontFamily;
   label.style.fontSize = dom.style.fontSize;
   label.style.fontStyle = dom.style.fontStyle;
   label.style.fontWeight = dom.style.fontWeight;
   label.style.backgroundColor = dom.style.backgroundColor;
-  //if (context == "dspf") label.style.paddingTop = "1px";
-  if (dom.style.cursor) {
-    label.style.cursor = dom.style.cursor;
+
+  if (!designMode){
+    if (dom.style.cursor) {
+      label.style.cursor = dom.style.cursor;
+    }
+    else {
+      label.style.cursor = "pointer";
+    }
+    label.isLabel = true;
+    if (dom.labelObj != null) dom.parentNode.removeChild(dom.labelObj);
+    dom.labelObj = label;
+    dom.extraDomEls = [];
+    dom.extraDomEls.push(label);
+    
+    if (dom.parentNode != null)     //If a grid column was removed, then parentNode could be null. #4855.
+      dom.parentNode.appendChild(label);  //If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
   }
-  else {
-    label.style.cursor = "pointer";
+  
+  // Determine the X position. (Happens after appending child so that label width can be used for "right".)
+  var width = dom.offsetWidth;
+  if (width < 20) width = 20;
+  
+  if (dom.style.left != ""){
+    if (dom.style.left.indexOf('calc') != -1) {
+      // Add the input's width to a CSS calc function's parameters.
+      setCalcString('left', ' + ' + width);
+    }
+    else {
+      var styledim = pui.getStyleDim(dom.style.left);
+      if (styledim[1] == 'px'){
+        label.style.left = (styledim[0] + width) + 'px';    //The units were in px; simply add.
+      }
+      else {
+        // For any other units, let CSS calculate position. Calc avoids the need to use the positionMe function when inside containers that can resize. #5692.
+        label.style.left = 'calc('+dom.style.left +' + ' + width + 'px)';
+      }
+    }
   }
-  label.isLabel = true;
-  if (dom.labelObj != null) dom.parentNode.removeChild(dom.labelObj);
-  dom.labelObj = label;
-  dom.extraDomEls = [];
-  dom.extraDomEls.push(label);
-  if (dom.parentNode != null)     //If a grid column was removed, then parentNode could be null. #4855.
-    dom.parentNode.appendChild(label);  //If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
-}
+  else if (dom.style.right != ""){
+    var brect = label.getBoundingClientRect();
+    var labelWidth = brect.width;
+    if (labelWidth < 10) labelWidth = 10;
+    
+    if (dom.style.right.indexOf('calc') != -1) {
+      setCalcString('right', ' - ' + labelWidth);  //Add the input's width to a CSS calc function's parameters.
+    }
+    else {
+      var styledim = pui.getStyleDim(dom.style.right);
+      if (styledim[1] == 'px'){
+        label.style.right = (styledim[0] - labelWidth) + 'px';   //The units were in px; simply subtract.
+      }
+      else {
+        label.style.right = 'calc('+dom.style.right +' - '+ labelWidth + 'px)';   //Let CSS calculate the position.
+      }
+    }
+  }
+  
+  function setCalcString(styleProp, appendPxStr){
+    var calcString = trim(dom.style[styleProp]);
+    var lastParenth = calcString.lastIndexOf(')');
+    if (lastParenth != -1) {
+      calcString = calcString.substr(0,lastParenth);
+      calcString += appendPxStr + 'px)';
+      label.style[styleProp] = calcString;
+    }
+  }
+};
 
 // Returns the PC-side timestamp in milliseconds since 1970/01/01 as a string.
 function getTimeStamp() {
@@ -1659,7 +1695,31 @@ pui.getPosDimString = function(styleName, value) {
   
   return value;
 
-}
+};
+
+/**
+ * Extract the style number and units from a style string. Return an array with the numeric portion as element 0 and the units as
+ * element 1. For non-numerics the unit element is an empty string.   Absolute lengths: cm, mm, in, px, pt, pc.
+ * Relative lengths: em, ex, ch, rem, vw, vh, vmin, vmax, %. (vmin, vmax don't work in IE.).
+ * Top|Left|Bottom|Right|Width|Height property values: auto (default), length unit (px, cm, ...), initial, inherit.
+ * @param {String} styleVal
+ * @returns {Array}
+ */
+pui.getStyleDim = function(styleVal){
+  var unit = "", val = "";
+  if (typeof styleVal == "string"){
+    var re = /^([0-9.,-]+)(cm|mm|in|px|pt|pc|em|ex|ch|rem|vw|vh|vmin|vmax|%)$/i;
+    var matches = re.exec(styleVal);
+    if (matches != null){
+      var num = Number(matches[1]);
+      if (isNaN(num)) num = 0;
+      val = num;
+      unit = matches[2];
+    }
+    else val = styleVal;  //The style is non-numeric or the unit is unsupported.
+  }
+  return [val, unit];
+};
 
 pui.getWindowScrollTop = function() {  // gets window scroll top position
   var scrOfY = 0;
@@ -1674,7 +1734,7 @@ pui.getWindowScrollTop = function() {  // gets window scroll top position
     scrOfY = document.documentElement.scrollTop;
   }
   return scrOfY;
-}
+};
 
 pui.getNoConnectionMessage = function(req) {
 
@@ -1695,7 +1755,7 @@ pui.getNoConnectionMessage = function(req) {
 
   return msg;
 
-}
+};
 
 pui.getSQLDateFmt = function() {
 

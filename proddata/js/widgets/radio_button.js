@@ -42,7 +42,7 @@ pui.widgets.add({
         if (labelText != "") {
           if (parms.properties["left"] != null) parms.dom.style.left = parms.properties["left"];
           if (parms.properties["top"] != null) parms.dom.style.top = parms.properties["top"]; 
-          buildLabel(parms.dom, labelText);
+          pui.buildLabel(parms.dom, labelText);
         }
         if (context == "dspf") {
           var value = parms.evalProperty("value");

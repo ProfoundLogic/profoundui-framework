@@ -62,7 +62,7 @@ pui.widgets.add({
             (objValue === "1" || objValue === "true" || objValue === true)) parms.dom.checked = true;
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
-        if (labelText != "") buildLabel(parms.dom, labelText);
+        if (labelText != "") pui.buildLabel(parms.dom, labelText);
         // For "read only" checkboxes, don't allow the user to check or uncheck the box, because that would change the value. #4925.
         addEvent(parms.dom, "click", pui.checkboxOnClick);
         // Double-clicking in IE10, IE11, or pre-Chromium Edge should not change the clicked state. #2865.
