@@ -2041,7 +2041,7 @@ pui["getDisplayType"] = function() {
 
 function runPCCommand(arg) {
   
-  var listenerMode = 0;    //The PC command implementation. Use the Integration Applet by default.
+  var listenerMode = 1;    //The PC command implementation. Use the Listener by default.
   
   // Support legacy options, "use pc listener" and "pc listener mode".
   if (pui["use pc listener"]) listenerMode = 1;
@@ -2064,7 +2064,7 @@ function runPCCommand(arg) {
         listenerMode = 3;
         break;
       default:
-        listenerMode = 0;
+        listenerMode = 1;
         console.log("Unsupported pc command mode:",pui["pc command mode"]);
     }
   }
@@ -2080,7 +2080,6 @@ function runPCCommand(arg) {
     }
   }
   
-  var wait = false;
   var commandList = [];
   var nextCommand = 0;
   
@@ -2116,20 +2115,25 @@ function runPCCommand(arg) {
         cmdImg.onload = function() {
           doRunPCCommand();
         };
+        cmdImg.onerror = function(){
+          // Show error messages in Firefox, Chrome, Edge.
+          console.log("PC Command Listener m2 failure.");
+          showFailureMsg(command);
+        };
         cmdImg.src = url;
       }
       else {
         var req = new pui.Ajax(url);
         req.method = "GET";
         req.async = (wait) ? false : true;
-        req.suppressAlert = true;
-        req.onfail = function(req) {
-            if (req.getStatus() != 200) {
-              console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
-              console.log("Command: " + command);
-            }
+        req["suppressAlert"] = true;
+        req["onfail"] = function(req) {
+          if (req.getStatus() != 200) {
+            console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
+            showFailureMsg(command);
+          }
         };
-        req.onsuccess = function() {
+        req["onsuccess"] = function() {
           doRunPCCommand();
         };
         req.send();
@@ -2217,6 +2221,13 @@ function runPCCommand(arg) {
 
   doRunPCCommand();
   
+  function showFailureMsg(command){
+    console.log("Command: " + command);
+    var msg = pui["getLanguageText"]("runtimeMsg", "pccommand error");
+    if (pui["alert pccommand errors"] !== false) alert(msg);
+    else console.log(msg);
+    console.log("Visit https://docs.profoundlogic.com/x/aQFK for more information on supporting STRPCCMD.");
+  }
 }
 
 window["runCommandCb"] = function() {

@@ -85,6 +85,8 @@ var en_US = function(dict) {
             dictMsg["compressing"]                  = "Compressing...";
             dictMsg["cancelled"]                    = "Cancelled";
             dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
+            dictMsg["pccommand error"]              = "The attempt to handle STRPCCMD failed. Please ensure that the Profound UI PC Command Listener"
+                    +" is running on this machine and configured correctly. Check the browser console for more information. (Usually Ctrl+Shift+I)";
 
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Number of allowed sessions exceeded.";
