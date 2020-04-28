@@ -56,7 +56,9 @@ pui.ComboBoxWidget = function() {
  
     }
   
-    
+    //When adding a combo box in design mode, a dotted border is hardcoded in Designer.js
+    // as an inline style. Clearing the border allows css classes to be used
+    if(me.design) me.div.style.border = "";
     if (me.div.style.width == null) me.div.style.width = "80px";
     if (pui["is_quirksmode"]) {
       if (pui["is_old_ie"]) me.div.style.height = "22px";
