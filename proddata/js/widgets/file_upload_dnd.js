@@ -400,7 +400,7 @@ pui.widgets.add({
         if (context === "dspf")
           pui.fileUploadElements.push(parms.dom["fileUpload"]);
       }
-      // Process multiple occurence property.
+      // Process multiple occurrence property.
       var suffix = 1;
       var prop = "allowed type";
       var types = [];
