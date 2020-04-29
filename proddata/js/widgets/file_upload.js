@@ -1052,7 +1052,7 @@ pui["fileupload"].propset = {
 
       }
 
-      // Process multiple occurence property.
+      // Process multiple occurrence property.
       var suffix = 1;
       var prop = "allowed type";
       var types = [];
