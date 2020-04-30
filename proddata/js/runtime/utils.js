@@ -117,6 +117,10 @@ function preventDoubleSubmit(){
 *  are keys that must function as normal such as \, Control, *
 *  and etc.                                                    *
 ***************************************************************/
+
+/**
+ * @param {Object} e
+ */
 function numericOnly(e){
   if(!e) e = window.event;
   var target = e.srcElement || e.target;
@@ -3081,6 +3085,8 @@ pui.loadDependencyFiles = function(parm, callback ){
 /**
  * For mobile apps, load any JS and CSS files in userdata/extension/mobile.
  * When loading is complete, the callback function is called.
+ * @param {Boolean} isMobile
+ * @param {Function} callback
  */
 pui.loadMobileExtensionFiles = function (isMobile, callback) {
   if (isMobile) {

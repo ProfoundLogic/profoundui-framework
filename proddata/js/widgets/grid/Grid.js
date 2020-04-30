@@ -4995,7 +4995,7 @@ pui.Grid = function () {
       var record = me.dataArray[i];
       checkRowHidden(record);
     }
-  }
+  };
 
   function checkSelected(record) {
 
@@ -5204,7 +5204,6 @@ pui.Grid = function () {
 
   /**
    * Setup design events on a cell div. Needed for Genie design mode and in Visual Designer.
-   * Handle dragging of cells to move the grid, including into and out of layouts.
    * @param {Object} cell
    * @param {Boolean} movableColumns
    * @param {undefined|Boolean} sortableCols  Set when called by hideShowColumn to avoid clearing cursor.
@@ -5213,364 +5212,373 @@ pui.Grid = function () {
   function cellDesign(cell, movableColumns, sortableCols) {
     if (!me.designMode && movableColumns != true) return;
     if (!me.designMode && movableColumns == true) {
-      me.tableDiv.parentNode.onselectstart = function (e) {
-        if (me.dragging) {
-          preventEvent(e);
-          return false;
-        }
-      };
+      me.tableDiv.parentNode.onselectstart = preventDragSelectStart;
     }
-
     // Cursor is default unless columns were hidden or shown and the cursor isn't already set to pointer for sorting. #5913.
     if (sortableCols != true && cell.style.cursor != "pointer") cell.style.cursor = "default";
-    
-    function mousedown(event) {
-      if (me.designMode) {
-        me.tableDiv.designItem.designer.hideDialogs();
-        if (context == "dspf") Ext.menu.MenuMgr.hideAll();
-        me.selectMe();
-
-        pui.layout.template.getContainerPositions(me.tableDiv.designItem.designer);
-
-        if (pui.isRightClick(event)) {
-          if (me.tableDiv.designItem) {
-            me.tableDiv.designItem.designer.globalRightClickMenu.hide();
-            me.tableDiv.designItem.designer.showContextMenu(event);
-          }
-          designUtils.preventEvent(event);
-          if (event.stopPropagation) event.stopPropagation();
-          return false;
-        }
-        if (me.tableDiv.designItem != null && me.tableDiv.designItem.designer.rightClickMenu != null) {
-          me.tableDiv.designItem.designer.rightClickMenu.hide();
-        }
-
-        if (me.lockedInPlace) {
-          designUtils.preventEvent(event);
-          return;
-        }
-        me.tableDiv.designItem.startValues.left = me.tableDiv.style.left;
-        me.tableDiv.designItem.startValues.top = me.tableDiv.style.top;
-      }
-      else {
-        if (me.gridMenu != null && !pui.isRightClick(event)) me.gridMenu.hide();
-      }
-
-      me.dragging = true;
-      var cursorStartX = pui.getMouseX(event);
-      var cursorStartY = pui.getMouseY(event);
-      me.doThisToTableDivs(function (domObj) {
-        domObj.startLeft = pui.safeParseInt(domObj.style.left);
-        domObj.startTop = pui.safeParseInt(domObj.style.top);
-      });
-      var inLayoutContainer = false;
-      if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
-        inLayoutContainer = true;
-      }
+    addEvent(cell, "mousedown", cellmousedown);
+  }
+  
+  function preventDragSelectStart(e){
+    if (me.dragging) {
+      preventEvent(e);
+      return false;
+    }
+  }
+  
+  /**
+   * Handle dragging of cells to move the grid, including into and out of layouts. (Note: functions declared inside loops may be 
+   * duplicated in memory for each iteration of the loop; so, this one is moved outside cellDesign, which is called repeatedly.)
+   * @param {MouseEvent} event
+   * @returns {undefined|Boolean}
+   */
+  function cellmousedown(event) {
+    var cell = event.target;
+    if (me.designMode) {
+      me.tableDiv.designItem.designer.hideDialogs();
+      if (context == "dspf") Ext.menu.MenuMgr.hideAll();
+      me.selectMe();
       
-      // Note: the following variables and calculations are used in mousemove but run here to be faster so the UI isn't as jumpy.
-      var mouseLineDiff = {x:0, y:0};   //The difference between the mouse X,Y and a vLine's left,top offsets.
-      if (me.designMode) {
-        var containerOffsets = pui.getOffset(me.tableDiv.designItem.designer.container, true);
-        mouseLineDiff.x += containerOffsets[0];
-      }
-      else {
-        // Get the runtimeContainer's position relative to the page. The bounding rectangle handles
-        // positions of any parent DIV elements the customer's start.html may have added. #3344.
-        var rect = pui.runtimeContainer.getBoundingClientRect();
-        
-        // BoundingClientRect is relative to the viewport, so adjust for scroll position.
-        if (typeof window.pageXOffset == "number") {
-          mouseLineDiff.x = rect.left + window.pageXOffset;
-          mouseLineDiff.y = rect.top + window.pageYOffset;
-        } else {
-          // window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
-          // See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-          mouseLineDiff.x = rect.left + document.documentElement.scrollLeft;
-          mouseLineDiff.y = rect.top + document.documentElement.scrollTop;
-        }
-        
-        // Compensate if the grid is inside a window. (See #3532 for test cases.)
-        var windowDiv = me.tableDiv.parentNode;
-        var acont = pui["getActiveContainer"]();
-        if (windowDiv.isPUIWindow == true) {
-          mouseLineDiff.x += parseInt(windowDiv.style.left);
-          mouseLineDiff.y += parseInt(windowDiv.style.top);
-        }
-        else if (acont != null && acont.isPUIWindow === true) {
-          // Note: in RDF, the active container is a PUIWindow. In Genie, pui.runtimeContainer is
-          // the active container but not a PUIWindow. So, the same offset isn't added twice.
-          mouseLineDiff.x += acont.offsetLeft;
-          mouseLineDiff.y += acont.offsetTop;
-        }
-      }
-
-      if (inLayoutContainer) {
-        //In Rich Display or Designer, compensate when the grid is in a container.
-        var layContOff = pui.layout.getContainerOffset(me.tableDiv.parentNode);
-        mouseLineDiff.x += layContOff.x;
-        mouseLineDiff.y += layContOff.y;
-      }
+      designUtils.preDragCalcGridsLayouts(me.tableDiv.designItem.designer);
       
-      var offset = {x:0, y:0};
-      // Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
-      if (!me.designMode) {
-        // In RDF or Genie, the previous mouse calculations can be used because the
-        // columnPointer's parent is <body>, and the mouse position is based on <body>.
-        offset.y = mouseLineDiff.y;
-        offset.x = mouseLineDiff.x;
-      } else if (inLayoutContainer) {
-        // We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
-        // parent is a designer div, not the body. So the mouse calculation cannot be used.
-        offset = layContOff;
+      if (pui.isRightClick(event)) {
+        if (me.tableDiv.designItem) {
+          me.tableDiv.designItem.designer.globalRightClickMenu.hide();
+          me.tableDiv.designItem.designer.showContextMenu(event);
+        }
+        designUtils.preventEvent(event);
+        if (event.stopPropagation) event.stopPropagation();
+        return false;
+      }
+      if (me.tableDiv.designItem != null && me.tableDiv.designItem.designer.rightClickMenu != null) {
+        me.tableDiv.designItem.designer.rightClickMenu.hide();
       }
 
-      function mousemove(event) {
-        var mouseXY = pui.getMouseXY(event);
-        var deltay = mouseXY.y - cursorStartY;
-        var deltax = mouseXY.x - cursorStartX;
-        // Compensate for elements being visually in a different place than the event coordinates when designer canvas is zoomed.
-        if (context == "dspf" && me.designMode){
-          deltay = Math.round(deltay * toolbar.zoomFactor);
-          deltax = Math.round(deltax * toolbar.zoomFactor);
-        }
-        if (me.hasHeader && cell.row == 0) {
-          // move header column
-          if (headerCellProxy == null) {
-            headerCellProxy = cell.cloneNode(true);
-            headerCellProxy.style.border = "1px solid #999999";
-            headerCellProxy.style.zIndex = me.moveColumnZIndex;
-            headerCellProxyContainer = document.createElement("div");
-            headerCellProxyContainer.className = me.tableDiv.className;
-            headerCellProxyContainer.style.borderColor = "transparent";
-            cell.parentNode.parentNode.appendChild(headerCellProxyContainer);
-            headerCellProxyContainer.appendChild(headerCellProxy);
-            // don't display proxy immediately to allow a potential double-click to register
-            headerCellProxy.style.display = "none";
-            setTimeout(function() {
-              if (headerCellProxy != null) {  // still there
-                headerCellProxy.style.display = "";
-              }
-            }, 150);
-          }
-          headerCellProxy.style.top = (me.tableDiv.startTop + deltay) + "px";
-          headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + deltax) + "px";
-          var matchedCol = null;
-          // The mouse is within 25px above the grid or over the grid.
-          if (deltay > -25 && deltay < parseInt(me.tableDiv.style.height)) {
-            //Look at each vLine and decide which the mouse is nearest.
-            //Adjust the mouse coordinates to the vLine's frame of reference so they can be compared.
-            for (var i = 0; i < me.vLines.length; i++) {
-              var line = me.vLines[i];
-              var lineLeft = parseInt(line.style.left);
-              var mouseLeft = mouseXY.x;
-
-              if (me.designMode && context == "dspf") {
-                lineLeft = Math.round(lineLeft * toolbar.zoomDecimal);    //Match with the scaled canvas so the mouse and elements appear together.
-              }
-              
-              mouseLeft -= mouseLineDiff.x;
-
-              var diff = Math.abs(lineLeft - mouseLeft);
-              if (diff < 15) {
-                // The mouse is near vLine[i].
-                if (columnPointer != null && columnPointer.parentNode != line.parentNode) {
-                  columnPointer.parentNode.removeChild(columnPointer);
-                  columnPointer = null;
-                }
-                if (columnPointer == null) {
-                  columnPointer = document.createElement("img");
-                  columnPointer.src = pui.normalizeURL("/profoundui/proddata/images/grids/column-pointer.gif");
-                  columnPointer.style.position = "absolute";
-                  columnPointer.style.zIndex = me.moveColumnZIndex + 1;
-                  if (me.designMode) toolbar.designer.container.appendChild(columnPointer);
-                  else document.body.appendChild(columnPointer);
-                }
-                var top = parseInt(line.style.top) - 10;
-                var left = parseInt(line.style.left) - 4;
-                
-                top += offset.y;
-                left += offset.x;
-                columnPointer.style.display = "";
-                columnPointer.style.top = top + "px";
-                columnPointer.style.left = left + "px";
-                matchedCol = i;
-                columnPointer.matchedCol = matchedCol;
-                break;
-              }
-            }
-          }
-          if (matchedCol == null && columnPointer != null) {
-            columnPointer.style.display = "none";
-            columnPointer.matchedCol = null;
-          }
-          return;
-        }
-        
-        var designItem = me.tableDiv.designItem;
-        if (designItem != null) {
-          pui.designer.testDragOverGridOrLayout({
-            x: mouseXY.x,
-            y: mouseXY.y,
-            designer: designItem.designer,
-            inGridCell: false,
-            inLayoutContainer: inLayoutContainer,
-            dom: designItem.dom,
-            designItem: designItem,
-            cursorStartX: cursorStartX,
-            cursorStartY: cursorStartY,
-            canBelongToGrid: false,
-            canBelongToLayout: true,
-            zoomFactor: toolbar.zoomFactor
-          });
-
-          var selection = designItem.designer.selection;
-          if (selection.snapToGrid) {
-            deltax += me.tableDiv.startLeft;
-            deltay += me.tableDiv.startTop;
-            deltax = selection.snap(deltax, pui.multX);
-            deltay = selection.snap(deltay, pui.multY, (context == "genie" ? 3 : 0));
-            deltax -= me.tableDiv.startLeft;
-            deltay -= me.tableDiv.startTop;
-          }
-        }
-        me.doThisToTableDivs(function (domObj) {
-          domObj.style.top = (domObj.startTop + deltay) + "px";
-          domObj.style.left = (domObj.startLeft + deltax) + "px";
-        });
-        if (designItem != null) designItem.moved = true;
-        me.setScrollBar();
-        var psBar = pui.designer.psBar;
-        if (psBar.container == null) {
-          psBar.container = document.body;
-          psBar.init();
-        }
-        psBar.set(me.tableDiv.designItem);
-        psBar.show();
+      if (me.lockedInPlace) {
+        designUtils.preventEvent(event);
+        return;
       }
-      function mouseup() {
-        me.dragging = false;
-        if (headerCellProxy != null) {
-          headerCellProxy.parentNode.removeChild(headerCellProxy);
-          headerCellProxyContainer.parentNode.removeChild(headerCellProxyContainer);
-          headerCellProxy = null;
-          headerCellProxyContainer = null;
-        }
-        var columnWasMoved = false;
-        if (columnPointer != null) {
-          columnPointer.style.display = "none";
-          if (columnPointer.matchedCol != null) {
-            var itm = me.tableDiv.designItem;
-            if (itm != null) itm.designer.undo.addSnapshot("Move Column", itm.designer);
-            me.moveColumn(cell.col, columnPointer.matchedCol);
-            // if hidable columns, update the column inforamtion and save the colSequence to the object
-            if (me.hidableColumns) {
-              var cols = me.columnInfo.map(function (col) {
-                if (!col["showing"]) col["currentColumn"] = -1;
-                else {
-                  var curCol = getCurrentColumnFromId(col["columnId"]);
-                  col["currentColumn"] = curCol;
-                  col["savedColumn"] = curCol;
-                }
-                return col;
-              });
-              var colSequence = [];
-              me.cells[0].forEach(function (cell) {
-                colSequence.push(cell.columnId);
-              });
-              cols.colSequence = colSequence;
-              me.columnInfo = cols;
-            }
-            columnWasMoved = true;
-            columnPointer.matchedCol = null;
+      me.tableDiv.designItem.startValues.left = me.tableDiv.style.left;
+      me.tableDiv.designItem.startValues.top = me.tableDiv.style.top;
+    }
+    else {
+      if (me.gridMenu != null && !pui.isRightClick(event)) me.gridMenu.hide();
+    }
 
-            if (persistState) {
-              // If hidable columns, we already have the colSequence 
-              if (!colSequence) {
-                var colSequence = [];
-                for (var i = 0; i < me.cells[0].length; i++) {
-                  colSequence.push(me.cells[0][i].columnId);
-                }
-              }
-              saveState(colSequence, "colSequence");
-              if (me.hidableColumns) {
-                var state = restoreStatePreCheck();
-                if (state) {
-                  var colState = state["hidableColState"];
-                  if (!colState) colState = { "cols": cols, "headings": me.columnHeadings };
-                  else {
-                    colState["cols"] = cols;
-                    colState["headings"] = me.columnHeadings;
-                  }
-                } else {
-                  var colState = { "cols": cols, "headings": me.columnHeadings };
-                }
-                var colWidths = me
-                  .getColumnWidths()
-                  .split(',')
-                    .map(function (size) { return Number(size); });
+    me.dragging = true;
+    var cursorStartX = pui.getMouseX(event);
+    var cursorStartY = pui.getMouseY(event);
+    me.doThisToTableDivs(function (domObj) {
+      domObj.startLeft = pui.safeParseInt(domObj.style.left);
+      domObj.startTop = pui.safeParseInt(domObj.style.top);
+    });
+    var inLayoutContainer = false;
+    if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
+      inLayoutContainer = true;
+    }
 
-                saveState(colState, "hidableColState");
-                saveState(colWidths, 'colWidths');
-                me.columnInfo = cols;
-              }
-            }
-          }
-        }
-        if (me.designMode) {
-          var itm = me.tableDiv.designItem;
-          if (itm != null) {
-            if (itm.moved) {
+    // Note: the following variables and calculations are used in mousemove but run here to be faster so the UI isn't as jumpy.
+    var mouseLineDiff = {x:0, y:0};   //The difference between the mouse X,Y and a vLine's left,top offsets.
+    if (me.designMode) {
+      var containerOffsets = pui.getOffset(me.tableDiv.designItem.designer.container, true);
+      mouseLineDiff.x += containerOffsets[0];
+    }
+    else {
+      // Get the runtimeContainer's position relative to the page. The bounding rectangle handles
+      // positions of any parent DIV elements the customer's start.html may have added. #3344.
+      var rect = pui.runtimeContainer.getBoundingClientRect();
 
-              var designer = itm.designer;
-              if (designer.dropContainer != null) {
-                me.moveGridToDropContainer();
-              } else {
-
-                if (inLayoutContainer) {
-                  if (designer.proxyDiv.style.display == "") {
-                    me.moveGridToMainCanvas();
-                  }
-                }
-                designer.addSelectionToTabs();
-                me.doExpandToLayout();
-                if (context == "dspf") pui.ide.refreshRibbon();
-              }
-
-            }
-            else {
-              if (!columnWasMoved) {
-                me.tableDiv.designItem.designer.undo.removeLastGroup();
-              }
-            }
-          }
-          me.sendToDesigner();
-          var psBar = pui.designer.psBar;
-          if (psBar != null && psBar.container != null) psBar.hide();
-        }
-        removeEvent(document, "mousemove", mousemove);
-        removeEvent(document, "mouseup", mouseup);
+      // BoundingClientRect is relative to the viewport, so adjust for scroll position.
+      if (typeof window.pageXOffset == "number") {
+        mouseLineDiff.x = rect.left + window.pageXOffset;
+        mouseLineDiff.y = rect.top + window.pageYOffset;
+      } else {
+        // window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+        mouseLineDiff.x = rect.left + document.documentElement.scrollLeft;
+        mouseLineDiff.y = rect.top + document.documentElement.scrollTop;
       }
-      addEvent(document, "mousemove", mousemove);
-      addEvent(document, "mouseup", mouseup);
-      preventEvent(event);
-      if (me.designMode && me.tableDiv.designItem != null) {
-        me.tableDiv.designItem.moved = false;
-        var designer = me.tableDiv.designItem.designer;
-        var selection = designer.selection;
-        var undoText = "Move Selection";
-        if (selection.resizers.length == 1) undoText = "Move Grid";
-        if (!(me.hasHeader && cell.row == 0)) {
-          designer.undo.start(undoText);
-          designer.undo.noRefresh = true;
-          selection.addToUndo(["left", "top", "parent tab panel", "parent tab panel"]);
-          designer.undo.noRefresh = false;
-        }
+
+      // Compensate if the grid is inside a window. (See #3532 for test cases.)
+      var windowDiv = me.tableDiv.parentNode;
+      var acont = pui["getActiveContainer"]();
+      if (windowDiv.isPUIWindow == true) {
+        mouseLineDiff.x += parseInt(windowDiv.style.left);
+        mouseLineDiff.y += parseInt(windowDiv.style.top);
+      }
+      else if (acont != null && acont.isPUIWindow === true) {
+        // Note: in RDF, the active container is a PUIWindow. In Genie, pui.runtimeContainer is
+        // the active container but not a PUIWindow. So, the same offset isn't added twice.
+        mouseLineDiff.x += acont.offsetLeft;
+        mouseLineDiff.y += acont.offsetTop;
       }
     }
-    addEvent(cell, "mousedown", mousedown);
-  }
 
+    if (inLayoutContainer) {
+      //In Rich Display or Designer, compensate when the grid is in a container.
+      var layContOff = pui.layout.getContainerOffset(me.tableDiv.parentNode);
+      mouseLineDiff.x += layContOff.x;
+      mouseLineDiff.y += layContOff.y;
+    }
+
+    var offset = {x:0, y:0};
+    // Since columnPointer doesn't have same parent as the vLine, adjust columnPointer's position.
+    if (!me.designMode) {
+      // In RDF or Genie, the previous mouse calculations can be used because the
+      // columnPointer's parent is <body>, and the mouse position is based on <body>.
+      offset.y = mouseLineDiff.y;
+      offset.x = mouseLineDiff.x;
+    } else if (inLayoutContainer) {
+      // We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
+      // parent is a designer div, not the body. So the mouse calculation cannot be used.
+      offset = layContOff;
+    }
+
+    function mousemove(event) {
+      var mouseXY = pui.getMouseXY(event);
+      var deltay = mouseXY.y - cursorStartY;
+      var deltax = mouseXY.x - cursorStartX;
+      // Compensate for elements being visually in a different place than the event coordinates when designer canvas is zoomed.
+      if (context == "dspf" && me.designMode){
+        deltay = Math.round(deltay * toolbar.zoomFactor);
+        deltax = Math.round(deltax * toolbar.zoomFactor);
+      }
+      if (me.hasHeader && cell.row == 0) {
+        // move header column
+        if (headerCellProxy == null) {
+          headerCellProxy = cell.cloneNode(true);
+          headerCellProxy.style.border = "1px solid #999999";
+          headerCellProxy.style.zIndex = me.moveColumnZIndex;
+          headerCellProxyContainer = document.createElement("div");
+          headerCellProxyContainer.className = me.tableDiv.className;
+          headerCellProxyContainer.style.borderColor = "transparent";
+          cell.parentNode.parentNode.appendChild(headerCellProxyContainer);
+          headerCellProxyContainer.appendChild(headerCellProxy);
+          // don't display proxy immediately to allow a potential double-click to register
+          headerCellProxy.style.display = "none";
+          setTimeout(function() {
+            if (headerCellProxy != null) {  // still there
+              headerCellProxy.style.display = "";
+            }
+          }, 150);
+        }
+        headerCellProxy.style.top = (me.tableDiv.startTop + deltay) + "px";
+        headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + deltax) + "px";
+        var matchedCol = null;
+        // The mouse is within 25px above the grid or over the grid.
+        if (deltay > -25 && deltay < parseInt(me.tableDiv.style.height)) {
+          //Look at each vLine and decide which the mouse is nearest.
+          //Adjust the mouse coordinates to the vLine's frame of reference so they can be compared.
+          for (var i = 0; i < me.vLines.length; i++) {
+            var line = me.vLines[i];
+            var lineLeft = parseInt(line.style.left);
+            var mouseLeft = mouseXY.x;
+
+            if (me.designMode && context == "dspf") {
+              lineLeft = Math.round(lineLeft * toolbar.zoomDecimal);    //Match with the scaled canvas so the mouse and elements appear together.
+            }
+
+            mouseLeft -= mouseLineDiff.x;
+
+            var diff = Math.abs(lineLeft - mouseLeft);
+            if (diff < 15) {
+              // The mouse is near vLine[i].
+              if (columnPointer != null && columnPointer.parentNode != line.parentNode) {
+                columnPointer.parentNode.removeChild(columnPointer);
+                columnPointer = null;
+              }
+              if (columnPointer == null) {
+                columnPointer = document.createElement("img");
+                columnPointer.src = pui.normalizeURL("/profoundui/proddata/images/grids/column-pointer.gif");
+                columnPointer.style.position = "absolute";
+                columnPointer.style.zIndex = me.moveColumnZIndex + 1;
+                if (me.designMode) toolbar.designer.container.appendChild(columnPointer);
+                else document.body.appendChild(columnPointer);
+              }
+              var top = parseInt(line.style.top) - 10;
+              var left = parseInt(line.style.left) - 4;
+
+              top += offset.y;
+              left += offset.x;
+              columnPointer.style.display = "";
+              columnPointer.style.top = top + "px";
+              columnPointer.style.left = left + "px";
+              matchedCol = i;
+              columnPointer.matchedCol = matchedCol;
+              break;
+            }
+          }
+        }
+        if (matchedCol == null && columnPointer != null) {
+          columnPointer.style.display = "none";
+          columnPointer.matchedCol = null;
+        }
+        return;
+      }
+
+      var designItem = me.tableDiv.designItem;
+      if (designItem != null) {
+        pui.designer.testDragOverGridOrLayout({
+          x: mouseXY.x,
+          y: mouseXY.y,
+          designer: designItem.designer,
+          inGridCell: false,
+          inLayoutContainer: inLayoutContainer,
+          dom: designItem.dom,
+          designItem: designItem,
+          cursorStartX: cursorStartX,
+          cursorStartY: cursorStartY,
+          canBelongToGrid: false,
+          canBelongToLayout: true,
+          zoomFactor: toolbar.zoomFactor
+        });
+
+        var selection = designItem.designer.selection;
+        if (selection.snapToGrid) {
+          deltax += me.tableDiv.startLeft;
+          deltay += me.tableDiv.startTop;
+          deltax = selection.snap(deltax, pui.multX);
+          deltay = selection.snap(deltay, pui.multY, (context == "genie" ? 3 : 0));
+          deltax -= me.tableDiv.startLeft;
+          deltay -= me.tableDiv.startTop;
+        }
+      }
+      me.doThisToTableDivs(function (domObj) {
+        domObj.style.top = (domObj.startTop + deltay) + "px";
+        domObj.style.left = (domObj.startLeft + deltax) + "px";
+      });
+      if (designItem != null) designItem.moved = true;
+      me.setScrollBar();
+      var psBar = pui.designer.psBar;
+      if (psBar.container == null) {
+        psBar.container = document.body;
+        psBar.init();
+      }
+      psBar.set(me.tableDiv.designItem);
+      psBar.show();
+    }
+    function mouseup() {
+      me.dragging = false;
+      if (headerCellProxy != null) {
+        headerCellProxy.parentNode.removeChild(headerCellProxy);
+        headerCellProxyContainer.parentNode.removeChild(headerCellProxyContainer);
+        headerCellProxy = null;
+        headerCellProxyContainer = null;
+      }
+      var columnWasMoved = false;
+      if (columnPointer != null) {
+        columnPointer.style.display = "none";
+        if (columnPointer.matchedCol != null) {
+          var itm = me.tableDiv.designItem;
+          if (itm != null) itm.designer.undo.addSnapshot("Move Column", itm.designer);
+          me.moveColumn(cell.col, columnPointer.matchedCol);
+          // if hidable columns, update the column inforamtion and save the colSequence to the object
+          if (me.hidableColumns) {
+            var cols = me.columnInfo.map(function (col) {
+              if (!col["showing"]) col["currentColumn"] = -1;
+              else {
+                var curCol = getCurrentColumnFromId(col["columnId"]);
+                col["currentColumn"] = curCol;
+                col["savedColumn"] = curCol;
+              }
+              return col;
+            });
+            var colSequence = [];
+            me.cells[0].forEach(function (cell) {
+              colSequence.push(cell.columnId);
+            });
+            cols.colSequence = colSequence;
+            me.columnInfo = cols;
+          }
+          columnWasMoved = true;
+          columnPointer.matchedCol = null;
+
+          if (persistState) {
+            // If hidable columns, we already have the colSequence 
+            if (!colSequence) {
+              var colSequence = [];
+              for (var i = 0; i < me.cells[0].length; i++) {
+                colSequence.push(me.cells[0][i].columnId);
+              }
+            }
+            saveState(colSequence, "colSequence");
+            if (me.hidableColumns) {
+              var state = restoreStatePreCheck();
+              if (state) {
+                var colState = state["hidableColState"];
+                if (!colState) colState = { "cols": cols, "headings": me.columnHeadings };
+                else {
+                  colState["cols"] = cols;
+                  colState["headings"] = me.columnHeadings;
+                }
+              } else {
+                var colState = { "cols": cols, "headings": me.columnHeadings };
+              }
+              var colWidths = me
+                .getColumnWidths()
+                .split(',')
+                  .map(function (size) { return Number(size); });
+
+              saveState(colState, "hidableColState");
+              saveState(colWidths, 'colWidths');
+              me.columnInfo = cols;
+            }
+          }
+        }
+      }
+      if (me.designMode) {
+        var itm = me.tableDiv.designItem;
+        if (itm != null) {
+          if (itm.moved) {
+
+            var designer = itm.designer;
+            if (designer.dropContainer != null) {
+              me.moveGridToDropContainer();
+            } else {
+
+              if (inLayoutContainer) {
+                if (designer.proxyDiv.style.display == "") {
+                  me.moveGridToMainCanvas();
+                }
+              }
+              designer.addSelectionToTabs();
+              me.doExpandToLayout();
+              if (context == "dspf") pui.ide.refreshRibbon();
+            }
+
+          }
+          else {
+            if (!columnWasMoved) {
+              me.tableDiv.designItem.designer.undo.removeLastGroup();
+            }
+          }
+        }
+        me.sendToDesigner();
+        var psBar = pui.designer.psBar;
+        if (psBar != null && psBar.container != null) psBar.hide();
+        
+        designUtils.postDragCleanGridsLayouts(me.tableDiv.designItem.designer);
+      }
+      removeEvent(document, "mousemove", mousemove);
+      removeEvent(document, "mouseup", mouseup);
+    }
+    addEvent(document, "mousemove", mousemove);
+    addEvent(document, "mouseup", mouseup);
+    preventEvent(event);
+    if (me.designMode && me.tableDiv.designItem != null) {
+      me.tableDiv.designItem.moved = false;
+      var designer = me.tableDiv.designItem.designer;
+      var selection = designer.selection;
+      var undoText = "Move Selection";
+      if (selection.resizers.length == 1) undoText = "Move Grid";
+      if (!(me.hasHeader && cell.row == 0)) {
+        designer.undo.start(undoText);
+        designer.undo.noRefresh = true;
+        selection.addToUndo(["left", "top", "parent tab panel", "parent tab panel"]);
+        designer.undo.noRefresh = false;
+      }
+    }
+  }
 
 
   /**
@@ -7586,13 +7594,13 @@ pui.Grid = function () {
         filteredRecord.hiddenFieldInfo = record.hiddenFieldInfo;
       }
     }
-  }
+  };
   this["hideRow"] = function(rrn) {
     me.handleHideRow(rrn, true);
-  }
+  };
   this["showRow"] = function(rrn) {
     me.handleHideRow(rrn, false);
-  }
+  };
   
   this["clearState"] = function (part) {
 
