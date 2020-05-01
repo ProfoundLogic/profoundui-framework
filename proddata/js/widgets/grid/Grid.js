@@ -5234,12 +5234,15 @@ pui.Grid = function () {
    */
   function cellmousedown(event) {
     var cell = event.target;
+    var inLayoutContainer = (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true");
+    var startXY = pui.getMouseXY(event);
+    var cursorStartX = startXY.x;
+    var cursorStartY = startXY.y;
+    
     if (me.designMode) {
       me.tableDiv.designItem.designer.hideDialogs();
       if (context == "dspf") Ext.menu.MenuMgr.hideAll();
       me.selectMe();
-      
-      designUtils.preDragCalcGridsLayouts(me.tableDiv.designItem.designer);
       
       if (pui.isRightClick(event)) {
         if (me.tableDiv.designItem) {
@@ -5260,23 +5263,19 @@ pui.Grid = function () {
       }
       me.tableDiv.designItem.startValues.left = me.tableDiv.style.left;
       me.tableDiv.designItem.startValues.top = me.tableDiv.style.top;
+      
+      designUtils.preDragCalcGridsLayouts(me.tableDiv.designItem.designer, false, inLayoutContainer, false, true, cursorStartX, cursorStartY, me.tableDiv.designItem);
     }
     else {
       if (me.gridMenu != null && !pui.isRightClick(event)) me.gridMenu.hide();
     }
 
     me.dragging = true;
-    var cursorStartX = pui.getMouseX(event);
-    var cursorStartY = pui.getMouseY(event);
     me.doThisToTableDivs(function (domObj) {
       domObj.startLeft = pui.safeParseInt(domObj.style.left);
       domObj.startTop = pui.safeParseInt(domObj.style.top);
     });
-    var inLayoutContainer = false;
-    if (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true") {
-      inLayoutContainer = true;
-    }
-
+    
     // Note: the following variables and calculations are used in mousemove but run here to be faster so the UI isn't as jumpy.
     var mouseLineDiff = {x:0, y:0};   //The difference between the mouse X,Y and a vLine's left,top offsets.
     if (me.designMode) {
@@ -5418,20 +5417,7 @@ pui.Grid = function () {
 
       var designItem = me.tableDiv.designItem;
       if (designItem != null) {
-        pui.designer.testDragOverGridOrLayout({
-          x: mouseXY.x,
-          y: mouseXY.y,
-          designer: designItem.designer,
-          inGridCell: false,
-          inLayoutContainer: inLayoutContainer,
-          dom: designItem.dom,
-          designItem: designItem,
-          cursorStartX: cursorStartX,
-          cursorStartY: cursorStartY,
-          canBelongToGrid: false,
-          canBelongToLayout: true,
-          zoomFactor: toolbar.zoomFactor
-        });
+        pui.designer.testDragOverGridOrLayout(mouseXY.x, mouseXY.y, designItem.designer);
 
         var selection = designItem.designer.selection;
         if (selection.snapToGrid) {
