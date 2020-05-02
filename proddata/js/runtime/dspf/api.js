@@ -880,7 +880,22 @@ pui['getScreenProp'] = function(screen, propName) {
   else return false;
 }
 
-pui["runLogic"] = function(logicRoutineName) {
-  pui.responseRoutine = logicRoutineName;
+pui["runLogic"] = function(routineName) {
+
+  if (pui.clientLogic && pui.clientLogic[routineName]) {
+    var routineFunc = function() {};
+    try {
+      eval("routineFunc = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}");
+    }
+    catch (err) {
+      console.error(err);
+    }
+    var returnValue = routineFunc();
+    if (returnValue === false) {
+      return;
+    }
+  }
+
+  pui.responseRoutine = routineName;
   pui.click();
 }

@@ -535,7 +535,9 @@ pui.popstate = function(e) {
 
 
 pui.render = function(parms) {
-  
+
+  pui.clientLogic = parms.clientLogic;
+
   if (typeof pui["beforeRender"] === "function") {
     var rv = pui["beforeRender"](parms);
     if (rv) parms = rv;
