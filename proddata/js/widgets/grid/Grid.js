@@ -2512,7 +2512,7 @@ pui.Grid = function () {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var headerRow = me.cells[0];
-    // Setup click events for DB-driven grid; it knows the fieldNames at this point. Custom SQL doesn't.
+    // Setup click events for DB-driven grid specified by "database file"; it knows the fieldNames at this point. Custom SQL doesn't.
     if ((me["dataProps"]["database file"] != null && me["dataProps"]["database file"] != "") &&
       (me["dataProps"]["custom sql"] == null || me["dataProps"]["custom sql"] == "") &&
       (me["dataProps"]["data url"] == null || me["dataProps"]["data url"] == "") &&
@@ -4036,6 +4036,12 @@ pui.Grid = function () {
     return returnValue;
   };
 
+  /**
+   * Set properties during building of grid.
+   * @param {String} property
+   * @param {String|Number|Boolean|Null|undefined} value
+   * @param {undefined|String} unevaledValue
+   */
   this.setProperty = function (property, value, unevaledValue) {
     if (value == null) value = "";
 
@@ -4683,7 +4689,7 @@ pui.Grid = function () {
       case "scroll tool tip":
         me.scrollToolTip = value;
         me.setScrollBar();
-
+        break;
 
       case "remote system name":
       case "database file":
@@ -4701,7 +4707,8 @@ pui.Grid = function () {
       case "data columns 2":
       case "data columns 3":
       case "data columns 4":
-        me["dataProps"][property] = value;
+        // Note: trim to avoid meaningless " " values disrupting grid behavior. (Grid only tests for "" and null values.) #5980.
+        me["dataProps"][property] = (typeof value == "string" ? value.trim(): value);
         break;
 
       case "hover effect":
