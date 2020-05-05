@@ -5241,6 +5241,10 @@ pui.Grid = function () {
    */
   function cellmousedown(event) {
     var cell = event.target;
+    while (cell != null && cell.row == null){
+      cell = cell.parentNode;
+    }
+    if (cell == null || cell.row == null) return false;
     var inLayoutContainer = (context == "dspf" && me.tableDiv.parentNode.getAttribute("container") == "true");
     var startXY = pui.getMouseXY(event);
     var cursorStartX = startXY.x;
