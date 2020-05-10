@@ -1165,10 +1165,10 @@ pui.renderFormat = function(parms) {
 
       if (pui.wf.enabled && pui.isRoutine(propValue)) {
         if (isDesignMode) {
-         var wfData = {};
-         if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
-          wfData = pui.display.logic[propValue.routine];
-         }
+          var wfData = {};
+          if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+            wfData = pui.display.logic[propValue.routine];
+          }
           pui.wf.tracker.update({
             name: propValue.routine,
             designItem: "Screen",
