@@ -5151,33 +5151,43 @@ pui.Grid = function () {
       }
     }
 
+    function setBackground(cell, background, colNum) {
+      if (background == null) background = "";
+      var backgrounds = background.split(",");
+      if (backgrounds.length > 1) {
+        if (colNum < backgrounds.length) {
+          background = backgrounds[colNum];
+        }
+        else {
+          background = backgrounds[0];
+        }
+      }
+      cell.style.backgroundColor = background;
+      return background;
+    }
+
     for (i = 0; i < cols.length; i++) {
       pui.removeCssClass(cols[i], "selected");
       pui.removeCssClass(cols[i], "hover");
       if (selected) {
         setColor(cols[i], me.cellProps["selection font color"], i);
-        if (me.cellProps["selection background"] == null) {
-          cols[i].style.backgroundColor = "";
-        }
-        else {
-          cols[i].style.backgroundColor = me.cellProps["selection background"];
-        }
+        setBackground(cols[i], me.cellProps["selection background"] || "", i);
         var selectionImage = me.cellProps["selection image"];
-        if (selectionImage == null || selectionImage == "") {
-          cols[i].style.backgroundImage = "";
-        }
-        else {
-          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(selectionImage, true) + "')";
+        if (selectionImage && selectionImage.trim()) {
+          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(selectionImage.trim(), true) + "')";
         }
         pui.addCssClass(cols[i], "selected");
       }
       else if (hover == true) {
         setColor(cols[i], me.cellProps["hover font color"], i);
-        cols[i].style.backgroundColor = me.cellProps["hover background"];
-        if (me.cellProps["hover image"] != null && me.cellProps["hover image"] != "") {
-          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(me.cellProps["hover image"], true) + "')";
+        setBackground(cols[i], me.cellProps["hover background"] || "", i);
+
+        var hoverImage = me.cellProps["hover image"];
+        if (hoverImage && hoverImage.trim()) {
+          cols[i].style.backgroundImage = "url('" + pui.normalizeURL(hoverImage.trim(), true) + "')";
           cols[i].style.backgroundRepeat = "repeat-x";
         }
+
         pui.addCssClass(cols[i], "hover");
       }
       else {
@@ -5185,23 +5195,13 @@ pui.Grid = function () {
         if (!rowFontColor || !rowFontColor.trim())
         	rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
 
-        if (rowFontColor && rowFontColor.trim()){
-        	  var rowFontColors = rowFontColor.split(",");
-        	  if (rowFontColors.length > 1)
-        		  rowFontColor = rowFontColors[i].trim();
-        }
         setColor(cols[i], rowFontColor || "", i);
 
         rowBackground = rowBackground || me.cellProps["row background"];
         if (!rowBackground || !rowBackground.trim()) 
           rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
-        
-        if (rowBackground && rowBackground.trim()){
-      	  var rowBackgrounds = rowBackground.split(",");
-      	  if (rowBackgrounds.length > 1)
-      		  rowBackground = rowBackgrounds[i].trim();
-        }
-        cols[i].style.backgroundColor = rowBackground || "";
+
+        setBackground(cols[i], rowBackground || "", i);
         cols[i].style.backgroundImage = "";
       }
     }
