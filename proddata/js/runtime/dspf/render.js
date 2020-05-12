@@ -4735,7 +4735,7 @@ pui["run"] = function(config) {
     var puiRefreshId = pui["getCookie"]("puiRefreshId");
     if (puiRefreshId != null) {
       // delete the cookie
-      pui["deleteCookie"]("puiRefreshId", "/");
+      pui["deleteCookie"]("puiRefreshId", "/", null, null, "Strict");
       // set refresh parameter and append persistence id
       ajaxParams = {
         "refresh": "1"
@@ -4859,7 +4859,7 @@ pui["signon"] = function(config) {
   var puiRefreshId = pui["getCookie"]("puiRefreshId");
   if (puiRefreshId != null) {
     // delete the cookie
-    pui["deleteCookie"]("puiRefreshId", "/");
+    pui["deleteCookie"]("puiRefreshId", "/", null, null, "Strict");
     // set refresh parameter and append persistence id
     ajaxParams = {
       "refresh": "1"

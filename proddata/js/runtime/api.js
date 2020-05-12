@@ -1634,7 +1634,17 @@ pui["getCookie"] = function(check_name) {
   }
 };
 
-pui["setCookie"] = function(name, value, expires, path, domain, secure) {
+/**
+ * Set a document cookie.  https://docs.profoundlogic.com/x/KoCS 
+ * @param {String} name           Name of the cookie.
+ * @param {String} value          Value to place in the cookie.
+ * @param {Number|Null} expires   Number of days cookie will expire in.
+ * @param {String|Null} path      Path on server cookie is available to.
+ * @param {String|Null} domain    Domain name cookie is available to.
+ * @param {Boolean|Null} secure   When true cookie will only be sent over HTTPS connection.
+ * @param {String|Null} sameSite  None, Strict, Lax. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+ */
+pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite) {
 	// set time, it's in milliseconds
 	var today = new Date();
 	today.setTime(today.getTime());
@@ -1651,14 +1661,19 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure) {
 		( ( expires ) ? ";expires=" + expires_date.toGMTString() : "" ) + 
 		( ( path ) ? ";path=" + path : "" ) + 
 		( ( domain ) ? ";domain=" + domain : "" ) +
-		( ( secure ) ? ";secure" : "" );
+          ( ( secure ) ? ";secure" : "" ) +
+          (sameSite ? ";SameSite=" +sameSite : "")
+        ;
 };
 
-pui["deleteCookie"] = function(name, path, domain) {
+// https://docs.profoundlogic.com/x/KICS 
+pui["deleteCookie"] = function(name, path, domain, secure, sameSite) {
 	if ( pui["getCookie"](name) ) document.cookie = name + "=" +
 			( ( path ) ? ";path=" + path : "") +
 			( ( domain ) ? ";domain=" + domain : "" ) +
-			";expires=Thu, 01-Jan-1970 00:00:01 GMT";
+          ";expires=Thu, 01-Jan-1970 00:00:01 GMT"+
+          (secure ? ";Secure" : "") +
+          (sameSite ? ";SameSite="+sameSite : "");
 };
 
 
@@ -1668,7 +1683,7 @@ pui["refresh"] = function(parms) {
   if (parms == null) parms = {};
   var url = parms["url"];
   var skin = parms["skin"];
-  pui["setCookie"]("puiRefreshId", pui.psid, null, "/");
+  pui["setCookie"]("puiRefreshId", pui.psid, null, "/", null, null, "Strict");
   pui.skipConfirm = true;
   pui.shutdownOnClose = false;
   pui.confirmOnClose = false;
