@@ -1015,7 +1015,7 @@ pui["unload"] = function() {
     else {
       var ajaxParams = {
         "shutdown": "1"
-      }
+      };
       if (pui["isCloud"]) {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
@@ -1028,7 +1028,7 @@ pui["unload"] = function() {
     }
     pui.shutdownOnClose = false;
   }
-}
+};
 
 pui.assignUnloadEvents = function() {
   if (window.addEventListener) {
@@ -1041,7 +1041,7 @@ pui.assignUnloadEvents = function() {
     if (!pui.designer.Designer || pui.genie != null)
       window.attachEvent("onunload", pui["unload"]);
   }  
-}
+};
 
 
 pui.downloadAsAttachment = function(contentType, fileName, data) {
@@ -1064,7 +1064,7 @@ pui.downloadAsAttachment = function(contentType, fileName, data) {
     pui.skipConfirm = false;
   }, 0);    
 
-}
+};
 
 
 pui.addCssClass = function(dom, clsName) {
@@ -1130,7 +1130,7 @@ pui.setEmptyText = function(dom, emptyText) {
     var target = getTarget(e);
     pui.checkEmptyText(target);
   });
-}
+};
 
 pui.checkEmptyText = function(dom) {
   if (dom.readOnly || dom.disabled) return;
@@ -1144,7 +1144,7 @@ pui.checkEmptyText = function(dom) {
   else {
     pui.removeCssClass(dom, "empty-text");
   }
-}
+};
 
 pui.attachOnUserActivity = function() {
   if (pui.onUserActivityAttached) return;  
@@ -1159,7 +1159,7 @@ pui.attachOnUserActivity = function() {
   addEvent(document.body, "touchstart",onUserActivity);
   addEvent(document.body, "touchmove",onUserActivity);
   pui.onUserActivityAttached = true;
-}
+};
 
 
 // Keeps the server job from timing out
@@ -1177,7 +1177,7 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
   if (pui["keep alive interval"] == null) return;
   pui.autoKeepAlive.timeout = pui["keep alive interval"];
   pui.autoKeepAlive.start();
-}
+};
 
 pui.autoKeepAlive.start = function() {
   if (pui.autoKeepAlive.started) return;
@@ -1188,17 +1188,17 @@ pui.autoKeepAlive.start = function() {
   pui.autoKeepAlive.intervalId = setInterval(pui.autoKeepAlive.check, milliseconds);
   pui.autoKeepAlive.reset();
   pui.autoKeepAlive.started = true;
-}
+};
 
 pui.autoKeepAlive.stop = function() {
   if (!pui.autoKeepAlive.started) return;
   clearInterval(pui.autoKeepAlive.intervalId);
   pui.autoKeepAlive.started = false;
-}
+};
 
 pui.autoKeepAlive.reset = function() {
   pui.autoKeepAlive.lastServerAccess = new Date().getTime();
-}
+};
 
 pui.autoKeepAlive.check = function() {
   var elapsedTime = (new Date().getTime()) - pui.autoKeepAlive.lastServerAccess;  // elapsed time since last server access
@@ -1206,7 +1206,7 @@ pui.autoKeepAlive.check = function() {
     pui["keepAlive"]();
     pui.autoKeepAlive.reset();
   }
-}
+};
 
 
 pui.isRightClick = function(e) {
@@ -1342,7 +1342,7 @@ pui.MultiPart = function() {
       parts.push(part);
     }
     
-  }
+  };
   
   this.send = function(url, callback) {
 
@@ -1388,7 +1388,7 @@ pui.MultiPart = function() {
     req["onready"] = callback;
     req.send();
 
-  }
+  };
   
   // Private fields.
   
@@ -1425,16 +1425,16 @@ pui.MultiPart = function() {
 
   }
 
-}
+};
 
 pui.storeEventCursorPosition = function(e) {
    var obj = getTarget(e);
    pui.storeCursorPosition(obj);
-}
+};
 
 pui.storeCursorPosition = function( obj ) {
    obj.cursorPosition = getCursorPosition(obj);
-}
+};
 
 /**
  * Parse a comma-separated string of field names and return them in a list.
@@ -1528,7 +1528,7 @@ pui.isSQLProp = function(prop) {
 
   return (typeof(pui.sqlProps[prop]) != "undefined");  
 
-}
+};
 
 pui.getSQLVarName = function(dom) {
 
@@ -1795,9 +1795,9 @@ pui.getSQLDateFmt = function() {
     fmt: fmt,
     sep: sep
   
-  }
+  };
 
-}
+};
 
 pui.getSQLTimeFmt = function() {
 
@@ -2117,7 +2117,7 @@ if (localStorage != null && typeof(window.localStorage) != "undefined")
 catch(e){
   return false;
   }
-}
+};
 
 
 
@@ -2135,7 +2135,7 @@ pui.normalizeColor = function(value) {
     } 
   }
   return value;
-}
+};
 
 pui.logException = function(e, prefix) {
 
@@ -2304,7 +2304,7 @@ pui.killFrames = function() {
 
   }  
   
-}
+};
 
 
 pui["haltFrames"] = function() {
@@ -2967,7 +2967,7 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
 };
 
 /**
- * Look for any widgets that have dependencies. Then execute the callback.
+ * Look for any widgets that have dependencies; look for enqueued custom layout templates to fetch. Then execute the callback.
  * 
  * When dependencies exist, add script/link tags to the document.head for each dependency. Execute
  * the callback after finished loading all. This should be called once before DSPF render-time,
@@ -2976,7 +2976,6 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
  * @param {Object} parm        Contains list of items or rendering parameters with items buried inside. For
  *    Genie/RDF, this would be the JSON response from the CGI program. With Designer, it has a list of widgets.
  * @param {Function} callback  Function to execute on success or failure to load files.
- * @returns {undefined}
  */
 pui.loadDependencyFiles = function(parm, callback ){
   
@@ -3027,7 +3026,7 @@ pui.loadDependencyFiles = function(parm, callback ){
     if (pui.dependencies.length <= 0){
       // Stop recursion. All dependencies are loaded or timed out (or there were none).
       pui.dependencies = null;
-      callback();   // Execute and return. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
+      checkTemplates();
       return;
     }
 
@@ -3048,22 +3047,8 @@ pui.loadDependencyFiles = function(parm, callback ){
         fileref.setAttribute("type", "text/javascript");
       }
 
-      if( typeof fileref.onload == "undefined"){
-        // IE8 fires the readystatechange event, not the load event.
-        // fileref.onload is undefined for IE8, null for others before defined.
-        fileref.onreadystatechange = function(){
-          if (fileref.readyState == "complete" || fileref.readyState == "loaded") myonload();
-        };
-      }else{
-        // IE9,10 fire for both events, so just use onload; IE11/Edge/FF/Chrome only support onload.
-        fileref.onload = myonload;
-        fileref.onerror = function(evt){
-          evt = evt || window.event;
-          if( evt != null && evt.target != null ) 
-            console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href );
-          myonload();
-        };
-      }
+      fileref.onload = myonload;
+      fileref.onerror = filerefOnError;   
 
       // It's go time! (Assume the url is already normalized...)
       if (extn === ".css") {
@@ -3078,7 +3063,43 @@ pui.loadDependencyFiles = function(parm, callback ){
       myonload();   //If the string was empty, then look for the next dependency.
     }
   } //end myonload() recursive function.
-
+  
+  function filerefOnError(evt){
+    if (evt != null && evt.target != null) console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href );
+    myonload();
+  }
+  
+  // See if any custom layout templates need to load. They must be ready before pui.render or before Designer loads. Issues 3548, 5999.
+  function checkTemplates(){    
+    if (pui.customLayoutTemplateQueue instanceof Array && pui.customLayoutTemplateQueue.length > 0){
+      var tplt = pui.customLayoutTemplateQueue.shift();
+      var req = new pui.Ajax({
+        "url": tplt.url,
+        "method": "get",
+        "suppressAlert": true,
+        "async": true,
+        "onsuccess": templateSuccess,
+        "onfail": templateFail
+      });
+      req.templateName = tplt.templateName;
+      req.send();
+    }
+    else {
+      if (pui.customLayoutTemplateQueue !== undefined) delete pui.customLayoutTemplateQueue;
+      callback();   //Execute and finish. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
+    }
+  }
+  
+  function templateFail(req){
+    // Note: processHTML will fall back to "simple container", because this template didn't exist.
+    console.log("Failed to load custom layout template:", req.templateName);
+    checkTemplates();
+  }
+  
+  function templateSuccess(req){
+    pui.layout["templates"][req.templateName] = req.getResponseText();
+    checkTemplates();
+  }
 };
 
 

@@ -84,40 +84,28 @@ pui.layout.helpTextTemplatesProperties = function(defVal, descVal) {
 pui.layout["templates"] = {};
 
 /**
- * Retrieve a custom layout template from an IFS file or URL. A user's script would cause this to run.
- * @param {String} templateName   Name of the template, also part of the IFS file name.
- * @returns {undefined}
+ * Enqueue fetching of a custom layout template from an IFS file or URL. A user's script would cause this function to be called.
+ * This must be called before pui.render runs; e.g. by a script loaded automatically in userdata/custom/js/.
+ * @param {String} templateName   URL or name of the template. Name is expected to be part of an IFS file name. See issues 3548, 5999.
  */
-pui.layout.retrieveTemplate = function (templateName) {
-
-  var url = templateName;
-
-  if (templateName.substr(0, 1) != "/" &&
-    templateName.substr(0, 5).toLowerCase() != "http:" &&
-    templateName.substr(0, 6).toLowerCase() != "https:") {
-    url = "/profoundui/userdata/layouts/" + templateName + ".html";
-  }
-
-  //Synchronously fetch the template HTML so that it's ready before pui.render. Issue 3548. Note: this makes a deprecated
-  //warning appear in the console. An alternative is to adapt the "dependencies" feature to load the template before pui.render.
-  var req = new pui.Ajax({
-    "url": pui.normalizeURL(url),
-    "method": "get",
-    "suppressAlert": true
-  });
-  req["async"] = false;
-  req.send();
-  if (req.ok()) {
-    pui.layout["templates"][templateName] = req.getResponseText();
-  } else {
-    //Note: processHTML will fall back to "simple container", because this template didn't exist.
-    console.log("Failed to load custom layout template:", templateName);
-  }
-};
-
 pui["retrieveCustomLayoutTemplate"] = function (templateName) {
-  pui.layout.retrieveTemplate(templateName);
+  if (typeof templateName === 'string' && templateName.length > 0){
+    pui.customLayoutTemplateQueue = pui.customLayoutTemplateQueue || [];
+    
+    var url = templateName;
+    if (templateName.substr(0, 1) != "/" &&
+      templateName.substr(0, 5).toLowerCase() != "http:" &&
+      templateName.substr(0, 6).toLowerCase() != "https:") {
+      url = "/profoundui/userdata/layouts/" + templateName + ".html";
+    }
+
+    pui.customLayoutTemplateQueue.push({
+      templateName: templateName,
+      url: pui.normalizeURL(url)
+    });
+  }
 };
+
 
 pui["maximizeLayout"] = function (e) {
   var itemDom = getTarget(e).parentNode;
@@ -150,8 +138,6 @@ pui["maximizeLayout"] = function (e) {
 };
 
 pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue: 'false', proxyValue: 'false' }\" title=\"Maximize\" style=\"position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; cursor: pointer; background-image: url(/profoundui/proddata/images/icons/maximize.png)\" onmousedown=\"pui.maximizeLayout(event)\" />";
-
-//pui.layout.retrieveTemplate("table");
 
 pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a horizontal scrollbar should be displayed.") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', help: '" + pui.layout.helpTextTemplatesProperties("hidden","Determines whether a vertical scrollbar should be displayed.") + "', choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
 
