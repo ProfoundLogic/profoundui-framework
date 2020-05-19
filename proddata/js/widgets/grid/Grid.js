@@ -225,6 +225,9 @@ pui.Grid = function () {
   this.getCurrentColumnFromId = getCurrentColumnFromId;
   // Prevents attaching on scroll events and drawing scrollbar twice. Needed for grids in lazy load layouts.
   this.scrollBarsSetupAfterRender = false;
+
+  this.storageKey = null;
+  this.storedState = null;
   
   var me = this;
 
@@ -3534,7 +3537,7 @@ pui.Grid = function () {
 
   function loadState() {
 
-    var state;
+    var state = null;
 
     if (pui.isLocalStorage() && localStorage[me.storageKey] != null) {
 
@@ -3547,6 +3550,17 @@ pui.Grid = function () {
 
       }
 
+    } 
+    
+    if ((state == null || state == "") && me.storedState != null) {
+
+      state = JSON.parse(me.storedState);
+
+    }
+    else if (state != null && state != "") {
+
+      me.storedState = JSON.stringify(state);
+      
     }
 
     return state;
@@ -3576,6 +3590,7 @@ pui.Grid = function () {
     }
 
     stg["cols"] = columnSignature;
+    me.storedState = JSON.stringify(stg);
     localStorage[me.storageKey] = JSON.stringify(stg);
 
   }

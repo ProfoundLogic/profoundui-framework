@@ -2544,6 +2544,11 @@ pui.renderFormat = function(parms) {
           
         }
 
+        if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null)  {
+          dom.grid.useServerState = true;
+          dom.grid.storedState = subfile["storedState"];
+        }
+
         if (subfileData != null) dom.grid.dataArray = subfileData;
         else dom.grid.dataArray = [];
 
@@ -2556,7 +2561,7 @@ pui.renderFormat = function(parms) {
 		  if (!subfileData) subfileData = [];
             fieldNames = [];
             var dataArray = [];
-			var fieldNamesObj = {};
+            var fieldNamesObj = {};
             for (var j = 0; j < items.length; j++) {
               var gridItem = items[j];
               if (gridItem["grid"] === properties.id) {
@@ -3341,6 +3346,15 @@ pui.buildResponse = function(customResponseElements) {
       }
       if (response[fieldName] != "1") response[fieldName] = "0";
     }
+
+    pui.gridsDisplayed.forEach(function (grid) {
+      if (grid.useServerState && grid.storageKey != null && grid.storedState != null && grid.storedState != "") {
+        var storageKeyVar = pui.formatUpper(grid.recordFormatName) + ".storageKey"; 
+        var storedStateVar = pui.formatUpper(grid.recordFormatName) + ".storedState";
+        response[storageKeyVar] = grid.storageKey;
+        response[storedStateVar] = grid.storedState;
+      }
+    });
     
   }
 
