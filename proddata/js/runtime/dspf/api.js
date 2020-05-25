@@ -883,7 +883,7 @@ pui['getScreenProp'] = function(screen, propName) {
 pui["runLogic"] = function(routineName) {
 
   if (pui.clientLogic && pui.clientLogic[routineName]) {
-    var routineFunc = function() {};
+    var routineFunc = function() { return false };
     try {
       eval("routineFunc = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}");
     }
