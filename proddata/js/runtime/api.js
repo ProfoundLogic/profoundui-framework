@@ -2117,7 +2117,20 @@ function runPCCommand(arg) {
     var command = commandList[nextCommand]["command"];
     var wait = commandList[nextCommand]["wait"];
     nextCommand += 1;
-    
+
+    if (typeof(pui["onPCCommand"]) == "function") {
+      try {
+        var userHandlerRc = pui["onPCCommand"](command, wait);  
+        if (userHandlerRc == null || userHandlerRc == true ) {
+          setTimeout(function() { doRunPCCommand(); }, 0);
+          return;
+        }
+      }
+      catch (e) {
+        showFailureMessage(command);
+      }
+    }
+
     if (listenerMode == 1 || listenerMode == 2) {   //Use PC Listener (ajax or image version).
       
       var waitArg = (wait) ? "1" : "0";
