@@ -2968,7 +2968,7 @@ pui.Grid = function () {
     // There may be some hidden columns; need to return the default sort order
     // for those hidden columns also.
     comma = '';
-    var columnIdMax = me.runtimeChildren[me.runtimeChildren.length-1].columnId;
+    var columnIdMax = me.runtimeChildren.length > 0 ? me.runtimeChildren[me.runtimeChildren.length-1].columnId : 0; //test rC.length to avoid error sometimes; fixed with #5999.
     for (var columnId=0; columnId <= columnIdMax; columnId++) {
       // check if this columnId is displayed; if yes, return sort order as stored in me.cells[0]
       // otherwise, return default sort order for that columnId

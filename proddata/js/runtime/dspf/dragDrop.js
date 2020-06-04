@@ -22,6 +22,14 @@
 pui["dragDropInfo"] = {};
 
 pui.attachDragDrop = function(dom, properties) {
+  var drop, recordNumber;
+  var tryScrollTimeout = 0; //Helps avoid calling tryScroll repeatedly when the mouse moves.
+  var scrollDelay = 350;    //The grid will scroll another record up or down every 350 milliseconds after the initial delay.
+  var initialScrollDelay = scrollDelay;   //By default, wait 350 milliseconds before the grid begins to scroll up or down.
+  if (typeof pui["drop scroll wait"] == 'number'){
+    // "drop scroll wait" allows the customer to set the initial delay before scrolling starts. Issue #5062.
+    initialScrollDelay = pui["drop scroll wait"];
+  }
 
   dom.onselectstart = function(e) { 
     if (isGrid || isHTMLContainer) {
@@ -78,8 +86,7 @@ pui.attachDragDrop = function(dom, properties) {
     if (touchEvent) event.preventDefault();
     // get grid row    
     var row;
-    var requestNum = 0;     //This is used to avoid calling tryScroll too many times when the mouse moves.
-    var recordNumber;
+    recordNumber = null;
 
     if (isHTMLContainer) {
       if (clickedOn.tagName == 'TEXTAREA' || clickedOn.tagName == 'INPUT') return;
@@ -116,11 +123,11 @@ pui.attachDragDrop = function(dom, properties) {
       if (dom.grid.hasHeader) {
         recordNumber = recordNumber - 1;
       }
-      if (dataRecords[recordNumber - 1] !== null && 
+      if (dataRecords.length > 0 && dataRecords[recordNumber - 1] !== null && 
           dataRecords[recordNumber - 1].length != 0 &&
           dataRecords[recordNumber - 1].subfileRow != null) {
         recordNumber = dataRecords[recordNumber - 1].subfileRow;
-      }      
+      }
       dom.grid.dragdropBusy = true; //Prevent the page from scrolling as a result of the touch event.
     }
     
@@ -128,20 +135,38 @@ pui.attachDragDrop = function(dom, properties) {
     var dropTargets = [];
     if (dropTargetIds != null && dropTargetIds != "") {
       dropTargetIds = dropTargetIds.split(",");
+      // Look in each drop target widget and make a list of drop target elements.
       for (var i = 0; i < dropTargetIds.length; i++) {
         var dropTarget = getObj(dropTargetIds[i]);
         if (dropTarget != null) {
+          // If the target is a grid, then each of its lines may be drop targets.
           if (dropTarget.grid != null) {
             var lines = dropTarget.grid.hLines;
             var lastLine = lines.length - 1;
             if (!dropTarget.grid.isDataGrid()) {
-              var dataRecords = dropTarget.grid.dataArray;
+              dataRecords = dropTarget.grid.dataArray;
               if (dropTarget.grid.isFiltered()) dataRecords = dropTarget.grid.filteredDataArray;
               var minLastLine = dataRecords.length - dropTarget.grid.recNum + 2;
               if (lastLine > minLastLine) lastLine = minLastLine;
+              // Note: if grid is DB-driven then there's no current way to get RRN, so row index becomes target record number.
             }
-            for (var j = (dropTarget.grid.hasHeader ? 1 : 0); j <= lastLine; j++) {
-              lines[j].dropIndex = j;
+            var headerAdjust = dropTarget.grid.hasHeader ? 1 : 0;
+            var lastDropIndex = headerAdjust;
+            if (dataRecords.length == 0){
+              lastLine = headerAdjust - 1;   //All records are filtered out, or there are none; 
+            }
+            // Allow elements to be dropped on every line by adding the lines to a list and setting an index. (Includes line above the first row.)
+            // Note: the grid may scroll when dragged, and grid.recNum may change; do not calculate target record numbers here.
+            for (var j = headerAdjust; j < lines.length; j++) {
+              // For when the item is not dropped below empty rows, then the subfileRow or row index will become the target record number.
+              if (j <= lastLine){
+                lines[j].dropIndex = j;   //dropIndex becomes the "row" returned by getDropInfo.
+                lastDropIndex = j;
+              }
+              // If there are blank rows in the subfile, then use the last record number for the remaining lines. More intuitive on empty grids. #5415
+              else {
+                lines[j].dropIndex = lastDropIndex;
+              }
               dropTargets.push(lines[j]);
             }
           }
@@ -316,7 +341,7 @@ pui.attachDragDrop = function(dom, properties) {
         dropInto = null;
       }
       if (prevDropInto != dropInto) {
-        requestNum++;
+        clearTimeout(tryScrollTimeout);   //Avoid grids scrolling when a new drag is happening.
         if (prevDropInto != null) {
           pui["dragDropInfo"] = {};
           pui["dragDropInfo"]["dd element"] = dom;
@@ -324,7 +349,7 @@ pui.attachDragDrop = function(dom, properties) {
           if (recordNumber != null) pui["dragDropInfo"]["dd record number"] = recordNumber;
           pui["dragDropInfo"]["proxy"] = proxy;
           pui["dragDropInfo"]["event"] = event;
-          var drop = getDropInfo(prevDropInto);
+          drop = getDropInfo(prevDropInto);
           pui["dragDropInfo"]["target element"] = drop.dom;
           pui["dragDropInfo"]["target element id"] = drop.id;
           if (drop.recordNumber != null) pui["dragDropInfo"]["target record number"] = drop.recordNumber;
@@ -341,7 +366,7 @@ pui.attachDragDrop = function(dom, properties) {
           if (recordNumber != null) pui["dragDropInfo"]["dd record number"] = recordNumber;
           pui["dragDropInfo"]["proxy"] = proxy;
           pui["dragDropInfo"]["event"] = event;
-          var drop = getDropInfo(dropInto);
+          drop = getDropInfo(dropInto);
           pui["dragDropInfo"]["target element"] = drop.dom;
           pui["dragDropInfo"]["target element id"] = drop.id;
           if (drop.recordNumber != null) pui["dragDropInfo"]["target record number"] = drop.recordNumber;
@@ -351,88 +376,22 @@ pui.attachDragDrop = function(dom, properties) {
           else if (drop.recordNumber != null) pui["dragDropInfo"]["text"] += " after row " + drop.recordNumber + " of grid " + drop.id;
           else pui["dragDropInfo"]["text"] += " over element " + drop.id;
           executeEvent("ondragenter");
-          function tryScroll(req) {
-            setTimeout(function() {
-              if (req != requestNum) return;
-              var go = false;
-              if (canScrollUp()) {
-                drop.grid.recNum -= 1;
-                drop.recordNumber -= 1;
-                go = true;
-              }
-              else if (canScrollDown()) {
-                drop.grid.recNum += 1;
-                drop.recordNumber += 1;
-                go = true;
-              }
-              if (go) {
-                // scroll the grid
-                if (drop.grid.slidingScrollBar) drop.grid.scrollbarObj.setScrollTopToRow(drop.grid.recNum);
-                else drop.grid.getData();
-                
-                // fire appropriate ondragleave/ondragenter events
-                if (recordNumber != null) pui["dragDropInfo"]["text"] = "ondragleave: Dragging row " + recordNumber + " of grid " + dom.id;
-                else pui["dragDropInfo"]["text"] = "ondragleave: Dragging element " + dom.id;
-                pui["dragDropInfo"]["text"] += " off of row " + pui["dragDropInfo"]["target record number"] + " of grid " + drop.id;
-                executeEvent("ondragleave");
-                pui["dragDropInfo"]["target record number"] = drop.recordNumber;
-                if (recordNumber != null) pui["dragDropInfo"]["text"] = "ondragenter: Dragging row " + recordNumber + " of grid " + dom.id;
-                else pui["dragDropInfo"]["text"] = "ondragenter: Dragging element " + dom.id;
-                if (drop.recordNumber == 0) pui["dragDropInfo"]["text"] += " before row " + (drop.recordNumber + 1) + " of grid " + drop.id;
-                else pui["dragDropInfo"]["text"] += " after row " + drop.recordNumber + " of grid " + drop.id;
-                executeEvent("ondragenter");
-
-                // try to scroll more...
-                setTimeout(function() {                  
-                  tryScroll(req);
-                }, 35);
-              }
-            }, 350);
-          }
-          function canScrollUp() {
-            if (drop.row == null) return false;
-            if (drop.grid.atTop()) return false;
-            if (drop.row == 0) return true;
-            if (drop.row == 1 && drop.grid.hasHeader) return true;
-            return false;
-          }
-          function canScrollDown() {
-            if (drop.row == null) return false;
-            if (drop.grid.atBottom()) return false;
-            if (drop.row == drop.grid.cells.length) return true;
-            return false;
-          }
           if (canScrollUp() || canScrollDown()) {
-            var scrollDelay = 0;
-            if (typeof pui["drop scroll wait"] == 'number'){
-              scrollDelay = pui["drop scroll wait"];
-            }
-            // If "wait" is -1, then do not scroll. This allows the customer to set the initial delay before scrolling starts.
-            if (scrollDelay >= 0){
-              setTimeout(function(){ tryScroll(requestNum); }, scrollDelay);
+            // Note: if "wait" is -1, then scrolling on dragover is disabled.
+            if (initialScrollDelay >= 0){
+              clearTimeout(tryScrollTimeout);
+              tryScrollTimeout = setTimeout(tryScroll, initialScrollDelay);
             }
           }
         }
       }
       
       if (!touchEvent) preventEvent(event);
-      
     }
-    function getDropInfo(dropEl) {
-      var grid = dropEl.relatedGrid;
-      if (grid == null) {
-        return { dom: dropEl, id: dropEl.id };
-      }
-      else {
-        var row = dropEl.dropIndex;        
-        var recordNumber = row;
-        if (grid.hasHeader) recordNumber = recordNumber - 1;
-        recordNumber = recordNumber + grid.recNum - 1;        
-        return { dom: grid.tableDiv, grid: grid, id: grid.tableDiv.id, row: row, recordNumber: recordNumber };
-      }      
-    }
+    
     function mouseup() {
-      requestNum++;
+      clearTimeout(tryScrollTimeout);   //Prevent any further grid scrolling.
+
       if (useProxy) {
         if (pui.hasParent(proxy)) {
         
@@ -459,7 +418,7 @@ pui.attachDragDrop = function(dom, properties) {
         if (recordNumber != null) pui["dragDropInfo"]["dd record number"] = recordNumber;
         pui["dragDropInfo"]["proxy"] = proxy;
         pui["dragDropInfo"]["event"] = event;
-        var drop = getDropInfo(dropInto);
+        drop = getDropInfo(dropInto);
         pui["dragDropInfo"]["target element"] = drop.dom;
         pui["dragDropInfo"]["target element id"] = drop.id;
         if (drop.recordNumber != null) pui["dragDropInfo"]["target record number"] = drop.recordNumber;
@@ -505,6 +464,8 @@ pui.attachDragDrop = function(dom, properties) {
       if (isGrid){
         dom.grid.dragdropBusy = false;
       }
+
+      recordNumber = drop = null;
     } //end mouseup.
     
     if (touchEvent) {
@@ -520,6 +481,94 @@ pui.attachDragDrop = function(dom, properties) {
     };  
      
   } //end mousedown.
+  
+  function canScrollUp() {
+    if (drop.row == null) return false;
+    if (drop.grid.atTop()) return false;
+    if (drop.row == 0) return true;
+    if (drop.row == 1 && drop.grid.hasHeader) return true;
+    return false;
+  }
+  
+  function canScrollDown() {
+    if (drop.row == null) return false;
+    if (drop.grid.atBottom()) return false;
+    if (drop.row == drop.grid.cells.length) return true;
+    return false;
+  }
+  
+  /**
+   * Check if the grid can be scrolled up/down, depending which grid line is hovered over, and scroll. tryScroll is a timeout callback.
+   */
+  function tryScroll() {
+    var go = false;
+    if (canScrollUp()) {
+      drop.grid.recNum -= 1;
+      drop.recordNumber -= 1;
+      go = true;
+    }
+    else if (canScrollDown()) {
+      drop.grid.recNum += 1;
+      drop.recordNumber += 1;
+      go = true;
+    }
+    if (go) {
+      // scroll the grid
+      if (drop.grid.slidingScrollBar) drop.grid.scrollbarObj.setScrollTopToRow(drop.grid.recNum);
+      else drop.grid.getData();
+
+      // fire appropriate ondragleave/ondragenter events
+      if (recordNumber != null) pui["dragDropInfo"]["text"] = "ondragleave: Dragging row " + recordNumber + " of grid " + dom.id;
+      else pui["dragDropInfo"]["text"] = "ondragleave: Dragging element " + dom.id;
+      pui["dragDropInfo"]["text"] += " off of row " + pui["dragDropInfo"]["target record number"] + " of grid " + drop.id;
+      executeEvent("ondragleave");
+
+      pui["dragDropInfo"]["target record number"] = drop.recordNumber;
+      if (recordNumber != null) pui["dragDropInfo"]["text"] = "ondragenter: Dragging row " + recordNumber + " of grid " + dom.id;
+      else pui["dragDropInfo"]["text"] = "ondragenter: Dragging element " + dom.id;
+      if (drop.recordNumber == 0) pui["dragDropInfo"]["text"] += " before row " + (drop.recordNumber + 1) + " of grid " + drop.id;
+      else pui["dragDropInfo"]["text"] += " after row " + drop.recordNumber + " of grid " + drop.id;
+      executeEvent("ondragenter");
+
+      // try to scroll more...
+      clearTimeout(tryScrollTimeout);
+      tryScrollTimeout = setTimeout(tryScroll, scrollDelay + 35);
+    }
+  }
+  
+  /**
+   * Return 
+   * @param {Object|WebElement} dropEl    A grid line or another element.
+   * @returns {Object}
+   */
+  function getDropInfo(dropEl) {
+    var grid = dropEl.relatedGrid;
+    if (grid == null) {
+      return { dom: dropEl, id: dropEl.id };
+    }
+    else {
+      var row = dropEl.dropIndex;
+      var headerAdjust = grid.hasHeader ? 1 : 0;
+      // When the grid has not been sorted or filtered, then the target record number corresponds to the row index.
+      var dataRecordsPos = grid.recNum - 1 + row - headerAdjust;
+      var recnum = dataRecordsPos > 0 ? dataRecordsPos : 0;    //In case dataRecordsPos is out of bounds use 0, the top of subfile.
+
+      var dataRecords = grid.isFiltered() ? grid.filteredDataArray : grid.dataArray;
+      if (dataRecordsPos > 0 && dataRecords.length > 0 && dataRecords[0] && dataRecords[0].subfileRow != null){
+        // The grid is filtered/sorted: target record number should use subfile record number instead of the visible row index. #5999
+        if (dataRecordsPos < dataRecords.length ){
+          // The item was dropped on or after the first record and before the last record.
+          recnum = dataRecords[dataRecordsPos - 1].subfileRow;
+        }
+        else {
+          // The item was dropped at the last grid line when the grid was scrolled to the bottom; e.g. RN is 12 when dropping on/below record 12.
+          recnum = dataRecords[dataRecords.length - 1].subfileRow;
+        }
+      }
+
+      return { dom: grid.tableDiv, grid: grid, id: grid.tableDiv.id, row: row, recordNumber: recnum };
+    }      
+  }
  
   // The updated version of iScroll in 5.14.0 and later uses Pointer Events
   // These events get called before the mousedown event and get cancelled. 
