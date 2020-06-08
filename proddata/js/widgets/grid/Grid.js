@@ -3707,7 +3707,7 @@ pui.Grid = function () {
             }
             obj = getObj(id);
             if (obj == null) continue;
-            if (me.scrollbarObj.type == "paging")
+            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging")
               me.scrollbarObj.enableMouseWheel(obj);  
             if (!obj.readOnly) continue;
             text = obj.value;
@@ -3725,7 +3725,7 @@ pui.Grid = function () {
             top = parseInt(obj.style.top);
             fieldInfo = obj.fieldInfo;
             obj.parentNode.removeChild(obj);
-            if (me.scrollbarObj.type == "paging")
+            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging")
               me.scrollbarObj.enableMouseWheel(obj);
           }
           if (objClass == null || objClass == "" || objClass == "A20") {
