@@ -228,6 +228,7 @@ function getCursorPosition(obj) {
  * @returns {Boolean}
  */
 function inDesignMode() {
+  if (pui.ide && pui.ide.designerId) return true;
   if (toolbar == null) return false;
   if (toolbar.designer == null) return false;
   return true;
