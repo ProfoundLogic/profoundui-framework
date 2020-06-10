@@ -369,6 +369,8 @@ pui.MenuWidget = function() {
           if (returnVal == false) {
             dom.responseValue = "";
             pui.responseRoutine = null;
+            pui.responseRoutineRow = null;
+            pui.responseRoutineGrid = null;
           }
         }
       }
