@@ -68,6 +68,8 @@ pui.widgetsToCleanup = [];
 pui.layoutsDisplayed = [];
 pui.bypassValidation = "false";
 pui.responseRoutine = null;
+pui.responseRoutineRow = null;
+pui.responseRoutineGrid = null;
 pui.ddBypassValidation = "false";
 pui.lastFormatName = null;
 pui.placeCursorOnSubfile = false;
@@ -695,6 +697,8 @@ pui.render = function(parms) {
   pui.sqlcache = {};
   pui.bypassValidation = "false";
   pui.responseRoutine = null;
+  pui.responseRoutineRow = null;
+  pui.responseRoutineGrid = null;
   pui.placeCursorOnSubfile = false;
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
@@ -843,6 +847,8 @@ pui.render = function(parms) {
     pui.fileUploadElements = [];
     pui.onmessageProps = {};
     pui.responseRoutine = null;
+    pui.responseRoutineRow = null;
+    pui.responseRoutineGrid = null;
 
     var formats = layers[i].formats;
     if (i == 0) {
@@ -2746,6 +2752,7 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && parms.subfileRow != null) {
         // save reference to dom
         dom.subfileRow = parms.subfileRow;
+        dom.subfileName = parms.name;
         if (items[i].domEls == null) items[i].domEls = [];
         items[i].domEls[parms.subfileRow - 1] = dom;
       }
@@ -3072,6 +3079,8 @@ pui.attachResponse = function(dom) {
     }    
 
     pui.responseRoutine = dom.responseRoutine;
+    pui.responseRoutineRow = dom.subfileRow;
+    pui.responseRoutineGrid = dom.subfileName;
 
     var returnVal = pui.respond();
     
@@ -3086,6 +3095,8 @@ pui.attachResponse = function(dom) {
       }
       pui.bypassValidation = "false";
       pui.responseRoutine = null;
+      pui.responseRoutineRow = null;
+      pui.responseRoutineGrid = null;
     }    
   }
 
@@ -3845,6 +3856,10 @@ pui.buildResponse = function(customResponseElements) {
   
   if (pui.responseRoutine) {
     response["routine"] = pui.responseRoutine;
+    if (pui.responseRoutineRow && pui.responseRoutineGrid) {
+      response["routineRow"] = pui.responseRoutineRow;
+      response["routineGrid"] = pui.responseRoutineGrid;
+    }
   }
   
   if (customResponseElements) {
@@ -4585,6 +4600,8 @@ pui.handleHotKey = function(e, keyName) {
         }
         if (doms[i].responseRoutine) {
           pui.responseRoutine = doms[i].responseRoutine;
+          pui.responseRoutineRow = doms[i].subfileRow;
+          pui.responseRoutineGrid = doms[i].subfileName;
         }
       }
 
@@ -4596,6 +4613,8 @@ pui.handleHotKey = function(e, keyName) {
         }  
         pui.bypassValidation = "false";
         pui.responseRoutine = null;
+        pui.responseRoutineRow = null;
+        pui.responseRoutineGrid = null;
       }    
 
       preventEvent(e);
