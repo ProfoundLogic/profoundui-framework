@@ -8,6 +8,7 @@
 Array.isArray = function(value) {};
 
 Object.keys = function(value) {};
+Object.getOwnPropertyNames = function(value){};
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
