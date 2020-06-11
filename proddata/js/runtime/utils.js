@@ -16,7 +16,7 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
-
+  
 
 
 function getTarget(e) {
@@ -5109,8 +5109,8 @@ pui.joins.JoinEditor = function() {
   var modifyButton = document.createElement("input");
   var removeButton = document.createElement("input");
   var cancelButton = document.createElement("input");
-  var me = this;
-
+  var me = this; 
+ 
   /**
    * 
    * @type pui.joins.Join
@@ -5424,15 +5424,15 @@ pui.joins.Join.prototype.destroy = function(){
     for(var i=0; i < this.conditions.length; i++){
       this.conditions[i].destroy();
     }
-    this.conditions = null;
+    delete this.conditions;
   }
   this.removeMeFromTableJoinList(this.parentTable.joinlist);
   this.removeMeFromTableJoinList(this.childTable.joinlist);
-  this.parentTable = null;
-  this.childTable = null;
-  this.svg = null;
-  this.parentFilevar = null;
-  this.childFilevar = null;
+  delete this.parentTable;
+  delete this.childTable;
+  delete this.svg;
+  delete this.parentFilevar;
+  delete this.childFilevar;
 };
 
 pui.joins.Join.prototype.removeMeFromTableJoinList = function(joinlist){
@@ -5497,10 +5497,10 @@ pui.joins.JoinCondition = function(pparentEl, pchildEl){
 
 pui.joins.JoinCondition.prototype.destroy = function(){
   if (this.joinline) this.joinline.destroy();
-  this.joinline = null;
-  this.parentEl = null;
-  this.childEl = null;
-  this.owner = null;
+  delete this.joinline;
+  delete this.parentEl;
+  delete this.childEl;
+  delete this.owner;
 };
 
 /**
@@ -5515,176 +5515,176 @@ pui.joins.JoinCondition.prototype.destroy = function(){
  * @returns {undefined}
  */
 pui.joins.JoinLine = function(psvg, px1, py1, px2, py2, ptype){
-  var me = this;
-  
-  var type = ptype == null ? "INNER" : ptype;
+  this.type = ptype == null ? "INNER" : ptype;
 
-  var svg = psvg;
-  var x1 = px1;
-  var x2 = px2;
-  var y1 = py1;
-  var y2 = py2;
+  this.svg = psvg;
+  this.x1 = px1;
+  this.x2 = px2;
+  this.y1 = py1;
+  this.y2 = py2;
   
   // The SVG elements that show the link.
-  var startShape = null;
-  var midShape = null;
-  var endShape = null;
-  var connector = null;
+  this.startShape = null;
+  this.midShape = null;
+  this.endShape = null;
+  this.connector = null;
   
-  var owner = null; //Needed for click events: which join condition owns this line.
-  this.setOwner = function(powner){
-    owner = powner;
-  };
+  this.owner = null; //Needed for click events: which join condition owns this line.
+};
 
-  /**
-   * Create a new set of connector shapes on the svg if they don't already exist.
-   * Otherwise, just reset their positions.
-   * 
-   * @returns {undefined}
-   */
-  this.draw = function(){
-    if (connector == null){
-      connector = document.createElementNS(pui.SVGNS, "polyline");
-      connector.setAttribute("stroke", appgen.JOINSTROKECOLOR); //Note: stroke must be attribute for IE, not style.
-      connector.setAttribute("stroke-width", "2");
-      connector.setAttribute("fill", "none");
-      connector.onclick = click;
-      connector.setAttribute("class","joinlink");
-      svg.appendChild(connector);
-    }
+pui.joins.JoinLine.prototype.setOwner = function(powner){
+  this.owner = powner;
+};
 
-    if (startShape == null){
-      startShape = createCircle();
-      svg.appendChild(startShape);
-    }
-
-    if (endShape == null){
-      endShape = createCircle();
-      svg.appendChild(endShape);
-    }
-
-    if (midShape == null){
-      midShape = document.createElementNS(pui.SVGNS, "polygon");
-      midShape.setAttribute("fill", appgen.JOINLINKCOLOR);
-      midShape.setAttribute("stroke", appgen.JOINSTROKECOLOR);
-      midShape.setAttribute("stroke-width", 1);
-      midShape.onclick = click;
-      midShape.setAttribute("class","joinlink");
-      svg.appendChild(midShape);
-    }
-    
-    resetPoints();
-  };
-  
-  function createCircle(){
-    var circ = document.createElementNS(pui.SVGNS, "circle");
-    circ.setAttribute("r", 5); //radius.
-    circ.setAttribute("fill", appgen.JOINSTROKECOLOR);
-    circ.onclick = click;
-    circ.setAttribute("class","joinlink");
-    return circ;
+/**
+ * Create a new set of connector shapes on the svg if they don't already exist.
+ * Otherwise, just reset their positions.
+ * 
+ * @returns {undefined}
+ */
+pui.joins.JoinLine.prototype.draw = function(){
+  if (this.connector == null){
+    this.connector = document.createElementNS(pui.SVGNS, "polyline");
+    this.connector.setAttribute("stroke", appgen.JOINSTROKECOLOR); //Note: stroke must be attribute for IE, not style.
+    this.connector.setAttribute("stroke-width", "2");
+    this.connector.setAttribute("fill", "none");
+    this.connector.onclick = this.click;
+    this.connector.setAttribute("class","joinlink");
+    this.svg.appendChild(this.connector);
   }
-  
-  // move both the end and start points and refactor shapes.
-  this.setPoints = function(px1, py1, px2, py2){
-    x1 = px1;
-    y1 = py1;
-    x2 = px2;
-    y2 = py2;
-    resetPoints();
-  };
-  
-  this.setEnd = function(px2, py2){
-    x2 = px2;
-    y2 = py2;
-    resetPoints();
-  };
-  
-  this.setType = function(ptype){
-    type = ptype;
-    resetPoints();
-  };
-  
-  // set the x and y positions for all shapes.
-  function resetPoints(){
-    startShape.setAttribute("cx", x1);  //Set centers of both circles.
-    startShape.setAttribute("cy", y1);
-    endShape.setAttribute("cx", x2);
-    endShape.setAttribute("cy", y2);
 
-    // Set the points on the poly-line.
-    var stickout = 15;
-    var points = x1+","+y1+" "; //1st point, on parent table.
-    if ( x1 <= x2 ){
-      points += x1 + stickout +","+y1+" "; //2nd point, sticking out from parent.
-      points += x2 - stickout +","+y2+" "; //3rd point, sticking out from child.
-    }else{
-      points += x1 - stickout +","+y1+" ";
-      points += x2 + stickout +","+y2+" ";
-    }
-    points += x2+","+y2;  //4th point, on child table.
-    connector.setAttribute("points", points);
-    
-    // Set the points on the middle shape polygon.
-    var midx = Math.round((x1 + x2) / 2);
-    var midy = Math.round((y1 + y2) / 2);
-    var size = 6;
-    if (type == "LEFT"){
-      // Right-pointing triangle. (more rows on left than right).
-      points = (midx - size)+","+(midy - size)+" "
-              +(midx + 3*size)+","+(midy)+" "
-              +(midx - size)+","+(midy + size);
+  if (this.startShape == null){
+    this.startShape = this.createCircle();
+    this.svg.appendChild(this.startShape);
+  }
 
-    }else if(type == "RIGHT"){
-      //Left-pointing triangle. (more rows on right than left).
-      points = (midx - 3*size)+","+(midy)+" "
-              +(midx + size)+","+(midy - size)+" "
-              +(midx + size)+","+(midy + size);      
-    }else{
-      //Square.
-      points = (midx - size)+","+(midy - size)+" "
-              +(midx + size)+","+(midy - size)+" "
-              +(midx + size)+","+(midy + size)+" "
-              +(midx - size)+","+(midy + size);
-    }
-    midShape.setAttribute("points", points);
-    
-    //Calculate the angle made between the two points and x-axis--for rotating the middle shape.
-    var y = Math.abs(y1 - y2);
-    var hypotenuse = Math.sqrt( Math.pow(x1 - x2,2) + Math.pow(y,2));
-    var theta = Math.asin( y / hypotenuse ) * 180 / Math.PI;
-    var angle = 0;
-    if      (x1 < x2 && y1 <= y2) angle = theta;       //  0 <= angle <  90; Q1.
-    else if (x1 >= x2 && y1 < y2) angle = 180 - theta; // 90 <= angle < 180; Q2.
-    else if (x1 > x2 && y1 >= y2) angle = 180 + theta; //180 <= angle < 270; Q3.
-    else if (x1 <= x2 && y1 > y2) angle = 360 - theta; //270 <= angle < 360; Q4.
-    //Rotate the shape so it's clear which table is LEFT/RIGHT regardless of position.
-    midShape.setAttribute("transform","rotate("+Math.round(angle)+" "+midx+" "+midy+")");
+  if (this.endShape == null){
+    this.endShape = this.createCircle();
+    this.svg.appendChild(this.endShape);
   }
-  
-  function click(event){
-    preventEvent(event); //Prevent dialog from disappearing as soon as it appears.
-    if (appgen.joineditor == null){
-      appgen.joineditor = new pui.joins.JoinEditor();
-    }
-    appgen.joineditor.setJoin(owner);
-    appgen.joineditor.show(event);
+
+  if (this.midShape == null){
+    this.midShape = document.createElementNS(pui.SVGNS, "polygon");
+    this.midShape.setAttribute("fill", appgen.JOINLINKCOLOR);
+    this.midShape.setAttribute("stroke", appgen.JOINSTROKECOLOR);
+    this.midShape.setAttribute("stroke-width", 1);
+    this.midShape.onclick = this.click;
+    this.midShape.setAttribute("class","joinlink");
+    this.svg.appendChild(this.midShape);
   }
-  
-  // remove the shapes from the SVG, clear all objects.
-  this.destroy = function(){
-    svg.removeChild(startShape);
-    svg.removeChild(midShape);
-    svg.removeChild(endShape);
-    svg.removeChild(connector);
-    startShape = null;
-    midShape = null;
-    endShape = null;
-    connector = null;
-    svg = null;
-    owner = null;
-    me = null;
-  };
+
+  this.resetPoints();
+};
+
+pui.joins.JoinLine.prototype.createCircle = function(){
+  var circ = document.createElementNS(pui.SVGNS, "circle");
+  circ.setAttribute("r", 5); //radius.
+  circ.setAttribute("fill", appgen.JOINSTROKECOLOR);
+  circ.onclick = this.click;
+  circ.setAttribute("class","joinlink");
+  return circ;
+};
+
+// move both the end and start points and refactor shapes.
+pui.joins.JoinLine.prototype.setPoints = function(px1, py1, px2, py2){
+  this.x1 = px1;
+  this.y1 = py1;
+  this.x2 = px2;
+  this.y2 = py2;
+  this.resetPoints();
+};
+
+pui.joins.JoinLine.prototype.setEnd = function(px2, py2){
+  this.x2 = px2;
+  this.y2 = py2;
+  this.resetPoints();
+};
+
+pui.joins.JoinLine.prototype.setType = function(ptype){
+  this.type = ptype;
+  this.resetPoints();
+};
+
+// set the x and y positions for all shapes.
+pui.joins.JoinLine.prototype.resetPoints = function (){
+
+  this.startShape.setAttribute("cx", this.x1);  //Set centers of both circles.
+  this.startShape.setAttribute("cy", this.y1);
+  this.endShape.setAttribute("cx", this.x2);
+  this.endShape.setAttribute("cy", this.y2);
+
+  // Set the points on the poly-line.
+  var stickout = 15;
+  var points = this.x1+","+this.y1+" "; //1st point, on parent table.
+  if ( this.x1 <= this.x2 ){
+    points += this.x1 + stickout +","+this.y1+" "; //2nd point, sticking out from parent.
+    points += this.x2 - stickout +","+this.y2+" "; //3rd point, sticking out from child.
+  }else{
+    points += this.x1 - stickout +","+this.y1+" ";
+    points += this.x2 + stickout +","+this.y2+" ";
+  }
+  points += this.x2+","+this.y2;  //4th point, on child table.
+  this.connector.setAttribute("points", points);
+
+  // Set the points on the middle shape polygon.
+  var midx = Math.round((this.x1 + this.x2) / 2);
+  var midy = Math.round((this.y1 + this.y2) / 2);
+  var size = 6;
+  if (type == "LEFT"){
+    // Right-pointing triangle. (more rows on left than right).
+    points = (midx - size)+","+(midy - size)+" "
+            +(midx + 3*size)+","+(midy)+" "
+            +(midx - size)+","+(midy + size);
+  }
+  else if(type == "RIGHT"){
+    //Left-pointing triangle. (more rows on right than left).
+    points = (midx - 3*size)+","+(midy)+" "
+            +(midx + size)+","+(midy - size)+" "
+            +(midx + size)+","+(midy + size);      
+  }
+  else{
+    //Square.
+    points = (midx - size)+","+(midy - size)+" "
+            +(midx + size)+","+(midy - size)+" "
+            +(midx + size)+","+(midy + size)+" "
+            +(midx - size)+","+(midy + size);
+  }
+  this.midShape.setAttribute("points", points);
+
+  //Calculate the angle made between the two points and x-axis--for rotating the middle shape.
+  var y = Math.abs(this.y1 - this.y2);
+  var hypotenuse = Math.sqrt( Math.pow(this.x1 - this.x2,2) + Math.pow(y,2));
+  var theta = Math.asin( y / hypotenuse ) * 180 / Math.PI;
+  var angle = 0;
+  if      (this.x1 < this.x2 && this.y1 <= this.y2) angle = theta;       //  0 <= angle <  90; Q1.
+  else if (this.x1 >= this.x2 && this.y1 < this.y2) angle = 180 - theta; // 90 <= angle < 180; Q2.
+  else if (this.x1 > this.x2 && this.y1 >= this.y2) angle = 180 + theta; //180 <= angle < 270; Q3.
+  else if (this.x1 <= this.x2 && this.y1 > this.y2) angle = 360 - theta; //270 <= angle < 360; Q4.
+  //Rotate the shape so it's clear which table is LEFT/RIGHT regardless of position.
+  this.midShape.setAttribute("transform","rotate("+Math.round(angle)+" "+midx+" "+midy+")");
+};
+
+pui.joins.JoinLine.prototype.click = function(event){
+  preventEvent(event); //Prevent dialog from disappearing as soon as it appears.
+  if (appgen.joineditor == null){
+    appgen.joineditor = new pui.joins.JoinEditor();
+  }
+  appgen.joineditor.setJoin(this.owner);
+  appgen.joineditor.show(event);  
+};
+
+// remove the shapes from the SVG, remove all objects from .
+pui.joins.JoinLine.prototype.destroy = function(){
+  this.svg.removeChild(this.startShape);
+  this.svg.removeChild(this.midShape);
+  this.svg.removeChild(this.endShape);
+  this.svg.removeChild(this.connector);
+  delete this.startShape;
+  delete this.midShape;
+  delete this.endShape;
+  delete this.connector;
+  delete this.svg;
+  delete this.owner;
 };
 
 /**
