@@ -4783,6 +4783,14 @@ pui.joins.JoinArea = function(params){
   this.movetimeout = null;    //Slow SVG expanding should not happen each time mousemove fires.
   
   this.joindropCb = params.joindropCb;    //Callback for join ondrop.
+  this.joinRemoveCb = params.joinRemoveCb; //Callback for join removed in JoinEditor.
+  this.lastConditionRemoveCb = params.lastConditionRemoveCb;  //Join removed in JoinEditor and was last condition.
+  this.joinModifyCb = params.joinModifyCb;
+  
+  this.joineditor = null;
+  
+  this.joinStrokeColor = "rgb(135,135,135)"; //Value for the stroke and fill attributes of join lines.
+  this.joinLinkColor = "rgb(0,0,255)";       //Value for fill attribute of join line middle shape.
 };
 
 /**
@@ -4801,6 +4809,8 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   
   // Create object used in appgen.processForFileLoop and needed for managing joins.
   this.filetree = new pui.joins.FileTree(this._rootfileVarname, this);
+  
+  this.joineditor = new pui.joins.JoinEditor(this);
 };
 
 /**
@@ -5262,7 +5272,7 @@ pui.joins.JoinEditor = function(joinArea) {
   
   // Constructor
   this._div.id = "joinEditor";
-  this._div.liblDialog = true; //Tells editorsHideCheck when to hide this editor.
+  this._div.isJoinEditor = true; //Tells this.hideCheck when to hide this editor.
 
   this._div.style.zIndex = designUtils.zListEditor;
   this._div.style.visibility = "hidden";
@@ -5316,9 +5326,7 @@ pui.joins.JoinEditor = function(joinArea) {
       jointype = this._radio3.value;
     }
     this._join.setType(jointype);
-    appgen.autoCoalesce();
-    appgen.dosqlpreview(); //Update the SQL preview.
-    appgen.makeDirty();
+    if (typeof this.joinArea.joinModifyCb == 'function') this.joinArea.joinModifyCb();
     this.hide();
   };
   this._buttonWrap.appendChild(this._modifyButton);
@@ -5331,12 +5339,9 @@ pui.joins.JoinEditor = function(joinArea) {
     if (this._join.conditions.length < 1){
       // Removes the younger file from jointree; also destroys the Join.
       this.joinArea.filetree.remove(this._join.childFilevar, this._condition);
-      appgen.validateFieldNames();
-      appgen.detectCorrelConflicts();
-      appgen.autoCoalesce();
+      if (typeof this.joinArea.lastConditionRemoveCb == 'function') this.joinArea.lastConditionRemoveCb();
     }
-    appgen.dosqlpreview(); //Update the SQL preview.
-    appgen.makeDirty();
+    if (typeof this.joinArea.joinRemoveCb == 'function') this.joinArea.joinRemoveCb();
     this.hide();
   };
   this._buttonWrap.appendChild(this._removeButton);
@@ -5375,7 +5380,6 @@ pui.joins.JoinEditor = function(joinArea) {
 /**
  * Changes the window title and radio label texts.
  * @param {pui.joins.JoinCondition|Object} pcond
- * @returns {undefined}
  */
 pui.joins.JoinEditor.prototype.setJoin = function(pcond){
   this._condition = pcond;
@@ -5432,7 +5436,8 @@ pui.joins.JoinEditor.prototype.show = function(e) {
   this.div.style.visibility = "visible";
   this.div.style.display = "";
   this.radio1.focus();
-  addEvent(document.body, "click", appgen.editorsHideCheck);
+  this.boundHideCheck = this.hideCheck.bind(this);  //Let the hideCheck function's "this" point to this JoinEditor object.
+  document.body.addEventListener("click", this.boundHideCheck);
 };
 
 pui.joins.JoinEditor.prototype.hide = function() {
@@ -5440,7 +5445,21 @@ pui.joins.JoinEditor.prototype.hide = function() {
   this.div.style.display = "none";
   this._join = null;
   this._condition = null;
-  removeEvent(document.body, "click", appgen.editorsHideCheck);
+  document.body.removeEventListener("click", this.boundHideCheck);
+};
+
+/**
+ * Decide if a click was somewhere in the body outside the JoinEditor. Hide the editor if the click wasn't in it.
+ * Pre-Conditions: this should be bound to a JoinEditor object.
+ * @param {Event} e
+ */
+pui.joins.JoinEditor.prototype.hideCheck = function(e) {
+  var elem = e.target;
+  while (elem != null) {
+    if (elem.isJoinEditor) return;
+    elem = elem.parentNode;
+  }
+  this.hide();    //TODO: test this.
 };
 
 //TODO: can these Join objects deal with JoinableTable objects instead of the TRs?
@@ -5454,7 +5473,6 @@ pui.joins.JoinEditor.prototype.hide = function() {
  * @param {Object} pparentEl  The TR DOM element in the parent table.
  * @param {Object} pchildEl   The TR DOM element in the child table.
  * @param {String|undefined} joinType   INNER, LEFT, RIGHT.
- * @returns {undefined}
  */
 pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
   // The type determines which shape to show in the JoinLine and in generating SQL.
@@ -5550,7 +5568,6 @@ pui.joins.Join.prototype.drawConnector = function(condition){
 
 /**
  * Re-draw each join line. Called when tables are being moved.
- * @returns {undefined}
  */
 pui.joins.Join.prototype.drawConnectors = function(){
   for (var i=0; i < this.conditions.length; i++){
@@ -5600,7 +5617,6 @@ pui.joins.Join.prototype.conditionExists = function(parentTR, childTR){
  * @constructor
  * @param {Object} pparentEl TR element of the parent table.
  * @param {Object} pchildEl TR element of the child table.
- * @returns {undefined}
  */
 pui.joins.JoinCondition = function(pparentEl, pchildEl){
   /**
@@ -5633,7 +5649,6 @@ pui.joins.JoinCondition.prototype.destroy = function(){
  * @param {Number} py2    The y position of the ending point.
  * @param {Null|String} ptype  The join type.
  * @constructor
- * @returns {undefined}
  */
 pui.joins.JoinLine = function(joinArea, px1, py1, px2, py2, ptype){
   this.type = ptype == null ? "INNER" : ptype;
@@ -5662,13 +5677,11 @@ pui.joins.JoinLine.prototype.setOwner = function(powner, joinArea){
 /**
  * Create a new set of connector shapes on the svg if they don't already exist.
  * Otherwise, just reset their positions.
- * 
- * @returns {undefined}
  */
 pui.joins.JoinLine.prototype.draw = function(){
   if (this.connector == null){
     this.connector = document.createElementNS(pui.SVGNS, "polyline");
-    this.connector.setAttribute("stroke", appgen.JOINSTROKECOLOR); //Note: stroke must be attribute for IE, not style.
+    this.connector.setAttribute("stroke", this.joinArea.joinStrokeColor); //Note: stroke must be attribute for IE, not style.
     this.connector.setAttribute("stroke-width", "2");
     this.connector.setAttribute("fill", "none");
     this.connector.onclick = this.click;
@@ -5688,8 +5701,8 @@ pui.joins.JoinLine.prototype.draw = function(){
 
   if (this.midShape == null){
     this.midShape = document.createElementNS(pui.SVGNS, "polygon");
-    this.midShape.setAttribute("fill", appgen.JOINLINKCOLOR);
-    this.midShape.setAttribute("stroke", appgen.JOINSTROKECOLOR);
+    this.midShape.setAttribute("fill", this.joinArea.joinLinkColor);
+    this.midShape.setAttribute("stroke", this.joinArea.joinStrokeColor);
     this.midShape.setAttribute("stroke-width", 1);
     this.midShape.onclick = this.click;
     this.midShape.setAttribute("class","joinlink");
@@ -5702,7 +5715,7 @@ pui.joins.JoinLine.prototype.draw = function(){
 pui.joins.JoinLine.prototype.createCircle = function(){
   var circ = document.createElementNS(pui.SVGNS, "circle");
   circ.setAttribute("r", 5); //radius.
-  circ.setAttribute("fill", appgen.JOINSTROKECOLOR);
+  circ.setAttribute("fill", this.joinArea.joinStrokeColor);
   circ.onclick = this.click;
   circ.setAttribute("class","joinlink");
   return circ;
@@ -5789,11 +5802,8 @@ pui.joins.JoinLine.prototype.resetPoints = function (){
 
 pui.joins.JoinLine.prototype.click = function(event){
   preventEvent(event); //Prevent dialog from disappearing as soon as it appears.
-  if (appgen.joineditor == null){
-    appgen.joineditor = new pui.joins.JoinEditor(this.joinArea);
-  }
-  appgen.joineditor.setJoin(this.owner);
-  appgen.joineditor.show(event);  
+  this.joinArea.joineditor.setJoin(this.owner);
+  this.joinArea.joineditor.show(event);
 };
 
 // remove the shapes from the SVG, remove all objects from .
@@ -5871,12 +5881,15 @@ pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
 
   if (appgen.dbFieldAmbiguity){
     //There are potential conflicts on field names, so auto setup table correlations.
-    for (var i=0; i < appgen.joinableTables.length; i++){
+    for (var i=0; i < this.joinArea.joinableTables.length; i++){
+      
+      //TODO: correlInput is a property of a child class of JoinableTable, so this code belongs with that class.
+      
       // Set the value of each correlation input box if blank.
-      if (appgen.joinableTables[i].correlInput.value == ""){
+      if (this.joinArea.joinableTables[i].correlInput.value == ""){
         var correl = "T" + i;
-        appgen.joinableTables[i].correlInput.value = correl;
-        appgen.mapvartofile[appgen.joinableTables[i].id]["correlation"] = correl;
+        this.joinArea.joinableTables[i].correlInput.value = correl;
+        appgen.mapvartofile[this.joinArea.joinableTables[i].id]["correlation"] = correl;
       }
     }
   }
