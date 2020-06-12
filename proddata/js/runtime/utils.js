@@ -1982,7 +1982,7 @@ pui.appendAuth = function(url) {
 pui.validateEmail = function(email) { 
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
-} ;
+};
 
 pui.isBound = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["fieldName"] == "string");
@@ -2070,6 +2070,7 @@ pui.xmlEscape = function(str) {
   str = str.replace(/</g, "&lt;");
   str = str.replace(/>/g, "&gt;");
   str = str.replace(/"/g, "&quot;");   // " - fake comment to fix syntax highlighting
+  str = str.replace(/\u001a/g, "&#x25a1;");    // the "substitute" character breaks XLSX files. replace with unicode square. Issue #6149. 
   return str;  
 
 };
