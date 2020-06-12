@@ -4791,6 +4791,12 @@ pui.joins.JoinArea = function(params){
   
   this.joinStrokeColor = "rgb(135,135,135)"; //Value for the stroke and fill attributes of join lines.
   this.joinLinkColor = "rgb(0,0,255)";       //Value for fill attribute of join line middle shape.
+  
+  /*
+   * Helpful for working around drag/drop data transfer quirks. Note: dataTransfer only works with strings, so this will be a TR.id
+   * @type String
+   */
+  this.join_srcid = null;
 };
 
 /**
@@ -4888,7 +4894,7 @@ pui.joins.JoinArea.prototype.queueExpand = function(seconds){
  * @param {String|undefined} joinType   INNER, LEFT, RIGHT.
  */
 pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr, origfile, joinType){
-  if (this.filetree._contains(file) && this.filetree._contains(origfile)){
+  if (this.filetree.contains(file) && this.filetree.contains(origfile)){
     // Both tables are connected in the tree to main already. Allow adding conditions
     // to an existing join; don't allow joining two child nodes (that would create a graph cycle).
     var join = this.filetree.getJoinFromNames(file, origfile);
@@ -4921,11 +4927,11 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr,
       }
     }
   }
-  else if(this.filetree._contains(file)){
+  else if(this.filetree.contains(file)){
     // Add the drag origin as a child of the drag target, creating a new join.
     this.filetree.addLink(target_tr, origin_tr, joinType);
   }
-  else if(this.filetree._contains(origfile)){
+  else if(this.filetree.contains(origfile)){
     // Add the drag target as a child of the drag origin, creating a new join.
     this.filetree.addLink(origin_tr, target_tr, joinType);
   }
@@ -4973,9 +4979,6 @@ pui.joins.JoinableTable = function(params){
   this.tableHeadRow = null;
   this.tableBody = null;
   this.caption = null;
-  
-  // Helpful for working around drag/drop data transfer limitations.
-  this.join_srcid = null;
 };
 
 /**
@@ -5134,25 +5137,25 @@ pui.joins.JoinableTable.prototype.ondragover = function(event){
   if (this.joinArea.join_srcid == null) return; //Prevents drop from Field Select.
   var target = pui.getTRtargetRow(event);
   if (!target) return;
-  var origin_tr = getObj(this.joinArea.join_srcid);
+  var origin_tr = document.getElementById(this.joinArea.join_srcid);
   if (origin_tr == null) return;    //The origin node should exist.
-  var ofvname = origin_tr.fileVarname;
-  if (ofvname == null) return;      //The origin node should have a fileVarname.
-  var tfvname = target.fileVarname;
-  if (tfvname == ofvname) return; //Don't allow dropping on same table as drag origin.
+  var ojointable = origin_tr.joinableTable;
+  if (ojointable == null) return;      //The origin node should have a joinableTable.
+  var tjointable = target.joinableTable;
+  if (tjointable == ojointable) return; //Don't allow dropping on same table as drag origin.
   
-  var cont_or = this.joinArea.filetree.contains(ofvname);
-  var cont_tr = this.joinArea.filetree.contains(tfvname);
+  var cont_or = this.joinArea.filetree.contains(ojointable.id);   //TODO: should filetree check for joinableTable objects?
+  var cont_tr = this.joinArea.filetree.contains(tjointable.id);
   if (!cont_or && !cont_tr){
     // Don't allow joining two orphan tables together.
-    this.showInfobox(pui["getLanguageText"]("jumpstartMsg", "join x y to main file", [ofvname,tfvname]));
+    this.joinArea.showInfobox(pui["getLanguageText"]("jumpstartMsg", "join x y to main file", [ojointable.id, tjointable.id]));
     return;
   }else if (cont_or && cont_tr){
-    var join = this.joinArea.filetree.getJoinFromNames(tfvname, ofvname);
+    var join = this.joinArea.filetree.getJoinFromNames(tjointable.id, ojointable.id);   //TODO: should filetree check for joinableTable objects?
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
       
-      this.showInfobox(pui["getLanguageText"]("jumpstartMsg","one path main to child"));
+      this.joinArea.showInfobox(pui["getLanguageText"]("jumpstartMsg","one path main to child"));
       return;
     }
   }
@@ -5847,7 +5850,7 @@ pui.joins.FileTree = function(prootName, joinArea){
   this.joinArea = joinArea;
 };
 
-pui.joins.FileTree.prototype._contains = function(fname){
+pui.joins.FileTree.prototype.contains = function(fname){
   return this._namelist[fname] != null;
 };  
 
@@ -5860,7 +5863,7 @@ pui.joins.FileTree.prototype._contains = function(fname){
 pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
   var parentName = parent_tr.fileVarname;
   var childName = child_tr.fileVarname;
-  if (!this._contains(parentName)) return;
+  if (!this.contains(parentName)) return;
   var parent = this._findNode(parentName);  //Find the internal tree node.
   if (!parent){
     console.log("Tree failed to find parent file:",parentName);
@@ -5909,7 +5912,7 @@ pui.joins.FileTree.prototype.reset = function(){
  */
 pui.joins.FileTree.prototype.remove = function(childName){
   if (childName == this._rootName) return;  //Never remove the root node.
-  if (this._contains(childName)){
+  if (this.contains(childName)){
     var child = this._findNode(childName);
     if (!child){
       console.log("Tree failed to find child file:",childName);
