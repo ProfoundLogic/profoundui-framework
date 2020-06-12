@@ -4723,6 +4723,24 @@ pui.getTRtargetRow = function(event){
   return target;
 };
 
+/**
+ * Utility for deleting class members. This should be called by pui.deleteOwnProperties.apply(this) or .call(this) 
+ * within a prototype.destroy method.
+ */
+pui.deleteOwnProperties = function(){
+  if (this != window){
+    var propnames = Object.getOwnPropertyNames(this);
+    for (var i=0, n=propnames.length; i < n; i++){
+      try {
+        delete this[propnames[i]];  //Removes any properties that were assigned like: "this.foo = bar";.
+      }
+      catch(exc) {
+        console.log(exc);
+      }
+    }
+  }
+};
+
 ////////////
 //////////// Todo: put this in a separate file, joins.js
 ////////////
@@ -4736,19 +4754,41 @@ pui.joins = {};
 
 /**
  * An object to contain all JoinableTable objects and provide methods for creating the SVG and info elements.
+ * @param {Object} params 
  * @constructor
  */
-pui.joins.JoinArea = function(){
+pui.joins.JoinArea = function(params){
+  /**
+   * @type Array.<pui.joins.JoinableTable>
+   */
   this.joinableTables = [];
+  
+  // DOM elements.
   this.infobox = null;
   this.domEl = null;
   this.svg = null;
+  
+  // Tree used to manage which joins are valid.
+  this.filetree = null;
+  // TODO: does fileTree need variable names like in JumpStart, or can it get more generic data?
+  this._rootfileVarname = params.fileVarname;
+  
+  // Right and bottom bounds (if defined) for dragging JoinTables inside the DOM element.
+  this.moveRbound = params.moveRbound;
+  this.moveBbound = params.moveBbound;
+  
+  // For primary keys, this text goes to the right of column names. 9911 is Chiron, which looks like a key.
+  this.primaryKeyMarker = params && params.primaryKeyMarker ? params.primaryKeyMarker : ' &#9911;';
+  
   this.movetimeout = null;    //Slow SVG expanding should not happen each time mousemove fires.
+  
+  this.joindropCb = params.joindropCb;    //Callback for join ondrop.
 };
 
 /**
  * Set the internal DOM element, create and add web elements to the DOM element.
- * @param {Object|WebElement} domEl 
+ * Expect this to be loaded after the document.body has loaded.
+ * @param {Object|Element} domEl 
  */
 pui.joins.JoinArea.prototype.init = function(domEl){
   this.domEl = domEl;
@@ -4758,6 +4798,9 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   this.svg.setAttribute("height","100%");
   this.svg.className = "joinsvg";
   domEl.appendChild(this.svg);
+  
+  // Create object used in appgen.processForFileLoop and needed for managing joins.
+  this.filetree = new pui.joins.FileTree(this._rootfileVarname, this);
 };
 
 /**
@@ -4817,6 +4860,68 @@ pui.joins.JoinArea.prototype.expandSvgHeight = function(joinArea){
 };
 
 /**
+ * Clear existing timeout and set the SVG section to expand in the future.
+ * @param {Number} seconds
+ */
+pui.joins.JoinArea.prototype.queueExpand = function(seconds){
+  clearTimeout(this.movetimeout);
+  // Note: use parameter instead of bind on expandSvgHeight, because bind allocates a new function every time it is called, which is often in mousemove.
+  this.movetimeout = setTimeout(this.expandSvgHeight, seconds, this);
+};
+
+/**
+ * Detect if a join can be made, fetch the join parameters, and create a join.
+ * @param {Object} target_tr  The row being dropped onto.
+ * @param {String} file       The varname of the row being dropped onto.
+ * @param {Object} origin_tr  The row dragged from.
+ * @param {String} origfile   The varname of the row dragged from.
+ * @param {String|undefined} joinType   INNER, LEFT, RIGHT.
+ */
+pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr, origfile, joinType){
+  if (this.filetree._contains(file) && this.filetree._contains(origfile)){
+    // Both tables are connected in the tree to main already. Allow adding conditions
+    // to an existing join; don't allow joining two child nodes (that would create a graph cycle).
+    var join = this.filetree.getJoinFromNames(file, origfile);
+    if (join != null){
+      // A join was found for the tables. Determine which TR is the parent and
+      // which is the child. Then check if this condition already exists.
+      var parentTR, childTR;
+      if (target_tr.fileVarname == join.parentFilevar){    //1st argument is the parent table.
+        if (origin_tr.fileVarname == join.childFilevar){  //2nd argument is child.
+          parentTR = target_tr;
+          childTR = origin_tr;
+        }
+      }
+      else if (origin_tr.fileVarname == join.parentFilevar){  //2nd argument is the parent table.
+        if (target_tr.fileVarname == join.childFilevar){  //1st argument is the child
+          parentTR = origin_tr;
+          childTR = target_tr; 
+        }
+      }
+      
+      if (parentTR != null && childTR != null){
+        var exists = join.conditionExists(parentTR, childTR);
+        if (exists === false){
+          //A join between the two fields doesn't already exist, so add it.
+          join.addFields(parentTR, childTR);
+        }
+      }
+      else {
+        console.log("Failed to determine parent-child relationship.");
+      }
+    }
+  }
+  else if(this.filetree._contains(file)){
+    // Add the drag origin as a child of the drag target, creating a new join.
+    this.filetree.addLink(target_tr, origin_tr, joinType);
+  }
+  else if(this.filetree._contains(origfile)){
+    // Add the drag target as a child of the drag origin, creating a new join.
+    this.filetree.addLink(origin_tr, target_tr, joinType);
+  }
+};
+
+/**
  * Clear/destroy all tables and remove DOM elements from this.domEl, and delete properties.
  */
 pui.joins.JoinArea.prototype.destroy = function(){
@@ -4825,16 +4930,11 @@ pui.joins.JoinArea.prototype.destroy = function(){
     if (this.infobox) this.domEl.removeChild(this.infobox);
     if (this.svg) this.domEl.removeChild(this.svg);
   }
-  try {
-    delete this.joinableTables;
-    delete this.infobox;
-    delete this.svg;
-    delete this.domEl;
-  } catch(ignore){}
+  pui.deleteOwnProperties.call(this);
 };
 
 /**
- * Create a table showing fields from the first DB file. Allow drag-drop between tables to create joins.
+ * Create an HTML table showing fields from the first DB file. Allow drag-drop between tables to create joins.
  * @param {Object} params   Contains information about one file as well as join table parameters.
  * @constructor
  */
@@ -4845,22 +4945,50 @@ pui.joins.JoinableTable = function(params){
   this.id = params.id;
   this.tableId = 'joinlist_' + this.id;
   this.captionText = params.tableCaption;
-  
+  /*
+   * @type Array.<Object>
+   */
   this.fields = JSON.parse(JSON.stringify(params['fields']));
-  
+  /*
+   * This gets set by pui.joins.JoinableTable.prototype.addAndRenderTable().
+   * @type pui.joins.JoinArea
+   */
   this.joinArea = null;
-  
+  /*
+   * @type Array.<pui.joins.Join>
+   */
   this.joinlist = []; //When moving the table, join connectors in this list should be updated.
-  
-  this._moveRbound = params.moveRbound;
-  this._moveBbound = params.moveBbound;
   
   this.table = null;
   this.tableHeadRow = null;
   this.tableBody = null;
+  this.caption = null;
   
-  
-  this.primaryKeyMarker = ' (PK)';   //For primary keys, this text goes to the right of the column name.
+  // Helpful for working around drag/drop data transfer limitations.
+  this.join_srcid = null;
+};
+
+/**
+ * Add the given join to this table's joinlist.
+ * @param {pui.joins.Join} join
+ */
+pui.joins.JoinableTable.prototype.addJoin = function(join){
+  this.joinlist.push(join);
+};
+
+/**
+ * Remove the given join object from this table's joinlist.
+ * @param {pui.joins.Join} join
+ */
+pui.joins.JoinableTable.prototype.removeJoin = function(join){
+  var i = 0;
+  while (i < this.joinlist.length){
+    if (this.joinlist[i] == join){
+      this.joinlist.splice(i, 1);
+    }else{
+      i++;
+    }
+  }
 };
 
 /**
@@ -4868,12 +4996,10 @@ pui.joins.JoinableTable = function(params){
  */
 pui.joins.JoinableTable.prototype.destroy = function(){
   if (this.table && this.table.parentNode) this.table.parentNode.removeChild(this.table);
-  var propnames = Object.getOwnPropertyNames(this);
-  for (var i=0, n=propnames.length; i < n; i++){
-    // Removes all properties set like: "this.foo = bar";
-    try { delete this[propnames[i]]; } catch(ignore) {}
-  }
+  pui.deleteOwnProperties.call(this);
 };
+
+
 
 /**
  * Create the HTML interface for the Joinable Table and add it to the container DOM element.
@@ -4888,8 +5014,8 @@ pui.joins.JoinableTable.prototype.render = function(){
   this.table.className = "join-list";
   this.table.id = this.tableId;
 
-  var caption = this.table.createCaption();
-  caption.innerHTML = this.captionText;
+  this.caption = this.table.createCaption();
+  this.caption.innerHTML = this.captionText;
   
   var thead = this.table.createTHead();
   this.tableHeadRow = thead.insertRow(0);
@@ -4904,20 +5030,22 @@ pui.joins.JoinableTable.prototype.render = function(){
     var tr = this.tableBody.insertRow(this.tableBody.rows.length);
     
     tr.id = this.id + "_r" + i; //To help drag-drop, every row has unique id.
-    tr.fileVarname = this.id;  //Simplifies drag-drop to put on each row.
-    tr.fieldInfo = this.fields[i];
+    
+    //tr.fileVarname = this.id;  //Simplifies drag-drop to put on each row.
+    //tr.fieldInfo = this.fields[i];
     
     tr.joinableTable = this;                  //TODO: why not just use this instead of the other variables above.
+    // TODO: this could also go into the table element once. IDK why i didn't do that first.
     
     var keyNumber = this.fields[i]["key"];
     el = tr.insertCell(0);
-    el.innerHTML = this.fields[i]["field"] + (keyNumber != null ? this.primaryKeyMarker : "");
+    el.innerHTML = this.fields[i]["field"] + (keyNumber != null ? this.joinArea.primaryKeyMarker : "");
     
     // Setup events for the Join interface.
     tr.draggable = true;
     tr.ondragstart = this.ondragstart.bind(this);
     
-    // TODO: add these to closure and de-quote here. need bind?
+    // TODO: add these to closure and de-quote here. is bind necessary?
     
     tr["ondragend"] = this.ondragend.bind(this);
     tr["ondrop"] = this.ondrop.bind(this);
@@ -4926,7 +5054,7 @@ pui.joins.JoinableTable.prototype.render = function(){
   }
   
   // Allow the table to be moved by dragging the mouse.
-  pui.makeMovable({attachto: caption, move: this.table, rbound: this.moveRbound, bbound: this.moveBbound, movecb: this.redrawConnectors.bind(this) });
+  pui.makeMovable({attachto: this.caption, move: this.table, rbound: this.joinArea.moveRbound, bbound: this.joinArea.moveBbound, movecb: this.redrawConnectors.bind(this) });
 };
 
 /**
@@ -4937,13 +5065,18 @@ pui.joins.JoinableTable.prototype.redrawConnectors = function(){
   for (var i=0; i < this.joinlist.length; i++){
     this.joinlist[i].drawConnectors();
   }
-  
   // Expanding is a little slow; wait 5ms after mouse movement stops before starting to expand the SVG section.
-  clearTimeout(this.joinArea.movetimeout);
-  // Note: do not use bind on expandSvgHeight, because that allocates a new function every time it is called, which is often in mousemove.
-  this.joinArea.movetimeout = setTimeout(this.joinArea.expandSvgHeight, 5, this.joinArea);
-  
-  
+  this.joinArea.queueExpand(5);
+};
+
+pui.joins.JoinableTable.prototype.getLeft = function(){
+  return this.table.offsetLeft;
+};
+pui.joins.JoinableTable.prototype.getTop = function(){
+  return this.table.offsetTop;
+};
+pui.joins.JoinableTable.prototype.getCaptionHeight = function(){
+  return this.caption.offsetHeight;
 };
 
 /**
@@ -4963,7 +5096,7 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
   try{
     originrowid = event.dataTransfer.getData("text/plain");
   }catch(exc){
-    originrowid = appgen.join_srcid;
+    originrowid = this.joinArea.join_srcid;
   }
 
   var origin_tr = getObj(originrowid);
@@ -4973,8 +5106,11 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
   var origfile = origin_tr.fileVarname;
   if (origfile == null || origfile == file) return false; //Don't allow dropping on same table.
 
-  appgen.joinLinkRows(target_tr, file, origin_tr, origfile);
-  appgen.makeDirty();
+  //TODO: use tr.joinableTable objects instead of TRs.
+
+  this.joinArea.joinLinkRows(target_tr, file, origin_tr, origfile);
+  
+  if (typeof this.joinArea.joindropCb == 'function') this.joinArea.joindropCb();
 };
 
 
@@ -4985,24 +5121,24 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
  * @param {Object|Event} event
  */
 pui.joins.JoinableTable.prototype.ondragover = function(event){
-  if (appgen.join_srcid == null) return; //Prevents drop from Field Select.
+  if (this.joinArea.join_srcid == null) return; //Prevents drop from Field Select.
   var target = pui.getTRtargetRow(event);
   if (!target) return;
-  var origin_tr = getObj(appgen.join_srcid);
+  var origin_tr = getObj(this.joinArea.join_srcid);
   if (origin_tr == null) return;    //The origin node should exist.
   var ofvname = origin_tr.fileVarname;
   if (ofvname == null) return;      //The origin node should have a fileVarname.
   var tfvname = target.fileVarname;
   if (tfvname == ofvname) return; //Don't allow dropping on same table as drag origin.
   
-  var cont_or = appgen.filetree.contains(ofvname);
-  var cont_tr = appgen.filetree.contains(tfvname);
+  var cont_or = this.joinArea.filetree.contains(ofvname);
+  var cont_tr = this.joinArea.filetree.contains(tfvname);
   if (!cont_or && !cont_tr){
     // Don't allow joining two orphan tables together.
     this.showInfobox(pui["getLanguageText"]("jumpstartMsg", "join x y to main file", [ofvname,tfvname]));
     return;
   }else if (cont_or && cont_tr){
-    var join = appgen.filetree.getJoinFromNames(tfvname, ofvname);
+    var join = this.joinArea.filetree.getJoinFromNames(tfvname, ofvname);
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
       
@@ -5040,7 +5176,7 @@ pui.joins.JoinableTable.prototype.ondragstart = function(event){
   var target = pui.getTRtargetRow(event);
   if (target) {
     //Use global join_srcid because IE dislikes setData, and dragover can't get the id from dataTransfer in Chrome.
-    appgen.join_srcid = target.id; 
+    this.joinArea.join_srcid = target.id; 
     pui.addCssClass(target,"join_origin");
 
     try{
@@ -5059,10 +5195,9 @@ pui.joins.JoinableTable.prototype.ondragend = function(event){
   var target = pui.getTRtargetRow(event);
   if (target) {
     pui.removeCssClass(target,"join_origin");   //Clear the visual feedback.
-    appgen.join_srcid = null;   //Make sure the join rows don't react to other, non-join drag/drops.
+    this.joinArea.join_srcid = null;   //Make sure the join rows don't react to other, non-join drag/drops.
   }
-  var infobox = getObj("joininfobox");    //Hide the info box in case it appeared during drag.
-  infobox.style.visibility = "hidden";
+  this.joinArea.hideInfobox();  //Hide the info box in case it appeared during drag.
 };
 
 
@@ -5084,227 +5219,228 @@ pui.joins.JoinableTable.prototype.ondragend = function(event){
 /**
  * Join Editor Class
  * This is a popup window to remove or modify the join type.
+ * @param {pui.joins.JoinArea} joinArea 
  * @constructor
  */
-pui.joins.JoinEditor = function() {
+pui.joins.JoinEditor = function(joinArea) {
   // Private Properties
-  var div = document.createElement("div");
+  this._div = document.createElement("div");
   
-  var dialogHeader = document.createElement("div");
-  var headerTitle = document.createElement("span");
-  var closeButtonDiv = document.createElement("div");
-  var closeButtonImgDiv = document.createElement("div");
+  this._dialogHeader = document.createElement("div");
+  this._headerTitle = document.createElement("span");
+  this._closeButtonDiv = document.createElement("div");
+  this._closeButtonImgDiv = document.createElement("div");
   
-  var dialogBody = document.createElement("div");
+  this._dialogBody = document.createElement("div");
   
-  var radio1 = document.createElement("input");
-  var radio2 = document.createElement("input");
-  var radio3 = document.createElement("input");
+  this._radio1 = document.createElement("input");
+  this._radio2 = document.createElement("input");
+  this._radio3 = document.createElement("input");
   
-  var radio1Label = document.createElement("label");
-  var radio2Label = document.createElement("label");
-  var radio3Label = document.createElement("label");
+  this._radio1Label = document.createElement("label");
+  this._radio2Label = document.createElement("label");
+  this._radio3Label = document.createElement("label");
   
-  var buttonWrap = document.createElement("div");
-  buttonWrap.className = "btnwrap";
-  var modifyButton = document.createElement("input");
-  var removeButton = document.createElement("input");
-  var cancelButton = document.createElement("input");
-  var me = this; 
- 
+  this._buttonWrap = document.createElement("div");
+  this._buttonWrap.className = "btnwrap";
+  this._modifyButton = document.createElement("input");
+  this._removeButton = document.createElement("input");
+  this._cancelButton = document.createElement("input");
+  
+  this.joinArea = joinArea;
+  
   /**
    * 
    * @type pui.joins.Join
    */
-  var join = null;
+  this._join = null;
   /**
    * 
    * @type pui.joins.JoinCondition
    */
-  var condition = null;
+  this._condition = null;
   
   // Constructor
-  div.id = "joinEditor";
-  div.liblDialog = true; //Tells editorsHideCheck when to hide this editor.
+  this._div.id = "joinEditor";
+  this._div.liblDialog = true; //Tells editorsHideCheck when to hide this editor.
 
-  div.style.zIndex = designUtils.zListEditor;
-  div.style.visibility = "hidden";
-  div.style.display = "none";
+  this._div.style.zIndex = designUtils.zListEditor;
+  this._div.style.visibility = "hidden";
+  this._div.style.display = "none";
   
-  dialogHeader.className = "dialog-header";
-  dialogHeader.appendChild(headerTitle);
-  dialogBody.className = "dialog-body";
+  this._dialogHeader.className = "dialog-header";
+  this._dialogHeader.appendChild(this._headerTitle);
+  this._dialogBody.className = "dialog-body";
   
-  radio1.type = "radio";
-  radio1.name = "rdojointype";
-  radio1.id = "rdojointype1";
-  radio1.value = "INNER";
-  radio1.checked = true;
-  radio1Label.setAttribute("for", radio1.id);
-  dialogBody.appendChild(radio1);
-  dialogBody.appendChild(radio1Label);
+  this._radio1.type = "radio";
+  this._radio1.name = "rdojointype";
+  this._radio1.id = "rdojointype1";
+  this._radio1.value = "INNER";
+  this._radio1.checked = true;
+  this._radio1Label.setAttribute("for", this._radio1.id);
+  this._dialogBody.appendChild(this._radio1);
+  this._dialogBody.appendChild(this._radio1Label);
   
-  radio2.type = "radio";
-  radio2.name = "rdojointype";
-  radio2.id = "rdojointype2";
-  radio2.value = "LEFT";
-  radio2Label.setAttribute("for", radio2.id);
-  dialogBody.appendChild(radio2);
-  dialogBody.appendChild(radio2Label);
+  this._radio2.type = "radio";
+  this._radio2.name = "rdojointype";
+  this._radio2.id = "rdojointype2";
+  this._radio2.value = "LEFT";
+  this._radio2Label.setAttribute("for", this._radio2.id);
+  this._dialogBody.appendChild(this._radio2);
+  this._dialogBody.appendChild(this._radio2Label);
   
-  radio3.type = "radio";
-  radio3.name = "rdojointype";
-  radio3.id = "rdojointype3";
-  radio3.value = "RIGHT";
-  radio3Label.setAttribute("for", radio3.id);
-  dialogBody.appendChild(radio3);
-  dialogBody.appendChild(radio3Label);
+  this._radio3.type = "radio";
+  this._radio3.name = "rdojointype";
+  this._radio3.id = "rdojointype3";
+  this._radio3.value = "RIGHT";
+  this._radio3Label.setAttribute("for", this._radio3.id);
+  this._dialogBody.appendChild(this._radio3);
+  this._dialogBody.appendChild(this._radio3Label);
   
-  closeButtonDiv.className = "close-btn";
-  closeButtonDiv.onclick = function() {
-    me.hide();
+  this._closeButtonDiv.className = "close-btn";
+  this._closeButtonDiv.onclick = function() {
+    this.hide();
   };
-  closeButtonDiv.appendChild(closeButtonImgDiv);
-  dialogHeader.appendChild(closeButtonDiv);
+  this._closeButtonDiv.appendChild(this._closeButtonImgDiv);
+  this._dialogHeader.appendChild(this._closeButtonDiv);
  
-  modifyButton.type = "button";
-  modifyButton.value = pui["getLanguageText"]("jumpstartText","modify");
-  modifyButton.onclick = function() {
+  this._modifyButton.type = "button";
+  this._modifyButton.value = pui["getLanguageText"]("jumpstartText","modify");
+  this._modifyButton.onclick = function() {
     var jointype;
-    if (radio1.checked){
-      jointype = radio1.value;
-    }else if (radio2.checked){
-      jointype = radio2.value;
+    if (this.radio1.checked){
+      jointype = this.radio1.value;
+    }else if (this._radio2.checked){
+      jointype = this._radio2.value;
     }else{
-      jointype = radio3.value;
+      jointype = this._radio3.value;
     }
-    join.setType(jointype);
+    this._join.setType(jointype);
     appgen.autoCoalesce();
     appgen.dosqlpreview(); //Update the SQL preview.
     appgen.makeDirty();
-    me.hide();
+    this.hide();
   };
-  buttonWrap.appendChild(modifyButton);
+  this._buttonWrap.appendChild(this._modifyButton);
   
-  removeButton.type = "button";
-  removeButton.value = pui["getLanguageText"]("jumpstartText","remove");
-  removeButton.onclick = function() {     // Remove the join condition.
-    join.removeCondition(condition);
+  this._removeButton.type = "button";
+  this._removeButton.value = pui["getLanguageText"]("jumpstartText","remove");
+  this._removeButton.onclick = function() {     // Remove the join condition.
+    this._join.removeCondition(this._condition);
     // If the condition is the last one, then remove the join.
-    if (join.conditions.length < 1){
+    if (this._join.conditions.length < 1){
       // Removes the younger file from jointree; also destroys the Join.
-      appgen.filetree.remove(join.childFilevar, condition);
+      this.joinArea.filetree.remove(this._join.childFilevar, this._condition);
       appgen.validateFieldNames();
       appgen.detectCorrelConflicts();
       appgen.autoCoalesce();
     }
     appgen.dosqlpreview(); //Update the SQL preview.
     appgen.makeDirty();
-    me.hide();
+    this.hide();
   };
-  buttonWrap.appendChild(removeButton);
+  this._buttonWrap.appendChild(this._removeButton);
   
-  cancelButton.type = "button";
-  cancelButton.value = pui["getLanguageText"]("jumpstartText","cancel");
-  cancelButton.onclick = function() {
-    me.hide();
+  this._cancelButton.type = "button";
+  this._cancelButton.value = pui["getLanguageText"]("jumpstartText","cancel");
+  this._cancelButton.onclick = function() {
+    this.hide();
   };
-  buttonWrap.appendChild(cancelButton);
+  this._buttonWrap.appendChild(this._cancelButton);
 
   var p = document.createElement("p");
-  p.appendChild(radio1);
-  p.appendChild(radio1Label);
-  dialogBody.appendChild(p);
+  p.appendChild(this._radio1);
+  p.appendChild(this._radio1Label);
+  this._dialogBody.appendChild(p);
   p = document.createElement("p");
-  p.appendChild(radio2);
-  p.appendChild(radio2Label);
-  dialogBody.appendChild(p);
+  p.appendChild(this._radio2);
+  p.appendChild(this._radio2Label);
+  this._dialogBody.appendChild(p);
   p = document.createElement("p");
-  p.appendChild(radio3);
-  p.appendChild(radio3Label);
-  dialogBody.appendChild(p);
+  p.appendChild(this._radio3);
+  p.appendChild(this._radio3Label);
+  this._dialogBody.appendChild(p);
   
-  dialogBody.appendChild(buttonWrap);
-  div.appendChild(dialogHeader);
-  div.appendChild(dialogBody);
-  document.body.appendChild(div);
+  this._dialogBody.appendChild(this._buttonWrap);
+  this._div.appendChild(this._dialogHeader);
+  this._div.appendChild(this._dialogBody);
+  document.body.appendChild(this._div);
 
   //Allow the join editor window to be moved via mouse.  
-  pui.makeMovable({attachto: dialogHeader, move: div, opacity:85, upcb: function(){radio1.focus();} });
+  pui.makeMovable({attachto: this._dialogHeader, move: this._div, opacity:85, upcb: function(){this.radio1.focus();} });
+};
 
-  // Public Methods
-  
-  /**
-   * Changes the window title and radio label texts.
-   * @param {pui.joins.JoinCondition|Object} pcond
-   * @returns {undefined}
-   */
-  this.setJoin = function(pcond){
-    condition = pcond;
-    join = condition.owner;
-    var parfile = appgen.mapvartofile[join.parentFilevar]["fullFile"];
-    var childfile = appgen.mapvartofile[join.childFilevar]["fullFile"];
-    
-    headerTitle.innerHTML = pui["getLanguageText"]("jumpstartText", "join props x to y", [parfile, pcond.parentField, childfile, pcond.childField]);
-    radio1Label.innerHTML = pui["getLanguageText"]("jumpstartText","inner join label");
-    radio2Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [parfile, childfile]);
-    radio3Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [childfile, parfile]);
-    
-    if (join.type == "INNER"){
-      radio1.checked = true;
-      radio2.checked = false;
-      radio3.checked = false;
-    }else if(join.type == "LEFT"){
-      radio1.checked = false;
-      radio2.checked = true;
-      radio3.checked = false;
-    }else{
-      radio1.checked = false;
-      radio2.checked = false;
-      radio3.checked = true;
-    }
-  };
-  
-  this.show = function(e) {
-    e = e || window.event;
-    var scrollx = document.documentElement ? document.documentElement.scrollLeft : document.body.scrollLeft;
-    var scrolly = document.documentElement ? document.documentElement.scrollTop : document.body.scrollTop;
-    
-    var w = document.body.offsetWidth;
-    var h = document.body.offsetHeight;
-    if (w == null) w = 10000;
-    if (h == null) h = 10000;
-    w = w - 325;  // substruct width of dialog and scrollbar
-    h = h - 240;  // substruct height of dialog plus a little
-    if (w < 0) w = 0;
-    if (h < 0) h = 0;
-    
-    var left = 0;
-    if (e.pageX != null) left += e.pageX;     //Position on the BODY absolutely.
-    else left += e.clientX + scrollx;
+// Public Methods
 
-    var top = 0;
-    if (e.pageY != null) top += e.pageY;     //Position on the BODY absolutely.
-    else top += e.clientY + scrolly;
-    
-    top = top - 100;
-    if (top < 0) top = 0;
-    if (left > w) left = w;    
-    div.style.left = left + "px";
-    div.style.top = top + "px";
-    div.style.visibility = "visible";
-    div.style.display = "";
-    radio1.focus();
-    addEvent(document.body, "click", appgen.editorsHideCheck);
-  };
-  
-  this.hide = function() {
-    div.style.visibility = "hidden";
-    div.style.display = "none";
-    join = null;
-    condition = null;
-    removeEvent(document.body, "click", appgen.editorsHideCheck);
-  };
+/**
+ * Changes the window title and radio label texts.
+ * @param {pui.joins.JoinCondition|Object} pcond
+ * @returns {undefined}
+ */
+pui.joins.JoinEditor.prototype.setJoin = function(pcond){
+  this._condition = pcond;
+  this._join = this._condition.owner;
+  var parfile = appgen.mapvartofile[this._join.parentFilevar]["fullFile"];
+  var childfile = appgen.mapvartofile[this._join.childFilevar]["fullFile"];
+
+  this.headerTitle.innerHTML = pui["getLanguageText"]("jumpstartText", "join props x to y", [parfile, pcond.parentField, childfile, pcond.childField]);
+  this._radio1Label.innerHTML = pui["getLanguageText"]("jumpstartText","inner join label");
+  this._radio2Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [parfile, childfile]);
+  this._radio3Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [childfile, parfile]);
+
+  if (this._join.type == "INNER"){
+    this.radio1.checked = true;
+    this._radio2.checked = false;
+    this._radio3.checked = false;
+  }else if(this._join.type == "LEFT"){
+    this.radio1.checked = false;
+    this._radio2.checked = true;
+    this._radio3.checked = false;
+  }else{
+    this.radio1.checked = false;
+    this._radio2.checked = false;
+    this._radio3.checked = true;
+  }
+};
+
+pui.joins.JoinEditor.prototype.show = function(e) {
+  var scrollx = document.documentElement ? document.documentElement.scrollLeft : document.body.scrollLeft;
+  var scrolly = document.documentElement ? document.documentElement.scrollTop : document.body.scrollTop;
+
+  var w = document.body.offsetWidth;
+  var h = document.body.offsetHeight;
+  if (w == null) w = 10000;
+  if (h == null) h = 10000;
+  w = w - 325;  // substruct width of dialog and scrollbar
+  h = h - 240;  // substruct height of dialog plus a little
+  if (w < 0) w = 0;
+  if (h < 0) h = 0;
+
+  var left = 0;
+  if (e.pageX != null) left += e.pageX;     //Position on the BODY absolutely.
+  else left += e.clientX + scrollx;
+
+  var top = 0;
+  if (e.pageY != null) top += e.pageY;     //Position on the BODY absolutely.
+  else top += e.clientY + scrolly;
+
+  top = top - 100;
+  if (top < 0) top = 0;
+  if (left > w) left = w;    
+  this.div.style.left = left + "px";
+  this.div.style.top = top + "px";
+  this.div.style.visibility = "visible";
+  this.div.style.display = "";
+  this.radio1.focus();
+  addEvent(document.body, "click", appgen.editorsHideCheck);
+};
+
+pui.joins.JoinEditor.prototype.hide = function() {
+  this.div.style.visibility = "hidden";
+  this.div.style.display = "none";
+  this._join = null;
+  this._condition = null;
+  removeEvent(document.body, "click", appgen.editorsHideCheck);
 };
 
 //TODO: can these Join objects deal with JoinableTable objects instead of the TRs?
@@ -5314,13 +5450,13 @@ pui.joins.JoinEditor = function() {
  * the main file as root. Joins are created by dragging a row from one table onto a
  * row in another table in the Join Selection section.
  * @constructor
- * @param {Object} psvg
+ * @param {Object} joinArea
  * @param {Object} pparentEl  The TR DOM element in the parent table.
  * @param {Object} pchildEl   The TR DOM element in the child table.
  * @param {String|undefined} joinType   INNER, LEFT, RIGHT.
  * @returns {undefined}
  */
-pui.joins.Join = function(psvg, pparentEl, pchildEl, joinType){
+pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
   // The type determines which shape to show in the JoinLine and in generating SQL.
   this.type = joinType != null ? joinType : "INNER";
 
@@ -5329,17 +5465,20 @@ pui.joins.Join = function(psvg, pparentEl, pchildEl, joinType){
   this.parentFilevar = pparentEl.fileVarname;
   this.childFilevar = pchildEl.fileVarname;
   
-  this.svg = psvg;
-  this.parentTable = pparentEl.parentNode.parentNode;
-  this.childTable = pchildEl.parentNode.parentNode;
+  // TODO: link to just joinArea instead of svg.
+  
+  this.joinArea = joinArea;
+  
+//  this.parentTable = pparentEl.parentNode.parentNode;
+//  this.childTable = pchildEl.parentNode.parentNode;
+  this.parentTable = pparentEl.joinableTable;
+  this.childTable = pchildEl.joinableTable;
   
   this.conditions = []; //Array of pui.joins.JoinCondition.
   
-  // TODO: fix this: table elements no longer have joinlist.
-  
   // Let the tables find this join so the connectors can move with it.
-  this.parentTable.joinlist.push(this);
-  this.childTable.joinlist.push(this);
+  this.parentTable.addJoin(this);
+  this.childTable.addJoin(this);
   
   this.addFields(pparentEl, pchildEl);  //Add the join condition.
 };
@@ -5351,12 +5490,12 @@ pui.joins.Join = function(psvg, pparentEl, pchildEl, joinType){
  * @param {Object} pchildEl   Child TR DOM element.
  */
 pui.joins.Join.prototype.addFields = function(pparentEl, pchildEl){
-  if (pparentEl.parentNode.parentNode == this.parentTable
-  && pchildEl.parentNode.parentNode == this.childTable ){
+  if (pparentEl.joinableTable == this.parentTable
+  && pchildEl.joinableTable == this.childTable ){
     var cond = new pui.joins.JoinCondition(pparentEl, pchildEl);
     cond.owner = this;
     this.conditions.push(cond);
-    drawConnector(cond);
+    this.drawConnector(cond);
   }
 };
 
@@ -5379,8 +5518,8 @@ pui.joins.Join.prototype.removeCondition = function(cond){
  * @param {Object} condition
  */
 pui.joins.Join.prototype.drawConnector = function(condition){
-  var x1 = condition.parentEl.offsetLeft + this.parentTable.offsetLeft;
-  var x2 = condition.childEl.offsetLeft + this.childTable.offsetLeft;
+  var x1 = condition.parentEl.offsetLeft + this.parentTable.getLeft();
+  var x2 = condition.childEl.offsetLeft + this.childTable.getLeft();
 
   if (x1 <= x2){ //fromEl is left of toEl: start line on right edge instead of left.
     x1 += condition.parentEl.offsetWidth;
@@ -5388,21 +5527,21 @@ pui.joins.Join.prototype.drawConnector = function(condition){
     x2 += condition.childEl.offsetWidth; //target is left of origin: end line on right edge.
   }
 
-  var y1 = condition.parentEl.offsetTop + this.parentTable.offsetTop;
-  if (pui["is_firefox"]) y1 += this.parentTable.caption.offsetHeight; //The caption changes the row offset now.
+  var y1 = condition.parentEl.offsetTop + this.parentTable.getTop();
+  if (pui["is_firefox"]) y1 += this.parentTable.getCaptionHeight(); //The caption changes the row offset now.
 
   var orig_height = condition.parentEl.offsetHeight;
   y1 += Math.floor(orig_height / 2);
 
-  var y2 = condition.childEl.offsetTop + this.childTable.offsetTop;
-  if (pui["is_firefox"]) y2 += this.childTable.caption.offsetHeight;
+  var y2 = condition.childEl.offsetTop + this.childTable.getTop();
+  if (pui["is_firefox"]) y2 += this.childTable.getCaptionHeight();
 
   var targ_height = condition.childEl.offsetHeight;
   y2 += Math.floor(targ_height / 2);
 
   if (condition.joinline == null ){  //The shapes don't exist yet.
-    condition.joinline = new pui.joins.JoinLine(this.svg, x1, y1, x2, y2, this.type);
-    condition.joinline.setOwner(condition);
+    condition.joinline = new pui.joins.JoinLine(this.joinArea, x1, y1, x2, y2, this.type);
+    condition.joinline.setOwner(condition, this.joinArea);
     condition.joinline.draw();
   }else{
     condition.joinline.setPoints(x1, y1, x2, y2);
@@ -5425,26 +5564,10 @@ pui.joins.Join.prototype.destroy = function(){
     for(var i=0; i < this.conditions.length; i++){
       this.conditions[i].destroy();
     }
-    delete this.conditions;
   }
-  this.removeMeFromTableJoinList(this.parentTable.joinlist);
-  this.removeMeFromTableJoinList(this.childTable.joinlist);
-  delete this.parentTable;
-  delete this.childTable;
-  delete this.svg;
-  delete this.parentFilevar;
-  delete this.childFilevar;
-};
-
-pui.joins.Join.prototype.removeMeFromTableJoinList = function(joinlist){
-  var i = 0;
-  while (i < joinlist.length){
-    if (joinlist[i] == me){
-      joinlist.splice(i, 1);
-    }else{
-      i++;
-    }
-  }
+  this.parentTable.removeJoin(this);
+  this.childTable.removeJoin(this);
+  pui.deleteOwnProperties.call(this);
 };
 
 pui.joins.Join.prototype.setType = function(ptype){
@@ -5498,15 +5621,12 @@ pui.joins.JoinCondition = function(pparentEl, pchildEl){
 
 pui.joins.JoinCondition.prototype.destroy = function(){
   if (this.joinline) this.joinline.destroy();
-  delete this.joinline;
-  delete this.parentEl;
-  delete this.childEl;
-  delete this.owner;
+  pui.deleteOwnProperties.call(this);
 };
 
 /**
  * A graphical representation of a join condition between two tables.
- * @param {Object} psvg   The SVG object in which to draw the lines.
+ * @param {pui.joins.JoinArea} joinArea   Contains the SVG object in which to draw the lines.
  * @param {Number} px1    The x position of the starting point.
  * @param {Number} py1    The y position of the starting point
  * @param {Number} px2    The x position of the ending point.
@@ -5515,10 +5635,11 @@ pui.joins.JoinCondition.prototype.destroy = function(){
  * @constructor
  * @returns {undefined}
  */
-pui.joins.JoinLine = function(psvg, px1, py1, px2, py2, ptype){
+pui.joins.JoinLine = function(joinArea, px1, py1, px2, py2, ptype){
   this.type = ptype == null ? "INNER" : ptype;
 
-  this.svg = psvg;
+  this.joinArea = joinArea;
+  
   this.x1 = px1;
   this.x2 = px2;
   this.y1 = py1;
@@ -5533,8 +5654,9 @@ pui.joins.JoinLine = function(psvg, px1, py1, px2, py2, ptype){
   this.owner = null; //Needed for click events: which join condition owns this line.
 };
 
-pui.joins.JoinLine.prototype.setOwner = function(powner){
+pui.joins.JoinLine.prototype.setOwner = function(powner, joinArea){
   this.owner = powner;
+  this.joinArea = joinArea;
 };
 
 /**
@@ -5551,17 +5673,17 @@ pui.joins.JoinLine.prototype.draw = function(){
     this.connector.setAttribute("fill", "none");
     this.connector.onclick = this.click;
     this.connector.setAttribute("class","joinlink");
-    this.svg.appendChild(this.connector);
+    this.joinArea.svg.appendChild(this.connector);
   }
 
   if (this.startShape == null){
     this.startShape = this.createCircle();
-    this.svg.appendChild(this.startShape);
+    this.joinArea.svg.appendChild(this.startShape);
   }
 
   if (this.endShape == null){
     this.endShape = this.createCircle();
-    this.svg.appendChild(this.endShape);
+    this.joinArea.svg.appendChild(this.endShape);
   }
 
   if (this.midShape == null){
@@ -5571,7 +5693,7 @@ pui.joins.JoinLine.prototype.draw = function(){
     this.midShape.setAttribute("stroke-width", 1);
     this.midShape.onclick = this.click;
     this.midShape.setAttribute("class","joinlink");
-    this.svg.appendChild(this.midShape);
+    this.joinArea.svg.appendChild(this.midShape);
   }
 
   this.resetPoints();
@@ -5668,7 +5790,7 @@ pui.joins.JoinLine.prototype.resetPoints = function (){
 pui.joins.JoinLine.prototype.click = function(event){
   preventEvent(event); //Prevent dialog from disappearing as soon as it appears.
   if (appgen.joineditor == null){
-    appgen.joineditor = new pui.joins.JoinEditor();
+    appgen.joineditor = new pui.joins.JoinEditor(this.joinArea);
   }
   appgen.joineditor.setJoin(this.owner);
   appgen.joineditor.show(event);  
@@ -5676,17 +5798,14 @@ pui.joins.JoinLine.prototype.click = function(event){
 
 // remove the shapes from the SVG, remove all objects from .
 pui.joins.JoinLine.prototype.destroy = function(){
-  this.svg.removeChild(this.startShape);
-  this.svg.removeChild(this.midShape);
-  this.svg.removeChild(this.endShape);
-  this.svg.removeChild(this.connector);
-  delete this.startShape;
-  delete this.midShape;
-  delete this.endShape;
-  delete this.connector;
-  delete this.svg;
-  delete this.owner;
+  this.joinArea.svg.removeChild(this.startShape);
+  this.joinArea.svg.removeChild(this.midShape);
+  this.joinArea.svg.removeChild(this.endShape);
+  this.joinArea.svg.removeChild(this.connector);
+  pui.deleteOwnProperties.call(this);
 };
+
+// TODO: would it be appropriate to use the shadow DOM for this?
 
 /**
  * Object to contain the hierarchy of joined files, to help construct the SQL
@@ -5705,250 +5824,275 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * 
  * @constructor
  * @param {String} prootName  The identifier of the root node. Should be "file".
- * @returns {undefined}
+ * @param {pui.joins.JoinArea} joinArea
  */ 
-pui.joins.FileTree = function(prootName){
-  var me = this;
-  var namelist = {}; //Quick lookup list. Keys are fileVarnames; values are not used.
-  var rootName = prootName; //Stored varname for detecting root; used when emptying table.
-  namelist[rootName] = false;
+pui.joins.FileTree = function(prootName, joinArea){
+  this._namelist = {}; //Quick lookup list. Keys are fileVarnames; values are not used.
+  this._rootName = prootName; //Stored varname for detecting root; used when emptying table.
+  this._namelist[this._rootName] = false;
 
-  var tree = createAndAddNode(document.body, rootName, null);
-  tree.style.display = "none";
+  this._tree = this._createAndAddNode(document.body, this._rootName, null);
+  this._tree.style.display = "none";
   
-  this.contains = function(fname){
-    return namelist[fname] != null;
-  };
-  
-  // Link the child file to the parent file.
-  this.addLink = function(parent_tr, child_tr, joinType){
-    var parentName = parent_tr.fileVarname;
-    var childName = child_tr.fileVarname;
-    if (!me.contains(parentName)) return;
-    var parent = findNode(parentName);  //Find the internal tree node.
-    if (!parent){
-      console.log("Tree failed to find parent file:",parentName);
+  this.joinArea = joinArea;
+};
+
+pui.joins.FileTree.prototype._contains = function(fname){
+  return this._namelist[fname] != null;
+};  
+
+/**
+ * Link the child file to the parent file.
+ * @param {Object} parent_tr
+ * @param {Object} child_tr
+ * @param {String|Undefined} joinType
+ */
+pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
+  var parentName = parent_tr.fileVarname;
+  var childName = child_tr.fileVarname;
+  if (!this._contains(parentName)) return;
+  var parent = this._findNode(parentName);  //Find the internal tree node.
+  if (!parent){
+    console.log("Tree failed to find parent file:",parentName);
+    return;
+  }
+  var join = new pui.joins.Join(this.joinArea, parent_tr, child_tr, joinType);
+  join.drawConnectors();
+
+  // Add child node to parent in the internal tree.
+  this._createAndAddNode(parent, childName, join);
+  this._namelist[childName] = false;
+
+  //Add the child file to the Field Selection table.
+  var details = appgen.mapvartofile[childName];
+  appgen.loadFields(details, true);
+  appgen.validateFieldNames();
+  appgen.detectDBFieldAmbiguity();
+
+  if (appgen.dbFieldAmbiguity){
+    //There are potential conflicts on field names, so auto setup table correlations.
+    for (var i=0; i < appgen.joinableTables.length; i++){
+      // Set the value of each correlation input box if blank.
+      if (appgen.joinableTables[i].correlInput.value == ""){
+        var correl = "T" + i;
+        appgen.joinableTables[i].correlInput.value = correl;
+        appgen.mapvartofile[appgen.joinableTables[i].id]["correlation"] = correl;
+      }
+    }
+  }
+  appgen.autoCoalesce();
+};
+
+/**
+ * Reset the internal tree and namelist, and destroy all Join objects. Called after Retrieve Fields clicked more than once.
+ */
+pui.joins.FileTree.prototype.reset = function(){
+  this._removeSubTree(this._tree);
+};
+
+/**
+ * Remove the join (and dependent joins) of a child node identified by the argument.
+ * @param {String} childName
+ */
+pui.joins.FileTree.prototype.remove = function(childName){
+  if (childName == this._rootName) return;  //Never remove the root node.
+  if (this._contains(childName)){
+    var child = this._findNode(childName);
+    if (!child){
+      console.log("Tree failed to find child file:",childName);
       return;
     }
-    var join = new pui.joins.Join(getObj("joinsvg"), parent_tr, child_tr, joinType);
-    join.drawConnectors();
-    
-    // Add child node to parent in the internal tree.
-    createAndAddNode(parent, childName, join);
-    namelist[childName] = false;
-    
-    //Add the child file to the Field Selection table.
-    var details = appgen.mapvartofile[childName];
-    appgen.loadFields(details, true);
-    appgen.validateFieldNames();
-    appgen.detectDBFieldAmbiguity();
-    
-    if (appgen.dbFieldAmbiguity){
-      //There are potential conflicts on field names, so auto setup table correlations.
-      for (var i=0; i < appgen.joinableTables.length; i++){
-        // Set the value of each correlation input box if blank.
-        if (appgen.joinableTables[i].correlInput.value == ""){
-          var correl = "T" + i;
-          appgen.joinableTables[i].correlInput.value = correl;
-          appgen.mapvartofile[appgen.joinableTables[i].id]["correlation"] = correl;
-        }
-      }
-    }
-    appgen.autoCoalesce();
-  };
-  
-  // Reset the internal tree and namelist, and destroy all Join objects.
-  // Called after Retrieve Fields clicked more than once.
-  this.reset = function(){
-    removeSubTree(tree);
-  };
-  
-  // Remove the join (and dependent joins) of a child node identified by the argument.
-  this.remove = function(childName){
-    if (childName == rootName) return;  //Never remove the root node.
-    
-    if (me.contains(childName)){
-      var child = findNode(childName);
-      if (!child){
-        console.log("Tree failed to find child file:",childName);
-        return;
-      }
-      removeSubTree(child);
-    }
-  };
-  
-  // Recursive function to find all child nodes of the argument, remove them
-  // from the internal tree, delete them from the namelist, remove their fields 
-  // from field selection, and destroy their Join objects.
-  function removeSubTree(node){
-    while (node.childNodes.length > 0)  //DFS recursively find leaf nodes.
-      removeSubTree(node.childNodes[0]);
+    this._removeSubTree(child);
+  }
+};
 
-    //Remove this node from the internal tree, namelist, and destroy the Join object.
-    var removeName = node.getAttribute("fvn");
-    if (node.joinP != null){     //Root joinP is null; never remove root.
-      node.joinP.destroy();
-      node.joinP = null;
-      removeFromFieldSel(removeName); //Remove the non-root file's fields from Field Selection.
-      node.parentNode.removeChild(node); //Remove the DOM representation of the join.
-      delete namelist[removeName];
-    }
-  }
+/**
+ * Recursive function to find all child nodes of the argument, remove them from the internal tree, delete them from the namelist,
+ * remove their fields from field selection, and destroy their Join objects.
+ * @param {Object} node
+ */
+pui.joins.FileTree.prototype._removeSubTree = function(node){
+  while (node.childNodes.length > 0)  //DFS recursively find leaf nodes.
+    this._removeSubTree(node.childNodes[0]);
 
-  // Return the internal tree node identified by the name.
-  function findNode(name){
-    return (rootName == name ? tree : tree.querySelector('div[fvn="'+name+'"]'));
-  }
-  
-  // Create a new internal tree node identified by the name, and add it as a 
-  // child of the parent argument. Use DOM elements as the tree nodes, 
-  // because they already implement the methods we need.
-  function createAndAddNode(parentNode, childName, join){
-    var child = document.createElement("div");
-    child.setAttribute("fvn",childName);
-    child.joinP = join;
-    parentNode.appendChild(child);
-    return child;
-  }
-  
-  // Remove all fields from Field Selection table belonging to the named file variable.
-  function removeFromFieldSel(fileVarname){
+  //Remove this node from the internal tree, namelist, and destroy the Join object.
+  var removeName = node.getAttribute("fvn");
+  if (node.joinP != null){     //Root joinP is null; never remove root.
+    node.joinP.destroy();
+    node.joinP = null;
+
+    // Remove the non-root file's fields from Field Selection.
+    // Remove all fields from Field Selection table belonging to the named file variable.
     var table = getObj("fieldList");
     var tbody = table.tBodies[0];
     var i=0;
     while ( i < tbody.rows.length ) {
       var rowvar = tbody.rows[i].fieldInfo["filevarname"];
-      if ( rowvar == fileVarname ){
+      if ( rowvar == removeName ){
         tbody.deleteRow(i);
       }else{
         i++;
       }
     }
+
+    node.parentNode.removeChild(node); //Remove the DOM representation of the join.
+    delete this._namelist[removeName];
   }
-  
-  // Given two tables' fileVarnames, return a join that exists between them.
-  // Joins are attached to the child node, pointing to the parent.
-  // Initially, it is unknown which argument, if either, is the parent.
-  this.getJoinFromNames = function(name1, name2){
-    var node1 = findNode(name1);
-    var node2 = findNode(name2);
-    if (!node1 || !node2) return null; //If one name doesn't exist, then no join exists.
-    var join1 = node1.joinP;
-    var join2 = node2.joinP;
+};
 
-    //If name1's parent is name2, then return name1's join object.
-    if (join1 != null && join1.parentFilevar == name2) return join1; 
-    //If name2's parent is name1, then return name2's join object.
-    else if (join2 != null && join2.parentFilevar == name1) return join2;
-    return null;
-  };
-  
-  /**
-   * Returns an object representing the tree in two ways: an array of strings comprising the
-   * FROM/JOIN clauses, and a serializable structure.
-   * @returns {Object}
-   */
-  this.getTree = function(){
-    var sql = [];
-    var struct = {
-      "varname": "file",
-      "file": appgen.mapvartofile["file"]["fullFile"],
-      "correl": appgen.mapvartofile["file"]["correlation"]
-    };
-    if (tree.childNodes.length > 0){
-      struct.childNodes = [];
-    }
-    
-    var structPointer = struct;
-    var fullFile = appgen.mapvartofile["file"]["fullFile"].toUpperCase();
-    preorderDFS(tree);
-    return { sql: sql, struct: struct };
-    
-    function preorderDFS(node){
-      //Process this node.
-      var join = node.joinP;
-      var nodevarname = node.getAttribute("fvn");
-      var tableEl = getObj('joinlist_' + nodevarname);
-      if (tableEl){
-        structPointer["xy"] = [ tableEl.style.left, tableEl.style.top ];
-      }
-      
-      if (join == null){
-        //Main file is always the first created in Join Selection.
-        var tmpstr = "FROM " + fullFile;
-        if (appgen.mapvartofile["file"]["correlation"].length > 0){
-          tmpstr += " " + appgen.mapvartofile["file"]["correlation"];
-        }
-        sql.push(tmpstr);
-      }
-      else {
-        var pdetail = appgen.mapvartofile[join.parentFilevar];
-        var cdetail = appgen.mapvartofile[join.childFilevar];
-        
-        var tmpstr = join.type + " JOIN " + cdetail["fullFile"];
-        if (cdetail["correlation"].length > 0 ){
-          tmpstr += " " + cdetail["correlation"] + " ";
-        }
-        sql.push(tmpstr);
-        structPointer["varname"] = join.childFilevar;
-        structPointer["file"] = cdetail["fullFile"];
-        structPointer["correl"] = cdetail["correlation"];
-        structPointer["joinP"] = {
-          "type": join.type
-        };
-        if (join.conditions.length > 0){
-          structPointer["joinP"]["conditions"] = [];
-          for (var i=0; i < join.conditions.length; i++){
-            structPointer["joinP"]["conditions"][i] = {
-              "childField": join.conditions[i].childField,
-              "parentField": join.conditions[i].parentField
-            };
-          }
-        }
-        if (node.childNodes.length > 0){
-          structPointer.childNodes = [];
-        }
-        
-        var cond = join.conditions[0];
+/**
+ * Return the internal tree node identified by the name.
+ * @param {String} name
+ * @returns {Element|Object}
+ */
+pui.joins.FileTree.prototype._findNode = function(name){
+  return (this._rootName == name ? this._tree : this._tree.querySelector('div[fvn="'+name+'"]'));
+};
 
-        var parent = (pdetail["correlation"] ? pdetail["correlation"] + "." : "");
-        var child  = (cdetail["correlation"] ? cdetail["correlation"] + "." : "");
-        
-        sql.push("  ON " + parent + cond.parentField + " = " + child + cond.childField + " ");
-        for (var i=1; i < join.conditions.length; i++){
-          cond = join.conditions[i];
-          sql.push(" AND " + parent + cond.parentField + " = " + child + cond.childField + " ");
+/**
+ * Create a new internal tree node identified by the name, and add it as a child of the parent argument. Use DOM elements as the 
+ * tree nodes, because they already implement the methods we need.
+ * @param {Object} parentNode
+ * @param {String} childName
+ * @param {Object} join
+ * @returns {Element|Object}
+ */
+pui.joins.FileTree.prototype._createAndAddNode = function(parentNode, childName, join){
+  var child = document.createElement("div");
+  child.setAttribute("fvn",childName);
+  child.joinP = join;
+  parentNode.appendChild(child);
+  return child;
+};
+
+/**
+ * Given two tables' fileVarnames, return a join that exists between them. Joins are attached to the child node, pointing to the
+ * parent. Initially, it is unknown which argument, if either, is the parent.
+ * @param {String} name1
+ * @param {String} name2
+ * @returns {Null|Object}
+ */
+pui.joins.FileTree.prototype.getJoinFromNames = function(name1, name2){
+  var node1 = this._findNode(name1);
+  var node2 = this._findNode(name2);
+  if (!node1 || !node2) return null; //If one name doesn't exist, then no join exists.
+  var join1 = node1.joinP;
+  var join2 = node2.joinP;
+
+  //If name1's parent is name2, then return name1's join object.
+  if (join1 != null && join1.parentFilevar == name2) return join1; 
+  //If name2's parent is name1, then return name2's join object.
+  else if (join2 != null && join2.parentFilevar == name1) return join2;
+  return null;
+};
+
+/**
+ * Returns an object representing the tree in two ways: an array of strings comprising the
+ * FROM/JOIN clauses, and a serializable structure.
+ * @returns {Object}
+ */
+pui.joins.FileTree.prototype.getTree = function(){
+  var sql = [];
+  var struct = {
+    "varname": "file",
+    "file": appgen.mapvartofile["file"]["fullFile"],
+    "correl": appgen.mapvartofile["file"]["correlation"]
+  };
+  if (this._tree.childNodes.length > 0){
+    struct.childNodes = [];
+  }
+
+  var structPointer = struct;
+  var fullFile = appgen.mapvartofile["file"]["fullFile"].toUpperCase();
+  preorderDFS(this._tree);
+  return { sql: sql, struct: struct };
+
+  function preorderDFS(node){
+    //Process this node.
+    var join = node.joinP;
+    var nodevarname = node.getAttribute("fvn");
+    var tableEl = getObj('joinlist_' + nodevarname);
+    if (tableEl){
+      structPointer["xy"] = [ tableEl.style.left, tableEl.style.top ];
+    }
+
+    if (join == null){
+      //Main file is always the first created in Join Selection.
+      var tmpstr = "FROM " + fullFile;
+      if (appgen.mapvartofile["file"]["correlation"].length > 0){
+        tmpstr += " " + appgen.mapvartofile["file"]["correlation"];
+      }
+      sql.push(tmpstr);
+    }
+    else {
+      var pdetail = appgen.mapvartofile[join.parentFilevar];
+      var cdetail = appgen.mapvartofile[join.childFilevar];
+
+      var tmpstr = join.type + " JOIN " + cdetail["fullFile"];
+      if (cdetail["correlation"].length > 0 ){
+        tmpstr += " " + cdetail["correlation"] + " ";
+      }
+      sql.push(tmpstr);
+      structPointer["varname"] = join.childFilevar;
+      structPointer["file"] = cdetail["fullFile"];
+      structPointer["correl"] = cdetail["correlation"];
+      structPointer["joinP"] = {
+        "type": join.type
+      };
+      if (join.conditions.length > 0){
+        structPointer["joinP"]["conditions"] = [];
+        for (var i=0; i < join.conditions.length; i++){
+          structPointer["joinP"]["conditions"][i] = {
+            "childField": join.conditions[i].childField,
+            "parentField": join.conditions[i].parentField
+          };
         }
       }
-      
-      for (var i=0; i < node.childNodes.length; i++){
-        var callstackNode = structPointer;
-        structPointer.childNodes[i] = {};
-        structPointer = structPointer.childNodes[i];
-        preorderDFS(node.childNodes[i]);
-        structPointer = callstackNode;
+      if (node.childNodes.length > 0){
+        structPointer.childNodes = [];
       }
-    }
-  };
-  
-  // Return true if a file's fields may be null as a result of the join type.
-  // Note: if a parent-child join is RIGHT and the grandparent-parent is INNER,
-  // then the grandparent's fields could also be null. Assume the user won't 
-  // create that scenario--or that they can figure out how to COALESCE it.
-  this.fileFieldsCanNull = function(fileVarname){
-    var node = findNode(fileVarname);
-    if (node != null){
-      if (node.joinP != null){  //Join is not root. look for left join.
-        //join is the 2nd table in a LEFT join; its fields could be null.
-        if (node.joinP.type == "LEFT") return true;
-      }
-      // Look at the join objects in each child table. Is this parent in a RIGHT join.
-      for (var i=0; i < node.childNodes.length; i++){
-        //join is 1st table in a RIGHT join; its fields could be null.
-        if (node.childNodes[i].joinP.type == "RIGHT") return true;
-      }
-    }
-    return false;
-  };
 
-}; //end of appgen.FileTree.
+      var cond = join.conditions[0];
+
+      var parent = (pdetail["correlation"] ? pdetail["correlation"] + "." : "");
+      var child  = (cdetail["correlation"] ? cdetail["correlation"] + "." : "");
+
+      sql.push("  ON " + parent + cond.parentField + " = " + child + cond.childField + " ");
+      for (var i=1; i < join.conditions.length; i++){
+        cond = join.conditions[i];
+        sql.push(" AND " + parent + cond.parentField + " = " + child + cond.childField + " ");
+      }
+    }
+
+    for (var i=0; i < node.childNodes.length; i++){
+      var callstackNode = structPointer;
+      structPointer.childNodes[i] = {};
+      structPointer = structPointer.childNodes[i];
+      preorderDFS(node.childNodes[i]);
+      structPointer = callstackNode;
+    }
+  }
+};
+
+/**
+ * Return true if a file's fields may be null as a result of the join type. Note: if a parent-child join is RIGHT and the
+ * grandparent-parent is INNER, then the grandparent's fields could also be null. Assume the user won't create that scenario--or 
+ * that they can figure out how to COALESCE it.
+ * @param {String} fileVarname
+ * @returns {Boolean}
+ */
+pui.joins.FileTree.prototype.fileFieldsCanNull = function(fileVarname){
+  var node = this._findNode(fileVarname);
+  if (node != null){
+    if (node.joinP != null){  //Join is not root. look for left join.
+      //join is the 2nd table in a LEFT join; its fields could be null.
+      if (node.joinP.type == "LEFT") return true;
+    }
+    // Look at the join objects in each child table. Is this parent in a RIGHT join.
+    for (var i=0; i < node.childNodes.length; i++){
+      //join is 1st table in a RIGHT join; its fields could be null.
+      if (node.childNodes[i].joinP.type == "RIGHT") return true;
+    }
+  }
+  return false;
+};
