@@ -1120,8 +1120,10 @@ pui.Grid = function () {
         if (xhr.readyState != 4 || xhr.status == 0) return;
         try {
           if (xhr.status != 200) throw 'XMLHTTPRequest status: ' + xhr.status;
+
+          // Note: Fixing bad characters on the server-side slows downloads; thus, use eval, which is more lenient than JSON.parse #6149.
+          var responseObj = eval("(" + xhr.responseText + ")");
           
-          var responseObj = JSON.parse(xhr.responseText);
           if (!responseObj || responseObj["success"] != true) throw 'Failed';
           var response = responseObj["response"];
           if (response == null || response["results"] == null) throw 'Invalid Response';
