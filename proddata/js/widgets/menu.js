@@ -369,6 +369,8 @@ pui.MenuWidget = function() {
           if (returnVal == false) {
             dom.responseValue = "";
             pui.responseRoutine = null;
+            pui.responseRoutineRow = null;
+            pui.responseRoutineGrid = null;
           }
         }
       }
@@ -737,6 +739,10 @@ pui.widgets.add({
     // See Redmine #6042
     if (parms.propertyName.indexOf("css class") === 0)
       pui.addCssClass(parms.dom, "pui-menu");
+
+    if (parms.propertyName === "width" && parms.dom.menuWidget != null) 
+      parms.dom.menuWidget.draw();
+
 
   }
   
