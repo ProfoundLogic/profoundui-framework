@@ -4813,7 +4813,7 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   this.svg.className = "joinsvg";
   domEl.appendChild(this.svg);
   
-  // Create object used in appgen.processForFileLoop and needed for managing joins.
+  // Create object needed for managing joins.
   this.filetree = new pui.joins.FileTree(this._rootfileVarname, this);
   
   this.joineditor = new pui.joins.JoinEditor(this);
@@ -5148,14 +5148,14 @@ pui.joins.JoinableTable.prototype.ondragover = function(event){
   var cont_tr = this.joinArea.filetree.contains(tjointable.id);
   if (!cont_or && !cont_tr){
     // Don't allow joining two orphan tables together.
-    this.joinArea.showInfobox(pui["getLanguageText"]("jumpstartMsg", "join x y to main file", [ojointable.id, tjointable.id]));
+    this.joinArea.showInfobox(pui["getLanguageText"]("runtimeMsg", "join x y to main file", [ojointable.id, tjointable.id]));
     return;
   }else if (cont_or && cont_tr){
     var join = this.joinArea.filetree.getJoinFromNames(tjointable.id, ojointable.id);   //TODO: should filetree check for joinableTable objects?
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
       
-      this.joinArea.showInfobox(pui["getLanguageText"]("jumpstartMsg","one path main to child"));
+      this.joinArea.showInfobox(pui["getLanguageText"]("runtimeMsg","one path main to child"));
       return;
     }
   }
@@ -5318,7 +5318,7 @@ pui.joins.JoinEditor = function(joinArea) {
   this._dialogHeader.appendChild(this._closeButtonDiv);
  
   this._modifyButton.type = "button";
-  this._modifyButton.value = pui["getLanguageText"]("jumpstartText","modify");
+  this._modifyButton.value = pui["getLanguageText"]("runtimeText","modify");
   this._modifyButton.onclick = function() {
     var jointype;
     if (this.radio1.checked){
@@ -5335,7 +5335,7 @@ pui.joins.JoinEditor = function(joinArea) {
   this._buttonWrap.appendChild(this._modifyButton);
   
   this._removeButton.type = "button";
-  this._removeButton.value = pui["getLanguageText"]("jumpstartText","remove");
+  this._removeButton.value = pui["getLanguageText"]("runtimeText","remove");
   this._removeButton.onclick = function() {     // Remove the join condition.
     this._join.removeCondition(this._condition);
     // If the condition is the last one, then remove the join.
@@ -5350,7 +5350,7 @@ pui.joins.JoinEditor = function(joinArea) {
   this._buttonWrap.appendChild(this._removeButton);
   
   this._cancelButton.type = "button";
-  this._cancelButton.value = pui["getLanguageText"]("jumpstartText","cancel");
+  this._cancelButton.value = pui["getLanguageText"]("runtimeText","cancel");
   this._cancelButton.onclick = function() {
     this.hide();
   };
@@ -5390,10 +5390,10 @@ pui.joins.JoinEditor.prototype.setJoin = function(pcond){
   var parfile = appgen.mapvartofile[this._join.parentFilevar]["fullFile"];
   var childfile = appgen.mapvartofile[this._join.childFilevar]["fullFile"];
 
-  this.headerTitle.innerHTML = pui["getLanguageText"]("jumpstartText", "join props x to y", [parfile, pcond.parentField, childfile, pcond.childField]);
-  this._radio1Label.innerHTML = pui["getLanguageText"]("jumpstartText","inner join label");
-  this._radio2Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [parfile, childfile]);
-  this._radio3Label.innerHTML = pui["getLanguageText"]("jumpstartText", "join label x y", [childfile, parfile]);
+  this.headerTitle.innerHTML = pui["getLanguageText"]("runtimeText", "join props x to y", [parfile, pcond.parentField, childfile, pcond.childField]);
+  this._radio1Label.innerHTML = pui["getLanguageText"]("runtimeText","inner join label");
+  this._radio2Label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [parfile, childfile]);
+  this._radio3Label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [childfile, parfile]);
 
   if (this._join.type == "INNER"){
     this.radio1.checked = true;
