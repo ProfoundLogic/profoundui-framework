@@ -1834,9 +1834,9 @@ pui.getSQLTimeFmt = function() {
     fmt: fmt,
     sep: sep
   
-  }
+  };
 
-}
+};
 
 
 pui.getDomain = function() {
@@ -1853,7 +1853,7 @@ pui.getDomain = function() {
   }
   domain = prepend + domain.split('/')[0];
   return domain;
-}
+};
 
 pui.getLink = function(path) {
   var head = document.getElementsByTagName("head")[0];
@@ -1866,7 +1866,7 @@ pui.getLink = function(path) {
     if (link.href == domain + path) return link;
   }
   return null;
-}
+};
 
 pui.getScript = function(path) {
   var head = document.getElementsByTagName("head")[0];
@@ -1879,7 +1879,7 @@ pui.getScript = function(path) {
     if (script.src == domain + path) return script;
   }
   return null;
-}
+};
 
 // syntax allowed:
 //   - string (comma separated): 'A,B,C'
@@ -1901,7 +1901,7 @@ pui.parseCommaSeparatedList = function(list) {
   }
   if (listArray == null) listArray = list.split(",");
   return listArray;
-}
+};
 
 
 pui.isHTML5InputType = function(type) {
@@ -1926,7 +1926,7 @@ pui.isHTML5InputType = function(type) {
     default:
       return false;
   }
-}
+};
 
 
 pui.isTextbox = function(obj) {
@@ -1939,7 +1939,7 @@ pui.isTextbox = function(obj) {
   
   return false;
 
-}
+};
 
 pui.isFieldExit = function(e) {
 
@@ -1960,14 +1960,14 @@ pui.isFieldExit = function(e) {
   
   }        
   
-}
+};
 
 pui.hasParent = function(node) {
 
   var prt = node.parentNode;
   return (prt != null && (!pui["is_old_ie"] || prt.nodeName != "#document-fragment"));
 
-}
+};
 
 pui.appendAuth = function(url) {  
    if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
@@ -1976,14 +1976,14 @@ pui.appendAuth = function(url) {
     url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
    }
    return url;
-}
+};
 
 
 
 pui.validateEmail = function(email) { 
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
-} 
+};
 
 pui.isBound = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["fieldName"] == "string");
@@ -2044,7 +2044,7 @@ pui.taphold = function(target, handler, threshold) {
     /* ignore error */
   }
   
-}
+};
 
 // Used to fix IE8 printing issue, see here: 
 // http://stackoverflow.com/questions/3591464/print-page-shows-unchanged-checkbox-in-ie-with-doctype
@@ -2062,7 +2062,7 @@ pui.fixCheckPrint = function(el) {
   
   }
 
-}
+};
 
 pui.xmlEscape = function(str) {
 
@@ -2071,9 +2071,10 @@ pui.xmlEscape = function(str) {
   str = str.replace(/</g, "&lt;");
   str = str.replace(/>/g, "&gt;");
   str = str.replace(/"/g, "&quot;");   // " - fake comment to fix syntax highlighting
+  str = str.replace(/\u001a/g, "&#x25a1;");    // the "substitute" character breaks XLSX files. replace with unicode square. Issue #6149. 
   return str;  
 
-}
+};
 
 
 // Used to fix Redmine 692 - iFrame close error issue when not in the same domain - Firefox and Chrome 
@@ -2170,7 +2171,7 @@ pui.logException = function(e, prefix) {
   
   console.log(msg);
 
-}
+};
 
 // This fixes:
 // http://redmine/issues/791
@@ -2186,7 +2187,7 @@ pui.posFix = function(elem) {
   
   }
 
-}
+};
 
 
 pui.highlightText = function(node, text) {
@@ -2219,7 +2220,7 @@ pui.highlightText = function(node, text) {
       }
     }
   }
-}
+};
 
 
 pui.dehighlightText = function(div) {
@@ -2229,7 +2230,7 @@ pui.dehighlightText = function(div) {
     parent.replaceChild(span.firstChild, span);
     parent.normalize();
   }
-}
+};
 
 
 pui.startMouseCapableMonitoring = function() {
@@ -2273,7 +2274,7 @@ pui.startMouseCapableMonitoring = function() {
   var hadMouseOver = false;
   addEvent(docElement, 'mousedown', onMouseDown);
   addEvent(docElement, 'mousemove', onMouseMove);
-}
+};
 
 pui.killFrames = function() {
   

@@ -1745,7 +1745,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
             pui.bypassValidation = domObj.bypassValidation;
           }
-          pui["runLogic"](newValue["routine"]);
+          pui["runLogic"](newValue["routine"], domObj.subfileRow, domObj.subfileName);
         }
       }
     }
