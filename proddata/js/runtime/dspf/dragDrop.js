@@ -450,6 +450,8 @@ pui.attachDragDrop = function(dom, properties) {
               pui.respond();
               pui.bypassValidation = "false";
               pui.responseRoutine = null;
+              pui.responseRoutineRow = null;
+              pui.responseRoutineGrid = null;
             }
           }
         }

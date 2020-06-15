@@ -353,6 +353,8 @@ pui.widgets["doChartLink"] = function(param) {
     if (returnVal == false) {
       dom.responseValue = "";
       pui.responseRoutine = null;
+      pui.responseRoutineRow = null;
+      pui.responseRoutineGrid = null;
     }
   
   }

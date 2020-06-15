@@ -47,6 +47,8 @@ pui.click = function(button, skipjs) {
     var returnVal = pui.respond();
     pui.bypassValidation = "false";
     pui.responseRoutine = null;
+    pui.responseRoutineRow = null;
+    pui.responseRoutineGrid = null;
     
     if (returnVal == false && button != null) {
       button.responseValue = originalResponseValue;
@@ -880,7 +882,7 @@ pui['getScreenProp'] = function(screen, propName) {
   else return false;
 }
 
-pui["runLogic"] = function(routineName) {
+pui["runLogic"] = function(routineName, routineRow, routineGrid) {
 
   if (pui.clientLogic && pui.clientLogic[routineName]) {
     var routineFunc = function() { return false };
@@ -897,5 +899,7 @@ pui["runLogic"] = function(routineName) {
   }
 
   pui.responseRoutine = routineName;
+  pui.responseRoutineRow = routineRow;
+  pui.responseRoutineGrid = routineGrid;
   pui.click();
 }
