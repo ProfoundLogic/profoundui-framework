@@ -740,6 +740,10 @@ pui.widgets.add({
     if (parms.propertyName.indexOf("css class") === 0)
       pui.addCssClass(parms.dom, "pui-menu");
 
+    if (parms.propertyName === "width" && parms.dom.menuWidget != null) 
+      parms.dom.menuWidget.draw();
+
+
   }
   
 });
