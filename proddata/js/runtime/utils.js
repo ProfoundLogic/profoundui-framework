@@ -4770,8 +4770,8 @@ pui.joins.JoinArea = function(params){
   
   // Tree used to manage which joins are valid.
   this.filetree = null;
-  // TODO: does fileTree need variable names like in JumpStart, or can it get more generic data?
-  this._rootfileVarname = params.fileVarname;
+  // Id of the first JoinableTable, onto which other tables can join.
+  this.rootId = params.rootId;
   
   // Right and bottom bounds (if defined) for dragging JoinTables inside the DOM element.
   this.moveRbound = params.moveRbound;
@@ -4787,7 +4787,7 @@ pui.joins.JoinArea = function(params){
   this.lastConditionRemoveCb = params.lastConditionRemoveCb;  //Join removed in JoinEditor and was last condition.
   this.joinModifyCb = params.joinModifyCb;
   this.joinAddLinkCb = params.joinAddLinkCb;
-  
+
   this.joineditor = null;
   
   this.joinStrokeColor = "rgb(135,135,135)"; //Value for the stroke and fill attributes of join lines.
@@ -4815,7 +4815,7 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   domEl.appendChild(this.svg);
   
   // Create object needed for managing joins.
-  this.filetree = new pui.joins.FileTree(this._rootfileVarname, this);
+  this.filetree = new pui.joins.FileTree(this);
   
   this.joineditor = new pui.joins.JoinEditor(this);
 };
@@ -4951,7 +4951,7 @@ pui.joins.JoinArea.prototype.destroy = function(){
 };
 
 /**
- * Create an HTML table showing fields from the first DB file. Allow drag-drop between tables to create joins.
+ * Create an HTML table showing fields from the first DB file/table. Allow drag-drop between tables to create joins.
  * @param {Object} params   Contains information about one file as well as join table parameters.
  * @constructor
  */
@@ -4962,7 +4962,7 @@ pui.joins.JoinableTable = function(params){
   this._tableId = 'joinlist_' + params.id;   //The HTML table element's ID.
   this._captionText = params.tableCaption;   //The text for the table caption.
   
-  this.id = params.id;
+  this.id = params.id;    //A unique ID differentiating this table from others.
 
   // Display name appears in the JoinEditor.
   if (params.displayName){
@@ -5384,14 +5384,15 @@ pui.joins.JoinEditor.prototype._modify = function(){
   this.hide();
 };
 
-// Hanlde clicking "Remove" join condition button. "this" should be bound to this JoinEditor.
+// Handle clicking "Remove" join condition button. "this" should be bound to this JoinEditor.
 pui.joins.JoinEditor.prototype._remove = function(){
   this.joinLine.join.removeCondition(this.joinLine);
+  
   // If the condition is the last one, then remove the join.
   if (this.joinLine.join.lines.length < 1){
     // Removes the younger file from jointree; also destroys the Join.
-    this.joinArea.filetree.remove(this.joinLine.join.childFilevar, this.joinLine);
-    if (typeof this.joinArea.lastConditionRemoveCb == 'function') this.joinArea.lastConditionRemoveCb();
+    var removeQ = this.joinArea.filetree.remove(this.joinLine.join.childFilevar, removeQ);
+    if (typeof this.joinArea.lastConditionRemoveCb == 'function') this.joinArea.lastConditionRemoveCb(removeQ);
   }
   if (typeof this.joinArea.joinRemoveCb == 'function') this.joinArea.joinRemoveCb();
   this.hide();
@@ -5644,7 +5645,7 @@ pui.joins.JoinLine = function(pparentEl, pchildEl, join){
   this.parentEl = pparentEl;
   this.childEl = pchildEl;
   
-  //The database field names for this join condition.
+  // The database field names for this join condition. Needed by FileTree.
   this.parentField = pparentEl.fieldInfo["field"];
   this.childField = pchildEl.fieldInfo["field"];
   
@@ -5818,17 +5819,16 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * not null. Join.parent corresponds to the node's parent, whereas join.child corresponds to the node itself.
  * 
  * @constructor
- * @param {String} prootName  The identifier of the root node. e.g. "file", for JumpStart.
  * @param {pui.joins.JoinArea} joinArea
  */ 
-pui.joins.FileTree = function(prootName, joinArea){
+pui.joins.FileTree = function(joinArea){
   this._namelist = {}; //Quick lookup list. Keys are fileVarnames; values are not used.
-  this._rootName = prootName; //Stored varname for detecting root; used when emptying table.
-  this._namelist[this._rootName] = false;
+  this._rootId = joinArea.rootId; //Stored varname for detecting root; used when emptying table.
+  this._namelist[this._rootId] = false;
 
-  this._tree = this._createAndAddNode(document.body, this._rootName, null);
+  this._tree = this._createAndAddNode(document.body, this._rootId, null);
   this._tree.style.display = "none";
-  
+    
   this.joinArea = joinArea;
 };
 
@@ -5863,58 +5863,54 @@ pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
 
 /**
  * Reset the internal tree and namelist, and destroy all Join objects. Called after Retrieve Fields clicked more than once.
+ * @returns {Array.<String>} Collection of IDs of files that were removed.
  */
 pui.joins.FileTree.prototype.reset = function(){
-  this._removeSubTree(this._tree);
+  var removeQ = [];
+  this._removeSubTree(this._tree, removeQ);
+  return removeQ;
 };
 
 /**
  * Remove the join (and dependent joins) of a child node identified by the argument.
- * @param {String} childName
+ * @param {String} childId
+ * returns {Array.<String>} Collection of IDs of files that were removed.
  */
-pui.joins.FileTree.prototype.remove = function(childName){
-  if (childName == this._rootName) return;  //Never remove the root node.
-  if (this.contains(childName)){
-    var child = this._findNode(childName);
-    if (!child){
-      console.log("Tree failed to find child file:",childName);
-      return;
+pui.joins.FileTree.prototype.remove = function(childId){
+  var removeQ = [];
+  // Never remove the root node, only look for nodes in the tree.
+  if (childId != this._rootId && this.contains(childId)) {
+    var child = this._findNode(childId);
+    if (child){
+      this._removeSubTree(child, removeQ);
     }
-    this._removeSubTree(child);
+    else {
+      console.log("Tree failed to find child Id:", childId);
+    }
   }
+  return removeQ;
 };
 
 /**
  * Recursive function to find all child nodes of the argument, remove them from the internal tree, delete them from the namelist,
  * remove their fields from field selection, and destroy their Join objects.
  * @param {Object} node
+ * @param {Array.<String>} removeQ  Output. List of file IDs that were found and removed.
  */
-pui.joins.FileTree.prototype._removeSubTree = function(node){
+pui.joins.FileTree.prototype._removeSubTree = function(node, removeQ){
   while (node.childNodes.length > 0)  //DFS recursively find leaf nodes.
-    this._removeSubTree(node.childNodes[0]);
+    this._removeSubTree(node.childNodes[0], removeQ);
 
   //Remove this node from the internal tree, namelist, and destroy the Join object.
-  var removeName = node.getAttribute("fvn");
+  var removeId = node.getAttribute("fvn");
   if (node.joinP != null){     //Root joinP is null; never remove root.
     node.joinP.destroy();
     node.joinP = null;
-
-    // Remove the non-root file's fields from Field Selection.
-    // Remove all fields from Field Selection table belonging to the named file variable.
-    var table = getObj("fieldList");                                                          //Fix this: should use JoinableTable, not dom table?
-    var tbody = table.tBodies[0];
-    var i=0;
-    while ( i < tbody.rows.length ) {
-      var rowvar = tbody.rows[i].fieldInfo["filevarname"];
-      if ( rowvar == removeName ){
-        tbody.deleteRow(i);
-      }else{
-        i++;
-      }
-    }
+    
+    removeQ.push(removeId);
 
     node.parentNode.removeChild(node); //Remove the DOM representation of the join.
-    delete this._namelist[removeName];
+    delete this._namelist[removeId];
   }
 };
 
@@ -5924,7 +5920,7 @@ pui.joins.FileTree.prototype._removeSubTree = function(node){
  * @returns {Element|Object}
  */
 pui.joins.FileTree.prototype._findNode = function(name){
-  return (this._rootName == name ? this._tree : this._tree.querySelector('div[fvn="'+name+'"]'));
+  return (this._rootId == name ? this._tree : this._tree.querySelector('div[fvn="'+name+'"]'));
 };
 
 /**
@@ -5965,70 +5961,77 @@ pui.joins.FileTree.prototype.getJoinFromNames = function(name1, name2){
 };
 
 /**
- * Returns an object representing the tree in two ways: an array of strings comprising the
- * FROM/JOIN clauses, and a serializable structure.
- * @param {Object} mapvartofile     A mapping from file varname to full file. TODO: why not just store fullFile and also correlation?
+ * Default callback for _preorderDFS finding a node. Sets properties on the filetree so it can be exported.
+ * @param {String} id
+ * @param {Object} struct
+ */
+pui.joins.FileTree.prototype._defaultFilestructFromId = function(id, struct){
+  struct["id"] = id;
+};
+
+/**
+ * Returns an object representing the tree in a serializable structure. Executes callbacks that can be used to generate an SQL string.
+ * Callbacks are passed file IDs.
+ * @param {Undefined|Function} filestructCb  e.g. writes struct["id"] = id;
+ * @param {Undefined|Function} fromclauseCb  e.g. generates "FROM file1 AS f1".
+ * @param {Undefined|Function} joinCb        e.g. generates "JOIN file2 AS f2".
+ * @param {Undefined|Function} joinonCb      e.g. generates " ON f2.col1 = f1.col1"
+ * @param {Undefined|Function} joinonandCb   e.g. generates " AND f2.col2 = f1.col2"
  * @returns {Object}
  */
-pui.joins.FileTree.prototype.getTree = function(mapvartofile){
-  var sql = [];
-  var struct = {
-    "varname": this._rootName,
-    "file": mapvartofile[this._rootName]["fullFile"],
-    "correl": mapvartofile[this._rootName]["correlation"]
-  };
+pui.joins.FileTree.prototype.getTree = function(filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb){
+  if (typeof filestructCb == 'function') this._filestructFromId = filestructCb;
+  else this._filestructFromId = this._defaultFilestructFromId;
+  
+  this._fromclauseCb = fromclauseCb;
+  this._joinCb = joinCb;
+  this._joinonCb = joinonCb;
+  this._joinonandCb = joinonandCb;
+  
+  var struct = {};
+  this._filestructFromId(this._rootId, struct); //Populate struct with necessary fields.
   if (this._tree.childNodes.length > 0){
     struct.childNodes = [];
   }
-
-  this._mapvartofile = mapvartofile;
+  
   this._structPointer = struct;
-  this._fullFile = mapvartofile[this._rootName]["fullFile"].toUpperCase();
   this._preorderDFS(this._tree);
-  delete this._mapvartofile;
   delete this._structPointer;
-  delete this._fullFile;
-  return { sql: sql, struct: struct };
+  return struct;
 };
 
-pui.joins.FileTree.prototype._preorderDFS =   function(node){
-  //Process this node.
+/**
+ * Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
+ * @param {Object} node
+ */
+pui.joins.FileTree.prototype._preorderDFS = function(node){
+  
   var join = node.joinP;
-  var nodevarname = node.getAttribute("fvn");
-  var tableEl = getObj('joinlist_' + nodevarname);                        //Fix this; should get the JoinableTable, not this.
-  if (tableEl){
-    this._structPointer["xy"] = [ tableEl.style.left, tableEl.style.top ];
+  var nodeId = node.getAttribute("fvn");
+  for (var i=0, n=this.joinArea.joinableTables.length; i < n; i++){
+    var table = this.joinArea.joinableTables[i];
+    if (table.id == nodeId){
+      this._structPointer["xy"] = [ table.getLeft(), table.getTop() ];
+      break;
+    }
   }
 
   if (join == null){
-    //Main file is always the first created in Join Selection.
-    var tmpstr = "FROM " + this._fullFile;
-    if (this._mapvartofile[this._rootName]["correlation"].length > 0){
-      tmpstr += " " + this._mapvartofile[this._rootName]["correlation"];
-    }
-    this._sql.push(tmpstr);
+    if (typeof this._fromclauseCb == 'function') this._fromclauseCb(this._rootId);
   }
   else {
-    var pdetail = this._mapvartofile[join.parentFilevar];
-    var cdetail = this._mapvartofile[join.childFilevar];
+    if (typeof this._joinCb == 'function') this._joinCb(join.childFilevar, join.type);
 
-    var tmpstr = join.type + " JOIN " + cdetail["fullFile"];
-    if (cdetail["correlation"].length > 0 ){
-      tmpstr += " " + cdetail["correlation"] + " ";
-    }
-    this._sql.push(tmpstr);
-    this._structPointer["varname"] = join.childFilevar;
-    this._structPointer["file"] = cdetail["fullFile"];
-    this._structPointer["correl"] = cdetail["correlation"];
+    this._filestructFromId(join.childFilevar, this._structPointer);
     this._structPointer["joinP"] = {
       "type": join.type
     };
-    if (join.conditions.length > 0){
+    if (join.lines.length > 0){
       this._structPointer["joinP"]["conditions"] = [];
-      for (var i=0; i < join.conditions.length; i++){
+      for (var i=0; i < join.lines.length; i++){
         this._structPointer["joinP"]["conditions"][i] = {
-          "childField": join.conditions[i].childField,
-          "parentField": join.conditions[i].parentField
+          "childField": join.lines[i].childField,
+          "parentField": join.lines[i].parentField
         };
       }
     }
@@ -6036,15 +6039,11 @@ pui.joins.FileTree.prototype._preorderDFS =   function(node){
       this._structPointer.childNodes = [];
     }
 
-    var cond = join.conditions[0];
-
-    var parent = (pdetail["correlation"] ? pdetail["correlation"] + "." : "");
-    var child  = (cdetail["correlation"] ? cdetail["correlation"] + "." : "");
-
-    this._sql.push("  ON " + parent + cond.parentField + " = " + child + cond.childField + " ");
-    for (var i=1; i < join.conditions.length; i++){
-      cond = join.conditions[i];
-      this._sql.push(" AND " + parent + cond.parentField + " = " + child + cond.childField + " ");
+    var line = join.lines[0];
+    if (typeof this._joinonCb == 'function') this._joinonCb(join.parentFilevar, join.childFilevar, line.parentField, line.childField);
+    for (var i=1; i < join.lines.length; i++){
+      line = join.lines[i];
+      if (typeof this._joinonCb == 'function') this._joinonCb(join.parentFilevar, join.childFilevar, line.parentField, line.childField);
     }
   }
 
@@ -6052,7 +6051,7 @@ pui.joins.FileTree.prototype._preorderDFS =   function(node){
     var callstackNode = this._structPointer;
     this._structPointer.childNodes[i] = {};
     this._structPointer = this._structPointer.childNodes[i];
-    preorderDFS(node.childNodes[i]);
+    this._preorderDFS(node.childNodes[i]);
     this._structPointer = callstackNode;
   }
 };
