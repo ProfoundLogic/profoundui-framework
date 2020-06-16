@@ -4774,11 +4774,11 @@ pui.joins.JoinArea = function(params){
   this.rootId = params.rootId;
   
   // Right and bottom bounds (if defined) for dragging JoinTables inside the DOM element.
-  this.moveRbound = params.moveRbound;
-  this.moveBbound = params.moveBbound;
+  this.moveRbound = params.moveRbound ? params.moveRbound : 2000;
+  this.moveBbound = params.moveBbound ? params.moveBbound : 1000;
   
   // For primary keys, this text goes to the right of column names. 9911 is Chiron, which looks like a key.
-  this.primaryKeyMarker = params && params.primaryKeyMarker ? params.primaryKeyMarker : ' &#9911;';
+  this.primaryKeyMarker = params.primaryKeyMarker ? params.primaryKeyMarker : ' &#9911;';
   
   this.movetimeout = null;    //Slow SVG expanding should not happen each time mousemove fires.
   
@@ -4794,10 +4794,10 @@ pui.joins.JoinArea = function(params){
   this.joinLinkColor = "rgb(0,0,255)";       //Value for fill attribute of join line middle shape.
   
   /*
-   * Helpful for working around drag/drop data transfer quirks. Note: dataTransfer only works with strings, so this will be a TR.id
-   * @type String
+   * Helpful for working around drag/drop data transfer quirks. Note: dataTransfer only works with strings, so this will be a TR.
+   * @type Element
    */
-  this.join_srcid = null;
+  this.joinSourceTR = null;
 };
 
 /**
@@ -4863,17 +4863,23 @@ pui.joins.JoinArea.prototype.hideInfobox = function(){
 
 /**
  * Make the SVG section larger when tables are moved beyond the parent area. Called directly in JumpStart after "Retrieve Fields"
- * adds tables and when tables are moved via mouse as a callback bound to a JoinArea object.
- * @param {Undefined|pui.joins.JoinArea} joinArea  When called from a timeout, this is a JoinArea object, because "this" won't be set.
+ * adds tables and when tables are moved via mouse as a callback bound to a JoinArea object. 
+ * @param {Undefined|pui.joins.JoinArea} joinArea  When called from a timeout, the parameter is a JoinArea object; "this" won't be set.
  */
-pui.joins.JoinArea.prototype.expandSvgHeight = function(joinArea){
-  if (joinArea == null) joinArea = this;    //When called directly on a JoinArea object, "this" is the object.
-  var height = joinArea.domEl.scrollHeight;
-  console.log('scrollHeight', height, 'Is this neeeded? Why does 100% not work?');
-//  height -= 3; //Account for borders, and avoid expanding whenever a table moves.
-//  if (height > 2000) height = 2000; //avoid being too large in case drag loses control.
-  //if (joinArea.svg != null) joinArea.svg.setAttribute("height", height  + "px");
-  if (joinArea.svg != null) joinArea.svg.setAttribute("height", "100%");
+pui.joins.JoinArea.prototype.expandSvg = function(joinArea){
+  if (joinArea == null) joinArea = this;    //When called directly on a JoinArea object, "this" is the JoinArea object.
+  // Find the lowest table and expand the SVG so that all elements are visible.
+  var height = 200, width = 400;
+  for (var i=0, n=joinArea.joinableTables.length; i < n; i++){
+    var bot = joinArea.joinableTables[i].getBottom();
+    var right = joinArea.joinableTables[i].getRight();
+    height = Math.max(height, bot);
+    width = Math.max(width, right);
+  }
+  height = Math.min(height, joinArea.moveBbound);  //avoid being too large in case drag loses control.
+  width = Math.min(width, joinArea.moveRbound);
+  joinArea.svg.setAttribute("height", height  + "px");
+  joinArea.svg.setAttribute("width", width  + "px");
 };
 
 /**
@@ -4882,35 +4888,35 @@ pui.joins.JoinArea.prototype.expandSvgHeight = function(joinArea){
  */
 pui.joins.JoinArea.prototype.queueExpand = function(seconds){
   clearTimeout(this.movetimeout);
-  // Note: use parameter instead of bind on expandSvgHeight, because bind allocates a new function every time it is called, which is often in mousemove.
-  this.movetimeout = setTimeout(this.expandSvgHeight, seconds, this);
+  // Note: use parameter instead of bind on expandSvg, because bind allocates a new function every time it is called, which is often in mousemove.
+  this.movetimeout = setTimeout(this.expandSvg, seconds, this);
 };
 
 /**
  * Detect if a join can be made, fetch the join parameters, and create a join.
- * @param {Object} target_tr  The row being dropped onto.
- * @param {String} file       The varname of the row being dropped onto.
- * @param {Object} origin_tr  The row dragged from.
- * @param {String} origfile   The varname of the row dragged from.
+ * @param {Object} target_tr            The row being dropped onto.
+ * @param {Object} origin_tr            The row dragged from.
  * @param {String|undefined} joinType   INNER, LEFT, RIGHT.
  */
-pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr, origfile, joinType){
-  if (this.filetree.contains(file) && this.filetree.contains(origfile)){
+pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinType){
+  var targetFileId = target_tr.joinableTable.id;
+  var sourceFileId = origin_tr.joinableTable.id;
+  if (this.filetree.contains(targetFileId) && this.filetree.contains(sourceFileId)){
     // Both tables are connected in the tree to main already. Allow adding conditions
     // to an existing join; don't allow joining two child nodes (that would create a graph cycle).
-    var join = this.filetree.getJoinFromNames(file, origfile);
+    var join = this.filetree.getJoinFromIds(targetFileId, sourceFileId);
     if (join != null){
       // A join was found for the tables. Determine which TR is the parent and
       // which is the child. Then check if this condition already exists.
       var parentTR, childTR;
-      if (target_tr.fileVarname == join.parentFilevar){    //1st argument is the parent table.
-        if (origin_tr.fileVarname == join.childFilevar){  //2nd argument is child.
+      if (target_tr.joinableTable.id == join.parentTable.id){    //1st argument is the parent table.
+        if (origin_tr.joinableTable.id == join.childTable.id){  //2nd argument is child.
           parentTR = target_tr;
           childTR = origin_tr;
         }
       }
-      else if (origin_tr.fileVarname == join.parentFilevar){  //2nd argument is the parent table.
-        if (target_tr.fileVarname == join.childFilevar){  //1st argument is the child
+      else if (origin_tr.joinableTable.id == join.parentTable.id){  //2nd argument is the parent table.
+        if (target_tr.joinableTable.id == join.childTable.id){  //1st argument is the child
           parentTR = origin_tr;
           childTR = target_tr; 
         }
@@ -4919,7 +4925,7 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr,
       if (parentTR != null && childTR != null){
         var exists = join.conditionExists(parentTR, childTR);
         if (exists === false){
-          //A join between the two fields doesn't already exist, so add it.
+          // A join between the two fields doesn't already exist, so add it.
           join.addFields(parentTR, childTR);
         }
       }
@@ -4928,11 +4934,11 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, file, origin_tr,
       }
     }
   }
-  else if(this.filetree.contains(file)){
+  else if(this.filetree.contains(targetFileId)){
     // Add the drag origin as a child of the drag target, creating a new join.
     this.filetree.addLink(target_tr, origin_tr, joinType);
   }
-  else if(this.filetree.contains(origfile)){
+  else if(this.filetree.contains(sourceFileId)){
     // Add the drag target as a child of the drag origin, creating a new join.
     this.filetree.addLink(origin_tr, target_tr, joinType);
   }
@@ -4976,6 +4982,7 @@ pui.joins.JoinableTable = function(params){
   }
   
   /*
+   * List of fields inside the DB table. At a minimum, each object must have a "field" and a "key" property.
    * @type Array.<Object>
    */
   this.fields = JSON.parse(JSON.stringify(params['fields']));
@@ -5056,13 +5063,9 @@ pui.joins.JoinableTable.prototype.render = function(){
   for (var i=0; i < this.fields.length; i++) {
     var tr = this.tableBody.insertRow(this.tableBody.rows.length);
     
-    tr.id = this.id + "_r" + i; //To help drag-drop, every row has unique id.
-    
-    //tr.fileVarname = this.id;  //Simplifies drag-drop to put on each row.
-    //tr.fieldInfo = this.fields[i];
-    
-    tr.joinableTable = this;                  //TODO: why not just use this instead of the other variables above.
-    // TODO: this could also go into the table element once. IDK why i didn't do that first.
+    // These allow the field and table to be identified in drag/drop events.
+    tr.fieldId = this.fields[i]["field"];
+    tr.joinableTable = this;
     
     var keyNumber = this.fields[i]["key"];
     el = tr.insertCell(0);
@@ -5081,14 +5084,14 @@ pui.joins.JoinableTable.prototype.render = function(){
   }
   
   // Allow the table to be moved by dragging the mouse.
-  pui.makeMovable({attachto: this.caption, move: this.table, rbound: this.joinArea.moveRbound, bbound: this.joinArea.moveBbound, movecb: this.redrawConnectors.bind(this) });
+  pui.makeMovable({attachto: this.caption, move: this.table, rbound: this.joinArea.moveRbound, bbound: this.joinArea.moveBbound, movecb: this._moveCb.bind(this) });
 };
 
 /**
  * For each join connector in a JoinableTable, call drawConnectors. Note: when this is assigned as "movecb" to the pui.makeMovable 
  * params, "this" refers to the "params" object unless bind is used as in render.
  */
-pui.joins.JoinableTable.prototype.redrawConnectors = function(){
+pui.joins.JoinableTable.prototype._moveCb = function(){
   for (var i=0; i < this.joinlist.length; i++){
     this.joinlist[i].drawConnectors();
   }
@@ -5105,6 +5108,13 @@ pui.joins.JoinableTable.prototype.getTop = function(){
 pui.joins.JoinableTable.prototype.getCaptionHeight = function(){
   return this.caption.offsetHeight;
 };
+pui.joins.JoinableTable.prototype.getBottom = function(){
+  return this.table.offsetHeight + this.table.offsetTop;
+};
+pui.joins.JoinableTable.prototype.getRight = function(){
+  return this.table.offsetWidth + this.table.offsetLeft;
+};
+
 
 /**
  * Handle a join table's row being dropped on another row.
@@ -5119,23 +5129,19 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
   
   pui.removeCssClass(target_tr,"join_valid"); //clear the dragover visual feedback.
 
-  var originrowid;    //Get the origin ID.
-  try{
-    originrowid = event.dataTransfer.getData("text/plain");
-  }catch(exc){
-    originrowid = this.joinArea.join_srcid;
+  try {
+    var ignored = event.dataTransfer.getData("text/plain");
   }
+  catch(ignore){}
+  
+  var origin_tr = this.joinArea.joinSourceTR;
 
-  var origin_tr = getObj(originrowid);                                          //TODO: should this use JoinableTable?
-  if (!origin_tr) return false; //Happens when source if fieldList.
+  if (!origin_tr) return false; //Happens when source is a draggable element not from the JoinArea.
 
-  var file = target_tr.fileVarname;
-  var origfile = origin_tr.fileVarname;
-  if (origfile == null || origfile == file) return false; //Don't allow dropping on same table.
+  var origfileId = origin_tr.joinableTable.id;
+  if (origfileId == null || origfileId == target_tr.joinableTable.id) return false; //Don't allow dropping on same table.
 
-  //TODO: use tr.joinableTable objects instead of TRs.
-
-  this.joinArea.joinLinkRows(target_tr, file, origin_tr, origfile);
+  this.joinArea.joinLinkRows(target_tr, origin_tr);
   
   if (typeof this.joinArea.joindropCb == 'function') this.joinArea.joindropCb();
 };
@@ -5148,10 +5154,10 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
  * @param {Object|Event} event
  */
 pui.joins.JoinableTable.prototype.ondragover = function(event){
-  if (this.joinArea.join_srcid == null) return; //Prevents drop from Field Select.
+  if (this.joinArea.joinSourceTR == null) return; //Prevents drop from Field Select.
   var target = pui.getTRtargetRow(event);
   if (!target) return;
-  var origin_tr = document.getElementById(this.joinArea.join_srcid);
+  var origin_tr = this.joinArea.joinSourceTR;
   if (origin_tr == null) return;    //The origin node should exist.
   var ojointable = origin_tr.joinableTable;
   if (ojointable == null) return;      //The origin node should have a joinableTable.
@@ -5164,8 +5170,9 @@ pui.joins.JoinableTable.prototype.ondragover = function(event){
     // Don't allow joining two orphan tables together.
     this.joinArea.showInfobox(pui["getLanguageText"]("runtimeMsg", "join x y to main file", [ojointable.id, tjointable.id]));
     return;
-  }else if (cont_or && cont_tr){
-    var join = this.joinArea.filetree.getJoinFromNames(tjointable.id, ojointable.id);   //TODO: should filetree check for joinableTable objects?
+  }
+  else if (cont_or && cont_tr){
+    var join = this.joinArea.filetree.getJoinFromIds(tjointable.id, ojointable.id);   //TODO: should filetree check for joinableTable objects?
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
       
@@ -5202,14 +5209,17 @@ pui.joins.JoinableTable.prototype.ondragstart = function(event){
   }
   var target = pui.getTRtargetRow(event);
   if (target) {
-    //Use global join_srcid because IE dislikes setData, and dragover can't get the id from dataTransfer in Chrome.
-    this.joinArea.join_srcid = target.id; 
+    // Set joinSourceTR so we can retrieve the drag source easily. Note: dataTransfer expects strings, IE dislikes setData, 
+    // and dragover can't get the id from dataTransfer in Chrome.
+    this.joinArea.joinSourceTR = target;
     pui.addCssClass(target,"join_origin");
 
-    try{
-      //Firefox requires setData before other drag events will fire.
-      event.dataTransfer.setData("text/plain",target.id);
-    }catch(exc){ /*IE10,11 won't setData or dataTransfer.list.add, but other DnD events still fire.*/ }
+    try {
+      // Firefox requires setData before other drag events will fire.
+      event.dataTransfer.setData("text/plain", 'source:' + target.joinableTable.id);  //Dummy data to force events to fire.
+    } 
+    // IE10,11 won't setData or dataTransfer.list.add, but other DnD events still fire.
+    catch(ignore){}
   }
 };
 
@@ -5222,7 +5232,7 @@ pui.joins.JoinableTable.prototype.ondragend = function(event){
   var target = pui.getTRtargetRow(event);
   if (target) {
     pui.removeCssClass(target,"join_origin");   //Clear the visual feedback.
-    this.joinArea.join_srcid = null;   //Make sure the join rows don't react to other, non-join drag/drops.
+    this.joinArea.joinSourceTR = null;   //Make sure the join rows don't react to other, non-join drag/drops.
   }
   this.joinArea.hideInfobox();  //Hide the info box in case it appeared during drag.
 };
@@ -5391,7 +5401,7 @@ pui.joins.JoinEditor.prototype._remove = function(){
   // If the condition is the last one, then remove the join.
   if (this.joinLine.join.lines.length < 1){
     // Removes the younger file from jointree; also destroys the Join.
-    var removeQ = this.joinArea.filetree.remove(this.joinLine.join.childFilevar, removeQ);
+    var removeQ = this.joinArea.filetree.remove(this.joinLine.join.childTable.id, removeQ);
     if (typeof this.joinArea.lastConditionRemoveCb == 'function') this.joinArea.lastConditionRemoveCb(removeQ);
   }
   if (typeof this.joinArea.joinRemoveCb == 'function') this.joinArea.joinRemoveCb();
@@ -5486,6 +5496,7 @@ pui.joins.JoinEditor.prototype._hideCheck = function(e) {
 };
 
 //TODO: can these Join objects deal with JoinableTable objects instead of the TRs?
+// Note: FileTree needs IDs of files for .contains().
 
 /**
  * Contains join information between two files. Joins fall into a tree hierarchy with
@@ -5501,15 +5512,10 @@ pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
   // The type determines which shape to show in the JoinLine and in generating SQL.
   this.type = joinType == null ? "INNER" : joinType;
 
-  // These two variables uniquely identify the join. No two joins should exist with
-  // the same parent-child combination. Example values: "file", "extrafile0", etc.
-  this.parentFilevar = pparentEl.fileVarname;
-  this.childFilevar = pchildEl.fileVarname;
-  
   this.joinArea = joinArea;
   
-//  this.parentTable = pparentEl.parentNode.parentNode;
-//  this.childTable = pchildEl.parentNode.parentNode;
+  // Note: The IDs of parent/child tagbles uniquely identify the join. No two joins should exist with
+  // the same parent-child combination. Example values: "file", "extrafile0", etc.
   this.parentTable = pparentEl.joinableTable;
   this.childTable = pchildEl.joinableTable;
   /*
@@ -5525,16 +5531,13 @@ pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
 };
 
 /**
- * Add fields as a new join condition. Assume whatever calls this knows which
- * should be parent and which should be child.
+ * Add fields as a new join condition, and draw a JoinLine. Assume whatever calls this knows which should be parent and which should be child.
  * @param {Object} pparentEl  Parent TR DOM element.
  * @param {Object} pchildEl   Child TR DOM element.
  */
 pui.joins.Join.prototype.addFields = function(pparentEl, pchildEl){
   if (pparentEl.joinableTable == this.parentTable
   && pchildEl.joinableTable == this.childTable ){
-  
-  
     var line = new pui.joins.JoinLine(pparentEl, pchildEl, this);
     this.lines.push(line);
     this.drawConnector(this.lines.length - 1);
@@ -5581,12 +5584,6 @@ pui.joins.Join.prototype.drawConnector = function(index){
   var targ_height = this.lines[index].childEl.offsetHeight;
   y2 += Math.floor(targ_height / 2);
 
-//  if (joinline.joinline == null ){  //The shapes don't exist yet.
-//    joinline.joinline = new pui.joins.JoinLine(this.joinArea, x1, y1, x2, y2, this.type, joinline);
-//    joinline.joinline.draw();
-//  }else{
-//    
-//  }
   this.lines[index].setPoints(x1, y1, x2, y2);
 };
 
@@ -5613,7 +5610,7 @@ pui.joins.Join.prototype.destroy = function(){
 pui.joins.Join.prototype.setType = function(ptype){
   this.type = ptype;
   for(var i=0; i < this.lines.length; i++){
-    this.lines[i].resetPoints();
+    this.lines[i].draw();
   }
 };
 
@@ -5646,14 +5643,9 @@ pui.joins.JoinLine = function(pparentEl, pchildEl, join){
   this.childEl = pchildEl;
   
   // The database field names for this join condition. Needed by FileTree.
-  this.parentField = pparentEl.fieldInfo["field"];
-  this.childField = pchildEl.fieldInfo["field"];
+  this.parentField = pparentEl.fieldId;
+  this.childField = pchildEl.fieldId;
   
-  // The SVG elements that show the link.
-  this.startShape = null;
-  this.midShape = null;
-  this.endShape = null;
-  this.connector = null;
   /*
    * @type pui.joins.Join
    */
@@ -5663,49 +5655,35 @@ pui.joins.JoinLine = function(pparentEl, pchildEl, join){
    * @type Number;
    */
   this.x1 = this.y1 = this.x2 = this.y2 = 0;
+  
+  // Create the SVG elements that show the link.
+
+  this.connector = document.createElementNS(pui.SVGNS, "polyline");
+  this.connector.joinLine = this;
+  this.connector.setAttribute("stroke", this.join.joinArea.joinStrokeColor); //Note: stroke must be attribute for IE, not style.
+  this.connector.setAttribute("stroke-width", "2");
+  this.connector.setAttribute("fill", "none");
+  this.connector.onclick = this.join.joinArea.joineditor.boundShow;
+  this.connector.setAttribute("class","joinlink");
+  this.join.joinArea.svg.appendChild(this.connector);
+
+  this.startShape = this._createCircle();
+  this.join.joinArea.svg.appendChild(this.startShape);
+
+  this.endShape = this._createCircle();
+  this.join.joinArea.svg.appendChild(this.endShape);
+
+  this.midShape = document.createElementNS(pui.SVGNS, "polygon");
+  this.midShape.joinLine = this;
+  this.midShape.setAttribute("fill", this.join.joinArea.joinLinkColor);
+  this.midShape.setAttribute("stroke", this.join.joinArea.joinStrokeColor);
+  this.midShape.setAttribute("stroke-width", 1);
+  this.midShape.onclick = this.join.joinArea.joineditor.boundShow;
+  this.midShape.setAttribute("class","joinlink");
+  this.join.joinArea.svg.appendChild(this.midShape);
 };
 
-/**
- * Create a new set of connector shapes on the svg if they don't already exist.
- * Otherwise, just reset their positions.
- */
-pui.joins.JoinLine.prototype.draw = function(){
-  if (this.connector == null){
-    this.connector = document.createElementNS(pui.SVGNS, "polyline");
-    this.connector.joinLine = this;
-    this.connector.setAttribute("stroke", this.join.joinArea.joinStrokeColor); //Note: stroke must be attribute for IE, not style.
-    this.connector.setAttribute("stroke-width", "2");
-    this.connector.setAttribute("fill", "none");
-    this.connector.onclick = this.join.joinArea.joineditor.boundShow;
-    this.connector.setAttribute("class","joinlink");
-    this.join.joinArea.svg.appendChild(this.connector);
-  }
-
-  if (this.startShape == null){
-    this.startShape = this.createCircle();
-    this.join.joinArea.svg.appendChild(this.startShape);
-  }
-
-  if (this.endShape == null){
-    this.endShape = this.createCircle();
-    this.join.joinArea.svg.appendChild(this.endShape);
-  }
-
-  if (this.midShape == null){
-    this.midShape = document.createElementNS(pui.SVGNS, "polygon");
-    this.midShape.joinLine = this;
-    this.midShape.setAttribute("fill", this.join.joinArea.joinLinkColor);
-    this.midShape.setAttribute("stroke", this.join.joinArea.joinStrokeColor);
-    this.midShape.setAttribute("stroke-width", 1);
-    this.midShape.onclick = this.join.joinArea.joineditor.boundShow;
-    this.midShape.setAttribute("class","joinlink");
-    this.join.joinArea.svg.appendChild(this.midShape);
-  }
-
-  this.resetPoints();
-};
-
-pui.joins.JoinLine.prototype.createCircle = function(){
+pui.joins.JoinLine.prototype._createCircle = function(){
   var circ = document.createElementNS(pui.SVGNS, "circle");
   circ.joinLine = this;
   circ.setAttribute("r", 5); //radius.
@@ -5721,24 +5699,19 @@ pui.joins.JoinLine.prototype.setPoints = function(px1, py1, px2, py2){
   this.y1 = py1;
   this.x2 = px2;
   this.y2 = py2;
-  this.resetPoints();
+  this.draw();
 };
 
 pui.joins.JoinLine.prototype.setEnd = function(px2, py2){
   this.x2 = px2;
   this.y2 = py2;
-  this.resetPoints();
-};
-
-pui.joins.JoinLine.prototype.setType = function(ptype){
-  this.type = ptype;
-  
+  this.draw();
 };
 
 /**
  * Set the x and y positions for all shapes in this line, including angles of shapes that indicate join-type.
  */
-pui.joins.JoinLine.prototype.resetPoints = function (){
+pui.joins.JoinLine.prototype.draw = function (){
 
   this.startShape.setAttribute("cx", this.x1);  //Set centers of both circles.
   this.startShape.setAttribute("cy", this.y1);
@@ -5783,7 +5756,7 @@ pui.joins.JoinLine.prototype.resetPoints = function (){
   }
   this.midShape.setAttribute("points", points);
 
-  //Calculate the angle made between the two points and x-axis--for rotating the middle shape.
+  // Calculate the angle made between the two points and x-axis--for rotating the middle shape.
   var y = Math.abs(this.y1 - this.y2);
   var hypotenuse = Math.sqrt( Math.pow(this.x1 - this.x2,2) + Math.pow(y,2));
   var theta = Math.asin( y / hypotenuse ) * 180 / Math.PI;
@@ -5792,7 +5765,7 @@ pui.joins.JoinLine.prototype.resetPoints = function (){
   else if (this.x1 >= this.x2 && this.y1 < this.y2) angle = 180 - theta; // 90 <= angle < 180; Q2.
   else if (this.x1 > this.x2 && this.y1 >= this.y2) angle = 180 + theta; //180 <= angle < 270; Q3.
   else if (this.x1 <= this.x2 && this.y1 > this.y2) angle = 360 - theta; //270 <= angle < 360; Q4.
-  //Rotate the shape so it's clear which table is LEFT/RIGHT regardless of position.
+  // Rotate the shape so it's clear which table is LEFT/RIGHT regardless of position.
   this.midShape.setAttribute("transform","rotate("+Math.round(angle)+" "+midx+" "+midy+")");
 };
 
@@ -5822,7 +5795,7 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * @param {pui.joins.JoinArea} joinArea
  */ 
 pui.joins.FileTree = function(joinArea){
-  this._namelist = {}; //Quick lookup list. Keys are fileVarnames; values are not used.
+  this._namelist = {}; //Quick lookup list. Keys are file IDs; values are not used.
   this._rootId = joinArea.rootId; //Stored varname for detecting root; used when emptying table.
   this._namelist[this._rootId] = false;
 
@@ -5843,8 +5816,8 @@ pui.joins.FileTree.prototype.contains = function(fname){
  * @param {String|Undefined} joinType
  */
 pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
-  var parentName = parent_tr.fileVarname;
-  var childName = child_tr.fileVarname;
+  var parentName = parent_tr.joinableTable.id;
+  var childName = child_tr.joinableTable.id;
   if (!this.contains(parentName)) return;
   var parent = this._findNode(parentName);  //Find the internal tree node.
   if (!parent){
@@ -5940,23 +5913,23 @@ pui.joins.FileTree.prototype._createAndAddNode = function(parentNode, childName,
 };
 
 /**
- * Given two tables' fileVarnames, return a join that exists between them. Joins are attached to the child node, pointing to the
+ * Given two tables' IDs, return a join that exists between them. Joins are attached to the child node, pointing to the
  * parent. Initially, it is unknown which argument, if either, is the parent.
- * @param {String} name1
- * @param {String} name2
+ * @param {String} id1
+ * @param {String} id2
  * @returns {Null|Object}
  */
-pui.joins.FileTree.prototype.getJoinFromNames = function(name1, name2){
-  var node1 = this._findNode(name1);
-  var node2 = this._findNode(name2);
+pui.joins.FileTree.prototype.getJoinFromIds = function(id1, id2){
+  var node1 = this._findNode(id1);
+  var node2 = this._findNode(id2);
   if (!node1 || !node2) return null; //If one name doesn't exist, then no join exists.
   var join1 = node1.joinP;
   var join2 = node2.joinP;
 
   //If name1's parent is name2, then return name1's join object.
-  if (join1 != null && join1.parentFilevar == name2) return join1; 
+  if (join1 != null && join1.parentTable.id == id2) return join1; 
   //If name2's parent is name1, then return name2's join object.
-  else if (join2 != null && join2.parentFilevar == name1) return join2;
+  else if (join2 != null && join2.parentTable.id == id1) return join2;
   return null;
 };
 
@@ -6020,9 +5993,9 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
     if (typeof this._fromclauseCb == 'function') this._fromclauseCb(this._rootId);
   }
   else {
-    if (typeof this._joinCb == 'function') this._joinCb(join.childFilevar, join.type);
+    if (typeof this._joinCb == 'function') this._joinCb(join.childTable.id, join.type);
 
-    this._filestructFromId(join.childFilevar, this._structPointer);
+    this._filestructFromId(join.childTable.id, this._structPointer);
     this._structPointer["joinP"] = {
       "type": join.type
     };
@@ -6040,10 +6013,10 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
     }
 
     var line = join.lines[0];
-    if (typeof this._joinonCb == 'function') this._joinonCb(join.parentFilevar, join.childFilevar, line.parentField, line.childField);
+    if (typeof this._joinonCb == 'function') this._joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     for (var i=1; i < join.lines.length; i++){
       line = join.lines[i];
-      if (typeof this._joinonCb == 'function') this._joinonCb(join.parentFilevar, join.childFilevar, line.parentField, line.childField);
+      if (typeof this._joinonCb == 'function') this._joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     }
   }
 
@@ -6060,11 +6033,11 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
  * Return true if a file's fields may be null as a result of the join type. Note: if a parent-child join is RIGHT and the
  * grandparent-parent is INNER, then the grandparent's fields could also be null. Assume the user won't create that scenario--or 
  * that they can figure out how to COALESCE it.
- * @param {String} fileVarname
+ * @param {String} fileId
  * @returns {Boolean}
  */
-pui.joins.FileTree.prototype.fileFieldsCanNull = function(fileVarname){
-  var node = this._findNode(fileVarname);
+pui.joins.FileTree.prototype.fileFieldsCanNull = function(fileId){
+  var node = this._findNode(fileId);
   if (node != null){
     if (node.joinP != null){  //Join is not root. look for left join.
       //join is the 2nd table in a LEFT join; its fields could be null.
