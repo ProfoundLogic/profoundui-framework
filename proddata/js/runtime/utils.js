@@ -5073,14 +5073,12 @@ pui.joins.JoinableTable.prototype.render = function(){
     
     // Setup events for the Join interface.
     tr.draggable = true;
-    tr.ondragstart = this.ondragstart.bind(this);
+    tr.ondragstart = this._ondragstart;
     
-    // TODO: add these to closure and de-quote here. is bind necessary?
-    
-    tr["ondragend"] = this.ondragend.bind(this);
-    tr["ondrop"] = this.ondrop.bind(this);
-    tr["ondragover"] = this.ondragover.bind(this);
-    tr["ondragleave"] = this.ondragleave.bind(this);
+    tr.ondragend = this._ondragend;
+    tr.ondrop = this._ondrop;
+    tr.ondragover = this._ondragover;
+    tr.ondragleave = this._ondragleave;
   }
   
   // Allow the table to be moved by dragging the mouse.
@@ -5122,28 +5120,28 @@ pui.joins.JoinableTable.prototype.getRight = function(){
  * @param {Event} event    The event target is the element where the mouse was released.
  * @returns {undefined|Boolean}
  */
-pui.joins.JoinableTable.prototype.ondrop = function(event){
+pui.joins.JoinableTable.prototype._ondrop = function(event){
   designUtils.preventEvent(event); //Prevent page from redirecting as link.
   var target_tr = pui.getTRtargetRow(event);
-  if (!target_tr) return;
+  if (!target_tr || ! target_tr.joinableTable) return;
   
   pui.removeCssClass(target_tr,"join_valid"); //clear the dragover visual feedback.
 
   try {
-    var ignored = event.dataTransfer.getData("text/plain");
+    event.dataTransfer.getData("text/plain"); //result is ignored; not all browsers implement it the same.
   }
   catch(ignore){}
   
-  var origin_tr = this.joinArea.joinSourceTR;
+  var ja = target_tr.joinableTable.joinArea;
+  var origin_tr = ja.joinSourceTR;
 
   if (!origin_tr) return false; //Happens when source is a draggable element not from the JoinArea.
 
   var origfileId = origin_tr.joinableTable.id;
   if (origfileId == null || origfileId == target_tr.joinableTable.id) return false; //Don't allow dropping on same table.
 
-  this.joinArea.joinLinkRows(target_tr, origin_tr);
-  
-  if (typeof this.joinArea.joindropCb == 'function') this.joinArea.joindropCb();
+  ja.joinLinkRows(target_tr, origin_tr);
+  if (typeof ja.joindropCb == 'function') ja.joindropCb();
 };
 
 
@@ -5153,34 +5151,31 @@ pui.joins.JoinableTable.prototype.ondrop = function(event){
  * Otherwise, the css classes would be removed as soon as they were set.
  * @param {Object|Event} event
  */
-pui.joins.JoinableTable.prototype.ondragover = function(event){
-  if (this.joinArea.joinSourceTR == null) return; //Prevents drop from Field Select.
+pui.joins.JoinableTable.prototype._ondragover = function(event){
   var target = pui.getTRtargetRow(event);
-  if (!target) return;
-  var origin_tr = this.joinArea.joinSourceTR;
-  if (origin_tr == null) return;    //The origin node should exist.
-  var ojointable = origin_tr.joinableTable;
-  if (ojointable == null) return;      //The origin node should have a joinableTable.
-  var tjointable = target.joinableTable;
-  if (tjointable == ojointable) return; //Don't allow dropping on same table as drag origin.
+  if (!target || ! target.joinableTable || target.joinableTable.joinArea.joinSourceTR == null) return; //Only drop from JoinableTables.
+  var ja = target.joinableTable.joinArea;
+  var origJTable = ja.joinSourceTR.joinableTable;
+  if (origJTable == null) return;      //The origin node should have a joinableTable.
+  var targJTable = target.joinableTable;
+  if (targJTable == origJTable) return; //Don't allow dropping on same table as drag origin.
   
-  var cont_or = this.joinArea.filetree.contains(ojointable.id);   //TODO: should filetree check for joinableTable objects?
-  var cont_tr = this.joinArea.filetree.contains(tjointable.id);
-  if (!cont_or && !cont_tr){
+  var containsOrig = ja.filetree.contains(origJTable.id);
+  var containsTarg = ja.filetree.contains(targJTable.id);
+  if (!containsOrig && !containsTarg){
     // Don't allow joining two orphan tables together.
-    this.joinArea.showInfobox(pui["getLanguageText"]("runtimeMsg", "join x y to main file", [ojointable.id, tjointable.id]));
+    ja.showInfobox(pui["getLanguageText"]("runtimeMsg", "join x y to main file", [origJTable.id, targJTable.id]));
     return;
   }
-  else if (cont_or && cont_tr){
-    var join = this.joinArea.filetree.getJoinFromIds(tjointable.id, ojointable.id);   //TODO: should filetree check for joinableTable objects?
+  else if (containsOrig && containsTarg){
+    var join = ja.filetree.getJoinFromIds(targJTable.id, origJTable.id);
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
-      
-      this.joinArea.showInfobox(pui["getLanguageText"]("runtimeMsg","one path main to child"));
+      ja.showInfobox(pui["getLanguageText"]("runtimeMsg","one path main to child"));
       return;
     }
   }
-  this.joinArea.hideInfobox();
+  ja.hideInfobox();
 
   designUtils.preventEvent(event);       //Let browser know that drop is allowed.
   pui.addCssClass(target,"join_valid");  //Show visual feedback for drop.
@@ -5191,7 +5186,7 @@ pui.joins.JoinableTable.prototype.ondragover = function(event){
  * The dragged row has left over a row. Clear the visual feedback of valid join.
  * @param {Object|Event} event
  */
-pui.joins.JoinableTable.prototype.ondragleave = function(event){
+pui.joins.JoinableTable.prototype._ondragleave = function(event){
   designUtils.preventEvent(event);
   var target = pui.getTRtargetRow(event);
   if (target) pui.removeCssClass(target,"join_valid");
@@ -5201,7 +5196,7 @@ pui.joins.JoinableTable.prototype.ondragleave = function(event){
  * First event to fire when a drag is started.
  * @param {Object|Event} event  The target is the element from which drag started.
  */
-pui.joins.JoinableTable.prototype.ondragstart = function(event){
+pui.joins.JoinableTable.prototype._ondragstart = function(event){
   if (event.stopPropagation) event.stopPropagation();
   else{
     event.cancelBubble = true;
@@ -5211,7 +5206,7 @@ pui.joins.JoinableTable.prototype.ondragstart = function(event){
   if (target) {
     // Set joinSourceTR so we can retrieve the drag source easily. Note: dataTransfer expects strings, IE dislikes setData, 
     // and dragover can't get the id from dataTransfer in Chrome.
-    this.joinArea.joinSourceTR = target;
+    target.joinableTable.joinArea.joinSourceTR = target;
     pui.addCssClass(target,"join_origin");
 
     try {
@@ -5226,15 +5221,16 @@ pui.joins.JoinableTable.prototype.ondragstart = function(event){
 
 /**
  * Last event to fire when drag sequence of events finishes. Clean up.
- * @param {Object|Event} event    The target is the element from which the drag started.
+ * @param {Event} event    The target is the element from which the drag started.
  */
-pui.joins.JoinableTable.prototype.ondragend = function(event){
+pui.joins.JoinableTable.prototype._ondragend = function(event){
   var target = pui.getTRtargetRow(event);
   if (target) {
     pui.removeCssClass(target,"join_origin");   //Clear the visual feedback.
-    this.joinArea.joinSourceTR = null;   //Make sure the join rows don't react to other, non-join drag/drops.
+    var ja = target.joinableTable.joinArea;
+    ja.joinSourceTR = null;   //Make sure the join rows don't react to other, non-join drag/drops.
+    ja.hideInfobox();  //Hide the info box in case it appeared during drag.
   }
-  this.joinArea.hideInfobox();  //Hide the info box in case it appeared during drag.
 };
 
 

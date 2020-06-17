@@ -15,6 +15,12 @@ Object.onfail = function(value) {};
 Object.onsuccess = function(value) {};
 Object.suppressAlert = {};
 
+// drag and drop web API
+Object.ondrop = function(event) {};
+Object.ondragend = function(event) {};
+Object.ondragover = function(event) {};
+Object.ondragleave = function(event) {};
+
 FileReader.readAsText = {}; //used in JumpStart, 
 
 Object.transformOrigin = {}; //Style for "transform-origin".
