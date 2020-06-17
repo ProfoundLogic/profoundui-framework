@@ -358,5 +358,7 @@ var pui = {
   isRichDisplay:{},
   isApi:{},
   toSourceView:{},
-  toDesignView:{}
+  toDesignView:{},
+  apiParameterDialog: {},
+  apiFilePicker: {}
 }
