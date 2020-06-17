@@ -4758,6 +4758,11 @@ pui.joins = {};
  * @constructor
  */
 pui.joins.JoinArea = function(params){
+  // Private
+  this._joinLoadCb = params.joinLoadCb;
+  
+  
+  // Public
   /**
    * @type Array.<pui.joins.JoinableTable>
    */
@@ -4783,12 +4788,10 @@ pui.joins.JoinArea = function(params){
   this.movetimeout = null;    //Slow SVG expanding should not happen each time mousemove fires.
   
   this.joindropCb = params.joindropCb;    //Callback for join ondrop.
-  this.joinRemoveCb = params.joinRemoveCb; //Callback for join removed in JoinEditor.
-  this.lastConditionRemoveCb = params.lastConditionRemoveCb;  //Join removed in JoinEditor and was last condition.
-  this.joinModifyCb = params.joinModifyCb;
-  this.joinAddLinkCb = params.joinAddLinkCb;
-
-  this.joineditor = null;
+  
+  this.joinAddLinkCb = params.joinAddLinkCb;    //FileTree child file was linked to parent file.
+  
+  this.joineditor = new pui.joins.JoinEditor(this, params.joinRemoveCb, params.lastConditionRemoveCb, params.joinModifyCb);
   
   this.joinStrokeColor = "rgb(135,135,135)"; //Value for the stroke and fill attributes of join lines.
   this.joinLinkColor = "rgb(0,0,255)";       //Value for fill attribute of join line middle shape.
@@ -4811,13 +4814,13 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   this.svg = document.createElementNS(pui.SVGNS, "svg");
   this.svg.setAttribute("width","100%");
   this.svg.setAttribute("height","100%");
-  this.svg.className = "joinsvg";
+  this.svg.setAttribute("class","join");
   domEl.appendChild(this.svg);
   
   // Create object needed for managing joins.
   this.filetree = new pui.joins.FileTree(this);
   
-  this.joineditor = new pui.joins.JoinEditor(this);
+  this.joineditor.init();
 };
 
 /**
@@ -4884,12 +4887,12 @@ pui.joins.JoinArea.prototype.expandSvg = function(joinArea){
 
 /**
  * Clear existing timeout and set the SVG section to expand in the future.
- * @param {Number} seconds
+ * @param {Number} milliseconds
  */
-pui.joins.JoinArea.prototype.queueExpand = function(seconds){
+pui.joins.JoinArea.prototype.queueExpand = function(milliseconds){
   clearTimeout(this.movetimeout);
   // Note: use parameter instead of bind on expandSvg, because bind allocates a new function every time it is called, which is often in mousemove.
-  this.movetimeout = setTimeout(this.expandSvg, seconds, this);
+  this.movetimeout = setTimeout(this.expandSvg, milliseconds, this);
 };
 
 /**
@@ -4909,21 +4912,21 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
       // A join was found for the tables. Determine which TR is the parent and
       // which is the child. Then check if this condition already exists.
       var parentTR, childTR;
-      if (target_tr.joinableTable.id == join.parentTable.id){    //1st argument is the parent table.
-        if (origin_tr.joinableTable.id == join.childTable.id){  //2nd argument is child.
+      if (targetFileId == join.parentTable.id){    //1st argument is the parent table.
+        if (sourceFileId == join.childTable.id){  //2nd argument is child.
           parentTR = target_tr;
           childTR = origin_tr;
         }
       }
-      else if (origin_tr.joinableTable.id == join.parentTable.id){  //2nd argument is the parent table.
-        if (target_tr.joinableTable.id == join.childTable.id){  //1st argument is the child
+      else if (sourceFileId == join.parentTable.id){  //2nd argument is the parent table.
+        if (targetFileId == join.childTable.id){  //1st argument is the child
           parentTR = origin_tr;
           childTR = target_tr; 
         }
       }
       
       if (parentTR != null && childTR != null){
-        var exists = join.conditionExists(parentTR, childTR);
+        var exists = join.conditionExists(parentTR.fieldId, childTR.fieldId);
         if (exists === false){
           // A join between the two fields doesn't already exist, so add it.
           join.addFields(parentTR, childTR);
@@ -4941,6 +4944,86 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
   else if(this.filetree.contains(sourceFileId)){
     // Add the drag target as a child of the drag origin, creating a new join.
     this.filetree.addLink(origin_tr, target_tr, joinType);
+  }
+};
+
+/**
+ * Find and return a JoinableTable in the JoinArea given an id.
+ * @param {String} id
+ * @returns {pui.joins.JoinableTable|undefined}
+ */
+pui.joins.JoinArea.prototype.getTable = function(id){
+  for (var i=0, n=this.joinableTables.length; i < n; i++){
+    if (this.joinableTables[i].id == id) return this.joinableTables[i];
+  }
+};
+
+/**
+ * Given a tree of JSON objects representing saved Join data, load the tree into JoinableTables and create joins.
+ * @param {Object} root
+ * @param {Function|undefined} tableFoundCb    Called for each file/table found in the tree.
+ */
+pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb){
+  // Breadth-first traversal of the join node tree.
+  var i, v, w, cond;
+  var queue = [ root ];
+  root.visited = true;
+
+  while (queue.length > 0){
+    v = queue.shift();
+    var myvarname = v["varname"];
+
+    // Position the join tables as they were when saved.
+    var joinableTable = appgen.joinArea.getTable(myvarname);
+    if (joinableTable){
+      if (v["xy"] instanceof Array) joinableTable.setLeftTop(v["xy"]);
+      if (typeof tableFoundCb == 'function') tableFoundCb(joinableTable, v);
+      if (v["joinP"] != null){
+        var parentVarname =  v.parent["varname"];
+        joinableTable = appgen.joinArea.getTable(parentVarname);
+        if (joinableTable){
+          var parentrows = getObj('joinlist_' + parentVarname).tBodies[0].rows;
+
+          var myrows = getObj('joinlist_' + myvarname).tBodies[0].rows;
+
+          // Look at each condition. Find the rows in the child and parent tables matching those.
+          for (i=0, cond; (cond = v["joinP"]["conditions"][i]); i++){
+            var currow, parentrow, myrow, j;
+            for (j=0; (currow = parentrows[j]); j++){
+              if (cond["parentField"] == currow.fieldInfo["field"]){
+                parentrow = currow;
+                break;
+              }
+            }
+            for (j=0; (currow = myrows[j]); j++){
+              if (cond["childField"] == currow.fieldInfo["field"]){
+                myrow = currow;
+                break;
+              }
+            }
+
+            if (parentrow != null && currow != null){
+              this.joinLinkRows(parentrow, myrow, v["joinP"]["type"]);
+              if (typeof this._joinLoadCb == 'function') this._joinLoadCb();
+              
+            }
+            else {
+              console.log('Failed to find tables matching the join fields:', cond["parentField"], cond["childField"]);
+            }
+          }
+        }
+      }
+    }
+
+    if (v.childNodes != null){
+      for (i=0; (w = v.childNodes[i]); i++){
+        if (w.visited !== true){
+          w.visited = true;
+          w.parent = v;
+          queue.push(w);
+        }
+      }
+    }
   }
 };
 
@@ -4965,7 +5048,6 @@ pui.joins.JoinableTable = function(params){
   this._width = params.width;
   this._left = params.left;
   this._top = params.top;
-  this._tableId = 'joinlist_' + params.id;   //The HTML table element's ID.
   this._captionText = params.tableCaption;   //The text for the table caption.
   
   this.id = params.id;    //A unique ID differentiating this table from others.
@@ -5045,9 +5127,8 @@ pui.joins.JoinableTable.prototype.render = function(){
   this.table.style.left = this._left + "px";
   this.table.style.top = this._top + "px";
   
-  this.table.className = "join-list";
-  this.table.id = this._tableId;
-
+  this.table.className = "joinable";
+  
   this.caption = this.table.createCaption();
   this.caption.innerHTML = this._captionText;
   
@@ -5074,7 +5155,6 @@ pui.joins.JoinableTable.prototype.render = function(){
     // Setup events for the Join interface.
     tr.draggable = true;
     tr.ondragstart = this._ondragstart;
-    
     tr.ondragend = this._ondragend;
     tr.ondrop = this._ondrop;
     tr.ondragover = this._ondragover;
@@ -5088,21 +5168,34 @@ pui.joins.JoinableTable.prototype.render = function(){
 /**
  * For each join connector in a JoinableTable, call drawConnectors. Note: when this is assigned as "movecb" to the pui.makeMovable 
  * params, "this" refers to the "params" object unless bind is used as in render.
+ * @param {Event} e       Mouse move event
  */
-pui.joins.JoinableTable.prototype._moveCb = function(){
+pui.joins.JoinableTable.prototype._moveCb = function(e){
   for (var i=0; i < this.joinlist.length; i++){
     this.joinlist[i].drawConnectors();
   }
-  // Expanding is a little slow; wait 5ms after mouse movement stops before starting to expand the SVG section.
-  this.joinArea.queueExpand(5);
+  // Expanding is visibly slow; wait 50ms after mouse movement stops before starting to expand the SVG section.
+  this.joinArea.queueExpand(50);
+  
+  //TODO: do throttling by dropping events rather than waiting for movement to stop. always execute the last one, however?
 };
 
-pui.joins.JoinableTable.prototype.getLeft = function(){
-  return this.table.offsetLeft;
+/**
+ * Returns an array with the table offset left and top coordinates, respectively.
+ * @returns {Array.<Number>}
+ */
+pui.joins.JoinableTable.prototype.getXY = function(){
+  return [this.table.offsetLeft, this.table.offsetTop];
 };
-pui.joins.JoinableTable.prototype.getTop = function(){
-  return this.table.offsetTop;
+/**
+ * Set the table style left and top with the array of styles.
+ * @param {Array.<String>} lefttop
+ */
+pui.joins.JoinableTable.prototype.setLeftTop = function(lefttop){
+  this.table.style.left = lefttop[0];
+  this.table.style.top = lefttop[1];
 };
+
 pui.joins.JoinableTable.prototype.getCaptionHeight = function(){
   return this.caption.offsetHeight;
 };
@@ -5253,155 +5346,139 @@ pui.joins.JoinableTable.prototype._ondragend = function(event){
  * Join Editor Class
  * This is a popup window to remove or modify the join type.
  * @param {pui.joins.JoinArea} joinArea 
+ * @param {Function|undefined} joinRemoveCb
+ * @param {Function|undefined} lastConditionRemoveCb
+ * @param {Function|undefined} joinModifyCb
+ * @returns {pui.joins.JoinEditor}
  * @constructor
  */
-pui.joins.JoinEditor = function(joinArea) {
-  // Private Properties
-  this._div = document.createElement("div");
-  
-  this._dialogHeader = document.createElement("div");
-  this._headerTitle = document.createElement("span");
-  this._closeButtonDiv = document.createElement("div");
-  this._closeButtonImgDiv = document.createElement("div");
-  
-  this._dialogBody = document.createElement("div");
-  
-  this._radio1 = document.createElement("input");
-  this._radio2 = document.createElement("input");
-  this._radio3 = document.createElement("input");
-  
-  this._radio1Label = document.createElement("label");
-  this._radio2Label = document.createElement("label");
-  this._radio3Label = document.createElement("label");
-  
-  this._buttonWrap = document.createElement("div");
-  this._buttonWrap.className = "btnwrap";
-  this._modifyButton = document.createElement("input");
-  this._removeButton = document.createElement("input");
-  this._cancelButton = document.createElement("input");
-  
-  var boundHide = this.hide.bind(this);
-  
-  // Public properties.
+pui.joins.JoinEditor = function(joinArea, joinRemoveCb, lastConditionRemoveCb, joinModifyCb) {
   /*
    * @type pui.joins.JoinArea
    */
   this.joinArea = joinArea;
   /**
-   * 
    * @type pui.joins.JoinLine
    */
   this.joinLine = null;
   
   this.boundShow = this.show.bind(this);    //JoinLine shapes' onclick functions point to boundShow.
+  this._boundHide = this._hide.bind(this);
   
-  // Construct.
-  
+  this._radios = [];
+  this._joinRemoveCb = joinRemoveCb;
+  this._lastConditionRemoveCb = lastConditionRemoveCb;
+  this._joinModifyCb = joinModifyCb;
+}
+
+pui.joins.JoinEditor.prototype.init = function() {
+  // Private class properties
+  this._div = document.createElement("div");
   this._div.id = "joinEditor";
   this._div.isJoinEditor = true; //Tells this.hideCheck when to hide this editor.
-
   this._div.style.zIndex = designUtils.zListEditor;
   this._div.style.visibility = "hidden";
   this._div.style.display = "none";
   
-  this._dialogHeader.className = "dialog-header";
-  this._dialogHeader.appendChild(this._headerTitle);
-  this._dialogBody.className = "dialog-body";
+  this._headerTitle = document.createElement("span");
+    
+  var dialogHeader = document.createElement("div");
+  var closeButtonDiv = document.createElement("div");
+  var closeButtonImgDiv = document.createElement("div");
+  var dialogBody = document.createElement("div");
   
-  this._radio1.type = "radio";
-  this._radio1.name = "rdojointype";
-  this._radio1.id = "rdojointype1";
-  this._radio1.value = "INNER";
-  this._radio1.checked = true;
-  this._radio1Label.setAttribute("for", this._radio1.id);
-  this._dialogBody.appendChild(this._radio1);
-  this._dialogBody.appendChild(this._radio1Label);
+  var buttonWrap = document.createElement("div");
+  buttonWrap.className = "btnwrap";
+  var modifyButton = document.createElement("input");
+  var removeButton = document.createElement("input");
+  var cancelButton = document.createElement("input");
   
-  this._radio2.type = "radio";
-  this._radio2.name = "rdojointype";
-  this._radio2.id = "rdojointype2";
-  this._radio2.value = "LEFT";
-  this._radio2Label.setAttribute("for", this._radio2.id);
-  this._dialogBody.appendChild(this._radio2);
-  this._dialogBody.appendChild(this._radio2Label);
+  dialogHeader.className = "dialog-header";
+  dialogHeader.appendChild(this._headerTitle);
+  dialogBody.className = "dialog-body";
   
-  this._radio3.type = "radio";
-  this._radio3.name = "rdojointype";
-  this._radio3.id = "rdojointype3";
-  this._radio3.value = "RIGHT";
-  this._radio3Label.setAttribute("for", this._radio3.id);
-  this._dialogBody.appendChild(this._radio3);
-  this._dialogBody.appendChild(this._radio3Label);
-  
-  this._closeButtonDiv.className = "close-btn";
-  this._closeButtonDiv.onclick = boundHide;
-  this._closeButtonDiv.appendChild(this._closeButtonImgDiv);
-  this._dialogHeader.appendChild(this._closeButtonDiv);
+  closeButtonDiv.className = "close-btn";
+  closeButtonDiv.onclick = this._boundHide;
+  closeButtonDiv.appendChild(closeButtonImgDiv);
+  dialogHeader.appendChild(closeButtonDiv);
  
-  this._modifyButton.type = "button";
-  this._modifyButton.value = pui["getLanguageText"]("runtimeText","modify");
-  this._modifyButton.onclick = this._modify.bind(this);
-  this._buttonWrap.appendChild(this._modifyButton);
+  modifyButton.type = "button";
+  modifyButton.value = pui["getLanguageText"]("runtimeText","modify");
+  modifyButton.onclick = this._modify.bind(this);
+  buttonWrap.appendChild(modifyButton);
   
-  this._removeButton.type = "button";
-  this._removeButton.value = pui["getLanguageText"]("runtimeText","remove");
-  this._removeButton.onclick = this._remove.bind(this);
-  this._buttonWrap.appendChild(this._removeButton);
+  removeButton.type = "button";
+  removeButton.value = pui["getLanguageText"]("runtimeText","remove");
+  removeButton.onclick = this._remove.bind(this);
+  buttonWrap.appendChild(removeButton);
   
-  this._cancelButton.type = "button";
-  this._cancelButton.value = pui["getLanguageText"]("runtimeText","cancel");
-  this._cancelButton.onclick = boundHide;
-  this._buttonWrap.appendChild(this._cancelButton);
+  cancelButton.type = "button";
+  cancelButton.value = pui["getLanguageText"]("runtimeText","cancel");
+  cancelButton.onclick = this._boundHide;
+  buttonWrap.appendChild(cancelButton);
 
-  var p = document.createElement("p");
-  p.appendChild(this._radio1);
-  p.appendChild(this._radio1Label);
-  this._dialogBody.appendChild(p);
-  p = document.createElement("p");
-  p.appendChild(this._radio2);
-  p.appendChild(this._radio2Label);
-  this._dialogBody.appendChild(p);
-  p = document.createElement("p");
-  p.appendChild(this._radio3);
-  p.appendChild(this._radio3Label);
-  this._dialogBody.appendChild(p);
+  var radVals = ['INNER','LEFT','RIGHT'];
+  for (var i=0; i < 3; i++){
+    var rad = {
+      el: document.createElement("input"),
+      label: document.createElement("label")
+    };
+    rad.el.type = "radio";
+    rad.el.name = "rdojointype";
+    rad.el.id = "rdojointype" + (i + 1);
+    rad.el.value = radVals[i];
+    rad.el.checked = false;
+    
+    rad.label.setAttribute("for", rad.el.id);
+    if (i == 0){
+      rad.el.checked = true;
+      rad.label.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText","inner join label")));
+    }
+    
+    var p = document.createElement("p");
+    p.appendChild(rad.el);
+    p.appendChild(rad.label);
+    dialogBody.appendChild(p);
+    
+    this._radios.push(rad);
+  }
   
-  this._dialogBody.appendChild(this._buttonWrap);
-  this._div.appendChild(this._dialogHeader);
-  this._div.appendChild(this._dialogBody);
-  document.body.appendChild(this._div);
-
-  //Allow the join editor window to be moved via mouse.  
-  pui.makeMovable({attachto: this._dialogHeader, move: this._div, opacity:85, upcb: function(){this.radio1.focus();} });
+  dialogBody.appendChild(buttonWrap);
+  this._div.appendChild(dialogHeader);
+  this._div.appendChild(dialogBody);
+  this.joinArea.domEl.appendChild(this._div);
+  
+  // Allow the join editor window to be moved via mouse.  
+  pui.makeMovable({attachto: dialogHeader, move: this._div, opacity:85, upcb: this._radios[0].el.focus.bind(this._radios[0].el) });
 };
 
 // Handle clicking the Modify button. "this" should be bound to this JoinEditor.
 pui.joins.JoinEditor.prototype._modify = function(){
-  var jointype;
-  if (this._radio1.checked){
-    jointype = this._radio1.value;
-  }else if (this._radio2.checked){
-    jointype = this._radio2.value;
-  }else{
-    jointype = this._radio3.value;
+  var jointype = 'INNER';
+  for (var i=0, n=this._radios.length; i < n; i++){
+    if (this._radios[i].el.checked){
+      jointype = this._radios[i].el.value;
+      break;
+    }
   }
   this.joinLine.join.setType(jointype);
-  if (typeof this.joinArea.joinModifyCb == 'function') this.joinArea.joinModifyCb();
-  this.hide();
+  if (typeof this._joinModifyCb == 'function') this._joinModifyCb();
+  this._hide();
 };
 
 // Handle clicking "Remove" join condition button. "this" should be bound to this JoinEditor.
 pui.joins.JoinEditor.prototype._remove = function(){
-  this.joinLine.join.removeCondition(this.joinLine);
+  var join = this.joinLine.join;
+  join.removeCondition(this.joinLine);
   
   // If the condition is the last one, then remove the join.
-  if (this.joinLine.join.lines.length < 1){
+  if (join.lines.length < 1){
     // Removes the younger file from jointree; also destroys the Join.
-    var removeQ = this.joinArea.filetree.remove(this.joinLine.join.childTable.id, removeQ);
-    if (typeof this.joinArea.lastConditionRemoveCb == 'function') this.joinArea.lastConditionRemoveCb(removeQ);
+    var removeQ = this.joinArea.filetree.remove(join.childTable.id, removeQ);
+    if (typeof this._lastConditionRemoveCb == 'function') this._lastConditionRemoveCb(removeQ);
   }
-  if (typeof this.joinArea.joinRemoveCb == 'function') this.joinArea.joinRemoveCb();
-  this.hide();
+  if (typeof this._joinRemoveCb == 'function') this._joinRemoveCb();
+  this._hide();
 };
 
 /**
@@ -5417,31 +5494,23 @@ pui.joins.JoinEditor.prototype.show = function(e){
   var parfile = this.joinLine.join.parentTable.displayName;
   var childfile = this.joinLine.join.childTable.displayName;
 
-  this.headerTitle.innerHTML = pui["getLanguageText"]("runtimeText", "join props x to y", [parfile, this.joinLine.parentField, childfile, this.joinLine.childField]);
-  this._radio1Label.innerHTML = pui["getLanguageText"]("runtimeText","inner join label");
-  this._radio2Label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [parfile, childfile]);
-  this._radio3Label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [childfile, parfile]);
-
-  if (this.joinLine.join.type == "INNER"){
-    this.radio1.checked = true;
-    this._radio2.checked = false;
-    this._radio3.checked = false;
-  }else if(this.joinLine.join.type == "LEFT"){
-    this.radio1.checked = false;
-    this._radio2.checked = true;
-    this._radio3.checked = false;
-  }else{
-    this.radio1.checked = false;
-    this._radio2.checked = false;
-    this._radio3.checked = true;
-  }
+  this._headerTitle.innerHTML = pui["getLanguageText"]("runtimeText", "join props x to y", [parfile, this.joinLine.parentField, childfile, this.joinLine.childField]);
   
-  // Show the dialog.
-  var scrollx = document.documentElement ? document.documentElement.scrollLeft : document.body.scrollLeft;
-  var scrolly = document.documentElement ? document.documentElement.scrollTop : document.body.scrollTop;
+  this._radios[1].label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [parfile, childfile]);
+  this._radios[2].label.innerHTML = pui["getLanguageText"]("runtimeText", "join label x y", [childfile, parfile]);
 
-  var w = document.body.offsetWidth;
-  var h = document.body.offsetHeight;
+  // If the type is INNER, the first radio button gets checked and the others unchecked; LEFT -> second checked; RIGHT -> third checked.
+  for (var i=0, n=this._radios.length; i < n; i++){
+    var rad = this._radios[i].el;
+    rad.checked = (this.joinLine.join.type == rad.value);
+  }
+
+  // Show the dialog.
+  var scrollx = this.joinArea.domEl.scrollLeft;
+  var scrolly = this.joinArea.domEl.scrollTop;
+
+  var w = this.joinArea.domEl.offsetWidth;
+  var h = this.joinArea.domEl.offsetHeight;
   if (w == null) w = 10000;
   if (h == null) h = 10000;
   w = w - 325;  // substruct width of dialog and scrollbar
@@ -5460,19 +5529,21 @@ pui.joins.JoinEditor.prototype.show = function(e){
   top = top - 100;
   if (top < 0) top = 0;
   if (left > w) left = w;    
-  this.div.style.left = left + "px";
-  this.div.style.top = top + "px";
-  this.div.style.visibility = "visible";
-  this.div.style.display = "";
-  this.radio1.focus();
+  this._div.style.left = left + "px";
+  this._div.style.top = top + "px";
+  this._div.style.visibility = "visible";
+  this._div.style.display = "";
+  this._radios[0].el.focus();
   this._boundHideCheck = this._hideCheck.bind(this);  //Let the hideCheck function's "this" point to this JoinEditor object.
   document.body.addEventListener("click", this._boundHideCheck);
 };
 
-pui.joins.JoinEditor.prototype.hide = function() {
-  this.div.style.visibility = "hidden";
-  this.div.style.display = "none";
-  this.joinLine.join = null;
+/**
+ * Handle clicking on the Hide button. "this" must be bound to the JoinEditor.
+ */
+pui.joins.JoinEditor.prototype._hide = function() {
+  this._div.style.visibility = "hidden";
+  this._div.style.display = "none";
   this.joinLine = null;
   document.body.removeEventListener("click", this._boundHideCheck);
 };
@@ -5488,11 +5559,8 @@ pui.joins.JoinEditor.prototype._hideCheck = function(e) {
     if (elem.isJoinEditor) return;
     elem = elem.parentNode;
   }
-  this.hide();    //TODO: test this.
+  this._hide();
 };
-
-//TODO: can these Join objects deal with JoinableTable objects instead of the TRs?
-// Note: FileTree needs IDs of files for .contains().
 
 /**
  * Contains join information between two files. Joins fall into a tree hierarchy with
@@ -5515,6 +5583,7 @@ pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
   this.parentTable = pparentEl.joinableTable;
   this.childTable = pchildEl.joinableTable;
   /*
+   * Join Conditions (encapsulated by JoinLines).
    * @type Array.<pui.join.JoinLine>
    */
   this.lines = [];
@@ -5559,8 +5628,10 @@ pui.joins.Join.prototype.removeCondition = function(cond){
  * @param {Number} index   Index in this.lines of a joinline to modify.
  */
 pui.joins.Join.prototype.drawConnector = function(index){
-  var x1 = this.lines[index].parentEl.offsetLeft + this.parentTable.getLeft();
-  var x2 = this.lines[index].childEl.offsetLeft + this.childTable.getLeft();
+  var parXY = this.parentTable.getXY();
+  var childXY = this.childTable.getXY();
+  var x1 = this.lines[index].parentEl.offsetLeft + parXY[0];
+  var x2 = this.lines[index].childEl.offsetLeft + childXY[0];
 
   if (x1 <= x2){ //fromEl is left of toEl: start line on right edge instead of left.
     x1 += this.lines[index].parentEl.offsetWidth;
@@ -5568,13 +5639,13 @@ pui.joins.Join.prototype.drawConnector = function(index){
     x2 += this.lines[index].childEl.offsetWidth; //target is left of origin: end line on right edge.
   }
 
-  var y1 = this.lines[index].parentEl.offsetTop + this.parentTable.getTop();
+  var y1 = this.lines[index].parentEl.offsetTop + parXY[1];
   if (pui["is_firefox"]) y1 += this.parentTable.getCaptionHeight(); //The caption changes the row offset now.
 
   var orig_height = this.lines[index].parentEl.offsetHeight;
   y1 += Math.floor(orig_height / 2);
 
-  var y2 = this.lines[index].childEl.offsetTop + this.childTable.getTop();
+  var y2 = this.lines[index].childEl.offsetTop + childXY[1];
   if (pui["is_firefox"]) y2 += this.childTable.getCaptionHeight();
 
   var targ_height = this.lines[index].childEl.offsetHeight;
@@ -5612,16 +5683,16 @@ pui.joins.Join.prototype.setType = function(ptype){
 
 /**
  * Return true if the join condition exists on the tables already. Else return false. Assume something already verified that both 
- * arguments are part of the join, and the 1st argument is in the parent table, the 2nd argument is in the child.
- * @param {Object} parentTR
- * @param {Object} childTR
+ * arguments are part of the join, the 1st argument is in the parent table, and the 2nd argument is in the child.
+ * @param {String} parentField
+ * @param {String} childField
  * @returns {Boolean}
  */
-pui.joins.Join.prototype.conditionExists = function(parentTR, childTR){
+pui.joins.Join.prototype.conditionExists = function(parentField, childField){
   // Look for the IDs of the fields in each join condition.
   for (var i=0; i < this.lines.length; i++){
     var line = this.lines[i];
-    if (line.parentEl.id == parentTR.id && line.childEl == childTR.id) return true;
+    if (line.parentField == parentField && line.childField == childField) return true;
   }
   return false;
 };
@@ -5774,7 +5845,7 @@ pui.joins.JoinLine.prototype.destroy = function(){
   pui.deleteOwnProperties.call(this);
 };
 
-// TODO: would it be appropriate to use the shadow DOM for this?
+// TODO: would it be appropriate to use the shadow DOM for this? 
 
 /**
  * Object to contain the hierarchy of joined files, to help construct the SQL statements, and to decide when a new join may be allowed.
@@ -5795,7 +5866,7 @@ pui.joins.FileTree = function(joinArea){
   this._rootId = joinArea.rootId; //Stored varname for detecting root; used when emptying table.
   this._namelist[this._rootId] = false;
 
-  this._tree = this._createAndAddNode(document.body, this._rootId, null);
+  this._tree = this._createAndAddNode(joinArea.domEl, this._rootId, null);
   this._tree.style.display = "none";
     
   this.joinArea = joinArea;
@@ -5894,7 +5965,7 @@ pui.joins.FileTree.prototype._findNode = function(name){
 
 /**
  * Create a new internal tree node identified by the name, and add it as a child of the parent argument. Use DOM elements as the 
- * tree nodes, because they already implement the methods we need.
+ * tree nodes, because they already implement the tree-searching methods we need.
  * @param {Object} parentNode
  * @param {String} childName    A unique ID identifying a node.
  * @param {Object} join
@@ -5980,7 +6051,7 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
   for (var i=0, n=this.joinArea.joinableTables.length; i < n; i++){
     var table = this.joinArea.joinableTables[i];
     if (table.id == nodeId){
-      this._structPointer["xy"] = [ table.getLeft(), table.getTop() ];
+      this._structPointer["xy"] = table.getXY();
       break;
     }
   }
