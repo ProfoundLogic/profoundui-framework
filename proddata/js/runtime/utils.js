@@ -5506,13 +5506,10 @@ pui.joins.JoinEditor.prototype.show = function(e){
   // Show the dialog's top/left over the mouse click and slightly up and left.
   var editorWidth = 395, editorHeight = 222;
   var offsets = pui.getOffset(this.joinArea.domEl);
-  var left = e.clientX - offsets[0] + this.joinArea.domEl.scrollLeft - editorWidth * 0.25;
-  var top = e.clientY - offsets[1] + this.joinArea.domEl.scrollTop - editorHeight * 0.50;
-  
-  var areaWidth = this.joinArea.domEl.scrollWidth;
-  var areaHeight = this.joinArea.domEl.scrollHeight;
-  if (left > areaWidth) left = areaWidth - editorWidth;
-  if (top > areaHeight) top = areaHeight - editorHeight;
+  var bodyscrollx = document.documentElement ? document.documentElement.scrollLeft : document.body.scrollLeft;
+  var bodyscrolly = document.documentElement ? document.documentElement.scrollTop : document.body.scrollTop;
+  var left = e.clientX - offsets[0] - editorWidth * 0.25 + bodyscrollx;
+  var top = e.clientY - offsets[1] - editorHeight * 0.50 + bodyscrolly;
   if (left < 10) left = 10;
   if (top < 10) top = 10;
   
