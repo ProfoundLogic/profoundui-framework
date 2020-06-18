@@ -4867,7 +4867,7 @@ pui.joins.JoinArea.prototype.hideInfobox = function(){
 /**
  * Make the SVG section larger when tables are moved beyond the parent area. Called directly in JumpStart after "Retrieve Fields"
  * adds tables and when tables are moved via mouse as a callback bound to a JoinArea object. 
- * @param {Undefined|pui.joins.JoinArea} joinArea  When called from a timeout, the parameter is a JoinArea object; "this" won't be set.
+ * @param {undefined|pui.joins.JoinArea} joinArea  When called from a timeout, the parameter is a JoinArea object; "this" won't be set.
  */
 pui.joins.JoinArea.prototype.expandSvg = function(joinArea){
   if (joinArea == null) joinArea = this;    //When called directly on a JoinArea object, "this" is the JoinArea object.
@@ -5168,16 +5168,14 @@ pui.joins.JoinableTable.prototype.render = function(){
 /**
  * For each join connector in a JoinableTable, call drawConnectors. Note: when this is assigned as "movecb" to the pui.makeMovable 
  * params, "this" refers to the "params" object unless bind is used as in render.
- * @param {Event} e       Mouse move event
  */
-pui.joins.JoinableTable.prototype._moveCb = function(e){
+pui.joins.JoinableTable.prototype._moveCb = function(){
+  // These get to be drawn on each movement event.
   for (var i=0; i < this.joinlist.length; i++){
     this.joinlist[i].drawConnectors();
   }
-  // Expanding is visibly slow; wait 50ms after mouse movement stops before starting to expand the SVG section.
-  this.joinArea.queueExpand(50);
-  
-  //TODO: do throttling by dropping events rather than waiting for movement to stop. always execute the last one, however?
+  // Expanding is visibly slow, so do nothing until movement has stopped for 10ms. (10 works well in all browsers, including IE10.)
+  this.joinArea.queueExpand(10);
 };
 
 /**
@@ -5369,7 +5367,7 @@ pui.joins.JoinEditor = function(joinArea, joinRemoveCb, lastConditionRemoveCb, j
   this._joinRemoveCb = joinRemoveCb;
   this._lastConditionRemoveCb = lastConditionRemoveCb;
   this._joinModifyCb = joinModifyCb;
-}
+};
 
 pui.joins.JoinEditor.prototype.init = function() {
   // Private class properties
@@ -5449,7 +5447,7 @@ pui.joins.JoinEditor.prototype.init = function() {
   this.joinArea.domEl.appendChild(this._div);
   
   // Allow the join editor window to be moved via mouse.  
-  pui.makeMovable({attachto: dialogHeader, move: this._div, opacity:85, upcb: this._radios[0].el.focus.bind(this._radios[0].el) });
+  pui.makeMovable({attachto: dialogHeader, move: this._div, opacity:85});
 };
 
 // Handle clicking the Modify button. "this" should be bound to this JoinEditor.
@@ -5502,38 +5500,27 @@ pui.joins.JoinEditor.prototype.show = function(e){
   // If the type is INNER, the first radio button gets checked and the others unchecked; LEFT -> second checked; RIGHT -> third checked.
   for (var i=0, n=this._radios.length; i < n; i++){
     var rad = this._radios[i].el;
-    rad.checked = (this.joinLine.join.type == rad.value);
+    rad.checked = (rad.value == this.joinLine.join.type);
   }
-
-  // Show the dialog.
-  var scrollx = this.joinArea.domEl.scrollLeft;
-  var scrolly = this.joinArea.domEl.scrollTop;
-
-  var w = this.joinArea.domEl.offsetWidth;
-  var h = this.joinArea.domEl.offsetHeight;
-  if (w == null) w = 10000;
-  if (h == null) h = 10000;
-  w = w - 325;  // substruct width of dialog and scrollbar
-  h = h - 240;  // substruct height of dialog plus a little
-  if (w < 0) w = 0;
-  if (h < 0) h = 0;
-
-  var left = 0;
-  if (e.pageX != null) left += e.pageX;     //Position on the BODY absolutely.
-  else left += e.clientX + scrollx;
-
-  var top = 0;
-  if (e.pageY != null) top += e.pageY;     //Position on the BODY absolutely.
-  else top += e.clientY + scrolly;
-
-  top = top - 100;
-  if (top < 0) top = 0;
-  if (left > w) left = w;    
+  
+  // Show the dialog's top/left over the mouse click and slightly up and left.
+  var editorWidth = 395, editorHeight = 222;
+  var offsets = pui.getOffset(this.joinArea.domEl);
+  var left = e.clientX - offsets[0] + this.joinArea.domEl.scrollLeft - editorWidth * 0.25;
+  var top = e.clientY - offsets[1] + this.joinArea.domEl.scrollTop - editorHeight * 0.50;
+  
+  var areaWidth = this.joinArea.domEl.scrollWidth;
+  var areaHeight = this.joinArea.domEl.scrollHeight;
+  if (left > areaWidth) left = areaWidth - editorWidth;
+  if (top > areaHeight) top = areaHeight - editorHeight;
+  if (left < 10) left = 10;
+  if (top < 10) top = 10;
+  
   this._div.style.left = left + "px";
   this._div.style.top = top + "px";
   this._div.style.visibility = "visible";
   this._div.style.display = "";
-  this._radios[0].el.focus();
+
   this._boundHideCheck = this._hideCheck.bind(this);  //Let the hideCheck function's "this" point to this JoinEditor object.
   document.body.addEventListener("click", this._boundHideCheck);
 };
