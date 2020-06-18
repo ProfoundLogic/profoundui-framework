@@ -6004,31 +6004,22 @@ pui.joins.FileTree.prototype._defaultFilestructFromId = function(id, struct){
  * @returns {Object}
  */
 pui.joins.FileTree.prototype.getTree = function(filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb){
-  if (typeof filestructCb == 'function') this._filestructFromId = filestructCb;
-  else this._filestructFromId = this._defaultFilestructFromId;
-  
-  this._fromclauseCb = fromclauseCb;
-  this._joinCb = joinCb;
-  this._joinonCb = joinonCb;
-  this._joinonandCb = joinonandCb;
+  if (typeof filestructCb != 'function') filestructCb = this._defaultFilestructFromId;
   
   var struct = {};
-  this._filestructFromId(this._rootId, struct); //Populate struct with necessary fields.
+  filestructCb(this._rootId, struct); //Populate struct with necessary fields.
   if (this._tree.childNodes.length > 0){
     struct.childNodes = [];
   }
   
   this._structPointer = struct;
-  this._preorderDFS(this._tree);
-  delete this._structPointer;
+  this._preorderDFS(this._tree, filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb);
+  
   return struct;
 };
 
-/**
- * Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
- * @param {Object} node
- */
-pui.joins.FileTree.prototype._preorderDFS = function(node){
+// Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
+pui.joins.FileTree.prototype._preorderDFS = function(node, filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb){
   
   var join = node.joinP;
   var nodeId = node.getAttribute("fvn");
@@ -6041,12 +6032,12 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
   }
 
   if (join == null){
-    if (typeof this._fromclauseCb == 'function') this._fromclauseCb(this._rootId);
+    if (typeof fromclauseCb == 'function') fromclauseCb(this._rootId);
   }
   else {
-    if (typeof this._joinCb == 'function') this._joinCb(join.childTable.id, join.type);
+    if (typeof joinCb == 'function') joinCb(join.childTable.id, join.type);
 
-    this._filestructFromId(join.childTable.id, this._structPointer);
+    filestructCb(join.childTable.id, this._structPointer);
     this._structPointer["joinP"] = {
       "type": join.type
     };
@@ -6064,10 +6055,10 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
     }
 
     var line = join.lines[0];
-    if (typeof this._joinonCb == 'function') this._joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
+    if (typeof joinonCb == 'function') joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     for (var i=1; i < join.lines.length; i++){
       line = join.lines[i];
-      if (typeof this._joinonCb == 'function') this._joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
+      if (typeof joinonandCb == 'function') joinonandCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     }
   }
 
@@ -6075,7 +6066,7 @@ pui.joins.FileTree.prototype._preorderDFS = function(node){
     var callstackNode = this._structPointer;
     this._structPointer.childNodes[i] = {};
     this._structPointer = this._structPointer.childNodes[i];
-    this._preorderDFS(node.childNodes[i]);
+    this._preorderDFS(node.childNodes[i], filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb);
     this._structPointer = callstackNode;
   }
 };
