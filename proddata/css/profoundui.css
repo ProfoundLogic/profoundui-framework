@@ -2267,7 +2267,7 @@ div.ace_folding-enabled>div.ace_gutter-cell {
   transform-origin: 0 0;
 }
 
-.ui-btn input, .ui-btn button {
+.ui-btn button {
   z-index: 2;
 }
 
