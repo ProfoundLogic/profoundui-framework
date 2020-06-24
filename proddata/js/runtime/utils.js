@@ -4773,7 +4773,7 @@ pui.joins.JoinArea = function(params){
   this.domEl = null;
   this.svg = null;
   
-  // Tree used to manage which joins are valid.
+  // Tree used to manage which joins are valid. Expect code that calls init() to construct this.
   this.filetree = null;
   // Id of the first JoinableTable, onto which other tables can join.
   this.rootId = params.rootId;
@@ -4807,8 +4807,9 @@ pui.joins.JoinArea = function(params){
  * Set the internal DOM element, create and add web elements to the DOM element.
  * Expect this to be loaded after the document.body has loaded.
  * @param {Object|Element} domEl 
+ * @param {Function} fileTreeConstructor   The constructor to a FileTree class; e.g. pui.joins.FileTree.
  */
-pui.joins.JoinArea.prototype.init = function(domEl){
+pui.joins.JoinArea.prototype.init = function(domEl, fileTreeConstructor){
   this.domEl = domEl;
   
   this.svg = document.createElementNS(pui.SVGNS, "svg");
@@ -4818,7 +4819,7 @@ pui.joins.JoinArea.prototype.init = function(domEl){
   domEl.appendChild(this.svg);
   
   // Create object needed for managing joins.
-  this.filetree = new pui.joins.FileTree(this);
+  this.filetree = new fileTreeConstructor(this);
   
   this.joineditor.init();
 };
@@ -4978,25 +4979,24 @@ pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb){
     if (joinableTable){
       if (v["xy"] instanceof Array) joinableTable.setLeftTop(v["xy"]);
       if (typeof tableFoundCb == 'function') tableFoundCb(joinableTable, v);
+      var myrows = joinableTable.tableBody.rows;
       if (v["joinP"] != null){
-        var parentVarname =  v.parent["varname"];
+        var parentVarname = v.parent["varname"];
         joinableTable = appgen.joinArea.getTable(parentVarname);
         if (joinableTable){
-          var parentrows = getObj('joinlist_' + parentVarname).tBodies[0].rows;
-
-          var myrows = getObj('joinlist_' + myvarname).tBodies[0].rows;
-
+          var parentrows = joinableTable.tableBody.rows;
+          
           // Look at each condition. Find the rows in the child and parent tables matching those.
           for (i=0, cond; (cond = v["joinP"]["conditions"][i]); i++){
             var currow, parentrow, myrow, j;
             for (j=0; (currow = parentrows[j]); j++){
-              if (cond["parentField"] == currow.fieldInfo["field"]){
+              if (cond["parentField"] == currow.fieldId){
                 parentrow = currow;
                 break;
               }
             }
             for (j=0; (currow = myrows[j]); j++){
-              if (cond["childField"] == currow.fieldInfo["field"]){
+              if (cond["childField"] == currow.fieldId){
                 myrow = currow;
                 break;
               }
@@ -5985,41 +5985,38 @@ pui.joins.FileTree.prototype.getJoinFromIds = function(id1, id2){
 };
 
 /**
- * Default callback for _preorderDFS finding a node. Sets properties on the filetree so it can be exported.
- * @param {String} id
- * @param {Object} struct
+ * Called by _preorderDFS when a node is found. Sets properties on the filetree so it can be exported. (Overridden by child class.)
+ * @param {String} id       Input. The unique identifier for a file.
+ * @param {Object} struct   Output. The struct gets modified.
  */
-pui.joins.FileTree.prototype._defaultFilestructFromId = function(id, struct){
+pui.joins.FileTree.prototype._setObjectWithId = function(id, struct){
   struct["id"] = id;
 };
 
 /**
  * Returns an object representing the tree in a serializable structure. Executes callbacks that can be used to generate an SQL string.
  * Callbacks are passed file IDs.
- * @param {Undefined|Function} filestructCb  e.g. writes struct["id"] = id;
- * @param {Undefined|Function} fromclauseCb  e.g. generates "FROM file1 AS f1".
- * @param {Undefined|Function} joinCb        e.g. generates "JOIN file2 AS f2".
- * @param {Undefined|Function} joinonCb      e.g. generates " ON f2.col1 = f1.col1"
- * @param {Undefined|Function} joinonandCb   e.g. generates " AND f2.col2 = f1.col2"
+ * @param {undefined|Function} fromclauseCb  e.g. generates "FROM file1 AS f1".
+ * @param {undefined|Function} joinCb        e.g. generates "JOIN file2 AS f2".
+ * @param {undefined|Function} joinonCb      e.g. generates " ON f2.col1 = f1.col1"
+ * @param {undefined|Function} joinonandCb   e.g. generates " AND f2.col2 = f1.col2"
  * @returns {Object}
  */
-pui.joins.FileTree.prototype.getTree = function(filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb){
-  if (typeof filestructCb != 'function') filestructCb = this._defaultFilestructFromId;
-  
+pui.joins.FileTree.prototype.getTree = function(fromclauseCb, joinCb, joinonCb, joinonandCb){
   var struct = {};
-  filestructCb(this._rootId, struct); //Populate struct with necessary fields.
+  this._setObjectWithId(this._rootId, struct); //Populate struct with necessary fields.
   if (this._tree.childNodes.length > 0){
     struct.childNodes = [];
   }
   
   this._structPointer = struct;
-  this._preorderDFS(this._tree, filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb);
+  this._preorderDFS(this._tree, fromclauseCb, joinCb, joinonCb, joinonandCb);
   
   return struct;
 };
 
 // Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
-pui.joins.FileTree.prototype._preorderDFS = function(node, filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb){
+pui.joins.FileTree.prototype._preorderDFS = function(node, fromclauseCb, joinCb, joinonCb, joinonandCb){
   
   var join = node.joinP;
   var nodeId = node.getAttribute("fvn");
@@ -6037,7 +6034,7 @@ pui.joins.FileTree.prototype._preorderDFS = function(node, filestructCb, fromcla
   else {
     if (typeof joinCb == 'function') joinCb(join.childTable.id, join.type);
 
-    filestructCb(join.childTable.id, this._structPointer);
+    this._setObjectWithId(join.childTable.id, this._structPointer);
     this._structPointer["joinP"] = {
       "type": join.type
     };
@@ -6066,7 +6063,7 @@ pui.joins.FileTree.prototype._preorderDFS = function(node, filestructCb, fromcla
     var callstackNode = this._structPointer;
     this._structPointer.childNodes[i] = {};
     this._structPointer = this._structPointer.childNodes[i];
-    this._preorderDFS(node.childNodes[i], filestructCb, fromclauseCb, joinCb, joinonCb, joinonandCb);
+    this._preorderDFS(node.childNodes[i], fromclauseCb, joinCb, joinonCb, joinonandCb);
     this._structPointer = callstackNode;
   }
 };
