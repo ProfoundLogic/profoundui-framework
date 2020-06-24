@@ -5996,13 +5996,9 @@ pui.joins.FileTree.prototype._setObjectWithId = function(id, struct){
 /**
  * Returns an object representing the tree in a serializable structure. Executes callbacks that can be used to generate an SQL string.
  * Callbacks are passed file IDs.
- * @param {undefined|Function} fromclauseCb  e.g. generates "FROM file1 AS f1".
- * @param {undefined|Function} joinCb        e.g. generates "JOIN file2 AS f2".
- * @param {undefined|Function} joinonCb      e.g. generates " ON f2.col1 = f1.col1"
- * @param {undefined|Function} joinonandCb   e.g. generates " AND f2.col2 = f1.col2"
  * @returns {Object}
  */
-pui.joins.FileTree.prototype.getTree = function(fromclauseCb, joinCb, joinonCb, joinonandCb){
+pui.joins.FileTree.prototype.getTree = function(){
   var struct = {};
   this._setObjectWithId(this._rootId, struct); //Populate struct with necessary fields.
   if (this._tree.childNodes.length > 0){
@@ -6010,13 +6006,22 @@ pui.joins.FileTree.prototype.getTree = function(fromclauseCb, joinCb, joinonCb, 
   }
   
   this._structPointer = struct;
-  this._preorderDFS(this._tree, fromclauseCb, joinCb, joinonCb, joinonandCb);
+  this._preorderDFS(this._tree);
   
   return struct;
 };
 
+// Placeholder. Child class overrides; e.g. generate "FROM file1 AS f1".
+pui.joins.FileTree.prototype._fromclause = function(tableId){};
+// Placeholder. Child class overrides; e.g. generate "JOIN file2 AS f2"
+pui.joins.FileTree.prototype._joinclause = function(tableId, joinType){};
+// Placeholder. Child class overrides; e.g. generate " ON f2.col1 = f1.col1"
+pui.joins.FileTree.prototype._joinonclause = function(parentTableId, childTableId, parentFieldId, childFieldId){};
+// Placeholder. Child class overrides; e.g. generate " AND f2.col2 = f1.col2"
+pui.joins.FileTree.prototype._joinonandclause = function(parentTableId, childTableId, parentFieldId, childFieldId){};
+
 // Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
-pui.joins.FileTree.prototype._preorderDFS = function(node, fromclauseCb, joinCb, joinonCb, joinonandCb){
+pui.joins.FileTree.prototype._preorderDFS = function(node){
   
   var join = node.joinP;
   var nodeId = node.getAttribute("fvn");
@@ -6029,10 +6034,10 @@ pui.joins.FileTree.prototype._preorderDFS = function(node, fromclauseCb, joinCb,
   }
 
   if (join == null){
-    if (typeof fromclauseCb == 'function') fromclauseCb(this._rootId);
+    this._fromclause(this._rootId);
   }
   else {
-    if (typeof joinCb == 'function') joinCb(join.childTable.id, join.type);
+    this._joinclause(join.childTable.id, join.type);
 
     this._setObjectWithId(join.childTable.id, this._structPointer);
     this._structPointer["joinP"] = {
@@ -6052,10 +6057,10 @@ pui.joins.FileTree.prototype._preorderDFS = function(node, fromclauseCb, joinCb,
     }
 
     var line = join.lines[0];
-    if (typeof joinonCb == 'function') joinonCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
+    this._joinonclause(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     for (var i=1; i < join.lines.length; i++){
       line = join.lines[i];
-      if (typeof joinonandCb == 'function') joinonandCb(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
+      this._joinonandclause(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
     }
   }
 
@@ -6063,7 +6068,7 @@ pui.joins.FileTree.prototype._preorderDFS = function(node, fromclauseCb, joinCb,
     var callstackNode = this._structPointer;
     this._structPointer.childNodes[i] = {};
     this._structPointer = this._structPointer.childNodes[i];
-    this._preorderDFS(node.childNodes[i], fromclauseCb, joinCb, joinonCb, joinonandCb);
+    this._preorderDFS(node.childNodes[i]);
     this._structPointer = callstackNode;
   }
 };
