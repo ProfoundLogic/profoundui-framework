@@ -4758,10 +4758,7 @@ pui.joins = {};
  * @constructor
  */
 pui.joins.JoinArea = function(params){
-  // Private
-  this._joinLoadCb = params.joinLoadCb;
-  
-  
+
   // Public
   /**
    * @type Array.<pui.joins.JoinableTable>
@@ -4787,11 +4784,7 @@ pui.joins.JoinArea = function(params){
   
   this.movetimeout = null;    //Slow SVG expanding should not happen each time mousemove fires.
   
-  this.joindropCb = params.joindropCb;    //Callback for join ondrop.
-  
-  this.joinAddLinkCb = params.joinAddLinkCb;    //FileTree child file was linked to parent file.
-  
-  this.joineditor = new pui.joins.JoinEditor(this, params.joinRemoveCb, params.lastConditionRemoveCb, params.joinModifyCb);
+  this.joineditor = null; //A dialog for modifying the join type or removing the join.
   
   this.joinStrokeColor = "rgb(135,135,135)"; //Value for the stroke and fill attributes of join lines.
   this.joinLinkColor = "rgb(0,0,255)";       //Value for fill attribute of join line middle shape.
@@ -4804,12 +4797,13 @@ pui.joins.JoinArea = function(params){
 };
 
 /**
- * Set the internal DOM element, create and add web elements to the DOM element.
+ * Set the internal DOM element, create and add web elements to the DOM element. Construct FileTree and JoinEditor.
  * Expect this to be loaded after the document.body has loaded.
  * @param {Object|Element} domEl 
- * @param {Function} fileTreeConstructor   The constructor to a FileTree class; e.g. pui.joins.FileTree.
+ * @param {FileTree|undefined} filetreeConst      A FileTree constructor. defaults to pui.joins.FileTree.
+ * @param {JoinEditor|undefined} joineditorConst  A JoinEditor constructor. defaults to pui.joins.JoinEditor.
  */
-pui.joins.JoinArea.prototype.init = function(domEl, fileTreeConstructor){
+pui.joins.JoinArea.prototype.init = function(domEl, filetreeConst, joineditorConst){
   this.domEl = domEl;
   
   this.svg = document.createElementNS(pui.SVGNS, "svg");
@@ -4818,15 +4812,17 @@ pui.joins.JoinArea.prototype.init = function(domEl, fileTreeConstructor){
   this.svg.setAttribute("class","join");
   domEl.appendChild(this.svg);
   
-  // Create object needed for managing joins.
-  this.filetree = new fileTreeConstructor(this);
+  if (filetreeConst == null) filetreeConst = pui.joins.FileTree;
+  this.filetree = new filetreeConst(this);
   
+  if (joineditorConst == null) joineditorConst = pui.joins.JoinEditor;
+  this.joineditor = new joineditorConst(this);
   this.joineditor.init();
 };
 
 /**
  * Add a JoinableTable to this JoinArea list, add it to the DOM, and render it.
- * @param {pui.joins.JoinableTable} jt
+ * @param {JoinableTable} jt
  */
 pui.joins.JoinArea.prototype.addAndRenderTable = function(jt){
   jt.joinArea = this;
@@ -4951,7 +4947,7 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
 /**
  * Find and return a JoinableTable in the JoinArea given an id.
  * @param {String} id
- * @returns {pui.joins.JoinableTable|undefined}
+ * @returns {JoinableTable|undefined}
  */
 pui.joins.JoinArea.prototype.getTable = function(id){
   for (var i=0, n=this.joinableTables.length; i < n; i++){
@@ -4962,9 +4958,10 @@ pui.joins.JoinArea.prototype.getTable = function(id){
 /**
  * Given a tree of JSON objects representing saved Join data, load the tree into JoinableTables and create joins.
  * @param {Object} root
- * @param {Function|undefined} tableFoundCb    Called for each file/table found in the tree.
+ * @param {Function|undefined} tableFoundCb    Called for each file/table found in the tree. Passed a joinableTable and a node.
+ * @param {Function|undefined} joinLinkedCb    Called after a join is made on two fields.
  */
-pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb){
+pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb, joinLinkedCb){
   // Breadth-first traversal of the join node tree.
   var i, v, w, cond;
   var queue = [ root ];
@@ -5004,8 +5001,7 @@ pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb){
 
             if (parentrow != null && currow != null){
               this.joinLinkRows(parentrow, myrow, v["joinP"]["type"]);
-              if (typeof this._joinLoadCb == 'function') this._joinLoadCb();
-              
+              if (typeof joinLinkedCb == 'function') joinLinkedCb();
             }
             else {
               console.log('Failed to find tables matching the join fields:', cond["parentField"], cond["childField"]);
@@ -5070,7 +5066,7 @@ pui.joins.JoinableTable = function(params){
   this.fields = JSON.parse(JSON.stringify(params['fields']));
   /*
    * This gets set by pui.joins.JoinableTable.prototype.addAndRenderTable().
-   * @type pui.joins.JoinArea
+   * @type JoinArea
    */
   this.joinArea = null;
   /*
@@ -5086,7 +5082,7 @@ pui.joins.JoinableTable = function(params){
 
 /**
  * Add the given join to this table's joinlist.
- * @param {pui.joins.Join} join
+ * @param {Join} join
  */
 pui.joins.JoinableTable.prototype.addJoin = function(join){
   this.joinlist.push(join);
@@ -5094,15 +5090,16 @@ pui.joins.JoinableTable.prototype.addJoin = function(join){
 
 /**
  * Remove the given join object from this table's joinlist.
- * @param {pui.joins.Join} join
+ * @param {Join} join
  */
 pui.joins.JoinableTable.prototype.removeJoin = function(join){
-  var i = 0;
-  while (i < this.joinlist.length){
-    if (this.joinlist[i] == join){
-      this.joinlist.splice(i, 1);
-    }else{
-      i++;
+  if (this.joinlist != null && this.joinlist.length > 0){ //joinlist could be missing if destroy was called prior to this.
+    for (var i=0, n=this.joinlist.length; i < n; ){
+      if (this.joinlist[i] == join){
+        this.joinlist.splice(i, 1);
+      }else{
+        i++;
+      }
     }
   }
 };
@@ -5232,7 +5229,6 @@ pui.joins.JoinableTable.prototype._ondrop = function(event){
   if (origfileId == null || origfileId == target_tr.joinableTable.id) return false; //Don't allow dropping on same table.
 
   ja.joinLinkRows(target_tr, origin_tr);
-  if (typeof ja.joindropCb == 'function') ja.joindropCb();
 };
 
 
@@ -5328,35 +5324,20 @@ pui.joins.JoinableTable.prototype._ondragend = function(event){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Join Editor Class
  * This is a popup window to remove or modify the join type.
- * @param {pui.joins.JoinArea} joinArea 
- * @param {Function|undefined} joinRemoveCb
- * @param {Function|undefined} lastConditionRemoveCb
- * @param {Function|undefined} joinModifyCb
- * @returns {pui.joins.JoinEditor}
+ * @param {JoinArea} joinArea 
+ * @returns {JoinEditor}
  * @constructor
  */
-pui.joins.JoinEditor = function(joinArea, joinRemoveCb, lastConditionRemoveCb, joinModifyCb) {
+pui.joins.JoinEditor = function(joinArea) {
   /*
-   * @type pui.joins.JoinArea
+   * @type JoinArea
    */
   this.joinArea = joinArea;
   /**
-   * @type pui.joins.JoinLine
+   * @type JoinLine
    */
   this.joinLine = null;
   
@@ -5364,9 +5345,6 @@ pui.joins.JoinEditor = function(joinArea, joinRemoveCb, lastConditionRemoveCb, j
   this._boundHide = this._hide.bind(this);
   
   this._radios = [];
-  this._joinRemoveCb = joinRemoveCb;
-  this._lastConditionRemoveCb = lastConditionRemoveCb;
-  this._joinModifyCb = joinModifyCb;
 };
 
 pui.joins.JoinEditor.prototype.init = function() {
@@ -5460,7 +5438,7 @@ pui.joins.JoinEditor.prototype._modify = function(){
     }
   }
   this.joinLine.join.setType(jointype);
-  if (typeof this._joinModifyCb == 'function') this._joinModifyCb();
+  this._modified();
   this._hide();
 };
 
@@ -5472,12 +5450,17 @@ pui.joins.JoinEditor.prototype._remove = function(){
   // If the condition is the last one, then remove the join.
   if (join.lines.length < 1){
     // Removes the younger file from jointree; also destroys the Join.
-    var removeQ = this.joinArea.filetree.remove(join.childTable.id, removeQ);
-    if (typeof this._lastConditionRemoveCb == 'function') this._lastConditionRemoveCb(removeQ);
+    var removeQ = this.joinArea.filetree.remove(join.childTable.id);
+    this._lastConditionRemoved(removeQ);
   }
-  if (typeof this._joinRemoveCb == 'function') this._joinRemoveCb();
+  this._removed();
   this._hide();
 };
+
+// Placeholders. Child class methods can override.
+pui.joins.JoinEditor.prototype._modified = function(){};
+pui.joins.JoinEditor.prototype._removed = function(){};
+pui.joins.JoinEditor.prototype._lastConditionRemoved = function(removeQ){};
 
 /**
  * Set the window title and radio label texts based on the joinLine object and shows the window.
@@ -5685,7 +5668,7 @@ pui.joins.Join.prototype.conditionExists = function(parentField, childField){
  * A join condition between two tables, including the graphical representation.
  * @param {Object} pparentEl TR element of the parent table.
  * @param {Object} pchildEl TR element of the child table.
- * @param {pui.joins.Join} join  Which Join references this line in its this.lines array.
+ * @param {Join} join  Which Join references this line in its this.lines array.
  * @constructor
  */
 pui.joins.JoinLine = function(pparentEl, pchildEl, join){
@@ -5698,7 +5681,7 @@ pui.joins.JoinLine = function(pparentEl, pchildEl, join){
   this.childField = pchildEl.fieldId;
   
   /*
-   * @type pui.joins.Join
+   * @type Join
    */
   this.join = join; //Needed for click events: which join condition owns this line.
                     //Allows removing after clicking on joinline. Also provides "type" for rendering.
@@ -5843,7 +5826,7 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * not null. Join.parent corresponds to the node's parent, whereas join.child corresponds to the node itself.
  * 
  * @constructor
- * @param {pui.joins.JoinArea} joinArea
+ * @param {JoinArea} joinArea
  */ 
 pui.joins.FileTree = function(joinArea){
   this._namelist = {}; //Quick lookup list. Keys are file IDs; values are not used.
@@ -5869,20 +5852,20 @@ pui.joins.FileTree.prototype.contains = function(fname){
 pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
   var parentName = parent_tr.joinableTable.id;
   var childName = child_tr.joinableTable.id;
-  if (!this.contains(parentName)) return;
-  var parent = this._findNode(parentName);  //Find the internal tree node.
-  if (!parent){
-    console.log("Tree failed to find parent file:",parentName);
-    return;
-  }
-  var join = new pui.joins.Join(this.joinArea, parent_tr, child_tr, joinType);
-  join.drawConnectors();
+  if (this.contains(parentName)){
+    var parent = this._findNode(parentName);  //Find the internal tree node.
+    if (!parent){
+      console.log("Tree failed to find parent file:",parentName);
+    }
+    else {
+      var join = new pui.joins.Join(this.joinArea, parent_tr, child_tr, joinType);
+      join.drawConnectors();
 
-  // Add child node to parent in the internal tree.
-  this._createAndAddNode(parent, childName, join);
-  this._namelist[childName] = false;
-  
-  if (typeof this.joinArea.joinAddLinkCb == 'function') this.joinArea.joinAddLinkCb(childName);
+      // Add child node to parent in the internal tree.
+      this._createAndAddNode(parent, childName, join);
+      this._namelist[childName] = false;
+    }
+  }
 };
 
 /**
@@ -5994,7 +5977,7 @@ pui.joins.FileTree.prototype._setObjectWithId = function(id, struct){
 };
 
 /**
- * Returns an object representing the tree in a serializable structure. Executes callbacks that can be used to generate an SQL string.
+ * Returns an object representing the tree in a serializable structure.
  * Callbacks are passed file IDs.
  * @returns {Object}
  */
@@ -6011,6 +5994,7 @@ pui.joins.FileTree.prototype.getTree = function(){
   return struct;
 };
 
+// Abstract methods for child classes to implement.
 // Placeholder. Child class overrides; e.g. generate "FROM file1 AS f1".
 pui.joins.FileTree.prototype._fromclause = function(tableId){};
 // Placeholder. Child class overrides; e.g. generate "JOIN file2 AS f2"
@@ -6020,7 +6004,7 @@ pui.joins.FileTree.prototype._joinonclause = function(parentTableId, childTableI
 // Placeholder. Child class overrides; e.g. generate " AND f2.col2 = f1.col2"
 pui.joins.FileTree.prototype._joinonandclause = function(parentTableId, childTableId, parentFieldId, childFieldId){};
 
-// Pre-Order depth-first-search of the tree starting at the given node. Builds sql and struct output.
+// Pre-Order depth-first-search of the tree starting at the given node. Write to struct, calls abstract methods.
 pui.joins.FileTree.prototype._preorderDFS = function(node){
   
   var join = node.joinP;
