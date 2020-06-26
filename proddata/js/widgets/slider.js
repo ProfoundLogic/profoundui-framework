@@ -343,6 +343,13 @@ pui.widgets.add({
       }
     }
     
+  },
+
+  globalAfterSetter: function(parms) {
+
+    if (parms.propertyName.indexOf("css class") === 0 && parms.dom.slider != null)
+      parms.dom.slider.draw();
+
   }
   
 });
