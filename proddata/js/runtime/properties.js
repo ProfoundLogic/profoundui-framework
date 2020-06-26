@@ -954,7 +954,8 @@ function getScreenPropertiesModel(designScreen) {
       { name: "onmessage", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script that receives a message from the Profound.js display.screen.write(), display.screen.execute(), or the display.screen.executeMessage() API, which allows you to partially update screen content instead of re-rendering the entire screen. The message is received in a variable named <b>message</b>.") },
 
       { name: "Misc", category: true }, 
-      { name: "user defined data", multOccur: true, help: pui.helpTextProperties("blank", "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.") }
+      { name: "user defined data", multOccur: true, help: pui.helpTextProperties("blank", "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.") },
+      { name: "user defined routine", multOccur: true, wf: true, bind: false, readOnly: true, help: pui.helpTextProperties("blank", "Specifies a routine that is not automatically triggered by an event. Instead, it can be called and reused by other routines. To provide multiple user defined routines, right-click the property and select Add Another User Defined Routine.") }, 
 
     ];
     return model;
