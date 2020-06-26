@@ -4772,8 +4772,6 @@ pui.joins.JoinArea = function(params){
   
   // Tree used to manage which joins are valid. Expect code that calls init() to construct this.
   this.filetree = null;
-  // Id of the first JoinableTable, onto which other tables can join.
-  this.rootId = params.rootId;
   
   // Right and bottom bounds (if defined) for dragging JoinTables inside the DOM element.
   this.moveRbound = params.moveRbound ? params.moveRbound : 2000;
@@ -4827,6 +4825,7 @@ pui.joins.JoinArea.prototype.init = function(domEl, filetreeConst, joineditorCon
 pui.joins.JoinArea.prototype.addAndRenderTable = function(jt){
   jt.joinArea = this;
   this.joinableTables.push(jt);
+  if (!this.filetree.hasRoot()) this.filetree.setRoot(jt);  //The first table added becomes FileTree root.
   jt.render();
   this.domEl.appendChild(jt.table);
 };
@@ -4904,7 +4903,7 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
   if (this.filetree.contains(targetFileId) && this.filetree.contains(sourceFileId)){
     // Both tables are connected in the tree to main already. Allow adding conditions
     // to an existing join; don't allow joining two child nodes (that would create a graph cycle).
-    var join = this.filetree.getJoinFromIds(targetFileId, sourceFileId);
+    var join = this.filetree.getJoinBetweenNodes(target_tr.joinableTable, origin_tr.joinableTable);
     if (join != null){
       // A join was found for the tables. Determine which TR is the parent and
       // which is the child. Then check if this condition already exists.
@@ -4936,11 +4935,34 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
   }
   else if(this.filetree.contains(targetFileId)){
     // Add the drag origin as a child of the drag target, creating a new join.
-    this.filetree.addLink(target_tr, origin_tr, joinType);
+    this._addLink(target_tr, origin_tr, joinType);
   }
   else if(this.filetree.contains(sourceFileId)){
     // Add the drag target as a child of the drag origin, creating a new join.
-    this.filetree.addLink(origin_tr, target_tr, joinType);
+    this._addLink(origin_tr, target_tr, joinType);
+  }
+};
+
+/**
+ * Link the child file to the parent file.
+ * @param {Object} parent_tr
+ * @param {Object} child_tr
+ * @param {String|Undefined} joinType
+ */
+pui.joins.JoinArea.prototype._addLink = function(parent_tr, child_tr, joinType){
+  var parentId = parent_tr.joinableTable.id;
+
+  if (this.filetree.contains(parentId)){
+    var parent = this.filetree.getNode(parentId);
+    if (!parent){
+      console.log("Tree failed to find parent file:",parentId);
+    }
+    else {
+      var join = new pui.joins.Join(this, parent_tr, child_tr, joinType);
+      join.drawConnectors();
+
+      this.filetree.addNode(child_tr.joinableTable);  //Add to quick list.
+    }
   }
 };
 
@@ -5027,6 +5049,7 @@ pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb, joinLinked
  * Clear/destroy all tables and remove DOM elements from this.domEl, and delete properties.
  */
 pui.joins.JoinArea.prototype.destroy = function(){
+  if (this.filetree) this.filetree.reset();
   this.clearTables();
   if (this.domEl) {
     if (this.infobox) this.domEl.removeChild(this.infobox);
@@ -5046,15 +5069,16 @@ pui.joins.JoinableTable = function(params){
   this._left = params.left;
   this._top = params.top;
   this._captionText = params.tableCaption;   //The text for the table caption.
+  
+  // Public:
+  this.id = params.id;    //A unique ID differentiating this table from others.
+  if (this.id == null) this.id = Math.random().toString(36).substring(2, 15); //generate pseudo-random string.
+  
+  this.parentJoin = null;
   /*
    * @type Array.<Join>
    */
-  this._childJoins = []; //When moving the table, join connectors in this list should be updated.
-
-  // Public:
-  this.id = params.id;    //A unique ID differentiating this table from others.
-  
-  this.parentJoin = null;
+  this.childJoins = [];
 
   // Display name appears in the JoinEditor.
   if (params.displayName){
@@ -5084,28 +5108,12 @@ pui.joins.JoinableTable = function(params){
   this.caption = null;
 };
 
-/**
- * Add the given join to this table's joinDrawList.
- * @param {Join} join
- */
-pui.joins.JoinableTable.prototype.addChildJoin = function(join){
-  this._childJoins.push(join);
-};
-
-/**
- * Remove the given join object from this table's joinlist.
- * @param {Join} join
- */
-pui.joins.JoinableTable.prototype.removeChildJoin = function(join){
-  if (this._childJoins != null && this._childJoins.length > 0){ //joinlist could be missing if destroy was called prior to this.
-    for (var i=0, n=this._childJoins.length; i < n; ){
-      if (this._childJoins[i] == join){
-        this._childJoins.splice(i, 1);
-      }else{
-        i++;
-      }
-    }
+// If a join exists to the given table, then return the join; else return null.
+pui.joins.JoinableTable.prototype.getParentJoinTo = function(table){
+  if (this.parentJoin != null && this.parentJoin.parentTable === table) {
+    return this.parentJoin;
   }
+  return null;
 };
 
 /**
@@ -5172,8 +5180,8 @@ pui.joins.JoinableTable.prototype.render = function(){
  */
 pui.joins.JoinableTable.prototype._moveCb = function(){
   // These get to be drawn on each movement event.
-  for (var i=0; i < this._childJoins.length; i++){
-    this._childJoins[i].drawConnectors();
+  for (var i=0; i < this.childJoins.length; i++){
+    this.childJoins[i].drawConnectors();
   }
   if (this.parentJoin != null) this.parentJoin.drawConnectors();
   
@@ -5219,7 +5227,7 @@ pui.joins.JoinableTable.prototype._ondrop = function(event){
   var target_tr = pui.getTRtargetRow(event);
   if (!target_tr || ! target_tr.joinableTable) return;
   
-  pui.removeCssClass(target_tr,"join_valid"); //clear the dragover visual feedback.
+  pui.removeCssClass(target_tr,"drop_valid"); //clear the dragover visual feedback.
 
   try {
     event.dataTransfer.getData("text/plain"); //result is ignored; not all browsers implement it the same.
@@ -5261,7 +5269,7 @@ pui.joins.JoinableTable.prototype._ondragover = function(event){
     return;
   }
   else if (containsOrig && containsTarg){
-    var join = ja.filetree.getJoinFromIds(targJTable.id, origJTable.id);
+    var join = ja.filetree.getJoinBetweenNodes(targJTable, origJTable);
     // Don't allow joining two connected nodes together; it would create a graph cycle.
     if (join == null){
       ja.showInfobox(pui["getLanguageText"]("runtimeMsg","one path main to child"));
@@ -5271,7 +5279,7 @@ pui.joins.JoinableTable.prototype._ondragover = function(event){
   ja.hideInfobox();
 
   designUtils.preventEvent(event);       //Let browser know that drop is allowed.
-  pui.addCssClass(target,"join_valid");  //Show visual feedback for drop.
+  pui.addCssClass(target,"drop_valid");  //Show visual feedback for drop.
   event.dataTransfer.dropEffect = "link";
 };
 
@@ -5282,7 +5290,7 @@ pui.joins.JoinableTable.prototype._ondragover = function(event){
 pui.joins.JoinableTable.prototype._ondragleave = function(event){
   designUtils.preventEvent(event);
   var target = pui.getTRtargetRow(event);
-  if (target) pui.removeCssClass(target,"join_valid");
+  if (target) pui.removeCssClass(target,"drop_valid");
 };
 
 /**
@@ -5300,7 +5308,7 @@ pui.joins.JoinableTable.prototype._ondragstart = function(event){
     // Set joinSourceTR so we can retrieve the drag source easily. Note: dataTransfer expects strings, IE dislikes setData, 
     // and dragover can't get the id from dataTransfer in Chrome.
     target.joinableTable.joinArea.joinSourceTR = target;
-    pui.addCssClass(target,"join_origin");
+    pui.addCssClass(target,"drag_origin");
 
     try {
       // Firefox requires setData before other drag events will fire.
@@ -5319,7 +5327,7 @@ pui.joins.JoinableTable.prototype._ondragstart = function(event){
 pui.joins.JoinableTable.prototype._ondragend = function(event){
   var target = pui.getTRtargetRow(event);
   if (target) {
-    pui.removeCssClass(target,"join_origin");   //Clear the visual feedback.
+    pui.removeCssClass(target,"drag_origin");   //Clear the visual feedback.
     var ja = target.joinableTable.joinArea;
     ja.joinSourceTR = null;   //Make sure the join rows don't react to other, non-join drag/drops.
     ja.hideInfobox();  //Hide the info box in case it appeared during drag.
@@ -5562,7 +5570,7 @@ pui.joins.Join = function(joinArea, pparentEl, pchildEl, joinType){
   this.lines = [];
   
   // Let the tables find this join so the connectors can move with it.
-  this.parentTable.addChildJoin(this);
+  this.parentTable.childJoins.push(this);
   this.childTable.parentJoin = this;
   
   this.addCondition(pparentEl, pchildEl);
@@ -5640,14 +5648,23 @@ pui.joins.Join.prototype.drawConnectors = function(){
   }
 };
 
+/**
+ * Removes all DOM elements associated with this Join, removes this join from the parent and child tables, deletes own properties.
+ */
 pui.joins.Join.prototype.destroy = function(){
   if (this.lines != null){
-    for(var i=0; i < this.lines.length; i++){
+    for (var i=0; i < this.lines.length; i++){
       this.lines[i].destroy();
     }
   }
-  this.parentTable.removeChildJoin(this);
-  this.childTable.parentJoin = null;
+
+  // Remove this join from the parent table's list of children.
+  if (this.parentTable && this.parentTable.childJoins && this.parentTable.childJoins.length > 0){
+    var idx = this.parentTable.childJoins.indexOf(this);
+    if (idx >= 0) this.parentTable.childJoins.splice(idx, 1);
+  }
+  
+  if (this.childTable) this.childTable.parentJoin = null;
   pui.deleteOwnProperties.call(this);
 };
 
@@ -5826,7 +5843,7 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * Object to contain the hierarchy of joined files, to help construct the SQL statements, and to decide when a new join may be allowed.
  * Object is created or emptied after all Retrieve Fields AJAX responses arrive.
  * 
- * Each file is a FileTreeNode in the tree, and the main file is the root node. A child node can only have one parent, but a parent 
+ * Each tree node is a JoinableTable, and the main file is the root node. A child node can only have one parent, but a parent 
  * may have many children; e.g. a node may be a child of the root or a grandchild, but not both. A file cannot exist
  * as multiple nodes in the tree.
  * 
@@ -5834,16 +5851,24 @@ pui.joins.JoinLine.prototype.destroy = function(){
  * not null. Join.parent corresponds to the node's parent, whereas join.child corresponds to the node itself.
  * 
  * @constructor
- * @param {JoinArea} joinArea
  */ 
-pui.joins.FileTree = function(joinArea){
+pui.joins.FileTree = function(){
   this._quicklist = {}; //Quick lookup list by file IDs.
-  this._rootId = joinArea.rootId; //Stored varname for detecting root; used when emptying table.  
-
-  this._tree = new pui.joins.FileTreeNode(null, this._rootId, null);
-  this._quicklist[this._rootId] = this._tree;
   
-  this.joinArea = joinArea;
+  this._tree = null;  // JoinableTable that has parentJoin null and may have childJoins.
+};
+
+pui.joins.FileTree.prototype.hasRoot = function(){
+  return this._tree != null;
+};
+
+pui.joins.FileTree.prototype.setRoot = function(table){
+  this._tree = table;
+  if (table != null) this._quicklist[table.id] = table;
+};
+
+pui.joins.FileTree.prototype.addNode = function(node){
+  this._quicklist[node.id] = node;
 };
 
 pui.joins.FileTree.prototype.contains = function(id){
@@ -5851,54 +5876,33 @@ pui.joins.FileTree.prototype.contains = function(id){
 };  
 
 /**
- * Link the child file to the parent file.
- * @param {Object} parent_tr
- * @param {Object} child_tr
- * @param {String|Undefined} joinType
- */
-pui.joins.FileTree.prototype.addLink = function(parent_tr, child_tr, joinType){
-  var parentId = parent_tr.joinableTable.id;
-  var childId = child_tr.joinableTable.id;
-  if (this.contains(parentId)){
-    var parent = this._getNode(parentId);  //Find the internal tree node.
-    if (!parent){
-      console.log("Tree failed to find parent file:",parentId);
-    }
-    else {
-      var join = new pui.joins.Join(this.joinArea, parent_tr, child_tr, joinType);
-      join.drawConnectors();
-
-      // Add child node to parent in the internal tree.
-      this._quicklist[childId] = new pui.joins.FileTreeNode(parent, childId, join);
-    }
-  }
-};
-
-/**
  * Reset the internal tree and namelist, and destroy all Join objects. Called after Retrieve Fields clicked more than once.
+ * Note: this must be called before JoinArea.clearTables, or else Join objects get orphaned.
  * @returns {Array.<String>} Collection of IDs of files that were removed.
  */
 pui.joins.FileTree.prototype.reset = function(){
   var removeQ = [];
   this._removeSubTree(this._tree, removeQ);
+  this._tree = null;
+  this._quicklist = {};
   return removeQ;
 };
 
 /**
- * Remove the join (and dependent joins) of a child node identified by the argument.
- * @param {String} childId
+ * Remove the join (and dependent joins) of a node identified by the argument ID.
+ * @param {String} id
  * returns {Array.<String>} Collection of IDs of files that were removed.
  */
-pui.joins.FileTree.prototype.remove = function(childId){
+pui.joins.FileTree.prototype.remove = function(id){
   var removeQ = [];
-  // Never remove the root node, only look for nodes in the tree.
-  if (childId != this._rootId && this.contains(childId)) {
-    var child = this._getNode(childId);
+  // Never remove the root node (_tree.id), only look for nodes in the tree.
+  if (id != this._tree.id && this.contains(id)) {
+    var child = this.getNode(id);
     if (child){
       this._removeSubTree(child, removeQ);
     }
     else {
-      console.log("Tree failed to find child Id:", childId);
+      console.log("Tree failed to find node Id to remove:", id);
     }
   }
   return removeQ;
@@ -5907,23 +5911,23 @@ pui.joins.FileTree.prototype.remove = function(childId){
 /**
  * Recursive function to find all child nodes of the argument, remove them from the internal tree, delete them from the namelist,
  * remove their fields from field selection, and destroy their Join objects.
- * @param {Object} node
+ * @param {Object|Null} node
  * @param {Array.<String>} removeQ  Output. List of file IDs that were found and removed.
  */
 pui.joins.FileTree.prototype._removeSubTree = function(node, removeQ){
-  while (node.childNodes.length > 0)  //DFS recursively find leaf nodes.
-    this._removeSubTree(node.childNodes[0], removeQ);
+  if (node && node.childJoins){
+    while (node.childJoins.length > 0)  //DFS recursively find leaf nodes.
+      this._removeSubTree(node.childJoins[0].childTable, removeQ);
 
-  // Remove this node from the internal tree, namelist, and destroy the Join object.
-  var removeId = node.id;
-  if (node.join != null){     //Root join is null; never remove root.
-    node.join.destroy();
-    node.join = null;
-    
-    removeQ.push(removeId);
+    // Remove this node from the internal tree, namelist, and destroy the Join object.
+    var removeId = node.id;
+    if (node.parentJoin != null){     //Root join is null; never remove root.
+      node.parentJoin.destroy();
+      node.parentJoin = null;
 
-    node.parentNode.removeChild(node); //Remove the DOM representation of the join.
-    delete this._quicklist[removeId];
+      removeQ.push(removeId);
+      delete this._quicklist[removeId];
+    }
   }
 };
 
@@ -5932,28 +5936,26 @@ pui.joins.FileTree.prototype._removeSubTree = function(node, removeQ){
  * @param {String} id   File Id.
  * @returns {Object}
  */
-pui.joins.FileTree.prototype._getNode = function(id){
+pui.joins.FileTree.prototype.getNode = function(id){
   return this._quicklist[id];
 };
 
 /**
- * Given two tables' IDs, return a join that exists between them. Joins are attached to the child node, pointing to the
- * parent. Initially, it is unknown which argument, if either, is the parent.
- * @param {String} id1
- * @param {String} id2
+ * Given two nodes, return a join that exists between them. Initially, it is unknown which argument, if either, is the parent.
+ * @param {JoinableTable} node1
+ * @param {JoinableTable} node2
  * @returns {Null|Object}
  */
-pui.joins.FileTree.prototype.getJoinFromIds = function(id1, id2){
-  var node1 = this._getNode(id1);
-  var node2 = this._getNode(id2);
-  if (!node1 || !node2) return null; //If one name doesn't exist, then no join exists.
-  var join1 = node1.join;
-  var join2 = node2.join;
+pui.joins.FileTree.prototype.getJoinBetweenNodes = function(node1, node2){
+  if (node1 && node2){    //A join can exist only if both nodes exist.
 
-  //If name1's parent is name2, then return name1's join object.
-  if (join1 != null && join1.parentTable.id == id2) return join1; 
-  //If name2's parent is name1, then return name2's join object.
-  else if (join2 != null && join2.parentTable.id == id1) return join2;
+    // If node1's parent is node2, then return node1's join object.
+    var join1 = node1.getParentJoinTo(node2);
+    if (join1 != null) return join1;
+    // If node2's parent is node1, then return node2's join object.
+    var join2 = node2.getParentJoinTo(node1);
+    if (join2 != null) return join2;
+  }
   return null;
 };
 
@@ -5968,13 +5970,12 @@ pui.joins.FileTree.prototype._setObjectWithId = function(id, struct){
 
 /**
  * Returns an object representing the tree in a serializable structure.
- * Callbacks are passed file IDs.
  * @returns {Object}
  */
 pui.joins.FileTree.prototype.getTree = function(){
   var struct = {};
-  this._setObjectWithId(this._rootId, struct); //Populate struct with necessary fields.
-  if (this._tree.childNodes.length > 0){
+  this._setObjectWithId(this._tree.id, struct); //Populate struct with necessary fields.
+  if (this._tree.childJoins.length > 0){
     struct.childNodes = [];
   }
   
@@ -5994,104 +5995,75 @@ pui.joins.FileTree.prototype._joinonclause = function(parentTableId, childTableI
 // Placeholder. Child class overrides; e.g. generate " AND f2.col2 = f1.col2"
 pui.joins.FileTree.prototype._joinonandclause = function(parentTableId, childTableId, parentFieldId, childFieldId){};
 
-// Pre-Order depth-first-search of the tree starting at the given node. Write to struct, calls abstract methods.
+/**
+ * Pre-Order depth-first-search of the tree starting at the given node. Write to struct, calls abstract methods.
+ * @param {JoinableTable} node
+ */
 pui.joins.FileTree.prototype._preorderDFS = function(node){
-  
-  var join = node.join;
-  var nodeId = node.id;
-  for (var i=0, n=this.joinArea.joinableTables.length; i < n; i++){
-    var table = this.joinArea.joinableTables[i];
-    if (table.id == nodeId){
-      this._structPointer["xy"] = table.getXY();
-      break;
-    }
-  }
+  this._structPointer["xy"] = node.getXY();
 
-  if (join == null){
-    this._fromclause(this._rootId);
+  if (node.parentJoin == null){
+    this._fromclause(this._tree.id);  //Assume the node is root
   }
   else {
-    this._joinclause(join.childTable.id, join.type);
+    // join is the join to the given node's parent.
+    var joinToParent = node.parentJoin;
+    
+    this._joinclause(node.id, joinToParent.type);
 
-    this._setObjectWithId(join.childTable.id, this._structPointer);
+    this._setObjectWithId(node.id, this._structPointer);
     this._structPointer["joinP"] = {
-      "type": join.type
+      "type": joinToParent.type
     };
-    if (join.lines.length > 0){
+    if (joinToParent.lines.length > 0){
       this._structPointer["joinP"]["conditions"] = [];
-      for (var i=0; i < join.lines.length; i++){
+      for (var i=0; i < joinToParent.lines.length; i++){
         this._structPointer["joinP"]["conditions"][i] = {
-          "childField": join.lines[i].childField,
-          "parentField": join.lines[i].parentField
+          "childField": joinToParent.lines[i].childField,
+          "parentField": joinToParent.lines[i].parentField
         };
       }
     }
-    if (node.childNodes.length > 0){
+    if (node.childJoins.length > 0){
       this._structPointer.childNodes = [];
     }
 
-    var line = join.lines[0];
-    this._joinonclause(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
-    for (var i=1; i < join.lines.length; i++){
-      line = join.lines[i];
-      this._joinonandclause(join.parentTable.id, join.childTable.id, line.parentField, line.childField);
+    var line = joinToParent.lines[0];
+    this._joinonclause(joinToParent.parentTable.id, node.id, line.parentField, line.childField);
+    for (var i=1; i < joinToParent.lines.length; i++){
+      line = joinToParent.lines[i];
+      this._joinonandclause(joinToParent.parentTable.id, node.id, line.parentField, line.childField);
     }
   }
 
-  for (var i=0; i < node.childNodes.length; i++){
+  for (var i=0; i < node.childJoins.length; i++){
     var callstackNode = this._structPointer;
     this._structPointer.childNodes[i] = {};
     this._structPointer = this._structPointer.childNodes[i];
-    this._preorderDFS(node.childNodes[i]);
+    this._preorderDFS( node.childJoins[i].childTable );
     this._structPointer = callstackNode;
   }
 };
 
 /**
- * Return true if a file's fields may be null as a result of the join type. Note: if a parent-child join is RIGHT and the
+ * Return true if a file's fields may be null as a result of the join type. Limitation: if a parent-child join is RIGHT and the
  * grandparent-parent is INNER, then the grandparent's fields could also be null. Assume the user won't create that scenario--or 
  * that they can figure out how to COALESCE it.
  * @param {String} fileId
  * @returns {Boolean}
  */
 pui.joins.FileTree.prototype.fileFieldsCanNull = function(fileId){
-  var node = this._getNode(fileId);
+  var node = this.getNode(fileId);
   if (node != null){
-    if (node.join != null){  //Join is not root. look for left join.
-      //join is the 2nd table in a LEFT join; its fields could be null.
-      if (node.join.type == "LEFT") return true;
+    if (node.parentJoin != null){  //Join is not root. look for left join.
+      // join is the 2nd table in a LEFT join; its fields could be null.
+      if (node.parentJoin.type == "LEFT") return true;
     }
-    // Look at the join objects in each child table. Is this parent in a RIGHT join.
-    for (var i=0; i < node.childNodes.length; i++){
-      //join is 1st table in a RIGHT join; its fields could be null.
-      if (node.childNodes[i].join.type == "RIGHT") return true;
+    // Look at each child join for a RIGHT join.
+    for (var i=0; i < node.childJoins.length; i++){
+      // join is 1st table in a RIGHT join; its fields could be null.
+      if (node.childJoins[i].type == "RIGHT") return true;
     }
   }
   return false;
-};
-
-/**
- * A simple tree node with an ID, join, multiple children, a parent, and a removeChild method.
- * @param {FileTreeNode|Null} parentNode
- * @param {String} childId
- * @param {Join} join
- * @returns {FileTreeNode}
- * @constructor
- */
-pui.joins.FileTreeNode = function(parentNode, childId, join){
-  this.id = childId;
-  this.join = join;
-  this.childNodes = [];
-  this.parentNode = parentNode;
-  if (this.parentNode != null) this.parentNode.childNodes.push(this);
-};
-
-pui.joins.FileTreeNode.prototype.removeChild = function(node){
-  for (var i=0, n=this.childNodes.length; i < n; i++){
-    if (this.childNodes[i] == node){
-      this.childNodes.splice(i, 1);
-      break;
-    }
-  }
-  node.parentNode = null;
 };
