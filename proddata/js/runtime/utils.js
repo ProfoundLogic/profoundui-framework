@@ -4891,6 +4891,24 @@ pui.joins.JoinArea.prototype.queueExpand = function(milliseconds){
   this.movetimeout = setTimeout(this.expandSvg, milliseconds, this);
 };
 
+// Determine which TR is the parent and which is the child. Return each in an array if found, parent first, child next.
+pui.joins.JoinArea.prototype.getParentChildTR = function(join, tr1, tr2){
+  var retval = [null, null];
+  if (tr1.joinableTable.id == join.parentTable.id){    //1st argument is the parent table.
+    if (tr2.joinableTable.id == join.childTable.id){  //2nd argument is child.
+      retval[0] = tr1;
+      retval[1] = tr2;
+    }
+  }
+  else if (tr2.joinableTable.id == join.parentTable.id){  //2nd argument is the parent table.
+    if (tr1.joinableTable.id == join.childTable.id){  //1st argument is the child
+      retval[0] = tr2;
+      retval[1] = tr1; 
+    }
+  }
+  return retval;
+};
+
 /**
  * Detect if a join can be made, fetch the join parameters, and create a join.
  * @param {Object} target_tr            The row being dropped onto.
@@ -4905,27 +4923,13 @@ pui.joins.JoinArea.prototype.joinLinkRows = function(target_tr, origin_tr, joinT
     // to an existing join; don't allow joining two child nodes (that would create a graph cycle).
     var join = this.filetree.getJoinBetweenNodes(target_tr.joinableTable, origin_tr.joinableTable);
     if (join != null){
-      // A join was found for the tables. Determine which TR is the parent and
-      // which is the child. Then check if this condition already exists.
-      var parentTR, childTR;
-      if (targetFileId == join.parentTable.id){    //1st argument is the parent table.
-        if (sourceFileId == join.childTable.id){  //2nd argument is child.
-          parentTR = target_tr;
-          childTR = origin_tr;
-        }
-      }
-      else if (sourceFileId == join.parentTable.id){  //2nd argument is the parent table.
-        if (targetFileId == join.childTable.id){  //1st argument is the child
-          parentTR = origin_tr;
-          childTR = target_tr; 
-        }
-      }
-      
-      if (parentTR != null && childTR != null){
-        var exists = join.conditionExists(parentTR.fieldId, childTR.fieldId);
+      // A join was found for the tables. Check if this condition already exists.
+      var parentChild = this.getParentChildTR(join, target_tr, origin_tr);
+      if (parentChild[0] && parentChild[1]){
+        var exists = join.conditionExists(parentChild[0].fieldId, parentChild[1].fieldId);
         if (exists === false){
           // A join between the two fields doesn't already exist, so add it.
-          join.addCondition(parentTR, childTR);
+          join.addCondition(parentChild[0], parentChild[1]);
         }
       }
       else {
@@ -5274,6 +5278,16 @@ pui.joins.JoinableTable.prototype._ondragover = function(event){
     if (join == null){
       ja.showInfobox(pui["getLanguageText"]("runtimeMsg","one path main to child"));
       return;
+    }
+    else {
+      // If a join already exists between the two fields, then avoid showing feedback on the target row.
+      var parentChild = ja.getParentChildTR(join, target, ja.joinSourceTR);
+      if (parentChild[0] && parentChild[1]){
+        var exists = join.conditionExists(parentChild[0].fieldId, parentChild[1].fieldId );
+        if (exists !== false){
+          return;
+        }
+      }
     }
   }
   ja.hideInfobox();
