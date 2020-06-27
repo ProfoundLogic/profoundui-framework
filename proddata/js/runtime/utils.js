@@ -4995,17 +4995,15 @@ pui.joins.JoinArea.prototype.loadJoins = function(root, tableFoundCb, joinLinked
 
   while (queue.length > 0){
     v = queue.shift();
-    var myvarname = v["varname"];
 
     // Position the join tables as they were when saved.
-    var joinableTable = appgen.joinArea.getTable(myvarname);
+    var joinableTable = this.getTable( this.filetree.getNodeId(v) );
     if (joinableTable){
       if (v["xy"] instanceof Array) joinableTable.setLeftTop(v["xy"]);
       if (typeof tableFoundCb == 'function') tableFoundCb(joinableTable, v);
       var myrows = joinableTable.tableBody.rows;
       if (v["joinP"] != null){
-        var parentVarname = v.parent["varname"];
-        joinableTable = appgen.joinArea.getTable(parentVarname);
+        joinableTable = this.getTable( this.filetree.getNodeId(v.parent) );
         if (joinableTable){
           var parentrows = joinableTable.tableBody.rows;
           
@@ -5980,6 +5978,15 @@ pui.joins.FileTree.prototype.getJoinBetweenNodes = function(node1, node2){
  */
 pui.joins.FileTree.prototype._setObjectWithId = function(id, struct){
   struct["id"] = id;
+};
+
+/**
+ * Called from JoinArea.loadJoins. (Overridden in child classes.)
+ * @param {Object} node
+ * @returns {String}
+ */
+pui.joins.FileTree.prototype.getNodeId = function(node){
+  return node["id"];
 };
 
 /**
