@@ -5203,8 +5203,8 @@ pui.joins.JoinableTable.prototype.getXY = function(){
  * @param {Array.<String>} lefttop
  */
 pui.joins.JoinableTable.prototype.setLeftTop = function(lefttop){
-  this.table.style.left = lefttop[0];
-  this.table.style.top = lefttop[1];
+  this.table.style.left = lefttop[0] + 'px';
+  this.table.style.top = lefttop[1] + 'px';
 };
 
 pui.joins.JoinableTable.prototype.getCaptionHeight = function(){
