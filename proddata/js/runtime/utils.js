@@ -4724,10 +4724,16 @@ pui.getTRtargetRow = function(event){
 };
 
 /**
- * Utility for deleting class members. This should be called by pui.deleteOwnProperties.apply(this) or .call(this) 
- * within a prototype.destroy method.
+ * Provides common methods for child classes.
+ * @constructor
+ * @returns {Destroyable}
  */
-pui.deleteOwnProperties = function(){
+pui.BaseClass = function(){};
+
+/**
+ * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
+ */
+pui.BaseClass.prototype.deleteOwnProperties = function(){
   if (this != window){
     var propnames = Object.getOwnPropertyNames(this);
     for (var i=0, n=propnames.length; i < n; i++){
