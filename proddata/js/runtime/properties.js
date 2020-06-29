@@ -955,7 +955,7 @@ function getScreenPropertiesModel(designScreen) {
 
       { name: "Misc", category: true }, 
       { name: "user defined data", multOccur: true, help: pui.helpTextProperties("blank", "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.") },
-      { name: "user defined routine", multOccur: true, wf: true, bind: false, readOnly: true, help: pui.helpTextProperties("blank", "Specifies a routine that is not automatically triggered by an event. Instead, it can be called and reused by other routines. To provide multiple user defined routines, right-click the property and select Add Another User Defined Routine.") }, 
+      { name: "user defined routine", multOccur: true, wf: true, bind: false, readOnly: true, help: pui.helpTextProperties("blank", "Specifies a routine that is not automatically triggered by an event. Instead, it can be called and reused by other routines. To provide multiple user defined routines, right-click the property and select Add Another User Defined Routine.") }
 
     ];
     return model;
