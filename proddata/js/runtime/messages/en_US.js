@@ -87,6 +87,10 @@ var en_US = function(dict) {
             dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
             dictMsg["pccommand error"]              = "The attempt to handle STRPCCMD failed. Please ensure that the Profound UI PC Command Listener"
                     +" is running on this machine and configured correctly. Check the browser console for more information. (Usually Ctrl+Shift+I)";
+            dictMsg["join x y to main file"]        = "Connect #&1 or #&2 to the main #file before joining them together.";
+            dictMsg["one path main to child"]       = "Only one path from the main #file may exist to each child file.";
+            dictMsg["join instructions"]            = "Drag a field from one table to another to create an inner join. Click the square to "
+                    + "change the join type. Fields from extra files cannot appear in a generated grid, detail, or edit page without a join.";
 
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Number of allowed sessions exceeded.";
@@ -234,6 +238,13 @@ var en_US = function(dict) {
             dictMsg["section"]                      = "Section";
             dictMsg["version"]                      = "Version";
             dictMsg["fixPack"]                      = "Fix Pack";
+            dictMsg["modify"]                       = "Modify";
+            dictMsg["remove"]                       = "Remove";
+            dictMsg["join props x to y"]            = "Join Properties - &1.&2 to &3.&4";
+            dictMsg["inner join label"]             = "Only include rows where joined fields from both tables are equal.";
+            dictMsg["join label x y"]               = "Include all rows from '&1' and only matching rows from '&2'";
+            dictMsg["join selection"]               = "Join Selection";
+
             // Atrium only.
             dictMsg["yes"]                          = "Yes";
             dictMsg["no"]                           = "No";
@@ -349,7 +360,6 @@ var en_US = function(dict) {
             dictMsg["add usrgrp perm"]              = "Add User/Group Permissions";
             dictMsg["membership"]                   = "Membership";
             dictMsg["none"]                         = "None";
-            dictMsg["remove"]                       = "Remove";
             dictMsg["appearance"]                   = "Appearance";
             dictMsg["home page"]                    = "Home page";
             dictMsg["tree"]                         = "Tree";
@@ -452,6 +462,6 @@ var en_US = function(dict) {
         default:
             console.log("Unknown Dictionary Type : '" + dict + "'");
     }
-
+    
     return dictMsg;
 };

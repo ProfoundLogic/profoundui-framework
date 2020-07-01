@@ -16,7 +16,7 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
-
+  
 
 
 function getTarget(e) {
@@ -4339,11 +4339,11 @@ pui.listenMouse = function(params){
   
   if (params.attachto instanceof Array){
     for (var i=0; i < params.attachto.length; i++){
-      addEvent(params.attachto[i], 'mousedown', mousedown );
+      params.attachto[i].addEventListener('mousedown', mousedown);
     }
   }
   else if(params.attachto != null){
-    addEvent(params.attachto, 'mousedown', mousedown );
+    params.attachto.addEventListener('mousedown', mousedown);
   }
   
   function mousedown(e){
@@ -4358,8 +4358,8 @@ pui.listenMouse = function(params){
       params.opel.style.opacity = '0.'+params.opacity;
     }
     
-    addEvent(document, 'mousemove', mousemove);
-    addEvent(document, 'mouseup', mouseup);
+    document.addEventListener('mousemove', mousemove);
+    document.addEventListener('mouseup', mouseup);
     
     if (typeof params.downcb === 'function') params.downcb(ref);
   }
@@ -4708,4 +4708,41 @@ pui.formatBytes = function(bytes, precision){
   precision = (typeof(precision) == "number" ? precision : 0);
 
   return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
+};
+
+/**
+ * For events on HTML table cells, get the parent row. If the event is not on the cell (e.g. on an input in the cell), returns null.
+ * @param {Object|Event} event
+ * @returns {Object|Null}
+ */
+pui.getTRtargetRow = function(event){
+  // Note: we must use getTarget to handle #text nodes. Otherwise drag_leave leaves classes set when dragging quickly.
+  var target = getTarget(event); 
+  if (target.tagName == "TD") target = target.parentNode;
+  if (target.tagName != "TR") return null;
+  return target;
+};
+
+/**
+ * Provides common methods for child classes.
+ * @constructor
+ * @returns {Destroyable}
+ */
+pui.BaseClass = function(){};
+
+/**
+ * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
+ */
+pui.BaseClass.prototype.deleteOwnProperties = function(){
+  if (this != window){
+    var propnames = Object.getOwnPropertyNames(this);
+    for (var i=0, n=propnames.length; i < n; i++){
+      try {
+        delete this[propnames[i]];  //Removes any properties that were assigned like: "this.foo = bar";.
+      }
+      catch(exc) {
+        console.log(exc);
+      }
+    }
+  }
 };
