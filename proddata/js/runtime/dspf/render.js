@@ -4697,6 +4697,9 @@ pui["run"] = function(config) {
     "log": log,
     "workstnid": workstnid
   };
+  if (config["lang"] != null && config["lang"] != "") {
+    ajaxParams["lang"] = config["lang"];
+  }
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
@@ -4867,6 +4870,9 @@ pui["signon"] = function(config) {
     "workstnid": workstnid,
     "atrium_item": atriumitem    
   };
+  if (config["lang"] != null && config["lang"] != "") {
+    ajaxParams["lang"] = config["lang"];
+  }
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
@@ -5022,6 +5028,8 @@ pui.start = function() {
   var screenshot = (parms["screenshot"] === "1");
   var observe = (parms["observe"] === "1");
   if (observe) pui.observed.enabled = true;
+  var lang = "";
+  if (parms["lang"] != null) lang = parms["lang"];
   pui.renderLog = (parms["renderLog"] === "1");
   var params = {};
   if (pui.detectMobileEmulation != null && typeof pui.detectMobileEmulation == "function") pui.detectMobileEmulation(container);
@@ -5054,6 +5062,7 @@ pui.start = function() {
     "screenshot": screenshot,
     "params": params,
     "observe": observe,
+    "lang": lang,
     "renderLog": pui.renderLog
   };
   if (program == null && jsonURL == null && mode == null) {
