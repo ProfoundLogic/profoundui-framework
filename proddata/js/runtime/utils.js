@@ -3839,9 +3839,15 @@ pui.xlsx_worksheet = function(numcols){
           
           var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
           
+          var cell = rows[row][col];
+          if (cell == null){
+            cell = '';    //cell should always be defined, but handle undefined in case we missed something. #6192.
+            console.log('Undefined cell at [%d,%d].', row, col);
+          }
+          
           // Some cells (e.g. headers, forced dates) override default format; extract format.
-          if (rows[row][col].format != null){
-            fmt = rows[row][col].format;
+          if (cell.format != null){
+            fmt = cell.format;
           }
           
           switch (fmt){
@@ -3865,13 +3871,13 @@ pui.xlsx_worksheet = function(numcols){
               if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
                 xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
               }
-              else if (rows[row][col].hasNL){
+              else if (cell.hasNL){
                 xml += ' s="3"'; //If there is a newline then use the wrapText alignment style.
               }
               break;
           }
 
-          var val = rows[row][col].value;
+          var val = cell.value;
           if (val == null) val = '';
           xml += '><v>' + val + '</v></c>';
         }
