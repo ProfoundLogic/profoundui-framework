@@ -24,7 +24,14 @@ if (pui["runtimeMessages"] == null) pui["runtimeMessages"] = {};
 
 pui["getLanguageText"] = function(dict, msgid, varvals) {
 
-  var lang = pui["language"] || "en_US";
+  var lang = pui["language"];
+  if (lang == null || trim(lang) == "") {
+    lang = "en_US";
+    var qparm = getQueryStringParms();
+    if (qparm["lang"] != null && trim(qparm["lang"]) != "") {
+      lang = qparm["lang"];
+    }
+  }
   var msg  = pui[dict][lang][msgid];
 
   // If for some reason a message is undefined in the selected

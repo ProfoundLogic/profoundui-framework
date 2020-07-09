@@ -16247,3 +16247,12 @@ div.pui-vresizer {
 div.help-panel-group div {
   white-space: normal;
 }
+
+
+tr.drag_origin {
+  border: dashed 2px gray;
+}
+
+tr.drop_valid {
+  border: dashed 2px green;
+}
