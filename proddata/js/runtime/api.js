@@ -1774,7 +1774,7 @@ pui["download"] = function (params) {
 
 pui["focusOnContainer"] = function() {
 
-    // Check for noderun embed box and prevent bouncing to the top of the parent page
+    // Check for cloud embed box and prevent bouncing to the top of the parent page
     if (window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) {
       return;
     }
