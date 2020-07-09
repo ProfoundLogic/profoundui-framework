@@ -58,7 +58,7 @@ function Session() {
       json += '"';
     }
     json += " }";
-    document.cookie = cookieName + "=" + escape(json) +  "; path=/";
+    document.cookie = cookieName + "=" + escape(json) +  "; path=/;SameSite=Strict";
   }
   
   // load the state from a cookie
