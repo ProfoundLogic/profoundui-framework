@@ -8,11 +8,19 @@
 Array.isArray = function(value) {};
 
 Object.keys = function(value) {};
+Object.getOwnPropertyNames = function(value){};
+Function.bind = function(value){};
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
 Object.onsuccess = function(value) {};
 Object.suppressAlert = {};
+
+// drag and drop web API
+Object.ondrop = function(event) {};
+Object.ondragend = function(event) {};
+Object.ondragover = function(event) {};
+Object.ondragleave = function(event) {};
 
 FileReader.readAsText = {}; //used in JumpStart, 
 
@@ -33,6 +41,9 @@ Event.detail = {};
 
 Event.target = {};
 Event.target.result = {}; //Used by FileReader onload event in JumpStart.
+
+Event.dataTransfer.dropEffect = {};   //Used in JumpStart
+
 Element.oninput = {};
 
 Date.toISOString = function() {};
