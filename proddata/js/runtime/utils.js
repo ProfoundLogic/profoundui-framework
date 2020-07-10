@@ -4726,7 +4726,7 @@ pui.getTRtargetRow = function(event){
 /**
  * Provides common methods for child classes.
  * @constructor
- * @returns {Destroyable}
+ * @returns {pui.BaseClass}
  */
 pui.BaseClass = function(){};
 
