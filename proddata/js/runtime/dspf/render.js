@@ -4717,6 +4717,8 @@ pui["run"] = function(config) {
     ajaxParams["p1"] = parameter;
     ajaxParams["l1"] = "250";
   }
+  ajaxParams["screen_width"] = screen.width;
+  if (pui.canvasSize) ajaxParams["screen_width"] = pui.canvasSize.split("x")[0];
   var params = config["params"];
   if (params != null) {
     for (var param in params) {
@@ -4886,7 +4888,9 @@ pui["signon"] = function(config) {
   }
   if (mobile) {
     ajaxParams["mobile"] = "1";
-  }  
+  }
+  ajaxParams["screen_width"] = screen.width;
+  if (pui.canvasSize) ajaxParams["screen_width"] = pui.canvasSize.split("x")[0];
   var params = config["params"];
   if (params != null) {
     for (var param in params) {
