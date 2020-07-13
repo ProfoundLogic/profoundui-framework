@@ -353,12 +353,12 @@ var pui = {
   openFile: {},
   textFile: {},
   textDir: {},
+  api: {},
   apiTab: {},
   apiRoutes: {},
   isRichDisplay:{},
   isApi:{},
   toSourceView:{},
   toDesignView:{},
-  apiParameterDialog: {},
-  apiFilePicker: {}
+  apiParameterDialog: {}
 }
