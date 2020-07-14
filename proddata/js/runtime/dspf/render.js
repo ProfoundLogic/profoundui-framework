@@ -1172,7 +1172,8 @@ pui.renderFormat = function(parms) {
       if (pui.wf.enabled && pui.isRoutine(propValue)) {
         if (isDesignMode) {
           var wfData = {};
-          if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+          if (parms.keepRoutines) wfData = null;
+          if (pui.display && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
             wfData = pui.display.logic[propValue.routine];
           }
           pui.wf.tracker.update({
@@ -1413,7 +1414,8 @@ pui.renderFormat = function(parms) {
         if (pui.wf.enabled && pui.isRoutine(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+           if (parms.keepRoutines) wfData = null;
+           if (pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
             wfData = pui.display.logic[propValue.routine];
            }
            pui.wf.tracker.update({
