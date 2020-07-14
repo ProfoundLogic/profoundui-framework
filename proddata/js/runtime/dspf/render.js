@@ -1172,7 +1172,8 @@ pui.renderFormat = function(parms) {
       if (pui.wf.enabled && pui.isRoutine(propValue)) {
         if (isDesignMode) {
           var wfData = {};
-          if (typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+          if (parms.keepRoutines) wfData = null;
+          if (pui.display && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
             wfData = pui.display.logic[propValue.routine];
           }
           pui.wf.tracker.update({
@@ -1413,7 +1414,8 @@ pui.renderFormat = function(parms) {
         if (pui.wf.enabled && pui.isRoutine(propValue)) {
           if (isDesignMode) {
            var wfData = {};
-           if (typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+           if (parms.keepRoutines) wfData = null;
+           if (pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
             wfData = pui.display.logic[propValue.routine];
            }
            pui.wf.tracker.update({
@@ -4697,6 +4699,9 @@ pui["run"] = function(config) {
     "log": log,
     "workstnid": workstnid
   };
+  if (config["lang"] != null && config["lang"] != "") {
+    ajaxParams["lang"] = config["lang"];
+  }
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
@@ -4714,6 +4719,8 @@ pui["run"] = function(config) {
     ajaxParams["p1"] = parameter;
     ajaxParams["l1"] = "250";
   }
+  ajaxParams["screen_width"] = screen.width;
+  if (pui.canvasSize) ajaxParams["screen_width"] = pui.canvasSize.split("x")[0];
   var params = config["params"];
   if (params != null) {
     for (var param in params) {
@@ -4867,6 +4874,9 @@ pui["signon"] = function(config) {
     "workstnid": workstnid,
     "atrium_item": atriumitem    
   };
+  if (config["lang"] != null && config["lang"] != "") {
+    ajaxParams["lang"] = config["lang"];
+  }
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
@@ -4880,7 +4890,9 @@ pui["signon"] = function(config) {
   }
   if (mobile) {
     ajaxParams["mobile"] = "1";
-  }  
+  }
+  ajaxParams["screen_width"] = screen.width;
+  if (pui.canvasSize) ajaxParams["screen_width"] = pui.canvasSize.split("x")[0];
   var params = config["params"];
   if (params != null) {
     for (var param in params) {
@@ -5022,6 +5034,8 @@ pui.start = function() {
   var screenshot = (parms["screenshot"] === "1");
   var observe = (parms["observe"] === "1");
   if (observe) pui.observed.enabled = true;
+  var lang = "";
+  if (parms["lang"] != null) lang = parms["lang"];
   pui.renderLog = (parms["renderLog"] === "1");
   var params = {};
   if (pui.detectMobileEmulation != null && typeof pui.detectMobileEmulation == "function") pui.detectMobileEmulation(container);
@@ -5054,6 +5068,7 @@ pui.start = function() {
     "screenshot": screenshot,
     "params": params,
     "observe": observe,
+    "lang": lang,
     "renderLog": pui.renderLog
   };
   if (program == null && jsonURL == null && mode == null) {

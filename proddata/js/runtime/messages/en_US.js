@@ -87,8 +87,8 @@ var en_US = function(dict) {
             dictMsg["keyboard input inhibited"]     = "Keyboard entry not allowed in this field.";
             dictMsg["pccommand error"]              = "The attempt to handle STRPCCMD failed. Please ensure that the Profound UI PC Command Listener"
                     +" is running on this machine and configured correctly. Check the browser console for more information. (Usually Ctrl+Shift+I)";
-            dictMsg["join x y to main file"]        = "Connect #&1 or #&2 to the main #file before joining them together.";
-            dictMsg["one path main to child"]       = "Only one path from the main #file may exist to each child file.";
+            dictMsg["join x y to main file"]        = "Connect &1 or &2 to the main file, &3, before joining them together.";
+            dictMsg["one path main to child"]       = "Only one path from the main file may exist to each child file.";
             dictMsg["join instructions"]            = "Drag a field from one table to another to create an inner join. Click the square to "
                     + "change the join type. Fields from extra files cannot appear in a generated grid, detail, or edit page without a join.";
 

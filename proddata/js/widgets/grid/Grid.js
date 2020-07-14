@@ -1217,9 +1217,10 @@ pui.Grid = function () {
             worksheet.setCell(index, rtrim(heading), "char");
           });
         } else {
-          for (var i = 0; i < me.cells[0].length && i < numCols; i++) {
-            var heading = getInnerText(me.cells[0][i]);
-            worksheet.setCell(i, rtrim(heading), "char");
+          for (var i=0; i < numCols; i++) {
+            // Get the heading or use a blank in case numCols != grid "number of columns". #6192.
+            var heading = me.cells[0] && me.cells[0][i] ? rtrim(getInnerText(me.cells[0][i])) : '';
+            worksheet.setCell(i, heading, "char");
           }
         }
       }
