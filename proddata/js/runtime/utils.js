@@ -4675,14 +4675,12 @@ pui.normalizeWheelDelta = function(event){
       delta = event.deltaY / 144;  
     }
   }
+  else if (pui['is_edge'] && event.wheelDelta) {
+    delta = event.wheelDelta / -120;  //Chromium Edge is different than Chrome or pre-Chromium Edge. #6182.
+  }
   else if (pui['is_chrome']) {
-    if (event.wheelDelta) {   //Edge started being considered Chrome, but its wheelDelta value exists for WheelEvents, and the number is different than Chrome. 1/23/2020.
-      delta = event.wheelDelta / -120;
-    }
-    else {
-      // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
-      delta = event.deltaY / 100;
-    }
+    // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
+    delta = event.deltaY / 100;
   }
   else if (pui['is_safari']){
     // Safari, deltaY is multiple of 4.000244140625, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 12.
