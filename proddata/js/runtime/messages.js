@@ -32,6 +32,17 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
       lang = qparm["lang"];
     }
   }
+
+  // despite that the ISO code is "en_GB", we have our messages coded as "en_UK".
+  // if for some reason someone uses the proper en_GB code and its not defined,
+  // fall back to en_UK.
+   
+  if (lang == "en_GB" && typeof pui[dict][lang] == "undefined") {
+    lang = "en_UK";
+  }
+
+  // Get the message
+
   var msg  = pui[dict][lang][msgid];
 
   // If for some reason a message is undefined in the selected
