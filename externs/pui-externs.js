@@ -358,5 +358,6 @@ var pui = {
   isRichDisplay:{},
   isApi:{},
   toSourceView:{},
-  toDesignView:{}
+  toDesignView:{},
+  clientLogic: {}
 }
