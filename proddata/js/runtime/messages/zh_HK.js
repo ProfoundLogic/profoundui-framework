@@ -273,6 +273,7 @@ var zh_HK = function(dict) {
             dictMsg["action"]                       = "動作";
             dictMsg["actions"]                      = "動作";
             dictMsg["detect once"]                  = "檢測一次";
+            dictMsg["detect always"]                = "檢測常在";
             dictMsg["delete screen"]                = "刪除屏幕";
             dictMsg["genie macros"]                 = "Genie 巨集";
             dictMsg["screen name"]                  = "屏幕名稱";

@@ -273,6 +273,7 @@ var es_ES = function(dict) {
             dictMsg["action"]                       = "Acción";
             dictMsg["actions"]                      = "Acciones";
             dictMsg["detect once"]                  = "Detectar una vez";
+            dictMsg["detect always"]                = "Detectar siempre";
             dictMsg["delete screen"]                = "Borrar pantalla";
             dictMsg["genie macros"]                 = "Macros de Genie";
             dictMsg["screen name"]                  = "Nombre de pantalla";
