@@ -273,6 +273,7 @@ var de_DE = function(dict) {
             dictMsg["action"]                       = "Aktion";
             dictMsg["actions"]                      = "Aktionen";
             dictMsg["detect once"]                  = "Einmal erkennen";
+            dictMsg["detect always"]                = "Immer feststellen";
             dictMsg["delete screen"]                = "Bildschirm löschen";
             dictMsg["genie macros"]                 = "Genie Makros";
             dictMsg["screen name"]                  = "Bildschirmname";
