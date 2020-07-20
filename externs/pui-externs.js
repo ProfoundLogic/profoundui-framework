@@ -360,5 +360,6 @@ var pui = {
   isApi:{},
   toSourceView:{},
   toDesignView:{},
-  apiParameterDialog: {}
+  apiParameterDialog: {},
+  clientLogic: {}
 }

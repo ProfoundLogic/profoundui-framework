@@ -273,6 +273,7 @@ var nl_NL = function(dict) {
             dictMsg["action"]                       = "Actie";
             dictMsg["actions"]                      = "Acties";
             dictMsg["detect once"]                  = "Eenmalige detectie";
+            dictMsg["detect always"]                = "Altijd Signaleren";
             dictMsg["delete screen"]                = "Verwijder scherm";
             dictMsg["genie macros"]                 = "Genie macros";
             dictMsg["screen name"]                  = "Schermnaam";
