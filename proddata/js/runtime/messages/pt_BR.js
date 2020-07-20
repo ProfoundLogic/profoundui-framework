@@ -273,6 +273,7 @@ var pt_BR = function(dict) {
             dictMsg["action"]                       = "Acção";
             dictMsg["actions"]                      = "Acções";
             dictMsg["detect once"]                  = "Eliminar uma vez";
+            dictMsg["detect always"]                = "Detetar Sempre";
             dictMsg["delete screen"]                = "Eliminar Ecrã";
             dictMsg["genie macros"]                 = "Genie Macros";
             dictMsg["screen name"]                  = "Nome do Ecrã";
