@@ -2164,7 +2164,14 @@ function runPCCommand(arg) {
         req["onsuccess"] = function() {
           doRunPCCommand();
         };
-        req.send();
+        try {
+          req.send();
+        }
+        catch(exc){
+          // Network errors can throw exceptions from req.send, causing Genie UIs to freeze when the PC Command Listener is not enabled.
+          console.log("PC Command Listener failure.", exc);
+          showFailureMsg(command);
+        }
       }
       return;
     }

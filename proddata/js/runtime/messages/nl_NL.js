@@ -83,6 +83,8 @@ var nl_NL = function(dict) {
             dictMsg["downloading x"]                = "Downloaden &1.";
             dictMsg["ie9 too low xlsxpics"]         = "Afbeeldingen kunnen niet worden geëxporteerd met IE9 of eerdere versies.";
 			dictMsg["keyboard input inhibited"]     = "Toetsenbord invoer niet toegestaan in dit veld.";
+            dictMsg["pccommand error"]              = "De poging tot het gebruik van STRPCCMD is mislukt. Zorg ervoor dat de Profound UI "
+            +"PC Command Listener is opgestart op deze machine en juist is geconfigureerd. Check het browser console voor meer informatie. (Gebruik hiervoor Ctrl+Shift+I)";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Aantal toegestane sessies is overschreden.";
