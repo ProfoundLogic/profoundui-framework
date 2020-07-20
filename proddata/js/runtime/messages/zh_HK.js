@@ -83,6 +83,7 @@ var zh_HK = function(dict) {
             dictMsg["downloading x"]                = "正在下載 &1";
             dictMsg["ie9 too low xlsxpics"]         = "不能在IE9或更低版本之下導出圖像";
 			dictMsg["keyboard input inhibited"]     = "這位置不淮鍵盤輸入";
+            dictMsg["pccommand error"]              = "嘗試處理STRPCCMD失敗。 請確保Profound UI PC Command Listener 在此電腦主機上運行並正確裝置。 檢查控制台以獲取更多信息。 （通常是 Ctrl+Shift+I)";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "已超出允許的階段作業總數";
