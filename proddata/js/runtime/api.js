@@ -144,6 +144,7 @@ function getElementValue(id) {
     }
   }
   if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
+  if (elem.floatingPlaceholder != null) elemValue = elem.floatingPlaceholder.getValue();
   if (elem.slider != null) elemValue = String(elem.value);
   if (elem.onOffSwitch != null) {
     elemValue = "";
@@ -254,6 +255,9 @@ function changeElementValue(id, val) {
     }
     else if (elem.comboBoxWidget != null) {
       elem.comboBoxWidget.setValue(val);
+    }
+    else if (elem.floatingPlaceholder != null) {
+      elem.floatingPlaceholder.setValue(val);
     }
     else if (elem.button && elem.button.textDiv) {
       elem.button.textDiv.innerHTML = val;
@@ -1295,8 +1299,12 @@ function gotoElement(currentElement, forward) {
     nextElement = inputElements[nextIndex];
 
     var nextObjBox = nextElement;
-    if (nextElement != null && nextElement.comboBoxWidget != null) 
+    if (nextElement != null && nextElement.comboBoxWidget != null) {
       nextObjBox = nextElement.comboBoxWidget.getBox();
+    }
+    if (nextElement != null && nextElement.floatingPlaceholder != null) {
+      nextObjBox = nextElement.floatingPlaceholder.getBox();
+    }
 
     if (nextObjBox.readOnly || nextObjBox.disabled || nextObjBox.style.visibility === "hidden" || 
         nextObjBox.tabIndex === "-1" || !nextObjBox.clientHeight || !nextObjBox.clientWidth ) {

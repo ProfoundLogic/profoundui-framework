@@ -1878,7 +1878,8 @@ pui.renderFormat = function(parms) {
               if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
                 if (properties["visibility"] != "hidden") {
                   pui.focusField.dom = dom;
-                  if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
+                  if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();                  
+                  if (dom.floatingPlaceholder != null) pui.focusField.dom = dom.floatingPlaceholder.getBox();
                   pui.focusField.setFocusFlag = true;
                 }              
               }              
@@ -1913,6 +1914,7 @@ pui.renderFormat = function(parms) {
             if (propname == "auto advance" && propValue == "true") {
               var boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+              if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
               boxDom.autoAdvance = true;
               addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
             }
@@ -1933,6 +1935,7 @@ pui.renderFormat = function(parms) {
             if (allowFieldExit == true) {
               var boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();            
+              if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();            
               if (pui.isBound(items[i]["value"]) && items[i]["value"]["rjZeroFill"] == "true") {
                 dom.rjZeroFill = true;
                 boxDom.rjZeroFill = true;
@@ -1969,7 +1972,8 @@ pui.renderFormat = function(parms) {
               if (dom.blankValues == null) dom.blankValues = [];
               dom.blankValues.push(propValue);
               var box = dom;
-              if (dom.comboBoxWidget != null) box = dom.comboBoxWidget.getBox();
+              if (dom.floatingPlaceholder != null) box = dom.comboBoxWidget.getBox();
+              if (dom.comboBoxWidget != null) box = dom.floatingPlaceholder.getBox();
               var boxValue;
               if (box.tagName == "DIV") boxValue = getInnerText(box);
               else boxValue = box.value;
@@ -2122,11 +2126,17 @@ pui.renderFormat = function(parms) {
         
       } //done processing each in properties.
 
+      // float placeholder
+      if (!isDesignMode && properties["float placeholder"] == "true") {
+        pui.floatPlaceholder(dom);
+      }
+
       // assign auto tabbing events to input boxes
       if (pui["auto tab"] == true && properties["prevent auto tab"] != "true") {
         if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field") {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+          if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           addEvent(boxDom, "keyup", function(event) {
             event = event || window.event;
             var target = getTarget(event);
@@ -2138,6 +2148,7 @@ pui.renderFormat = function(parms) {
             }
             var box = target;
             if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+            if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
 
             if (printableChar && box.value.length == box.maxLength && (pui["is_touch"] || (getCursorPosition(box) >= box.maxLength))) {
               pui.gotoNextElementAndPossiblySelect(target);
@@ -2153,6 +2164,7 @@ pui.renderFormat = function(parms) {
         if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field" || properties["field type"] == "checkbox") {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+          if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           addEvent(boxDom, "keydown", function(event) {
             event = event || window.event;
             var target = getTarget(event);
@@ -2161,6 +2173,7 @@ pui.renderFormat = function(parms) {
             var keyCode = event.keyCode;
             var box = target;
             if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+            if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
             if (keyCode == 37) {  // left arrow key
               if (getCursorPosition(box) <= 0) {
                 pui.goToClosestElement(target, "left");
@@ -2227,6 +2240,7 @@ pui.renderFormat = function(parms) {
               // "set cursor row" and "set cursor column" take precedence over other propertiess like "set focus"
               pui.focusField.dom = dom;
               if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
+              if (dom.floatingPlaceholder != null) pui.focusField.dom = dom.floatingPlaceholder.getBox();
               pui.focusField.setFocusFlag = true;
             //}              
           }
@@ -2250,12 +2264,16 @@ pui.renderFormat = function(parms) {
         }
         
         // textboxes and text areas    
-        if ((dom.comboBoxWidget != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
+        if ((dom.comboBoxWidget != null) || (dom.floatingPlaceholder != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
           
           var boxDom = dom;
           if (dom.comboBoxWidget != null) {
             dom.comboBoxWidget.formatName = formatName;
             boxDom = dom.comboBoxWidget.getBox();
+          }
+          if (dom.floatingPlaceholder != null) {
+            dom.floatingPlaceholder.formatName = formatName;
+            boxDom = dom.floatingPlaceholder.getBox();
           }
 
           if (dom.formattingInfo != null && dom.formattingInfo.maxLength != null) {
@@ -2489,6 +2507,9 @@ pui.renderFormat = function(parms) {
         }
         if (dom.comboBoxWidget != null) {
           pui.focusField.dom = dom.comboBoxWidget.getBox();
+        }
+        if (dom.floatingPlaceholder != null) {
+          pui.focusField.dom = dom.floatingPlaceholder.getBox();
         }
       }
           
@@ -3163,14 +3184,18 @@ pui.showErrors = function(errors, rrn) {
     // 'dom' is the widget element. 
     // 'tipBox' is the element the tool tip is attached to
     // this is the interior textbox for a combobox widget.
-    if (dom.parentNode && dom.parentNode.comboBoxWidget) {
-    
-      dom = dom.parentNode;
-    
+    if (dom.parentNode && dom.parentNode.comboBoxWidget) {    
+      dom = dom.parentNode;    
+    }   
+    if (dom.parentNode && dom.parentNode.floatingPlaceholder) {    
+      dom = dom.parentNode;    
     }   
     var tipBox = dom;    
     if (dom.comboBoxWidget != null) { 
       tipBox = dom.comboBoxWidget.getBox();
+    }
+    if (dom.floatingPlaceholder != null) { 
+      tipBox = dom.floatingPlaceholder.getBox();
     }
     if (dom.pui.properties["error message location"] == "alert") {
       globalMessages.push(msg);
@@ -3225,6 +3250,7 @@ pui.showErrors = function(errors, rrn) {
       if (dom == null && id != null) dom = getObj(id);
       if (dom != null) {
         if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
+        if (dom.floatingPlaceholder != null) dom = dom.floatingPlaceholder.getBox();
         try {
           if (setFocusField) {
             pui.focusField.dom = dom;
@@ -3392,6 +3418,7 @@ pui.buildResponse = function(customResponseElements) {
     
     var boxDom = dom;
     if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+    if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
     var value = null;
     if (dom.responseValue != null) {
       value = dom.responseValue;      
@@ -3610,6 +3637,10 @@ pui.buildResponse = function(customResponseElements) {
         if (dom.comboBoxWidget != null) {
           value = dom.comboBoxWidget.getValue();
           if (value === dom.comboBoxWidget.getBox().emptyText) value = "";
+        }
+        if (dom.floatingPlaceholder != null) {
+          value = dom.floatingPlaceholder.getValue();
+          if (value === dom.floatingPlaceholder.getBox().emptyText) value = "";
         }
         if (dom.slider != null) {
           value = dom.value;
@@ -5564,6 +5595,7 @@ pui.setActiveElement = function(e) {
     pui.activeElement = target;
   var dom = target;
   if (dom.parentNode && dom.parentNode.comboBoxWidget) dom = dom.parentNode;
+  if (dom.parentNode && dom.parentNode.floatingPlaceholder) dom = dom.parentNode;
   var cell = dom.parentNode;
   if (cell != null) {
     var gridDiv = cell.parentNode;
@@ -5593,6 +5625,7 @@ pui.returnCursor = function(e, dom) {
   }
   var elem = target;
   if (elem.parentNode != null && elem.parentNode.comboBoxWidget != null) elem = elem.parentNode;
+  if (elem.parentNode != null && elem.parentNode.floatingPlaceholder != null) elem = elem.parentNode;
   if (elem.tagName == "OPTION" && elem.parentNode.tagName == "SELECT") elem = elem.parentNode;
   if (elem.tagName == "IMG" && elem.parentNode.tagName == "BUTTON"){
     elem = elem.parentNode;
@@ -5728,6 +5761,7 @@ pui.autoAdvanceOnKeyUp = function(event) {
   }
   var box = target;
   if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+  if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
   if (box.value.length == box.maxLength && (pui["is_touch"] || (getCursorPosition(box) >= box.maxLength))) {
     pui.keyName = "Enter";
     pui.click();
@@ -5786,6 +5820,7 @@ pui.gotoNextElementAndPossiblySelect = function(target) {
   
     var nextObjBox = nextObj;
     if (nextObj != null && nextObj.comboBoxWidget != null) nextObjBox = nextObj.comboBoxWidget.getBox();
+    if (nextObj != null && nextObj.floatingPlaceholder != null) nextObjBox = nextObj.floatingPlaceholder.getBox();
   
     var tag = nextObjBox.tagName;
     if (tag == "INPUT" || tag == "SELECT" || tag == "TEXTAREA" || tag == "A") {
@@ -5812,6 +5847,7 @@ pui.gotoNextElementAndPossiblySelect = function(target) {
 
 pui.goToClosestElement = function(baseElem, direction) {
   if (baseElem.parentNode.comboBoxWidget != null) baseElem = baseElem.parentNode;
+  if (baseElem.parentNode.floatingPlaceholder != null) baseElem = baseElem.parentNode;
   var baseX = parseInt(baseElem.style.left);
   if (isNaN(baseX)) return null;
   var baseY = parseInt(baseElem.style.top);
@@ -5859,6 +5895,7 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (elem.tagName == "A") elem = elem.parentNode;
     var mainElem = elem;
     if (elem.parentNode.comboBoxWidget != null) mainElem = elem.parentNode;
+    if (elem.parentNode.floatingPlaceholder != null) mainElem = elem.parentNode;
     var x = parseInt(mainElem.style.left);
     if (isNaN(x)) continue;
     var y = parseInt(mainElem.style.top);
@@ -6486,6 +6523,7 @@ pui.isInputCapableProperty = function(propname, dom) {
           || dom.tagName == "SELECT"  
           || dom.tagName == "TEXTAREA" 
           || dom.comboBoxWidget != null 
+          || dom.floatingPlaceholder != null 
           || dom.slider != null 
           || dom.signaturePad != null 
           || dom.onOffSwitch != null

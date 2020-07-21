@@ -744,6 +744,10 @@ function AutoComplete(config) {
   
     top = textBox.offsetTop;
     left = textBox.offsetLeft;
+    if (textBox.parentNode != null && textBox.parentNode.floatingPlaceholder) {
+      top = textBox.parentNode.offsetTop;
+      left = textBox.parentNode.offsetLeft;
+    }
     
     var prt = textBox.parentNode;
     if (prt.parentNode.grid) {
