@@ -50,10 +50,11 @@ pui.ValidationTip = function(el) {
   
   }
 
-  if (inputEl.comboBoxWidget != null) {
-  
-    inputEl = inputEl.comboBoxWidget.getBox();
-    
+  if (inputEl.comboBoxWidget != null) {  
+    inputEl = inputEl.comboBoxWidget.getBox();    
+  }      
+  if (inputEl.floatingPlaceholder != null) {  
+    inputEl = inputEl.floatingPlaceholder.getBox();    
   }      
 
   addEvent(inputEl, "focus", showTipOnFocus);

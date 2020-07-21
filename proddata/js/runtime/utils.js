@@ -1117,6 +1117,7 @@ pui.setEmptyText = function(dom, emptyText) {
   if (emptyText ==  null || emptyText == null) return;
   var box = dom;
   if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+  if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
   box.emptyText = emptyText;
   pui.checkEmptyText(box);
   addEvent(box, "focus", function(e) {
@@ -1535,7 +1536,10 @@ pui.getSQLVarName = function(dom) {
   var varName = context + ".";
 
   var id = dom.id;
-  
+  if (dom.parentNode != null && dom.parentNode.floatingPlaceholder != null) {
+    id = dom.parentNode.id;
+  }
+
   if (context == "genie" && dom.parentNode != pui.runtimeContainer) {
   
     // Strip window index, as the server 
@@ -4512,7 +4516,7 @@ pui.setModified = function(e, formatName) {
       return;
 
     target.modified = true;
-    if (target.parentNode != null && target.parentNode.comboBoxWidget != null) {
+    if (target.parentNode != null && (target.parentNode.comboBoxWidget != null || target.parentNode.floatingPlaceholder != null)) {
       target = target.parentNode;
       target.modified = true;
     }

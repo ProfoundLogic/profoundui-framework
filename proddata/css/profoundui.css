@@ -16256,3 +16256,34 @@ tr.drag_origin {
 tr.drop_valid {
   border: dashed 2px green;
 }
+
+.pui-floating-placeholder-label {
+  position: absolute;  
+  top: 3px;
+  left: 10px; 
+  background-color: #fff;
+  font-size: 16px;
+  padding-left: 3px;
+  padding-right: 3px;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform .25s, opacity .25s, visibility .25s ease-in-out;
+  transform-origin: 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 120%;
+  z-index: 30;
+}
+
+.pui-floating-placeholder-input:focus + .pui-floating-placeholder-label,
+.pui-floating-placeholder-input:not(:placeholder-shown) + .pui-floating-placeholder-label {
+  transform: scale(.75) translateY(-14px);
+  opacity: 1;
+  visibility: visible;
+}
+
+.pui-floating-placeholder-input:focus::placeholder {
+  color: transparent;
+}

@@ -577,6 +577,7 @@ function getPropertiesModel() {
     { name: "input only", choices: ["true", "false"], bind: false, type: "boolean", help: pui.helpTextProperties("false", "Defines whether the current element is input only or not. An input only element is always initialized when the screen appears."), controls: ["checkbox", "combo box", "date field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
     { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], help: pui.helpTextProperties("blank", "Specifies the default text to place into an empty field. When the field receives focus, the text is removed. This property is similar to the 'placeholder' property, but provides support for older browser that may not yet support the placeholder HTML5 attribute."), translate: true },
     { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], help: pui.helpTextProperties("blank", "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field. Older browsers may not support this feature."), translate: true },
+    { name: "float placeholder", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "When set to true, the placeholder becomes a floating label on top of the input field once there is data in the input box or while focus is on the element."), controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], hideFormatting: true, validDataTypes: ["indicator", "expression"], context: "dspf" },
     { name: "input type", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "range", "search", "tel", "time", "url", "week"], controls: ["combo box", "date field", "textbox"], help: pui.helpTextProperties("textbox", "Specifies an HTML5 input type. Some types may not yet be supported by the user's browser or mobile device. If a type is not specified or if the selected type is not supported, a standard textbox element will be used.") },
     { name: "browser auto complete", hideFormatting: true, choices: ["on", "off", "Other..."], controls: ["combo box", "date field", "password field", "textbox", "spinner"], help: pui.helpTextProperties("off", "Specifies the value of the HTML textbox \"autocomplete\" attribute, which controls the browser's autocomplete/autofill feature. Browser autocomplete/autofill is disabled (\"off\") by default. Specify \"on\" to enable browser autocomplete/autofill or for further control, specify an autofill field name. See <a href=\"https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill-field\" target=\"_blank\">here</a> for details on autofill field names.") },
     { name: "related field", help: pui.helpTextProperties("blank", "This property allows you to create a radio button group by associating multiple radio buttons with a field from the original application. Specify the id of the field to associate the radio button with. Additionally, this property can associate a text area with a group of textboxes by specify a comma separated list of textbox id's."), controls: ["radio button", "text area"], context: "genie" },
@@ -1090,6 +1091,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   if (propertyName == "auto advance") { // to do
     var boxDom = domObj;
     if (domObj.comboBoxWidget != null) boxDom = domObj.comboBoxWidget.getBox();
+    if (domObj.floatingPlaceholder != null) boxDom = domObj.floatingPlaceholder.getBox();
     if (propertyValue == "true") {
       boxDom.autoAdvance = true;
       addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
@@ -1128,6 +1130,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   if (propertyName == "set focus" && (propertyValue == true || propertyValue == "true")) {
     var dom = domObj;
     if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
+    if (dom.floatingPlaceholder != null) dom = dom.floatingPlaceholder.getBox();
     dom.focus();
     pui.focusField.dom = dom;
     pui.focusField.setFocusFlag = true;
@@ -1188,6 +1191,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     } else {
       if (domObj.tagName == "DIV") {
         if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
+        if (domObj.floatingPlaceholder != null) originalValue = domObj.floatingPlaceholder.getValue();
         else if (domObj.slider != null) originalValue = domObj.slider.value;
         else originalValue = getInnerText(domObj);
       } else {
@@ -1479,7 +1483,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       box.fieldInfo = newDomObj.fieldInfo;
       attachInputEvents(box);
       newDomObj.comboBoxWidget.setMaxLength(domObj.maxLength);
-    } else {
+    }
+    else if (newDomObj.floatingPlaceholder != null) {
+      var box = newDomObj.floatingPlaceholder.getBox();
+      pui.assignModifiedEvents(box);
+      box.fieldInfo = newDomObj.fieldInfo;
+      attachInputEvents(box);
+      newDomObj.floatingPlaceholder.setMaxLength(domObj.maxLength);
+    }
+    else {
       pui.assignModifiedEvents(newDomObj);
     }
   }
@@ -1594,6 +1606,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
             var comboInput = domObj.comboBoxWidget.getBox();
             comboInput.value = pui.replaceProblemCaseChars(comboInput.value, false);
             comboInput.addEventListener("input", pui.onProblemInput);
+          }
+          else if(domObj.floatingPlaceholder != null){
+            var fpInput = domObj.floatingPlaceholder.getBox();
+            fpInput.value = pui.replaceProblemCaseChars(fpInput.value, false);
+            fpInput.addEventListener("input", pui.onProblemInput);
           }
         }
         
@@ -1896,6 +1913,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (domObj.comboBoxWidget != null) {
         if (propConfigName != "onselect" && propConfigName != "onoptiondisplay") domObj.comboBoxWidget.assignJSEvent(propConfigName, func);
       }
+      if (domObj.floatingPlaceholder != null) {
+        if (propConfigName != "onselect" && propConfigName != "onoptiondisplay") domObj.floatingPlaceholder.assignJSEvent(propConfigName, func);
+      }
     }
   }
 
@@ -2008,6 +2028,12 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
       }
       if (dom.comboBoxWidget != null) {
         var boxDom = dom.comboBoxWidget.getBox();
+        boxDom.readOnly = true;
+        boxDom.disabled = true;
+        boxDom.tabIndex = "-1";
+      }
+      if (dom.floatingPlaceholder != null) {
+        var boxDom = dom.floatingPlaceholder.getBox();
         boxDom.readOnly = true;
         boxDom.disabled = true;
         boxDom.tabIndex = "-1";
