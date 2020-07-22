@@ -295,3 +295,77 @@ pui.getParentWindow = function(el) {
   return win;
 
 }
+
+pui.floatPlaceholder = function(idOrDom) {
+  // Wrap input into a DIV and create a placeholder label
+  if (typeof idOrDom === "string") {
+    var id = idOrDom;
+    var input = getObj(id);
+  }
+  else {
+    var input = idOrDom;
+    var id = input.id;
+  }
+  if (!input || !id) return;
+  if (input.tagName !== "INPUT" && input.tagName !== "TEXTAREA") return;
+  if (!input.placeholder) return;
+  var div = document.createElement("div");
+  div.classList.add("pui-floating-placeholder-div");
+  input.parentNode.insertBefore(div, input);
+  input.parentNode.removeChild(input);    
+  input.removeAttribute("id");
+  input.classList.add("pui-floating-placeholder-input");
+  div.id = id;
+  div.style.position = input.style.position;
+  div.style.left = input.style.left;
+  div.style.top = input.style.top;
+  div.style.width = input.style.width;
+  div.pui = input.pui;
+  input.style.position = "";
+  input.style.left = "";
+  input.style.top = "";
+  input.style.width = "100%";
+  div.appendChild(input);
+  var label = document.createElement("label");
+  label.classList.add("pui-floating-placeholder-label");
+  label.innerText = input.placeholder;
+  div.appendChild(label);
+
+  // Setup useful methods for outside use by the framework
+  div.floatingPlaceholder = label;
+  label.getValue = function() {
+    return input.value;
+  }
+  label.setValue = function(value) {
+    input.value = value;
+    pui.checkEmptyText(input);
+  }
+  label.getBox = function() {
+    return input;
+  }
+  label.setMaxLength = function(maxLength) {
+    if (maxLength) {
+      input.setAttribute("maxlength", maxLength);
+    }
+  }
+  label.assignJSEvent = function(jsEventName, func) {
+    // re-assign event to the input box and remove it from the main div element
+    input[jsEventName] = func;
+    if (div[jsEventName] != null) {
+      div[jsEventName] = function() {};
+    }
+  }
+  label.setReadOnly = function(isReadOnly) {
+    input.readOnly = isReadOnly;
+  }
+  label.setDisabled = function(isDisabled) {
+    input.disabled = isDisabled;
+  }
+  label.setBoxAttribute = function(attr, value) {
+    input.setAttribute(attr, value);
+  }  
+  label.setFocus = function() {  
+    box.focus();
+  }
+}
+

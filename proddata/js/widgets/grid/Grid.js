@@ -3499,6 +3499,9 @@ pui.Grid = function () {
                 if (dom.comboBoxWidget != null) {
                   value = dom.comboBoxWidget.getValue();
                 }
+                if (dom.floatingPlaceholder != null) {
+                  value = dom.floatingPlaceholder.getValue();
+                }
                 if (dom.onOffSwitch != null) {
                   value = "";
                   if (dom.onOffSwitch.isOn && dom.onOffSwitch.onValue != null) {
@@ -6604,7 +6607,7 @@ pui.Grid = function () {
     var found = false;
     while (inputBox != null) {
 
-      if (inputBox.tagName == "INPUT" || inputBox.tagName == "TEXTAREA" || inputBox.tagName == "SELECT" || inputBox.comboBoxWidget != null) {
+      if (inputBox.tagName == "INPUT" || inputBox.tagName == "TEXTAREA" || inputBox.tagName == "SELECT" || inputBox.comboBoxWidget != null || inputBox.floatingPlaceholder != null) {
 
         if (inputBox.style.visibility != "hidden" && inputBox.style.display != "none") {
 
@@ -6619,6 +6622,7 @@ pui.Grid = function () {
     }
     if (!found) return false;
     if (inputBox.comboBoxWidget != null) inputBox = inputBox.comboBoxWidget.getBox();
+    if (inputBox.floatingPlaceholder != null) inputBox = inputBox.floatingPlaceholder.getBox();
     var tag = inputBox.tagName;
     if (tag != "INPUT" && tag != "TEXTAREA" && tag != "SELECT") return false;
 
