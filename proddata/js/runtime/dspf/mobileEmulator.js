@@ -21,7 +21,7 @@
 
 
 
-pui.setupMobileEmulator = function(){
+pui.setupMobileEmulator = function() {
   var puiDiv = getObj("pui");
   if (puiDiv == null) return;
 	var mobileDiv = document.createElement("div");
@@ -226,28 +226,40 @@ pui.detectMobileEmulation = function(container) {
 
 
 pui.mobileEmulatorSizes = [{
-  "description": "iPhone (320 x 480)",
-  "height": 320,
-  "width": 480
+  "description": "iPhone 6/7/8",
+  "width": 375,
+  "height": 667
 }, {
-  "description": "iPad (768 x 1024)",
-  "height": 768,
-  "width": 1024
+  "description": "iPhone X/XS/11",
+  "width": 375,
+  "height": 812
 }, {
-  "description": "Android Phone (360 x 640)",
-  "height": 360,
-  "width": 640
+  "description": "iPhone XS Max/11 Pro Max",
+  "width": 414,
+  "height": 896
 }, {
-  "description": "Android Phone (480 x 800)",
-  "height": 480,
-  "width": 800
+  "description": "iPad Mini",
+  "width": 768,
+  "height": 1024
 }, {
-  "description": "Android Tablet (600 x 1024)",
-  "height": 600,
-  "width": 1024
+  "description": "iPad Pro",
+  "width": 1024,
+  "height": 1366
 }, {
-  "description": "Android Tablet (800 x 1280)",
-  "height": 800,
-  "width": 1280
+  "description": "Galaxy S8/S9",
+  "width": 360,
+  "height": 740
+}, {
+  "description": "Galaxy S10",
+  "width": 360,
+  "height": 760
+}, {
+  "description": "Galaxy S20",
+  "width": 360,
+  "height": 800
+}, {
+  "description": "Galaxy Tablet",
+  "width": 800,
+  "height": 1280
 }]
 
