@@ -83,6 +83,9 @@ var de_DE = function(dict) {
             dictMsg["downloading x"]                = "&1 wird heruntergeladen.";
             dictMsg["ie9 too low xlsxpics"]         = "Bilder können nicht exporiert werden mit einer Version unter IE9.";
 			dictMsg["keyboard input inhibited"]     = "Tastatureingabe ist in diesem Feld nicht erlaubt.";
+            dictMsg["pccommand error"]              = "Der Versuch STRPCCMD zu verarbeiten ist fehlgeschlagen. Bitte stellen Sie sicher, "
+            +"dass der Profound UI PC Listener auf dieser Maschine läuft und richtig konfiguriert ist. Prüfen Sie die Browserkonsole"
+            +" für weitere Informationen. (Für gewöhnlich: Strg+Shift+I) ";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Anzahl der Sitzungen überschritten.";
