@@ -239,7 +239,3 @@ pui.wf = {
     plugins[category][plugin.name] = plugin;
   }
 }
-
-pui.api = {
-  enabled: (location["search"] === "?apis" || location["search"] === "?apis/")  // temporary way to enable through query string
-}
