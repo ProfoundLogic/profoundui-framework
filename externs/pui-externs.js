@@ -360,7 +360,7 @@ var pui = {
   isApi:{},
   toSourceView:{},
   toDesignView:{},
+  apiFilePicker: {},
   apiParameterDialog: {},
-  apiFilePickerDialog: {},
   clientLogic: {}
 }
