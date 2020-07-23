@@ -1464,7 +1464,15 @@ pui["upload"] = function(params, callback) {
   
   var url = getProgramURL("PUI0009109.PGM");
   url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
-  url += "&mode=ajax";
+  
+  // Some API methods can upload, but those pass no Widget Id to PUI0009109 and PUIUPLEXIT. Do not use "ajax mode" (aka API mode) for widgets.
+  // "ajax" mode also tells 9109 to read the "filename" variable instead of "file", as BLOBs didn't always have "file" (commit id d5baa06)
+  // (Before Dec 2019 API calls were done by AJAX, and Widgets used an Iframe; so, the default must be to pass "ajax" mode. See #6158)
+  if (params["mode"] !== "widget") url += "&mode=ajax";
+  
+  // 9109 reads the "id" query variable and passes it to PUIUPLEXIT. (Note: 9109 only reads this if mode != "ajax" as of 7/22/20)
+  if (params["id"]) url += "&id=" + encodeURIComponent(params["id"]);
+    
   url += "&r=" + Math.floor(Math.random() * 1000000000);
   if (pui["isCloud"]) {
     url += "&workspace_id=" + pui.cloud.ws.id;

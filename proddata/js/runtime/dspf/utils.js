@@ -311,6 +311,11 @@ pui.floatPlaceholder = function(idOrDom) {
   if (!input.placeholder) return;
   var div = document.createElement("div");
   div.classList.add("pui-floating-placeholder-div");
+  for (var i = 0; i < input.classList.length; i++) {
+    var cls = input.classList[i];
+    cls = "pui-floating-placeholder-" + cls;
+    div.classList.add(cls);
+  }
   input.parentNode.insertBefore(div, input);
   input.parentNode.removeChild(input);    
   input.removeAttribute("id");

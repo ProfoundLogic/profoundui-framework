@@ -441,6 +441,8 @@ pui["fileupload"].FileUpload = function(container, extras) {
     // Else only call upload when files are chosen.
     else if (params["files"].length > 0){
       abortLink.style.display = "";
+      params["id"] = mainBox.id;  //Ensure PUI0009109 passes the Widget ID from POST data into the PUIUPLEXIT program. #6158
+      params["mode"] = "widget";
       xhr = pui.upload(params);
     }
     else {
