@@ -246,6 +246,21 @@ pui.layout.Layout = function() {
   this.center = function() {
     var hor = me.centerHor;
     var vert = me.centerVert;
+    
+    // Trigger centering logic in design mode
+    if (me.designMode && me.designItem) {
+      var item = me.designItem;
+      var centerHorizontally = null;
+      if (item.propertiesChanged["center horizontally"]) centerHorizontally = item.properties["center horizontally"];
+      if (centerHorizontally === "true") {
+        halfWidth = parseInt(me.layoutDiv.offsetWidth / 2);
+        if (!isNaN(halfWidth) && halfWidth > 0) {
+          me.layoutDiv.style.left = "calc(50% - " + halfWidth + "px)";
+        }
+      }
+    }
+
+    // Runtime processing
     if (!hor && !vert) return;
 
     var size = {};
