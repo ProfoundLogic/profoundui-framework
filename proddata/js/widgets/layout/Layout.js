@@ -296,6 +296,17 @@ pui.layout.Layout = function() {
       me.layoutDiv.style.top = layoutTop + "px";
     }
   };
+  
+  this.resize = function() {
+    var panel = me.layoutDiv.panel;
+    var accordion = me.layoutDiv.accordion;
+    var responsivelayout = me.layoutDiv.responsivelayout;
+    var tabLayout = me.layoutDiv.tabLayout;
+    if (panel) panel.resize();
+    if (accordion) accordion.resize();
+    if (responsivelayout) responsivelayout.resize();
+    if (tabLayout) tabLayout.resize();
+  }
 
   this.setProperty = function(property, value) {
     if (value == null) value = "";
