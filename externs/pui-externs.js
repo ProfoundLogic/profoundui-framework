@@ -359,5 +359,7 @@ var pui = {
   isApi:{},
   toSourceView:{},
   toDesignView:{},
-  clientLogic: {}
+  clientLogic: {},
+  startsWith: {},
+  endsWith: {}
 }
