@@ -16287,3 +16287,23 @@ tr.drop_valid {
 .pui-floating-placeholder-input:focus::placeholder {
   color: transparent;
 }
+
+
+.pui-mobile-emulator {
+  background-color: #fff;
+  overflow: auto;
+}
+
+.pui-mobile-emulator::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.pui-mobile-emulator::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.pui-mobile-emulator::-webkit-scrollbar-thumb {
+  background: #888;
+}
+.pui-mobile-emulator::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
