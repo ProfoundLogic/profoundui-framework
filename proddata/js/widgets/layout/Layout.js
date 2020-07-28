@@ -246,6 +246,21 @@ pui.layout.Layout = function() {
   this.center = function() {
     var hor = me.centerHor;
     var vert = me.centerVert;
+    
+    // Trigger centering logic in design mode
+    if (me.designMode && me.designItem) {
+      var item = me.designItem;
+      var centerHorizontally = null;
+      if (item.propertiesChanged["center horizontally"]) centerHorizontally = item.properties["center horizontally"];
+      if (centerHorizontally === "true") {
+        halfWidth = parseInt(me.layoutDiv.offsetWidth / 2);
+        if (!isNaN(halfWidth) && halfWidth > 0) {
+          me.layoutDiv.style.left = "calc(50% - " + halfWidth + "px)";
+        }
+      }
+    }
+
+    // Runtime processing
     if (!hor && !vert) return;
 
     var size = {};
@@ -281,6 +296,17 @@ pui.layout.Layout = function() {
       me.layoutDiv.style.top = layoutTop + "px";
     }
   };
+  
+  this.resize = function() {
+    var panel = me.layoutDiv.panel;
+    var accordion = me.layoutDiv.accordion;
+    var responsivelayout = me.layoutDiv.responsivelayout;
+    var tabLayout = me.layoutDiv.tabLayout;
+    if (panel) panel.resize();
+    if (accordion) accordion.resize();
+    if (responsivelayout) responsivelayout.resize();
+    if (tabLayout) tabLayout.resize();
+  }
 
   this.setProperty = function(property, value) {
     if (value == null) value = "";
