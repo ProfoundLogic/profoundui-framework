@@ -362,5 +362,7 @@ var pui = {
   toDesignView:{},
   apiFilePicker: {},
   apiParameterDialog: {},
-  clientLogic: {}
+  clientLogic: {},
+  startsWith: {},
+  endsWith: {}
 }

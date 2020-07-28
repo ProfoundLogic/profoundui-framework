@@ -47,8 +47,7 @@ pui.setupMobileEmulator = function() {
 	puiDiv.style.height = curHeight + "px"
 	puiDiv.style.left = "50px";
 	puiDiv.style.top = "70px";
-  puiDiv.style.backgroundColor = "white";
-	puiDiv.style.overflow = "hidden";
+  puiDiv.classList.add("pui-mobile-emulator");
 
 	puiDiv.parentNode.insertBefore(mobileDiv, puiDiv);
 
