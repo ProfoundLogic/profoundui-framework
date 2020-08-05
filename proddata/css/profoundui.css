@@ -13112,6 +13112,126 @@ div.blueprint-file-upload div.drop-box.dragover {
   background: #b6daf2;
 }
 
+.blueprint-grid .cell.selected .label-for-blueprint-checkbox {
+  background-image: url('../images/widgetsets/blueprint/blank-checkbox-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected input.blueprint-checkbox:checked+.label-for-blueprint-checkbox {
+  background-image: url('../images/widgetsets/blueprint/checkbox-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected .label-for-blueprint-checkbox-no-label {
+  background-image: url('../images/widgetsets/blueprint/blank-checkbox-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected input.blueprint-checkbox-no-label:checked+.label-for-blueprint-checkbox-no-label {
+  background-image: url('../images/widgetsets/blueprint/checkbox-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+.blueprint-grid .cell.selected .label-for-blueprint-radio-button {
+  background-image: url('../images/widgetsets/blueprint/blank-radio-button-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected input.blueprint-radio-button:checked+.label-for-blueprint-radio-button {
+  background-image: url('../images/widgetsets/blueprint/radio-button-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected .label-for-blueprint-radio-button-no-label {
+  background-image: url('../images/widgetsets/blueprint/blank-radio-button-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.blueprint-grid .cell.selected input.blueprint-radio-button-no-label:checked+.label-for-blueprint-radio-button-no-label {
+  background-image: url('../images/widgetsets/blueprint/radio-button-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+
 .blueprint-grid .cell.even, .blueprint-grid .cell.odd {
   border-right: 1px solid #2980b9;
   -webkit-box-sizing: border-box;
@@ -15498,7 +15618,7 @@ div.office-copy-file-upload div.drop-box.dragover {
   -webkit-border-radius: 100px;
   -moz-border-radius: 100px;
   -ms-border-radius: 100px;
-  -o-border-radius: 100px;  
+  -o-border-radius: 100px;
 }
 .office-copy-slider.slider:hover>div.handle {
   background: #6c757d;
@@ -15587,6 +15707,126 @@ div.office-copy-file-upload div.drop-box.dragover {
 
 .office-copy-grid .cell.odd {
   background: #e9ecef;
+}
+
+
+.office-copy-grid .cell.selected .label-for-office-copy-checkbox {
+  background-image: url('../images/widgetsets/office-copy/blank-checkbox-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected input.office-copy-checkbox:checked+.label-for-office-copy-checkbox {
+  background-image: url('../images/widgetsets/office-copy/checkbox-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected .label-for-office-copy-checkbox-no-label {
+  background-image: url('../images/widgetsets/office-copy/blank-checkbox-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected input.office-copy-checkbox-no-label:checked+.label-for-office-copy-checkbox-no-label {
+  background-image: url('../images/widgetsets/office-copy/checkbox-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+.office-copy-grid .cell.selected .label-for-office-copy-radio-button {
+  background-image: url('../images/widgetsets/office-copy/blank-radio-button-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected input.office-copy-radio-button:checked+.label-for-office-copy-radio-button {
+  background-image: url('../images/widgetsets/office-copy/radio-button-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected .label-for-office-copy-radio-button-no-label {
+  background-image: url('../images/widgetsets/office-copy/blank-radio-button-white.png');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: -2px center;
+  margin: 1px;
+  height: 20px;
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 1px;
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
+}
+
+.office-copy-grid .cell.selected input.office-copy-radio-button-no-label:checked+.label-for-office-copy-radio-button-no-label {
+  background-image: url('../images/widgetsets/office-copy/radio-button-white.png');
+  -webkit-transform: translateX(-20px);
+  transform: translateX(-20px);
+  -moz-transform: translateX(-20px);
+  -ms-transform: translateX(-20px);
+  -o-transform: translateX(-20px);
 }
 
 .office-copy-grid .cell.even, .office-copy-grid .cell.odd {
@@ -16212,7 +16452,7 @@ div.pui-vresizer {
 }
 .slider.horizontal > .handle {
   height: 15px;
-  width: 10px;      
+  width: 10px;
   top: 1px;
 }
 .slider.vertical > .handle {
@@ -16222,7 +16462,7 @@ div.pui-vresizer {
 }
 .slider.touch.horizontal > .handle {
   height: 37px;
-  width: 32px;      
+  width: 32px;
   top: -11px;
 }
 .slider.touch.vertical > .handle {
@@ -16260,9 +16500,9 @@ tr.drop_valid {
 }
 
 .pui-floating-placeholder-label {
-  position: absolute;  
+  position: absolute;
   top: 3px;
-  left: 10px; 
+  left: 10px;
   background-color: #fff;
   font-size: 16px;
   padding-left: 3px;
