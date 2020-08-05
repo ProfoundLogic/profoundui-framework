@@ -394,14 +394,19 @@ pui.Grid = function () {
     me.sendToDesigner();
   };
 
-  this.doExpandToLayout = function (force) {
+  this.doExpandToLayout = function(force) {
     if (!force) {
       if (me.designMode && toolbar.loadingDisplay) return;
     }
     if (!me.expandToLayout) return;
     var container = me.tableDiv.parentNode;
     if (container.getAttribute("container") != "true") return;
+    var height = container.offsetHeight;
     var width = container.offsetWidth;
+    if (height === 0 && width === 0 && container.parentNode && container.parentNode.classList.contains("pui-tablayout-body")) {
+      height = container.parentNode.offsetHeight - 2;
+      width = container.parentNode.offsetWidth - 2;
+    }
     var colWidths = me.getColumnWidths().split(",");
     var sum = 0;
     for (var i = 0; i < colWidths.length; i++) {
@@ -417,7 +422,6 @@ pui.Grid = function () {
     }
     me.setColumnWidths(colWidths);
 
-    var height = container.offsetHeight;
     if (me.hasHeader) height -= me.headerHeight;
     if (me.pagingBar) height -= me.pagingBar.getHeight();
     var numRows = height / me.rowHeight;
