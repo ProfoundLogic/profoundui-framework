@@ -13070,6 +13070,7 @@ div.blueprint-file-upload div.drop-box.dragover {
   white-space: unset !important;
   position: unset !important;
   top: unset !important;
+  transform: unset !important;
   margin-top: unset !important;
   left: unset !important;
   width: 100% !important;
@@ -15561,6 +15562,7 @@ div.office-copy-file-upload div.drop-box.dragover {
   letter-spacing: 1px;
   white-space: nowrap !important;
   position: unset !important;
+  transform: unset !important;
   margin-top: 0 !important;
 }
 
