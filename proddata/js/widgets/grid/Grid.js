@@ -6190,7 +6190,35 @@ pui.Grid = function () {
           if (typeof contextMenu.style.webkitUserSelect != "undefined") contextMenu.style.webkitUserSelect = "none";
 
         }
+
         contextMenu.style.zIndex = me.contextMenuZIndex;
+
+        // Allow the "onoptiondisplay" event on the menu widget to be used to
+        //  update the options that will be displayed.
+        //
+        // NOTE: Unfortunately we can't use executeEvent() here since the
+        //       event is attached to the menu widget rather than the grid widget.
+
+        if (typeof contextMenu["onoptiondisplay"] == "function") {
+
+          var curRow = row;
+          if (!me.hasHeader) curRow += 1;
+
+          if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) { 
+            var adjustedRow = curRow; 
+            adjustedRow += (me.recNum - 1);
+            var rowNumber = adjustedRow;
+            var dataRecords = me.dataArray;
+            if (me.isFiltered()) dataRecords = me.filteredDataArray;
+            if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].subfileRow != null) {
+              adjustedRow = dataRecords[adjustedRow - 1].subfileRow;
+            }
+            contextMenu["onoptiondisplay"](adjustedRow, adjustedRow, rowNumber, col, me);
+            contextMenu.menuWidget.draw();
+          }
+
+        }
+
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
         // Position after show, as some browsers (FF) report menu width 0 when hidden.
