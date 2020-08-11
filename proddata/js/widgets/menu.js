@@ -50,6 +50,7 @@ pui.MenuWidget = function() {
   function drawMenu(parms) {
     var container = parms.container;
     var parentTable = parms.parentTable;
+
     // The showing property gets set in the Grid.js and gets checked when hiding the Menu.
     // If the menu happens to have the same ID as another menu in a different record format, 
     // the menu will be hidden after the other one is displayed. #3870
@@ -421,12 +422,12 @@ pui.MenuWidget = function() {
   // Public Methods
   this.draw = function() {
       
-      drawMenu({
-        container: me.container,
-        orientation: me.orientation,
-        from: 0,
-        to: me.choices.length - 1
-      });
+    drawMenu({
+      container: me.container,
+      orientation: me.orientation,
+      from: 0,
+      to: me.choices.length - 1
+    });
 
   };
   

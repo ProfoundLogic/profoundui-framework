@@ -806,7 +806,7 @@ function getPropertiesModel() {
     { name: "onmouseout", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moved off this element.") },
     { name: "onmouseover", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse is moved over this element.") },
     { name: "onmouseup", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the mouse button is released off this element.") },
-    { name: "onoptiondisplay", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'."), controls: ["combo box"] },
+    { name: "onoptiondisplay", type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid."), controls: ["combo box","menu"] },
     { name: "onselect", wf: true, controls: ["combo box", "textbox"], type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields.") },
     { name: "onspin", wf: true, controls: ["spinner"], type: "js", help: pui.helpTextProperties("blank", "Initiates a client-side script when the up or down arrow is clicked on a spinner element.") }
   ];
@@ -1830,27 +1830,31 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else if (propConfigName == "onoptiondisplay") {
       func = function () {
-        eval("var row;");
-        if (subfileRow != null) {
-          eval("row = " + subfileRow + ";");
-        }
-        eval("var rrn;");
-        if (subfileRow != null) {
-          eval("rrn = " + subfileRow + ";");
-        }
-        eval("var rowNumber;");
-        if (domObj.dataArrayIndex != null) {
-            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+        if (arguments.length >= 1) eval("var row = " + arguments[0] + ";");
+        if (arguments.length >= 2) eval("var rrn = " + arguments[1] + ";");
+        if (arguments.length >= 3) eval("var rowNumber = " + arguments[2] + ";");
+        if (arguments.length >= 4) eval("var column = " + arguments[3] + ";");
+        if (arguments.length >= 5) {
+          pui["temp_value"] = arguments[4];
+          eval("var grid = pui.temp_value;");
         }
         eval("var choices;");
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choices"] != null) {
             pui["temp_value"] = domObj.comboBoxWidget["choices"]; 
             eval("choices = pui.temp_value.slice(0);");
         }
+        if (domObj.menuWidget != null && domObj.menuWidget.choices != null) {
+          pui["temp_value"] = domObj.menuWidget.choices; 
+          eval("choices = pui.temp_value.slice(0);");
+        }
         eval("var values;");
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choice values"] != null) {
-            pui["temp_value"] = domObj.comboBoxWidget["choices"]; 
+            pui["temp_value"] = domObj.comboBoxWidget["choice values"]; 
             eval("values = pui.temp_value.slice(0);");
+        }
+        if (domObj.menuWidget != null && domObj.menuWidget.choiceValues != null) {
+          pui["temp_value"] = domObj.menuWidget.choiceValues; 
+          eval("values = pui.temp_value.slice(0);");
         }
         try {
           var customFunction = eval(newValue);
@@ -1864,9 +1868,17 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           eval("pui.temp_value = choices;");
           domObj.comboBoxWidget["choices"] = pui["temp_value"].slice(0);
         }
+        if (domObj.menuWidget != null && domObj.menuWidget.choices != null) {
+          eval("pui.temp_value = choices;");
+          domObj.menuWidget.choices = pui["temp_value"].slice(0);
+        }
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choice values"] != null) {
           eval("pui.temp_value = values;");
           domObj.comboBoxWidget["choice values"] = pui["temp_value"].slice(0);
+        }
+        if (domObj.menuWidget != null && domObj.menuWidget.choiceValues != null) {
+          eval("pui.temp_value = values;");
+          domObj.menuWidget.choiceValues = pui["temp_value"].slice(0);
         }
       };
     }
