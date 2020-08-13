@@ -43,6 +43,7 @@ pui.Grid = function () {
   this.cleared = true;
   this.runtimeChildren = [];
   this.dataArray = [];
+  this.forceDataArray = false;
   this.filteredDataArray = [];
   this.fieldNames = [];
   this.ref = {}; // reference field info
@@ -203,6 +204,7 @@ pui.Grid = function () {
   this.returnSortOrder = null;
   this.initialSortColumnMulti = null; //Array if "initial sort column" is a comma-separated list.
   this.initialSortFieldMulti = null; //Array if "initial sort field" is a comma-separated list.
+  this.initialSortFieldMultiData = []; //Array if "initial sort field" is a comma seperated list and the grid is a Data grid
   
   this.contextMenuId = null;
 
@@ -259,6 +261,8 @@ pui.Grid = function () {
   var waitingOnRequest = false;
 
   var dataGridDidInitialSort = false; //Becomes true after setting up initial sort column in getData.
+  var dataGridDidInitialSortOnce = false; //If initial sort was done once in getData()
+  var suppressGetData = false; //Keep getData from running when called in functions already inside getData
   var dataGridDidRestoreState = false; //Becomes true after restoring datagrid state in getData.
 
   // These three members are only for data grids. They are passed to the CGI program.
@@ -677,7 +681,7 @@ pui.Grid = function () {
     if (fileName == null) fileName = me.exportFileName;
     if (fileName == null || fileName == "") fileName = me.tableDiv.id;
 
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me.forceDataArray == false) {
       if (exportXLSX) {
         me.exportExcel_DataGrid(fileName);
       } else {
@@ -1551,7 +1555,7 @@ pui.Grid = function () {
         break;
       }
 
-      if (domTest && pui.isInputCapableProperty("value", domTest)) {
+      if (domTest && pui.isInputCapableProperty("value", domTest) && me.isDataGrid() == false) {
         var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
         if (pui.responseElements[qualField] == null) {
           pui.responseElements[qualField] = [{
@@ -1621,7 +1625,7 @@ pui.Grid = function () {
     if (me.hasHeader) numRows = numRows - 1;
     var lastRow = me.recNum + numRows - 1;
 
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true") {
       return (me.totalRecs <= lastRow);
     } else {
       var dataRecords = me.dataArray;
@@ -1650,7 +1654,7 @@ pui.Grid = function () {
     me.recNum += numRows;
     var lastRow = me.recNum + numRows - 1;
 
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me.forceDataArray != true) {
       if (me.totalRecs < lastRow && me.scrollbarObj != null) {
         me.recNum = me.recNum - lastRow + me.totalRecs;
         if (me.recNum < 1) me.recNum = 1;
@@ -1702,7 +1706,7 @@ pui.Grid = function () {
     var width = parseInt(gridDiv.style.width) - 2;
     var height = parseInt(gridDiv.style.height);
     if (maskCover == null) maskCover = document.createElement("div");
-    else maskCover.style.display = "";
+    maskCover.style.display = "block";
     if (me.hasHeader) {
       top += me.headerHeight;
       height = height - me.headerHeight;
@@ -1723,51 +1727,57 @@ pui.Grid = function () {
    * @returns {undefined}
    */
   this.getData = function (csvFile) {
+    
     if (me.tableDiv.disabled == true) return;
     if (me.designMode) return;
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     if (numRows < 1) return;
 
-    // Do some things before making the first XHR for data grids.
-    if (me.isDataGrid()){
-      if (!dataGridDidInitialSort && doInitialSort(true) ){
-        dataGridDidInitialSort = true;
-      }
-      // Only once, load any stored filter and sort options.
-      if (!dataGridDidRestoreState) {
-        restoreStateDataGrid();
-        dataGridDidRestoreState = true; //Only restore filters/sort once.
-      }
-    }
-    
-    // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
-    var sql = me["dataProps"]["custom sql"];
-    var orderBy = "";
-    // There was no "custom sql", so build the string from DB-driven properties.
-    if (sql == null || sql == "") {
-      var file = me["dataProps"]["database file"];
-      var fields = me["dataProps"]["database fields"];
-      var whereClause = me["dataProps"]["selection criteria"];
-      orderBy = me["dataProps"]["order by"];
-      if (me.sortBy != null) orderBy = me.sortBy;
-      if (fields != null && fields != "" && file != null && file != "") {
-        sql = "SELECT " + fields + " FROM " + file;
-        if (whereClause && whereClause != "") {
-          sql += " WHERE " + whereClause;
+    if(me.forceDataArray == false){
+      // Do some things before making the first XHR for data grids.
+      if (me.isDataGrid()){
+        if (!dataGridDidInitialSortOnce){
+          dataGridDidInitialSortOnce = true;
+          suppressGetData = true; //so GetData isn't called recursively
+          dataGridDidInitialSort = doInitialSort(true);
+          suppressGetData = false;
         }
-        if (orderBy && orderBy != "") {
-          sql += " ORDER BY " + orderBy;
+        // Only once, load any stored filter and sort options.
+        if (!dataGridDidRestoreState) {
+          restoreStateDataGrid();
+          dataGridDidRestoreState = true; //Only restore filters/sort once.
         }
       }
-    } else if (me.sortBy != null) {
-      // Allow the cache comparison know if sorting changed.
-      sql += " ORDER BY " + me.sortBy;
+      
+      // The SQL string helps Grid decide to use pui.sqlcache; it is only sent to the CGI program when secLevel is 0.
+      var sql = me["dataProps"]["custom sql"];
+      var orderBy = "";
+      // There was no "custom sql", so build the string from DB-driven properties.
+      if (sql == null || sql == "") {
+        var file = me["dataProps"]["database file"];
+        var fields = me["dataProps"]["database fields"];
+        var whereClause = me["dataProps"]["selection criteria"];
+        orderBy = me["dataProps"]["order by"];
+        if (me.sortBy != null) orderBy = me.sortBy;
+        if (fields != null && fields != "" && file != null && file != "") {
+          sql = "SELECT " + fields + " FROM " + file;
+          if (whereClause && whereClause != "") {
+            sql += " WHERE " + whereClause;
+          }
+          if (orderBy && orderBy != "") {
+            sql += " ORDER BY " + orderBy;
+          }
+        }
+      } else if (me.sortBy != null) {
+        // Allow the cache comparison know if sorting changed.
+        sql += " ORDER BY " + me.sortBy;
+      }
     }
     var dataURL = me["dataProps"]["data url"];
     if (dataURL == "") dataURL = null;
     if (sql == null) sql = "";
-    if (sql != "" || dataURL != null) {
+    if (me.forceDataArray == false && (sql != "" || dataURL != null)) {
       if (csvFile != null) {
         if (sql == null || sql == "") return;
         var delimiter = ",";
@@ -1882,7 +1892,16 @@ pui.Grid = function () {
         // We aren't doing a server-side Find, so clear all cells.
         me.clearData();
 
-      runSQL(sql, numRows, startRow, receiveData, (me.totalRecs == null), dataURL, true);
+      var receiveRoutine = receiveData;
+      var limit = numRows;
+      if(me["dataProps"]["load fields into widgets"] == "true"){
+        receiveRoutine = receiveIntoDataArray;
+        if(me["dataProps"]["load all rows"] == "true"){
+          limit = -1;
+        }
+        me.mask();
+      }
+      runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, true);
     }
     else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
@@ -1901,14 +1920,18 @@ pui.Grid = function () {
       var lastRow = me.recNum + numRows - 1;
       // If filter causes RRN to be too high, put RRN in range of records (#5259). Or, if there is a scrollbar, scroll to the end.
       // Note: it is expected behavior that empty rows will exist when there is no scrollbar (#5524)
-      if (dataRecords.length < lastRow && (me.isFiltered() || me.scrollbarObj != null) ) {
+      if (me.forceDataArray == false && dataRecords.length < lastRow && (me.isFiltered() || me.scrollbarObj != null) ) {
         
         me.recNum = me.recNum - lastRow + dataRecords.length;
         if (me.recNum < 1) me.recNum = 1;
         lastRow = dataRecords.length;
       }
       me.hideTips();
-      for (var i = me.recNum; i <= lastRow; i++) {
+      var firstRow = me.recNum;
+      if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){
+        firstRow = 1;
+      }
+      for (var i = firstRow; i <= lastRow; i++) {
 
         if (me.gridRecordData) {
           var gridRecord = me.gridRecordData[i - 1];
@@ -1990,7 +2013,7 @@ pui.Grid = function () {
         }
       }
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
-        me.scrollbarObj.totalRows = dataRecords.length;
+        me.scrollbarObj.totalRows = (me.forceDataArray && me["dataProps"]["load all rows"] != "true") ? me.totalRecs : dataRecords.length;
       }
       if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) {
         me.scrollbarObj.draw();
@@ -2000,6 +2023,109 @@ pui.Grid = function () {
       if (me.pagingBar != null) {
         me.pagingBar.pageNumber = parseInt((me.recNum + numRows * 2 - 2) / numRows) + me.initialPageNumber - 1;
         me.pagingBar.draw();
+      }
+      me.cleared = false;
+    }
+    /**
+     * Callback for runSQL.
+     * @param {Object|Array} data       Received data from XHR or pui.sqlcache.
+     * @param {Null|Number} totalRecs   When set, the XHR responded to getTotal with this.
+     * @param {Null|Number} matchRow    When doing Find, returns row on which match was found and data starts.
+     * @returns {undefined}
+     */
+    //For loading database driven grids into wigets
+    function receiveIntoDataArray(data, totalRecs, matchRow) {
+      if (me == null || me.cells == null) return; // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
+      if (totalRecs != null) me.totalRecs = totalRecs;
+
+      me.fieldNames = [];
+      me.filteredDataArray = [];
+      //Clears DOM elements
+      me["clear"](false);
+      me.sorted = false;
+      if(me["dataProps"]["load all rows"] == "true"){
+        resetAllDefaultSortDescending();
+      }
+      
+      //Get data from sql request and put into data array
+      if(data.length >= 1){
+        for(var fieldName in data[0]){
+          me.fieldNames.push(pui.fieldUpper(fieldName));
+        }
+        for(var i = 0; i < data.length; i++){
+          me.dataArray[i] = [];
+          me.filteredDataArray[i] = [];
+          var record = data[i];
+          var fieldNumber = 0;
+          for(var fieldName in record){
+            var fieldValue = record[fieldName];
+            me.dataArray[i][fieldNumber] = fieldValue;
+            me.filteredDataArray[i][fieldNumber] = fieldValue;
+            fieldNumber ++;
+          }
+        }
+      }
+      //set true to work with data array in GetData
+      me.forceDataArray = true;
+      me.getData();
+
+      //reapply filter after restoring state
+      if(me["dataProps"]["load all rows"] == "true" && me.isFiltered() && persistState){
+        var state = restoreStatePreCheck();
+        var filters = state["filters"];
+        if (filters != null) {
+          //waitingOnRequest prevents filter from being set
+          me.waitingOnRequest = false;
+          for (var i = 0; i < filters.length; i++) {
+            var col = state["filters"][i]["column"];
+            var text = state["filters"][i]["text"];
+            if (text == null || text == "")
+              me["removeFilter"](col);
+            else
+              me["setFilter"](col, text);
+          }
+          me.waitingOnRequest = true;
+        }
+      }
+      if(me["dataProps"]["load all rows"] == "true" && me.hasHeader && me.cells.length > 0){ 
+        var headerRow = me.cells[0];
+        for(i = 0; i < headerRow.length; i++){
+          if(headerRow[i].sortIndex){
+            headerRow[i].sortIndex = null;
+          }
+        }
+        me.makeSortable(false);
+      }
+      me["unMask"]();
+      if(me["dataProps"]["load all rows"] != "true"){
+        me.forceDataArray = false;
+      }
+      var numRows = me.cells.length;
+      if (me.hasHeader) numRows = numRows - 1;
+
+      if (me.scrollbarObj != null) {
+        if (me.scrollbarObj.type == "paging") {
+          setTimeout(function () {
+            me.scrollbarObj.destroy();
+            me.scrollbarObj = null;
+            me.setScrollBar();
+          }, 250);
+        }
+        else if (me.scrollbarObj.type == "sliding") {
+          if (me.totalRecs != null) {
+            me.scrollbarObj.totalRows = me.totalRecs;
+            if (matchRow > 0) { //If this response is the result of a Find.
+              // Position the scrollbar to where the data is--if possible, without making another XHR. If the 
+              // Found record is the last record, the scrollbar will resend and position on the last row.
+              me.scrollbarObj.setScrollTopToRow(me.recNum, true);
+            }
+          }
+        }
+      }
+      if (me.tableDiv.style.visibility != "hidden" && me.scrollbarObj != null) {
+        me.scrollbarObj.draw();
+        // Sliding scrollbar must know when grid is done loading so that a flag can be cleared after queued functions finish.
+        if (typeof me.scrollbarObj.gridRequestFinished == "function") me.scrollbarObj.gridRequestFinished();
       }
       me.cleared = false;
     }
@@ -2083,13 +2209,11 @@ pui.Grid = function () {
 
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
-          me.scrollbarObj.atBottom = false;
-          if (me.totalRecs != null) {
-            if (me.recNum + numRows > me.totalRecs) {
-              me.scrollbarObj.atBottom = true;
-            }
-          }
-          me.scrollbarObj.reset();
+          setTimeout(function () {
+            me.scrollbarObj.destroy();
+            me.scrollbarObj = null;
+            me.setScrollBar();
+          }, 250);
         }
         else if (me.scrollbarObj.type == "sliding") {
           if (me.totalRecs != null) {
@@ -2526,7 +2650,8 @@ pui.Grid = function () {
     if ((me["dataProps"]["database file"] != null && me["dataProps"]["database file"] != "") &&
       (me["dataProps"]["custom sql"] == null || me["dataProps"]["custom sql"] == "") &&
       (me["dataProps"]["data url"] == null || me["dataProps"]["data url"] == "") &&
-      (me["dataProps"]["database fields"] != null && me["dataProps"]["database fields"] != "")) {
+      (me["dataProps"]["database fields"] != null && me["dataProps"]["database fields"] != "") &&
+      (me["dataProps"]["load all rows"] != "true") ) {
       var fields = pui.getFieldList(me["dataProps"]["database fields"]);
       for (var i = 0; i < fields.length; i++) {
         if (!headerRow[i]) continue;
@@ -2534,14 +2659,18 @@ pui.Grid = function () {
         attachClickEventForSQL(headerRow[i]);
       }
     }
-    else if ((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "")
-          || (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "") ){
+    else if (((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "")
+          || (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "")) 
+          && (me["dataProps"]["load all rows"] != "true") ){
 
       // Custom SQL and data URL grids can sort given the column number.
       var numCols = me.vLines.length - 1;
       for (var i = 0; i < numCols; i++) {
         attachClickEventForSQL(headerRow[i]);
       }
+    }
+    else if(me["dataProps"]["load all rows"] == "true" &&  me.forceDataArray == false){
+      //Skip setting up sorting before database has loaded on a load all, database driven grid
     }
     else {
       // Make each header cell of a Load-All or Page-at-a-time grid respond to sort clicks. (Custom SQL is setup after data loads.)
@@ -2621,7 +2750,7 @@ pui.Grid = function () {
     // Setup sort direction and icons based on initial/default fields or server response.
     if (me.initialSortColumnMulti instanceof Array){
       importArrIntoMultiSort(me.initialSortColumnMulti, headerIsSortCol, getIsDescending);
-      if (me.isDataGrid()){
+      if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
         sortColumnUsingSQL(null, suppressXHR);  //Setup columns but do not make XHR.
       } 
       else {
@@ -2629,12 +2758,22 @@ pui.Grid = function () {
       }
     }
     else if (me.initialSortFieldMulti instanceof Array ){
-      importArrIntoMultiSort(me.initialSortFieldMulti, headerIsSortField, getIsDescending);
-      sortColumn(null, true);
+      if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
+        //convert me.initialsSortFieldMulti to use colIds, which are not null at this time
+        for(i = 0; i < me.initialSortFieldMulti.length; i++){
+          me.initialSortFieldMultiData[i] = me.getColumnIndexFromFieldName(me.initialSortFieldMulti[i]);
+        }
+        importArrIntoMultiSort(me.initialSortFieldMultiData, headerIsSortCol, getIsDescending);
+         sortColumnUsingSQL(null, suppressXHR);
+      }
+      else {
+        importArrIntoMultiSort(me.initialSortFieldMulti, headerIsSortField, getIsDescending);
+        sortColumn(null, true);
+      }
     }
     else if (me.initialSortColumn != null) {
       if (headerRow[me.initialSortColumn]){
-        if (me.isDataGrid()){
+        if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
           sortColumnUsingSQL(headerRow[me.initialSortColumn], suppressXHR);
         }
         else {
@@ -2644,7 +2783,12 @@ pui.Grid = function () {
     }
     else if (me.initialSortField != null) {
       var initialSortColumn = me.getColumnIndexFromFieldName(me.initialSortField);
-      if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], true);
+      if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
+        if (initialSortColumn != null) sortColumnUsingSQL(headerRow[initialSortColumn], suppressXHR);
+      }
+      else{
+        if (initialSortColumn != null) sortColumn(headerRow[initialSortColumn], true);
+      }
     }
     else {
       return false;
@@ -3022,7 +3166,7 @@ pui.Grid = function () {
         if(!doInitialSort(false)) restoreOriginalSortOrder();
       }
       else {
-        if (me.isDataGrid()) {
+        if (me.isDataGrid() && me.forceDataArray == false) {
           sortColumnUsingSQL(null, false);
         }
         else {
@@ -3227,8 +3371,9 @@ pui.Grid = function () {
         me.scrollbarObj.setScrollTopToRow(me.recNum);
 
       }
-
-      me.getData();
+      if(suppressGetData == false){
+        me.getData();
+      }
 
     }
 
@@ -3298,7 +3443,7 @@ pui.Grid = function () {
     hideMultiSortIcons();
     me.recNum = 1;
     
-    if (me.isDataGrid()){
+    if (me.isDataGrid() && me.forceDataArray == false){
       me.sortBy = "";
       me.mask();
       dataGridDidInitialSort = false;   //Use "initial sort column".
@@ -3832,7 +3977,9 @@ pui.Grid = function () {
         };
         me.scrollbarObj.onchange = function (recNum) {
           if (me.isDataGrid()) {
-            me.clearData();
+            if(me["dataProps"]["load all rows"] != "true"){
+              me.clearData();
+            }
           }
         };
         me.scrollbarObj.enableMouseWheel(me.tableDiv);
@@ -3842,7 +3989,7 @@ pui.Grid = function () {
         me.scrollbarObj.onpageup = function () {
           var returnVal = executeEvent("onpageup");
           if (returnVal == false) return false;
-          if (me.isDataGrid()) {
+          if (me.forceDataArray == false && me.isDataGrid()) {
             if (me.recNum > 1) {
               var numRows = me.cells.length;
               if (me.hasHeader) numRows = numRows - 1;
@@ -3852,7 +3999,7 @@ pui.Grid = function () {
             }
             return true;
           }
-          else if (context == "dspf" || pui.usingGenieHandler) {
+          else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -3871,14 +4018,14 @@ pui.Grid = function () {
         me.scrollbarObj.onpagedown = function () {
           var returnVal = executeEvent("onpagedown");
           if (returnVal == false) return false;
-          if (me.isDataGrid()) {
+          if (me.forceDataArray == false && me.isDataGrid()) {
             var numRows = me.cells.length;
             if (me.hasHeader) numRows = numRows - 1;
             me.recNum += numRows;
             me.getData();
             return true;
           }
-          else if (context == "dspf" || pui.usingGenieHandler) {
+          else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -3934,6 +4081,10 @@ pui.Grid = function () {
       if (stype == "paging") {
         me.scrollbarObj.height = me.getStyleAsInt("height") - bwidth;
         if (me.scrollbarObj.height < 0) me.scrollbarObj.height = 0;
+        if(me.isDataGrid()){
+          me.scrollbarObj.atTop = me.atTop();
+          me.scrollbarObj.atBottom = me.atBottom(); 
+        }
       }
       if (stype == "sliding") {
         if (me.isDataGrid()) me.scrollbarObj.interval = 250;
@@ -4724,6 +4875,8 @@ pui.Grid = function () {
       case "sortable":
       case "custom sql":
       case "allow any select statement":
+      case "load fields into widgets":
+      case "load all rows":
       case "data url":
       case "data transform function":
       case "starting row":
@@ -5982,6 +6135,11 @@ pui.Grid = function () {
       me.hLines[i].style.width = width + "px";
     }
     me.tableDiv.style.width = width + "px";
+    //Mask doesn't adjust to new width when columns are hidden
+    if(persistState && me.isDataGrid() && me["dataProps"]["load all rows"] == "true" && maskCover.style.display == "block"){
+      //reset mask with new widths
+      me.mask();
+    }
   }
 
   function setLineHeights() {
@@ -6823,7 +6981,7 @@ pui.Grid = function () {
       //  need to include this logic when exporting data also
       me.filterString = "";   // format here and then pass to export function
 
-      if (me.isFiltered()) {
+      if (me.isFiltered() && me["dataProps"]["load all rows"] != "true") {
         var headerRow = me.cells[0];
         // Look in each column for filter text.
         var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
@@ -6852,20 +7010,20 @@ pui.Grid = function () {
     } //done creating sql query parameters.
 
     if (cache) {
-      me["unMask"]();
       if (pui.sqlcache == null) pui.sqlcache = {};
       if (pui.sqlcache[start] == null) pui.sqlcache[start] = {};
       if (pui.sqlcache[start].sql === sql &&
         pui.sqlcache[start].pstring === pstring &&
         pui.sqlcache[start].limit === limit &&
         pui.sqlcache[start].customURL === customURL) {
-        if (callback != null) {
-          callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs, pui.sqlcache[start]["matchRow"]);
-          return;
-    		}
-    		else {
-          return pui.sqlcache.results;
-        }
+          me["unMask"]();
+          if (callback != null) {
+            callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs, pui.sqlcache[start]["matchRow"]);
+            return;
+          }
+          else {
+            return pui.sqlcache.results;
+          }
       }
     }
     var returnVal = null;
@@ -6921,7 +7079,9 @@ pui.Grid = function () {
       req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
 
     req["onready"] = function (req) {
-      me["unMask"]();
+      if(me["dataProps"]["load fields into widgets"] != "true"){
+         me["unMask"]();
+      }
       var response;
       var successful = false;
       if (me["dataProps"]["data transform function"] && req.getStatus() == 200) {
@@ -7309,7 +7469,8 @@ pui.Grid = function () {
           me["dataProps"]["database fields"] = fields.join(",");
         }
       }
-      else {
+      //else {
+      if(me.runtimeChildren.length > 0) {
         for (var i = 0; i < me.runtimeChildren.length; i++) {
           var itm = me.runtimeChildren[i];
           var col = Number(itm["column"]);
@@ -7493,6 +7654,7 @@ pui.Grid = function () {
   this["refresh"] = function () {
     me.recNum = 1;
     me.totalRecs = null;
+    me.forceDataArray = false;
     if (me.slidingScrollBar) {
       me.scrollbarObj.totalRows = me.totalRecs;
     }
@@ -7800,7 +7962,7 @@ pui.Grid = function () {
    */
   this.setSearchIndexes = function (headerCell) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
-    if (me.isDataGrid()) return;
+    if (me.isDataGrid() && me.forceDataArray == false) return;
     if (headerCell.searchIndexes != null) return; //searchIndexes is already setup.
     else headerCell.searchIndexes = [];
 
@@ -7891,7 +8053,7 @@ pui.Grid = function () {
       return;
     }
 
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me.forceDataArray == false) {
       me.highlighting.text = text;
       findText = text;
       findColumn = headerCell.columnId + 1; //CGI program's columns start at 1, not 0.
@@ -8006,7 +8168,7 @@ pui.Grid = function () {
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
 
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me.forceDataArray == false) {
       // Filter in this field for DB-driven grids. (Assume one field per column.)
       me.totalRecs = null; // make sure the CGI gives us totalRecs (count of results).
       me.recNum = 1; // Show record 1 on row 1.
@@ -8305,7 +8467,7 @@ pui.Grid = function () {
     if (me.usePagingFilter()){
       return setPagingFilter(headerCell, "");  //Clears filter, looks for other filters, submits.
     }
-    else if (me.isDataGrid()) {
+    else if (me.isDataGrid() && me.forceDataArray == false) {
       me.totalRecs = null; // make sure the CGI gives us count of results.
       me.recNum = 1; // Show record 1 on row 1.
 
@@ -8348,7 +8510,7 @@ pui.Grid = function () {
       record.filteredOut = false;
     }
     me.filteredDataArray = [];
-    if (me.isDataGrid()) {
+    if (me.isDataGrid() && me.forceDataArray == false) {
       me.totalRecs = null; // make sure the CGI gives us count of results.
       me.recNum = 1; // Show record 1 on row 1.
 
@@ -9317,6 +9479,9 @@ pui.Grid = function () {
 
       { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>") },
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: pui.helpTextProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.") },
+      { name: "load fields into widgets", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false", "Allows fields from database-driven grids to be bound to widgets instead of loaded directly onto the grid"), context: "dspf"},
+      { name: "load all rows", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false", "Can only be used when \"load fields into widgets\" property is true. Loads all data at once, instead of page-by-page."), context: "dspf"},
+
       { name: "data url", type: "long", help: pui.helpTextProperties("blank","Sets the url to a Web service that returns JSON data for a database-driven grid.") },
       { name: "data transform function", type: "long", help: pui.helpTextProperties("blank","The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget.") },
 
