@@ -1757,13 +1757,14 @@ pui.renderFormat = function(parms) {
                   }
                   dom["radioValue"] = properties["value"];
                 }
-                
-                if (pui.responseElements[qualField] == null) pui.responseElements[qualField] = [];
+
+                var isDataGrid = (gridObj != null && gridObj.isDataGrid() == true);
+                if (!isDataGrid && pui.responseElements[qualField] == null) pui.responseElements[qualField] = [];
 
                 // When widget in a subfile is changed with setDataValue() prior to rendering
                 // the element, there will be an entry in pui.responseElements with "modifiedBeforeRender" set.
                 // Now that we are actually rendering the element, we replace that entry with the proper DOM element.
-                if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+                if (!isDataGrid && pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
                   pui.responseElements[qualField] = [];
                   dom.modified = true;
                   pui.modified = true;
@@ -1777,7 +1778,7 @@ pui.renderFormat = function(parms) {
                   pui.responseElements[qualField].push(dom.grid.pagingBar.prevImg);
                   pui.responseElements[qualField].push(dom.grid.pagingBar.prevLink);
                 }
-                else {
+                else if (!isDataGrid) {
                   pui.responseElements[qualField].push(dom);
                 }
                 
