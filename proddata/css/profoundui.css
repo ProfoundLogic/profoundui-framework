@@ -456,7 +456,6 @@ FieldSet {
 .grid-mask {
   z-index: 250;
   background-color: #cccccc;
-  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
 
@@ -1996,7 +1995,6 @@ body.hybrid-signon {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(38%, #e7f1f3), to(#ffffff));
   background: -o-linear-gradient(top, #e7f1f3 38%, #ffffff 100%);
   background: linear-gradient(to bottom, #e7f1f3 38%, #ffffff 100%);
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e7f1f3', endColorstr='#ffffff', GradientType=0);
   /* IE6-9 */
 }
 
@@ -2142,7 +2140,6 @@ div.onoff-switch {
 }
 
 .onoff-switch-disabled {
-  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
 }
 
@@ -4917,7 +4914,7 @@ span.pui-tscrbtn.pui-tablayout>span.mid {
 
 span.pui-tscrbtn.pui-tablayout>span.edge {
   display: none;
-  /* Default scroll button style uses no edge elements. */
+  /* Default scroll uses no edge elements. */
 }
 
 .pui-tablayout-body {
@@ -16548,4 +16545,202 @@ tr.drop_valid {
 }
 .pui-mobile-emulator::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+div.propwin {
+  padding: 0px;
+  white-space: normal;
+}
+
+div.propwin.floating {
+  border: 2px solid #336699;
+  position: absolute;
+}
+
+div.propwin > div.pheader {
+  font-size: 13px;
+  font-family: Arial;
+  background-color: #6699cc;
+  padding: 3px;
+  cursor: move;
+  font-weight: bold;
+  color: #ffffff;
+  white-space: normal;
+  -moz-user-select: none;
+}
+
+div.propwin > .colbtn {
+  position: absolute;
+  right: 0px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  font-size: 1px;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+div.propwin > .colbtn[title="collapse"] { background-image: url('/profoundui/proddata/images/icons/collapse.gif'); }
+div.propwin > .colbtn[title="expand"] { background-image: url('/profoundui/proddata/images/icons/expand.gif'); }
+
+div.propwin > .propfind {
+  font-family: Arial;
+  font-size: 11px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 1px;
+  border-bottom: 1px solid #cccccc;
+  background-color: #dddddd;
+}
+
+div.propwin > .propfind input:nth-child(1) {
+  font-family: Arial;
+  font-size: 11px;
+  width: 268px;
+  margin: 1px;
+  padding: 1px;
+  color: #808080; /*color of placeholder*/
+  padding-left: 3px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #b5b8c8;
+}
+div.propwin > .propfind input.active:nth-of-type(1) {
+  color: inherit;
+  border-color: #7eadd9;
+}
+div.propwin > .propfind input[type="button"] {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #cccccc;
+  width: 40px;
+  font-family: sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  color: #000000;
+  -moz-user-select: none;
+}
+div.propwin > .propfind input[type="button"][title="Showing All Properties"] {
+  color: #000000;
+  font-weight: normal;
+}
+div.propwin > .propfind input[type="button"][title="Showing Set Properties Only"] {
+  color: #336699;
+  font-weight: bold;
+}
+div.propwin > .propfind input[type="button"]:hover { border-color: #ffffff; }
+div.propwin > .propfind > img.clear {
+  position: absolute;
+  cursor: pointer;
+}
+div.propwin > .propfind > img.clear.genie { top: 31px; right: 55px; }
+div.propwin > .propfind > img.clear.genie.quirks { right: 59px; }
+div.propwin > .propfind > img.clear.dspf { top: 9px; right: 52px; }
+
+div.propwin > .pbody {
+  overflow: auto;
+  background-color: #ffffff;
+  padding: 0px;
+  white-space: normal;
+  overflow-x: hidden;
+}
+
+div.propwin > .pbody > table {
+  font-family: Arial;
+  font-size: 12px;
+  empty-cells: show;
+}
+div.propwin > .pbody > table tr td.sel:nth-of-type(1) {
+  background-color: #d9e8fb;
+  border-bottom-color: #99bbe8;
+}
+div.propwin > .pbody > table tr.rclicksel { background-color: #d9e8fb; }
+div.propwin > .pbody > table tr td span.expnd {
+  border: 1px solid #cccccc;
+  font-family: Courier New;
+  font-size: 9px;
+  cursor: pointer;
+  padding: 1px 2px 1px 2px;
+  background-color: #ffffff;
+}
+div.propwin > .pbody > table tr td img.expnd {
+  cursor: pointer;
+  height: 18px;
+  width: 16px; 
+  margin-bottom: -4px;
+  padding-right: 3px;
+}
+div.propwin > .pbody > table tr td.flat img.expnd {
+  float: right;
+  margin-bottom: 0;
+  padding-right: 0;
+}
+
+div.propwin > .pbody > table tr td {
+  padding: 1px;
+  border-width: 1px;
+  border-color: #cccccc;
+}
+div.propwin > .pbody > table tr td:nth-of-type(1) {
+  border-style: none none solid solid;
+  height: 27px;
+  width: 175px;
+  color: #666666;
+  font-weight: normal;
+  padding-left: 1px;
+}
+div.propwin > .pbody > table tr td.changed:nth-of-type(1) {
+  color: #336699;
+  font-weight: bold;
+  padding-left: 3px;
+}
+#east div.propwin > .pbody > table tr td:nth-of-type(1) { -moz-user-select: none; } /*RDF*/
+div.propwin > .pbody > table tr td:nth-of-type(2) {
+  border-style: none solid solid solid;
+  padding: 1px;
+  height: 27px;
+}
+div.propwin > .pbody > table tr.category { cursor: pointer; }
+div.propwin > .pbody > table tr.category td.flat {
+  vertical-align: middle;
+  padding-top: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+div.propwin > .pbody > table tr.category td:nth-of-type(1) {
+  background-color: #eeeeee;
+  font-weight: bold;
+  color: inherit;
+}
+div.propwin > .pbody > table tr.nofchld td { border-top-style: solid; }
+div.propwin > .pbody > table td:nth-of-type(1) button {
+  margin-left: 5px;
+  margin-bottom: 2px;
+  vertical-align: middle;
+  width: 24px;
+  height: 20px;
+  padding: 0px;
+}
+
+div.propwin .helppnl {
+  font-size: 12px;
+  font-family: Arial;
+  border-top: 1px solid #808080;
+  padding: 3px;
+  background-color: #eeeeee;
+  overflow: auto;
+  text-align: left;
+  white-space: normal;
+}
+
+div.propwin input[type="button"].ellipses {
+  font-family: Arial;
+  font-size: 12px;
+  padding: 1px;
+}
+
+div.propwin input[type="button"].ellipses.long {
+  position: relative;
+  top: -10px;    
 }
