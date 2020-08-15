@@ -667,7 +667,8 @@ function getPropertiesModel() {
     { name: "blob selection criteria", type: "long", help: pui.helpTextProperties("blank", "Expression expression identifying which row to load image blob from."), controls: ["image"] },
     { name: "blob parameter value", bind: true, type: "long", multOccur: true, help: pui.helpTextProperties("blank", "Value for parameter marker in 'blob selection criteria' property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Blob Parameter Value."), controls: ["image"] },
 
-    { name: "choices database file", type: "file", displayName: (pui.nodedesigner ? "choices database table" : undefined), uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database table to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete."), controls: ["combo box", "select box", "textbox"] },
+    { name: "choices database file", type: "file", multOccur: true, displayName: (pui.nodedesigner ? "choices database table" : undefined), uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database table to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete."), controls: ["combo box", "select box", "textbox"] },
+    { name: "choices database join", type: "join", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "The Database Join specifications between multiple tables to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete."), controls: ["combo box", "select box", "textbox"] },
     { name: "choice options field", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "Database field name used to retrieve the options for a dynamic dropdown box, list box, combo box, or text field with auto complete. Multiple fields can be specifed for a text field with auto complete. In this case, the field names should be comma separated."), controls: ["combo box", "select box", "textbox"] },
     { name: "choice values field", type: "field", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("[choice options field]", "Database field name used to retrieve the values sent back to the application. If omitted, the choice options field is used. In the case of a text field with autocomplete that has multiple option fields, the first option field is used."), controls: ["combo box", "select box", "textbox"] },
     { name: "choices selection criteria", type: "long", help: pui.helpTextProperties("blank", "Optional expression identifying which records should be retrieved from the choices database table."), controls: ["combo box", "select box", "textbox"] },
@@ -1765,7 +1766,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           }
           pui["runLogic"](newValue["routine"], domObj.subfileRow, domObj.subfileName);
         }
-      }
+      };
     }
     else if (propConfigName == "ontabclick") {
       func = function () {
