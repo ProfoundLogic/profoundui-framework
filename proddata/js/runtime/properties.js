@@ -1505,7 +1505,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
     if (designItem.dom.id != newValue && document.getElementById(newValue) != null) {
       if (!(pui["is_old_ie"] && designItem.dom.id.toUpperCase() == newValue.toUpperCase())) { // IE has a bug -- getElementById is case insensitive
-        pui.alert('The ID "' + newValue + '" is already in use.');
+        pui.alert('The widget id "' + newValue + '" is already in use.');
         designer.propWindow.refresh();
         return dom;
       }
