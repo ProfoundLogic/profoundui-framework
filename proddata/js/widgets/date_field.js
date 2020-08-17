@@ -88,96 +88,172 @@ function show_calendar(dateField, str_datetime, format) {
   
   var today = new Date();
 
-  var str_buffer = new String (
-    "<table class=\"pui-calendar-outer-table\">\n"+
-    "<tr><td class=\"brndrow1\">\n"+
-    "<table class=\"pui-calendar-inner-table\">\n"+
-    "<tr>\n  <td class=\"brndrow1\">" + 
+  var outerTable = document.createElement("table");
+  outerTable.className = "pui-calendar-outer-table";
 
-    "<span arrow=\"1\" class=\"pui-calendar-arrow-prev-year\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+ dt2dtstr(dt_prev_year)+"'+document.cal.time.value, '" + format + "');\"></span>" +
-    
-    "<span arrow=\"1\" class=\"pui-calendar-arrow-prev-month\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+ dt2dtstr(dt_prev_month)+"'+document.cal.time.value, '" + format + "');\"></span>" +
-    
-    "</td>\n" +
-    "  <td class=\"calendar brndrow1 pui-calendar-month-year-header\" colspan=\"5\">"+
-    arr_months[dt_datetime.getMonth()]+" "+dt_datetime.getFullYear()+"</td>\n"+
-    "  <td class=\"brndrow1 pui_calendar_brndrow1_right\">" + 
-    
-    "<span arrow=\"1\" class=\"pui-calendar-arrow-next-month\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+dt2dtstr(dt_next_month)+"'+document.cal.time.value, '" + format + "');\"></span>" + 
-    
-    "<span arrow=\"1\" class=\"pui-calendar-arrow-next-year\" onclick=\"show_calendar(pui.currentDateField"+
-    ", '"+dt2dtstr(dt_next_year)+"'+document.cal.time.value, '" + format + "');\"></span>" + 
-    
-    "</td>\n</tr>\n"
-  );
+  var outerBody = document.createElement("tbody");
+  outerTable.appendChild(outerBody);
+  
+  var otRow = document.createElement("tr");
+  outerBody.appendChild(otRow);
+  
+  var otCell = document.createElement("td");
+  otCell.className = "brndrow1";
+  otRow.appendChild(otCell);
+
+  var innerTable = document.createElement("table");
+  innerTable.className = "pui-calendar-inner-table";
+  otCell.appendChild(innerTable);
+
+  var innerBody = document.createElement("tbody");
+  innerTable.appendChild(innerBody);
+
+  var itRow = document.createElement("tr");
+  innerBody.appendChild(itRow);
+  
+  var arrowsPrev = document.createElement("td");
+  arrowsPrev.className = "brndrow1";
+
+  var prevYear = document.createElement("span");
+  prevYear.setAttribute("arrow", "1");
+  prevYear.className = "pui-calendar-arrow-prev-year";
+  var prevYearString = dt2dtstr(dt_prev_year);
+  prevYear.onclick = function() { 
+    show_calendar(pui.currentDateField, prevYearString + document.cal.time.value, format);
+  };
+  arrowsPrev.appendChild(prevYear);
+
+  var prevMonth = document.createElement("span");
+  prevMonth.setAttribute("arrow", "1");
+  prevMonth.className = "pui-calendar-arrow-prev-month";
+  var prevMonthString = dt2dtstr(dt_prev_month);
+  prevMonth.onclick = function() { 
+    show_calendar(pui.currentDateField, prevMonthString + document.cal.time.value, format);
+  };
+  arrowsPrev.appendChild(prevMonth);
+  itRow.appendChild(arrowsPrev);
+
+  var monthYear = document.createElement("td");
+  monthYear.className = "calendar brndrow1 pui-calendar-month-year-header";
+  monthYear.colSpan = "5";
+  monthYear.innerHTML = arr_months[dt_datetime.getMonth()] + " " + dt_datetime.getFullYear();
+  itRow.appendChild(monthYear);
+
+  var arrowsNext = document.createElement("td");
+  arrowsNext.className = "brndrow1 pui_calendar_brndrow1_right";
+
+  var nextMonth = document.createElement("span");
+  nextMonth.setAttribute("arrow", "1");
+  nextMonth.className = "pui-calendar-arrow-next-month";
+  var nextMonthString = dt2dtstr(dt_next_month);
+  nextMonth.onclick = function() { 
+    show_calendar(pui.currentDateField, nextMonthString + document.cal.time.value, format);
+  };
+  arrowsNext.appendChild(nextMonth);
+
+  var nextYear = document.createElement("span");
+  nextYear.setAttribute("arrow", "1");
+  nextYear.className = "pui-calendar-arrow-next-year";
+  var nextYearString = dt2dtstr(dt_next_year);
+  nextYear.onclick = function() { 
+    show_calendar(pui.currentDateField, nextYearString + document.cal.time.value, format);
+  };
+  arrowsNext.appendChild(nextYear);
+  itRow.appendChild(arrowsNext);
+
   var dt_current_day = new Date(dt_firstday);
+
   // print weekdays titles
-  str_buffer += "<tr>\n";
-  for (var n=0; n<7; n++)
-    str_buffer += "  <td class=\"calendar brndrow2 pui-calendar-weekday-header\">"+
-    week_days[(n_weekstart+n)%7]+"</td>\n";
+  var weekdays = document.createElement("tr");
+
+  for (var n=0; n<7; n++) {
+    var dayName = document.createElement("td");
+    dayName.className = "calendar brndrow2 pui-calendar-weekday-header";
+    dayName.innerHTML = week_days[(n_weekstart+n)%7];
+    weekdays.appendChild(dayName);
+  }
+
+  innerBody.appendChild(weekdays);
+
   // print calendar table
-  str_buffer += "</tr>\n";
+  
   while (dt_current_day.getMonth() == dt_datetime.getMonth() ||
-    dt_current_day.getMonth() == dt_firstday.getMonth()){
+           dt_current_day.getMonth() == dt_firstday.getMonth()) {
+    
     // print row heder
-    str_buffer += "<tr>\n";
+    var dayRow = document.createElement("tr");
+
     for (var n_current_wday = 0; n_current_wday < 7; n_current_wday++){
+
+      var oneDay = document.createElement("td");
+      var dayClass;
+
       if (dt_current_day.getDate() == dt_datetime.getDate() &&
           dt_current_day.getMonth() == dt_datetime.getMonth()) {
         // print current date
-        str_buffer += "  <td class=\"calendar pui-calendar-selected-date";
+        dayClass = "calendar pui-calendar-selected-date";
       }
       else if (dt_current_day.getDay() == 0 || dt_current_day.getDay() == 6) {
         // weekend days
-        str_buffer += "  <td class=\"calendar pui-calendar-weekend-date";
+        dayClass = "calendar pui-calendar-weekend-date";
       }
       else {
         // print working days of current month
-        str_buffer += "  <td class=\"calendar pui-calendar-workday-date";
+        dayClass = "calendar pui-calendar-workday-date";
       }
+      
       if (dt_current_day.getDate() == today.getDate() &&
          dt_current_day.getMonth() == today.getMonth() &&
          dt_current_day.getYear() == today.getYear()) {
         // print today's date
-        str_buffer += " pui-calendar-current-date";
+        dayClass += " pui-calendar-current-date";
       }
+
       if (dt_current_day.getMonth() == dt_datetime.getMonth()) {
-        str_buffer += " pui-calendar-day-active-month";
+        dayClass += " pui-calendar-day-active-month";
       }
       else {
-        str_buffer += " pui-calendar-day-inactive-month";
+        dayClass += " pui-calendar-day-inactive-month";
       }
-      str_buffer += "\" onclick=\"javascript:pui.currentDateField.value='" +
-        usa_dt(dt_current_day,format,dateField.formattingInfo)+ "'; " +
-        "calendar_select();\">" + 
-        dt_current_day.getDate()+"</td>\n";
+
+      oneDay.className = dayClass;
+      oneDay.puiCurrentDate = usa_dt(dt_current_day, format, dateField.formattingInfo);
+
+      oneDay.onclick = function() {
+        pui.currentDateField.value = this.puiCurrentDate;
+        calendar_select();
+      }
+
+      oneDay.innerHTML = dt_current_day.getDate();
+      dayRow.appendChild(oneDay);
       
       dt_current_day.setDate(dt_current_day.getDate()+1);
     }
-    // print row footer
-    str_buffer += "</tr>\n";
-  }
-  // print calendar footer
-  str_buffer +=
-    "</table>\n" +
-    "</tr>\n</td>\n</table>\n" +
-    "<form name=\"cal\">"+
-    "<input type=\"hidden\" name=\"time\" value=\""+dt2tmstr(dt_datetime)+
-    "\">\n</form>\n";
+    
+    innerBody.appendChild(dayRow);
 
-  
+  }
+
+  var calForm = document.createElement("form");
+  calForm.name = "cal";
+
+  var hiddenTime = document.createElement("input");
+  hiddenTime.type = "hidden";
+  hiddenTime.name = "time";
+  hiddenTime.value = dt2tmstr(dt_datetime);
+  calForm.appendChild(hiddenTime);
+ 
   calobj = document.getElementById("popcal");
+  calobj.innerHTML = "";
+
   calobj.className = "pui-calendar";
   var cls = trim(dateField.className.split(" ")[0]);
   if (cls != "")
     calobj.className += " pui-calendar-" + cls;
   
   var clickobj = dateField.calimg;
-  calobj.innerHTML = str_buffer;
+  calobj.appendChild(outerTable);
+  calobj.appendChild(calForm);
   
   var offset = pui.getOffset(clickobj);
   var left = offset[0] + 6;
