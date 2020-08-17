@@ -2200,7 +2200,7 @@ function runPCCommand(arg) {
         "method": "post",
         "params": {
           "cmd": command,
-          "auth": pui["appJob"]["auth"]
+          "auth": (pui["appJob"] && pui["appJob"]["auth"] ? pui["appJob"]["auth"] : "") /*5594. avoid atrium error--just warn in console.*/
         },
         "async": true,
         "handler": function(response, err){
