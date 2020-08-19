@@ -1755,16 +1755,18 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     assignDomClasses(domObj, classes, dspAtrField);
   }
+
   // Attach Events
   if (propConfig.type == "js") {
     var func = null;
     if (pui.isRoutine(newValue)) {
-      func = function() {
+      func = function(e) {
         if (!domObj.responseRoutine) {
           if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
             pui.bypassValidation = domObj.bypassValidation;
           }
           pui["runLogic"](newValue["routine"], domObj.subfileRow, domObj.subfileName);
+          preventEvent(e);
         }
       }
     }
