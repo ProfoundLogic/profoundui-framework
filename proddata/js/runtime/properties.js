@@ -1760,13 +1760,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (propConfig.type == "js") {
     var func = null;
     if (pui.isRoutine(newValue)) {
-      func = function(e) {
+      func = function(evt) {
         if (!domObj.responseRoutine) {
           if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
             pui.bypassValidation = domObj.bypassValidation;
           }
           pui["runLogic"](newValue["routine"], domObj.subfileRow, domObj.subfileName);
-          preventEvent(e);
+          if (!evt) evt = window.event;
+          if (evt && evt.stopPropagation) evt.stopPropagation();
         }
       }
     }
