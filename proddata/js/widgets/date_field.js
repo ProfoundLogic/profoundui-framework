@@ -118,8 +118,9 @@ function show_calendar(dateField, str_datetime, format) {
   prevYear.setAttribute("arrow", "1");
   prevYear.className = "pui-calendar-arrow-prev-year";
   var prevYearString = dt2dtstr(dt_prev_year);
-  prevYear.onclick = function() { 
+  prevYear.onclick = function(e) { 
     show_calendar(pui.currentDateField, prevYearString + document.cal.time.value, format);
+    preventEvent(e);
   };
   arrowsPrev.appendChild(prevYear);
 
@@ -127,8 +128,9 @@ function show_calendar(dateField, str_datetime, format) {
   prevMonth.setAttribute("arrow", "1");
   prevMonth.className = "pui-calendar-arrow-prev-month";
   var prevMonthString = dt2dtstr(dt_prev_month);
-  prevMonth.onclick = function() { 
+  prevMonth.onclick = function(e) { 
     show_calendar(pui.currentDateField, prevMonthString + document.cal.time.value, format);
+    preventEvent(e);
   };
   arrowsPrev.appendChild(prevMonth);
   itRow.appendChild(arrowsPrev);
@@ -146,8 +148,9 @@ function show_calendar(dateField, str_datetime, format) {
   nextMonth.setAttribute("arrow", "1");
   nextMonth.className = "pui-calendar-arrow-next-month";
   var nextMonthString = dt2dtstr(dt_next_month);
-  nextMonth.onclick = function() { 
+  nextMonth.onclick = function(e) { 
     show_calendar(pui.currentDateField, nextMonthString + document.cal.time.value, format);
+    preventEvent(e);
   };
   arrowsNext.appendChild(nextMonth);
 
@@ -155,8 +158,9 @@ function show_calendar(dateField, str_datetime, format) {
   nextYear.setAttribute("arrow", "1");
   nextYear.className = "pui-calendar-arrow-next-year";
   var nextYearString = dt2dtstr(dt_next_year);
-  nextYear.onclick = function() { 
+  nextYear.onclick = function(e) { 
     show_calendar(pui.currentDateField, nextYearString + document.cal.time.value, format);
+    preventEvent(e);
   };
   arrowsNext.appendChild(nextYear);
   itRow.appendChild(arrowsNext);
@@ -219,9 +223,10 @@ function show_calendar(dateField, str_datetime, format) {
       oneDay.className = dayClass;
       oneDay.puiCurrentDate = usa_dt(dt_current_day, format, dateField.formattingInfo);
 
-      oneDay.onclick = function() {
-        pui.currentDateField.value = this.puiCurrentDate;
+      oneDay.onclick = function(e) {
+        pui.currentDateField.value = e.target.puiCurrentDate;
         calendar_select();
+        preventEvent(e);
       }
 
       oneDay.innerHTML = dt_current_day.getDate();
@@ -232,6 +237,27 @@ function show_calendar(dateField, str_datetime, format) {
     
     innerBody.appendChild(dayRow);
 
+  }
+
+  if (dateField.puiShowToday != null && dateField.puiShowToday === "true") {
+    var todayButtonRow = document.createElement("tr");
+    innerBody.appendChild(todayButtonRow);
+  
+    var todayButtonCell = document.createElement("td");
+    todayButtonCell.className = "pui-calendar-today-button-row";
+    todayButtonCell.colSpan = "7";
+    todayButtonRow.appendChild(todayButtonCell);
+     
+    var todayButton = document.createElement("span");
+    todayButton.className = "pui-calendar-today-button";
+    todayButton.innerHTML = "Today";
+    todayButton.onclick = function(e) {
+      var currentDate = usa_dt(today, format, dateField.formattingInfo);
+      pui.currentDateField.value = currentDate;
+      show_calendar(pui.currentDateField, document.cal.time.value, format);
+      preventEvent(e);
+    }
+    todayButtonCell.appendChild(todayButton);
   }
 
   var calForm = document.createElement("form");
@@ -598,6 +624,7 @@ pui.widgets.add({
   
     "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
+      parms.dom.puiShowToday = parms.evalProperty("show today option");
       if (!parms.design) {
         if (parms.dom.tagName == "INPUT" && !parms.dom.readOnly && !parms.dom.disabled) {
           var format; 
@@ -710,6 +737,9 @@ pui.widgets.add({
           parms.dom["cal icon class"] = className;
         }
       }
+    },
+    "show today option": function(parms) {
+       parms.dom.puiShowToday = parms.value;
     },
     "browser auto complete": function(parms) {
       if (!parms.design) {
