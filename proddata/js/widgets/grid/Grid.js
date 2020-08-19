@@ -8599,7 +8599,8 @@ pui.Grid = function () {
    */
   function setPagingFilter(headerCell, text){
     var headerRow = me.cells[0];
-    if (typeof headerCell.columnId != "number" || headerCell.columnId < 0 || headerCell.columnId >= headerRow.length) return;
+    // Due to the fact that some columns may be hidden, use "headerCell.col" instead of "headerCell.columnId" here
+    if (typeof headerCell.col != "number" || headerCell.col < 0 || headerCell.col >= headerRow.length) return;
     if (typeof text != "string") text = "";
     var colnums = "";
     var fltrtexts = "";

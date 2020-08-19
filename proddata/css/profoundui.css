@@ -98,6 +98,20 @@ INPUT.button {
   text-align: center;
 }
 
+.pui-calendar-today-button-row {
+  height: 100%;
+  width: 100%;
+  background-color: white;
+  text-align: right;
+  /* border-top: 1px solid black; */
+}
+
+.pui-calendar-today-button {
+  font-family: Tahoma, Verdana;
+  cursor: pointer;
+  color: #4466ff;
+}
+
 .pui_calendar_brndrow1_right {
   text-align: right;
 }
@@ -12081,6 +12095,21 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   color: #FFFFFF;
 }
 
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button-row {
+  height: 100%;
+  width: 100%;
+  text-align: right;
+  background: #fff;
+  padding-right: 0.50rem;
+  border: none;
+}
+
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button {
+  color: #3498db;
+  font-size: 1.00rem;
+  cursor: pointer;
+}
+
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-weekday-header {
   color: #3498db;
 }
@@ -14656,6 +14685,21 @@ DIV.blueprint-defaults.BL, INPUT.blueprint-defaults.BL {
   font-size: 1rem;
   color: #4E4C5B;
   padding: 0;
+}
+
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button-row {
+  height: 100%;
+  width: 100%;
+  text-align: right;
+  background: #fff;
+  padding-right: 0.50rem;
+  border: none;
+}
+
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button {
+  color: #4466ff;
+  font-size: 1.00rem;
+  cursor: pointer;
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) {
