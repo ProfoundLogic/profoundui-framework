@@ -3754,7 +3754,19 @@ pui.Grid = function () {
     if (me.designMode) return;
     var eventCode = me.events[eventName];
     if (pui.isRoutine(eventCode)) {
-      pui["runLogic"](eventCode.routine);
+        var routineRow = null;
+        var routineGrid = null;
+        if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
+          var routineRow = arguments[1] + me.recNum - 1;
+          var dataRecords = me.dataArray;
+          if (me.isFiltered()) dataRecords = me.filteredDataArray;
+          if (dataRecords[routineRow - 1] != null && dataRecords[routineRow - 1].subfileRow != null) {
+            routineRow = dataRecords[routineRow - 1].subfileRow;
+          }
+          routineGrid = me.recordFormatName;
+        }
+
+      pui["runLogic"](eventCode.routine, routineRow, routineGrid);
       return;
     }
     if (eventCode != null && eventCode != "") {
