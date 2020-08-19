@@ -16729,7 +16729,6 @@ div.propwin > .pbody > table tr td {
 div.propwin > .pbody > table tr td:nth-of-type(1) {
   border-style: none none solid solid;
   height: 27px;
-  width: 175px;
   color: #666666;
   font-weight: normal;
   padding-left: 1px;
@@ -16740,11 +16739,34 @@ div.propwin > .pbody > table tr td.changed:nth-of-type(1) {
   padding-left: 3px;
 }
 #east div.propwin > .pbody > table tr td:nth-of-type(1) { -moz-user-select: none; } /*RDF*/
+
 div.propwin > .pbody > table tr td:nth-of-type(2) {
   border-style: none solid solid solid;
   padding: 1px;
   height: 27px;
 }
+div.propwin > .pbody > table tr td:nth-of-type(2) > .bound {
+  color: #339933;
+  font-weight: bold;
+}
+div.propwin > .pbody > table tr td:nth-of-type(2) > .transl {
+  color: purple;
+  font-weight: bold;
+}
+div.propwin > .pbody > table tr td:nth-of-type(2) > .wf {
+  color: #ef8200;
+  font-weight: bold;
+}
+div.propwin > .pbody > table tr td:nth-of-type(2) > div {
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 1px;
+}
+div.propwin > .pbody > table tr td:nth-of-type(2) > div > span.prereqfail {
+  white-space: normal;
+  color: #999999;
+}
+
 div.propwin > .pbody > table tr.category { cursor: pointer; }
 div.propwin > .pbody > table tr.category td.flat {
   vertical-align: middle;
@@ -16752,7 +16774,7 @@ div.propwin > .pbody > table tr.category td.flat {
   padding-left: 5px;
   padding-right: 5px;
 }
-div.propwin > .pbody > table tr.category td:nth-of-type(1) {
+div.propwin > .pbody > table tr.category td[colspan="2"] {
   background-color: #eeeeee;
   font-weight: bold;
   color: inherit;
