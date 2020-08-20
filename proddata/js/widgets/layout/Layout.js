@@ -643,13 +643,7 @@ pui.layout.Layout = function() {
 
   this.onresize = function() {
     if (me.assignHeightOnResize == true) {
-      var orientation = window["orientation"];
-      var height = window["screen"]["width"];  // assume landscape
-      if (orientation == 0 || orientation == 180) {  // test for portrait
-        height = window["screen"]["height"];
-      }
-      height -= 18;  // account for status bar
-      height += "px";
+      var height = window["innerHeight"] + "px";  // innerHeight is always the currently-vertical height, minus window chrome
       me.layoutDiv.parentNode.style.height = height;
       document.body.style.height = height;
       document.body.parentNode.style.height = height;
