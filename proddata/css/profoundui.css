@@ -266,7 +266,7 @@ INPUT.enhanced-input {
   z-index: 20;
   margin: 0;
   padding-left: 0;
-  padding-right: 1;
+  padding-right: 1px;
   padding-top: 0;
   padding-bottom: 0;
   border: 1px solid #7eadd9;
@@ -280,7 +280,7 @@ SELECT.enhanced-input {
   z-index: 20;
   margin: 0;
   padding-left: 0;
-  padding-right: 1;
+  padding-right: 1px;
   padding-top: 0;
   padding-bottom: 0;
   border: 1px solid #7eadd9;
@@ -294,7 +294,7 @@ INPUT.hybrid-input {
   z-index: 20;
   margin: 0;
   padding-left: 0;
-  padding-right: 1;
+  padding-right: 1px;
   padding-top: 0;
   padding-bottom: 0;
   border: 1px solid #7eadd9;
@@ -308,7 +308,7 @@ SELECT.hybrid-input {
   z-index: 20;
   margin: 0;
   padding-left: 0;
-  padding-right: 1;
+  padding-right: 1px;
   padding-top: 0;
   padding-bottom: 0;
   border: 1px solid #7eadd9;
@@ -324,7 +324,7 @@ SELECT.hybrid-input {
   z-index: 20;
   margin: 0;
   padding-left: 0;
-  padding-right: 1;
+  padding-right: 1px;
   padding-top: 0;
   padding-bottom: 0;
   border: 1px solid #7eadd9;
@@ -16745,6 +16745,10 @@ div.propwin > .pbody > table tr td:nth-of-type(2) {
   padding: 1px;
   height: 27px;
 }
+div.propwin > .pbody > table tr td:nth-of-type(2) > input[readonly] {
+  background-color: #ffffff;
+  border: 0px solid #ffffff;
+}
 div.propwin > .pbody > table tr td:nth-of-type(2) > .bound {
   color: #339933;
   font-weight: bold;
@@ -16762,7 +16766,7 @@ div.propwin > .pbody > table tr td:nth-of-type(2) > div {
   overflow: hidden;
   padding: 1px;
 }
-div.propwin > .pbody > table tr td:nth-of-type(2) > div > span.prereqfail {
+div.propwin > .pbody > table tr td:nth-of-type(2) span.prereqfail {
   white-space: normal;
   color: #999999;
 }

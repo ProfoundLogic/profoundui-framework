@@ -4721,12 +4721,13 @@ pui.formatBytes = function(bytes, precision){
 
 /**
  * For events on HTML table cells, get the parent row. If the event is not on the cell (e.g. on an input in the cell), returns null.
+ * Pre-Requisite: the event listener should be attached to a TR element.
  * @param {Object|Event} event
  * @returns {Object|Null}
  */
 pui.getTRtargetRow = function(event){
   // Note: we must use getTarget to handle #text nodes. Otherwise drag_leave leaves classes set when dragging quickly.
-  var target = getTarget(event); 
+  var target = getTarget(event);
   if (target.tagName == "TD") target = target.parentNode;
   if (target.tagName != "TR") return null;
   return target;
