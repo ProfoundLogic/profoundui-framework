@@ -60,6 +60,8 @@ pui.ComboBoxWidget = function() {
     // as an inline style. Clearing the border allows css classes to be used
     if(me.design) me.div.style.border = "";
     if (me.div.style.width == null) me.div.style.width = "80px";
+    if (context == "genie" && (me.div.style.height == null || me.div.style.height == "")) 
+      me.div.style.height = "20px";
     if (pui["is_quirksmode"]) {
       if (pui["is_old_ie"]) me.div.style.height = "22px";
       else me.div.style.height = "19px";
@@ -100,7 +102,7 @@ pui.ComboBoxWidget = function() {
       else hideChoices();
       preventEvent(e);      
     };
- 
+    
     var win;
     var prt = me.div.parentNode;
     while (prt) {
@@ -160,7 +162,7 @@ pui.ComboBoxWidget = function() {
       boxWidth = parseInt(comWidth) - arrowWidth ;  //get the number of the width - width of arrow div (arrowWidth)
       if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
       box.style.width = boxWidth + "px";  //the new width + "px" 
-    }	
+    }
   };
   
   this.setStyleProperty = function(propertyName, propertyValue) {
