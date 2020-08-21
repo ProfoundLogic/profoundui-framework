@@ -5160,7 +5160,7 @@ div.Glass>.pui-tablayout-body>div {
   outline: none;
   position: absolute;
   top: 0px;
-  left: 1px;
+  left: 0px;
 }
 
 .combo-spacer {
