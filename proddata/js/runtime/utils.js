@@ -1522,7 +1522,10 @@ pui.sqlProps = {
   "choices selection criteria" : null,
   "parameter value": null,
   "choices parameter value": null,
-  "case sensitive": null
+  "case sensitive": null,
+  "blob table": null,
+  "blob column": null,
+  "blob selection criteria": null
             
 };
 
