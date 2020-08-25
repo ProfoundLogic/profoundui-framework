@@ -10,6 +10,7 @@ Array.isArray = function(value) {};
 Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
 Function.bind = function(value){};
+Object.handleEvent = function(event){};     //Allows an object to be an EventListener.
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
@@ -28,6 +29,8 @@ Object.transformOrigin = {}; //Style for "transform-origin".
 Object.backgroundSize = {}; // style for "background-size".
 
 String.trim = function(value){};
+
+Element.dataset = {}; //HTML5 data attributes.
 
 /*
  * mouse wheel event properties

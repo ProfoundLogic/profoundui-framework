@@ -4756,3 +4756,11 @@ pui.BaseClass.prototype.deleteOwnProperties = function(){
     }
   }
 };
+
+/**
+ * Returns false. Can be used as a listener to 'selectstart' to disable selection, etc.
+ * @returns {Boolean}
+ */
+pui.BaseClass.prototype.returnFalse = function(){
+  return false;
+};
