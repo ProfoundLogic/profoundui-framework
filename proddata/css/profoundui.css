@@ -16593,3 +16593,9 @@ tr.drop_valid {
 .pui-mobile-emulator::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+.x-toolbar.x-toolbar.x-toolbar.x-toolbar .x-btn.pui-selected {
+  background-color: #aaa;
+  border-color: #8a8a8a;
+}
