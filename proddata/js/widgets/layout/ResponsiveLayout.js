@@ -50,7 +50,7 @@ pui.ResponsiveLayout = function(){
   this._boundCheckWidth = this._checkWidth.bind(this); //Allow the _checkWidth callback to setTimeout access the ResponsiveLayout object.
   
   // Needed for assigning unique attribute to these layouts in background layers so their styles appear. Incremented in each ResponsiveLayout constructor.
-  this._backgroundFallback = this._responsiveLayoutTracker++;
+  this._backgroundFallback = pui.ResponsiveLayout.prototype._responsiveLayoutTracker++;
   
   if (pui.runtimeContainer && pui.runtimeContainer.id == "5250"){
     // Used to set inline styles for the 5250 div ensuring the layout isn't cramped at the top. #5311.
