@@ -98,8 +98,8 @@ pui.layout.template.applyTemplate = function(parms) {
   
   if (newDom.responsivelayout != null){
     dom.responsivelayout = newDom.responsivelayout;
-    dom.sizeMe = dom.responsivelayout.resize;
-    dom.sentToBackground = dom.responsivelayout.sentToBackground;
+    dom.sizeMe = dom.responsivelayout.resize.bind(dom.responsivelayout);
+    dom.sentToBackground = dom.responsivelayout.sentToBackground.bind(dom.responsivelayout);
     dom.resizeOnCanvasResize = dom.responsivelayout.resizeOnCanvasResize;
     dom.responsivelayout.container = dom;
   }

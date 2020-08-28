@@ -84,8 +84,6 @@ pui.currentFormatNames = [];
 pui["no focus"] = false;
 pui.restoreStyles = {};
 pui.windowStack = null;
-//Needed for assigning unique attribute to these layouts in background layers so their styles appear. Incremented in each ResponsiveLayout constructor.
-pui.responsiveLayoutTracker = 0;
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
