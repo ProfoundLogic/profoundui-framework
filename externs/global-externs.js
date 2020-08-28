@@ -10,7 +10,6 @@ Array.isArray = function(value) {};
 Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
 Function.bind = function(value){};
-Object.handleEvent = function(event){};     //Allows an object to be an EventListener.
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
