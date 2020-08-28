@@ -4582,7 +4582,7 @@ pui.Grid = function () {
 
       case "initial sort field":
         if (!me.designMode) {
-          me.initialSortField = value;
+          me.initialSortField = value.trim();
           
           if (typeof value === 'string'){
             me.initialSortFieldMulti = value.split(',');
