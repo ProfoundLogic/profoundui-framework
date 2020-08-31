@@ -677,6 +677,10 @@ pui.Grid = function () {
         delimiter = ";";
       }
     }
+    var stringDelimiter = '"';
+    if (typeof (pui["csv string delimiter"]) == "string") {
+       stringDelimiter = pui["csv string delimiter"];
+    }
     if (me.designMode) return;
     if (fileName == null) fileName = me.exportFileName;
     if (fileName == null || fileName == "") fileName = me.tableDiv.id;
@@ -870,7 +874,7 @@ pui.Grid = function () {
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
           if (data != "") data += delimiter;
-          data += '"' + heading + '"';
+          data += stringDelimiter + heading + stringDelimiter;
         }
       }
     }
@@ -940,7 +944,7 @@ pui.Grid = function () {
             }
           }
           if (line != "") line += delimiter;
-          line += '"' + rtrim(value) + '"';
+          line += stringDelimiter + rtrim(value) + stringDelimiter;
           
           if (exportXLSX){
             
@@ -1782,12 +1786,16 @@ pui.Grid = function () {
         if (sql == null || sql == "") return;
         var delimiter = ",";
         var decType = ".";
+        var stringDelimiter = '"';
         if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
           delimiter = ";";
           decType = ",";
         }
         if (typeof (pui["csv separator"]) == "string") {
           delimiter = pui["csv separator"];
+        }
+        if (typeof (pui["csv string delimiter"]) == "string") {
+          stringDelimiter = pui["csv string delimiter"];
         }
         var form = document.createElement("form");
         form.action = getProgramURL("PUI0009107.pgm");
@@ -1801,6 +1809,7 @@ pui.Grid = function () {
         if (pui["isCloud"])
           addField("workspace_id", pui.cloud.ws.id);
         addField("delimiter", delimiter);
+        addField("stringDelimiter", (stringDelimiter==='') ? "*NONE": stringDelimiter);
         if (pui["read db driven data as ebcdic"] !== true) addField("UTF8", "Y");
         addField("decType", decType);
         addField("fileName", csvFile + ".csv");
@@ -1845,7 +1854,7 @@ pui.Grid = function () {
               if (col["blankHeader"]) heading = "";
               heading = heading.replace(/"/g, '""');
               if (headings) headings += delimiter;
-              headings += '"' + heading + '"';
+              headings += stringDelimiter + heading + stringDelimiter;
             });
           } else {
             var headings = "";
@@ -1853,7 +1862,7 @@ pui.Grid = function () {
               var heading = getInnerText(me.cells[0][i]);
               heading = heading.replace(/"/g, '""'); // "
               if (headings != "") headings += delimiter;
-              headings += '"' + heading + '"';
+              headings += stringDelimiter + heading + stringDelimiter;
             }
           }
           addField("headings", headings);
