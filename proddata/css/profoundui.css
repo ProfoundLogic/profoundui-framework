@@ -16819,3 +16819,8 @@ div.propwin input[type="button"].ellipses.long {
   position: relative;
   top: -10px;    
 }
+
+div.propwin input.propertyInput {
+  font-family: Arial;
+  font-size: 12px;
+}
