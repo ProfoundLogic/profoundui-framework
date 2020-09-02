@@ -4760,3 +4760,26 @@ pui.BaseClass.prototype.deleteOwnProperties = function(){
     }
   }
 };
+
+pui.getDatabaseConnections = function() {
+
+  if (pui["isCloud"] && inDesignMode()) {
+    var connections = Array.isArray(pui.cloud.ws["settings"]["databaseConnections"]) ? pui.cloud.ws["settings"]["databaseConnections"].slice() : [];
+    var workspaceConnection = { "name": "workspace", "driver": "mysql" };
+    var defaultFound = false;
+    for (var i = 0; i < connections.length; i++) {
+      if (connections[i]["default"] === true) {
+        defaultFound = true;
+        break;
+      }
+    }
+    if (!defaultFound)
+      workspaceConnection["default"] = true;
+    connections.splice(0, 0, workspaceConnection);
+    return connections;
+  }
+  else {
+    return pui["databaseConnections"];
+  }
+
+}
