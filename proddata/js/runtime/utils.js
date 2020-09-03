@@ -4415,19 +4415,25 @@ pui.MouseListener.prototype._mouseup = function(){
  * Opacity of the Element, if specified, is set on mousedown and cleared on mouseup.
  * Inherits from pui.MouseListener.
  * @param {Object} params
+ * @param {Object|undefined} bounds  If defined, can specify left, top, right, and bottom boundaries. (Input|Ouput)
  * @constructor
  * @returns {pui.MoveListener}
  */
-pui.MoveListener = function(params){
+pui.MoveListener = function(params, bounds){
   pui.MouseListener.call(this, params); //Assigns downcb, movecb, upcb; adds mousedown listener.
   this.moveEl = params.move;      //Element to move by setting its .style.top and .style.left. Or Element to resize by setting its .style.height and/or .style.width.
   this.opacity = params.opacity;  //optional Number (integer). Default no change. When set, change the percent opacity of the opEl
                                   // element to this value from mousedown until mouseup.
-  
-  this.lbound = (typeof params.lbound !== 'number') ? 0 : params.lbound; //Left bound. defaults to 0.
-  this.tbound = (typeof params.tbound !== 'number') ? 0 : params.tbound; //Top bound. defaults to 0.
-  this.rbound = params.rbound;                            //Right bound. optional. default to no bounds.
-  this.bbound = params.bbound;                            //Bottom bound. optional. default to no bounds.
+  if (typeof bounds == 'object' && bounds !== null){
+    if (typeof bounds.left !== 'number') bounds.left = 0;
+    if (typeof bounds.top !== 'number') bounds.top = 0;
+    if (typeof bounds.right !== 'number') bounds.right = Infinity; //defaults to no bounds.
+    if (typeof bounds.bottom !== 'number') bounds.bottom = Infinity; //defaults to no bounds.
+    this._bounds = bounds;
+  }
+  else {
+    this._bounds = {left: 0, top: 0, right: Infinity, bottom: Infinity};
+  }
 };
 pui.MoveListener.prototype = Object.create(pui.MouseListener.prototype);
 
@@ -4450,10 +4456,11 @@ pui.MoveListener.prototype.mousedown = function(){
 pui.MoveListener.prototype.mousemove = function(){
   var newx = this.startX + this.x - this.cursorStartX;
   var newy = this.startY + this.y - this.cursorStartY;
-  if (newx < this.lbound) newx = this.lbound;
-  if (newy < this.tbound) newy = this.tbound;
-  if (typeof this.rbound === 'number' && newx > this.rbound) newx = this.rbound;
-  if (typeof this.bbound === 'number' & newy > this.bbound) newy = this.bbound;
+  if (newx < this._bounds.left) newx = this._bounds.left;
+  if (newy < this._bounds.top) newy = this._bounds.top;
+  // Prevent the right border of the element from going out of bounds, not just the element's top-left corner.
+  if (newx > this._bounds.right - this.moveEl.offsetWidth) newx = this._bounds.right - this.moveEl.offsetWidth;
+  if (newy > this._bounds.bottom - this.moveEl.offsetHeight) newy = this._bounds.bottom - this.moveEl.offsetHeight;
 
   this.moveEl.style.left = newx + 'px';
   this.moveEl.style.top = newy + 'px';
@@ -4464,27 +4471,27 @@ pui.MoveListener.prototype.mouseup = function(){
     this.moveEl.style.opacity = '';
   }
 };
-
 // end MoveListener class.
 
 /**
  * Enables moving an Element. This class overrides mousemove on MouseListener so elements can drag partially off-screen.
  * Inherits from pui.MoveListener.
  * @param {Object} params
+ * @param {Object|undefined} bounds
  * @constructor
  * @returns {pui.MoveListenerBoundAtClick}
  */
-pui.MoveListenerBoundAtClick = function(params){
-  pui.MoveListener.call(this, params);
+pui.MoveListenerBoundAtClick = function(params, bounds){
+  pui.MoveListener.call(this, params, bounds);
 };
 pui.MoveListenerBoundAtClick.prototype = Object.create(pui.MoveListener.prototype);
 
 // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
 pui.MoveListenerBoundAtClick.prototype.mousemove = function(){
-  if (this.x < this.lbound) this.x = this.lbound;
-  if (this.y < this.tbound) this.y = this.tbound;
-  if (typeof this.rbound === 'number' && this.x > this.rbound) this.x = this.rbound;
-  if (typeof this.bbound === 'number' && this.y > this.bbound) this.y = this.bbound;
+  if (this.x < this._bounds.left) this.x = this._bounds.left;
+  if (this.y < this._bounds.top) this.y = this._bounds.top;
+  if (this.x > this._bounds.right) this.x = this._bounds.right;
+  if (this.y > this._bounds.bottom) this.y = this._bounds.bottom;
 
   this.moveEl.style.left = (this.startX - this.cursorStartX + this.x) + 'px';
   this.moveEl.style.top = (this.startY - this.cursorStartY + this.y) + 'px';
