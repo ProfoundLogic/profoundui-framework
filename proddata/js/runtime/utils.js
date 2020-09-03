@@ -4787,3 +4787,19 @@ pui.getDatabaseConnections = function() {
   }
 
 }
+
+pui.getDatabaseConnection = function(name) {
+
+  if (typeof name !== "string")
+    return;
+  var connections = pui.getDatabaseConnections();
+  if (!connections)
+    return;
+  name = trim(name);
+  for (var i = 0; i < connections.length; i++) {
+    var connection = connections[i];
+    if (connection["name"] === name)
+      return connection;
+  }
+
+}
