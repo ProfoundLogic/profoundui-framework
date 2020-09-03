@@ -1977,7 +1977,11 @@ pui.hasParent = function(node) {
 };
 
 pui.appendAuth = function(url) {  
-   if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
+   // When using PJSCALL to call a PJS module from Genie, we have Genie app job info in pui.appJob
+   // and AUTH info in PUISSNP. In that case, we DO want to send AUTH even though pui.nodejs is "true".
+   if (!inDesignMode() && 
+       (!pui.nodejs || (pui["appJob"]["name"] && pui["appJob"]["user"] && pui["appJob"]["number"])) && 
+       typeof url == "string" && url.search("AUTH=") == -1) {
      if (url.search(/\?/) == -1) url += '?';
      else url += '&';
     url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
