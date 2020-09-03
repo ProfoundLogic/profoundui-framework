@@ -429,7 +429,16 @@ pui.widgets.add({
           suffix = " " + (parseInt(suffix, 10) + 1);
         
       }
-      parms.dom.className = "combo-main " + cls;
+      if (cls === "" && parms.dom.fieldInfo) {
+        var attr = parms.dom.fieldInfo.attr;
+        cls += " A" + attr;
+        if (parms.dom.fieldInfo.bypass) {
+           var nonDisplay = (attr == "27" || attr == "2F" || attr == "37" || attr == "3F");
+          cls += (nonDisplay) ? " hide" : " readOnly";
+        }
+        cls = trim(cls);
+      }
+      parms.dom.className = "combo-main " + trim(cls);
       parms.dom.comboBoxWidget.init();
       if (width != null && width != "") {
         parms.dom.style.width = width;
