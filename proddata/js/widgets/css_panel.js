@@ -267,13 +267,13 @@ pui.CSSPanel = function() {
         }
       }, 0);
     }
-  }
+  };
   
   this.makeDraggable = function() {
     var windowDiv = me.container.parentNode;
     
-    pui.makeMovable({attachto: headerDiv, move: windowDiv, boundat: 'click'});
-  
+    new pui.MoveListenerBoundAtClick({ attachto: headerDiv, move: windowDiv });
+    
     addEvent(headerDiv, "touchstart", function(e) {
       if (e.touches.length != 1) return;  // Only deal with one finger
       var touch = e.touches[0];

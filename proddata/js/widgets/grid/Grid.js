@@ -9064,7 +9064,7 @@ pui.Grid = function () {
       
       var header = document.createElement('div');
 
-      pui.makeMovable({ attachto: header, move: sortMultiPanel });
+      new pui.MoveListener({ attachto: header, move: sortMultiPanel });
       
       var btn = document.createElement('button');
       btn.className = 'pui-material-icons';
