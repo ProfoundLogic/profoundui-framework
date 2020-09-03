@@ -516,8 +516,8 @@ pui.widgets.add({
       var windowDiv = parms.dom.parentNode;      
       if (!parms.design && windowDiv != null && windowDiv.isPUIWindow == true) {
         
-        pui.makeMovable({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv, boundat: 'click' });
-
+        new pui.MoveListenerBoundAtClick({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv});
+        
         addEvent(panel.textDiv, "touchstart", function(e) {
           if (e.touches.length != 1) return;  // Only deal with one finger
           var touch = e.touches[0];

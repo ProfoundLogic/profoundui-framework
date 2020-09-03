@@ -4335,170 +4335,211 @@ pui.randomTextBoxName = function() {
 };
 
 /**
- * A generic method to attach mousedown on an element, and mouseup and mousemove listeners are also attached.
+ * A class that attaches a mousedown listener to an element. mouseup and mousemove get attached by mousedown. Used for moving and resizing.
+ * Child classes inherit from this class and implement this.mousedown and this.mousemove.
  * @param {Object} params
- *   attachto:  element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
- *   mousedown: Implementation specific function; Is provided a reference object with .cursorStartX and .cursorStartY.
- *   mousemove: Implementation specific function; Is provided a reference object with .x and .y.
- *   downcb:    optional Function. callback for mousedown.
- *   movecb:    optional Function. callback for mousemove.
- *   upcb:      optional Function. callback for mouseup.
- *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the opEl element to this value
- *                from mousedown until mouseup.
- *   opel:      optional Object. Element whose opacity is set on mousedown and cleared on mouseup.
- * @returns {undefined}
+ * @constructor
  */
-pui.listenMouse = function(params){
-  var ref = {};
+pui.MouseListener = function(params){
+  this.x = this.y = this.cursorStartX = this.cursorStartY = 0;  //All zero. These can be used in callbacks.
+
+  this.downcb = params.downcb;       //optional Function. callback for mousedown.
+  this.movecb = params.movecb;       //optional Function. callback for mousemove.
+  this.upcb = params.upcb;           //optional Function. callback for mouseup.
   
+  // attachto: element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
   if (params.attachto instanceof Array){
     for (var i=0; i < params.attachto.length; i++){
-      params.attachto[i].addEventListener('mousedown', mousedown);
+      params.attachto[i].addEventListener('mousedown', this);
     }
   }
   else if(params.attachto != null){
-    params.attachto.addEventListener('mousedown', mousedown);
-  }
-  
-  function mousedown(e){
-    preventEvent(e); //prevent selection start.
-    var xy = pui.getMouseXY(e);
-    ref.cursorStartX = xy.x;
-    ref.cursorStartY = xy.y;
-    params.mousedown(ref);
-    
-    if (typeof params.opacity === 'number'){
-      params.opel.style.filter = 'alpha(opacity='+params.opacity+')';   //IE
-      params.opel.style.opacity = '0.'+params.opacity;
-    }
-    
-    document.addEventListener('mousemove', mousemove);
-    document.addEventListener('mouseup', mouseup);
-    
-    if (typeof params.downcb === 'function') params.downcb(ref);
-  }
-
-  function mousemove(e){
-    var xy = pui.getMouseXY(e);
-    ref.x = xy.x;
-    ref.y = xy.y;
-    params.mousemove(ref);
-    
-    if (typeof params.movecb === 'function') params.movecb(ref);
-  }
-
-  function mouseup(){
-    removeEvent(document, 'mousemove', mousemove);
-    removeEvent(document, 'mouseup', mouseup);
-    if (typeof params.upcb === 'function') params.upcb(ref);
-    if (typeof params.opacity === 'number'){
-      params.opel.style.filter = '';
-      params.opel.style.opacity = '';
-    }
-    ref = {};
+    params.attachto.addEventListener('mousedown', this);
   }
 };
 
+pui.MouseListener.prototype['handleEvent'] = function(e){
+  switch(e.type){
+    case 'mousedown': this._mousedown(e); break;
+    case 'mousemove': this._mousemove(e); break;
+    case 'mouseup': this._mouseup(e); break;
+  }
+};
+
+pui.MouseListener.prototype.mousedown = function(){}; //Child classes can implement this.
 /**
- * Attach a mousedown listener on an element allowing an element to be moved by dragging the mouse.
- * Assume the listener is destroyed when the element is. Element can be fully or partially prevented from going off screen/container.
- * @param {Object} params  Properties:
- *   attachto:  element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
- *   move:      element to move by setting its .style.top and .style.left. 
- *              Or element to resize by setting its .style.height and/or .style.width.
- *   boundat:   optional. defaults to 'border'. 'click' makes panel stop at bounds where mouse was clicked.
- *   lbound:    optional. default to 0. Left bound.
- *   tbound:    optional. default to 0. Top bound.
- *   rbound:    optional. default to no bounds. Right bound.
- *   bbound:    optional. default to no bounds. Bottom bound.
- *   downcb:    optional Function. callback for mousedown.
- *   movecb:    optional Function. callback for mousemove.
- *   upcb:      optional Function. callback for mouseup.
- *   opacity:   optional Number (integer). Default no change. When set, change the percent opacity of the moved element to this 
- *                from mousedown until mouseup.
+ * Store the mouse pointer's starting position, register other listeners, call callbacks.
+ * @param {MouseEvent} e
  */
-pui.makeMovable = function(params){
-  if (typeof params.lbound !== 'number') params.lbound = 0;
-  if (typeof params.tbound !== 'number') params.tbound = 0;
-  var mousemoveF = params.boundat === 'click' ? moveBoundAtClick : moveBoundAtBorder;
-  
-  pui.listenMouse({attachto: params.attachto, downcb: params.downcb, movecb: params.movecb, upcb: params.upcb,
-    opacity: params.opacity, opel: params.move, mousedown: mdown, mousemove: mousemoveF });
-  
-  function mdown(ref){
-    ref.startX = params.move.offsetLeft;
-    ref.startY = params.move.offsetTop;
-  }
-  
-  // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
-  function moveBoundAtClick(ref){
-    if (ref.x < params.lbound) ref.x = params.lbound;
-    if (ref.y < params.tbound) ref.y = params.tbound;
-    if (typeof params.rbound === 'number' && ref.x > params.rbound) ref.x = params.rbound;
-    if (typeof params.bbound === 'number' && ref.y > params.bbound) ref.y = params.bbound;
-    
-    params.move.style.left = (ref.startX - ref.cursorStartX + ref.x) + 'px';
-    params.move.style.top = (ref.startY - ref.cursorStartY + ref.y) + 'px';
-  }
-  // Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
-  function moveBoundAtBorder(ref){
-    var newx = ref.startX + ref.x - ref.cursorStartX;
-    var newy = ref.startY + ref.y - ref.cursorStartY;
-    if (newx < params.lbound) newx = params.lbound;
-    if (newy < params.tbound) newy = params.tbound;
-    if (typeof params.rbound === 'number' && newx > params.rbound) newx = params.rbound;
-    if (typeof params.bbound === 'number' & newy > params.bbound) newy = params.bbound;
-    
-    params.move.style.left = newx + 'px';
-    params.move.style.top = newy + 'px';
-  }
+pui.MouseListener.prototype._mousedown = function(e){
+  preventEvent(e); //prevent selection start.
+  var xy = pui.getMouseXY(e);
+  this.cursorStartX = xy.x;
+  this.cursorStartY = xy.y;
+  this.mousedown();
+
+  document.addEventListener('mousemove', this);
+  document.addEventListener('mouseup', this);
+
+  if (typeof this.downcb === 'function') this.downcb(this);
 };
 
+pui.MouseListener.prototype.mousemove = function(){}; //Child classes can implement this.
 /**
- * Allow an element to be resized.
+ * Store the mouse pointer's current position and call callbacks.
+ * @param {MouseEvent} e
+ */
+pui.MouseListener.prototype._mousemove = function(e){
+  var xy = pui.getMouseXY(e);
+  this.x = xy.x;
+  this.y = xy.y;
+  this.mousemove();
+
+  if (typeof this.movecb === 'function') this.movecb(this);
+};
+
+pui.MouseListener.prototype.mouseup = function(){}; //Child classes can implement this.
+/**
+ * Remove event listeners for mousemove and mouseup, call callback.
+ */
+pui.MouseListener.prototype._mouseup = function(){
+  document.removeEventListener('mousemove', this);
+  document.removeEventListener('mouseup', this);
+  if (typeof this.upcb === 'function') this.upcb(this);
+  this.mouseup();
+};
+// end MouseListener class.
+
+/**
+ * Enables moving an Element. This class makes the screen or container border out of bounds for mouse movements handled.
+ * Opacity of the Element, if specified, is set on mousedown and cleared on mouseup.
+ * Inherits from pui.MouseListener.
  * @param {Object} params
- *   attachto:  element to attach the mousedown. Assume the attachto element is on the border of the resizeEl and moves when resizeEl changes.
- *   resizeEl:  element to resize by setting its .style.height and/or .style.width.
- *   resize:    1=width (default), 2=height, 3=both.
- *   minw:      optional. default to 0. Minimum width.
- *   maxw:      optional. default to no bounds. Maximum width.
- *   minh:      optional. default to 0. Minimum height.
- *   maxh:      optional. default to no bounds. Maximum height.
- *   downcb:    optional Function. callback for mousedown.
- *   movecb:    optional Function. callback for mousemove.
- *   upcb:      optional Function. callback for mouseup.
+ * @constructor
+ * @returns {pui.MoveListener}
  */
-pui.makeResizable = function(params){
-  if (typeof params.minw != 'number' || params.minw < 0) params.minw = 0;
-  if (typeof params.minh != 'number' || params.minh < 0) params.minh = 0;
-  if (typeof params.resize != 'number' || params.resize < 1 || params.resize > 3) params.resize = 1;
-  var doWidth = (params.resize & 1) == 1;  //true for 1 or 3.
-  var doHeight = (params.resize & 2) == 2; //true for 2 or 3.
+pui.MoveListener = function(params){
+  pui.MouseListener.call(this, params); //Assigns downcb, movecb, upcb; adds mousedown listener.
+  this.moveEl = params.move;      //Element to move by setting its .style.top and .style.left. Or Element to resize by setting its .style.height and/or .style.width.
+  this.opacity = params.opacity;  //optional Number (integer). Default no change. When set, change the percent opacity of the opEl
+                                  // element to this value from mousedown until mouseup.
   
-  pui.listenMouse({attachto: params.attachto, mousedown: mdown, mousemove: mmove,
-    downcb: params.downcb, movecb: params.movecb, upcb: params.upcb  });
+  this.lbound = (typeof params.lbound !== 'number') ? 0 : params.lbound; //Left bound. defaults to 0.
+  this.tbound = (typeof params.tbound !== 'number') ? 0 : params.tbound; //Top bound. defaults to 0.
+  this.rbound = params.rbound;                            //Right bound. optional. default to no bounds.
+  this.bbound = params.bbound;                            //Bottom bound. optional. default to no bounds.
+};
+pui.MoveListener.prototype = Object.create(pui.MouseListener.prototype);
+
+/**
+ * Implements mousedown for MouseListener. Stores the starting positions of the Element being moved.
+ */
+pui.MoveListener.prototype.mousedown = function(){
+  this.startX = this.moveEl.offsetLeft;
+  this.startY = this.moveEl.offsetTop;
   
-  function mdown(ref){
-    ref.startX = params.resizeEl.offsetWidth;
-    ref.startY = params.resizeEl.offsetHeight;
-  }
-  function mmove(ref){
-    if (doWidth){
-      var width = ref.startX + ref.x - ref.cursorStartX;
-      if (width < params.minw) width = params.minw;
-      if (typeof params.maxw === 'number' && width > params.maxw) width = params.maxw;
-      params.resizeEl.style.width = width + 'px';
-      ref.width = width;
-    }
-    if (doHeight){
-      var height = ref.startY + ref.y - ref.cursorStartY;
-      if (height < params.minh) height = params.minh;
-      if (typeof params.maxh === 'number' && height > params.maxh) height = params.maxh;
-      params.resizeEl.style.height = height + 'px';
-      ref.height = height;
-    }
+  if (typeof this.opacity === 'number'){
+    this.moveEl.style.opacity = '0.'+this.opacity;
   }
 };
+
+/**
+ * Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
+ * Implements mousemove for MouseListener.
+ */
+pui.MoveListener.prototype.mousemove = function(){
+  var newx = this.startX + this.x - this.cursorStartX;
+  var newy = this.startY + this.y - this.cursorStartY;
+  if (newx < this.lbound) newx = this.lbound;
+  if (newy < this.tbound) newy = this.tbound;
+  if (typeof this.rbound === 'number' && newx > this.rbound) newx = this.rbound;
+  if (typeof this.bbound === 'number' & newy > this.bbound) newy = this.bbound;
+
+  this.moveEl.style.left = newx + 'px';
+  this.moveEl.style.top = newy + 'px';
+};
+
+pui.MoveListener.prototype.mouseup = function(){
+  if (typeof this.opacity === 'number'){
+    this.moveEl.style.opacity = '';
+  }
+};
+
+// end MoveListener class.
+
+/**
+ * Enables moving an Element. This class overrides mousemove on MouseListener so elements can drag partially off-screen.
+ * Inherits from pui.MoveListener.
+ * @param {Object} params
+ * @constructor
+ * @returns {pui.MoveListenerBoundAtClick}
+ */
+pui.MoveListenerBoundAtClick = function(params){
+  pui.MoveListener.call(this, params);
+};
+pui.MoveListenerBoundAtClick.prototype = Object.create(pui.MoveListener.prototype);
+
+// Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
+pui.MoveListenerBoundAtClick.prototype.mousemove = function(){
+  if (this.x < this.lbound) this.x = this.lbound;
+  if (this.y < this.tbound) this.y = this.tbound;
+  if (typeof this.rbound === 'number' && this.x > this.rbound) this.x = this.rbound;
+  if (typeof this.bbound === 'number' && this.y > this.bbound) this.y = this.bbound;
+
+  this.moveEl.style.left = (this.startX - this.cursorStartX + this.x) + 'px';
+  this.moveEl.style.top = (this.startY - this.cursorStartY + this.y) + 'px';
+};
+// end MoveListenerBoundAtClick class.
+
+/**
+ * Allow an element to be resized with the mouse. Inherits from pui.MouseListener.
+ * @param {Object} params   required properties apart from those required from pui.MouseListener: resize, 
+ * @constructor
+ * @returns {pui.MouseResizable}
+ */
+pui.MouseResizable = function(params){
+  pui.MouseListener.call(this, params);   //Assigns downcb, movecb, upcb; adds mousedown listener.
+  this.minw = (typeof params.minw == 'number' && params.minw > 0) ? params.minw : 0; //optional. default to 0. Minimum width.
+  this.minh = (typeof params.minh == 'number' && params.minh > 0) ? params.minh : 0; //optional. default to 0. Minimum height.
+  this.maxw = params.maxw;    //optional. default to no bounds. Maximum width.
+  this.maxh = params.maxh;    //optional. default to no bounds. Maximum height.
+  this.resizeEl = params.resizeEl;  //required: the element to be resized.
+  
+  // Private
+  var resize = (typeof params.resize == 'number' && params.resize >= 1 && params.resize <= 3) ? params.resize : 1;   //1=width (default), 2=height, 3=both.
+  this._doWidth = (resize & 1) == 1;  //true for 1 or 3.
+  this._doHeight = (resize & 2) == 2; //true for 2 or 3.
+};
+pui.MouseResizable.prototype = Object.create(pui.MouseListener.prototype);
+
+/**
+ * Implements mousedown for MouseListener. Set the starting X and Y on the resize element's offset width and height.
+ */
+pui.MouseResizable.prototype.mousedown = function(){
+  this.startX = this.resizeEl.offsetWidth;
+  this.startY = this.resizeEl.offsetHeight;
+};
+
+/**
+ * Implements mousemove for MouseListener. Change the width and or height of the resizable element.
+ */
+pui.MouseResizable.prototype.mousemove = function(){
+  if (this._doWidth){
+    var width = this.startX + this.x - this.cursorStartX;
+    if (width < this.minw) width = this.minw;
+    if (typeof this.maxw === 'number' && width > this.maxw) width = this.maxw;
+    this.resizeEl.style.width = width + 'px';
+    this.width = width;       //Can be used in movecb.
+  }
+  if (this._doHeight){
+    var height = this.startY + this.y - this.cursorStartY;
+    if (height < this.minh) height = this.minh;
+    if (typeof this.maxh === 'number' && height > this.maxh) height = this.maxh;
+    this.resizeEl.style.height = height + 'px';
+    this.height = height;     //Can be used in movecb.
+  }
+};
+// end of MouseResizable class.
 
 // Update React or Vue state
 pui.updateReactState = function(dom) {
