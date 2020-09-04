@@ -677,6 +677,10 @@ pui.Grid = function () {
         delimiter = ";";
       }
     }
+    var stringDelimiter = '"';
+    if (typeof (pui["csv string delimiter"]) == "string") {
+       stringDelimiter = pui["csv string delimiter"];
+    }
     if (me.designMode) return;
     if (fileName == null) fileName = me.exportFileName;
     if (fileName == null || fileName == "") fileName = me.tableDiv.id;
@@ -870,7 +874,7 @@ pui.Grid = function () {
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
           if (data != "") data += delimiter;
-          data += '"' + heading + '"';
+          data += stringDelimiter + heading + stringDelimiter;
         }
       }
     }
@@ -940,7 +944,7 @@ pui.Grid = function () {
             }
           }
           if (line != "") line += delimiter;
-          line += '"' + rtrim(value) + '"';
+          line += stringDelimiter + rtrim(value) + stringDelimiter;
           
           if (exportXLSX){
             
@@ -1092,7 +1096,7 @@ pui.Grid = function () {
         formData.append("order", orderBy);
 
       }
-      else if (pui["dbDriver"] == "mssql") {
+      else if (getDBDriver() == "mssql") {
 
         // Order by is required for OFFSET/FETCH.
         // This should give the same sort as if order by was not used.
@@ -1782,12 +1786,16 @@ pui.Grid = function () {
         if (sql == null || sql == "") return;
         var delimiter = ",";
         var decType = ".";
+        var stringDelimiter = '"';
         if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
           delimiter = ";";
           decType = ",";
         }
         if (typeof (pui["csv separator"]) == "string") {
           delimiter = pui["csv separator"];
+        }
+        if (typeof (pui["csv string delimiter"]) == "string") {
+          stringDelimiter = pui["csv string delimiter"];
         }
         var form = document.createElement("form");
         form.action = getProgramURL("PUI0009107.pgm");
@@ -1801,6 +1809,7 @@ pui.Grid = function () {
         if (pui["isCloud"])
           addField("workspace_id", pui.cloud.ws.id);
         addField("delimiter", delimiter);
+        addField("stringDelimiter", (stringDelimiter==='') ? "*NONE": stringDelimiter);
         if (pui["read db driven data as ebcdic"] !== true) addField("UTF8", "Y");
         addField("decType", decType);
         addField("fileName", csvFile + ".csv");
@@ -1822,7 +1831,7 @@ pui.Grid = function () {
             addField("order", orderBy);
 
           }
-          else if (pui["dbDriver"] == "mssql") {
+          else if (getDBDriver() == "mssql") {
 
             // Order by is required for OFFSET/FETCH.
             // This should give the same sort as if order by was not used.
@@ -1845,7 +1854,7 @@ pui.Grid = function () {
               if (col["blankHeader"]) heading = "";
               heading = heading.replace(/"/g, '""');
               if (headings) headings += delimiter;
-              headings += '"' + heading + '"';
+              headings += stringDelimiter + heading + stringDelimiter;
             });
           } else {
             var headings = "";
@@ -1853,7 +1862,7 @@ pui.Grid = function () {
               var heading = getInnerText(me.cells[0][i]);
               heading = heading.replace(/"/g, '""'); // "
               if (headings != "") headings += delimiter;
-              headings += '"' + heading + '"';
+              headings += stringDelimiter + heading + stringDelimiter;
             }
           }
           addField("headings", headings);
@@ -4880,6 +4889,7 @@ pui.Grid = function () {
         break;
 
       case "remote system name":
+      case "database connection":
       case "database file":
       case "database fields":
       case "selection criteria":
@@ -7058,7 +7068,7 @@ pui.Grid = function () {
         req["postData"] += "&order=" + orderBy;
 
       }
-      else if (pui["dbDriver"] == "mssql") {
+      else if (getDBDriver() == "mssql") {
 
         // Order by is required for OFFSET/FETCH.
         // This should give the same sort as if order by was not used.
@@ -9330,6 +9340,23 @@ pui.Grid = function () {
       }
     }
   };
+
+  function getDBDriver() {
+
+    var connections = pui.getDatabaseConnections();
+    if (connections) { // New Profound.js backend with multi-DB support.
+      var connectionName = trim(me["dataProps"]["database connection"] || "");
+      for (var i = 0; i < connections.length; i++) {
+        var connection = connections[i];
+        if ((connectionName === "" && connection["default"] === true) || connectionName === connection["name"])
+          return connection["driver"];
+      }
+    }
+    else if (typeof pui["dbDriver"] !== "undefined") {  // Old Profound.js backend w/o multi-DB support.
+      return pui["dbDriver"];
+    }
+
+  }
   
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
@@ -9466,6 +9493,7 @@ pui.Grid = function () {
 
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("Local", "Name of database where file is located. Used only if data to be retrieved is stored on a remote server." ), controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
+      { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, help: pui.helpTextProperties("[default connection]", "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections."), context: "dspf", nodedesigner: true, viewdesigner: false},
       { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.") },
       { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
           if (!confirm("Update grid columns?")) return; 
@@ -9486,6 +9514,8 @@ pui.Grid = function () {
           customSqlHandler: function (customSql) {   
               if (!confirm("Adjust grid based on columns?")) return;   
               var parm = {     "customSql": customSql   };   
+              if (pui.nodedesigner && typeof me["dataProps"]["database connection"] === "string")
+                parm["connection"] = trim(me["dataProps"]["database connection"]);
               pui.getFieldDescriptions(parm, me.customSqlCallback); 
           } 
       },
