@@ -330,6 +330,10 @@ pui.floatPlaceholder = function(idOrDom) {
   input.style.left = "";
   input.style.top = "";
   input.style.width = "100%";
+  if (input.style.visibility) {
+    div.style.visibility = input.style.visibility;
+    input.style.visibility = "";
+  }
   div.appendChild(input);
   var label = document.createElement("label");
   label.classList.add("pui-floating-placeholder-label");

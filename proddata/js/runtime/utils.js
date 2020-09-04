@@ -1977,7 +1977,11 @@ pui.hasParent = function(node) {
 };
 
 pui.appendAuth = function(url) {  
-   if (!inDesignMode() && !pui.nodejs && typeof url == "string" && url.search("AUTH=") == -1) {
+   // When using PJSCALL to call a PJS module from Genie, we have Genie app job info in pui.appJob
+   // and AUTH info in PUISSNP. In that case, we DO want to send AUTH even though pui.nodejs is "true".
+   if (!inDesignMode() && 
+       (!pui.nodejs || (pui["appJob"]["name"] && pui["appJob"]["user"] && pui["appJob"]["number"])) && 
+       typeof url == "string" && url.search("AUTH=") == -1) {
      if (url.search(/\?/) == -1) url += '?';
      else url += '&';
     url += "AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
@@ -4146,7 +4150,8 @@ pui.xlsx_drawing = function(){
 pui.getFieldDescriptions = function(parm, cb){
   var library=parm["library"] || "", 
       file=parm["file"] || "", 
-      customSql=parm["customSql"] || "";
+      customSql=parm["customSql"] || "",
+      connection=parm["connection"] || "";
     if (context == "genie") url = getProgramURL("PUI0009101.PGM");
     if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
     var request = new pui.Ajax(url);
@@ -4155,6 +4160,7 @@ pui.getFieldDescriptions = function(parm, cb){
     request["postData"] = "file=" + encodeURIComponent(file);
     request["postData"] += "&library=" + encodeURIComponent(library);
     request["postData"] += "&customSql=" + encodeURIComponent(customSql);
+    request["postData"] += "&connection=" + encodeURIComponent(connection);
     if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
     
     if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
@@ -4815,3 +4821,43 @@ pui.BaseClass.prototype.deleteOwnProperties = function(){
 pui.BaseClass.prototype.returnFalse = function(){
   return false;
 };
+
+pui.getDatabaseConnections = function() {
+
+  if (pui["isCloud"] && inDesignMode()) {
+    var connections = Array.isArray(pui.cloud.ws["settings"]["databaseConnections"]) ? pui.cloud.ws["settings"]["databaseConnections"].slice() : [];
+    var workspaceConnection = { "name": "workspace", "driver": "mysql" };
+    var defaultFound = false;
+    for (var i = 0; i < connections.length; i++) {
+      if (connections[i]["default"] === true) {
+        defaultFound = true;
+        break;
+      }
+    }
+    if (!defaultFound)
+      workspaceConnection["default"] = true;
+    connections.splice(0, 0, workspaceConnection);
+    return connections;
+  }
+  else {
+    return pui["databaseConnections"];
+  }
+
+};
+
+pui.getDatabaseConnection = function(name) {
+
+  if (typeof name !== "string")
+    return;
+  var connections = pui.getDatabaseConnections();
+  if (!connections)
+    return;
+  name = trim(name);
+  for (var i = 0; i < connections.length; i++) {
+    var connection = connections[i];
+    if (connection["name"] === name)
+      return connection;
+  }
+
+};
+
