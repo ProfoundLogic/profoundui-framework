@@ -2340,7 +2340,7 @@ pui.removeCachedStyle = function (domObj, stylename) {
 pui.getDatabaseConnectionPropertyChoices = function() {
 
   var choices = [];
-  var connections = pui.getDatabaseConnections();
+  var connections = pui["getDatabaseConnections"]();
   if (connections) {
     choices = connections.map(function(el) {
       return el["name"];
