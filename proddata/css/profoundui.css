@@ -16775,6 +16775,10 @@ div.propwin > .pbody > table tr td:nth-of-type(2) span.prereqfail {
   white-space: normal;
   color: #999999;
 }
+div.propwin > .pbody > table tr td:nth-of-type(2) span.warnicon {
+  float: right;
+  margin: 2px 15px 0 0;
+}
 
 div.propwin > .pbody > table tr.category { cursor: pointer; }
 div.propwin > .pbody > table tr.category td.flat {
