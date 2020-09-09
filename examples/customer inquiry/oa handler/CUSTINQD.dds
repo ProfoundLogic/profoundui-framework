@@ -1,0 +1,58 @@
+     A                                      INDARA
+     A          R CUSTINQFMT
+     A                                  1  2HTML('QPUIREC0    ')
+     A                                  1  3HTML('{"screen":{"record format nam-
+     A                                      e":"CUSTINQFMT","description":"Cust-
+     A                                      omer Inquiry"},"items":[{"id":"Pane-
+     A                                      l1","field type":"panel","value":"C-
+     A                                      ustomer Inquiry","left":"15px","top-
+     A                                      ":"20px","width":"470px","height":"-
+     A                                      160px","panel style":"Simple","z in-
+     A                                      dex":"8"},{"id":"Label1","field typ-
+     A                                      e":"output field","css class":"labe-
+     A                                      l","value":"Customer Number:","left-
+     A                                      ":"30px","top":"65px","width":"150p-
+     A                                      x"},{"id":"Label2","field type":"ou-
+     A                                      tput field","css class":"label","va-
+     A                                      lue":"Customer Name:","left":"30px"-
+     A                                      ,"top":"100px","width":"150px"},{"i-
+     A                                      d":"TextBox1","field type":"textbox-
+     A                                      ","css class":"input","value":{"fie-
+     A                                      ldName":"CSID","dataLength":"7","de-
+     A                                      cPos":"0","numSep":"false","zeroBal-
+     A                                      ance":"false","numBlankFill":"false-
+     A                                      ","zeroFill":"false","curSym":"","d-
+     A                                      ataType":"zoned","formatting":"Numb-
+     A                                      er","negNum":"-999.00","units":"","-
+     A                                      designValue":"[CSID]"},"left":"190p-
+     A                                      x","top":"65px","width":"135px"},{"-
+     A                                      id":"OutputField1","field type":"ou-
+     A                                      tput field","css class":"outputFiel-
+     A                                      d","value":{"fieldName":"CSNAME","d-
+     A                                      ataLength":"50","trimLeading":"fals-
+     A                                      e","trimTrailing":"true","blankFill-
+     A                                      ":"false","rjZeroFill":"false","dat-
+     A                                      aType":"char","formatting":"Text","-
+     A                                      textTransform":"none","designValue"-
+     A                                      :"[CSNAME]"},"left":"190px","top":"-
+     A                                      100px"},{"id":"Button1","field type-
+     A                                      ":"button","css class":"button","va-
+     A                                      lue":"Find Customer","left":"190px"-
+     A                                      ,"top":"145px","width":"130px","cur-
+     A                                      sor":"default","response":{"fieldNa-
+     A                                      me":"btnSubmit","customTrue":"","cu-
+     A                                      stomFalse":"","dataType":"indicator-
+     A                                      ","formatting":"Indicator","indForm-
+     A                                      at":"1 / 0"}},{"id":"Button2","fiel-
+     A                                      d type":"button","css class":"butto-
+     A                                      n","value":"Exit","left":"340px","t-
+     A                                      op":"145px","width":"100px","cursor-
+     A                                      ":"default","response":{"fieldName"-
+     A                                      :"btnExit","customTrue":"","customF-
+     A                                      alse":"","dataType":"indicator","fo-
+     A                                      rmatting":"Indicator","indFormat":"-
+     A                                      1 / 0"}}]}')
+     A            BTNEXIT        1A  H
+     A            BTNSUBMIT      1A  H
+     A            CSID           7S 0H
+     A            CSNAME        50A  H
