@@ -44,6 +44,15 @@ function preventEvent(event) {
   }
 }
 
+/**
+ * Assign to any event listeners that simply prevent an action. For example: tr.onmousedown = pui.preventEvent;
+ * @param {Event} event
+ * @returns {Boolean}
+ */
+pui.preventEvent = function(event){
+  preventEvent(event);
+  return false;
+};
 
 // IE cannot reliably get elements by name when the element is created/modified with javascript
 // The following types of statements do not work reliably in IE6 or IE7: 
