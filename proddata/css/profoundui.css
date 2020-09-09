@@ -16828,3 +16828,182 @@ div.propwin input.propertyInput {
   font-family: Arial;
   font-size: 12px;
 }
+
+div.resizer-br {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 10px;
+  height: 10px;
+  background-image: url("/profoundui/proddata/images/icons/sizer.png");
+  cursor: nwse-resize;
+  z-index: 8;
+}
+
+div.dsgnr-dialog {
+  position: absolute;
+  border: 2px solid #336699;
+  right: 16px;
+  bottom: 7px;
+  padding: 0px;
+  visibility: hidden;
+  overflow: hidden;
+  
+  border-radius: 5px;
+  box-shadow: 6px 6px 12px rgba(50, 66, 64, 0.67);
+  border: 3px solid #b0cbef;
+}
+div.dsgnr-dialog .header {
+  font-size: 12px;
+  font-family: Arial;
+  background-color: #6699cc;
+  padding: 3px;
+  cursor: move;
+  font-weight: bold;
+  color: #ffffff;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  white-space: normal;
+  width: 100%;
+  -moz-user-select: none;
+  
+  background-image: url(/profoundui/proddata/images/header-gradient.png);
+  color: #15428B;
+  padding-top: 4px;
+  height: 25px;
+  font-size: 11px;
+}
+
+div.dsgnr-dialog .header .title {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+div.dsgnr-dialog .header div.closeBtn {
+  position: absolute;
+  top: 3px;
+  right: 10px;
+  width: 15px;  
+  height: 15px;  
+  cursor: pointer;
+}
+
+div.dsgnr-dialog .header div.closeBtn > div.closeImg {
+  background-image: url(/profoundui/proddata/images/buttons/close/x1.png);
+  background-repeat: no-repeat;
+  position: absolute;  
+  top: 0px;
+  left: 0px;
+  width: 16px;
+  height: 16px;
+}
+
+div.dsgnr-dialog .header div.closeBtn > div.closeImg:hover {
+  background-image: url(/profoundui/proddata/images/buttons/close/x1_hover.png);
+}
+
+div.dsgnr-dialog .body {
+  overflow: auto;
+  height: calc(100% - 20px);
+  background-color: #ffffff;
+  padding: 0px;
+  position: absolute;
+  left: 0px;
+  top: 20px;
+  white-space: normal;
+  width: 100%;
+  
+  background-color: #dfe8f6;
+  top: 27px;
+}
+div.dsgnr-dialog.dspf .body { height: calc(100% - 27px); }
+
+div.dsgnr-dialog.flat {
+  border-radius: 0;
+  box-shadow: none;
+  border: 2px solid #4598F4;
+}
+div.dsgnr-dialog.flat .header {
+  background-color: #6BADF6;
+  color: #31373d;
+  font-size: 13px;
+  font-weight: normal;
+  background-image: none;
+}
+div.dsgnr-dialog.flat .body {
+  background-color: #F8F9F9;
+}
+
+div.dsgnr-dialog.flat .header div.closeBtn > div.closeImg {
+  background-image: url(/profoundui/proddata/images/buttons/close/x5.png);
+}
+
+div.dsgnr-dialog.flat .header div.closeBtn > div.closeImg.mdown {
+  background-image: url(/profoundui/proddata/images/buttons/close/x5_click.png);
+}
+/* Non-ace and non-monaco editor. */
+div.dsgnr-dialog textarea.editor-textarea {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 526px;
+  height: 340px;
+  font-family: Arial;
+  font-size: 12px;
+}
+div.dsgnr-dialog div.codeeditor {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: calc(100% - 29px);
+  height: calc(100% - 62px);
+  border: 1px solid #dddddd;
+}
+div.dsgnr-dialog div.codeeditor.monaco {
+  top: 20px;
+  height: calc(100% - 72px);
+}
+
+div.dsgnr-dialog .body input[type="button"].ctrl {
+  position: absolute;
+  bottom: 10px;
+  height: 22px;
+  width: 75px;
+  font-family: Arial;
+  font-size: 11px;
+  z-index: 8;
+}
+
+div.dsgnr-dialog .body input[type="button"].ok { right: 95px; }
+div.dsgnr-dialog .body input[type="button"].cancel { right: 15px; }
+div.dsgnr-dialog .body input[type="button"].ok.center { right: calc(50% + 3px); }
+div.dsgnr-dialog .body input[type="button"].cancel.center { left: calc(50% + 4px); }
+
+div.dsgnr-dialog.fields .body div.tablewrap {
+  position: absolute;
+  left: 10px;
+  top: 40px;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr {
+  width: 390px;
+  padding: 0px;
+  overflow: hidden;
+}
+/*div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table {*/
+div.dsgnr-dialog.fields .body div.tablewrap table {
+  width: 390px;
+  table-layout: fixed;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det {
+  width: 390px;
+  height: 139px;
+  padding: 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table {
+  font-family: Trebuchet MS;
+  font-size: 13px;
+  table-layout: fixed;
+}
