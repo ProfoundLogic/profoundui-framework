@@ -16994,25 +16994,91 @@ div.dsgnr-dialog.fields .body div.tablewrap {
   left: 10px;
   top: 40px;
 }
-div.dsgnr-dialog.fields .body div.tablewrap > div.hdr {
+div.dsgnr-dialog.fields .body div.tablewrap > div {
   width: 390px;
   padding: 0px;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr {
   overflow: hidden;
 }
-/*div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table {*/
-div.dsgnr-dialog.fields .body div.tablewrap table {
-  width: 390px;
-  table-layout: fixed;
-}
 div.dsgnr-dialog.fields .body div.tablewrap > div.det {
-  width: 390px;
   height: 139px;
-  padding: 0px;
   overflow-x: hidden;
   overflow-y: auto;
 }
-div.dsgnr-dialog.fields .body div.tablewrap > div.det > table {
-  font-family: Trebuchet MS;
-  font-size: 13px;
+
+div.dsgnr-dialog.fields .body div.tablewrap table {
+  width: 390px;
   table-layout: fixed;
+  font-family: Trebuchet MS;
 }
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table { font-size: 12px; }
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table { font-size: 13px; }
+
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table tr {
+  background-color: #336699;
+  color: #FFFFFF;
+}
+div.dsgnr-dialog.fields .body div.tablewrap table td {
+  border-width: 1px;
+  border-color: #cccccc;
+  border-style: none;
+  padding: 2px;
+}
+
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(1) {
+  width: 115px;
+  border-top-style: solid;
+  border-left-style: solid;
+  
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(2) {
+  width: 160px;
+  border-top-style: solid;
+  border-left-style: solid;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(3) {
+  border-style: solid solid none solid;
+  padding-right: 3px;
+  text-align: right;
+}
+
+
+
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr {
+  cursor: default;
+  background-color: #F3F3F3;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:hover,
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:nth-of-type(2n):hover {
+  background-color: #dcdcdc;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:nth-of-type(2n){
+  background-color: #FFFFFF;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr.sel, 
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr.sel:hover {
+  color: #ffffff;
+  background-color: #6699CC;
+}
+
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td { overflow-x: hidden; }
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:nth-of-type(1) > td { border-top-style: solid; }
+
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(1) {
+  width: 115px;
+  border-left-style: solid;
+  border-bottom-style: solid;
+  
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(2) {
+  width: 160px;
+  border-left-style: solid;
+  border-bottom-style: solid;
+}
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(3) {
+  border-style: none solid solid solid;
+  padding-right: 20px;
+  text-align: right;
+}
+
