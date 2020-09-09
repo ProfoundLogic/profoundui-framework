@@ -1,0 +1,20 @@
+     A                                      INDARA
+     A          R HELLO
+     A                                  1  2HTML('QPUIREC0    ')
+     A                                  1  3HTML('{"screen":{"record format nam-
+     A                                      e":"HELLO","description":"Hello Wor-
+     A                                      ld Record Format","document title":-
+     A                                      "Hello World"},"items":[{"id":"Labe-
+     A                                      l1","field type":"output field","cs-
+     A                                      s class":"label","value":"Hello Wor-
+     A                                      ld","left":"20px","top":"20px","wid-
+     A                                      th":"150px","text align":"center"},-
+     A                                      {"id":"Button1","field type":"butto-
+     A                                      n","css class":"button","value":"Ex-
+     A                                      it","left":"45px","top":"60px","wid-
+     A                                      th":"100px","cursor":"default","res-
+     A                                      ponse":{"fieldName":"btnExit","cust-
+     A                                      omTrue":"","customFalse":"","dataTy-
+     A                                      pe":"indicator","formatting":"Indic-
+     A                                      ator","indFormat":"1 / 0"}}]}')
+     A            BTNEXIT        1A  H

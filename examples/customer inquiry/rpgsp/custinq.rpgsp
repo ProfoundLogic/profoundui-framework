@@ -1,0 +1,29 @@
+
+<SCRIPT language=RPGLE>
+
+     D CSID            S              7  0
+     D CSNAME          S             50A
+
+          If RPGspIn('btnExit' : 'Input') <> '1';
+
+            CSID = RPGspInVal('CSID' : 'Input');
+
+            CSNAME = '';
+            Exec SQL SELECT CSNAME INTO :CSNAME FROM CUSTMASTP
+                     WHERE CSID = :CSID FETCH FIRST ROW ONLY;
+
+</SCRIPT>
+
+{
+  "data": {
+    "CSID": "<% %Char(CSID) %>",
+    "CSNAME": "<% RPGspJSONEncode(%TrimR(CSNAME)) %>"
+  },
+  "view": "..\/custinq.json",
+  "screen": "CUSTINQFMT"
+}
+
+<SCRIPT language=RPGLE>
+          EndIf;
+</SCRIPT>
+

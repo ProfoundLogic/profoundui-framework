@@ -1,0 +1,90 @@
+     A          R PRODSFL                   SFL
+     A            QPUI00001      1A  O  2  2
+     A            PPRICE        11S 2H
+     A            PRID          10A  H
+     A            PRNAME        30A  H
+     A            PSTOCK         5S 0H
+     A          R QSFLCTL001                SFLCTL(PRODSFL)
+     A                                      SFLSIZ(0001)
+     A                                      SFLPAG(0001)
+     A                                      SFLDSP
+     A                                  1  2HTML('QPUISFLPRODCTL')
+     A          R PRODCTL
+     A                                  1  2HTML('QPUICTL1    PRODSFL   5    RS-
+     A                                      FLDSP    0     RSFLDSPCTL 0     RSF-
+     A                                      LCLR    0    FCLEARSFL  RSFLPAG    -
+     A                                      1    C2    19 RSFLSIZ    1    C2   -
+     A                                       20 0    0    ')
+     A                                  1  3HTML('{"screen":{"record format nam-
+     A                                      e":"PRODCTL","description":"Product-
+     A                                       Control Record Format"},"items":[{-
+     A                                      "id":"Grid1","field type":"grid","c-
+     A                                      ss class":"crystal-grid","left":"20-
+     A                                      px","top":"20px","number of rows":"-
+     A                                      20","number of columns":"4","column-
+     A                                       widths":"150,342,153,99","column h-
+     A                                      eadings":"Product Id,Product Name,P-
+     A                                      rice,Stock Qty","header height":"26-
+     A                                      ","row height":"26","height":"520px-
+     A                                      ","width":"745px","sortable columns-
+     A                                      ":"true","record format name":"PROD-
+     A                                      SFL","description":"Product Subfile-
+     A                                      ","clear subfile":{"fieldName":"Cle-
+     A                                      arSFL","customTrue":"","customFalse-
+     A                                      ":"","dataType":"indicator","format-
+     A                                      ting":"Indicator","indFormat":"true-
+     A                                       / false"}},{"id":"Button1","field -
+     A                                      type":"styled button","value":"Exit-
+     A                                      ","left":"20px","top":"550px","widt-
+     A                                      h":"100px","height":"23px","button -
+     A                                      style":"Bright Gold","color":"#0000-
+     A                                      00","response":{"fieldName":"btnExi-
+     A                                      t","customTrue":"","customFalse":""-
+     A                                      ,"dataType":"indicator","formatting-
+     A                                      ":"Indicator","indFormat":"1 / 0"}}-
+     A                                      ,{"id":"OutputField1","field type":-
+     A                                      "output field","css class":"outputF-
+     A                                      ield","value":{"fieldName":"PRID","-
+     A                                      dataLength":"10","trimLeading":"fal-
+     A                                      se","trimTrailing":"true","blankFil-
+     A                                      l":"false","rjZeroFill":"false","da-
+     A                                      taType":"char","formatting":"Text",-
+     A                                      "textTransform":"none","designValue-
+     A                                      ":"[PRID]"},"left":"10px","top":"5p-
+     A                                      x","grid":"Grid1","column":"0"},{"i-
+     A                                      d":"OutputField2","field type":"out-
+     A                                      put field","css class":"outputField-
+     A                                      ","value":{"fieldName":"PRNAME","da-
+     A                                      taLength":"30","trimLeading":"false-
+     A                                      ","trimTrailing":"true","blankFill"-
+     A                                      :"false","rjZeroFill":"false","data-
+     A                                      Type":"char","formatting":"Text","t-
+     A                                      extTransform":"none","designValue":-
+     A                                      "[PRNAME]"},"left":"10px","top":"5p-
+     A                                      x","grid":"Grid1","column":"1"},{"i-
+     A                                      d":"OutputField3","field type":"out-
+     A                                      put field","css class":"outputField-
+     A                                      ","value":{"fieldName":"PPRICE","da-
+     A                                      taLength":"11","decPos":"2","numSep-
+     A                                      ":"true","zeroBalance":"true","numB-
+     A                                      lankFill":"false","zeroFill":"false-
+     A                                      ","curSym":"$","dataType":"zoned","-
+     A                                      formatting":"Number","negNum":"-999-
+     A                                      .00","units":"","designValue":"[PPR-
+     A                                      ICE]"},"left":"5px","top":"5px","wi-
+     A                                      dth":"141px","text align":"right","-
+     A                                      grid":"Grid1","column":"2"},{"id":"-
+     A                                      OutputField4","field type":"output -
+     A                                      field","css class":"outputField","v-
+     A                                      alue":{"fieldName":"PSTOCK","dataLe-
+     A                                      ngth":"5","decPos":"0","numSep":"tr-
+     A                                      ue","zeroBalance":"true","numBlankF-
+     A                                      ill":"false","zeroFill":"false","cu-
+     A                                      rSym":"","dataType":"zoned","format-
+     A                                      ting":"Number","negNum":"-999.00","-
+     A                                      units":"","designValue":"[PSTOCK]"}-
+     A                                      ,"left":"5px","top":"5px","width":"-
+     A                                      71px","text align":"right","grid":"-
+     A                                      Grid1","column":"3"}]}')
+     A            BTNEXIT        1A  H
+     A            CLEARSFL       1A  H

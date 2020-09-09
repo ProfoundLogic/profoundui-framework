@@ -1,0 +1,49 @@
+
+<SCRIPT language=RPGLE>
+
+     D PRID            S             10A
+     D PRNAME          S             30A
+     D PPRICE          S             11P 2
+     D PStock          S              7P 0
+     D FirstRecord     S               N   Inz(*On)
+
+           If RPGspIn('btnExit' : 'Input') <> '1';
+
+</SCRIPT>
+
+{
+  "data": {
+    "PRODSFL": [
+
+<SCRIPT language=RPGLE>
+           Exec SQL DECLARE cursor1 SCROLL CURSOR FOR
+             SELECT PRID, PRNAME, PPRICE, PSTOCK FROM PRODUCTSP;
+           Exec SQL Open cursor1;
+           Exec SQL Fetch cursor1 INTO :PRID, :PRNAME, :PPRICE, :PSTOCK;
+           Dow (SQLCod <> 100) and (SQLCod >= 0);
+             If Not FirstRecord;
+               RPGspOut(',');
+             EndIf;
+             FirstRecord = *Off;
+
+</SCRIPT>
+
+      { "PRID": "<% RPGspJSONEncode(%TrimR(PRID)) %>", "PRNAME": "<% RPGspJSONEncode(%TrimR(PRNAME)) %>", 
+        "PPRICE": "<% %Char(PPRICE) %>", "PSTOCK": "<% %Char(PSTOCK) %>" }
+
+<SCRIPT language=RPGLE>
+             Exec SQL Fetch cursor1 INTO :PRID, :PRNAME, :PPRICE, :PSTOCK;
+           EndDo;
+           Exec SQL Close cursor1;
+</SCRIPT>
+
+    ]
+  },
+  "view": "..\/prodlist.json",
+  "screen": "PRODCTL"
+}
+
+<SCRIPT language=RPGLE>
+          EndIf;
+</SCRIPT>
+
