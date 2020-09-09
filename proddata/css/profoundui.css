@@ -16848,11 +16848,8 @@ div.dsgnr-dialog {
   padding: 0px;
   visibility: hidden;
   overflow: hidden;
-  
-  border-radius: 5px;
-  box-shadow: 6px 6px 12px rgba(50, 66, 64, 0.67);
-  border: 3px solid #b0cbef;
 }
+
 div.dsgnr-dialog .header {
   font-size: 12px;
   font-family: Arial;
@@ -16867,12 +16864,6 @@ div.dsgnr-dialog .header {
   white-space: normal;
   width: 100%;
   -moz-user-select: none;
-  
-  background-image: url(/profoundui/proddata/images/header-gradient.png);
-  color: #15428B;
-  padding-top: 4px;
-  height: 25px;
-  font-size: 11px;
 }
 
 div.dsgnr-dialog .header .title {
@@ -16913,11 +16904,29 @@ div.dsgnr-dialog .body {
   top: 20px;
   white-space: normal;
   width: 100%;
-  
-  background-color: #dfe8f6;
-  top: 27px;
 }
-div.dsgnr-dialog.dspf .body { height: calc(100% - 27px); }
+div.dsgnr-dialog.orig .body, div.dsgnr-dialog.flat .body {
+  top: 27px;
+  height: calc(100% - 27px);
+}
+div.dsgnr-dialog.orig .header, div.dsgnr-dialog.flat .header {
+  height: 25px;
+  padding-top: 4px;
+}
+
+div.dsgnr-dialog.orig {
+  border-radius: 5px;
+  box-shadow: 6px 6px 12px rgba(50, 66, 64, 0.67);
+  border: 3px solid #b0cbef;
+}
+div.dsgnr-dialog.orig .header {
+  background-image: url(/profoundui/proddata/images/header-gradient.png);
+  color: #15428B;
+  font-size: 11px;
+}
+div.dsgnr-dialog.orig .body {
+  background-color: #dfe8f6;
+}
 
 div.dsgnr-dialog.flat {
   border-radius: 0;
