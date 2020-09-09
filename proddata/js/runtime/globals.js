@@ -228,7 +228,7 @@ pui["dup"]["ctrl"] = false;
 pui["dup"]["alt"] = false;
 
 pui.wf = {
-  enabled: true,
+  enabled: pui.nodedesigner === true,
   qTypes: {},   // question types
   selectionSources: {},
   plugins: {},
