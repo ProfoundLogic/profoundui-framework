@@ -1,0 +1,6 @@
+{ "text": "", "formats": [{
+  "screen": { "record format name": "HELLO", "description": "Hello World Record Format", "document title": "Hello World" },
+  "items": [
+    { "id": "Label1", "field type": "output field", "css class": "label", "value": "Hello World", "left": "20px", "top": "20px" }
+  ]
+}] }
