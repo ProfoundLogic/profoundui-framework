@@ -1,0 +1,12 @@
+{ "formats": [{
+  "screen": { "record format name": "CUSTINQFMT", "description": "Customer Inquiry Screen" },
+  "items": [
+    { "id": "Panel1", "field type": "panel", "value": "Customer Inquiry", "left": "15px", "top": "20px", "width": "470px", "height": "160px", "panel style": "Simple", "z index": "8" }, 
+    { "id": "Label1", "field type": "output field", "css class": "label", "value": "Customer Number:", "left": "30px", "top": "65px", "width": "150px" }, 
+    { "id": "Label2", "field type": "output field", "css class": "label", "value": "Customer Name:", "left": "30px", "top": "100px", "width": "150px" }, 
+    { "id": "TextBox1", "field type": "textbox", "css class": "input", "value": { "fieldName": "CSID", "dataLength": "7", "decPos": "0", "numSep": "false", "zeroBalance": "false", "numBlankFill": "false", "zeroFill": "false", "curSym": "", "dataType": "zoned", "formatting": "Number", "negNum": "-999.00", "units": "", "designValue": "[CSID]" }, "left": "190px", "top": "65px", "width": "135px" }, 
+    { "id": "OutputField1", "field type": "output field", "css class": "outputField", "value": { "fieldName": "CSNAME", "dataLength": "50", "trimLeading": "false", "trimTrailing": "true", "blankFill": "false", "rjZeroFill": "false", "dataType": "char", "formatting": "Text", "textTransform": "none", "designValue": "[CSNAME]" }, "left": "190px", "top": "100px" }, 
+    { "id": "Button1", "field type": "button", "css class": "button", "value": "Find Customer", "left": "190px", "top": "145px", "width": "130px", "cursor": "default", "response": { "fieldName": "btnSubmit", "customTrue": "", "customFalse": "", "dataType": "indicator", "formatting": "Indicator", "indFormat": "1 / 0" } }, 
+    { "id": "Button2", "field type": "button", "css class": "button", "value": "Exit", "left": "340px", "top": "145px", "width": "100px", "cursor": "default", "response": { "fieldName": "btnExit", "customTrue": "", "customFalse": "", "dataType": "indicator", "formatting": "Indicator", "indFormat": "1 / 0" } }
+  ]
+}] }
