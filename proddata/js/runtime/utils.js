@@ -4431,6 +4431,7 @@ pui.MouseListener.prototype._mouseup = function(){
  * Inherits from pui.MouseListener.
  * @param {Object} params
  * @param {Object|undefined} bounds  If defined, can specify left, top, right, and bottom boundaries. (Input|Ouput)
+ *   Any missing or invalid properties are set. As a referenced object, bounds can be changed after constructing the MoveListener.
  * @constructor
  * @returns {pui.MoveListener}
  */

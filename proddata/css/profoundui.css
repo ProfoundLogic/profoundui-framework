@@ -16840,6 +16840,21 @@ div.resizer-br {
   z-index: 8;
 }
 
+.dsgnr-dialog-mask {
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  background-color: #999999;
+  opacity: 0.30;
+  overflow: hidden;
+  z-index: 9999;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 div.dsgnr-dialog {
   position: absolute;
   border: 2px solid #336699;
@@ -16848,6 +16863,7 @@ div.dsgnr-dialog {
   padding: 0px;
   visibility: hidden;
   overflow: hidden;
+  z-index: 10001;
 }
 
 div.dsgnr-dialog .header {
