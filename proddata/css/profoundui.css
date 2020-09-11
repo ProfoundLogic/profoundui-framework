@@ -16915,6 +16915,7 @@ div.dsgnr-dialog .body {
   background-color: #ffffff;
   padding: 0px;
   white-space: normal;
+  position: relative;
 }
 div.dsgnr-dialog.orig .body, div.dsgnr-dialog.flat .body {
   height: calc(100% - 27px); /*dspf*/
@@ -17005,7 +17006,7 @@ div.dsgnr-dialog.fields .body div.tablewrap > div { padding: 0px; }
 div.dsgnr-dialog.fields .body div.tablewrap > div.hdr { overflow: hidden; }
 div.dsgnr-dialog.fields .body div.tablewrap > div.det {
   position: absolute;
-  height: calc(100% - 140px);
+  height: calc(100% - 112px);
   overflow-x: hidden;
   overflow-y: auto;
 }
