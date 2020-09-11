@@ -16864,7 +16864,9 @@ div.dsgnr-dialog {
   visibility: hidden;
   overflow: hidden;
   z-index: 10001;
+  box-sizing: border-box;
 }
+div.dsgnr-dialog * { box-sizing: border-box; }
 
 div.dsgnr-dialog .header {
   font-size: 12px;
@@ -16874,12 +16876,9 @@ div.dsgnr-dialog .header {
   cursor: move;
   font-weight: bold;
   color: #ffffff;
-  position: absolute;
-  left: 0px;
-  top: 0px;
   white-space: normal;
-  width: 100%;
   -moz-user-select: none;
+  height: 20px; /*Genie*/
 }
 
 div.dsgnr-dialog .header .title {
@@ -16890,7 +16889,7 @@ div.dsgnr-dialog .header .title {
 div.dsgnr-dialog .header div.closeBtn {
   position: absolute;
   top: 3px;
-  right: 10px;
+  right: 4px;
   width: 15px;  
   height: 15px;  
   cursor: pointer;
@@ -16912,21 +16911,16 @@ div.dsgnr-dialog .header div.closeBtn > div.closeImg:hover {
 
 div.dsgnr-dialog .body {
   overflow: auto;
-  height: calc(100% - 20px);
+  height: calc(100% - 20px); /*Genie*/
   background-color: #ffffff;
   padding: 0px;
-  position: absolute;
-  left: 0px;
-  top: 20px;
   white-space: normal;
-  width: 100%;
 }
 div.dsgnr-dialog.orig .body, div.dsgnr-dialog.flat .body {
-  top: 27px;
-  height: calc(100% - 27px);
+  height: calc(100% - 27px); /*dspf*/
 }
 div.dsgnr-dialog.orig .header, div.dsgnr-dialog.flat .header {
-  height: 25px;
+  height: 27px;
   padding-top: 4px;
 }
 
@@ -17005,20 +16999,13 @@ div.dsgnr-dialog .body input[type="button"].cancel { right: 15px; }
 div.dsgnr-dialog .body input[type="button"].ok.center { right: calc(50% + 3px); }
 div.dsgnr-dialog .body input[type="button"].cancel.center { left: calc(50% + 4px); }
 
-div.dsgnr-dialog.fields .body div.tablewrap {
-  position: absolute;
-  left: 10px;
-  top: 40px;
-}
-div.dsgnr-dialog.fields .body div.tablewrap > div {
-  width: 390px;
-  padding: 0px;
-}
-div.dsgnr-dialog.fields .body div.tablewrap > div.hdr {
-  overflow: hidden;
-}
+/* Database-driven Fields Dialog */
+div.dsgnr-dialog.fields .body div.tablewrap { margin: 14px 0 0 10px; }
+div.dsgnr-dialog.fields .body div.tablewrap > div { padding: 0px; }
+div.dsgnr-dialog.fields .body div.tablewrap > div.hdr { overflow: hidden; }
 div.dsgnr-dialog.fields .body div.tablewrap > div.det {
-  height: 139px;
+  position: absolute;
+  height: calc(100% - 140px);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -17042,24 +17029,23 @@ div.dsgnr-dialog.fields .body div.tablewrap table td {
   padding: 2px;
 }
 
+/*header and detail cells*/
+div.dsgnr-dialog.fields .body div.tablewrap table td:nth-of-type(1) { width: 30.7%; }
+div.dsgnr-dialog.fields .body div.tablewrap table td:nth-of-type(2) { width: 42.5%; }
+div.dsgnr-dialog.fields .body div.tablewrap table td:nth-of-type(3) { text-align: right; }
+
 div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(1) {
-  width: 115px;
   border-top-style: solid;
   border-left-style: solid;
-  
 }
 div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(2) {
-  width: 160px;
   border-top-style: solid;
   border-left-style: solid;
 }
 div.dsgnr-dialog.fields .body div.tablewrap > div.hdr > table td:nth-of-type(3) {
   border-style: solid solid none solid;
   padding-right: 3px;
-  text-align: right;
 }
-
-
 
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr {
   cursor: default;
@@ -17082,19 +17068,26 @@ div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td { overflow-x: h
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:nth-of-type(1) > td { border-top-style: solid; }
 
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(1) {
-  width: 115px;
   border-left-style: solid;
   border-bottom-style: solid;
-  
 }
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(2) {
-  width: 160px;
   border-left-style: solid;
   border-bottom-style: solid;
 }
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(3) {
   border-style: none solid solid solid;
-  padding-right: 20px;
-  text-align: right;
+  padding-right: 20px; /*for scrollbar*/
 }
 
+div.dsgnr-dialog.fields .body > label {
+  display: block;
+  margin: 9px 0 0 10px;
+  font-family: Trebuchet MS;
+  font-size: 13px;
+}
+div.dsgnr-dialog.fields .body > label > input {
+  font-family: Arial;
+  font-size: 12px;
+  margin-left: 10px;
+}
