@@ -228,7 +228,6 @@ pui["dup"]["ctrl"] = false;
 pui["dup"]["alt"] = false;
 
 pui.wf = {
-  enabled: (location["search"] === "?routines" || location["search"] === "?routines/"),   // temporary way to enable through query string
   qTypes: {},   // question types
   selectionSources: {},
   plugins: {},
