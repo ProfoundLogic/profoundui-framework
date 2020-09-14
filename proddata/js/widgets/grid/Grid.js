@@ -9343,7 +9343,7 @@ pui.Grid = function () {
 
   function getDBDriver() {
 
-    var connections = pui.getDatabaseConnections();
+    var connections = pui["getDatabaseConnections"]();
     if (connections) { // New Profound.js backend with multi-DB support.
       var connectionName = trim(me["dataProps"]["database connection"] || "");
       for (var i = 0; i < connections.length; i++) {
