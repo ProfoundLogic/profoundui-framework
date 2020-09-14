@@ -4790,15 +4790,14 @@ pui["getDatabaseConnections"] = function() {
 
 pui.getDatabaseConnection = function(name) {
 
-  if (typeof name !== "string")
-    return;
   var connections = pui["getDatabaseConnections"]();
   if (!connections)
     return;
-  name = trim(name);
+  if (typeof name === "string")
+    name = trim(name);
   for (var i = 0; i < connections.length; i++) {
     var connection = connections[i];
-    if (connection["name"] === name)
+    if ((!name && connection["default"] === true) || connection["name"] === name)
       return connection;
   }
 
