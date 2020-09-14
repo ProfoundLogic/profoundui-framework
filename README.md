@@ -30,7 +30,7 @@ Note: You do not need to build this project if you have not changed the source c
 
 This package contains many JavaScript files (the "source code") located in the proddata/js directory.  We use the Google Closure project to "obfuscate" this source code into a single JavaScript file called runtime.js.  Closure works by making the variable and function names smaller, and combining multiple files into a single file.  This greatly reduces the overall size of the JavaScript, so that it takes up less memory.  That means it'll download faster into the browser, and improve performance.
 
-To build it, download Closure and put it into the /closure directory of your IFS.  Then, run the included QShell script named obfuscate.qsh.  This will use Closure to build the runtime.js file.
+To build it, download Closure and put it into the /closure directory of your IFS.  Then, run the included QShell script named obfuscate.sh.  This will use Closure to build the runtime.js file.
 
 ## INTEGRATION WITH FUSION CHARTS
 ------------------------------
