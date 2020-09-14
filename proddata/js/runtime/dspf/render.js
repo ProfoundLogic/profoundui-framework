@@ -1167,7 +1167,7 @@ pui.renderFormat = function(parms) {
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
 
-      if (pui.wf.enabled && pui.isRoutine(propValue)) {
+      if (pui.wf.tracker && pui.isRoutine(propValue)) {
         if (isDesignMode) {
           var wfData = {};
           if (parms.keepRoutines) wfData = null;
@@ -1409,7 +1409,7 @@ pui.renderFormat = function(parms) {
         var propValue = items[i][prop];
         var newValue;
 
-        if (pui.wf.enabled && pui.isRoutine(propValue)) {
+        if (pui.wf.tracker && pui.isRoutine(propValue)) {
           if (isDesignMode) {
            var wfData = {};
            if (parms.keepRoutines) wfData = null;

@@ -4832,7 +4832,7 @@ pui.BaseClass.prototype.returnFalse = function(){
   return false;
 };
 
-pui.getDatabaseConnections = function() {
+pui["getDatabaseConnections"] = function() {
 
   if (pui["isCloud"] && inDesignMode()) {
     var connections = Array.isArray(pui.cloud.ws["settings"]["databaseConnections"]) ? pui.cloud.ws["settings"]["databaseConnections"].slice() : [];
@@ -4859,7 +4859,7 @@ pui.getDatabaseConnection = function(name) {
 
   if (typeof name !== "string")
     return;
-  var connections = pui.getDatabaseConnections();
+  var connections = pui["getDatabaseConnections"]();
   if (!connections)
     return;
   name = trim(name);
