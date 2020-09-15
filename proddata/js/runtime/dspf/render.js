@@ -1897,6 +1897,7 @@ pui.renderFormat = function(parms) {
             }
             if (propname == "required" && propValue == "true") {
               dom.puirequired = true;
+              if (dom.floatingPlaceholder != null) dom.floatingPlaceholder.getBox().puirequired = true;
             }
             if (propname == "mandatory entry" && propValue == "true") {
               dom.ME = true;

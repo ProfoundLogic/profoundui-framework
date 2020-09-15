@@ -1077,6 +1077,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   }
   if (propertyName == "required") {
     domObj.puirequired = (propertyValue == "true");
+    if (domObj.floatingPlaceholder != null) domObj.floatingPlaceholder.getBox().puirequired = true;
   }
   if (propertyName == "mandatory entry") {
     domObj.ME = (propertyValue == "true");
