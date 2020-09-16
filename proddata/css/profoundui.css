@@ -16985,6 +16985,22 @@ div.dsgnr-dialog div.codeeditor.monaco {
   height: calc(100% - 72px);
 }
 
+@keyframes dlg-msg {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(50px,0); }
+  100% { transform: translate(0,0); }
+}
+div.dsgnr-dialog .body > .msg {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  animation-name: dlg-msg;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease;
+  font-size: 24px;
+}
+
 div.dsgnr-dialog .body input[type="button"].ctrl {
   position: absolute;
   bottom: 10px;

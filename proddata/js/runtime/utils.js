@@ -4831,6 +4831,9 @@ pui.BaseClass.prototype.deleteOwnProperties = function(){
 pui.BaseClass.prototype.returnFalse = function(){
   return false;
 };
+//
+// end of BaseClass
+//
 
 pui["getDatabaseConnections"] = function() {
 
