@@ -2020,6 +2020,10 @@ pui.isRoutine = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["routine"] == "string");
 };
 
+pui.isJoin = function(propVal) {
+  return (propVal != null && typeof propVal == "object" && propVal["join"] == true);
+};
+
 pui.taphold = function(target, handler, threshold) {
 
   // Some notes:
