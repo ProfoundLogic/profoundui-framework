@@ -16754,7 +16754,8 @@ div.propwin > .pbody > table tr td:nth-of-type(2) > input[readonly] {
   background-color: #ffffff;
   border: 0px solid #ffffff;
 }
-div.propwin > .pbody > table tr td:nth-of-type(2) > .bound {
+div.propwin > .pbody > table tr td:nth-of-type(2) > .bound, 
+div.propwin > .pbody > table tr td:nth-of-type(2) > .join {
   color: #339933;
   font-weight: bold;
 }
