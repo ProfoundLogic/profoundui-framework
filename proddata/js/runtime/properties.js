@@ -1078,6 +1078,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   }
   if (propertyName == "required") {
     domObj.puirequired = (propertyValue == "true");
+    if (domObj.floatingPlaceholder != null) domObj.floatingPlaceholder.getBox().puirequired = true;
   }
   if (propertyName == "mandatory entry") {
     domObj.ME = (propertyValue == "true");
@@ -2350,7 +2351,7 @@ pui.getDatabaseConnectionPropertyChoices = function() {
   choices.push("Other...");
   return choices;
 
-}
+};
  
 pui["getPropertiesModel"] = getPropertiesModel;
 pui["getPropertiesNamedModel"] = getPropertiesNamedModel;

@@ -1939,6 +1939,7 @@ pui.Grid = function () {
       var firstRow = me.recNum;
       if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){
         firstRow = 1;
+        lastRow = numRows;
       }
       for (var i = firstRow; i <= lastRow; i++) {
 
@@ -5266,6 +5267,7 @@ pui.Grid = function () {
     if (me.hasHeader) even = !even;
     if (me.cells == null) return;
     var cols = me.cells[row];
+    if (cols == null) return;
 
     var selected = false;
     if (me.selectionEnabled) {
