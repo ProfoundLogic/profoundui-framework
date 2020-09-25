@@ -1897,6 +1897,7 @@ pui.renderFormat = function(parms) {
             }
             if (propname == "required" && propValue == "true") {
               dom.puirequired = true;
+              if (dom.floatingPlaceholder != null) dom.floatingPlaceholder.getBox().puirequired = true;
             }
             if (propname == "mandatory entry" && propValue == "true") {
               dom.ME = true;
@@ -1971,8 +1972,8 @@ pui.renderFormat = function(parms) {
               if (dom.blankValues == null) dom.blankValues = [];
               dom.blankValues.push(propValue);
               var box = dom;
-              if (dom.floatingPlaceholder != null) box = dom.comboBoxWidget.getBox();
-              if (dom.comboBoxWidget != null) box = dom.floatingPlaceholder.getBox();
+              if (dom.floatingPlaceholder != null) box = dom.floatingPlaceholder.getBox();
+              if (dom.comboBoxWidget != null) box = dom.comboBoxWidget.getBox();
               var boxValue;
               if (box.tagName == "DIV") boxValue = getInnerText(box);
               else boxValue = box.value;
