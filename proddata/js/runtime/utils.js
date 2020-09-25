@@ -2088,6 +2088,12 @@ pui.fixCheckPrint = function(el) {
 
 };
 
+/**
+ * Encode special characters in a string so the string can be used in an XML document as an EntityValue or AttValue (attribute).
+ * https://www.w3.org/TR/xml/#NT-AttValue 
+ * @param {String} str
+ * @returns {String}
+ */
 pui.xmlEscape = function(str) {
 
   str = "" + str;
@@ -2096,6 +2102,7 @@ pui.xmlEscape = function(str) {
   str = str.replace(/>/g, "&gt;");
   str = str.replace(/"/g, "&quot;");   // " - fake comment to fix syntax highlighting
   str = str.replace(/\u001a/g, "&#x25a1;");    // the "substitute" character breaks XLSX files. replace with unicode square. Issue #6149. 
+  str = str.replace(/\u000c/g, "&#x25a1;"); //form feed
   return str;  
 
 };
@@ -3539,7 +3546,8 @@ pui.xlsx_workbook = function(){
       }
       if (hyperlinks != null && hyperlinks.length > 0){
         for (var i=0; i < hyperlinks.length; i++){
-          sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'+hyperlinks[i].target+'" TargetMode="External"/>';
+          sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'
+            + pui.xmlEscape(hyperlinks[i].target) + '" TargetMode="External"/>';
         }
       }
       
@@ -4864,15 +4872,14 @@ pui["getDatabaseConnections"] = function() {
 
 pui.getDatabaseConnection = function(name) {
 
-  if (typeof name !== "string")
-    return;
   var connections = pui["getDatabaseConnections"]();
   if (!connections)
     return;
-  name = trim(name);
+  if (typeof name === "string")
+    name = trim(name);
   for (var i = 0; i < connections.length; i++) {
     var connection = connections[i];
-    if (connection["name"] === name)
+    if ((!name && connection["default"] === true) || connection["name"] === name)
       return connection;
   }
 
