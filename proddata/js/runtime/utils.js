@@ -2139,6 +2139,21 @@ catch(e){
   }
 };
 
+pui.isSessionStorage = function() {
+
+  try {
+  if (sessionStorage != null && typeof(window.sessionStorage) != "undefined")
+      return true;
+    
+    else
+      return false;
+    }
+    
+  catch(e){
+    return false;
+  }
+};
+
 
 
 pui.normalizeColor = function(value) {
