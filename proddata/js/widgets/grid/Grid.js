@@ -4646,10 +4646,10 @@ pui.Grid = function () {
 
       case "persist state":
         if(value == "true" || value == true){
-          persistState = (me.designMode == false && pui.isLocalStorage() ); // && (value == true || value == "true"));
+          persistState = (me.designMode == false && pui.isLocalStorage() ); 
         }
         else if(value == "session only"){
-          persistState = (me.designMode == false && pui.isSessionStorage() ); //ref utils, check if that works 
+          persistState = (me.designMode == false && pui.isSessionStorage() ); 
           sessionState = (me.designMode == false && pui.isSessionStorage() );
         }
         break;
