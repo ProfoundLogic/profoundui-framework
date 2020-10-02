@@ -848,6 +848,9 @@ pui.FieldFormat = {
       else{
         d = pui.formatting.Date.parse(value, dateFormat, locale);
       }
+      if (dateFormat == "Y-m-d") {
+        if (value == "0000-00-00" && obj.dataType == "date") return "";
+      }
       if (dateFormat == "m/d/y" || dateFormat == "d/m/y") {
         if (value == "00/00/00" && (obj.dataType == "char" || obj.dataType == "varchar")) return "0";
         if (value == "00/00/00") return "0";

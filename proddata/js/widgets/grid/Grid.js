@@ -244,6 +244,7 @@ pui.Grid = function () {
   var minBWidth = 1;
   var designBorderStyle = "solid";
   var persistState = false;
+  var sessionState = false;
   var movableColumns = false;
   var resizableColumns = false;
   var columnSignature;
@@ -3704,11 +3705,17 @@ pui.Grid = function () {
 
     var state = null;
 
-    if (pui.isLocalStorage() && localStorage[me.storageKey] != null) {
+    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null)) {
 
       try {
 
-        state = JSON.parse(localStorage[me.storageKey]);
+        if(sessionState == true){
+          state = JSON.parse(sessionStorage[me.storageKey]);
+        }
+        else{
+          state = JSON.parse(localStorage[me.storageKey]);
+        }
+        
 
       }
       catch(e) {
@@ -3756,7 +3763,14 @@ pui.Grid = function () {
 
     stg["cols"] = columnSignature;
     me.storedState = JSON.stringify(stg);
-    localStorage[me.storageKey] = JSON.stringify(stg);
+    if (persistState == true){
+      if(sessionState == true){
+        sessionStorage[me.storageKey] = JSON.stringify(stg);
+      }
+      else{
+        localStorage[me.storageKey] = JSON.stringify(stg);
+      }
+    }
 
   }
 
@@ -4631,7 +4645,13 @@ pui.Grid = function () {
         break;
 
       case "persist state":
-        persistState = (me.designMode == false && pui.isLocalStorage() && (value == true || value == "true"));
+        if(value == "true" || value == true){
+          persistState = (me.designMode == false && pui.isLocalStorage() ); 
+        }
+        else if(value == "session only"){
+          persistState = (me.designMode == false && pui.isSessionStorage() ); 
+          sessionState = (me.designMode == false && pui.isSessionStorage() );
+        }
         break;
 
       case "expand to layout":
@@ -7886,8 +7906,12 @@ pui.Grid = function () {
 
       }
       else {
-
-        try{ delete localStorage[me.storageKey]; }catch(exc){}
+        if(sessionState == true){
+          try{ delete sessionStorage[me.storageKey]; }catch(exc){}
+        }
+        else{
+          try{ delete localStorage[me.storageKey]; }catch(exc){}
+        }
 
       }
 
@@ -9455,7 +9479,7 @@ pui.Grid = function () {
       { name: "sort function", type: "js", help:pui.helpTextProperties( "blank","Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", [], ""), context: "dspf"},
       { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows the user to resize grid columns at run time."), context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows the user to rearrange grid columns at run time."), context: "dspf" },
-      { name: "persist state", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed."), context: "dspf" },
+      { name: "persist state", choices: ["true", "false", "session only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed."), context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to search grid data when the grid heading is right-clicked."), context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to filter grid data when the grid heading is right-clicked."), context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false."), context: "dspf" },
