@@ -8349,6 +8349,8 @@ pui.Grid = function () {
       var list = text.split(",");
       for (var i = 0; i < list.length; i++) {
         text = trim(list[i]).toLowerCase();
+        //For filtering blanks -- should be represented by 1 space
+        if (text == " " && value == "") return true;
         if (value.toLowerCase() == text) return true;
       }
       return false;
@@ -8359,6 +8361,8 @@ pui.Grid = function () {
     }
     else if (text.substr(0,2) == "==") {
       text = text.substr(2);
+      //For filtering blanks -- should be represented by 1 space
+      if (text == " " && value == "") return true;
       if (text == "") return true;
       return (text.toLowerCase() == value.toLowerCase());
     }
@@ -8387,6 +8391,8 @@ pui.Grid = function () {
     }
     else if (text.substr(0,1) == "=") {
       text = text.substr(1);
+      //For filtering blanks -- should be represented by 1 space
+      if (text == " " && value == "") return true;
       if (text == "") return true;
       return (text.toLowerCase() == value.toLowerCase());
     }
@@ -8405,6 +8411,11 @@ pui.Grid = function () {
       value = prepareComparisonString(value);
       if (isNaN(text)) return value.toLowerCase() < text.toLowerCase();
       else return (Number(value) < Number(text));
+    }
+    //For filtering blanks -- should be represented by 1 space
+    else if (text.substr(0,1) == " ") {
+      text = text.substr(1);
+      if (text == "" && value == "") return true;
     }
     else {
       return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
