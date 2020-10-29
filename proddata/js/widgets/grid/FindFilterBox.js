@@ -63,7 +63,11 @@ pui.FindFilterBox = function() {
       if (typeof me.onsearch === "function") {
         clearTimeout(timeoutId); // remove the previously queued timout event.
         function keyuptimeout(){
+          //Prevent uneccessary scroll causing ffbox to lose focus -- 6385
+          if (me.grid && me.grid.scrollbarObj && me.grid.scrollbarObj.type == "sliding") me.grid.scrollbarObj.ready = false;
+          //set box to filter or find
           me.onsearch(text);
+          if (me.grid && me.grid.scrollbarObj && me.grid.scrollbarObj.type == "sliding") me.grid.scrollbarObj.ready = true;
         }
         // Enqueue the find/filter event; avoids re-rendering the grid every keystroke.
         timeoutId = setTimeout(keyuptimeout, me.interval );
