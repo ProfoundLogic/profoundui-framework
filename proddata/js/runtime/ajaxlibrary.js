@@ -148,7 +148,7 @@ function RPGspRequest(arg) {
                   method = "GET";
                 }
                 else {
-                  if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT")) {
+                  if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT" || me["method"].toUpperCase() != "DELETE")) {
                     alertFn('Invalid value for property: "method".');
                     return;
                   }
@@ -157,7 +157,7 @@ function RPGspRequest(arg) {
                   }                
                 }
                 
-                if (method == "POST" || method == "PUT") {
+                if (method == "POST" || method == "PUT" || method == "DELETE") {
                   if (me["reqData"] != null) {
                     postData = me["reqData"];
                   }
@@ -265,7 +265,7 @@ function RPGspRequest(arg) {
                     }
                   }
                   if (paramString != "") {
-                    if (isForm && (method == "POST" || method == "PUT")) {
+                    if (isForm && (method == "POST" || method == "PUT" || method == "DELETE")) {
                       if (postData != null && postData != "") postData += "&";
                       else postData = "";
                       postData += paramString;  
@@ -305,7 +305,7 @@ function RPGspRequest(arg) {
                   }                  
                   
                   // Set content-type for POST request.
-                  if (method == "POST") {
+                  if (method == "POST" || method == "PUT" || method == "DELETE") {
                     if (!userCT) {
                       xmlhttpObj.setRequestHeader('Content-type','application/x-www-form-urlencoded');
                     }
