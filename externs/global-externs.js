@@ -15,6 +15,7 @@ Function.bind = function(value){};
 Object.onfail = function(value) {};
 Object.onsuccess = function(value) {};
 Object.suppressAlert = {};
+Object.postData = {};
 
 // drag and drop web API
 Object.ondrop = function(event) {};
