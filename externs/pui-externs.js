@@ -364,5 +364,6 @@ var pui = {
   apiParameterDialog: {},
   clientLogic: {},
   startsWith: {},
-  endsWith: {}
+  endsWith: {},
+  autocomplete: {}
 }
