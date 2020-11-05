@@ -17082,7 +17082,7 @@ div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr.sel:hover {
   background-color: #6699CC;
 }
 
-div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td { overflow-x: hidden; }
+div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td { overflow: hidden; }
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table tr:nth-of-type(1) > td { border-top-style: solid; }
 
 div.dsgnr-dialog.fields .body div.tablewrap > div.det > table td:nth-of-type(1) {
