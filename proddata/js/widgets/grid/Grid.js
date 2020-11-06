@@ -1043,7 +1043,7 @@ pui.Grid = function () {
       } else {
         dbfile = dbfile[0];
       }
-
+      
       ajaxJSON({
         "url": getProgramURL("PUI0009101.pgm"),
         "method": "post",
@@ -1060,6 +1060,11 @@ pui.Grid = function () {
           if (response != null && response["fields"] != null)
             fldresp = response["fields"];
           setupajax(fldresp);
+        },
+        'suppressAlert': true,
+        'onfail': function(){
+          console.log('Failed to fetch column data types for formatting. All cells in the XLSX file will contain character data.');
+          setupajax();
         }
       });
       me.mask();
@@ -1069,9 +1074,22 @@ pui.Grid = function () {
 
     // Call CGI program or webservice to fetch data. Called directly or in callback.
     function setupajax(fields) {
-      var xhr = new XMLHttpRequest();
+      var xhr = new XMLHttpRequest();  //We use XMLHttpRequest here instead of ajaxJSON so that the progress event listener can be used.
       xhr.open("POST", url, true);
-      var formData = new FormData();
+      xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+      var formData = {data: {}};      //Note: this cannot be a FormData object, because 9102 in PJS doesn't handle multipart. #6433.
+      formData.append = function(key, val){
+        formData.data[key] = encodeURIComponent(val);
+      };
+      formData.get = function(){
+        var str = '';
+        var amp = '';
+        for( var key in formData.data){
+          str += amp + key + '=' + formData.data[key];
+          amp = '&';
+        }
+        return str;
+      };
 
       if (context == "genie") formData.append("AUTH", GENIE_AUTH);
       if (context == "dspf") formData.append("AUTH", pui.appJob.auth);
@@ -1137,7 +1155,11 @@ pui.Grid = function () {
           // Note: Fixing bad characters on the server-side slows downloads; thus, use eval, which is more lenient than JSON.parse #6149.
           var responseObj = eval("(" + xhr.responseText + ")");
           
-          if (!responseObj || responseObj["success"] != true) throw 'Failed';
+          if (!responseObj) throw 'Failed';
+          if (responseObj["success"] != true){
+            if (responseObj['errorText']) throw 'Failed: ' + responseObj['errorText'];
+            throw 'Failed';
+          }
           var response = responseObj["response"];
           if (response == null || response["results"] == null) throw 'Invalid Response';
 
@@ -1186,7 +1208,7 @@ pui.Grid = function () {
         lastTS = progress["timeStamp"];
       });
 
-      xhr.send(formData);
+      xhr.send(formData.get());
       me.mask();
     }
     
