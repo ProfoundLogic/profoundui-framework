@@ -1963,7 +1963,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (context == "dspf") {
       if (propConfigName == "id") {
         pui.ide.refreshFieldList();
-        pui.ide.refreshlogicRoutineList();
+        pui.ide.refreshLogicRoutineList();
       }
       if (propConfigName == "id" || propConfigName == "field type" || propConfigName == "value") {
         pui.ide.refreshElementList();
