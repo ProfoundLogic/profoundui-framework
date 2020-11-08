@@ -2930,6 +2930,18 @@ pui.renderFormat = function(parms) {
     // execute format's onload event & onmessage event / save onsubmit event
     if (screenProperties != null) {
       if (parms.runOnload !== false) {
+
+        var initialRoutine = screenProperties["initial routine"];
+        if (initialRoutine && initialRoutine["routine"]) {
+          var routineName = initialRoutine["routine"];
+          try {
+            eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
+          }
+          catch (err) {
+            console.error(err);
+          }
+        }
+
         var onloadProp = screenProperties["onload"];
         if (onloadProp != null && onloadProp != "") {
           try {
