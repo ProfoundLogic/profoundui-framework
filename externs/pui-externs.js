@@ -365,5 +365,6 @@ var pui = {
   clientLogic: {},
   startsWith: {},
   endsWith: {},
-  autocomplete: {}
+  autocomplete: {},
+  context: {}
 }
