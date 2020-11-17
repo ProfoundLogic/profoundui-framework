@@ -366,5 +366,6 @@ var pui = {
   startsWith: {},
   endsWith: {},
   autocomplete: {},
-  context: {}
+  context: {},
+  dynamicText: {}
 }
