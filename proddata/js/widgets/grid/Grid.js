@@ -17,15 +17,47 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Base class for Grids that contains the data and data methods. (Some display logic belongs in subclasses so the grid can 
+ * be implemented differently without breaking existing screens; e.g. mobile and accessibility could be in other classes.)
+ * @constructor
+ */
+pui.BaseGrid = function(){
+  this.dataArray = [];              //A collection of objects containing data for each subfile record.
+  this.filteredDataArray = [];      //A subset of the records in this.dataArray.
+  this.fieldNames = [];
+  
+  this.expandToLayout = false;
+};
+pui.BaseGrid.prototype = Object.create(pui.BaseClass.prototype);  //Inherit the deleteOwnProperties method.
 
+/**
+ * Return true if the properties window should prevent the user from changing a property under certain circumstances.
+ * @param {String} property
+ * @returns {Boolean}
+ */
+ pui.BaseGrid.prototype.isPropertyReadOnly = function(property){
+  switch (property){
+    case "number of rows":
+    case "height":
+      return this.expandToLayout;
+  }
+  return false;
+};
+//
+// End of BaseGrid class.
+//
 
 
 /**
- * Grid Class
+ * Grid Class.
+ * Implemented with absolutely positioned DIV cells, DIV horizontal lines, and DIV vertical lines.
  * @constructor
  */
 
 pui.Grid = function () {
+  pui.BaseGrid.call(this);  //Call the parent constructor to set inherited properties--this.dataArray, this.fieldNames, etc.
+  
   // public properties
   if (pui.designer.DataFields != null) {
     this.dataFields = new pui.designer.DataFields();
@@ -42,10 +74,8 @@ pui.Grid = function () {
   }
   this.cleared = true;
   this.runtimeChildren = [];
-  this.dataArray = [];
   this.forceDataArray = false;
-  this.filteredDataArray = [];
-  this.fieldNames = [];
+
   this.ref = {}; // reference field info
 
   this.recordFormatName = "";
@@ -75,6 +105,7 @@ pui.Grid = function () {
   this.sortable = false;
   this.sorted = false;
   this.sortBy = null;
+  this.rowsHidden = 0;    //Count of how many rows are hidden.
   this.hoverEffect = false;
   if (context == "dspf" || pui.usingGenieHandler) this.hoverEffect = true;
   this.pagingScrollBar = true;
@@ -161,12 +192,11 @@ pui.Grid = function () {
 
   this.findOption = false;
   this.filterOption = false;
-  this.movableColumns = movableColumns;
+  this.movableColumns = false;
   this.hidableColumns = false;
   this.resetOption = false;
   this.exportOption = null;
 
-  this.expandToLayout = false;
   this.dontSelect = false;
 
   this.selectionEnabled = false;
@@ -1981,10 +2011,8 @@ pui.Grid = function () {
             fieldData[me.fieldNames[j]] = valuesData[j];
           }
         }
-
-        if (me.selectionEnabled || me.rowFontColorField != null || me.rowBackgroundField != null) {
-          me.setRowBackground(rowNum);
-        }
+        
+        var setRowBg = me.selectionEnabled || me.rowFontColorField != null || me.rowBackgroundField != null;
 
         if (fieldData.empty != true) {
           var subfileRow = dataRecords[i - 1].subfileRow;
@@ -1994,6 +2022,8 @@ pui.Grid = function () {
             lastRow++;
           }
           else {
+            if (setRowBg) me.setRowBackground(rowNum, false, i - 1 );  //Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
+
             pui.renderFormat({
               designMode: false,
               name: pui.formatUpper(me.recordFormatName),
@@ -2010,6 +2040,7 @@ pui.Grid = function () {
               highlighting: me.highlighting
             });
           }
+          
           if (me.selectionEnabled && me.selectionField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) + "." + subfileRow;
             if (pui.responseElements[qualField] == null) {
@@ -2024,6 +2055,7 @@ pui.Grid = function () {
               pui.responseElements[qualField].push(dataRecords[i - 1].selection);
             }
           }
+          
           if (me.hiddenField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.hiddenField.fieldName) + "." + subfileRow;
             if (pui.responseElements[qualField] == null) {
@@ -2039,6 +2071,9 @@ pui.Grid = function () {
             }
             
           }
+        }
+        else if (setRowBg){
+          me.setRowBackground(rowNum);
         }
         
         if (fieldData.empty || !valuesData.hideRow) {
@@ -2331,20 +2366,10 @@ pui.Grid = function () {
     columnPointer = null;
     sortMultiOrder = null;
     sortMultiPanel = null;
-    delete me.dataArray;
-    delete me.filteredDataArray;
-    delete me.filterResponse;
-    delete me.runtimeChildren;
-    delete me.fieldNames;
-    delete me.ref;
-    delete me.vLines;
-    delete me.hLines;
-    delete me.cells;
-    delete me.columnHeadings;
-    delete me.columnInfo;
-    delete me.validationTips;
-    delete me.cellProps;
-    delete me;
+    try {
+      this.deleteOwnProperties();   //Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
+      delete me;
+    } catch(ignored){}
   };
 
   this.getColumnWidths = function () {
@@ -5218,6 +5243,7 @@ pui.Grid = function () {
     if (record.hideRow == null) {
       if (me.hiddenField != null) {
         if (me.hiddenFieldIndex == null) {
+          // Nothing has set this index yet; find which index has the field and save it.
           for (var i = 0; i < me.fieldNames.length; i++) {
             if (pui.fieldUpper(me.hiddenField.fieldName) == me.fieldNames[i]) { 
               //checks for hiddenField field name in dataArray
@@ -5303,88 +5329,91 @@ pui.Grid = function () {
     return selRows;
   };
 
-
-  this.setRowBackground = function (row, hover) {
+  /**
+   * Set background color of a row.
+   * @param {Number} row               The visible row number being colored.
+   * @param {Boolean|undefined} hover  When true: the mouse is hovered over the row.
+   * @param {Number|undefined} recIdx  With handler grids that have bound fields, this is the index in me.dataArray that corresponds to "row".
+   */
+  this.setRowBackground = function (row, hover, recIdx) {
     var even = ((row % 2) == 1);
     if (me.hasHeader) even = !even;
     if (me.cells == null) return;
     var cols = me.cells[row];
     if (cols == null) return;
-
-    var selected = false;
-    if (me.selectionEnabled) {
-      if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-        var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
-        var dataRecords = me.dataArray;
-        if (me.isFiltered()) dataRecords = me.filteredDataArray;
-        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-          selected = checkSelected(dataRecords[adjustedRow - 1]);
-        }
+    var dataRecords, adjustedRow = -1;
+    // Prepare data needed when fields are bound.
+    if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
+      if (typeof recIdx == 'number' && recIdx >= 0) adjustedRow = recIdx + 1;     //"row" may not map to me.dataArray when fields are hidden, so use recIdx. #6391
+      else adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+      
+      dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+      if (dataRecords[adjustedRow - 1] == null || typeof dataRecords[adjustedRow - 1].length != 'number' || dataRecords[adjustedRow - 1].length <= 0) {
+        adjustedRow = -1;
       }
+    }
+    
+    var selected = false;
+    if (me.selectionEnabled && adjustedRow > 0) {
+      selected = checkSelected(dataRecords[adjustedRow - 1]);
     }
 
     var rowBackground = null;
-    if (me.rowBackgroundField != null) {
-      if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-        var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
-        var dataRecords = me.dataArray;
-        if (me.isFiltered()) dataRecords = me.filteredDataArray;
-        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-          if (me.rowBackgroundFieldIndex == null) {
-            // Find which column contains the data for this field.
-            for (var i = 0; i < me.fieldNames.length; i++) {
-              if (pui.fieldUpper(me.rowBackgroundField.fieldName) == me.fieldNames[i]) {
-                me.rowBackgroundFieldIndex = i;
-                break;
-              }
-            }
-          }
-          // If there is data matching the row-bg field, then set this row's background to it. The field data may be a bound value or an indicator, needing evaluation.
-          // Test cases for bound character and bound indicator: Issue 4775.
-          if (me.rowBackgroundFieldIndex != null) {
-            var fielddata = {};       //Prepare arguments for evalBoundProperty.
-            var bgfieldname = me.fieldNames[me.rowBackgroundFieldIndex];  //Upper case, because evalBoundProperty makes it uppercase.
-            fielddata[bgfieldname] = dataRecords[adjustedRow - 1][me.rowBackgroundFieldIndex];
-            
-            rowBackground = pui.evalBoundProperty(me.rowBackgroundField, fielddata, me.ref);
+    if (me.rowBackgroundField != null && adjustedRow > 0) {
+      if (me.rowBackgroundFieldIndex == null) {
+        // Nothing has set this index yet; find which index has the field and save it.
+        for (var i = 0; i < me.fieldNames.length; i++) {
+          if (pui.fieldUpper(me.rowBackgroundField.fieldName) == me.fieldNames[i]) {
+            me.rowBackgroundFieldIndex = i;
+            break;
           }
         }
+      }
+      // If there is data matching the row-bg field, then set this row's background to it. The field data may be a bound value or an indicator, needing evaluation.
+      // Test cases for bound character and bound indicator: Issue 4775. If the row is hidden, then do not use the color: issue 6391.
+      if (me.rowBackgroundFieldIndex != null) {
+        var fielddata = {};       //Prepare arguments for evalBoundProperty.
+        var bgfieldname = me.fieldNames[me.rowBackgroundFieldIndex];  //Upper case, because evalBoundProperty makes it uppercase.
+        fielddata[bgfieldname] = dataRecords[adjustedRow - 1][me.rowBackgroundFieldIndex];
+
+        rowBackground = pui.evalBoundProperty(me.rowBackgroundField, fielddata, me.ref);  //Uses the bound value or translates it based on the indicator rules.
       }
     }
     if (!pui.isBound(me.cellProps["row background"]) && me.cellProps["row background"] != null && me.cellProps["row background"] != "") rowBackground = me.cellProps["row background"];
 
     var rowFontColor = null;
-    if (me.rowFontColorField != null) {
-      if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-        var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
-        var dataRecords = me.dataArray;
-        if (me.isFiltered()) dataRecords = me.filteredDataArray;
-        if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
-          if (me.rowFontColorFieldIndex == null) {
-            for (var i = 0; i < me.fieldNames.length; i++) {
-              if (pui.fieldUpper(me.rowFontColorField.fieldName) == me.fieldNames[i]) {
-                me.rowFontColorFieldIndex = i;
-                break;
-              }
-            }
-          }
-          if (me.rowFontColorFieldIndex != null) {
-            rowFontColor = dataRecords[adjustedRow - 1][me.rowFontColorFieldIndex];
+    if (me.rowFontColorField != null && adjustedRow > 0) {
+      if (me.rowFontColorFieldIndex == null) {
+        // Nothing has set this index yet; find which index has the field and save it.
+        for (var i = 0; i < me.fieldNames.length; i++) {
+          if (pui.fieldUpper(me.rowFontColorField.fieldName) == me.fieldNames[i]) {
+            me.rowFontColorFieldIndex = i;
+            break;
           }
         }
+      }
+      if (me.rowFontColorFieldIndex != null) {
+        // Set the font-color from the bound value; evaluate the field in case it is an indicator.
+        var fielddata = {};
+        var fieldname = me.fieldNames[me.rowFontColorFieldIndex];
+        fielddata[fieldname] = dataRecords[adjustedRow - 1][me.rowFontColorFieldIndex];
+        
+        rowFontColor = pui.evalBoundProperty(me.rowFontColorField, fielddata, me.ref);
       }
     }
     if (!pui.isBound(me.cellProps["row font color"]) && me.cellProps["row font color"] != null && me.cellProps["row font color"] != "") rowFontColor = me.cellProps["row font color"];
 
     function setColor(cell, color, colNum) {
       if (color == null) color = "";
-      var colors = color.split(",");
-      if (colors.length > 1) {
-        if (colNum < colors.length) {
-          color = colors[colNum];
-        }
-        else {
-          color = colors[0];
+      else {
+        var colors = color.split(",");
+        if (colors.length > 1) {
+          if (colNum < colors.length) {
+            color = colors[colNum];
+          }
+          else {
+            color = colors[0];
+          }
         }
       }
       cell.style.color = color;
@@ -5397,13 +5426,15 @@ pui.Grid = function () {
 
     function setBackground(cell, background, colNum) {
       if (background == null) background = "";
-      var backgrounds = background.split(",");
-      if (backgrounds.length > 1) {
-        if (colNum < backgrounds.length) {
-          background = backgrounds[colNum];
-        }
-        else {
-          background = backgrounds[0];
+      else {
+        var backgrounds = background.split(",");
+        if (backgrounds.length > 1) {
+          if (colNum < backgrounds.length) {
+            background = backgrounds[colNum];
+          }
+          else {
+            background = backgrounds[0];
+          }
         }
       }
       cell.style.backgroundColor = background;
@@ -6270,7 +6301,6 @@ pui.Grid = function () {
     if (me.designMode) setCellStyles(cell, header, even, col);
 
     cell.onmouseover = function (e) {
-      e = e || window.event;
       if (me.dragging) return;
       if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e, col);
@@ -6280,7 +6310,8 @@ pui.Grid = function () {
       if (header) return;
       var cols = me.cells[row];
 
-      me.setRowBackground(row, true);
+      var dataArrayIdx = me._getDataIndexFromDOMRow(row);
+      me.setRowBackground(row, true, dataArrayIdx);
 
       if (me.singleRowZoom && !me["expanded"] && (row > 0 || !me.hasHeader)) {
         var cell = cols[0];
@@ -6309,16 +6340,16 @@ pui.Grid = function () {
     };
 
     cell.onmouseout = function (e) {
-      e = e || window.event;
       if (!me.hasHeader) executeEvent("onrowmouseout", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseout", row, null, e, col);
       var header = (row == 0 && me.hasHeader);
       if (header) return;
-      me.setRowBackground(row);
+      
+      var dataArrayIdx = me._getDataIndexFromDOMRow(row);
+      me.setRowBackground(row, false, dataArrayIdx);
     };
 
     cell.onmousedown = function (event) {
-      event = event || window.event;
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
@@ -6496,6 +6527,8 @@ pui.Grid = function () {
         me.setCursorRRN(row);
 
         var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT" ||  target.tagName == "BUTTON") && !target.disabled && !target.readOnly);
+        
+        var headerOffset = (me.hasHeader ? 1 : 0);
 
         // Select the clicked row and deselect others, or deselect the clicked row.
         if (me.selectionEnabled && !prevent && (row > 0 || !me.hasHeader)) {
@@ -6506,7 +6539,6 @@ pui.Grid = function () {
             if (me.singleSelection || (me.extendedSelection && !e.ctrlKey && !e.shiftKey && !e.metaKey)) {
               var clickedRow = row + me.recNum - (me.hasHeader ? 1 : 0);
 
-              var headerOffset = (me.hasHeader ? 1 : 0);
               for (var i = 0; i < me.dataArray.length; i++) {
                 var curRow = i - me.recNum + 1 + headerOffset;
 
@@ -6526,21 +6558,28 @@ pui.Grid = function () {
                     }
                   }
                 }
-                if ((curRow >= 0 && !me.hasHeader) || curRow >= 1) {
-                  if (curRow < numRows) {
-                    me.setRowBackground(curRow);
-                  }
+                // Set the row background on the rows of records that are visible.
+                if (curRow >= headerOffset && curRow < numRows && me.rowsHidden == 0) {
+                  me.setRowBackground(curRow);
                 }
               }
 
-              if (me.isFiltered()) {
-                setAllVisibleBackgrounds();
+              if (me.isFiltered() || me.rowsHidden > 0){
+                me._setAllVisibleBackgrounds();   //If any were filtered or hidden, then all must be set with special handling.
               }
             } //done deselecting others.
 
-            var dataRecords = me.dataArray;
-            if (me.isFiltered()) dataRecords = me.filteredDataArray;
+            var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
             var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+
+            // Compensate for any rows in the visible grid that were hidden, up to the row of the clicked cell.
+            if (me.rowsHidden > 0 && me.recNum > 0){
+              // Finds the index in me.dataArray for the row
+              me._unhiddenRowIter(null, row, function(idx){
+                adjustedRow = idx + 1;
+              });
+            }
+            
             // Handle shift+click extended selection. Selects some, may deselect some.
             if (me.extendedSelection && e.shiftKey) {
               if (me.selectedRecordNum == null) me.selectedRecordNum = adjustedRow;
@@ -6553,9 +6592,9 @@ pui.Grid = function () {
               }
               // For each record, set bg color, select if in range of the most recent 2 shift+clicks. Deselect if out of range.
               for (var i = 0; i < dataRecords.length; i++) {
-
+                
                 var curRow = i - me.recNum + 1;
-                if (i + 1 >= fromRecordNum && i + 1 <= toRecordNum) { 
+                if (i + 1 >= fromRecordNum && i + 1 <= toRecordNum) {
                   if (dataRecords[i].selected != true) {
                     handleSelection(dataRecords[i], true, i);  //Select a row that isn't selected.
                   }
@@ -6565,11 +6604,13 @@ pui.Grid = function () {
                     handleSelection(dataRecords[i], false, i);  //Deselect a selected row that is not between from/to.
                   }
                 }
-                if ((curRow >= 0 && !me.hasHeader) || curRow >= 1) {
-                  if (curRow < numRows) {
-                    me.setRowBackground(curRow);
-                  }
+                if (curRow >= headerOffset && curRow < numRows && me.rowsHidden == 0) {
+                  me.setRowBackground(curRow);
                 }
+              }
+              
+              if (me.rowsHidden > 0){
+                me._setAllVisibleBackgrounds();   //special handling.
               }
             }
             // Else: select the clicked row, including multiple selections.
@@ -6751,16 +6792,6 @@ pui.Grid = function () {
   }
   
   /**
-   * Set row backgrounds of all visible rows.
-   */
-  function setAllVisibleBackgrounds(){
-    var numRows = me.hLines.length - 1;
-    for (var i = (me.hasHeader ? 1 : 0); i < numRows; i++){
-      me.setRowBackground(i);
-    }
-  }
-  
-  /**
    * Select the specified row, possibly deselecting other rows. Also sets where shift+click range begins next.
    * @param {Number} row    Relative record number of the row to select. should match RRN used in RPG program when row written.
    *   If row is out of bounds, or if record is already selected, Does nothing.
@@ -6792,7 +6823,7 @@ pui.Grid = function () {
       }
       
     }
-    setAllVisibleBackgrounds();
+    me._setAllVisibleBackgrounds();
   };
   
   /**
@@ -6818,7 +6849,7 @@ pui.Grid = function () {
     }
     function deselect(index){
       handleSelection(me.dataArray[index], false, index);
-      if (isFiltered) setAllVisibleBackgrounds();  //We don't know which cell, so set all.
+      if (isFiltered) me._setAllVisibleBackgrounds();  //We don't know which cell, so set all.
       else if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0){
         // Translate the data row to a row in the visible grid.
         var hdrOffset = me.hasHeader ? 1 : 0;
@@ -7838,18 +7869,29 @@ pui.Grid = function () {
 
   this.handleHideRow = function(rrn, status) {
     
-    var row  = me.getRowInDataArray(me.dataArray, rrn);
+    var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+    var row = me.getRowInDataArray(dataRecords, rrn);
     if(row == null) return;
-    var record = me.dataArray[row - 1];
+    var record = dataRecords[row - 1];
+    if (record == null) return;
+    // Track how many rows are hidden so other functions know how to 
+    if (status === true && record.hideRow !== true){
+      me.rowsHidden++;
+      if (me.rowsHidden > me.dataArray.length) me.rowsHidden = me.dataArray.length;
+    }
+    else if (status === false && record.hideRow === true){
+      me.rowsHidden--;
+      if (me.rowsHidden < 0) me.rowsHidden = 0;
+    }
     record.hideRow = status;
-
-    if (me.isFiltered()) {
-      row  = me.getRowInDataArray(me.filteredDataArray, rrn);
-      if(row != null){
-        var filteredRecord = me.filteredDataArray[row - 1];
-        filteredRecord.hideRow = status;
+    
+    if (!me.sorted) {
+      // When the grid is not sorted there is no mapping from DOM row to dataArray index, so set the mapping; some operations require it. #6391.
+      for (var i = 0; i < me.dataArray.length; i++) {
+        if (me.dataArray[i].subfileRow == null) me.dataArray[i].subfileRow = i + 1;
       }
     }
+    
     me.getData();
     pui.modified = true;
     if (me.hiddenField != null) {
@@ -7868,10 +7910,6 @@ pui.Grid = function () {
       record.hiddenFieldInfo.modified = true;
       record.hiddenFieldInfo.value = (status) ? "1" : "0";
       if (record.hiddenFieldInfo.responseValue) record.hiddenFieldInfo.responseValue = record.hiddenFieldInfo.value;
-
-      if(me.isFiltered() && filteredRecord != null){
-        filteredRecord.hiddenFieldInfo = record.hiddenFieldInfo;
-      }
     }
   };
   this["hideRow"] = function(rrn) {
@@ -9416,7 +9454,7 @@ pui.Grid = function () {
     }
 
   }
-  
+      
   this.getPropertiesModel = function () {
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: pui.helpTextProperties("id","Specifies the ID that is used to access the grid from client-side code."), bind: false, canBeRemoved: false },
@@ -9656,18 +9694,96 @@ pui.Grid = function () {
     return model;
   };
   
-  /**
-   * Return true if the properties window should prevent the user from changing a property under certain circumstances.
-   * @param {String} property
-   * @returns {Boolean}
-   */
-  this.isPropertyReadOnly = function(property){
-    switch (property){
-      case "number of rows":
-      case "height":
-        return me.expandToLayout;
-    }
-    return false;
-  };
+};
+pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui.BaseGrid.
 
+/**
+ * When the grid contains any hidden rows, iterate over the rendered rows, skipping hidden ones, calling "cb" for each visible row.
+ * Pre-Conditions: this.recNum > 0 && this.rowsHidden > 0;
+ * Test Cases: see issue 6391.
+ * @param {Function|undefined} visCb    A function with parameters: "dataArrayIndex" and "row", the visible DOM row; gets called for visible rows.
+ * @param {Number|undefined} row        The number of a visible DOM row to find.
+ * @param {Function|undefined} foundCb  Called when "row" is found. parameters: "dataArrayIndex" and "rowNum", the found row.
+ */
+pui.Grid.prototype._unhiddenRowIter = function(visCb, row, foundCb){
+  var rowHdrOffset, idxHdrOffset, numRows = this.hLines.length - 1;
+  if (this.hasHeader){
+    rowHdrOffset = 1;
+    idxHdrOffset = 0;
+  }
+  else {
+    rowHdrOffset = 0;
+    idxHdrOffset = 1;
+  }
+  
+  if (this.recNum > 0 && this.rowsHidden > 0){
+    var dataArray = this.isFiltered() ? this.filteredDataArray : this.dataArray;
+    var dataArrayOffset = this.recNum - 1;
+    var hiddenRows = 0, visibleRows = 0;
+    var rowNum = rowHdrOffset;
+    // Start from the first visible record, look at all visible records, calling "cb".
+    for (var i=dataArrayOffset; i < dataArray.length && i < numRows + dataArrayOffset + hiddenRows; i++){
+      var record = dataArray[i];
+      if (record){
+        if (record.hideRow === true){
+          hiddenRows++;      //Skip ahead past hidden records.
+        }
+        else {
+          visibleRows++;
+          if (typeof visCb == 'function') visCb(i, rowNum, visibleRows, hiddenRows);
+          rowNum++;
+        }
+        
+        if (row >= 0 && visibleRows == row + idxHdrOffset && typeof foundCb == 'function'){
+          foundCb(i, rowNum);
+          break;
+        }
+      }
+    }
+  }
+};
+
+/**
+ * Given a visible row number, return the index in this.dataArray or this.filteredDataArray whose record maps to the row.
+ * @param {Number} row
+ * @returns {Number}    Returns -1 if this.recNum is not set; else, index of this.dataArray matching row.
+ */
+pui.Grid.prototype._getDataIndexFromDOMRow = function(row){
+  var dataArrayIdx = -1;
+  if (this.recNum > 0){
+    var dataArrayOffset = this.recNum - 1;
+    var headerOffset = this.hasHeader ? 0 : 1;
+    if (this.rowsHidden == 0){
+      dataArrayIdx = row + dataArrayOffset - 1 + headerOffset;
+    }
+    else {
+      // Find the index for the specified row and stop looping.
+      this._unhiddenRowIter(null, row, function(idx){
+        dataArrayIdx = idx;
+      });
+    }
+  }
+  return dataArrayIdx;
+};
+
+/**
+ * Set row backgrounds of all visible rows. Handle hidden rows.
+ */
+pui.Grid.prototype._setAllVisibleBackgrounds = function(){
+  if (this._setAllVisibleBackgroundsCbBound == null){
+    this._setAllVisibleBackgroundsCbBound = this._setAllVisibleBackgroundsCb.bind(this); //Ensure the callback can reach "this".
+  }
+  
+  var numRows = this.hLines.length - 1;
+  if (this.recNum > 0 && this.rowsHidden > 0){
+    this._unhiddenRowIter(this._setAllVisibleBackgroundsCbBound);
+  }
+  else {
+    for (var i = (this.hasHeader ? 1 : 0); i < numRows; i++){
+      this.setRowBackground(i);
+    }
+  }
+};
+pui.Grid.prototype._setAllVisibleBackgroundsCb = function(dataArrayIndex, row){
+  this.setRowBackground(row, false, dataArrayIndex);
 };

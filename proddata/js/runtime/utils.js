@@ -418,60 +418,8 @@ function getTimeStamp() {
 
 }
 
-// Array polyfills for Internet Explorer 8
-// This will enable IE 8 to use array methods that it couldnt before.
-if (!Array.prototype.forEach) {
-  Array.prototype.forEach= function(action, that /*opt*/) {
-      for (var i= 0, n= this.length; i<n; i++)
-          if (i in this)
-              action.call(that, this[i], i, this);
-  };
-}
-if (!Array.prototype.map) {
-  Array.prototype.map= function(mapper, that /*opt*/) {
-      var other= new Array(this.length);
-      for (var i= 0, n= this.length; i<n; i++)
-          if (i in this)
-              other[i]= mapper.call(that, this[i], i, this);
-      return other;
-  };
-}
-if (!Array.prototype.filter) {
-  Array.prototype.filter= function(filter, that /*opt*/) {
-      var other= [], v;
-      for (var i=0, n= this.length; i<n; i++)
-          if (i in this && filter.call(that, v= this[i], i, this))
-              other.push(v);
-      return other;
-  };
-}
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function( callback /*, initialValue*/ ) {
-    'use strict';
-    if ( null === this || 'undefined' === typeof this ) {
-      throw new TypeError(
-         'Array.prototype.reduce called on null or undefined' );
-    }
-    if ( 'function' !== typeof callback ) {
-      throw new TypeError( callback + ' is not a function' );
-    }
-    var t = Object( this ), len = t.length >>> 0, k = 0, value;
-    if ( arguments.length >= 2 ) {
-      value = arguments[1];
-    } else {
-      while ( k < len && ! k in t ) k++; 
-      if ( k >= len )
-        throw new TypeError('Reduce of empty array with no initial value');
-      value = t[ k++ ];
-    }
-    for ( ; k < len ; k++ ) {
-      if ( k in t ) {
-         value = callback( value, t[k], k, t );
-      }
-    }
-    return value;
-  };
-}
+// Polyfills for older browsers.
+
 if (!Array.prototype.findIndex) {
   Array.prototype.findIndex= function(predicate) {
     var list = Object(this);
@@ -565,36 +513,6 @@ if (!Array["from"]) {
       return A;
     };
   }());
-}
-
-// Polyfill for Array.indexOf. Needed for IE8.
-// Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
-if (!Array.prototype.indexOf)  Array.prototype.indexOf = (function(Object, max, min){
-  "use strict";
-  return function indexOf(member, fromIndex) {
-    if(this===null||this===undefined)throw TypeError("Array.prototype.indexOf called on null or undefined");
-    
-    var that = Object(this), Len = that.length >>> 0, i = min(fromIndex | 0, Len);
-    if (i < 0) i = max(0, Len+i); else if (i >= Len) return -1;
-    
-    if(member===void 0){ for(; i !== Len; ++i) if(that[i]===void 0 && i in that) return i; // undefined
-    }else if(member !== member){   for(; i !== Len; ++i) if(that[i] !== that[i]) return i; // NaN
-    }else                           for(; i !== Len; ++i) if(that[i] === member) return i; // all else
-
-    return -1; // if the value was not found, then return -1
-  };
-})(Object, Math.max, Math.min);
-
-// Polyfill to avoid crashing Visual Designer in IE8, which doesn't do Object.create.
-//(Lets people using IE8 still run Visual Designer even though they cannot use Responsive Layout.) Needed by TabLayout.
-// Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create 
-if(typeof Object.create!=="function"){ Object.create=function(proto,propertiesObject){
-  if(typeof proto!=='object'&&typeof proto!=='function'){ throw new TypeError(
-  'Object prototype may only be an Object: '+proto); }else if(proto===null){
-  throw new Error("This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.");}
-  if(typeof propertiesObject!='undefined'){ throw new Error(
-  "This browser's implementation of Object.create is a shim and doesn't support a second argument.");}
-  function F(){} F.prototype=proto;return new F();};
 }
 
 pui.getPropConfig = function(namedModel, propertyName) {
