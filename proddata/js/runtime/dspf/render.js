@@ -1455,11 +1455,12 @@ pui.renderFormat = function(parms) {
               }
             }
 
-            if ( prop == "row background" && items[i]["field type"] == "grid" ){
-              // The grid's "row background" property is a per-record field; it can be different per record. So `data` won't contain an entry for the "row background"
-              // field. To avoid letting an indicator's off-value become the color for each row, this must be a blank string. Issue 4775.
+            if ( items[i]["field type"] == "grid" && (prop == "row background" || prop == "row font color") ){
+              // These grid properties are per-record fields; values can be different per record. To avoid letting an indicator's 
+              // off-value become the color for each row, this must be blank or not evaluated here. Issue 4775. 6391.
               newValue = "";
-            }else{
+            }
+            else {
 
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
 
