@@ -4310,6 +4310,11 @@ pui.Grid = function () {
       return;
 
     }
+    
+    var multOccurMatch = /^(database file) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      property = multOccurMatch[1];  //handle any number of "database file n" properties.
+    }
 
     switch (property) {
       case "id":
@@ -4959,6 +4964,7 @@ pui.Grid = function () {
       case "remote system name":
       case "database connection":
       case "database file":
+      case "database join":
       case "database fields":
       case "selection criteria":
       case "order by":
@@ -9591,7 +9597,8 @@ pui.Grid = function () {
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("Local", "Name of database where file is located. Used only if data to be retrieved is stored on a remote server." ), controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, help: pui.helpTextProperties("[default connection]", "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections."), context: "dspf", nodedesigner: true, viewdesigner: false},
-      { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.") },
+      { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", multOccur: (context=="dspf"), uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.") },
+      { name: "database join", type: "join", bind: false, help: pui.helpTextProperties("blank", "The Database Join specifications between multiple tables to be used for a dynamic, database-driven grid."), controls: ["chart", "grid"], context: "dspf" },
       { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
           if (!confirm("Update grid columns?")) return; 
           // update the column headings   
