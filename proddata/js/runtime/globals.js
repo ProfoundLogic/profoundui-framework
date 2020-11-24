@@ -231,7 +231,7 @@ pui.wf = {
   qTypes: {},   // question types
   selectionSources: {},
   plugins: {},
-  useOnAPI: false,
+  useOnAPI: true,
   addPlugin: function(plugin) {
     var plugins = pui.wf.plugins;
     var category = plugin.category;
