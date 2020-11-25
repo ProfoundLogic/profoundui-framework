@@ -5350,8 +5350,13 @@ pui.Grid = function () {
     var dataRecords, adjustedRow = -1;
     // Prepare data needed when fields are bound.
     if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-      if (typeof recIdx == 'number' && recIdx >= 0) adjustedRow = recIdx + 1;     //"row" may not map to me.dataArray when fields are hidden, so use recIdx. #6391
-      else adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
+      if (typeof recIdx == 'number' && recIdx >= 0){
+          adjustedRow = recIdx + 1;     //"row" may not map to me.dataArray when fields are hidden, so use recIdx. #6391
+      }
+      else if(me.rowsHidden < 1){
+        // When rows are not hidden the mapping from row to dataArray index works according to the formula below.
+        adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);  
+      }
       
       dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
       if (dataRecords[adjustedRow - 1] == null || typeof dataRecords[adjustedRow - 1].length != 'number' || dataRecords[adjustedRow - 1].length <= 0) {
@@ -9705,14 +9710,14 @@ pui.Grid = function () {
 pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui.BaseGrid.
 
 /**
- * When the grid contains any hidden rows, iterate over the rendered rows, skipping hidden ones, calling "cb" for each visible row.
+ * When the grid contains any hidden rows, iterate over the rendered rows, skipping hidden ones, calling callbacks for visible rows.
  * Pre-Conditions: this.recNum > 0 && this.rowsHidden > 0;
  * Test Cases: see issue 6391.
  * @param {Function|undefined} visCb    A function with parameters: "dataArrayIndex" and "row", the visible DOM row; gets called for visible rows.
- * @param {Number|undefined} row        The number of a visible DOM row to find.
+ * @param {Number|undefined} findRow    The number of a visible DOM row to find.
  * @param {Function|undefined} foundCb  Called when "row" is found. parameters: "dataArrayIndex" and "rowNum", the found row.
  */
-pui.Grid.prototype._unhiddenRowIter = function(visCb, row, foundCb){
+pui.Grid.prototype._unhiddenRowIter = function(visCb, findRow, foundCb){
   var rowHdrOffset, idxHdrOffset, numRows = this.hLines.length - 1;
   if (this.hasHeader){
     rowHdrOffset = 1;
@@ -9740,8 +9745,8 @@ pui.Grid.prototype._unhiddenRowIter = function(visCb, row, foundCb){
           if (typeof visCb == 'function') visCb(i, rowNum, visibleRows, hiddenRows);
           rowNum++;
         }
-        
-        if (row >= 0 && visibleRows == row + idxHdrOffset && typeof foundCb == 'function'){
+
+        if (findRow >= 0 && visibleRows == findRow + idxHdrOffset && typeof foundCb == 'function'){
           foundCb(i, rowNum);
           break;
         }
