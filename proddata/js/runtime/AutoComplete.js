@@ -952,6 +952,10 @@ function AutoComplete(config) {
       }
     }
     if (onselect) {
+      if (pui.isRoutine(config.onSelectProp)) {
+        pui["runLogic"](config.onSelectProp["routine"], textBox.subfileRow, textBox.subfileName);
+        return;
+      }
       try {
         var func = eval(onselect);
         if (typeof func == "function") func(selectedRecord, textBox);
@@ -1162,6 +1166,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           limit: (limit != "") ? limit : null,
           template: tpl,
           onselect: onselect,
+          onSelectProp: properties["onselect"],
           ondbload: onDbLoadProp,
           typeAheadDelay: pui["autocomplete typeahead delay"],
           valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
