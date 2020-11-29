@@ -665,6 +665,10 @@ pui.widgets.add({
     
     "onselect": function(parms) {
       parms.dom.selectEvent = function() {
+        if (pui.isRoutine(parms.properties["onselect"])) {
+          pui["runLogic"](parms.properties["onselect"]["routine"], parms.dom.subfileRow, parms.dom.subfileName);
+          return;
+        }
         eval("var value = arguments[0];");
         eval("var text = arguments[1];");
         eval("var object = arguments[2];");
