@@ -2428,12 +2428,20 @@ pui.Grid = function () {
     if (toolbar.loadingDisplay) return;
     var itm = me.tableDiv.designItem;
     if (itm == null) return;
-    var numRows = me.hLines.length - 1;
-    if (numRows < 0) numRows = 0;
-    numRows = String(numRows);
+    var subfileHeight = itm.properties['height'] === '#subfileHeight' ? '#subfileHeight' : me.tableDiv.style.height;
+    
+    var numRows;
+    if (itm.properties['number of rows'] !== '#rowsPerPageRDF'){
+      numRows = me.hLines.length - 1;
+      if (numRows < 0) numRows = 0;
+      numRows = String(numRows);
+    }
+    else numRows = itm.properties['number of rows']; //value is from JumpStart template. #6217.
+    
     var numCols = me.vLines.length - 1;
     if (numCols < 0) numCols = 0;
     numCols = String(numCols);
+    
     var changed = false;
     changed = sendPropertyToDesigner(itm, "number of rows", numRows) || changed;
     changed = sendPropertyToDesigner(itm, "number of columns", numCols) || changed;
@@ -2442,7 +2450,7 @@ pui.Grid = function () {
     changed = sendPropertyToDesigner(itm, "column widths", me.getColumnWidths()) || changed;
     changed = sendPropertyToDesigner(itm, "left", me.tableDiv.style.left) || changed;
     changed = sendPropertyToDesigner(itm, "top", me.tableDiv.style.top) || changed;
-    changed = sendPropertyToDesigner(itm, "height", me.tableDiv.style.height) || changed;
+    changed = sendPropertyToDesigner(itm, "height", subfileHeight) || changed;
     changed = sendPropertyToDesigner(itm, "width", me.tableDiv.style.width) || changed;
     if (changed){
       itm.designer.makeDirty();
@@ -4473,7 +4481,7 @@ pui.Grid = function () {
       case "number of rows":
         var oldNumRows = me.hLines.length - 1;
         if (oldNumRows < 0) oldNumRows = 0;
-        var newNumRows = parseInt(value);
+        var newNumRows = (value === '#rowsPerPageRDF') ? 14 : parseInt(value);  //When viewing a JumpStart template, use 14 for number of rows. 6217.
         if (isNaN(newNumRows)) newNumRows = oldNumRows;
         if (newNumRows < 1) newNumRows = 1;
         if (me.hasHeader && newNumRows < 2) newNumRows = 2;
@@ -5035,6 +5043,10 @@ pui.Grid = function () {
         break;
 
       case "height":
+        if (value === '#subfileHeight'){
+          if (me.tableDiv.designItem != null) me.tableDiv.designItem.properties[property] = value;
+          value = '436px';  //When viewing a JumpStart template use this value for height. #6217.
+        }
         var i = me.hLines.length - 1;
         if (i != 0 || !me.hasHeader) {
           var diff = pui.safeParseInt(value) - parseInt(me.tableDiv.style.height);
