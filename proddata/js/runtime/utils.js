@@ -3701,9 +3701,10 @@ pui.xlsx_worksheet = function(numcols){
       // For other rows, track the max character length of data in each column.
       charcounts[col] = Math.max(charcounts[col], value.length );
     }
-    
-    var fmt = me.formats[col]["dataType"];   // Default format is set per column.
+
+    var fmt;
     if (format != null) fmt = format;     // Cell overrides default column format.
+    else if (me.formats[col]) fmt = me.formats[col]["dataType"];   // Default format is set per column.
     
     var storedVal;
     switch (fmt){
@@ -3735,7 +3736,7 @@ pui.xlsx_worksheet = function(numcols){
     }
 
     // If the cell overrides the default column format, then store as object.
-    if (format != null && format != me.formats[col]["dataType"]){
+    if (format != null && (me.formats[col] == null || format != me.formats[col]["dataType"])){
       storedVal.format = format;
     }
     
