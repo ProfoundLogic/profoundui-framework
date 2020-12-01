@@ -16564,7 +16564,7 @@ tr.drop_valid {
 .pui-floating-placeholder-input:not(:placeholder-shown) + .pui-floating-placeholder-label {
   transform: scale(.75) translateY(-14px);
   opacity: 1;
-  visibility: visible;
+  visibility: inherit;
 }
 
 .pui-floating-placeholder-input:focus::placeholder {
