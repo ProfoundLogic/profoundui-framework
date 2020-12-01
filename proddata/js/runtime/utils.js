@@ -515,6 +515,25 @@ if (!Array["from"]) {
   }());
 }
 
+if (location.origin === undefined) {
+  pui.temp_origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
+  try {
+    Object.defineProperty(
+      location,
+      "origin",
+      {
+        value: pui.temp_origin,
+        "enumerable": true
+      }
+    );
+  }
+  catch (error) {
+    location.origin = pui.temp_origin;
+  }
+  delete pui.temp_origin;
+}
+
+
 pui.getPropConfig = function(namedModel, propertyName) {
   var config = namedModel[propertyName];
   if (config == null) {
