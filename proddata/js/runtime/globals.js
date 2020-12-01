@@ -239,21 +239,3 @@ pui.wf = {
     plugins[category][plugin.name] = plugin;
   }
 }
-
-if (location.origin === undefined) {
-  pui.temp_origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
-  try {
-    Object.defineProperty(
-      location,
-      "origin",
-      {
-        value: pui.temp_origin,
-        enumerable: true
-      }
-    );
-  }
-  catch (error) {
-    location.origin = pui.temp_origin;
-  }
-  delete pui.temp_origin;
-}
