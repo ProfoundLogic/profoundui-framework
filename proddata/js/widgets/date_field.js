@@ -29,6 +29,12 @@ function show_calendar(dateField, str_datetime, format) {
   var arr_months, week_days;
   var locale;
   var n_weekstart = 0;
+  var weekHead;
+  var showWeekNum = "false";
+  if (dateField.puiShowWeekNumber != null && dateField.puiShowWeekNumber === "true"){
+    showWeekNum = dateField.puiShowWeekNumber;
+  }
+
   if (pui["locale"] && pui.locales[pui["locale"]])
     locale = pui["locale"];
   else {
@@ -44,6 +50,11 @@ function show_calendar(dateField, str_datetime, format) {
   if (locale) {
     arr_months = pui.locales[locale]['monthNames'];
     dayNames = pui.locales[locale]['shortDayNames'];
+    if(pui.locales[locale]['weekNumberShort']){
+      var weekHead = pui.locales[locale]['weekNumberShort'];
+    }
+    else if(showWeekNum == "true"){weekHead = "Wk";}
+
     week_days = [];
     if (pui.locales[locale]['weekStart'])
       n_weekstart = pui.locales[locale]['weekStart'];
@@ -54,6 +65,7 @@ function show_calendar(dateField, str_datetime, format) {
   else{
     arr_months = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
     week_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    if(showWeekNum == "true"){weekHead = "Wk";}
   }
 
   pui.currentDateField = dateField;
@@ -96,7 +108,7 @@ function show_calendar(dateField, str_datetime, format) {
   
   var otRow = document.createElement("tr");
   outerBody.appendChild(otRow);
-  
+
   var otCell = document.createElement("td");
   otCell.className = "brndrow1";
   otRow.appendChild(otCell);
@@ -111,8 +123,9 @@ function show_calendar(dateField, str_datetime, format) {
   var itRow = document.createElement("tr");
   innerBody.appendChild(itRow);
   
-  var arrowsPrev = document.createElement("td");
-  arrowsPrev.className = "brndrow1";
+  var arrowsPrevYear = document.createElement("td");
+  arrowsPrevYear.className = "brndrow1";
+  arrowsPrevYear.colSpan = "1";
 
   var prevYear = document.createElement("span");
   prevYear.setAttribute("arrow", "1");
@@ -122,8 +135,13 @@ function show_calendar(dateField, str_datetime, format) {
     show_calendar(pui.currentDateField, prevYearString + document.cal.time.value, format);
     preventEvent(e);
   };
-  arrowsPrev.appendChild(prevYear);
-
+  arrowsPrevYear.appendChild(prevYear);
+  itRow.appendChild(arrowsPrevYear);
+  
+  var arrowsPrevMonth = document.createElement("td");
+  arrowsPrevMonth.className = "brndrow1";
+  arrowsPrevMonth.colSpan = "1";
+  
   var prevMonth = document.createElement("span");
   prevMonth.setAttribute("arrow", "1");
   prevMonth.className = "pui-calendar-arrow-prev-month";
@@ -132,17 +150,19 @@ function show_calendar(dateField, str_datetime, format) {
     show_calendar(pui.currentDateField, prevMonthString + document.cal.time.value, format);
     preventEvent(e);
   };
-  arrowsPrev.appendChild(prevMonth);
-  itRow.appendChild(arrowsPrev);
+  arrowsPrevMonth.appendChild(prevMonth);
+  itRow.appendChild(arrowsPrevMonth);
 
   var monthYear = document.createElement("td");
   monthYear.className = "calendar brndrow1 pui-calendar-month-year-header";
-  monthYear.colSpan = "5";
+  monthYear.colSpan = "3";
+  if(showWeekNum == "true"){monthYear.colSpan = "4";}
   monthYear.innerHTML = arr_months[dt_datetime.getMonth()] + " " + dt_datetime.getFullYear();
   itRow.appendChild(monthYear);
 
-  var arrowsNext = document.createElement("td");
-  arrowsNext.className = "brndrow1 pui_calendar_brndrow1_right";
+  var arrowsNextMonth = document.createElement("td");
+  arrowsNextMonth.className = "brndrow1 pui_calendar_brndrow1_right";
+  arrowsNextMonth.colSpan = "1";
 
   var nextMonth = document.createElement("span");
   nextMonth.setAttribute("arrow", "1");
@@ -152,7 +172,12 @@ function show_calendar(dateField, str_datetime, format) {
     show_calendar(pui.currentDateField, nextMonthString + document.cal.time.value, format);
     preventEvent(e);
   };
-  arrowsNext.appendChild(nextMonth);
+  arrowsNextMonth.appendChild(nextMonth);
+  itRow.appendChild(arrowsNextMonth);
+
+  var arrowsNextYear = document.createElement("td");
+  arrowsNextYear.className = "brndrow1 pui_calendar_brndrow1_right";
+  arrowsNextYear.colSpan = "1";
 
   var nextYear = document.createElement("span");
   nextYear.setAttribute("arrow", "1");
@@ -162,14 +187,19 @@ function show_calendar(dateField, str_datetime, format) {
     show_calendar(pui.currentDateField, nextYearString + document.cal.time.value, format);
     preventEvent(e);
   };
-  arrowsNext.appendChild(nextYear);
-  itRow.appendChild(arrowsNext);
+  arrowsNextYear.appendChild(nextYear);
+  itRow.appendChild(arrowsNextYear);
 
   var dt_current_day = new Date(dt_firstday);
 
   // print weekdays titles
   var weekdays = document.createElement("tr");
-
+  if(weekHead){
+    var weekName = document.createElement("td");
+    weekName.className = "calendar brndrow2 pui-calendar-week-number-header";
+    weekName.innerHTML = weekHead;
+    weekdays.appendChild(weekName);
+  }
   for (var n=0; n<7; n++) {
     var dayName = document.createElement("td");
     dayName.className = "calendar brndrow2 pui-calendar-weekday-header";
@@ -183,9 +213,41 @@ function show_calendar(dateField, str_datetime, format) {
   
   while (dt_current_day.getMonth() == dt_datetime.getMonth() ||
            dt_current_day.getMonth() == dt_firstday.getMonth()) {
-    
-    // print row heder
+
+    //calculate default week number
+    if(showWeekNum == "true"){
+      if(weekNum == null) {var weekNum = 1;}
+      var startDate = dt_current_day;
+      if(startDate.getDay() == n_weekstart){
+        // Get Thursday in current week -- this will also mdetrmine which year the week is in
+        var currentThursday = new Date(startDate.getTime());
+        currentThursday.setHours(0, 0, 0, 0);
+        if(n_weekstart == 0){currentThursday.setDate(currentThursday.getDate() + 4);}
+        else if(n_weekstart == 1){currentThursday.setDate(currentThursday.getDate() + 3);}
+        else if(n_weekstart == 6){currentThursday.setDate(currentThursday.getDate() + 5);}
+        
+        // January 4 is always in week 1.
+        var Jan4 = new Date(currentThursday.getFullYear(), 0, 4);
+        // Get the Thursday in week 1 and calculate the number of weeks from current week to week 1.
+        weekNum = 1 + Math.round(((currentThursday.getTime() - Jan4.getTime()) / 86400000
+                              - 3 + (Jan4.getDay() + 6) % 7) / 7);
+      }
+      
+      if (typeof pui["week number calculator"] == "function") {
+        weekNum = pui["week number calculator"](startDate);
+      }
+    }
+    // print row header
     var dayRow = document.createElement("tr");
+
+    //Create week number cell only at the start of the week
+    if(showWeekNum == "true" && dt_current_day.getDay() == n_weekstart){
+      var weekNumCell = document.createElement("td");
+      var weekNumClass = "calendar pui-calendar-week-number";
+      weekNumCell.className = weekNumClass;
+      weekNumCell.innerHTML = weekNum;
+      dayRow.appendChild(weekNumCell);
+    }
 
     for (var n_current_wday = 0; n_current_wday < 7; n_current_wday++){
 
@@ -246,6 +308,7 @@ function show_calendar(dateField, str_datetime, format) {
     var todayButtonCell = document.createElement("td");
     todayButtonCell.className = "pui-calendar-today-button-row";
     todayButtonCell.colSpan = "7";
+    if(showWeekNum == "true"){todayButtonCell.colSpan = "8";}
     todayButtonRow.appendChild(todayButtonCell);
      
     var todayButton = document.createElement("span");
@@ -740,6 +803,10 @@ pui.widgets.add({
     },
     "show today option": function(parms) {
        parms.dom.puiShowToday = parms.value;
+    },
+    "show week number": function(parms) {
+      //For displaying week number with in a set cycle length (ex. 1 year = 52)
+      parms.dom.puiShowWeekNumber = parms.value;
     },
     "browser auto complete": function(parms) {
       if (!parms.design) {
