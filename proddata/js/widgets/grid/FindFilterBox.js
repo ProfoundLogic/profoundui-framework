@@ -117,8 +117,11 @@ pui.FindFilterBox = function() {
       });
     });
     addEvent(box, "blur", function(e) {
-      me.grid.highlighting.text = "";
-      me.grid.getData();
+      // Note: Chrome may fire the blur event after the grid was destroyed for paging filters, so check before using the grid.
+      if (me.grid){
+        if (me.grid.highlighting) me.grid.highlighting.text = "";
+        if (me.grid.getData) me.grid.getData();
+      }
       me.hide();
     });
     contentDiv.appendChild(box);
