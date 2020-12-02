@@ -47,10 +47,14 @@ INPUT.button {
   padding: 4px;
 }
 
-.calendar {
-  font-size: 11px;
-  font-weight: bold;
+.calendar:not([class*='-header']):not(.pui-calendar-week-number) {
+  /* font-size: 11px; */
+  /* font-weight: bold; */
   cursor: pointer;
+}
+
+.calendar[class*='-header'], .calendar.pui-calendar-week-number {
+  cursor: default;
 }
 
 .brndrow1 {
@@ -69,26 +73,32 @@ INPUT.button {
 
 .pui-calendar-arrow-prev-year {
   cursor: pointer;
-  width: 23px;
+  width: 16px;
   height: 16px;
   border: 0px;
+  padding: 0;
   display: inline-block;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("../images/prev_year.png");
+  background-image: url('../images/prev_year.png');
+  background-origin: border-box;
+  box-sizing: border-box;
 }
 
 .pui-calendar-arrow-prev-month {
   cursor: pointer;
-  width: 16px;
+  width: 12px;
   height: 16px;
   border: 0px;
+  padding: 0;
   display: inline-block;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("../images/prev_month.png");
+  background-image: url('../images/prev_month.png');
+  background-origin: border-box;
+  box-sizing: border-box;
 }
 
 .pui-calendar-month-year-header {
@@ -118,26 +128,32 @@ INPUT.button {
 
 .pui-calendar-arrow-next-month {
   cursor: pointer;
-  width: 16px;
+  width: 12px;
   height: 16px;
   border: 0px;
+  padding: 0;
   display: inline-block;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   background-image: url("../images/next_month.png");
+  background-origin: border-box;
+  box-sizing: border-box;
 }
 
 .pui-calendar-arrow-next-year {
   cursor: pointer;
-  width: 23px;
+  width: 16px;
   height: 16px;
   border: 0px;
+  padding: 0;
   display: inline-block;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("../images/next_year.png");
+  background-image: url("'../images/next_year.png");
+  background-origin: border-box;
+  box-sizing: border-box;
 }
 
 .brndrow2 {
@@ -152,7 +168,19 @@ INPUT.button {
   text-align: center;
 }
 
+.pui-calendar-week-number-header {
+  font-family: Tahoma, Verdana;
+  color: white;
+  text-align: center;
+}
+
 /*Individual Dates in Calendar*/
+
+.pui-calendar-week-number {
+  background-color: #5588bb;
+  color: white;
+  text-align: center;
+}
 
 .pui-calendar-selected-date {
   background-color: #ffb6c1;
@@ -5135,6 +5163,8 @@ div.Glass>.pui-tablayout-body>div {
     -o-transform: rotate(360deg);
   }
 }
+
+/* ComboBox Classes */
 
 .combo-main {
   background-color: #ffffff;
@@ -12031,59 +12061,38 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table tr {
-  height: 2rem;
+  min-height: 2.5rem;
   background: none;
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td {
   font-weight: 400;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   text-align: center;
   vertical-align: middle;
   background: none;
   font-size: 1rem;
   color: #2980b9;
   padding: 0;
+  border: none;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) {
-  display: -ms-grid;
-  display: grid;
-  grid-auto-flow: column;
-  -ms-grid-columns: 2rem 2rem;
-  grid-template-columns: 2rem 2rem;
-  -ms-grid-rows: 2rem;
-  grid-template-rows: 2rem;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -ms-flex-line-pack: center;
-      align-content: center;
-  justify-items: center;
-  width: 100%;
-  height: 100%;
-  min-height: 2.5rem;
-  min-width: 4rem;
-  color: #FFFFFF
+.pui-calendar-blueprint-date-field.pui-calendar td.calendar.brndrow2.pui-calendar-week-number-header, .pui-calendar-blueprint-date-field.pui-calendar td.calendar.pui-calendar-week-number {
+  border-right: none;
+  background: #f7f7f7;
+  color: #3498db;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) > *:nth-child(1) {
-  -ms-grid-row: 1;
-  -ms-grid-column: 1
+.pui-calendar-blueprint-date-field.pui-calendar td.brndrow1:not(.calendar) {
+  color: #ffffff;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) > *:nth-child(2) {
-  -ms-grid-row: 1;
-  -ms-grid-column: 2
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-selected-date {
+.pui-calendar-blueprint-date-field.pui-calendar td.pui-calendar-selected-date {
   background: #3498db;
-  color: #FFFFFF;
+  color: #ffffff;
   border-radius: 500px;
   border: none;
-  ;
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table>tbody>tr:first-of-type {
@@ -12092,75 +12101,49 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
 
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-month-year-header {
   font-size: 1.25rem;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button-row {
-  height: 100%;
-  width: 100%;
-  text-align: right;
-  background: #fff;
-  padding-right: 0.50rem;
-  border: none;
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-today-button {
   color: #3498db;
-  font-size: 1.00rem;
+  font-size: 1rem;
   cursor: pointer;
+  height: 2.5rem;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-weekday-header {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-weekday-header {
   color: #3498db;
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-day-inactive-month {
-  color: #D8DBDD;
+  color: #d8dbdd;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-weekend-date {
-  background: #FFFFFF;
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-workday-date:hover {
+.pui-calendar-blueprint-date-field.pui-calendar td.pui-calendar-workday-date:hover, .pui-calendar-blueprint-date-field.pui-calendar td.pui-calendar-weekend-date:hover {
   background: #3498db;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-weekend-date:hover {
-  background: #3498db;
-  color: #FFFFFF;
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-prev-year, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-next-year {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-month, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-month {
   font-family: 'Material Icons';
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
   background: none;
   height: 100%;
   width: 100%;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-prev-month, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-next-month {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-month::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-month::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year:before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year:before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year::before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year::before {
   font-family: 'Material Icons';
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  background: none;
-  height: 100%;
-  width: 100%;
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month::after {
-  font-family: 'Material Icons';
-  display: inline-block;
+  display: block;
   margin: 0;
   padding: 0;
   letter-spacing: 0;
@@ -12168,34 +12151,20 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -moz-font-feature-settings: 'liga';
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year::after {
-  content: 'chevron_leftchevron_left';
-  letter-spacing: -0.95rem;
   font-size: 24px;
-  margin: 0 0 0 0.25rem;
+  width: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year::after {
-  content: 'chevron_rightchevron_right';
-  letter-spacing: -0.95rem;
-  font-size: 24px;
-  margin: 0 0 0 -0.25rem;
-}
-
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month::after {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year:before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-year::before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-prev-month::after {
   content: 'chevron_left';
-  font-size: 24px;
-  margin: 0 0 0 0.25rem;
-  width: 100%;
 }
 
-.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month::after {
+.pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year::after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year:before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-year::before, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-month:after, .pui-calendar-blueprint-date-field.pui-calendar .pui-calendar-arrow-next-month::after {
   content: 'chevron_right';
-  font-size: 24px;
-  margin: 0 0 0 -0.25rem;
-  width: 100%;
 }
 
 .blueprint-combo-box-combo-options>.combo-option, .blueprint-combo-box-combo-options>.combo-option-select {
@@ -14636,18 +14605,16 @@ DIV.blueprint-defaults.BL, INPUT.blueprint-defaults.BL {
 .pui-calendar-office-copy-date-field.pui-calendar {
   position: absolute;
   border-radius: 0.5rem;
-  background: #FFFFFF;
-  -webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.20);
-          box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.20);
-  ;
+  background: #ffffff;
+  -webkit-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   width: auto;
   height: auto;
-  margin: 0 0 0 -75px;
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar, .pui-calendar-office-copy-date-field.pui-calendar *, .pui-calendar-office-copy-date-field.pui-calendar :after, .pui-calendar-office-copy-date-field.pui-calendar ::after {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   max-width: 100%;
 }
 
@@ -14662,7 +14629,7 @@ DIV.blueprint-defaults.BL, INPUT.blueprint-defaults.BL {
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table {
-  background: #FFFFFF;
+  background: #ffffff;
   border-collapse: collapse;
   overflow: hidden;
   height: 100%;
@@ -14677,130 +14644,87 @@ DIV.blueprint-defaults.BL, INPUT.blueprint-defaults.BL {
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td {
   font-weight: 400;
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   text-align: center;
   vertical-align: middle;
   background: none;
   font-size: 1rem;
-  color: #4E4C5B;
+  color: #4e4c5b;
   padding: 0;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button-row {
-  height: 100%;
-  width: 100%;
-  text-align: right;
-  background: #fff;
-  padding-right: 0.50rem;
   border: none;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-today-button {
-  color: #4466ff;
-  font-size: 1.00rem;
+.pui-calendar-office-copy-date-field.pui-calendar td.calendar.brndrow2.pui-calendar-week-number-header, .pui-calendar-office-copy-date-field.pui-calendar td.calendar.pui-calendar-week-number {
+  border-right: none;
+  background: #f7f7f7;
+  color: #6c757d;
+}
+
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-today-button {
+  color: #6c757d;
+  font-size: 1rem;
   cursor: pointer;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) {
-  display: -ms-grid;
-  display: grid;
-  grid-auto-flow: column;
-  -ms-grid-columns: 2rem 2rem;
-  grid-template-columns: 2rem 2rem;
-  -ms-grid-rows: 2rem;
-  grid-template-rows: 2rem;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -ms-flex-line-pack: center;
-      align-content: center;
+  height: 2.5rem;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
   justify-items: center;
-  width: 100%;
-  height: 100%;
-  min-height: 2.5rem;
-  min-width: 4rem;
-  color: #FFFFFF
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) > *:nth-child(1) {
-  -ms-grid-row: 1;
-  -ms-grid-column: 1
+.pui-calendar-office-copy-date-field.pui-calendar td.brndrow1:not(.calendar) {
+  color: #ffffff;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.brndrow1:not(.calendar) > *:nth-child(2) {
-  -ms-grid-row: 1;
-  -ms-grid-column: 2
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-selected-date {
-  background: #6C757D;
-  color: #FFFFFF;
+.pui-calendar-office-copy-date-field.pui-calendar td.pui-calendar-selected-date {
+  background: #6c757d;
+  color: #ffffff;
   border-radius: 500px;
   border: none;
-  ;
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table>tbody>tr:first-of-type {
-  background: #6C757D;
+  background: #6c757d;
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-month-year-header {
   font-size: 1.25rem;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-weekday-header {
-  color: #6C757D;
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-weekday-header {
+  color: #6c757d;
 }
 
 .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-day-inactive-month {
-  color: #D8DBDD;
+  color: #d8dbdd;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-weekend-date {
-  background: #FFFFFF;
+/* .pui-calendar-office-copy-date-field.pui-calendar
+  .pui-calendar-weekend-date {
+  background: #ffffff;
+} */
+
+.pui-calendar-office-copy-date-field.pui-calendar td.pui-calendar-workday-date:hover, .pui-calendar-office-copy-date-field.pui-calendar td.pui-calendar-weekend-date:hover {
+  background: #4e4c5b;
+  color: #ffffff;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-workday-date:hover {
-  background: #4E4C5B;
-  color: #FFFFFF;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table td.pui-calendar-weekend-date:hover {
-  background: #4E4C5B;
-  color: #FFFFFF;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-prev-year, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-next-year {
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-month, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-month {
   font-family: 'Material Icons';
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
   background: none;
   height: 100%;
   width: 100%;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-prev-month, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .pui-calendar-arrow-next-month {
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-month::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-month::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year:before, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year:before, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year::before, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year::before {
   font-family: 'Material Icons';
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  background: none;
-  height: 100%;
-  width: 100%;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month::after {
-  font-family: 'Material Icons';
-  display: inline-block;
   margin: 0;
   padding: 0;
   letter-spacing: 0;
@@ -14808,34 +14732,21 @@ DIV.blueprint-defaults.BL, INPUT.blueprint-defaults.BL {
   font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -moz-font-feature-settings: 'liga';
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-year::after {
-  content: 'chevron_leftchevron_left';
-  letter-spacing: -0.95rem;
   font-size: 24px;
-  margin: 0 0 0 0.25rem;
+  width: 0.5rem;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-year::after {
-  content: 'chevron_rightchevron_right';
-  letter-spacing: -0.95rem;
-  font-size: 24px;
-  margin: 0 0 0 -0.25rem;
-}
-
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-prev-month::after {
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-month::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year:before, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-prev-year::before {
   content: 'chevron_left';
-  font-size: 24px;
-  margin: 0 0 0 0.25rem;
-  width: 100%;
 }
 
-.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-inner-table .brndrow1 span.pui-calendar-arrow-next-month::after {
+.pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-month:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-month::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year:after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year::after, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year:before, .pui-calendar-office-copy-date-field.pui-calendar .pui-calendar-arrow-next-year::before {
   content: 'chevron_right';
-  font-size: 24px;
-  margin: 0 0 0 -0.25rem;
-  width: 100%;
 }
 
 .label-for-office-copy-checkbox, .label-for-office-copy-checkbox-no-label {
