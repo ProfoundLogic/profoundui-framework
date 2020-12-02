@@ -151,7 +151,7 @@ INPUT.button {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("'../images/next_year.png");
+  background-image: url("../images/next_year.png");
   background-origin: border-box;
   box-sizing: border-box;
 }
