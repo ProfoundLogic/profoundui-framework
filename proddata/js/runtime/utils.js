@@ -460,7 +460,8 @@ if (!Array.prototype.find) {
 
       // 7. Return undefined.
       return undefined;
-    }
+    },
+    "configurable": true // Needed to prevent error due to FusionCharts trying to re-define the property.
   });
 }
 
@@ -528,7 +529,8 @@ if (!Array.prototype.includes) {
 
       // 8. Return false
       return false;
-    }
+    },
+    "configurable": true // Needed to prevent error due to FusionCharts trying to re-define the property.
   });
 }
 
