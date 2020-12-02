@@ -126,5 +126,6 @@ pui.locales.add({
     'Fri',
     'Sat'
   ],
-  'weekStart': 0
+  'weekStart': 0,
+  'weekNumberShort': 'Wk'
 });
