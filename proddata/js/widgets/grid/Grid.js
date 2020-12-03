@@ -3829,18 +3829,32 @@ pui.Grid = function () {
 
   }
 
-  function executeEvent(eventName) {
+  /**
+   * Execute a user-defined event. (The argument names get obfuscated, but the user code expects them not to be.)
+   * @param {String} eventName
+   * @param {undefined|Number} rowNum  When set, this is the visible row number associated with the event; if rowNum is 1, then the row is the first data row.
+   * @param {undefined|Boolean} isRghtClk  
+   * @param {undefined|Event} event
+   * @param {undefined|Number} column
+   * @returns {undefined|Boolean}  Returns false upon error; else returns undefined.
+   */
+  function executeEvent(eventName, rowNum, isRghtClk, event, column) {
     if (me.designMode) return;
+    var dataRecords;
     var eventCode = me.events[eventName];
+    var idx = -1;
+    if (rowNum != null){
+      idx = me._getDataIndexFromDOMRow(rowNum - (me.hasHeader ? 0 : 1 ));  //Get the index of dataArray for the row. Handles hidden rows.
+      dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+    }
+    
     if (pui.isRoutine(eventCode)) {
         var routineRow = null;
         var routineGrid = null;
-        if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-          var routineRow = arguments[1] + me.recNum - 1;
-          var dataRecords = me.dataArray;
-          if (me.isFiltered()) dataRecords = me.filteredDataArray;
-          if (dataRecords[routineRow - 1] != null && dataRecords[routineRow - 1].subfileRow != null) {
-            routineRow = dataRecords[routineRow - 1].subfileRow;
+        if (idx >= 0) {
+          var routineRow = idx;
+          if (dataRecords[idx] != null && dataRecords[idx].subfileRow != null) {
+            routineRow = dataRecords[idx].subfileRow;
           }
           routineGrid = me.recordFormatName;
         }
@@ -3868,26 +3882,24 @@ pui.Grid = function () {
 
         eval("var column = arguments[4];");
 
-        var rowNum = arguments[1];
         if (rowNum != null) {
           if (!me.hasHeader) rowNum -= 1;
           var rowCellsArray = me.cells[rowNum];
           pui["temporary_property"] = rowCellsArray;
           eval("var rowCells = pui.temporary_property;");
         }
-
-        if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-          var adjustedRow = eval("row");
-          adjustedRow += (me.recNum - 1);
+        
+        if (idx >= 0) {
+          var adjustedRow = idx + 1;  //The "row" begins with 1 being the first row.
           eval("rowNumber = " + adjustedRow);
-          var dataRecords = me.dataArray;
-          if (me.isFiltered()) dataRecords = me.filteredDataArray;
-          if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].subfileRow != null) {
-            adjustedRow = dataRecords[adjustedRow - 1].subfileRow;
+          if (dataRecords[idx] != null && dataRecords[idx].subfileRow != null) {
+            adjustedRow = dataRecords[idx].subfileRow;
           }
           eval("row = " + adjustedRow);
           eval("var rrn = " + adjustedRow);
         }
+        
+        delete pui["temporary_property"];
         var returnVal = eval(eventCode);
         if (returnVal == false) return false;
       }
@@ -5209,20 +5221,20 @@ pui.Grid = function () {
   };
 
   this.setCursorRRN = function (row) {
-    if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
-      me.tableDiv.cursorRRN = row + me.recNum;
-      if (me.hasHeader) {
-        me.tableDiv.cursorRRN = me.tableDiv.cursorRRN - 1;
-      }
-      var dataRecords = me.dataArray;
-      if (me.isFiltered()) dataRecords = me.filteredDataArray;
-      if (dataRecords[me.tableDiv.cursorRRN - 1] == null || dataRecords[me.tableDiv.cursorRRN - 1].length == 0) {
+    var idx = me._getDataIndexFromDOMRow(row);
+    if (idx >= 0){
+      var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+      if (dataRecords[idx] == null || dataRecords[idx].length == 0) {
         me.tableDiv.cursorRRN = 0;
       }
-      else if (dataRecords[me.tableDiv.cursorRRN - 1].subfileRow != null) {
-        me.tableDiv.cursorRRN = dataRecords[me.tableDiv.cursorRRN - 1].subfileRow;
+      else if (dataRecords[idx].subfileRow != null) {
+        me.tableDiv.cursorRRN = dataRecords[idx].subfileRow;
       }
+      else {
+        me.tableDiv.cursorRRN = idx + 1;
+      }      
     }
+    // else: if the row is invalid, leave the cursor at the last valid row.
   };
 
   this["setCursorRecordNumber"] = function (rrn) {
@@ -6706,7 +6718,6 @@ pui.Grid = function () {
     };
 
     cell.ondblclick = function (e) {
-      e = e || window.event;
       if (me.designMode) {
         if (me.hasHeader && row == 0) {
           var itm = me.tableDiv.designItem;
@@ -9769,16 +9780,16 @@ pui.Grid.prototype._unhiddenRowIter = function(visCb, findRow, foundCb){
 
 /**
  * Given a visible row number, return the index in this.dataArray or this.filteredDataArray whose record maps to the row.
- * @param {Number} row
+ * @param {Number} row  The row number. If there is no header, then 0 is the first row, 1 is the 2nd, etc. Else, 1 is the first data row, 2 is the 2nd, etc.
  * @returns {Number}    Returns -1 if this.recNum is not set; else, index of this.dataArray matching row.
  */
 pui.Grid.prototype._getDataIndexFromDOMRow = function(row){
   var dataArrayIdx = -1;
   if (this.recNum > 0){
-    var dataArrayOffset = this.recNum - 1;
-    var headerOffset = this.hasHeader ? 0 : 1;
+    var dataArrayOffset = this.recNum - 1;    
+    var headerDiff = this.hasHeader ? 1 : 0;
     if (this.rowsHidden == 0){
-      dataArrayIdx = row + dataArrayOffset - 1 + headerOffset;
+      dataArrayIdx = row + dataArrayOffset - headerDiff;
     }
     else {
       // Find the index for the specified row and stop looping.
