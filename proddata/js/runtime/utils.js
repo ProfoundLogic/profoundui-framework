@@ -4985,3 +4985,44 @@ pui.getDatabaseConnection = function(name) {
 
 };
 
+pui.getVersionComparer = function () {
+  var getVersionParts = function (version) {
+    version = version || "0.0.0";
+
+    if (version && typeof version !== "string")
+      version = version.toString();
+
+    return version.split(".");
+  };
+  var makeMatching = function(version1, version2){
+    var ver1 = getVersionParts(version1);
+    var ver2 = getVersionParts(version2);
+
+    // Now compare lenghts of each part, and left zero pad the shorter segments
+    for (var i = 0; i < ver1.length; i++) {
+      if (ver2.length - 1 < i) break;
+
+      var len1 = ver1[i].length;
+      var len2 = ver2[i].length;
+      if (len1 > len2)
+        ver2[i] = "0".repeat(len1 - len2) + ver2[i];
+      if (len2 > len1)
+        ver1[i] = "0".repeat(len2 - len1) + ver1[i];
+    }
+
+    return [
+      ver1.join("."),
+      ver2.join(".")
+    ]
+      
+  };
+
+  return {
+    isLessThan: function (version1, version2) {
+      // Create version strings with the same size segments
+      var versions = makeMatching(version1, version2);
+
+      return versions[0] < versions[1];
+    }
+  }
+}

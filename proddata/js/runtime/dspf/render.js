@@ -563,7 +563,8 @@ pui.render = function(parms) {
     var parmBaseVersion = parmVersion.shift();
     var parmFixPack = parmVersion.join('.');
     if (parms["nodejs"]) {
-      if (pui["version"] < parms["version"]) {  // nodejs sends min version
+      var compVers = pui.getVersionComparer();
+      if (compVers.isLessThan(pui["version"], parms["version"])) {  // nodejs sends min version
         msg = "Installed copy of Profound.js requires Profound UI client-side Version " + parmBaseVersion + ', Fix Pack ' + parmFixPack + " or above. Profound UI client-side version is Version " + pui["baseVersion"] + ', Fix Pack ' + pui["fixPackVersion"] + ".";
       }
     } 
