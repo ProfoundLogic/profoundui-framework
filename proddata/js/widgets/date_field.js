@@ -50,7 +50,7 @@ function show_calendar(dateField, str_datetime, format) {
   if (locale) {
     arr_months = pui.locales[locale]['monthNames'];
     dayNames = pui.locales[locale]['shortDayNames'];
-    if(pui.locales[locale]['weekNumberShort']){
+    if(showWeekNum == "true" && pui.locales[locale]['weekNumberShort']){
       var weekHead = pui.locales[locale]['weekNumberShort'];
     }
     else if(showWeekNum == "true"){weekHead = "Wk";}
