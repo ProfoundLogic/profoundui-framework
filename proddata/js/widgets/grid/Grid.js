@@ -8407,6 +8407,8 @@ pui.Grid = function () {
    * 
    * Comparisons are case insensitive.
    * 
+   * TODO: there should only be one return call; having multiple is error-prone. Also, move this into the prototype.
+   * 
    * Supported expressions:
    *   between x and y
    *   values x,y,z              (exact matches)
@@ -8510,9 +8512,8 @@ pui.Grid = function () {
       else return (Number(value) < Number(text));
     }
     //For filtering blanks -- should be represented by 1 space
-    else if (text.substr(0,1) == " ") {
-      text = text.substr(1);
-      if (text == "" && value == "") return true;
+    else if (text == " " && value == "" ) {
+      return true;
     }
     else {
       return (value.toLowerCase().indexOf(text.toLowerCase()) >= 0);
