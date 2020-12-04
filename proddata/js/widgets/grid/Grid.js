@@ -4167,11 +4167,14 @@ pui.Grid = function () {
             if (layoutDiv.offsetWidth < me.tableDiv.offsetWidth + me.tableDiv.offsetLeft) {
               me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
               parent.onscroll = function () {
-                me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
-                if (me.tableDiv.style.visibility != "hidden") {
-                  // Pass true to the draw method to stop the scrollbar from scrolling 
-                  // and causing the grid to re-render the items #4262. 
-                  me.scrollbarObj.draw(true);
+                // Note: if there are two grids inside the layout, scrollbarObj could be null in one. 6478.
+                if (me.scrollbarObj){
+                  me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
+                  if (me.tableDiv.style.visibility != "hidden") {
+                    // Pass true to the draw method to stop the scrollbar from scrolling 
+                    // and causing the grid to re-render the items #4262. 
+                    me.scrollbarObj.draw(true);
+                  }
                 }
               };
             }
