@@ -68,7 +68,7 @@ pui.widgets.add({
         // Phonegap/Mobile Client is buggy on iOS when using 100% height, so we assign the height in pixels
         if (window["cordova"] && window["device"]["platform"] == "iOS") {
           parms.dom.layout.assignHeightOnResize = true;
-          var height = window["innerHeight"] + "px";  // innerHeight is always the currently-vertical height, minus window chrome
+          var height = document.documentElement.clientHeight + "px";  // clientHeight is always the currently-vertical height, minus window chrome
           parms.dom.parentNode.style.height = height;
           parms.dom.parentNode.style.overflowX = "hidden";
           parms.dom.parentNode.style.overflowY = "hidden";

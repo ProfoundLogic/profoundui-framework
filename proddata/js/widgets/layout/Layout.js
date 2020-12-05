@@ -643,7 +643,7 @@ pui.layout.Layout = function() {
 
   this.onresize = function() {
     if (me.assignHeightOnResize == true) {
-      var height = window["innerHeight"] + "px";  // innerHeight is always the currently-vertical height, minus window chrome
+      var height = document.documentElement.clientHeight + "px";  // clientHeight is always the currently-vertical height, minus window chrome
       me.layoutDiv.parentNode.style.height = height;
       document.body.style.height = height;
       document.body.parentNode.style.height = height;
