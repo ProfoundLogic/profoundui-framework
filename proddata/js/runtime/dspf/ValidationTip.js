@@ -21,35 +21,48 @@
 
 /**
  * Validation Tip Class
+ * @param {Element} el    Input or widget element associated with the tip.
  * @constructor
  */
 
 pui.ValidationTip = function(el) {
+  // Public
   this.container = null;
-  var opacity = 0;
+  
+  // Private
+  this._opacity = 0;
   var reverseFlag = false;
   var currentRequestNum = 0;
   var inputEl = el;
   var widgetEl = el;
-  var orientation = "right";
+  this._orientation = "right";
   var msg = "";
-  var typeClass = "";
-  if (typeof widgetEl.pui.properties["error message css class"] == "string") typeClass = trim(widgetEl.pui.properties["error message css class"]);
-  if (typeClass == "") typeClass = "pui-tip-error";
-  var invalidClass = typeClass + "-invalid";
+  this._typeClass = "";
+  if (typeof widgetEl.pui.properties["error message css class"] == "string") this._typeClass = trim(widgetEl.pui.properties["error message css class"]);
+  if (this._typeClass == "") this._typeClass = "pui-tip-error";
+  var invalidClass = this._typeClass + "-invalid";
   
-  var div;
-  var contentDiv;
-  var closeButton;
+  this._div = null;
+  this._contentDiv = null;
+  this._closeButton = null;
   var me = this;
-
-  this.container = pui.getParentWindow(widgetEl);
-  if (this.container == null) {
   
-    this.container = pui.runtimeContainer;
   
+  if (widgetEl.pui.properties['error message attach'] == 'parent'){
+    // The tool tip is setup to be in the same container as the widget so that it can scroll with it. #6451.
+    this._attachParent = true;
+    this.container = widgetEl.parentNode;
   }
+  else {
+    this._attachParent = false;
+    this.container = pui.getParentWindow(widgetEl);
+    if (this.container == null) {
 
+      this.container = pui.runtimeContainer;
+
+    }
+  }
+    
   if (inputEl.comboBoxWidget != null) {  
     inputEl = inputEl.comboBoxWidget.getBox();    
   }      
@@ -61,49 +74,49 @@ pui.ValidationTip = function(el) {
   if (!(inputEl.tagName == "INPUT" && (inputEl.type == "text" || pui.isHTML5InputType(inputEl.type)))) {
     addEvent(inputEl, "click", showTipOnFocus);
   }
-  addEvent(inputEl, "blur", hideTipOnBlur)
+  addEvent(inputEl, "blur", hideTipOnBlur);
   if (inputEl.tagName == "SELECT") addEvent(inputEl, "change", hideTipOnChange);
   else addEvent(inputEl, "keydown", hideTipOnKeyDown);      
   
   inputEl.validationTip = this;    
   
   setOrientation();
-  init();
+  this._init();
   
   this.setMessage = function(val) {
   
     msg = val;
-    contentDiv.innerHTML = '<div class="pui-tip-icon" />';
-    contentDiv.appendChild(document.createTextNode(msg));        
+    me._contentDiv.innerHTML = '<div class="pui-tip-icon" />';
+    me._contentDiv.appendChild(document.createTextNode(msg));
 
-  }
+  };
   
   this.setPosition = function(left, top) {
-    div.style.left = left + "px";
-    div.style.top = top + "px";
-  }
+    me._div.style.left = left + "px";
+    me._div.style.top = top + "px";
+  };
   
   this.positionByElement = function() {
     var msgOffset = 3;
-    var msgHeight = div.offsetHeight;
-    var msgWidth = div.offsetWidth;
+    var msgHeight = me._div.offsetHeight;
+    var msgWidth = me._div.offsetWidth;
     var targetHeight = widgetEl.offsetHeight;
     var targetWidth = widgetEl.offsetWidth;
     
-    var old = orientation;
+    var old = me._orientation;
     setOrientation(); // This can change 
-    if (old != orientation) {
+    if (old != me._orientation) {
     
-      init();
+      me._init();
       me.setMessage(msg);
     
     }
     
     var top, left;
-    if (orientation == "left" || orientation == "right") {
+    if (me._orientation == "left" || me._orientation == "right") {
     
       top = widgetEl.offsetTop - ((msgHeight - targetHeight) / 2);
-      if (orientation == "left") {
+      if (me._orientation == "left") {
       
         left = widgetEl.offsetLeft - msgWidth - msgOffset;
       
@@ -116,21 +129,21 @@ pui.ValidationTip = function(el) {
       
     }
     else { // top || bottom
-    
+
       left = widgetEl.offsetLeft + ((targetWidth - msgWidth) / 2);
-      if (orientation == "top") {
-      
+      if (me._orientation == "top") {
+
         top = widgetEl.offsetTop - msgHeight - msgOffset;
-      
+
       }
       else { // bottom
-      
-        top = widgetEl.offsetTop + targetHeight + msgOffset;
-      
-      }
-    
-    }
 
+        top = widgetEl.offsetTop + targetHeight + msgOffset;
+
+      } 
+
+    }
+    
     var prt = widgetEl.parentNode;
     if (prt == null || (pui["is_old_ie"] && prt.nodeName == "#document-fragment")) {
     
@@ -139,7 +152,7 @@ pui.ValidationTip = function(el) {
       
       // Switch orientation to right and shift to cut off arrow.
       setOrientation("right");
-      init();
+      me._init();
       me.setMessage(msg);
       top = 0;
       left = -7;      
@@ -147,11 +160,15 @@ pui.ValidationTip = function(el) {
     }
     else {
     
-      if (prt.getAttribute("container") == "true") {
+      if (this._attachParent){
+        if (left < 0) left = 0;
+        if (top < 0) top = 0;
+      }
+      else if (prt.getAttribute("container") == "true") {
         var offset = pui.layout.getContainerOffset(prt);
         top = top + offset.y;
         left = left + offset.x;
-      } 
+      }
 
       // handle subfile elements
       var cellElement = prt;
@@ -191,7 +208,7 @@ pui.ValidationTip = function(el) {
     }
     
     me.setPosition(left, parseInt(top));    
-  }
+  };
   
   this.show = function(hideDelay, onTimer) {
     
@@ -207,10 +224,10 @@ pui.ValidationTip = function(el) {
     
     }
   
-    if (div.style.display == "none") {      
-      div.style.display = "block";
-      div.style.visibility = "";
-      opacity = 0;
+    if (me._div.style.display == "none") {      
+      me._div.style.display = "block";
+      me._div.style.visibility = "";
+      me._opacity = 0;
       reverseFlag = false;
       animate();
     }
@@ -221,7 +238,7 @@ pui.ValidationTip = function(el) {
     }
     me.positionByElement();
       
-  }
+  };
 
   function hideRequest(requestNum, delay) {
     setTimeout(function() {
@@ -233,50 +250,41 @@ pui.ValidationTip = function(el) {
   this.hide = function() {
     reverseFlag = true;
     animate();    
-  }
+  };
   
   this.hideNow = function() {
     // hide without animation
-    div.style.display = "none";
-    div.style.visibility = "hidden";
-    opacity = 0;    
-  }
-  
-  this.destroy = function() {
-    div.removeChild(contentDiv);
-    div.parentNode.removeChild(div);
-    contentDiv = null;
-    div = null;
-    me.container = null;
-    me = null;
-  }
+    me._div.style.display = "none";
+    me._div.style.visibility = "hidden";
+    me._opacity = 0;
+  };
   
   this.getInvalidClass = function() {
   
     return invalidClass;
   
-  }
+  };
   
   function animate() {
     var interval = 100;
     var increment = 20;    
     var decrement = 30;    
-    if (opacity >= 0 && opacity <= 100) {
-      div.style.filter = "alpha(opacity=" + opacity + ")";
-      div.style.opacity = opacity / 100;
+    if (me._opacity >= 0 && me._opacity <= 100) {
+      me._div.style.filter = "alpha(opacity=" + me._opacity + ")";
+      me._div.style.opacity = me._opacity / 100;
     }
-    if (reverseFlag) opacity -= decrement;
-    else opacity += increment;
-    if ((reverseFlag && opacity <= 0) || (!reverseFlag && opacity >= 100)) {
+    if (reverseFlag) me._opacity -= decrement;
+    else me._opacity += increment;
+    if ((reverseFlag && me._opacity <= 0) || (!reverseFlag && me._opacity >= 100)) {
       if (reverseFlag) {
-        div.style.display = "none";
-        div.style.visibility = "hidden";
-        opacity = 0;
+        me._div.style.display = "none";
+        me._div.style.visibility = "hidden";
+        me._opacity = 0;
       }
       else {
-        div.style.filter = "alpha(opacity=100)";
-        div.style.opacity = 1;
-        opacity = 100;
+        me._div.style.filter = "alpha(opacity=100)";
+        me._div.style.opacity = 1;
+        me._opacity = 100;
       }
     }
     else {
@@ -304,7 +312,6 @@ pui.ValidationTip = function(el) {
   }
   
   function hideTipOnKeyDown(event) {
-    event = event || window.event;
     var key = event.keyCode;        
     if (key >= 9 && key <= 45) return;     // includes keys like arrow keys, ctrl, shift, etc.
     if (key >= 112 && key <= 145) return;  // includes f1-f12, num lock, scroll lock, etc.
@@ -318,7 +325,6 @@ pui.ValidationTip = function(el) {
   }
 
   function hideTipOnChange(event) {
-    event = event || window.event;
     var target = getTarget(event);
     if (target == null) return;
     var tip = target.validationTip;
@@ -328,112 +334,128 @@ pui.ValidationTip = function(el) {
     pui.removeCssClass(target, tip.getInvalidClass());
   }  
   
+  /**
+   * @param {String|undefined} val
+   */
   function setOrientation(val) {
   
-    if (val != null) {
-    
-      orientation = val;
-    
+    if (val != null){
+      me._orientation = val;
     }
     else if (typeof(widgetEl.pui.properties["error message location"]) != "undefined") {
     
-      orientation = widgetEl.pui.properties["error message location"];  
+      me._orientation = widgetEl.pui.properties["error message location"];  
     
     }
-  
-    if (orientation != "left" && orientation != "right" && 
-        orientation != "top" && orientation != "bottom")  { 
-        
-      orientation = "right";
-      
-    }
-  
+    
+    // Use "right" as the default if the value was not valid.
+     if (me._orientation != "left" && me._orientation != "right" && 
+         me._orientation != "top" && me._orientation != "bottom")  {
+   
+       me._orientation = 'right';
+     }
+     
   }
   
-  function init() {
-  
-    var reinit = (div != null);
-    
-    if (reinit) {
-    
-      closeButton.onmousedown = null
-      closeButton.onmouseup = null
-      closeButton.onclick = null
-      closeButton.parentNode.removeChild(closeButton);
-      closeButton = null
-      
-      contentDiv.parentNode.removeChild(contentDiv);
-      contentDiv = null;
-      
-      div.onmousedown = null;
-      div.parentNode.removeChild(div);
-      div = null;
-    
-    }    
-    
-    div = document.createElement("div");
-    div.className = "pui-tip ";
-    if (orientation == "top") div.className += "pui-tip-top ";
-    else if (orientation == "bottom") div.className += "pui-tip-bottom ";
-    else if (orientation == "left") div.className += "pui-tip-left ";
-    else div.className += "pui-tip-right ";
-    div.className += typeClass;
-    div.style.position = "absolute";
-    contentDiv = document.createElement("div");
-    contentDiv.className = "pui-tip-content";
-    closeButton = document.createElement("div");
-    closeButton.className = "pui-tip-close";
+};
+pui.ValidationTip.prototype = Object.create(pui.BaseClass.prototype);
 
-    closeButton.onmousedown = function(e) {
-      closeButton.className = "pui-tip-close-click";
-      preventEvent(e);
-      return false;
-    }
-    closeButton.onmouseup = function() {
-      closeButton.className = "pui-tip-close";
-    }
-    closeButton.onclick = function() {
-      div.style.display = "none";
-      div.style.visibility = "hidden";
-      opacity = 0;
-      
-      if (pui["is_old_ie"]) {
-        var prt = widgetEl.parentNode;
-        // In IE the blur event fires first, and we cannot cancel it.. so we must put the cursor back in the box
-        if (inputEl != null && prt != null && prt.nodeName != "#document-fragment") {
-          if (inputEl.tagName == "INPUT" || inputEl.tagName == "SELECT" || inputEl.tagName == "TEXTAREA") {
-            if (inputEl.disabled != true) {
-              pui.ignoreFocus = true;
-              inputEl.focus();
-              if (inputEl.createTextRange != null) {
-                // for IE, this makes the cursor to appear - workaround for IE8 bug where the cursor just doesn't show
-                inputEl.select();
-                var tr = inputEl.createTextRange();
-                if (tr != null && tr.collapse !=  null && tr.select != null) {
-                  tr.collapse();
-                  tr.select();
-                }
-              }
-              setTimeout(function() {
-                pui.ignoreFocus = false;
-              }, 0);
-            }
-          }
-        }
+/**
+ * 
+ */
+pui.ValidationTip.prototype.destroy = function() {
+  this._div.removeEventListener('mousedown', this);
+  this._closeButton.removeEventListener('mousedown', this);
+  this._closeButton.removeEventListener('mouseup', this);
+  this._closeButton.removeEventListener('click', this);
+  
+  this._div.removeChild(this._closeButton);
+  this._div.removeChild(this._contentDiv);
+  this._div.parentNode.removeChild(this._div);
+  this.deleteOwnProperties();
+};
+
+/**
+ * 
+ */
+pui.ValidationTip.prototype._init = function() {
+  var reinit = (this._div != null);
+
+  if (reinit) {
+
+    this._closeButton.removeEventListener('mousedown', this);
+    this._closeButton.removeEventListener('mouseup', this);
+    this._closeButton.removeEventListener('click', this);
+    this._closeButton.parentNode.removeChild(this._closeButton);
+    this._closeButton = null;
+
+    this._contentDiv.parentNode.removeChild(this._contentDiv);
+    this._contentDiv = null;
+
+    this._div.removeEventListener('mousedown', this);
+    this._div.parentNode.removeChild(this._div);
+    this._div = null;
+
+  }
+
+  this._div = document.createElement("div");
+
+  this._div.classList.add('pui-tip');
+  if (this._orientation == 'top') this._div.classList.add('pui-tip-top');
+  else if (this._orientation == 'bottom') this._div.classList.add('pui-tip-bottom');
+  else if (this._orientation == 'left') this._div.classList.add('pui-tip-left');
+  else this._div.classList.add('pui-tip-right');
+  this._div.classList.add(this._typeClass);
+  
+  this._div.style.position = "absolute";
+  this._contentDiv = document.createElement("div");
+  this._contentDiv.className = "pui-tip-content";
+  this._closeButton = document.createElement("div");
+  this._closeButton.className = "pui-tip-close";
+
+  this._closeButton.addEventListener('mousedown', this);
+  this._closeButton.addEventListener('mouseup', this);
+  this._closeButton.addEventListener('click', this);
+
+  this._div.addEventListener('mousedown', this);
+
+  if (!reinit) {
+    this._div.style.display = "none";
+    this._div.style.visibility = "hidden";
+  }
+  this._div.appendChild(this._contentDiv);
+  this._div.appendChild(this._closeButton);
+  this.container.appendChild(this._div);
+};
+
+/**
+ * 
+ * @param {Event} e
+ * @returns {Boolean|undefined}
+ */
+pui.ValidationTip.prototype['handleEvent'] = function(e){
+  switch(e.type){
+    case 'mousedown':      
+      if (e.target == this._closeButton){
+        this._closeButton.className = 'pui-tip-close-click';
       }
-
-    }
-    div.onmousedown = function(e) {
-      preventEvent(e);
+      preventEvent(e);  //Prevent mousedown on the div or close button.
       return false;
-    }
-    if (!reinit) {
-      div.style.display = "none";
-      div.style.visibility = "hidden";
-    }
-    div.appendChild(contentDiv);
-    div.appendChild(closeButton);
-    me.container.appendChild(div);
-  }    
-  
-}
+      
+    case 'mouseup':
+      this._closeButton.className = 'pui-tip-close';
+      break;
+      
+    case 'click':
+      // The close button was clicked.
+      this._div.style.display = 'none';
+      this._div.style.visibility = 'hidden';
+      this._opacity = 0;
+      break;
+      
+    case 'scroll':
+      // A container's overflowed element containing the widget was scrolled.
+      
+      break;
+  }
+};

@@ -60,6 +60,13 @@ pui.layout.getContainerOffset = function(containerDom) {
         else if (comp["paddingTop"]) y -= parseInt(comp["paddingTop"], 10);
       }
     }
+    
+    // Responsive layout DIVs that are not offsetParents can have scroll values. #6451.
+    if (elem.parentNode && elem.parentNode != elem.offsetParent && elem.parentNode.className == 'puiresp'){
+      x -= elem.parentNode.scrollLeft;
+      y -= elem.parentNode.scrollTop;
+    }
+    
     elem = elem.offsetParent;
   }
   if (elem != null) {
