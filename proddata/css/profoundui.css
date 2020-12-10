@@ -5202,18 +5202,14 @@ div.Glass>.pui-tablayout-body>div {
   cursor: default;
 }
 
-.combo-option, .combo-option-select {
+.combo-option {
   overflow: hidden;
-  font-size: 12px;
   padding: 2px;
   cursor: default;
-}
-
-.combo-option {
   background: none;
 }
 
-.combo-option-select {
+.combo-option:hover {
   background-image: url('../images/combo/selection_background.gif');
   background-position: center bottom;
   background-repeat: repeat-x;
@@ -5227,6 +5223,7 @@ div.Glass>.pui-tablayout-body>div {
   overflow-y: auto;
   z-index: 130;
   height: 110px;
+  font-size: 12px;
 }
 
 /* CSS for PUIWRKMAP */
@@ -12167,7 +12164,7 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   content: 'chevron_right';
 }
 
-.blueprint-combo-box-combo-options>.combo-option, .blueprint-combo-box-combo-options>.combo-option-select {
+.blueprint-combo-box-combo-options {
   font-family: Montserrat, sans-serif;
 }
 
@@ -12483,7 +12480,7 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   margin-right: -2px !important;
 }
 
-.blueprint-combo-box-combo-options>.combo-option-select {
+.blueprint-combo-box-combo-options>.combo-option:hover {
   background: #3498db;
   color: #fff;
 }
@@ -15060,12 +15057,11 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
   margin-right: -2px !important;
 }
 
-.office-copy-combo-box-combo-options>.combo-option {
+.office-copy-combo-box-combo-options {
   font-family: Roboto, sans-serif;
 }
 
-.office-copy-combo-box-combo-options>.combo-option-select {
-  font-family: Roboto, sans-serif;
+.office-copy-combo-box-combo-options>.combo-option:hover {
   background: #6c757d;
   color: #fff;
 }

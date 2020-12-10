@@ -35,15 +35,15 @@ pui.ComboBoxWidget = function() {
   
   var me = this;
   var box;
+  this._box = null;
+  
   var arrow;
   var choicesDiv;
+  this._choicesDiv = null;
+  
   var spacerDiv = null;
   this["showChoices"] = function() {
     showChoices();
-  };
-
-  this["hideChoices"] = function() {
-    hideChoices();
   };
 
   this.init = function() {
@@ -67,9 +67,10 @@ pui.ComboBoxWidget = function() {
       else me.div.style.height = "19px";
     }
     
-    if (box == null) {
-      box = document.createElement("input");
-      me.div.appendChild(box);
+    if (me._box == null) {
+      me._box = document.createElement("input");
+      me.div.appendChild(me._box);
+      box = me._box;
     }
 
     box.type = "text";
@@ -91,17 +92,12 @@ pui.ComboBoxWidget = function() {
     if (arrow == null) {
       arrow = document.createElement("div");
       me.div.appendChild(arrow);
+      
+      arrow.addEventListener('mousedown', me);
+      arrow.addEventListener('mouseup', me);
     }
     arrow.className = "combo-arrow";
     arrow.combo = true;
-    arrow.onmousedown = function(e) {
-      preventEvent(e);
-    };
-    arrow.onmouseup = function(e) {
-      if (choicesDiv.style.display == "none" && !box.disabled) showChoices();
-      else hideChoices();
-      preventEvent(e);      
-    };
     
     var win;
     var prt = me.div.parentNode;
@@ -118,8 +114,9 @@ pui.ComboBoxWidget = function() {
     
     }
 
-    if (choicesDiv == null) {
-      choicesDiv = document.createElement("div");
+    if (me._choicesDiv == null) {
+      me._choicesDiv = document.createElement("div");
+      choicesDiv = me._choicesDiv;    //todo: move "choicesDiv" references from closure into this._choicesDiv and test.
       choicesDiv.className = "combo-options";
       if (context == "dspf" && inDesignMode()) {
         toolbar.designer.container.appendChild(choicesDiv);
@@ -136,7 +133,7 @@ pui.ComboBoxWidget = function() {
         
         var target = getTarget(e);
         if (target != arrow)
-          hideChoices();
+          me['hideChoices']();
         
       });
     }
@@ -163,18 +160,6 @@ pui.ComboBoxWidget = function() {
       if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
       box.style.width = boxWidth + "px";  //the new width + "px" 
     }
-  };
-  
-  this.setStyleProperty = function(propertyName, propertyValue) {
-    var words = propertyName.split(" ");
-    if (words.length == 2) words[1] = words[1].substr(0,1).toUpperCase() + words[1].substr(1);
-    var styleName = words.join("");
-    
-    if (propertyName == "text transform" && propertyValue == "uppercase"){
-      box.value = pui.replaceProblemCaseChars(box.value, false);  //Prevent German eszett from becoming "SS". lower-case eszett becomes capital eszett.
-    }
-    
-    box.style[styleName] = propertyValue;  
   };
   
   this.setValue = function(value) {
@@ -227,17 +212,12 @@ pui.ComboBoxWidget = function() {
   };
   
   this.getBox = function() {
-    return box;
+    return me._box;
   };
   
   this.setFocus = function() {  
-    box.focus();
+    me._box.focus();
   };
-
-  function hideChoices() {
-    choicesDiv.innerHTML = "";
-    choicesDiv.style.display = "none";
-  }
 
   function setChoicesPos() {
   
@@ -320,54 +300,17 @@ pui.ComboBoxWidget = function() {
       optDiv.choiceValue = me["choice values"][i];
       if (optDiv.choiceValue == null) optDiv.choiceValue =  me["choices"][i];
       optDiv.choiceText =  me["choices"][i];
-      optDiv.style.fontFamily = box.style.fontFamily;
 	  optDiv.className = "combo-option";
-      optDiv.onmouseover = function(e) {
-        var target = getTarget(e);
-		target.className = "combo-option-select";
-      };
-      optDiv.onmouseout = function(e) {
-        var target = getTarget(e);
-		target.className = "combo-option";
-      };
-      optDiv.onmousedown = function(e) {
-        preventEvent(e);
-      };
-      optDiv.onclick = function(e) {
-        var target = getTarget(e);
-        if (!box.readOnly && !me.design) {
-          box.value = target.choiceValue;
-          box.modified = true;
-          me.div.modified = true;
-          pui.updateReactState(me.div);
-          if (me.formatName != null && pui.ctlRecModified != null) {
-            pui.ctlRecModified[me.formatName] = true;
-          }
-          if (context == "genie" && box.fieldInfo != null && box.fieldInfo["idx"] != null) {
-            pui.response[box.fieldInfo["idx"]] = box;
-          }
-
-          var tip = box.validationTip;
-          if (tip != null) {
-            tip.hide();
-            tip.doneShowing = true;
-            pui.removeCssClass(box, tip.getInvalidClass());
-          }
-          pui.checkEmptyText(box);
-        }
-        hideChoices();
-        if (!pui["is_touch"] || pui["is_mouse_capable"]) me.setFocus();
-        if (me.div.selectEvent != null && !box.readOnly && !me.design) {
-          me.div.selectEvent(box.value, target.choiceText, me.div);
-        }
-        preventEvent(e);
-      };
+      optDiv.addEventListener('click', me);
+      optDiv.addEventListener('mousedown', me);
+      optDiv.addEventListener('mouseover', me);
+      optDiv.addEventListener('mouseout', me);
       choicesDiv.appendChild(optDiv);
     }
     var top = parseInt(choicesDiv.style.top, 10);
 
     if (me["select box placement"] === "above") {
-      choicesDiv.style.top = top - me.div.offsetHeight - choicesDiv.offsetHeight + "px"
+      choicesDiv.style.top = top - me.div.offsetHeight - choicesDiv.offsetHeight + "px";
     } else if (me["select box placement"] !== "below") {
       var scrollTop = pui.getWindowScrollTop();
       if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
@@ -376,14 +319,99 @@ pui.ComboBoxWidget = function() {
       }
       choicesDiv.style.top = top + "px";    
     }
-        
   }
   
-
 };
 
+/**
+ * Set the ComboBox input element's CSS style. Fix any problem characters.
+ * @param {String} propertyName
+ * @param {String} propertyValue
+ */
+pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyValue) {
+  var words = propertyName.split(" ");
+  if (words.length == 2) words[1] = words[1].substr(0,1).toUpperCase() + words[1].substr(1);
+  var styleName = words.join("");
 
+  if (propertyName == "text transform" && propertyValue == "uppercase"){
+    this._box.value = pui.replaceProblemCaseChars(this._box.value, false);  //Prevent German eszett from becoming "SS". lower-case eszett becomes capital eszett.
+  }
 
+  this._box.style[styleName] = propertyValue;
+  this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
+};
+
+/**
+ * 
+ */
+pui.ComboBoxWidget.prototype['hideChoices'] = function() {
+  this._choicesDiv.innerHTML = "";
+  this._choicesDiv.style.display = "none";
+};
+
+/**
+ * Handle any events when the listener is "this".
+ * @param {Event} e
+ */
+pui.ComboBoxWidget.prototype['handleEvent'] = function(e){
+  switch (e.type){
+    case 'click':
+      this._optionClick(e);
+      break;
+    case 'mousedown':
+      // Handles the arrow and the option div.
+      preventEvent(e);
+      break;
+    case 'mouseup':
+      // Mouseup on the Arrow element.
+      if (this._choicesDiv.style.display == 'none' && !this._box.disabled) this['showChoices']();
+      else this['hideChoices']();
+      preventEvent(e);      
+      break;
+      
+    // Set the class name of the option elements. CSS rules for these were changed to use :hover, but customers may still use the old class.
+    case 'mouseover':
+      e.target.classList.add('combo-option-select');
+      break;
+    case 'mouseout':
+      e.target.classList.remove('combo-option-select');
+      break;
+  }
+};
+
+/**
+ * Handle the user clicking on an option DIV element.
+ * @param {MouseEvent} e
+ */
+pui.ComboBoxWidget.prototype._optionClick = function(e){
+  var target = getTarget(e);
+  if (!this._box.readOnly && !this.design) {
+    this._box.value = target.choiceValue;
+    this._box.modified = true;
+    this.div.modified = true;
+    pui.updateReactState(this.div);
+    if (this.formatName != null && pui.ctlRecModified != null) {
+      pui.ctlRecModified[this.formatName] = true;
+    }
+    if (context == "genie" && this._box.fieldInfo != null && this._box.fieldInfo["idx"] != null) {
+      pui.response[this._box.fieldInfo["idx"]] = this._box;
+    }
+
+    var tip = this._box.validationTip;
+    if (tip != null) {
+      tip.hide();
+      tip.doneShowing = true;
+      pui.removeCssClass(this._box, tip.getInvalidClass());
+    }
+    pui.checkEmptyText(this._box);
+  }
+  this['hideChoices']();
+  if (!pui["is_touch"] || pui["is_mouse_capable"]) this.setFocus();
+  if (this.div.selectEvent != null && !this._box.readOnly && !this.design) {
+    this.div.selectEvent(this._box.value, target.choiceText, this.div);
+  }
+  preventEvent(e);
+};
 
 
 
