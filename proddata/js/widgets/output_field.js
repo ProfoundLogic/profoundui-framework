@@ -34,9 +34,9 @@ function buildOutputField(parms, value, labelForId) {
 
   // If the "label for" property was set, create a <label> tag
   if (labelForId) {
-	  labelElem = document.createElement("label");
+	  var labelElem = document.createElement("label");
 	  labelElem.htmlFor = labelForId;
-	  textNode = document.createTextNode(text);
+	  var textNode = document.createTextNode(text);
 	  labelElem.appendChild(textNode);
 	  parms.dom.appendChild(labelElem);
   } else {
