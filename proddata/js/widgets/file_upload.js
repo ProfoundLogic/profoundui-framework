@@ -754,7 +754,7 @@ pui["fileupload"].FileUpload = function(container, extras) {
   
     e = e || window.event;
     
-    if (submitHandle != null) {
+    if (submitHandle != null || disabled) {
     
       e.cancelBubble = true;
       e.returnValue = false;
