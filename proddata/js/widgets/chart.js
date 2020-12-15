@@ -127,8 +127,19 @@ pui.widgets.renderChart = function(parms) {
   if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible")
     parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
 
+  // Register a listener for when the layout becomes visible. Check if the chart failed to render. #6095
+  parms.dom.pui.notifyvisible = function(){
+    if (parms.dom.isRendering){
+      if (parms.dom.chart == null) chartObj.render();  //If isRendering is still true, then the chart likely failed to render.
+    }
+    else {
+      delete parms.dom.pui.notifyvisible; //No need to listen for this again if the chart is rendered.
+    }
+  };
+
   function complete() {
     parms.dom.isRendering = false;    //FusionCharts code finished running.
+    delete parms.dom.pui.notifyvisible;   //No need to listen for this after the chart is rendered.
   }
 };
 

@@ -79,13 +79,18 @@ pui.layout.Layout = function() {
    * @param {Object} container
    * @returns {undefined}
    */
-  function notifyContainerVisible(container){
+  function _notifyChildrenVisible(container){
     for (var j = 0; j < container.childNodes.length; j++) {
       var child = container.childNodes[j];
       if (child.layout != null && typeof child.layout.notifyvisibleOnce == "function") {
         child.layout.notifyvisibleOnce();
         delete child.layout.notifyvisibleOnce; //Only need to notify once.
       }
+      
+      if (child.pui && typeof child.pui.notifyvisible == 'function'){
+        child.pui.notifyvisible();  //Some widgets do not like to render while the container has CSS display:none. #6095.
+      }
+      
       if (child.positionMe != null && typeof child.positionMe == "function"){
         child.positionMe();   //Make sure date_field calendar icons are positioned correctly.
       }
@@ -237,7 +242,7 @@ pui.layout.Layout = function() {
       for (var i = 0; i < containerNums.length; i++) {
         if (containerNums[i] >= 0 && me.containers.length > containerNums[i]){
           var container = me.containers[ containerNums[i] ];
-          notifyContainerVisible(container);
+          _notifyChildrenVisible(container);
         }
       }
     }
@@ -253,7 +258,7 @@ pui.layout.Layout = function() {
       var centerHorizontally = null;
       if (item.propertiesChanged["center horizontally"]) centerHorizontally = item.properties["center horizontally"];
       if (centerHorizontally === "true") {
-        halfWidth = parseInt(me.layoutDiv.offsetWidth / 2);
+        var halfWidth = parseInt(me.layoutDiv.offsetWidth / 2);
         if (!isNaN(halfWidth) && halfWidth > 0) {
           me.layoutDiv.style.left = "calc(50% - " + halfWidth + "px)";
         }
@@ -306,7 +311,7 @@ pui.layout.Layout = function() {
     if (accordion) accordion.resize();
     if (responsivelayout) responsivelayout.resize();
     if (tabLayout) tabLayout.resize();
-  }
+  };
 
   this.setProperty = function(property, value) {
     if (value == null) value = "";
