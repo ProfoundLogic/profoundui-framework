@@ -661,6 +661,9 @@ pui["fileupload"].FileUpload = function(container, extras) {
     input.type = "file";
     input.className = "control";
     input.style.display = "none";   //Avoid odd Firefox problem where input overlaps link and cursor isn't a pointer.
+    // See Redmine #6441 - Retain "multiple" attribute when replacing input element.
+    if (selector.input != null)
+      input.multiple = selector.input.multiple;
     
     input.addEventListener("change", fileOnChange, false);
     
