@@ -1373,18 +1373,33 @@ pui.FieldFormat = {
     format: function(obj) {
       if(obj.customFunction !== ''){
         var value, func;
+        var msg;
         try{
           func = eval('(' + obj.customFunction + ')');
         }
         catch(err1){
-          return { msg: pui["getLanguageText"]("runtimeMsg", "invalid custom val") + "\n\n" + err1.message || err1.description };
+          msg = pui["getLanguageText"]("runtimeMsg", "invalid custom val") + "\n\n" + err1.message || err1.description;
+          if (obj["revert"]) {
+            return { msg: msg };
+          }
+          else {
+            console.error(msg);
+            return obj.value;
+          }
         }
         if(typeof func === 'function'){
           try{
             value = func(obj);
           }
           catch(err2){
-            return { msg: pui["getLanguageText"]("runtimeMsg", "error custom val") + "\n\n" + err2.message || err2.description };
+            msg = pui["getLanguageText"]("runtimeMsg", "error custom val") + "\n\n" + err2.message || err2.description;
+            if (obj["revert"]) {
+              return { msg: msg };
+            }
+            else {
+              console.error(msg);
+              return obj.value;
+            }
           }
           return value;
         }
