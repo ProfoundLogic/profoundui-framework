@@ -168,6 +168,7 @@ pui.Accordion = function() {
   };
   
   this.expandSection = function(sectionNumber) {
+    expandedSection = sectionNumber;    //This must happen before notifyContainersVisible, which causes getActiveContainerNumbers to be called.
     for (var i = 0; i < bodyDivs.length; i++) {
       var bodyDiv = bodyDivs[i];
       var headerButton = headerButtons[i];
@@ -193,7 +194,6 @@ pui.Accordion = function() {
       }
     }
     me.setStraightEdge(straightEdge);
-    expandedSection = sectionNumber;
     me.resize();
   };
   
