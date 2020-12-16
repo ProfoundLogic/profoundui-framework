@@ -1685,7 +1685,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (effectiveValue == "") {
       try {
         if (propConfig.attribute === "style") {
-          removeInlineCSS(domObj);
+          pui.removeInlineCSS(domObj);
         } else {
           domObj.removeAttribute(propConfig.attribute);
         }
@@ -1710,7 +1710,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         } else {
           if (propConfig.attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
           if (propConfig.attribute === "style") {
-            addInlineCSS(domObj, valueToAssign, (properties["field type"] === "layout"));
+            pui.addInlineCSS(domObj, valueToAssign, (properties["field type"] === "layout"));
           } else {
             domObj.setAttribute(propConfig.attribute, valueToAssign);
           }
@@ -2217,7 +2217,7 @@ pui.restrictedLayoutStylenames = ["overflow", "overflow-x", "overflow-y"];
  * @param {Boolean} isLayout     True when the widget is a Layout. Overflow is ignored on Layouts.
  * @returns {undefined}
  */
-function addInlineCSS(domObj, valueToAssign, isLayout) {
+pui.addInlineCSS = function (domObj, valueToAssign, isLayout) {
   // Quickly clear any old inline styles.
   if (domObj.pui.styleInline && domObj.pui.styleInline !== null) {
     // For each style explicitly set earlier, remove it from dom.style.
@@ -2255,7 +2255,7 @@ function addInlineCSS(domObj, valueToAssign, isLayout) {
   } else {
     domObj.pui.styleCached = {};
   }
-}
+};
 
 /**
  * Remove all user-defined styles from the object that were set in "inline style".
@@ -2266,7 +2266,7 @@ function addInlineCSS(domObj, valueToAssign, isLayout) {
  * @param {Object} domObj
  * @returns {undefined}
  */
-function removeInlineCSS(domObj) {
+pui.removeInlineCSS = function(domObj) {
   if (typeof (domObj.pui.styleInline) !== "object" || domObj.pui.styleInline === null)
     return;
 
@@ -2284,7 +2284,7 @@ function removeInlineCSS(domObj) {
   } else {
     domObj.pui.styleCached = {};
   }
-}
+};
 
 /**
  * Store the PUI style property. This allows us to restore and/or remove
