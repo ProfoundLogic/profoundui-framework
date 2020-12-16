@@ -80,7 +80,7 @@ pui.layout.template.applyTemplate = function(parms) {
   // Make sure each layout object's .container property references the correct DOM element.
   
   if (dom.layout != null){
-    dom.layout.notifyvisibleOnce = dom.layout.stretch;  //Make sure layout and its children get size setup once it becomes visible. #4711.
+    dom.layout.notifyvisibleOnce = dom.layout.stretch.bind(dom.layout);  //Make sure layout and its children get size setup once it becomes visible. #4711.
   }
   
   if (newDom.panel != null) {

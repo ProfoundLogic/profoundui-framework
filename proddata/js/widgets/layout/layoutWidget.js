@@ -98,7 +98,7 @@ pui.widgets.add({
           parms.dom.layout.setProperty("height", parms.properties["height"]);
           
           if (parms.properties["inline style"])
-            addInlineCSS(parms.dom, parms.properties["inline style"], true);
+            pui.addInlineCSS(parms.dom, parms.properties["inline style"], true);
           
         }
       }
@@ -109,8 +109,7 @@ pui.widgets.add({
         parms.dom.layout.template = parms.value;
       }
       else if (!parms.design) {
-        addEvent(window, "resize", parms.dom.layout.onresize);
-        addEvent(document, "orientationchange", parms.dom.layout.onresize);
+        window.addEventListener('resize', parms.dom.layout);
       }
       var nmodel = makeNamedModel(pui.layout.getPropertiesModel());
       for (var prop in parms.properties) {
