@@ -205,7 +205,7 @@ pui.textArea_cleanUp = function(e) {
   }
   var oldVal = obj.value.replace(/\r/g, "");
   // Prevent more typing if the text lines are filled to capacity.
-  if (ename == "keydown" && !obj.controlKeyDown && isNormalKey(key)) {
+  if (ename == "keydown" && !obj.controlKeyDown && !(obj.selectionStart !== obj.selectionEnd) && isNormalKey(key)) {
     if (lines.length >= lineLengths.length && cursorLine != null) {
       var full = true;
       for (var i = cursorLine; i < lineLengths.length; i++) {
