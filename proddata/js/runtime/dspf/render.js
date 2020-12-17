@@ -2300,6 +2300,11 @@ pui.renderFormat = function(parms) {
               });
               addEvent(dom, "keydown", function(event) {
                 event = event || window.event;
+                var target = getTarget(event);
+                // Don't prevent keyboard actions like cut/copy/paste.
+                // Don't prevent typing into field when text is selected.
+                if (event.ctrlKey || target.selectionStart !== target.selectionEnd)
+                  return;
                 var key = event.keyCode;
                 if ( (key >= 48 && key <= 57)    ||   // 0-9
                      (key >= 65 && key <= 90)    ||   // a-z
@@ -2307,7 +2312,6 @@ pui.renderFormat = function(parms) {
                      (key >= 106 && key <= 111)  ||   // * + - . /
                      (key >= 186 && key <= 192)  ||   // ; = , - . / `
                      (key >= 219 && key <= 222) ) {   // [ \ ] '
-                  var target = getTarget(event);
                   var maxLength = Number(target.maxLength);
                   if (!isNaN(maxLength) && maxLength > 0 && target.value != null && target.value.length == maxLength) {
                     preventEvent(event);
