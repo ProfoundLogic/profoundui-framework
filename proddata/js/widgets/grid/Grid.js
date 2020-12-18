@@ -44,6 +44,30 @@ pui.BaseGrid.prototype = Object.create(pui.BaseClass.prototype);  //Inherit the 
   }
   return false;
 };
+
+/**
+ * @param {Object} itm
+ * @param {String} propertyName
+ * @param {type} value
+ * @returns {Boolean}
+ */
+pui.BaseGrid.prototype.sendPropertyToDesigner = function(itm, propertyName, value) {
+  var stringValue = String(value);
+  if (itm.properties[propertyName] != stringValue) {
+    if (pui.isBound(itm.properties[propertyName])) {
+      if (propertyName == "top" || propertyName == "left") itm.properties[propertyName].designValue = stringValue;
+    }
+    else {
+      itm.properties[propertyName] = stringValue;
+    }
+    itm.propertiesChanged[propertyName] = true;
+    itm.changed = true;
+    itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
+    return true;
+  }
+  return false;
+};
+
 //
 // End of BaseGrid class.
 //
@@ -2443,38 +2467,21 @@ pui.Grid = function () {
     numCols = String(numCols);
     
     var changed = false;
-    changed = sendPropertyToDesigner(itm, "number of rows", numRows) || changed;
-    changed = sendPropertyToDesigner(itm, "number of columns", numCols) || changed;
-    changed = sendPropertyToDesigner(itm, "row height", me.rowHeight) || changed;
-    changed = sendPropertyToDesigner(itm, "header height", me.headerHeight) || changed;
-    changed = sendPropertyToDesigner(itm, "column widths", me.getColumnWidths()) || changed;
-    changed = sendPropertyToDesigner(itm, "left", me.tableDiv.style.left) || changed;
-    changed = sendPropertyToDesigner(itm, "top", me.tableDiv.style.top) || changed;
-    changed = sendPropertyToDesigner(itm, "height", subfileHeight) || changed;
-    changed = sendPropertyToDesigner(itm, "width", me.tableDiv.style.width) || changed;
+    changed = me.sendPropertyToDesigner(itm, "number of rows", numRows) || changed;
+    changed = me.sendPropertyToDesigner(itm, "number of columns", numCols) || changed;
+    changed = me.sendPropertyToDesigner(itm, "row height", me.rowHeight) || changed;
+    changed = me.sendPropertyToDesigner(itm, "header height", me.headerHeight) || changed;
+    changed = me.sendPropertyToDesigner(itm, "column widths", me.getColumnWidths()) || changed;
+    changed = me.sendPropertyToDesigner(itm, "left", me.tableDiv.style.left) || changed;
+    changed = me.sendPropertyToDesigner(itm, "top", me.tableDiv.style.top) || changed;
+    changed = me.sendPropertyToDesigner(itm, "height", subfileHeight) || changed;
+    changed = me.sendPropertyToDesigner(itm, "width", me.tableDiv.style.width) || changed;
     if (changed){
       itm.designer.makeDirty();
       if (context === 'dspf') pui.ide.refreshRibbon();
     }
     if (changed || forced) itm.designer.propWindow.refresh();
   };
-
-  function sendPropertyToDesigner(itm, propertyName, value) {
-    var stringValue = String(value);
-    if (itm.properties[propertyName] != stringValue) {
-      if (pui.isBound(itm.properties[propertyName])) {
-        if (propertyName == "top" || propertyName == "left") itm.properties[propertyName].designValue = stringValue;
-      }
-      else {
-        itm.properties[propertyName] = stringValue;
-      }
-      itm.propertiesChanged[propertyName] = true;
-      itm.changed = true;
-      itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
-      return true;
-    }
-    return false;
-  }
 
   function createHandle(type) {
     var handle = document.createElement("div");
@@ -9147,56 +9154,6 @@ pui.Grid = function () {
       return col["name"];
     });
   };
-
-  this.customSqlCallback = function (request) {
-    var response, error;
-      var headings = "", columnWidths = "";
-    var itm = me.tableDiv.designItem;
-
-    if (request.getStatus() != 200) {
-      error = "HTTP " + request.getStatus() + " - " + request.getStatusText() + ".";
-      }
-      else {
-      try {
-        response = eval("(" + request.getResponseText() + ")");
-        }
-        catch(e) {
-        error = "The server response is missing or invalid."; // Invalid JSON response.
-      }
-      if (error == null && response.success != true) { // Program-reported error.
-        error = response.errorText;
-      }
-    }
-    if (error != null) {
-      pui.alert("Unable to retrieve field listing:\n" + error);
-      return;
-    }
-    for (var i = 0; i < response.fields.length; i++) {
-      if (headings != '') {
-        headings += ',';
-      }
-    	headings += trim(response.fields[i]["DB2_LABEL"]) 
-    	         || trim(response.fields[i]["DB2_COLUMN_NAME"]) 
-                 || trim(response.fields[i]["DB2_SYSTEM_COLUMN_NAME"]);
-
-      if (columnWidths != '') {
-        columnWidths += ',';
-      }
-      // this is just an estimated width...doesn't have to be exact
-      columnWidths += (parseInt(response.fields[i]["LENGTH"]) * 10);
-    }
-    me.setProperty("column headings", headings);
-    sendPropertyToDesigner(itm, "column headings", headings);
-    itm.designer.propWindow.refreshProperty("column headings");
-
-    me.setProperty("number of columns", response.fields.length);
-    sendPropertyToDesigner(itm, "number of columns", response.fields.length);
-    itm.designer.propWindow.refreshProperty("number of columns");
-
-    me.setProperty("column widths", columnWidths);
-    sendPropertyToDesigner(itm, "column widths", columnWidths);
-    itm.designer.propWindow.refreshProperty("column widths");
-  };
   
   this.showMultiSortPanel = function() {
     if (me.tableDiv.parentNode == null) return;
@@ -9631,30 +9588,10 @@ pui.Grid = function () {
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, help: pui.helpTextProperties("[default connection]", "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections."), context: "dspf", nodedesigner: true, viewdesigner: false},
       { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", multOccur: (context=="dspf"), uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank","Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used.") },
       { name: "database join", type: "join", bind: false, help: pui.helpTextProperties("blank", "The Database Join specifications between multiple tables to be used for a dynamic, database-driven grid."), controls: ["chart", "grid"], context: "dspf" },
-      { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), descriptionsHandler: function (descriptions) {
-          if (!confirm("Update grid columns?")) return; 
-          // update the column headings   
-          me.setProperty("column headings", descriptions);
-          var itm = me.tableDiv.designItem;
-          sendPropertyToDesigner(itm, "column headings", descriptions);
-          itm.designer.propWindow.refreshProperty("column headings"); 
-          // update the number of columns based on the number of headings   
-          var count = descriptions.split(',').length;
-          me.setProperty("number of columns", count);
-          sendPropertyToDesigner(itm, "number of columns", count);
-          itm.designer.propWindow.refreshProperty("number of columns");
-        }},
+      { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), help: pui.helpTextProperties("blank", "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", [], ""), hasOKHandler: true},
       { name: "selection criteria", type: "long", help: pui.helpTextProperties("blank","Optional expression identifying which records should be retrieved from the database file.") },
       { name: "order by", type: "field", multiple: true, uppercase: true, help: pui.helpTextProperties("blank","Optional expression identifying which fields determine the order of the records retrieved from the database file.") },
-      { name: "custom sql", type: "long", help: pui.helpTextProperties("blank","Specifies a sql statement to use to retrieve the records for a database-driven grid."), 
-          customSqlHandler: function (customSql) {   
-              if (!confirm("Adjust grid based on columns?")) return;   
-              var parm = {     "customSql": customSql   };   
-              if (pui.nodedesigner && typeof me["dataProps"]["database connection"] === "string")
-                parm["connection"] = trim(me["dataProps"]["database connection"]);
-              pui.getFieldDescriptions(parm, me.customSqlCallback); 
-          } 
-      },
+      { name: "custom sql", type: "long", help: pui.helpTextProperties("blank","Specifies a sql statement to use to retrieve the records for a database-driven grid."),  hasOKHandler: true },
 
       { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>") },
       { name: "parameter value", type: "long", secLevel: 1, multOccur: true, help: pui.helpTextProperties("blank","Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.") },
@@ -9735,6 +9672,93 @@ pui.Grid = function () {
   
 };
 pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui.BaseGrid.
+
+/**
+ * Handle request to get field listings for "custom sql" property change after user clicks OK on dialog.
+ * @param {RPGspRequest} request
+ */
+pui.Grid.prototype.customSqlCallback = function (request) {
+  var response, error;
+  var headings = "", columnWidths = "";
+  var itm = this.tableDiv.designItem;
+
+  if (request.getStatus() != 200) {
+    error = "HTTP " + request.getStatus() + " - " + request.getStatusText() + ".";
+  }
+  else {
+    try {
+      response = eval("(" + request.getResponseText() + ")");
+    }
+    catch(e) {
+      error = "The server response is missing or invalid."; // Invalid JSON response.
+    }
+    if (error == null && response.success != true) { // Program-reported error.
+      error = response.errorText;
+    }
+  }
+  if (error != null) {
+    pui.alert("Unable to retrieve field listing:\n" + error);
+    return;
+  }
+  for (var i = 0; i < response.fields.length; i++) {
+    if (headings != '') {
+      headings += ',';
+    }
+    headings += trim(response.fields[i]["DB2_LABEL"]) 
+             || trim(response.fields[i]["DB2_COLUMN_NAME"]) 
+             || trim(response.fields[i]["DB2_SYSTEM_COLUMN_NAME"]);
+
+    if (columnWidths != '') {
+      columnWidths += ',';
+    }
+    // this is just an estimated width...doesn't have to be exact
+    columnWidths += (parseInt(response.fields[i]["LENGTH"]) * 10);
+  }
+  this.setProperty("column headings", headings);
+  this.sendPropertyToDesigner(itm, "column headings", headings);
+  itm.designer.propWindow.refreshProperty("column headings");
+
+  this.setProperty("number of columns", response.fields.length);
+  this.sendPropertyToDesigner(itm, "number of columns", response.fields.length);
+  itm.designer.propWindow.refreshProperty("number of columns");
+
+  this.setProperty("column widths", columnWidths);
+  this.sendPropertyToDesigner(itm, "column widths", columnWidths);
+  itm.designer.propWindow.refreshProperty("column widths");
+};
+
+/**
+ * Handle when a user clicked OK on a Properties Window dialog editing properties that have "hasOKHandler: true". Test cases see 5613.
+ * @param {String} propName
+ * @param {String} value
+ */
+pui.Grid.prototype.propDialogOnOK = function(propName, value){
+  switch (propName){
+    case 'custom sql':
+      if (confirm("Adjust grid based on columns?")){
+        var parm = { "customSql": value };
+        if (pui.nodedesigner && typeof this["dataProps"]["database connection"] === "string")
+          parm["connection"] = trim(this["dataProps"]["database connection"]);
+        pui.getFieldDescriptions(parm, this.customSqlCallback.bind(this) );
+      }
+      break;
+
+    case 'database fields':
+      if (confirm("Update grid columns?")){
+        // update the column headings
+        this.setProperty("column headings", value);
+        var itm = this.tableDiv.designItem;
+        this.sendPropertyToDesigner(itm, "column headings", value);
+        itm.designer.propWindow.refreshProperty("column headings");
+        // update the number of columns based on the number of headings
+        var count = value.split(',').length;
+        this.setProperty("number of columns", count);
+        this.sendPropertyToDesigner(itm, "number of columns", count);
+        itm.designer.propWindow.refreshProperty("number of columns");
+      }
+      break;
+  }
+};
 
 /**
  * When the grid contains any hidden rows, iterate over the rendered rows, skipping hidden ones, calling callbacks for visible rows.

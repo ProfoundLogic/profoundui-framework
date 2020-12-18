@@ -4269,29 +4269,27 @@ pui.xlsx_drawing = function(){
  *  
  */
 pui.getFieldDescriptions = function(parm, cb){
+  var url;
   var library=parm["library"] || "", 
       file=parm["file"] || "", 
       customSql=parm["customSql"] || "",
       connection=parm["connection"] || "";
-    if (context == "genie") url = getProgramURL("PUI0009101.PGM");
-    if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
-    var request = new pui.Ajax(url);
-    request["async"] = true;
-    request["method"] = "post";
-    request["postData"] = "file=" + encodeURIComponent(file);
-    request["postData"] += "&library=" + encodeURIComponent(library);
-    request["postData"] += "&customSql=" + encodeURIComponent(customSql);
-    request["postData"] += "&connection=" + encodeURIComponent(connection);
-    if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
-    
-    if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
-    request["postData"] += "&context=" + context;
-    request["suppressAlert"] = true;
-  var theCallback = function() {
-    cb(request);
-  };
-    request["onready"] = theCallback;
-    request.send();
+  if (context == "genie") url = getProgramURL("PUI0009101.PGM");
+  if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
+  var request = new pui.Ajax(url);
+  request["async"] = true;
+  request["method"] = "post";
+  request["postData"] = "file=" + encodeURIComponent(file);
+  request["postData"] += "&library=" + encodeURIComponent(library);
+  request["postData"] += "&customSql=" + encodeURIComponent(customSql);
+  request["postData"] += "&connection=" + encodeURIComponent(connection);
+  if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+
+  if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
+  request["postData"] += "&context=" + context;
+  request["suppressAlert"] = true;
+  request["onready"] = cb;
+  request.send();
 };
 
 
