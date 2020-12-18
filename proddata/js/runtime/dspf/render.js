@@ -4781,12 +4781,14 @@ pui["run"] = function(config) {
     if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
     if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function")
       genPreview = window.parent.noderun["generatePreview"];
-    if (!genPreview) {
+    var preview;
+    if (genPreview)
+      preview = genPreview(config["previewTab"]);
+    if (!preview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
     }
     else {
-      var preview = genPreview();
       preview.container = container;
       pui.isPreview = true;
       var dummySubmit = false;
@@ -5135,6 +5137,8 @@ pui.start = function() {
     config["program"] = program;
     if (jsonURL != null) config["jsonURL"] = jsonURL;
     if (mode != null) config["mode"] = mode;
+    if (config["mode"] === "preview")
+      config["previewTab"] = parms["previewTab"];
     pui["run"](config);
   }
 };
