@@ -91,6 +91,7 @@ var en_US = function(dict) {
             dictMsg["one path main to child"]       = "Only one path from the main file may exist to each child file.";
             dictMsg["join instructions"]            = "Drag a field from one table to another to create an inner join. Click the square to "
                     + "change the join type. Fields from extra files cannot appear in a generated grid, detail, or edit page without a join.";
+            dictMsg["no data"]                      = "No Data";
 
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Number of allowed sessions exceeded.";
