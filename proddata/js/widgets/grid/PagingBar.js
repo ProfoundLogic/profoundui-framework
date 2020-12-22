@@ -60,7 +60,7 @@ pui.PagingBar = function() {
   var exportLink;
   var exportImgXLSX;
   var exportLinkXLSX;
-  var tempStatusDiv;
+  this._tempStatusDiv = null;
   
   var spacesSpan1;
   var spacesSpan2;
@@ -116,10 +116,12 @@ pui.PagingBar = function() {
 
     me.container.appendChild(div);
     
-    tempStatusDiv = document.createElement("div");   //An element that is shown temporarily for feedback.
-    tempStatusDiv.className = "tempStatus";
-    div.appendChild(tempStatusDiv);
-
+    me._tempStatusDiv = document.createElement("div");   //An element that is shown temporarily for feedback.
+    me._tempStatusDiv.className = "tempStatus";
+    me._tempStatusDiv.innerHTML = '<span></span><span></span>';
+    me._tempStatusDiv.addEventListener('click', me);
+    div.appendChild(me._tempStatusDiv);
+    
     exportImg = document.createElement("div");
     exportImg.style.cursor = "pointer";
     exportImg.style.position = "absolute";
@@ -432,13 +434,9 @@ pui.PagingBar = function() {
   };
   
   this.destroy = function() {
+    me._tempStatusDiv.removeEventListener('click', me);
     div.innerHTML = "";
     if (div.parentNode != null) div.parentNode.removeChild(div);
-    me.prevImg = null;
-    me.prevLink = null;
-    me.nextImg = null;
-    me.nextLink = null;
-    
     div = null;
     exportImg = null;
     exportLink = null;
@@ -447,10 +445,8 @@ pui.PagingBar = function() {
     spacesSpan1 = null;
     spacesSpan2 = null;
     pageSpan = null;
-    
-    tempStatusDiv = null;
-    
-    me = null;  
+    me.deleteOwnProperties();
+    me = null;
   };
   
   this.setClassName = function(cssClass) {
@@ -469,7 +465,7 @@ pui.PagingBar = function() {
   };
   
   this.draw = function() {
-    tempStatusDiv.style.display = "none";    //By default, the temporary status div should not be visible.
+    me._tempStatusDiv.style.display = "none";    //By default, the temporary status div should not be visible.
 
     me.setClassName(me.grid.tableDiv.className);
 
@@ -608,22 +604,14 @@ pui.PagingBar = function() {
     return div.offsetHeight;
   
   };
-  
-  /**
-   * Set the text on the temporary status div.
-   * @param {String} str   
-   * @returns {Object}
-   */
-  this.setTempStatus = function(str){
-    tempStatusDiv.innerHTML = str;
-    return tempStatusDiv;
-  };
-  
+    
   /**
    * Show the temporary status div and hide everything else in the PagingBar.
-   * @returns {undefined}
+   * @param {undefined|String} onHideText  Text that is displayed after the temporary status DIV is clicked
+   *                                       or hideTempStatus is called; e.g. "Cancelled".
+   * @param {undefined|String} clickCb     Function called after the temporary status DIV is clicked; e.g. abort download.
    */
-  this.showTempStatusDiv = function(){
+  this.showTempStatusDiv = function(onHideText, clickCb){
     exportImg.style.display = "none";
     exportLink.style.display = "none";
     exportImgXLSX.style.display = "none";
@@ -635,7 +623,10 @@ pui.PagingBar = function() {
     me.nextLink.style.display = "none";
     pageSpan.style.display = "none";
     
-    tempStatusDiv.style.display = "block";
+    me._tempDelayedHideText = onHideText;
+    me._tempDelayedHideCb = clickCb;
+    me._tempStatusDiv.style.cursor = 'pointer';
+    me._tempStatusDiv.style.display = 'block';
   };
   
   /**
@@ -647,4 +638,67 @@ pui.PagingBar = function() {
     dragDropCallback(div);
   };
 };
+pui.PagingBar.prototype = Object.create(pui.BaseClass.prototype);
 
+/**
+ * @param {String} text
+ * @param {String} className
+ */
+pui.PagingBar.prototype.setTempStatusIcon = function(text, className){
+  var span = this._tempStatusDiv.childNodes[0];
+  span.className = className;
+  span.innerHTML = text;
+};
+
+/**
+ * Set the text on the temporary status div. Called by the grid.
+ * @param {String} text
+ */
+pui.PagingBar.prototype.setTempStatus = function(text){
+  this._tempStatusDiv.childNodes[1].innerHTML = text;
+};
+
+/**
+ * @param {Event} e
+ */
+pui.PagingBar.prototype['handleEvent'] = function(e){
+  switch (e.type){
+    case 'click':
+      if (e.target == this._tempStatusDiv || e.target.parentNode == this._tempStatusDiv ){
+        // The temp status bar or the [x] icon was clicked, so hide the bar.
+        this.hideTempStatusSlowly();
+      }
+      break;
+  }
+};
+
+/**
+ * Hide the temp status DIV after a delay. The DIV should have CSS transition defined for opacity, making a slow fade.
+ */
+pui.PagingBar.prototype.hideTempStatusSlowly = function(){
+  this._tempStatusDiv.style.cursor = '';
+  this._tempStatusDiv.style.opacity = '0';
+  this.setTempStatusIcon('','');
+  if (this._tempDelayedHideText != null) this.setTempStatus(this._tempDelayedHideText);
+  if (typeof this._tempDelayedHideCb == 'function') this._tempDelayedHideCb();
+  var delayedHide = function(){
+    this.draw();
+    this._tempStatusDiv.style.opacity = '';
+  };
+  setTimeout(delayedHide.bind(this), 2500);
+};
+
+/**
+ * Implement a method called by pui.xlsx_drawing when downloading images and pui.xlsx_workbook when downloading DBD-data or compressing large files.
+ * @param {String} str
+ */
+pui.PagingBar.prototype.setDownloadStatus = function(str){
+  this.setTempStatus(str);
+};
+
+/**
+ * Implement a method called by pui.xlsx_workbook called when the download process is finished--the browser prompted the user to download.
+ */
+pui.PagingBar.prototype.fireDownloadCleanup = function(){
+  this.draw();
+};

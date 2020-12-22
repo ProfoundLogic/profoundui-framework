@@ -1416,6 +1416,41 @@ pui.getOffset = function(obj, handleZoom) {
 
 
 /**
+ * Provides common methods for child classes.
+ * @constructor
+ * @returns {pui.BaseClass}
+ */
+pui.BaseClass = function(){};
+
+/**
+ * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
+ */
+pui.BaseClass.prototype.deleteOwnProperties = function(){
+  if (this != window){
+    var propnames = Object.getOwnPropertyNames(this);
+    for (var i=0, n=propnames.length; i < n; i++){
+      try {
+        delete this[propnames[i]];  //Removes any properties that were assigned like: "this.foo = bar";.
+      }
+      catch(exc) {
+        console.log(exc);
+      }
+    }
+  }
+};
+
+/**
+ * Returns false. Can be used as a listener to 'selectstart' to disable selection, etc.
+ * @returns {Boolean}
+ */
+pui.BaseClass.prototype.returnFalse = function(){
+  return false;
+};
+//
+// end of BaseClass
+//
+
+/**
  * Multi-Part Class
  * @constructor
  */
@@ -3451,255 +3486,223 @@ pui.setHtmlWithEjs = function(dom, html) {
 };
 
 /**
- * Create a XLSX workbook object that can contain a worksheet and images.
+ * A class that creates an XLSX workbook, which must contain a worksheet and can contain images and hyperlinks.
  * @constructor
- * @returns {undefined}
  */
 pui.xlsx_workbook = function(){
-  var fileName = "sheet";
-  var worksheet;
-  var drawing;
-  var hyperlinks;   // An array of { text:"", target:"", row:"", col:""}.
+  this.fileName = "sheet";
+  this.worksheet = null;  //xlsx_worksheet - required before download
+  this.drawing = null;    //xlsx_drawing or undefined
+  
+  // Allows hyperlink targets (the URLs) to be generated as "relationships" in the workbook.
+  // An array of { text:"", target:"", row:"", col:""}.
   // Let the relationship id, rId#, be +2 over the array index. E.g. hyperlink[0] is "rId2".
-  
-  var setPgBarStatus;           //The grid's paging bar's setTempStatus function.
-  var restorePgBar;             //The grid's paging bar's draw function.
-  
-  this.setFileName = function(fname){
-    fileName = fname;
-  };
-  
-  /**
-   * Set this workbook to contain a XLSX Worksheet.
-   * @param {pui.xlsx_worksheet} wks
-   * @returns {undefined}
-   */
-  this.setWorksheet = function(wks){
-    worksheet = wks;
-  };
-  
-  /**
-   * Set this workbook to contain an XLSX Drawing.
-   * @param {pui.xlsx_drawing} drwng
-   * @returns {undefined}
-   */
-  this.setDrawing = function(drwng){
-    drawing = drwng;
-  };
-  
-  /**
-   * Allows hyperlink targets (the URLs) to be generated as "relationships" in the workbook.
-   * @param {Array} hlinks    Array of objects with .row, .col, and .target properties.
-   * @returns {undefined}
-   */
-  this.setHyperlinks = function(hlinks){
-    hyperlinks = hlinks;
-  };
-  
-  /**
-   * Set callbacks to functions in the PagingBar to show download progress.
-   * @param {Function} setDLProg
-   * @param {Function} draw
-   * @returns {undefined}
-   */
-  this.setCallbacks = function(setDLProg, draw){
-    setPgBarStatus = setDLProg;
-    restorePgBar = draw;
-  };
-  
-  /**
-   * Create a xlsx file from the worksheet and cause a Save As dialog to appear in the browser asynchronously.
-   * Loads the necessary JavaScript libraries if they are not loaded already.
-   * @returns {undefined}
-   */
-  this.download = function(){
-    // If necessary, load the required JSZip library and FileSaver "polyfill".
-    var path = "/jszip/jszip.min.js";
-    if (typeof JSZip == "function")
-      loadSaveAsJS();
-    else
-      pui["loadJS"]({
-        "path": path,
-        "callback": loadSaveAsJS,
-        "onerror": function(){
-          console.log("Failed to load "+path);
-        }
-      });
-  };
-  
-  function loadSaveAsJS(){
-    var path = "/jszip/FileSaver.min.js";
-    // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
-    // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
-    if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null )
-      librariesLoaded();
-    else
-      pui["loadJS"]({
-        "path": path,
-        "callback": librariesLoaded,
-        "onerror": function(){
-          console.log("Failed to load "+path);
-        }
-      });
-  }
-  
-  function librariesLoaded(){
-    if (drawing){
-      drawing.loadImages( fullyloaded, setPgBarStatus );
-    }else{
-      fullyloaded();
-    }
-  }
-  
-  // JSZip and the FileSaver are loaded, so build the Excel workbook.
-  function fullyloaded(){    
-    if (typeof setPgBarStatus == 'function') setPgBarStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
+  this.hyperlinks = null;
 
-    // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
-    // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
+  // An object that implements setDownloadStatus and fireDownloadCleanup; e.g. the grid's paging bar.
+  this.feedbackObj = null;
+};
+pui.xlsx_workbook.prototype = Object.create(pui.BaseClass.prototype);
 
-    //[Content_Types].xml
-    var content_types = pui.xmlstart
-    +'<Types xmlns="'+pui.xlsx_domain+'/package/2006/content-types">'
-    +  '<Default Extension="rels" ContentType="'+pui.mime_openxml+'-package.relationships+xml"/>'
-    +  '<Default Extension="xml" ContentType="application/xml"/>';
-    if (drawing){
-      var extraExtensions = drawing.getExtensions();
-      for (var ext in extraExtensions ){
-        content_types += '<Default Extension="'+ext+'" ContentType="'+extraExtensions[ext]+'"/>';
+/**
+ * Create a xlsx file from the worksheet and cause a Save As dialog to appear in the browser asynchronously.
+ * Loads the necessary JavaScript libraries if they are not loaded already.
+ * @returns {undefined}
+ */
+pui.xlsx_workbook.prototype.download = function(){
+  // If necessary, load the required JSZip library and FileSaver "polyfill".
+  var path = "/jszip/jszip.min.js";
+  if (typeof JSZip == "function"){
+    this._loadSaveAsJS();
+  }
+  else {
+    var cleanup = this._cleanup.bind(this);
+    pui["loadJS"]({
+      "path": path,
+      "callback": this._loadSaveAsJS.bind(this),
+      "onerror": function(){
+        console.log("Failed to load "+path);
+        cleanup();
       }
-    }
-    content_types +=
-       '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
-    +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+pui.mime_xlsx_base+'.worksheet+xml"/>'
-    +  '<Override PartName="/xl/styles.xml" ContentType="'+pui.mime_xlsx_base+'.styles+xml"/>'
-    +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>';
-    if (drawing != null){
-      content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+pui.mime_openxml+'-officedocument.drawing+xml"/>';
-    }
-    content_types += '</Types>';
+    });
+  }
+};
 
-    //_rels/.rels
-    var rels = pui.xmlstart
-    +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
-    +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/officeDocument" Target="xl/workbook.xml"/>'
-    +'</Relationships>';
+pui.xlsx_workbook.prototype._loadSaveAsJS = function(){
+  var path = "/jszip/FileSaver.min.js";
+  // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
+  // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
+  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null ){
+    this._librariesLoaded();
+  }
+  else{
+    var cleanup = this._cleanup.bind(this);
+    pui["loadJS"]({
+      "path": path,
+      "callback": this._librariesLoaded.bind(this),
+      "onerror": function(){
+        console.log("Failed to load "+path);
+        cleanup();
+      }
+    });
+  }
+};
 
-    //xl/workbook.xml
-    var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-    +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
-    //Try the following 2 lines for iOS compatibility.
+pui.xlsx_workbook.prototype._librariesLoaded = function(){
+  if (this.drawing){
+    this.drawing.loadImages( this._fullyloaded.bind(this), this.feedbackObj );
+  }else{
+    this._fullyloaded();
+  }
+};
+ 
+/**
+ * JSZip and the FileSaver are loaded, so build the Excel workbook.
+ * Pre-Condition: this.worksheet must be set.
+ */
+pui.xlsx_workbook.prototype._fullyloaded = function(){
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == 'function')
+    this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
+
+  // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
+  // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
+
+  //[Content_Types].xml
+  var content_types = pui.xmlstart
+  +'<Types xmlns="'+pui.xlsx_domain+'/package/2006/content-types">'
+  +  '<Default Extension="rels" ContentType="'+pui.mime_openxml+'-package.relationships+xml"/>'
+  +  '<Default Extension="xml" ContentType="application/xml"/>';
+  if (this.drawing){
+    var extraExtensions = this.drawing.getExtensions();
+    for (var ext in extraExtensions ){
+      content_types += '<Default Extension="'+ext+'" ContentType="'+extraExtensions[ext]+'"/>';
+    }
+  }
+  content_types +=
+     '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
+  +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+pui.mime_xlsx_base+'.worksheet+xml"/>'
+  +  '<Override PartName="/xl/styles.xml" ContentType="'+pui.mime_xlsx_base+'.styles+xml"/>'
+  +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>';
+  if (this.drawing != null){
+    content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+pui.mime_openxml+'-officedocument.drawing+xml"/>';
+  }
+  content_types += '</Types>';
+
+  //_rels/.rels
+  var rels = pui.xmlstart
+  +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
+  +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/officeDocument" Target="xl/workbook.xml"/>'
+  +'</Relationships>';
+
+  //xl/workbook.xml
+  var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+  +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
+  //Try the following 2 lines for iOS compatibility.
 //    +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'"'
 //    +' xmlns:mc="'+pui.xlsx_domain+'/markup-compatibility/2006" mc:Ignorable="x15 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">'
-    +  '<sheets>'
-    +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
-    +  '</sheets>'
-    +'</workbook>';
+  +  '<sheets>'
+  +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
+  +  '</sheets>'
+  +'</workbook>';
 
-    //xl/_rels/workbook.xml.rels
-    var workbookrels = pui.xmlstart
-    +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
-    +  '<Relationship Id="rId3" Type="'+pui.xlsx_xmlns_officedoc_rels+'/styles" Target="styles.xml"/>'
-    +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/worksheet" Target="worksheets/sheet1.xml"/>'
-    +  '<Relationship Id="rId4" Type="'+pui.xlsx_xmlns_officedoc_rels+'/sharedStrings" Target="sharedStrings.xml"/>'
-    +'</Relationships>';
+  //xl/_rels/workbook.xml.rels
+  var workbookrels = pui.xmlstart
+  +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
+  +  '<Relationship Id="rId3" Type="'+pui.xlsx_xmlns_officedoc_rels+'/styles" Target="styles.xml"/>'
+  +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/worksheet" Target="worksheets/sheet1.xml"/>'
+  +  '<Relationship Id="rId4" Type="'+pui.xlsx_xmlns_officedoc_rels+'/sharedStrings" Target="sharedStrings.xml"/>'
+  +'</Relationships>';
 
-    //x1/styles.xml - at least one of each font, fill, and border is required.
-    var styles = pui.xmlstart 
-    +'<styleSheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'">'
-    +  '<fonts count="2">'
-    +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
-    // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
-    +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
-    +  '</fonts>'
-    +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
-    +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
-    // CellStyleFormats (Formatting Records) - at least one must exist; these are referenced as xfId="0" in cellXfs and cellStyles <xf> tags.
-    +  '<cellStyleXfs count="2">'
-    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>'  //normal font.
-    +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>'  //blue font for hyperlinks
-    +'</cellStyleXfs>' 
-    // Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
-    // numFmtIds 0-49 are not defined explicitly:
-    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
-    // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
-    // For now, handle 2-decimal formating; everything else gets general formatting.
-    +  '<cellXfs count="4">'
-    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
-    +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
-    +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
-    +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">'   // general, no formatting, align wrap.
-    +      '<alignment wrapText="1"/>'
-    +    '</xf>'
-    +  '</cellXfs>'
-    +  '<dxfs count="0"/>'
-    +'</styleSheet>';
-  
-    var sheetrels;
-    // Hyperlinks and drawings need sheet relationships.
-    if (drawing || hyperlinks){
-      sheetrels = pui.xmlstart + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
-      
-      if (drawing){
-        sheetrels += '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>';
-      }
-      if (hyperlinks != null && hyperlinks.length > 0){
-        for (var i=0; i < hyperlinks.length; i++){
-          sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'
-            + pui.xmlEscape(hyperlinks[i].target) + '" TargetMode="External"/>';
-        }
-      }
-      
-      sheetrels += '</Relationships>';
+  //x1/styles.xml - at least one of each font, fill, and border is required.
+  var styles = pui.xmlstart 
+  +'<styleSheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'">'
+  +  '<fonts count="2">'
+  +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
+  // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
+  +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
+  +  '</fonts>'
+  +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
+  +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+  // CellStyleFormats (Formatting Records) - at least one must exist; these are referenced as xfId="0" in cellXfs and cellStyles <xf> tags.
+  +  '<cellStyleXfs count="2">'
+  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>'  //normal font.
+  +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>'  //blue font for hyperlinks
+  +'</cellStyleXfs>' 
+  // Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
+  // numFmtIds 0-49 are not defined explicitly:
+  // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
+  // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
+  // For now, handle 2-decimal formating; everything else gets general formatting.
+  +  '<cellXfs count="4">'
+  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
+  +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
+  +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
+  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">'   // general, no formatting, align wrap.
+  +      '<alignment wrapText="1"/>'
+  +    '</xf>'
+  +  '</cellXfs>'
+  +  '<dxfs count="0"/>'
+  +'</styleSheet>';
+
+  var sheetrels;
+  // Hyperlinks and drawings need sheet relationships.
+  if (this.drawing || this.hyperlinks){
+    sheetrels = pui.xmlstart + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
+
+    if (this.drawing){
+      sheetrels += '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>';
     }
-  
-    var zip = new JSZip();
-
-    zip["file"]("[Content_Types].xml", content_types);
-    zip["file"]("_rels/.rels", rels);
-    zip["file"]("xl/workbook.xml", workbook);
-    zip["file"]("xl/styles.xml", styles);
-    zip["file"]("xl/sharedStrings.xml", worksheet.getSharedStringsXML() );
-    zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
-    zip["file"]("xl/worksheets/sheet1.xml", worksheet.getSheetXML() );
-    if (drawing || hyperlinks){
-      zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
-      if (drawing){
-        zip["file"]("xl/drawings/drawing1.xml", drawing.getDrawingXML());
-        zip["file"]("xl/drawings/_rels/drawing1.xml.rels", drawing.getDrawingRelsXML());
-        var images = drawing.getImages();
-        for (var i=0; i < images.length; i++){
-          if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
-            zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
-        }
+    if (this.hyperlinks != null && this.hyperlinks.length > 0){
+      for (var i=0; i < this.hyperlinks.length; i++){
+        sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'
+          + pui.xmlEscape(this.hyperlinks[i].target) + '" TargetMode="External"/>';
       }
     }
 
-    var resolved, zipconfig;
-    function cleanup(){
-      if (typeof restorePgBar == 'function') restorePgBar();
+    sheetrels += '</Relationships>';
+  }
+
+  var zip = new JSZip();
+
+  zip["file"]("[Content_Types].xml", content_types);
+  zip["file"]("_rels/.rels", rels);
+  zip["file"]("xl/workbook.xml", workbook);
+  zip["file"]("xl/styles.xml", styles);
+  zip["file"]("xl/sharedStrings.xml", this.worksheet.getSharedStringsXML() );
+  zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
+  zip["file"]("xl/worksheets/sheet1.xml", this.worksheet.getSheetXML() );
+  if (this.drawing || this.hyperlinks){
+    zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
+    if (this.drawing){
+      zip["file"]("xl/drawings/drawing1.xml", this.drawing.getDrawingXML());
+      zip["file"]("xl/drawings/_rels/drawing1.xml.rels", this.drawing.getDrawingRelsXML());
+      var images = this.drawing.getImages();
+      for (var i=0; i < images.length; i++){
+        if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
+          zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+      }
     }
-    if ( typeof Blob != "function" ){
-      // IE8,IE9 can't prompt to SaveAs, so they need PUI0009106 to help get it.
-      zipconfig = {"type": "base64", "compression": "DEFLATE"};
-      resolved = function (bstr){
-        cleanup();
-        pui.downloadAsAttachment(pui.mime_xlsx_base+".sheet", fileName + ".xlsx", bstr);
-      };
-    }
-    else{
-      // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
-      zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": pui.mime_xlsx_base+".sheet"};
-      resolved = function (blob){
-        cleanup();
-        saveAs(blob, fileName + ".xlsx");
-      };
-    }
-    
-    var promise = zip["generateAsync"](zipconfig);
-    promise["then"](resolved, cleanup);
-  } //end fullyloaded().
+  }
+
+  // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
+  var zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": pui.mime_xlsx_base+".sheet"};
+  var promise = zip["generateAsync"](zipconfig);
+  promise["then"](this._zipResolved.bind(this), this._cleanup.bind(this));
 };
+
+pui.xlsx_workbook.prototype._cleanup = function(){
+  if (this.feedbackObj && typeof this.feedbackObj.fireDownloadCleanup == 'function') this.feedbackObj.fireDownloadCleanup();
+  this.deleteOwnProperties();
+};
+
+pui.xlsx_workbook.prototype._zipResolved = function(blob){
+  saveAs(blob, this.fileName + ".xlsx");
+  this._cleanup();
+};
+
+//
+// end of xlsx_workbook class.
+// 
 
 /**
  * Worksheet object for creating XML strings for MS Excel 2007+ workbooks.
@@ -4195,10 +4198,9 @@ pui.xlsx_drawing = function(){
   /**
    * Download the images into this drawing object, then execute a callback.
    * @param {Function} cbFinished       Runs when all images are loaded into blobs.
-   * @param {Function} cbSetTempStatus  Sets the PagingBar's temporary status text.
-   * @returns {undefined}
+   * @param {Object} feedbackObj        An object with the setDownloadStatus function.
    */
-  this.loadImages = function(cbFinished, cbSetTempStatus){
+  this.loadImages = function(cbFinished, feedbackObj){
     if (rels.length < 1){   //It's possible image URLs didn't parse, but don't stop the download. #5342.
       cbFinished();
       return;
@@ -4209,7 +4211,8 @@ pui.xlsx_drawing = function(){
     //Handler for XHR.onload. Waits until all XHRs are finished, moves the images to rel[i].image, then calls callback.
     function checkDone(){
       dlcount++;
-      cbSetTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
+      if (feedbackObj && typeof feedbackObj.setDownloadStatus == 'function')
+        feedbackObj.setDownloadStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
       if (dlcount < rels.length) return;  //Wait until all xhr's are finished.
       
       //All are finished, so extract the images.
@@ -4909,41 +4912,6 @@ pui.getTRtargetRow = function(event){
   if (target.tagName != "TR") return null;
   return target;
 };
-
-/**
- * Provides common methods for child classes.
- * @constructor
- * @returns {pui.BaseClass}
- */
-pui.BaseClass = function(){};
-
-/**
- * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
- */
-pui.BaseClass.prototype.deleteOwnProperties = function(){
-  if (this != window){
-    var propnames = Object.getOwnPropertyNames(this);
-    for (var i=0, n=propnames.length; i < n; i++){
-      try {
-        delete this[propnames[i]];  //Removes any properties that were assigned like: "this.foo = bar";.
-      }
-      catch(exc) {
-        console.log(exc);
-      }
-    }
-  }
-};
-
-/**
- * Returns false. Can be used as a listener to 'selectstart' to disable selection, etc.
- * @returns {Boolean}
- */
-pui.BaseClass.prototype.returnFalse = function(){
-  return false;
-};
-//
-// end of BaseClass
-//
 
 pui["getDatabaseConnections"] = function() {
 

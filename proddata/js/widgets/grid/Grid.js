@@ -20,6 +20,9 @@
 /**
  * Base class for Grids that contains the data and data methods. (Some display logic belongs in subclasses so the grid can 
  * be implemented differently without breaking existing screens; e.g. mobile and accessibility could be in other classes.)
+ * 
+ * todo: grid data should be stored inside the class (model), not inside the DOM (view). the DOM should render when the view needs updating. e.g. 
+ *       columnInfo object contains header values when columns are hidden, but data is in me.cells[0] otherwise. Move data to columnInfo always.
  * @constructor
  */
 pui.BaseGrid = function(){
@@ -392,11 +395,6 @@ pui.Grid = function () {
         if (me.hasChildren(lastCol)) {
           var arr1 = me.numberChildren(lastCol);
           if (arr1 != null) {
-            if (!String.prototype.trim) {
-              String.prototype.trim = function () {
-                return this.replace(/^\s+|\s+$/gm, '');
-              };
-            }
             pui.alert("The column cannot be removed because it contains other elements that must be removed first.\n\n" +
               "To remove column elements, go to the Elements tab. Then, search the element list for the ID(s) listed below:\n" +
               arr1.join("\n") + "\n\nSelect each element and click the Remove Element icon.");
@@ -1033,33 +1031,24 @@ pui.Grid = function () {
     
     if (exportXLSX){
       if (useDrawing && me.pagingBar.xlsxExportPics ){
-        if (pui["ie_mode"] <= 9){
-          // Fail gracefully: notify the user that pics can't be exported, but still export the XLSX. 
-          me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "ie9 too low xlsxpics"));
-          me.pagingBar.showTempStatusDiv();
-          setTimeout(me.pagingBar.draw, 2000);
-        } else {
-          // For IE >= 10 and other browsers, export with pictures.
-          worksheet.useDrawing();
-          workbook.setDrawing(drawing);
-          workbook.setCallbacks(me.pagingBar.setTempStatus, me.pagingBar.draw);
-          me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
-          me.pagingBar.showTempStatusDiv();
-        }
+        // Export with pictures.
+        worksheet.useDrawing();
+        workbook.drawing = drawing;
+        workbook.feedbackObj = me.pagingBar;
+        me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
+        me.pagingBar.showTempStatusDiv();
       }
       
       if (useHyperlinks){
         worksheet.setHyperlinks(hyperlinksXL);
-        workbook.setHyperlinks(hyperlinksXL);
+        workbook.hyperlinks = hyperlinksXL;
       }
       
-      workbook.setFileName(fileName);
-      workbook.setWorksheet(worksheet);
-      if (pui["is_ie"])
-        setTimeout(workbook.download, 100); //IE needs a delay to update the paging bar.
-      else
-        workbook.download();
-    } else {
+      workbook.fileName = fileName;
+      workbook.worksheet = worksheet;
+      workbook.download();
+    }
+    else {
       pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
     }
   };
@@ -1152,7 +1141,7 @@ pui.Grid = function () {
       formData.append("limit", limit);
       formData.append("start", "1");
       
-      if (me.filterString !== "") {
+      if (typeof me.filterString === 'string' && me.filterString.length > 0) {
         var pairs = me.filterString.substring(1).split('&');
         pairs.forEach(function(pair) {
           pair = pair.split('=');
@@ -1183,22 +1172,12 @@ pui.Grid = function () {
       if (pui["isCloud"])
         formData.append("workspace_id", pui.cloud.ws.id);
 
-      var cancelHTML = '<span class="cancel">cancel</span> ';
-      var tempStatusDiv = me.pagingBar.setTempStatus(cancelHTML + pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
-      tempStatusDiv.style.cursor = 'pointer';
-      // Handle download abort.
-      tempStatusDiv.onclick = function(){
-        tempStatusDiv.style.cursor = '';
-        tempStatusDiv.style.opacity = '0';
-        tempStatusDiv.onclick = null;
-        me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "cancelled"));
-        xhr.abort();
-        setTimeout(function(){
-          me.pagingBar.draw();
-          tempStatusDiv.style.opacity = '';
-        }, 2500);
-      };
-      me.pagingBar.showTempStatusDiv();
+      me.pagingBar.setTempStatusIcon('cancel', 'cancel');
+      me.pagingBar.setTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]) );
+      me.pagingBar.showTempStatusDiv(
+        pui["getLanguageText"]("runtimeMsg", "cancelled"),
+        function(){ xhr.abort(); }      //Abort the download when the cancel icon is clicked.
+      );
       
       xhr.onreadystatechange = function() {
         // state 4=done, status 0 happens upon abort; no need to alert on abort.
@@ -1229,7 +1208,18 @@ pui.Grid = function () {
           if (fields != null){
             response["fields"] = fields;
           }
-          makexlsx(response);
+          
+          // Only download the XLSX file when there are results. Show a message otherwise.
+          if (response["results"].length > 0){
+            makexlsx(response);
+          }
+          else {
+            me.pagingBar.setTempStatusIcon('','');
+            me.pagingBar.setTempStatus( pui['getLanguageText']('runtimeMsg','no data') );
+            me.pagingBar.showTempStatusDiv();
+            me.pagingBar.hideTempStatusSlowly();
+          }
+          me["unMask"]();
         }
         catch (exc) {
           var msg = pui["getLanguageText"]("runtimeText", "excel export text");
@@ -1258,7 +1248,7 @@ pui.Grid = function () {
             return;
           }
         }
-        me.pagingBar.setTempStatus(cancelHTML + pui["getLanguageText"]("runtimeMsg", "downloading x", [msg]));
+        me.pagingBar.setTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [msg]));
         lastTS = progress["timeStamp"];
       });
 
@@ -1266,68 +1256,144 @@ pui.Grid = function () {
       me.mask();
     }
     
-    // Take the data retrieved, create and download an excel file.
+    // Take the data retrieved, create and download an excel file. response.results must be a non-empty array.
     function makexlsx(response) {
+      var field, colNum, heading;
+      // Note: these tests are declared here with closures to fieldName and colNum to avoid being re-allocated on each outer array iteration.
+      function columnInfoTest(el){
+        return el.name == field;
+      }
+      function fieldInfoTest(el){
+        return el['field'] === field;
+      }
+      
+      // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
+      var fieldOrder = [];    //Array of field names to be in the same order as the columns.
+      for (field in response["results"][0]) {
+        fieldOrder.push({fieldName: field, fullName: field });
+      }
+      
+      // The results array and its order may not match the order or number of columns visible in the grid, so get the order. #6476
+      if ((me.movableColumns || me.exportVisableOnly)
+      && typeof me['dataProps']["database fields"] == 'string' && me['dataProps']["database fields"].length > 0){
+        // "database fields" is updated when columns move, so it determines the column output order.
+        var fullName, dbFields = me['dataProps']["database fields"].split(',');
+        var tmpfieldOrder = [];
+        var endsInStarRE = /\*$/;
+        var aliasRE = /^(\S+\.)?(\S+)(( as)? (\S+))?$/i;
+        var allOk = true;
+        var n = dbFields.length;
+        colNum = 0;
+        var checkSkip = me.exportVisableOnly && me.columnInfo instanceof Array && me.columnInfo.length > 0;
+        while (colNum < n){
+          if (dbFields[colNum].length == 0 || endsInStarRE.test(dbFields[colNum])){
+            // If any are blank or end in '*', then the "database fields" property cannot be trusted to determine the order.
+            // TODO: if PUI0009102 returned field info, instead of using 9101, the correct info could be obtained for each column.
+            allOk = false;
+            break;
+          }
+          else {
+            field = dbFields[colNum];
+            var skip = false;
+            if (checkSkip){
+              var foundEl = me.columnInfo.find( columnInfoTest );
+              skip = (foundEl && foundEl['showing'] !== true);
+            }
+            
+            if (!skip) {
+              // Look for aliases and extract the alias.
+              fullName = field;
+              var matches = aliasRE.exec(dbFields[colNum]);
+              if (matches){
+                if (matches[5] && matches[5].length > 0)
+                  field = matches[4];  //use the alias as the field name, because the results will be under the alias.
+                else
+                  field = matches[2];  //use the field name without the qualifier, because fields in PUI0009102 have no qualifiers.
+              }
+              tmpfieldOrder.push( {fieldName: field, fullName: fullName } );              
+            }
+            colNum++;
+          }
+        }
+        
+        if (allOk && tmpfieldOrder.length > 0) fieldOrder = tmpfieldOrder;
+      }
+
       var numCols = 0;
       if (response["colWidths"] != null)
         numCols = response["colWidths"].length;
       else {
-        // In case the web service doesn't return "colWidths" with its data,calculate it.
-        for (var colid in response["results"][0]) {
-          numCols++;
-        }
+        // In case the web service doesn't return "colWidths" with its data, count the number of fields in the results.
+        numCols = Object.keys(response["results"][0]).length;
       }
+      // Do not export all the columns when "export only visible columns" is true.
+      if (me.exportVisableOnly && fieldOrder.length > 0 && fieldOrder.length < numCols) numCols = fieldOrder.length;
 
       var worksheet = new pui.xlsx_worksheet(numCols);
       var workbook = new pui.xlsx_workbook();
-      workbook.setCallbacks(me.pagingBar.setTempStatus, me.pagingBar.draw);
-
-      if (response["fields"] != null && response["results"].length > 0) {
-        // DB-Driven grid got PUI0009101 response; set the column formats if we can match column names.
-        var colNum = 0;
-        for (var colid in response["results"][0]) {
-          // Find the field info for the current column.
-          for (var i = 0; i < response["fields"].length; i++) {
-            if (response["fields"][i]["field"] == colid) {
-              var fld = { "dataType": response["fields"][i]["type"], "decPos": response["fields"][i]["decPos"] };
-              worksheet.setColumnFormat(colNum, fld);
-              break;
-            }
-          }
-          colNum++;
-        }
+      workbook.feedbackObj = me.pagingBar;
+      
+      // If the DB-Driven grid got a PUI0009101 response, then set the column formats if we can match column names.
+      if (response['fields'] != null) {
+        colNum = 0;
+        // Find the field info for each column. Note: the order of keys in "fields" may not match the order in "results".
+        fieldOrder.forEach(function(el){
+          field = el.fieldName;
+          var foundEl = response['fields'].find( fieldInfoTest );
+          var format = foundEl ? { "dataType": foundEl["type"], "decPos": foundEl["decPos"] } : {'dataType':'char'};
+          worksheet.setColumnFormat(colNum++, format);
+        });
       }
+
       if (me.hasHeader && me.exportWithHeadings) {
+        // Get headings for each column.
+        colNum = 0;
         worksheet.newRow();
-        if (me.hidableColumns) {
-          me.columnInfo.forEach(function (col, index) {
-            var heading = col["name"];
-            if (col["blankHeader"]) heading = "";
-            worksheet.setCell(index, rtrim(heading), "char");
+        if (me.columnInfo instanceof Array && me.columnInfo.length > 0) {
+          // If columns can be hidden, or if the order changed, then the column information is in me.columnInfo.
+          fieldOrder.forEach(function(el){
+            field = el.fullName;
+            // All columns are exported. When any are hidden, header text is in columnInfo instead of DOM cells.
+            var foundEl = me.columnInfo.find( columnInfoTest );
+            if (foundEl) heading = foundEl["blankHeader"] ? '' : rtrim(foundEl["name"]);
+            else heading = '';
+            worksheet.setCell(colNum++, heading, 'char');
           });
-        } else {
-          for (var i=0; i < numCols; i++) {
-            // Get the heading or use a blank in case numCols != grid "number of columns". #6192.
-            var heading = me.cells[0] && me.cells[0][i] ? rtrim(getInnerText(me.cells[0][i])) : '';
-            worksheet.setCell(i, heading, "char");
+        }
+        else if (me.cells[0] instanceof Array && me.cells[0].length > 0){
+          // Assume the columns are in the same order as the fields in this case. TODO: headings should always be in me.columnInfo.
+          for (var n=fieldOrder.length; colNum < n; colNum++){
+            // Get the headings directly from the DOM cells.
+            heading = me.cells[0][colNum] ? rtrim(getInnerText(me.cells[0][colNum])) : '';
+            worksheet.setCell(colNum, heading, 'char');
           }
+        }
+        
+        // In case numCols != the grid's "number of columns": use blanks in those headings. #6192.
+        while (colNum < numCols){
+          worksheet.setCell(colNum++, '', "char");
         }
       }
 
+      // XLSX can't use "," as separator. Assume appJob decimalFormat is the same as the CGI helper job's decimal format.
+      var hasCommaSep = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
       // Look at each result cell. Format if necessary. Add to worksheet.
-      for (var rowNum = 0; rowNum < response["results"].length; rowNum++) {
+      for (var rowNum=0, n=response["results"].length; rowNum < n; rowNum++) {
         worksheet.newRow();
         var row = response["results"][rowNum];
-        var colNum = 0;
-        for (var colid in row) {
-          var value = row[colid];
-          var datatype = worksheet.formats[colNum]["dataType"];
-          if (datatype == "zoned" || datatype == "packed") {
-            if (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
-              //XLSX can't use "," as separator. Assume appJob decFmt is same as CGI helper job's.
+        colNum = 0;
+        for (var j=0, m=fieldOrder.length; j < m; j++){
+          field = fieldOrder[j];
+          var value = row[field.fieldName];
+          if (value != null){
+            var datatype = worksheet.formats[colNum]["dataType"];
+            if (hasCommaSep && (datatype == "zoned" || datatype == "packed")) {
               value = value.replace(/[.]/g, ""); //remove thousands separator.
               value = value.replace(",", "."); //decimal separator becomes ".".
             }
+          }
+          else {
+            value = '';  //There could be more or fewer result fields than columns.
           }
           //Note: Excel accepts scientific notation as values, so float/real/double are sent verbatim.
           worksheet.setCell(colNum, value);
@@ -1335,10 +1401,9 @@ pui.Grid = function () {
         }
       }
 
-      workbook.setFileName(fileName);
-      workbook.setWorksheet(worksheet);
+      workbook.fileName = fileName;
+      workbook.worksheet = worksheet;
       workbook.download();
-      me["unMask"]();
     } //end makexlsx().
   };
 
@@ -1946,7 +2011,7 @@ pui.Grid = function () {
         }
 
         // add the filterString as input fields
-        if (me.filterString !== "") {
+        if (typeof me.filterString === 'string' && me.filterString.length > 0) {
           var pairs = me.filterString.substring(1).split('&');
           pairs.forEach(function(pair) {
               pair = pair.split('=');
@@ -4341,12 +4406,13 @@ pui.Grid = function () {
 
     }
     
+    var propertyToSwitch = property;
     var multOccurMatch = /^(database file) \d+$/.exec(property);
     if (multOccurMatch != null && multOccurMatch[1] != null){
-      property = multOccurMatch[1];  //handle any number of "database file n" properties.
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "database file n" properties.
     }
 
-    switch (property) {
+    switch (propertyToSwitch) {
       case "id":
       case "parent window":
       case "screen identifier":
@@ -9449,8 +9515,14 @@ pui.Grid = function () {
     }
 
   }
-      
-  this.getPropertiesModel = function () {
+};
+pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui.BaseGrid.
+
+/**
+ * Return the properties model for Profound UI grids.
+ * @returns {Array}
+ */
+pui.BaseGrid.prototype.getPropertiesModel = function(){
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", help: pui.helpTextProperties("id","Specifies the ID that is used to access the grid from client-side code."), bind: false, canBeRemoved: false },
       { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextProperties("blank","Specifies the name that is used to access this grid from server code."), maxLength: (pui.viewdesigner|| pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
@@ -9553,7 +9625,7 @@ pui.Grid = function () {
       //Reset the  browser cache Data for a table
       { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents an option to reset the persistent state for this grid when the grid heading is right-clicked."), context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked."), context: "dspf" },
-      { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Note this setting does not take effect for database-driven grids. Defaults to false."), context: "dspf" },
+      { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: pui.helpTextProperties("false","When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Defaults to false."), context: "dspf" },
       { name: "context menu id", help: pui.helpTextProperties("blank","Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row."), hideFormatting: true, validDataTypes: ["char", "varchar"] },
       { name: "filter response", hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextProperties("bind","Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. The data structure should be defined as follows:<pre>"
         + "Dcl-Ds filterinfo qualified;\n  colnum zoned(3:0) dim(c);\n  fltrtext char(s) dim(c);\nEnd-Ds;</pre>Where <b>c</b> is the value of the 'filter response column max' property, and <b>s</b> is the value of 'filter response text max'. The length should be c(3 + s); e.g. default length of 20 char with 3 column max filters is 69.",[],""), context: "dspf" },
@@ -9667,11 +9739,8 @@ pui.Grid = function () {
       model.splice(elemIndex, 1);
     }
     
-    return model;
-  };
-  
+    return model;  
 };
-pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui.BaseGrid.
 
 /**
  * Handle request to get field listings for "custom sql" property change after user clicks OK on dialog.
