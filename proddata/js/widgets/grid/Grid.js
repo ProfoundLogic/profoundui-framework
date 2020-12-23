@@ -312,7 +312,9 @@ pui.Grid = function () {
   var headerCellProxyContainer;
   var columnPointer;
 
+  var loadingDiv = null;
   var maskCover = null;
+  var animationDiv = null;
 
   // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
   // filters while a prior AJAX request has been sent but the response is not received.
@@ -1111,6 +1113,7 @@ pui.Grid = function () {
         }
       });
       me.mask();
+      me.gridLoading();
     } else {
       setupajax();
     }
@@ -1254,6 +1257,7 @@ pui.Grid = function () {
 
       xhr.send(formData.get());
       me.mask();
+      me.gridLoading();
     }
     
     // Take the data retrieved, create and download an excel file. response.results must be a non-empty array.
@@ -1741,6 +1745,7 @@ pui.Grid = function () {
     }
 
     me.mask();
+    me.gridLoading();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     me.recNum = me.recNum - numRows;
@@ -1795,6 +1800,7 @@ pui.Grid = function () {
     }
 
     me.mask();
+    me.gridLoading();
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     me.recNum += numRows;
@@ -1839,9 +1845,39 @@ pui.Grid = function () {
   this["getRecNum"] = function(){ return me.recNum; };
   
   this["unMask"] = function () {
+    if (loadingDiv != null) loadingDiv.style.display = "none";
+    if (animationDiv != null) animationDiv.style.display = "none";
     if (maskCover != null) maskCover.style.display = "none";
   };
+  this.gridLoading = function (){
+    //Container to hold the mask and animation in, for better positioning
+    if (me.designMode) return;
+    var gridDiv = me.tableDiv;
+    if (gridDiv.style.visibility == "hidden") return;
+    if (me.tableDiv.parentNode == null) return;
+    //Get grid size
+    var left = parseInt(gridDiv.style.left);
+    var top = parseInt(gridDiv.style.top);
+    var width = parseInt(gridDiv.style.width) - 2;
+    var height = parseInt(gridDiv.style.height);
+    //Create div
+    if (loadingDiv == null) loadingDiv = document.createElement("div");
+    loadingDiv.style.display = "block";
+    //Set size
+    if (me.hasHeader) {
+      top += me.headerHeight;
+      height = height - me.headerHeight;
+    }
+    loadingDiv.style.left = left + "px";
+    loadingDiv.style.top = top + "px";
+    loadingDiv.style.width = width + "px";
+    loadingDiv.style.height = height + "px";
+    loadingDiv.className = "pui-grid-loading";
+    me.tableDiv.parentNode.appendChild(loadingDiv);
 
+    //Call animation
+    me.showGridWaitAnimation();
+  };
   this.mask = function () {
     if (me.designMode) return;
     var gridDiv = me.tableDiv;
@@ -1864,6 +1900,41 @@ pui.Grid = function () {
     maskCover.style.height = height + "px";
     maskCover.className = "grid-mask";
     me.tableDiv.parentNode.appendChild(maskCover);
+  };
+
+  this.showGridWaitAnimation = function() {
+    //Make sure the wait animation is needed
+    if (me.designMode|| maskCover == null || maskCover.style.display == "none") return;
+    var gridDiv = me.tableDiv;
+    if (gridDiv.style.visibility == "hidden") return;
+    if (me.tableDiv.parentNode == null) return;
+
+    //Set size
+    var left = parseInt(loadingDiv.style.left);
+    var top = parseInt(loadingDiv.style.top);
+    var width = parseInt(loadingDiv.style.width) - 2;
+    var height = parseInt(loadingDiv.style.height) - 5;
+    
+    if (animationDiv == null) animationDiv = document.createElement("div");
+    animationDiv.style.display = "block";
+    if (me.hasHeader) {
+      top += me.headerHeight;
+      height = height - me.headerHeight;
+    }
+
+    //Adjust size, so it doesn't get too big, too small, or too wide
+    if(height > 100){
+      height = 100;
+      if(width < 100){height = width - 5;}
+    }
+    if(height < 35){height = 35;}
+
+    //Apply height & animation class
+    animationDiv.style.width = height + "px";
+    animationDiv.style.height = height + "px";
+    animationDiv.className = "pui-animation pui-grid-animation";
+    //Attach to loading div on grid
+    loadingDiv.appendChild(animationDiv); 
   };
 
   /**
@@ -2051,6 +2122,7 @@ pui.Grid = function () {
           limit = -1;
         }
         me.mask();
+        me.gridLoading();
       }
       runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, true);
     }
@@ -3584,6 +3656,7 @@ pui.Grid = function () {
     if (me.isDataGrid() && me.forceDataArray == false){
       me.sortBy = "";
       me.mask();
+      me.gridLoading();
       dataGridDidInitialSort = false;   //Use "initial sort column".
     }
     else {
@@ -3650,6 +3723,7 @@ pui.Grid = function () {
       }
       me.recNum = 1;
       me.mask(); //disable UI until server responds.
+      me.gridLoading();
       me.getData();
     }
 
@@ -6347,6 +6421,7 @@ pui.Grid = function () {
     if(persistState && me.isDataGrid() && me["dataProps"]["load all rows"] == "true" && maskCover.style.display == "block"){
       //reset mask with new widths
       me.mask();
+      me.gridLoading();
     }
   }
 
@@ -7223,7 +7298,7 @@ pui.Grid = function () {
         pui.sqlcache[start].pstring === pstring &&
         pui.sqlcache[start].limit === limit &&
         pui.sqlcache[start].customURL === customURL) {
-          me["unMask"]();
+          me["unMask"](); 
           if (callback != null) {
             callback(pui.sqlcache[start].results, pui.sqlcache[start].totalRecs, pui.sqlcache[start]["matchRow"]);
             return;
@@ -8278,6 +8353,7 @@ pui.Grid = function () {
       findStartRow = 1;
       if (findNext) findStartRow = me.recNum + 1; //CGI program will search after top visible row.
       me.mask();
+      me.gridLoading();
       me.getData();
       findText = null; //Clear to prevent other async calls to getData from searching again.
       findColumn = null;
@@ -8392,6 +8468,7 @@ pui.Grid = function () {
       me.recNum = 1; // Show record 1 on row 1.
 
       me.mask(); // disable UI until server responds.
+      me.gridLoading();
     }
     else{
       // Do client-side filtering.
@@ -8702,6 +8779,7 @@ pui.Grid = function () {
       me.recNum = 1; // Show record 1 on row 1.
 
       me.mask(); // disable UI until server responds.
+      me.gridLoading();
     }
     else{
       // Remove client-side filtering.
@@ -8745,6 +8823,7 @@ pui.Grid = function () {
       me.recNum = 1; // Show record 1 on row 1.
 
       me.mask(); // disable UI until server responds.
+      me.gridLoading();
     }
     me.getData();
     me["clearState"]("filters");

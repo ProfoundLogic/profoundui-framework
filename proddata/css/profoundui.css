@@ -5163,6 +5163,19 @@ div.Glass>.pui-tablayout-body>div {
     -o-transform: rotate(360deg);
   }
 }
+.pui-grid-loading {
+  position: absolute;
+}
+.pui-grid-animation {
+  display: block;
+  position: absolute;
+  margin-right: -50%;
+  margin: 0 auto;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
 
 /* ComboBox Classes */
 
