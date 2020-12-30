@@ -27,6 +27,34 @@ INPUT.button {
   cursor: default;
 }
 
+/* 5250 Menu Bar */
+.menu-bar {
+  font-family: Consolas,Monospace;
+  font-size: 14px;
+}
+.menu-bar:focus {
+  background-color: #808080;
+}
+div.Default.menu-bar-pulldown {
+  border-top: none;
+}
+div.menu-bar-separator {
+  position: absolute;
+  border-top: none;
+  /* border-top: 2px solid #336699; enable this for double-line separator bar */
+  border-bottom: 2px solid #336699;
+  border-left: none;
+  border-right: none;
+  height: 0px;
+  left: 0px;
+}
+.pull-down-menu:focus {
+  outline: auto;
+}
+.mnemonic {
+  text-decoration: underline;
+}
+
 /* Calendar Classes */
 
 .pui-calendar-outer-table {
