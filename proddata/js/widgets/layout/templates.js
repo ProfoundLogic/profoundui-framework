@@ -18,67 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.layout.helpTextTemplatesProperties = function(defVal, descVal) {
-  var codeOpen = "<code>";
-  var codeClose = "</code>";
-  var falseSpan = "<span>false</span>";
-  var trueSpan = "<span>true</span>";
-  var blankSpan = "<span>[blank]</span>";
-  var cssSpan = "[<span>CSS value</span>]";
-  var placeholderSpan = "[<span>placeholder text</span>]";
-  var browserSpan = "[<span>browser setting</span>]";
-  var widgetSpan = "[<span>selected widget</span>]";
-  var themeSpan = "[<span>selected widget</span>]";
-  var skinSpan = "[<span>selected skin</span>]";
-  var idSpan = "[<span>WidgetName</span>][<span>number</span>]";
-  var positionSpan = "[<span>user drop point</span>]";
-  var bindSpan = "<span>[bound value]</span>";
-  
-  // ------------------
-  // Default Value:
-  var helpString = "<hr><b>Default Value:</b> ";
-  // <c>value</c>
-  var posDefVals = ["css", "blank", "false", "true", "placeholder", "browser", "theme", "skin", "id", "bind", "widget", "position"];
-  helpString += codeOpen;
-  if (posDefVals.indexOf(defVal) != -1) {
-    if (defVal === "true") {
-      helpString += trueSpan;
-    } else if (defVal === "blank") {
-      helpString += blankSpan;
-    } else if (defVal === "css") {
-      helpString += cssSpan;
-    } else if (defVal === "false") {
-      helpString += falseSpan;
-    } else if (defVal === "placeholder") {
-      helpString += placeholderSpan;
-    } else if (defVal === "browser") {
-      helpString += browserSpan;
-    } else if (defVal === "theme") {
-      helpString += themeSpan;
-    } else if (defVal === "skin") {
-      helpString += skinSpan;
-    } else if (defVal === "id") {
-      helpString += idSpan;
-    } else if (defVal === "bind") {
-      helpString += bindSpan;
-    } else if (defVal === "widget") {
-      helpString += widgetSpan;
-    } else if (defVal === "position") {
-      helpString += positionSpan;
-    }
-  } else {
-    helpString += defVal;
-  }
-  helpString += codeClose;
-  // ------------------
-  // Description:
-  helpString += "<hr><b>Description: </b>";
-  // Description text...
-  helpString += descVal;
-
-  // ------------------
-  helpString += "<hr><br>";
-
-  return helpString;
+  return '<hr><b>Default Value:</b> <code>' + defVal + '</code>' + '<hr><b>Description: </b>' + descVal + '<hr><br>';
 };
 
 pui.layout["templates"] = {};
