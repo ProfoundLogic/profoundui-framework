@@ -3998,7 +3998,7 @@ pui.Grid = function () {
         var routineRow = null;
         var routineGrid = null;
         if (idx >= 0) {
-          var routineRow = idx;
+          var routineRow = idx + 1;
           if (dataRecords[idx] != null && dataRecords[idx].subfileRow != null) {
             routineRow = dataRecords[idx].subfileRow;
           }
