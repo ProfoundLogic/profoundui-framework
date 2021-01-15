@@ -458,6 +458,13 @@ var en_US = function(dict) {
             dictMsg["parameter"]                    = "Parameter";
             dictMsg["parameter hlp"]                = "Optional: Specifies a parameter that will be passed to your Rich Display program when it is launched.";
 
+            // Atrium Genie Macro text for Selection Fields
+            dictMsg["msg action selection choice"]  = "Set selection field at &1,&2 choice \"&3\" to \"&4\"";
+            dictMsg["msg action selected"]          = "Selected";
+            dictMsg["msg action deselected"]        = "Deselected";
+            dictMsg["set selection field"]          = "Set a selection field";
+            dictMsg["selection field choice"]       = "Choice name";
+
             break;
 
         default:
