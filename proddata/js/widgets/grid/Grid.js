@@ -1179,7 +1179,11 @@ pui.Grid = function () {
       me.pagingBar.setTempStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]) );
       me.pagingBar.showTempStatusDiv(
         pui["getLanguageText"]("runtimeMsg", "cancelled"),
-        function(){ xhr.abort(); }      //Abort the download when the cancel icon is clicked.
+        function(){ 
+          //Abort the download when the cancel icon is clicked.
+          xhr.abort();
+          me['unMask']();
+        }      
       );
       
       xhr.onreadystatechange = function() {
