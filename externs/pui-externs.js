@@ -140,6 +140,8 @@ var pui = {
   widgets: {},
   widget: {},
   add: {},
+  bidirectional: {},
+  BasicWidget: {},
   newId: {},
   menuName: {},
   defaults: {},
@@ -368,4 +370,4 @@ var pui = {
   autocomplete: {},
   context: {},
   dynamicText: {}
-}
+};

@@ -1663,48 +1663,28 @@ pui.renderFormat = function(parms) {
                 }
                 
               }
-            
+              
+              var fieldName, qualField;
               if (propname == "changed") {
-                var fieldName = pui.fieldUpper(formattingObj.fieldName);
-                var qualField = formatName + "." + fieldName;
-                if (pui.handler != null) qualField = fieldName;
-                if (parms.subfileRow != null) {
-                  qualField += "." + (parms.subfileRow);
-                }
+                setFieldNameAndQualField();
                 if (pui.changeResponseElements[qualField] == null) pui.changeResponseElements[qualField] = [];
                 pui.changeResponseElements[qualField].push(dom);
               }
 
               if (propname == "is blank") {
-                var fieldName = pui.fieldUpper(formattingObj.fieldName);
-                var qualField = formatName + "." + fieldName;
-                if (pui.handler != null) qualField = fieldName;
-                if (parms.subfileRow != null) {
-                  qualField += "." + (parms.subfileRow);
-                }
+                setFieldNameAndQualField();
                 if (pui.isBlankElements[qualField] == null) pui.isBlankElements[qualField] = [];
                 pui.isBlankElements[qualField].push(dom);
               }
               
               if (propname == "dup key response" && properties["allow dup key"] == "true") {
-                var fieldName = pui.fieldUpper(formattingObj.fieldName);
-                var qualField = formatName + "." + fieldName;
-                if (pui.handler != null) qualField = fieldName;
-                if (parms.subfileRow != null) {
-                  qualField += "." + (parms.subfileRow);
-                }
+                setFieldNameAndQualField();
                 if (pui.dupElements[qualField] == null) pui.dupElements[qualField] = [];
                 pui.dupElements[qualField].push(dom);
               }
 
               if (pui.isInputCapableProperty(propname, dom)) {
-                
-                var fieldName = pui.fieldUpper(formattingObj.fieldName);
-                var qualField = formatName + "." + fieldName;
-                if (pui.handler != null) qualField = fieldName;
-                if (parms.subfileRow != null) {
-                  qualField += "." + (parms.subfileRow);
-                }
+                setFieldNameAndQualField();
                 if (propname == "radio button group") {
                   var radioName = fieldName;
                   if (parms.subfileRow != null) {
@@ -1830,6 +1810,12 @@ pui.renderFormat = function(parms) {
                   dom.grid.pagingBar.prevLink.formattingInfo = formattingObj;
                 }
                 dom.formattingInfo = formattingObj;
+              }
+              else if (dom.pui && dom.pui.widget && dom.pui.widget.isInputCapableProp(propname)){
+                setFieldNameAndQualField();
+                if (pui.responseElements[qualField] == null) pui.responseElements[qualField] = [];
+                pui.responseElements[qualField].push(dom);
+                dom.pui.widget.setFormattingObj(propname, formattingObj, qualField);
               }
             }
             
@@ -2539,6 +2525,11 @@ pui.renderFormat = function(parms) {
             designItem: designItem
           });
         }
+        
+        if (dom.pui && dom.pui.widget && dom.pui.widget){
+          // Instances of BasicWidget wait for all properties to be set before rendering.
+          dom.pui.widget.basicRender();
+        }
       }
       
       if (!isDesignMode && properties["field type"] == "layout") {
@@ -3023,6 +3014,16 @@ pui.renderFormat = function(parms) {
     // If this item can contain other items, then this allows this item's items to be deferred.
     if (item["field type"] == "layout" || item["field type"] == "grid"){
       lazyLayouts[item["id"]] = { root: lazylayout, container: contNum };
+    }
+  }
+  
+  // Set fieldName and qualField variables used for bound fields.
+  function setFieldNameAndQualField(){
+    fieldName = pui.fieldUpper(formattingObj.fieldName);
+    qualField = formatName + "." + fieldName;
+    if (pui.handler != null) qualField = fieldName;
+    if (parms.subfileRow != null) {
+      qualField += "." + (parms.subfileRow);
     }
   }
 };
@@ -3682,6 +3683,10 @@ pui.buildResponse = function(customResponseElements) {
         if (dom.type == "grid hidden field") {
           value = dom.value;  // this is not a real dom element
         }
+        
+        if (dom.pui && dom.pui.widget){
+          value = dom.pui.widget.getFieldValue(fieldName);
+        }
       }
     }
 
@@ -3700,7 +3705,9 @@ pui.buildResponse = function(customResponseElements) {
         }
       }
       
-      var formattingObj = dom.formattingInfo;
+      var formattingObj;
+      if (dom.pui && dom.pui.widget && dom.pui.widget) formattingObj = dom.pui.widget.getFormattingObj(fieldName);
+      else formattingObj = dom.formattingInfo;
       if (formattingObj != null && formattingObj.dataType != "expression") {
         if (formattingObj.textTransform != "uppercase" && dom.pui && dom.pui.properties && dom.pui.properties["text transform"] == "uppercase" && formattingObj.dataType == "char"){
           value = pui.replaceProblemCaseChars(value, true);   //Capital ẞ isn't supported in EBCDIC, so lower-case it for char.
@@ -4159,7 +4166,7 @@ pui.submitResponse = function(response, value) {
       var paramArr = [];
       for (var i = 0; i < pui.destParams.length; i++) {
         var name = pui.destParams[i][0];
-        var value = pui.destParams[i][1];        
+        value = pui.destParams[i][1];
         if (paramStr != "") paramStr += "&";
         paramStr += encodeURIComponent(name) + "=" + encodeURIComponent(value);
         paramArr.push("\"" + name + "\"", "\"" + value + "\"");

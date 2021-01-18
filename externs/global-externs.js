@@ -8,6 +8,7 @@
 Array.isArray = function(value) {};
 
 Object.defineProperty = function() {};
+Object.defineProperties = function() {};
 Object.entries = function() {};
 Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
