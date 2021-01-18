@@ -1177,7 +1177,19 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
   }
 }
 
-// Applies property value to field in design mode or at run-time
+/**
+ * Applies property value to field in design mode or at run-time
+ * @param {Object} propConfig
+ * @param {Object} properties
+ * @param {Element} domObj
+ * @param {String} newValue
+ * @param {Boolean} isDesignMode
+ * @param {Object|Null} designItem
+ * @param {Object|Null} resizer
+ * @param {Null|Number} subfileRow
+ * @param {undefined|Boolean} skipDirty
+ * @returns {undefined|Element}
+ */
 function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
 
   if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type")
@@ -1460,21 +1472,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   }
   var setterParms;
   if (setter != null || globalSetter != null) {
-    setterParms = {
-      newValue: newValue,
-      value: effectiveValue,
-      design: isDesignMode,
-      properties: properties,
-      originalValue: originalValue,
-      dom: dom,
-      oldDom: domObj,
-      propertyName: propConfigName,
-      designItem: designItem,
-      resizer: resizer,
-      evalProperty: function (propName) {
-        return evalPropertyValue(this.properties[propName], this.originalValue, this.dom);
-      }
-    };
+    setterParms = new pui.SetterParms( newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer );
   }
   if (globalSetter != null) {
     if (globalSetter(setterParms) == false) return;
@@ -1482,7 +1480,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (setter != null) {
     if (setter(setterParms) == false) return;
   }
-
+  
   if (reassigModifiedEvents) {
     if (newDomObj.comboBoxWidget != null) {
       var box = newDomObj.comboBoxWidget.getBox();
@@ -1985,23 +1983,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (setters != null) {
     setter = setters[propConfigName];
   }
-  var setterParms;
   if (setter != null || globalSetter != null) {
-    setterParms = {
-      newValue: newValue,
-      value: effectiveValue,
-      design: isDesignMode,
-      properties: properties,
-      originalValue: originalValue,
-      dom: dom,
-      oldDom: domObj,
-      propertyName: propConfigName,
-      designItem: designItem,
-      resizer: resizer,
-      evalProperty: function (propName) {
-        return evalPropertyValue(this.properties[propName], this.originalValue, this.dom);
-      }
-    };
+    setterParms = new pui.SetterParms( newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer );
   }
   if (globalSetter != null) {
     globalSetter(setterParms);
@@ -2013,6 +1996,32 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   return dom;
 
 }
+
+/**
+ * Parameters for propertySetters, globalSetter, afterSetters, or globalAfterSetter functions, some of which are defined in each widget.
+ * @constructor
+ * @returns {pui.SetterParms}
+ */
+pui.SetterParms = function (newValue, value, design, properties, originalValue, dom, oldDom, propertyName, designItem, resizer){
+  this.newValue = newValue;
+  this.value = value;
+  this.design = design;
+  this.properties = properties;
+  this.originalValue = originalValue;
+  this.dom = dom;
+  this.oldDom = oldDom;
+  this.propertyName = propertyName;
+  this.designItem = designItem;
+  this.resizer = resizer;
+};
+/**
+ * Evaluate a property value. Note: this function is allocated once for the prototype, instead of for every call to applyProperty as before.
+ * @param {String} propName
+ * @returns {String}
+ */
+pui.SetterParms.prototype.evalProperty = function(propName){
+  return evalPropertyValue(this.properties[propName], this.originalValue, this.dom);
+};
 
 function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
   var classArray = [];
@@ -2190,6 +2199,14 @@ pui.addCustomProperty = function (parms) {
 
   // insert property into both the properties model (array for reading properties sequentially) and the properties named model (object for referencing properties by name)
   delete parms.category; // the category name doesn't belong on the property definition in the properties model
+  
+  if (parms.bidirectional && Array.isArray(parms.controls)){
+    for (var i=0, n=parms.controls.length; i < n; i++){
+      var widgetName = parms.controls[i];
+      pui.widgets.mapInputProp(widgetName, parms.name);
+    }
+  }
+  
   pm.splice(insertAt, 0, parms);
   pnm[parms.name] = parms;
 
