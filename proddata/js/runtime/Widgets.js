@@ -291,10 +291,11 @@ pui.widgets.getTabStyles = function() {
  */
 pui.BasicWidget = function(parms, widgetName){
   // Public.
-  // The widget name gets stored under a non-enumerable, non-writable, non-configurable property: widgetName.
+  // The widget name gets stored under a non-enumerable, non-writable, configurable property: widgetName.
   Object.defineProperties(this, {
     widgetName: {
-      value: widgetName
+      value: widgetName,
+      'configurable': true
     }
   });
   this.design = parms.design;
@@ -321,10 +322,15 @@ pui.BasicWidget = function(parms, widgetName){
 pui.BasicWidget.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
- * Remove the DIV from the DOM, delete all object properties, and call a 'cleanup' method if any subclasses implement it.
+ * Remove everything in the DIV, delete all object properties, and call a 'cleanup' method if any subclasses implement it.
+ * The DIV cannot be removed from the DOM here; Genie needs the element to remain when switching in and out of design mode.
  */
 pui.BasicWidget.prototype.destroy = function(){
-  if (this.dom != null && this.dom.parentNode != null) this.dom.parentNode.removeChild(this.dom);
+  if (this.dom != null) { 
+    this.dom.innerHTML = '';
+    this.dom.removeEventListener('input', this);
+    this.dom.removeEventListener('change', this);
+  }
   // Allow subclasses to implement a cleanup method that would run before another renderFormat runs.
   try {
     if (typeof this['cleanup'] === 'function') this['cleanup']();
