@@ -380,11 +380,13 @@ pui.BasicWidget.prototype.setFormattingObj = function(propname, formattingObj, f
 
 /**
  * Returns formatting object for given field name. (Called during pui.buildResponse.)
+ * Note: sometimes renderFormat does not call setFormattingObj, so _fieldMap is not set; e.g. tag is "input" with inputType: "button". So,
+ * we test for the fieldMap entry before using it. Also, renderFormat stored the format elsewhere, in that case.
  * @param {String} fieldName
  * @returns {Object}
  */
 pui.BasicWidget.prototype.getFormattingObj = function(fieldName){
-  return this._fieldMap[fieldName].fobj;
+  if (this._fieldMap[fieldName]) return this._fieldMap[fieldName].fobj;
 };
 
 /**
