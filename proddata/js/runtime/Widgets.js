@@ -310,8 +310,12 @@ pui.BasicWidget = function(parms, widgetName){
   this._originalValues = {};
   this._originalValues[parms.propertyName] = parms.originalValue;
   
-  // Mapping with fieldNames as keys and values an object containing property names and formatting objects.
+  // Mapping of property names, with fieldNames as keys. Note: by using mappings the widget can support multiple different bound 
+  // input fields under various property names, not just under "value". Each property can support one field.
   this._fieldMap = {};
+  
+  // Mapping of formatting objects with property names as keys. For each bound property there exists up to one format.
+  this._formatMap = {};
   
   if (this.dom.pui == null) this.dom.pui = {};
   this.dom.pui.widget = this;
@@ -375,7 +379,8 @@ pui.BasicWidget.prototype.isInputCapableProp = function(propName){
  * @param {String} fieldName
  */
 pui.BasicWidget.prototype.setFormattingObj = function(propname, formattingObj, fieldName){
-  this._fieldMap[fieldName] = {pname: propname, fobj: formattingObj};
+  this._formatMap[propname] = formattingObj;
+  this._fieldMap[fieldName] = propname;
 };
 
 /**
@@ -383,38 +388,53 @@ pui.BasicWidget.prototype.setFormattingObj = function(propname, formattingObj, f
  * Note: sometimes renderFormat does not call setFormattingObj, so _fieldMap is not set; e.g. tag is "input" with inputType: "button". So,
  * we test for the fieldMap entry before using it. Also, renderFormat stored the format elsewhere, in that case.
  * @param {String} fieldName
- * @returns {Object}
+ * @returns {Object|undefined}
  */
 pui.BasicWidget.prototype.getFormattingObj = function(fieldName){
-  if (this._fieldMap[fieldName]) return this._fieldMap[fieldName].fobj;
+  var propname = this._fieldMap[fieldName];
+  if (propname){
+    return this._formatMap[propname];
+  }
 };
 
 /**
- * Lookup and return the value of a bound field given the fieldName. Returns a string when the value exists, else returns undefined. (Called by pui.buildResponse)
- * @param {String} fieldName
+ * Return the current property value for a given property name. Returns a string when the value exists, attempting to format if possible.
+ * Needed by this.getFieldValue. Can be called by our framework's getElementValue API (i.e. "get") with the argument, "value".
+ * @param {String|undefined|Null} propname
  * @returns {undefined|String}
  */
-pui.BasicWidget.prototype.getFieldValue = function(fieldName){
+pui.BasicWidget.prototype.getPropertyValue = function(propname){
   var returnVal;
-  var mapping = this._fieldMap[fieldName];
-  if (mapping != null){
-    var propname = mapping.pname;
-    var format = mapping.fobj;
+  if (propname != null){
+    var format = this._formatMap[propname];
     try {
       returnVal = this['getValue']( propname );
       if (typeof returnVal === 'number' || typeof returnVal === 'boolean') returnVal = String(returnVal);
       else if (returnVal instanceof Date){
-        if (typeof format.dateFormat === 'string'){
+        if (format != null && typeof format.dateFormat === 'string'){
           if (isNaN(returnVal.getYear())) returnVal = '';
           else returnVal = returnVal.format(format.dateFormat);
         }
         else returnVal = returnVal.toISOString();   //with no format, try using just the ISO date string.
       }
       else if (returnVal == null) returnVal = "";
-    } catch (exc) { console.log(exc); }
+    }
+    catch (exc) { console.log(exc); }
   }
   return returnVal;
 };
+
+/**
+ * Lookup and return the value of a bound field property given the fieldName. Returns a string when the value exists, else returns 
+ * undefined. (Called by pui.buildResponse)
+ * @param {String} fieldName
+ * @returns {undefined|String}
+ */
+pui.BasicWidget.prototype.getFieldValue = function(fieldName){
+  var propname = this._fieldMap[fieldName];
+  return this.getPropertyValue(propname);
+};
+
 
 /**
  * Evaluate the value of a property. Useful when rendering for the first time or in design mode. Can handle values set with "js: ...".
