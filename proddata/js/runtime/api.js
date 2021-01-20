@@ -155,7 +155,10 @@ function getElementValue(id) {
       elemValue = elem.onOffSwitch.offValue;
     }        
   }
-
+  
+  if (elem.pui && elem.pui.widget && typeof elem.pui.widget.getPropertyValue === 'function')
+    elemValue = elem.pui.widget.getPropertyValue('value');
+  
   elemValue = elemValue.replace(/&nbsp;/g,' ');
   // Safari and Opera use the non-breaking space character A0 (160) -- we'll replace this with a standard space
   while (elemValue.indexOf(String.fromCharCode(160)) != -1) {
@@ -261,6 +264,9 @@ function changeElementValue(id, val) {
     }
     else if (elem.button && elem.button.textDiv) {
       elem.button.textDiv.innerHTML = val;
+    }
+    else if (elem.pui && elem.pui.widget){
+      applyProperty(elem, 'value', val);
     }
     else {
       elem.innerHTML = val;
