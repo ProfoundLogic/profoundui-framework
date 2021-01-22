@@ -17057,3 +17057,15 @@ div.dsgnr-dialog.fields .body > label > input {
   font-size: 12px;
   margin-left: 10px;
 }
+
+div.selmkr {
+  position: absolute;
+  font-size: 0px;
+  border: 2px dashed #000000;
+  background-color: #cccccc;
+  filter: alpha(opacity=20);
+  opacity: 0.2;
+  visibility: hidden;
+  display: none;
+  z-index: 600;
+}
