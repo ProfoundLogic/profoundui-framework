@@ -508,8 +508,8 @@ if (!Array.prototype.findIndex) {
       // 7. Return -1.
       return -1;
     },
-    configurable: true,
-    writable: true
+    'configurable': true,  //Note: this must be quoted so the obfuscated does not change it, and so fusion-charts.js does not have issues. 6535.
+    'writable': true
   });
 }
 
