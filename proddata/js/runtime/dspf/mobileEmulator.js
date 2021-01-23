@@ -89,6 +89,7 @@ pui.setupMobileEmulator = function() {
     "url": getProgramURL("PUI0009112.pgm"),
     "method": "post",          
     "params": {
+      "workspace_id": pui["isCloud"] ? pui.cloud.ws.id : ""      
     },
     "suppressAlert": true,
     "handler": function (response) {
