@@ -206,8 +206,11 @@ pui.Widgets.prototype.bidirGlobalPropertySetter = function(parms){
 
       //if (widgetConfig['constr'] instanceof pui.BasicWidget){
       if (typeof widgetConfig['constr'] === 'function'){
-        // The custom widget uses a subclass of pui.BasicWidget, which implements necessary methods.
-        puiwidget = new widgetConfig['constr'](parms, widgetName);
+        try {
+          // The custom widget uses a subclass of pui.BasicWidget, which implements necessary methods.
+          puiwidget = new widgetConfig['constr'](parms, widgetName);
+        }
+        catch (exc) { console.log(exc); } //In case the custom constructor throws exceptions it's nicer to keep rendering and not halt.
       }
       else {
         puiwidget = new pui.BasicWidget(parms, widgetName);
