@@ -125,5 +125,6 @@ pui.locales.add({
     'ven',
     'sab'
   ],
-  'weekStart': 1
+  'weekStart': 1,
+  'weekNumberShort': 'Ns'
 });
