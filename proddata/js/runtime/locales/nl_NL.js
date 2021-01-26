@@ -125,5 +125,6 @@ pui.locales.add({
     'vr',
     'za'
   ],
-  'weekStart': 1
+  'weekStart': 1,
+  'weekNumberShort': 'Wk'
 });
