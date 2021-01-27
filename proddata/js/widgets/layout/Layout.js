@@ -288,6 +288,8 @@ pui.layout.Layout.prototype.center = function() {
       var halfWidth = parseInt(this.layoutDiv.offsetWidth / 2);
       if (!isNaN(halfWidth) && halfWidth > 0) {
         this.layoutDiv.style.left = "calc(50% - " + halfWidth + "px)";
+        var resizer = item.getResizer();
+        if (resizer) resizer.positionSizies();
       }
     }
   }
