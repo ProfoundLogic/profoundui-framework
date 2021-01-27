@@ -110,6 +110,7 @@ pui.layout.Layout.prototype.enableDesign = function() {
  */
 pui.layout.Layout.prototype._designOnClick = function(e){
   if (this.lockedInPlace) {
+    if (pui.designer.skipLayoutClick) return;
     var target = getTarget(e);
     if (target == this.layoutDiv || (target.getAttribute != null && target.getAttribute("container") == "true")) {  // make sure we're not clicking on a widget inside the layout
       // select the layout
