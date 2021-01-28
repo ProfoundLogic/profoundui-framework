@@ -65,7 +65,7 @@ function getPropertiesModel() {
     
     { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: ["bind", 
       "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. " 
-    + (pui.nodedesigner === true ? '' : 'The data structure should be defined as follows:'
+    + (pui.nodedesigner ? '' : 'The data structure should be defined as follows:'
     + '<pre class="propdefault">**FREE'+"\n" +  "DCL-DS UPLOADINFO QUALIFIED;\n" + "  NUMFILES  ZONED(3:0);\n" + "  DIRECTORY CHAR(256);\n" 
     + "  FILES     CHAR(256) DIM(6);\n" + "END-DS UPLOADINFO;" + "</pre>"
     ) + '<br>See also the <a href="https://docs.profoundlogic.com/x/tgD7" target="_blank">Upload Response</a> documentation.' ], controls: ["file upload", "file upload dnd"], context: "dspf" },
@@ -399,6 +399,7 @@ function getPropertiesModel() {
 // Provides list of global screen properties and their definitions
 function getScreenPropertiesModel(designScreen) {
 
+  // Universal Designer Screens
   if (pui.codeBased) {
     var model = [
       { name: "Identification", category: true }, 
@@ -426,7 +427,11 @@ function getScreenPropertiesModel(designScreen) {
     return model;
   }
 
+  // Rich Display File Screens
   if (context == "dspf") {
+    var compatTxt = '<span class="ddscompat">This property is for backward compatibility with IBM i display files. Profound Logic does not recommend it in new applications.</span><br><br>';
+    var nodeOnlyCompatTxt = (pui.nodedesigner ? compatTxt : '');    //For when the compatibility text only needs to be displayed for Node Designer.
+
     var model = [
       { name: "Identification", category: true }, 
       { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), help: pui.helpTextProperties("blank", "Identifies the name that is used to access this screen from server code."), maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
@@ -443,30 +448,30 @@ function getScreenPropertiesModel(designScreen) {
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false.") },
 
       { name: "Overlay", category: true }, 
-      { name: "overlay", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Specifies that the screen you are defining should appear on the display without the entire display being cleared first."), hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "overlay range", help: pui.helpTextProperties("blank", "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications."), bind: false, viewdesigner: false }, 
-      { name: "design overlay formats", type: "list", help: pui.helpTextProperties("blank", "Specifies a list of additional record formats to render in the designer when this record format is selected. This property is only used at design-time. It is ignored at run-time."), bind: false },
+      { name: "overlay", choices: ["true", "false"], type: "boolean", help: ["false", nodeOnlyCompatTxt + "Specifies that the screen you are defining should appear on the display without the entire display being cleared first."], hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "overlay range", help: ["blank", nodeOnlyCompatTxt + "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications."], bind: false, viewdesigner: false }, 
+      { name: "design overlay formats", type: "list", help: ["blank", "Specifies a list of additional record formats to render in the designer when this record format is selected. This property is only used at design-time. It is ignored at run-time."], bind: false },
 
       { name: "Behavior", category: true }, 
-      { name: "disable enter key", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "This property determines if pressing the Enter key will cause a response to be sent to the server. If set to true and the Enter key is not used as a shortcut key, the response will not be sent. Otherwise, the response is sent automatically."), hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, help: pui.helpTextProperties("false", "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program. It represents the INZRCD keyword."), viewdesigner: false }, 
-      { name: "protect", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied."), hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "erase formats", type: "eraseformats", readOnly: true, bind: false, help: pui.helpTextProperties("blank", "Identifies record formats to be erased when this record is written."), relatedProperties: ["erase format", "erase condition"], canBeRemoved: false, viewdesigner: false }, 
+      { name: "disable enter key", choices: ["true", "false"], type: "boolean", help: ["false", "This property determines if pressing the Enter key will cause a response to be sent to the server. If set to true and the Enter key is not used as a shortcut key, the response will not be sent. Otherwise, the response is sent automatically."], hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
+      { name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, help: ["false", compatTxt + "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program. It represents the INZRCD keyword."], viewdesigner: false }, 
+      { name: "protect", choices: ["true", "false"], type: "boolean", help: ["false", nodeOnlyCompatTxt + "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied."], hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
+      { name: "erase formats", type: "eraseformats", readOnly: true, bind: false, help: ["blank", compatTxt + "Identifies record formats to be erased when this record is written."], relatedProperties: ["erase format", "erase condition"], canBeRemoved: false, viewdesigner: false }, 
       { name: "erase format", label: "Record Format Name", maxLength: 10, uppercase: true, multOccur: true, hide: true, bind: false, help: "", viewdesigner: false }, 
       { name: "erase condition", label: "Erase Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false }, 
-      { name: "assume", choices: ["true", "false"], help: pui.helpTextProperties("false", "Use this property to specify that the program is to assume that a record is already shown on the display when this file is opened."), bind: false, viewdesigner: false }, 
-      { name: "clear line", choices: ["*END", "*NO", "*ALL", "Other..."], help: pui.helpTextProperties("blank", "Use this property to clear (delete) a specific number of lines before the record is displayed. It represents the CLRL keyword.", ["other"]), bind: false, viewdesigner: false }, 
-      { name: "starting line", help: pui.helpTextProperties("blank", "This property identifies the starting line of the record format. It is used in conjunction with 'clear line' property to specify where the clearing of lines begins. It represents the SLNO keyword."), bind: false, viewdesigner: false }, 
-      { name: "put override", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Use this property to override data contents or attributes of specific fields within a record. It represents the PUTOVR keyword."), hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "override data", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Use this property to together with the 'put override' property to override existing data contents already on the display. It represents the OVRDTA keyword."), hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "override attribute", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "Use this property to together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword."), hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "put retain", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword."), hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, help: pui.helpTextProperties("false", "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword."), viewdesigner: false },
+      { name: "assume", choices: ["true", "false"], help: ["false", compatTxt + "Use this property to specify that the program is to assume that a record is already shown on the display when this file is opened."], bind: false, viewdesigner: false }, 
+      { name: "clear line", choices: ["*END", "*NO", "*ALL", "Other..."], help: ["blank", compatTxt + "Use this property to clear (delete) a specific number of lines before the record is displayed. It represents the CLRL keyword.", ["other"]], bind: false, viewdesigner: false }, 
+      { name: "starting line", help: ["blank", compatTxt + "This property identifies the starting line of the record format. It is used in conjunction with 'clear line' property to specify where the clearing of lines begins. It represents the SLNO keyword."], bind: false, viewdesigner: false }, 
+      { name: "put override", choices: ["true", "false"], type: "boolean", help: ["false", compatTxt + "Use this property to override data contents or attributes of specific fields within a record. It represents the PUTOVR keyword."], hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "override data", choices: ["true", "false"], type: "boolean", help: ["false", compatTxt + "Use this property to together with the 'put override' property to override existing data contents already on the display. It represents the OVRDTA keyword."], hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "override attribute", choices: ["true", "false"], type: "boolean", help: ["false", compatTxt + "Use this property to together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword."], hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "put retain", choices: ["true", "false"], type: "boolean", help: ["false", compatTxt + "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword."], hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, help: ["false", nodeOnlyCompatTxt + "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword."], viewdesigner: false },
 
       { name: "Response", category: true }, 
       { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind", "Specifies a response indicator that is set on if data on any input element within the record format is modified.") }, 
-      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind", "Specifies response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off."), viewdesigner: false }, 
-      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind", "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server."), viewdesigner: false }, 
+      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: ["bind", nodeOnlyCompatTxt + "Specifies response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off."], viewdesigner: false }, 
+      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: ["bind", nodeOnlyCompatTxt + "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server."], viewdesigner: false }, 
       { name: "back button", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], help: pui.helpTextProperties("bind", "Specifies a response indicator that is set on when the user presses the browser's back button. This feature will only work in browsers that support the HTML5 history.pushState() method.") },
 
       { name: "Messages", category: true }, 
@@ -481,11 +486,11 @@ function getScreenPropertiesModel(designScreen) {
       { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true, help: pui.helpTextProperties("checked", "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent.") },
 
       { name: "Help", category: true, viewdesigner: false }, 
-      { name: "help titles", type: "helptitles", readOnly: true, bind: false, help: pui.helpTextProperties("blank", "Identifies the help title for the help panel. Multiple titles can be specified and conditioned using indicators."), relatedProperties: ["help title", "help title condition"], canBeRemoved: false, viewdesigner: false }, 
+      { name: "help titles", type: "helptitles", readOnly: true, bind: false, help: ["blank", compatTxt + "Identifies the help title for the help panel. Multiple titles can be specified and conditioned using indicators."], relatedProperties: ["help title", "help title condition"], canBeRemoved: false, viewdesigner: false }, 
       { name: "help title", label: "Help Title", multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
       { name: "help title condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false },
 
-      { name: "help panels", type: "helppanels", readOnly: true, bind: false, help: pui.helpTextProperties("blank", "Identifies the help area and the specifc help record or help panel group to display when the help button is clicked."), relatedProperties: ["help record", "help display file", "help panel group", "help module", "help area", "help panel condition"], canBeRemoved: false, viewdesigner: false }, 
+      { name: "help panels", type: "helppanels", readOnly: true, bind: false, help: ["blank", compatTxt + "Identifies the help area and the specifc help record or help panel group to display when the help button is clicked."], relatedProperties: ["help record", "help display file", "help panel group", "help module", "help area", "help panel condition"], canBeRemoved: false, viewdesigner: false }, 
       { name: "help record", label: "Help Record", uppercase: true, maxLength: 10, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
       { name: "help display file", label: "Help Display File", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
       { name: "help panel group", label: "Help Panel Group", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
@@ -534,6 +539,7 @@ function getScreenPropertiesModel(designScreen) {
     return model;
   }
 
+  // Genie Window
   if (designScreen.isWindow == true) {
     var model = [
       { name: "Identification", category: true }, 
@@ -549,6 +555,7 @@ function getScreenPropertiesModel(designScreen) {
     return model;
   }
 
+  // Genie Screen
   var model = [
     { name: "Identification", category: true },
     { name: "screen name", help: pui.helpTextProperties("[blank or matched screen name]", "The screen name is used to save the current screen to the server. The screen is saved to a .scn file under the selected skin. In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers."), canBeRemoved: false },
@@ -2031,12 +2038,11 @@ pui.helpTextProperties = function(defVal, descVal, descAdd, noteVal) {
     }
     // Overflow Examples:
     if (descAdd.indexOf("overflow") != -1) {
-      helpString += '<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>'
-      + '<hr><span style="font-weight:bold;">Valid options</span>: <br><ul class="listing"><li>' +
+      helpString += '<div class="section"><b>Valid options</b>:<br><ul class="listing"><li>' +
       codeOpen + "visible" + codeClose + " - lets the content flow beyond the dimensions of the element without a scrollbar.</li><li>" +
       codeOpen + "hidden" + codeClose + " - does not display a scrollbar and hides overflowing content.</li><li>" +
       codeOpen + "scroll" + codeClose + " - always displays the scrollbar.</li><li>" +
-      codeOpen + "auto" + codeClose + ' - displays the scrollbar only when the element&apos;s content goes beyond the elements dimensions.</li></ul>';
+      codeOpen + "auto" + codeClose + ' - displays the scrollbar only when the element&apos;s content goes beyond the elements dimensions.</li></ul></div>';
     }
     // Font Family Examples:
     if (descAdd.indexOf("pixel") != -1) {
