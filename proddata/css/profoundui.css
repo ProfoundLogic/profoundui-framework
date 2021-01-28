@@ -16762,6 +16762,29 @@ div.propwin .helppnl {
   white-space: normal;
 }
 
+div.propwin .helppnl .propname {  
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+div.propwin .helppnl div.section {
+  border-top: solid 2px #666666;
+  margin-top: 6px;
+  padding-top: 6px;
+  white-space: normal;
+}
+
+div.propwin .helppnl select {
+  background-color: #eee;
+  border:none;
+  width: 125px;
+  height: 14px;
+  font-size: 12px;
+  font-family: Arial;
+}
+
+div.propwin .helppnl select.color { font-weight: bold; }
+
 div.propwin input[type="button"].ellipses {
   font-family: Arial;
   font-size: 12px;
