@@ -27,450 +27,6 @@ var cachedScreens = {};
 
 pui.suppressPropertyScriptingErrors = false;
 
-/**
- * Return some formatted HTML describing a property.
- * @param {String} defVal   The default value the property uses.
- * @param {String} descVal  Description text of the property.
- * @param {Undefined|Array} descAdd   Cause additional, boilerplate descriptions to be added.
- * @param {Undefined|String} noteVal  If a note is passed, it's added to the end of the text.
- * @returns {String}
- */
-pui.helpTextProperties = function(defVal, descVal, descAdd, noteVal) {
-  var codeOpen = "<code class='propdefault'>";
-  var codeClose = "</code>";
-
-  var falseSpan = "<span title='The default value of the property is false.'>false</span>";
-  var trueSpan = "<span title='The default value of the property is true.'>true</span>";
-
-  var blankSpan = "<span title='The default value of the property is unset or not defined.'>[blank]</span>";
-
-  var cssSpan = "[<span title='The default value is the value defined in the CSS &#010;(theme/developer CSS classes defined in a CSS&#010;file or \"style\" DOM attribute) for the element.'>CSS value</span>]";
-
-  var placeholderSpan = "[<span title='The default value of the property is placeholder &#010;text, such as \"Lorem Ipsum...\" or \"HTML Content\".'>placeholder text</span>]";
-
-  var browserSpan = "[<span title='The default is determined by the browser for the element.'>browser setting</span>]";
-
-  var widgetSpan = "[<span title='The default value of this property is determined by the selected widget.'>selected widget</span>]";
-
-  var themeSpan = "[<span title='The default value of this property is based on the selected widget and its theme/template/purpose.'>selected widget</span>]";
-
-  var skinSpan = "[<span title='The default value of this property is determined by &#010;the selected skin and its defaults, CSS, and/or JavaScript customizations.'>selected skin</span>]";
-
-  var idSpan = "[<span title='The default ID is based on the name of the selected &#010;widget with no spaces and the first letter of each word capitalized.'>WidgetName</span>][<span title='A whole number value starting from 1 determined by how many of the same widget have previously been added to the Design grid.'>number</span>]";
-
-  var positionSpan = "[<span title='The default values are determined by where the &#010;widget is dropped/placed on the Designer grid.'>user drop point</span>]";
-
-  var bindSpan = "<span title='This property requires being bound and a value passed to or from your program.'>[bound value]</span>";
-
-  var otherText = " The 'Other...' option can be selected to write in a custom value.";
-  var pixelText = "Specify in pixels. <br><br>Example: " + codeOpen + "12px" + codeClose;
-
-  var listStyleTag = "<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>";
-  var optionsOpen = "<hr><span style='font-weight:bold;'>Valid options</span>: <br><ul class='listing'><li>";
-
-  var overflowOptions = listStyleTag + optionsOpen +
-    codeOpen + "visible" + codeClose + " - lets the content flow beyond the dimensions of the element without a scrollbar.</li><li>" +
-    codeOpen + "hidden" + codeClose + " - does not display a scrollbar and hides overflowing content.</li><li>" +
-    codeOpen + "scroll" + codeClose + " - always displays the scrollbar.</li><li>" +
-    codeOpen + "auto" + codeClose + " - displays the scrollbar only when the element's content goes beyond the elements dimensions.</li></ul>";
-
-  var fontOptions = "<hr><span style='font-weight:bold;'>Valid Font Families</span>: <select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-    "<option>Font Family List</option>" +
-    "<optgroup label='Serif'>" +
-    "<option style='font-family: Georgia, serif !important;'>Georgia, serif</option>" +
-    "<option style='font-family:'Palatino Linotype', 'Book Antiqua', Palatino, serif !important;'>'Palatino Linotype', 'Book Antiqua', Palatino, serif</option>" +
-    "<option style='font-family: 'Times New Roman', Times, serif !important;'>'Times New Roman', Times, serif</option>" +
-    "</optgroup>" +
-    "<optgroup label='Sans-Serif'>" +
-    "<option style='font-family: Arial, Helvetica, sans-serif !important;'>Arial, Helvetica, sans-serif</option>" +
-    "<option style='font-family: 'Arial Black', Gadget, sans-serif !important;'>'Arial Black', Gadget, sans-serif</option>" +
-    "<option style='font-family: 'Comic Sans MS', cursive, sans-serif !important;'>'Comic Sans MS', cursive, sans-serif</option>" +
-    "<option style='font-family: Impact, Charcoal, sans-serif !important;'>&nbsp;&nbsp;&nbsp;Impact, Charcoal, sans-serif</option>" +
-    "<option style='font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif !important;'>'Lucida Sans Unicode', 'Lucida Grande', sans-serif</option>" +
-    "<option style='font-family: Tahoma, Geneva, sans-serif !important;'>Tahoma, Geneva, sans-serif</option>" +
-    "<option style='font-family: 'Trebuchet MS', Helvetica, sans-serif !important;'>'Trebuchet MS', Helvetica, sans-serif</option>" +
-    "<option style='font-family: Verdana, Geneva, sans-serif !important;'>Verdana, Geneva, sans-serif</option>" +
-    "</optgroup>" +
-    "<optgroup label='Monospace'>" +
-    "<option style='font-family: 'Courier New', Courier, monospace !important;'>'Courier New', Courier, monospace</option>" +
-    "<option style='font-family: 'Lucida Console', Monaco, monospace !important;'>'Lucida Console', Monaco, monospace</option>" +
-    "</optgroup>" +
-    "</select>" +
-    "<br>All other fonts must be imported in some manner.<br><br>Example:" + codeOpen + "<br>@font-face {" +
-    "<br>&ensp; font-family: myCustomFont;" +
-    "<br>&ensp; src: url('myCustomFont.ttf');" +
-    "<br>}" + codeClose + "<br><br>&#x1F6D1 Make sure your font file extension is supported in the browsers users will be using before attempting this.";
-
-  var colorOptions = "<hr><span style='font-weight:bold;'>Usage</span>: Enter a color name, hex, or select a color." +
-    "<hr><span style='font-weight:bold;'>Valid Color Names</span>: " +
-    "<select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-    "<option>Text Colors</option>" +
-    "<option style='font-weight: bold; background-color: #71706F !important; color: AliceBlue;'>AliceBlue</option>" +
-    "<option style='font-weight: bold; background-color: #716363 !important; color: AntiqueWhite;'>AntiqueWhite</option>" +
-    "<option style='font-weight: bold; background-color: #716363 !important; color: Aqua;'>Aqua</option>" +
-    "<option style='font-weight: bold; background-color: #716363 !important; color: Aquamarine;'>Aquamarine</option>" +
-    "<option style='font-weight: bold; background-color: #8A6C6C !important; color: Azure;'>Azure</option>" +
-    "<option style='font-weight: bold; background-color: #716C6F !important; color: Beige;'>Beige</option>" +
-    "<option style='font-weight: bold; background-color: #686964 !important; color: Bisque;'>Bisque</option>" +
-    "<option style='font-weight: bold; background-color: #828282 !important; color: Black;'>Black</option>" +
-    "<option style='font-weight: bold; background-color: #825A5A !important; color: BlanchedAlmond;'>BlanchedAlmond</option>" +
-    "<option style='font-weight: bold; background-color: #E6E6D3 !important; color: Blue;'>Blue</option>" +
-    "<option style='font-weight: bold; background-color: #E3E3E2 !important; color: BlueViolet;'>BlueViolet</option>" +
-    "<option style='font-weight: bold; background-color: #D9D2D2 !important; color: Brown;'>Brown</option>" +
-    "<option style='font-weight: bold; background-color: #483723 !important; color: BurlyWood;'>BurlyWood</option>" +
-    "<option style='font-weight: bold; background-color: #201822 !important; color: CadetBlue;'>CadetBlue</option>" +
-    "<option style='font-weight: bold; background-color: #465040 !important; color: Chartreuse;'>Chartreuse</option>" +
-    "<option style='font-weight: bold; background-color: #080901 !important; color: Chocolate;'>Chocolate</option>" +
-    "<option style='font-weight: bold; background-color: #372821 !important; color: Coral;'>Coral</option>" +
-    "<option style='font-weight: bold; background-color: #241A20 !important; color: CornflowerBlue; '>CornflowerBlue</option>" +
-    "<option style='font-weight: bold; background-color: #695C30 !important; color: Cornsilk;'>Cornsilk</option>" +
-    "<option style='font-weight: bold; background-color: #F6F6F3 !important; color: Crimson;'>Crimson</option>" +
-    "<option style='font-weight: bold; background-color: #4A5469 !important; color: Cyan;'>Cyan</option>" +
-    "<option style='font-weight: bold; background-color: #95A5A2 !important; color: DarkBlue;'>DarkBlue</option>" +
-    "<option style='font-weight: bold; background-color: #0B040E !important; color: DarkCyan;'>DarkCyan</option>" +
-    "<option style='font-weight: bold; background-color: #211412 !important; color: DarkGoldenRod;'>DarkGoldenRod</option>" +
-    "<option style='font-weight: bold; background-color: #2C2C2C !important; color: DarkGray;'>DarkGray</option>" +
-    "<option style='font-weight: bold; background-color: #CCCCCC !important; color: DarkGreen;'>DarkGreen</option>" +
-    "<option style='font-weight: bold; background-color: #403129 !important; color: DarkKhaki;'>DarkKhaki</option>" +
-    "<option style='font-weight: bold; background-color: #C3D4D9 !important; color: DarkMagenta;'>DarkMagenta</option>" +
-    "<option style='font-weight: bold; background-color: #DEE7ED !important; color: DarkOliveGreen;'>DarkOliveGreen</option>" +
-    "<option style='font-weight: bold; background-color: #372C21 !important; color: DarkOrange;'>DarkOrange</option>" +
-    "<option style='font-weight: bold; background-color: #E4E6D6 !important; color: DarkOrchid;'>DarkOrchid</option>" +
-    "<option style='font-weight: bold; background-color: #BBBFAC !important; color: DarkRed;'>DarkRed</option>" +
-    "<option style='font-weight: bold; background-color: #3A2923 !important; color: DarkSalmon;'>DarkSalmon</option>" +
-    "<option style='font-weight: bold; background-color: #16353F !important; color: DarkSeaGreen;'>DarkSeaGreen</option>" +
-    "<option style='font-weight: bold; background-color: #D9CBCB !important; color: DarkSlateBlue;'>DarkSlateBlue</option>" +
-    "<option style='font-weight: bold; background-color: #D1D1D1 !important; color: DarkSlateGray;'>DarkSlateGray</option>" +
-    "<option style='font-weight: bold; background-color: #1D393B !important; color: DarkTurquoise;'>DarkTurquoise</option>" +
-    "<option style='font-weight: bold; background-color: #EBEDED !important; color: DarkViolet;'>DarkViolet</option>" +
-    "<option style='font-weight: bold; background-color: #1B0E1E !important; color: DeepPink;'>DeepPink</option>" +
-    "<option style='font-weight: bold; background-color: #053725 !important; color: DeepSkyBlue;'>DeepSkyBlue</option>" +
-    "<option style='font-weight: bold; background-color: #EBEBEB !important; color: DimGray;'>DimGray</option>" +
-    "<option style='font-weight: bold; background-color: #2A1237 !important; color: DodgerBlue;'>DodgerBlue</option>" +
-    "<option style='font-weight: bold; background-color: #E0E6CE !important; color: FireBrick;'>FireBrick</option>" +
-    "<option style='font-weight: bold; background-color: #69604C !important; color: FloralWhite;'>FloralWhite</option>" +
-    "<option style='font-weight: bold; background-color: #01030E !important; color: ForestGreen;'>ForestGreen</option>" +
-    "<option style='font-weight: bold; background-color: #370537 !important; color: Fuchsia;'>Fuchsia</option>" +
-    "<option style='font-weight: bold; background-color: #5F4C4C !important; color: Gainsboro;'>Gainsboro</option>" +
-    "<option style='font-weight: bold; background-color: #615B69 !important; color: GhostWhite;'>GhostWhite</option>" +
-    "<option style='font-weight: bold; background-color: #504930 !important; color: Gold;'>Gold</option>" +
-    "<option style='font-weight: bold; background-color: #442E2C !important; color: GoldenRod;'>GoldenRod</option>" +
-    "<option style='font-weight: bold; background-color: #020202 !important; color: Gray;'>Gray</option>" +
-    "<option style='font-weight: bold; background-color: #BCE8D6 !important; color: Green;'>Green</option>" +
-    "<option style='font-weight: bold; background-color: #275C69 !important; color: GreenYellow;'>GreenYellow</option>" +
-    "<option style='font-weight: bold; background-color: #4C6269 !important; color: HoneyDew;'>HoneyDew</option>" +
-    "<option style='font-weight: bold; background-color: #501130 !important; color: HotPink;'>HotPink</option>" +
-    "<option style='font-weight: bold; background-color: #000402 !important; color: IndianRed;'>IndianRed</option>" +
-    "<option style='font-weight: bold; background-color: #A3B0B6 !important; color: Indigo;'>Indigo</option>" +
-    "<option style='font-weight: bold; background-color: #695D58 !important; color: Ivory;'>Ivory</option>" +
-    "<option style='font-weight: bold; background-color: #5A5208 !important; color: Khaki;'>Khaki</option>" +
-    "<option style='font-weight: bold; background-color: #5C5064 !important; color: Lavender;'>Lavender</option>" +
-    "<option style='font-weight: bold; background-color: #825463 !important; color: LavenderBlush;'>LavenderBlush</option>" +
-    "<option style='font-weight: bold; background-color: #4B4D4B !important; color: LawnGreen;'>LawnGreen</option>" +
-    "<option style='font-weight: bold; background-color: #69605D !important; color: LemonChiffon;'>LemonChiffon</option>" +
-    "<option style='font-weight: bold; background-color: #334850 !important; color: LightBlue;'>LightBlue</option>" +
-    "<option style='font-weight: bold; background-color: #5A0C0C !important; color: LightCoral;'>LightCoral</option>" +
-    "<option style='font-weight: bold; background-color: #5D5C69 !important; color: LightCyan;'>LightCyan</option>" +
-    "<option style='font-weight: bold; background-color: #64605C !important; color: LightGoldenRodYellow;'>LightGoldenRodYellow</option>" +
-    "<option style='font-weight: bold; background-color: #6F4343 !important; color: LightGray;'>LightGray</option>" +
-    "<option style='font-weight: bold; background-color: #355158 !important; color: LightGreen;'>LightGreen</option>" +
-    "<option style='font-weight: bold; background-color: #50404B !important; color: LightPink;'>LightPink</option>" +
-    "<option style='font-weight: bold; background-color: #373430 !important; color: LightSalmon;'>LightSalmon</option>" +
-    "<option style='font-weight: bold; background-color: #242B35 !important; color: LightSeaGreen;'>LightSeaGreen</option>" +
-    "<option style='font-weight: bold; background-color: #034B3C !important; color: LightSkyBlue;'>LightSkyBlue</option>" +
-    "<option style='font-weight: bold; background-color: #240535 !important; color: LightSlateGray;'>LightSlateGray</option>" +
-    "<option style='font-weight: bold; background-color: #074845 !important; color: LightSteelBlue;'>LightSteelBlue</option>" +
-    "<option style='font-weight: bold; background-color: #69605C !important; color: LightYellow;'>LightYellow</option>" +
-    "<option style='font-weight: bold; background-color: #165869 !important; color: Lime;'>Lime</option>" +
-    "<option style='font-weight: bold; background-color: #233237 !important; color: LimeGreen;'>LimeGreen</option>" +
-    "<option style='font-weight: bold; background-color: #645A50 !important; color: Linen;'>Linen</option>" +
-    "<option style='font-weight: bold; background-color: #370537 !important; color: Magenta;'>Magenta</option>" +
-    "<option style='font-weight: bold; background-color: #CEB291 !important; color: Maroon;'>Maroon</option>" +
-    "<option style='font-weight: bold; background-color: #2C3732 !important; color: MediumAquaMarine;'>MediumAquaMarine</option>" +
-    "<option style='font-weight: bold; background-color: #CCA5E7 !important; color: MediumBlue;'>MediumBlue</option>" +
-    "<option style='font-weight: bold; background-color: #160D3D !important; color: MediumOrchid;'>MediumOrchid</option>" +
-    "<option style='font-weight: bold; background-color: #28012C !important; color: MediumPurple;'>MediumPurple</option>" +
-    "<option style='font-weight: bold; background-color: #073336 !important; color: MediumSeaGreen;'>MediumSeaGreen</option>" +
-    "<option style='font-weight: bold; background-color: #0B013F !important; color: MediumSlateBlue;'>MediumSlateBlue</option>" +
-    "<option style='font-weight: bold; background-color: #644463 !important; color: MediumSpringGreen;'>MediumSpringGreen</option>" +
-    "<option style='font-weight: bold; background-color: #2C3D54 !important; color: MediumTurquoise;'>MediumTurquoise</option>" +
-    "<option style='font-weight: bold; background-color: #E3EDFB !important; color: MediumVioletRed;'>MediumVioletRed</option>" +
-    "<option style='font-weight: bold; background-color: #A4859B !important; color: MidnightBlue;'>MidnightBlue</option>" +
-    "<option style='font-weight: bold; background-color: #446469 !important; color: MintCream;'>MintCream</option>" +
-    "<option style='font-weight: bold; background-color: #695450 !important; color: MistyRose;'>MistyRose</option>" +
-    "<option style='font-weight: bold; background-color: #695454 !important; color: Moccasin;'>Moccasin</option>" +
-    "<option style='font-weight: bold; background-color: #695454 !important; color: NavajoWhite;'>NavajoWhite</option>" +
-    "<option style='font-weight: bold; background-color: #CE7EBE !important; color: Navy;'>Navy</option>" +
-    "<option style='font-weight: bold; background-color: #675A48 !important; color: OldLace;'>OldLace</option>" +
-    "<option style='font-weight: bold; background-color: #050535 !important; color: Olive;'>Olive</option>" +
-    "<option style='font-weight: bold; background-color: #110D02 !important; color: OliveDrab;'>OliveDrab</option>" +
-    "<option style='font-weight: bold; background-color: #373232 !important; color: Orange;'>Orange</option>" +
-    "<option style='font-weight: bold; background-color: #370E00 !important; color: OrangeRed;'>OrangeRed</option>" +
-    "<option style='font-weight: bold; background-color: #231E2B !important; color: Orchid;'>Orchid</option>" +
-    "<option style='font-weight: bold; background-color: #585224 !important; color: PaleGoldenRod;'>PaleGoldenRod</option>" +
-    "<option style='font-weight: bold; background-color: #596561 !important; color: PaleGreen;'>PaleGreen</option>" +
-    "<option style='font-weight: bold; background-color: #0C5858 !important; color: PaleTurquoise;'>PaleTurquoise</option>" +
-    "<option style='font-weight: bold; background-color: #450117 !important; color: PaleVioletRed;'>PaleVioletRed</option>" +
-    "<option style='font-weight: bold; background-color: #825453 !important; color: PapayaWhip;'>PapayaWhip</option>" +
-    "<option style='font-weight: bold; background-color: #504C49 !important; color: PeachPuff;'>PeachPuff</option>" +
-    "<option style='font-weight: bold; background-color: #372516 !important; color: Peru;'>Peru</option>" +
-    "<option style='font-weight: bold; background-color: #693A5C !important; color: Pink;'>Pink</option>" +
-    "<option style='font-weight: bold; background-color: #3A3347 !important; color: Plum;'>Plum</option>" +
-    "<option style='font-weight: bold; background-color: #4A5982 !important; color: PowderBlue;'>PowderBlue</option>" +
-    "<option style='font-weight: bold; background-color: #BAC9CE !important; color: Purple;'>Purple</option>" +
-    "<option style='font-weight: bold; background-color: #BDCDC8 !important; color: RebeccaPurple;'>RebeccaPurple</option>" +
-    "<option style='font-weight: bold; background-color: #370000 !important; color: Red;'>Red</option>" +
-    "<option style='font-weight: bold; background-color: #580505 !important; color: RosyBrown;'>RosyBrown</option>" +
-    "<option style='font-weight: bold; background-color: #F2FBE2 !important; color: RoyalBlue;'>RoyalBlue</option>" +
-    "<option style='font-weight: bold; background-color: #D9D1CB !important; color: SaddleBrown;'>SaddleBrown</option>" +
-    "<option style='font-weight: bold; background-color: #642119 !important; color: Salmon;'>Salmon</option>" +
-    "<option style='font-weight: bold; background-color: #45382F !important; color: SandyBrown;'>SandyBrown</option>" +
-    "<option style='font-weight: bold; background-color: #010E27 !important; color: SeaGreen;'>SeaGreen</option>" +
-    "<option style='font-weight: bold; background-color: #825E45 !important; color: SeaShell;'>SeaShell</option>" +
-    "<option style='font-weight: bold; background-color: #E8EAEE !important; color: Sienna;'>Sienna</option>" +
-    "<option style='font-weight: bold; background-color: #5C4A4A !important; color: Silver;'>Silver</option>" +
-    "<option style='font-weight: bold; background-color: #1F4455 !important; color: SkyBlue;'>SkyBlue</option>" +
-    "<option style='font-weight: bold; background-color: #FFF2CD !important; color: SlateBlue;'>SlateBlue</option>" +
-    "<option style='font-weight: bold; background-color: #13102C !important; color: SlateGray;'>SlateGray</option>" +
-    "<option style='font-weight: bold; background-color: #826464 !important; color: Snow;'>Snow</option>" +
-    "<option style='font-weight: bold; background-color: #546469 !important; color: SpringGreen;'>SpringGreen</option>" +
-    "<option style='font-weight: bold; background-color: #09141E !important; color: SteelBlue;'>SteelBlue</option>" +
-    "<option style='font-weight: bold; background-color: #554737 !important; color: Tan;'>Tan</option>" +
-    "<option style='font-weight: bold; background-color: #202835 !important; color: Teal;'>Teal</option>" +
-    "<option style='font-weight: bold; background-color: #744256 !important; color: Thistle;'>Thistle</option>" +
-    "<option style='font-weight: bold; background-color: #372C2A !important; color: Tomato;'>Tomato</option>" +
-    "<option style='font-weight: bold; background-color: #2E557C !important; color: Turquoise;'>Turquoise</option>" +
-    "<option style='font-weight: bold; background-color: #710F71 !important; color: Violet;'>Violet</option>" +
-    "<option style='font-weight: bold; background-color: #785757 !important; color: Wheat;'>Wheat</option>" +
-    "<option style='font-weight: bold; background-color: #827373 !important; color: White;'>White</option>" +
-    "<option style='font-weight: bold; background-color: #786A6A !important; color: WhiteSmoke;'>WhiteSmoke</option>" +
-    "<option style='font-weight: bold; background-color: #82695C !important; color: Yellow;'>Yellow</option>" +
-    "<option style='font-weight: bold; background-color: #504C43 !important; color: YellowGreen;'>YellowGreen</option>" +
-    "</select>" +
-    "<br>All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>)<br>&ensp;";
-
-  var bgColorOptions = "<hr><span style='font-weight:bold;'>Usage</span>: Enter a color name, hex, or select a color." +
-    "<hr><span style='font-weight:bold;'>Valid Color Names</span>: " +
-    "<select style='background-color: #eee; border:none; width: 125px; height: 14px; font-size: 12px; font-family: Arial;'>" +
-    "<option>Background Colors</option>" +
-    "<option style='font-weight: bold; color: #71706F !important; background-color: AliceBlue !important;'>AliceBlue</option>" +
-    "<option style='font-weight: bold; color: #716363 !important; background-color: AntiqueWhite !important;'>AntiqueWhite</option>" +
-    "<option style='font-weight: bold; color: #716363 !important; background-color: Aqua !important;'>Aqua</option>" +
-    "<option style='font-weight: bold; color: #716363 !important; background-color: Aquamarine !important;'>Aquamarine</option>" +
-    "<option style='font-weight: bold; color: #8A6C6C !important; background-color: Azure !important;'>Azure</option>" +
-    "<option style='font-weight: bold; color: #716C6F !important; background-color: Beige !important;'>Beige</option>" +
-    "<option style='font-weight: bold; color: #686964 !important; background-color: Bisque !important;'>Bisque</option>" +
-    "<option style='font-weight: bold; color: #828282 !important; background-color: Black !important;'>Black</option>" +
-    "<option style='font-weight: bold; color: #825A5A !important; background-color: BlanchedAlmond !important;'>BlanchedAlmond</option>" +
-    "<option style='font-weight: bold; color: #E6E6D3 !important; background-color: Blue !important;'>Blue</option>" +
-    "<option style='font-weight: bold; color: #E3E3E2 !important; background-color: BlueViolet !important;'>BlueViolet</option>" +
-    "<option style='font-weight: bold; color: #D9D2D2 !important; background-color: Brown !important;'>Brown</option>" +
-    "<option style='font-weight: bold; color: #483723 !important; background-color: BurlyWood !important;'>BurlyWood</option>" +
-    "<option style='font-weight: bold; color: #201822 !important; background-color: CadetBlue !important;'>CadetBlue</option>" +
-    "<option style='font-weight: bold; color: #465040 !important; background-color: Chartreuse !important;'>Chartreuse</option>" +
-    "<option style='font-weight: bold; color: #080901 !important; background-color: Chocolate !important;'>Chocolate</option>" +
-    "<option style='font-weight: bold; color: #372821 !important; background-color: Coral !important;'>Coral</option>" +
-    "<option style='font-weight: bold; color: #241A20 !important; background-color: CornflowerBlue !important; '>CornflowerBlue</option>" +
-    "<option style='font-weight: bold; color: #695C30 !important; background-color: Cornsilk !important;'>Cornsilk</option>" +
-    "<option style='font-weight: bold; color: #F6F6F3 !important; background-color: Crimson !important;'>Crimson</option>" +
-    "<option style='font-weight: bold; color: #4A5469 !important; background-color: Cyan !important;'>Cyan</option>" +
-    "<option style='font-weight: bold; color: #95A5A2 !important; background-color: DarkBlue !important;'>DarkBlue</option>" +
-    "<option style='font-weight: bold; color: #0B040E !important; background-color: DarkCyan !important;'>DarkCyan</option>" +
-    "<option style='font-weight: bold; color: #211412 !important; background-color: DarkGoldenRod !important;'>DarkGoldenRod</option>" +
-    "<option style='font-weight: bold; color: #2C2C2C !important; background-color: DarkGray !important;'>DarkGray</option>" +
-    "<option style='font-weight: bold; color: #CCCCCC !important; background-color: DarkGreen !important;'>DarkGreen</option>" +
-    "<option style='font-weight: bold; color: #403129 !important; background-color: DarkKhaki !important;'>DarkKhaki</option>" +
-    "<option style='font-weight: bold; color: #C3D4D9 !important; background-color: DarkMagenta !important;'>DarkMagenta</option>" +
-    "<option style='font-weight: bold; color: #DEE7ED !important; background-color: DarkOliveGreen !important;'>DarkOliveGreen</option>" +
-    "<option style='font-weight: bold; color: #372C21 !important; background-color: DarkOrange !important;'>DarkOrange</option>" +
-    "<option style='font-weight: bold; color: #E4E6D6 !important; background-color: DarkOrchid !important;'>DarkOrchid</option>" +
-    "<option style='font-weight: bold; color: #BBBFAC !important; background-color: DarkRed !important;'>DarkRed</option>" +
-    "<option style='font-weight: bold; color: #3A2923 !important; background-color: DarkSalmon !important;'>DarkSalmon</option>" +
-    "<option style='font-weight: bold; color: #16353F !important; background-color: DarkSeaGreen !important;'>DarkSeaGreen</option>" +
-    "<option style='font-weight: bold; color: #D9CBCB !important; background-color: DarkSlateBlue !important;'>DarkSlateBlue</option>" +
-    "<option style='font-weight: bold; color: #D1D1D1 !important; background-color: DarkSlateGray !important;'>DarkSlateGray</option>" +
-    "<option style='font-weight: bold; color: #1D393B !important; background-color: DarkTurquoise !important;'>DarkTurquoise</option>" +
-    "<option style='font-weight: bold; color: #EBEDED !important; background-color: DarkViolet !important;'>DarkViolet</option>" +
-    "<option style='font-weight: bold; color: #1B0E1E !important; background-color: DeepPink !important;'>DeepPink</option>" +
-    "<option style='font-weight: bold; color: #053725 !important; background-color: DeepSkyBlue !important;'>DeepSkyBlue</option>" +
-    "<option style='font-weight: bold; color: #EBEBEB !important; background-color: DimGray !important;'>DimGray</option>" +
-    "<option style='font-weight: bold; color: #2A1237 !important; background-color: DodgerBlue !important;'>DodgerBlue</option>" +
-    "<option style='font-weight: bold; color: #E0E6CE !important; background-color: FireBrick !important;'>FireBrick</option>" +
-    "<option style='font-weight: bold; color: #69604C !important; background-color: FloralWhite !important;'>FloralWhite</option>" +
-    "<option style='font-weight: bold; color: #01030E !important; background-color: ForestGreen !important;'>ForestGreen</option>" +
-    "<option style='font-weight: bold; color: #370537 !important; background-color: Fuchsia !important;'>Fuchsia</option>" +
-    "<option style='font-weight: bold; color: #5F4C4C !important; background-color: Gainsboro !important;'>Gainsboro</option>" +
-    "<option style='font-weight: bold; color: #615B69 !important; background-color: GhostWhite !important;'>GhostWhite</option>" +
-    "<option style='font-weight: bold; color: #504930 !important; background-color: Gold !important;'>Gold</option>" +
-    "<option style='font-weight: bold; color: #442E2C !important; background-color: GoldenRod !important;'>GoldenRod</option>" +
-    "<option style='font-weight: bold; color: #020202 !important; background-color: Gray !important;'>Gray</option>" +
-    "<option style='font-weight: bold; color: #BCE8D6 !important; background-color: Green !important;'>Green</option>" +
-    "<option style='font-weight: bold; color: #275C69 !important; background-color: GreenYellow !important;'>GreenYellow</option>" +
-    "<option style='font-weight: bold; color: #4C6269 !important; background-color: HoneyDew !important;'>HoneyDew</option>" +
-    "<option style='font-weight: bold; color: #501130 !important; background-color: HotPink !important;'>HotPink</option>" +
-    "<option style='font-weight: bold; color: #000402 !important; background-color: IndianRed !important;'>IndianRed</option>" +
-    "<option style='font-weight: bold; color: #A3B0B6 !important; background-color: Indigo !important;'>Indigo</option>" +
-    "<option style='font-weight: bold; color: #695D58 !important; background-color: Ivory !important;'>Ivory</option>" +
-    "<option style='font-weight: bold; color: #5A5208 !important; background-color: Khaki !important;'>Khaki</option>" +
-    "<option style='font-weight: bold; color: #5C5064 !important; background-color: Lavender !important;'>Lavender</option>" +
-    "<option style='font-weight: bold; color: #825463 !important; background-color: LavenderBlush !important;'>LavenderBlush</option>" +
-    "<option style='font-weight: bold; color: #4B4D4B !important; background-color: LawnGreen !important;'>LawnGreen</option>" +
-    "<option style='font-weight: bold; color: #69605D !important; background-color: LemonChiffon !important;'>LemonChiffon</option>" +
-    "<option style='font-weight: bold; color: #334850 !important; background-color: LightBlue !important;'>LightBlue</option>" +
-    "<option style='font-weight: bold; color: #5A0C0C !important; background-color: LightCoral !important;'>LightCoral</option>" +
-    "<option style='font-weight: bold; color: #5D5C69 !important; background-color: LightCyan !important;'>LightCyan</option>" +
-    "<option style='font-weight: bold; color: #64605C !important; background-color: LightGoldenRodYellow !important;'>LightGoldenRodYellow</option>" +
-    "<option style='font-weight: bold; color: #6F4343 !important; background-color: LightGray !important;'>LightGray</option>" +
-    "<option style='font-weight: bold; color: #355158 !important; background-color: LightGreen !important;'>LightGreen</option>" +
-    "<option style='font-weight: bold; color: #50404B !important; background-color: LightPink !important;'>LightPink</option>" +
-    "<option style='font-weight: bold; color: #373430 !important; background-color: LightSalmon !important;'>LightSalmon</option>" +
-    "<option style='font-weight: bold; color: #242B35 !important; background-color: LightSeaGreen !important;'>LightSeaGreen</option>" +
-    "<option style='font-weight: bold; color: #034B3C !important; background-color: LightSkyBlue !important;'>LightSkyBlue</option>" +
-    "<option style='font-weight: bold; color: #240535 !important; background-color: LightSlateGray !important;'>LightSlateGray</option>" +
-    "<option style='font-weight: bold; color: #074845 !important; background-color: LightSteelBlue !important;'>LightSteelBlue</option>" +
-    "<option style='font-weight: bold; color: #69605C !important; background-color: LightYellow !important;'>LightYellow</option>" +
-    "<option style='font-weight: bold; color: #165869 !important; background-color: Lime !important;'>Lime</option>" +
-    "<option style='font-weight: bold; color: #233237 !important; background-color: LimeGreen !important;'>LimeGreen</option>" +
-    "<option style='font-weight: bold; color: #645A50 !important; background-color: Linen !important;'>Linen</option>" +
-    "<option style='font-weight: bold; color: #370537 !important; background-color: Magenta !important;'>Magenta</option>" +
-    "<option style='font-weight: bold; color: #CEB291 !important; background-color: Maroon !important;'>Maroon</option>" +
-    "<option style='font-weight: bold; color: #2C3732 !important; background-color: MediumAquaMarine !important;'>MediumAquaMarine</option>" +
-    "<option style='font-weight: bold; color: #CCA5E7 !important; background-color: MediumBlue !important;'>MediumBlue</option>" +
-    "<option style='font-weight: bold; color: #160D3D !important; background-color: MediumOrchid !important;'>MediumOrchid</option>" +
-    "<option style='font-weight: bold; color: #28012C !important; background-color: MediumPurple !important;'>MediumPurple</option>" +
-    "<option style='font-weight: bold; color: #073336 !important; background-color: MediumSeaGreen !important;'>MediumSeaGreen</option>" +
-    "<option style='font-weight: bold; color: #0B013F !important; background-color: MediumSlateBlue !important;'>MediumSlateBlue</option>" +
-    "<option style='font-weight: bold; color: #644463 !important; background-color: MediumSpringGreen !important;'>MediumSpringGreen</option>" +
-    "<option style='font-weight: bold; color: #2C3D54 !important; background-color: MediumTurquoise !important;'>MediumTurquoise</option>" +
-    "<option style='font-weight: bold; color: #E3EDFB !important; background-color: MediumVioletRed !important;'>MediumVioletRed</option>" +
-    "<option style='font-weight: bold; color: #A4859B !important; background-color: MidnightBlue !important;'>MidnightBlue</option>" +
-    "<option style='font-weight: bold; color: #446469 !important; background-color: MintCream !important;'>MintCream</option>" +
-    "<option style='font-weight: bold; color: #695450 !important; background-color: MistyRose !important;'>MistyRose</option>" +
-    "<option style='font-weight: bold; color: #695454 !important; background-color: Moccasin !important;'>Moccasin</option>" +
-    "<option style='font-weight: bold; color: #695454 !important; background-color: NavajoWhite !important;'>NavajoWhite</option>" +
-    "<option style='font-weight: bold; color: #CE7EBE !important; background-color: Navy !important;'>Navy</option>" +
-    "<option style='font-weight: bold; color: #675A48 !important; background-color: OldLace !important;'>OldLace</option>" +
-    "<option style='font-weight: bold; color: #050535 !important; background-color: Olive !important;'>Olive</option>" +
-    "<option style='font-weight: bold; color: #110D02 !important; background-color: OliveDrab !important;'>OliveDrab</option>" +
-    "<option style='font-weight: bold; color: #373232 !important; background-color: Orange !important;'>Orange</option>" +
-    "<option style='font-weight: bold; color: #370E00 !important; background-color: OrangeRed !important;'>OrangeRed</option>" +
-    "<option style='font-weight: bold; color: #231E2B !important; background-color: Orchid !important;'>Orchid</option>" +
-    "<option style='font-weight: bold; color: #585224 !important; background-color: PaleGoldenRod !important;'>PaleGoldenRod</option>" +
-    "<option style='font-weight: bold; color: #596561 !important; background-color: PaleGreen !important;'>PaleGreen</option>" +
-    "<option style='font-weight: bold; color: #0C5858 !important; background-color: PaleTurquoise !important;'>PaleTurquoise</option>" +
-    "<option style='font-weight: bold; color: #450117 !important; background-color: PaleVioletRed !important;'>PaleVioletRed</option>" +
-    "<option style='font-weight: bold; color: #825453 !important; background-color: PapayaWhip !important;'>PapayaWhip</option>" +
-    "<option style='font-weight: bold; color: #504C49 !important; background-color: PeachPuff !important;'>PeachPuff</option>" +
-    "<option style='font-weight: bold; color: #372516 !important; background-color: Peru !important;'>Peru</option>" +
-    "<option style='font-weight: bold; color: #693A5C !important; background-color: Pink !important;'>Pink</option>" +
-    "<option style='font-weight: bold; color: #3A3347 !important; background-color: Plum !important;'>Plum</option>" +
-    "<option style='font-weight: bold; color: #4A5982 !important; background-color: PowderBlue !important;'>PowderBlue</option>" +
-    "<option style='font-weight: bold; color: #BAC9CE !important; background-color: Purple !important;'>Purple</option>" +
-    "<option style='font-weight: bold; color: #BDCDC8 !important; background-color: RebeccaPurple !important;'>RebeccaPurple</option>" +
-    "<option style='font-weight: bold; color: #370000 !important; background-color: Red !important;'>Red</option>" +
-    "<option style='font-weight: bold; color: #580505 !important; background-color: RosyBrown !important;'>RosyBrown</option>" +
-    "<option style='font-weight: bold; color: #F2FBE2 !important; background-color: RoyalBlue !important;'>RoyalBlue</option>" +
-    "<option style='font-weight: bold; color: #D9D1CB !important; background-color: SaddleBrown !important;'>SaddleBrown</option>" +
-    "<option style='font-weight: bold; color: #642119 !important; background-color: Salmon !important;'>Salmon</option>" +
-    "<option style='font-weight: bold; color: #45382F !important; background-color: SandyBrown !important;'>SandyBrown</option>" +
-    "<option style='font-weight: bold; color: #010E27 !important; background-color: SeaGreen !important;'>SeaGreen</option>" +
-    "<option style='font-weight: bold; color: #825E45 !important; background-color: SeaShell !important;'>SeaShell</option>" +
-    "<option style='font-weight: bold; color: #E8EAEE !important; background-color: Sienna !important;'>Sienna</option>" +
-    "<option style='font-weight: bold; color: #5C4A4A !important; background-color: Silver !important;'>Silver</option>" +
-    "<option style='font-weight: bold; color: #1F4455 !important; background-color: SkyBlue !important;'>SkyBlue</option>" +
-    "<option style='font-weight: bold; color: #FFF2CD !important; background-color: SlateBlue !important;'>SlateBlue</option>" +
-    "<option style='font-weight: bold; color: #13102C !important; background-color: SlateGray !important;'>SlateGray</option>" +
-    "<option style='font-weight: bold; color: #826464 !important; background-color: Snow !important;'>Snow</option>" +
-    "<option style='font-weight: bold; color: #546469 !important; background-color: SpringGreen !important;'>SpringGreen</option>" +
-    "<option style='font-weight: bold; color: #09141E !important; background-color: SteelBlue !important;'>SteelBlue</option>" +
-    "<option style='font-weight: bold; color: #554737 !important; background-color: Tan !important;'>Tan</option>" +
-    "<option style='font-weight: bold; color: #202835 !important; background-color: Teal !important;'>Teal</option>" +
-    "<option style='font-weight: bold; color: #744256 !important; background-color: Thistle !important;'>Thistle</option>" +
-    "<option style='font-weight: bold; color: #372C2A !important; background-color: Tomato !important;'>Tomato</option>" +
-    "<option style='font-weight: bold; color: #2E557C !important; background-color: Turquoise !important;'>Turquoise</option>" +
-    "<option style='font-weight: bold; color: #710F71 !important; background-color: Violet !important;'>Violet</option>" +
-    "<option style='font-weight: bold; color: #785757 !important; background-color: Wheat !important;'>Wheat</option>" +
-    "<option style='font-weight: bold; color: #827373 !important; background-color: White !important;'>White</option>" +
-    "<option style='font-weight: bold; color: #786A6A !important; background-color: WhiteSmoke !important;'>WhiteSmoke</option>" +
-    "<option style='font-weight: bold; color: #82695C !important; background-color: Yellow !important;'>Yellow</option>" +
-    "<option style='font-weight: bold; color: #504C43 !important; background-color: YellowGreen !important;'>YellowGreen</option>" +
-    "</select>" +
-    "<br>All other colors must be specified using a hex value (ex: <span style='color:#FF0000;'>#FF0000</span>)<br>&ensp;";
-  // ------------------
-  // Default Value:
-  var helpString = "<hr><b title='The default value(s) of this property.'>Default Value:</b> ";
-  // <c>value</c>
-  helpString += codeOpen;
-  if (defVal === "true") {
-    helpString += trueSpan;
-  } else if (defVal === "blank") {
-    helpString += blankSpan;
-  } else if (defVal === "css") {
-    helpString += cssSpan;
-  } else if (defVal === "false") {
-    helpString += falseSpan;
-  } else if (defVal === "placeholder") {
-    helpString += placeholderSpan;
-  } else if (defVal === "browser") {
-    helpString += browserSpan;
-  } else if (defVal === "theme") {
-    helpString += themeSpan;
-  } else if (defVal === "skin") {
-    helpString += skinSpan;
-  } else if (defVal === "id") {
-    helpString += idSpan;
-  } else if (defVal === "bind") {
-    helpString += bindSpan;
-  } else if (defVal === "widget") {
-    helpString += widgetSpan;
-  } else if (defVal === "position") {
-    helpString += positionSpan;
-  } else {
-    helpString += defVal;
-  }
-  helpString += codeClose;
-  // ------------------
-  // Description:
-  helpString += "<hr><b title='A general description of the widget's properties.'>Description: </b>";
-  // Description text...
-  helpString += descVal;
-
-  if (descAdd != null){
-    // Other...
-    if (descAdd.indexOf("other") != -1) {
-      helpString += otherText;
-    }
-    // Color Examples:
-    if (descAdd.indexOf("color") != -1) {
-      helpString += colorOptions;
-    }
-    // Background Color Examples:
-    if (descAdd.indexOf("background color") != -1) {
-      helpString += bgColorOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("font") != -1) {
-      helpString += fontOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("overflow") != -1) {
-      helpString += overflowOptions;
-    }
-    // Font Family Examples:
-    if (descAdd.indexOf("pixel") != -1) {
-      helpString += pixelText;
-    }
-  }
-  // Note: Text...
-  if (typeof noteVal == 'string' && noteVal.length > 0) {
-    helpString += "<br><br><b style='color: red;'>Note: </b>" + noteVal;
-  }
-  // ------------------
-  helpString += "<hr><br>";
-
-  return helpString;
-};
-
 // Provides list of properties and their definitions
 function getPropertiesModel() {
   if (cachedPropertiesModel != null) return cachedPropertiesModel;
@@ -482,7 +38,7 @@ function getPropertiesModel() {
       { name: "description", help: pui.helpTextProperties("blank", "Use this property to provide a text description (or comment) for the field."), bind: false }, 
       
       { name: "Misc", category: true }, 
-      { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], help: pui.helpTextProperties("[<span title='The Format Property *document type* of the Record Format.'>document type</span>]", "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting."), bind: false }, 
+      { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], help: pui.helpTextProperties('<span title="The Format Property *document type* of the Record Format.">document type</span>', "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting."), bind: false }, 
       { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("true", "Determines whether the field is output or not.") }, 
       { name: "user defined data", multOccur: true, help: pui.helpTextProperties("blank", "Specifies user-defined general purpose data associated with the field. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value.") }
     ];
@@ -506,7 +62,14 @@ function getPropertiesModel() {
     { name: "response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "char", "zoned"], help: pui.helpTextProperties("bind", "Specifies a response indicator to be returned to your program when the element is clicked."), controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button", "icon"], context: "dspf" },
     { name: "menu response", readOnly: true, hideFormatting: true, help: pui.helpTextProperties("bind", "Specifies a response field to be returned to your program containing the value of the selected menu option. The menu option values are set with the 'choice values' property."), controls: ["menu"], context: "dspf" },
     { name: "tab response", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], help: pui.helpTextProperties("bind", "Specifies a numeric response field to be returned to your program when a tab is selected containing the index of the selected tab. Each of the Tab Panel's tabs are identified by a sequential index, starting from 0. For example, 0 refers to the first tab, 1 refers to the second tab, etc."), controls: ["tab panel"], context: "dspf" },
-    { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: pui.helpTextProperties("bind", "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. The data structure should be defined as follows (**FREE):<br>" + "<code class='propdefault'>" +  "&nbsp;&nbsp;DCL-DS UPLOADINFO QUALIFIED;<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;NUMFILES  ZONED(3:0);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;DIRECTORY CHAR(256);<br>" + "&nbsp;&nbsp;&nbsp;&nbsp;FILES     CHAR(256) DIM(6);<br>" + "&nbsp;&nbsp;END-DS UPLOADINFO;" + "</code>"), controls: ["file upload", "file upload dnd"], context: "dspf" },
+    
+    { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], help: ["bind", 
+      "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. " 
+    + (pui.nodedesigner === true ? '' : 'The data structure should be defined as follows:'
+    + '<pre class="propdefault">**FREE'+"\n" +  "DCL-DS UPLOADINFO QUALIFIED;\n" + "  NUMFILES  ZONED(3:0);\n" + "  DIRECTORY CHAR(256);\n" 
+    + "  FILES     CHAR(256) DIM(6);\n" + "END-DS UPLOADINFO;" + "</pre>"
+    ) + '<br>See also the <a href="https://docs.profoundlogic.com/x/tgD7" target="_blank">Upload Response</a> documentation.' ], controls: ["file upload", "file upload dnd"], context: "dspf" },
+    
     { name: "radio button group", readOnly: true, help: pui.helpTextProperties("bind", "Specifies a response field to be returned to your program that allows you to associate multiple radio buttons together. The field name should be unique."), controls: ["radio button"], context: "dspf" }, 
     { name: "chart response", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], help: pui.helpTextProperties("bind", "Specifies a response field to be returned to your program containing the name of the data point selected by the user."), controls: ["chart"], context: "dspf" },
     { name: "Alternate Destination", category: true, controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true }, 
@@ -518,7 +81,7 @@ function getPropertiesModel() {
     { name: "redirect to destination", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("false", "If set to 'true' the browser will navigate to the 'destination url', passing the 'destination parameters'. Otherwise, the screen will submit by Ajax call."), controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     
     { name: "Font and Text", category: true }, 
-    { name: "color", stylename: "color", type: "color", help: pui.helpTextProperties("css", "Specifies the color of the text inside the current element.", ["color"]), formattingProp: true },
+    { name: "color", stylename: "color", type: "color", help: ["css", "Specifies the color of the text inside the current element.", ["color"]], formattingProp: true },
     { name: "font family", stylename: "fontFamily", choices: ["Arial", "Consolas", "Courier New", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], help: pui.helpTextProperties("css", "Specifies the font face for the text of the current element.", ["font", "other"]), formattingProp: true },
     { name: "font size", stylename: "fontSize", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "0.75em", "1.00em", "1.25em", "1.50em", "1.75em", "2.00em", "Other..."], help: pui.helpTextProperties("css", "Specifies the size of the text for the current element.<br><b>Examples:</b> <span style='font-size:12px;'>12px</span> <span style='font-size:2em;'>2em</span> <span style='font-size:1vh;'>1vh</span> <span style='font-size:12pt;'>12pt</span> <span style='font-size:70%;'>70%</span><br><br>", ["other"], "1em = 12pt = 16px = 100%"), formattingProp: true },
     { name: "font style", stylename: "fontStyle", format: "italic / normal", choices: ["normal", "italic", "oblique"], help: pui.helpTextProperties("css", "Specifies the style of the font inside the current element. <br><b>Examples:</b>" +  "<p style=''>Normal Text</p>" +  "<p style='font-style:italic;'>Italic Text</p>" +  "<span style='font-style:oblique;'>Oblique Text</span>", null, "The 'oblique' and 'italic' options will look the same for most fonts."), formattingProp: true },
@@ -631,7 +194,10 @@ function getPropertiesModel() {
     { name: "replacement data", label: "Replacement Data", validDataTypes: ["char"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "", context: "dspf", viewdesigner: false },
     { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf" },
     { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", viewdesigner: false },
-    { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true, help: pui.helpTextProperties("[checked]", "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent."), context: "dspf", viewdesigner: false },
+    { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true,
+      // Note: do not put HTML markup in this help property. It is special and goes into the "title" attribute of an input element.
+      help: "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent.", context: "dspf", viewdesigner: false },
+
     { name: "set as modified", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], help: pui.helpTextProperties("blank", "Marks an input field as modified when it is first displayed."), controls: ["check box", "combo box", "date field", "password field", "radio button", "select box", "slider", "spinner", "text area", "textbox"], context: "dspf" },
     { name: "bypass validation", choices: ["true", "false", "send data"], type: "boolean", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "menu", "tab panel", "chart", "css button", "icon"], help: pui.helpTextProperties("blank", "This property, typically used on Cancel or Undo buttons, specifies that the element will not trigger client-side validation and will automatically discard all data modified by the user on the screen. It represents the CAxx set of DDS keywords. You can select 'send data' to bypass all client-side validation except for field data type validation and still send all data modified by the user."), validDataTypes: ["char", "indicator", "expression"], context: "dspf" },
 
@@ -640,10 +206,10 @@ function getPropertiesModel() {
     { name: "Menu Options", category: true, controls: ["menu"] },
     { name: "choices", type: "list", help: pui.helpTextProperties("Option 1, Option 2, Option 3...", "Specifies the options for a select box (dropdown or list box), text field with autocomplete, combo box, or menu. The options should be comma separated. To specify submenus for a menu, indent the choices using a dash or a series of dashes."), controls: ["combo box", "menu", "select box", "textbox"], translate: true },
     { name: "choice values", type: "list", help: pui.helpTextProperties("css", "Specifies alternate option values to send to the application for a select box (dropdown or list box), text field with auto complete, combo box, or menu. The values should be comma separated."), controls: ["combo box", "menu", "select box", "textbox"] },
-    { name: "hover background color", type: "color", help: pui.helpTextProperties("css", "Defines the background color of a menu option when the user hovers the mouse over it.", ["background color"]), controls: ["menu"] },
-    { name: "hover text color", type: "color", help: pui.helpTextProperties("css", "Defines the text color of a menu option when the user hovers the mouse over it.", ["color"]), controls: ["menu"] },
+    { name: "hover background color", type: "color", help: ["css", "Defines the background color of a menu option when the user hovers the mouse over it.", ["background color"]], controls: ["menu"] },
+    { name: "hover text color", type: "color", help: ["css", "Defines the text color of a menu option when the user hovers the mouse over it.", ["color"]], controls: ["menu"] },
     { name: "animate", choices: ["true", "false"], blankChoice: false, help: pui.helpTextProperties("true", "Determines if hovering over menu options is animated."), controls: ["menu"] },
-    { name: "border color", type: "color", help: pui.helpTextProperties("css", "The color of the border used for menu options.", ["color"]), controls: ["menu"] },
+    { name: "border color", type: "color", help: ["css", "The color of the border used for menu options.", ["color"]], controls: ["menu"] },
     { name: "menu option padding", choices: paddings, format: "px", help: pui.helpTextProperties("css", "Sets the distance between the edge of the menu option and the menu option text.", ["other", "pixel"]), controls: ["menu"] },
     { name: "menu option indent", choices: paddings, format: "px", help: pui.helpTextProperties("css", "Sets the distance between the left edge of the menu option and the menu option text.", ["other", "pixel"]), controls: ["menu"] },
     { name: "option image", type: "image", help: pui.helpTextProperties("css", "Defines the background image displayed under each menu option. You can specify one image or a comma separated list of images corresponding to each menu option."), controls: ["menu"] },
@@ -707,7 +273,7 @@ function getPropertiesModel() {
     { name: "chart json", type: "long", allowNewLines: true, help: pui.helpTextProperties("blank", "Sets the JSON data for the chart as specified in the FusionCharts Data Formats section of the FusionCharts documentation site: <a href='https://www.fusioncharts.com/dev/' target='_blank'>FusionCharts Documentation</a>. The data can be provided as a string or as a JavaScript object through the use of property scripting."), controls: ["chart"] },
 
     { name: "Background", category: true },
-    { name: "background color", stylename: "backgroundColor", type: "color", help: pui.helpTextProperties("css", "Defines the background color of the given element.", ["background color"]), formattingProp: true },
+    { name: "background color", stylename: "backgroundColor", type: "color", help: ["css", "Defines the background color of the given element.", ["background color"]], formattingProp: true },
     { name: "background image", type: "image", stylename: "backgroundImage", help: pui.helpTextProperties("css", "Defines the background image of the current element."), formattingProp: true },
     { name: "background position", stylename: "backgroundPosition", choices: ["top", "center", "bottom", "left"], help: pui.helpTextProperties("css", "Position of the background within the current element."), formattingProp: true },
     { name: "background repeat", stylename: "backgroundRepeat", choices: ["repeat-x", "repeat-y", "no-repeat", "repeat"], help: pui.helpTextProperties("css", "Defines how to repeat the background, repeat-x: repeats horizontally, repeat-y: repeats vertically, no-repeat: doesn't repeat at all, repeat: repeats horizontally and vertically."), formattingProp: true },
@@ -761,16 +327,16 @@ function getPropertiesModel() {
 
     { name: "Borders", category: true },
     { name: "border radius", stylename: "borderRadius", format: "px", choices: ["1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], help: pui.helpTextProperties("css", "This property allow you to create rounded corners by specifying a border radius.", ["other"]) },
-    { name: "border bottom color", stylename: "borderBottomColor", type: "color", help: pui.helpTextProperties("css", "The color of the element's bottom side of the border.", ["color"]) },
+    { name: "border bottom color", stylename: "borderBottomColor", type: "color", help: ["css", "The color of the element&apos;s bottom side of the border.", ["color"]] },
     { name: "border bottom style", stylename: "borderBottomStyle", choices: borderStyles, help: pui.helpTextProperties("css", "The style of the element's bottom side of the border.") },
     { name: "border bottom width", format: "px", stylename: "borderBottomWidth", choices: borderWidths, help: pui.helpTextProperties("css", "The thickness of the element's bottom side of the border.", ["other"]) },
-    { name: "border left color", stylename: "borderLeftColor", type: "color", help: pui.helpTextProperties("css", "The color of the element's left side of the border.", ["color"]) },
+    { name: "border left color", stylename: "borderLeftColor", type: "color", help: ["css", "The color of the element's left side of the border.", ["color"]] },
     { name: "border left style", stylename: "borderLeftStyle", choices: borderStyles, help: pui.helpTextProperties("css", "The style of the element's left side of the border.") },
     { name: "border left width", format: "px", stylename: "borderLeftWidth", choices: borderWidths, help: pui.helpTextProperties("css", "The thickness of the element's left side of the border.", ["other"]) },
-    { name: "border right color", stylename: "borderRightColor", type: "color", help: pui.helpTextProperties("css", "The color of the element's right bottom side of the border.", ["color"]) },
+    { name: "border right color", stylename: "borderRightColor", type: "color", help: ["css", "The color of the element's right bottom side of the border.", ["color"]] },
     { name: "border right style", stylename: "borderRightStyle", choices: borderStyles, help: pui.helpTextProperties("css", "The style of the element's right side of the border.") },
     { name: "border right width", format: "px", stylename: "borderRightWidth", choices: borderWidths, help: pui.helpTextProperties("css", "The thickness of the element's right side of the border.", ["other"]) },
-    { name: "border top color", stylename: "borderTopColor", type: "color", help: pui.helpTextProperties("css", "The color of the element's top side of the border.", ["color"]) },
+    { name: "border top color", stylename: "borderTopColor", type: "color", help: ["css", "The color of the element's top side of the border.", ["color"]] },
     { name: "border top style", stylename: "borderTopStyle", choices: borderStyles, help: pui.helpTextProperties("css", "The style of the element's top side of the border.") },
     { name: "border top width", format: "px", stylename: "borderTopWidth", choices: borderWidths, help: pui.helpTextProperties("css", "The thickness of the element's top side of the border.", ["other"]) },
 
@@ -999,11 +565,11 @@ function getScreenPropertiesModel(designScreen) {
     { name: "subfile outline color", variable: "pui.genie.config.subfileOutlineColor", type: "color", help: pui.helpTextProperties("skin", "Sets the outline color when the 'outline subfile' option is used. This can be give either as a CSS color name, such as 'red', or as a hex code, such as '#FF0000'.") },
     { name: "separate subfile lines", variable: "pui.genie.config.separateSubfileLines", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("skin", "If a subfile is found using the Option Headings method, this flag determines whether a separator line is drawn between each subfile line.") },
     { name: "hide subfile options", variable: "pui.genie.config.hideSubfileOpt", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("skin", "If a subfile is found using the Option Headings method, this flag tells Genie to find and hide an option input box on each subfile line. Instead of using the input box, the user will be able to right-click the subfile to select the appropriate option.") },
-    { name: "row highlight color", variable: "pui.genie.config.hiColor", type: "color", help: pui.helpTextProperties("skin", "Defines the color of the row when it is hovered over with the mouse.", ["background color"]) },
-    { name: "row highlight font color", variable: "pui.genie.config.hiFontColor", type: "color", help: pui.helpTextProperties("skin", "Defines the color of the text within the row when the row is hovered over with the mouse.", ["color"]) },
+    { name: "row highlight color", variable: "pui.genie.config.hiColor", type: "color", help: ["skin", "Defines the color of the row when it is hovered over with the mouse.", ["background color"]] },
+    { name: "row highlight font color", variable: "pui.genie.config.hiFontColor", type: "color", help: ["skin", "Defines the color of the text within the row when the row is hovered over with the mouse.", ["color"]] },
     { name: "striped subfile", variable: "pui.genie.config.stripedSubfile", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("skin", "This flag determines if the subfile rows are striped with alternate colors.") },
-    { name: "odd row color", variable: "pui.genie.config.oddRowColor", type: "color", help: pui.helpTextProperties("skin", "The color of the odd rows in a striped subfile.", ["background color"]) },
-    { name: "even row color", variable: "pui.genie.config.evenRowColor", type: "color", help: pui.helpTextProperties("skin", "The color of the even rows in a striped subfile.", ["background color"]) },
+    { name: "odd row color", variable: "pui.genie.config.oddRowColor", type: "color", help: ["skin", "The color of the odd rows in a striped subfile.", ["background color"]] },
+    { name: "even row color", variable: "pui.genie.config.evenRowColor", type: "color", help: ["skin", "The color of the even rows in a striped subfile.", ["background color"]] },
 
     { name: "Misc", category: true },
     { name: "alert errors", variable: "pui.genie.config.alertErrors", choices: ["true", "false"], type: "boolean", help: pui.helpTextProperties("false", "When set to true, Genie presents green-screen errors in an alert box. When set to false, errors are displayed at the bottom of the screen only.") },
@@ -2375,3 +1941,440 @@ pui.getDatabaseConnectionPropertyChoices = function() {
  
 pui["getPropertiesModel"] = getPropertiesModel;
 pui["getPropertiesNamedModel"] = getPropertiesNamedModel;
+
+
+/**
+ * Return some formatted HTML describing a property.
+ * @param {String} defVal   The default value the property uses.
+ * @param {String} descVal  Description text of the property.
+ * @param {Undefined|Array} descAdd   Cause additional, boilerplate descriptions to be added.
+ * @param {Undefined|String} noteVal  If a note is passed, it's added to the end of the text.
+ * @returns {String}
+ */
+pui.helpTextProperties = function(defVal, descVal, descAdd, noteVal) {
+  var codeOpen = '<code class="propdefault">';
+  var codeClose = '</code>';
+
+  // ------------------
+  // Default Value:
+  var helpString = '<div class="section"><b title="The default value(s) of this property.">Default Value:</b> ';
+  // <c>value</c>
+  helpString += codeOpen;
+  switch (defVal){
+    case 'true':
+      helpString += '<span title="The default value of the property is true.">true</span>';
+      break;
+    case 'blank':
+      helpString += '<span title="The default value of the property is unset or not defined.">[blank]</span>';
+      break; 
+    case 'css':
+      helpString += '<span title="The default value is the value defined in the CSS &#010;(theme/developer CSS classes defined in a '
+      + 'CSS&#010;file or &quot;style&quot; DOM attribute) for the element.">CSS value</span>';
+      break; 
+    case 'false':
+      helpString += '<span title="The default value of the property is false.">false</span>';
+      break;
+    case 'placeholder':
+      helpString += '<span title="The default value of the property is placeholder &#010;text, such as &quot;Lorem Ipsum...&quot;'
+      + ' or &quot;HTML Content&quot;.">placeholder text</span>';
+      break;
+    case 'browser':
+      helpString += '<span title="The default is determined by the browser for the element.">browser setting</span>';
+      break;
+    case 'theme':
+      helpString += '<span title="The default value of this property is based on the selected widget and its theme/template/purpose.">selected widget</span>';
+      break;
+    case 'skin':
+      helpString += '<span title="The default value of this property is determined by &#010;the selected skin and its defaults, CSS,'
+      +' and/or JavaScript customizations.">selected skin</span>';
+      break;
+    case 'id':
+      helpString += '[<span title="The default ID is based on the name of the selected &#010;widget with no spaces and the first letter of each word capitalized.">'
+      + 'WidgetName</span>][<span title="A whole number value starting from 1 determined by how many of the same widget have previously been added to the Design grid.">number</span>]';
+      break;
+    case 'bind':
+      helpString += '<span title="This property requires being bound and a value passed to or from your program.">[bound value]</span>';
+      break;
+    case 'widget':
+      helpString += '<span title="The default value of this property is determined by the selected widget.">selected widget</span>';
+      break;
+    case 'position':
+      helpString += '<span title="The default values are determined by where the &#010;widget is dropped/placed on the Designer grid.">user drop point</span>';
+      break;
+    default:
+      helpString += defVal;
+      break;
+  }
+  helpString += codeClose;
+  // ------------------
+  // Description:
+  helpString += '</div><div class="section"><b title="A general description of the widget&apos;s properties.">Description: </b>';
+  // Description text...
+  helpString += descVal;
+
+  if (Array.isArray(descAdd)){
+    // Other...
+    if (descAdd.indexOf("other") != -1) {
+      helpString += ' The &quot;Other...&quot; option can be selected to write in a custom value.';
+    }
+    // Color Examples:
+    if (descAdd.indexOf("color") != -1) {
+      helpString += pui.helpTextProperties.colorOptions;
+    }
+    // Background Color Examples:
+    if (descAdd.indexOf("background color") != -1) {
+      helpString += pui.helpTextProperties.bgColorOptions;
+    }
+    // Font Family Examples:
+    if (descAdd.indexOf("font") != -1) {
+      helpString += pui.helpTextProperties.fontOptions;
+    }
+    // Overflow Examples:
+    if (descAdd.indexOf("overflow") != -1) {
+      helpString += '<style>ul.listing {display: block; list-style-type: disc; padding-left: 10px; margin-left: 15px;}</style>'
+      + '<hr><span style="font-weight:bold;">Valid options</span>: <br><ul class="listing"><li>' +
+      codeOpen + "visible" + codeClose + " - lets the content flow beyond the dimensions of the element without a scrollbar.</li><li>" +
+      codeOpen + "hidden" + codeClose + " - does not display a scrollbar and hides overflowing content.</li><li>" +
+      codeOpen + "scroll" + codeClose + " - always displays the scrollbar.</li><li>" +
+      codeOpen + "auto" + codeClose + ' - displays the scrollbar only when the element&apos;s content goes beyond the elements dimensions.</li></ul>';
+    }
+    // Font Family Examples:
+    if (descAdd.indexOf("pixel") != -1) {
+      helpString += 'Specify in pixels. <br><br>Example: ' + codeOpen + '12px' + codeClose;
+    }
+  }
+  // Note: Text...
+  if (typeof noteVal == 'string' && noteVal.length > 0) {
+    helpString += '<br><br><b style="color: red;">Note: </b>' + noteVal;
+  }
+  // ------------------
+  helpString += '</div>';
+
+  return helpString;
+};
+
+// TODO: find a better place for these. They are moved here so the long string is not allocated for every call of pui.helpTextProperties.
+// Also, it would make more sense to add these to the color-picker dialog than have them in the help text.
+pui.helpTextProperties.colorOptions = '<div class="section"><b>Usage</b>: Enter a color name, hex, or select a color.' +
+  '<br><br><b>Valid Color Names</b>: ' +
+  '<select class="color">' +
+  '<option>Text Colors</option>' +
+  '<option style="background-color:#71706F; color:AliceBlue;">AliceBlue</option>' +
+  '<option style="background-color:#716363; color:AntiqueWhite;">AntiqueWhite</option>' +
+  '<option style="background-color:#716363; color:Aqua;">Aqua</option>' +
+  '<option style="background-color:#716363; color:Aquamarine;">Aquamarine</option>' +
+  '<option style="background-color:#8A6C6C; color:Azure;">Azure</option>' +
+  '<option style="background-color:#716C6F; color:Beige;">Beige</option>' +
+  '<option style="background-color:#686964; color:Bisque;">Bisque</option>' +
+  '<option style="background-color:#828282; color:Black;">Black</option>' +
+  '<option style="background-color:#825A5A; color:BlanchedAlmond;">BlanchedAlmond</option>' +
+  '<option style="background-color:#E6E6D3; color:Blue;">Blue</option>' +
+  '<option style="background-color:#E3E3E2; color:BlueViolet;">BlueViolet</option>' +
+  '<option style="background-color:#D9D2D2; color:Brown;">Brown</option>' +
+  '<option style="background-color:#483723; color:BurlyWood;">BurlyWood</option>' +
+  '<option style="background-color:#201822; color:CadetBlue;">CadetBlue</option>' +
+  '<option style="background-color:#465040; color:Chartreuse;">Chartreuse</option>' +
+  '<option style="background-color:#080901; color:Chocolate;">Chocolate</option>' +
+  '<option style="background-color:#372821; color:Coral;">Coral</option>' +
+  '<option style="background-color:#241A20; color:CornflowerBlue; ">CornflowerBlue</option>' +
+  '<option style="background-color:#695C30; color:Cornsilk;">Cornsilk</option>' +
+  '<option style="background-color:#F6F6F3; color:Crimson;">Crimson</option>' +
+  '<option style="background-color:#4A5469; color:Cyan;">Cyan</option>' +
+  '<option style="background-color:#95A5A2; color:DarkBlue;">DarkBlue</option>' +
+  '<option style="background-color:#0B040E; color:DarkCyan;">DarkCyan</option>' +
+  '<option style="background-color:#211412; color:DarkGoldenRod;">DarkGoldenRod</option>' +
+  '<option style="background-color:#2C2C2C; color:DarkGray;">DarkGray</option>' +
+  '<option style="background-color:#CCCCCC; color:DarkGreen;">DarkGreen</option>' +
+  '<option style="background-color:#403129; color:DarkKhaki;">DarkKhaki</option>' +
+  '<option style="background-color:#C3D4D9; color:DarkMagenta;">DarkMagenta</option>' +
+  '<option style="background-color:#DEE7ED; color:DarkOliveGreen;">DarkOliveGreen</option>' +
+  '<option style="background-color:#372C21; color:DarkOrange;">DarkOrange</option>' +
+  '<option style="background-color:#E4E6D6; color:DarkOrchid;">DarkOrchid</option>' +
+  '<option style="background-color:#BBBFAC; color:DarkRed;">DarkRed</option>' +
+  '<option style="background-color:#3A2923; color:DarkSalmon;">DarkSalmon</option>' +
+  '<option style="background-color:#16353F; color:DarkSeaGreen;">DarkSeaGreen</option>' +
+  '<option style="background-color:#D9CBCB; color:DarkSlateBlue;">DarkSlateBlue</option>' +
+  '<option style="background-color:#D1D1D1; color:DarkSlateGray;">DarkSlateGray</option>' +
+  '<option style="background-color:#1D393B; color:DarkTurquoise;">DarkTurquoise</option>' +
+  '<option style="background-color:#EBEDED; color:DarkViolet;">DarkViolet</option>' +
+  '<option style="background-color:#1B0E1E; color:DeepPink;">DeepPink</option>' +
+  '<option style="background-color:#053725; color:DeepSkyBlue;">DeepSkyBlue</option>' +
+  '<option style="background-color:#EBEBEB; color:DimGray;">DimGray</option>' +
+  '<option style="background-color:#2A1237; color:DodgerBlue;">DodgerBlue</option>' +
+  '<option style="background-color:#E0E6CE; color:FireBrick;">FireBrick</option>' +
+  '<option style="background-color:#69604C; color:FloralWhite;">FloralWhite</option>' +
+  '<option style="background-color:#01030E; color:ForestGreen;">ForestGreen</option>' +
+  '<option style="background-color:#370537; color:Fuchsia;">Fuchsia</option>' +
+  '<option style="background-color:#5F4C4C; color:Gainsboro;">Gainsboro</option>' +
+  '<option style="background-color:#615B69; color:GhostWhite;">GhostWhite</option>' +
+  '<option style="background-color:#504930; color:Gold;">Gold</option>' +
+  '<option style="background-color:#442E2C; color:GoldenRod;">GoldenRod</option>' +
+  '<option style="background-color:#020202; color:Gray;">Gray</option>' +
+  '<option style="background-color:#BCE8D6; color:Green;">Green</option>' +
+  '<option style="background-color:#275C69; color:GreenYellow;">GreenYellow</option>' +
+  '<option style="background-color:#4C6269; color:HoneyDew;">HoneyDew</option>' +
+  '<option style="background-color:#501130; color:HotPink;">HotPink</option>' +
+  '<option style="background-color:#000402; color:IndianRed;">IndianRed</option>' +
+  '<option style="background-color:#A3B0B6; color:Indigo;">Indigo</option>' +
+  '<option style="background-color:#695D58; color:Ivory;">Ivory</option>' +
+  '<option style="background-color:#5A5208; color:Khaki;">Khaki</option>' +
+  '<option style="background-color:#5C5064; color:Lavender;">Lavender</option>' +
+  '<option style="background-color:#825463; color:LavenderBlush;">LavenderBlush</option>' +
+  '<option style="background-color:#4B4D4B; color:LawnGreen;">LawnGreen</option>' +
+  '<option style="background-color:#69605D; color:LemonChiffon;">LemonChiffon</option>' +
+  '<option style="background-color:#334850; color:LightBlue;">LightBlue</option>' +
+  '<option style="background-color:#5A0C0C; color:LightCoral;">LightCoral</option>' +
+  '<option style="background-color:#5D5C69; color:LightCyan;">LightCyan</option>' +
+  '<option style="background-color:#64605C; color:LightGoldenRodYellow;">LightGoldenRodYellow</option>' +
+  '<option style="background-color:#6F4343; color:LightGray;">LightGray</option>' +
+  '<option style="background-color:#355158; color:LightGreen;">LightGreen</option>' +
+  '<option style="background-color:#50404B; color:LightPink;">LightPink</option>' +
+  '<option style="background-color:#373430; color:LightSalmon;">LightSalmon</option>' +
+  '<option style="background-color:#242B35; color:LightSeaGreen;">LightSeaGreen</option>' +
+  '<option style="background-color:#034B3C; color:LightSkyBlue;">LightSkyBlue</option>' +
+  '<option style="background-color:#240535; color:LightSlateGray;">LightSlateGray</option>' +
+  '<option style="background-color:#074845; color:LightSteelBlue;">LightSteelBlue</option>' +
+  '<option style="background-color:#69605C; color:LightYellow;">LightYellow</option>' +
+  '<option style="background-color:#165869; color:Lime;">Lime</option>' +
+  '<option style="background-color:#233237; color:LimeGreen;">LimeGreen</option>' +
+  '<option style="background-color:#645A50; color:Linen;">Linen</option>' +
+  '<option style="background-color:#370537; color:Magenta;">Magenta</option>' +
+  '<option style="background-color:#CEB291; color:Maroon;">Maroon</option>' +
+  '<option style="background-color:#2C3732; color:MediumAquaMarine;">MediumAquaMarine</option>' +
+  '<option style="background-color:#CCA5E7; color:MediumBlue;">MediumBlue</option>' +
+  '<option style="background-color:#160D3D; color:MediumOrchid;">MediumOrchid</option>' +
+  '<option style="background-color:#28012C; color:MediumPurple;">MediumPurple</option>' +
+  '<option style="background-color:#073336; color:MediumSeaGreen;">MediumSeaGreen</option>' +
+  '<option style="background-color:#0B013F; color:MediumSlateBlue;">MediumSlateBlue</option>' +
+  '<option style="background-color:#644463; color:MediumSpringGreen;">MediumSpringGreen</option>' +
+  '<option style="background-color:#2C3D54; color:MediumTurquoise;">MediumTurquoise</option>' +
+  '<option style="background-color:#E3EDFB; color:MediumVioletRed;">MediumVioletRed</option>' +
+  '<option style="background-color:#A4859B; color:MidnightBlue;">MidnightBlue</option>' +
+  '<option style="background-color:#446469; color:MintCream;">MintCream</option>' +
+  '<option style="background-color:#695450; color:MistyRose;">MistyRose</option>' +
+  '<option style="background-color:#695454; color:Moccasin;">Moccasin</option>' +
+  '<option style="background-color:#695454; color:NavajoWhite;">NavajoWhite</option>' +
+  '<option style="background-color:#CE7EBE; color:Navy;">Navy</option>' +
+  '<option style="background-color:#675A48; color:OldLace;">OldLace</option>' +
+  '<option style="background-color:#050535; color:Olive;">Olive</option>' +
+  '<option style="background-color:#110D02; color:OliveDrab;">OliveDrab</option>' +
+  '<option style="background-color:#373232; color:Orange;">Orange</option>' +
+  '<option style="background-color:#370E00; color:OrangeRed;">OrangeRed</option>' +
+  '<option style="background-color:#231E2B; color:Orchid;">Orchid</option>' +
+  '<option style="background-color:#585224; color:PaleGoldenRod;">PaleGoldenRod</option>' +
+  '<option style="background-color:#596561; color:PaleGreen;">PaleGreen</option>' +
+  '<option style="background-color:#0C5858; color:PaleTurquoise;">PaleTurquoise</option>' +
+  '<option style="background-color:#450117; color:PaleVioletRed;">PaleVioletRed</option>' +
+  '<option style="background-color:#825453; color:PapayaWhip;">PapayaWhip</option>' +
+  '<option style="background-color:#504C49; color:PeachPuff;">PeachPuff</option>' +
+  '<option style="background-color:#372516; color:Peru;">Peru</option>' +
+  '<option style="background-color:#693A5C; color:Pink;">Pink</option>' +
+  '<option style="background-color:#3A3347; color:Plum;">Plum</option>' +
+  '<option style="background-color:#4A5982; color:PowderBlue;">PowderBlue</option>' +
+  '<option style="background-color:#BAC9CE; color:Purple;">Purple</option>' +
+  '<option style="background-color:#BDCDC8; color:RebeccaPurple;">RebeccaPurple</option>' +
+  '<option style="background-color:#370000; color:Red;">Red</option>' +
+  '<option style="background-color:#580505; color:RosyBrown;">RosyBrown</option>' +
+  '<option style="background-color:#F2FBE2; color:RoyalBlue;">RoyalBlue</option>' +
+  '<option style="background-color:#D9D1CB; color:SaddleBrown;">SaddleBrown</option>' +
+  '<option style="background-color:#642119; color:Salmon;">Salmon</option>' +
+  '<option style="background-color:#45382F; color:SandyBrown;">SandyBrown</option>' +
+  '<option style="background-color:#010E27; color:SeaGreen;">SeaGreen</option>' +
+  '<option style="background-color:#825E45; color:SeaShell;">SeaShell</option>' +
+  '<option style="background-color:#E8EAEE; color:Sienna;">Sienna</option>' +
+  '<option style="background-color:#5C4A4A; color:Silver;">Silver</option>' +
+  '<option style="background-color:#1F4455; color:SkyBlue;">SkyBlue</option>' +
+  '<option style="background-color:#FFF2CD; color:SlateBlue;">SlateBlue</option>' +
+  '<option style="background-color:#13102C; color:SlateGray;">SlateGray</option>' +
+  '<option style="background-color:#826464; color:Snow;">Snow</option>' +
+  '<option style="background-color:#546469; color:SpringGreen;">SpringGreen</option>' +
+  '<option style="background-color:#09141E; color:SteelBlue;">SteelBlue</option>' +
+  '<option style="background-color:#554737; color:Tan;">Tan</option>' +
+  '<option style="background-color:#202835; color:Teal;">Teal</option>' +
+  '<option style="background-color:#744256; color:Thistle;">Thistle</option>' +
+  '<option style="background-color:#372C2A; color:Tomato;">Tomato</option>' +
+  '<option style="background-color:#2E557C; color:Turquoise;">Turquoise</option>' +
+  '<option style="background-color:#710F71; color:Violet;">Violet</option>' +
+  '<option style="background-color:#785757; color:Wheat;">Wheat</option>' +
+  '<option style="background-color:#827373; color:White;">White</option>' +
+  '<option style="background-color:#786A6A; color:WhiteSmoke;">WhiteSmoke</option>' +
+  '<option style="background-color:#82695C; color:Yellow;">Yellow</option>' +
+  '<option style="background-color:#504C43; color:YellowGreen;">YellowGreen</option>' +
+  '</select>' +
+  '<br>All other colors must be specified using a hex value (ex: <span style="color:#FF0000;">#FF0000</span>)</div>';
+  
+pui.helpTextProperties.bgColorOptions = '<div class="section"><b>Usage</b>: Enter a color name, hex, or select a color.' +
+  '<hr><b>Valid Color Names</b>: ' +
+  '<select class="color">' +
+  '<option>Background Colors</option>' +
+  '<option style="color:#71706F; background-color:AliceBlue;">AliceBlue</option>' +
+  '<option style="color:#716363; background-color:AntiqueWhite;">AntiqueWhite</option>' +
+  '<option style="color:#716363; background-color:Aqua;">Aqua</option>' +
+  '<option style="color:#716363; background-color:Aquamarine;">Aquamarine</option>' +
+  '<option style="color:#8A6C6C; background-color:Azure;">Azure</option>' +
+  '<option style="color:#716C6F; background-color:Beige;">Beige</option>' +
+  '<option style="color:#686964; background-color:Bisque;">Bisque</option>' +
+  '<option style="color:#828282; background-color:Black;">Black</option>' +
+  '<option style="color:#825A5A; background-color:BlanchedAlmond;">BlanchedAlmond</option>' +
+  '<option style="color:#E6E6D3; background-color:Blue;">Blue</option>' +
+  '<option style="color:#E3E3E2; background-color:BlueViolet;">BlueViolet</option>' +
+  '<option style="color:#D9D2D2; background-color:Brown;">Brown</option>' +
+  '<option style="color:#483723; background-color:BurlyWood;">BurlyWood</option>' +
+  '<option style="color:#201822; background-color:CadetBlue;">CadetBlue</option>' +
+  '<option style="color:#465040; background-color:Chartreuse;">Chartreuse</option>' +
+  '<option style="color:#080901; background-color:Chocolate;">Chocolate</option>' +
+  '<option style="color:#372821; background-color:Coral;">Coral</option>' +
+  '<option style="color:#241A20; background-color:CornflowerBlue; ">CornflowerBlue</option>' +
+  '<option style="color:#695C30; background-color:Cornsilk;">Cornsilk</option>' +
+  '<option style="color:#F6F6F3; background-color:Crimson;">Crimson</option>' +
+  '<option style="color:#4A5469; background-color:Cyan;">Cyan</option>' +
+  '<option style="color:#95A5A2; background-color:DarkBlue;">DarkBlue</option>' +
+  '<option style="color:#0B040E; background-color:DarkCyan;">DarkCyan</option>' +
+  '<option style="color:#211412; background-color:DarkGoldenRod;">DarkGoldenRod</option>' +
+  '<option style="color:#2C2C2C; background-color:DarkGray;">DarkGray</option>' +
+  '<option style="color:#CCCCCC; background-color:DarkGreen;">DarkGreen</option>' +
+  '<option style="color:#403129; background-color:DarkKhaki;">DarkKhaki</option>' +
+  '<option style="color:#C3D4D9; background-color:DarkMagenta;">DarkMagenta</option>' +
+  '<option style="color:#DEE7ED; background-color:DarkOliveGreen;">DarkOliveGreen</option>' +
+  '<option style="color:#372C21; background-color:DarkOrange;">DarkOrange</option>' +
+  '<option style="color:#E4E6D6; background-color:DarkOrchid;">DarkOrchid</option>' +
+  '<option style="color:#BBBFAC; background-color:DarkRed;">DarkRed</option>' +
+  '<option style="color:#3A2923; background-color:DarkSalmon;">DarkSalmon</option>' +
+  '<option style="color:#16353F; background-color:DarkSeaGreen;">DarkSeaGreen</option>' +
+  '<option style="color:#D9CBCB; background-color:DarkSlateBlue;">DarkSlateBlue</option>' +
+  '<option style="color:#D1D1D1; background-color:DarkSlateGray;">DarkSlateGray</option>' +
+  '<option style="color:#1D393B; background-color:DarkTurquoise;">DarkTurquoise</option>' +
+  '<option style="color:#EBEDED; background-color:DarkViolet;">DarkViolet</option>' +
+  '<option style="color:#1B0E1E; background-color:DeepPink;">DeepPink</option>' +
+  '<option style="color:#053725; background-color:DeepSkyBlue;">DeepSkyBlue</option>' +
+  '<option style="color:#EBEBEB; background-color:DimGray;">DimGray</option>' +
+  '<option style="color:#2A1237; background-color:DodgerBlue;">DodgerBlue</option>' +
+  '<option style="color:#E0E6CE; background-color:FireBrick;">FireBrick</option>' +
+  '<option style="color:#69604C; background-color:FloralWhite;">FloralWhite</option>' +
+  '<option style="color:#01030E; background-color:ForestGreen;">ForestGreen</option>' +
+  '<option style="color:#370537; background-color:Fuchsia;">Fuchsia</option>' +
+  '<option style="color:#5F4C4C; background-color:Gainsboro;">Gainsboro</option>' +
+  '<option style="color:#615B69; background-color:GhostWhite;">GhostWhite</option>' +
+  '<option style="color:#504930; background-color:Gold;">Gold</option>' +
+  '<option style="color:#442E2C; background-color:GoldenRod;">GoldenRod</option>' +
+  '<option style="color:#020202; background-color:Gray;">Gray</option>' +
+  '<option style="color:#BCE8D6; background-color:Green;">Green</option>' +
+  '<option style="color:#275C69; background-color:GreenYellow;">GreenYellow</option>' +
+  '<option style="color:#4C6269; background-color:HoneyDew;">HoneyDew</option>' +
+  '<option style="color:#501130; background-color:HotPink;">HotPink</option>' +
+  '<option style="color:#000402; background-color:IndianRed;">IndianRed</option>' +
+  '<option style="color:#A3B0B6; background-color:Indigo;">Indigo</option>' +
+  '<option style="color:#695D58; background-color:Ivory;">Ivory</option>' +
+  '<option style="color:#5A5208; background-color:Khaki;">Khaki</option>' +
+  '<option style="color:#5C5064; background-color:Lavender;">Lavender</option>' +
+  '<option style="color:#825463; background-color:LavenderBlush;">LavenderBlush</option>' +
+  '<option style="color:#4B4D4B; background-color:LawnGreen;">LawnGreen</option>' +
+  '<option style="color:#69605D; background-color:LemonChiffon;">LemonChiffon</option>' +
+  '<option style="color:#334850; background-color:LightBlue;">LightBlue</option>' +
+  '<option style="color:#5A0C0C; background-color:LightCoral;">LightCoral</option>' +
+  '<option style="color:#5D5C69; background-color:LightCyan;">LightCyan</option>' +
+  '<option style="color:#64605C; background-color:LightGoldenRodYellow;">LightGoldenRodYellow</option>' +
+  '<option style="color:#6F4343; background-color:LightGray;">LightGray</option>' +
+  '<option style="color:#355158; background-color:LightGreen;">LightGreen</option>' +
+  '<option style="color:#50404B; background-color:LightPink;">LightPink</option>' +
+  '<option style="color:#373430; background-color:LightSalmon;">LightSalmon</option>' +
+  '<option style="color:#242B35; background-color:LightSeaGreen;">LightSeaGreen</option>' +
+  '<option style="color:#034B3C; background-color:LightSkyBlue;">LightSkyBlue</option>' +
+  '<option style="color:#240535; background-color:LightSlateGray;">LightSlateGray</option>' +
+  '<option style="color:#074845; background-color:LightSteelBlue;">LightSteelBlue</option>' +
+  '<option style="color:#69605C; background-color:LightYellow;">LightYellow</option>' +
+  '<option style="color:#165869; background-color:Lime;">Lime</option>' +
+  '<option style="color:#233237; background-color:LimeGreen;">LimeGreen</option>' +
+  '<option style="color:#645A50; background-color:Linen;">Linen</option>' +
+  '<option style="color:#370537; background-color:Magenta;">Magenta</option>' +
+  '<option style="color:#CEB291; background-color:Maroon;">Maroon</option>' +
+  '<option style="color:#2C3732; background-color:MediumAquaMarine;">MediumAquaMarine</option>' +
+  '<option style="color:#CCA5E7; background-color:MediumBlue;">MediumBlue</option>' +
+  '<option style="color:#160D3D; background-color:MediumOrchid;">MediumOrchid</option>' +
+  '<option style="color:#28012C; background-color:MediumPurple;">MediumPurple</option>' +
+  '<option style="color:#073336; background-color:MediumSeaGreen;">MediumSeaGreen</option>' +
+  '<option style="color:#0B013F; background-color:MediumSlateBlue;">MediumSlateBlue</option>' +
+  '<option style="color:#644463; background-color:MediumSpringGreen;">MediumSpringGreen</option>' +
+  '<option style="color:#2C3D54; background-color:MediumTurquoise;">MediumTurquoise</option>' +
+  '<option style="color:#E3EDFB; background-color:MediumVioletRed;">MediumVioletRed</option>' +
+  '<option style="color:#A4859B; background-color:MidnightBlue;">MidnightBlue</option>' +
+  '<option style="color:#446469; background-color:MintCream;">MintCream</option>' +
+  '<option style="color:#695450; background-color:MistyRose;">MistyRose</option>' +
+  '<option style="color:#695454; background-color:Moccasin;">Moccasin</option>' +
+  '<option style="color:#695454; background-color:NavajoWhite;">NavajoWhite</option>' +
+  '<option style="color:#CE7EBE; background-color:Navy;">Navy</option>' +
+  '<option style="color:#675A48; background-color:OldLace;">OldLace</option>' +
+  '<option style="color:#050535; background-color:Olive;">Olive</option>' +
+  '<option style="color:#110D02; background-color:OliveDrab;">OliveDrab</option>' +
+  '<option style="color:#373232; background-color:Orange;">Orange</option>' +
+  '<option style="color:#370E00; background-color:OrangeRed;">OrangeRed</option>' +
+  '<option style="color:#231E2B; background-color:Orchid;">Orchid</option>' +
+  '<option style="color:#585224; background-color:PaleGoldenRod;">PaleGoldenRod</option>' +
+  '<option style="color:#596561; background-color:PaleGreen;">PaleGreen</option>' +
+  '<option style="color:#0C5858; background-color:PaleTurquoise;">PaleTurquoise</option>' +
+  '<option style="color:#450117; background-color:PaleVioletRed;">PaleVioletRed</option>' +
+  '<option style="color:#825453; background-color:PapayaWhip;">PapayaWhip</option>' +
+  '<option style="color:#504C49; background-color:PeachPuff;">PeachPuff</option>' +
+  '<option style="color:#372516; background-color:Peru;">Peru</option>' +
+  '<option style="color:#693A5C; background-color:Pink;">Pink</option>' +
+  '<option style="color:#3A3347; background-color:Plum;">Plum</option>' +
+  '<option style="color:#4A5982; background-color:PowderBlue;">PowderBlue</option>' +
+  '<option style="color:#BAC9CE; background-color:Purple;">Purple</option>' +
+  '<option style="color:#BDCDC8; background-color:RebeccaPurple;">RebeccaPurple</option>' +
+  '<option style="color:#370000; background-color:Red;">Red</option>' +
+  '<option style="color:#580505; background-color:RosyBrown;">RosyBrown</option>' +
+  '<option style="color:#F2FBE2; background-color:RoyalBlue;">RoyalBlue</option>' +
+  '<option style="color:#D9D1CB; background-color:SaddleBrown;">SaddleBrown</option>' +
+  '<option style="color:#642119; background-color:Salmon;">Salmon</option>' +
+  '<option style="color:#45382F; background-color:SandyBrown;">SandyBrown</option>' +
+  '<option style="color:#010E27; background-color:SeaGreen;">SeaGreen</option>' +
+  '<option style="color:#825E45; background-color:SeaShell;">SeaShell</option>' +
+  '<option style="color:#E8EAEE; background-color:Sienna;">Sienna</option>' +
+  '<option style="color:#5C4A4A; background-color:Silver;">Silver</option>' +
+  '<option style="color:#1F4455; background-color:SkyBlue;">SkyBlue</option>' +
+  '<option style="color:#FFF2CD; background-color:SlateBlue;">SlateBlue</option>' +
+  '<option style="color:#13102C; background-color:SlateGray;">SlateGray</option>' +
+  '<option style="color:#826464; background-color:Snow;">Snow</option>' +
+  '<option style="color:#546469; background-color:SpringGreen;">SpringGreen</option>' +
+  '<option style="color:#09141E; background-color:SteelBlue;">SteelBlue</option>' +
+  '<option style="color:#554737; background-color:Tan;">Tan</option>' +
+  '<option style="color:#202835; background-color:Teal;">Teal</option>' +
+  '<option style="color:#744256; background-color:Thistle;">Thistle</option>' +
+  '<option style="color:#372C2A; background-color:Tomato;">Tomato</option>' +
+  '<option style="color:#2E557C; background-color:Turquoise;">Turquoise</option>' +
+  '<option style="color:#710F71; background-color:Violet;">Violet</option>' +
+  '<option style="color:#785757; background-color:Wheat;">Wheat</option>' +
+  '<option style="color:#827373; background-color:White;">White</option>' +
+  '<option style="color:#786A6A; background-color:WhiteSmoke;">WhiteSmoke</option>' +
+  '<option style="color:#82695C; background-color:Yellow;">Yellow</option>' +
+  '<option style="color:#504C43; background-color:YellowGreen;">YellowGreen</option>' +
+  '</select>' +
+  '<br>All other colors must be specified using a hex value (ex: <span style="color:#FF0000;">#FF0000</span>)</div>';
+  
+  // TODO: it would make more sense to stylize the actual "font family" dropdown styles than to style the help text.
+  pui.helpTextProperties.fontOptions = '<hr><b>Valid Font Families</b>: <select>' +
+  '<option>Font Family List</option>' +
+  '<optgroup label="Serif">' +
+  '<option style="font-family: Georgia, serif;">Georgia, serif</option>' +
+  '<option style="font-family:\'Palatino Linotype\', \'Book Antiqua\', Palatino, serif;">\'Palatino Linotype\', \'Book Antiqua\', Palatino, serif</option>' +
+  '<option style="font-family: \'Times New Roman\', Times, serif;">\'Times New Roman\', Times, serif</option>' +
+  '</optgroup>' +
+  '<optgroup label="Sans-Serif">' +
+  '<option style="font-family: Arial, Helvetica, sans-serif;">Arial, Helvetica, sans-serif</option>' +
+  '<option style="font-family: \'Arial Black\', Gadget, sans-serif;">\'Arial Black\', Gadget, sans-serif</option>' +
+  '<option style="font-family: \'Comic Sans MS\', cursive, sans-serif;">\'Comic Sans MS\', cursive, sans-serif</option>' +
+  '<option style="font-family: Impact, Charcoal, sans-serif;">&nbsp;&nbsp;&nbsp;Impact, Charcoal, sans-serif</option>' +
+  '<option style="font-family: \'Lucida Sans Unicode\', \'Lucida Grande\', sans-serif;">\'Lucida Sans Unicode\', \'Lucida Grande\', sans-serif</option>' +
+  '<option style="font-family: Tahoma, Geneva, sans-serif;">Tahoma, Geneva, sans-serif</option>' +
+  '<option style="font-family: \'Trebuchet MS\', Helvetica, sans-serif;">\'Trebuchet MS\', Helvetica, sans-serif</option>' +
+  '<option style="font-family: Verdana, Geneva, sans-serif;">Verdana, Geneva, sans-serif</option>' +
+  '</optgroup>' +
+  '<optgroup label="Monospace">' +
+  '<option style="font-family: \'Courier New\', Courier, monospace;">\'Courier New\', Courier, monospace</option>' +
+  '<option style="font-family: \'Lucida Console\', Monaco, monospace;">\'Lucida Console\', Monaco, monospace</option>' +
+  '</optgroup>' +
+  '</select>' +
+  '<br>All other fonts must be imported in some manner.<br><br>Example:<code class="propdefault"><br>@font-face {' +
+  '<br>&ensp; font-family: myCustomFont;' +
+  '<br>&ensp; src: url(\'myCustomFont.ttf\');' +
+  '<br>}</code><br><br>&#x1F6D1 Make sure your font file extension is supported in the browsers users will be using before attempting this.';
