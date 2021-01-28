@@ -16785,6 +16785,21 @@ div.propwin .helppnl select {
 
 div.propwin .helppnl select.color { font-weight: bold; }
 
+div.propwin .helppnl .ddscompat::before {
+  content: url('/profoundui/proddata/images/icons/warning.png');
+}
+div.propwin .helppnl .ddscompat {
+  color: red;
+  font-weight: bold;
+}
+
+div.propwin .helppnl ul.listing {
+  display: block;
+  list-style-type: disc;
+  padding-left: 10px;
+  margin-left: 15px;
+}
+
 div.propwin input[type="button"].ellipses {
   font-family: Arial;
   font-size: 12px;
