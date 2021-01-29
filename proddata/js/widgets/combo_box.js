@@ -88,6 +88,21 @@ pui.ComboBoxWidget = function() {
       box.style.cursor = "default";
       box.readOnly = true;
     }
+
+    addEvent(box, "keyup", function(event) {
+      event = event || window.event;
+      var keyCode = event.keyCode;
+      
+      if (choicesDiv.style.display === "none" || box.readOnly || box.disabled) {
+        return;
+      }
+
+      // Check for printable character being typed
+      if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222) || keyCode === 32) {
+        filterChoices(box.value);
+      }
+
+    });
     
     if (arrow == null) {
       arrow = document.createElement("div");
@@ -300,7 +315,7 @@ pui.ComboBoxWidget = function() {
       optDiv.choiceValue = me["choice values"][i];
       if (optDiv.choiceValue == null) optDiv.choiceValue =  me["choices"][i];
       optDiv.choiceText =  me["choices"][i];
-	  optDiv.className = "combo-option";
+      optDiv.className = "combo-option";
       optDiv.addEventListener('click', me);
       optDiv.addEventListener('mousedown', me);
       optDiv.addEventListener('mouseover', me);
@@ -318,6 +333,25 @@ pui.ComboBoxWidget = function() {
         if (newTop - scrollTop >= 0) top = newTop;
       }
       choicesDiv.style.top = top + "px";    
+    }
+  }
+  
+  function filterChoices(search) {
+    search = search.toLowerCase();
+    var optDivs = choicesDiv.getElementsByClassName("combo-option");
+    for (var i = 0; i < optDivs.length; i++) {
+      var optDiv = optDivs[i];
+      if (!search) {
+        optDiv.style.display = "";
+        continue;
+      }      
+      var text = getInnerText(optDiv).trim().toLowerCase();
+      if (text.indexOf(search) >= 0) {
+        optDiv.style.display = "";
+      }
+      else {
+        optDiv.style.display = "none";
+      }
     }
   }
   
