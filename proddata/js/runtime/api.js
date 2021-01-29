@@ -1716,7 +1716,7 @@ pui["refresh"] = function(parms) {
     var page = parts[0];
     var queryString = parts[1];
     if (queryString == null) queryString = "";
-    qparms = queryString.split("&");
+    var qparms = queryString.split("&");
     var appliedSkin = false;
     for (var i = 0; i < qparms.length; i++) {
       if (qparms[i].length >= 5 && qparms[i].substr(0, 5).toLowerCase() == "skin=") {
