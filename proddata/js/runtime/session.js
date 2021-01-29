@@ -21,6 +21,7 @@
 
 /**
  * Session Class
+ * This appears to be an undocumented API that is not called by any other Profound UI code.
  * @constructor
  */
 
@@ -46,39 +47,18 @@ function Session() {
   
   // save the state object to a cookie
   function save() {
-    var json = "{ ";
-    var count = 0;
-    for (var variable in state) {
-      count++;
-      var value = state[variable];
-      if (count > 1) json += ", ";
-      json += variable + ":";
-      json += '"';
-      json += value;
-      json += '"';
-    }
-    json += " }";
-    document.cookie = cookieName + "=" + escape(json) +  "; path=/;SameSite=Strict";
+    pui['setCookie'](cookieName, JSON.stringify(state), null, '/', null, null, 'Strict' );
   }
   
   // load the state from a cookie
   function load() {
-    var json = null;
-    // cookies are separated by semicolons
-    var aCookie = document.cookie.split("; ");
-    for (var i = 0; i < aCookie.length; i++) {
-      // a name/value pair (a crumb) is separated by an equal sign
-      var aCrumb = aCookie[i].split("=");
-      if (cookieName == aCrumb[0]) 
-        json = unescape(aCrumb[1]);
-    }
+    var json = pui['getCookie'](cookieName);
     if (json == null) {
       state = {};
     }
     else {
       try {
-        //eval("state = " + json + ";"); 
-        state = eval("(" + json + ")");
+        state = JSON.parse(json);  //Note: evaluating code from cookies is a security vulnerability. Use JSON.parse, not eval.
       }
       catch(err) {
         state = {};
@@ -91,17 +71,17 @@ function Session() {
     if (!loaded) load();
     set(variable, value);
     save();
-  }
+  };
   
   this.getValue = function(variable, defaultValue) {
     if (!loaded) load();
     return get(variable, defaultValue);
-  }
+  };
   
   this.clear = function() {
     state = {};
     save();
-  }
+  };
   
   // synonyms
   this.setValue = this.saveValue;
