@@ -34,32 +34,34 @@ pui.layout.template.cssPanelTemplate = function (parms) {
     return pui.layout.mergeProps([{
         name: "has header",
         choices: ["true", "false"],
-        help: pui.helpTextProperties("theme","Determines whether the panel has a header.")
+        helpDefault: "theme", help: "Determines whether the panel has a header."
       },
       {
         name: "header height",
         format: "number",
-        help: pui.helpTextProperties("theme","Specifies the height of the panel header.")
+        helpDefault: "theme", help: "Specifies the height of the panel header."
       },
       {
         name: "header text",
-        help: pui.helpTextProperties("placeholder","Specifies the text that will appear in the panel header."),
+        helpDefault: "placeholder", help: "Specifies the text that will appear in the panel header.",
         translate: true
       },
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.",
+        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.",
+        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
       },
       {
         name: "straight edge",
         choices: ["all", "left", "right", "top", "bottom"],
-        help: pui.helpTextProperties("theme","Determines which parts of the element will have a straight edge instead of rounded corners.")
+        helpDefault: "theme", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
       },
       pui.layout.adoptNamedProperty("color"),
       pui.layout.adoptNamedProperty("font family"),
