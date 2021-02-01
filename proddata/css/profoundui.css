@@ -16762,6 +16762,10 @@ div.propwin .helppnl {
   white-space: normal;
 }
 
+div.propwin .helppnl p, div.propwin .helppnl pre {
+  margin: revert;
+}
+
 div.propwin .helppnl .propname {  
   font-weight: bold;
   text-transform: capitalize;

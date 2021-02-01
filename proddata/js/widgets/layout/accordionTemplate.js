@@ -34,38 +34,40 @@ pui.layout.template.accordionTemplate = function (parms) {
     return pui.layout.mergeProps([{
         name: "section names",
         type: "list",
-        help: pui.helpTextProperties("placeholder","Specifies a comma separate list of section names for the accordion."),
+        helpDefault: "placeholder", help: "Specifies a comma separate list of section names for the accordion.",
         translate: true
       },
       {
         name: "active section",
         format: "number",
-        help: pui.helpTextProperties("0","This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program.")
+        helpDefault: "0", help: "This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program."
       },
       {
         name: "header theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name.")
+        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", 
+        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
       },
       {
         name: "body theme",
         choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        help: pui.helpTextProperties("theme","Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.", ["other"], "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name.")
+        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.",
+        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
       },
       {
         name: "small sections",
         choices: ["true", "false"],
-        help: pui.helpTextProperties("false","This property uses CSS to provide a smaller, more compact version of the header sections.")
+        helpDefault: "false", help: "This property uses CSS to provide a smaller, more compact version of the header sections."
       },
       {
         name: "allow collapse",
         choices: ["true", "false"],
-        help: pui.helpTextProperties("true","Determines if the accordion can be fully collapsed.")
+        helpDefault: "true", help: "Determines if the accordion can be fully collapsed."
       },
       {
         name: "straight edge",
         choices: ["all", "left", "right", "top", "bottom"],
-        help: pui.helpTextProperties("blank","Determines which parts of the element will have a straight edge instead of rounded corners.")
+        helpDefault: "blank", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
       },
       pui.layout.adoptNamedProperty("color"),
       pui.layout.adoptNamedProperty("font family"),
@@ -79,11 +81,11 @@ pui.layout.template.accordionTemplate = function (parms) {
         name: "onsectionclick",
         type: "js",
         wf: true,
-        help: pui.helpTextProperties("blank","Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded.")
+        helpDefault: "blank", help: "Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded."
       },
       { name: "lazy load", choices: ["true", "false"],
-        help: pui.helpTextProperties("false","When true, render contents of section after the user expands it instead of rendering everything immediately (which can be slower).") },
-      { name: "onlazyload", type: "js", help: pui.helpTextProperties("blank","Initiates a client-side script after a container is rendered lazily. (See lazy load property.)")}
+        helpDefault: "false", help: "When true, render contents of section after the user expands it instead of rendering everything immediately (which can be slower)." },
+      { name: "onlazyload", type: "js", helpDefault: "blank", help: "Initiates a client-side script after a container is rendered lazily. (See lazy load property.)"}
     ]);
   }
 
