@@ -5328,7 +5328,14 @@ pui.Grid = function () {
       case "onpageup":
       case "onscroll":
       case "onfilterchange":
-        me.events[property] = unevaledValue;
+        // For backwards compatiblity, use 'value' if 'unevaledValue' is not passed.
+        // See Redmine #6558
+        if (typeof unevaledValue == "undefined") {
+          me.events[property] = value;
+        }
+        else {
+          me.events[property] = unevaledValue;
+        }
         break;
 
       case "ondbload":
