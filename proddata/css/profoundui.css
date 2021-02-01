@@ -17111,3 +17111,12 @@ div.selmkr {
   display: none;
   z-index: 600;
 }
+
+.btn-cloud-settings {
+  background-image: url("/profoundui/proddata/images/FlatIcons/cloud-settings.svg");
+  background-size: 24px 24px;
+}
+.btn-cloud-publish {
+  background-image: url("/profoundui/proddata/images/FlatIcons/24x24/publish.png");
+  background-size: 24px 24px;
+}
