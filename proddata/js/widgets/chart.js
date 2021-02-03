@@ -305,9 +305,9 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
       for (var setIdx = 0; setIdx < sets.length; setIdx++) {
         
         var set = sets[setIdx];
-        if (dataSet["seriesname"]) {
+        if (dataSet["seriesname"] || dataSet["seriesName"]) {
           
-          data["name"] = dataSet["seriesname"];
+          data["name"] = dataSet["seriesname"] || dataSet["seriesName"];
           if (setIdx < categories.length)
             data["category"] = categories[setIdx];
           
