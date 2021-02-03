@@ -76,7 +76,7 @@ pui["maximizeLayout"] = function (e) {
 pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue: 'false', proxyValue: 'false' }\" title=\"Maximize\" style=\"position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; cursor: pointer; background-image: url(/profoundui/proddata/images/icons/maximize.png)\" onmousedown=\"pui.maximizeLayout(event)\" />";
 
 pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', helpDefault: 'hidden', help: 'Determines whether a horizontal scrollbar should be displayed.', "
-  + "choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', helpDefault 'hidden', help: 'Determines whether a vertical scrollbar should be displayed.', "
+  + "choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', helpDefault: 'hidden', help: 'Determines whether a vertical scrollbar should be displayed.', "
   + "choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
 
 pui.layout["templates"]["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', helpDefault: '2', help: 'Specifies the number of table rows for this layout.' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" "
