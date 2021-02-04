@@ -18,69 +18,16 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Returns template properties for the layout (when parms.returnProps is true). Or returns a DIV element to contain the widget.
+ * Returns a DIV element to contain the widget. CSSPanel is not a layout; this function helps make one out of it.
  * @param {Object} parms
+ * @param {Element} dom   A new or cloned DIV element.
  * @returns {Element|Object}
  */
-pui.layout.template.cssPanelTemplate = function (parms) {
+pui.layout.template.cssPanelTemplate = function (parms, dom) {
 
   var properties = parms.properties;
-  var designMode = parms.designMode;
   var proxyMode = parms.proxyMode;
-  var returnProps = parms.returnProps;
-  var existingDom = parms.dom;
-
-  if (returnProps) {
-    return pui.layout.mergeProps([{
-        name: "has header",
-        choices: ["true", "false"],
-        helpDefault: "theme", help: "Determines whether the panel has a header."
-      },
-      {
-        name: "header height",
-        format: "number",
-        helpDefault: "theme", help: "Specifies the height of the panel header."
-      },
-      {
-        name: "header text",
-        helpDefault: "placeholder", help: "Specifies the text that will appear in the panel header.",
-        translate: true
-      },
-      {
-        name: "header theme",
-        choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.",
-        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
-      },
-      {
-        name: "body theme",
-        choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.",
-        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
-      },
-      {
-        name: "straight edge",
-        choices: ["all", "left", "right", "top", "bottom"],
-        helpDefault: "theme", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
-      },
-      pui.layout.adoptNamedProperty("color"),
-      pui.layout.adoptNamedProperty("font family"),
-      pui.layout.adoptNamedProperty("font size"),
-      pui.layout.adoptNamedProperty("font style"),
-      pui.layout.adoptNamedProperty("font weight"),
-      pui.layout.adoptNamedProperty("text align"),
-      pui.layout.adoptNamedProperty("text decoration"),
-      pui.layout.adoptNamedProperty("text transform")
-    ]);
-  }
-
-  var dom;
-  if (existingDom != null) {
-    dom = existingDom.cloneNode(false);
-  } else {
-    dom = document.createElement("div");
-  }
-  dom.innerHTML = "";
+  
   var panel = new pui.CSSPanel();
   panel.forLayout = true;
   panel.container = dom;

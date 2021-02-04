@@ -17120,3 +17120,10 @@ div.selmkr {
   background-image: url("/profoundui/proddata/images/FlatIcons/24x24/publish.png");
   background-size: 24px 24px;
 }
+
+fieldset.layout {
+  width:100%;
+  height:100%;
+  position:relative;
+  border-style: solid;
+}

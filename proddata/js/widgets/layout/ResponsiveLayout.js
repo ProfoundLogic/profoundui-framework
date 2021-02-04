@@ -21,16 +21,17 @@
  * Responsive Layout. A Profound UI Layout with DIV containers arranged using CSS Grid Layout rules.
  * Styles are set in an embedded &lt;style&gt; tag rather than inline styles. Alternately, the styles
  * can be set in external CSS.
+ * @param {Object|undefined} parms  Parameters used to build the layout template. Undefined when called by ResponsiveDialog.
+ * @param {Element|undefined} dom   A new or cloned DIV element when constructor is called elsewhere than ResponsiveDialog.
  * @constructor
  */
-pui.ResponsiveLayout = function(){
+pui.ResponsiveLayout = function(parms, dom){
+  pui.layout.Template.call(this, parms, dom);  //super(). sets up container, forProxy, designMode, etc.
+  
   // Public
-  this.container = null;
   this.MAINCLASS = "puiresp";  //Class name of the node that has "display:grid" CSS style. (Should not change.)
   
-  this.forProxy = false;
-  this.designMode = false;
-  this.previewMode = false;   //Is the layout used as a preview in the Responsive Editor. (See child class.)
+  this.previewMode = (parms && parms.previewMode);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
   
   // Pseudo-private properties, inheritable.
   this._numchildren = 0;
@@ -62,8 +63,31 @@ pui.ResponsiveLayout = function(){
       // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
     }
   }
+    
+  dom.sizeMe = this.resize.bind(this);
+  
+  // Map special setters to properties. These are called at the end of setProperty in pui.Layout, which is
+  // the global property setter for "layout" widgets. When one property changes, each are evaluated in this order.
+  if (parms && parms.properties){
+    var properties = parms.properties;
+    if (properties["container names"] != null) {
+      this.setContainerNames(properties["container names"]);  //setNumItems depends on the value set here.
+    }
+
+    if (properties["layout items"] != null) {
+      this.setNumItems(properties["layout items"]);
+    }
+
+    if (properties["use viewport"] != null) {
+      this.setUseViewport(properties["use viewport"] != "false");
+    }
+
+    if (properties["style rules"] != null) {
+      this.setRules(properties["style rules"]);
+    }
+  }
 };
-pui.ResponsiveLayout.prototype = Object.create(pui.BaseClass.prototype);
+pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
 
 // Prototype properties: attached to prototype once, not to the class instances each time a constructor is called.
 
@@ -95,7 +119,7 @@ pui.ResponsiveLayout.prototype.destroy = function(){
 
 /**
  * Handle when the number of items is changed or set.
- * (This is called because it is set in pui.layout.template.responsiveLayoutTemplate.)
+ * (This is called because it is set in the constructor.)
  * Pre-Condition: This.container must be set to some node before this is called.
  * @param {Number} numitems
  * @returns {undefined}
@@ -137,7 +161,7 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
   }
 };
 
-// Note: setRules runs after this, because setRules is last in responsiveLayoutTemplate.
+// Note: setRules runs after this, because setRules is last in the constructor.
 // So, changing the "use viewport" option causes rules to be re-evaluated.
 pui.ResponsiveLayout.prototype.setUseViewport = function(usev) {
   if (usev == null || usev === "" || pui.isBound(usev)) return;
@@ -222,10 +246,7 @@ pui.ResponsiveLayout.prototype.resize = function() {
     this._manipulateCSSOM();
   }
 
-  // Size containers.
-  if (this.container.layout != null) {
-    this.container.layout.sizeContainers();
-  }
+  pui.layout.Template.prototype.resize.call(this);  //Sizes containers.
 };
 
 /**
@@ -478,3 +499,25 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
 
   return sizes;
 }; //end parseSectionSizes().
+
+/**
+ * @param {String} property
+ * @param {String} value
+ * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
+ */
+pui.ResponsiveLayout.prototype.setProperty = function(property, value){
+  var ret = true;
+  switch (property){
+    case 'id':
+      this.container.id = value;
+      // The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
+      this.setRules();
+      break;
+      
+    default:
+      ret = false;
+      break;
+  }
+  return ret;
+};
+

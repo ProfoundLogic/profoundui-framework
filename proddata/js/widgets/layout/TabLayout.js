@@ -20,17 +20,18 @@
 
 /**
  * TabLayout Class
+ * @param {Object} parms  Parameters used to build the layout template.
+ * @param {Element} dom   A new or cloned DIV element constructor.
  * @constructor
  */
-
-pui.TabLayout = function() {
+pui.TabLayout = function(parms, dom) {
   // Imports properties from TabPanel into this object.
   TabPanel.call(this);
   
   // Public
-  this.container = null;    //The DIV that contains the elements comprising this widget.
-  this.forProxy = false;
-  this.designMode = false;
+  this.container = dom;                //The DIV that contains the elements comprising this widget.
+  this.forProxy = parms.proxyMode;
+  this.designMode = parms.designMode;  
   
   // Private
   var me = this;  
@@ -45,12 +46,10 @@ pui.TabLayout = function() {
   var checkCount = 0;
   var tmo_checkwidth = 0;
   
+  // Constructor work is done after all these functions being declared. TODO: move these functions into prototype methods.
+  
   // Public Methods.
-  
-  this.init = function() {
-    me.container.style.overflow = "hidden";
-  };
-  
+    
   /**
    * Clears the container and draws new elements for each tab, the content-area, the scroll buttons, and the -/+ buttons (in design mode).
    * Called when some properties are applied. Styles should be set in stylesheet, but properties may set them later.
@@ -203,15 +202,13 @@ pui.TabLayout = function() {
    */
   this.resize = function() {
     me.checkScrollButtons();
-
-    if (me.container.layout != null) {
-      me.container.layout.sizeContainers();
-    }
+    
+    pui.layout.Template.prototype.resize.call(me); //resizes child containers.
   };
   
   this.setHeight = function(height) {
     me.container.style.height = height;
-    me.resize(height);
+    me.resize();
   };
   
   /**
@@ -356,7 +353,76 @@ pui.TabLayout = function() {
     //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
   }
   
+  // Other constructor work.
+
+  // Initialize template properties.
+  var properties = parms.properties;
+  
+  this.designMode = parms.designMode;
+
+  this.container.style.overflow = "hidden";
+  
+  this.container.tabLayout = this;
+  this.container.sizeMe = this.resize.bind(this);  //Allows certain designer methods to cause a resize.
+  
+  this.setTabNames(properties["tab names"]);
+  
+  this.setOntabclick(properties["ontabclick"]);
+  
+  this.setAllStyles(properties); //Set color, font, etc. properties.
+  
+  var height = properties["height"];
+  if (height == null) height = "200px";
+  this.setHeight(height);
+  
+  // Note: tab keys is not implemented, because "tab keys" is for Genie.
+  
+  if (!parms.designMode) {
+    // Set the active tab to the property value.
+    var activeTab = properties["active tab"];
+    if (activeTab != null) {
+      activeTab = Number(activeTab);
+      if (!isNaN(activeTab) && activeTab != 0) {
+        this.setTab(activeTab);
+      }
+      this.container.sendActiveTab = true;
+    }
+    
+    if (properties["tab response"]) {
+      this.container.sendTabResponse = true;
+    }
+    
+    var responseAID = properties["response AID"];
+    if (responseAID != null && responseAID != ""){
+      this.container.responseAID = responseAID;
+    }
+  }
+  
+  if (parms.proxyMode) {
+    this.container.style.position = "relative";
+  }
+  
 };
 
 //Inherit from super class.
 pui.TabLayout.prototype = Object.create(TabPanel.prototype);
+
+
+/**
+ * Property setter for any property. Called by pui.Layout.setProperty.
+ * @param {String} property
+ * @param {String} value
+ * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
+ */
+pui.TabLayout.prototype.setProperty = function(property, value){
+  var ret = true;
+  switch (property){
+    case '':
+      break;
+      
+    default:
+      ret = false;  //Let pui.Layout's setProperty handle other properties.
+      break;
+  }
+  return ret;
+};

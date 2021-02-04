@@ -1123,8 +1123,8 @@ function TabPanel() {
     return outerSpan;
   };//end createScrollButton().
   
-}//end TabPanel constructor.
-
+}
+TabPanel.prototype = Object.create(pui.BaseClass.prototype);  //inherit deleteOwnProperties.
 
 
 pui.widgets.add({

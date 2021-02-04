@@ -18,6 +18,8 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 
+// Note: this getContainers seems to not be a method of pui.Layout because it can be used for html-based templates. Also, when 
+// layouts are created by cloning dom nodes, the containers still need to be fetched, even if there is no .layout attached to the DOM.
 
 pui.layout.template.getContainers = function(dom) {
   var containers = [];

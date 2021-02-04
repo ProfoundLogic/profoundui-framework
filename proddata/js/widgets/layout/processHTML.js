@@ -17,15 +17,16 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-pui.layout.template.processHTML = function(parms) {
+/**
+ * Process an HTML template and return either the DOM element built from the template or an array of properties
+ * @param {Object} parms
+ * @param {Element} dom
+ * @returns {Array.<Object>|Element}
+ */
+pui.layout.template.processHTML = function(parms, dom) {
 
   var html = pui.layout["templates"][parms.template];
   
-  if (typeof html == "function") {  // custom function provded instead of HTML
-    return html(parms);
-  }
   if (typeof html != "string"){
     //If a custom template is removed, then Designer and pui.render would crash when loading a screen using the missing template.
     console.log("Template,",parms.template,", did not exist. Reverting to simple container.");
@@ -36,8 +37,7 @@ pui.layout.template.processHTML = function(parms) {
   var designMode = parms.designMode;
   var proxyMode = parms.proxyMode;
   var returnProps = parms.returnProps;
-  var existingDom = parms.dom;
-
+  
   var propList = {};
   
   function findDynamicPart() {
@@ -135,27 +135,12 @@ pui.layout.template.processHTML = function(parms) {
   
   if (returnProps) {
     var propArray = [];
-    var model = pui.layout.getPropertiesModel();
-    for (var i = 0; i < model.length; i++) {
-      if (model[i].templateProperties == true) {
-        for (var prop in propList) {
-          propArray.push(propList[prop]);
-        }      
-      }
-      else {
-        propArray.push(model[i]);
-      }
+    for (var prop in propList) {
+      propArray.push(propList[prop]);
     }
-    return propArray;
+    return pui.layout.getPropertiesModel(propArray);
   }
   else {
-    var dom;
-    if (existingDom != null) {
-      dom = existingDom.cloneNode(false);
-    }
-    else {
-      dom = document.createElement("div");
-    }
     dom.innerHTML = html;
     return dom;
   }

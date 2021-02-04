@@ -5376,8 +5376,8 @@ pui.setupWindowDiv = function(parms, layer) {
       elem.disabled = true;
       elem.readOnly = true;
       
-      if (typeof elem.sentToBackground == "function"){
-        elem.sentToBackground();
+      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function"){
+        elem.layoutT.sentToBackground();
       }
     }        
   }
@@ -6584,7 +6584,7 @@ pui.transitionAnimation = {
       var elem = allElems[i];
       if (elem.hasAttribute("id")) elem.removeAttribute("id");
       
-      if (typeof elem.sentToBackground == "function") elem.sentToBackground();  //Fix 5044.
+      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function") elem.layoutT.sentToBackground();  //Fix 5044.
     }
 
     // Create new screen as brand new pui div
