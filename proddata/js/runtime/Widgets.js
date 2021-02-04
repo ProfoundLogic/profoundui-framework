@@ -204,7 +204,6 @@ pui.Widgets.prototype.bidirGlobalPropertySetter = function(parms){
     if (pui.widgets[widgetName] != null){
       var widgetConfig = pui.widgets[widgetName];
 
-      //if (widgetConfig['constr'] instanceof pui.BasicWidget){
       if (typeof widgetConfig['constr'] === 'function'){
         try {
           // The custom widget uses a subclass of pui.BasicWidget, which implements necessary methods.
@@ -216,8 +215,8 @@ pui.Widgets.prototype.bidirGlobalPropertySetter = function(parms){
         puiwidget = new pui.BasicWidget(parms, widgetName);
 
         // To the BasicWidget attach the supplied functions. Bind so that they can reach class methods and properties easily.
-        puiwidget['render'] = widgetConfig['render'].bind(puiwidget);
-        puiwidget['getValue'] = widgetConfig['getValue'].bind(puiwidget);
+        if (typeof widgetConfig['render'] === 'function') puiwidget['render'] = widgetConfig['render'].bind(puiwidget);
+        if (typeof widgetConfig['getValue'] === 'function') puiwidget['getValue'] = widgetConfig['getValue'].bind(puiwidget);
       }
     }
   }

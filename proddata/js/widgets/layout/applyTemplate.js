@@ -23,11 +23,10 @@ pui.layout.template.applyTemplate = function(parms) {
   var dom = parms.dom;
 
   var getContainers = pui.layout.template.getContainers;
-  var processHTML = pui.layout.template.processHTML;
   var processDOM = pui.layout.template.processDOM;
   
   var containers = getContainers(dom);
-  var newDom = processHTML(parms);  //A temporary element that isn't attached to the DOM. Is used to build layouts.
+  var newDom = pui.layout.template.load(parms);  //A temporary element that is not attached to the DOM. The element is used to build layouts.
   processDOM(newDom);
   var newContainers = getContainers(newDom);
   var stretchList = [];
@@ -39,7 +38,7 @@ pui.layout.template.applyTemplate = function(parms) {
   x += 1;
   
   // Make sure changing the layout doesn't lose any widgets. If the function returns here, then the DOM and layout 
-  // object created in processHTML are discarded.
+  // objects created in template.load are discarded.
   if (x > newContainers.length) {
     return {
       success: false,
@@ -96,12 +95,8 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.layout.getActiveContainerNumbers = newDom.accordion.getActiveContainerNumbers; //Needed by lazy-load.
   }
   
-  if (newDom.responsivelayout != null){
-    dom.responsivelayout = newDom.responsivelayout;
-    dom.sizeMe = dom.responsivelayout.resize.bind(dom.responsivelayout);
-    dom.sentToBackground = dom.responsivelayout.sentToBackground.bind(dom.responsivelayout);
-    dom.resizeOnCanvasResize = dom.responsivelayout.resizeOnCanvasResize;
-    dom.responsivelayout.container = dom;
+  if (newDom.layoutT != null){
+    newDom.layoutT.assignToOtherDom(dom);   //This handles everything necessary for whatever type of class is in layoutT.
   }
   
   if (newDom.tabLayout != null){
@@ -147,7 +142,7 @@ pui.layout.template.applyTemplate = function(parms) {
 
 
 pui.layout.template.getProxy = function(defaults) {
-  var proxy = pui.layout.template.processHTML({
+  var proxy = pui.layout.template.load({
     template: defaults["template"],
     properties: defaults,
     designMode: true,

@@ -73,6 +73,54 @@ pui["maximizeLayout"] = function (e) {
   preventEvent(e);
 };
 
+/**
+ * Call a template builder function, call a constructor, or process some text to build a layout. applyTemplate calls this.
+ * @param {Object} parms
+ * @returns {Element}   Returns the DOM element containing the layout.
+ */
+pui.layout.template.load = function(parms){
+  // All templates do this: get a new wrapper div.
+  var dom;
+  var existingDom = parms.dom;
+  if (existingDom != null) {
+    dom = existingDom.cloneNode(false);
+  }
+  else {
+    dom = document.createElement("div");
+  }
+  dom.innerHTML = "";
+  
+  var template = pui.layout["templates"][parms.template];
+  switch (parms.template) {
+    case 'css panel':
+      dom = pui.layout.template.cssPanelTemplate(parms, dom);
+      break;
+    case 'accordion':
+      dom = pui.layout.template.accordionTemplate(parms, dom);
+      break;
+
+    // Constructors for these templates do everything, obviating an extra template loader file.
+    case 'tab panel':
+      new pui.TabLayout(parms, dom);
+      break;
+    case 'responsive layout':
+      var constr = parms.designMode ? pui.designer.responsive.ResponsiveLayout : pui.ResponsiveLayout;
+      new constr(parms, dom);
+      break;
+    case 'fieldset':
+      new pui.FieldsetLayout(parms, dom);
+      break;
+
+    default:
+      // custom function provided instead of HTML. (None of our templates reach here, but a customer's could.)
+      if (typeof template == "function")  dom = template(parms);
+      // The template is probably contained in an HTML string and needs to be processed.
+      else dom = pui.layout.template.processHTML(parms, dom);
+      break;
+  }
+  return dom;
+};
+
 pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue: 'false', proxyValue: 'false' }\" title=\"Maximize\" style=\"position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; cursor: pointer; background-image: url(/profoundui/proddata/images/icons/maximize.png)\" onmousedown=\"pui.maximizeLayout(event)\" />";
 
 pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', helpDefault: 'hidden', help: 'Determines whether a horizontal scrollbar should be displayed.', "
@@ -90,29 +138,16 @@ pui.layout["templates"]["mobile device"] += "<tr condition=\"{ property: 'bottom
 pui.layout["templates"]["mobile device"] += "</table>";
 pui.layout["templates"]["mobile device"] += pui.layout.maximizeIcon;
 
-pui.layout["templates"]["css panel"] = pui.layout.template.cssPanelTemplate;
-
-pui.layout["templates"]["accordion"] = pui.layout.template.accordionTemplate;
-
-pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;" +
-  " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', helpDefault: 'solid', help: 'The style of the element&apos;s border.'};" +
-  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', helpDefault: '1px', help: 'The width of the element&apos;s border.'};" +
-  " border-color:{property:'border color', type:'color', defaultValue:'black', helpDefault: 'black', help: 'The color of the element&apos;s border.'};"
-  //Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
-  //In the future, this template may need to be implemented in JavaScript.
-  +
-  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], helpDefault: \'left\', help: \'The width of the element&apos;s border.\'}"' +
-  ' style="{property:\'legend style\', help:\'Styling for the legend text.\', type:\'long\'}">' +
-  '{property: "legend", helpDefault:\'Field Set\', help: \'Text to display in the field set&apos;s legend.\', "translate": true}</legend>' +
-  '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
-  '</fieldset>';
-
-pui.layout["templates"]["responsive layout"] = pui.layout.template.responsiveLayoutTemplate;
-pui.layout["templates"]["tab panel"] = pui.layout.template.tabTemplate;
+// Having these placeholders makes getTemplateList include these templates.
+pui.layout["templates"]["css panel"] = true;
+pui.layout["templates"]["accordion"] = true;
+pui.layout["templates"]["responsive layout"] = true;
+pui.layout["templates"]["tab panel"] = true;
+pui.layout["templates"]["fieldset"] = true;
 
 /**
- * Returns an array of template name strings. pui.layout.getPropertiesModel calls this,
- * allowing Designer to show the list of templates in the "template" property.
+ * Returns an array of template name strings. Referenced in pui.layout.getPropertiesModel, getTemplateList should be called any time 
+ * the PropertiesWindow shows choices for the "templates" property in a layout.
  * @returns {Array}
  */
 pui.layout.getTemplateList = function () {
@@ -122,55 +157,4 @@ pui.layout.getTemplateList = function () {
     list.push(x);
   }
   return list;
-};
-
-
-pui.layout.mergeProps = function (templateProps) {
-  var props = [];
-  var layoutProps = pui.layout.getPropertiesModel();
-  for (var i = 0; i < layoutProps.length; i++) {
-    if (layoutProps[i].templateProperties == true) {
-      for (var j = 0; j < templateProps.length; j++) {
-        props.push(templateProps[j]);
-      }
-    } else {
-      props.push(layoutProps[i]);
-    }
-  }
-  return props;
-};
-
-/**
- * Adopt everything from a standard widget property, excluding the "controls" list, allowing a layout to use the same text, bindings, etc.
- * Note: if a layout uses this function and "controls" was set on the property, then DataFields.js::getPostData() and Designer.js::getJSON()
- * need exceptions for the property and template.
- * @param {String} propName
- * @returns {Object}
- */
-pui.layout.adoptNamedProperty = function (propName) {
-  if (pui.layout.adoptedProperty === null || typeof pui.layout.adoptedProperty != "object") {
-    pui.layout.adoptedProperty = {};
-  }
-
-  if (pui.layout.adoptedProperty[propName] == null) {
-    // Create another cached copy of the global property for use by templates.
-    pui.layout.adoptedProperty[propName] = {
-      name: propName
-    };
-    var nmodel = getPropertiesNamedModel();
-    if (nmodel[propName] != null && typeof nmodel[propName] == "object") {
-      try {
-        // Add references to the global property in the new object.
-        for (var key in nmodel[propName]) {
-          pui.layout.adoptedProperty[propName][key] = nmodel[propName][key];
-        }
-        delete pui.layout.adoptedProperty[propName]["controls"];
-        //This may be added after property definitions are setup and has cyclic references and isn't needed.
-        delete pui.layout.adoptedProperty[propName].selection;
-      } catch (exc) {
-        console.log("error adopting property:", exc.message);
-      }
-    }
-  }
-  return pui.layout.adoptedProperty[propName];
 };
