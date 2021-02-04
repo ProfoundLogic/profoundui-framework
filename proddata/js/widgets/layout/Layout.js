@@ -338,21 +338,26 @@ pui.layout.Layout.prototype.center = function() {
 };
 
 /**
- * 
+ * Figure out which template type this layout contains, and call its resize method.
  */
 pui.layout.Layout.prototype.resize = function() {
   var panel = this.layoutDiv.panel;
   var accordion = this.layoutDiv.accordion;
-  var responsivelayout = this.layoutDiv.responsivelayout;
-  var tabLayout = this.layoutDiv.tabLayout;
+  var layoutTClass = this.layoutDiv.layoutT;
+  
+//  var tabLayout = this.layoutDiv.tabLayout;
+  
+  
+  
+  
   if (panel) panel.resize();
-  if (accordion) accordion.resize();
-  if (responsivelayout) responsivelayout.resize();
-  if (tabLayout) tabLayout.resize();
+  else if (accordion) accordion.resize();
+  else if (layoutTClass) layoutTClass.resize();
+//  else if (tabLayout) tabLayout.resize();
 };
 
 /**
- * 
+ * A global property setter for layout widgets, called directly for some properties and at the end of layoutWidget.js global property setter.
  * @param {String} property
  * @param {String} value
  */
@@ -360,16 +365,18 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
   if (value == null) value = "";
   var panel = this.layoutDiv.panel;
   var accordion = this.layoutDiv.accordion;
-  var responsivelayout = this.layoutDiv.responsivelayout;
+  
+  // If the layout template's class handles setting properties, then return. Those should prevent custom properties from re-loading 
+  // the entire template when not defined here.
   var tabLayout = this.layoutDiv.tabLayout;
+  if (tabLayout && tabLayout.setProperty(property, value)) return;
+  
+  var layoutT = this.layoutDiv.layoutT;
+  if (layoutT && layoutT.setProperty(property, value)) return;
 
   switch (property) {
     case "id":
       this.layoutDiv.id = value;
-      if (responsivelayout != null){
-        //The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
-        responsivelayout.setRules();
-      }
       break;
 
     case "field type":
@@ -382,10 +389,8 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         this.designItem.changed = true;
         this.designItem.designer.changedScreens[this.designItem.designer.currentScreen.screenId] = true;
         this.designItem.designer.propWindow.refresh();
-        if (panel) panel.resize();
-        if (accordion) accordion.resize();
-        if (responsivelayout) responsivelayout.resize();
-        if (tabLayout) tabLayout.resize();
+        
+        this.resize();  //Resize whichever template this is.
       }
       break;
 
@@ -408,10 +413,12 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         styleName = words[0] + words[1].substr(0, 1).toUpperCase() + words[1].substr(1);
       }
       this.layoutDiv.style[styleName] = value;
+      
       if (panel != null) panel.resize();
-      if (accordion != null) accordion.resize();
-      if (responsivelayout != null) responsivelayout.resize();
-      if (tabLayout != null) tabLayout.resize();
+      else if (accordion != null) accordion.resize();
+      else if (layoutT != null) layoutT.resize();   //responsive layout, fieldset, etc.
+      else if (tabLayout != null) tabLayout.resize();
+      
       this.stretch();
 
       // To allow inline-style setting and removing, cache the style property.
@@ -832,4 +839,58 @@ pui.layout.Layout.prototype['handleEvent'] = function(e) {
     case 'resize': this._onresize(e); break;
     case 'click': this._designOnClick(e); break;
   }
+};
+
+
+
+/**
+ * A super class for layout templates. Note: it would make more sense for templates to be implemented as subclasses
+ * of pui.Layout, but many changes are required first. This can be used until then.
+ * @param {Object|undefined} parms  Property setter parameters. May be undefined for responsive layout in the responsive editor.
+ * @param {Element|undefined} dom   A new or cloned DIV element.
+ * @constructor
+ */
+pui.layout.Template = function(parms, dom) {
+  this.container = dom;
+  this.forProxy = (parms && parms.proxyMode);
+  this.designMode = (parms && parms.designMode);
+  
+  // Lets pui.Layout and applyTemplate know that the dom contains this class (or it is a TabLayout that implements the same functions.)
+  dom.layoutT = this;
+  
+  dom.sizeMe = this.resize.bind(this);
+};
+pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
+
+/**
+ * Note: should be called by subclasses after any resize work they do.
+ */
+pui.layout.Template.prototype.resize = function() {
+  if (this.container && this.container.layout) {
+    this.container.layout.sizeContainers();
+  }
+};
+
+/**
+ * Placeholder for subclasses to implement and override.
+ * @param {String} property
+ * @param {String} value
+ * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
+ */
+pui.layout.Template.prototype.setProperty = function(property, value){
+  return false;
+};
+
+/**
+ * Assign template-specific properties to the DOM element that is passed to applyTemplate. TODO: this approach seems overcomplicated:
+ * templates get built on an object detached from the DOM and then properties from that DOM are copied onto an existing DOM element.
+ * Why not just evaluate the template in the "field type" or "template" setters before constructing the appropriate Layout subclass.
+ * Then you would know if the template is good, and there's no need to construct a fake one that you can back out of in case something 
+ * goes wrong.
+ * @param {Element} dom
+ */
+pui.layout.Template.prototype.assignToOtherDom = function(dom){
+  dom.layoutT = this;
+  dom.sizeMe = this.resize.bind(this);
+  this.container = dom;
 };

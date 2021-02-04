@@ -18,84 +18,17 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Returns template properties for the layout (when parms.returnProps is true). Or returns a DIV element to contain the widget.
+ * Returns a DIV element to contain the widget. TODO: move this code inside the Accordion constructor and delete this file.
  * @param {Object} parms
+ * @param {Element} dom   A new or cloned DIV element.
  * @returns {Element|Object}
  */
-pui.layout.template.accordionTemplate = function (parms) {
+pui.layout.template.accordionTemplate = function (parms, dom) {
 
   var properties = parms.properties;
   var designMode = parms.designMode;
   var proxyMode = parms.proxyMode;
-  var returnProps = parms.returnProps;
-  var existingDom = parms.dom;
-
-  if (returnProps) {
-    return pui.layout.mergeProps([{
-        name: "section names",
-        type: "list",
-        helpDefault: "placeholder", help: "Specifies a comma separate list of section names for the accordion.",
-        translate: true
-      },
-      {
-        name: "active section",
-        format: "number",
-        helpDefault: "0", help: "This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program."
-      },
-      {
-        name: "header theme",
-        choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", 
-        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
-      },
-      {
-        name: "body theme",
-        choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-        helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.",
-        helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
-      },
-      {
-        name: "small sections",
-        choices: ["true", "false"],
-        helpDefault: "false", help: "This property uses CSS to provide a smaller, more compact version of the header sections."
-      },
-      {
-        name: "allow collapse",
-        choices: ["true", "false"],
-        helpDefault: "true", help: "Determines if the accordion can be fully collapsed."
-      },
-      {
-        name: "straight edge",
-        choices: ["all", "left", "right", "top", "bottom"],
-        helpDefault: "blank", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
-      },
-      pui.layout.adoptNamedProperty("color"),
-      pui.layout.adoptNamedProperty("font family"),
-      pui.layout.adoptNamedProperty("font size"),
-      pui.layout.adoptNamedProperty("font style"),
-      pui.layout.adoptNamedProperty("font weight"),
-      pui.layout.adoptNamedProperty("text align"),
-      pui.layout.adoptNamedProperty("text decoration"),
-      pui.layout.adoptNamedProperty("text transform"),
-      {
-        name: "onsectionclick",
-        type: "js",
-        wf: true,
-        helpDefault: "blank", help: "Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded."
-      },
-      { name: "lazy load", choices: ["true", "false"],
-        helpDefault: "false", help: "When true, render contents of section after the user expands it instead of rendering everything immediately (which can be slower)." },
-      { name: "onlazyload", type: "js", helpDefault: "blank", help: "Initiates a client-side script after a container is rendered lazily. (See lazy load property.)"}
-    ]);
-  }
-
-  var dom;
-  if (existingDom != null) {
-    dom = existingDom.cloneNode(false);
-  } else {
-    dom = document.createElement("div");
-  }
-  dom.innerHTML = "";
+  
   var accordion = new pui.Accordion();
   if (proxyMode) accordion.forProxy = true;
   accordion.container = dom;
