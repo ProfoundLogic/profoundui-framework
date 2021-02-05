@@ -3315,6 +3315,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
       "url": getProgramURL("PUI0009120.pgm?r=" + Date.now()),
       "method": "GET",
       "suppressAlert": true,
+      "sendAsBinary": false,
       "handler": function (response) {
         if (response && response["status"] === 'success') {
           loadFiles(response["data"]["files"]);
