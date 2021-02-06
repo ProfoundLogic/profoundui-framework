@@ -74,7 +74,7 @@ pui.layout.Layout.prototype._sizeContainer = function(container) {
 
 /**
  * For each child in the specified container, notify that it is visible. This is necessary if certain code
- * in the child layout doesn't work until the layout is on the DOM and visible; e.g. tabLayout scroll buttons and date fields, charts in Chrome.
+ * in the child layout doesn't work until the layout is on the DOM and visible; e.g. TabLayout scroll buttons and date fields, charts in Chrome.
  * @param {Object} container
  */
 pui.layout.Layout.prototype._notifyChildrenVisible =  function(container){
@@ -345,15 +345,9 @@ pui.layout.Layout.prototype.resize = function() {
   var accordion = this.layoutDiv.accordion;
   var layoutTClass = this.layoutDiv.layoutT;
   
-//  var tabLayout = this.layoutDiv.tabLayout;
-  
-  
-  
-  
   if (panel) panel.resize();
   else if (accordion) accordion.resize();
   else if (layoutTClass) layoutTClass.resize();
-//  else if (tabLayout) tabLayout.resize();
 };
 
 /**
@@ -367,12 +361,9 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
   var accordion = this.layoutDiv.accordion;
   
   // If the layout template's class handles setting properties, then return. Those should prevent custom properties from re-loading 
-  // the entire template when not defined here.
-  var tabLayout = this.layoutDiv.tabLayout;
-  if (tabLayout && tabLayout.setProperty(property, value)) return;
-  
+  // the entire template when not defined here.  
   var layoutT = this.layoutDiv.layoutT;
-  if (layoutT && layoutT.setProperty(property, value)) return;
+  if (layoutT && layoutT.setProperty(property, value, this.templateProps)) return;
 
   switch (property) {
     case "id":
@@ -383,7 +374,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       break;
 
     case "template":
-      if (this.designMode) {
+      if (this.designMode) {        
         this.designItem.properties["template"] = value;
         this.designItem.propertiesChanged["template"] = true;
         this.designItem.changed = true;
@@ -416,8 +407,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       
       if (panel != null) panel.resize();
       else if (accordion != null) accordion.resize();
-      else if (layoutT != null) layoutT.resize();   //responsive layout, fieldset, etc.
-      else if (tabLayout != null) tabLayout.resize();
+      else if (layoutT != null) layoutT.resize();   //responsive layout, fieldset, Tab Layout, etc.
       
       this.stretch();
 
@@ -558,14 +548,11 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
     case "text decoration":
     case "text transform":
       if (panel != null) panel.setStyle(property, value);
-      if (accordion != null) {
+      else if (accordion != null) {
         accordion.setStyle(property, value);
         if (property == "font family" || property == "font size") {
           accordion.resize();
         }
-      }
-      if (tabLayout != null) {
-        tabLayout.setStyle(property, value);
       }
       this.templateProps[property] = value;
       break;
@@ -582,6 +569,10 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
           }
         };
       }
+      break;
+      
+    case 'lazy load':
+      // Do nothing here; renderFormat handles this property. Catch this case to prevent applyTemplate from rebuilding unnecessarily.
       break;
 
     case "onlazyload":
@@ -851,14 +842,10 @@ pui.layout.Layout.prototype['handleEvent'] = function(e) {
  * @constructor
  */
 pui.layout.Template = function(parms, dom) {
-  this.container = dom;
   this.forProxy = (parms && parms.proxyMode);
   this.designMode = (parms && parms.designMode);
   
-  // Lets pui.Layout and applyTemplate know that the dom contains this class (or it is a TabLayout that implements the same functions.)
-  dom.layoutT = this;
-  
-  dom.sizeMe = this.resize.bind(this);
+  if (dom) this.linkToDom(dom);
 };
 pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
 
@@ -872,25 +859,41 @@ pui.layout.Template.prototype.resize = function() {
 };
 
 /**
- * Placeholder for subclasses to implement and override.
+ * Placeholder for subclasses to implement and override. Each template needs to handle its template-specific properties; 
+ * otherwise, the Layout's setProperty calls applyTemplate, rebuilding the layout.
+ * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
  * @param {String} property
  * @param {String} value
+ * @param {Object} templateProps  A collection in pui.Layout with properties for this template.
  * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
  */
-pui.layout.Template.prototype.setProperty = function(property, value){
+pui.layout.Template.prototype.setProperty = function(property, value, templateProps){
   return false;
 };
 
 /**
- * Assign template-specific properties to the DOM element that is passed to applyTemplate. TODO: this approach seems overcomplicated:
+ * Assign template-specific properties to a DOM element. called by applyTemplate in the pui.layout.Template constructor.
+ * 
+ * TODO: this approach seems overcomplicated:
  * templates get built on an object detached from the DOM and then properties from that DOM are copied onto an existing DOM element.
  * Why not just evaluate the template in the "field type" or "template" setters before constructing the appropriate Layout subclass.
  * Then you would know if the template is good, and there's no need to construct a fake one that you can back out of in case something 
  * goes wrong.
- * @param {Element} dom
+ * @param {Element} dom    Should not be null or undefined.
  */
-pui.layout.Template.prototype.assignToOtherDom = function(dom){
-  dom.layoutT = this;
-  dom.sizeMe = this.resize.bind(this);
+pui.layout.Template.prototype.linkToDom = function(dom){
   this.container = dom;
+  // "layoutT" lets pui.Layout and applyTemplate know that the dom contains this class (or it is a TabLayout that implements the same functions.)
+  this.container.layoutT = this;
+  this.container.sizeMe = this.resize.bind(this);   //rendering framework calls sizeMe sometimes.
+};
+
+/**
+ * Clean up any properties that this class added to the DOM, and then clear this.
+ */
+pui.layout.Template.prototype.destroy = function(){
+  var deleteOwn = pui.BaseClass.prototype.deleteOwnProperties;
+  // delete all properties added to this.container: sizeMe, layoutT, etc.
+  if (this.container) deleteOwn.call(this.container);
+  deleteOwn(this); //delete any properties added to "this" object.
 };

@@ -96,41 +96,7 @@ pui.layout.template.applyTemplate = function(parms) {
   }
   
   if (newDom.layoutT != null){
-    newDom.layoutT.assignToOtherDom(dom);   //This handles everything necessary for whatever type of class is in layoutT.
-  }
-  
-  if (newDom.tabLayout != null){
-    var selectedTab;
-    if (dom.tabLayout != null){
-      selectedTab = dom.tabLayout.selectedTab;
-    }
-    dom.tabLayout = newDom.tabLayout;
-    dom.sizeMe = dom.tabLayout.resize;
-    dom.tabLayout.container = dom;
-    dom.layout.getActiveContainerNumbers = newDom.tabLayout.getActiveContainerNumbers; //Needed by lazy-load.
-    dom.layout.notifyvisibleOnce = newDom.tabLayout.resize;  //Needed for scroll buttons when child is in hidden tab/section. Also for #4711.
-    
-    // Preserve the active tab when a template property is changed; e.g. tab names.
-    if (selectedTab != null && !isNaN(selectedTab) && selectedTab >= 0  
-    && selectedTab < dom.tabLayout.tabs.length && selectedTab != dom.tabLayout.selectedTab){
-      dom.tabLayout.selectedTab = selectedTab;
-      dom.tabLayout.selectedTabChanged();
-    }
-    
-    dom.tabLayout.containerInDom(); //Finish drawing things that require elements being in DOM.
-    
-    dom.sendTabResponse = newDom.sendTabResponse;
-    dom.sendActiveTab = newDom.sendActiveTab;
-    dom.responseAID = newDom.responseAID;
-    
-    if (!parms.designMode){
-      // Setup APIs.
-      dom.setTab = dom.tabLayout.setTab;
-      dom.getTab = dom.tabLayout.getTab;
-      dom.refresh = dom.tabLayout.refresh;
-      dom["hideTab"] = dom.tabLayout.hideTab;
-      dom["showTab"] = dom.tabLayout.showTab;
-    }
+    newDom.layoutT.linkToDom(dom);  //This handles everything necessary for whatever type of class is in layoutT: TabLayout, Responsive, etc.
   }
   
   return { 

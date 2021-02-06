@@ -63,29 +63,6 @@ pui.ResponsiveLayout = function(parms, dom){
       // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
     }
   }
-    
-  dom.sizeMe = this.resize.bind(this);
-  
-  // Map special setters to properties. These are called at the end of setProperty in pui.Layout, which is
-  // the global property setter for "layout" widgets. When one property changes, each are evaluated in this order.
-  if (parms && parms.properties){
-    var properties = parms.properties;
-    if (properties["container names"] != null) {
-      this.setContainerNames(properties["container names"]);  //setNumItems depends on the value set here.
-    }
-
-    if (properties["layout items"] != null) {
-      this.setNumItems(properties["layout items"]);
-    }
-
-    if (properties["use viewport"] != null) {
-      this.setUseViewport(properties["use viewport"] != "false");
-    }
-
-    if (properties["style rules"] != null) {
-      this.setRules(properties["style rules"]);
-    }
-  }
 };
 pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
 
@@ -114,12 +91,12 @@ pui.ResponsiveLayout.prototype.sentToBackground = function(){
 };
 
 pui.ResponsiveLayout.prototype.destroy = function(){
-  this.deleteOwnProperties(); //from pui.BaseClass.
+  if (this.container) this.container.removeAttribute("puirespbg");
+  pui.layout.Template.prototype.destroy.call(this); //remove properties attached to this.container, call deleteOwnProperties.
 };
 
 /**
  * Handle when the number of items is changed or set.
- * (This is called because it is set in the constructor.)
  * Pre-Condition: This.container must be set to some node before this is called.
  * @param {Number} numitems
  * @returns {undefined}
@@ -152,7 +129,9 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
       this._setContainerName(i, div);
 
       this._mainnode.appendChild(div);
-    } 
+    }
+    
+    if (this._stylenode) this._mainnode.appendChild(this._stylenode); //The style node was also removed, so restore it.
   }
 
   if (this.designMode && !this.forProxy && typeof this.addDesignerIcons == "function" ){
@@ -161,11 +140,14 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
   }
 };
 
-// Note: setRules runs after this, because setRules is last in the constructor.
-// So, changing the "use viewport" option causes rules to be re-evaluated.
-pui.ResponsiveLayout.prototype.setUseViewport = function(usev) {
+/**
+ * Change the useViewport flag, and re-evaluate the style rules.
+ * @param {Boolean} usev
+ */
+pui.ResponsiveLayout.prototype._setUseViewport = function(usev) {
   if (usev == null || usev === "" || pui.isBound(usev)) return;
   this._useViewport = usev;
+  this.setRules();
 };
 
 /**
@@ -359,7 +341,7 @@ pui.ResponsiveLayout.prototype._manipulateCSSOM = function() {
   this._findRulesContToCheck = this._getContainerToCheck();
   this._findRulesCssText = "";
   this._findRulesRegex2.lastIndex = 0;  //ensure the search starts at 0 in case a previous "g" flag updated .lastIndex.
-  this._findRules(this._stylenode.sheet);
+  if (this._stylenode.sheet != null) this._findRules(this._stylenode.sheet); //Note: the style node may be detached from the DOM while resize is called.
   this._stylenode.textContent = this._findRulesCssText;
   delete this._findRulesContToCheck;
 };
@@ -501,6 +483,7 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
 }; //end parseSectionSizes().
 
 /**
+ * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
  * @param {String} property
  * @param {String} value
  * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
@@ -513,9 +496,25 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value){
       // The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
       this.setRules();
       break;
+            
+    case 'layout items':
+      this.setNumItems(value);
+      break;
+      
+    case 'style rules':
+      this.setRules(value);
+      break;
+      
+    case 'use viewport':
+      this._setUseViewport(value != "false");
+      break;
+      
+    case 'container names':
+      this.setContainerNames(value);  //setNumItems depends on the value set here.
+      break;
       
     default:
-      ret = false;
+      ret = false;  //Let the Layout's setProperty handle anything else.
       break;
   }
   return ret;

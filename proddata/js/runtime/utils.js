@@ -1455,9 +1455,10 @@ pui.BaseClass = function(){};
 
 /**
  * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
+ * It may also be called like this: pui.BaseClass.prototype.deleteOwnProperties.call(someObject);
  */
 pui.BaseClass.prototype.deleteOwnProperties = function(){
-  if (this != window){
+  if (this != null && this != window && this != document){
     var propnames = Object.getOwnPropertyNames(this);
     for (var i=0, n=propnames.length; i < n; i++){
       try {
