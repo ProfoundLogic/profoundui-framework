@@ -107,6 +107,9 @@ pui.widgets.add({
       if (parms.propertyName == "template") {
         savedTemplateName = parms.dom.layout.template;
         parms.dom.layout.template = parms.value;
+        
+        // The template switched, so the old one needs to be destroyed to avoid things like resize() being called on a stale reference.
+        if (parms.value != parms.properties["template"] && parms.dom.layoutT) parms.dom.layoutT.destroy();
       }
       else if (!parms.design) {
         window.addEventListener('resize', parms.dom.layout);

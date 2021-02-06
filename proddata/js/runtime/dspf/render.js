@@ -1772,10 +1772,12 @@ pui.renderFormat = function(parms) {
                   dom.responseValue = "";
                 }
                 if (propname == "tab response") {
-                  dom.sendTabResponse = true;
+                  var cls = dom.tabPanel; // || dom.layoutT;
+                  if (cls) cls.sendTabResponse = true;
                 }
                 if (propname == "active tab") {
-                  dom.sendActiveTab = true;
+                  var cls = dom.tabPanel; // || dom.layoutT;
+                  if (cls) cls.sendActiveTab = true;
                 }
                 if (propname == "response") {
                   var shortcutKey = properties["shortcut key"];
@@ -2839,9 +2841,9 @@ pui.renderFormat = function(parms) {
     var tabElem = document.getElementById(tabPanels[i]);
     var tabPanel = tabElem.tabPanel;
     if (!tabPanel){
-      tabPanel = tabElem.tabLayout;
+      tabPanel = tabElem.layoutT;
     }
-    if (tabPanel){
+    if (tabPanel && typeof tabPanel.selectedTabChanged === 'function'){
       if (activeTabs[i]) tabPanel.selectedTab = activeTabs[i];
       tabPanel.selectedTabChanged();  //Re draws the tabs.
     }
