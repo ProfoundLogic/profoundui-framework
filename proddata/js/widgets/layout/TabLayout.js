@@ -19,410 +19,460 @@
 
 
 /**
- * TabLayout Class
+ * TabLayout Class. Subclass of TabPanel. Implements the same methods as pui.layout.Template: resize, destroy, setProperty, and linkToDom. 
  * @param {Object} parms  Parameters used to build the layout template.
  * @param {Element} dom   A new or cloned DIV element constructor.
  * @constructor
  */
 pui.TabLayout = function(parms, dom) {
   // Imports properties from TabPanel into this object.
-  TabPanel.call(this);
+  TabPanel.call(this);  
   
   // Public
-  this.container = dom;                //The DIV that contains the elements comprising this widget.
-  this.forProxy = parms.proxyMode;
-  this.designMode = parms.designMode;  
+
+  this.forProxy = parms && parms.proxyMode;
+  this.designMode = parms && parms.designMode;
   
   // Private
-  var me = this;  
   
-  var tabSpans = [];  //The clickable tab SPAN elements.
-  var bodyDivs = [];  //The layout container DIVs.
-  
-  var headerArea = null;
+  this._tabSpans = [];  //The clickable tab SPAN elements.
   
   // Variables needed for checking that this object's elements are ready to get scroll buttons.
-  var maxChecks = 500;
-  var checkCount = 0;
-  var tmo_checkwidth = 0;
+  this._maxChecks = 500;
+  this._checkCount = 0;
+  this._tmo_checkwidth = 0;
   
-  // Constructor work is done after all these functions being declared. TODO: move these functions into prototype methods.
+  // Hack: until TabLayout methods are moved into prototypes, methods from this prototype must be assigned here.
+  this.draw = pui.TabLayout.prototype.draw.bind(this);
+  this.selectedTabChanged = pui.TabLayout.prototype.selectedTabChanged.bind(this);
+  this.cannotRemoveTab = pui.TabLayout.prototype.cannotRemoveTab;
+  this.createScrollButton = pui.TabLayout.prototype.createScrollButton;
   
-  // Public Methods.
+  this.linkToDom(dom); //assigns this.container, sizeMe, etc.
+  
+  if (parms && parms.properties) this.setTabNames(parms.properties['tab names']);  //Initial setup: set names and draw.
     
-  /**
-   * Clears the container and draws new elements for each tab, the content-area, the scroll buttons, and the -/+ buttons (in design mode).
-   * Called when some properties are applied. Styles should be set in stylesheet, but properties may set them later.
-   *   (Overrides TabPanel.draw.)
-   * Pre-Conditions: me.tabs must be an array with tab names.
-   * @returns {undefined}
-   */
-  this.draw = function(){
-    me.container.innerHTML = "";
-
-    // Create the tab headers.
-    headerArea = document.createElement("div"); //wraps all tab spans.
-    headerArea.className = "pui-tablayout-hdr";
-    me.setTopDivReference(headerArea);
-    
-    tabSpans = [];
-
-    // Create clickable tabs for each name in the list.
-    for (var i=0, n=me.tabs.length; i < n; i++){
-      // Create a parent span to encapsulate the tab text, left, and right border.
-      var outerSpan = document.createElement("span");
-      
-      if (me.isHidden[i]) outerSpan.style.display = "none";
-
-      if (i == me.selectedTab){
-        outerSpan.className = "selected-tab";
-      }
-      
-      var leftSpan = document.createElement("span");
-      var rightSpan = document.createElement("span");
-
-      var tabSpan = document.createElement("span");
-      tabSpan.tabId = i;
-      tabSpan.innerHTML = me.tabs[i];
-      tabSpan.setAttribute("isTab", "true");
-
-      //Note: CSS hover covers the mouseover style change, so we don't implement those in TabLayout.
-
-      tabSpan.ondblclick = me.tabSpanOndblclick;
-      tabSpan.onclick = me.tabSpanOnclick;
-
-      outerSpan.appendChild(leftSpan);
-      outerSpan.appendChild(tabSpan);
-      outerSpan.appendChild(rightSpan);
-      
-      headerArea.appendChild(outerSpan);
-      
-      tabSpans.push(tabSpan);
-    }
-    // done creating clickable tabs.
-    me.container.appendChild(headerArea);
-    
-    bodyDivs = [];
-
-    var bodyWrap = document.createElement("div");
-    bodyWrap.className = "pui-tablayout-body";
-    for (var i=0, n=me.tabs.length; i < n; i++){
-      var bodyDiv = document.createElement("div");
-      bodyDiv.setAttribute("container", "true");
-
-      if (i != me.selectedTab){
-        bodyDiv.style.display = "none";
-      }
-
-      bodyDiv.tabId = i;
-
-      bodyWrap.appendChild(bodyDiv);
-      
-      bodyDivs.push(bodyDiv);
-    }
-    me.container.appendChild(bodyWrap);
-    
-    // Add +/- icons to the container DOM element. The container gets replaced at least once while
-    // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
-    if (me.designMode ){
-      me.createAddRemoveIcons();
-    }
-    
-    me.addScrollButtons(); //These are hidden to begin with.
-  };
-  
-  /**
-   * Handle selectedTab change. Show this tab's container, hide containers for non-active tabs.
-   * Called by parent methods, processTabChange, et al. (Overrides)
-   * Pre-Conditions: me.selectedTab is the active tab.
-   * @returns {undefined}
-   */
-  this.selectedTabChanged = function(){
-    
-    // Hide hidden tabs; make sure others aren't hidden.
-    for (var i=0, n=me.tabs.length; i < n; i++){
-      var outerSpan = headerArea.childNodes[i];
-      if (me.isHidden(i)) outerSpan.style.display = "none";
-      else outerSpan.style.display = "";
-    }
-    
-    for (var i=0, n=me.tabs.length; i < n; i++){
-      if (i == me.selectedTab){
-        bodyDivs[i].style.display = "";
-        tabSpans[i].parentNode.className = "selected-tab";
-        
-        if (me.container.layout != null){
-          if (!me.designMode){
-            //Lazy loads the items, if they weren't already.
-            me.container.layout.renderItems( [me.selectedTab] );
-          }
-          //Make sure any child layouts know they are visible. Child tablayouts may need scrollbars.
-          me.container.layout.notifyContainersVisible();
-        }
-        
-      }else{
-        bodyDivs[i].style.display = "none";
-        tabSpans[i].parentNode.className = "";
-      }
-    }
-  };
-  
-  /**
-   * Set the names of tabs and draw (or redraw) the tab panel's HTML elements.
-   * @param {String|Object} nameList    A comma-separated string list when not bound. 
-   * @returns {undefined}
-   */
-  this.setTabNames = function(nameList) {
-    if (nameList == null || nameList == "")
-      nameList = me.INITIALLIST;
-    else if (pui.isBound(nameList)){
-      var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
-      if (tmplist.length == 0 ) nameList = me.INITIALLIST;
-      else nameList = nameList.designValue;   //Use the bound value saved in designer.
-    }
-    var names = pui.parseCommaSeparatedList(nameList);
-    var oldLen = me.tabs.length;
-    me.tabs = names;
-    
-    if (names.length != oldLen) {
-      // If the size of the list has changed, then redraw everything.
-      me.selectedTab = 0;
-      me.draw(); 
-    }else{
-      changeTabNames();
-    }
-  };
-  
-  /**
-   * Resizes this layout when it is inside another layout and that layout's size changes;
-   * called when moving item to main canvas or into container; called when width or 
-   * height changes, because of Layout.js::setProperty.
-   * 
-   * @returns {undefined}
-   */
-  this.resize = function() {
-    me.checkScrollButtons();
-    
-    pui.layout.Template.prototype.resize.call(me); //resizes child containers.
-  };
-  
-  this.setHeight = function(height) {
-    me.container.style.height = height;
-    me.resize();
-  };
-  
-  /**
-   * Attach the ontabclick event to the tabLayout DOM element. Parent class's tabSpanOnclick looks for it there.
-   * @param {String|Null} ontabclick
-   * @returns {undefined}
-   */
-  this.setOntabclick = function(ontabclick){
-    var func = function() {
-      eval("var tab = arguments[0];");
-      try {
-        return eval(ontabclick);
-      }
-      catch(err) {
-        pui.scriptError(err, "Ontabclick Error:\n");
-      }
-    };
-    if (!me.designMode) {
-      me.container.ontabclick = func;
-    }
-  };
-  
-  /**
-   * Handle a change to template style properties; e.g. color, font family.
-   * @param {String} styleName
-   * @param {String} styleValue
-   * @returns {undefined}
-   */
-  this.setStyle = function(styleName, styleValue){
-    if (pui.isBound(styleValue)) styleValue = "";
-    var parts = styleName.split(" ");
-    if (parts.length == 2) { //If the value has two words, capitalize the 2nd word.
-      styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
-    }
-    for (var i=0, n=tabSpans.length; i < n; i++){
-      tabSpans[i].style[styleName] = styleValue;
-    }
-  };
-  
-  /**
-   * Setup styles on all tabs based on the widget properties. Called after draw when the layout is being setup.
-   * @param {Object} properties
-   * @returns {undefined}
-   */
-  this.setAllStyles = function(properties){
-    var styles = ["color", "font family", "font size", "font style", "font variant", "font weight", "letter spacing", "text align", "text decoration", "text transform", "word spacing"];
-    for (var i=0, n=styles.length; i < n; i++) {
-      var style = styles[i];
-      var value = properties[style];
-      if (value != null) me.setStyle(style, value);
-    }
-  };
-
-  /**
-   * Overrides superclass canRemoveTab. Always return false, because applyProperty will check
-   * if containers are empty, so the tab layout doesn't need to. Called in removeIconOnClick.
-   * @returns {Boolean}
-   */
-  this.cannotRemoveTab = function(){
-    return false; //do we need to check? doesn't something else check applyProperty?
-  };
-  
-  /**
-   * Create a scroll left or right button. Styles must be set in CSS stylesheet. (Overrides)
-   * @param {String} cssClass
-   * @returns {undefined}
-   */
-  this.createScrollButton = function(cssClass){
-    var outerSpan = document.createElement("span");
-    if(cssClass) outerSpan.className = "pui-tscrbtn pui-tablayout "+cssClass;
-    
-    var leftSpan = document.createElement("span");
-    leftSpan.className = "edge";
-    
-    var tabSpan = document.createElement("span");
-    tabSpan.className = "mid";
-    
-    var rightSpan = document.createElement("span");
-    rightSpan.className = "edge";
-    
-    outerSpan.appendChild(leftSpan);
-    outerSpan.appendChild(tabSpan);
-    outerSpan.appendChild(rightSpan);
-    
-    return outerSpan;
-  };
-  
-  /**
-   * Called by applyTemplate after me.container is attached to the DOM. Some element properties are 
-   * useless until the element is on the DOM. Setup those elements here.
-   * Note: some properties need offsetWidth, but that has nothing until after width has been applied.
-   * So, there still must be a delay.
-   * @returns {undefined}
-   */
-  this.containerInDom = function(){
-    if (me.container.offsetWidth > 0){
-      // The container has a width.
-      clearTimeout(tmo_checkwidth); //Make sure no previously set timeouts run.
-      me.checkScrollButtons();
-    }else{
-      // Even though the container is attached to the DOM, it has no width. Timeouts are needed.
-      checkCount = 0;
-      clearTimeout(tmo_checkwidth);
-      tmo_checkwidth = setTimeout(checkWidthOnTimeout,1);
-    }
-  };
-  
-  /**
-   * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
-   * @returns {Array}   Returns an array of numbers. In this class, returns just the selected tab.
-   */
-  this.getActiveContainerNumbers = function(){
-    return [Number(me.selectedTab)];
-  };
-  
-  // Private Methods
-  
-  /**
-   * Change just the tab names.
-   * Pre-Conditions: me.tabs.length == tabSpans.length. (Should always be the case.)
-   * @returns {undefined}
-   */
-  function changeTabNames(){
-    for (var i=0, n=me.tabs.length; i < n; i++){
-      tabSpans[i].innerHTML = me.tabs[i];
-    }
-  }
-  
-  /**
-   * Callback for setTimeout when something causing applyTemplate to run; e.g. clicking +/- tabs.
-   * Waits for the container to have a width, then adds scroll buttons, if necessary. (Copied from ResponsiveLayout.js)
-   * @returns {undefined}
-   */
-  function checkWidthOnTimeout(){
-    checkCount++;
-    if (me.container.offsetWidth > 0){
-      // Hides/shows buttons if needed.
-      me.checkScrollButtons();
-    }else if (checkCount < maxChecks){
-      setTimeout(checkWidthOnTimeout,1);
-    }
-    //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
-  }
-  
-  // Other constructor work.
-
-  // Initialize template properties.
-  var properties = parms.properties;
-  
-  this.designMode = parms.designMode;
-
   this.container.style.overflow = "hidden";
-  
-  this.container.tabLayout = this;
-  this.container.sizeMe = this.resize.bind(this);  //Allows certain designer methods to cause a resize.
-  
-  this.setTabNames(properties["tab names"]);
-  
-  this.setOntabclick(properties["ontabclick"]);
-  
-  this.setAllStyles(properties); //Set color, font, etc. properties.
-  
-  var height = properties["height"];
-  if (height == null) height = "200px";
-  this.setHeight(height);
-  
-  // Note: tab keys is not implemented, because "tab keys" is for Genie.
-  
-  if (!parms.designMode) {
-    // Set the active tab to the property value.
-    var activeTab = properties["active tab"];
-    if (activeTab != null) {
-      activeTab = Number(activeTab);
-      if (!isNaN(activeTab) && activeTab != 0) {
-        this.setTab(activeTab);
-      }
-      this.container.sendActiveTab = true;
-    }
-    
-    if (properties["tab response"]) {
-      this.container.sendTabResponse = true;
-    }
-    
-    var responseAID = properties["response AID"];
-    if (responseAID != null && responseAID != ""){
-      this.container.responseAID = responseAID;
-    }
-  }
-  
+
   if (parms.proxyMode) {
     this.container.style.position = "relative";
   }
   
+  
+  
+};
+pui.TabLayout.prototype = Object.create(TabPanel.prototype);  //TabPanel is parent class of TabLayout.
+  
+// Public methods
+  
+/**
+ * Clears the container and draws new elements for each tab, the content-area, the scroll buttons, and the -/+ buttons (in design mode).
+ * Called when some properties are applied. Styles should be set in stylesheet, but properties may set them later.
+ *   (Overrides TabPanel.draw.)
+ * Pre-Conditions: this.tabs must be an array with tab names.
+ * @returns {undefined}
+ */
+pui.TabLayout.prototype.draw = function(){
+  
+  // Create the tab headers and the body wrapper.
+  if (this._headerArea == null){
+    this._headerArea = document.createElement("div"); //wraps all tab spans.
+    this._headerArea.className = "pui-tablayout-hdr";
+    this.setTopDivReference(this._headerArea);
+    this.container.appendChild(this._headerArea);
+    
+    this._bodyWrap = document.createElement("div");
+    this._bodyWrap.className = "pui-tablayout-body";
+    this.container.appendChild(this._bodyWrap);
+  }
+
+  
+  var numTabsDesired = this.tabs.length;
+  var i = this._tabSpans.length;
+  
+  while (numTabsDesired > this._tabSpans.length){
+    // The number of tabs has been increased, so add some to the end.
+
+    // Create a parent span to encapsulate the tab text, left, and right border.
+    var outerSpan = document.createElement("span");
+
+    if (this._hiddenTabs[i]) outerSpan.style.display = "none";
+    if (i == this.selectedTab) outerSpan.className = "selected-tab";
+    
+    var leftSpan = document.createElement("span");
+    var rightSpan = document.createElement("span");
+    var tabSpan = document.createElement("span");
+    tabSpan.tabId = i;
+    tabSpan.innerHTML = this.tabs[i];
+    tabSpan.setAttribute("isTab", "true");
+
+    tabSpan.addEventListener('dblclick', this);
+    tabSpan.addEventListener('click', this);
+
+    outerSpan.appendChild(leftSpan);
+    outerSpan.appendChild(tabSpan);
+    outerSpan.appendChild(rightSpan);
+
+    this._headerArea.appendChild(outerSpan);
+    this._tabSpans.push(tabSpan);
+  
+    var bodyDiv = document.createElement("div");
+    bodyDiv.setAttribute("container", "true");
+
+    if (i != this.selectedTab) bodyDiv.style.display = "none";
+    
+    bodyDiv.tabId = i;
+
+    this._bodyWrap.appendChild(bodyDiv);
+
+    i++;
+  }
+  
+  i = this._tabSpans.length;
+  while (numTabsDesired < i){
+    // The number of tabs decreased, so remove some.
+    this._tabSpans.pop();
+    
+    var children = this._headerArea.children;
+    this._headerArea.removeChild( children[ children.length - 1 ] );
+    
+    children = this._bodyWrap.children;
+    this._bodyWrap.removeChild( children[ children.length - 1 ] );
+    
+    i = this._tabSpans.length;
+  }
+  
+  this._setTabspanNames();
+  
+  // Add +/- icons to the container DOM element. The container gets replaced at least once while
+  // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
+  if (this.designMode ){
+    this.createAddRemoveIcons();
+  }
+
+  this.addScrollButtons(); //These are hidden to begin with.
 };
 
-//Inherit from super class.
-pui.TabLayout.prototype = Object.create(TabPanel.prototype);
+/**
+ * Handle selectedTab change. Show this tab's container, hide containers for non-active tabs.
+ * Called by parent methods, processTabChange, et al. (Overrides)
+ * Pre-Conditions: this.selectedTab is the active tab.
+ * @returns {undefined}
+ */
+pui.TabLayout.prototype.selectedTabChanged = function(){
 
+  // Hide hidden tabs; make sure others aren't hidden.
+  for (var i=0, n=this.tabs.length; i < n; i++){
+    var outerSpan = this._headerArea.childNodes[i];
+    if (this._hiddenTabs[i]) outerSpan.style.display = "none";
+    else outerSpan.style.display = "";
+  }
+
+  for (var i=0, n=this.tabs.length; i < n; i++){
+    if (i == this.selectedTab){
+      this._bodyWrap.children[i].style.display = "";
+      this._tabSpans[i].parentNode.className = "selected-tab";
+
+      if (this.container.layout != null){
+        if (!this.designMode){
+          //Lazy loads the items, if they weren't already.
+          this.container.layout.renderItems( [this.selectedTab] );
+        }
+        //Make sure any child layouts know they are visible. Child tablayouts may need scrollbars.
+        this.container.layout.notifyContainersVisible();
+      }
+    }
+    else{
+      this._bodyWrap.children[i].style.display = "none";
+      this._tabSpans[i].parentNode.className = "";
+    }
+  }
+};
+
+/**
+ * Set the names of tabs and draw (or redraw) the tab panel's HTML elements.
+ * @param {String|Object} nameList    A comma-separated string list when not bound. 
+ * @returns {undefined}
+ */
+pui.TabLayout.prototype.setTabNames = function(nameList) {
+  if (nameList == null || nameList == "")
+    nameList = this.INITIALLIST;
+  else if (pui.isBound(nameList)){
+    var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
+    if (tmplist.length == 0 ) nameList = this.INITIALLIST;
+    else nameList = nameList.designValue;   //Use the bound value saved in designer.
+  }
+  var names = pui.parseCommaSeparatedList(nameList);
+  var oldLen = this.tabs.length;
+  this.tabs = names;
+
+  if (names.length != oldLen) {
+    // If the size of the list has changed, then redraw everything.
+    this.selectedTab = 0;
+    this.draw();
+  }
+  else {
+    this._setTabspanNames();  // Change just the tab names.
+  }
+};
+
+/**
+ * Set each inner tab-span's html to the tab text.
+ */
+pui.TabLayout.prototype._setTabspanNames = function(){
+  for (var i=0, n=this.tabs.length; i < n; i++){
+    this._tabSpans[i].innerHTML = this.tabs[i];
+  }
+};
+
+pui.TabLayout.prototype.setHeight = function(height) {
+  this.container.style.height = height;
+  this.resize();
+};
+
+/**
+ * Handle a change to template style properties; e.g. color, font family.
+ * @param {String} styleName
+ * @param {String} styleValue
+ */
+pui.TabLayout.prototype.setStyle = function(styleName, styleValue){
+  if (pui.isBound(styleValue)) styleValue = "";
+  var parts = styleName.split(" ");
+  if (parts.length == 2) { //If the value has two words, capitalize the 2nd word.
+    styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
+  }
+  for (var i=0, n=this._tabSpans.length; i < n; i++){
+    this._tabSpans[i].style[styleName] = styleValue;
+  }
+};
+
+/**
+ * Overrides superclass canRemoveTab. Always return false, because applyProperty will check
+ * if containers are empty, so the tab layout doesn't need to. Called in removeIconOnClick.
+ * @returns {Boolean}
+ */
+pui.TabLayout.prototype.cannotRemoveTab = function(){
+  return false; //do we need to check? doesn't something else check applyProperty?
+};
+
+/**
+ * Create a scroll left or right button. Styles must be set in CSS stylesheet. (Overrides)
+ * @param {String} cssClass
+ * @returns {Element}
+ */
+pui.TabLayout.prototype.createScrollButton = function(cssClass){
+  var outerSpan = document.createElement("span");
+  if(cssClass) outerSpan.className = "pui-tscrbtn pui-tablayout "+cssClass;
+
+  var leftSpan = document.createElement("span");
+  leftSpan.className = "edge";
+
+  var tabSpan = document.createElement("span");
+  tabSpan.className = "mid";
+
+  var rightSpan = document.createElement("span");
+  rightSpan.className = "edge";
+
+  outerSpan.appendChild(leftSpan);
+  outerSpan.appendChild(tabSpan);
+  outerSpan.appendChild(rightSpan);
+
+  return outerSpan;
+};
+
+/**
+ * Called by applyTemplate after this.container is attached to the DOM. Some element properties are 
+ * useless until the element is on the DOM. Setup those elements here.
+ * Note: some properties need offsetWidth, but that has nothing until after width has been applied.
+ * So, there still must be a delay.
+ * @returns {undefined}
+ */
+pui.TabLayout.prototype._containerInDom = function(){
+  if (this.container.offsetWidth > 0){
+    // The container has a width.
+    clearTimeout(this._tmo_checkwidth); //Make sure no previously set timeouts run.
+    this.checkScrollButtons();
+  }
+  else{
+    // Even though the container is attached to the DOM, it has no width. Timeouts are needed.
+    this._checkCount = 0;
+    clearTimeout(this._tmo_checkwidth);
+    this._tmo_checkwidth = setTimeout(this._checkWidthOnTimeout,1);
+  }
+};
+
+/**
+ * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
+ * @returns {Array}   Returns an array of numbers. In this class, returns just the selected tab.
+ */
+pui.TabLayout.prototype.getActiveContainerNumbers = function(){
+  return [Number(this.selectedTab)];
+};
+
+// Private Methods
+
+/**
+ * Callback for setTimeout when something causing applyTemplate to run; e.g. clicking +/- tabs.
+ * Waits for the container to have a width, then adds scroll buttons, if necessary. (Copied from ResponsiveLayout.js)
+ * @returns {undefined}
+ */
+pui.TabLayout.prototype._checkWidthOnTimeout = function(){
+  this._checkCount++;
+  if (this.container.offsetWidth > 0){
+    // Hides/shows buttons if needed.
+    this.checkScrollButtons();
+  }else if (this._checkCount < this._maxChecks){
+    setTimeout(this._checkWidthOnTimeout,1);
+  }
+  //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
+};
+
+/**
+ * When the user clicks a tab and ontabclick code is set, this is called from the parent class, TabPanel.
+ * @param {Number} tab
+ * @returns {undefined|Boolean}   Returns whatever the evaluated code returns or undefined.
+ */
+pui.TabLayout.prototype.tabSpanOnclickCb = function(tab){
+  var code = this._ontabclick;
+  if (typeof code === 'string' && code.length > 0){
+    eval("var tab = arguments[0];");
+    try {
+      return eval(code);
+    }
+    catch(err) {
+      pui.scriptError(err, "Ontabclick Error:\n");
+    }
+  }
+};
+ 
+pui.TabLayout.prototype['handleEvent'] = function(e){
+  switch (e.type){
+    case 'click': this.tabSpanOnclick(e); break;
+    case 'dblclick': this.tabSpanOnclick(e); break;
+  }
+};
+
+//
+// Methods that all pui.layout.Template classes are expected to implement.
+//
+
+/**
+ * Resizes this layout when it is inside another layout and that layout's size changes;
+ * called when moving item to main canvas or into container; called when width or 
+ * height changes, because of Layout.js::setProperty.
+ */
+pui.TabLayout.prototype.resize = function() {
+  this.checkScrollButtons();
+
+  pui.layout.Template.prototype.resize.call(this); //resizes child containers.
+};
 
 /**
  * Property setter for any property. Called by pui.Layout.setProperty.
+ * Note: the "tab keys" property is not implemented, because "tab keys" is for Genie, and layouts are not for Genie.
  * @param {String} property
  * @param {String} value
- * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
+ * @param {Object} templateProps    A collection in pui.Layout with properties for the template.
+ * @returns {Boolean}    When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
  */
-pui.TabLayout.prototype.setProperty = function(property, value){
-  var ret = true;
+pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
   switch (property){
-    case '':
+    case 'tab names':
+      this.setTabNames(value);
+      break;
+    
+    case 'active tab':
+      
+      //TODO: make sure this works
+      
+      if (!this.designMode) {
+        value = Number(value);
+        if (!isNaN(value) && value != 0) {
+          this.setTab(value);
+        }
+        this.sendActiveTab = true;
+      }
+      break;
+
+    case 'ontabclick':
+      if (!this.designMode) this._ontabclick = value;
+      else delete this._ontabclick;
       break;
       
-    default:
-      ret = false;  //Let pui.Layout's setProperty handle other properties.
+    case 'tab response':
+      
+      //TODO: make sure this works
+      
+      if (!this.designMode) this.sendTabResponse = (value === 'true');
       break;
+
+    case 'response AID':
+      if (!this.designMode) { 
+        if (typeof value !== 'string' || value.length === 0) value = false;
+        this.responseAID = value;
+      }
+      break;
+      
+    case 'bypass validation':
+      // Catch this case to prevent applyTemplate from running later, something that would cause everything to be rebuilt.
+      // render or applyDesignProperty would set dom.bypassValidation to this value, so no need to do anything here.
+      break;
+      
+    case "color":
+    case "font family":
+    case "font size":
+    case "font style":
+    case "font weight":
+    case "text decoration":
+    case "text transform":
+      this.setStyle(property, value);
+      break;
+      
+    case 'height':
+      value = value || "200px";
+      this.setHeight(value);
+      return false;
+    
+    default:
+      return false;  //Let pui.Layout.prototype.setProperty handle other properties.
   }
-  return ret;
+  templateProps[property] = value;
+  return true;
+};
+
+/**
+ * Assign template-specific properties to a DOM element. pui.layout.Template's constructor calls this.
+ * pui.layout.template.applyTemplate also calls this.
+ * @param {Element} dom
+ */
+pui.TabLayout.prototype.linkToDom = function(dom){
+  pui.layout.Template.prototype.linkToDom.call(this, dom); //assigns this.container=dom; sets sizeMe and layoutT.
+  
+  if (this.container && this.container.layout){
+    // Attach special properties for Layout, which should be defined when applyTemplate calls linkToDom.
+    var layout = this.container.layout;
+    layout.getActiveContainerNumbers = this.getActiveContainerNumbers.bind(this); //Needed by lazy-load.
+    layout.notifyvisibleOnce = this.resize.bind(this);  //Needed for scroll buttons when child is in hidden tab/section. Also for #4711.
+  }
+
+  if (document.body.contains(this.container)){
+    this._containerInDom(); //Finish drawing things that require elements being in DOM.
+  }
+  
+  if (!this.designMode){
+    // Setup APIs that users can call like getObj('TabLayout1').showTab(1);
+    dom.setTab = this.setTab.bind(this);
+    dom.getTab = this.getTab.bind(this);
+    dom.refresh = this.refresh.bind(this);
+    dom["hideTab"] = this.hideTab.bind(this);
+    dom["showTab"] = this.showTab.bind(this);
+  }
+  
+};
+
+pui.TabLayout.prototype.destroy = function(){
+  if (this.container){
+    pui.BaseClass.prototype.deleteOwnProperties.call(this.container); //delete all properties added to this.container: ontabclick, tabKeys, etc.
+  }
+  pui.layout.Template.prototype.destroy.call(this); //remove properties attached to dom and call deleteOwnProperties.
 };
