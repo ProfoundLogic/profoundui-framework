@@ -2790,7 +2790,7 @@ pui.renderFormat = function(parms) {
     // If rendering into collapsed grid, disable any elements which are 
     // below the viewable portion of the cell. 
     
-    if (!isDesignMode && gridObj != null && !gridObj["expanded"]) {
+    if (!isDesignMode && gridObj != null && !gridObj["expanded"] && container ) {
     
       var cell = container;
       var height = parseInt(cell.style.height);
