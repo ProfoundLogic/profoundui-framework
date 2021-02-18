@@ -37,7 +37,7 @@ if (context == "genie" && window.parent == window) window.history.forward(1);
 
 // setup pui name space
 window.pui = {};
-{
+(function() {
 
   var agt = navigator.userAgent.toLowerCase();
 
@@ -107,7 +107,7 @@ window.pui = {};
   
   } 
   
-}
+})();
 
 
 pui["secLevel"] = 0;
@@ -199,6 +199,8 @@ pui.dependenciesLoading = 0; //Counter for widget dependency files being loaded 
 
 pui.nodejs = false;
 
+pui.cloudSite = 'profoundjs.com';  //The domain that Profound.js Spaces runs under.
+
 // MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
 pui.mime_openxml = "application/vnd.openxmlformats";
 pui.mime_xlsx_base = pui.mime_openxml+"-officedocument.spreadsheetml";
@@ -238,4 +240,4 @@ pui.wf = {
     if (!plugins[category]) plugins[category] = {};
     plugins[category][plugin.name] = plugin;
   }
-}
+};
