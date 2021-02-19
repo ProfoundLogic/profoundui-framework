@@ -191,7 +191,7 @@ pui.layout.Layout.prototype.applyTemplate = function() {
 };
 
 /**
- * 
+ * Change a property value of the design item associated with this layout and refresh the property window.
  * @param {String} propertyName
  * @param {String} value
  * @returns {Boolean}
@@ -405,10 +405,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       }
       this.layoutDiv.style[styleName] = value;
       
-      if (panel != null) panel.resize();
-      else if (accordion != null) accordion.resize();
-      else if (layoutT != null) layoutT.resize();   //responsive layout, fieldset, Tab Layout, etc.
-      
+      this.resize();
       this.stretch();
 
       // To allow inline-style setting and removing, cache the style property.
@@ -873,6 +870,7 @@ pui.layout.Template.prototype.setProperty = function(property, value, templatePr
 
 /**
  * Assign template-specific properties to a DOM element. called by applyTemplate in the pui.layout.Template constructor.
+ * Adding "layoutT" to the dom marks the layout as a type of pui.Layout.Template or pui.TabLayout.
  * 
  * TODO: this approach seems overcomplicated:
  * templates get built on an object detached from the DOM and then properties from that DOM are copied onto an existing DOM element.
@@ -896,4 +894,14 @@ pui.layout.Template.prototype.destroy = function(){
   // delete all properties added to this.container: sizeMe, layoutT, etc.
   if (this.container) deleteOwn.call(this.container);
   deleteOwn(this); //delete any properties added to "this" object.
+};
+
+/**
+ * Change a property value of the design item associated with this layout and refresh the property window. Wrapper for TabLayout and subclasses.
+ * @param {String} propertyName
+ * @param {String} value
+ * @returns {undefined|Boolean} 
+ */
+pui.layout.Template.prototype.updatePropertyInDesigner = function(propertyName, value){
+  if (this.container && this.container.layout) return this.container.layout.updatePropertyInDesigner(propertyName, value);
 };
