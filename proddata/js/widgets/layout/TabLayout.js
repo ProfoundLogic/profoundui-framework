@@ -42,6 +42,9 @@ pui.TabLayout = function(parms, dom) {
   this._checkCount = 0;
   this._tmo_checkwidth = 0;
   
+  // A function bound so that the class method can be used as a callback to setTimeout.
+  this._checkWidthOnTimeoutBound = this._checkWidthOnTimeout.bind(this);
+  
   // Hack: until TabLayout methods are moved into prototypes, methods from this prototype must be assigned here.
   this.draw = pui.TabLayout.prototype.draw.bind(this);
   this.selectedTabChanged = pui.TabLayout.prototype.selectedTabChanged.bind(this);
@@ -57,16 +60,13 @@ pui.TabLayout = function(parms, dom) {
   if (parms.proxyMode) {
     this.container.style.position = "relative";
   }
-  
-  
-  
 };
 pui.TabLayout.prototype = Object.create(TabPanel.prototype);  //TabPanel is parent class of TabLayout.
-  
+
 // Public methods
   
 /**
- * Clears the container and draws new elements for each tab, the content-area, the scroll buttons, and the -/+ buttons (in design mode).
+ * Draws elements for each tab, the content-area, the scroll buttons, and the -/+ buttons (in design mode).
  * Called when some properties are applied. Styles should be set in stylesheet, but properties may set them later.
  *   (Overrides TabPanel.draw.)
  * Pre-Conditions: this.tabs must be an array with tab names.
@@ -75,7 +75,7 @@ pui.TabLayout.prototype = Object.create(TabPanel.prototype);  //TabPanel is pare
 pui.TabLayout.prototype.draw = function(){
   
   // Create the tab headers and the body wrapper.
-  if (this._headerArea == null){
+  if (this.container.children.length == 0){
     this._headerArea = document.createElement("div"); //wraps all tab spans.
     this._headerArea.className = "pui-tablayout-hdr";
     this.setTopDivReference(this._headerArea);
@@ -84,14 +84,24 @@ pui.TabLayout.prototype.draw = function(){
     this._bodyWrap = document.createElement("div");
     this._bodyWrap.className = "pui-tablayout-body";
     this.container.appendChild(this._bodyWrap);
+    
+    
+    // Add +/- icons to the container DOM element. The container gets replaced at least once while
+    // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
+    if (this.designMode ){
+      this.createAddRemoveIcons();
+    }
+    
+    this.addScrollButtons(); //Note: these are initially hidden.
   }
 
-  
+  var changed = false;
   var numTabsDesired = this.tabs.length;
   var i = this._tabSpans.length;
   
+  // Append elements when the number of tabs increased.
   while (numTabsDesired > this._tabSpans.length){
-    // The number of tabs has been increased, so add some to the end.
+    changed = true;
 
     // Create a parent span to encapsulate the tab text, left, and right border.
     var outerSpan = document.createElement("span");
@@ -128,29 +138,22 @@ pui.TabLayout.prototype.draw = function(){
     i++;
   }
   
-  i = this._tabSpans.length;
-  while (numTabsDesired < i){
-    // The number of tabs decreased, so remove some.
-    this._tabSpans.pop();
+  // Remove elements when the number of tabs decreased.
+  while (numTabsDesired < this._tabSpans.length){  
+    changed = true;
     
     var children = this._headerArea.children;
     this._headerArea.removeChild( children[ children.length - 1 ] );
     
     children = this._bodyWrap.children;
     this._bodyWrap.removeChild( children[ children.length - 1 ] );
-    
-    i = this._tabSpans.length;
+
+    this._tabSpans.pop();
   }
   
   this._setTabspanNames();
-  
-  // Add +/- icons to the container DOM element. The container gets replaced at least once while
-  // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
-  if (this.designMode ){
-    this.createAddRemoveIcons();
-  }
-
-  this.addScrollButtons(); //These are hidden to begin with.
+  this.checkScrollButtons();
+  if (changed) this.selectedTabChanged();
 };
 
 /**
@@ -192,28 +195,52 @@ pui.TabLayout.prototype.selectedTabChanged = function(){
 /**
  * Set the names of tabs and draw (or redraw) the tab panel's HTML elements.
  * @param {String|Object} nameList    A comma-separated string list when not bound. 
- * @returns {undefined}
+ * @returns {String}  Returns nameList if list could be changed; else returns the original names.
  */
 pui.TabLayout.prototype.setTabNames = function(nameList) {
-  if (nameList == null || nameList == "")
+  if (nameList == null || nameList == ""){
     nameList = this.INITIALLIST;
+  }
   else if (pui.isBound(nameList)){
     var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
     if (tmplist.length == 0 ) nameList = this.INITIALLIST;
     else nameList = nameList.designValue;   //Use the bound value saved in designer.
   }
+  var retrn = nameList;
   var names = pui.parseCommaSeparatedList(nameList);
   var oldLen = this.tabs.length;
-  this.tabs = names;
-
+  
   if (names.length != oldLen) {
-    // If the size of the list has changed, then redraw everything.
-    this.selectedTab = 0;
-    this.draw();
+    var cannotRemove = false;
+    if (this.designMode){
+      // See if each tab potentially being removed can be.
+      for (var i=oldLen, n=names.length; i > n; i--){
+        if (this.cannotRemoveTab(i - 1)){
+          cannotRemove = true;
+          break;
+        }
+      }
+    }
+    
+    if (cannotRemove){
+      pui.alert(this.TXT_CANNOTREMOVE);
+      retrn = this.tabs.join();
+      // rollback the change via a method borrowed from Template.
+      var me = this;
+      setTimeout(function(){
+        pui.layout.Template.prototype.updatePropertyInDesigner.call(me, 'tab names', retrn );
+      }, 1);
+    }
+    else {
+      this.tabs = names;
+      this.draw();  // If the size of the list has changed, then redraw everything.
+    }
   }
   else {
+    this.tabs = names;
     this._setTabspanNames();  // Change just the tab names.
   }
+  return retrn;
 };
 
 /**
@@ -247,12 +274,13 @@ pui.TabLayout.prototype.setStyle = function(styleName, styleValue){
 };
 
 /**
- * Overrides superclass canRemoveTab. Always return false, because applyProperty will check
- * if containers are empty, so the tab layout doesn't need to. Called in removeIconOnClick.
- * @returns {Boolean}
+ * Returns true if widgets are inside the specified tab; else false. Called in removeIconOnClick. (Overrides)
+ * @param {Number} i   The tab number we're checking for removal.
+ * @returns {Boolean}  Returns true if any of the body DIVs have children; else false.
  */
-pui.TabLayout.prototype.cannotRemoveTab = function(){
-  return false; //do we need to check? doesn't something else check applyProperty?
+pui.TabLayout.prototype.cannotRemoveTab = function(i){
+  var children = this._bodyWrap.children;
+  return (children && children[i] && children[i].children && children[i].children.length > 0);
 };
 
 /**
@@ -297,7 +325,7 @@ pui.TabLayout.prototype._containerInDom = function(){
     // Even though the container is attached to the DOM, it has no width. Timeouts are needed.
     this._checkCount = 0;
     clearTimeout(this._tmo_checkwidth);
-    this._tmo_checkwidth = setTimeout(this._checkWidthOnTimeout,1);
+    this._tmo_checkwidth = setTimeout(this._checkWidthOnTimeoutBound,1);
   }
 };
 
@@ -321,8 +349,9 @@ pui.TabLayout.prototype._checkWidthOnTimeout = function(){
   if (this.container.offsetWidth > 0){
     // Hides/shows buttons if needed.
     this.checkScrollButtons();
-  }else if (this._checkCount < this._maxChecks){
-    setTimeout(this._checkWidthOnTimeout,1);
+  }
+  else if (this._checkCount < this._maxChecks){
+    setTimeout(this._checkWidthOnTimeoutBound,1);
   }
   //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
 };
@@ -348,7 +377,10 @@ pui.TabLayout.prototype.tabSpanOnclickCb = function(tab){
 pui.TabLayout.prototype['handleEvent'] = function(e){
   switch (e.type){
     case 'click': this.tabSpanOnclick(e); break;
-    case 'dblclick': this.tabSpanOnclick(e); break;
+    case 'dblclick':
+      if (inDesignMode()) this.tabSpanOndblclick(e);
+      else this.tabSpanOnclick(e);  //Change tabs on double-click.
+      break;
   }
 };
 
@@ -378,7 +410,7 @@ pui.TabLayout.prototype.resize = function() {
 pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
   switch (property){
     case 'tab names':
-      this.setTabNames(value);
+      value = this.setTabNames(value);    //Note: value may be rolled back, and that value needs to go into templateProps.
       break;
     
     case 'active tab':

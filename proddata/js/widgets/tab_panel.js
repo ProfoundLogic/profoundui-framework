@@ -215,7 +215,7 @@ function TabPanel() {
   this.defaults.fontSize = "12px";
   this.defaults.color = "#333366";
   
-  this.tabs = [];
+  this.tabs = [];         //Array of strings: tab names.
   this.selectedTab = 0;
   this.container = null;
   this.backColor = "#eeeeff";
@@ -791,8 +791,6 @@ function TabPanel() {
     itm.designer.selection.clear();
     itm.designer.selection.add(itm);
     itm.designer.propWindow.refresh();
-    
-    tabLayoutPreserveValues(itm);
   };
   
   /**
@@ -826,7 +824,7 @@ function TabPanel() {
         itm.designer.propWindow.refresh();
         me.selectedTab = tabNames.length - 1;
         me.draw();
-        pui.alert("The tab cannot be removed because it contains other elements that must be removed first.");
+        pui.alert( me.TXT_CANNOTREMOVE );
       }
       else {
         // The tab panel's last panel doesn't contain items, or this is a Tab Layout.
@@ -851,30 +849,9 @@ function TabPanel() {
           me.selectedTab = origSelectedTab;
         }
       }
-      tabLayoutPreserveValues(itm);
     }
   };
-  
-  /**
-   * Upon changing tab names, preserve values by copying from this object onto its replacement.
-   * Apply property causes a new TabLayout to get created, causing some values to be lost in the subclass.
-   * @param {DesignItem|Object} itm
-   * @returns {undefined}
-   */
-  function tabLayoutPreserveValues(itm){
-    if (itm.dom.layoutT != null && itm.dom.layoutT != me ){
-      itm.dom.layoutT.selectedTab = me.selectedTab;   //Make sure the new tab is selected.
-      itm.dom.layoutT.setLastScrollLeft(me._lastScrollLeft);  //Scroll to the new tab.
-      itm.dom.layoutT.selectedTabChanged();
-      itm.dom.layoutT.checkScrollButtons(); //scrolls to active and shows buttons, if necessary.
-    }
-  }
-  
-  // Allow tabLayoutPreserveValues to set a private variable (inside a closure).
-  this.setLastScrollLeft = function(lsl){
-    me._lastScrollLeft = lsl;
-  };
-  
+    
   /**
    * Returns true if widgets are associated with the specified tab; else false.
    * (Overridden in subclass, TabLayout.)
@@ -1113,8 +1090,9 @@ function TabPanel() {
 }
 TabPanel.prototype = Object.create(pui.BaseClass.prototype);  //inherit deleteOwnProperties.
 
-// Static constant all TabPanel and TabLayout instances can use.
+// Static constants for all instances of TabPanel and TabLayout.
 Object.defineProperties(TabPanel.prototype, { INITIALLIST: { value: "Tab 1,Tab 2,Tab 3" } });
+Object.defineProperties(TabPanel.prototype, { TXT_CANNOTREMOVE: { value: "The tab cannot be removed because it contains other elements that must be removed first." } });
 
 pui.widgets.add({
   name: "tab panel",
