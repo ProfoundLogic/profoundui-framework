@@ -95,13 +95,11 @@ pui.TabLayout.prototype.draw = function(){
     this.addScrollButtons(); //Note: these are initially hidden.
   }
 
-  var changed = false;
   var numTabsDesired = this.tabs.length;
   var i = this._tabSpans.length;
   
   // Append elements when the number of tabs increased.
   while (numTabsDesired > this._tabSpans.length){
-    changed = true;
 
     // Create a parent span to encapsulate the tab text, left, and right border.
     var outerSpan = document.createElement("span");
@@ -140,8 +138,6 @@ pui.TabLayout.prototype.draw = function(){
   
   // Remove elements when the number of tabs decreased.
   while (numTabsDesired < this._tabSpans.length){  
-    changed = true;
-    
     var children = this._headerArea.children;
     this._headerArea.removeChild( children[ children.length - 1 ] );
     
@@ -151,9 +147,12 @@ pui.TabLayout.prototype.draw = function(){
     this._tabSpans.pop();
   }
   
-  this._setTabspanNames();
+  // Set tabspan texts.
+  for (var i=0, n=this.tabs.length; i < n; i++){
+    this._tabSpans[i].innerHTML = this.tabs[i];
+  }
   this.checkScrollButtons();
-  if (changed) this.selectedTabChanged();
+  this.selectedTabChanged();  //Make sure the visible tabs reflects the value of me.selectedTab, which can change in tab_panel.js
 };
 
 /**
@@ -167,8 +166,7 @@ pui.TabLayout.prototype.selectedTabChanged = function(){
   // Hide hidden tabs; make sure others aren't hidden.
   for (var i=0, n=this.tabs.length; i < n; i++){
     var outerSpan = this._headerArea.childNodes[i];
-    if (this._hiddenTabs[i]) outerSpan.style.display = "none";
-    else outerSpan.style.display = "";
+    outerSpan.style.display = this._hiddenTabs[i] ? "none" : "";
   }
 
   for (var i=0, n=this.tabs.length; i < n; i++){
@@ -185,7 +183,7 @@ pui.TabLayout.prototype.selectedTabChanged = function(){
         this.container.layout.notifyContainersVisible();
       }
     }
-    else{
+    else {
       this._bodyWrap.children[i].style.display = "none";
       this._tabSpans[i].parentNode.className = "";
     }
@@ -233,23 +231,16 @@ pui.TabLayout.prototype.setTabNames = function(nameList) {
     }
     else {
       this.tabs = names;
-      this.draw();  // If the size of the list has changed, then redraw everything.
+
+      // If the selected tab was removed then select the new last tab.
+      if (this.selectedTab > this.tabs.length - 1) this.selectedTab = this.tabs.length - 1;
     }
   }
   else {
     this.tabs = names;
-    this._setTabspanNames();  // Change just the tab names.
   }
+  this.draw();
   return retrn;
-};
-
-/**
- * Set each inner tab-span's html to the tab text.
- */
-pui.TabLayout.prototype._setTabspanNames = function(){
-  for (var i=0, n=this.tabs.length; i < n; i++){
-    this._tabSpans[i].innerHTML = this.tabs[i];
-  }
 };
 
 pui.TabLayout.prototype.setHeight = function(height) {

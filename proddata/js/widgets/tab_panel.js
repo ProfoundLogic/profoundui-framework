@@ -991,11 +991,8 @@ function TabPanel() {
     if( (topDiv_scrollLeftMax - me._lastScrollLeft) <= 3) me._lastScrollLeft = topDiv_scrollLeftMax;
     else if( me._lastScrollLeft <= 3 ) me._lastScrollLeft = 0;
 
-    // Restore the previous scrollLeft from before a tab was clicked, or to
-    // scroll to the active tab.
-    // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
-    // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-    try{topDiv.scrollLeft = me._lastScrollLeft;}catch(exc){}
+    // Restore the previous scrollLeft from before a tab was clicked, or to scroll to the active tab.
+    topDiv.scrollLeft = me._lastScrollLeft;
 
     // Display either button only when needed.
     if( topDiv.scrollLeft > 0 ){
