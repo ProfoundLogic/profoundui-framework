@@ -29,14 +29,16 @@ pui.ResponsiveLayout = function(parms, dom){
   pui.layout.Template.call(this, parms, dom);  //super(). sets up container, forProxy, designMode, etc.
   
   // Public
-  this.MAINCLASS = "puiresp";  //Class name of the node that has "display:grid" CSS style. (Should not change.)
-  
   this.previewMode = (parms && parms.previewMode);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
   
   // Pseudo-private properties, inheritable.
   this._numchildren = 0;
+  this._mainnode = document.createElement("div");  //The DIV to contain the container DIVs. This DIV gets the css template rules.
+  this._mainnode.className = this.MAINCLASS;
+  this.container.appendChild(this._mainnode);
+  
   this._stylenode = null;
-  this._mainnode = null;      //The DIV to contain the container DIVs. This DIV gets the css template rules.
+  
   this._containerNames = [];  //List of box container names to aid in designing screens.
 
   // Private.
@@ -66,9 +68,14 @@ pui.ResponsiveLayout = function(parms, dom){
 };
 pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
 
-// Prototype properties: attached to prototype once, not to the class instances each time a constructor is called.
+// Static constants
+Object.defineProperties(pui.ResponsiveLayout.prototype, {
+  TXT_CANNOTREMOVE: { value: 'The section cannot be removed because it contains other elements that must be removed first.' },
+  DEFAULTNUMITEMS: { value: 8 },   //If "layout items" property is not a number, then use this default.
+  MAINCLASS: { value: 'puiresp' }  //Class name of the node that has "display:grid" CSS style.
+});
 
-pui.ResponsiveLayout.prototype._DEFAULTNUMITEMS = 8;  //If "layout items" property isn't a number, use this default.
+// Prototype properties: attached to prototype once, not to the class instances each time a constructor is called.
 pui.ResponsiveLayout.prototype._findRulesRegex1 = /^(screen|all)\s*(.*)$/i;
 pui.ResponsiveLayout.prototype._findRulesRegex2 = /and\s*\([^)]+\)/gi;
 pui.ResponsiveLayout.prototype._findRulesRegex_minmax = /^and\s*\(\s*(min|max)-(width|height)\s*:\s*(\d+)\s*px\s*\)$/i;
@@ -102,41 +109,35 @@ pui.ResponsiveLayout.prototype.destroy = function(){
  * @returns {undefined}
  */
 pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
-  if (numitems == null || numitems === ""){
-    numitems = this._DEFAULTNUMITEMS;
+  if (numitems == null || numitems === "" || isNaN(numitems)){
+    numitems = this.DEFAULTNUMITEMS;
   }
   else if (pui.isBound(numitems)){
     if (numitems.designValue != null && typeof numitems.designValue == "number")
       numitems = numitems.designValue;
     else
-      numitems = this._DEFAULTNUMITEMS;
+      numitems = this.DEFAULTNUMITEMS;
   }
 
-  if(this._mainnode == null || numitems != this._numchildren){
-    this._numchildren = numitems;
-
-    this.container.innerHTML = "";
-
-    this._mainnode = document.createElement("div");
-    this._mainnode.className = this.MAINCLASS;
-
-    this.container.appendChild(this._mainnode);
-
-    for (var i = 0; i < this._numchildren; i++) {
+  if (numitems != this._numchildren){
+    
+    // Append elements when the number of sections increased.
+    while (this._mainnode.children.length < numitems ){
       var div = document.createElement("div");
       div.setAttribute("container", "true"); //Allows other widgets to go into this div.
-
-      this._setContainerName(i, div);
-
+      this._setContainerName(this._numchildren, div);
       this._mainnode.appendChild(div);
     }
     
-    if (this._stylenode) this._mainnode.appendChild(this._stylenode); //The style node was also removed, so restore it.
-  }
-
-  if (this.designMode && !this.forProxy && typeof this.addDesignerIcons == "function" ){
-    this.addDesignerIcons();    //Child class should implement this.
-    // TODO: let child classes override setNumItems and call super.setNumItems instead of this check.
+    // Remove elements when the number of sections decreased.
+    while (this._mainnode.children.length > numitems){
+      var child = this._mainnode.children[ this._mainnode.children.length - 1 ];
+      this._mainnode.removeChild(child);
+    }
+    
+    this._numchildren = this._mainnode.children.length;
+    
+    this._setContainers( this._mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
   }
 };
 
@@ -195,16 +196,18 @@ pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
   if (this._stylenode != null){
     //Note: if containers were adjusted with spinner widget in Responsive Editor, 
     //then _stylenode may be detached from the DOM already due to setNumItems() being called again.
-    if(this._mainnode.contains(this._stylenode)) this._mainnode.removeChild(this._stylenode);
+//    if(this._mainnode.contains(this._stylenode)) 
+      
+    this.container.removeChild(this._stylenode);
     this._stylenode = null;
   }
 
   // Attach the style tag if in previewMode: responsive editor requires a style node. (even when blank)
   if (this.previewMode){
-    this._stylenode = this._addStyleNode(this._origCssText, this._mainnode);
+    this._stylenode = this._addStyleNode(this._origCssText, this.container);
   }
   else if (this._origCssText != "" && this._origCssText != null){  //Attach style tag if there are style rules.
-    this._stylenode = this._addStyleNode(this._origCssText, this._mainnode);
+    this._stylenode = this._addStyleNode(this._origCssText, this.container);
 
     //If !useViewport: instead of using the viewport for widths, use the parent container.
     //In design mode if useViewport is true, then the canvas will decide media query matches. (Note: !u || (u && d) simplifies to !u || d).
@@ -294,7 +297,8 @@ pui.ResponsiveLayout.prototype._addStyleNode = function(cssText, parentNode) {
   stylenode.type = "text/css";
   if (stylenode.styleSheet){    //IE
     stylenode.cssText = cssText;
-  }else{
+  }
+  else{
     stylenode.appendChild( document.createTextNode(cssText) );
   }
   return parentNode.appendChild(stylenode);
@@ -311,9 +315,11 @@ pui.ResponsiveLayout.prototype._checkWidth = function() {
     if (this._stylenode.sheet != null){
       this._manipulateCSSOM();
     }
-  }else if (this._checkCount < this._maxChecks){
+  }
+  else if (this._checkCount < this._maxChecks){
     setTimeout(this._boundCheckWidth, 1);
-  }else{
+  }
+  else{
     // TODO: if this appears much in the console, then implement what the TabLayout has:
     // notifyvisibleOnce, 
     console.log("Timed out waiting for parent width > 0.");
@@ -486,9 +492,10 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
  * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
  * @param {String} property
  * @param {String} value
+ * @param {String} templateProps    A collection in pui.Layout with properties for the template.
  * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
  */
-pui.ResponsiveLayout.prototype.setProperty = function(property, value){
+pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateProps){
   var ret = true;
   switch (property){
     case 'id':
@@ -498,7 +505,30 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value){
       break;
             
     case 'layout items':
-      this.setNumItems(value);
+      var tmpVal = parseInt(value, 10);      
+      value = isNaN(tmpVal) ? this.DEFAULTNUMITEMS : tmpVal;
+      
+      // Check if any container being removed contain widgets. (Does nothing when containers are added.)
+      var cannotRemove = false;
+      if (this.designMode){
+        for (var i=this._numchildren, n=tmpVal; i > n ; i--){
+          var cont = this._mainnode.children[i - 1];
+          if (cont && cont.children && cont.children.length > 0){
+            cannotRemove = true;
+            break;
+          }
+        }
+      }
+      
+      if (cannotRemove){
+        pui.alert(this.TXT_CANNOTREMOVE);
+        // rollback the change
+        value = String(this._numchildren);
+        setTimeout(this._updatePropertyInDesigner.bind(this), 1, 'layout items', value);
+      }
+      else {
+        this.setNumItems(value);
+      }
       break;
       
     case 'style rules':
@@ -517,6 +547,8 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value){
       ret = false;  //Let the Layout's setProperty handle anything else.
       break;
   }
+  
+  templateProps[property] = value;
   return ret;
 };
 

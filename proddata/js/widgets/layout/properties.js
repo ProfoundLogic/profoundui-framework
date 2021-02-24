@@ -121,6 +121,8 @@ pui.layout.adoptNamedProperties = function (list, propNames) {
 // Define the properties that appear in Template Settings in Designer.
 pui.layout.getProperties = function (template) {
   var templateProperties;
+  var borderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"];
+  var borderWidths = ["thin", "medium", "thick", "0px", "1px", "2px", "3px", "4px", "5px", "Other..."];
   
   // Shared between tab panels and accordions.
   var lazyLoadProps = [
@@ -224,7 +226,7 @@ pui.layout.getProperties = function (template) {
         helpDefault: "blank", help: "Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded."
       });
 
-      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to properties.
+      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to templateProperties.
       break;
 
 
@@ -245,28 +247,18 @@ pui.layout.getProperties = function (template) {
         // Note: the layout doesn't use text-align, which is useless with tabs; tabs are only as wide as the text.
         "text decoration", "text transform"]);
 
-      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to properties.
+      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to templateProperties.
       break;
       
     case 'fieldset':
       templateProperties = [
-        "legend align", "legend style", "legend"
+        { name: "legend", help: "Text to display in the field set&apos;s legend.", helpDefault: "Field Set", "translate": true, bind: true, "showDesignValue": true },
+        { name: "legend align", help: "The alignment of the legend text.", helpDefault: "left", choices: ['left','center','right'] },
+        { name: "legend style", help: "Styling for the legend text.", type: 'long' },
+        { name: "border style", choices: borderStyles, helpDefault: "css", help: "The style of the element&apos;s border." },
+        { name: "border width", format: "px", choices: borderWidths, helpDefault: "css", help: "The thickness of the element&apos;s border.", helpAdd: ["other"] }
       ];
-//      pui.layout.adoptNamedProperties(templateProperties, ["border style", "border width", "border color" ]);
-/*
-pui.layout["templates"]["fieldset"] = "<fieldset style=\"width:100%; height:100%; position:relative;" +
-  " border-style:{property:'border style', choices:['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'], defaultValue:'solid', helpDefault: 'solid', help: 'The style of the element&apos;s border.'};" +
-  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', helpDefault: '1px', help: 'The width of the element&apos;s border.'};" +
-  " border-color:{property:'border color', type:'color', defaultValue:'black', helpDefault: 'black', help: 'The color of the element&apos;s border.'};"
-  //Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
-  //In the future, this template may need to be implemented in JavaScript.
-  +
-  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], helpDefault: \'left\', help: \'The width of the element&apos;s border.\'}"' +
-  ' style="{property:\'legend style\', help:\'Styling for the legend text.\', type:\'long\'}">' +
-  '{property: "legend", helpDefault:\'Field Set\', help: \'Text to display in the field set&apos;s legend.\', "translate": true}</legend>' +
-  '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
-  '</fieldset>';
- */
+      pui.layout.adoptNamedProperties(templateProperties, ["border color" ]);
       break;
 
 
