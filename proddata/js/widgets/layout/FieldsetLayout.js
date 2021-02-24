@@ -24,18 +24,19 @@
  * @constructor
  */
 pui.FieldsetLayout = function(parms, dom) {
-  pui.layout.Template.call(this, parms, dom);
+  pui.layout.Template.call(this, parms, dom);  //sets this.container, etc.
   
   this._fieldset = document.createElement('fieldset');
   this._fieldset.className = 'layout';
   
-  // TODO: 
-  var properties = parms.properties;
-//  if (properties['border style'])
+  this._legend = document.createElement('legend');
+  this._fieldset.appendChild(this._legend);
   
-  //this.container
+  this._div = document.createElement('div');
+  this._div.setAttribute('container', 'true');
+  this._fieldset.appendChild(this._div);
   
-  // Set properties based on the parms.properties
+  this.container.appendChild(this._fieldset);
 };
 pui.FieldsetLayout.prototype = Object.create(pui.layout.Template.prototype);
 
@@ -43,8 +44,29 @@ pui.FieldsetLayout.prototype = Object.create(pui.layout.Template.prototype);
 pui.FieldsetLayout.prototype.setProperty = function(property, value){
   var ret = true;
   switch (property){
+    case 'legend':
+      this._legend.innerHTML = value;
+      break;
+      
+    case 'legend align':
+      // Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that could be done in the future.
+      this._legend.setAttribute('align', value);
+      break;
+      
+    case 'legend style':
+      this._legend.style = value;
+      break;
+    
     case 'border style':
       this._fieldset.style.borderStyle = value;
+      break;
+      
+    case 'border width':
+      this._fieldset.style.borderWidth = value;
+      break;
+      
+    case 'border color':
+      this._fieldset.style.borderColor = value;
       break;
       
     default:
@@ -53,16 +75,3 @@ pui.FieldsetLayout.prototype.setProperty = function(property, value){
   }
   return ret;
 };
-
-
-//pui.layout["templates"]["fieldset"] = "<fieldset style=\"" +
-//  " border-width:{property:'border width', choices:['1px','2px','3px','Other...'], defaultValue:'1px', helpDefault: '1px', help: 'The width of the element&apos;s border.'};" +
-//  " border-color:{property:'border color', type:'color', defaultValue:'black', helpDefault: 'black', help: 'The color of the element&apos;s border.'};"
-//  //Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that aren't easily done in a plain HTML template.
-//  //In the future, this template may need to be implemented in JavaScript.
-//  +
-//  '"><legend align="{property: \'legend align\', choices:[\'left\',\'right\',\'center\'], helpDefault: \'left\', help: \'The width of the element&apos;s border.\'}"' +
-//  ' style="{property:\'legend style\', help:\'Styling for the legend text.\', type:\'long\'}">' +
-//  '{property: "legend", helpDefault:\'Field Set\', help: \'Text to display in the field set&apos;s legend.\', "translate": true}</legend>' +
-//  '<div container="true" style="width:100%; height:100%; position:absolute; overflow:hidden;"></div>' +
-//  '</fieldset>';
