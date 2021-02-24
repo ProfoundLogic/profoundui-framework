@@ -347,8 +347,9 @@ pui.layout.Layout.prototype.resize = function() {
   
   if (panel) panel.resize();
   else if (accordion) accordion.resize();
-  else if (layoutTClass) layoutTClass.resize();
+  else if (layoutTClass) this.sizeContainers();  //So far the Template classes need not do anything on resize except sizeContainers.
 };
+
 
 /**
  * A global property setter for layout widgets, called directly for some properties and at the end of layoutWidget.js global property setter.
@@ -847,15 +848,6 @@ pui.layout.Template = function(parms, dom) {
 pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
- * Note: should be called by subclasses after any resize work they do.
- */
-pui.layout.Template.prototype.resize = function() {
-  if (this.container && this.container.layout) {
-    this.container.layout.sizeContainers();
-  }
-};
-
-/**
  * Placeholder for subclasses to implement and override. Each template needs to handle its template-specific properties; 
  * otherwise, the Layout's setProperty calls applyTemplate, rebuilding the layout.
  * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
@@ -883,7 +875,6 @@ pui.layout.Template.prototype.linkToDom = function(dom){
   this.container = dom;
   // "layoutT" lets pui.Layout and applyTemplate know that the dom contains this class (or it is a TabLayout that implements the same functions.)
   this.container.layoutT = this;
-  this.container.sizeMe = this.resize.bind(this);   //rendering framework calls sizeMe sometimes.
 };
 
 /**
@@ -897,11 +888,27 @@ pui.layout.Template.prototype.destroy = function(){
 };
 
 /**
- * Change a property value of the design item associated with this layout and refresh the property window. Wrapper for TabLayout and subclasses.
+ * Change a property value of the design item associated with this layout and refresh the property window. Wrapper for subclasses and TabLayout.
  * @param {String} propertyName
  * @param {String} value
  * @returns {undefined|Boolean} 
  */
-pui.layout.Template.prototype.updatePropertyInDesigner = function(propertyName, value){
+pui.layout.Template.prototype._updatePropertyInDesigner = function(propertyName, value){
   if (this.container && this.container.layout) return this.container.layout.updatePropertyInDesigner(propertyName, value);
+};
+
+/**
+ * Assign list of containers to the Layout object. Unlike HTML templates, containers for Template subclasses may not be in the DOM 
+ * until property setters run, after getContainers was called. Thus, the Layout must have containers set here.
+ * 
+ * Assume subclasses do not use "stretch", so .stretch and stretchlist are unnecessary.
+ * 
+ * This should be called when the number of containers change. (If the template sets a fixed number containers in the constructor,
+ * then this function need not be called.)
+ * @param {Array} containers
+ */
+pui.layout.Template.prototype._setContainers = function(containers){
+  if (this.container && this.container.layout){
+    this.container.layout.containers = containers;
+  }
 };

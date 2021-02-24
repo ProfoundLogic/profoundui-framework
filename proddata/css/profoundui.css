@@ -17124,6 +17124,13 @@ div.selmkr {
 fieldset.layout {
   width:100%;
   height:100%;
-  position:relative;
-  border-style: solid;
+  position: relative;
+  border: solid 1px black;
+}
+
+fieldset.layout > div[container="true"] {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
 }
