@@ -34,6 +34,7 @@ pui.layout.Layout = function() {
   this.containers = [];
   this.centerHor = false;
   this.centerVert = false;
+  this.assignHeightOnResize = false;  //Should only be true if this layout is the top, has height 100%, in runtime, and is cordova+iOS.
   
   //Function. Some child layouts have code that only works when the DOM element is visible and attached. For TabLayout and 
   //accordion, their child layouts' notifyvisibleOnce is called when section/tab changes. assigned in applyTemplate.js.
@@ -52,7 +53,7 @@ pui.layout.Layout = function() {
 pui.layout.Layout.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
- * For each child in the specified container, stretch, sizeMe, and positionMe, if necessary.
+ * For each child in the specified container, stretch, sizeMe, and positionMe, if necessary. (See also pui.resizeChildrenOf in render.js.)
  * @param {Object} container
  */
 pui.layout.Layout.prototype._sizeContainer = function(container) {
@@ -62,13 +63,14 @@ pui.layout.Layout.prototype._sizeContainer = function(container) {
       child.layout.stretch();
       if (child.layout.iScroll != null) child.layout.iScroll["refresh"]();
     }
-    if (child.sizeMe != null && typeof child.sizeMe == "function") {
-      if (pui.isPercent(child.style.width) || pui.isPercent(child.style.height) || child.grid != null) {
+
+    if (typeof child.sizeMe == "function") {
+      var alwaysSizeMe = (child.alwaysSizeMe === true || child.grid != null);  //So far, only date fields have an alwaysSizeMe flag.
+      
+      if (alwaysSizeMe || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {
         child.sizeMe();
       }
     }
-    if (child.positionMe != null && typeof child.positionMe == "function")
-      child.positionMe(); 
   }
 };
 
@@ -89,8 +91,8 @@ pui.layout.Layout.prototype._notifyChildrenVisible =  function(container){
       child.pui.notifyvisible();  //A chart in Chrome may not render if the tab layout's tab is not selected--it is display:hidden. #6095
     }
 
-    if (child.positionMe != null && typeof child.positionMe == "function"){
-      child.positionMe();   //Make sure date_field calendar icons are positioned correctly.
+    if (child.alwaysSizeMe && typeof child.sizeMe == "function"){
+      child.sizeMe();   //Make sure date_field calendar icons are positioned correctly.
     }
   }
 };
@@ -216,7 +218,7 @@ pui.layout.Layout.prototype.updatePropertyInDesigner = function(propertyName, va
 };
 
 /**
- * 
+ * Expand anything in this layout that needs it, and recursively stretch child layouts.
  */
 pui.layout.Layout.prototype.stretch = function() {
   var dims = [];
@@ -254,7 +256,7 @@ pui.layout.Layout.prototype.stretch = function() {
 };
 
 /**
- * 
+ * Check each container for child widgets that need adjustments depending on container sizes.
  */
 pui.layout.Layout.prototype.sizeContainers = function() {
   for (var i = 0; i < this.containers.length; i++) {
@@ -690,20 +692,20 @@ pui.layout.Layout.prototype.applyScrolling = function() {
 };
 
 /**
- * 
+ * Assign heights to the document body, body parent, layout DIV, and layout parent.
+ * Phonegap/Mobile Client is buggy on iOS when using 100% height, so we assign the height in pixels.  TODO: see if this is still necessary.
+ * layoutWidget.js calls this; this should otherwise only be called in runtime for the top-most layout with 100% height, and for cordova+iOS.
+ * @argument {undefined|Boolean} setProperty    When true, setProperty should set the height.
  */
-pui.layout.Layout.prototype._onresize = function(){
-  if (this.assignHeightOnResize == true) {
-    var height = document.documentElement.clientHeight + "px";  // clientHeight is always the currently-vertical height, minus window chrome
-    this.layoutDiv.parentNode.style.height = height;
-    document.body.style.height = height;
-    document.body.parentNode.style.height = height;
-    this.layoutDiv.style.height = height;
+pui.layout.Layout.prototype.assignHeights = function(setProperty){
+  var height = document.documentElement.clientHeight + "px";  // clientHeight is always the currently-vertical height, minus window chrome
+  this.layoutDiv.parentNode.style.height = height;
+  document.body.style.height = height;
+  document.body.parentNode.style.height = height;
+  this.layoutDiv.style.height = height;
+  if (setProperty)
     this.setProperty("height", height);
-  }
-  this.stretch();
 };
-
 
 /**
  * Save data from pui.renderFormat to allow lazy loading widgets inside a layout.
@@ -825,7 +827,6 @@ pui.layout.Layout.prototype.destroy = function() {
  */
 pui.layout.Layout.prototype['handleEvent'] = function(e) {
   switch (e.type){
-    case 'resize': this._onresize(e); break;
     case 'click': this._designOnClick(e); break;
   }
 };
