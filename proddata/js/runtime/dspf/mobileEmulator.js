@@ -121,7 +121,7 @@ pui.setupMobileEmulator = function() {
 		mobileDiv.style.height = (curHeight + 60) + "px";
 		puiDiv.style.width = curWidth + "px";
 		puiDiv.style.height = curHeight + "px";
-		pui.resize(true);
+		pui.resize();
   }
 	
 	document.body.appendChild(dropdown);
@@ -141,7 +141,7 @@ pui.setupMobileEmulator = function() {
 	  var temp2 = puiDiv.style.height;
 		puiDiv.style.height = puiDiv.style.width;
 		puiDiv.style.width = temp2;
-    pui.resize(true);
+    pui.resize();
   }
 	document.body.appendChild(rotateImage);
 }

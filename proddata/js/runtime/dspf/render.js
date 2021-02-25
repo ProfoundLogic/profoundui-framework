@@ -490,31 +490,55 @@ pui.cleanup = function() {
   
 };
 
-
-pui.resize = function(inEmulator) {
-	  
+pui.resizeTimeout = 0;
+/**
+ * Listener for resize events on "window". (Registered at the beginning of pui.render; called directly in mobileEmulator.js.)
+ * Tell all immediate children of runtime container that it resized. All layouts are reached recursively.
+ * @param {Event} event
+ */
+pui.resize = function(event) {
   // On mobile devices, the virtual keyboard injects itself to the bottom of the body thus firing this resize event, thus causing focus to be lost
   // If the current active active has this special jobGotFocus, we can just get skip this event...
-  if (pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
-	inEmulator.cancel=true; 
-    if (inEmulator.preventDefault) inEmulator.preventDefault();
-    if (inEmulator["stopImmediatePropagation"]) inEmulator["stopImmediatePropagation"]();
+  if (event && pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
+	event.cancel=true; 
+    if (event.preventDefault) event.preventDefault();
+    if (event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
     return;
   }
-	  
-  var container = pui.runtimeContainer;
-  if (container == null) return;
-  for (var j = 0; j < container.childNodes.length; j++) {
-    var child = container.childNodes[j];
-    if (child.sizeMe != null && typeof child.sizeMe == "function") {
-      if (pui["is_old_ie"] || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {  // IE reports the width and height in pixels for certain types of elements, even if they were set using percentages
+  
+  if (pui.runtimeContainer == null) return;
+
+  clearTimeout(pui.resizeTimeout);    //Resized again; ensure a recent timeout does not fire.
+  pui.resizeTimeout = setTimeout(pui.resizeChildrenOf, 10, pui.runtimeContainer);
+};
+
+/**
+ * Tell each child of the container that its parent container resized. (Used by pui.resize and in vdesigner.js.)
+ * @param {Element} container        A Designer canvas or the runtimeContainer.
+ */
+pui.resizeChildrenOf = function(container){
+  var child, m = container.childNodes.length;
+  for (var j = 0; j < m && (child = container.childNodes[j]); j++) {
+    // Tell layouts (and their child elements by recursion) that they should resize. Layout elements can only be inside the runtime 
+    // container, canvas, or other layouts, and calling .stretch() recursively stretches other layouts. Thus, this affects all layouts.
+    var layout = child.layout;
+    if (layout != null){
+      if (layout.assignHeightOnResize == true) layout.assignHeights();  //A top-most layout in cordova+iOS with 100% height needs extra work.
+      
+      layout.stretch();
+    }
+    
+    if (typeof child.sizeMe == "function") {
+      var resizeOnCanvasResize = false;
+      if (child.layoutT != null && typeof child.layoutT.resizeOnCanvasResize == "function") {
+        resizeOnCanvasResize = child.layoutT.resizeOnCanvasResize();    //So far, used by ResponsiveLayout.js in design mode.
+      }
+      
+      if (pui.isPercent(child.style.width) || pui.isPercent(child.style.height || resizeOnCanvasResize)) {
         child.sizeMe();
       }
     }
-    if (inEmulator && child.layout != null) {
-      child.layout.stretch();
-    }
-  } 
+  }
 };
 
 
