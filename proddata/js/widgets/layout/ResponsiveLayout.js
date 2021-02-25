@@ -113,10 +113,7 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
     numitems = this.DEFAULTNUMITEMS;
   }
   else if (pui.isBound(numitems)){
-    if (numitems.designValue != null && typeof numitems.designValue == "number")
-      numitems = numitems.designValue;
-    else
-      numitems = this.DEFAULTNUMITEMS;
+    numitems = (numitems.designValue != null && typeof numitems.designValue == "number") ? numitems.designValue : this.DEFAULTNUMITEMS;
   }
 
   if (numitems != this._numchildren){
@@ -138,18 +135,12 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
     this._numchildren = this._mainnode.children.length;
     
     this._setContainers( this._mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
+    
+    // TODO: it may be necessary to call stretch, sizeMe or something on children when number of containers change.
+    // notifyVisibleOnce?
   }
 };
 
-/**
- * Change the useViewport flag, and re-evaluate the style rules.
- * @param {Boolean} usev
- */
-pui.ResponsiveLayout.prototype._setUseViewport = function(usev) {
-  if (usev == null || usev === "" || pui.isBound(usev)) return;
-  this._useViewport = usev;
-  this.setRules();
-};
 
 /**
  * Returns true if this layout should resize when the canvas resizes. Needed by Designer when Canvas Size 
@@ -536,7 +527,9 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateP
       break;
       
     case 'use viewport':
-      this._setUseViewport(value != "false");
+      this._useViewport = value === true || value === "true";
+      // useViewport determines how rules are evaluated, so reset these.
+      this.setRules();      
       break;
       
     case 'container names':

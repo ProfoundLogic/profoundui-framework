@@ -376,7 +376,7 @@ pui.buildLabel = function(dom, labelText, label) {
         label.style.left = (styledim[0] + width) + 'px';    //The units were in px; simply add.
       }
       else {
-        // For any other units, let CSS calculate position. Calc avoids the need to use the positionMe function when inside containers that can resize. #5692.
+        // For any other units, let CSS calculate position. Calc avoids the need to use the sizeMe function when inside containers that can resize. #5692.
         label.style.left = 'calc('+dom.style.left +' + ' + width + 'px)';
       }
     }

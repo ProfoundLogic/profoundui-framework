@@ -742,23 +742,17 @@ pui.widgets.add({
         parms.dom.sizeMe = function() {
           pui.moveCal(parms.dom);
         };
-        parms.dom.positionMe = function() {
-          pui.moveCal(parms.dom);
-        };
       }
-      if (parms.design) {
+      // Design mode
+      else {  
         parms.dom.readOnly = true;
         parms.dom.sizeMe = function() {
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
         };
-        parms.dom.positionMe = function() {
-          var itm = parms.designItem;
-          itm.drawIcon();
-          itm.mirrorDown();
-        };
       }
+      parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
     },
     "value": function(parms) {
       parms.dom.value = parms.value;
