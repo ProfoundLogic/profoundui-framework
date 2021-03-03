@@ -218,7 +218,7 @@ pui.widgets.addXMLChartLinks = function(id, xml, isMap) {
       var sets = dataSet.getElementsByTagName("set");
       for (var setIdx = 0; setIdx < sets.length; setIdx++) {
       
-        var data = {"id": id};
+        var data = {"id": encodeURIComponent(id)};
         var set = sets[setIdx];
         if (dataSet.nodeName == "dataset") {
           //Multi-series.
@@ -227,7 +227,7 @@ pui.widgets.addXMLChartLinks = function(id, xml, isMap) {
           if (data["name"] == null)
             data["name"] = dataSet.getAttribute("seriesName"); // According to our example.
           if (setIdx < categories.length)
-          data["category"] = categories[setIdx];
+          data["category"] = encodeURIComponent(categories[setIdx]);
         
         }
         else {
@@ -235,12 +235,14 @@ pui.widgets.addXMLChartLinks = function(id, xml, isMap) {
           
           if (isMap){
             data["name"] = set.getAttribute("id");  //Maps use tags like: <set id="" value="" />.
-          }else{
+          }
+          else{
             data["name"] = set.getAttribute("name");
             if (data["name"] == null)
               data["name"] = set.getAttribute("label");
           }
         }
+        data["name"] = encodeURIComponent(data["name"]);  //prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
         
         set.setAttribute("link", "j-pui.widgets.doChartLink-" + JSON.stringify(data));
       
@@ -299,7 +301,7 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
      
     for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
     
-      var data = {"id": id};
+      var data = {"id": encodeURIComponent(id)};
       var dataSet = dataSets[dataSetIdx];
       var sets = (dataSet["data"] instanceof Array) ? dataSet["data"] : dataSet;
       for (var setIdx = 0; setIdx < sets.length; setIdx++) {
@@ -309,7 +311,7 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
           
           data["name"] = dataSet["seriesname"] || dataSet["seriesName"];
           if (setIdx < categories.length)
-            data["category"] = categories[setIdx];
+            data["category"] = encodeURIComponent(categories[setIdx]);
           
         }
         else {
@@ -320,6 +322,8 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
             data["name"] = set["label"]; //Charts use "label"
           
         }
+        data["name"] = encodeURIComponent(data["name"]);  //prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
+        
         set["link"] = "j-pui.widgets.doChartLink-" + JSON.stringify(data);
         
       }    
@@ -337,6 +341,10 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
 
 };
 
+/**
+ * Handle a user clicking on a chart link. Data from the chart was set in one of the "add*ChartLinks" functions.
+ * @param {Object} param    A JSON object of with id, name, and category. FusionCharts already decoded any URI-sensitive characters.
+ */
 pui.widgets["doChartLink"] = function(param) {
 
   var param = JSON.parse(param);
