@@ -5011,7 +5011,7 @@ pui.getVersionComparer = function () {
     return [
       ver1.join("."),
       ver2.join(".")
-    ]
+    ];
       
   };
 
@@ -5022,8 +5022,8 @@ pui.getVersionComparer = function () {
 
       return versions[0] < versions[1];
     }
-  }
-}
+  };
+};
 
 pui["newUUID"] = function () {
   var d = new Date().getTime();
@@ -5038,4 +5038,34 @@ pui["newUUID"] = function () {
   });
 
   return value;
-}
+};
+
+/**
+ * Tell each child of the container that its parent container resized. (Used by pui.resize, pui.ide.doBodyResize, and Layout)
+ * Tells layouts (and their child elements by recursion) that they should size. Layout elements can only be inside the runtime 
+ * container, canvas, or other layouts; calling .stretch() recursively stretches other layouts; thus, resizeChildrenOf affects all
+ * layouts via recursive Depth-First tree traversal.
+ * @param {Element} container             A Designer canvas or the runtimeContainer.
+ * @param {undefined|Boolean} inLayout    When true, container belongs to a layout.
+ */
+pui.resizeChildrenOf = function(container, inLayout){
+  if (container == null) return;
+  var childNodes = container.childNodes;
+  var child, m = childNodes.length;
+  for (var j = 0; j < m && (child = childNodes[j]); j++) {
+    var layout = child.layout;
+    if (layout != null){
+      if (layout.assignHeightOnResize == true) layout.assignHeights();  //A top-most layout in cordova+iOS with 100% height needs extra work.
+      
+      layout.resize();  //Tell the layout to update any of its own dimension-dependant styles, then recursively stretch, size children, etc.
+    }
+    // Non-layout widgets may need to be sized because they have percent-based dimensions or because they just became visible.
+    else if (typeof child.sizeMe == "function") {
+      // Always size some things regardless of dimension units. Date fields, charts ...
+      var alwaysSizeMe = (child.alwaysSizeMe === true || (inLayout && child.grid != null));
+      
+      if (alwaysSizeMe || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) child.sizeMe();
+    }
+  }
+};
+

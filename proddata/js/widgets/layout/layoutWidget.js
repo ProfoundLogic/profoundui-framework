@@ -42,6 +42,7 @@ pui.widgets.add({
     }
 
     var setProperty = true;
+    // Note: depending on how the RDF JSON was stored, the "template" property could be set after other properties, causing the instance to be rebuilt.
     if (parms.propertyName == "field type" || parms.propertyName == "template") {
       parms.dom.style.padding = "0px";
       parms.dom.style.borderWidth = "0px";
@@ -123,6 +124,16 @@ pui.widgets.add({
       }
     }
     if (setProperty) parms.dom.layout.setProperty(parms.propertyName, parms.value);
+  },
+  
+  globalAfterSetter:  function(parms) {
+    var dom = parms.dom;
+    if (dom){
+      var layoutT = dom.layoutT;
+      if (layoutT){
+        layoutT.setPropertyAfter(parms.propertyName, parms.value);
+      }
+    }
   },
   
   initialize: function(parms) {

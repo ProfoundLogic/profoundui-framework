@@ -24,7 +24,8 @@
  */
 
 pui.layout.Layout = function() {
-
+  
+  // Public
   this.layoutDiv = null;
   this.designMode = false;
   this.template = "test";
@@ -35,67 +36,20 @@ pui.layout.Layout = function() {
   this.centerHor = false;
   this.centerVert = false;
   this.assignHeightOnResize = false;  //Should only be true if this layout is the top, has height 100%, in runtime, and is cordova+iOS.
+    
+  // Flags for each container to avoid redundant resizing of children on tab/section change when this layout has not resized.
+  this.childrenSized = {};
   
-  //Function. Some child layouts have code that only works when the DOM element is visible and attached. For TabLayout and 
-  //accordion, their child layouts' notifyvisibleOnce is called when section/tab changes. assigned in applyTemplate.js.
-  this.notifyvisibleOnce = null;
-  
-  //When a lazy-loaded container is rendered, onlazyload script runs.
+  // When a lazy-loaded container is rendered, onlazyload script runs.
   this.onlazyload = null;
-  //When a template implements lazy loading, this will be set to a function by applyTemplate.js.
-  // Expect return type: Array of Numbers.
-  this.getActiveContainerNumbers = null;
   
+  // Private.
+
   // Lazy-loading
   this._renderParms = null;
   this._lazyChildren = {}; //Properties to render child items later. Keys: container numbers; values: arrays of properties objects.  
 };
 pui.layout.Layout.prototype = Object.create(pui.BaseClass.prototype);
-
-/**
- * For each child in the specified container, stretch, sizeMe, and positionMe, if necessary. (See also pui.resizeChildrenOf in render.js.)
- * @param {Object} container
- */
-pui.layout.Layout.prototype._sizeContainer = function(container) {
-  for (var j = 0; j < container.childNodes.length; j++) {
-    var child = container.childNodes[j];
-    if (child.layout != null) {
-      child.layout.stretch();
-      if (child.layout.iScroll != null) child.layout.iScroll["refresh"]();
-    }
-
-    if (typeof child.sizeMe == "function") {
-      var alwaysSizeMe = (child.alwaysSizeMe === true || child.grid != null);  //So far, only date fields have an alwaysSizeMe flag.
-      
-      if (alwaysSizeMe || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) {
-        child.sizeMe();
-      }
-    }
-  }
-};
-
-/**
- * For each child in the specified container, notify that it is visible. This is necessary if certain code
- * in the child layout doesn't work until the layout is on the DOM and visible; e.g. TabLayout scroll buttons and date fields, charts in Chrome.
- * @param {Object} container
- */
-pui.layout.Layout.prototype._notifyChildrenVisible =  function(container){
-  for (var j = 0; j < container.childNodes.length; j++) {
-    var child = container.childNodes[j];
-    if (child.layout != null && typeof child.layout.notifyvisibleOnce == "function") {
-      child.layout.notifyvisibleOnce();
-      delete child.layout.notifyvisibleOnce; //Only need to notify once.
-    }
-    
-    if (child.pui && typeof child.pui.notifyvisible == 'function'){
-      child.pui.notifyvisible();  //A chart in Chrome may not render if the tab layout's tab is not selected--it is display:hidden. #6095
-    }
-
-    if (child.alwaysSizeMe && typeof child.sizeMe == "function"){
-      child.sizeMe();   //Make sure date_field calendar icons are positioned correctly.
-    }
-  }
-};
 
 /**
  * 
@@ -218,7 +172,8 @@ pui.layout.Layout.prototype.updatePropertyInDesigner = function(propertyName, va
 };
 
 /**
- * Expand anything in this layout that needs it, and recursively stretch child layouts.
+ * Expand container in this layout that has a "stretch" attribute, and recursively call resize on child layouts and sizeMe on their contents.
+ * Pre-conditions: this.resize should have run to size this layout, if necessary.
  */
 pui.layout.Layout.prototype.stretch = function() {
   var dims = [];
@@ -253,29 +208,31 @@ pui.layout.Layout.prototype.stretch = function() {
   }
   this.sizeContainers();
   this.center();
+  
+  var iScroll = this.iScroll;
+  if (iScroll != null) iScroll["refresh"]();
 };
 
 /**
- * Check each container for child widgets that need adjustments depending on container sizes.
+ * Check each container for child widgets that need adjustments depending on container sizes and visibility.
+ * @param {Number|undefined} visidx    When set, is index of newly visible container, and children of this container should resize.
  */
-pui.layout.Layout.prototype.sizeContainers = function() {
-  for (var i = 0; i < this.containers.length; i++) {
-    this._sizeContainer(this.containers[i]);
+pui.layout.Layout.prototype.sizeContainers = function( visidx ) {
+  // The parameter didn't provide a container index, so fetch it. (sizeContainers may be in a recursive resize.)
+  if (typeof visidx !== 'number') visidx = this.getVisibleContainerIndex();
+
+  var containers = this.containers;
+  var container = containers[visidx];
+  if (container != null){
+    // The template has an active container, so size that one's children.
+    pui.resizeChildrenOf(container, true);
+    this.childrenSized[visidx] = true;
   }
-};
-
-/**
- * For all visible containers in layouts that hide containers, notify children of those containers that they are visible.
- * @returns {undefined}
- */
-pui.layout.Layout.prototype.notifyContainersVisible = function(){
-  if (typeof this.getActiveContainerNumbers == "function"){
-    var containerNums = this.getActiveContainerNumbers();
-    for (var i = 0; i < containerNums.length; i++) {
-      if (containerNums[i] >= 0 && this.containers.length > containerNums[i]){
-        var container = this.containers[ containerNums[i] ];
-        this._notifyChildrenVisible(container);
-      }
+  else {
+    // Assume the layout hides no containers, so resize all.
+    for (var i=0, n=containers.length; i < n && (container = containers[i]); i++) {
+      pui.resizeChildrenOf(container, true);
+      this.childrenSized[i] = true;
     }
   }
 };
@@ -340,18 +297,40 @@ pui.layout.Layout.prototype.center = function() {
 };
 
 /**
- * Figure out which template type this layout contains, and call its resize method.
+ * Figure out which template type this layout contains, and call the method that sizes that template. Then stretch.
+ * Note: resize may be called to size this layout for the first time.
  */
 pui.layout.Layout.prototype.resize = function() {
-  var panel = this.layoutDiv.panel;
-  var accordion = this.layoutDiv.accordion;
-  var layoutTClass = this.layoutDiv.layoutT;
+  var div = this.layoutDiv;
+  var panel = div.panel;
+  var accordion = div.accordion;
+  var layoutTClass = div.layoutT;
   
   if (panel) panel.resize();
-  else if (accordion) accordion.resize();
-  else if (layoutTClass) this.sizeContainers();  //So far the Template classes need not do anything on resize except sizeContainers.
+  else if (accordion) accordion.resize(null, true);
+  else if (layoutTClass) layoutTClass.resize();
+  
+  this.childrenSized = {};  //If this layout has been sized, then its children should also be when the tab/section becomes visible.
+  
+  this.stretch();
 };
 
+/**
+ * Figure out which template type this layout contains, and get the active container for it. Needed in Templates that hide containers 
+ * that their children are now visible: render should happen, or resize should happen to children.
+ * @returns {Number}    Returns -1 if the layout does not hide sections.
+ */
+pui.layout.Layout.prototype.getVisibleContainerIndex = function(){
+  var div = this.layoutDiv;
+  var accordion = div.accordion;
+  var layoutTClass = div.layoutT;
+  
+  var cont = -1;
+  if (accordion) cont = accordion.getExpandedSection();
+  else if (layoutTClass && layoutTClass.selectedTab != null) cont = parseInt(layoutTClass.selectedTab, 10);  //TabLayout
+  
+  return cont;
+};
 
 /**
  * A global property setter for layout widgets, called directly for some properties and at the end of layoutWidget.js global property setter.
@@ -384,7 +363,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         this.designItem.designer.changedScreens[this.designItem.designer.currentScreen.screenId] = true;
         this.designItem.designer.propWindow.refresh();
         
-        this.resize();  //Resize whichever template this is.
+        this.resize();
       }
       break;
 
@@ -409,7 +388,6 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       this.layoutDiv.style[styleName] = value;
       
       this.resize();
-      this.stretch();
 
       // To allow inline-style setting and removing, cache the style property.
       if (this.designMode) {
@@ -581,12 +559,14 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       }
       break;
 
-    default: 
+    default:
+      // For each property not previously handled the template is re-evaluated. Necessary for custom, HTML-declared ones.
       var savedValue = this.templateProps[property];
       this.templateProps[property] = value;
       if (this.designMode && !toolbar.loadingDisplay && !toolbar.pastingFormat) {
         var rv = this.applyTemplate();
-        if (this.layoutDiv.accordion != null) this.layoutDiv.accordion.resize();
+        accordion = this.layoutDiv.accordion;
+        if (accordion != null) accordion.resize();
         if (rv.success == false) {
           this.templateProps[property] = savedValue;
           var me = this;
@@ -774,35 +754,23 @@ pui.layout.Layout.prototype.deferLazyChild = function(container, item){
 /**
  * Render items for the currently visible containers if the items haven't already been rendered.
  * Called by layout template classes when visible container changes and once in pui.renderFormat (rendering the main format).
- * @param {Array|undefined} containerNums    List of indices of containers. When undefined, getActiveContainerNumbers will be called.
+ * @param {Array|undefined} cnum    Index of container to render. When undefined, 
  * @returns {undefined}
  */
-pui.layout.Layout.prototype.renderItems = function( containerNums ){
+pui.layout.Layout.prototype.renderItems = function( cnum ){
   //All items have been rendered, or lazy load wasn't implemented for the layout, or saveFormat wasn't called yet.
   if (this._renderParms == null) return;
-
-  if ((containerNums == null || containerNums.length < 1 )){
-    // The parameter didn't provide container numbers, so fetch from the layout template's class.
-    if (typeof this.getActiveContainerNumbers == "function"){
-      containerNums = this.getActiveContainerNumbers();
-    }else{
-      return; //Do nothing.
-    }
-  }
-
+    
   // Look at each container specified by the layout template's class. (Usually only one is specified.)
-  for (var i=0; i < containerNums.length; i++){
-    var cnum = containerNums[i];
-
-    if (this._lazyChildren[cnum] != null && this.containers[cnum] != null){
-      this._renderParms.container = this.containers[cnum];
-      this._renderParms.lazyContainerNum = cnum;
-      this._renderParms.metaData.items = this._lazyChildren[cnum];
-      this._renderParms.onlazyload = this.onlazyload;
-      pui.renderFormat(this._renderParms);
-      delete this._lazyChildren[cnum]; //Prevents rendering same items again after they're already rendered.
-    }
+  if (this._lazyChildren[cnum] != null && this.containers[cnum] != null){
+    this._renderParms.container = this.containers[cnum];
+    this._renderParms.lazyContainerNum = cnum;
+    this._renderParms.metaData.items = this._lazyChildren[cnum];
+    this._renderParms.onlazyload = this.onlazyload;
+    pui.renderFormat(this._renderParms);
+    delete this._lazyChildren[cnum]; //Prevents rendering same items again after they're already rendered.
   }
+  
   // Free up format data from this widget once all items are rendered. Data could be large.
   if (Object.keys(this._lazyChildren).length == 0){
     this._renderParms = null;
@@ -813,10 +781,7 @@ pui.layout.Layout.prototype.renderItems = function( containerNums ){
  * Called by pui.cleanup. Dereference variables.
  */
 pui.layout.Layout.prototype.destroy = function() {
-  window.removeEventListener('resize', this);
-  if (this.iScroll != null) {
-    this.iScroll["destroy"]();
-  }
+  if (this.iScroll != null) this.iScroll["destroy"]();
   this.deleteOwnProperties();
 };
 
@@ -831,7 +796,9 @@ pui.layout.Layout.prototype['handleEvent'] = function(e) {
   }
 };
 
-
+//
+// end of Layout class.
+//
 
 /**
  * A super class for layout templates. Note: it would make more sense for templates to be implemented as subclasses
@@ -849,21 +816,7 @@ pui.layout.Template = function(parms, dom) {
 pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
- * Placeholder for subclasses to implement and override. Each template needs to handle its template-specific properties; 
- * otherwise, the Layout's setProperty calls applyTemplate, rebuilding the layout.
- * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
- * @param {String} property
- * @param {String} value
- * @param {Object} templateProps  A collection in pui.Layout with properties for this template.
- * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
- */
-pui.layout.Template.prototype.setProperty = function(property, value, templateProps){
-  return false;
-};
-
-/**
  * Assign template-specific properties to a DOM element. called by applyTemplate in the pui.layout.Template constructor.
- * Adding "layoutT" to the dom marks the layout as a type of pui.Layout.Template or pui.TabLayout.
  * 
  * TODO: this approach seems overcomplicated:
  * templates get built on an object detached from the DOM and then properties from that DOM are copied onto an existing DOM element.
@@ -874,8 +827,12 @@ pui.layout.Template.prototype.setProperty = function(property, value, templatePr
  */
 pui.layout.Template.prototype.linkToDom = function(dom){
   this.container = dom;
-  // "layoutT" lets pui.Layout and applyTemplate know that the dom contains this class (or it is a TabLayout that implements the same functions.)
+  // "layoutT" lets pui.Layout and applyTemplate know that the dom contains this class.
   this.container.layoutT = this;
+  
+  // Various places in Designer call sizeMe when the layout needs to be sized--e.g. paste, drop in, move, etc.
+  var layout = dom.layout;
+  if (layout && typeof layout.resize === 'function') dom.sizeMe = layout.resize.bind(layout);
 };
 
 /**
@@ -889,7 +846,7 @@ pui.layout.Template.prototype.destroy = function(){
 };
 
 /**
- * Change a property value of the design item associated with this layout and refresh the property window. Wrapper for subclasses and TabLayout.
+ * Change a property value of the design item associated with this layout and refresh the property window. Wrapper for subclasses.
  * @param {String} propertyName
  * @param {String} value
  * @returns {undefined|Boolean} 
@@ -902,7 +859,7 @@ pui.layout.Template.prototype._updatePropertyInDesigner = function(propertyName,
  * Assign list of containers to the Layout object. Unlike HTML templates, containers for Template subclasses may not be in the DOM 
  * until property setters run, after getContainers was called. Thus, the Layout must have containers set here.
  * 
- * Assume subclasses do not use "stretch", so .stretch and stretchlist are unnecessary.
+ * Assume subclasses do not use "stretch".
  * 
  * This should be called when the number of containers change. (If the template sets a fixed number containers in the constructor,
  * then this function need not be called.)
@@ -913,3 +870,43 @@ pui.layout.Template.prototype._setContainers = function(containers){
     this.container.layout.containers = containers;
   }
 };
+
+/**
+ * Call setProperty for every property in parms.properties to ensure all are set in case the "template" property was called after others.
+ * If "template" was a later property, then applyTemplate reconstructs the class, voiding any previous calls to setProperty,
+ * which are not again called.  (Sub-classes should be able to handle properties being set in any order.)
+ * @param {Object} parms
+ */
+pui.layout.Template.prototype.initialSetProperties = function(parms){
+  var properties = parms.properties;
+  if (properties){
+    for (var pname in properties){
+      this.setProperty(pname, properties[pname]);
+    }
+  }
+};
+
+/**
+ * Placeholder for subclasses to implement and override. Each template needs to handle its template-specific properties; 
+ * otherwise, the Layout's setProperty calls applyTemplate, rebuilding the layout.
+ * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
+ * @param {String} property
+ * @param {String} value
+ * @param {Object} templateProps  A collection in pui.Layout with properties for this template.
+ * @returns {Boolean}  When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
+ */
+pui.layout.Template.prototype.setProperty = function(property, value, templateProps){
+  return false;
+};
+
+/**
+ * Placeholder for subclasses to implement and override. Called for each property after Layout and the Template setProperty methods.
+ * @param {String} property
+ * @param {String} value
+ */
+pui.layout.Template.prototype.setPropertyAfter = function(property, value){};
+
+/**
+ * Placeholder for subclasses to override. Called when the layout should update its own dimension-dependant styles.
+ */
+pui.layout.Template.prototype.resize = function() {};

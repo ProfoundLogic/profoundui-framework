@@ -165,11 +165,13 @@ pui.widgets.preloadTabStyle = function(tabStyle) {
 
 /**
  * Tab Panel Class
- * Note: widgets/layout/pui.TabLayout inherits public properties from this object.
+ * Note: widgets/layout/pui.TabLayout adopts public properties and methods from this object via TabPanel.call.
  * @constructor
  */
-
 function TabPanel() {
+  // Public Properties
+  this.INITIALLIST = "Tab 1,Tab 2,Tab 3";
+  this.TXT_CANNOTREMOVE = "The tab cannot be removed because it contains other elements that must be removed first.";
 
   // Private Properties
   var me = this;
@@ -1086,10 +1088,6 @@ function TabPanel() {
   
 }
 TabPanel.prototype = Object.create(pui.BaseClass.prototype);  //inherit deleteOwnProperties.
-
-// Static constants for all instances of TabPanel and TabLayout.
-Object.defineProperties(TabPanel.prototype, { INITIALLIST: { value: "Tab 1,Tab 2,Tab 3" } });
-Object.defineProperties(TabPanel.prototype, { TXT_CANNOTREMOVE: { value: "The tab cannot be removed because it contains other elements that must be removed first." } });
 
 pui.widgets.add({
   name: "tab panel",
