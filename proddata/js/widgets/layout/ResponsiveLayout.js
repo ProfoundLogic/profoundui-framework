@@ -59,8 +59,8 @@ pui.ResponsiveLayout = function(parms, dom){
     // Used to set inline styles for the 5250 div ensuring the layout isn't cramped at the top. #5311.
     var genieStylenode = document.querySelector('style[forcegenieheight="true"]');
     if (!genieStylenode){
-      // The style was not already set by another responsive layout, so set it now.
-      var tmpnode = this._addStyleNode('div[id="5250"] { height: inherit; }', pui.runtimeContainer);
+      // The style was not already set by another responsive layout, so set it now. 100px leaves room for some background headers.
+      var tmpnode = this._addStyleNode('div[id="5250"] { height: calc(100vh - 100px); }', pui.runtimeContainer);
       tmpnode.setAttribute("forcegenieheight", "true");
       // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
     }
