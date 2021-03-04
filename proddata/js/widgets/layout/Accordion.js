@@ -168,23 +168,26 @@ pui.Accordion = function() {
   };
   
   this.expandSection = function(sectionNumber) {
-    expandedSection = sectionNumber;    //This must happen before notifyContainersVisible, which causes getActiveContainerNumbers to be called.
+    expandedSection = parseInt(sectionNumber, 10);
+    me.setStraightEdge(straightEdge);
+    me.resize(null, true);  //Size this layout before sizing children.
+    
     for (var i = 0; i < bodyDivs.length; i++) {
       var bodyDiv = bodyDivs[i];
       var headerButton = headerButtons[i];
-      if (i == sectionNumber) {
+      if (i === expandedSection) {
         headerButton.setIcon("minus");
         headerButton.setDisabled(!allowCollapse);
         bodyDiv.style.display = "";
         me.container.responseValue = sectionNumber;
         
-        if (me.container.layout != null){
-          if (!me.designMode){
-            //Lazy loads the items, if they weren't already.
-            me.container.layout.renderItems( [sectionNumber] );
-          }
-          //Make sure any child layouts know they are visible. e.g. child tablayouts may need scrollbars.
-          me.container.layout.notifyContainersVisible();
+        var layout = me.container.layout;
+        if (layout != null){
+          // Render the items if they were not already. (Lazy Load)
+          if (!me.designMode) layout.renderItems( expandedSection );
+          
+          // Make sure any child layouts and widgets in this section know they are visible now.
+          if (layout.childrenSized[expandedSection] !== true) layout.sizeContainers( expandedSection );
         }
       }
       else {
@@ -193,8 +196,6 @@ pui.Accordion = function() {
         bodyDiv.style.display = "none";
       }
     }
-    me.setStraightEdge(straightEdge);
-    me.resize();
   };
   
   this.setAllowCollapse = function(allow) {
@@ -290,7 +291,12 @@ pui.Accordion = function() {
     bodySwatch = swatch;
   };
   
-  this.resize = function(newHeight) {
+  /**
+   * 
+   * @param {undefined|Null|String} newHeight
+   * @param {undefined|Boolean} skipSizeContainers    When true, expect the Layout object to resize child containers when appropriate.
+   */
+  this.resize = function(newHeight, skipSizeContainers) {
     var totalHeight;
     if (typeof newHeight == "string") {
       if (newHeight.length < 3 || newHeight.substr(newHeight.length - 2, 2) != "px") {
@@ -311,7 +317,7 @@ pui.Accordion = function() {
     if (bodyDiv != null) {
       bodyDiv.style.height = bodyHeight + "px";
     }
-    if (me.container.layout != null) {
+    if (me.container.layout != null && skipSizeContainers !== true) {
       me.container.layout.sizeContainers();
     }
   };
@@ -320,13 +326,13 @@ pui.Accordion = function() {
     me.container.style.height = height;
     me.resize(height);
   };
-  
+    
   /**
-   * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
-   * @returns {Array}   Returns an array of numbers. In this class, returns just the expanded section.
+   * Interface needed by pui.Layout to let Designer best-guess the container to drop something in.
+   * @returns {Number}
    */
-  this.getActiveContainerNumbers = function(){
-    return [expandedSection];
+  this.getExpandedSection = function(){
+    return parseInt(expandedSection, 10);
   };
   
   // Private methods.

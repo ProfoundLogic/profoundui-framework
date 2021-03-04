@@ -19,19 +19,15 @@
 
 
 /**
- * TabLayout Class. Subclass of TabPanel. Implements the same methods as pui.layout.Template: destroy, setProperty, and linkToDom. 
+ * TabLayout Class. Subclass of pui.layout.Template and adopts from the TabPanel class.
  * @param {Object} parms  Parameters used to build the layout template.
  * @param {Element} dom   A new or cloned DIV element constructor.
  * @constructor
  */
 pui.TabLayout = function(parms, dom) {
-  // Imports properties from TabPanel into this object.
-  TabPanel.call(this);  
+  TabPanel.call(this);  //Import TabPanel properties and methods into this instance.
   
-  // Public
-
-  this.forProxy = parms && parms.proxyMode;
-  this.designMode = parms && parms.designMode;
+  pui.layout.Template.call(this, parms, dom);  //Super class constructor.
   
   // Private
   
@@ -76,10 +72,12 @@ pui.TabLayout = function(parms, dom) {
   if (parms.proxyMode) {
     this.container.style.position = "relative";
   }
-  
-  this.setProperty('tab names', parms.properties['tab names']);
+  // Use a default value when "tab names" is empty.
+  if (parms.properties && parms.properties['tab names'] == null) this.setProperty('tab names');
+    
+  this.initialSetProperties(parms);
 };
-pui.TabLayout.prototype = Object.create(TabPanel.prototype);  //TabPanel is parent class of TabLayout.
+pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype);  //TabLayout is subclass of Template.
 
 // Public methods
   
@@ -159,6 +157,7 @@ pui.TabLayout.prototype.draw = function(){
  * @returns {undefined}
  */
 pui.TabLayout.prototype.selectedTabChanged = function(){
+  this.selectedTab = parseInt(this.selectedTab, 10);
 
   // Hide hidden tabs; make sure others aren't hidden.
   for (var i=0, n=this.tabs.length; i < n; i++){
@@ -167,17 +166,17 @@ pui.TabLayout.prototype.selectedTabChanged = function(){
   }
 
   for (var i=0, n=this.tabs.length; i < n; i++){
-    if (i == this.selectedTab){
+    if (i === this.selectedTab){
       this._bodyWrap.children[i].style.display = "";
       this._tabSpans[i].parentNode.className = "selected-tab";
 
-      if (this.container.layout != null){
-        if (!this.designMode){
-          //Lazy loads the items, if they weren't already.
-          this.container.layout.renderItems( [this.selectedTab] );
-        }
-        //Make sure any child layouts know they are visible. Child tablayouts may need scrollbars.
-        this.container.layout.notifyContainersVisible();
+      var layout = this.container.layout;
+      if (layout != null){
+        // Lazy loads the items, if they weren't already.
+        if (!this.designMode) layout.renderItems( this.selectedTab );
+        
+        // Make sure any child layouts and widgets in this tab know they are visible now.
+        if (layout.childrenSized[this.selectedTab] !== true) layout.sizeContainers( this.selectedTab );
       }
     }
     else {
@@ -259,14 +258,6 @@ pui.TabLayout.prototype._containerInDom = function(){
   }
 };
 
-/**
- * Interface needed by pui.Layout to know which container's items should be lazy-loaded.
- * @returns {Array}   Returns an array of numbers. In this class, returns just the selected tab.
- */
-pui.TabLayout.prototype.getActiveContainerNumbers = function(){
-  return [Number(this.selectedTab)];
-};
-
 // Private Methods
 
 /**
@@ -283,7 +274,7 @@ pui.TabLayout.prototype._checkWidthOnTimeout = function(){
   else if (this._checkCount < this._maxChecks){
     setTimeout(this._checkWidthOnTimeoutBound,1);
   }
-  //else: the parent container may be hidden, so notifyContainersVisible needs to setup the scroll buttons.
+  //else: the parent container may be hidden, so sizeContainers needs to setup the scroll buttons.
 };
 
 /**
@@ -315,26 +306,24 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
 };
 
 //
-// Methods that all pui.layout.Template classes are expected to implement.
+// Methods below are what all pui.layout.Template classes are expected to implement.
 //
 
 /**
- * Resizes this layout when it is inside another layout and that layout's size changes;
+ * Handle when the size changes for the parent of this layout or this layout is being added to something in Designer;
  * called when moving item to main canvas or into container; called when width or 
  * height changes, because of Layout.js::setProperty.
+ * Scroll buttons must be added when TabLayout is initially in hidden tab/section. Also #4711.
  */
 pui.TabLayout.prototype.resize = function() {
   this.checkScrollButtons();
-  
-  var layout = this.container.layout;
-  if (layout) layout.sizeContainers();  //resizes child containers.
 };
 
 /**
  * Property setter for any property. Called by pui.Layout.setProperty.
  * Note: the "tab keys" property is not implemented, because "tab keys" is for Genie, and layouts are not for Genie.
  * @param {String} property
- * @param {String} value
+ * @param {String|undefined} value
  * @param {undefined|Object} templateProps    A collection in pui.Layout with properties for the template.
  * @returns {Boolean}    When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
  */
@@ -368,11 +357,9 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
         if (cannotRemove){
           pui.alert(this.TXT_CANNOTREMOVE);
           value = this.tabs.join();
-          // rollback the change via a method borrowed from Template.
-          var me = this;
-          setTimeout(function(){
-            pui.layout.Template.prototype._updatePropertyInDesigner.call(me, 'tab names', value );
-          }, 1);
+          // Rollback the change.
+          var updatePropCallback = this._updatePropertyInDesigner.bind(this, 'tab names', value);
+          setTimeout(updatePropCallback, 1);
         }
         else {
           this.tabs = names;
@@ -380,16 +367,16 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
           // If the selected tab was removed then select the new last tab.
           if (this.selectedTab > this.tabs.length - 1) this.selectedTab = this.tabs.length - 1;
 
-          // Make sure the Layout object associated with this knows where the containers are. (Borrow a method from Template).
-          pui.layout.Template.prototype._setContainers.call(this, this._bodyWrap.children );  
+          // Make sure the Layout object associated with this knows where the containers are.
+          this._setContainers(this._bodyWrap.children);
         }
       }
       else {
         this.tabs = names;
       }
       this.draw();
-      // Make sure the Layout object associated with this knows where the containers are. (Borrow a method from Template).
-      pui.layout.Template.prototype._setContainers.call(this, this._bodyWrap.children );  
+      // Make sure the Layout object associated with this knows where the containers are.
+      this._setContainers(this._bodyWrap.children);
       break;
     
     case 'active tab':
@@ -432,12 +419,6 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
     case "text transform":
       this.setStyle(property, value);
       break;
-      
-    case 'height':
-      value = value || "200px";
-      this.container.style.height = value;
-      this.resize();
-      return false;
     
     default:
       return false;  //Let pui.Layout.prototype.setProperty handle other properties.
@@ -451,15 +432,8 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
  * @param {Element} dom
  */
 pui.TabLayout.prototype.linkToDom = function(dom){
-  pui.layout.Template.prototype.linkToDom.call(this, dom); //assigns this.container=dom; sets layoutT.
+  pui.layout.Template.prototype.linkToDom.call(this, dom); //call super class method. assigns this.container=dom; sets layoutT.
   
-  if (this.container && this.container.layout){
-    // Attach special properties for Layout, which should be defined when applyTemplate calls linkToDom.
-    var layout = this.container.layout;
-    layout.getActiveContainerNumbers = this.getActiveContainerNumbers.bind(this); //Needed by lazy-load.
-    layout.notifyvisibleOnce = this.resize.bind(this);  //Needed for scroll buttons when child is in hidden tab/section. Also for #4711.
-  }
-
   if (document.body.contains(this.container)){
     this._containerInDom(); //Finish drawing things that require elements being in DOM.
   }
@@ -473,11 +447,4 @@ pui.TabLayout.prototype.linkToDom = function(dom){
     dom["showTab"] = this.showTab.bind(this);
   }
   
-};
-
-pui.TabLayout.prototype.destroy = function(){
-  if (this.container){
-    pui.BaseClass.prototype.deleteOwnProperties.call(this.container); //delete all properties added to this.container: ontabclick, tabKeys, etc.
-  }
-  pui.layout.Template.prototype.destroy.call(this); //remove properties attached to dom and call deleteOwnProperties.
 };

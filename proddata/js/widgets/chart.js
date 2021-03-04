@@ -128,18 +128,21 @@ pui.widgets.renderChart = function(parms) {
     parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
 
   // Register a listener for when the layout becomes visible. Check if the chart failed to render. #6095
-  parms.dom.pui.notifyvisible = function(){
+  parms.dom.sizeMe = function(){
     if (parms.dom.isRendering){
       if (parms.dom.chart == null) chartObj.render();  //If isRendering is still true, then the chart likely failed to render.
     }
     else {
-      delete parms.dom.pui.notifyvisible; //No need to listen for this again if the chart is rendered.
+      delete parms.dom.sizeMe; //No need to listen for this again if the chart is rendered.
+      delete parms.dom.alwaysSizeMe;
     }
   };
+  parms.dom.alwaysSizeMe = true;
 
   function complete() {
-    parms.dom.isRendering = false;    //FusionCharts code finished running.
-    delete parms.dom.pui.notifyvisible;   //No need to listen for this after the chart is rendered.
+    delete parms.dom.isRendering;   //FusionCharts code finished running.
+    delete parms.dom.sizeMe;        //No need to render again after the chart is rendered.
+    delete parms.dom.alwaysSizeMe;
   }
 };
 

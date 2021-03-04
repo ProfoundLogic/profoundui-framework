@@ -33,11 +33,11 @@ pui.ResponsiveLayout = function(parms, dom){
   
   // Pseudo-private properties, inheritable.
   this._numchildren = 0;
-  this._mainnode = document.createElement("div");  //The DIV to contain the container DIVs. This DIV gets the css template rules.
+  this._mainnode = document.createElement('div');  //The DIV to contain the container DIVs. Style rules apply to this one.
   this._mainnode.className = this.MAINCLASS;
   this.container.appendChild(this._mainnode);
   
-  this._stylenode = null;
+  this._stylenode = this._addStyleNode('', this.container);
   
   this._containerNames = [];  //List of box container names to aid in designing screens.
 
@@ -65,6 +65,8 @@ pui.ResponsiveLayout = function(parms, dom){
       // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
     }
   }
+  
+  this.initialSetProperties(parms);
 };
 pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
 
@@ -106,50 +108,30 @@ pui.ResponsiveLayout.prototype.destroy = function(){
  * Handle when the number of items is changed or set.
  * Pre-Condition: This.container must be set to some node before this is called.
  * @param {Number} numitems
- * @returns {undefined}
  */
 pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
-  if (numitems == null || numitems === "" || isNaN(numitems)){
-    numitems = this.DEFAULTNUMITEMS;
-  }
-  else if (pui.isBound(numitems)){
-    numitems = (numitems.designValue != null && typeof numitems.designValue == "number") ? numitems.designValue : this.DEFAULTNUMITEMS;
+  // Append elements when the number of sections increased.
+  while (this._mainnode.children.length < numitems ){
+    var div = document.createElement("div");
+    div.setAttribute("container", "true"); //Allows other widgets to go into this div.
+    this._setContainerName(this._numchildren, div);
+    this._mainnode.appendChild(div);
   }
 
-  if (numitems != this._numchildren){
-    
-    // Append elements when the number of sections increased.
-    while (this._mainnode.children.length < numitems ){
-      var div = document.createElement("div");
-      div.setAttribute("container", "true"); //Allows other widgets to go into this div.
-      this._setContainerName(this._numchildren, div);
-      this._mainnode.appendChild(div);
-    }
-    
-    // Remove elements when the number of sections decreased.
-    while (this._mainnode.children.length > numitems){
-      var child = this._mainnode.children[ this._mainnode.children.length - 1 ];
-      this._mainnode.removeChild(child);
-    }
-    
-    this._numchildren = this._mainnode.children.length;
-    
-    this._setContainers( this._mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
-    
-    // TODO: it may be necessary to call stretch, sizeMe or something on children when number of containers change.
-    // notifyVisibleOnce?
+  // Remove elements when the number of sections decreased.
+  while (this._mainnode.children.length > numitems){
+    var child = this._mainnode.children[ this._mainnode.children.length - 1 ];
+    this._mainnode.removeChild(child);
   }
+
+  this._numchildren = this._mainnode.children.length;
+
+  this._setContainers( this._mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
+
+  // TODO: it may be necessary to call stretch, sizeMe or something on children when number of containers change.
+  // notifyVisibleOnce?
 };
 
-
-/**
- * Returns true if this layout should resize when the canvas resizes. Needed by Designer when Canvas Size 
- * changes and layout dimensions are not percentages. (See applyTemplate.js~94 and vdesigner.js~4374)
- * @returns {Boolean}
- */
-pui.ResponsiveLayout.prototype.resizeOnCanvasResize = function() {
-  return this._useViewport && this.designMode;
-};
 
 /**
  * Set CSS style. Placeholders, #_id_, are replaced with the container's ID or .x-dd-drag-proxy if in proxy mode.
@@ -183,22 +165,9 @@ pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
     this._origCssText = cssrulestxt.replace(/#_id_/g, "div[puirespbg=\""+this._backgroundFallback+"\"]");
   }
 
-  // Delete existing styles.
-  if (this._stylenode != null){
-    //Note: if containers were adjusted with spinner widget in Responsive Editor, 
-    //then _stylenode may be detached from the DOM already due to setNumItems() being called again.
-//    if(this._mainnode.contains(this._stylenode)) 
-      
-    this.container.removeChild(this._stylenode);
-    this._stylenode = null;
-  }
+  this._stylenode.textContent = this._origCssText;
 
-  // Attach the style tag if in previewMode: responsive editor requires a style node. (even when blank)
-  if (this.previewMode){
-    this._stylenode = this._addStyleNode(this._origCssText, this.container);
-  }
-  else if (this._origCssText != "" && this._origCssText != null){  //Attach style tag if there are style rules.
-    this._stylenode = this._addStyleNode(this._origCssText, this.container);
+  if (this._origCssText && this._origCssText.length > 0){
 
     //If !useViewport: instead of using the viewport for widths, use the parent container.
     //In design mode if useViewport is true, then the canvas will decide media query matches. (Note: !u || (u && d) simplifies to !u || d).
@@ -211,18 +180,13 @@ pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
 };
 
 /**
- * Resizes this layout when it is inside another layout and that layout's size changes, or when the
- * window resizes. Called when moving item to main canvas or into container. Called with width or 
- * height changes, because of Layout.js::setProperty.
- * Note: "this" must be bound to the ResponsiveLayout object.
+ * Re-evaluate style rules for new dimensions when necessary and when the dimensions may have changed.
  */
 pui.ResponsiveLayout.prototype.resize = function() {
-  if ((!this._useViewport || this.designMode) && this._origCssText != "" && this._origCssText != null && this._stylenode != null){
+  if ((!this._useViewport || this.designMode) && this._origCssText != ""){
     this._stylenode.textContent = this._origCssText;
     this._manipulateCSSOM();
   }
-
-  pui.layout.Template.prototype.resize.call(this);  //Sizes containers.
 };
 
 /**
@@ -296,7 +260,8 @@ pui.ResponsiveLayout.prototype._addStyleNode = function(cssText, parentNode) {
 };
 
 /**
- * Callback for setTimeout when "use viewport" is false. Waits for the container to have a width, then manipulates the CSSOM.
+ * Wait for the container to have a width, then manipulate the CSSOM.
+ * When "use viewport" is false: can be called directly when "height" or "width" are set, or it can be a bound callback for setTimeout
  */
 pui.ResponsiveLayout.prototype._checkWidth = function() {
   this._checkCount++;
@@ -323,9 +288,7 @@ pui.ResponsiveLayout.prototype._checkWidth = function() {
  * @returns {WebElement|Object}
  */
 pui.ResponsiveLayout.prototype._getContainerToCheck = function() {
-  var containerToCheck = this.container;
-  if (this.designMode && this._useViewport) containerToCheck = getObj(appContainerId);
-  return containerToCheck;
+  return (this.designMode && this._useViewport) ? getObj(appContainerId) : this.container;
 };
 
 /**
@@ -481,18 +444,21 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
 
 /**
  * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
+ * Properties can be set in any order in runtime or in Designer.
  * @param {String} property
  * @param {String} value
- * @param {String} templateProps    A collection in pui.Layout with properties for the template.
+ * @param {undefined|String} templateProps    A collection in pui.Layout with properties for the template.
  * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
  */
 pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateProps){
   var ret = true;
   switch (property){
     case 'id':
-      this.container.id = value;
-      // The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
-      this.setRules();
+      if (this.container.id != value){
+        this.container.id = value;
+        // The responsive layout's embedded styles can use the widget's ID. So these must be refreshed.
+        this.setRules();
+      }
       break;
             
     case 'layout items':
@@ -518,18 +484,30 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateP
         setTimeout(this._updatePropertyInDesigner.bind(this), 1, 'layout items', value);
       }
       else {
-        this.setNumItems(value);
+        if (value == null || value === "" || isNaN(value)){
+          value = this.DEFAULTNUMITEMS;
+        }
+        else if (pui.isBound(value)){
+          value = (value.designValue != null && typeof value.designValue == "number") ? value.designValue : this.DEFAULTNUMITEMS;
+        }
+        
+        if (value != this._numchildren){
+          this.setNumItems(value);
+        }
       }
       break;
       
     case 'style rules':
-      this.setRules(value);
+      if (this._origCssRulesText != value) this.setRules(value);
       break;
       
     case 'use viewport':
-      this._useViewport = value === true || value === "true";
-      // useViewport determines how rules are evaluated, so reset these.
-      this.setRules();      
+      value = (value === true || value === "true");
+      if (this._useViewport !== value){
+        this._useViewport = value;
+        // useViewport determines how rules are evaluated, so re-evaluate these.
+        this.setRules();      
+      }
       break;
       
     case 'container names':
@@ -541,7 +519,24 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateP
       break;
   }
   
-  templateProps[property] = value;
+  if (templateProps) templateProps[property] = value;
   return ret;
+};
+
+/**
+ * Called by Layout's globalAfterSetter. Handle properties that must be set after Layout handles them.
+ * @param {String} property  property name
+ */
+pui.ResponsiveLayout.prototype.setPropertyAfter = function(property){
+  switch (property){
+    case 'height':
+    case 'width':
+      // The Layout class sets the width of the main DIV (and does other things).
+      if (!this._useViewport){
+//        this._checkWidth();
+        this.setRules();
+      }
+      break;
+  }
 };
 

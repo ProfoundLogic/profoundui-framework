@@ -508,39 +508,9 @@ pui.resize = function(event) {
   
   if (pui.runtimeContainer == null) return;
 
-  clearTimeout(pui.resizeTimeout);    //Resized again; ensure a recent timeout does not fire.
+  clearTimeout(pui.resizeTimeout);    //throttle resizing
   pui.resizeTimeout = setTimeout(pui.resizeChildrenOf, 10, pui.runtimeContainer);
 };
-
-/**
- * Tell each child of the container that its parent container resized. (Used by pui.resize and in vdesigner.js.)
- * @param {Element} container        A Designer canvas or the runtimeContainer.
- */
-pui.resizeChildrenOf = function(container){
-  var child, m = container.childNodes.length;
-  for (var j = 0; j < m && (child = container.childNodes[j]); j++) {
-    // Tell layouts (and their child elements by recursion) that they should resize. Layout elements can only be inside the runtime 
-    // container, canvas, or other layouts, and calling .stretch() recursively stretches other layouts. Thus, this affects all layouts.
-    var layout = child.layout;
-    if (layout != null){
-      if (layout.assignHeightOnResize == true) layout.assignHeights();  //A top-most layout in cordova+iOS with 100% height needs extra work.
-      
-      layout.stretch();
-    }
-    
-    if (typeof child.sizeMe == "function") {
-      var resizeOnCanvasResize = false;
-      if (child.layoutT != null && typeof child.layoutT.resizeOnCanvasResize == "function") {
-        resizeOnCanvasResize = child.layoutT.resizeOnCanvasResize();    //So far, used by ResponsiveLayout.js in design mode.
-      }
-      
-      if (pui.isPercent(child.style.width) || pui.isPercent(child.style.height || resizeOnCanvasResize)) {
-        child.sizeMe();
-      }
-    }
-  }
-};
-
 
 pui.popstate = function(e) {
   if (e == null) return;
@@ -2937,10 +2907,14 @@ pui.renderFormat = function(parms) {
   
   // Render the items inside the lazy-loaded layouts' currently visible container if it wasn't already rendered.
   // (Needed by accordions. tabPanel.selectedTabChanged causes a tab layout's items to render before this.)
-  for (var layoutid in lazyLayouts ){
-    if (typeof lazyLayouts[layoutid].renderItems == "function"){
-      lazyLayouts[layoutid].renderItems();
+  for (var layoutid in lazyLayouts ){    
+    var layout = lazyLayouts[layoutid];
+    if (layout){
+      var vci = -1;
+      if (typeof layout.getVisibleContainerIndex === 'function') vci = layout.getVisibleContainerIndex();
+      if (typeof layout.renderItems === 'function') layout.renderItems( vci );
     }
+    
   }
   
   if (!isDesignMode) {
