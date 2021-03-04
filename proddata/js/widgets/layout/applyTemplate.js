@@ -75,15 +75,11 @@ pui.layout.template.applyTemplate = function(parms) {
   }
   
   // To the element in the DOM, attach references to classes and special layout properties.
-  // "sizeMe" is a special method that Designer and other code looks for in DOM elements sometimes.
   // Make sure each layout object's .container property references the correct DOM element.
-  
-  if (dom.layout != null){
-    dom.layout.notifyvisibleOnce = dom.layout.stretch.bind(dom.layout);  //Make sure layout and its children get size setup once it becomes visible. #4711.
-  }
-  
+    
   if (newDom.panel != null) {
     dom.panel = newDom.panel;
+    // Various places in Designer call sizeMe when the layout needs to be sized.
     dom.sizeMe = dom.panel.resize;
     dom.panel.container = dom;
   }
@@ -92,7 +88,6 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.accordion = newDom.accordion;
     dom.sizeMe = dom.accordion.resize;
     dom.accordion.container = dom;
-    dom.layout.getActiveContainerNumbers = newDom.accordion.getActiveContainerNumbers; //Needed by lazy-load.
   }
   
   if (newDom.layoutT != null){

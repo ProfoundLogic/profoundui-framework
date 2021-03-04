@@ -67,7 +67,7 @@ pui["maximizeLayout"] = function (e) {
   designer.changedScreens[designer.currentScreen.screenId] = true;
   designer.makeDirty();
   designer.selection.clear();
-  itemDom.layout.stretch();
+  itemDom.layout.resize();
   designer.selection.add(item);
   designer.propWindow.refresh();
   preventEvent(e);
