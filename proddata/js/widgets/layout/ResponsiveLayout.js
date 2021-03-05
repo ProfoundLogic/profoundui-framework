@@ -110,26 +110,29 @@ pui.ResponsiveLayout.prototype.destroy = function(){
  * @param {Number} numitems
  */
 pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
+  var mainnode = this._mainnode;
+  var mainchildren = mainnode.children;
   // Append elements when the number of sections increased.
-  while (this._mainnode.children.length < numitems ){
+  while (mainchildren.length < numitems ){
     var div = document.createElement("div");
     div.setAttribute("container", "true"); //Allows other widgets to go into this div.
-    this._setContainerName(this._numchildren, div);
-    this._mainnode.appendChild(div);
+    this._setContainerName(mainchildren.length, div);
+    mainnode.appendChild(div);
   }
 
   // Remove elements when the number of sections decreased.
-  while (this._mainnode.children.length > numitems){
-    var child = this._mainnode.children[ this._mainnode.children.length - 1 ];
-    this._mainnode.removeChild(child);
+  while (mainchildren.length > numitems){
+    var child = mainchildren[ mainchildren.length - 1 ];
+    mainnode.removeChild(child);
   }
 
-  this._numchildren = this._mainnode.children.length;
+  this._numchildren = mainnode.children.length;
 
-  this._setContainers( this._mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
+  this._setContainers( mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
 
-  // TODO: it may be necessary to call stretch, sizeMe or something on children when number of containers change.
-  // notifyVisibleOnce?
+  // When the number of containers change, then CSS can make the containers resize; child nodes need to be told of the resize.
+  var layout = this.container.layout;
+  if (layout) layout.sizeContainers();
 };
 
 
