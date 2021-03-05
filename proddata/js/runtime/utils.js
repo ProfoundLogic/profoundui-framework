@@ -5055,7 +5055,7 @@ pui.resizeChildrenOf = function(container, inLayout){
   for (var j = 0; j < m && (child = childNodes[j]); j++) {
     var layout = child.layout;
     if (layout != null){
-      if (layout.assignHeightOnResize == true) layout.assignHeights();  //A top-most layout in cordova+iOS with 100% height needs extra work.
+      if (layout.assignHeightOnResize == true) layout.assignHeights(true);  //A top-most layout in cordova+iOS with 100% height needs extra work.
       
       layout.resize();  //Tell the layout to update any of its own dimension-dependant styles, then recursively stretch, size children, etc.
     }
