@@ -1766,11 +1766,11 @@ pui.renderFormat = function(parms) {
                   dom.responseValue = "";
                 }
                 if (propname == "tab response") {
-                  var cls = dom.tabPanel; // || dom.layoutT;
+                  var cls = dom.tabPanel;
                   if (cls) cls.sendTabResponse = true;
                 }
                 if (propname == "active tab") {
-                  var cls = dom.tabPanel; // || dom.layoutT;
+                  var cls = dom.tabPanel;
                   if (cls) cls.sendActiveTab = true;
                 }
                 if (propname == "response") {
