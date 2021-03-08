@@ -169,8 +169,6 @@ pui.Accordion = function() {
   
   this.expandSection = function(sectionNumber) {
     expandedSection = parseInt(sectionNumber, 10);
-    me.setStraightEdge(straightEdge);
-    me.resize(null, true);  //Size this layout before sizing children.
     
     for (var i = 0; i < bodyDivs.length; i++) {
       var bodyDiv = bodyDivs[i];
@@ -180,21 +178,24 @@ pui.Accordion = function() {
         headerButton.setDisabled(!allowCollapse);
         bodyDiv.style.display = "";
         me.container.responseValue = sectionNumber;
-        
-        var layout = me.container.layout;
-        if (layout != null){
-          // Render the items if they were not already. (Lazy Load)
-          if (!me.designMode) layout.renderItems( expandedSection );
-          
-          // Make sure any child layouts and widgets in this section know they are visible now.
-          if (layout.childrenSized[expandedSection] !== true) layout.sizeContainers( expandedSection );
-        }
       }
       else {
         headerButton.setIcon("plus");
         headerButton.setDisabled(false);
         bodyDiv.style.display = "none";
       }
+    }
+    
+    me.setStraightEdge(straightEdge);
+    me.resize(null, true);  //Size this layout before sizing children.
+    
+    var layout = me.container.layout;
+    if (layout != null && expandedSection >= 0 && expandedSection < bodyDivs.length){
+      // Render the items if they were not already. (Lazy Load)
+      if (!me.designMode) layout.renderItems( expandedSection );
+
+      // Make sure any child layouts and widgets in this section know they are visible now.
+      if (layout.childrenSized[expandedSection] !== true) layout.sizeContainers( expandedSection );
     }
   };
   
