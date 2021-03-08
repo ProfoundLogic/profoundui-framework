@@ -395,7 +395,7 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
       break;
       
     case 'tab response':
-      if (!this.designMode) this.sendTabResponse = (value === 'true');
+      if (!this.designMode) this.sendTabResponse = true;
       break;
 
     case 'response AID':
