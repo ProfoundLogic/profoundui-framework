@@ -179,6 +179,11 @@ pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
       clearTimeout(this._tmo_checkwid);
       this._tmo_checkwid = setTimeout(this._boundCheckWidth, 1);    //Causes a wait until our container has a width.
     }
+    else {
+      // Changes in CSS can make the containers resize; child nodes need to be told of the resize.
+      var layout = this.container.layout;
+      if (layout) layout.sizeContainers();
+    }
   }
 };
 
@@ -273,6 +278,9 @@ pui.ResponsiveLayout.prototype._checkWidth = function() {
     //An instance of Responsive Layout may not be attached to the DOM. Only process one that's attached.
     if (this._stylenode.sheet != null){
       this._manipulateCSSOM();
+      // Changes in CSS can make the containers resize; child nodes need to be told of the resize.
+      var layout = this.container.layout;
+      if (layout) layout.sizeContainers();
     }
   }
   else if (this._checkCount < this._maxChecks){
