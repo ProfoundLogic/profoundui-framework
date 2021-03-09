@@ -32,18 +32,11 @@ pui.TabLayout = function(parms, dom) {
   // Private
   
   this._tabSpans = [];  //The clickable tab SPAN elements.
-  
-  // Variables needed for checking that this object's elements are ready to get scroll buttons.
-  this._maxChecks = 500;
-  this._checkCount = 0;
-  this._tmo_checkwidth = 0;
-  
-  // A function bound so that the class method can be used as a callback to setTimeout.
-  this._checkWidthOnTimeoutBound = this._checkWidthOnTimeout.bind(this);
-  
-  // Hack: until TabLayout methods are moved into prototypes, methods from this prototype must be assigned here.
-  this.draw = pui.TabLayout.prototype.draw.bind(this);
-  this.selectedTabChanged = pui.TabLayout.prototype.selectedTabChanged.bind(this);
+    
+  // Importing from TabPanel made some methods own properties of this, so those would be used over the prototype properties. Assign the correct
+  // prototype methods to this. (Note: when assigning a method to an object the method's "this" is that object; i.e. this TabLayout; no need to bind.)
+  this.draw = pui.TabLayout.prototype.draw;
+  this.selectedTabChanged = pui.TabLayout.prototype.selectedTabChanged;
   this.cannotRemoveTab = pui.TabLayout.prototype.cannotRemoveTab;
   this.createScrollButton = pui.TabLayout.prototype.createScrollButton;
   
@@ -237,45 +230,7 @@ pui.TabLayout.prototype.createScrollButton = function(cssClass){
   return outerSpan;
 };
 
-/**
- * Called by applyTemplate after this.container is attached to the DOM. Some element properties are 
- * useless until the element is on the DOM. Setup those elements here.
- * Note: some properties need offsetWidth, but that has nothing until after width has been applied.
- * So, there still must be a delay.
- * @returns {undefined}
- */
-pui.TabLayout.prototype._containerInDom = function(){
-  if (this.container.offsetWidth > 0){
-    // The container has a width.
-    clearTimeout(this._tmo_checkwidth); //Make sure no previously set timeouts run.
-    this.checkScrollButtons();
-  }
-  else{
-    // Even though the container is attached to the DOM, it has no width. Timeouts are needed.
-    this._checkCount = 0;
-    clearTimeout(this._tmo_checkwidth);
-    this._tmo_checkwidth = setTimeout(this._checkWidthOnTimeoutBound,1);
-  }
-};
-
 // Private Methods
-
-/**
- * Callback for setTimeout when something causing applyTemplate to run; e.g. clicking +/- tabs.
- * Waits for the container to have a width, then adds scroll buttons, if necessary. (Copied from ResponsiveLayout.js)
- * @returns {undefined}
- */
-pui.TabLayout.prototype._checkWidthOnTimeout = function(){
-  this._checkCount++;
-  if (this.container.offsetWidth > 0){
-    // Hides/shows buttons if needed.
-    this.checkScrollButtons();
-  }
-  else if (this._checkCount < this._maxChecks){
-    setTimeout(this._checkWidthOnTimeoutBound,1);
-  }
-  //else: the parent container may be hidden, so sizeContainers needs to setup the scroll buttons.
-};
 
 /**
  * When the user clicks a tab and ontabclick code is set, this is called from the parent class, TabPanel.
@@ -433,11 +388,7 @@ pui.TabLayout.prototype.setProperty = function(property, value, templateProps){
  */
 pui.TabLayout.prototype.linkToDom = function(dom){
   pui.layout.Template.prototype.linkToDom.call(this, dom); //call super class method. assigns this.container=dom; sets layoutT.
-  
-  if (document.body.contains(this.container)){
-    this._containerInDom(); //Finish drawing things that require elements being in DOM.
-  }
-  
+ 
   if (!this.designMode){
     // Setup APIs that users can call like getObj('TabLayout1').showTab(1);
     dom.setTab = this.setTab.bind(this);
