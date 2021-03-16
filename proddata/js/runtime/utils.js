@@ -4984,7 +4984,7 @@ pui.getDatabaseConnection = function(name) {
 
 };
 
-pui.getVersionComparer = function () {
+pui["getVersionComparer"] = function () {
   var getVersionParts = function (version) {
     version = version || "0.0.0";
 
@@ -4997,7 +4997,7 @@ pui.getVersionComparer = function () {
     var ver1 = getVersionParts(version1);
     var ver2 = getVersionParts(version2);
 
-    // Now compare lenghts of each part, and left zero pad the shorter segments
+    // Now compare lengths of each part, and left zero pad the shorter segments
     for (var i = 0; i < ver1.length; i++) {
       if (ver2.length - 1 < i) break;
 
@@ -5017,7 +5017,7 @@ pui.getVersionComparer = function () {
   };
 
   return {
-    isLessThan: function (version1, version2) {
+    "isLessThan": function (version1, version2) {
       // Create version strings with the same size segments
       var versions = makeMatching(version1, version2);
 
