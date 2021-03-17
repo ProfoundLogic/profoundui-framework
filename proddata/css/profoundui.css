@@ -16804,6 +16804,12 @@ div.propwin .helppnl ul.listing {
   margin-left: 15px;
 }
 
+div.propwin .helppnl div.compat {
+  opacity: 0;
+  transition: opacity 1s;
+  white-space: normal;
+}
+
 div.propwin input[type="button"].ellipses {
   font-family: Arial;
   font-size: 12px;

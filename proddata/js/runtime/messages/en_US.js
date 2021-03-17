@@ -245,6 +245,8 @@ var en_US = function(dict) {
             dictMsg["inner join label"]             = "Only include rows where joined fields from both tables are equal.";
             dictMsg["join label x y"]               = "Include all rows from '&1' and only matching rows from '&2'";
             dictMsg["join selection"]               = "Join Selection";
+            dictMsg["settings long names"]          = "Enable Long Field Names through Aliases";
+            dictMsg["settings dds compat"]          = "Hide DDS Compatibility Properties (Legacy)";
 
             // Atrium only.
             dictMsg["yes"]                          = "Yes";
