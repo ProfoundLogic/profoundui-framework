@@ -49,6 +49,10 @@ function getPropertiesModel() {
   var borderWidths = ["thin", "medium", "thick", "0px", "1px", "2px", "3px", "4px", "5px", "Other..."];
   var paddings = ["auto", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."];
 
+  // Note on config help properties: help, helpDefault, helpAdd, and helpNote are used by pui.designer.PropertiesWindow.prototype._formatHelp./ Those properties provide extra formatting and text over just the "help" property.
+  //
+  // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide; 2 - warn/hide only for nodeDesigner.
+
   cachedPropertiesModel = [
     { name: "Identification", category: true },
     { name: "id", attribute: "id", maxLength: 75, helpDefault: "id", help: "Specifies the ID of the current element. ID's are used to access the element using CSS (#element-id { ... }) and JavaScript code (getObj(\"element-id\");).", bind: false, canBeRemoved: false },
