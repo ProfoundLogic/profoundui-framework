@@ -83,6 +83,7 @@ var es_ES = function(dict) {
             dictMsg["downloading x"]                = "Cargando &1";
             dictMsg["ie9 too low xlsxpics"]         = "Las imágenes no pueden ser exportadas usando IE9 o inferior.";
 			dictMsg["keyboard input inhibited"]     = "Entrada de teclado no permitida para este campo.";
+            dictMsg["no data"]                      = "Sin Datos";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Se excedió el numero de sesiones permitido.";
