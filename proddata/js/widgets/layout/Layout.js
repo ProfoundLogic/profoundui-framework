@@ -782,6 +782,7 @@ pui.layout.Layout.prototype.renderItems = function( cnum ){
  */
 pui.layout.Layout.prototype.destroy = function() {
   if (this.iScroll != null) this.iScroll["destroy"]();
+  if (this.layoutDiv) delete this.layoutDiv.layout;  //Avoid methods being called on a destroyed Layout.
   this.deleteOwnProperties();
 };
 
@@ -837,6 +838,8 @@ pui.layout.Template.prototype.linkToDom = function(dom){
 
 /**
  * Clean up any properties that this class added to the DOM, and then clear this.
+ * So far this is only used in layoutWidget.js to cleanup things when a "template" property is called. If in the future this is 
+ * called in other places, then be sure to test with layouts being in the backgrounds of transition animations. #5044.
  */
 pui.layout.Template.prototype.destroy = function(){
   var deleteOwn = pui.BaseClass.prototype.deleteOwnProperties;
