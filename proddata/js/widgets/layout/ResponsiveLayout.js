@@ -90,18 +90,12 @@ pui.ResponsiveLayout.prototype._responsiveLayoutTracker = 0;
 // Prototype functions: allocated to prototype once, not every time a constructor is called.
 
 /**
- * Called when pui.render sets elements to be in the background of another layer and lose their IDs.
- * (Function is assigned to DOM by applyTemplate.js)
- * @returns {undefined}
+ * Called when pui.render sets elements to be in the background of another layer and those elements lose their IDs.
+ * See test for #5044: the DOM elements should not be destroyed; otherwise, responsive layout does not work in the background.
  */
 pui.ResponsiveLayout.prototype.sentToBackground = function(){
   this.container.setAttribute("puirespbg", this._backgroundFallback);
   this.setRules(); //Refresh the rules, using attribute selectors instead of IDs.
-};
-
-pui.ResponsiveLayout.prototype.destroy = function(){
-  if (this.container) this.container.removeAttribute("puirespbg");
-  pui.layout.Template.prototype.destroy.call(this); //remove properties attached to this.container, call deleteOwnProperties.
 };
 
 /**
