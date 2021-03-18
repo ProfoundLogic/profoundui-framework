@@ -86,6 +86,7 @@ var it_IT = function(dict) {
             dictMsg["pccommand error"]              = "El intento de lanzar el comando STRPCCMD ha producido un error. Asegúrese de que Profound UI "
             +"PC Command Listener está ejecutándose en la máquina y está correctamente configurado. Consulte la consola del navegador para obtener más "
             +"información. (Por lo general Crtl+Shift+I)";
+            dictMsg["no data"]                      = "Nessun dato";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "È stato superato il numero di sessioni consentite.";
