@@ -85,6 +85,7 @@ var pt_PT = function(dict) {
 			dictMsg["keyboard input inhibited"]     = "Entrada por teclado não permitida neste campo.";
             dictMsg["pccommand error"]              = "A tentativa de utilizar STRPCCMD falhou. Por favor certifique-se que o Profound UI PC Command Listener"
                     +" está ativo nesta máquina e configurado corretamente. Verifique a consola do browser para mais informações. (Normalmente Ctr+Shift+I)";
+            dictMsg["no data"]                      = "Sem Dados";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Excedido o número de sessões autorizadas.";

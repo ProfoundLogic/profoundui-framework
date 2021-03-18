@@ -83,6 +83,7 @@ var fr_CA = function(dict) {
             dictMsg["downloading x"]                = "Téléchargement de &1";
             dictMsg["ie9 too low xlsxpics"]         = "Les images ne peuvent pas être exportées sous IE9 ou version antérieure.";
 			dictMsg["keyboard input inhibited"]     = "Saisie interdite dans ce champ.";
+            dictMsg["no data"]                      = "Aucune donnée";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Nombre de sessions dépassé.";

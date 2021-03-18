@@ -86,6 +86,7 @@ var fr_FR = function(dict) {
             dictMsg["pccommand error"]              = "La tentative d'utilisation de STRPCCMD a échoué. Veuillez vous assurer que l'écouteur de Commande "
             +"PC de Profound UI est en cours d'exécution sur cette machine et qu'il est correctement configuré. Consultez la console du navigateur pour "
             +"plus d'information. (Couramment Ctrl+Shift+I)";
+            dictMsg["no data"]                      = "Aucune donnée";
 			
             // Atrium only.
             dictMsg["num sessions exceeded"]        = "Nombre de sessions dépassé.";
