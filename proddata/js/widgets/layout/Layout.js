@@ -579,96 +579,61 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
   }
 };
 
+/**
+ * If the layout's ID or className is "scroller", then applyScrolling is called to setup IScroll during the property setter initialize.
+ */
 pui.layout.Layout.prototype.applyScrolling = function() {
-  // Note: the closured, "me", saves us from reworking the functions below while allowing applyScrolling to be in the prototype.
   var me = this;
-  function setupiScroll() {
+  /**
+   * setupiScroll can be called after iscroll.js is loaded and IScroll is a function.
+   * Tests: make sure CSS buttons can be clicked when inside scrollers #4590. Make sure signature pads can be signed #6640.
+   */
+  function setupiScroll(){
+    clearTimeout(setupiScroll_tmo);  //If the loadJS callback is called before the setTimout callback, then avoid duplicate calls.
     var parent = me.layoutDiv.parentNode;
     if (parent != null && parent.tagName == "DIV") {
-      if (pui["is_ios"]) {
-
-        document.body.addEventListener('tap', function (e) {
-          e["preventDefault"]();
-          e["stopPropagation"]();
-          e["stopImmediatePropagation"]();
-          var event = new MouseEvent('click',{
-            view: window,
-            bubbles: true,
-            cancelable: true
-          });
-          var target = getTarget(e);
-          if (target) {
-            if (!/^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/.test(target.tagName)) {
-
-              // Avoid firing onclick more than once per tap, as happens in 'scroller' classes. If last handled click was > 2 seconds ago, just fire. #5169.
-              if (pui.iscrolltapped == null || (new Date() - pui.iscrolltapped) > 2000 ){
-                setTimeout(function() {
-                  var isCanceled = target.dispatchEvent(event);
-                  if (!isCanceled) {
-                    event["preventDefault"]();
-                    event["stopPropagation"]();
-                  }
-                },10);
-              }
-              pui.iscrolltapped = new Date();  //Prevent next click; this will be cleared in 'onclick' in properties.js.
-            }
-          } 
-        }, false);
-      }
       var config = {
         "scrollbars": true,
         "mouseWheel": true,
-        "shrink": true,
-        "tap": pui["is_ios"],
         "disableMouse": pui["is_ios"],
         "preventDefaultException": {
           tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/
-        },
-        "onBeforeScrollStart": function (e) {
-          var target = getTarget(e);
-          while (target.nodeType != 1) target = target.parentNode;
-          while (target.tagName == "SPAN") target = target.parentNode;
-          if (target.tagName != "SELECT" && target.tagName != "INPUT" && target.tagName != "TEXTAREA" && target.tagName != "A") {
-            e.preventDefault();
-          }
         }
       };
-      if (typeof IScroll == "function") me.iScroll = new IScroll(parent, config);  // new version
-      else me.iScroll = new iScroll(parent, config);  // old version
+      this.iScroll = new IScroll(parent, config);
     }
   }
 
   var counter = 0;
-
+  
   function keepTryingToSetupiScroll() {
     counter++;
     if (counter > 100) {  // give up
       return;
     }
-    setTimeout(function() {
+    setupiScroll_tmo = setTimeout(function() {
       if (typeof IScroll == "function" || typeof iScroll == "function") {  // as of version 5, the class name is IScroll (used to be iScroll)
         setupiScroll();
       }
       else {
         keepTryingToSetupiScroll();
-      }        
+      }
     }, 200);
   }
-
+  
+  var setupiScroll_tmo = 0;
   if (typeof IScroll == "function" || typeof iScroll == "function") {  // as of version 5, the class name is IScroll (used to be iScroll)
     setupiScroll();
   }
   else {
     var returnValue = pui["loadJS"]({
       "path": pui.normalizeURL("/iscroll/iscroll.js"),
-      "callback": function() {
-        setupiScroll();
-      }
+      "callback": setupiScroll
     });
     if (returnValue == false) {
       keepTryingToSetupiScroll();
     }
-  }      
+  }
 };
 
 /**
