@@ -1888,6 +1888,11 @@ pui["removeCSS"] = function(path) {
   }
 };
 
+/**
+ * Load a JavaScript source file.
+ * @param {Object|String} parms    A string URL or an object with parameters.
+ * @returns {Boolean}  Returns false if the argument was incorrect or if the script was already loaded; otherwise returns true.
+ */
 pui["loadJS"] = function(parms) {
   if (parms == null) return null;
   var path;
