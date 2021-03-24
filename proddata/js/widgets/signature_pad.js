@@ -215,7 +215,11 @@ pui.SignaturePad = function() {
       moveBox.style.cursor = "move";
       me.container.appendChild(moveBox);
     }
-    me.resize();    
+    me.resize();
+    // In case the canvas is in an IScroll, prevent the IScroll from handling the event.
+    // pointerdown is captured before mousedown, making IScroll scroll. #6640.
+    canvas.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+    
     addEvent(canvas, "mousedown", startDrawing);
     addEvent(canvas, "touchstart", startDrawing);
     addEvent(me.container, "dblclick", function(e) {
