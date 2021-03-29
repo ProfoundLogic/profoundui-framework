@@ -600,7 +600,7 @@ pui.layout.Layout.prototype.applyScrolling = function() {
           tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT|IMG)$/
         }
       };
-      this.iScroll = new IScroll(parent, config);
+      me.iScroll = new IScroll(parent, config);
     }
   }
 
