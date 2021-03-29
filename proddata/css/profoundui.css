@@ -17140,3 +17140,7 @@ fieldset.layout > div[container="true"] {
   position: absolute;
   overflow: hidden;
 }
+
+select.listeditor-listbox option {
+  padding: 0px;
+}
