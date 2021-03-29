@@ -104,9 +104,14 @@ function removeElements() {
   }
 }
 
-// get element value by id
-// example: var cpu = getElementValue('D_3_1');
-function getElementValue(id) {
+/**
+ * Get element value by id.
+ * example: var cpu = getElementValue('D_3_1');
+ * @param {String|Object} id
+ * @param {Boolean|undefined} autocompUseValueField    If true and the field is an autocomplete textbox, the autocomplete value is returned.
+ * @returns {String}
+ */
+function getElementValue(id, autocompUseValueField) {
   var elem;
   var elemValue;
 
@@ -128,10 +133,22 @@ function getElementValue(id) {
     if (!elem.checked && elem.uncheckedValue != null) return elem.uncheckedValue;
     return elem.checked;  // "checked value" and/or "unchecked value" not present, so just return true or false
   }
-  if (elem.tagName == "INPUT" || elem.tagName == "TEXTAREA") {
+  
+  if (elem.tagName == "TEXTAREA"){
     elemValue = elem.value;
   }
-  if (elem.tagName == "SELECT") {
+  else if (elem.tagName == "INPUT") {
+    
+    var acValueField = elem.autoCompValueField;
+    if (autocompUseValueField && acValueField != null && typeof acValueField.value === 'string'){
+      if (acValueField.value.length > 0) elemValue = elem.autoCompValueField.value;
+      else if (pui["force auto complete match"] == false) elemValue = elem.value;
+    }
+    else {
+      elemValue = elem.value;
+    }
+  }
+  else if (elem.tagName == "SELECT") {
     var idx = elem.selectedIndex;
     if (idx >= 0) {
       elemValue = elem.options[idx].value;
@@ -172,8 +189,8 @@ function getElementValue(id) {
 
 
 // shortcut for getElementValue, trimmed
-function get(id) {
-  return trim(getElementValue(id));
+function get(id, flags) {
+  return trim(getElementValue(id, flags));
 }
 
 // shortcut for document.getElementById()
