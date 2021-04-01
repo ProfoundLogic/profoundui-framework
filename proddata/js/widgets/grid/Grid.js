@@ -2185,6 +2185,7 @@ pui.Grid = function () {
          
           if (checkRowHidden(valuesData)) { 
             lastRow++;
+            me.rowsHidden++;  //Be sure to count rows hidden with a bound "row is hidden field". #6655.
           }
           else {
             if (setRowBg) me.setRowBackground(rowNum, false, i - 1 );  //Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
@@ -6818,7 +6819,10 @@ pui.Grid = function () {
                 handleSelection(dataRecords[adjustedRow - 1], false, adjustedRow - 1, true); //deselect
               else
                 handleSelection(dataRecords[adjustedRow - 1], true, adjustedRow - 1, true); //select
-              me.setRowBackground(row, true);
+
+              var dataArrayIdx;
+              if (me.rowsHidden > 0) dataArrayIdx = me._getDataIndexFromDOMRow(row);  //Compensate for "row" being unreliable when any rows are hidden. #6655.
+              me.setRowBackground(row, true, dataArrayIdx);  //Set the background now to show the user the selection was successfull.
             }
             me.selectedRecordNum = adjustedRow;
           }
