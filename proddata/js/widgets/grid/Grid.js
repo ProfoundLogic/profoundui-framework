@@ -334,6 +334,7 @@ pui.Grid = function () {
   
   var sortMultiOrder = [];    //Order of priority of sorting multiple columns.
   var sortMultiPanel = null;  //UI for picking multiple sort columns.
+  var filterMultiPanel = null;
 
   this.enableDesign = function () {
     me.designMode = true;
@@ -2532,6 +2533,7 @@ pui.Grid = function () {
     columnPointer = null;
     sortMultiOrder = null;
     sortMultiPanel = null;
+    filterMultiPanel = null;
     try {
       this.deleteOwnProperties();   //Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       delete me;
@@ -9593,6 +9595,348 @@ pui.Grid = function () {
     }
   };
 
+  //Displays a panel that allows user to pick which data from the column to filter
+  this.showMultiFiltersPanel = function(headerCell) {
+    if (me.tableDiv.parentNode == null) return;
+    if(pui["is_ie"]) return;
+    //if(headerCell == null) return;
+
+    if (filterMultiPanel == null){
+      filterMultiPanel = document.createElement('div');
+      filterMultiPanel.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
+      filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+      filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      
+      var header = document.createElement('div');
+
+      new pui.MoveListener({ attachto: header, move: filterMultiPanel });
+      //how to detach buttons?
+      //Close button
+      var btn = document.createElement('button');
+      btn.className = 'pui-material-icons';
+      btn.innerHTML = 'close';
+      addEvent(btn, 'click', function(){
+        filterMultiPanel.style.display = 'none';
+        filterMultiPanel = null;
+      });
+
+      //Check button
+      header.appendChild(btn);
+      btn = document.createElement('button');
+      btn.className = 'pui-material-icons';
+      btn.innerHTML = 'check';
+      addEvent(btn, 'click', function(){
+        filterMultiPanel.style.display = 'none';
+        me.mask(); // disable UI until server responds.
+        me.gridLoading();
+        
+        //DOESN'T WORK ON IE -- use .foreach() instead? or other for loop -- Map may not work either
+        //set new only on confirm -- then set valuess x, y, z
+          // long lists may be a problem -- lots of delay. Here? or just when opening?
+        filterText = "VALUES";
+        count = 0;
+        //was for let -- use var instead
+        /*for (let entry of dataMap.entries()){*/
+        entries = dataMap.entries();
+        dataCount = dataMap.size;
+        for(var i = 0; i < dataCount; i++){//alt. while IterratorHasMore = true
+          //if(entries.)
+          entry = entries.next().value;
+          data = entry[0];
+          checked = entry[1];
+          if(checked == true){
+            count++;
+            if(filterText == "VALUES"){filterText += " " + data;}
+            else {filterText +=  ", " + data;}
+          }
+        }
+        if(count == 1){filtertext += ",";}
+        if(filterText == null || filterText == "VALUES"){me["removeFilter"](col);}
+        else{me["setFilter"](headerCell,filterText);}
+        me['unMask']();
+        filterMultiPanel = null;
+      });
+      header.appendChild(btn);
+      //****change
+      header.appendChild(document.createTextNode(pui['getLanguageText']('runtimeText','filter multiple')));
+      filterMultiPanel.appendChild(header);
+      
+      var includetable = document.createElement('table');
+      var thead = includetable.createTHead();
+      var tr = thead.insertRow();
+      var td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','filter check');
+      
+      td = tr.insertCell();
+      td.innerHTML = pui['getLanguageText']('runtimeText','filter data');
+    
+      var tbody = document.createElement('tbody');
+      includetable.appendChild(tbody);
+
+      if(headerCell !=  null){ //to prevent other things from getting hung up here -- why are they running though this code bit though? gen. error?
+        var col = headerCell.columnId; //reset still checks this, why?
+        me.setSearchIndexes(headerCell);
+        var idxes = headerCell.searchIndexes;
+      }
+      rows = me.dataArray.length;
+      //***use existing??? -- nope. Uses last filter, which could be anything*/
+      me.filteredDataArray = [];
+      var dataMap = new Map();
+      var entry = [];
+      var entries = [];
+      var data;
+      var checked = false;
+      var count = 0;
+      var dataCount = 0;
+      var filterText = headerCell.filterText;
+      var headerFilterText = headerCell.filterText;
+
+      //enable loading animation here?
+      //Need to get dataMap from full dataArray >> can check filters here >> call set filter to get filterdArray >> but don't want to loop through it a lot >> call after? >> slow?
+      for (var i = 0; i < me.dataArray.length; i++) {
+        var record = me.dataArray[i];
+        if (record.subfileRow == null) record.subfileRow = i + 1;
+        for (var j = 0; j < idxes.length; j++) {
+          var idx = idxes[j];
+          var value = record[idx];
+          var ignoreTest = false;
+          dataMap.set(value, checked);
+          checked = false;
+        }   
+      }
+      //DELAY NOTE: ^^^ This bit runs quickly. The displaying takes a long time. That's why shorter maps run faster >> try checking filter above
+
+      //check filter test -- if dataMap can be kept
+      /*if(headerFilterText != null && headerFilterText != " "){
+        me["setFilter"](headerCell,filterText);
+        if(me.filteredDataArray.length > 0){
+          for (var i = 0; i < me.filteredDataArray.length; i++) {
+            data = me.filteredDataArray[i];
+            if(dataMap.has(data)){
+              dataMap.set(data, true);
+            }
+          }
+        }
+      }*/
+      //var sortedDataMap = new Map([dataMap.entries()].sort());
+      //count = 0;
+      //for (var i = 0; i < dataMap.length; i++) {
+
+      //Put data in cells and display them
+      
+     /* If loop below does not work, try this format:
+     dataMap.forEach((value, key, map) => {
+        do stuff here: ex: console.log ('for ${key} we had ${value}.')
+      });*/
+      entries   = dataMap.entries();
+      dataCount = dataMap.size;
+      for(var i = 0; i < dataCount; i++){
+        entry = entries.next().value;
+        data = entry[0];
+        checked = entry[1];
+        if(headerFilterText != null && headerFilterText != " "){  
+          checkFilterStatus(headerFilterText, data);
+          //returns checked
+        }
+        if(checked == true){
+          dataMap.set(data, checked);
+        }
+        
+        tr = tbody.insertRow();
+        tr.columnId = col;
+
+        td = tr.insertCell();
+        var chk = document.createElement('input');
+        chk.type = 'checkbox';
+        //**change */
+        chk.name = data + '_sort';
+        chk.onclick = checkonclick;
+        chk.checked = checked;
+        td.appendChild(chk);
+
+        td = tr.insertCell();
+        td.innerHTML = data;
+      }
+      filterMultiPanel.appendChild(includetable);
+      me.tableDiv.parentNode.appendChild(filterMultiPanel);
+    }
+    else if (filterMultiPanel.style.display == ''){
+      filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User selected option, but panel is already showing. Maybe it's behind something.
+      filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+    }
+    else {
+      //*****Change */
+      // Panel is not showing but exists.
+      var tBody = filterMultiPanel.querySelector("table").tBodies[0];
+      // Reset the checkboxes, and buttons on each row.
+      for (var i=0; i < tBody.childNodes.length; i++){
+        var tr = tBody.childNodes[i];
+        var found = false;
+        for (var j=0; j < sortMultiOrder.length; j++){
+          if (tr.columnId == sortMultiOrder[j].columnId ){
+            tr.sortDescending = sortMultiOrder[j].sortDescending;
+            tr.childNodes[0].firstChild.checked = true;
+          /* var button = tr.childNodes[3].firstChild;
+            if (button){
+              button.innerHTML = tr.sortDescending ? 'arrow_downward' : 'arrow_upward';
+            }*/
+            found = true;
+            break;
+          }
+        }
+        if (!found){
+          tr.childNodes[0].firstChild.checked = false;
+        }
+      }
+    // recalcRows(tBody);
+    }
+    filterMultiPanel.style.display = '';
+    
+    //****change */
+    // Fix when there isn't enough space in a layout to show all the columns: make scrollable. 5344.
+    var msHeaderHeight = 54;
+    if (me.tableDiv.parentNode.getAttribute('container') == 'true' && me.tableDiv.parentNode.offsetHeight > 0 ){
+      if (filterMultiPanel.offsetHeight > me.tableDiv.parentNode.offsetHeight - msHeaderHeight){
+        filterMultiPanel.style.height = me.tableDiv.parentNode.offsetHeight - msHeaderHeight + 'px';
+      }
+    }
+    
+    function gettargetrow(e){
+      var target = e.target;
+      if (target.tagName == 'TD') target = target.parentNode;
+      if (target.tagName != 'TR') return null;
+      return target;
+    }
+  
+    function checkonclick(e){
+      //recalcRows(e.target.parentNode.parentNode.parentNode);  //input, td, tr, tbody.
+
+      //set data first, then check if in map, then if false set to data: true, if true set to false / or status of checked
+      if(this.checked == true){checked = true;}
+      else {checked = false;}
+      data = this.parentElement.nextSibling.innerHTML;
+      if (data != null && dataMap.has(data)){
+        dataMap.set(data, checked);
+      }
+      //else {?????}
+    }
+    //Check to see if value for the dataArray should be included in existing filter -- if so, return checked as true
+    function checkFilterStatus(filtertext, data){
+      var a = null;
+      var b = null;
+      var valLength = null;
+      //data might also need uppercased?
+      filtertext = filtertext.toUpperCase();
+      //WATCH FOR BLANKS
+      if(filtertext == null || filtertext == "VALUES"){checked = false;}
+
+      //check filter conditionals
+      else{
+        // between a and z
+        var btwntext = /^BETWEEN (.+) AND (.+)$/;
+        var matches = filtertext.match(btwntext);
+        if (matches != null && matches.length == 3) {
+          a = matches[1];
+          b = matches[2];
+
+          //Normal filter only shows results for "between lower and higher" (4 and 5, a and b), not the reverse 
+              if(data >= a && data <= b){
+                checked = true;
+                if(filterText == "VALUES"){filterText += " " + data;}
+                else {filterText +=  ", " + data;} 
+              }
+            
+
+          //var between = true;
+          /*if (text.substr(0, 8).toLowerCase() == "between ") {
+          var parts = text.substr(8).toLowerCase().split(" ");
+          if (parts.length == 3 && parts[1] == "and") {}*/
+        }
+        // values a,b,c
+        else if (filtertext.substr(0, 7) == "VALUES ") { // "VALUES " or "VALUES"?
+          var vals = filtertext.substr(7);
+          if (vals != "") {
+            vals = vals.split(",");
+            if (vals.length > 0) {
+              for (var i = 0; i < vals.length; i++) {
+                vals[i] = vals[i].trim();
+              }
+              for (var i = 0; i < vals.length; i++) {
+                /*values = vals[i];*/
+                //TRIM DATA && CONDITION -- elsewhere too
+                if (data == vals[i]){checked = true;}
+              }
+            }
+          }
+        }
+        // starts with - assume character data type. CGI will put in quotes: locate('text',field) = 1
+        else if (filtertext.substr(0, 12) == "STARTS WITH ") {
+          values = filtertext.substr(12);
+          if(values.length > 0){
+            valLength = values.length; //trim?
+            if(data.substr(0, valLength) == values){checked = true;}
+          }
+        }
+        else if(filtertext.substr(0,2) == "=="){
+          values = filtertext.substr(2);
+          if(data == values){checked = true;}
+        }
+        else if(filtertext.substr(0,1) == "="){
+          values = filtertext.substr(1);
+          if(data == values){checked = true;}
+        }
+        else if(filtertext.substr(0,2) == ">="){
+          values = filtertext.substr(2);
+          if(data >= values){checked = true;}
+        }
+        else if(filtertext.substr(0,2) == "<="){
+          values = filtertext.substr(2);
+          if(data <= values){checked = true;}
+        }
+        else if(filtertext.substr(0,1) == ">"){
+          values = filtertext.substr(1);
+          if(data > values){checked = true;}
+        }
+        else if(filtertext.substr(0,1) == "<"){
+          values = filtertext.substr(1);
+          if(data < values){checked = true;}
+        }
+        else if(filtertext.substr(0,2) == "!=" || filtertext.substr(0,2) == "<>" ){
+          values = filtertext.substr(2);
+          if(data != values){checked = true;}
+        }
+        else{
+          // Field CONTAINS text.
+          values = filtertext;
+          //Check if anywhere in the data string -- which works?
+          if(data.includes(values) == true){checked = true;}
+          if(data.indexOf(values) >= 0){checked = true;} //might be backwards? (values.indexof(data))
+        }
+        return checked;
+      }
+    }
+    //***is this needed? */
+  /* function recalcRows(tbody){
+      var order = 0;
+      // Re-calculate the order numbers, show/hide buttons.
+      for (var i=0; i < tbody.rows.length; i++){
+        var tr = tbody.rows[i];
+        var chk = tr.cells[0].children[0];
+        var ordercell = tr.cells[1];
+        var btn = tr.cells[3].children[0];
+        if (chk.checked){
+          tr.order = order;
+          ordercell.innerHTML = order;
+          order++;
+          btn.style.visibility = '';
+        }else{
+          tr.order = -1;
+          ordercell.innerHTML = '';
+          btn.style.visibility = 'hidden';
+        }
+      }
+    }*/
+  };
   function getDBDriver() {
 
     var connections = pui["getDatabaseConnections"]();
