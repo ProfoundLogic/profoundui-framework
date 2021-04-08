@@ -647,6 +647,94 @@ FieldSet {
   border-bottom: dashed 3px green;
 }
 
+/* Multi Filter panel */
+.grid-multifilter {
+  position: relative;
+  z-index: 251;
+  width: 300px;
+  background: white;
+  border: solid 3px #555;
+  padding: 0px;
+  overflow-y: auto;
+  max-height: 350px;
+}
+
+.grid-multifilter div {
+  background: #555;
+  height: 21px;
+  padding: 5px;
+  cursor: move;
+  color: white;
+}
+
+.grid-multifilter div button {
+  font-size: inherit;
+  float: right;
+}
+
+.grid-multifilter table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grid-multifilter table td {
+  cursor: pointer;
+  /*IE*/
+  cursor: -webkit-grab;
+  cursor: grab;
+  /*Chrome, Edge, FF*/
+}
+
+.grid-multifilter table td input[type='checkbox'] {
+  cursor: default;
+  -ms-transform: scale(1.3);
+  /*IE*/
+  transform: scale(1.3);
+  -webkit-transform: scale(1.3);
+  -moz-transform: scale(1.3);
+  -o-transform: scale(1.3);
+}
+
+.grid-multifilter table td, .grid-multifilter table th {
+  border: 1px solid #aaa;
+}
+
+.grid-multifilter table tr:nth-child(even) {
+  background: #eee;
+}
+
+.grid-multifilter table thead {
+  background: #ccc;
+}
+
+.grid-multifilter table thead tr td:nth-of-type(1) {
+  width: 10%;
+}
+
+.grid-multifilter table thead tr td:nth-of-type(2) {
+  width: 15%;
+}
+
+.grid-multifilter table thead tr td:nth-of-type(4) {
+  width: 23%;
+}
+
+.grid-multifilter table tbody tr td:nth-of-type(1), .grid-multifilter table tbody tr td:nth-of-type(2), .grid-multifilter table tbody tr td:nth-of-type(4) {
+  text-align: center;
+}
+
+.grid-multifilter table tbody tr td {
+  white-space: normal;
+}
+
+/*.grid-multisort table tr.move_origin {
+  border-top: dashed 3px #999;
+}
+
+.grid-multisort table tr.move_valid {
+  border-bottom: dashed 3px green;
+}*/
+
 .paging-bar {
   background-image: url('../images/grids/pagingBar.gif');
   vertical-align: top;
@@ -5201,7 +5289,6 @@ div.Glass>.pui-tablayout-body>div {
   margin: 0 auto;
   top: 50%;
   left: 50%;
-  margin-right: -50%;
   transform: translate(-50%, -50%);
 }
 
