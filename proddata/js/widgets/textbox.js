@@ -90,6 +90,12 @@ pui.widgets.add({
             parms.dom.removeAttribute("name");
         }
       }
+    },
+
+    "choices url": function(parms) {
+      if (!parms.design && typeof parms.dom.autoComp.updateUrl === "function") {
+        parms.dom.autoComp.updateUrl(parms.value);
+      }
     }
   
   }
