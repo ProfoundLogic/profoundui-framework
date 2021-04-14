@@ -2018,6 +2018,14 @@ pui["addUrlCacheBuster"] = function (url, method) {
 
 
 pui.alert = function(msg, alertCallback, title, buttonName) {
+  // Temporary work around for iOS/WKWebView problems (Redmine #6688) -- delete this block when no longer needed.
+  // Use window.alert for what is probably most cases if on iOS Cordova, because window.navigator.alert is interfering
+  // somehow with the date element's picker (and possibly other input elements) on WKWebView.
+  if (window["cordova"] && window["device"]["platform"] == "iOS" && alertCallback == null && title == null && buttonName == null) {
+    window.alert(msg);
+    return;
+  }
+
   if (window["navigator"] != null && window["navigator"]["notification"] != null && window["navigator"]["notification"].alert != null) {
     if (alertCallback == null && title == null && buttonName == null && window["puiMobileClient"] != null && window["puiMobileClient"].alert != null) {
       window["puiMobileClient"].alert(msg);
