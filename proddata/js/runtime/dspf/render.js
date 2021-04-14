@@ -1499,6 +1499,14 @@ pui.renderFormat = function(parms) {
                     propValue.maxLength = null;
                   }
                 }
+                // also remove numeric formatting when using choices url, since it is capable of
+                // providing both option and value, and they may not both be numeric.
+                var textUrl = pui.evalBoundProperty(items[i]["choices url"], data, parms.ref);
+                if (textUrl != null && textUrl != "" && propValue["formatting"] == "Number") {
+                  propValue["formatting"] = "Text";
+                  propValue.keyFilter = null;
+                  propValue.maxLength = null
+                }
               }
             }
             if (prop == "cursor record number") {
