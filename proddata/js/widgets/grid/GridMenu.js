@@ -260,14 +260,14 @@ pui.GridMenu = function() {
           me.grid["startFilter"](me.cell);
         });
 
-        if(!pui["is_ie"]){
+        /*if(!pui["is_ie"]){
           menuOptions.push(pui["getLanguageText"]("runtimeText", "multi filter text"));
           //menuOptions.push("Select Multiple Filters");
           menuIcons.push("icons/filter.png");
           optionHandlers.push(function() {
             me.grid.showMultiFiltersPanel(me.cell);
           });
-        }
+        }*/
     }
 	
     if (me.grid.filterOption && me.cell.filterIcon != null) {
