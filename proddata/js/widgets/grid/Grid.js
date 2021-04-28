@@ -798,6 +798,8 @@ pui.Grid = function () {
             boundVisibility[col] = itm["visibility"];
           }
           var val = itm["value"];
+          if (itm["radio button group"])
+            val = itm["radio button group"];
           if (itm["field type"] == "html container") val = itm["html"];
 
           if (itm["field type"] == "image" && exportXLSX) val = itm["image source"];
