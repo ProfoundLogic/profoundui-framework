@@ -866,6 +866,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.position = domObj.style.position;
       newDomObj.style.cursor = domObj.style.cursor;
       newDomObj.style.visibility = domObj.style.visibility;
+      
+      var attr = domObj.getAttribute('puiwdgt');
+      if (attr) newDomObj.setAttribute('puiwdgt', attr);
+      
       newDomObj.id = domObj.id;
       if (typeof domObj.name == "string")
         newDomObj.name = domObj.name;
