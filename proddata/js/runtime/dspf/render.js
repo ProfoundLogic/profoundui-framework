@@ -1357,10 +1357,9 @@ pui.renderFormat = function(parms) {
     
       dom = document.createElement("div");
       dom.style.position = "absolute";
+      dom.setAttribute('puiwdgt', items[i]['field type']);  //Mark the dom Element to assist with styling in profoundui.css. Sets absolute position.
       var leftpx = items[i].left;
       var toppx = items[i].top;
-      //if (leftpx == null) leftpx = "0px";
-      //if (toppx == null) toppx = "0px";
       if (pui.isBound(leftpx)) leftpx = "0px";
       if (pui.isBound(toppx)) toppx = "0px";
       if (leftpx == "NaNpx") leftpx = "0px";
@@ -1505,7 +1504,7 @@ pui.renderFormat = function(parms) {
                 if (textUrl != null && textUrl != "" && propValue["formatting"] == "Number") {
                   propValue["formatting"] = "Text";
                   propValue.keyFilter = null;
-                  propValue.maxLength = null
+                  propValue.maxLength = null;
                 }
               }
             }

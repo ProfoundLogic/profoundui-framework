@@ -121,14 +121,10 @@ pui.Grid = function () {
   this.scrollToolTip = "row number";
 
   this.defaultColumnWidth = 75;
-
-  this.rowHeight = 23;
-  this.headerHeight = 46;
-  //if (context == "dspf") {
   this.rowHeight = 26;
   this.headerHeight = 30;
-  //}
   this.hasHeader = true;
+  this.showQuickFilters = false;
   this.sortable = false;
   this.sorted = false;
   this.sortBy = null;
@@ -270,10 +266,8 @@ pui.Grid = function () {
 
   this.initialPageNumber = 1;
 
-  this.ffbox = new pui.FindFilterBox();
-  this.ffbox.container = pui.runtimeContainer;
-  if (this.ffbox.container == null) this.ffbox.container = document.body; // this would occur in design mode, where the ffbox is not used
-  this.ffbox.init();
+  this.ffbox = new pui.FindFilterBox(pui.runtimeContainer, this);
+  this.ffHeaderCell = null;  //Is set in startFind and startFilter and read in find and doFilter. Indicates which column is finding/filtering.
 
   this.highlighting = {
     columnId: 0,
@@ -288,6 +282,11 @@ pui.Grid = function () {
 
   this.storageKey = null;
   this.storedState = null;
+  
+  // Expose these closured functions to the object so that prototyped methods can reach them. (Avoids having to move everything into prototypes at once.)
+  this._setLineTops = setLineTops;
+  this._setLineHeights = setLineHeights;
+  this._positionIcons = positionIcons;
   
   var me = this;
 
@@ -801,6 +800,8 @@ pui.Grid = function () {
             boundVisibility[col] = itm["visibility"];
           }
           var val = itm["value"];
+          if (itm["radio button group"])
+            val = itm["radio button group"];
           if (itm["field type"] == "html container") val = itm["html"];
 
           if (itm["field type"] == "image" && exportXLSX) val = itm["image source"];
@@ -1948,8 +1949,7 @@ pui.Grid = function () {
   /**
    * Populate the grid cells. Data-grids may fetch data from a URL. Handler-driven grids
    * fill internal data arrays.
-   * @param {type} csvFile  Filename specified in exportCSV when grid is data-grid.
-   * @returns {undefined}
+   * @param {String|undefined} csvFile  Filename specified in exportCSV when grid is data-grid.
    */
   this.getData = function (csvFile) {
     
@@ -2428,7 +2428,7 @@ pui.Grid = function () {
               } else if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
                 alignCSS = " text-align:" + row[idx].style.textAlign;
               }
-              row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + dataValue + '</div>';
+              row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
 
               // Highlight cells in the column.
               if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
@@ -2733,44 +2733,44 @@ pui.Grid = function () {
     return handle;
   }
 
+  /**
+   * Get CSS style string based on grid padding properties. Defaults are set in profoundui.css.
+   * These inline styles end up in header cells and database-driven-grid data cells.
+   * @returns {String}
+   */
   function getPaddingCSS() {
-    var defaultHPaddingValue = "4px";
-    var defaultVPaddingValue = "0px";
     var paddingCSS = "";
 
     var paddingValue = me.paddingProps["padding bottom"];
-    if (paddingValue == null || paddingValue == "") paddingValue = defaultVPaddingValue;
-    paddingCSS += "padding-bottom:" + paddingValue + ";";
-
+    if (paddingValue != null && paddingValue != "") paddingCSS += "padding-bottom:" + paddingValue + ";";
+    
     paddingValue = me.paddingProps["padding left"];
-    if (paddingValue == null || paddingValue == "") paddingValue = defaultHPaddingValue;
-    paddingCSS += "padding-left:" + paddingValue + ";";
-
+    if (paddingValue != null && paddingValue != "") paddingCSS += "padding-left:" + paddingValue + ";";
+    
     paddingValue = me.paddingProps["padding right"];
-    if (paddingValue == null || paddingValue == "") paddingValue = defaultHPaddingValue;
-    paddingCSS += "padding-right:" + paddingValue + ";";
-
+    if (paddingValue != null && paddingValue != "") paddingCSS += "padding-right:" + paddingValue + ";";
+    
     paddingValue = me.paddingProps["padding top"];
-    if (paddingValue == null || paddingValue == "") paddingValue = defaultVPaddingValue;
-    paddingCSS += "padding-top:" + paddingValue + ";";
-
+    if (paddingValue != null && paddingValue != "") paddingCSS += "padding-top:" + paddingValue + ";";
+    
     return paddingCSS;
   }
   
   /**
    * Set all column headings. This is called many times when the grid is created. Removes and restores icons in each column.
    * It's also called on mouse moves of resizing columns or the grid.
-   * @param {Array} headings    Array of strings with headings. Optional parameter to set column headings for hideable columns.
+   * @param {Array|undefined} headings    Array of strings with headings. Optional parameter to set column headings for hideable columns.
    */
   this.setHeadings = function (headings) {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var paddingCSS = getPaddingCSS();
     var headerRow = me.cells[0];
-    for (var i = 0; i < headerRow.length; i++) {
+    for (var i = 0, n=headerRow.length; i < n; i++) {
       var headerCell = headerRow[i];
       var hasFilter = false;
       var multiSortIcon = null;
+      // Remove existing icons
       if (me.designMode == false) {
         if (headerCell.filterIcon != null){
           hasFilter = true;
@@ -2783,6 +2783,7 @@ pui.Grid = function () {
       }
       
       if (me.columnHeadings.length <= i) {
+        // There are no column headings defined for this column, so ensure no text exists.
         headerCell.innerHTML = "";
       }
       else {
@@ -2790,9 +2791,13 @@ pui.Grid = function () {
         if (headerCell.style.textAlign != null && headerCell.style.textAlign != "") {
           alignCSS = " text-align:" + headerCell.style.textAlign;
         }
-        if (me.hidableColumns && headings) headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (headings[i] ? headings[i] : "") + '</div>';
-        else headerCell.innerHTML = '<div style="' + paddingCSS + alignCSS + '">' + (me.columnHeadings[i] ? me.columnHeadings[i] : "") + '</div>';
-        centerHeadingVertically(headerCell);
+        // Set heading text from argument or from data already set.
+        var hdrhtml = '<div';
+        if (me.showQuickFilters) hdrhtml += ' class="qf"';
+        hdrhtml += ' style="' + paddingCSS + alignCSS + '">';   //Appy styles that are set in grid properties.
+        if (me.hidableColumns && headings && headings[i]) hdrhtml += headings[i];
+        else if(me.columnHeadings[i]) hdrhtml += me.columnHeadings[i];
+        headerCell.innerHTML = hdrhtml + '</div>';
       }
       
       // This method runs when the user resizes columns, and the sort/filter icons becomes orphaned.     
@@ -2823,6 +2828,28 @@ pui.Grid = function () {
             appendIcon(headerCell, me.sortIcon);
           }
         }
+      }
+      
+      if (me.showQuickFilters){
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'qf';
+        input['placeholder'] = pui["getLanguageText"]("runtimeText", "filter text") + "...";
+        if (me.designMode) {
+          input.disabled = true;
+        }
+        else {
+          input.addEventListener('mousedown', me._stopProp);  //prevent clicks on input to cause the cell to sort.
+          input.addEventListener('click', me._stopProp);
+          
+          input.addEventListener('focus', me.ffbox);   //calls startFilter
+          input.addEventListener('input', me.ffbox);   //handle filter input, including paste.
+          input.addEventListener('keydown', me.ffbox); //handle enter/return.
+          input.addEventListener('blur', me.ffbox);
+        }
+        headerCell.appendChild(input);
+        var filterText = headerCell.filterText;
+        if (typeof filterText === 'string' && filterText.length > 0) input.value = filterText;
       }
     }
   };
@@ -4152,7 +4179,6 @@ pui.Grid = function () {
           }
           var colNum = i;
           if (multiple > 1) colNum = 0;
-          var paddingCSS = getPaddingCSS();
           if (me.cells.length <= rowNum) break;
           var cell = me.cells[rowNum][colNum];
           if (cell != null) {
@@ -4725,18 +4751,21 @@ pui.Grid = function () {
           break;
         }
         me.headerHeight = parseInt(value);
-        if (!me.hasHeader || me.hLines.length < 2) return;
-        me.hLines[0].style.top = (parseInt(me.hLines[1].style.top) - me.headerHeight) + "px";
-        setLineTops();
-        setLineHeights();
-        if (me.designMode) me.sizeAllCells();
-        positionIcons();
-        me.setScrollBar();
-        me.sendToDesigner();
+        if (me.showQuickFilters){
+          me._headerHeightSansQF = me.headerHeight;  //Save original height in case it should be restored later.
+          // Add 20 pixels to the height if there are both headings and quick filters 
+          if (me.columnHeadings != "") me.headerHeight += 20;
+        }
+        me._headerHeightChange();
         break;
 
       case "has header":
-        if (me.hasHeader && (value == false || value == "false")) {
+        if (me.showQuickFilters && (value == false || value == "false")){
+          // Headers are required with quick filters.
+          me._hasHeaderSansQF = false;
+        }
+        else if (me.hasHeader && (value == false || value == "false")) {
+          // Remove the header.
           me.clearHeadings();
           me.hasHeader = false;
           if (context == "dspf" || pui.usingGenieHandler) {
@@ -4758,6 +4787,7 @@ pui.Grid = function () {
           if (me.designMode) me.setAllCellStyles();
         }
         if (!me.hasHeader && (value == true || value == "true" || value == "")) {
+          // Add the header.
           if (me.cells.length <= 1) {
             me.addRow();
           }
@@ -4781,6 +4811,39 @@ pui.Grid = function () {
           me.setAllCellStyles();
           me.setHeadings();
         }
+        break;
+        
+      case 'show quick filters':
+        // See issue 6279 for test cases.
+        me.showQuickFilters = (value == true || value === 'true');
+        if (me.showQuickFilters){
+          // Enable headers, because this property requires them.
+          if (!me.hasHeader) {
+            me._hasHeaderSansQF = me.hasHeader;
+            me.setProperty('has header', 'true');
+          }
+          
+          if (me._headerHeightSansQF == null){
+            me._headerHeightSansQF = me.headerHeight;
+            // Add 20 pixels to the height if there are both headings and quick filters 
+            if (me.columnHeadings != "") me.headerHeight += 20;
+          }
+          me._headerHeightChange();
+        }
+        else {
+          if (me._headerHeightSansQF != null){
+            // Restore "header height" and "has header" in case those properties were set before "show quick filters", and if that was unset.
+            me.headerHeight = me._headerHeightSansQF;
+            delete me._headerHeightSansQF;
+            me._headerHeightChange();
+          }
+          
+          if (me._hasHeaderSansQF === false){
+            delete me._hasHeaderSansQF;
+            me.setProperty('has header', 'false');
+          }
+        }
+        me.setHeadings();
         break;
 
       case "column widths":
@@ -5838,6 +5901,7 @@ pui.Grid = function () {
         // move header column
         if (headerCellProxy == null) {
           headerCellProxy = cell.cloneNode(true);
+          headerCellProxy.style.position = 'absolute';
           headerCellProxy.style.border = "1px solid #999999";
           headerCellProxy.style.zIndex = me.moveColumnZIndex;
           headerCellProxyContainer = document.createElement("div");
@@ -5854,7 +5918,13 @@ pui.Grid = function () {
           }, 150);
         }
         headerCellProxy.style.top = (me.tableDiv.startTop + deltay) + "px";
-        headerCellProxy.style.left = (me.tableDiv.startLeft + parseInt(cell.style.left) + deltax) + "px";
+        var cellLeft = parseInt(cell.style.left);
+        if (isNaN(cellLeft)){
+          var rect = cell.getBoundingClientRect();
+          cellLeft = rect.left;
+        }
+        headerCellProxy.style.left = (me.tableDiv.startLeft + cellLeft + deltax) + "px";
+        
         var matchedCol = null;
         // The mouse is within 25px above the grid or over the grid.
         if (deltay > -25 && deltay < parseInt(me.tableDiv.style.height)) {
@@ -6457,39 +6527,10 @@ pui.Grid = function () {
     me.tableDiv.style.height = height + "px";
   }
 
-  function centerHeadingVertically(cell) {
-    var content = cell.firstChild;
-    if (content == null) return;
-    content.style.whiteSpace = "normal";
-    content.style.position = "absolute";
-    content.style.top = "50%";
-    var height = content.offsetHeight;
-    if (height > 0) {
-      content.style.marginTop = (-parseInt(height / 2)) + "px";
-    }
-    else {
-      content.style.position = "relative";
-      content.style.webkitTransform = "translateY(-50%)";
-      content.style.mozTransform = "translateY(-50%)";
-      content.style.msTransform = "translateY(-50%)";
-      content.style.transform = "translateY(-50%)";
-    }
-    var width = parseInt(cell.style.width);
-    if (isNaN(width)) width = 0;
-    width = width - 8; // account for some padding (4 pixels on each side)
-    if (width < 0) width = 0;
-    content.style.left = "0px";
-    content.style.width = width + "px";
-  }
-
   function makeCell(row, col) {
     var cell = document.createElement("div");
     me.tableDiv.appendChild(cell);
-    cell.style.position = "absolute";
-    cell.style.overflow = "hidden";
-    cell.style.padding = "0px";
-    cell.style.verticalAlign = "middle";
-    if (!pui.iPadEmulation) {
+    if (!pui.iPadEmulation && me.cellCursor != 'default') {
       cell.style.cursor = me.cellCursor;
     }
     if (row > 0 || !me.hasHeader) cell.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
@@ -6500,8 +6541,8 @@ pui.Grid = function () {
 
     if (header) {
       if (col < me.columnHeadings.length) {
-        cell.innerHTML = '<div style="' + getPaddingCSS() + '">' + me.columnHeadings[col] + '</div>';
-        centerHeadingVertically(cell);
+        var qfclass = me.showQuickFilters ? ' class="qf"' : '';
+        cell.innerHTML = '<div'+qfclass+' style="' + getPaddingCSS() + '">' + me.columnHeadings[col] + '</div>';        
       }
     }
 
@@ -8315,8 +8356,7 @@ pui.Grid = function () {
   this["startFind"] = function (headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
-    me.ffbox.grid = me;
-    me.ffbox.headerCell = headerCell;
+    me.ffHeaderCell = headerCell;
     me.ffbox.type = "find";
     me.ffbox.onsearch = me["find"];
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "find text") + "...");
@@ -8350,7 +8390,7 @@ pui.Grid = function () {
   this["find"] = function (parm1, parm2, parm3) {
     if (me.waitingOnRequest) return;
 
-    var headerCell = me.ffbox.headerCell;
+    var headerCell = me.ffHeaderCell;
 
     var text = parm1;
     var findNext = parm2;
@@ -8430,31 +8470,44 @@ pui.Grid = function () {
     } //done client-side Find.
   };
 
+  /**
+   * Prepare filter elements for filtering column data based on a user's input.
+   * Without quick filters, this shows and prepares the ffbox above a header cell. With quick filters this prepares the
+   * quickfilter box in the specified header.
+   * @param {Element|Number} headerCell
+   */
   this["startFilter"] = function (headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
-    me.ffbox.grid = me;
-    me.ffbox.headerCell = headerCell;
+    me.ffHeaderCell = headerCell;
     me.ffbox.type = me.usePagingFilter() ? "pgfilter" : "filter";
     me.ffbox.onsearch = me.doFilter;
     me.ffbox.setPlaceholder(pui["getLanguageText"]("runtimeText", "filter text") + "...");
-    me.ffbox.positionByGridColumn(headerCell);
+    if (!me.showQuickFilters) me.ffbox.positionByGridColumn(headerCell);
     if (me.isDataGrid()) me.ffbox.interval = 250; //Slows reloading data to 250ms after last keystroke.
     me.setSearchIndexes(headerCell);
     me.highlighting.columnId = headerCell.columnId;
     me.highlighting.col = headerCell.col;
-    me.ffbox.show();
-    me.ffbox.clear();
+    if (!me.showQuickFilters) {
+      me.ffbox.show();
+      me.ffbox.clear();
+    }
+    
     if (headerCell.filterText != null && headerCell.filterText != "") {
       me.ffbox.setText(headerCell.filterText);
       me.highlighting.text = headerCell.filterText;
       me.getData();
     }
-    me.ffbox.focus();
+    
+    if (me.showQuickFilters) {
+      var qfbox = headerCell.querySelector('input.qf');
+      if (qfbox) qfbox.focus();
+    }
+    else me.ffbox.focus();
   };
 
   this.doFilter = function (text) {
-    var headerCell = me.ffbox.headerCell;
+    var headerCell = me.ffHeaderCell;
     if (text == "") {
       me["removeFilter"](headerCell);
     }
@@ -8485,6 +8538,11 @@ pui.Grid = function () {
     me.highlighting.text = text;
     me.setFilterIcon(headerCell);
     headerCell.filterText = text;
+    
+    if (me.showQuickFilters) {
+      var qfbox = headerCell.querySelector('input.qf');
+      if (qfbox) qfbox.value = text;
+    }
 
     if (me.isDataGrid() && me.forceDataArray == false) {
       // Filter in this field for DB-driven grids. (Assume one field per column.)
@@ -8795,6 +8853,11 @@ pui.Grid = function () {
     me.removeFilterIcon(headerCell);
     headerCell.filterText = null;
     
+    if (me.showQuickFilters) {
+      var qfbox = headerCell.querySelector('input.qf');
+      if (qfbox) qfbox.value = '';
+    }
+    
     if (me.usePagingFilter()){
       return setPagingFilter(headerCell, "");  //Clears filter, looks for other filters, submits.
     }
@@ -8833,7 +8896,12 @@ pui.Grid = function () {
       var headerCell = headerRow[i];
       me.removeFilterIcon(headerCell);
       headerCell.filterText = null;
+      if (me.showQuickFilters) {
+        var qfbox = headerCell.querySelector('input.qf');
+        if (qfbox) qfbox.value = '';
+      }
     }
+
     if (me.usePagingFilter()) return submitPagingFilter("", ""); //Clears the field, submits screen.
     
     for (var i = 0; i < me.dataArray.length; i++) {
@@ -10217,7 +10285,7 @@ pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui
  */
 pui.BaseGrid.prototype.getPropertiesModel = function(){
   // ddsCompatProp: the property is for backward compatibility with legacy Display File properties.
-  // 1 = help description should always warn/hide; 2 = warn/hide only for nodeDesigner.
+  // 1 = help description should always warn/hide.
     var model = [{ name: "Identification", category: true },
       { name: "id", maxLength: 75, attribute: "id", helpDefault: "id", help: "Specifies the ID that is used to access the grid from client-side code.", bind: false, canBeRemoved: false },
       { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Specifies the name that is used to access this grid from server code.", maxLength: (pui.viewdesigner|| pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
@@ -10227,23 +10295,23 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, helpDefault: "widget", help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
       { name: "value", helpDefault: "blank", help: "Sets the initialization value for the current element." },
 
-      { name: "Subfile Settings", category: true, context: "dspf", ddsCompatProp: 2 },
-      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false, ddsCompatProp: 2 },
-      { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 2 },
+      { name: "Subfile Settings", category: true, context: "dspf"},
+      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false},
+      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf"},
+      { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 1 },
 
       { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
       { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, helpDefault: "bind", help: "This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
@@ -10263,7 +10331,7 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "word spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], helpDefault: "css", help: "Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
 
       { name: "Header", category: true },
-      { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "true", help: "Determines whether the grid has a header row." },
+      { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "true", help: "Determines whether the grid has a header row. If &quot;show quick filters&quot; is true, then a header will appear even if &quot;has header&quot; is false." },
       { name: "header height", helpDefault: "theme", help: "Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse.", bind: false, canBeRemoved: false },
       { name: "header font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.", helpAdd: ["other","font"] },
       { name: "header font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], helpDefault: "css", help: "The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.", helpAdd: ["other"] },
@@ -10290,7 +10358,7 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "Grid Settings", category: true },
       { name: "number of rows", helpDefault: "theme", help: "Specifies the number of rows in the grid, including the header row. When the &quot;expand to layout&quot; grid property is true, this is set automatically.", bind: false, canBeRemoved: false },
       { name: "number of columns", helpDefault: "theme", help: "Specifies the number of columns in the grid.", bind: false, canBeRemoved: false },
-      { name: "row height", helpDefault: "theme", help: "Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse.", bind: false, canBeRemoved: false },
+      { name: "row height", helpDefault: "theme", help: "Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse. Changing &quot;height&quot; causes this to change automatically.", bind: false, canBeRemoved: false },
       { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "theme", help: "Determines whether the grid rows will be highlighted when the user hovers the mouse over them." },
       { name: "hover image", type: "image", helpDefault: "theme", help: "Defines a repeating cell background image for the hover effect." },
       { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], helpDefault: "none", help: "Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys" },
@@ -10330,6 +10398,7 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
         
       { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "20", help: "The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value.", context: "dspf" },
       { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "3", help: "This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure.", context: "dspf" },
+      { name: 'show quick filters', choices: ['true', 'false'], type: 'boolean', validDataTypes: ['indicator', 'expression'], hideFormatting: true, help: 'Above each column show a text-box for filtering row data. Enabling this causes a header row to display with the grid. To hide column headings and show quick filters, set &quot;column headings&quot; blank.', helpDefault: 'false', context: 'dspf' },
 
       { name: "Paging Bar", category: true, context: "dspf" },
       { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays links for navigating to the previous page and the next page of records." },
@@ -10347,12 +10416,12 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "export file name", helpDefault: "blank", help: "Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the grid name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },
       { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
 
-      { name: "Row Folding", category: true, context: "dspf", ddsCompatProp: 2 },
-      { name: "fold multiple", choices: ["2", "3", "4", "Other..."], helpDefault: "blank", help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.", helpAdd: ["other"], bind: false, context: "dspf", ddsCompatProp: 2 },
-      { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 2 },
-      { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 2 },
-      { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 2 },
+      { name: "Row Folding", category: true, context: "dspf", ddsCompatProp: 1 },
+      { name: "fold multiple", choices: ["2", "3", "4", "Other..."], helpDefault: "blank", help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.", helpAdd: ["other"], bind: false, context: "dspf", ddsCompatProp: 1 },
+      { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 1 },
+      { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
 
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
@@ -10382,7 +10451,7 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "top", format: "px", helpDefault: "position", help: "Represents the y-coordinate of the current element.", canBeRemoved: false },
       { name: "right", format: "px", helpDefault: "position", help: "Position of the element from the right of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
       { name: "bottom", format: "px", helpDefault: "position", help: "Position of the element from the bottom of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
-      { name: "height", helpDefault: "css", help: "Height of the grid. When the &quot;expand to layout&quot; grid property is true, this is set automatically.", bind: false, canBeRemoved: false },
+      { name: "height", helpDefault: "css", help: "Height of the grid. When the &quot;expand to layout&quot; grid property is true, this is set automatically. Changing &quot;header height&quot; changes this automatically. Changing this causes &quot;row height&quot; to change.", bind: false, canBeRemoved: false },
       { name: "width", helpDefault: "css", help: "Width of the grid.", bind: false, canBeRemoved: false },
       { name: "expand to layout", choices: ["true", "false"], helpDefault: "false", help: "If set to true, the grid will automatically expand to the full size of a layout container.", context: "dspf", bind: false },
       { name: "z index", format: "number", helpDefault: "css", help: "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements." },
@@ -10617,4 +10686,20 @@ pui.Grid.prototype._setAllVisibleBackgrounds = function(){
 };
 pui.Grid.prototype._setAllVisibleBackgroundsCb = function(dataArrayIndex, row){
   this.setRowBackground(row, false, dataArrayIndex);
+};
+
+pui.Grid.prototype._headerHeightChange = function(){
+  if (this.hasHeader && this.hLines.length >= 2){
+    this.hLines[0].style.top = (parseInt(this.hLines[1].style.top) - this.headerHeight) + "px";
+    this._setLineTops();
+    this._setLineHeights();
+    if (this.designMode) this.sizeAllCells();
+    this._positionIcons();
+    this.setScrollBar();
+    this.sendToDesigner();
+  }
+};
+
+pui.Grid.prototype._stopProp = function(e){
+  e.stopPropagation();
 };
