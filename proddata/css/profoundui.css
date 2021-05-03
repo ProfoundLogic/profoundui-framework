@@ -560,6 +560,26 @@ FieldSet {
   background-image: url('../images/grids/ascending.gif');
 }
 
+div.cell > div.dbd { padding: 0px 4px; }
+
+.header-cell > div {
+  position: relative;
+  white-space: normal;
+  top: calc(50% - 6px);
+  left: 0px;
+  width: calc(100% - 8px);
+  padding: 0px 4px;
+}
+.header-cell > div.qf { top: calc(50% - 16px); }
+.header-cell > input.qf {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  width: calc(100% - 10px);
+}
+.header-cell > input.qf::placeholder { opacity: 0.0; }
+.header-cell > input.qf:hover::placeholder { opacity: 0.50; }
+
 .grid-multisort {
   position: relative;
   z-index: 251;
@@ -1096,10 +1116,6 @@ div.pui-file-upload div.control-box a.upload-files {
 .crystal-grid .cell {
   font-family: Verdana;
   font-size: 13px;
-  text-align: center;
-}
-
-.crystal-grid .cell {
   text-align: center;
 }
 
@@ -4852,6 +4868,17 @@ a.ui-link-inherit {
   background: #ffffff none repeat scroll 0 0;
   border-color: #357ebf;
 }
+
+/* Profound UI widget main Elements use absolute positioning by default. */
+[puiwdgt] { position: absolute; }
+
+/* Cells inside Profound UI grid widgets. */
+[puiwdgt="grid"] > div.cell {
+  position: absolute;
+  overflow: hidden;
+  padding: 0px;
+}
+
 
 .pui-hide-show-columns-list {
   position: absolute;
@@ -13187,13 +13214,15 @@ div.blueprint-file-upload div.drop-box.dragover {
 
 .blueprint-grid .header-cell>div {
   letter-spacing: 1px;
-  white-space: unset !important;
-  position: unset !important;
-  top: unset !important;
-  transform: unset !important;
-  margin-top: unset !important;
-  left: unset !important;
-  width: 100% !important;
+  white-space: normal;
+  position: static;
+  margin-top: 0px;
+  width: 100%;
+}
+.blueprint-grid .header-cell > div.qf {
+  padding: 0px;
+  margin-top: -19px;
+  min-width: 100%;
 }
 
 .blueprint-grid .header-cell>div>img[src*='images/grids/descending.gif'], .blueprint-grid .header-cell>div>img[src*='images/grids/ascending.gif'] {
@@ -15756,10 +15785,15 @@ div.office-copy-file-upload div.drop-box.dragover {
 
 .office-copy-grid .header-cell>div {
   letter-spacing: 1px;
-  white-space: nowrap !important;
-  position: unset !important;
-  transform: unset !important;
-  margin-top: 0 !important;
+  white-space: nowrap;
+  position: static;
+  margin-top: 0px;
+}
+
+.office-copy-grid .header-cell > div.qf {
+  padding: 0px;
+  margin-top: -19px;
+  min-width: 100%;
 }
 
 .office-copy-grid .header-cell>div>img[src*='images/grids/descending.gif'] {

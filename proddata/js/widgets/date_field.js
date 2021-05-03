@@ -301,7 +301,7 @@ function show_calendar(dateField, str_datetime, format) {
 
   }
 
-  if (dateField.puiShowToday != null && dateField.puiShowToday === "true") {
+  if (dateField.puiShowToday != null && (dateField.puiShowToday === "true" || dateField.puiShowToday === "auto-select")) {
     var todayButtonRow = document.createElement("tr");
     innerBody.appendChild(todayButtonRow);
   
@@ -315,9 +315,14 @@ function show_calendar(dateField, str_datetime, format) {
     todayButton.className = "pui-calendar-today-button";
     todayButton.innerHTML = "Today";
     todayButton.onclick = function(e) {
-      var currentDate = usa_dt(today, format, dateField.formattingInfo);
-      pui.currentDateField.value = currentDate;
-      show_calendar(pui.currentDateField, document.cal.time.value, format);
+      if (pui.currentDateField.puiShowToday === "auto-select") {
+        var currentDate = usa_dt(today, format, dateField.formattingInfo);
+        pui.currentDateField.value = currentDate;
+        calendar_select();
+      }
+      else {
+        show_calendar(pui.currentDateField, "", format);
+      }
       preventEvent(e);
     }
     todayButtonCell.appendChild(todayButton);
