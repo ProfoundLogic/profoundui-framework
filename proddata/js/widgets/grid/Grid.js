@@ -219,6 +219,7 @@ pui.Grid = function () {
 
   this.findOption = false;
   this.filterOption = false;
+  this.filterByValOption = false;
   this.movableColumns = false;
   this.hidableColumns = false;
   this.resetOption = false;
@@ -334,7 +335,9 @@ pui.Grid = function () {
   
   var sortMultiOrder = [];    //Order of priority of sorting multiple columns.
   var sortMultiPanel = null;  //UI for picking multiple sort columns.
-  var filterMultiPanel = null;
+  var filterMultiPanel = null; //UI for picking multiple filters from a data list to set on one column.
+  var filterMultiPanelLoading = null; //panel that shows while filterMultiPanel is loading
+  var trickMultiFilterGrid = false; //if paging grid and running multifilter, temporarily pretend it's a load all grid
 
   this.enableDesign = function () {
     me.designMode = true;
@@ -2534,6 +2537,7 @@ pui.Grid = function () {
     sortMultiOrder = null;
     sortMultiPanel = null;
     filterMultiPanel = null;
+    filterMultiPanelLoading = null;
     try {
       this.deleteOwnProperties();   //Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       delete me;
@@ -4904,6 +4908,9 @@ pui.Grid = function () {
 
       case "filter option":
         me.filterOption = (value == true || value == "true");
+        break;
+      case "filter by value option":
+        me.filterByValOption = (value == true || value == "true");
         break;
 
       case "hide columns option":
@@ -9599,13 +9606,52 @@ pui.Grid = function () {
   this.showMultiFiltersPanel = function(headerCell) {
     if (me.tableDiv.parentNode == null) return;
     if(pui["is_ie"]) return;
+    //****disable in genie -- if )context==dspf?? *****/
     //if(headerCell == null) return;
+    //loading animation on table while panel is loading
+    me.mask();
+    me.gridLoading();
 
     if (filterMultiPanel == null){
+     /* if (filterMultiPanelLoading == null){
+        //Show loading panel until data is ready to display
+        filterMultiPanelLoading = document.createElement('div');
+        filterMultiPanelLoading.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
+        filterMultiPanelLoading.style.top = me.tableDiv.offsetTop + 'px';
+        filterMultiPanelLoading.style.left = me.tableDiv.offsetLeft + 'px';
+        filterMultiPanelLoading.style.height =  '350 px';
+
+        var headerL = document.createElement('div');
+        new pui.MoveListener({ attachto: headerL, move: filterMultiPanelLoading });
+        //Close button
+        var btnL = document.createElement('button');
+        btnL.className = 'pui-material-icons';
+        btnL.innerHTML = 'close';
+        addEvent(btnL, 'click', function(){
+          filterMultiPanelLoading.style.display = 'none';
+          filterMultiPanelLoading = null;
+        });
+        headerL.appendChild(btnL);
+
+        var loading = document.createElement('div');
+        var loadingAnimation = document.createElement('div');
+        loadingAnimation.className = 'pui-animation';
+        loading.appendChild(loadingAnimation);
+
+        var loadingText = document.createElement('P');
+        //*******add to messages, add css class*******
+        //innerHTML = pui['getLanguageText']('runtimeText','filter check');
+        loadingText.innerHTML = "Retreiving Data"
+        loading.appendChild(loadingText);
+        filterMultiPanelLoading.appendChild(loading);
+        me.tableDiv.parentNode.appendChild(filterMultiPanelLoading);
+      }*/
+
       filterMultiPanel = document.createElement('div');
       filterMultiPanel.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
       filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
       filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+
       
       var header = document.createElement('div');
 
@@ -9630,17 +9676,12 @@ pui.Grid = function () {
         me.mask(); // disable UI until server responds.
         me.gridLoading();
         
-        //DOESN'T WORK ON IE -- use .foreach() instead? or other for loop -- Map may not work either
-        //set new only on confirm -- then set valuess x, y, z
-          // long lists may be a problem -- lots of delay. Here? or just when opening?
+        //set new filtertext only on confirm == "values x, y, z..."
         filterText = "VALUES";
         count = 0;
-        //was for let -- use var instead
-        /*for (let entry of dataMap.entries()){*/
         entries = dataMap.entries();
         dataCount = dataMap.size;
-        for(var i = 0; i < dataCount; i++){//alt. while IterratorHasMore = true
-          //if(entries.)
+        for(var i = 0; i < dataCount; i++){
           entry = entries.next().value;
           data = entry[0];
           checked = entry[1];
@@ -9650,14 +9691,16 @@ pui.Grid = function () {
             else {filterText +=  ", " + data;}
           }
         }
-        if(count == 1){filtertext += ",";}
+        //If nothing checked, remove filter
         if(filterText == null || filterText == "VALUES"){me["removeFilter"](col);}
-        else{me["setFilter"](headerCell,filterText);}
+        else{filterText += ",";}
+        //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
+        if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
+        me["setFilter"](headerCell,filterText);
         me['unMask']();
         filterMultiPanel = null;
       });
       header.appendChild(btn);
-      //****change
       header.appendChild(document.createTextNode(pui['getLanguageText']('runtimeText','filter multiple')));
       filterMultiPanel.appendChild(header);
       
@@ -9673,13 +9716,12 @@ pui.Grid = function () {
       var tbody = document.createElement('tbody');
       includetable.appendChild(tbody);
 
-      if(headerCell !=  null){ //to prevent other things from getting hung up here -- why are they running though this code bit though? gen. error?
-        var col = headerCell.columnId; //reset still checks this, why?
-        me.setSearchIndexes(headerCell);
+      if(headerCell !=  null){ //to prevent things from getting hung up here
+        var col = headerCell.columnId; 
+        me.setSearchIndexes(headerCell); 
         var idxes = headerCell.searchIndexes;
       }
       rows = me.dataArray.length;
-      //***use existing??? -- nope. Uses last filter, which could be anything*/
       me.filteredDataArray = [];
       var dataMap = new Map();
       var entry = [];
@@ -9688,77 +9730,174 @@ pui.Grid = function () {
       var checked = false;
       var count = 0;
       var dataCount = 0;
+      var rowCount = 0;
       var filterText = headerCell.filterText;
       var headerFilterText = headerCell.filterText;
+      var checkFilterWithSQL = false;
+      var gotFilterArr = false;
 
       //enable loading animation here?
-      //Need to get dataMap from full dataArray >> can check filters here >> call set filter to get filterdArray >> but don't want to loop through it a lot >> call after? >> slow?
-      for (var i = 0; i < me.dataArray.length; i++) {
-        var record = me.dataArray[i];
-        if (record.subfileRow == null) record.subfileRow = i + 1;
-        for (var j = 0; j < idxes.length; j++) {
-          var idx = idxes[j];
-          var value = record[idx];
-          var ignoreTest = false;
-          dataMap.set(value, checked);
-          checked = false;
-        }   
+      if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
+          var limit = -1;
+          var start = 1;
+          var dataURL = me["dataProps"]["data url"];
+          if (dataURL == "") dataURL = null;
+          var hCell = headerCell;
+          loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
+          console.log("data retrival into map complete");
+          //loadAllWithSQl() calls checkFilter() and displayData()
+        
       }
-      //DELAY NOTE: ^^^ This bit runs quickly. The displaying takes a long time. That's why shorter maps run faster >> try checking filter above
+      else{
+        for (var i = 0; i < me.dataArray.length; i++) {
+          var record = me.dataArray[i];
+          if (record.subfileRow == null) record.subfileRow = i + 1;
+          //****add if indexs -- crashes here alot
+            //or get rid of indexs / get it from the colID thing in sql request*****
+          for (var j = 0; j < idxes.length; j++) {
+            var idx = idxes[j];
+            var value = record[idx];
+            var ignoreTest = false;
+            dataMap.set(value, checked);
+            checked = false;
+          } 
+        }
+        if(dataMap.size > 0){
+          checkIsFiltered(headerCell, filterText);
+          console.log("Filter check complete");
+          displayData();
+        }  
+        console.log("data retrival into map complete");
+      }
+      /*if(dataMap.size > 0){
+        checkIsFiltered(headerCell, filterText);
+        console.log("Filter check complete");
+        displayData();
+      }  */
 
-      //check filter test -- if dataMap can be kept
-      /*if(headerFilterText != null && headerFilterText != " "){
-        me["setFilter"](headerCell,filterText);
-        if(me.filteredDataArray.length > 0){
-          for (var i = 0; i < me.filteredDataArray.length; i++) {
-            data = me.filteredDataArray[i];
-            if(dataMap.has(data)){
-              dataMap.set(data, true);
+      function checkIsFiltered(headerCell, filterText){
+        //If columns is already filtered, check any boxes that are included
+        if(headerFilterText != null && headerFilterText != " "){
+          if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
+            checkFilterWithSQL = true;
+            if(gotFilterArr == false){
+              //if we have not gotten the filtered data array
+              me.filteredDataArray = [];
+              loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
+            }
+          } 
+          else{
+            // covers I/O and dataGrids where load all rows is true
+            //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
+            if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
+            if(me.forceDataArray == false){me.forceDataArray = true;}
+            me["setFilter"](headerCell,filterText);
+          }
+          if(me.filteredDataArray.length > 0){
+           /* if (headerCell.searchIndexes == null && headerCell.fieldName == null){
+              var fieldOrder = [];    //Array of field names to be in the same order as the columns.
+              for (field in me.filteredDataArray[0]) {
+                fieldOrder.push(field);
+              }
+            }*/
+
+            for (var i = 0; i < me.filteredDataArray.length; i++) {
+              var record = me.filteredDataArray[i];
+              if (record.subfileRow == null) {record.subfileRow = i + 1;} //needed?
+              if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
+                data = record; //should be one result in all other cases
+              }
+              else{
+                // covers I/O and dataGrids where load all rows is true
+                if (headerCell.searchIndexes != null){
+                  for (var j = 0; j < idxes.length; j++) {
+                    var idx = idxes[j];
+                    data = record[idx];
+                  }
+                }
+              }
+             /* else if (headerCell.fieldName != null){
+                for(var fieldName in record){
+                  if (fieldName == hCell.fieldName){
+                    data = record[fieldName];
+                  }
+                }
+              }
+              else{
+                if (headerCell.columnId != null){
+                  //var field, colNum, heading;
+                  //If nothing else, use colID
+                  var colFieldName = fieldOrder[headerCell.columnId];
+                  for(var fieldName in record){
+                    if (fieldName == colFieldName){
+                      data = record[fieldName];
+                    }
+                  }
+                }
+              }*/
+              var ignoreTest = false;
+              if(dataMap.has(data)){
+                dataMap.set(data, true);
+              }  
             }
           }
         }
-      }*/
-      //var sortedDataMap = new Map([dataMap.entries()].sort());
-      //count = 0;
-      //for (var i = 0; i < dataMap.length; i++) {
+      }
 
-      //Put data in cells and display them
-      
-     /* If loop below does not work, try this format:
-     dataMap.forEach((value, key, map) => {
-        do stuff here: ex: console.log ('for ${key} we had ${value}.')
-      });*/
-      entries   = dataMap.entries();
-      dataCount = dataMap.size;
-      for(var i = 0; i < dataCount; i++){
-        entry = entries.next().value;
-        data = entry[0];
-        checked = entry[1];
-        if(headerFilterText != null && headerFilterText != " "){  
-          checkFilterStatus(headerFilterText, data);
-          //returns checked
+      function displayData(){
+        //Put the first 50 records in cells and display them
+          
+        /* If loop below does not work, try this format:
+        dataMap.forEach((value, key, map) => {
+            do stuff here: ex: console.log ('for ${key} we had ${value}.')
+          });*/
+        entries   = dataMap.entries();
+        dataCount = dataMap.size;
+        if(dataCount <= 50){
+          for(var i = 0; i < dataCount; i++){
+            entry = entries.next().value;
+            data = entry[0];
+            checked = entry[1];
+            
+            insertRows();
+            rowCount ++;
+          }
         }
-        if(checked == true){
-          dataMap.set(data, checked);
+        else{
+          for(var i = 0; i < 50; i++){
+            entry = entries.next().value;
+            data = entry[0];
+            checked = entry[1];
+            
+            insertRows();
+          }
+          rowCount = 50;
         }
         
+        filterMultiPanel.appendChild(includetable);
+        if(filterMultiPanelLoading != null){
+          filterMultiPanelLoading.style.display = 'none';
+          filterMultiPanelLoading = null;
+        }
+        me.tableDiv.parentNode.appendChild(filterMultiPanel);
+      }
+
+      function insertRows(){
         tr = tbody.insertRow();
         tr.columnId = col;
 
         td = tr.insertCell();
         var chk = document.createElement('input');
         chk.type = 'checkbox';
-        //**change */
-        chk.name = data + '_sort';
+        chk.name = data + '_filter';
         chk.onclick = checkonclick;
         chk.checked = checked;
         td.appendChild(chk);
 
         td = tr.insertCell();
         td.innerHTML = data;
+
       }
-      filterMultiPanel.appendChild(includetable);
-      me.tableDiv.parentNode.appendChild(filterMultiPanel);
     }
     else if (filterMultiPanel.style.display == ''){
       filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User selected option, but panel is already showing. Maybe it's behind something.
@@ -9790,9 +9929,9 @@ pui.Grid = function () {
       }
     // recalcRows(tBody);
     }
+    me['unMask']();
     filterMultiPanel.style.display = '';
     
-    //****change */
     // Fix when there isn't enough space in a layout to show all the columns: make scrollable. 5344.
     var msHeaderHeight = 54;
     if (me.tableDiv.parentNode.getAttribute('container') == 'true' && me.tableDiv.parentNode.offsetHeight > 0 ){
@@ -9800,7 +9939,7 @@ pui.Grid = function () {
         filterMultiPanel.style.height = me.tableDiv.parentNode.offsetHeight - msHeaderHeight + 'px';
       }
     }
-    
+
     function gettargetrow(e){
       var target = e.target;
       if (target.tagName == 'TD') target = target.parentNode;
@@ -9818,105 +9957,221 @@ pui.Grid = function () {
       if (data != null && dataMap.has(data)){
         dataMap.set(data, checked);
       }
-      //else {?????}
     }
-    //Check to see if value for the dataArray should be included in existing filter -- if so, return checked as true
-    function checkFilterStatus(filtertext, data){
-      var a = null;
-      var b = null;
-      var valLength = null;
-      //data might also need uppercased?
-      filtertext = filtertext.toUpperCase();
-      //WATCH FOR BLANKS
-      if(filtertext == null || filtertext == "VALUES"){checked = false;}
-
-      //check filter conditionals
-      else{
-        // between a and z
-        var btwntext = /^BETWEEN (.+) AND (.+)$/;
-        var matches = filtertext.match(btwntext);
-        if (matches != null && matches.length == 3) {
-          a = matches[1];
-          b = matches[2];
-
-          //Normal filter only shows results for "between lower and higher" (4 and 5, a and b), not the reverse 
-              if(data >= a && data <= b){
-                checked = true;
-                if(filterText == "VALUES"){filterText += " " + data;}
-                else {filterText +=  ", " + data;} 
-              }
-            
-
-          //var between = true;
-          /*if (text.substr(0, 8).toLowerCase() == "between ") {
-          var parts = text.substr(8).toLowerCase().split(" ");
-          if (parts.length == 3 && parts[1] == "and") {}*/
+    
+    filterMultiPanel.onscroll = function(){ 
+      //If all rows have displayed
+      var dataLeft = dataCount - rowCount;
+      if (dataCount <= 50 || dataLeft == 0) return;
+      
+      //document.height -- panel??
+      var scrollHeight = filterMultiPanel.offsetHeight; //or me.tablediv me.tableDiv.paranetNode?
+      //window.height -- scrollobj??? -- does not exist
+      //if ( element.scrollTop == (element.scrollHeight - element.offsetHeight) )
+      //top + o >=s
+      //var scrollPos = filterMultiPanel.scrollHeight + filterMultiPanel.scrollTop;
+      //if ((scrollHeight - scrollPos) / scrollHeight == 0) {
+        if (filterMultiPanel.scrollTop >= (filterMultiPanel.scrollHeight - filterMultiPanel.offsetHeight)) { // or inner height? // -50px?
+        //$('.load-more-days-button').click();
+        console.log("bottom?");
+        //If less than 50 records are left
+        if(dataLeft <= 50){
+          for(var i = 0; i < dataLeft; i++){
+            entry = entries.next().value;
+            data = entry[0];
+            checked = entry[1];
+            insertRows();
+            rowCount ++;
+          }
+          console.log("display > 50");
         }
-        // values a,b,c
-        else if (filtertext.substr(0, 7) == "VALUES ") { // "VALUES " or "VALUES"?
-          var vals = filtertext.substr(7);
-          if (vals != "") {
-            vals = vals.split(",");
-            if (vals.length > 0) {
-              for (var i = 0; i < vals.length; i++) {
-                vals[i] = vals[i].trim();
-              }
-              for (var i = 0; i < vals.length; i++) {
-                /*values = vals[i];*/
-                //TRIM DATA && CONDITION -- elsewhere too
-                if (data == vals[i]){checked = true;}
+        //Display 50 more records
+        else{
+          for(var i = 0; i < 50; i++){
+            entry = entries.next().value;
+            data = entry[0];
+            checked = entry[1];
+            insertRows();
+            rowCount ++;
+          }
+          console.log("display < 50");
+        }
+      }
+    };
+
+    function loadAllWithSQL(limit, start, total, dataURL, hCell) {
+      //customURL, cache
+      //sql --built for database name and stuff -- only for seclevel 0?
+      //show empty panel and mask that at the start
+      //these should be hardcoded -- need to check here?
+      if (limit == null) limit = -1; //limit = -1
+      if (start == null) start = 1;  //start = 1
+      var pstring = null;
+
+      //if (pui["secLevel"] > 0) {
+        // Setup parameters that are needed now for sqlcache comparison and later for postData.
+        pstring = pui.getSQLParams(me["dataProps"]);
+
+        if (checkFilterWithSQL == true){
+          //  filter logic when loading data from server
+          //  need to include this logic when exporting data also
+          me.filterString = "";   // format here and then pass to export function
+
+          if (me.isFiltered()) {
+            var headerRow = me.cells[0];
+            // Look in each column for filter text.
+            var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
+            for (var i = 0; i < headerRow.length; i++) {
+              var headerCell = headerRow[i];
+              if (headerCell.columnId >= 0 && headerCell.filterText != null) {
+                me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1);
+                me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
+                pstring += me.filterString;
+                filtNum++;
               }
             }
           }
         }
-        // starts with - assume character data type. CGI will put in quotes: locate('text',field) = 1
-        else if (filtertext.substr(0, 12) == "STARTS WITH ") {
-          values = filtertext.substr(12);
-          if(values.length > 0){
-            valLength = values.length; //trim?
-            if(data.substr(0, valLength) == values){checked = true;}
+        
+        // Allow dataURL grids to sort. 
+        if (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "" && me.sortBy != null) {
+          pstring += "&order=" + me.sortBy;
+        }
+      //}
+      //} //done creating sql query parameters.
+
+      var returnVal = null;
+      var url = getProgramURL("PUI0009102.PGM");
+      if (dataURL) url = pui.appendAuth(dataURL); //how to set? is needed?
+      var req = new pui.Ajax(url);
+      req["method"] = "post";
+      req["async"] = true;
+      //if (callback == null) req["async"] = false;
+      //if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH; //don't enable for genie, so on't need this?
+      if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
+
+      //if (pui["secLevel"] > 0) {
+        req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
+
+        //is order by neccesary?
+        var orderBy = me["dataProps"]["order by"];
+        if (me.sortBy != null) orderBy = me.sortBy;
+        if (orderBy && orderBy != "") {
+  
+          req["postData"] += "&order=" + orderBy;
+  
+        }
+        else if (getDBDriver() == "mssql") {
+          // Order by is required for OFFSET/FETCH.
+          // This should give the same sort as if order by was not used.
+          req["postData"] += "&order=(select null)";
+        }
+  
+        // Add parameters. pstring is not null if secLevel > 0, because getSQLParams always returns a string.
+        if (pstring != "") {
+          req["postData"] += "&" + pstring;
+        }
+      //}
+      /*else { //attached to sec lvl 0
+        req["postData"] += "&q=" + pui.aes.encryptString(sql);
+      }*/
+
+      req["postData"] += "&limit=" + limit + "&start=" + start;
+      if (total != null && total == true) req["postData"] += "&getTotal=1";
+      if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
+      
+      var fetchCounter = me["dataProps"]["allow any select statement"];
+      if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
+        req["postData"] += "&FetchCounter=Y";
+
+      if (pui["isCloud"])
+        req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+  
+      req["onready"] = function (req) {
+        var response;
+        var successful = false;
+        
+        response = checkAjaxResponse(req, "Run SQL SELECT Query");
+
+        if (response) {
+          //how to use callbacks?
+          /*if (callback != null) {
+            var hCell2 = hCell;
+            dataIntoDataArray(response.results, response.totalRecs, response["matchRow"], hCell2);
+          }*/
+         
+          var data = response.results;
+          var totalRecords = response.totalRecs;
+          if (totalRecords != null) me.totalRecs = totalRecords;//?
+
+          if(data.length >= 1){
+            /*for(var fieldName in data[0]){
+              me.fieldNames.push(pui.fieldUpper(fieldName));
+            }*/
+            var fieldOrder = [];    //Array of field names to be in the same order as the columns.
+            for (field in response["results"][0]) {
+              fieldOrder.push(field);
+            }
+
+            for(var i = 0; i < data.length; i++){
+              var record = data[i];
+              var fieldNumber = 0;
+              //Normal database-driven grids using dataURL or CustomURL don't have the field name in the headerCell
+              if(hCell.fieldName != null){
+                for(var fieldName in record){
+                  if (fieldName == hCell.fieldName){
+                    var fieldValue = record[fieldName];
+                    if (checkFilterWithSQL == true){ me.filteredDataArray.push(fieldValue);}
+                    dataMap.set(fieldValue, false);
+                  }
+                }
+              }
+              else{
+                var field, colNum, heading;
+                me.dataArray = data;
+                me.waitingOnRequest = false;
+                me.forceDataArray = true;
+                //me["setFilter"](headerCell,filterText);
+
+                //record = me.filteredDataArray;
+                // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
+               //fieldorder set here before
+                var colFieldName = fieldOrder[hCell.columnId];
+                for(var fieldName in record){
+                  if (fieldName == colFieldName){
+                    var fieldValue = record[fieldName];
+                    if (checkFilterWithSQL == true){ me.filteredDataArray.push(fieldValue);}
+                    dataMap.set(fieldValue, false);
+                  }
+                }
+              }
+            }
+            if(checkFilterWithSQL == true && me.filteredDataArray.length > 0){gotFilterArr = true;}
+            if(dataMap.size > 0){
+              console.log("data retrevial complete");
+              checkIsFiltered(hCell, filterText);
+              console.log("filter check complete");
+              //If getting filteredDataArray, stop first display call
+              if(!me.isFiltered() || me.isFiltered() && gotFilterArr == true){
+                displayData();
+                console.log("data display complete");
+              }
+            }
           }
         }
-        else if(filtertext.substr(0,2) == "=="){
-          values = filtertext.substr(2);
-          if(data == values){checked = true;}
-        }
-        else if(filtertext.substr(0,1) == "="){
-          values = filtertext.substr(1);
-          if(data == values){checked = true;}
-        }
-        else if(filtertext.substr(0,2) == ">="){
-          values = filtertext.substr(2);
-          if(data >= values){checked = true;}
-        }
-        else if(filtertext.substr(0,2) == "<="){
-          values = filtertext.substr(2);
-          if(data <= values){checked = true;}
-        }
-        else if(filtertext.substr(0,1) == ">"){
-          values = filtertext.substr(1);
-          if(data > values){checked = true;}
-        }
-        else if(filtertext.substr(0,1) == "<"){
-          values = filtertext.substr(1);
-          if(data < values){checked = true;}
-        }
-        else if(filtertext.substr(0,2) == "!=" || filtertext.substr(0,2) == "<>" ){
-          values = filtertext.substr(2);
-          if(data != values){checked = true;}
-        }
-        else{
-          // Field CONTAINS text.
-          values = filtertext;
-          //Check if anywhere in the data string -- which works?
-          if(data.includes(values) == true){checked = true;}
-          if(data.indexOf(values) >= 0){checked = true;} //might be backwards? (values.indexof(data))
-        }
-        return checked;
-      }
+       //don't need?
+       /*if (ondbload) pui.executeDatabaseLoadEvent(ondbload, successful, me.tableDiv.id);
+        me.waitingOnRequest = false; //Allow filter changes and clicks to sort columns.*/
+      };
+      me.waitingOnRequest = true; //Ignore filter changes and clicks to sort columns.
+      req.send();
     }
+    /*function receiveIntoDataArray(data, totalRecs, matchRow, hCell) {
+
+    }*/
+    
     //***is this needed? */
-  /* function recalcRows(tbody){
+    /* function recalcRows(tbody){
       var order = 0;
       // Re-calculate the order numbers, show/hide buttons.
       for (var i=0; i < tbody.rows.length; i++){
