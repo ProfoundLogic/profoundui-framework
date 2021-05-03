@@ -51,7 +51,7 @@ function getPropertiesModel() {
 
   // Note on config help properties: help, helpDefault, helpAdd, and helpNote are used by pui.designer.PropertiesWindow.prototype._formatHelp./ Those properties provide extra formatting and text over just the "help" property.
   //
-  // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide; 2 - warn/hide only for nodeDesigner.
+  // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide.
 
   cachedPropertiesModel = [
     { name: "Identification", category: true },
@@ -173,7 +173,7 @@ function getPropertiesModel() {
     { name: "message library", label: "Library", uppercase: true, maxLength: 10, multOccur: true, hide: true, help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"] },
     { name: "message condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"] },
     { name: "label for", helpDefault: "blank", help: "Specifies the ID of the element that this is a label for. This property will cause a &lt;label&gt; tag to be generated for this element with the 'for' attribute set to the ID specified.", canBeRemoved: true, controls: ["output field"] },
-    { name: "show today option", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "false", help: "Controls whether the user has a 'Today' option on the calendar pop-up to jump to the current date.", controls: ["date field"] },
+    { name: "show today option", format: "true / false", choices: ["true", "false", "auto-select"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "false", help: "Controls whether the user has a Today option on the calendar pop-up to jump to the current date.<br /><br />The special value 'auto-select' causes the Today option to place the current date value into the date field and close the pop-up automatically.", controls: ["date field"] },
     { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"],  helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
 
     { name: "Validation", category: true, context: "dspf" },
@@ -435,7 +435,7 @@ function getScreenPropertiesModel(designScreen) {
 
   // Rich Display File Screens
   if (context == "dspf") {
-    // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide; 2 - warn/hide only for nodeDesigner.
+    // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide; 
 
     var model = [
       { name: "Identification", category: true }, 
@@ -453,14 +453,14 @@ function getScreenPropertiesModel(designScreen) {
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
 
       { name: "Overlay", category: true }, 
-      { name: "overlay", choices: ["true", "false"], type: "boolean", ddsCompatProp: 2, helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "overlay range", ddsCompatProp: 2, helpDefault: 'blank', help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false }, 
+      { name: "overlay", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "overlay range", ddsCompatProp: 1, helpDefault: 'blank', help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false }, 
       { name: "design overlay formats", displayName: (pui.nodedesigner ? "design overlay screens" : undefined), type: "list", helpDefault: "blank", help: "Specifies a list of additional screens to render in the designer when this screen is selected. This property is only used at design-time. It is ignored at run-time.", bind: false },
 
       { name: "Behavior", category: true }, 
       { name: "disable enter key", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "This property determines if pressing the Enter key will cause a response to be sent to the server. If set to true and the Enter key is not used as a shortcut key, the response will not be sent. Otherwise, the response is sent automatically.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
       { name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program. It represents the INZRCD keyword.", viewdesigner: false }, 
-      { name: "protect", choices: ["true", "false"], type: "boolean", ddsCompatProp: 2, helpDefault: 'false', help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
+      { name: "protect", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
       { name: "erase formats", type: "eraseformats", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: 'blank', help: "Identifies record formats to be erased when this record is written.", relatedProperties: ["erase format", "erase condition"], canBeRemoved: false, viewdesigner: false }, 
       { name: "erase format", label: "Record Format Name", maxLength: 10, uppercase: true, multOccur: true, hide: true, bind: false, help: "", viewdesigner: false }, 
       { name: "erase condition", label: "Erase Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false }, 
@@ -471,12 +471,12 @@ function getScreenPropertiesModel(designScreen) {
       { name: "override data", choices: ["true", "false"], ddsCompatProp: 1, type: "boolean", helpDefault: "false", help: "Use this property to together with the 'put override' property to override existing data contents already on the display. It represents the OVRDTA keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "override attribute", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Use this property to together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 2, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
+      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
 
       { name: "Response", category: true }, 
       { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." }, 
-      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 2, helpDefault: 'bind', help: "Specifies boolean response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off.", viewdesigner: false }, 
-      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 2, helpDefault: 'bind', help: "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server.", viewdesigner: false }, 
+      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: 'bind', help: "Specifies boolean response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off.", viewdesigner: false }, 
+      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: 'bind', help: "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server.", viewdesigner: false }, 
       { name: "back button", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true when the user presses the browser's back button. This feature will only work in browsers that support the HTML5 history.pushState() method." },
 
       { name: "Messages", category: true }, 
@@ -866,6 +866,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.position = domObj.style.position;
       newDomObj.style.cursor = domObj.style.cursor;
       newDomObj.style.visibility = domObj.style.visibility;
+      
+      var attr = domObj.getAttribute('puiwdgt');
+      if (attr) newDomObj.setAttribute('puiwdgt', attr);
+      
       newDomObj.id = domObj.id;
       if (typeof domObj.name == "string")
         newDomObj.name = domObj.name;

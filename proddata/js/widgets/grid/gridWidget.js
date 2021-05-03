@@ -25,15 +25,10 @@ pui.widgets.add({
   customSizing: true,
   canBelongToGrid: false,
   defaults: {
-    //"font family": "Verdana",
-    //"font size": "13px",
-    //"text align": "center",
     "number of rows": "7",
     "number of columns": "3",
     "column widths": "150,150,150",
     "column headings": "Heading 1,Heading 2,Heading 3"
-    //"show bar": "true",
-    //"xlsx export": "true"
   },
   
   globalPropertySetter: function(parms) {
@@ -55,7 +50,7 @@ pui.widgets.add({
         parms.dom.grid.dontSetPagingScrollTop = true;
         setTimeout(function() {
           parms.dom.grid.dontSetPagingScrollTop = false;
-          if (parms.dom.grid.scrollbarObj != null) parms.dom.grid.scrollbarObj.draw()
+          if (parms.dom.grid.scrollbarObj != null) parms.dom.grid.scrollbarObj.draw();
         }, 0);
       }
       
@@ -94,7 +89,7 @@ pui.widgets.add({
       parms.dom.sizeMe = function() {
         if (parms.dom.grid.expandToLayout) parms.dom.grid.doExpandToLayout();
         parms.dom.grid["alignColumnTotals"]();
-      }
+      };
       if (parms.design) {
         var rowHeight = parseInt(parms.properties["row height"]);
         if (!isNaN(rowHeight) && rowHeight > 0) parms.dom.grid.rowHeight = rowHeight;
@@ -126,7 +121,7 @@ pui.widgets.add({
       setPropIfThere("row height");
       setPropIfThere("border color");
       setPropIfThere("border width");
-      if (parms.design) setTimeout(function() { setPropIfThere("expand to layout") }, 0);
+      if (parms.design) setTimeout(function() { setPropIfThere("expand to layout"); }, 0);
     }
     parms.dom.grid.setProperty(parms.propertyName, parms.value, parms.newValue);
   },

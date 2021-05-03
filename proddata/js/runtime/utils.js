@@ -4856,6 +4856,23 @@ pui.replaceProblemCaseChars = function(str, toLower){
 };
 
 /**
+ * Uppercase a string EXCEPT the lowercase ß eszett character. EBCDIC processing on server (e.g. PUI0001113) 
+ * does NOT support the uppercase ẞ eszett character. See issue 6715.
+ * @param {String|Null} str
+ * @returns {String}
+ */
+pui.upperCaseExceptEszett = function(str) {
+  if (str == null) return str;
+  var parts = str.split("ß");
+  if (parts.length <= 1) 
+    return str.toUpperCase();
+  for (var i = 0; i < parts.length; i++) {
+    parts[i] = parts[i].toUpperCase();
+  }
+  return parts.join("ß");
+};
+
+/**
  * Listener for input events on a couple of Genie input elements.
  * Ensure typed or pasted ß characters become the upper-case version to avoid becomming "SS". Issue 5369. See also 5785 for test cases.
  * @param {Object} e
