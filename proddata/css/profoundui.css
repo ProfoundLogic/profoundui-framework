@@ -696,12 +696,17 @@ div.cell > div.dbd { padding: 0px 4px; }
   width: 100%;
   border-collapse: collapse;
 }
+.grid-multifilter table tr:hover {
+  width: 100%;
+  border-collapse: collapse;
+  background: #b6daf2;
+}
 
 .grid-multifilter table td {
-  cursor: pointer;
+  cursor: default;
   /*IE*/
-  cursor: -webkit-grab;
-  cursor: grab;
+  cursor: -webkit-default;
+  cursor: default;
   /*Chrome, Edge, FF*/
 }
 
@@ -721,6 +726,9 @@ div.cell > div.dbd { padding: 0px 4px; }
 
 .grid-multifilter table tr:nth-child(even) {
   background: #eee;
+}
+.grid-multifilter table tr:nth-child(even):hover {
+  background: #b6daf2;
 }
 
 .grid-multifilter table thead {
