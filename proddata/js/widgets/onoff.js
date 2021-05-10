@@ -53,6 +53,15 @@ pui.OnOffSwitch = function() {
     else onPoint = totalWidth - 6;
     return onPoint;
   }
+
+  function click(event) {
+    if (me.readOnly) return;
+    if (me.disabled) return;
+    if (me.designMode) return;
+    if (draggingHandle) return;
+    me.toggle(true);
+    me.setModified(event);
+  }
   
   this.init = function() {
     offLabel.className = "off-label";
@@ -75,14 +84,12 @@ pui.OnOffSwitch = function() {
     me.container.appendChild(offLabel);
     me.container.appendChild(onLabel);
     me.container.appendChild(handleLeftDiv);
-    me.container.onclick = function(event) {
-      if (me.readOnly) return;
-      if (me.disabled) return;
-      if (me.designMode) return;
-      if (draggingHandle) return;
-      me.toggle(true);
-      me.setModified(event);
-    }
+
+    // See Redmine #6611
+    // Attach click event this way instead of using element.onclick property so that it doesn't get overwritten.
+    // Code in properties.js overwrites widget element "onclick" property when widget "onclick" property is applied.
+    removeEvent(me.container, "click", click);
+    addEvent(me.container, "click", click);
 
     function dragStart(event) {
       if (me.readOnly) return;
