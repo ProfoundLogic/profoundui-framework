@@ -751,14 +751,16 @@ function AutoComplete(config) {
 
   function position() {
 
+    var refEl = textBox;
     top = textBox.offsetTop;
     left = textBox.offsetLeft;
     if (textBox.parentNode != null && textBox.parentNode.floatingPlaceholder) {
       top = textBox.parentNode.offsetTop;
       left = textBox.parentNode.offsetLeft;
+      refEl = textBox.parentNode;
     }
 
-    var prt = textBox.parentNode;
+    var prt = refEl.parentNode;
     if (prt.parentNode.grid) {
 
       // Add cell offset. 
@@ -786,10 +788,10 @@ function AutoComplete(config) {
     // Add Genie window offset, if any. 
     if (context == "genie") {
 
-      if (textBox.parentNode["layerInfo"]) {
+      if (refEl.parentNode["layerInfo"]) {
 
-        top += textBox.parentNode.offsetTop + textBox.parentNode.clientTop;
-        left += textBox.parentNode.offsetLeft + textBox.parentNode.clientLeft;
+        top += refEl.parentNode.offsetTop + refEl.parentNode.clientTop;
+        left += refEl.parentNode.offsetLeft + refEl.parentNode.clientLeft;
 
       }
 
