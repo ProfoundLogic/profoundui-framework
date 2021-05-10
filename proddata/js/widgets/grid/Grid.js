@@ -336,7 +336,6 @@ pui.Grid = function () {
   var sortMultiPanel = null;  //UI for picking multiple sort columns.
   var filterMultiPanel = null; //UI for picking multiple filters from a data list to set on one column.
   var filterMultiPanelLoading = null; //panel that shows while filterMultiPanel is loading
-  var trickMultiFilterGrid = false; //if paging grid and running multifilter, temporarily pretend it's a load all grid
 
   this.enableDesign = function () {
     me.designMode = true;
@@ -9674,57 +9673,30 @@ pui.Grid = function () {
   this.showMultiFiltersPanel = function(headerCell) {
     if (me.tableDiv.parentNode == null) return;
     if(pui["is_ie"]) return;
-    //****disable in genie -- if )context==dspf?? *****/
-    //if(headerCell == null) return;
     //loading animation on table while panel is loading
     me.mask();
     me.gridLoading();
 
     if (filterMultiPanel == null){
-     /* if (filterMultiPanelLoading == null){
-        //Show loading panel until data is ready to display
-        filterMultiPanelLoading = document.createElement('div');
-        filterMultiPanelLoading.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
-        filterMultiPanelLoading.style.top = me.tableDiv.offsetTop + 'px';
-        filterMultiPanelLoading.style.left = me.tableDiv.offsetLeft + 'px';
-        filterMultiPanelLoading.style.height =  '350 px';
-
-        var headerL = document.createElement('div');
-        new pui.MoveListener({ attachto: headerL, move: filterMultiPanelLoading });
-        //Close button
-        var btnL = document.createElement('button');
-        btnL.className = 'pui-material-icons';
-        btnL.innerHTML = 'close';
-        addEvent(btnL, 'click', function(){
-          filterMultiPanelLoading.style.display = 'none';
-          filterMultiPanelLoading = null;
-        });
-        headerL.appendChild(btnL);
-
-        var loading = document.createElement('div');
-        var loadingAnimation = document.createElement('div');
-        loadingAnimation.className = 'pui-animation';
-        loading.appendChild(loadingAnimation);
-
-        var loadingText = document.createElement('P');
-        //*******add to messages, add css class*******
-        //innerHTML = pui['getLanguageText']('runtimeText','filter check');
-        loadingText.innerHTML = "Retreiving Data"
-        loading.appendChild(loadingText);
-        filterMultiPanelLoading.appendChild(loading);
-        me.tableDiv.parentNode.appendChild(filterMultiPanelLoading);
-      }*/
-
       filterMultiPanel = document.createElement('div');
       filterMultiPanel.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
-      filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
-      filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      if(headerCell != null){
+        filterMultiPanel.style.top = me.tableDiv.offsetTop + headerCell.offsetHeight + 'px';
+        filterMultiPanel.style.left = me.tableDiv.offsetLeft + headerCell.offsetLeft + 'px';
+        if(filterMultiPanel.style.top == null || filterMultiPanel.style.left == null){
+          filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+          filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+        }
+      }
+      else{
+        filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+        filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      }
 
       
       var header = document.createElement('div');
 
       new pui.MoveListener({ attachto: header, move: filterMultiPanel });
-      //how to detach buttons?
       //Close button
       var btn = document.createElement('button');
       btn.className = 'pui-material-icons';
@@ -9761,9 +9733,9 @@ pui.Grid = function () {
         }
         //If nothing checked, remove filter
         if(filterText == null || filterText == "VALUES"){me["removeFilter"](col);}
-        else{filterText += ",";}
         //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
         if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
+        if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){me.forceDataArray = false;}
         me["setFilter"](headerCell,filterText);
         me['unMask']();
         filterMultiPanel = null;
@@ -9804,45 +9776,7 @@ pui.Grid = function () {
       var checkFilterWithSQL = false;
       var gotFilterArr = false;
 
-      //enable loading animation here?
-      if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
-          var limit = -1;
-          var start = 1;
-          var dataURL = me["dataProps"]["data url"];
-          if (dataURL == "") dataURL = null;
-          var hCell = headerCell;
-          loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
-          console.log("data retrival into map complete");
-          //loadAllWithSQl() calls checkFilter() and displayData()
-        
-      }
-      else{
-        for (var i = 0; i < me.dataArray.length; i++) {
-          var record = me.dataArray[i];
-          if (record.subfileRow == null) record.subfileRow = i + 1;
-          //****add if indexs -- crashes here alot
-            //or get rid of indexs / get it from the colID thing in sql request*****
-          for (var j = 0; j < idxes.length; j++) {
-            var idx = idxes[j];
-            var value = record[idx];
-            var ignoreTest = false;
-            dataMap.set(value, checked);
-            checked = false;
-          } 
-        }
-        if(dataMap.size > 0){
-          checkIsFiltered(headerCell, filterText);
-          console.log("Filter check complete");
-          displayData();
-        }  
-        console.log("data retrival into map complete");
-      }
-      /*if(dataMap.size > 0){
-        checkIsFiltered(headerCell, filterText);
-        console.log("Filter check complete");
-        displayData();
-      }  */
-
+      
       function checkIsFiltered(headerCell, filterText){
         //If columns is already filtered, check any boxes that are included
         if(headerFilterText != null && headerFilterText != " "){
@@ -9854,6 +9788,8 @@ pui.Grid = function () {
               loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
             }
           } 
+          
+      
           else{
             // covers I/O and dataGrids where load all rows is true
             //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
@@ -9862,16 +9798,9 @@ pui.Grid = function () {
             me["setFilter"](headerCell,filterText);
           }
           if(me.filteredDataArray.length > 0){
-           /* if (headerCell.searchIndexes == null && headerCell.fieldName == null){
-              var fieldOrder = [];    //Array of field names to be in the same order as the columns.
-              for (field in me.filteredDataArray[0]) {
-                fieldOrder.push(field);
-              }
-            }*/
-
             for (var i = 0; i < me.filteredDataArray.length; i++) {
               var record = me.filteredDataArray[i];
-              if (record.subfileRow == null) {record.subfileRow = i + 1;} //needed?
+              if (record.subfileRow == null) {record.subfileRow = i + 1;}
               if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
                 data = record; //should be one result in all other cases
               }
@@ -9884,25 +9813,6 @@ pui.Grid = function () {
                   }
                 }
               }
-             /* else if (headerCell.fieldName != null){
-                for(var fieldName in record){
-                  if (fieldName == hCell.fieldName){
-                    data = record[fieldName];
-                  }
-                }
-              }
-              else{
-                if (headerCell.columnId != null){
-                  //var field, colNum, heading;
-                  //If nothing else, use colID
-                  var colFieldName = fieldOrder[headerCell.columnId];
-                  for(var fieldName in record){
-                    if (fieldName == colFieldName){
-                      data = record[fieldName];
-                    }
-                  }
-                }
-              }*/
               var ignoreTest = false;
               if(dataMap.has(data)){
                 dataMap.set(data, true);
@@ -9911,14 +9821,24 @@ pui.Grid = function () {
           }
         }
       }
+      function insertRows(){
+        tr = tbody.insertRow();
+        tr.columnId = col;
+        tr.onclick = checkonclick;
 
+        td = tr.insertCell();
+        var chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.name = data + '_filter';
+        chk.checked = checked;
+        td.appendChild(chk);
+
+        td = tr.insertCell();
+        td.innerHTML = data;
+
+      }
       function displayData(){
         //Put the first 50 records in cells and display them
-          
-        /* If loop below does not work, try this format:
-        dataMap.forEach((value, key, map) => {
-            do stuff here: ex: console.log ('for ${key} we had ${value}.')
-          });*/
         entries   = dataMap.entries();
         dataCount = dataMap.size;
         if(dataCount <= 50){
@@ -9943,61 +9863,85 @@ pui.Grid = function () {
         }
         
         filterMultiPanel.appendChild(includetable);
-        if(filterMultiPanelLoading != null){
-          filterMultiPanelLoading.style.display = 'none';
-          filterMultiPanelLoading = null;
-        }
         me.tableDiv.parentNode.appendChild(filterMultiPanel);
       }
 
-      function insertRows(){
-        tr = tbody.insertRow();
-        tr.columnId = col;
-
-        td = tr.insertCell();
-        var chk = document.createElement('input');
-        chk.type = 'checkbox';
-        chk.name = data + '_filter';
-        chk.onclick = checkonclick;
-        chk.checked = checked;
-        td.appendChild(chk);
-
-        td = tr.insertCell();
-        td.innerHTML = data;
-
-      }
-    }
-    else if (filterMultiPanel.style.display == ''){
-      filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User selected option, but panel is already showing. Maybe it's behind something.
-      filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
-    }
-    else {
-      //*****Change */
-      // Panel is not showing but exists.
-      var tBody = filterMultiPanel.querySelector("table").tBodies[0];
-      // Reset the checkboxes, and buttons on each row.
-      for (var i=0; i < tBody.childNodes.length; i++){
-        var tr = tBody.childNodes[i];
-        var found = false;
-        for (var j=0; j < sortMultiOrder.length; j++){
-          if (tr.columnId == sortMultiOrder[j].columnId ){
-            tr.sortDescending = sortMultiOrder[j].sortDescending;
-            tr.childNodes[0].firstChild.checked = true;
-          /* var button = tr.childNodes[3].firstChild;
-            if (button){
-              button.innerHTML = tr.sortDescending ? 'arrow_downward' : 'arrow_upward';
-            }*/
-            found = true;
-            break;
+      function checkonclick(e){
+        //set data first, then check if in map, then set to data to status of checked
+        
+        if(e.target.localName == "td"){
+          if(this.cells[0].children[0].checked == false){
+            //change checkbox to true
+            this.cells[0].children[0].checked = true;
+            checked = true;
+          }
+          else {
+            //change checkbox to false
+            this.cells[0].children[0].checked = false;
+            checked = false;
           }
         }
-        if (!found){
-          tr.childNodes[0].firstChild.checked = false;
+        if(e.target.localName == "input"){
+          if(this.cells[0].children[0].checked == true){
+            //change checked to true
+            this.cells[0].children[0].checked = true;
+            checked = true;
+          }
+          else {
+            //change checkbox to false
+            this.cells[0].children[0].checked = false;
+            checked = false;
+          }
+        }
+        data = this.cells[1].innerHTML;
+        if (data != null && dataMap.has(data)){
+          dataMap.set(data, checked);
         }
       }
-    // recalcRows(tBody);
+      
+
+      if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
+        var limit = -1;
+        var start = 1;
+        var dataURL = me["dataProps"]["data url"];
+        if (dataURL == "") dataURL = null;
+        var hCell = headerCell;
+        loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell); 
+      }
+      else{
+        for (var i = 0; i < me.dataArray.length; i++) {
+          var record = me.dataArray[i];
+          if (record.subfileRow == null) record.subfileRow = i + 1;
+          for (var j = 0; j < idxes.length; j++) {
+            var idx = idxes[j];
+            var value = record[idx];
+            var ignoreTest = false;
+            dataMap.set(value, checked);
+            checked = false;
+          } 
+        }
+        if(dataMap.size > 0){
+          checkIsFiltered(headerCell, filterText);
+          displayData();
+          me["unMask"]();
+        }  
+      }
+
     }
-    me['unMask']();
+    else if (filterMultiPanel.style.display == ''){
+      if(headerCell != null){
+        filterMultiPanel.style.top = me.tableDiv.offsetTop + headerCell.offsetHeight + 'px';
+        filterMultiPanel.style.left = me.tableDiv.offsetLeft + headerCell.offsetLeft + 'px';
+        if(filterMultiPanel.style.top == null || filterMultiPanel.style.left == null){
+          filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+          filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+        }
+      }
+      else{
+        filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User selected option, but panel is already showing. Maybe it's behind something.
+        filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      }
+    }
     filterMultiPanel.style.display = '';
     
     // Fix when there isn't enough space in a layout to show all the columns: make scrollable. 5344.
@@ -10015,33 +9959,14 @@ pui.Grid = function () {
       return target;
     }
   
-    function checkonclick(e){
-      //recalcRows(e.target.parentNode.parentNode.parentNode);  //input, td, tr, tbody.
-
-      //set data first, then check if in map, then if false set to data: true, if true set to false / or status of checked
-      if(this.checked == true){checked = true;}
-      else {checked = false;}
-      data = this.parentElement.nextSibling.innerHTML;
-      if (data != null && dataMap.has(data)){
-        dataMap.set(data, checked);
-      }
-    }
     
     filterMultiPanel.onscroll = function(){ 
       //If all rows have displayed
       var dataLeft = dataCount - rowCount;
       if (dataCount <= 50 || dataLeft == 0) return;
       
-      //document.height -- panel??
-      var scrollHeight = filterMultiPanel.offsetHeight; //or me.tablediv me.tableDiv.paranetNode?
-      //window.height -- scrollobj??? -- does not exist
-      //if ( element.scrollTop == (element.scrollHeight - element.offsetHeight) )
-      //top + o >=s
-      //var scrollPos = filterMultiPanel.scrollHeight + filterMultiPanel.scrollTop;
-      //if ((scrollHeight - scrollPos) / scrollHeight == 0) {
-        if (filterMultiPanel.scrollTop >= (filterMultiPanel.scrollHeight - filterMultiPanel.offsetHeight)) { // or inner height? // -50px?
-        //$('.load-more-days-button').click();
-        console.log("bottom?");
+      var scrollHeight = filterMultiPanel.offsetHeight;
+        if (filterMultiPanel.scrollTop >= (filterMultiPanel.scrollHeight - filterMultiPanel.offsetHeight)) {
         //If less than 50 records are left
         if(dataLeft <= 50){
           for(var i = 0; i < dataLeft; i++){
@@ -10051,7 +9976,6 @@ pui.Grid = function () {
             insertRows();
             rowCount ++;
           }
-          console.log("display > 50");
         }
         //Display 50 more records
         else{
@@ -10062,21 +9986,19 @@ pui.Grid = function () {
             insertRows();
             rowCount ++;
           }
-          console.log("display < 50");
         }
       }
     };
 
     function loadAllWithSQL(limit, start, total, dataURL, hCell) {
-      //customURL, cache
-      //sql --built for database name and stuff -- only for seclevel 0?
-      //show empty panel and mask that at the start
-      //these should be hardcoded -- need to check here?
-      if (limit == null) limit = -1; //limit = -1
-      if (start == null) start = 1;  //start = 1
+      me.mask(); // disable UI until server responds.
+      me.gridLoading();
+      
+      if (limit == null) limit = -1; 
+      if (start == null) start = 1;  
       var pstring = null;
 
-      //if (pui["secLevel"] > 0) {
+      
         // Setup parameters that are needed now for sqlcache comparison and later for postData.
         pstring = pui.getSQLParams(me["dataProps"]);
 
@@ -10085,7 +10007,7 @@ pui.Grid = function () {
           //  need to include this logic when exporting data also
           me.filterString = "";   // format here and then pass to export function
 
-          if (me.isFiltered()) {
+          if (headerFilterText != null && headerFilterText != " "){
             var headerRow = me.cells[0];
             // Look in each column for filter text.
             var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
@@ -10105,44 +10027,35 @@ pui.Grid = function () {
         if (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "" && me.sortBy != null) {
           pstring += "&order=" + me.sortBy;
         }
-      //}
-      //} //done creating sql query parameters.
+        //done creating sql query parameters.
 
       var returnVal = null;
       var url = getProgramURL("PUI0009102.PGM");
-      if (dataURL) url = pui.appendAuth(dataURL); //how to set? is needed?
+      if (dataURL) url = pui.appendAuth(dataURL);
       var req = new pui.Ajax(url);
       req["method"] = "post";
       req["async"] = true;
-      //if (callback == null) req["async"] = false;
-      //if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH; //don't enable for genie, so on't need this?
       if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
 
-      //if (pui["secLevel"] > 0) {
-        req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
+      req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
 
-        //is order by neccesary?
-        var orderBy = me["dataProps"]["order by"];
-        if (me.sortBy != null) orderBy = me.sortBy;
-        if (orderBy && orderBy != "") {
-  
-          req["postData"] += "&order=" + orderBy;
-  
-        }
-        else if (getDBDriver() == "mssql") {
-          // Order by is required for OFFSET/FETCH.
-          // This should give the same sort as if order by was not used.
-          req["postData"] += "&order=(select null)";
-        }
-  
-        // Add parameters. pstring is not null if secLevel > 0, because getSQLParams always returns a string.
-        if (pstring != "") {
-          req["postData"] += "&" + pstring;
-        }
-      //}
-      /*else { //attached to sec lvl 0
-        req["postData"] += "&q=" + pui.aes.encryptString(sql);
-      }*/
+      var orderBy = me["dataProps"]["order by"];
+      if (me.sortBy != null) orderBy = me.sortBy;
+      if (orderBy && orderBy != "") {
+
+        req["postData"] += "&order=" + orderBy;
+
+      }
+      else if (getDBDriver() == "mssql") {
+        // Order by is required for OFFSET/FETCH.
+        // This should give the same sort as if order by was not used.
+        req["postData"] += "&order=(select null)";
+      }
+
+      // Add parameters.
+      if (pstring != "") {
+        req["postData"] += "&" + pstring;
+      }
 
       req["postData"] += "&limit=" + limit + "&start=" + start;
       if (total != null && total == true) req["postData"] += "&getTotal=1";
@@ -10162,20 +10075,15 @@ pui.Grid = function () {
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
 
         if (response) {
-          //how to use callbacks?
-          /*if (callback != null) {
-            var hCell2 = hCell;
-            dataIntoDataArray(response.results, response.totalRecs, response["matchRow"], hCell2);
-          }*/
+          me.mask(); // disable UI until server responds.
+          me.gridLoading();
          
           var data = response.results;
           var totalRecords = response.totalRecs;
           if (totalRecords != null) me.totalRecs = totalRecords;//?
 
           if(data.length >= 1){
-            /*for(var fieldName in data[0]){
-              me.fieldNames.push(pui.fieldUpper(fieldName));
-            }*/
+           
             var fieldOrder = [];    //Array of field names to be in the same order as the columns.
             for (field in response["results"][0]) {
               fieldOrder.push(field);
@@ -10187,7 +10095,7 @@ pui.Grid = function () {
               //Normal database-driven grids using dataURL or CustomURL don't have the field name in the headerCell
               if(hCell.fieldName != null){
                 for(var fieldName in record){
-                  if (fieldName == hCell.fieldName){
+                  if (fieldName.toUpperCase() == hCell.fieldName.toUpperCase()){
                     var fieldValue = record[fieldName];
                     if (checkFilterWithSQL == true){ me.filteredDataArray.push(fieldValue);}
                     dataMap.set(fieldValue, false);
@@ -10199,11 +10107,8 @@ pui.Grid = function () {
                 me.dataArray = data;
                 me.waitingOnRequest = false;
                 me.forceDataArray = true;
-                //me["setFilter"](headerCell,filterText);
-
-                //record = me.filteredDataArray;
+                
                 // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
-               //fieldorder set here before
                 var colFieldName = fieldOrder[hCell.columnId];
                 for(var fieldName in record){
                   if (fieldName == colFieldName){
@@ -10216,50 +10121,23 @@ pui.Grid = function () {
             }
             if(checkFilterWithSQL == true && me.filteredDataArray.length > 0){gotFilterArr = true;}
             if(dataMap.size > 0){
-              console.log("data retrevial complete");
               checkIsFiltered(hCell, filterText);
-              console.log("filter check complete");
               //If getting filteredDataArray, stop first display call
-              if(!me.isFiltered() || me.isFiltered() && gotFilterArr == true){
+              if((headerFilterText == null || headerFilterText == " ") ||(headerFilterText != null && headerFilterText != " " && gotFilterArr == true)){//(!me.isFiltered() || (me.isFiltered() && gotFilterArr == true)){
+                //Display if there is no filter or
+                //LoadAllWithSQL will be called twice when col is filtered, so prevent the first display (display only if filteredDataArry > 0)
                 displayData();
-                console.log("data display complete");
+                me['unMask']();
               }
             }
           }
         }
-       //don't need?
-       /*if (ondbload) pui.executeDatabaseLoadEvent(ondbload, successful, me.tableDiv.id);
-        me.waitingOnRequest = false; //Allow filter changes and clicks to sort columns.*/
       };
       me.waitingOnRequest = true; //Ignore filter changes and clicks to sort columns.
       req.send();
     }
-    /*function receiveIntoDataArray(data, totalRecs, matchRow, hCell) {
-
-    }*/
-    
-    //***is this needed? */
-    /* function recalcRows(tbody){
-      var order = 0;
-      // Re-calculate the order numbers, show/hide buttons.
-      for (var i=0; i < tbody.rows.length; i++){
-        var tr = tbody.rows[i];
-        var chk = tr.cells[0].children[0];
-        var ordercell = tr.cells[1];
-        var btn = tr.cells[3].children[0];
-        if (chk.checked){
-          tr.order = order;
-          ordercell.innerHTML = order;
-          order++;
-          btn.style.visibility = '';
-        }else{
-          tr.order = -1;
-          ordercell.innerHTML = '';
-          btn.style.visibility = 'hidden';
-        }
-      }
-    }*/
   };
+  
   function getDBDriver() {
 
     var connections = pui["getDatabaseConnections"]();

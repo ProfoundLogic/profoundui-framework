@@ -260,10 +260,9 @@ pui.GridMenu = function() {
           me.grid["startFilter"](me.cell);
         });
       
-        if(!pui["is_ie"]){
+        if(!pui["is_ie"] || context != "genie"){
           menuOptions.push(pui["getLanguageText"]("runtimeText", "multi filter text"));
-          //menuOptions.push("Select Multiple Filters");
-          menuIcons.push("icons/filter.png");
+          menuIcons.push("icons/filter_multi.png");
           optionHandlers.push(function() {
             me.grid.showMultiFiltersPanel(me.cell);
           });
