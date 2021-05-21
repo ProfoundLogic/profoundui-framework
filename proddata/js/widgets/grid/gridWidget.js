@@ -129,6 +129,8 @@ pui.widgets.add({
   initialize: function(parms) {
     var sql = null;
     if (!parms.design && parms.dom != null && parms.dom.grid != null) {
+      if (parms.properties['field type']) parms.dom.setAttribute('puiwdgt', parms.properties['field type']);
+      
       parms.dom.grid.setAllCellStyles();
       parms.dom.grid.sizeAllCells();      
       parms.dom.grid.setHeadings();

@@ -4449,6 +4449,11 @@ pui.hideWaitAnimation = function() {
   if (animation != null && animation.parentNode != null) {
     animation.parentNode.removeChild(animation);
   }
+  
+  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+    var grid = pui.gridsDisplayed[i];
+    if (!grid.subfileHidden) grid['unMask']();
+  }
 };
 
 
