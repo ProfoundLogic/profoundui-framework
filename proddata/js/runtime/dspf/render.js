@@ -5200,7 +5200,7 @@ pui.closeSession = function() {
     return;
   }
  
-  document.body.innerHTML = '<div style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+  document.body.innerHTML = '<div id="close-browser-msg" style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
   
   // This can throw an exception in some older releases of FireFox 3 when attempting to 
   // close a window that was not opened through scripting.
