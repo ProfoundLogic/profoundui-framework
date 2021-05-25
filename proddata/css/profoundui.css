@@ -4878,7 +4878,7 @@ a.ui-link-inherit {
 }
 
 /* Profound UI widget main Elements use absolute positioning by default. */
-[puiwdgt] { position: absolute; }
+/*[puiwdgt] { position: absolute; }*/
 
 /* Cells inside Profound UI grid widgets. */
 [puiwdgt="grid"] > div.cell {
