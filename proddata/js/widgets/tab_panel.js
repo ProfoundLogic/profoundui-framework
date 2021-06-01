@@ -672,7 +672,12 @@ function TabPanel() {
     if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
     var tab = target.tabId;
     if (typeof me.tabSpanOnclickCb === 'function' && me.tabSpanOnclickCb(tab) == false) return;  //the callback is implemented in TabLayout.
-
+    else if (me.container.ontabclick != null) {
+      // Handle the tab panel ontabclick.
+      var returnVal = me.container.ontabclick(tab);
+      if (returnVal == false) return;
+    }
+    
     if (me.container.tabKeys != null) {
       var tabKeysArray = me.container.tabKeys.split(",");
       if (tabKeysArray.length - 1 >= tab) {
