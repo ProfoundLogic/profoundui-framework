@@ -93,7 +93,7 @@ pui.widgets.add({
     },
 
     "choices url": function(parms) {
-      if (!parms.design && typeof parms.dom.autoComp.updateUrl === "function") {
+      if (!parms.design && parms.dom && parms.dom.autoComp && typeof parms.dom.autoComp.updateUrl === "function") {
         parms.dom.autoComp.updateUrl(parms.value);
       }
     }
