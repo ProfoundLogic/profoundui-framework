@@ -562,15 +562,23 @@ FieldSet {
 
 div.cell > div.dbd { padding: 0px 4px; }
 
+.header-cell {
+  box-sizing: border-box;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+}
+
 .header-cell > div {
   position: relative;
   white-space: normal;
-  top: calc(50% - 6px);
   left: 0px;
   width: calc(100% - 8px);
   padding: 0px 4px;
 }
-.header-cell > div.qf { top: calc(50% - 16px); }
+.header-cell > div.qf { margin-top: -19px; }
 .header-cell > input.qf {
   position: absolute;
   bottom: 2px;
@@ -13206,16 +13214,6 @@ div.blueprint-file-upload div.drop-box.dragover {
   color: #fff;
   background: #2980b9;
   font-weight: 400;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-line-pack: center;
-  align-content: center;
   padding: 3px !important;
   white-space: normal;
 }
@@ -15764,16 +15762,6 @@ div.office-copy-file-upload div.drop-box.dragover {
   color: #fff;
   background: #4e4c5b;
   font-weight: 400;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-line-pack: center;
-  align-content: center;
   padding: 3px !important;
   white-space: normal;
 }
