@@ -2179,7 +2179,11 @@ pui.Grid = function () {
             fieldData[me.fieldNames[j]] = valuesData[j];
           }
         }
-        
+        //6583 - if the SQL database column name is long, the fieldname used to get the data will be wrong
+            //set pui_show use the longname in render.js > EvalBoundProperty()
+        if(me["dataProps"]["load fields into widgets"] == "true"){
+          fieldData["__pui_show"] = true;
+        }
         var setRowBg = me.selectionEnabled || me.rowFontColorField != null || me.rowBackgroundField != null;
 
         if (fieldData.empty != true) {
