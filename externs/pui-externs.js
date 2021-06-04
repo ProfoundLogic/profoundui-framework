@@ -302,6 +302,7 @@ var pui = {
   plugins: {},
   addPlugin: {},
   Tracker: {},
+  question: {},
   questions: {},
   source: {},
   required: {},
