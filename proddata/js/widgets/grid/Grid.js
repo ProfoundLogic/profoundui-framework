@@ -281,7 +281,7 @@ pui.Grid = function () {
   this.scrollBarsSetupAfterRender = false;
 
   this.storageKey = null;
-  this.storedState = null;
+  this.storedState = null;    //Used with server-side Persist State. https://docs.profoundlogic.com/x/CoC7Aw
   
   // Expose these closured functions to the object so that prototyped methods can reach them. (Avoids having to move everything into prototypes at once.)
   this._setLineTops = setLineTops;
@@ -8215,6 +8215,7 @@ pui.Grid = function () {
 
       }
       else {
+        me.storedState = "{}";  //Ensure that settings in the server's PUISTATEP file are cleared. #6778.
         if(sessionState == true){
           try{ delete sessionStorage[me.storageKey]; }catch(exc){}
         }
