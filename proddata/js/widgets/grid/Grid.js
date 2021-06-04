@@ -750,7 +750,7 @@ pui.Grid = function () {
       }
       return;
     }
-
+    
     if (context == "genie" && !pui.usingGenieHandler) {
       pui.alert("In 5250 mode, the \"csv export\" feature requires an SQL-driven subfile.");
       return;
@@ -1270,65 +1270,34 @@ pui.Grid = function () {
     
     // Take the data retrieved, create and download an excel file. response.results must be a non-empty array.
     function makexlsx(response) {
-      var field, colNum, heading;
-      // Note: these tests are declared here with closures to fieldName and colNum to avoid being re-allocated on each outer array iteration.
-      function columnInfoTest(el){
-        return el.name == field;
-      }
-      function fieldInfoTest(el){
-        return el['field'] === field;
-      }
+      var field, colNum, heading, colEl, len;
+      // Used to find array elements whose "field" property matches the closured field var.
+      function matchingField(el){ return el['field'] == field; }
       
       // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
-      var fieldOrder = [];    //Array of field names to be in the same order as the columns.
-      for (field in response["results"][0]) {
-        fieldOrder.push({fieldName: field, fullName: field });
-      }
-      
-      // The results array and its order may not match the order or number of columns visible in the grid, so get the order. #6476
-      if ((me.movableColumns || me.exportVisableOnly)
-      && typeof me['dataProps']["database fields"] == 'string' && me['dataProps']["database fields"].length > 0){
-        // "database fields" is updated when columns move, so it determines the column output order.
-        var fullName, dbFields = me['dataProps']["database fields"].split(',');
-        var tmpfieldOrder = [];
-        var endsInStarRE = /\*$/;
-        var aliasRE = /^(\S+\.)?(\S+)(( as)? (\S+))?$/i;
-        var allOk = true;
-        var n = dbFields.length;
-        colNum = 0;
-        var checkSkip = me.exportVisableOnly && me.columnInfo instanceof Array && me.columnInfo.length > 0;
-        while (colNum < n){
-          if (dbFields[colNum].length == 0 || endsInStarRE.test(dbFields[colNum])){
-            // If any are blank or end in '*', then the "database fields" property cannot be trusted to determine the order.
-            // TODO: if PUI0009102 returned field info, instead of using 9101, the correct info could be obtained for each column.
-            allOk = false;
-            break;
-          }
-          else {
-            field = dbFields[colNum];
-            var skip = false;
-            if (checkSkip){
-              var foundEl = me.columnInfo.find( columnInfoTest );
-              skip = (foundEl && foundEl['showing'] !== true);
-            }
-            
-            if (!skip) {
-              // Look for aliases and extract the alias.
-              fullName = field;
-              var matches = aliasRE.exec(dbFields[colNum]);
-              if (matches){
-                if (matches[5] && matches[5].length > 0)
-                  field = matches[4];  //use the alias as the field name, because the results will be under the alias.
-                else
-                  field = matches[2];  //use the field name without the qualifier, because fields in PUI0009102 have no qualifiers.
-              }
-              tmpfieldOrder.push( {fieldName: field, fullName: fullName } );              
-            }
-            colNum++;
-          }
+      var fieldOrder = [];
+      if ((me.movableColumns || me.hidableColumns) && Array.isArray(me.columnInfo) && me.columnInfo.length > 0){
+        // Get info on all visible columns or all columns, and sort that in order of being displayed.
+        var sortedcolinf = me.columnInfo.filter(function(el){ return el['showing'] || me.exportVisableOnly != true; });
+        sortedcolinf.sort(function(a,b){
+          var colA = a['currentColumn'];
+          if (colA < 0) colA = 999 + a['columnId'];  //Put hidden columns to the right of all visible cells in a relative order.
+          var colB = b['currentColumn'];
+          if (colB < 0) colB = 999 + b['columnId'];
+          return colA - colB;
+        });
+        // Get the field order from each column that has a "field" property.
+        for (colNum=0, len=sortedcolinf.length; colNum < len && (colEl = sortedcolinf[colNum]) && colEl['field']; colNum++){
+          fieldOrder.push({
+            fieldName: colEl['field'],
+            name: colEl['blankHeader'] ? '' : colEl['name']
+          });
         }
-        
-        if (allOk && tmpfieldOrder.length > 0) fieldOrder = tmpfieldOrder;
+      }
+      else {
+        for (field in response["results"][0]) {
+          fieldOrder.push({fieldName: field, fullName: field });
+        }
       }
 
       var numCols = 0;
@@ -1338,22 +1307,21 @@ pui.Grid = function () {
         // In case the web service doesn't return "colWidths" with its data, count the number of fields in the results.
         numCols = Object.keys(response["results"][0]).length;
       }
-      // Do not export all the columns when "export only visible columns" is true.
-      if (me.exportVisableOnly && fieldOrder.length > 0 && fieldOrder.length < numCols) numCols = fieldOrder.length;
+      // Do not export all the columns when there are fewer than "numCols", as when "export only visible columns" is true.
+      if (fieldOrder.length > 0 && fieldOrder.length < numCols) numCols = fieldOrder.length;
 
       var worksheet = new pui.xlsx_worksheet(numCols);
       var workbook = new pui.xlsx_workbook();
       workbook.feedbackObj = me.pagingBar;
       
-      // If the DB-Driven grid got a PUI0009101 response, then set the column formats if we can match column names.
+      // If the DB-Driven grid got a PUI0009101 response, then set the column formats if we can match columns.
       if (response['fields'] != null) {
-        colNum = 0;
         // Find the field info for each column. Note: the order of keys in "fields" may not match the order in "results".
-        fieldOrder.forEach(function(el){
+        fieldOrder.forEach(function(el, idx){
           field = el.fieldName;
-          var foundEl = response['fields'].find( fieldInfoTest );
+          var foundEl = response['fields'].find( matchingField );
           var format = foundEl ? { "dataType": foundEl["type"], "decPos": foundEl["decPos"] } : {'dataType':'char'};
-          worksheet.setColumnFormat(colNum++, format);
+          worksheet.setColumnFormat(idx, format);
         });
       }
 
@@ -1361,19 +1329,19 @@ pui.Grid = function () {
         // Get headings for each column.
         colNum = 0;
         worksheet.newRow();
-        if (me.columnInfo instanceof Array && me.columnInfo.length > 0) {
-          // If columns can be hidden, or if the order changed, then the column information is in me.columnInfo.
-          fieldOrder.forEach(function(el){
-            field = el.fullName;
-            // All columns are exported. When any are hidden, header text is in columnInfo instead of DOM cells.
-            var foundEl = me.columnInfo.find( columnInfoTest );
-            if (foundEl) heading = foundEl["blankHeader"] ? '' : rtrim(foundEl["name"]);
-            else heading = '';
-            worksheet.setCell(colNum++, heading, 'char');
-          });
+        if (me.hidableColumns || me.movableColumns){
+          // If any columns remain, then they are likely hidden. Find their headings by their field name.
+          if (Array.isArray(me.columnInfo) && me.columnInfo.length > 0){
+            for (len=fieldOrder.length; colNum < len && (colEl = fieldOrder[colNum]); colNum++){
+              field = colEl.fieldName;
+              var foundEl = me.columnInfo.find( matchingField );
+              heading = (foundEl ? foundEl['name'] : '');
+              worksheet.setCell(colNum, heading, 'char');
+            }
+          }
         }
         else if (me.cells[0] instanceof Array && me.cells[0].length > 0){
-          // Assume the columns are in the same order as the fields in this case. TODO: headings should always be in me.columnInfo.
+          // Assume the column data is in the same order as the fields in this case.
           for (var n=fieldOrder.length; colNum < n; colNum++){
             // Get the headings directly from the DOM cells.
             heading = me.cells[0][colNum] ? rtrim(getInnerText(me.cells[0][colNum])) : '';
@@ -1397,6 +1365,9 @@ pui.Grid = function () {
         for (var j=0, m=fieldOrder.length; j < m; j++){
           field = fieldOrder[j];
           var value = row[field.fieldName];
+          // An alias may be in lowercase when the result may be upper. #6600.
+          if (value == null && field.fieldName) value = row[ field.fieldName.toUpperCase() ];
+          
           if (value != null){
             var datatype = worksheet.formats[colNum]["dataType"];
             if (hasCommaSep && (datatype == "zoned" || datatype == "packed")) {
@@ -2379,6 +2350,8 @@ pui.Grid = function () {
      * @returns {undefined}
      */
     function receiveData(data, totalRecs, matchRow) {
+      function colIdMatchingIdx(el){ return el['columnId'] === idx; }
+      
       if (me == null || me.cells == null) return; // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
       if (matchRow > 0) {
@@ -2392,6 +2365,17 @@ pui.Grid = function () {
       var cellMap = new Array(me.cells[0].length);
       for (var i = 0; i < me.cells[0].length; i++) {
         cellMap[me.cells[0][i].columnId] = i;
+      }
+      
+      // Preserve field name into me.columnInfo so that the field can be later matched to custom-sql and DBD XLSX export response data. #6476, #6600.
+      // Assume the data returned by the server is in the grid's original column order: the first field is in column 0, etc. 
+      if ((me.movableColumns || me.hidableColumns) && data.length > 0 && me.columnInfo.length){
+        var idx=0;
+        for (var j in data[0]) {
+          var col = me.columnInfo.find( colIdMatchingIdx );
+          if (col) col['field'] = j;
+          idx++;
+        }
       }
 
       // For each returned record, put the data into grid cells.
@@ -2417,9 +2401,9 @@ pui.Grid = function () {
               else {
                 idx = colNum;
               }
-              // In case the user hides a column, if the current column is hidden continue
-              // else check if the user has set the text align
+              // When columns can be hidden or moved, then the export order can change. Track info to help with exporting from DBD etc. grids.
               if (me.hidableColumns) {
+                // If the current column is hidden continue.
                 if (idx == undefined) {
                   colNum++;
                   continue;
@@ -2428,7 +2412,8 @@ pui.Grid = function () {
                   var textAlignArr = me.cellProps["text align"].split(',');
                   if (textAlignArr[colNum]) alignCSS = " text-align:" + textAlignArr[colNum];
                 }
-              } else if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
+              }
+              else if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
                 alignCSS = " text-align:" + row[idx].style.textAlign;
               }
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
@@ -3113,19 +3098,20 @@ pui.Grid = function () {
         var savedCols = colState["cols"];
         // return newCols array
         var cols = savedCols.map(function (col) { return col; });
-        // var headings = [];
         var colSequence = state["colSequence"];
         if (cols != null) {
-		      cols.sort(function(a, b) {
-			      if (a["savedColumn"] > b["savedColumn"]) return 1;
-			      else return -1;
-		      })
-		      .forEach(function (col) {
+          cols.sort(function(a, b) {
+            if (a["savedColumn"] > b["savedColumn"]) return 1;
+            else return -1;
+          })
+          .forEach(function (col) {
             var columnId = col["columnId"];
             if (columnId !== undefined) {
+              // Find the entry in me.columnInfo whose column ID matches the saved column. Set the found name, etc. (and stop looking).
               me.columnInfo.every(function(orgCol) {
                 if (orgCol["columnId"] === columnId) {
                   col["name"] = orgCol["name"];
+                  col['field'] = orgCol['field']; //For DBD grids, field names are stored with the columns. Save to allow later matching. #6600
                   return false;
                 }
                 return true;
@@ -4985,7 +4971,7 @@ pui.Grid = function () {
         var colNum = me.vLines.length - 1;
         var colWidths = me.getColumnWidths()
           .split(',')
-          .map(function(num){ return Number(num); });
+          .map(function(num){ return Number(num); });  
         for (var i = 0; i < colNum; i++) {
           var header = me.columnHeadings[i];
           var blankHeader = false;
