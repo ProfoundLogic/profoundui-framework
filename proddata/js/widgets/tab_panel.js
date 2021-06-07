@@ -1139,12 +1139,13 @@ pui.widgets.add({
       }
       
       if (!parms.design) {
-        // set and get current tab api's to the DOM element.
-        parms.dom.setTab = parms.dom.tabPanel.setTab;
-        parms.dom.getTab = parms.dom.tabPanel.getTab;
-        parms.dom.refresh = parms.dom.tabPanel.refresh;
-        parms.dom["hideTab"] = parms.dom.tabPanel.hideTab;
-        parms.dom["showTab"] = parms.dom.tabPanel.showTab;
+        var tabPanel = parms.dom.tabPanel;
+        // set and get current tab api's to the DOM element. Bind because tabPanel, not parms.dom, should be "this" inside these functions. #6785.
+        parms.dom.setTab = tabPanel.setTab.bind(tabPanel);
+        parms.dom.getTab = tabPanel.getTab.bind(tabPanel);
+        parms.dom.refresh = tabPanel.refresh.bind(tabPanel);
+        parms.dom["hideTab"] = tabPanel.hideTab.bind(tabPanel);
+        parms.dom["showTab"] = tabPanel.showTab.bind(tabPanel);
       }
     },
     
