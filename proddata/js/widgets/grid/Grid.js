@@ -765,16 +765,12 @@ pui.Grid = function () {
     var graphicData = [];
     var boundVisibility = [];
     var boundDate = [];
-    var imageData = [];    
-    var hyperlinks = [];
+    var imageData = [];
+    var hyperlinks = [], columnIds = [];
     
     var totalColumns = me.vLines.length - 1;
-    if (me.hidableColumns && !me.exportVisableOnly) {
-      totalColumns = me.columnInfo.length;
-      var sortedColumnInfo = me.columnInfo.sort(function(a, b){
-        return a["columnId"] - b["columnId"];
-      });
-    }
+    if (me.hidableColumns && !me.exportVisableOnly) totalColumns = me.columnInfo.length; //More columns will export than there are ones visible.
+    
     for (var i = 0; i < totalColumns; i++) {
       columnArray.push(-1);
       numericData.push(false);
@@ -783,17 +779,19 @@ pui.Grid = function () {
       boundDate.push(false);
       imageData.push(false);
       hyperlinks.push(false);
+      columnIds.push(-1);
     }
 
     var tempformats = [];
     var colcount = 0;
 
-    // go through all grid elements, retrieve field names, and identify data index by field name
-    for (var i = 0; i < me.runtimeChildren.length; i++) {
+    // go through all grid elements, retrieve field names, and identify data index by field name   
+    for (var i=0, n=me.runtimeChildren.length; i < n; i++) {
       var itm = me.runtimeChildren[i];
+      // Look only for widgets that are not hidden.
       if (itm["visibility"] != "hidden") {
         var col = Number(itm["column"]);
-        if (me.hidableColumns && !me.exportVisableOnly) col = itm["columnId"];
+        // If: "col" is valid and a widget for the column was not already found. (there can be multiple widgets per column, but only one exports).
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
           if (pui.isBound(itm["visibility"])) {
             boundVisibility[col] = itm["visibility"];
@@ -814,7 +812,7 @@ pui.Grid = function () {
               // If the hyperlink reference is bound, then it should be exported with XLSX as a link.
               // Find the column for the hyperlink-reference fieldname.
               var fieldName = pui.fieldUpper(hyperlink["fieldName"]);
-              for (var j = 0; j < me.fieldNames.length; j++ ) {
+              for (var j=0, m=me.fieldNames.length; j < m; j++ ) {
                 if (fieldName == me.fieldNames[j]) {
                   hyperlinks[col].linkBound = j;
                   break;
@@ -834,11 +832,13 @@ pui.Grid = function () {
 
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
             var fieldName = pui.fieldUpper(val["fieldName"]);
-            for (var j = 0; j < me.fieldNames.length; j++) {
+            for (var j=0, m=me.fieldNames.length; j < m; j++ ) {
               if (fieldName == me.fieldNames[j]) {
-                columnArray[col] = j;
-                if (exportXLSX)
-                  tempformats[col] = val;
+                columnIds[col] = itm['columnId']; //Map the columnId to the mapping of columns -> me.dataArray.
+                columnArray[col] = j;             //Map the column number to the corresponding index in fieldNames and me.dataArray.
+                
+                if (exportXLSX) tempformats[col] = val;
+                
                 colcount++;
                 if (val["formatting"] == "Number") {
                   numericData[col] = true;
@@ -849,6 +849,7 @@ pui.Grid = function () {
                 if (val["dataType"] == "graphic") {
                   graphicData[col] = true;
                 }
+                
                 //If the item is an image, then it will be exported with XLSX.
                 if (exportXLSX){
                   if (itm["field type"] == "image"){
@@ -879,6 +880,27 @@ pui.Grid = function () {
         } //end if item column is valid.
       }
     }
+    
+    // Get widths and headings of all columns, including hidden ones. #6476.    
+    var widths, headings, col, n, columnId;
+    if (me.hidableColumns && !me.exportVisableOnly) {
+      widths = []; headings = [];
+      var matchesCurCol = function(el){ return el['columnId'] == columnId; };
+      for (col=0, n=columnIds.length; col < n; col++) {
+        columnId = columnIds[col];
+        var heading='', width=100;
+        if (columnId >= 0){
+          // Find the entry in columnInfo for the currentColumn.
+          var found = me.columnInfo.find(matchesCurCol);
+          if (found){
+            heading = found['blankHeader'] ? '' : found['name'];
+            width = pui.safeParseInt(found['orginalWidth']);
+          }
+        }
+        headings[col] = heading;
+        widths[col] = width;
+      }
+    }
 
     var data = ""; //CSV data.
     var worksheet;
@@ -892,14 +914,9 @@ pui.Grid = function () {
       worksheet = new pui.xlsx_worksheet(colcount);
       worksheet.setDefaultRowHeight( me.rowHeight );
       var widthsUse = [];
-      var widths;
-      if (me.hidableColumns && !me.exportVisableOnly) {
-        widths = sortedColumnInfo.map(function(col){
-           return pui.safeParseInt(col["orginalWidth"]);
-        });
-      } else {
-        widths = me.getColumnWidths().split(",");
-      }
+      
+      if (!me.hidableColumns || me.exportVisableOnly) widths = me.getColumnWidths().split(",");
+      
       for (var i = 0; i < columnArray.length && i < widths.length; i++) { //Get column widths. Omit any columns that are not being exported.
         if (columnArray[i] > -1) {
           widthsUse.push(widths[i]);
@@ -925,8 +942,9 @@ pui.Grid = function () {
         var idx = columnArray[i];
         if (idx > -1) {
           var heading = "";
-          if (me.hidableColumns && !me.exportVisableOnly) heading = sortedColumnInfo[i]["blankHeader"] ? "" : sortedColumnInfo[i]["name"];
+          if (me.hidableColumns && !me.exportVisableOnly) heading = headings[i];
           else heading = getInnerText(me.cells[0][i]);
+          
           heading = heading.replace(/<br>/g, " ");
           if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
           heading = heading.replace(/"/g, '""');  // "  encode quotes
@@ -939,11 +957,11 @@ pui.Grid = function () {
     }
 
     data = "\uFEFF" + data;
-
-    // build csv data    
+    
+    // build csv or XLSX data    
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.filteredDataArray;
-    for (var i = 0; i < dataRecords.length; i++) {
+    for (var i = 0, n=dataRecords.length; i < n; i++) {
       var line = "";
       var record = dataRecords[i];
       if(record.hideRow != null && record.hideRow == true) continue;
@@ -966,7 +984,7 @@ pui.Grid = function () {
 
       if (exportXLSX) worksheet.newRow();
 
-      for (var j = 0; j < columnArray.length; j++) {
+      for (var j = 0, m=columnArray.length; j < m; j++) {
         var forceDate = false;
         var idx = columnArray[j];
         if (idx > -1) {
