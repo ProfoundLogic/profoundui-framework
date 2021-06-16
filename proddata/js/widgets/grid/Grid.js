@@ -9740,12 +9740,13 @@ pui.Grid = function () {
             else {filterText +=  ", " + data;}
           }
         }
-        //If nothing checked, remove filter
-        if(filterText == null || filterText == "VALUES"){me["removeFilter"](col);}
         //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
         if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
         if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){me.forceDataArray = false;}
-        me["setFilter"](headerCell,filterText);
+        //If nothing checked, remove filter
+        if(filterText == null || filterText == "VALUES" || filterText == "VALUES "){me["removeFilter"](col);}
+        //Otherwise, set filter on grid
+        else{ me["setFilter"](headerCell,filterText); }
         me['unMask']();
         filterMultiPanel = null;
       });
@@ -9771,7 +9772,6 @@ pui.Grid = function () {
         var idxes = headerCell.searchIndexes;
       }
       rows = me.dataArray.length;
-      me.filteredDataArray = [];
       var dataMap = new Map();
       var entry = [];
       var entries = [];
@@ -9785,51 +9785,6 @@ pui.Grid = function () {
       var checkFilterWithSQL = false;
       var gotFilterArr = false;
 
-      
-      function checkIsFiltered(headerCell, filterText){
-        //If columns is already filtered, check any boxes that are included
-        if(headerFilterText != null && headerFilterText != " "){
-          if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
-            checkFilterWithSQL = true;
-            if(gotFilterArr == false){
-              //if we have not gotten the filtered data array
-              me.filteredDataArray = [];
-              loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
-            }
-          } 
-          
-      
-          else{
-            // covers I/O and dataGrids where load all rows is true
-            //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
-            if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
-            if(me.forceDataArray == false){me.forceDataArray = true;}
-            me["setFilter"](headerCell,filterText);
-          }
-          if(me.filteredDataArray.length > 0){
-            for (var i = 0; i < me.filteredDataArray.length; i++) {
-              var record = me.filteredDataArray[i];
-              if (record.subfileRow == null) {record.subfileRow = i + 1;}
-              if(me.isDataGrid() && me["dataProps"]["load all rows"] != "true"){
-                data = record; //should be one result in all other cases
-              }
-              else{
-                // covers I/O and dataGrids where load all rows is true
-                if (headerCell.searchIndexes != null){
-                  for (var j = 0; j < idxes.length; j++) {
-                    var idx = idxes[j];
-                    data = record[idx];
-                  }
-                }
-              }
-              var ignoreTest = false;
-              if(dataMap.has(data)){
-                dataMap.set(data, true);
-              }  
-            }
-          }
-        }
-      }
       function insertRows(){
         tr = tbody.insertRow();
         tr.columnId = col;
@@ -9908,7 +9863,6 @@ pui.Grid = function () {
         }
       }
       
-
       if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
         var limit = -1;
         var start = 1;
@@ -9918,19 +9872,38 @@ pui.Grid = function () {
         loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell); 
       }
       else{
-        for (var i = 0; i < me.dataArray.length; i++) {
-          var record = me.dataArray[i];
-          if (record.subfileRow == null) record.subfileRow = i + 1;
-          for (var j = 0; j < idxes.length; j++) {
-            var idx = idxes[j];
-            var value = record[idx];
-            var ignoreTest = false;
-            dataMap.set(value, checked);
-            checked = false;
+        //Get data and put into a map to get a list of easily navigatable unique values
+        if(me.isFiltered() && me.filteredDataArray != null){
+          if(me.filteredDataArray.length > 0){
+            for (var i = 0; i < me.filteredDataArray.length; i++) {
+              var record = me.filteredDataArray[i];
+              if (record.subfileRow == null) record.subfileRow = i + 1;
+              for (var j = 0; j < idxes.length; j++) {
+                var idx = idxes[j];
+                var value = record[idx];
+                var ignoreTest = false;
+                dataMap.set(value, checked);
+                checked = false;
+              } 
+            }
           } 
         }
+        else {
+          for (var i = 0; i < me.dataArray.length; i++) {
+            var record = me.dataArray[i];
+            if (record.subfileRow == null) record.subfileRow = i + 1;
+            for (var j = 0; j < idxes.length; j++) {
+              var idx = idxes[j];
+              var value = record[idx];
+              var ignoreTest = false;
+              dataMap.set(value, checked);
+              checked = false;
+            } 
+          }
+        }
+        
+        //Use data
         if(dataMap.size > 0){
-          checkIsFiltered(headerCell, filterText);
           displayData();
           me["unMask"]();
         }  
@@ -10008,29 +9981,29 @@ pui.Grid = function () {
       var pstring = null;
 
       
-        // Setup parameters that are needed now for sqlcache comparison and later for postData.
-        pstring = pui.getSQLParams(me["dataProps"]);
+      // Setup parameters that are needed now for sqlcache comparison and later for postData.
+      pstring = pui.getSQLParams(me["dataProps"]);
 
-        if (checkFilterWithSQL == true){
-          //  filter logic when loading data from server
-          //  need to include this logic when exporting data also
-          me.filterString = "";   // format here and then pass to export function
+      
+      //  filter logic when loading data from server
+      //  need to include this logic when exporting data also
+      me.filterString = "";   // format here and then pass to export function
 
-          if (headerFilterText != null && headerFilterText != " "){
-            var headerRow = me.cells[0];
-            // Look in each column for filter text.
-            var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
-            for (var i = 0; i < headerRow.length; i++) {
-              var headerCell = headerRow[i];
-              if (headerCell.columnId >= 0 && headerCell.filterText != null) {
-                me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1);
-                me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
-                pstring += me.filterString;
-                filtNum++;
-              }
-            }
+      if (me.isFiltered()){
+        var headerRow = me.cells[0];
+        // Look in each column for filter text.
+        var filtNum = 0; //CGI looks for fltrcol 0 to 9 and stops when one isn't found.
+        for (var i = 0; i < headerRow.length; i++) {
+          var headerCell = headerRow[i];
+          if (headerCell.columnId >= 0 && headerCell.filterText != null) {
+            me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1);
+            me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
+            pstring += me.filterString;
+            filtNum++;
           }
         }
+      }
+        
         
         // Allow dataURL grids to sort. 
         if (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "" && me.sortBy != null) {
@@ -10089,7 +10062,7 @@ pui.Grid = function () {
          
           var data = response.results;
           var totalRecords = response.totalRecs;
-          if (totalRecords != null) me.totalRecs = totalRecords;//?
+          if (totalRecords != null) me.totalRecs = totalRecords;
 
           if(data.length >= 1){
            
@@ -10106,7 +10079,6 @@ pui.Grid = function () {
                 for(var fieldName in record){
                   if (fieldName.toUpperCase() == hCell.fieldName.toUpperCase()){
                     var fieldValue = record[fieldName];
-                    if (checkFilterWithSQL == true){ me.filteredDataArray.push(fieldValue);}
                     dataMap.set(fieldValue, false);
                   }
                 }
@@ -10122,22 +10094,14 @@ pui.Grid = function () {
                 for(var fieldName in record){
                   if (fieldName == colFieldName){
                     var fieldValue = record[fieldName];
-                    if (checkFilterWithSQL == true){ me.filteredDataArray.push(fieldValue);}
                     dataMap.set(fieldValue, false);
                   }
                 }
               }
             }
-            if(checkFilterWithSQL == true && me.filteredDataArray.length > 0){gotFilterArr = true;}
             if(dataMap.size > 0){
-              checkIsFiltered(hCell, filterText);
-              //If getting filteredDataArray, stop first display call
-              if((headerFilterText == null || headerFilterText == " ") ||(headerFilterText != null && headerFilterText != " " && gotFilterArr == true)){//(!me.isFiltered() || (me.isFiltered() && gotFilterArr == true)){
-                //Display if there is no filter or
-                //LoadAllWithSQL will be called twice when col is filtered, so prevent the first display (display only if filteredDataArry > 0)
-                displayData();
-                me['unMask']();
-              }
+              displayData();
+              me['unMask']();
             }
           }
         }
@@ -10145,7 +10109,7 @@ pui.Grid = function () {
       me.waitingOnRequest = true; //Ignore filter changes and clicks to sort columns.
       req.send();
     }
-  };
+  }; //End ShowMultiFilterPanel
   
   function getDBDriver() {
 
