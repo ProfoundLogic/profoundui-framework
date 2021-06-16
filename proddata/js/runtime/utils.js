@@ -4897,8 +4897,14 @@ pui.onProblemInput = function(e){
 pui.normalizeWheelDelta = function(event){
   var delta = 0;
   if (pui['is_firefox']) {
-    // In Firefox, deltaY is multiple of 3, negative = wheel pushed forward/up, positive = wheel pulled back/down. deltaMode: 1
-    delta = event.deltaY / 48;
+    // In Firefox, deltaY is negative = wheel pushed forward/up, positive = wheel pulled back/down. Different versions use different
+    // deltaMode values; deltaY is different depending on the mode. (v88 uses different modes depending on debugging or console logging.)
+    if (event.deltaMode == 0){
+      delta = Math.round(event.deltaY / 48);  //Sometimes the deltaY is 48, sometimes it is 51, so we must round.
+    }
+    else if (event.deltaMode == 1){
+      delta = event.deltaY / 3;  //Firefox version 87 and older use deltaMode 1 where I have seen. v88 also sometimes uses deltaMode 1. #6802.
+    }
   }
   else if (pui['is_ie']){
     if (event.wheelDelta){
