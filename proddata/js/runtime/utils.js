@@ -4898,7 +4898,7 @@ pui.normalizeWheelDelta = function(event){
   var delta = 0;
   if (pui['is_firefox']) {
     // In Firefox, deltaY is multiple of 3, negative = wheel pushed forward/up, positive = wheel pulled back/down. deltaMode: 1
-    delta = event.deltaY / 3;
+    delta = event.deltaY / 48;
   }
   else if (pui['is_ie']){
     if (event.wheelDelta){
