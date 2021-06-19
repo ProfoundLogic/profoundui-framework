@@ -4833,7 +4833,7 @@ pui.Grid = function () {
           if (me._headerHeightSansQF == null){
             me._headerHeightSansQF = me.headerHeight;
             // Add 20 pixels to the height if there are both headings and quick filters 
-            if (me.columnHeadings != "") me.headerHeight += 20;
+            // if (me.columnHeadings != "") me.headerHeight += 20;
           }
           me._headerHeightChange();
         }
