@@ -541,6 +541,20 @@ function getProgramURL(program, psid, useAuth) {
   }
 
   var url = "/profoundui/";
+  var widgetPrograms = [
+    "PUI0009102.PGM",
+    "PUI0009103.PGM",
+    "PUI0009104.PGM",
+    "PUI0009107.PGM",
+    "PUI0009109.PGM",
+    "PUI0009110.PGM",
+    "PUI0009119.PGM"
+  ];
+  if (typeof pui["widgetURLPrefix"] === "string" && widgetPrograms.indexOf(program.toUpperCase()) != -1) {
+    url = pui["widgetURLPrefix"];
+    if (url.substr(url.length - 1) != "/")
+      url += "/";
+  }
   if (auth == true || useAuth == true) url += "auth/";
   url += program;   
   if (psid != null && psid == true) url += "/" + PSID;

@@ -549,6 +549,13 @@ pui.render = function(parms) {
   else
     pui["pjsDefaultMode"] = pui.pjsDefaultMode_original;
 
+  if (typeof pui.widgetURLPrefix_original == "undefined")
+    pui.widgetURLPrefix_original = pui["widgetURLPrefix"] || null;
+  if (parms["pjsWidgetURLPrefix"])
+    pui["widgetURLPrefix"] = parms["pjsWidgetURLPrefix"];
+  else
+    pui["widgetURLPrefix"] = pui.widgetURLPrefix_original;
+
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
 
