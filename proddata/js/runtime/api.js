@@ -1500,7 +1500,7 @@ pui["upload"] = function(params, callback) {
   }
   
   var url = getProgramURL("PUI0009109.PGM");
-  url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+  url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
   
   // Some API methods can upload, but those pass no Widget Id to PUI0009109 and PUIUPLEXIT. Do not use "ajax mode" (aka API mode) for widgets.
   // "ajax" mode also tells 9109 to read the "filename" variable instead of "file", as BLOBs didn't always have "file" (commit id d5baa06)
@@ -1798,7 +1798,7 @@ pui["downloadURL"] = function (params) {
   }
   
   url += "&usehttprc=0";
-  url += "&AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+  url += "&AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
   url += "&r=" + Math.floor(Math.random() * 1000000000);
 
   return url;

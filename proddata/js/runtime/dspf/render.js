@@ -556,6 +556,10 @@ pui.render = function(parms) {
   else
     pui["widgetURLPrefix"] = pui.widgetURLPrefix_original;
 
+  pui.pjs_session_id = null;
+  if (parms["pjs_id"])
+    pui.pjs_session_id = parms["pjs_id"];
+
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
 
