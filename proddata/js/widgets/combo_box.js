@@ -583,8 +583,9 @@ pui.widgets.add({
           ajaxRequest["method"] = "post";
           ajaxRequest["async"] = true;
           ajaxRequest["suppressAlert"] = true;
-          if (context == "genie") ajaxRequest["postData"] = "AUTH=" + GENIE_AUTH;
-          if (context == "dspf") ajaxRequest["postData"] = "AUTH=" + pui.appJob.auth;
+          if (pui.pjs_session_id) ajaxRequest["postData"] = "AUTH=" + pui.pjs_session_id;
+          else if (context == "genie") ajaxRequest["postData"] = "AUTH=" + GENIE_AUTH;
+          else if (context == "dspf") ajaxRequest["postData"] = "AUTH=" + pui.appJob.auth;
           if (pui["secLevel"] > 0) {
           
             ajaxRequest["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));

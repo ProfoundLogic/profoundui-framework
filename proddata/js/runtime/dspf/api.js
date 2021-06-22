@@ -575,7 +575,7 @@ pui["capturePhoto"] = function(parms) {
 
       var ft = new window["FileTransfer"]();
       var url = getProgramURL("PUI0009109.PGM");
-      url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+      url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
       url += "&mode=ajax";
       if (pui["isCloud"]) {
         url += "&workspace_id=" + pui.cloud.ws.id;
@@ -630,7 +630,7 @@ pui.uploadDataUrl = function(params, callback) {
   var contentType = params["imageType"];
   
   var url = getProgramURL("PUI0009109.PGM");
-  url += "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"]);
+  url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
   url += "&mode=ajax";
   url += "&r=" + Math.floor(Math.random() * 1000000000);
   if (pui["isCloud"]) {
