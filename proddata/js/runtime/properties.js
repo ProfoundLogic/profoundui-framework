@@ -1764,13 +1764,33 @@ pui.addCustomProperty = function (parms) {
     }
   }
 
-  // add category if not found
-  if (!found) {
-    // add category
+  
+  if (found && parms.controls && parms.controls.length > 0 ) {
+    // Check if the widget being added to a category is not already in the "controls" value of the existing category. #6803.
+    var prop = pm[insertAt - 1];
+    if (prop && Array.isArray(prop.controls)){
+      var controls = prop.controls;
+      // Look at each widget specified in the "controls" of the PUI property being added.
+      for (var i=0, n=parms.controls.length, newEntry; i < n && (newEntry = parms.controls[i]); i++){
+        found = false;
+        // See if any widgets listed in the existing "controls" match the current new entry.
+        for (var j=0, m=controls.length, existingEntry; j < m && (existingEntry = controls[j]); j++){
+          if (newEntry == existingEntry){
+            found = true; 
+            break;
+          }
+        }
+        // Add the widget to the "controls" list of the existing category.
+        if (!found) controls.push( newEntry );
+      }
+    }
+  }
+  else {
+    // add category if not found.
     pm.splice(insertAt, 0, {
       name: parms.category,
       category: true,
-      controls: parms.controls
+      controls: JSON.parse(JSON.stringify(parms.controls))  //get a new copy of controls so that modifying it later does not modify for this entry.
     });
     insertAt++;
   }
