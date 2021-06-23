@@ -2934,7 +2934,7 @@ pui.Grid = function () {
         var val = itm["value"];
         if (itm["field type"] == "html container") val = itm["html"];
         // Note: checking for .sortIndex avoids attaching sort handlers multiple times.
-        if (pui.isBound(val) && !isNaN(col) && col < headerRow.length && headerRow[col].sortIndex == null) {
+        if (pui.isBound(val) && !isNaN(col) && col >= 0 && col < headerRow.length && headerRow[col] && headerRow[col].sortIndex == null) {
           var fieldName = pui.fieldUpper(val["fieldName"]);
           for (var j = 0; j < me.fieldNames.length; j++) {
             if (fieldName == me.fieldNames[j]) {
@@ -3134,10 +3134,10 @@ pui.Grid = function () {
                 }
                 return true;
               });
-              if (!col["showing"]) me["removeColumn"](columnId);
+              if (!col["showing"]) me.rmvColumn(columnId);
               else if (movableColumns) {
                 var curCol = getCurrentColumnFromId(columnId);
-                if (curCol != col["savedColumn"]) me.moveColumn(curCol, col["savedColumn"]);
+                if (curCol >= 0 && curCol != col["savedColumn"]) me.moveColumn(curCol, col["savedColumn"]);
               }
             }
           });
@@ -7640,11 +7640,24 @@ pui.Grid = function () {
   }
 
   /**
-   * Remove a column.
+   * API to remove a column; or, if "hide columns option" is true, then call the hide column method, which must do some work before 
+   * removing the column to avoid breaking things in the grid. #6740.
    * @param {Number} columnId  The original columnId, as positioned in design-time.
-   * @returns {undefined}
    */
   this["removeColumn"] = function (columnId) {
+    if (me.hidableColumns){
+      me['hideColumn'](columnId);
+    }
+    else {
+      me.rmvColumn(columnId);
+    }
+  };
+  
+  /**
+   * Remove a column.
+   * @param {Number} columnId    The original columnId, as positioned in design-time.
+   */
+  this.rmvColumn = function (columnId){
     var lastCol = me.vLines.length - 2;
     if (lastCol < 1) {
       pui.alert(pui["getLanguageText"]("runtimeMsg", "cannot rmv last col"));
@@ -7694,10 +7707,12 @@ pui.Grid = function () {
       // Rearrange dom cells so tabbing is correct
       if (me.cells[row].length > to) {
     	  var moveBefore = me.cells[row][to];
-          cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
+          if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) 
+            cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
       } else {
     	  var moveAfter = me.cells[row][me.cells[row].length-1];
-    	  cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
+          if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode)
+    	    cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
       }
 
       me.cells[row].splice(to, 0, cell); // insert a copy of the cell into the to position
@@ -9241,7 +9256,7 @@ pui.Grid = function () {
     }
     // remove the column selected
     if (!checked) {
-      me["removeColumn"](colId);
+      me.rmvColumn(colId);
     } else {
       // else add the column, and get its current position
       me.addColumn(colId);
