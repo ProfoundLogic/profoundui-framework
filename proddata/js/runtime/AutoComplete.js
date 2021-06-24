@@ -1106,8 +1106,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     if (pui["isCloud"])
       baseParams["workspace_id"] = pui.cloud.ws.id;
     if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;
-    else if (context == "genie") baseParams["AUTH"] = GENIE_AUTH;
-    else if (context == "dspf" && (url == "" || !pui.nodejs)) baseParams["AUTH"] = pui.appJob.auth;
+    else if (url == "" || !pui.nodejs) baseParams["AUTH"] = pui.appJob.auth;
 
     if (url == "" && choices[0] == "" && values[0] == "") {
       var containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
@@ -1319,8 +1318,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       req["suppressAlert"] = true;
 
       if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-      else if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
-      else if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
+      else req["postData"] = "AUTH=" + pui.appJob.auth;
 
       if (urlReverse) {
         req["postData"] += "&reverse=1&value=" + encodeURIComponent(rtrim(domObj.value));

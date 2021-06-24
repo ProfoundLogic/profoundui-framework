@@ -560,6 +560,9 @@ pui.render = function(parms) {
   if (parms["pjs_id"])
     pui.pjs_session_id = parms["pjs_id"];
 
+  if (parms["pjsDatabaseConnections"])
+    pui["databaseConnections"] = parms["pjsDatabaseConnections"];
+
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
 
