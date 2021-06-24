@@ -542,6 +542,7 @@ function getProgramURL(program, psid, useAuth) {
 
   var url = "/profoundui/";
   var widgetPrograms = [
+    "PUI0009101.PGM",
     "PUI0009102.PGM",
     "PUI0009103.PGM",
     "PUI0009104.PGM",

@@ -72,7 +72,7 @@ pui.imageGetDatabase = function(parms) {
   if (dbfile!=null && blobCol!=null && dbfile!="" && blobCol!="") {
     
     var params = {};
-    var queryStr = "?AUTH=" + encodeURIComponent(pui["appJob"]["auth"])
+    var queryStr = "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"])
                  + "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
     
     pui.getSQLParams(parms.properties, params);

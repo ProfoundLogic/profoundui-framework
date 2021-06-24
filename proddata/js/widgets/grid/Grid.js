@@ -1118,7 +1118,7 @@ pui.Grid = function () {
           "context": "genie", //Makes PUI0009101 use SyncJob so it works if the URL does/doesn't have "/auth".
           "file": dbfile,
           "library": dblib,
-          "AUTH": (context == "genie" ? GENIE_AUTH : pui.appJob.auth),
+          "AUTH": (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth),
           "workspace_id": (pui["isCloud"] && pui.cloud.ws.id ? pui.cloud.ws.id : "")
         },
         "async": true,
@@ -1159,8 +1159,8 @@ pui.Grid = function () {
         return str;
       };
 
-      if (context == "genie") formData.append("AUTH", GENIE_AUTH);
-      if (context == "dspf") formData.append("AUTH", pui.appJob.auth);
+      if (pui.pjs_session_id) formData.append("AUTH", pui.pjs_session_id);
+      else formData.append("AUTH", pui.appJob.auth);
       formData.append("q", encodeURIComponent(pui.getSQLVarName(me.tableDiv)));
       pui.getSQLParams(me["dataProps"], null, formData);
       formData.append("limit", limit);
@@ -2054,7 +2054,7 @@ pui.Grid = function () {
           addField("q", pui.aes.encryptString(sql));
 
         }
-        addField("AUTH", pui.appJob.auth);
+        addField("AUTH", pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
         if (me.hasHeader && me.exportWithHeadings) {
           if (me.hidableColumns) {
             var headings = "";
@@ -7387,8 +7387,8 @@ pui.Grid = function () {
     req["method"] = "post";
     req["async"] = true;
     if (callback == null) req["async"] = false;
-    if (context == "genie") req["postData"] = "AUTH=" + GENIE_AUTH;
-    if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
+    if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
+    else req["postData"] = "AUTH=" + pui.appJob.auth;
     if (pui["secLevel"] > 0) {
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
@@ -10032,7 +10032,8 @@ pui.Grid = function () {
       var req = new pui.Ajax(url);
       req["method"] = "post";
       req["async"] = true;
-      if (context == "dspf") req["postData"] = "AUTH=" + pui.appJob.auth;
+      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
+      else req["postData"] = "AUTH=" + pui.appJob.auth;
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
 

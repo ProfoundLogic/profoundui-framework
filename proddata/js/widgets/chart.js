@@ -655,8 +655,8 @@ pui.widgets.add({
           
           url =  getProgramURL("PUI0009104.PGM");
           var postData = "AUTH=";
-          if (context == "genie") postData += GENIE_AUTH;
-          if (context == "dspf") postData += pui.appJob.auth;
+          if (pui.pjs_session_id) postData += pui.pjs_session_id;
+          else postData += pui.appJob.auth;
           if (pui["secLevel"] > 0) {
          
             postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
@@ -786,7 +786,7 @@ pui.widgets.add({
         
         else if(customSQL != ""){
           
-          var postData = 'AUTH=' + (context == 'genie' ? GENIE_AUTH : pui.appJob.auth);
+          var postData = 'AUTH=' + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
           if (pui["secLevel"] > 0) {
             postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
             var pstring = pui.getSQLParams(parms.properties);

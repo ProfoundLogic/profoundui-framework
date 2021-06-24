@@ -4322,7 +4322,8 @@ pui.getFieldDescriptions = function(parm, cb){
   request["postData"] += "&connection=" + encodeURIComponent(connection);
   if (pui["isCloud"]) request["postData"] += "&workspace_id=" + pui.cloud.ws.id;
 
-  if (context == "genie") request["postData"] += "&AUTH=" + GENIE_AUTH;
+  if (pui.pjs_session_id) request["postData"] += "&AUTH=" + pui.pjs_session_id;
+  else if (context == "genie") request["postData"] += "&AUTH=" + pui.appJob.auth;
   request["postData"] += "&context=" + context;
   request["suppressAlert"] = true;
   request["onready"] = cb;
