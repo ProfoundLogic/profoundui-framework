@@ -17254,7 +17254,7 @@ fieldset.layout {
 fieldset.layout > div[container="true"] {
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: relative; /*Must be relative not absolute for Chrome offsetTop to be correct. #6812*/
   overflow: hidden;
 }
 
