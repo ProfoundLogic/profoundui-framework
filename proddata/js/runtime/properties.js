@@ -1523,8 +1523,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       properties[propConfigName] = newValue;
     designItem.propertiesChanged[propConfigName] = true;
     if (propConfigName == "field type" ||
-      propConfigName == "left" ||
-      propConfigName == "top" ||
+      propConfigName == "left" || propConfigName == "right" ||
+      propConfigName == "top" || propConfigName == "bottom" ||
       propConfigName == "z index" ||
       propConfigName == "visibility" ||
       propConfigName == "height" ||

@@ -382,6 +382,7 @@ pui.buildLabel = function(dom, labelText, label) {
     }
   }
   else if (dom.style.right != ""){
+    label.style.left = "";  //Since the DOM.style.left is blank, the label's left must be cleared. #5479
     var brect = label.getBoundingClientRect();
     var labelWidth = brect.width;
     if (labelWidth < 10) labelWidth = 10;
@@ -398,6 +399,10 @@ pui.buildLabel = function(dom, labelText, label) {
         label.style.right = 'calc('+dom.style.right +' - '+ labelWidth + 'px)';   //Let CSS calculate the position.
       }
     }
+  }
+  
+  if (dom.style.top == "" && dom.style.bottom != ""){
+    label.style.top = ""; //Since the DOM.style.top is blank, the label's top must be cleared.
   }
   
   function setCalcString(styleProp, appendPxStr){
