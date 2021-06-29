@@ -4237,7 +4237,7 @@ pui.submitResponse = function(response, value) {
         "handler": function(parms) {
           if (parms == null) {
             //document.body.style.backgroundColor = "#DFE8F6";
-            document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+            document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
             var returnVal = shutDown();
             if (returnVal == false) return;
             pui.shutdownOnClose = false;
@@ -5050,7 +5050,7 @@ pui.runMVC = function(response) {
     "suppressAlert": true,
     "handler": function(parms) {
       if (parms == null) {
-        document.body.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+        document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
         pui.closeSession();   //Without this, a parent atrium tab can't be closed by clicking [x].
         return;
       }        
