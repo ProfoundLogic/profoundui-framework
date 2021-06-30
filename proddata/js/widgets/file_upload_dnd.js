@@ -244,13 +244,17 @@ pui["fileupload"].FileUploadDND = function(container) {
           break;
         }
       }
-
-      // Fix MIME type. PUI uses image/jpg whereas a browser may use image/jpeg.
-      var ftypeTmp = droppedFileList[i].type.replace(/image\/jpeg/i, "image/jpg");
       
       // If there is nothing in allowedTypes[], allow the file.
       // If the file's type was in allowedTypes[], allow it.
+      var ftypeTmp = droppedFileList[i].type;
       var allowedT = (allowedTypes.length <= 0 || allowedTypes.indexOf(ftypeTmp) >= 0);
+
+      // 6839: FIX MIME type:
+      //  Historically, we allowed "image/jpg" for a jpeg even though the standard 
+      //  (and value provided by browsers) is "image/jpeg" so this is needed for
+      //  backward compatibility.
+      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && allowedTypes.indexOf("image/jpeg") >= 0) allowedT = true;
 
       // Only add the file to our list if it passes our parameter checks.
 

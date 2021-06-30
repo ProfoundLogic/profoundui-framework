@@ -1063,7 +1063,15 @@ pui["fileupload"].propset = {
       var types = [];
       while (typeof(parms.properties[prop]) == "string") {
 
-        types.push(parms.evalProperty(prop)); 
+        var mimeType = parms.evalProperty(prop);
+        if (types.length === 0 || types.indexOf(mimeType) === -1) types.push(mimeType); 
+
+        // 6839: FIX MIME type:  Historically, PUI supported image/jpg (which is not a valid MIME type)
+        //   instead of the correct image/jpeg.  For backward compatibility, if one is specified,
+        //   allow both.
+        if (mimeType.toLowerCase() === "image/jpg" && types.indexOf("image/jpeg") === -1)  types.push("image/jpeg");
+        if (mimeType.toLowerCase() === "image/jpeg" && types.indexOf("image/jpg") === -1)  types.push("image/jpg");
+
         prop = "allowed type " + (++suffix);
 
       }
