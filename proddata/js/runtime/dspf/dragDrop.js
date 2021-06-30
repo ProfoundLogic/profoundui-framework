@@ -278,6 +278,11 @@ pui.attachDragDrop = function(dom, properties) {
         var tgt = dropTargets[i];
         var left = proxy.offsetLeft;
         var top = proxy.offsetTop;
+        
+        var proxyOffset = pui.getOffset(proxy.parentNode);  //If the proxy element is in a layout, then there will be an offset. #6662.
+        left += proxyOffset[0];
+        top += proxyOffset[1];
+        
         var right = left + proxy.offsetWidth;
         var bottom = top + proxy.offsetHeight;
         if (tgt.targetOffsetX == null || tgt.targetOffsetY == null) {
