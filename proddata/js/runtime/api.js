@@ -1137,7 +1137,7 @@ pui.normalizeURL = function(url, mobileClientOnly) {
     return url;
   }
   
-  if (url.substr(0, 5).toLowerCase() == "http:" || url.substr(0, 6).toLowerCase() == "https:") {
+  if (url.substr(0, 5).toLowerCase() == "http:" || url.substr(0, 6).toLowerCase() == "https:" || url.substr(0, 5).toLowerCase() == "data:") {
     return url;
   }
 
