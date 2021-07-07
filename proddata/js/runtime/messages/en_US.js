@@ -424,6 +424,8 @@ var en_US = function(dict) {
             dictMsg["show fav start hlp"]           = "If checked, the Favorites panel is shown on startup. Otherwise the Navigation panel will be shown (default). This option will only be available if Favorites system is enabled.";
             dictMsg["limit num sessn"]              = "Limit number of sessions";
             dictMsg["limit num sessn hlp"]          = "Number of Atrium sessions allowed for this user/group. A value of zero allows for unlimited sessions. The limitation is applied per web browser.";
+            dictMsg["atrium timeout"]               = "Session times out";
+            dictMsg["atrium timeout hlp"]           = "If checked, the session will timeout based on the Profound UI server session timeout value.";
             // Atrium.help tool-tip - User/Group navigation preferences.
             dictMsg["show hmpg start"]              = "Show home page on startup";
             dictMsg["show hmpg start hlp"]          = "If checked, a customizable home page will be launched in the portal on startup.";

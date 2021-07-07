@@ -678,8 +678,10 @@ pui.render = function(parms) {
 
   pui.attachOnUserActivity();
   if (pui.handler == null) {
-    if (pui["client side timeout"] == true) {
-      pui.timeout = parms["timeout"];
+    pui.timeout = parms["timeout"];
+    var atriumSettings = Atrium["getSettings"]();
+    var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
+    if (!atriumTimeout && pui["client side timeout"] == true) {
       pui.timeoutMonitor.start();
     }
     else {
@@ -4221,6 +4223,10 @@ pui.submitResponse = function(response, value) {
   }  
   else {
     pui.timeoutMonitor.end();
+    var atriumSettings = Atrium["getSettings"]();
+    var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
+    if (atriumTimeout)
+      Atrium["resetInactivityTimeout"]();
     pui.showWaitAnimation();
     
     function sendRichDisplayScreen() {
