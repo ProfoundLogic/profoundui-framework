@@ -1278,10 +1278,13 @@ pui.checkEmptyText = function(dom) {
 };
 
 pui.attachOnUserActivity = function() {
-  if (pui.onUserActivityAttached) return;  
-  if (pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
+  if (pui.onUserActivityAttached) return;
+  var atriumSettings = Atrium["getSettings"]();
+  var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
+  if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
   function onUserActivity() {
-    if (pui["client side timeout"] == true) pui.timeoutMonitor.timer.reset();
+    if (atriumTimeout) Atrium["resetInactivityTimeout"]();
+    else if (pui["client side timeout"] == true) pui.timeoutMonitor.timer.reset();
     if (pui["onuseractivity"] != null) pui["onuseractivity"]();
   }
   addEvent(document.body, "keydown", onUserActivity);
@@ -1305,8 +1308,12 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
     pui.autoKeepAlive.reset();
     return;
   }
-  if (pui["keep alive interval"] == null) return;
-  pui.autoKeepAlive.timeout = pui["keep alive interval"];
+  var interval = pui["keep alive interval"];
+  var atriumSettings = Atrium["getSettings"]();
+  if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
+    interval = pui.timeout - 10;
+  if (interval == null) return;
+  pui.autoKeepAlive.timeout = interval;
   pui.autoKeepAlive.start();
 };
 

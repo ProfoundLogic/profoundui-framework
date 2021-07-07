@@ -165,3 +165,24 @@ Atrium["setTabTitle"] = function() {
     awin["Atrium"]["api"]["setTabTitle"](arguments[0], arguments[1]);
   
 }
+
+Atrium["resetInactivityTimeout"] = function() {
+  var awin = Atrium["getAtriumWindow"]();
+  if (awin == null)
+    return;
+  awin["Atrium"]["api"]["resetInactivityTimeout"]();
+}
+
+Atrium["getSettings"] = function() {
+  var awin = Atrium["getAtriumWindow"]();
+  if (awin == null)
+    return;
+  return awin["Atrium"]["api"]["getSettings"]();
+}
+
+Atrium["attachActivityMonitor"] = function() {
+  var awin = Atrium["getAtriumWindow"]();
+  if (awin == null)
+    return;
+  awin["Atrium"]["api"]["attachActivityMonitor"](window);
+}
