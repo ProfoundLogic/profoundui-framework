@@ -135,7 +135,11 @@ Atrium["breakMessagesOnStorage"] = function(e){
 };
 
 
-Atrium["getAtriumWindow"] = function() {
+Atrium["getAtriumWindow"] = function(checkOpener) {
+  if (checkOpener === true) {
+    if (window.opener && window.opener["Atrium"] && window.opener["Atrium"]["api"])
+      return window.opener;
+  }
   var par = window.parent;
   while (par != null && par != par.parent && (par["Atrium"] == null || par["Atrium"]["api"] == null)) {
     par = par.parent;
@@ -167,21 +171,21 @@ Atrium["setTabTitle"] = function() {
 }
 
 Atrium["resetInactivityTimeout"] = function() {
-  var awin = Atrium["getAtriumWindow"]();
+  var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
     return;
   awin["Atrium"]["api"]["resetInactivityTimeout"]();
 }
 
 Atrium["getSettings"] = function() {
-  var awin = Atrium["getAtriumWindow"]();
+  var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
     return;
   return awin["Atrium"]["api"]["getSettings"]();
 }
 
 Atrium["attachActivityMonitor"] = function() {
-  var awin = Atrium["getAtriumWindow"]();
+  var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
     return;
   awin["Atrium"]["api"]["attachActivityMonitor"](window);
