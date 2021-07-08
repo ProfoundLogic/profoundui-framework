@@ -41,61 +41,7 @@ pui.timeoutMonitor.keepalive.action = function() {
 }
 
 pui.timeoutMonitor.showTimeOutScreen = function() {
-  hide_calendar();
-  function showMessage(container) {
-    document.body.style.backgroundColor = "#ffffff";
-    document.body.style.backgroundImage = "none";
-    container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + 
-                              pui["getLanguageText"]("runtimeMsg", "session timed out") + '</div>';
-  }
-  showMessage(pui.runtimeContainer);
-  pui.showWaitAnimation();
-  var url = getProgramURL("PUI0001200.pgm");  // handler
-  if (pui.genie != null) {
-    url = getProgramURL("PUI0002110.pgm");    // 5250 session controller
-  }
-  if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
-  var ajaxParams = {
-    "timeout": "1"
-  }
-  if (pui["isCloud"]) {
-    ajaxParams["workspace_id"] = pui.cloud.ws.id;
-  }
-  ajaxJSON({
-    "url": url,
-    "method": "post",
-    "sendAsBinary": false,
-    "suppressAlert": true,
-    "params": ajaxParams,
-    "handler": function(response) {
-      if (pui.genie != null) {
-        // When used outside of Genie, the 'onload' processing in the 
-        // time out screen will handle these flags.
-        pui.confirmOnClose = false;
-        pui.shutdownOnClose = false;      
-        showMessage(document.body);
-      }
-      else {
-        // render time out screen from PUISCREENS
-        response.container = pui.runtimeContainer;
-        pui.handler = function() { };
-        pui.render(response);
-      }
-      if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function"){
-        pui["ontimeout"]();
-      }
-      if (pui.genie != null && pui.genie["close atrium tab on timeout"] == true) {
-        if (window.parent != window && pui.checkForAtrium(window.parent)) {
-          window["Atrium"]["closeTab"]();
-          return;
-        }
-      }
-      
-    },
-    "onfail": function(req) {
-      showMessage(document.body);
-    }
-  });
+  pui["doSessionTimeout"]();
 }
 
 pui.timeoutMonitor.start = function() {  // this is called when a screen is rendered
