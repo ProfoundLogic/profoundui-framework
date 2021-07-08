@@ -679,7 +679,12 @@ pui.render = function(parms) {
   pui.attachOnUserActivity();
   if (pui.handler == null) {
     pui.timeout = parms["timeout"];
-    var atriumSettings = Atrium["getSettings"]();
+    try {
+      var atriumSettings = Atrium["getSettings"]();
+    }
+    catch (error) {
+      console.error(error);
+    }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (!atriumTimeout && pui["client side timeout"] == true) {
       pui.timeoutMonitor.start();
@@ -4223,7 +4228,12 @@ pui.submitResponse = function(response, value) {
   }  
   else {
     pui.timeoutMonitor.end();
-    var atriumSettings = Atrium["getSettings"]();
+    try {
+      var atriumSettings = Atrium["getSettings"]();
+    }
+    catch (error) {
+      console.error(error);
+    }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (atriumTimeout)
       Atrium["resetInactivityTimeout"]();

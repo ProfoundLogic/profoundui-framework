@@ -1279,7 +1279,12 @@ pui.checkEmptyText = function(dom) {
 
 pui.attachOnUserActivity = function() {
   if (pui.onUserActivityAttached) return;
-  var atriumSettings = Atrium["getSettings"]();
+  try {
+    var atriumSettings = Atrium["getSettings"]();
+  }
+  catch (error) {
+    console.error(error);
+  }
   var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
   if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
   function onUserActivity() {
@@ -1309,7 +1314,12 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
     return;
   }
   var interval = pui["keep alive interval"];
-  var atriumSettings = Atrium["getSettings"]();
+  try {
+    var atriumSettings = Atrium["getSettings"]();
+  }
+  catch (error) {
+    console.error(error);
+  }
   if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
     interval = pui.timeout - 10;
   if (interval == null) return;
