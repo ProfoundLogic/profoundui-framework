@@ -255,6 +255,7 @@ pui["fileupload"].FileUploadDND = function(container) {
       //  (and value provided by browsers) is "image/jpeg" so this is needed for
       //  backward compatibility.
       if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && allowedTypes.indexOf("image/jpeg") >= 0) allowedT = true;
+      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpeg" && allowedTypes.indexOf("image/jpg") >= 0) allowedT = true;
 
       // Only add the file to our list if it passes our parameter checks.
 
