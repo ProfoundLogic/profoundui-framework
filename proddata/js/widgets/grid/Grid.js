@@ -228,6 +228,11 @@ pui.Grid = function () {
   this.extendedSelection = false;
   this.selectionField = null;
   this.hiddenField = null;
+  this.treeLevelData = null;
+  this.treeLevelDataInitDone = false;
+  this.hasTreeLevelColumn = false;
+  this.treeLevelField = null;
+  this.treeLevelColumnId = null;
   this.hiddenFieldIndex = null;
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
@@ -2151,6 +2156,10 @@ pui.Grid = function () {
         firstRow = 1;
         lastRow = numRows;
       }
+
+      var treeLevelItem = getTreeLevelItem();
+      me.firstDisplayedRRN = 0;
+
       for (var i = firstRow; i <= lastRow; i++) {
 
         if (me.gridRecordData) {
@@ -2186,6 +2195,13 @@ pui.Grid = function () {
           else {
             if (setRowBg) me.setRowBackground(rowNum, false, i - 1 );  //Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
 
+            if (treeLevelItem !== null) 
+              handleTreeLevelItemPerRow(treeLevelItem);
+           
+            if (me.firstDisplayedRRN == 0)
+              me.firstDisplayedRRN = subfileRow;
+            me.lastDisplayedRRN = subfileRow;
+
             pui.renderFormat({
               designMode: false,
               name: pui.formatUpper(me.recordFormatName),
@@ -2199,7 +2215,8 @@ pui.Grid = function () {
               rowNum: rowNum,
               subfileRow: subfileRow,
               dataArrayIndex: i - 1,
-              highlighting: me.highlighting
+              highlighting: me.highlighting,
+              treeLevelItem: treeLevelItem
             });
           }
           
@@ -2242,6 +2259,11 @@ pui.Grid = function () {
           rowNum++;
         }
       }
+
+      if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true") {
+        me.firstDisplayedRRN = me.firstDisplayedRRN + (me.recNum - 1);
+        me.lastDisplayedRRN  = me.lastDisplayedRRN  + (me.recNum - 1);
+      }
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
         me.scrollbarObj.totalRows = (me.forceDataArray && me["dataProps"]["load all rows"] != "true") ? me.totalRecs : dataRecords.length;
       }
@@ -2276,7 +2298,7 @@ pui.Grid = function () {
       if(me["dataProps"]["load all rows"] == "true"){
         resetAllDefaultSortDescending();
       }
-      
+
       //Get data from sql request and put into data array
       if(data.length >= 1){
         for(var fieldName in data[0]){
@@ -2396,8 +2418,15 @@ pui.Grid = function () {
         }
       }
 
+      me.firstDisplayedRRN = 0;
+
       // For each returned record, put the data into grid cells.
       for (var i = 0; i < data.length; i++) {
+
+        if (me.firstDisplayedRRN == 0)
+          me.firstDisplayedRRN = (i + 1) + (me.recNum - 1);
+        me.lastDisplayedRRN = (i + 1) + (me.recNum - 1);
+
         var record = data[i];
         var colNum = 0;
         var rowNum = i + (me.hasHeader ? 1 : 0);
@@ -2483,6 +2512,85 @@ pui.Grid = function () {
       }
       me.cleared = false;
     } //end of receiveData().
+
+    function getTreeLevelItem() {
+
+      var treeLevelItem = null;
+      if (me.hasTreeLevelColumn && me.treeLevelField !== null) {
+        if (me.treeLevelData == null) {      // do one time only for load all grid or db grid with load all option
+          me.treeLevelData = [];
+          for (var ii = 0; ii < me.dataArray.length; ii++) {
+            var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false}
+            me.treeLevelData.push(treeLevelData);
+          }
+        }
+
+        if (!me.treeLevelDataInitDone) {
+          me.treeLevelDataInitDone = true;
+          me.currentLeft = null;
+          me.currentTop = null;
+          var treeLevelColumnId = me.getTreeLevelColumnId();
+          // This is done at init; before columns can be hidden/moved.
+          for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
+            if (me.runtimeChildren[jj]["columnId"] == treeLevelColumnId) {   // compare static design value
+              var currentLeft = me.runtimeChildren[jj]["left"];
+              currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
+              currentLeft = parseInt(currentLeft);
+              me.currentLeft = currentLeft;
+              me.currentTop = me.runtimeChildren[jj]["top"];;
+              break;    
+            }
+          }
+        }
+        var myGridId = me.tableDiv.id;
+        var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
+                                '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
+        treeLevelItem = {
+          "id": myGridId + "_puiImageToggleTreeLevel",
+          "field type": "image",
+          "left": "10px",
+          "top": me.currentTop,
+          "onclick": myOnclickFunction,
+          "cursor": "pointer",
+          "grid": myGridId,
+          "visibility": "visible"
+        };
+
+        treeLevelItem["columnId"] = me.treeLevelColumnId;                   // design value; static
+        // "column" is run-time; may change due to move/hide columns
+        treeLevelItem["column"] = treeLevelItem["columnId"].toString();     // default; may change     
+      }   // endif me.hasTreeLevelColumn
+
+      return treeLevelItem;
+
+    } //end of getTreeLevelItem()
+
+    function handleTreeLevelItemPerRow(treeLevelItem) {
+
+      var treeLevelDataIndex = (subfileRow - 1);
+      treeLevelItem["image source"] = pui.normalizeURL("/profoundui/proddata/images/icons/collapseall.gif");     // "-"
+      treeLevelItem["visibility"] = "visible";
+      if (me.treeLevelData[treeLevelDataIndex].treeLevelCollapsed)
+        treeLevelItem["image source"] = pui.normalizeURL("/profoundui/proddata/images/icons/expandall.gif");    // "+"
+      var myTreeLevel = me.treeLevelData[treeLevelDataIndex].treeLevel;
+      // indent tree level
+      // Note that this is done per row since it depends on the tree level
+      for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
+        if (me.runtimeChildren[jj]["columnId"] == treeLevelItem["columnId"]) {  // compare static design time
+          treeLevelItem["column"] = me.runtimeChildren[jj]["column"];           // run-time  
+          var newLeft = me.currentLeft + ((myTreeLevel-1)*10);
+          treeLevelItem["left"] = newLeft + "px";
+          me.runtimeChildren[jj]["left"] = (newLeft + 20) + "px";
+          break;    
+        }
+      }
+      // If this row does NOT have any lower-level row, do NOT show +/- icon
+      // Note: me.treeLevelData[] uses zero-based index
+      if ((treeLevelDataIndex + 1) >= me.treeLevelData.length || me.treeLevelData[treeLevelDataIndex + 1].treeLevel <= myTreeLevel)
+        treeLevelItem["visibility"] = "hidden";   // just hide it or NOT create at all?
+
+    } //end of handleTreeLevelItemPerRow()
+
   }; //end of getData().
 
   this.clearData = function () {
@@ -4491,7 +4599,7 @@ pui.Grid = function () {
     neHandle.style.top = y + "px";
 
     y += me.getStyleAsInt("height") + 1;
-    if (me.pagingBar.csvExport || me.pagingBar.showPagingControls || me.pagingBar.showPageNumber || me.pagingBar.showBar) {
+    if (me.pagingBar.csvExport || me.pagingBar.showPagingControls || me.pagingBar.showPageNumber || me.pagingBar.showRecordNumberRange || me.pagingBar.showBar) {
       y += 25;
     }
     seHandle.style.left = x + "px";
@@ -4882,6 +4990,8 @@ pui.Grid = function () {
       case "sortable columns":
         me.sortable = (value == "true");
         if (context == "genie") me.makeSortable();
+        if (me.hasTreeLevelColumn)
+          me.sortable = false;    
         break;
 
       case "default sort order":
@@ -5076,6 +5186,14 @@ pui.Grid = function () {
         }
         break;
 
+      case "show record number range":
+        me.pagingBar.showRecordNumberRange = (value == true || value == "true");
+        if (me.designMode) {
+          me.pagingBar.draw();
+          positionIcons();
+        }
+        break;
+
       case "show bar":
         me.pagingBar.showBar = (value == true || value == "true");
         if (me.designMode) {
@@ -5159,6 +5277,18 @@ pui.Grid = function () {
       case "fold multiple":
         me.foldMultiple = parseInt(value);
         if (isNaN(me.foldMultiple) || me.foldMultiple < 1) me.foldMultiple = 1;
+        break;
+
+      case "tree level field":
+        me.treeLevelField = value;
+        me.hasTreeLevelColumn = true;
+        me.sortable = false;    
+        break;
+
+      case "tree level column":
+        me.treeLevelColumnId = parseInt(value);
+        me.hasTreeLevelColumn = true;
+        me.sortable = false;    
         break;
 
       case "expanded":
@@ -8042,6 +8172,50 @@ pui.Grid = function () {
     if (count == null) count = 0;
     return count;
   };
+
+  this["toggleTreeLevel"] = function (elem, rrn) {
+
+    var myTreeLevelData = me.treeLevelData[rrn-1];
+    var myTreeLevel = myTreeLevelData.treeLevel;
+    
+    var wasCollapsed;
+    if (myTreeLevelData.treeLevelCollapsed) {
+      wasCollapsed = true;
+      myTreeLevelData.treeLevelCollapsed = false;
+    } else { 
+      wasCollapsed = false;
+      myTreeLevelData.treeLevelCollapsed = true;
+    }
+
+    for (var i = rrn + 1; i <= me.treeLevelData.length; i++) {    // start at rrn+1; hide rows below clicked row if needed
+      if (me.treeLevelData[i-1].treeLevel > myTreeLevel) {
+        if (wasCollapsed) {                                       // clicked row was collapsed; expand it
+          me.handleHideRow(i, false, false);                      // call showRow() but does NOT call getData()
+          me.treeLevelData[i-1].treeLevelCollapsed = false;
+        } else {                                                  // clicked row was expanded; collapse it
+          me.handleHideRow(i, true, false);                       // call hideRow() but does NOT call getData()
+          me.treeLevelData[i-1].treeLevelCollapsed = true;
+        }
+      } else {
+        break;
+      }
+    }
+    
+    me.getData();
+    
+  };
+
+  this.getTreeLevelColumnId =  function () {
+    if (me.treeLevelColumnId !== null)
+      return me.treeLevelColumnId;
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      if (me.runtimeChildren[i]["value"]["fieldName"].toUpperCase() === me.treeLevelField.toUpperCase()) {   
+        me.treeLevelColumnId = me.runtimeChildren[i]["columnId"]
+        break;    
+      }
+    }
+    return me.treeLevelColumnId;
+  };
   
   this["clear"] = function(refresh) {
     me.dataArray = [];
@@ -8139,7 +8313,7 @@ pui.Grid = function () {
     if (refresh) me.refresh();
   };
 
-  this.handleHideRow = function(rrn, status) {
+  this.handleHideRow = function(rrn, status, callGetData) {
     
     var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
     var row = me.getRowInDataArray(dataRecords, rrn);
@@ -8164,7 +8338,8 @@ pui.Grid = function () {
       }
     }
     
-    me.getData();
+    if (callGetData)
+      me.getData();
     pui.modified = true;
     if (me.hiddenField != null) {
       if (record.hiddenFieldInfo == null) {
@@ -8185,10 +8360,10 @@ pui.Grid = function () {
     }
   };
   this["hideRow"] = function(rrn) {
-    me.handleHideRow(rrn, true);
+    me.handleHideRow(rrn, true, true);
   };
   this["showRow"] = function(rrn) {
-    me.handleHideRow(rrn, false);
+    me.handleHideRow(rrn, false, true);
   };
   
   this["clearState"] = function (part) {
@@ -10272,6 +10447,7 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays links for navigating to the previous page and the next page of records." },
       { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the page number should display within the paging bar.", context: "dspf" },
       { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "1", help: "Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used.", context: "dspf" },
+      { name: "show record number range", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the record number range should display within the paging bar.", context: "dspf" },
       { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals.", context: "dspf" },
       { name: "page down condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", helpDefault: "bind", help: "Determines if the next page link is enabled.", context: "dspf" },
       { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is returned to your program when the next page link is clicked.", context: "dspf" },
@@ -10290,7 +10466,8 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 1 },
       { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 1 },
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
-
+      { name: "tree level field", helpDefault: "blank", help: 'This property specifies the field name used to identify the column which indicates the tree level of the record. Each higher level record that has lower level records below it would be collapsible. If property "tree level column" is not specified, then this column is used to expand and collapse the tree levels.', hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+      { name: "tree level column", format: "number", helpDefault: "blank", help: 'If property "tree level field" is specified, this property specifies the column used to expand and collapse the tree levels, if it is different than the column specified in property "tree level field". If this property is specified, then property "tree level field" must also be specified. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},

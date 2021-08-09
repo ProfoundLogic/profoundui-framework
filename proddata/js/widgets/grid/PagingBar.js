@@ -34,6 +34,7 @@ pui.PagingBar = function() {
   this.xlsxExportPics = false;
   this.showPagingControls = false;
   this.showPageNumber = false;
+  this.showRecordNumberRange = false;
   this.showBar = false;
   this.pageUpCondition = null;
   this.pageDownCondition = null;
@@ -65,7 +66,8 @@ pui.PagingBar = function() {
   var spacesSpan1;
   var spacesSpan2;
   var pageSpan;
-  
+  var rcdNbrRangeSpan;
+
   var me = this;
   
   /**
@@ -246,6 +248,18 @@ pui.PagingBar = function() {
     spacesSpan2.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
     div.appendChild(spacesSpan2);
 
+    rcdNbrRangeSpan = document.createElement("span");    
+    rcdNbrRangeSpan.style.fontFamily = "Arial";
+    rcdNbrRangeSpan.style.fontSize = "11px";
+    rcdNbrRangeSpan.style.fontWeight = "bold";
+    rcdNbrRangeSpan.style.verticalAlign = "top";
+    rcdNbrRangeSpan.className = 'paging-number';
+    div.appendChild(rcdNbrRangeSpan);
+        
+    spacesSpan2 = document.createElement("span");
+    spacesSpan2.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    div.appendChild(spacesSpan2);
+
     me.nextLink = document.createElement("span");
     me.nextLink.innerHTML = pui["getLanguageText"]("runtimeText", "next link text");
     me.nextLink.href = "javascript:void(0)";
@@ -416,7 +430,7 @@ pui.PagingBar = function() {
   };
   
   this.position = function() {  
-    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
+    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showRecordNumberRange || me.showBar) && 
         me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {  
       div.style.left = me.x + "px";
       div.style.top = me.y + "px";
@@ -445,6 +459,7 @@ pui.PagingBar = function() {
     spacesSpan1 = null;
     spacesSpan2 = null;
     pageSpan = null;
+    rcdNbrRangeSpan = null;
     me.deleteOwnProperties();
     me = null;
   };
@@ -469,7 +484,7 @@ pui.PagingBar = function() {
 
     me.setClassName(me.grid.tableDiv.className);
 
-    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showBar) && 
+    if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showRecordNumberRange || me.showBar) && 
         me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {
       me.position();
 
@@ -499,6 +514,10 @@ pui.PagingBar = function() {
         else if (me.showPageNumber) {
           leftcomp = pageSpan.offsetLeft;
           rightComp = pageSpan.offsetLeft + pageSpan.offsetWidth;
+        }
+        else if (me.showRecordNumberRange) {
+          leftcomp = rcdNbrRangeSpan.offsetLeft;
+          rightComp = rcdNbrRangeSpan.offsetLeft + rcdNbrRangeSpan.offsetWidth;
         };
 
         if (exportLinkXLSX.offsetLeft + exportLinkXLSX.offsetWidth > leftcomp || rightComp > parentWidth){
@@ -580,6 +599,22 @@ pui.PagingBar = function() {
       }
       else {
         pageSpan.style.display = "none";
+      }
+
+      if (me.showRecordNumberRange) {
+        var myGrid = me.grid;
+        var myRecordCound = myGrid.getRecordCount();
+        if (myGrid.designMode) {
+          myGrid.firstDisplayedRRN = 1;
+          myGrid.lastDisplayedRRN = myGrid.getSubfilePage();
+          myRecordCound = myGrid.lastDisplayedRRN;
+        }
+        rcdNbrRangeSpan.style.display = "";
+        rcdNbrRangeSpan.innerHTML = "Showing " + myGrid.firstDisplayedRRN + "-" + 
+          myGrid.lastDisplayedRRN + " of " + myRecordCound;
+      }
+      else {
+        rcdNbrRangeSpan.style.display = "none";
       }
   
     }
