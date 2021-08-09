@@ -40,6 +40,7 @@ pui.widgets.add({
         parms.dom.grid.enableDesign();
         parms.dom.grid.setProperty("show paging controls", parms.properties["show paging controls"]);
         parms.dom.grid.setProperty("show page number", parms.properties["show page number"]);
+        parms.dom.grid.setProperty("show record number range", parms.properties["show record number range"]);
         parms.dom.grid.setProperty("show bar", parms.properties["show bar"]);
         parms.dom.grid.setProperty("csv export", parms.properties["csv export"]);
         parms.dom.grid.setProperty("xlsx export", parms.properties["xlsx export"]);

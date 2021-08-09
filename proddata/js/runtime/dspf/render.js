@@ -1233,6 +1233,12 @@ pui.renderFormat = function(parms) {
     // value: when value is a pui.Layout, then it is a lazy-loaded layout being rendered on this pass.
     //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that 
     //  is inside the lazy layout, and this container will be rendered on a later pass.
+  var treeLevelItemAdded = false;
+  if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null ) {
+    items.push(parms.treeLevelItem);  // temp only; removed after loop below is done
+    treeLevelItemAdded = true;
+  }
+
   for (var i = 0; i < items.length; i++) {
 
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
@@ -2215,6 +2221,38 @@ pui.renderFormat = function(parms) {
         }
       }
 
+      if (items[i]["grid"] !== undefined && items[i]["grid"] !== null && 
+          getObj(items[i]["grid"]).grid.hasTreeLevelColumn && 
+          getObj(items[i]["grid"]).grid.treeLevelField !== null) {
+        if (properties["field type"] !== "textbox" && properties["field type"] !== "combo box" && properties["field type"] !== "text area") {
+          var boxDom = dom;
+          if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+          if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
+          boxDom["pui"]["rrn"] = parms.subfileRow;
+          boxDom["pui"]["grid"] = items[i]["grid"];
+
+          addEvent(boxDom, "keydown", function(event) {
+            event = event || window.event;
+            var target = getTarget(event);
+            var keyCode = event.keyCode;
+            var box = target;
+            var myGrid = getObj(box["pui"]["grid"]).grid;
+            var myRRN = box["pui"]["rrn"];
+          
+            if (keyCode == 37) {  // left arrow key
+              myGrid["toggleTreeLevel"](null, myRRN );
+              preventEvent(event);
+              return false;
+            }
+            if (keyCode == 39) {  // right arrow key
+              myGrid["toggleTreeLevel"](null, myRRN );
+              preventEvent(event);
+              return false;
+            }
+          });
+        }
+      }
+
       // check set cursor row / column
       if ( !isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
@@ -2836,6 +2874,8 @@ pui.renderFormat = function(parms) {
 
   }  // end for loop to process all items
 
+  if (treeLevelItemAdded )
+    items.pop();  // remove temp treeLevelItem added to be processed in loop above
 
   // process server side errors for this format
   if (!isDesignMode) {
