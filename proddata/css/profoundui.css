@@ -9196,6 +9196,11 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   content: "\f146";
 }
 
+.fa-minus-square-tree-level:before {
+  content: "\f146";
+  font-size: 14px;
+}
+
 .fa-mix:before {
   content: "\f3cb";
 }
@@ -9634,6 +9639,11 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
 
 .fa-plus-square:before {
   content: "\f0fe";
+}
+
+.fa-plus-square-tree-level:before {
+  content: "\f0fe";
+  font-size: 14px;
 }
 
 .fa-podcast:before {
