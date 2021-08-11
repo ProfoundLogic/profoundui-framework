@@ -603,7 +603,7 @@ pui.PagingBar = function() {
 
       if (me.showRecordNumberRange) {
         var myGrid = me.grid;
-        var myRecordCound = myGrid.getRecordCount();
+        var myRecordCound = myGrid["getRecordCount"]();
         if (myGrid.designMode) {
           myGrid.firstDisplayedRRN = 1;
           myGrid.lastDisplayedRRN = myGrid.getSubfilePage();

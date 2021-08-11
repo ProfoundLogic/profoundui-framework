@@ -2528,7 +2528,6 @@ pui.Grid = function () {
         if (!me.treeLevelDataInitDone) {
           me.treeLevelDataInitDone = true;
           me.currentLeft = null;
-          me.currentTop = null;
           var treeLevelColumnId = me.getTreeLevelColumnId();
           // This is done at init; before columns can be hidden/moved.
           for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
@@ -2537,7 +2536,6 @@ pui.Grid = function () {
               currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
               currentLeft = parseInt(currentLeft);
               me.currentLeft = currentLeft;
-              me.currentTop = me.runtimeChildren[jj]["top"];;
               break;    
             }
           }
@@ -2546,12 +2544,11 @@ pui.Grid = function () {
         var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
                                 '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
         treeLevelItem = {
-          "id": myGridId + "_puiImageToggleTreeLevel",
-          "field type": "image",
+          "id": myGridId + "_puiIconToggleTreeLevel",
+          "field type": "icon",
           "left": "10px",
-          "top": me.currentTop,
+          "top": "0px",
           "onclick": myOnclickFunction,
-          "cursor": "pointer",
           "grid": myGridId,
           "visibility": "visible"
         };
@@ -2568,10 +2565,10 @@ pui.Grid = function () {
     function handleTreeLevelItemPerRow(treeLevelItem) {
 
       var treeLevelDataIndex = (subfileRow - 1);
-      treeLevelItem["image source"] = pui.normalizeURL("/profoundui/proddata/images/icons/collapseall.gif");     // "-"
+      treeLevelItem["icon"] = "fontAwesome-solid:minus-square-tree-level";
       treeLevelItem["visibility"] = "visible";
       if (me.treeLevelData[treeLevelDataIndex].treeLevelCollapsed)
-        treeLevelItem["image source"] = pui.normalizeURL("/profoundui/proddata/images/icons/expandall.gif");    // "+"
+        treeLevelItem["icon"] = "fontAwesome-solid:plus-square-tree-level";
       var myTreeLevel = me.treeLevelData[treeLevelDataIndex].treeLevel;
       // indent tree level
       // Note that this is done per row since it depends on the tree level
@@ -4678,6 +4675,7 @@ pui.Grid = function () {
 
       case "selection field":
       case "row is hidden field":
+      case "tree level field":
 
       case "column sort response":
       
@@ -5277,12 +5275,6 @@ pui.Grid = function () {
       case "fold multiple":
         me.foldMultiple = parseInt(value);
         if (isNaN(me.foldMultiple) || me.foldMultiple < 1) me.foldMultiple = 1;
-        break;
-
-      case "tree level field":
-        me.treeLevelField = value;
-        me.hasTreeLevelColumn = true;
-        me.sortable = false;    
         break;
 
       case "tree level column":
@@ -8205,9 +8197,23 @@ pui.Grid = function () {
     
   };
 
+  this["expandTreeLevel"] = function (elem, rrn) {
+    var myTreeLevelData = me.treeLevelData[rrn-1];
+    if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
+      me["toggleTreeLevel"](elem, rrn);
+  };
+
+  this["collapseTreeLevel"] = function (elem, rrn) {
+    var myTreeLevelData = me.treeLevelData[rrn-1];
+    if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
+      me["toggleTreeLevel"](elem, rrn);
+  };
+
   this.getTreeLevelColumnId =  function () {
+    // if property "tree level column" is specified, then use that; otherwise use column 0
     if (me.treeLevelColumnId !== null)
       return me.treeLevelColumnId;
+    me.treeLevelColumnId = 0;         // default
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       if (me.runtimeChildren[i]["value"]["fieldName"].toUpperCase() === me.treeLevelField.toUpperCase()) {   
         me.treeLevelColumnId = me.runtimeChildren[i]["columnId"]
@@ -10466,8 +10472,8 @@ pui.BaseGrid.prototype.getPropertiesModel = function(){
       { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 1 },
       { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 1 },
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
-      { name: "tree level field", helpDefault: "blank", help: 'This property specifies the field name used to identify the column which indicates the tree level of the record. Each higher level record that has lower level records below it would be collapsible. If property "tree level column" is not specified, then this column is used to expand and collapse the tree levels.', hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-      { name: "tree level column", format: "number", helpDefault: "blank", help: 'If property "tree level field" is specified, this property specifies the column used to expand and collapse the tree levels, if it is different than the column specified in property "tree level field". If this property is specified, then property "tree level field" must also be specified. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+      { name: "tree level field", helpDefault: "blank", help: 'This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+      { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},

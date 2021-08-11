@@ -1862,6 +1862,16 @@ pui.renderFormat = function(parms) {
               }
             }
 
+            if (propname == "tree level field" && properties["field type"] == "grid") {
+              if (pui.isBound(items[i]["tree level field"])) {
+                dom.grid.treeLevelField = items[i]["tree level field"]["fieldName"];
+                dom.grid.hasTreeLevelColumn = true;
+                dom.grid.sortable = false;  
+                if (dom.grid.treeLevelColumnId == null)  
+                  dom.grid.treeLevelColumnId = 0;
+              }
+            }
+
             if (propname == "row font color" && properties["field type"] == "grid") {
               if (pui.isBound(items[i][propname])) {
                 dom.grid.rowFontColorField = items[i][propname];
@@ -2240,12 +2250,12 @@ pui.renderFormat = function(parms) {
             var myRRN = box["pui"]["rrn"];
           
             if (keyCode == 37) {  // left arrow key
-              myGrid["toggleTreeLevel"](null, myRRN );
+              myGrid["expandTreeLevel"](null, myRRN );
               preventEvent(event);
               return false;
             }
             if (keyCode == 39) {  // right arrow key
-              myGrid["toggleTreeLevel"](null, myRRN );
+              myGrid["collapseTreeLevel"](null, myRRN );
               preventEvent(event);
               return false;
             }
