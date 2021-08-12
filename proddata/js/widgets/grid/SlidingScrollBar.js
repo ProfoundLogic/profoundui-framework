@@ -756,7 +756,7 @@ pui.SlidingScrollBar = function() {
        * Basically, delta is now positive if wheel was scrolled up,
        * and negative, if wheel was scrolled down.
        */
-      if (delta)
+      if (delta && !event.shiftKey)
               handle(delta);
       /** Prevent default actions caused by mouse wheel.
        * That might be ugly, but we handle scrolls somehow
@@ -764,7 +764,7 @@ pui.SlidingScrollBar = function() {
        */
       var prevent = false;
       if (event.preventDefault) prevent = true;
-      if (me.gridDom && (me.gridDom.grid.propagateScrollEvents || scrollingPastEnd(delta) )) prevent = false;
+      if (me.gridDom && (me.gridDom.grid.propagateScrollEvents || scrollingPastEnd(delta) || event.shiftKey )) prevent = false;
       if (prevent) {
         event.preventDefault();
         event.returnValue = false;
