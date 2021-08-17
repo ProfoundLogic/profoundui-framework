@@ -1256,11 +1256,14 @@ pui.renderFormat = function(parms) {
     
     // don't allow invisible(auto arrange)/disabled function key buttons to be activated by a shortcut key
     // this is accomplished by removing the "shortcut key" property
-    if (!isDesignMode && items[i]["auto arrange"] == "true") {
-      var vis = items[i]["visibility"];
-      if (vis == "hidden" || (pui.isBound(vis) && pui.evalBoundProperty(vis, data, parms.ref) == "hidden")) {
-        if (items[i]["shortcut key"] != null) delete items[i]["shortcut key"];
-      }      
+    if (!isDesignMode) {
+      var autoArrange = items[i]["auto arrange"] || "false"; 
+      if (autoArrange == "true" || (pui.isBound(autoArrange) && pui.evalBoundProperty(autoArrange, data, parms.ref) == "true")) {
+        var vis = items[i]["visibility"];
+        if (vis == "hidden" || (pui.isBound(vis) && pui.evalBoundProperty(vis, data, parms.ref) == "hidden")) {
+          if (items[i]["shortcut key"] != null) delete items[i]["shortcut key"];
+        }      
+      }
     }
     if (!isDesignMode && items[i]["shortcut key"] != null) {
       var dis = items[i]["disabled"];
