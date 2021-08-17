@@ -233,6 +233,8 @@ pui.Grid = function () {
   this.hasTreeLevelColumn = false;
   this.treeLevelField = null;
   this.treeLevelColumnId = null;
+  this.treeLevelItemId = "_____puiButtonToggleTreeLevel";
+  this.lastSelectedRRN = null;
   this.hiddenFieldIndex = null;
   this.selectionFieldIndex = null;
   this.selectionValue = "1";
@@ -2159,6 +2161,7 @@ pui.Grid = function () {
 
       var treeLevelItem = getTreeLevelItem();
       me.firstDisplayedRRN = 0;
+      me.lastSelectedRRN = null;
 
       for (var i = firstRow; i <= lastRow; i++) {
 
@@ -2258,6 +2261,13 @@ pui.Grid = function () {
         if (fieldData.empty || !valuesData.hideRow) {
           rowNum++;
         }
+      }
+
+      if (me.hasTreeLevelColumn && me.treeLevelField !== null && me.lastSelectedRRN !== null) {
+        var myTreeLevelItemId = me.tableDiv.id + me.treeLevelItemId + "." + me.lastSelectedRRN;
+        var myTreeLevelItemObj = getObj(myTreeLevelItemId);
+        if (myTreeLevelItemObj !== null)
+          myTreeLevelItemObj.focus();          // so that left/right arrow keys would expand/collapse tree level
       }
 
       if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true") {
@@ -2544,10 +2554,12 @@ pui.Grid = function () {
         var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
                                 '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
         treeLevelItem = {
-          "id": myGridId + "_puiIconToggleTreeLevel",
-          "field type": "icon",
+          "id": myGridId + me.treeLevelItemId,
+          "field type": "graphic button",
           "left": "10px",
           "top": "0px",
+          "css class": "pui-button-tree-level",
+          "icon position": "left",
           "onclick": myOnclickFunction,
           "grid": myGridId,
           "visibility": "visible"
@@ -5850,6 +5862,7 @@ pui.Grid = function () {
           cols[i].style.backgroundImage = "url('" + pui.normalizeURL(selectionImage.trim(), true) + "')";
         }
         pui.addCssClass(cols[i], "selected");
+        me.lastSelectedRRN = adjustedRow;
       }
       else if (hover == true) {
         setColor(cols[i], me.cellProps["hover font color"], i);
@@ -7058,6 +7071,13 @@ pui.Grid = function () {
             var cell = me.cells[row][0];
             placeCursorOnCell(cell);
           }
+        }
+
+        if (me.hasTreeLevelColumn && me.treeLevelField !== null && adjustedRow !== undefined) {
+          var myTreeLevelItemId = me.tableDiv.id + me.treeLevelItemId + "." + adjustedRow;
+          var myTreeLevelItemObj = getObj(myTreeLevelItemId);
+          if (myTreeLevelItemObj !== null)
+            myTreeLevelItemObj.focus();          // so that left/right arrow keys would expand/collapse tree level
         }
       }
     };
