@@ -20,8 +20,9 @@
 
 
 pui["encode hyperlink spaces"] = null;
+pui["default hyperlink tabindex"] = null;
 
-pui.buildHyperlink = function(dom, value, designMode, href, target) {
+pui.buildHyperlink = function(dom, value, designMode, href, target, tabIdx) {
   dom.innerHTML = "";
   var a = document.createElement("a");
   var noHref = false;
@@ -44,6 +45,16 @@ pui.buildHyperlink = function(dom, value, designMode, href, target) {
       e.returnValue = false;
       return false;      
     });
+  }
+
+  // The "tab index" property sets the tab index on the <DIV> element.
+  // But for it to work properly, it needs to be set on the <A> element.
+  // If not set, use the config option
+  if (tabIdx != null && tabIdx != '') {
+    a.tabIndex = tabIdx;
+  }
+  else if (pui["default hyperlink tabindex"] != null) {
+    a.tabIndex = pui["default hyperlink tabindex"];
   }
   
   dom.appendChild(a);
@@ -87,7 +98,7 @@ pui.widgets.add({
   
     "field type": function(parms) {
       
-      pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"]);
+      pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"));
       if (parms.design) {
         designUtils.addEvent(parms.dom, "mouseover", function() {
           setTimeout(parms.designItem.designer.selection.positionSizies, 0);
@@ -99,7 +110,7 @@ pui.widgets.add({
     },
     
     "value": function(parms) {
-      pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"]);
+      pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"));
     }
     
   }
