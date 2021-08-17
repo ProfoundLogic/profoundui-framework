@@ -2231,16 +2231,13 @@ pui.renderFormat = function(parms) {
         }
       }
 
-      if (items[i]["grid"] !== undefined && items[i]["grid"] !== null && 
-          getObj(items[i]["grid"]).grid.hasTreeLevelColumn && 
-          getObj(items[i]["grid"]).grid.treeLevelField !== null) {
-        if (properties["field type"] !== "textbox" && properties["field type"] !== "combo box" && properties["field type"] !== "text area") {
+      if (items[i]["grid"] !== undefined && items[i]["grid"] !== null) {
+        var myGrid = getObj(items[i]["grid"]).grid;
+        if (myGrid.hasTreeLevelColumn && myGrid.treeLevelField !== null && 
+            items[i]["id"] == (items[i]["grid"] + myGrid.treeLevelItemId)) {    // button to expand/collapse tree levels
           var boxDom = dom;
-          if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
-          if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           boxDom["pui"]["rrn"] = parms.subfileRow;
           boxDom["pui"]["grid"] = items[i]["grid"];
-
           addEvent(boxDom, "keydown", function(event) {
             event = event || window.event;
             var target = getTarget(event);

@@ -27,6 +27,14 @@ INPUT.button {
   cursor: default;
 }
 
+/* +/- button to expand/collapse tree level in grid */
+.pui-button-tree-level {
+  height: 0px;
+  width: 0px;
+  border-style: none;
+  padding: 0px 0px 0px 0px;
+}
+
 /* 5250 Menu Bar */
 .menu-bar {
   font-family: Consolas,Monospace;
@@ -9199,6 +9207,7 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
 .fa-minus-square-tree-level:before {
   content: "\f146";
   font-size: 14px;
+  vertical-align: top;
 }
 
 .fa-mix:before {
@@ -9644,6 +9653,7 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
 .fa-plus-square-tree-level:before {
   content: "\f0fe";
   font-size: 14px;
+  vertical-align: top;
 }
 
 .fa-podcast:before {
