@@ -535,7 +535,10 @@ function getScreenPropertiesModel(designScreen) {
       { name: "onload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the screen loads." }, 
       { name: "onsubmit", type: "js", helpDefault: "blank", help: "Initiates a client-side script or expression before a response is submitted to the screen. This typically occurs when a button or a hyperlink is clicked. If the expression evaluates to <i>false</i>, the response is not submitted." }, 
       { name: "onmessage", type: "js", helpDefault: "blank", help: "Initiates a client-side script that receives a message from the Profound.js display.screen.write(), display.screen.execute(), or the display.screen.executeMessage() API, which allows you to partially update screen content instead of re-rendering the entire screen. The message is received in a variable named <b>message</b>." },
-
+      { name: "onkeydown", type: "js", helpDefault: "blank", help: "Initiates a client-side script when a keyboard key is being pressed down on this screen." },
+      { name: "onkeypress", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user presses and releases a keyboard key on this screen." },
+      { name: "onkeyup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user releases a keyboard key on this screen." },
+  
       { name: "Misc", category: true }, 
       { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
       { name: "user defined routine", multOccur: true, wf: true, bind: false, readOnly: true, helpDefault: "blank", help: "Specifies a routine that is not automatically triggered by an event. Instead, it can be called and reused by other routines. To provide multiple user defined routines, right-click the property and select Add Another User Defined Routine." }

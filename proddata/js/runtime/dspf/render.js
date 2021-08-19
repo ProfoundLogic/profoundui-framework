@@ -84,6 +84,7 @@ pui.currentFormatNames = [];
 pui["no focus"] = false;
 pui.restoreStyles = {};
 pui.windowStack = null;
+pui.screenEventsToCleanup = [];
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -482,6 +483,12 @@ pui.cleanup = function() {
     if (widget != null && typeof widget.destroy == "function") widget.destroy();
   }
   pui.widgetsToCleanup = [];
+
+  for (var i = 0; i < pui.screenEventsToCleanup.length; i++){
+    var screenEvent = pui.screenEventsToCleanup[i];
+    removeEvent(screenEvent.eventObj, screenEvent.eventName, screenEvent.eventFunc);
+  }
+  pui.screenEventsToCleanup = [];
   
   for (var prop in pui.restoreStyles)
     document.body.style[prop] = pui.restoreStyles[prop];
@@ -3046,6 +3053,29 @@ pui.renderFormat = function(parms) {
         }
 
       }
+
+      ["onkeydown", "onkeypress", "onkeyup"].forEach(function (eventPropName) {
+        if (isMainFormat && parms.lastLayer && screenProperties[eventPropName] != null && screenProperties[eventPropName] != "") {
+          var func = function(e) {
+            pui["temp_event"] = e;
+            eval("var event = pui.temp_event;");
+            eval('var format = "' + screenProperties["record format name"] + '";');
+            eval('var file = "' + parms.file + '";');
+            try {
+              var customFunction = eval(screenProperties[eventPropName]);
+              if (typeof customFunction == "function") {
+                if (!e) e = window.event;
+                customFunction(e);
+              }
+            } catch (err) {
+              pui.scriptError(err, eventPropName.substr(0, 1).toUpperCase() + eventPropName.substr(1) + " Error:\n");
+            }
+          };
+          addEvent(document.body, eventPropName.substr(2), func);
+          pui.screenEventsToCleanup.push({ eventObj: document.body, eventName: eventPropName.substr(2), eventFunc: func });
+        }
+      });
+
     }
     
     if ( parms.lazyContainerNum != null ){
