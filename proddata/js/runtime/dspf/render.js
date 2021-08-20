@@ -115,6 +115,7 @@ pui["auto tab"] = false;  // when the user reaches the end of the field, the cur
 pui["enable arrow keys"] = false;
 pui["horizontal auto arrange"] = false;
 pui["buttons per row"] = 1;  //required when pui["horizontal auto arrange"] set to true
+pui["strict tab control"] = false;
 
 // Parent namespace for wikihelp functions, settings, and objects.
 pui["wikihelp"] = {}; 
@@ -1071,6 +1072,7 @@ pui.renderFormat = function(parms) {
   var isWin = false;
   var ctlErrors = [];
   var ctlErrorMap = {};
+  var strictTabControl = pui["strict tab control"];
   
   // Detect when code should only run if renderFormat is called for the record format (not grid or layout).
   var isMainFormat = parms.rowNum == null && parms.lazyContainerNum == null;
@@ -1107,7 +1109,7 @@ pui.renderFormat = function(parms) {
   
   // Setup cursor and bypass validation.
   if (!isDesignMode && isMainFormat) {
-	formatName = formatName || pui["format"];
+    formatName = formatName || pui["format"];
     pui.keyMap[formatName] = {};
     var namePrefix = pui.handler == null ? formatName + "." : "";
     // Note: all "return cursor location", RTNCSRLOC, fields need to be output for each format that uses them, even with overlays. Issue 4920.
@@ -1178,6 +1180,12 @@ pui.renderFormat = function(parms) {
         pui.cursorValues.setColumn = null;
       }
     }
+
+    
+    if (parms.lastLayer && screenProperties["strict tab control"] != null && screenProperties["strict tab control"] != "") {
+      strictTabControl = (pui.evalBoundProperty(screenProperties["strict tab control"], data, parms.ref) === "true");
+    }
+
   }
   
   // set record format level properties in Designer.
@@ -2241,6 +2249,26 @@ pui.renderFormat = function(parms) {
         }
       }
 
+      if (strictTabControl) {
+        if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field" || properties["field type"] == "checkbox") {
+          var boxDom = dom;
+          if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+          if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
+          addEvent(boxDom, "keydown", function(event) {
+            event = event || window.event;
+            var target = getTarget(event);
+            if (target.autoComp && target.autoComp.isOpen())
+              return;
+            if (event.keyCode == 9) { // tab key
+              gotoElement(target, !event.shiftKey);
+              preventEvent(event);
+              return false;
+            }
+          });
+        }
+      }
+
+
       if (items[i]["grid"] !== undefined && items[i]["grid"] !== null) {
         var myGrid = getObj(items[i]["grid"]).grid;
         if (myGrid.hasTreeLevelColumn && myGrid.treeLevelField !== null && 
@@ -3135,7 +3163,7 @@ pui.renderFormat = function(parms) {
       qualField += "." + (parms.subfileRow);
     }
   }
-};
+};  // pui.renderFormat
 
 
 pui.attachResponse = function(dom) {
