@@ -5348,7 +5348,7 @@ div.Glass>.pui-tablayout-body>div {
 .combo-main {
   background-color: #ffffff;
   border: 1px solid #7f9db9;
-  overflow: hidden;
+  overflow: visible;
   height: 20px;
 }
 
@@ -16630,7 +16630,9 @@ tr.drop_valid {
   top: 3px;
   left: 10px;
   background-color: #fff;
+  font-family: Trebuchet MS;
   font-size: 16px;
+  color: #000;
   padding-left: 3px;
   padding-right: 3px;
   opacity: 0;
