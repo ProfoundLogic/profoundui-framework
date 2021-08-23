@@ -297,8 +297,8 @@ pui.getParentWindow = function(el) {
 
 }
 
+// Wrap input into a DIV and create a placeholder label
 pui.floatPlaceholder = function(idOrDom) {
-  // Wrap input into a DIV and create a placeholder label
   if (typeof idOrDom === "string") {
     var id = idOrDom;
     var input = getObj(id);
@@ -308,46 +308,61 @@ pui.floatPlaceholder = function(idOrDom) {
     var id = input.id;
   }
   if (!input || !id) return;
+  var isComboBox = input.comboBoxWidget != null;
+  if (isComboBox) input = input.comboBoxWidget.getBox();
   if (input.tagName !== "INPUT" && input.tagName !== "TEXTAREA") return;
   if (!input.placeholder) return;
-  var div = document.createElement("div");
+  var div;
+  
+  if (!isComboBox) {
+    div = document.createElement("div");
+    for (var i = 0; i < input.classList.length; i++) {
+      var cls = input.classList[i];
+      cls = "pui-floating-placeholder-" + cls;
+      div.classList.add(cls);
+    }
+    input.parentNode.insertBefore(div, input);
+    input.parentNode.removeChild(input);
+    input.removeAttribute("id");
+    div.id = id;
+    div.style.position = input.style.position;
+    div.style.left = input.style.left;
+    div.style.top = input.style.top;
+    div.style.width = input.style.width;
+    div.pui = input.pui;
+    if (input.cursorRecord != null)
+      div.cursorRecord = input.cursorRecord;
+    if (input.cursorField != null)
+      div.cursorField = input.cursorField;
+    if (input.cursorRow != null)
+      div.cursorRow = input.cursorRow;
+    if (input.cursorColumn != null)
+      div.cursorColumn = input.cursorColumn;
+    input.style.position = "";
+    input.style.left = "";
+    input.style.top = "";
+    input.style.width = "100%";
+    if (input.style.visibility) {
+      div.style.visibility = input.style.visibility;
+      input.style.visibility = "";
+    }
+    div.appendChild(input);
+  } else {
+    div = input.parentNode;
+    var classes = div.className.split(' ');
+    for (var i = 0; i < classes.length; i++) {
+      var cls = classes[i];
+      cls = "pui-floating-placeholder-" + cls;
+      div.classList.add(cls);
+    }
+  }
   div.classList.add("pui-floating-placeholder-div");
-  for (var i = 0; i < input.classList.length; i++) {
-    var cls = input.classList[i];
-    cls = "pui-floating-placeholder-" + cls;
-    div.classList.add(cls);
-  }
-  input.parentNode.insertBefore(div, input);
-  input.parentNode.removeChild(input);    
-  input.removeAttribute("id");
   input.classList.add("pui-floating-placeholder-input");
-  div.id = id;
-  div.style.position = input.style.position;
-  div.style.left = input.style.left;
-  div.style.top = input.style.top;
-  div.style.width = input.style.width;
-  div.pui = input.pui;
-  if (input.cursorRecord != null)
-    div.cursorRecord = input.cursorRecord;
-  if (input.cursorField != null)
-    div.cursorField = input.cursorField;
-  if (input.cursorRow != null)
-    div.cursorRow = input.cursorRow;
-  if (input.cursorColumn != null)
-    div.cursorColumn = input.cursorColumn;
-  input.style.position = "";
-  input.style.left = "";
-  input.style.top = "";
-  input.style.width = "100%";
-  if (input.style.visibility) {
-    div.style.visibility = input.style.visibility;
-    input.style.visibility = "";
-  }
-  div.appendChild(input);
+
   var label = document.createElement("label");
   label.classList.add("pui-floating-placeholder-label");
   label.innerText = input.placeholder;
-  div.appendChild(label);
+  div.insertBefore(label, input.nextSibling);
 
   // Setup useful methods for outside use by the framework
   div.floatingPlaceholder = label;

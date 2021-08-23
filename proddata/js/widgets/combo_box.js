@@ -799,6 +799,13 @@ pui.widgets.add({
       parms.dom.removeAttribute("tabindex");
       parms.dom.comboBoxWidget.getBox().setAttribute("tabindex", parms.value);
     
+    },
+
+    "placeholder": function(parms) {
+
+      parms.dom.removeAttribute("placeholder");
+      parms.dom.comboBoxWidget.getBox().setAttribute("placeholder", parms.value);
+
     }
     
   },
