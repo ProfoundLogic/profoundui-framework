@@ -53,6 +53,7 @@ pui.widgets.renderChart = function(parms) {
     console.log("Dependency FusionCharts not defined before rendering.");
     return;
   }
+
   
   if (inDesignMode()) return;  //User switched to design mode while async request was loading in Genie.
   
