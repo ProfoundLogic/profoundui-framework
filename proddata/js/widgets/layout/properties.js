@@ -263,12 +263,18 @@ pui.layout.getProperties = function (template) {
 
 
     default:
-
-      // The template is HTML text from one of our templates or from a user-defined one; properties must be parsed.
-      return pui.layout.template.processHTML({
+      // Other: user-defined templates or HTML-based ones that must be parsed.
+      var returnPropsArg = {
         template: template,
         returnProps: true
-      });
+      };
+      
+      // A custom template, including properties, could be defined by a function instead of being parsed in HTML. (Undocumented, but at least one customer uses it.) # 
+      var tpl = pui.layout["templates"][template];
+      if (typeof tpl == "function") return tpl(returnPropsArg);
+
+      // The template is HTML text--either from one of our templates or from a user-defined one; properties must be parsed to be returned.
+      return pui.layout.template.processHTML(returnPropsArg);
   }
   
   return pui.layout.getPropertiesModel(templateProperties);

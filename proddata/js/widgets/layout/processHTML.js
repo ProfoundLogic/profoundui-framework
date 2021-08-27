@@ -18,7 +18,8 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Process an HTML template and return either the DOM element built from the template or an array of properties
+ * Process an HTML template and return either the DOM element built from the template or an array of properties.
+ * The properties may need to be extracted from HTML before they can be returned.
  * @param {Object} parms
  * @param {Element} dom
  * @returns {Array.<Object>|Element}
