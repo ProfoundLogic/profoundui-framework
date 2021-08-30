@@ -136,6 +136,7 @@ var pui = {
   expand: {},
   toggle: {},
   errors: {},
+  warnings: {},
   ontabclick: {},
   widgets: {},
   widget: {},
