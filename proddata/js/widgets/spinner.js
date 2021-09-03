@@ -29,8 +29,8 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
   // Private Properties / Constructor
   var me = this;
-  var up = document.createElement("img");
-  var down = document.createElement("img");
+  var up = document.createElement("div");
+  var down = document.createElement("div");
   
   if (minValue != null && minValue != "") {
     minValue = Number(minValue);
@@ -55,12 +55,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     increment = 1;
   }
 
-  up.style.position = "absolute";
   up.className = "input";  // to pick up the default zIndex value
-  up.style.borderStyle = "none";
-  up.style.backgroundColor = "transparent";
-  up.src = pui.normalizeURL("/profoundui/proddata/images/up.gif");
-  up.style.cursor = "pointer";
   up.onclick = function() {
     me.spin(increment);
   }
@@ -71,12 +66,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     }
   }
     
-  down.style.position = "absolute";
   down.className = "input";  // to pick up the default zIndex value
-  down.style.borderStyle = "none";
-  down.style.backgroundColor = "transparent";
-  down.src = pui.normalizeURL("/profoundui/proddata/images/down.gif");
-  down.style.cursor = "pointer";
   down.onclick = function() {
     me.spin(-increment);
   }
@@ -219,10 +209,13 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 pui.widgets.add({
   name: "spinner",
   tag: "input",
+  //DesignItem uses pickIcon1 & 2 to positions the icons for the spinner and datefield
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/up.gif"),
   pickIcon2: pui.normalizeURL("/profoundui/proddata/images/down.gif"),
   icon1Class: 'input spinner-up-arrow-input',
   icon2Class: 'input spinner-down-arrow-input',
+  pickIcon1IsDiv: true,
+  pickIcon2IsDiv: true,
   defaults: {
     "css class": "input"
   },
