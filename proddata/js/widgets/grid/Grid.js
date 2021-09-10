@@ -8868,6 +8868,7 @@ pui.Grid = function () {
    * Supported expressions:
    *   between x and y
    *   values x,y,z              (exact matches)
+   *   jvalues ["x","y","z"]     (same as above, but list is a JSON array of strings -- mostly for "filter by value")
    *   starts with str
    *   ==str, =str               (exact match)
    *   >=str, <=str, >str, <str
@@ -8906,7 +8907,23 @@ pui.Grid = function () {
         text = trim(list[i]).toLowerCase();
         //For filtering blanks -- should be represented by 1 space
         if (text == " " && value == "") return true;
-        if (value.toLowerCase() == text) return true;
+        if (trim(value).toLowerCase() == text) return true;
+      }
+      return false;
+    }
+    else if (text.substr(0, 8).toLowerCase() == "jvalues ") {
+      text = text.substr(8).toLowerCase();
+      if (text == "") return true;
+      try {
+        var list = JSON.parse(text);
+        if (!Array.isArray(list)) return false;
+      }
+      catch(e) { return false; }
+      for (var i = 0; i < list.length; i++) {
+        text = trim(list[i]).toLowerCase();
+        //For filtering blanks -- should be represented by 1 space
+        if (text == " " && value == "") return true;
+        if (trim(value).toLowerCase() == text) return true;
       }
       return false;
     }
@@ -9942,25 +9959,25 @@ pui.Grid = function () {
         me.gridLoading();
         
         //set new filtertext only on confirm == "values x, y, z..."
-        filterText = "VALUES";
         count = 0;
         entries = dataMap.entries();
         dataCount = dataMap.size;
+        var tempArray = [];
         for(var i = 0; i < dataCount; i++){
           entry = entries.next().value;
           data = entry[0];
           checked = entry[1];
           if(checked == true){
             count++;
-            if(filterText == "VALUES"){filterText += " " + data;}
-            else {filterText +=  ", " + data;}
+            tempArray.push(data);
           }
         }
+        filterText = "JVALUES " + JSON.stringify(tempArray);
         //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
         if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
         if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){me.forceDataArray = false;}
         //If nothing checked, remove filter
-        if(filterText == null || filterText == "VALUES" || filterText == "VALUES "){me["removeFilter"](col);}
+        if(filterText == null || tempArray.length == 0){me["removeFilter"](col);}
         //Otherwise, set filter on grid
         else{ me["setFilter"](headerCell,filterText); }
         me['unMask']();
@@ -10021,25 +10038,14 @@ pui.Grid = function () {
         //Put the first 50 records in cells and display them
         entries   = dataMap.entries();
         dataCount = dataMap.size;
-        if(dataCount <= 50){
-          for(var i = 0; i < dataCount; i++){
-            entry = entries.next().value;
-            data = entry[0];
-            checked = entry[1];
-            
-            insertRows();
-            rowCount ++;
-          }
-        }
-        else{
-          for(var i = 0; i < 50; i++){
-            entry = entries.next().value;
-            data = entry[0];
-            checked = entry[1];
-            
-            insertRows();
-          }
-          rowCount = 50;
+        var rowLimit = (dataCount < 50) ? dataCount : 50;
+        
+        for(var i = 0; i < rowLimit; i++){
+          entry = entries.next().value;
+          data = entry[0];
+          checked = entry[1];
+          insertRows();
+          rowCount ++;
         }
         
         filterMultiPanel.appendChild(includetable);
@@ -10090,33 +10096,42 @@ pui.Grid = function () {
       }
       else{
         //Get data and put into a map to get a list of easily navigatable unique values
-        if(me.isFiltered() && me.filteredDataArray != null){
-          if(me.filteredDataArray.length > 0){
-            for (var i = 0; i < me.filteredDataArray.length; i++) {
-              var record = me.filteredDataArray[i];
-              if (record.subfileRow == null) record.subfileRow = i + 1;
-              for (var j = 0; j < idxes.length; j++) {
-                var idx = idxes[j];
-                var value = record[idx];
-                var ignoreTest = false;
-                dataMap.set(value, checked);
-                checked = false;
-              } 
+        var dataRecords = me.dataArray;
+        if (me.isFiltered() && me.filteredDataArray != null && me.filteredDataArray.length > 0)
+          dataRecords = me.filteredDataArray;
+        for (var i = 0; i < me.dataArray.length; i++) {
+          var record = dataRecords[i];
+          if (record.subfileRow == null) record.subfileRow = i + 1;
+          for (var j = 0; j < idxes.length; j++) {
+            var idx = idxes[j];
+            var value = record[idx];
+            var ignoreTest = false;
+            if (headerCell["pui"] != null) {
+              // If the header has a format for the current field, then use it.
+              if( headerCell["pui"].formats != null
+                && headerCell["pui"].formats[j] != null
+                && typeof headerCell["pui"].formats[j] == "object" ){
+  
+                var curfmt = headerCell["pui"].formats[j];
+                curfmt.value = value;
+                value = pui.FieldFormat.format(curfmt);
+              }
             }
+            if ( headerCell["pui"].rtIdxs != null
+              && headerCell["pui"].rtIdxs[j] != null
+              && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
+              && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
+
+              var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
+              var rtleft = parseInt(rtChild["left"], 10);
+              var rttop = parseInt(rtChild["top"], 10);
+              if ( rtChild["visibility"] == "hidden"
+              || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
+                ignoreTest = true;
+            }
+            if (!ignoreTest) dataMap.set(value, checked);
+            checked = false;
           } 
-        }
-        else {
-          for (var i = 0; i < me.dataArray.length; i++) {
-            var record = me.dataArray[i];
-            if (record.subfileRow == null) record.subfileRow = i + 1;
-            for (var j = 0; j < idxes.length; j++) {
-              var idx = idxes[j];
-              var value = record[idx];
-              var ignoreTest = false;
-              dataMap.set(value, checked);
-              checked = false;
-            } 
-          }
         }
         
         //Use data
