@@ -9042,6 +9042,26 @@ pui.Grid = function () {
         }
       }
     }
+    // jvalues ["a","b","c"]
+    else if (text.substr(0, 8) == "JVALUES ") {
+      var vals = text.substr(8);
+      if (vals != "") {
+        try {
+          vals = JSON.parse(vals);
+          if (!Array.isArray(vals)) vals = [];
+        }
+        catch(e) { vals = []; }
+
+        if (vals.length > 0) {
+          // This type of filter tells the CGI program how many values it will have.
+          retval = "&fltrtype" + filtNum + "=VAL&fltrcnt" + filtNum + "=" + String(vals.length);
+          for (var i = 0; i < vals.length; i++) {
+            // Add a value. Trim whitespace because client-side filtering does for this one.
+            retval += "&fltrval" + filtNum + "_" + String(i) + "=" + encodeURIComponent(trim(vals[i]));
+          }
+        }
+      }
+    }
     // starts with - assume character data type. CGI will put in quotes: locate('text',field) = 1
     else if (text.substr(0, 12) == "STARTS WITH ") {
       retval = "&fltrtype" + filtNum + "=STW&fltrval" + filtNum + "=" + encodeURIComponent(text.substr(12));
@@ -10099,7 +10119,7 @@ pui.Grid = function () {
         var dataRecords = me.dataArray;
         if (me.isFiltered() && me.filteredDataArray != null && me.filteredDataArray.length > 0)
           dataRecords = me.filteredDataArray;
-        for (var i = 0; i < me.dataArray.length; i++) {
+        for (var i = 0; i < dataRecords.length; i++) {
           var record = dataRecords[i];
           if (record.subfileRow == null) record.subfileRow = i + 1;
           for (var j = 0; j < idxes.length; j++) {
