@@ -774,6 +774,8 @@ pui.Grid = function () {
     var boundDate = [];
     var imageData = [];
     var hyperlinks = [], columnIds = [];
+
+    saveResponsesToDataArray(); //save any changes the user may have made to the widgets before exporting #6869
     
     var totalColumns = me.vLines.length - 1;
     if (me.hidableColumns && !me.exportVisableOnly) totalColumns = me.columnInfo.length; //More columns will export than there are ones visible.
@@ -4044,18 +4046,20 @@ pui.Grid = function () {
                     else value = " ";
                   }
                 }
-                var oldValue = dom.formattingInfo.value;
-                var oldRevert = dom.formattingInfo["revert"];
-                dom.formattingInfo.value = value;
-                dom.formattingInfo["revert"] = true;
-                value = pui.FieldFormat.format(dom.formattingInfo);
-                dom.formattingInfo.value = oldValue;
-                dom.formattingInfo["revert"] = oldRevert;
-                if (typeof value == "object") {
-                  // Error.
-                  value = "";
+                if((dom.isLoading == null || dom.isLoading === false) && dom.modified === true){
+                  var oldValue = dom.formattingInfo.value;
+                  var oldRevert = dom.formattingInfo["revert"];
+                  dom.formattingInfo.value = value;
+                  dom.formattingInfo["revert"] = true;
+                  value = pui.FieldFormat.format(dom.formattingInfo);
+                  dom.formattingInfo.value = oldValue;
+                  dom.formattingInfo["revert"] = oldRevert;
+                  if (typeof value == "object") {
+                    // Error.
+                    value = "";
+                  }
+                  rowData[fieldIdx] = value;
                 }
-                rowData[fieldIdx] = value;
               }
             }
           }

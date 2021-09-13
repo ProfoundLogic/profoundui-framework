@@ -127,6 +127,7 @@ pui.widgets.add({
         if (parms.dom.tagName == "SELECT") {
           parms.dom.options.length = 0;
           parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
+          parms.dom.isLoading = true;
         }
       	req.send();
       	return;
@@ -243,11 +244,13 @@ pui.widgets.add({
               parms.dom.choices[option.value] = option.text;
             }               
             pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
-            if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id); 
+            if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id);
+            parms.dom.isLoading = false; 
           };
           if (parms.dom.tagName == "SELECT") {
             parms.dom.options.length = 0;
             parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
+            parms.dom.isLoading = true;
           }
           ajaxRequest.send();
         }
