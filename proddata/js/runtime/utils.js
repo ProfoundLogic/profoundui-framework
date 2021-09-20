@@ -1152,7 +1152,7 @@ pui["unload"] = function() {
       ajax({
         url: url,
         method: "post",
-        suppressAlert: true,
+        "suppressAlert": true,
         params: ajaxParams
       });
     }
