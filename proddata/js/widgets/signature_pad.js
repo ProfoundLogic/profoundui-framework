@@ -34,8 +34,7 @@ pui.SignaturePad = function() {
   var moveBox;
   
   this.container = null;
-  this.color = "#333333";
-  this.backgroundColor = "#ffffcc";
+  this.className = "pui-signature-pad-canvas";
   this.designMode = false;
   this.designItem = null;
   
@@ -170,25 +169,13 @@ pui.SignaturePad = function() {
   
   this.init = function() {
     me.container.innerHTML = "";
-    me.container.style.overflow = "hidden";
-    me.container.style.padding = "0px";
+    me.container.className = "pui-signature-pad-container";
     canvas = document.createElement("canvas");
     if (!me.designMode) canvas.innerHTML = "Your browser does not support HTML5 Canvas.<br/>Signature pad widget will not function.";
     me.container.appendChild(canvas);
     clearBox = document.createElement("div");
-    clearBox.style.position = "absolute";
-    clearBox.style.top = "0px";
-    clearBox.style.right = "1px";
-    clearBox.style.width = "40px";
+    clearBox.className = "pui-signature-pad-clear-box";
     clearBox.innerHTML = "Clear";
-    clearBox.style.backgroundColor = "#cccccc";
-    clearBox.style.padding = "1px";
-    clearBox.style.border = "1px solid #666666";
-    clearBox.style.color = "#666666";
-    clearBox.style.fontFamily = "Sans-Serif";
-    clearBox.style.fontSize = "12px";
-    clearBox.style.textAlign = "center";
-    clearBox.style.cursor = "pointer";
     clearBox.onmousedown = function(e) {
       preventEvent(e);
       return false;
@@ -200,19 +187,8 @@ pui.SignaturePad = function() {
     me.container.appendChild(clearBox);
     if (me.designMode) {
       moveBox = document.createElement("div");
-      moveBox.style.position = "absolute";
-      moveBox.style.top = "0px";
-      moveBox.style.right = "46px";
-      moveBox.style.width = "40px";
+      moveBox.className = "pui-signature-pad-move-box";
       moveBox.innerHTML = "Move";
-      moveBox.style.backgroundColor = "#cccccc";
-      moveBox.style.padding = "1px";
-      moveBox.style.border = "1px solid #666666";
-      moveBox.style.color = "#666666";
-      moveBox.style.fontFamily = "Sans-Serif";
-      moveBox.style.fontSize = "12px";
-      moveBox.style.textAlign = "center";
-      moveBox.style.cursor = "move";
       me.container.appendChild(moveBox);
     }
     me.resize();
@@ -325,20 +301,7 @@ pui.widgets.add({
   defaults: {
     "height": "150px",
     "width": "450px",
-    "background color": "#ffffcc",
-    "border top style": "solid",
-    "border top width": "1px",
-    "border top color": "#000000",
-    "border left style": "solid",
-    "border left width": "1px",
-    "border left color": "#000000",
-    "border right style": "solid",
-    "border right width": "1px",
-    "border right color": "#000000",
-    "border bottom style": "solid",
-    "border bottom width": "1px",
-    "border bottom color": "#000000",
-    "color": "#333333"
+    "css class": "pui-signature-pad-container"
   },
 
   propertySetters: {
@@ -401,7 +364,6 @@ pui.widgets.add({
     "background color": function(parms) {
       parms.dom.signaturePad.setBackgroundColor(parms.value);
     }
-        
   }
   
 });
