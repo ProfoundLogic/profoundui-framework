@@ -17313,3 +17313,48 @@ fieldset.layout > div[container="true"] {
 select.listeditor-listbox option {
   padding: 0px;
 }
+
+div.listEditor {
+  width: 305px;
+  border: 2px solid #336699;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  padding: 0px;
+  visibility: hidden;
+  display: none;
+  height: 222px;
+  overflow: hidden;
+}
+
+div.listEditor > div.header {
+  font-size: 12px;
+  font-family: Arial;
+  background-color: #6699cc;
+  padding: 3px;
+  cursor: move;
+  font-weight: bold;
+  color: #ffffff;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  white-space: normal;
+  width: 100%;
+  user-select: none;
+}
+
+div.listEditor > div.dlgbody {
+  overflow: auto;
+  height: 202px;
+  background-color: #ffffff;
+  padding: 0px;
+  position: absolute;
+  left: 0px;
+  top: 20px;
+  white-space: normal;
+  width: 100%;
+}
+
+div.listEditor > div.dlgbody input {
+  box-sizing: border-box;
+}
