@@ -7,6 +7,7 @@
 
 Array.isArray = function(value) {};
 
+// JavaScript functions.
 Object.defineProperty = function() {};
 Object.defineProperties = function() {};
 Object.entries = function() {};
@@ -63,3 +64,6 @@ Date.toISOString = function() {};
 navigator.clipboard = {
   writeText: {}
 };
+
+// Profound UI 
+Object.multOccur = {};
