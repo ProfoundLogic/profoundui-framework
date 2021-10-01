@@ -19,334 +19,249 @@
 
 /**
  * File Upload DND Class. Inherits from pui.fileupload.FileUpload class.
- * 
  * File created by: Matthew Denninghoff.
  * Date created: 10/30/2015.
+ * (See test cases in #6686 for a large list.)
  * 
- * Limitations: This widget will not work with IE versions less than 10 or
- * with Microsoft Edge (as of 11/4/15).
+ * Limitations: This widget will not work with IE versions less than 10.
  * 
- * Required by obfuscator:
  * @constructor
- * @param {Object} container
- * @returns {undefined}
+ * @param {Element} container
+ * @returns {FileUploadDND}
  */
 pui["fileupload"].FileUploadDND = function(container) {
+
+  // Configuration options to override the parent.
+  this._clearLinkClass = "clear-files";
+  this._uploadLinkClass = "upload-files";
+  this._alwaysShowProgressBar = true;
+  this._validateBeforeUpload = false;
   
-  var extraParms = {
-    preConstruct: createDropBox,
-    alwaysShowProgressBar: true,
-    selectFilesLink: false,
-    clearLinkClass: "clear-files",
-    uploadLinkClass: "upload-files",
-    validateBeforeUpload: false
-  };
-  
-  // Assign properties from the parent class onto a new instance of this class.
-  pui["fileupload"].FileUpload.call(this, container, extraParms);
-  
-  // Private fields.
-  var me = this; // alias used for on-event handlers with different "this" pointer.
-  
-  var dropBox; // drop target.
+  this._showSelectFiles = (pui["dnd upload show select"] === true); //True/false by configuration; can be set by the "show select" property.
   
   //
   // These are user-modifiable widget properties.
   //
-  var autoSubmit = false;     // DSPF only.
-  var autoUpload = false;     // Genie only.
+  this._autoSubmit = false;     // DSPF only.
+  this._autoUpload = false;     // Genie only.
   
   // Variables necessary for the readNextFile() handlers to process the file list in sequence.
-  var droppedFileList = null;
-  var droppedCtr = 0;
+  this._droppedFileList = null;
+  this._droppedCtr = 0;
   
-  //
-  // Public methods. 
-  //
+  // super(). Assign properties from the parent class onto a new instance of this class; construct boxes.
+  pui["fileupload"].FileUpload.call(this, container);
+};
 
-  this.setAutoSubmit = function(autosub) {
-    autoSubmit = (autosub === true || autosub === "true");
-  };
+// Let FileUploadDND inherit from FileUpload.
+pui["fileupload"].FileUploadDND.prototype = Object.create(pui["fileupload"].FileUpload.prototype);
+
+// Private methods.
+
+/**
+ * Create a dropBox for accepting dragged files. Add the other control elements below it.
+ */
+pui['fileupload'].FileUploadDND.prototype._createBoxes = function(){
+  this._dropBox = document.createElement("div");
+  this._dropBox.className = "drop-box";
+  this._setupDropBox();
+  this._mainBox.appendChild(this._dropBox);
   
-  this.setAutoUpload = function(autoup) {
-    autoUpload = (autoup === true || autoup === "true");
-  };
-
-  /**
-   * Note: we can skip sending the MIME type since we validated it in the ondrop function already. (Simplifies handling jpg/jpeg.)
-   * Called by this.upload. Overrides.
-   * @param {Object} params  pui.upload parameters setup in parent class.
-   */
-  this.addAllowedTypesParam = function(params){
-    params["allowedTypes"] = [];
-  };
+  // Event Handlers for drag/drop. Added to main box to allow dropping anywhere. Feedback only shows in drop-box.
+  this._mainBox.addEventListener("dragover", this);
+  this._mainBox.addEventListener("dragleave", this);
+  this._mainBox.addEventListener("drop", this);
   
-  // Overrides. Called when the user onupload has an exception in Genie.
-  this.uploadEventException = function(e){
-    me.setError("onupload Error:\n" + e.message);
-  };
-
-  //
-  // Handlers for dropBox events.
-  //
-
-  /**
-   * Handler for the dropBox.ondragover event. This works better than the 
-   * ondragenter event.
-   * 
-   * @param {type} e
-   * @returns {Boolean}
-   */
-  function boxdragover(e) {
-    e = e || event;
-    var submitHandle = me.getSubmitHandle();
-    e.returnValue = false;
-    if( e.stopPropagation )
-      e.stopPropagation();  // The event only applies to dropBox.
-    if( e.preventDefault )
-      e.preventDefault();    // prevent the default dragover on dropBox.
-    if (me.isDisabled() || submitHandle != null || inDesignMode() || pui.isPreview ) return false;
-    e.dataTransfer.dropEffect = "copy";
-    // Add a CSS class to indicate that drop is allowed here.
-    pui.addCssClass(dropBox, "dragover");
-    return false;
-  }
+  this._controlBox = document.createElement("div");
+  this._controlBox.className = "control-box";
   
-  /**
-   * Handler for dropBox.ondragleave event.
-   * 
-   * @param {type} e
-   * @returns {Boolean}
-   */
-  function boxdragleave(e) {
-    e = e || event;
-    e.returnValue = false;
-    if( e.stopPropagation )
-      e.stopPropagation();
-    if( e.preventDefault )
+  this._setupControlBox();
+  this._createListBox();
+};
+
+/**
+ * Setup text inside the Drop Box. Text may change when the "show select" property changes.
+ */
+pui['fileupload'].FileUploadDND.prototype._setupDropBox = function(){
+  // Always add a select files link. Display it when configured.
+  this._createSelectFilesLink(this._dropBox, pui["getLanguageText"]("runtimeText", "upload select text"));
+  this._selectFilesLink.classList.add('dnd-upl-sel');  //Add space below the text.
+  this._selectFilesLink.style.display = this._showSelectFiles ? 'block' : 'none';
+  
+  var str = pui["getLanguageText"]("runtimeText", "upload " + (this._showSelectFiles ? "or " : "") + "drophere text");
+  var textnode = document.createTextNode(str);
+  this._dropBox.appendChild(textnode);
+};
+
+/**
+ * Generic event handler allowing event handlers to access class properties.
+ * @param {Event} e
+ * @returns {Boolean|undefined} 
+ */
+pui['fileupload'].FileUploadDND.prototype['handleEvent'] = function(e){
+  switch (e.type){
+    //
+    // Handlers for drag/drop events.
+    //
+    case 'dragover': 
+      // Handler for the dropBox.ondragover event. This works better than the ondragenter event.
       e.preventDefault();
-    pui.removeCssClass(dropBox, "dragover");
-    return false;
-  }
-  
-  /**
-   * Handler for dropBox.ondrop event.
-   * This adds files to our widget, validates them, and starts the upload.
-   * 
-   * @param {type} e
-   * @returns {undefined}
-   */
-  function boxdrop(e) {
-    // Prevent page redirect on file drop into our box.
-    e = e || event;
-    e.returnValue = false;
-    if( e.stopPropagation )
       e.stopPropagation();
-    if( e.preventDefault )
+      if (this._disabled || this._submitHandle != null || inDesignMode() || pui.isPreview) return false;
+      e.dataTransfer.dropEffect = "copy";
+      this._dropBox.classList.add('dragover');  //Indicate that drop is allowed here.
+      return false;
+
+    case 'dragleave':
       e.preventDefault();
-    
-    var submitHandle = me.getSubmitHandle();
-    if (me.isDisabled() || submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() || pui.isPreview ) return;
-    
-    if( e.dataTransfer.files === null || e.dataTransfer.files === undefined ) {
-      // This case shouldn't happen since we previously disabled the ondrop
-      // handler for older browsers, but catch and log in case it does.
-      console.log("Browser doesn't support dataTransfer.files API");
+      e.stopPropagation();
+      this._dropBox.classList.remove('dragover');
+      return false;
+
+    //
+    // Adds files to our widget, validates them, and starts the upload.
+    //
+    case 'drop':
+      // Prevent page redirect on file drop into our box.
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (this._disabled || this._submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() || pui.isPreview ) return;
+
+      if (e.dataTransfer.files === null || e.dataTransfer.files === undefined) {
+        // This case shouldn't happen since we previously disabled the ondrop
+        // handler for older browsers, but catch and log in case it does.
+        console.log("Browser doesn't support dataTransfer.files API");
+        return;
+      }
+      this._dropBox.classList.remove('dragover');
+
+      // Remove files which already attempted to upload.
+      this._checkAndRemoveFiles();
+
+      // In each drop event, clear the validation hint, since files 
+      // causing it to appear were blocked from being added.
+      // Remove previous error.
+      this._clearErrors();
+
+      // Don't add anything if too many files have been dropped in.
+      if (this.fileList.length + e.dataTransfer.files.length > this._fileLimit) {
+        this._showMessage(pui["getLanguageText"]("runtimeMsg", "upload file limit", [this._fileLimit]));
+        return;
+      } 
+
+      // If the dropped item had files/directories, then start reading them.
+      if( e.dataTransfer.files.length > 0 ) {
+        this._droppedFileList = e.dataTransfer.files;
+        this._droppedCtr = 0;
+        this._readNextFile();
+      }
+      else {
+        // This happens when some text was dragged or in IE10/IE11 when a folder
+        // was dragged in. IE doesn't put folders in the dataTransfer FileList.
+        this._showMessage(pui["getLanguageText"]("runtimeMsg", "upload invalid type"));
+      }
       return;
-    }
-    pui.removeCssClass(this, "dragover");
-  
-    // Remove files which already attempted to upload.
-    me.checkAndRemoveFiles();
 
-    // In each drop event, clear the validation hint, since files 
-    // causing it to appear were blocked from being added.
-    // Remove previous error.
-    me.clearErrors();
-    
-    // Don't add anything if too many files have been dropped in.
-    var fileLimit = me.getFileLimit();
-    if (me.fileList.length + e.dataTransfer.files.length > fileLimit) {
-      me.showError(pui["getLanguageText"]("runtimeMsg", "upload file limit", [fileLimit]));
+    //
+    // Handlers for FileReader.
+    //
+    case 'load':
+      this._droppedFileList[this._droppedCtr].isReadable = true;
+      this._readerHandleNext();
       return;
-    } 
-    
-    // If the dropped item had files/directories, then start reading them.
-    if( e.dataTransfer.files.length > 0 ) {
-      droppedFileList = e.dataTransfer.files;
-      droppedCtr = 0;
-      readNextFile();
-    } else {
-      // This happens when some text was dragged or in IE10/IE11 when a folder
-      // was dragged in. IE doesn't put folders in the dataTransfer FileList.
-      me.showError(pui["getLanguageText"]("runtimeMsg", "upload invalid type"));
-    }
+    case 'error':
+      this._droppedFileList[this._droppedCtr].isReadable = false;
+      this._readerHandleNext();
+      return;
   }
-  
-  /**
-   * Initiate one file reader on the list of dropped files and assign handlers.
-   * The handlers determine if the file was readable; directories are unreadable.
-   * 
-   * To ensure the script waits until the last file is finished reading, the
-   * next call to readNextFile() is only called from the handlers.
-   * 
-   * @returns {undefined}
-   */
-  function readNextFile() {
-    var reader = new FileReader();
-    reader.onload = function() {
-      droppedFileList[droppedCtr].isReadable = true;
-      // We are the last file.
-      if( droppedCtr == droppedFileList.length - 1 ) {
-        processDropList();
-      }
-      else {
-        droppedCtr++;
-        readNextFile();
-      }
-    };
-    reader.onerror = function() {
-      droppedFileList[droppedCtr].isReadable = false;
-      // We are the last file.
-      if( droppedCtr == droppedFileList.length - 1 ) {
-        processDropList();
-      }
-      else {
-        droppedCtr++;
-        readNextFile();
-      }
-    };
-    // Attempt to start reading. The obfuscator will mangle this without string.
-    reader["readAsArrayBuffer"](droppedFileList[droppedCtr]);
-  }
-  
-  /**
-   * This should only be called by the FileReader handlers after all the files
-   * attempted to open. Once here, we know if dropped objects were directories
-   * or readable files. 
-   * 
-   * @returns {undefined}
-   */
-  function processDropList()
-  {
-    var pushlist = [];
-    var hadError = false;
-    var sizeLimit = me.getSizeLimit();
-    var allowedTypes = me.getAllowedTypes();
 
-    // Look at each dropped file.
-    for (var i = 0; i < droppedFileList.length && !hadError; i++) {
-      var exists = false;
-      // See if the file's name already exists in the upload list.
-      for (var j = 0; j < me.fileList.length; j++) {
-        if (me.fileList[j].name === droppedFileList[i].name) {
-          exists = true;
-          break;
-        }
-      }
-      
-      // If there is nothing in allowedTypes[], allow the file.
-      // If the file's type was in allowedTypes[], allow it.
-      var ftypeTmp = droppedFileList[i].type;
-      var allowedT = (allowedTypes.length <= 0 || allowedTypes.indexOf(ftypeTmp) >= 0);
+  // Let parent class handle all else.
+  return pui['fileupload'].FileUpload.prototype['handleEvent'].call(this, e);  
+};
 
-      // 6839: FIX MIME type:
-      //  Historically, we allowed "image/jpg" for a jpeg even though the standard 
-      //  (and value provided by browsers) is "image/jpeg" so this is needed for
-      //  backward compatibility.
-      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && allowedTypes.indexOf("image/jpeg") >= 0) allowedT = true;
-      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpeg" && allowedTypes.indexOf("image/jpg") >= 0) allowedT = true;
+/**
+ * Initiate one file reader on the list of dropped files and assign handlers.
+ * The handlers determine if the file was readable; directories are unreadable.
+ * 
+ * To ensure the script waits until the last file is finished reading, the
+ * next call to readNextFile() is only called from the handlers.
+ */
+pui['fileupload'].FileUploadDND.prototype._readNextFile = function() {
+  var reader = new FileReader();
+  reader.addEventListener('load', this);
+  reader.addEventListener('error', this);
+  // Attempt to start reading. Note: the obfuscator will mangle this without the string.
+  reader["readAsArrayBuffer"](this._droppedFileList[this._droppedCtr]);
+};
 
-      // Only add the file to our list if it passes our parameter checks.
+pui['fileupload'].FileUploadDND.prototype._readerHandleNext = function(){
+  if( this._droppedCtr == this._droppedFileList.length - 1 ) {
+    // We are the last file. This should only run after all the files attempted to open. Process the list of dropped files. Once 
+    // here, we know if dropped objects were directories or readable files.
 
-      // Don't add if the MIME type is not accepted, or if the
-      // file was a directory. Browsers prevent JS from selecting
-      // files not explicitly chosen by the user, so we can't read
-      // everything in a directory. Ignore them for now.
-      if (!allowedT || ! droppedFileList[i].isReadable ) {
-        hadError = true;
-        me.setError(pui["getLanguageText"]("runtimeMsg", "upload invalid type"));
-        console.log('Content-Type "%s" not permitted for upload.', ftypeTmp); //This is helpful.
-      }
-      // Don't add if the same filename is already in the list.
-      else if (exists) {
-        hadError = true;
-        me.setError(pui["getLanguageText"]("runtimeMsg", "upload duplicate file"));
-      }
-      // Don't add if file is larger than limit.
-      else if (droppedFileList[i].size > sizeLimit * 1048576) {
-        hadError = true;
-        me.setError(pui["getLanguageText"]("runtimeMsg", "upload size limit", [sizeLimit]));
-      }
-      // Otherwise, add the file to our list.
-      else {
-        pushlist.push(droppedFileList[i]);
-      }
-    }
-    // done looking at each dropped file.
-
-    // Only add files if none of them had errors.
-    if( ! hadError ) {
-      for (var i = 0; i < pushlist.length; i++) {
-        me.fileList.push(pushlist[i]);
-      }
-    }
-    pushlist = null;
-    
-    // Redraw table to show chosen files and the correct links.
-    me.render();
+    this._processFileList(this._droppedFileList); //Validate files, render, display any notices.
+    this._droppedFileList = null;
+    this._droppedCtr = 0;
     
     // Do nothing or auto upload or auto submit, which causes upload.
     // Note: assume the UI prevented dropping if genie form has submitted, etc.
-    if (me.getCount() > 0){
-      if( autoUpload && context === "genie"){
-        me.upload();
+    if (this.getCount() > 0){
+      if( this._autoUpload && context === "genie"){
+        this.upload();
       }
-      else if( autoSubmit && context === "dspf") {
+      else if( this._autoSubmit && context === "dspf") {
         pui.keyName = "Enter";
         pui.click();
       }
     }
   }
-    
-  //**************************************************************************
-  // Methods to create boxes for inside the widget.
-  //
-  
-  /**
-   * Create a dropBox for accepting dragged files.
-   * @returns {undefined}
-   */
-  function createDropBox() {
-    
-    var dropUploadSupported = true;
-    if( ! window["File"] || ! window["FileList"] || ! window["FileReader"] ) dropUploadSupported = false;
-    
-    dropBox = document.createElement("div");
-    dropBox.className = "drop-box";
-    var str = pui["getLanguageText"]("runtimeText", "upload drophere text");
-    if( ! dropUploadSupported ) {
-      str = pui["getLanguageText"]("runtimeText","upload browser unsupported");
-      dropBox.style.whiteSpace = "pre-wrap";
-      dropBox.style.overflowX = "auto";
-    }
-    var txtnd = document.createTextNode(str);
-    dropBox.appendChild(txtnd);
-
-    // Event Handlers for dropBox.
-    if( dropUploadSupported && dropBox.addEventListener ) {
-      dropBox.addEventListener("dragover", boxdragover );
-      dropBox.addEventListener("dragleave", boxdragleave );
-      dropBox.addEventListener("drop", boxdrop );
-    }
-    
-    container.appendChild(dropBox);
+  else {
+    // There are more files.
+    this._droppedCtr++;
+    this._readNextFile();
   }
-
 };
 
-// Let FileUploadDND inherit from FileUpload.
-pui["fileupload"].FileUploadDND.prototype = Object.create(pui["fileupload"].FileUpload.prototype);
+/**
+ * Overrides. Note: we can skip sending the MIME type since we validated it in the ondrop function already. 
+ * (Simplifies handling jpg/jpeg.) Called by this.upload.
+ * @param {Object} params  pui.upload parameters setup in parent class.
+ */
+pui["fileupload"].FileUploadDND.prototype._addAllowedTypesParam = function(params){
+  params["allowedTypes"] = [];
+};
+
+/**
+ * Overrides. Called when the user onupload has an exception in Genie.
+ * @param {Exception|String} e
+ */
+pui["fileupload"].FileUploadDND.prototype._uploadEventException = function(e){
+  var msg = e.message != null ? e.message : e;
+  this._error = "onupload Error:\n" + msg;
+};
+
+//
+// Public methods. 
+//
+
+pui["fileupload"].FileUploadDND.prototype.setAutoSubmit = function(autosub) {
+  this._autoSubmit = (autosub === true || autosub === "true");
+};
+
+pui["fileupload"].FileUploadDND.prototype.setAutoUpload = function(autoup) {
+  this._autoUpload = (autoup === true || autoup === "true");
+};
+
+/**
+ * Handle property change for "show select"--show or hide the "Select Files" link.
+ * @param {Boolean} val
+ */
+pui['fileupload'].FileUploadDND.prototype.showSelect = function(val){
+  this._showSelectFiles = val;
+  this._dropBox.innerHTML = '';
+  this._setupDropBox();
+};
 
 /******************************************************************************/
 /*
@@ -355,7 +270,7 @@ pui["fileupload"].FileUploadDND.prototype = Object.create(pui["fileupload"].File
  * Certain events are defined to handle when the widget is added, changed, or
  * loaded in a screen.
  *
- * http://www.profoundlogic.com/docs/pages/viewpage.action?pageId=5275778
+ * See "pui.widgets.add( config )" (https://docs.profoundlogic.com/x/goBQ)
  */
 pui.widgets.add({
   /* Field type name of the widget. Must match the "widget" property in designer/Toolbox.js. */
@@ -415,27 +330,23 @@ pui.widgets.add({
       }
       parms.dom["fileUpload"].setAllowedTypes(types);
       parms.dom["fileUpload"].render();
-      // If it wasn't already added, override the default drop behavior
-      // for screens using this widget. By default the browser will open
-      // the dropped page and navigate away. Prevent that.
-      if( ! pui["fileupload"].myPreventDefAdded ) {
-        // For old IE, don't add listener, because drag/drop isn't even supported.
-        window.addEventListener("dragover", pui["fileupload"].myPreventDef, false);
-        window.addEventListener("drop", pui["fileupload"].myPreventDef, false);
-        pui["fileupload"].myPreventDefAdded = true;
-      }
+      
+      // In case these were lost, add them here. (Adding is harmless if the listener already exists, because the browser will not
+      // assign the same function/object to listen for the same event more than once.)
+      window.addEventListener("dragover", pui["fileupload"].myPreventDef, false);
+      window.addEventListener("drop", pui["fileupload"].myPreventDef, false);
     },
     
     "auto submit": function(parms) {
-      if (parms.design)
-        return;
-      parms.dom["fileUpload"].setAutoSubmit(parms.value);
+      if (!parms.design) parms.dom["fileUpload"].setAutoSubmit(parms.value);
     },
     "auto upload": function(parms) {
-      if(parms.design )
-        return;
-      parms.dom["fileUpload"].setAutoUpload(parms.value);
+      if(!parms.design) parms.dom["fileUpload"].setAutoUpload(parms.value);
     },
+    "show select": function(parms){
+      parms.dom["fileUpload"].showSelect(parms.value == 'true' || parms.value == true);
+    },
+    
     "number of files":       pui["fileupload"].propset["number of files"],
     "size limit":            pui["fileupload"].propset["size limit"],
     "target directory":      pui["fileupload"].propset["target directory"],
@@ -450,14 +361,10 @@ pui.widgets.add({
 /*
   Prevent a dropped file from becoming the new page.
   http://stackoverflow.com/questions/6756583/prevent-browser-from-loading-a-drag-and-dropped-file
-  Required for Firefox, Chrome, and IE11, IE10, .
+  Required for Firefox, Chrome, and IE11.
 */
 pui["fileupload"].myPreventDef = function(e) {
-  e = e || event;
-  e.returnValue = false;
-  if( e. preventDefault)
-    e.preventDefault();
+  e.preventDefault();
 };
-// Flag to avoid adding redundant window listeners.
-pui["fileupload"].myPreventDefAdded = false;
-
+window.addEventListener("dragover", pui["fileupload"].myPreventDef, false);
+window.addEventListener("drop", pui["fileupload"].myPreventDef, false);

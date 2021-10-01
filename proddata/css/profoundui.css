@@ -1008,6 +1008,11 @@ div.pui-file-upload a.control-proxy {
   position: relative;
 }
 
+div a.control-proxy.dnd-upl-sel {
+  display: block;
+  margin-bottom: 8px;
+}
+
 div.pui-file-upload a.clear, div.pui-file-upload a.upload {
   display: inline-block;
   overflow: hidden;
@@ -1067,12 +1072,16 @@ div.pui-file-upload div.drop-box {
   margin: 10px;
   border: 3px dashed #ccc;
   color: #ccc;
+  padding: 5px;
+  box-sizing: border-box;
 }
 
 div.pui-file-upload div.drop-box.dragover {
   color: #fff;
   border-color: #0c0;
 }
+
+div.drop-box.dragover a.control-proxy.dnd-upl-sel { display:none; /*hide text*/ }
 
 div.pui-file-upload table.list td.status-col {
   width: 65px;
@@ -12995,7 +13004,7 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   vertical-align: baseline;
 }
 
-.blueprint-defaults.blueprint-file-upload .drop-box {
+.blueprint-file-upload .drop-box {
   border: 1px dashed #2980b9;
   width: 100%;
   height: 30%;
@@ -13016,7 +13025,8 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   margin-top: 10px;
 }
 
-.blueprint-defaults.blueprint-file-upload .control-box, .drag-and-drop-upload.blueprint-defaults.blueprint-file-upload .control-box {
+/* Styling for the regular file-upload and drag-drop upload.*/
+.blueprint-file-upload .control-box {
   width: 100%;
   min-height: 8px;
   margin-bottom: 10px;
@@ -13029,13 +13039,13 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   text-decoration: underline;
 }
 
-.blueprint-defaults.blueprint-file-upload .list-box {
+.blueprint-file-upload .list-box {
   padding: 0;
   overflow-y: auto;
   max-height: calc(100% - 50px);
 }
 
-.drag-and-drop-upload.blueprint-defaults.blueprint-file-upload .list-box {
+.drag-and-drop-upload.blueprint-file-upload .list-box {
   position: unset;
   width: 100%;
   max-height: calc(100% - 105px);
@@ -15577,7 +15587,8 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
   margin-top: 10px;
 }
 
-.drag-and-drop-upload.office-copy-defaults.office-copy-file-upload .control-box, .office-copy-defaults.office-copy-file-upload .control-box {
+/* Styling for the regular file-upload and drag-drop upload.*/
+.office-copy-file-upload .control-box {
   width: 100%;
   min-height: 8px;
   margin-bottom: 10px;
@@ -15590,13 +15601,13 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
   text-decoration: underline;
 }
 
-.office-copy-defaults.office-copy-file-upload .list-box {
+.office-copy-file-upload .list-box {
   padding: 0;
   overflow-y: auto;
   max-height: calc(100% - 50px);
 }
 
-.drag-and-drop-upload.office-copy-defaults.office-copy-file-upload .list-box {
+.drag-and-drop-upload.office-copy-file-upload .list-box {
   position: unset;
   width: 100%;
   max-height: calc(100% - 105px);
