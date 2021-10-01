@@ -178,6 +178,7 @@ var en_US = function(dict) {
             dictMsg["upload remove text"]           = "Remove";
             dictMsg["upload upload text"]           = "Upload";
             dictMsg["upload drophere text"]         = "Drop files here";
+            dictMsg["upload or drophere text"]      = "(or drop files here)";
             dictMsg["upload browser unsupported"]   = "Drag/drop files requires Internet Explorer 10 or higher, Chrome, or Firefox";
             dictMsg["upload finished text"]         = "Finished";
             dictMsg["excel export text"]            = "Export to Excel";    //Replaces "csv export text".
