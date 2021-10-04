@@ -199,8 +199,14 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   }
 
   this.setArrowClassNames = function(className) {
-    up.className = "input spinner-up-arrow-" + className;
-    down.className = "input spinner-down-arrow-" + className;
+    if (className == null){
+      up.className = "input pui-spinner-up-arrow-input";
+     down.className = "input pui-spinner-down-arrow-input";
+    }
+    else{
+      up.className = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
+      down.className = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
+    }
   }
 }
 
@@ -212,8 +218,8 @@ pui.widgets.add({
   //DesignItem uses pickIcon1 & 2 to positions the icons for the spinner and datefield
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/up.gif"),
   pickIcon2: pui.normalizeURL("/profoundui/proddata/images/down.gif"),
-  icon1Class: 'input spinner-up-arrow-input',
-  icon2Class: 'input spinner-down-arrow-input',
+  icon1Class: 'input pui-spinner-up-arrow-input',
+  icon2Class: 'input pui-spinner-down-arrow-input',
   pickIcon1IsDiv: true,
   pickIcon2IsDiv: true,
   defaults: {
@@ -281,8 +287,14 @@ pui.widgets.add({
       } else {
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
-        var upClass = "input spinner-up-arrow-" + className;
-        var downClass = "input spinner-down-arrow-" + className;
+        if (className == null){
+          var upClass = "input pui-spinner-up-arrow-input " + className;
+          var downClass = "input pui-spinner-down-arrow-input " + className;
+        }
+        else{
+          var upClass = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
+          var downClass = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
+        }
         parms.dom["icon1 class"] = upClass;
         parms.dom["icon2 class"] = downClass;
         up.className = upClass;

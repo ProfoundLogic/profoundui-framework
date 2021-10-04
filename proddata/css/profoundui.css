@@ -5415,7 +5415,7 @@ div.Glass>.pui-tablayout-body>div {
 }
 
 /* Spinner Classes */
-.spinner-up-arrow-input, .spinner-down-arrow-input {
+.pui-spinner-up-arrow-input, .pui-spinner-down-arrow-input {
   background-repeat: no-repeat;
   background-color: transparent;
   border-style: none;
@@ -5425,10 +5425,10 @@ div.Glass>.pui-tablayout-body>div {
   height: 9px;
   
 }
-.spinner-up-arrow-input {
+.pui-spinner-up-arrow-input {
   background-image: url("../images/up.gif");
 }
-.spinner-down-arrow-input {
+.pui-spinner-down-arrow-input {
   background-image: url("../images/down.gif");
 }
 /*Signature Pad Classes */ 
