@@ -807,10 +807,12 @@ pui.layout.Template.prototype.linkToDom = function(dom){
  * called in other places, then be sure to test with layouts being in the backgrounds of transition animations. #5044.
  */
 pui.layout.Template.prototype.destroy = function(){
-  var deleteOwn = pui.BaseClass.prototype.deleteOwnProperties;
-  // delete all properties added to this.container: sizeMe, layoutT, etc.
-  if (this.container) deleteOwn.call(this.container);
-  deleteOwn(this); //delete any properties added to "this" object.
+  // delete all properties that this.linkToDom added to this.container:
+  if (this.container) {
+    delete this.container.layoutT;
+    delete this.container.sizeMe;
+  }
+  this.deleteOwnProperties(); //delete any properties added to "this" object.
 };
 
 /**
