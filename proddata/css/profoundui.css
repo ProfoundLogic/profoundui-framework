@@ -6114,6 +6114,10 @@ div.Glass>.pui-tablayout-body>div {
           box-sizing: border-box;
 }
 
+.scroller .puiresp {
+  touch-action: none;
+}
+
 /* Responsive Layouts while viewed in Visual Designer */
 
 div[id^='dspfDesigner'] .puiresp, .x-dd-drag-proxy .puiresp {
