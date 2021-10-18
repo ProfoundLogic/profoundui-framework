@@ -799,41 +799,13 @@ pui.keyFilter = (function() {
     63273: 'Home',
     63275: 'End'
   };
-  
-  var specialKeysGecko = {
-    8: 'Backspace',
-    9: 'Tab',
-    13: 'Enter',
-    27: 'Esc',
-    33: 'Page Up',
-    34: 'Page Down',
-    35: 'End',
-    36: 'Home',
-    37: 'Left',
-    38: 'Up',
-    39: 'Right',
-    40: 'Down',
-    46: 'Delete'
-  };
-  
-  var isGecko = !/webkit/.test(navigator.userAgent.toLowerCase()) &&
-                /gecko/.test(navigator.userAgent.toLowerCase());
-  if (pui["is_ie"]) {
-
-    // IE11 now incl. 'gecko' in the user agent string, which throws off 
-    // this code.
-    isGecko = false;
-  
-  }
-  
   return function(e, re) {
-  
-    var chr = String.fromCharCode(e.charCode || e.keyCode);
-    
-    if(e.ctrlKey ||
-      (isGecko && specialKeysGecko[e.keyCode]) ||
-      (!isGecko && specialKeys[e.keyCode] && !chr)){
-        return;
+
+    var chr = e.key || String.fromCharCode(e.charCode || e.keyCode);
+    if(e.ctrlKey 
+        || (chr && chr.length > 1)
+        || (!chr && !e.key && specialKeys[e.keyCode])){
+      return;
     }
     
     if(!re.test(chr)){
