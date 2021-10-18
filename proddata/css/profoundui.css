@@ -2320,6 +2320,7 @@ div.onoff-switch {
   max-width: 550px;
   cursor: pointer;
   overflow: hidden;
+  border: 0px none;
 }
 
 .onoff-switch label {
@@ -2354,7 +2355,9 @@ label.on-label {
   color: white;
   text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.6);
   left: 0;
-  padding-top: 5px;
+  padding-top: 5px; 
+  background-repeat: no-repeat;
+  background-image: url("../images/onoff/on.png");
 }
 
 label.on-label span {
@@ -2366,6 +2369,11 @@ label.off-label {
   text-shadow: 0px 0px 2px rgba(255, 255, 255, 0.6);
   text-align: right;
   right: 0;
+  background: no-repeat right 0;
+  background-image: url("../images/onoff/off.png");
+  /*
+  background-image: url("/profoundui/proddata/images/onoff/off.png");
+  background-repeat: no-repeat;*/
 }
 
 label.off-label span {
@@ -2384,6 +2392,8 @@ label.off-label span {
   padding-right: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
+  background-repeat: no-repeat;
+  background-image: url("../images/onoff/handle_left.png");
 }
 
 .onoff-handle-right {
@@ -2393,12 +2403,16 @@ label.off-label span {
   padding-left: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
+  background-repeat: no-repeat;
+  background: no-repeat right 0;
+  background-image: url("../images/onoff/handle_right.png");
 }
 
 .onoff-handle-center {
   height: 100%;
   width: 100%;
   padding: 0px;
+  background-image: url("../images/onoff/handle_center.png");
 }
 
 div.ace_editor, .ace_editor div {
