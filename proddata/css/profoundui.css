@@ -5132,6 +5132,8 @@ span.pui-tscrbtn.right span.mid:before {
   background-color: #eeeeff;
 }
 
+.pui-tablayout-hdr > span.selected-tab > span[draggable="true"] { cursor: move; }
+
 /* Tab Layout scroll buttons don't use inline style, so set here, pui-tscrbtn. */
 
 span.pui-tscrbtn.pui-tablayout>span.mid {

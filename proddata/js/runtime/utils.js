@@ -5149,4 +5149,23 @@ pui["doSessionTimeout"] = function() {
       showMessage(document.body);
     }
   });
-}
+};
+
+/**
+ * Get a storage key from screen rendering parameters.
+ * @param {Object} screenParms  Argument passed to pui.renderFormat.
+ * @param {String} prefix       e.g. "pui-lyt-", "pui-grid-", ...
+ * @returns {String}
+ */
+pui.getStorageKey = function(screenParms, prefix){
+  var storageKey = '';
+  
+  if (typeof pui["view"] != "undefined"){
+    storageKey = prefix + pui["view"];
+  }
+  else if (screenParms != null && typeof screenParms["file"] == "string" && typeof screenParms["library"] == "string"){
+    storageKey = prefix + screenParms["library"] + "-" + screenParms["file"] + "-" + screenParms["name"];
+  }
+  
+  return storageKey;
+};

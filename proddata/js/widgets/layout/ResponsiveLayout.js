@@ -66,7 +66,7 @@ pui.ResponsiveLayout = function(parms, dom){
     }
   }
   
-  this.initialSetProperties(parms);
+  this._initialSetProperties(parms);
 };
 pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
 
@@ -450,13 +450,12 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
 /**
  * Handle properties so that applyTemplate isn't called for every property being set, rebuilding the layout.
  * Properties can be set in any order in runtime or in Designer.
+ * Sets templateProps on the layout object.
  * @param {String} property
  * @param {String} value
- * @param {undefined|String} templateProps    A collection in pui.Layout with properties for the template.
  * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
  */
-pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateProps){
-  var ret = true;
+pui.ResponsiveLayout.prototype.setProperty = function(property, value){
   switch (property){
     case 'id':
       if (this.container.id != value){
@@ -520,16 +519,20 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value, templateP
       break;
       
     default:
-      ret = false;  //Let the Layout's setProperty handle anything else.
-      break;
+      //Let the Layout's setProperty handle anything else.
+      return false;
   }
   
-  if (templateProps) templateProps[property] = value;
-  return ret;
+  // Store template property values--any handled by this class.
+  if (this.container.layout && this.container.layout.templateProps){
+    this.container.layout.templateProps[property] = value;
+  }
+  return true;
 };
 
 /**
  * Called by Layout's globalAfterSetter. Handle properties that must be set after Layout handles them.
+ * TODO: now that pui.layout.Template.render is setup throughout the code, the code could be organized better and this be removed.
  * @param {String} property  property name
  */
 pui.ResponsiveLayout.prototype.setPropertyAfter = function(property){
