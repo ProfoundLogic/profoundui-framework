@@ -246,6 +246,9 @@ pui.layout.getProperties = function (template) {
         "bypass validation", "color", "font family", "font size", "font style", "font weight",
         // Note: the layout doesn't use text-align, which is useless with tabs; tabs are only as wide as the text.
         "text decoration", "text transform"]);
+      
+      templateProperties.push({ name: "movable tabs", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"],
+        hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange tabs at runtime.", context: "dspf" });
 
       Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to templateProperties.
       break;

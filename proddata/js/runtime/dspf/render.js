@@ -2638,8 +2638,9 @@ pui.renderFormat = function(parms) {
           // Instances of BasicWidget wait for all properties to be set before rendering.
           dom.pui.widget.basicRender();
         }
+        else if (dom.layoutT) dom.layoutT.render(parms);
       }
-      
+            
       if (!isDesignMode && properties["field type"] == "layout") {
         // A list of layouts to be destroyed when pui.cleanup is called.
         pui.layoutsDisplayed.push(dom.layout);
@@ -2668,7 +2669,7 @@ pui.renderFormat = function(parms) {
 
         dom.grid.fileId = parms["fileId"];
         if (typeof(pui["view"]) != "undefined") {
-          
+
           dom.grid.storageKey = "pui-grid-" + pui["view"];
           
         }        
@@ -2944,16 +2945,16 @@ pui.renderFormat = function(parms) {
     }
   }
 
-  // set active tabs on tab panels and tab layouts.
+  // When the "setTab" API was called before tabs render, set active tabs on tab panels and tab layouts.
   for (var i = 0; i < tabPanels.length; i++) {
     var tabElem = document.getElementById(tabPanels[i]);
     var tabPanel = tabElem.tabPanel;
     if (!tabPanel){
       tabPanel = tabElem.layoutT;
     }
-    if (tabPanel && typeof tabPanel.selectedTabChanged === 'function'){
+    if (tabPanel && typeof tabPanel.drawChanged === 'function'){
       if (activeTabs[i]) tabPanel.selectedTab = activeTabs[i];
-      tabPanel.selectedTabChanged();  //Re draws the tabs.
+      tabPanel.drawChanged();  //Re draws the tabs.
     }
   }
 
@@ -3020,7 +3021,7 @@ pui.renderFormat = function(parms) {
   });
   
   // Render the items inside the lazy-loaded layouts' currently visible container if it wasn't already rendered.
-  // (Needed by accordions. tabPanel.selectedTabChanged causes a tab layout's items to render before this.)
+  // (Needed by accordions. tabPanel.drawChanged causes a tab layout's items to render before this.)
   for (var layoutid in lazyLayouts ){    
     var layout = lazyLayouts[layoutid];
     if (layout){

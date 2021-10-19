@@ -166,6 +166,7 @@ pui.widgets.preloadTabStyle = function(tabStyle) {
 /**
  * Tab Panel Class
  * Note: widgets/layout/pui.TabLayout adopts public properties and methods from this object via TabPanel.call.
+ * (TabPanel properties should not be moved into a prototype; doing so would break TabLayout, which adopts TabPanel properties.)
  * @constructor
  */
 function TabPanel() {
@@ -195,12 +196,13 @@ function TabPanel() {
   var scrollCounter = 0;
   
   // Clicking a tab redraws the panel, so preserve the scrollLeft with this.
-  this._lastScrollLeft = null;
+  this._lastScrollLeft = 0;
+  this._needScrollToActive = true;
   
   // This value is used in 3 places for themes that don't use images.
   var simpleSelectedTabBackgroundColor = "#B7C8F6";
   
-  // This is used to hide tabs dynamically
+  // This is used to hide tabs dynamically. The key is the original, unmoved index of the tab. The value is true if hidden, false otherwise.
   this._hiddenTabs = {};
   
   // Tab style information when tab panel styles are hard-coded.
@@ -209,7 +211,7 @@ function TabPanel() {
   var extension;     //File extension for images in the style.
   var borderColor;   //CSS borderColor for the tabs.
   
-  var preValidationSelectedTab = 0;
+  this._preValidationSelectedTab = 0;
   
   // Public Properties
   this.defaults = {};
@@ -224,47 +226,67 @@ function TabPanel() {
   
   this.tabStyle = "Simple";
   
-  //Holds all the tabs. Needs to be in class for add/removeIconOnClick.
-  var topDiv = null;
+  this._headerArea = null;  //Holds all the tabs. Needs to be in class for add/removeIconOnClick.
   
   // Public Methods  
   
   /**
-   * Hide the tab. Hides the tab contents if that tab was active.
-   * @param {Number} index
-   * @returns {undefined}
+   * Hide a tab if that tab was not active or if sendTabResponse was false. If that tab was active, and sendTabResponse is false, 
+   * then select a different tab.
+   * @param {Number} tabId
    */
-  this.hideTab = function(index) {
-    if (me.selectedTab == index) {
-      me.selectedTab = 0;
-      if (me.selectedTab == index) me.selectedTab = 1;
+  this.hideTab = function(tabId) {
+    var redraw = false;
+    if (this.selectedTab == tabId) {
+      if (!this.sendTabResponse){
+        // Find the first non-hidden tab and select it.
+        var newSelectedTab = -1;
+        for (var i=0, n=this.tabs.length; i < n; i++){
+          if (i != tabId && this._hiddenTabs[i] !== true){
+            newSelectedTab = i;
+            break;
+          }
+        }
+
+        if (newSelectedTab != -1){
+          this.selectedTab = newSelectedTab;
+          this._hiddenTabs[tabId] = true;
+          redraw = true;
+        }
+      }
     }
-    this._hiddenTabs[index] = true;
-    me.selectedTabChanged();
+    else {
+      this._hiddenTabs[tabId] = true;
+      redraw = true;
+    }
+
+    if (redraw) this.drawChanged();
   };
   
   /**
    * Un-hide a tab and re-draw the tabs and contents.
-   * @param {Number} index
-   * @returns {undefined}
+   * @param {Number} tabId
    */
-  this.showTab = function(index) {
-    this._hiddenTabs[index] = false;
-    me.selectedTabChanged();
+  this.showTab = function(tabId) {
+    me._hiddenTabs[tabId] = false;
+    me.drawChanged();
   };
   
   // API Methods attached as container element's properties of the same name.
   
   /**
    * API. Change to the specified tab. This method should be attached as the container DOM element's setTab method.
-   * http://www.profoundlogic.com/docs/pages/viewpage.action?pageId=3276823
-   * @param {Number} tab
-   * @returns {undefined}
+   * See "setTab( tabPanelid, tab )" (https://docs.profoundlogic.com/x/FwAy).
+   * @param {Number} tabId
    */
-  this.setTab = function(tab){
-    var changed = (me.selectedTab != tab);
-    me.selectedTab = tab;
-    if (changed) me.processTabChange(tab);
+  this.setTab = function(tabId){
+    if (me.selectedTab != tabId){
+      me.selectedTab = tabId;
+      
+      if (me._hiddenTabs[tabId]) me._hiddenTabs[tabId] = false;  //Unhide the tab when being set.
+      
+      me.processTabChange(tabId);
+    }
   };
   
   this.getTab = function(){
@@ -290,19 +312,10 @@ function TabPanel() {
    * Pre-Conditions: me.selectedTab is the active tab.
    * @returns {undefined}
    */
-  this.selectedTabChanged = function(){
+  this.drawChanged = function(){
     me.draw();  //Just re-draw everything.
   };
-  
-  /**
-   * Set the reference for the topDiv, the header area. (Needed by subclass.)
-   * @param {Object} headerArea
-   * @returns {undefined}
-   */
-  this.setTopDivReference = function(headerArea){
-    topDiv = headerArea;
-  };
-  
+    
   /**
    * Clears the container and draws new elements for each tab, the content-area, the scroll
    * buttons, and the -/+ buttons (in design mode). Called when the widget is resized,
@@ -340,28 +353,28 @@ function TabPanel() {
     var adjust = 7;
     if (settings.useImages) adjust = 1;
 
-    topDiv = document.createElement("div");
-    topDiv.className = "header-area";
-    topDiv.style.position = "absolute";
-    topDiv.style.left = "0px";
-    topDiv.style.top = "0px";
-    topDiv.style.height = (settings.height + adjust + 1) + "px";    
-    topDiv.style.padding = "0px";
-    topDiv.style.whiteSpace = "nowrap";
-    topDiv.style.overflow = "hidden"; 
+    me._headerArea = document.createElement("div");
+    me._headerArea.className = "header-area";
+    me._headerArea.style.position = "absolute";
+    me._headerArea.style.left = "0px";
+    me._headerArea.style.top = "0px";
+    me._headerArea.style.height = (settings.height + adjust + 1) + "px";    
+    me._headerArea.style.padding = "0px";
+    me._headerArea.style.whiteSpace = "nowrap";
+    me._headerArea.style.overflow = "hidden"; 
 
     if (settings.backBar) {
       me.container.style.overflowX = "hidden";
       me.container.style.overflowY = "hidden";
       if (settings.backBarColor != null) {
-        topDiv.style.backgroundColor = settings.backBarColor;
+        me._headerArea.style.backgroundColor = settings.backBarColor;
       }
       else {
-        topDiv.style.backgroundImage = "url(" + path + "middle." + extension + ")";
-        topDiv.style.backgroundRepeat = "repeat-x";
+        me._headerArea.style.backgroundImage = "url(" + path + "middle." + extension + ")";
+        me._headerArea.style.backgroundRepeat = "repeat-x";
       }
     }
-    topDiv.style.width = "100%";
+    me._headerArea.style.width = "100%";
     
     var bottomDiv = document.createElement("div");
     bottomDiv.style.position = "absolute";
@@ -497,21 +510,34 @@ function TabPanel() {
       tabSpan.onclick = me.tabSpanOnclick;
       // Add the tab container span to the widget. Add the left border if it
       // exists, add the tab itself, and add the right border if it exists.
-      topDiv.appendChild(outerSpan);
+      me._headerArea.appendChild(outerSpan);
       if (settings.leftWidth != null) outerSpan.appendChild(leftSpan);
       outerSpan.appendChild(tabSpan);
       if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
     }
     // done iterating over each tab.
     me.container.appendChild(bottomDiv);
-    me.container.appendChild(topDiv);
+    me.container.appendChild(me._headerArea);
     
     leftScrollSpan = null;
     rightScrollSpan = null;
     // Do the tabs need scroll buttons. scrollWidth > offsetWidth on overflow.
-    if( topDiv.scrollWidth - topDiv.offsetWidth > 0 ){
-      me.addScrollButtons(topDiv);
-    }//done adding scroll buttons.
+    if( me._headerArea.scrollWidth - me._headerArea.offsetWidth > 0 ){
+      me.addScrollButtons(me._headerArea);
+
+      // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
+      // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
+      if (this.sendActiveTab && this._needScrollToActive){
+        // The selected tab number should correspond to the array index of childNodes.
+        if( me._headerArea.childNodes != null && me.selectedTab >= 0 && me.selectedTab < me._headerArea.childNodes.length){
+          var outerSpan = me._headerArea.childNodes[me.selectedTab];
+          // Put the selected tab in the middle of the tab panel.
+          me._lastScrollLeft = Math.round(outerSpan.offsetLeft - me._headerArea.offsetWidth / 2  + outerSpan.offsetWidth / 2);
+        }
+        this._needScrollToActive = false;
+      }
+      me._checkScrollButtons();
+    }
     
     var isDesign = inDesignMode();
 
@@ -588,7 +614,7 @@ function TabPanel() {
    * The user changed the tab by clicking on one that isn't the selectedTab
    * or by calling the API method, setTab, on a tab that isn't selectedTab.
    * A response value will be set if "tab response" is bound.
-   * @param {type} tab
+   * @param {Number} tab
    * @returns {undefined}
    */
   this.processTabChange = function(tab){
@@ -605,11 +631,11 @@ function TabPanel() {
         var returnVal = pui.respond();
         if (returnVal == false){  
           dom.responseValue = null;   //Validation failed; send no response.
-          me.selectedTab = preValidationSelectedTab; //Prevent selectedTab from being out of sync.
+          me.selectedTab = me._preValidationSelectedTab; //Prevent selectedTab from being out of sync.
         }
       }
       else {
-        me.selectedTabChanged();
+        me.drawChanged();
         if (context == "dspf" && me.sendActiveTab == true) {
           dom.responseValue = tab;
         }
@@ -667,12 +693,11 @@ function TabPanel() {
    * @returns {undefined}
    */
   this.tabSpanOnclick = function(e) {
-    var target = getTarget(e);
-    me._lastScrollLeft = target.parentNode.parentNode.scrollLeft; //topDiv is 2 nodes up.
+    var target = e.target;
+    me._lastScrollLeft = target.parentNode.parentNode.scrollLeft; //_headerArea is 2 nodes up.
     if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
     var tab = target.tabId;
-    if (typeof me.tabSpanOnclickCb === 'function' && me.tabSpanOnclickCb(tab) == false) return;  //the callback is implemented in TabLayout.
-    else if (me.container.ontabclick != null) {
+    if (me.container.ontabclick != null) {
       // Handle the tab panel ontabclick.
       var returnVal = me.container.ontabclick(tab);
       if (returnVal == false) return;
@@ -689,7 +714,7 @@ function TabPanel() {
         }
       }
     }
-    preValidationSelectedTab = me.selectedTab; //In case validation fails with "tab response", selectedTab will be restored.
+    me._preValidationSelectedTab = me.selectedTab; //In case validation fails with "tab response", selectedTab will be restored.
     var changed = false;
     if (me.selectedTab != tab) changed = true;
     if (changed) me.selectedTab = tab;
@@ -709,7 +734,7 @@ function TabPanel() {
    */
   this.tabSpanOndblclick = function(e) {
     if ( inDesignMode() ) {
-      var dom = designUtils.getTarget(e);
+      var dom = e.target;
       if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
       // Get the widget's outer-most div.
       var itmDom = dom.parentNode.parentNode.parentNode;
@@ -735,6 +760,7 @@ function TabPanel() {
           var propConfig = nmodel["tab names"];
           itm.designer.undo.add(itm, propConfig.name);
           applyPropertyToField(propConfig, itm.properties, itm.dom, propValue, true, itm, null);
+          // Tell Designer about the changed property.
           itm.propertiesChanged["tab names"] = true;
           itm.changed = true;
           itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
@@ -783,8 +809,8 @@ function TabPanel() {
     me.selectedTab = tabNames.length - 1;
     
     // Setup the tab area to scroll all the way to the right; happens when scroll buttons are handled.
-    if (topDiv){
-      me._lastScrollLeft = topDiv.scrollWidth;  //This is too large but will be fixed later.
+    if (me._headerArea){
+      me._lastScrollLeft = me._headerArea.scrollWidth;  //This is too large but will be fixed later.
     }
     
     var nmodel = getPropertiesNamedModel();
@@ -825,12 +851,12 @@ function TabPanel() {
     }
     if (tabNames.length > 1) {
       // See if the tab Panel's last panel contains items. If yes, don't allow remove.
-      if ( me.cannotRemoveTab(tabNames.length - 1, itm) ) {
+      if ( me._cannotRemoveTab(tabNames.length - 1, itm) ) {
         itm.designer.selection.clear();
         itm.designer.selection.add(itm);
         itm.designer.propWindow.refresh();
         me.selectedTab = tabNames.length - 1;
-        me.draw();
+        me.drawChanged();
         pui.alert( me.TXT_CANNOTREMOVE );
       }
       else {
@@ -866,7 +892,7 @@ function TabPanel() {
    * @param {Object} itm            The design item for this tab panel widget.
    * @returns {Boolean}
    */
-  this.cannotRemoveTab = function(removeTabNum, itm){
+  this._cannotRemoveTab = function(removeTabNum, itm){
     for (var i = 0; i < itm.designer.items.length; i++) {
       var elem = itm.designer.items[i].dom;
       if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
@@ -885,8 +911,8 @@ function TabPanel() {
    */
   this.addScrollButtons = function(){
 
-    leftScrollSpan = me.createScrollButton("left");
-    rightScrollSpan = me.createScrollButton("right");
+    leftScrollSpan = me._createScrollButton("left");
+    rightScrollSpan = me._createScrollButton("right");
     
     // Avoid overlapping the +/- buttons.
     if( inDesignMode() ) rightScrollSpan.style.right = "35px";
@@ -910,20 +936,6 @@ function TabPanel() {
     me.container.appendChild(leftScrollSpan);
     me.container.appendChild(rightScrollSpan);
     
-    // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
-    // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
-    if( me._lastScrollLeft === null )
-    {
-      // The selected tab number should correspond to the array index of childNodes.
-      if( topDiv.childNodes != null && me.selectedTab >= 0 && me.selectedTab < topDiv.childNodes.length){
-        var outerSpan = topDiv.childNodes[me.selectedTab];
-        // Put the selected tab in the middle of the tab panel.
-        me._lastScrollLeft = Math.round(outerSpan.offsetLeft - topDiv.offsetWidth / 2  + outerSpan.offsetWidth / 2);
-      }
-      else me._lastScrollLeft = 0; //Or set to 0 for later math. (This case shouldn't normally happen.)
-    }
-    
-    me.checkScrollButtons();
   };
   
   /**
@@ -931,8 +943,8 @@ function TabPanel() {
    * @returns {undefined}
    */
   function scrollLeft(){
-    if( topDiv.scrollLeft > 0){
-      topDiv.scrollLeft -= curScrollIncrement;
+    if( me._headerArea.scrollLeft > 0){
+      me._headerArea.scrollLeft -= curScrollIncrement;
     }else{
       clearInterval(scrollLeftIval);
       leftScrollSpan.style.display = "none";
@@ -949,11 +961,11 @@ function TabPanel() {
    */
   function scrollRight(){
     // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
-    var leftMax = topDiv.scrollWidth - topDiv.offsetWidth;
-    if( topDiv.scrollLeft < leftMax){
+    var leftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
+    if( me._headerArea.scrollLeft < leftMax){
       // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
       // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-      try{topDiv.scrollLeft += curScrollIncrement;}catch(exc){}
+      try{me._headerArea.scrollLeft += curScrollIncrement;}catch(exc){}
     }else{
       clearInterval(scrollRightIval);
       rightScrollSpan.style.display = "none";
@@ -989,9 +1001,9 @@ function TabPanel() {
    * Check which scroll buttons should be visible, and show them.
    * @returns {undefined}
    */
-  this.checkScrollButtons = function(){
+  this._checkScrollButtons = function(){
     // Calculate scrollLeftMax: how far from left is the element scrolled.
-    var topDiv_scrollLeftMax = topDiv.scrollWidth - topDiv.offsetWidth;
+    var topDiv_scrollLeftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
 
     // Avoid showing scroll buttons if we are close enough to an end. Fixes
     // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
@@ -999,16 +1011,16 @@ function TabPanel() {
     else if( me._lastScrollLeft <= 3 ) me._lastScrollLeft = 0;
 
     // Restore the previous scrollLeft from before a tab was clicked, or to scroll to the active tab.
-    topDiv.scrollLeft = me._lastScrollLeft;
+    me._headerArea.scrollLeft = me._lastScrollLeft;
 
     // Display either button only when needed.
-    if( topDiv.scrollLeft > 0 ){
+    if( me._headerArea.scrollLeft > 0 ){
       leftScrollSpan.style.display = "inline-block";
     }else {
       leftScrollSpan.style.display = "";  //Stylesheet defaults these spans' display to none.
     }
 
-    if( topDiv.scrollLeft < topDiv_scrollLeftMax){
+    if( me._headerArea.scrollLeft < topDiv_scrollLeftMax){
       rightScrollSpan.style.display = "inline-block";
     }else{
       rightScrollSpan.style.display = "";
@@ -1021,7 +1033,7 @@ function TabPanel() {
    * @param {String} cssClass     Extra CSS class: left or right.
    * @returns {Object}            A span DOM element as the tab.
    */
-  this.createScrollButton = function(cssClass ){
+  this._createScrollButton = function(cssClass ){
     // Create a parent span to encapsulate the button image, left, and right border.
     // Note: image is defined by CSS rule like :before { content: url(); }
     var outerSpan = document.createElement("span");
@@ -1089,7 +1101,7 @@ function TabPanel() {
     if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
 
     return outerSpan;
-  };//end createScrollButton().
+  };//end _createScrollButton().
   
 }
 TabPanel.prototype = Object.create(pui.BaseClass.prototype);  //inherit deleteOwnProperties.

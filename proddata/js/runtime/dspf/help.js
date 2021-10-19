@@ -244,7 +244,9 @@ pui.help.renderHelpRecord = function(meta) {
         }          
       }
     }
+    
   	if (dom.pui && dom.pui.widget) dom.pui.widget.basicRender(); //a BasicWidget renders after properties are set.
+    else if (dom.layoutT) dom.layoutT.render();
   }
 
 };

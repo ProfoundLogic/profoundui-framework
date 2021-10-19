@@ -118,11 +118,10 @@ pui.layout.Layout.prototype.getChildren = function(parms) {
   return children;
 };
 
-pui.layout.Layout.prototype.setPropertiesModel = function() {
-  this.layoutDiv.propertiesModel = pui.layout.getProperties(this.template);
-  this.layoutDiv.propertiesNamedModel = makeNamedModel(this.layoutDiv.propertiesModel);
-};
-
+/**
+ * Try applying a layout template; upon success stretch etc.; otherwise, queue an alert to show.
+ * @returns {Object}
+ */
 pui.layout.Layout.prototype.applyTemplate = function() {
   var parms = {
     dom: this.layoutDiv,
@@ -142,12 +141,16 @@ pui.layout.Layout.prototype.applyTemplate = function() {
     }, 0);
     return rv;
   }
-  this.setPropertiesModel();
+  // Add references to the properties models to the DOM.
+  this.layoutDiv.propertiesModel = pui.layout.getProperties(this.template);
+  this.layoutDiv.propertiesNamedModel = makeNamedModel(this.layoutDiv.propertiesModel);
+  
   return rv;
 };
 
 /**
  * Change a property value of the design item associated with this layout and refresh the property window.
+ * Pre-Conditions: the property on the widget is set elsewhere via applyPropertyToField.
  * @param {String} propertyName
  * @param {String} value
  * @returns {Boolean}
@@ -342,17 +345,18 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
   var panel = this.layoutDiv.panel;
   var accordion = this.layoutDiv.accordion;
   
+  // Avoid re-evaluating a template upon changing either of these multiple-occurence properties.
+  var multOccurMatch = /^(css class|user defined data) \d+$/.exec(property);
+  if (multOccurMatch != null && multOccurMatch[1] != null) return;  //renderFormat calling applyPropertyToField handles these.
+  
   // If the layout template's class handles setting properties, then return. Those should prevent custom properties from re-loading 
-  // the entire template when not defined here.  
+  // the entire template when not defined here.
   var layoutT = this.layoutDiv.layoutT;
-  if (layoutT && layoutT.setProperty(property, value, this.templateProps)) return;
+  if (layoutT && layoutT.setProperty(property, value)) return;
 
   switch (property) {
     case "id":
       this.layoutDiv.id = value;
-      break;
-
-    case "field type":
       break;
 
     case "template":
@@ -420,9 +424,6 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
 
     case "locked in place":
       this.lockedInPlace = (value == "true" || value == true);
-      break;
-
-    case "css class":
       break;
 
     case "overflow x":
@@ -534,6 +535,10 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       }
       this.templateProps[property] = value;
       break;
+      
+    case 'lazy load':
+      this.templateProps[property] = value;
+      break;
 
     case "onsectionclick":
       if (!this.designMode) {
@@ -549,8 +554,15 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       }
       break;
       
-    case 'lazy load':
-      // Do nothing here; renderFormat handles this property. Catch this case to prevent applyTemplate from rebuilding unnecessarily.
+    case 'field type':
+    case 'css class':
+    case 'parent tab':
+    case 'parent tab panel':
+    case 'parent field set':
+    case 'user defined data':
+    case 'inline style':
+      // Catch these cases to prevent applyTemplate from rebuilding unnecessarily in "default".
+      // renderFormat calling applyPropertyToField handles these.
       break;
 
     case "onlazyload":
@@ -558,7 +570,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         this.onlazyload = value;
       }
       break;
-
+      
     default:
       // For each property not previously handled the template is re-evaluated. Necessary for custom, HTML-declared ones.
       var savedValue = this.templateProps[property];
@@ -783,6 +795,7 @@ pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
  * Assign template-specific properties to a DOM element. called by applyTemplate in the pui.layout.Template constructor.
+ * Child classes that override this should also override the destroy method.
  * 
  * TODO: this approach seems overcomplicated:
  * templates get built on an object detached from the DOM and then properties from that DOM are copied onto an existing DOM element.
@@ -847,7 +860,7 @@ pui.layout.Template.prototype._setContainers = function(containers){
  * which are not again called.  (Sub-classes should be able to handle properties being set in any order.)
  * @param {Object} parms
  */
-pui.layout.Template.prototype.initialSetProperties = function(parms){
+pui.layout.Template.prototype._initialSetProperties = function(parms){
   var properties = parms.properties;
   if (properties){
     for (var pname in properties){
@@ -871,6 +884,7 @@ pui.layout.Template.prototype.setProperty = function(property, value, templatePr
 
 /**
  * Placeholder for subclasses to implement and override. Called for each property after Layout and the Template setProperty methods.
+ * TODO: this could be removed after Responsive Layout moves code into a render function. See TabLayout.
  * @param {String} property
  * @param {String} value
  */
@@ -880,3 +894,10 @@ pui.layout.Template.prototype.setPropertyAfter = function(property, value){};
  * Placeholder for subclasses to override. Called when the layout should update its own dimension-dependant styles.
  */
 pui.layout.Template.prototype.resize = function() {};
+
+/**
+ * Subclasses must override this. This render is called after all properties are set, allowing DOM manipulation to happen once.
+ * @param {Object|undefined} screenParms   Argument passed to pui.renderFormat. Undefined in Designer.
+ */
+pui.layout.Template.prototype.render = function(screenParms) {};
+

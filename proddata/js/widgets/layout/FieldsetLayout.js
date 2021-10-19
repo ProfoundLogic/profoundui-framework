@@ -40,9 +40,13 @@ pui.FieldsetLayout = function(parms, dom) {
 };
 pui.FieldsetLayout.prototype = Object.create(pui.layout.Template.prototype);
 
-
+/**
+ * 
+ * @param {String} property
+ * @param {String} value
+ * @returns {Boolean}
+ */
 pui.FieldsetLayout.prototype.setProperty = function(property, value){
-  var ret = true;
   switch (property){
     case 'legend':
       this._legend.innerHTML = value;
@@ -70,8 +74,12 @@ pui.FieldsetLayout.prototype.setProperty = function(property, value){
       break;
       
     default:
-      ret = false;
-      break;
+      return false;  //Let pui.Layout.prototype.setProperty handle other properties.
   }
-  return ret;
+  
+  // Store template property values--any handled by this class.
+  if (this.container.layout && this.container.layout.templateProps){
+    this.container.layout.templateProps[property] = value;
+  }
+  return true;
 };
