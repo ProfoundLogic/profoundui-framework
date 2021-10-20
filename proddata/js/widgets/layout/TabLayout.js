@@ -316,6 +316,7 @@ pui.TabLayout.prototype._addRemoveTabs = function(){
 
     var bodyDiv = document.createElement("div");
     bodyDiv.setAttribute("container", "true");
+    bodyDiv.containerNumber = nextTabId + 1;  //Make sure this is set, or else saving the RDF can orphan widgets that were in this layout. 7008.
     bodyDiv.tabId = nextTabId;
     bodyDiv.style.display = 'none';
     this._bodyWrap.appendChild(bodyDiv);
