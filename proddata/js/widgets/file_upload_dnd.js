@@ -107,7 +107,7 @@ pui['fileupload'].FileUploadDND.prototype['handleEvent'] = function(e){
       // Handler for the dropBox.ondragover event. This works better than the ondragenter event.
       e.preventDefault();
       e.stopPropagation();
-      if (this._disabled || this._submitHandle != null || inDesignMode() || pui.isPreview) return false;
+      if (this._disabled || this._submitHandle != null) return false;
       e.dataTransfer.dropEffect = "copy";
       this._dropBox.classList.add('dragover');  //Indicate that drop is allowed here.
       return false;
@@ -126,7 +126,8 @@ pui['fileupload'].FileUploadDND.prototype['handleEvent'] = function(e){
       e.stopPropagation();
       e.preventDefault();
 
-      if (this._disabled || this._submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode() || pui.isPreview ) return;
+      this._dropBox.classList.remove('dragover');
+      if (this._disabled || this._submitHandle !== null || (context === "genie" && pui.genie.formSubmitted) || inDesignMode()) return;
 
       if (e.dataTransfer.files === null || e.dataTransfer.files === undefined) {
         // This case shouldn't happen since we previously disabled the ondrop
@@ -134,7 +135,6 @@ pui['fileupload'].FileUploadDND.prototype['handleEvent'] = function(e){
         console.log("Browser doesn't support dataTransfer.files API");
         return;
       }
-      this._dropBox.classList.remove('dragover');
 
       // Remove files which already attempted to upload.
       this._checkAndRemoveFiles();
