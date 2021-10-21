@@ -50,7 +50,7 @@ pui.layout.template.cssPanelTemplate = function (parms, dom) {
   if (headerHeight != null) panel.setHeaderHeight(headerHeight);
   panel.setAllStyles(properties);
   var height = properties["height"];
-  if (height == null) height = "300px";
+  if (height == null) height = dom.style.height || "300px";
   panel.setHeight(height);
 
   if (proxyMode) {
