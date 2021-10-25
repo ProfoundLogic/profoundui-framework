@@ -5314,10 +5314,6 @@ pui.start = function() {
   }
 };
 
-pui["downloadJobLog"] = function(jobLog) {
-  pui.downloadAsAttachment("text/plain", jobLog["fileName"], jobLog["data"]);
-};
-
 pui.newSession = function() {
   window.location.reload();
 };
@@ -6844,4 +6840,114 @@ pui.findParentGrid = function(obj) {
     parent = obj.parentElement;
   }
   return null;
+};
+
+/**
+ * Request a Job Log download from the server. 
+ * Called from the errscrn format in puiscreens.json and puiscreens.dspf in Profound.js and Profound UI.
+ * @param {String} job        Formatted Job string; e.g. 123456/QTMHHTTP/PROFOUNDUI.
+ * @param {String|Null} serverURI   URI of a server from where the job logs can be fetched. The location in the address bar is used 
+ *   for PJS in Genie and Profound UI.
+ * @param {String} fnPrefix   Filename prefix. e.g. "Application Job" or "Controller Job".
+ * @param {Element} outputEl  HTML Element to get feedback about the download.
+ * 
+ * Note: in PUISCREENS.dspf, the ctlrDwnld_icon remains hidden, because the controller job is no longer active when the error panel displays.
+ *   You can't download an active job from the controller. So, we should not even handle the controller, probably.
+ *   
+ * Security: in Profound UI the PUISPLEXIT program can be used: https://docs.profoundlogic.com/x/agClAQ 
+ * 
+ * var protocol = pui["appJob"]["serverProtocol"].split('/');
+ * var jobLogServer = protocol[0].toLowerCase() + "://" + pui["appJob"]["serverName"] + ":" + pui["appJob"]["serverPort"] + '/profoundui/';
+ * 
+ */
+pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
+  outputEl.innerHTML = pui.getLanguageText('runtimeMsg', 'downloading x', ['...']);
+  outputEl.style.opacity = '1';
+  var useServerURI = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui';
+  //var uri = useServerURI ? serverURI + '/joblog' : getProgramURL('joblog');
+  var uri = '/profoundui/joblog';
+  
+  var jobParts = job.split('/');
+  
+  var body = 'jobname='+jobParts[2] + '&jobuser='+jobParts[1] + '&jobnum='+jobParts[0];
+  var filesaverPath = "/jszip/FileSaver.min.js";
+  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
+    makeXHR(uri, body, joblogInfoFetch);
+  }
+  else {
+    pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR.bind(null, uri, body, joblogInfoFetch) });
+  }
+  
+  function makeXHR(uri, body, cb){
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = cb;
+    xhr.open('POST', uri, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(body);
+  }
+  
+  function joblogInfoFetch(){
+    if (this.readyState == XMLHttpRequest.DONE) {
+      if (this.status == 200){
+        try {
+          var resp = JSON.parse(this.response);
+          if (resp != null && typeof resp === 'object'){
+            if (resp['success']){
+              var uri = useServerURI ? serverURI + '/PUI0009114.pgm' : getProgramURL('PUI0009114.pgm');
+              var body = 'splf=' + resp['splf_name'] + '&splfno=' + resp['splf_number'] + '&jobname=' + resp['job_name'] 
+                      + '&jobuser=' + resp['usr_name'] + '&jobnbr=' + resp['job_number'] + '&outtype=txt&inline=1';
+              
+              var c = parseInt(resp['splf_date'][0], 10);
+              var yy = parseInt(resp['splf_date'].substr(1,3), 10);
+              var mm = resp['splf_date'].substr(3,5);
+              var dd = resp['splf_date'].substr(5,7);
+              body += '&createdate=' + (1900 + 100 * c + yy) + '-' + mm + '-' + dd;
+              
+              if (pui.pjs_session_id) body += '&auth=' + pui.pjs_session_id;
+              else if (pui.appJob && pui.appJob.auth) body += '&auth=' + pui.appJob.auth;
+              
+              makeXHR(uri, body, joblogFetch);
+            }
+            else {
+              outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + ' -- ' + resp['error'];
+            }
+          }
+          else {
+            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']);
+          }
+        }
+        catch (exc){
+          if (typeof exc === 'string') outputEl.innerHTML = exc;
+          else if (exc && exc.message) outputEl.innerHTML = exc.message;
+          else {
+            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']);
+            console.log(exc);
+          }
+        }
+      }
+      else {
+        outputEl.innerHTML = 'Job Log Error: HTTP ' + this.status + '; ' + this['responseURL'];
+      }
+    }
+  }
+  
+  function joblogFetch(){
+    if (this.readyState == XMLHttpRequest.DONE) {
+      if (this.status == 200){
+        var filename = fnPrefix.replace(' ', '_') + '_' + jobParts[0]+'_'+jobParts[1]+'_'+jobParts[2]+'.txt';
+        var filesaver = saveAs( new Blob([this.response]), filename, {"type": "text/plain;charset=utf-8"});
+        filesaver.onwriteend = filesaverWriteEnded;
+      }
+      else {
+        outputEl.innerHTML = 'Job Log Error: HTTP ' + this.status;
+      }
+    }
+  }
+  
+  function filesaverWriteEnded(){
+    outputEl.innerHTML = pui['getLanguageText']('runtimeText', 'upload finished text');
+    setTimeout(function(){
+      outputEl.style.opacity = '0';
+    }, 3000);
+  }
 };
