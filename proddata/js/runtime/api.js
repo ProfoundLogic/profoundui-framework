@@ -1359,6 +1359,7 @@ function gotoElement(currentElement, forward) {
         continue;
       }
       setTimeout(function() {
+        if (pui["highlight on focus"] && typeof nextObjBox.select == "function") nextObjBox.select();
         pui.returnCursor(null, nextObjBox);
       }, 0);
     }
