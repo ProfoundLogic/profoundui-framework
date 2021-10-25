@@ -101,7 +101,11 @@ function AutoComplete(config) {
   // Set maxLength to a large number. 
   // Removing the attribute using removeAttribute() causes -1
   // to be assigned in FF, causing problems.
-  if (context == "genie") textBox.setAttribute("maxLength", "133");
+  // Saving the old length which is the length of the field so that we can accurate report the 5250 cursor position
+  if (context == "genie") {
+    textBox.setAttribute("fieldLength", textBox.getAttribute("maxLength"));
+    textBox.setAttribute("maxLength", "133");
+  }
   // Set hard-coded choices and values, if provided.
   if (config.choices && config.values) {
     var translated = false;
@@ -154,6 +158,9 @@ function AutoComplete(config) {
       hiddenField.value = textBox.value;
       hiddenField.fieldInfo = textBox.fieldInfo;
       hiddenField.autoCompBox = textBox;
+      // Save the field row and col numbers as attributes because we are removing fieldInfo from the textbox. 
+      textBox.setAttribute("fieldRow", textBox.fieldInfo.row);
+      textBox.setAttribute("fieldCol", textBox.fieldInfo.col);
       textBox.fieldInfo = null;
       if (hiddenField.fieldInfo != null) {
         var idx = hiddenField.fieldInfo["idx"];
