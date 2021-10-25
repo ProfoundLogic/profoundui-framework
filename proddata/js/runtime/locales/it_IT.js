@@ -126,5 +126,6 @@ pui.locales.add({
     'sab'
   ],
   'weekStart': 1,
-  'weekNumberShort': 'Ns'
+  'weekNumberShort': 'Ns',
+  'today': 'Oggi'
 });

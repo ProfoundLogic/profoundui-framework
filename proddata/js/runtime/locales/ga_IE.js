@@ -125,5 +125,6 @@ pui.locales.add({
     'Aoine',
     'Sath'
   ],
-  'weekStart': 1
+  'weekStart': 1,
+  'today': 'Inniu'
 });

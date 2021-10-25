@@ -126,5 +126,6 @@ pui.locales.add({
     'Sa'
   ],
   'weekStart': 1,
-  'weekNumberShort': 'Wo'
+  'weekNumberShort': 'Wo',
+  'today': 'Heute'
 });

@@ -127,5 +127,6 @@ pui.locales.add({
     'Sat'
   ],
   'weekStart': 0,
-  'weekNumberShort': 'Wk'
+  'weekNumberShort': 'Wk',
+  'today': 'Today'
 });

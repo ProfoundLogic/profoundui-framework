@@ -126,5 +126,6 @@ pui.locales.add({
     'za'
   ],
   'weekStart': 1,
-  'weekNumberShort': 'Wk'
+  'weekNumberShort': 'Wk',
+  'today': 'Vandaag'
 });
