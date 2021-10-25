@@ -605,14 +605,17 @@ div.cell > div.dbd { padding: 0px 4px; }
   padding: 0px;
   overflow-y: auto;
   max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
 }
 
 .grid-multisort div {
   background: #555;
-  height: 21px;
   padding: 5px;
   cursor: move;
   color: white;
+  white-space: normal;
 }
 
 .grid-multisort div button {
@@ -693,14 +696,18 @@ div.cell > div.dbd { padding: 0px 4px; }
   padding: 0px;
   overflow-y: auto;
   max-height: 350px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
 }
 
 .grid-multifilter div {
   background: #555;
-  height: 21px;
+  /*height: 21px;*/
   padding: 5px;
   cursor: move;
   color: white;
+  white-space: normal;
 }
 
 .grid-multifilter div button {
