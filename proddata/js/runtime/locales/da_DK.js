@@ -125,5 +125,6 @@ pui.locales.add({
     'fre',
     'lør'
   ],
-    'weekStart': 1
+  'weekStart': 1,
+  'today': 'I dag'
 });

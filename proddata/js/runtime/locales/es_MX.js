@@ -123,5 +123,6 @@ pui.locales.add({
     'vie',
     's\u00e1b'
   ],
-  'weekStart': 1
+  'weekStart': 1,
+  'today': 'Hoy'
 });

@@ -126,5 +126,6 @@ pui.locales.add({
     'ו',
     'ש'
   ],
-  'weekStart': 0
+  'weekStart': 0,
+  'today': 'היום'
 });

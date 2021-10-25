@@ -126,5 +126,6 @@ pui.locales.add({
     'sam'
   ],
   'weekStart': 1,
-  'weekNumberShort': 'Sem.'
+  'weekNumberShort': 'Sem.',
+  'today': 'Aujourd\'hui'
 });

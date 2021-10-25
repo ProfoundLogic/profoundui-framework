@@ -313,7 +313,10 @@ function show_calendar(dateField, str_datetime, format) {
      
     var todayButton = document.createElement("span");
     todayButton.className = "pui-calendar-today-button";
-    todayButton.innerHTML = "Today";
+    if (locale && pui.locales[locale]['today'])
+      todayButton.innerHTML = pui.locales[locale]['today'];
+    else
+      todayButton.innerHTML = "Today";
     todayButton.onclick = function(e) {
       if (pui.currentDateField.puiShowToday === "auto-select") {
         var currentDate = usa_dt(today, format, dateField.formattingInfo);

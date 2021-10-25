@@ -125,5 +125,6 @@ pui.locales.add({
     'Sex',
     'S\u00e1b'
   ],
-  'weekStart': 0
+  'weekStart': 0,
+  'today': 'Hoje'
 });
