@@ -754,6 +754,10 @@ pui.widgets.add({
       // Design mode
       else {  
         parms.dom.readOnly = true;
+        parms.dom.removeAttribute("spellcheck");
+        parms.dom.setAttribute("puiwdgt", "date field");
+        parms.properties.width = "100px";
+        applyProperty(parms.dom, "width", "100px");
         parms.dom.sizeMe = function() {
           var itm = parms.designItem;
           itm.drawIcon();
