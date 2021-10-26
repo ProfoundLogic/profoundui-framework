@@ -685,7 +685,7 @@ pui.widgets.add({
   tag: "input",
   newId: "Date",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/cal.gif"),
-  icon1Class: 'input pui-cal pui-cal-input',
+  icon1Class: 'pui-cal pui-cal-input pui-calendar-icon',
   pickIcon1IsDiv: true, 
   defaults: {
     "css class": "input"
