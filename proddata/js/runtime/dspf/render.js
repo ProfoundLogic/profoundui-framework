@@ -6864,82 +6864,49 @@ pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
   outputEl.innerHTML = pui.getLanguageText('runtimeMsg', 'downloading x', ['...']);
   outputEl.style.opacity = '1';
   var useServerURI = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui';
-  //var uri = useServerURI ? serverURI + '/joblog' : getProgramURL('joblog');
-  var uri = '/profoundui/joblog';
+  var uri = useServerURI ? serverURI + '/PUI0009118.pgm' : getProgramURL('PUI0009118.pgm');
   
   var jobParts = job.split('/');
   
   var body = 'jobname='+jobParts[2] + '&jobuser='+jobParts[1] + '&jobnum='+jobParts[0];
   var filesaverPath = "/jszip/FileSaver.min.js";
   if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
-    makeXHR(uri, body, joblogInfoFetch);
+    makeXHR();
   }
   else {
-    pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR.bind(null, uri, body, joblogInfoFetch) });
+    pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR });
   }
   
-  function makeXHR(uri, body, cb){
+  function makeXHR(){
     var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = cb;
+    xhr.onreadystatechange = joblogFetch;
     xhr.open('POST', uri, true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send(body);
   }
   
-  function joblogInfoFetch(){
-    if (this.readyState == XMLHttpRequest.DONE) {
-      if (this.status == 200){
-        try {
-          var resp = JSON.parse(this.response);
-          if (resp != null && typeof resp === 'object'){
-            if (resp['success']){
-              var uri = useServerURI ? serverURI + '/PUI0009114.pgm' : getProgramURL('PUI0009114.pgm');
-              var body = 'splf=' + resp['splf_name'] + '&splfno=' + resp['splf_number'] + '&jobname=' + resp['job_name'] 
-                      + '&jobuser=' + resp['usr_name'] + '&jobnbr=' + resp['job_number'] + '&outtype=txt&inline=1';
-              
-              var c = parseInt(resp['splf_date'][0], 10);
-              var yy = parseInt(resp['splf_date'].substr(1,3), 10);
-              var mm = resp['splf_date'].substr(3,5);
-              var dd = resp['splf_date'].substr(5,7);
-              body += '&createdate=' + (1900 + 100 * c + yy) + '-' + mm + '-' + dd;
-              
-              if (pui.pjs_session_id) body += '&auth=' + pui.pjs_session_id;
-              else if (pui.appJob && pui.appJob.auth) body += '&auth=' + pui.appJob.auth;
-              
-              makeXHR(uri, body, joblogFetch);
-            }
-            else {
-              outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + ' -- ' + resp['error'];
-            }
-          }
-          else {
-            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']);
-          }
-        }
-        catch (exc){
-          if (typeof exc === 'string') outputEl.innerHTML = exc;
-          else if (exc && exc.message) outputEl.innerHTML = exc.message;
-          else {
-            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']);
-            console.log(exc);
-          }
-        }
-      }
-      else {
-        outputEl.innerHTML = 'Job Log Error: HTTP ' + this.status + '; ' + this['responseURL'];
-      }
-    }
-  }
-  
   function joblogFetch(){
     if (this.readyState == XMLHttpRequest.DONE) {
       if (this.status == 200){
-        var filename = fnPrefix.replace(' ', '_') + '_' + jobParts[0]+'_'+jobParts[1]+'_'+jobParts[2]+'.txt';
-        var filesaver = saveAs( new Blob([this.response]), filename, {"type": "text/plain;charset=utf-8"});
-        filesaver.onwriteend = filesaverWriteEnded;
+        if (typeof this.response === 'string' && this.response.length > 0){
+          var contentDisp = this.getResponseHeader('Content-Disposition');
+          if (contentDisp === 'attachment'){
+            // If the response is good, then the Content-Disposition header is "attachment".
+            var filename = fnPrefix.replace(' ', '_') + '_' + jobParts[0]+'_'+jobParts[1]+'_'+jobParts[2]+'.txt';
+            var filesaver = saveAs( new Blob([this.response]), filename, {"type": "text/plain;charset=utf-8"});
+            filesaver.onwriteend = filesaverWriteEnded;
+          }
+          else {
+            // The response is error plain text.
+            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + '<br>' + this.response;
+          }
+        }
+        else {
+          outputEl.innerHTML = 'Error: Empty Response';
+        }
       }
       else {
-        outputEl.innerHTML = 'Job Log Error: HTTP ' + this.status;
+        outputEl.innerHTML = 'Job Log Error:<br>HTTP ' + this.status + '<br>' + this['responseURL'];
       }
     }
   }
