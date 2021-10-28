@@ -6863,8 +6863,7 @@ pui.findParentGrid = function(obj) {
 pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
   outputEl.innerHTML = pui.getLanguageText('runtimeMsg', 'downloading x', ['...']);
   outputEl.style.opacity = '1';
-  var useServerURI = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui';
-  var uri = useServerURI ? serverURI + '/PUI0009118.pgm' : getProgramURL('PUI0009118.pgm');
+  var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
   
   var jobParts = job.split('/');
   
