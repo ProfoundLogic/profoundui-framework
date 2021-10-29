@@ -654,9 +654,6 @@ pui.Grid = function () {
     }
     if (me.zoomDiv == null) {
       me.zoomDiv = document.createElement("div");
-      var width = parseInt(me.tableDiv.style.width);
-      if (me.slidingScrollBar || me.pagingScrollBar) width = width - 21;
-      me.zoomDiv.style.width = width + "px";
       me.zoomDiv.style.height = (me.rowHeight * me.foldMultiple) + "px";
       me.zoomDiv.style.border = "1px solid #1541c4";
       me.zoomDiv.style.overflow = "hidden";
@@ -680,6 +677,9 @@ pui.Grid = function () {
       };
       me.tableDiv.parentNode.appendChild(me.zoomDiv);
     }
+    var width = parseInt(me.tableDiv.style.width);
+    if (me.slidingScrollBar || me.pagingScrollBar) width = width - 21;
+    me.zoomDiv.style.width = width + "px";
     me.zoomDiv.innerHTML = "";
     me.zoomDiv.className = me.tableDiv.className;
     me.zoomDiv.style.top = parseInt(me.tableDiv.style.top) + parseInt(rowCells[0].style.top) - parseInt(me.rowHeight * (me.foldMultiple - 1) / 2) + "px";
