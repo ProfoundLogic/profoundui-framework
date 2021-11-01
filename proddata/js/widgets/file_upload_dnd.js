@@ -346,7 +346,7 @@ pui.widgets.add({
     "show select": function(parms){
       parms.dom["fileUpload"].showSelect(parms.value == 'true' || parms.value == true);
     },
-    
+        
     "number of files":       pui["fileupload"].propset["number of files"],
     "size limit":            pui["fileupload"].propset["size limit"],
     "target directory":      pui["fileupload"].propset["target directory"],
@@ -355,7 +355,9 @@ pui.widgets.add({
     "generate unique names": pui["fileupload"].propset["generate unique names"],
     "onupload":              pui["fileupload"].propset["onupload"],
     "disabled":              pui["fileupload"].propset["disabled"]  //Note: only called when property is set or removed.
-  }
+  },
+  
+  globalAfterSetter: pui['fileupload'].globalAfterSetter
 });
 
 /*

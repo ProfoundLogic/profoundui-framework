@@ -1202,6 +1202,16 @@ pui["fileupload"].propset = {
   }
 };
 
+/**
+ * Make sure the "empty" css class gets set after render calls the "css class" property setter, which clears any existing css classes.
+ * TODO: it would be better for properties to not change the DOM repeatedly; let one final render() call setup the DOM.
+ * @param {Object} parms
+ */
+pui['fileupload'].globalAfterSetter = function(parms){
+  var match = /^css class( \d+)?$/.exec(parms.propertyName);
+  if (match != null) parms.dom['fileUpload'].render();
+};
+
 pui.widgets.add({
 
   name: "file upload",
@@ -1217,6 +1227,8 @@ pui.widgets.add({
     "overwrite files": "false" 
   },
   
-  propertySetters: pui["fileupload"].propset
+  propertySetters: pui["fileupload"].propset,
+  
+  globalAfterSetter: pui['fileupload'].globalAfterSetter
   
 });
