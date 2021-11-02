@@ -127,6 +127,7 @@ pui.layout.Layout.prototype.applyTemplate = function() {
     dom: this.layoutDiv,
     template: this.template,
     properties: this.templateProps,
+    proxyMode: this.designItem != null && this.designItem.isProxy,
     designMode: this.designMode
   };
   var rv = pui.layout.template.applyTemplate(parms);
@@ -364,8 +365,10 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         this.designItem.properties["template"] = value;
         this.designItem.propertiesChanged["template"] = true;
         this.designItem.changed = true;
-        this.designItem.designer.changedScreens[this.designItem.designer.currentScreen.screenId] = true;
-        this.designItem.designer.propWindow.refresh();
+        if (this.designItem.isProxy !== true){
+          this.designItem.designer.changedScreens[this.designItem.designer.currentScreen.screenId] = true;
+          this.designItem.designer.propWindow.refresh();
+        }
         
         this.resize();
       }

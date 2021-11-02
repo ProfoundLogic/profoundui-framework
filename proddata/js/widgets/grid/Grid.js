@@ -2530,7 +2530,7 @@ pui.Grid = function () {
         if (me.treeLevelData == null) {      // do one time only for load all grid or db grid with load all option
           me.treeLevelData = [];
           for (var ii = 0; ii < me.dataArray.length; ii++) {
-            var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false}
+            var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false};
             me.treeLevelData.push(treeLevelData);
           }
         }
@@ -8238,7 +8238,7 @@ pui.Grid = function () {
     me.treeLevelColumnId = 0;         // default
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       if (me.runtimeChildren[i]["value"]["fieldName"].toUpperCase() === me.treeLevelField.toUpperCase()) {   
-        me.treeLevelColumnId = me.runtimeChildren[i]["columnId"]
+        me.treeLevelColumnId = me.runtimeChildren[i]["columnId"];
         break;    
       }
     }
@@ -10388,8 +10388,9 @@ pui.Grid.prototype = Object.create(pui.BaseGrid.prototype);   //Inherit from pui
 /**
  * Return the properties model for Profound UI grids.
  * @returns {Array}
+ * @static
  */
-pui.BaseGrid.prototype.getPropertiesModel = function(){
+pui.BaseGrid.getPropertiesModel = function(){
   // ddsCompatProp: the property is for backward compatibility with legacy Display File properties.
   // 1 = help description should always warn/hide.
     var model = [{ name: "Identification", category: true },
