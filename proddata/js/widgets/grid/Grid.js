@@ -655,9 +655,6 @@ pui.Grid = function () {
     if (me.zoomDiv == null) {
       me.zoomDiv = document.createElement("div");
       me.zoomDiv.style.height = (me.rowHeight * me.foldMultiple) + "px";
-      me.zoomDiv.style.border = "1px solid #1541c4";
-      me.zoomDiv.style.overflow = "hidden";
-      me.zoomDiv.style.position = "absolute";
       me.zoomDiv.style.zIndex = me.rowZoomZIndex;
       me.zoomDiv.style.left = parseInt(me.tableDiv.style.left) + "px";
       me.zoomDiv.onclick = function () {
@@ -682,6 +679,7 @@ pui.Grid = function () {
     me.zoomDiv.style.width = width + "px";
     me.zoomDiv.innerHTML = "";
     me.zoomDiv.className = me.tableDiv.className;
+    me.zoomDiv.classList.add('zoomrow');
     me.zoomDiv.style.top = parseInt(me.tableDiv.style.top) + parseInt(rowCells[0].style.top) - parseInt(me.rowHeight * (me.foldMultiple - 1) / 2) + "px";
     for (var i = 0; i < rowCells.length; i++) {
       var cell = rowCells[i];

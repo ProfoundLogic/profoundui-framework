@@ -4926,12 +4926,17 @@ a.ui-link-inherit {
 /*[puiwdgt] { position: absolute; }*/
 
 /* Cells inside Profound UI grid widgets. */
-[puiwdgt="grid"] > div.cell {
+[puiwdgt="grid"] > div.cell, div.zoomrow > div.cell {
   position: absolute;
   overflow: hidden;
   padding: 0px;
 }
 
+div.zoomrow {
+  border: 1px solid #1541c4;
+  overflow: hidden;
+  position: absolute;
+}
 
 .pui-hide-show-columns-list {
   position: absolute;
