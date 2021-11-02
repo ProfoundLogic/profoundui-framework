@@ -62,7 +62,7 @@ pui.widgets.add({
       }
       if (!parms.dom.style.top) parms.dom.style.top = "0px";
       if (!parms.dom.style.left) parms.dom.style.left = "0px";
-      parms.dom.propertiesModel = parms.dom.grid.getPropertiesModel();
+      parms.dom.propertiesModel = pui.BaseGrid.getPropertiesModel();
       parms.dom.propertiesNamedModel = makeNamedModel(parms.dom.propertiesModel);
       parms.dom.grid.setProperty("has header", parms.properties["has header"]);
       if (parms.design) {
