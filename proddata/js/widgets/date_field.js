@@ -20,7 +20,6 @@
 
 
 
-var calobj=null;
 var gDateField = new Array(); 
 var gDateCount = 0;
 pui.currentDateField = null;
@@ -340,7 +339,7 @@ function show_calendar(dateField, str_datetime, format) {
   hiddenTime.value = dt2tmstr(dt_datetime);
   calForm.appendChild(hiddenTime);
  
-  calobj = document.getElementById("popcal");
+  var calobj = document.getElementById("popcal");
   calobj.innerHTML = "";
 
   calobj.className = "pui-calendar";
@@ -376,7 +375,12 @@ function show_calendar(dateField, str_datetime, format) {
 
   // Using setTimeout() to prevent the 'click' event from "bleeding through" to the 
   //  popup calendar when using pui.showCalendar() on Android.
-  setTimeout( function() { calobj.style.visibility = "visible"; }, 0 );
+  setTimeout( function() { 
+    var calobj = getObj("popcal");
+    if (calobj != null && calobj.style.visibility !== 'visible') {
+      calobj.style.visibility = 'visible'; 
+    }
+  }, 0 );
 }
 
 function allZeros(strd) {
@@ -549,11 +553,10 @@ function dt2tmstr (dt_datetime) {
   return (new String (dt_datetime.getHours()+":"+dt_datetime.getMinutes()+":"+dt_datetime.getSeconds()));
 }
 function hide_calendar(){
-  var id = 'popcal';
-  if(calobj == null) return;
-  var obj=document.getElementById(id);
-  obj.style.visibility="hidden";
-  calobj=null;
+  var calobj = getObj('popcal');
+  if (calobj != null && calobj.style.visibility !== 'hidden') {
+    calobj.style.visibility='hidden';
+  }
 }
 
 function calendar_select() {
