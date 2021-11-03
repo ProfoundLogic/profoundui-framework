@@ -37,15 +37,12 @@ pui.ComboBoxWidget = function() {
   var box;
   this._box = null;
   
-  var arrow;
+  this._arrow = null;
   var choicesDiv;
   this._choicesDiv = null;
   
   var spacerDiv = null;
-  this["showChoices"] = function() {
-    showChoices();
-  };
-
+  
   this.init = function() {
     if (me.div == null) {
       me.div = document.createElement("div");
@@ -103,16 +100,16 @@ pui.ComboBoxWidget = function() {
       }
 
     });
-    
-    if (arrow == null) {
-      arrow = document.createElement("div");
-      me.div.appendChild(arrow);
+        
+    if (me._arrow == null) {
+      me._arrow = document.createElement("div");
+      me.div.appendChild(me._arrow);
       
-      arrow.addEventListener('mousedown', me);
-      arrow.addEventListener('mouseup', me);
+      me._arrow.addEventListener('mousedown', me);
+      me._arrow.addEventListener('mouseup', me);
     }
-    arrow.className = "combo-arrow";
-    arrow.combo = true;
+    me._arrow.className = "combo-arrow";
+    me._arrow.combo = true;
     
     var win;
     var prt = me.div.parentNode;
@@ -144,25 +141,19 @@ pui.ComboBoxWidget = function() {
           pui.runtimeContainer.appendChild(choicesDiv);
         } 
       }
-      addEvent(document, "click", function(e) {
-        
-        var target = getTarget(e);
-        if (target != arrow)
-          me['hideChoices']();
-        
-      });
     }
     choicesDiv.style.display = "none";
     choicesDiv.className = "combo-options";
     me.setClass(me.div.className.split(" ")[1]);
     
+    pui.widgetsToCleanup.push(me);  //Causes destroy to be called when record format or screen changes; ensure listeners are removed. #7139.
   };
 
   this.draw = function() {
     var boxWidth = 0;  
     var comWidth = me.div.style.width;	//get the width of the combo box
     var newWidth = me.div.offsetWidth; //get the width in pixels
-    var arrowWidth = arrow.offsetWidth + 3;
+    var arrowWidth = me._arrow.offsetWidth + 3;
     
     if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
       boxWidth = (1 - (arrowWidth / newWidth)) * 100; //find the percent width for input box
@@ -205,7 +196,7 @@ pui.ComboBoxWidget = function() {
   this.setClass = function(className) {
     box.className = "combo-main-box " + className.split(" ")[0];
     pui.addCssClass(choicesDiv, box.className.split(" ")[1] + "-combo-options");
-    pui.addCssClass(arrow, box.className.split(" ")[1] + "-combo-arrow");
+    pui.addCssClass(me._arrow, box.className.split(" ")[1] + "-combo-arrow");
     if(spacerDiv != null) {
       pui.addCssClass(spacerDiv, box.className.split(" ")[1] + "-combo-spacer");
     }
@@ -284,7 +275,7 @@ pui.ComboBoxWidget = function() {
   
   }
 
-  function showChoices() {
+  this['showChoices'] = function() {
     
     if (typeof(me.div["onoptiondisplay"]) == "function") {
       me.div["onoptiondisplay"]();
@@ -334,7 +325,12 @@ pui.ComboBoxWidget = function() {
       }
       choicesDiv.style.top = top + "px";    
     }
-  }
+    
+    // When the choices are visible, then add document listeners to hide them on scroll or click. 
+    // These are cleaned up in destroy and when the choices are hidden.
+    document.addEventListener('click', this);
+    document.addEventListener('scroll', this, true);  //Listen for all scroll events on the page when the choices are visible. #7139.
+  };
   
   function filterChoices(search) {
     search = search.toLowerCase();
@@ -356,6 +352,7 @@ pui.ComboBoxWidget = function() {
   }
   
 };
+pui.ComboBoxWidget.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
  * Set the ComboBox input element's CSS style. Fix any problem characters.
@@ -381,6 +378,16 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
 pui.ComboBoxWidget.prototype['hideChoices'] = function() {
   this._choicesDiv.innerHTML = "";
   this._choicesDiv.style.display = "none";
+  this._removeHideListeners();
+};
+
+/**
+ * Remove document listeners for scroll or click when the option list is hidden or on destroy. Removing makes debugging easier
+ * when many elements exist and avoids a memory leak and accumulation of unnecessary click listeners.
+ */
+pui.ComboBoxWidget.prototype._removeHideListeners = function(){
+  document.removeEventListener('scroll', this, true);
+  document.removeEventListener('click', this);
 };
 
 /**
@@ -390,8 +397,16 @@ pui.ComboBoxWidget.prototype['hideChoices'] = function() {
 pui.ComboBoxWidget.prototype['handleEvent'] = function(e){
   switch (e.type){
     case 'click':
-      this._optionClick(e);
+      if (e.target && e.target.parentNode == this._choicesDiv){
+        // The user clicked on an option on this combo-box.
+        this._optionClick(e);        
+      }
+      else if (e.target != this._arrow){
+        // The click was on the document anywhere but this arrow. Handled by this object's document click listener.
+         this['hideChoices']();
+      }
       break;
+      
     case 'mousedown':
       // Handles the arrow and the option div.
       preventEvent(e);
@@ -410,7 +425,23 @@ pui.ComboBoxWidget.prototype['handleEvent'] = function(e){
     case 'mouseout':
       e.target.classList.remove('combo-option-select');
       break;
+
+    case 'scroll':
+      // If anywhere on the page containing this combo-box scrolls, then hide the options on-scroll to avoid the elements separating. #7139.
+      // (Anywhere except the choicesDiv, which may have many elements; e.g. WRKACTJOB choices.)
+      // Note: no need to throttle this scroll-linked code with timeouts, because the listener is quickly removed upon scroll.
+      if (e.target != this._choicesDiv) this['hideChoices']();
+      break;
   }
+};
+
+
+/**
+ * Ensure that document listeners do not persist after this object is gone.
+ */
+pui.ComboBoxWidget.prototype.destroy = function(){
+  this._removeHideListeners();
+  this.deleteOwnProperties();
 };
 
 /**
