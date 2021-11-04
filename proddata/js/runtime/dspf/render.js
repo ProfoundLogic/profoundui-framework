@@ -507,9 +507,9 @@ pui.resizeTimeout = 0;
  */
 pui.resize = function(event) {
   // On mobile devices, the virtual keyboard injects itself to the bottom of the body thus firing this resize event, thus causing focus to be lost
-  // If the current active active has this special jobGotFocus, we can just get skip this event...
+  // If the current active active has this special justGotFocus, we can just get skip this event...
   if (event && pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
-	event.cancel=true; 
+	  event.cancel=true; 
     if (event.preventDefault) event.preventDefault();
     if (event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
     return;
