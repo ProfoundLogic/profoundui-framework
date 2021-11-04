@@ -8150,7 +8150,7 @@ pui.Grid = function () {
     me.setProperty("number of rows", String(numRows));
     me.sizeAllCells();
     me.setAllCellStyles();
-    me.getData();
+    if (!me.resizeOnly) me.getData();
   };
 
   this["render"] = function () {
