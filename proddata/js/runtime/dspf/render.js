@@ -506,15 +506,6 @@ pui.resizeTimeout = 0;
  * @param {Event} event
  */
 pui.resize = function(event) {
-  // On mobile devices, the virtual keyboard injects itself to the bottom of the body thus firing this resize event, thus causing focus to be lost
-  // If the current active active has this special justGotFocus, we can just get skip this event...
-  if (event && pui["is_touch"] && document.activeElement && document.activeElement.justGotFocus) {
-	  event.cancel=true; 
-    if (event.preventDefault) event.preventDefault();
-    if (event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
-    return;
-  }
-  
   if (pui.runtimeContainer == null) return;
 
   clearTimeout(pui.resizeTimeout);    //throttle resizing
@@ -2431,12 +2422,18 @@ pui.renderFormat = function(parms) {
           addEvent(boxDom, "mousedown", pui.storeEventCursorPosition);
           addEvent(boxDom, "keyup", pui.storeEventCursorPosition);
           
-          // This is to prevent expanding layouts on mobile devices when virtual keyboards changes
+          // When an element on a mobile device receives focus, the virtual keyboard pops up. If that element is
+          // inside a grid with "expand to layout" enabled, the grid will be cleared and re-rendered at the new
+          // size, causing focus to be lost. This, in turn, causes the virtual keyboard to be closed again, and
+          // now the mobile user cannot type into the field. Solution: Mark the grid as "resizeOnly" long enough for
+          // the keyboard to open... this prevents the grid from clearing/re-rendering.
+
           if (pui["is_touch"]) {
+            boxDom.parentGridObj = pui.findParentGrid(boxDom);
             addEvent(boxDom, "focus", function(evt) { 
-              evt.srcElement.justGotFocus = true;
+              if (evt.srcElement.parentGridObj) evt.srcElement.parentGridObj.resizeOnly = true;
               setTimeout(function(input) {
-                delete input.justGotFocus;
+                if (input.parentGridObj) input.parentGridObj.resizeOnly = false;
               }, 1000, evt.srcElement);
             });
           }
@@ -6817,4 +6814,14 @@ function timer(time) {
     now -= time;
   return now;
 
+}
+
+pui.findParentGrid = function(obj) {
+  var parent = obj.parentElement;
+  while (parent) {
+    obj = parent;
+    if (obj.grid) return obj.grid;
+    parent = obj.parentElement;
+  }
+  return null;
 }
