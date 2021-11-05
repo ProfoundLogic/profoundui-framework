@@ -597,7 +597,7 @@ div.cell > div.dbd { padding: 0px 4px; }
 .header-cell > input.qf:hover::placeholder { opacity: 0.50; }
 
 .grid-multisort {
-  position: relative;
+  position: absolute;
   z-index: 251;
   width: 300px;
   background: white;
@@ -688,7 +688,7 @@ div.cell > div.dbd { padding: 0px 4px; }
 
 /* Multi Filter panel */
 .grid-multifilter {
-  position: relative;
+  position: absolute;
   z-index: 251;
   width: 300px;
   background: white;
