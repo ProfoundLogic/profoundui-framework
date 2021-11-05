@@ -9941,243 +9941,235 @@ pui.Grid = function () {
     me.mask();
     me.gridLoading();
 
-    if (filterMultiPanel == null){
-      filterMultiPanel = document.createElement('div');
-      filterMultiPanel.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
-      if(headerCell != null){
-        filterMultiPanel.style.top = me.tableDiv.offsetTop + headerCell.offsetHeight + 'px';
-        filterMultiPanel.style.left = me.tableDiv.offsetLeft + headerCell.offsetLeft + 'px';
-        if(filterMultiPanel.style.top == null || filterMultiPanel.style.left == null){
-          filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
-          filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
-        }
-      }
-      else{
+    if (filterMultiPanel) {
+      filterMultiPanel.parentNode.removeChild(filterMultiPanel);
+      delete filterMultiPanel;
+      filterMultiPanel = null;
+    }
+
+    filterMultiPanel = document.createElement('div');
+    filterMultiPanel.className = 'grid-multifilter' + (me.mainClass != '' ? ' ' + me.mainClass + '-multifilter' : '');
+    if(headerCell != null){
+      filterMultiPanel.style.top = me.tableDiv.offsetTop + headerCell.offsetHeight + 'px';
+      filterMultiPanel.style.left = me.tableDiv.offsetLeft + headerCell.offsetLeft + 'px';
+      if(filterMultiPanel.style.top == null || filterMultiPanel.style.left == null){
         filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
         filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
       }
+    }
+    else{
+      filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
+      filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+    }
 
-      
-      var header = document.createElement('div');
-
-      new pui.MoveListener({ attachto: header, move: filterMultiPanel });
-      //Close button
-      var btn = document.createElement('button');
-      btn.className = 'pui-material-icons';
-      btn.innerHTML = 'close';
-      addEvent(btn, 'click', function(){
-        filterMultiPanel.style.display = 'none';
-        filterMultiPanel = null;
-      });
-
-      //Check button
-      header.appendChild(btn);
-      btn = document.createElement('button');
-      btn.className = 'pui-material-icons';
-      btn.innerHTML = 'check';
-      addEvent(btn, 'click', function(){
-        filterMultiPanel.style.display = 'none';
-        me.mask(); // disable UI until server responds.
-        me.gridLoading();
-        
-        //set new filtertext only on confirm == "values x, y, z..."
-        count = 0;
-        entries = dataMap.entries();
-        dataCount = dataMap.size;
-        var tempArray = [];
-        for(var i = 0; i < dataCount; i++){
-          entry = entries.next().value;
-          data = entry[0];
-          checked = entry[1];
-          if(checked == true){
-            count++;
-            tempArray.push(data);
-          }
-        }
-        filterText = "JVALUES " + JSON.stringify(tempArray);
-        //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
-        if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
-        if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){me.forceDataArray = false;}
-        //If nothing checked, remove filter
-        if(filterText == null || tempArray.length == 0){me["removeFilter"](col);}
-        //Otherwise, set filter on grid
-        else{ me["setFilter"](headerCell,filterText); }
-        me['unMask']();
-        filterMultiPanel = null;
-      });
-      header.appendChild(btn);
-      header.appendChild(document.createTextNode(pui['getLanguageText']('runtimeText','filter multiple')));
-      filterMultiPanel.appendChild(header);
-      
-      var includetable = document.createElement('table');
-      var thead = includetable.createTHead();
-      var tr = thead.insertRow();
-      var td = tr.insertCell();
-      td.innerHTML = pui['getLanguageText']('runtimeText','filter check');
-      
-      td = tr.insertCell();
-      td.innerHTML = pui['getLanguageText']('runtimeText','filter data');
     
-      var tbody = document.createElement('tbody');
-      includetable.appendChild(tbody);
+    var header = document.createElement('div');
 
-      if(headerCell !=  null){ //to prevent things from getting hung up here
-        var col = headerCell.columnId; 
-        me.setSearchIndexes(headerCell); 
-        var idxes = headerCell.searchIndexes;
+    new pui.MoveListener({ attachto: header, move: filterMultiPanel });
+    //Close button
+    var btn = document.createElement('button');
+    btn.className = 'pui-material-icons';
+    btn.innerHTML = 'close';
+    addEvent(btn, 'click', function(){
+      filterMultiPanel.style.display = 'none';
+      filterMultiPanel = null;
+    });
+
+    //Check button
+    header.appendChild(btn);
+    btn = document.createElement('button');
+    btn.className = 'pui-material-icons';
+    btn.innerHTML = 'check';
+    addEvent(btn, 'click', function(){
+      filterMultiPanel.style.display = 'none';
+      me.mask(); // disable UI until server responds.
+      me.gridLoading();
+      
+      //set new filtertext only on confirm == "values x, y, z..."
+      count = 0;
+      entries = dataMap.entries();
+      dataCount = dataMap.size;
+      var tempArray = [];
+      for(var i = 0; i < dataCount; i++){
+        entry = entries.next().value;
+        data = entry[0];
+        checked = entry[1];
+        if(checked == true){
+          count++;
+          tempArray.push(data);
+        }
       }
-      rows = me.dataArray.length;
-      var dataMap = new Map();
-      var entry = [];
-      var entries = [];
-      var data;
-      var checked = false;
-      var count = 0;
-      var dataCount = 0;
-      var rowCount = 0;
-      var filterText = headerCell.filterText;
-      var headerFilterText = headerCell.filterText;
-      var checkFilterWithSQL = false;
-      var gotFilterArr = false;
+      filterText = "JVALUES " + JSON.stringify(tempArray);
+      //WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
+      if(me.waitingOnRequest == true){me.waitingOnRequest = false;}
+      if(me.forceDataArray == true && me["dataProps"]["load all rows"] != "true"){me.forceDataArray = false;}
+      //If nothing checked, remove filter
+      if(filterText == null || tempArray.length == 0){me["removeFilter"](col);}
+      //Otherwise, set filter on grid
+      else{ me["setFilter"](headerCell,filterText); }
+      me['unMask']();
+      filterMultiPanel = null;
+    });
+    header.appendChild(btn);
+    header.appendChild(document.createTextNode(pui['getLanguageText']('runtimeText','filter multiple')));
+    filterMultiPanel.appendChild(header);
+    
+    var includetable = document.createElement('table');
+    var thead = includetable.createTHead();
+    var tr = thead.insertRow();
+    var td = tr.insertCell();
+    td.innerHTML = pui['getLanguageText']('runtimeText','filter check');
+    
+    td = tr.insertCell();
+    td.innerHTML = pui['getLanguageText']('runtimeText','filter data');
+  
+    var tbody = document.createElement('tbody');
+    includetable.appendChild(tbody);
 
-      function insertRows(){
-        tr = tbody.insertRow();
-        tr.columnId = col;
-        tr.onclick = checkonclick;
+    if(headerCell !=  null){ //to prevent things from getting hung up here
+      var col = headerCell.columnId; 
+      me.setSearchIndexes(headerCell); 
+      var idxes = headerCell.searchIndexes;
+    }
+    rows = me.dataArray.length;
+    var dataMap = new Map();
+    var entry = [];
+    var entries = [];
+    var data;
+    var checked = false;
+    var count = 0;
+    var dataCount = 0;
+    var rowCount = 0;
+    var filterText = headerCell.filterText;
+    var headerFilterText = headerCell.filterText;
+    var checkFilterWithSQL = false;
+    var gotFilterArr = false;
 
-        td = tr.insertCell();
-        var chk = document.createElement('input');
-        chk.type = 'checkbox';
-        chk.name = data + '_filter';
-        chk.checked = checked;
-        td.appendChild(chk);
+    function insertRows(){
+      tr = tbody.insertRow();
+      tr.columnId = col;
+      tr.onclick = checkonclick;
 
-        td = tr.insertCell();
-        td.innerHTML = data;
+      td = tr.insertCell();
+      var chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.name = data + '_filter';
+      chk.checked = checked;
+      td.appendChild(chk);
 
-      }
-      function displayData(){
-        //Put the first 50 records in cells and display them
-        entries   = dataMap.entries();
-        dataCount = dataMap.size;
-        var rowLimit = (dataCount < 50) ? dataCount : 50;
-        
-        for(var i = 0; i < rowLimit; i++){
-          entry = entries.next().value;
-          data = entry[0];
-          checked = entry[1];
-          insertRows();
-          rowCount ++;
-        }
-        
-        filterMultiPanel.appendChild(includetable);
-        me.tableDiv.parentNode.appendChild(filterMultiPanel);
-      }
+      td = tr.insertCell();
+      td.innerHTML = data;
 
-      function checkonclick(e){
-        //set data first, then check if in map, then set to data to status of checked
-        
-        if(e.target.localName == "td"){
-          if(this.cells[0].children[0].checked == false){
-            //change checkbox to true
-            this.cells[0].children[0].checked = true;
-            checked = true;
-          }
-          else {
-            //change checkbox to false
-            this.cells[0].children[0].checked = false;
-            checked = false;
-          }
-        }
-        if(e.target.localName == "input"){
-          if(this.cells[0].children[0].checked == true){
-            //change checked to true
-            this.cells[0].children[0].checked = true;
-            checked = true;
-          }
-          else {
-            //change checkbox to false
-            this.cells[0].children[0].checked = false;
-            checked = false;
-          }
-        }
-        //#6864 - changed from innerHTML (which returned "&" as "&amp;") to something that got the text
-        data = this.cells[1].childNodes[0].nodeValue;
-        if (data != null && dataMap.has(data)){
-          dataMap.set(data, checked);
-        }
+    }
+    function displayData(){
+      //Put the first 50 records in cells and display them
+      entries   = dataMap.entries();
+      dataCount = dataMap.size;
+      var rowLimit = (dataCount < 50) ? dataCount : 50;
+      
+      for(var i = 0; i < rowLimit; i++){
+        entry = entries.next().value;
+        data = entry[0];
+        checked = entry[1];
+        insertRows();
+        rowCount ++;
       }
       
-      if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
-        var limit = -1;
-        var start = 1;
-        var dataURL = me["dataProps"]["data url"];
-        if (dataURL == "") dataURL = null;
-        var hCell = headerCell;
-        loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell); 
-      }
-      else{
-        //Get data and put into a map to get a list of easily navigatable unique values
-        var dataRecords = me.dataArray;
-        if (me.isFiltered() && me.filteredDataArray != null && me.filteredDataArray.length > 0)
-          dataRecords = me.filteredDataArray;
-        for (var i = 0; i < dataRecords.length; i++) {
-          var record = dataRecords[i];
-          if (record.subfileRow == null) record.subfileRow = i + 1;
-          for (var j = 0; j < idxes.length; j++) {
-            var idx = idxes[j];
-            var value = record[idx];
-            var ignoreTest = false;
-            if (headerCell["pui"] != null) {
-              // If the header has a format for the current field, then use it.
-              if( headerCell["pui"].formats != null
-                && headerCell["pui"].formats[j] != null
-                && typeof headerCell["pui"].formats[j] == "object" ){
-  
-                var curfmt = headerCell["pui"].formats[j];
-                curfmt.value = value;
-                value = pui.FieldFormat.format(curfmt);
-              }
-            }
-            if ( headerCell["pui"].rtIdxs != null
-              && headerCell["pui"].rtIdxs[j] != null
-              && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
-              && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
-
-              var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
-              var rtleft = parseInt(rtChild["left"], 10);
-              var rttop = parseInt(rtChild["top"], 10);
-              if ( rtChild["visibility"] == "hidden"
-              || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
-                ignoreTest = true;
-            }
-            if (!ignoreTest) dataMap.set(value, checked);
-            checked = false;
-          } 
-        }
-        
-        //Use data
-        if(dataMap.size > 0){
-          displayData();
-          me["unMask"]();
-        }  
-      }
-
+      filterMultiPanel.appendChild(includetable);
+      me.tableDiv.parentNode.appendChild(filterMultiPanel);
     }
-    else if (filterMultiPanel.style.display == ''){
-      if(headerCell != null){
-        filterMultiPanel.style.top = me.tableDiv.offsetTop + headerCell.offsetHeight + 'px';
-        filterMultiPanel.style.left = me.tableDiv.offsetLeft + headerCell.offsetLeft + 'px';
-        if(filterMultiPanel.style.top == null || filterMultiPanel.style.left == null){
-          filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';
-          filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+
+    function checkonclick(e){
+      //set data first, then check if in map, then set to data to status of checked
+      
+      if(e.target.localName == "td"){
+        if(this.cells[0].children[0].checked == false){
+          //change checkbox to true
+          this.cells[0].children[0].checked = true;
+          checked = true;
+        }
+        else {
+          //change checkbox to false
+          this.cells[0].children[0].checked = false;
+          checked = false;
         }
       }
-      else{
-        filterMultiPanel.style.top = me.tableDiv.offsetTop + 'px';  //User selected option, but panel is already showing. Maybe it's behind something.
-        filterMultiPanel.style.left = me.tableDiv.offsetLeft + 'px';
+      if(e.target.localName == "input"){
+        if(this.cells[0].children[0].checked == true){
+          //change checked to true
+          this.cells[0].children[0].checked = true;
+          checked = true;
+        }
+        else {
+          //change checkbox to false
+          this.cells[0].children[0].checked = false;
+          checked = false;
+        }
+      }
+      //#6864 - changed from innerHTML (which returned "&" as "&amp;") to something that got the text
+      data = this.cells[1].childNodes[0].nodeValue;
+      if (data != null && dataMap.has(data)){
+        dataMap.set(data, checked);
       }
     }
+    
+    if(me.isDataGrid()  && me["dataProps"]["load all rows"] != "true"){
+      var limit = -1;
+      var start = 1;
+      var dataURL = me["dataProps"]["data url"];
+      if (dataURL == "") dataURL = null;
+      var hCell = headerCell;
+      loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell); 
+    }
+    else{
+      //Get data and put into a map to get a list of easily navigatable unique values
+      var dataRecords = me.dataArray;
+      if (me.isFiltered() && me.filteredDataArray != null && me.filteredDataArray.length > 0)
+        dataRecords = me.filteredDataArray;
+      for (var i = 0; i < dataRecords.length; i++) {
+        var record = dataRecords[i];
+        if (record.subfileRow == null) record.subfileRow = i + 1;
+        for (var j = 0; j < idxes.length; j++) {
+          var idx = idxes[j];
+          var value = record[idx];
+          var ignoreTest = false;
+          if (headerCell["pui"] != null) {
+            // If the header has a format for the current field, then use it.
+            if( headerCell["pui"].formats != null
+              && headerCell["pui"].formats[j] != null
+              && typeof headerCell["pui"].formats[j] == "object" ){
+
+              var curfmt = headerCell["pui"].formats[j];
+              curfmt.value = value;
+              value = pui.FieldFormat.format(curfmt);
+            }
+          }
+          if ( headerCell["pui"].rtIdxs != null
+            && headerCell["pui"].rtIdxs[j] != null
+            && me.runtimeChildren[headerCell["pui"].rtIdxs[j]] != null
+            && typeof me.runtimeChildren[headerCell["pui"].rtIdxs[j]] == "object" ){
+
+            var rtChild = me.runtimeChildren[headerCell["pui"].rtIdxs[j]];
+            var rtleft = parseInt(rtChild["left"], 10);
+            var rttop = parseInt(rtChild["top"], 10);
+            if ( rtChild["visibility"] == "hidden"
+            || (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
+              ignoreTest = true;
+          }
+          if (!ignoreTest) dataMap.set(value, checked);
+          checked = false;
+        } 
+      }
+      
+      //Use data
+      if(dataMap.size > 0){
+        displayData();
+        me["unMask"]();
+      }  
+    }
+
+
+
     filterMultiPanel.style.display = '';
     
     // Fix when there isn't enough space in a layout to show all the columns: make scrollable. 5344.
