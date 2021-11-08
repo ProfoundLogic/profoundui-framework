@@ -36,7 +36,7 @@ pui.ComboBoxWidget = function() {
   var me = this;
   var box;
   this._box = null;
-  
+
   this._arrow = null;
   var choicesDiv;
   this._choicesDiv = null;
@@ -276,7 +276,12 @@ pui.ComboBoxWidget = function() {
   }
 
   this['showChoices'] = function() {
-    
+    //Change arrow when opened
+    if(this._arrow.className.split(" ")[0] != "open"){
+      ///this._arrow.className += " open";
+      this._arrow.className = "open combo-arrow " + this._box.className.split(" ")[1] + "-combo-arrow";
+    }
+
     if (typeof(me.div["onoptiondisplay"]) == "function") {
       me.div["onoptiondisplay"]();
     }
@@ -376,6 +381,10 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
  * 
  */
 pui.ComboBoxWidget.prototype['hideChoices'] = function() {
+  //change arrow when closed
+  if(this._arrow != null && this._arrow.className.split(" ")[0] == "open"){
+    this._arrow.className = "combo-arrow " + this._box.className.split(" ")[1] + "-combo-arrow";
+  }
   this._choicesDiv.innerHTML = "";
   this._choicesDiv.style.display = "none";
   this._removeHideListeners();
