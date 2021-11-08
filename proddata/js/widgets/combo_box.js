@@ -278,7 +278,6 @@ pui.ComboBoxWidget = function() {
   this['showChoices'] = function() {
     //Change arrow when opened
     if(this._arrow.className.split(" ")[0] != "open"){
-      ///this._arrow.className += " open";
       this._arrow.className = "open combo-arrow " + this._box.className.split(" ")[1] + "-combo-arrow";
     }
 
