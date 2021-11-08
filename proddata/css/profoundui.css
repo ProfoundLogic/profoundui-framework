@@ -2377,9 +2377,6 @@ label.off-label {
   right: 0;
   background: no-repeat right 0;
   background-image: url("../images/onoff/off.png");
-  /*
-  background-image: url("/profoundui/proddata/images/onoff/off.png");
-  background-repeat: no-repeat;*/
 }
 
 label.off-label span {
@@ -5388,7 +5385,7 @@ div.Glass>.pui-tablayout-body>div {
   height: 20px;
 }
 
-.combo-arrow {
+.combo-arrow, .combo-arrow.open {
   background-image: url("../images/combo/down_arrow.gif");
   background-repeat: no-repeat;
   position: absolute;
@@ -5396,6 +5393,12 @@ div.Glass>.pui-tablayout-body>div {
   right: 0px;
   width: 18px;
   height: 20px;
+}
+.combo-arrow{
+  background-image: url("../images/combo/down_arrow.gif");
+}
+.combo-arrow.open{
+  background-image: url("../images/combo/arrow_open.png");
 }
 
 .combo-main-box {
@@ -12702,11 +12705,10 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   background: #3498db !important;
 }
 
-.blueprint-defaults[class*=blueprint-combo-box]>img, .blueprint-defaults[class*='blueprint-combo-box']>div {
+.blueprint-defaults[class*=blueprint-combo-box]>img, .blueprint-defaults[class*='blueprint-combo-box']>div, .blueprint-defaults[class*='blueprint-combo-box']>div.open {
   display: block;
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  background: url('../images/widgetsets/blueprint/down-arrow-blue.png') no-repeat;
   padding-left: 20px;
   width: 20px;
   top: unset !important;
@@ -12715,6 +12717,12 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   -ms-flex-item-align: center;
   z-index: 25;
   position: unset !important;
+}
+.blueprint-defaults[class*=blueprint-combo-box]>img, .blueprint-defaults[class*='blueprint-combo-box']>div {
+  background: url('../images/widgetsets/blueprint/down-arrow-blue.png') no-repeat;
+}
+.blueprint-defaults[class*='blueprint-combo-box']>div.open {
+  background: url('../images/widgetsets/blueprint/up-arrow-blue.png') no-repeat;
 }
 
 .blueprint-defaults[class*=blueprint-combo-box]:active>img, .blueprint-defaults[class*='blueprint-combo-box']:active>div {
@@ -15275,11 +15283,11 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
   background: #6c757d !important;
 }
 
-.office-copy-defaults[class*=office-copy-combo-box]>img, .office-copy-defaults[class*=office-copy-combo-box]>div {
+.office-copy-defaults[class*=office-copy-combo-box]>img, .office-copy-defaults[class*=office-copy-combo-box]>div, .office-copy-defaults[class*=office-copy-combo-box]>div.open {
   display: block;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  background: url(../images/widgetsets/office-copy/down-arrow-gray.png) no-repeat;
+  /*background: url(../images/widgetsets/office-copy/down-arrow-gray.png) no-repeat;*/
   padding-left: 20px;
   width: 20px;
   top: unset !important;
@@ -15288,6 +15296,12 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
       align-self: center;
   z-index: 25;
   position: unset !important;
+}
+.office-copy-defaults[class*=office-copy-combo-box]>img, .office-copy-defaults[class*=office-copy-combo-box]>div {
+ background: url(../images/widgetsets/office-copy/down-arrow-gray.png) no-repeat;
+}
+.office-copy-defaults[class*=office-copy-combo-box]>div.open {
+  background: url(../images/widgetsets/office-copy/up-arrow-gray.png) no-repeat;
 }
 
 .office-copy-defaults[class*=office-copy-combo-box]:active>img, .office-copy-defaults[class*=office-copy-combo-box]:active>div {
