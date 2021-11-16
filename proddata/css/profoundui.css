@@ -17455,3 +17455,9 @@ div.listEditor > div.dlgbody {
 div.listEditor > div.dlgbody input {
   box-sizing: border-box;
 }
+
+a.joblogDL > span.pui-material-icons { 
+ cursor:inherit;
+ position:absolute;
+ font-size:16px;
+}
