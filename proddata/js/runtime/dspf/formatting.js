@@ -169,24 +169,24 @@ pui.formatting = {
         }
       }
       
-      var fn = 'var y = 1, m = 0, d = 1; \
-        var h = 0, i = 0, s = 0, u = 0; \
-        var regexObj = new RegExp("^' +
+      var fn = 'var y = 1, m = 0, d = 1; '+
+        'var h = 0, i = 0, s = 0, u = 0; '+
+        'var regexObj = new RegExp("^' +
         regex +
-        '$"); \
-        var matches = str.match(regexObj); \
-        if(matches && matches.length > 0){' +
+        '$"); '+
+        'var matches = str.match(regexObj); '+
+        'if(matches && matches.length > 0){' +
         code +
-        'var dt = new Date(y, m, d, h, i, s, u); \
-        dt.setFullYear(y);' +
+        'var dt = new Date(y, m, d, h, i, s, u); '+
+        'dt.setFullYear(y);' +
         
         //strict validation: prevent date rollover
-        'if(dt.getFullYear() !== y || dt.getMonth() !== m || dt.getDate() !== d ||  \
-        dt.getHours() !== h || dt.getMinutes() !== i || dt.getSeconds() !== s) \
-        return null;' +
+        'if(dt.getFullYear() !== y || dt.getMonth() !== m || dt.getDate() !== d ||  '+
+        'dt.getHours() !== h || dt.getMinutes() !== i || dt.getSeconds() !== s) '+
+        'return null;' +
         
-        'return dt; \
-        }else return null;';
+        'return dt; '+
+        '}else return null;';
         
       if(!pui.formatting.Date.parsers.locales[locale]){
         pui.formatting.Date.parsers.locales[locale] = {};
