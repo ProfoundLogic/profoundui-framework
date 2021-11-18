@@ -750,7 +750,7 @@ pui.render = function(parms) {
     // Evaluate any <script> tags in the html
     var scripts = parms.container.getElementsByTagName("script");
     
-    function loadScript(idx) {
+    var loadScript = function(idx) {
       var script = scripts[idx];
       if (script == null) return;
 
@@ -770,7 +770,7 @@ pui.render = function(parms) {
           }
         });
       }
-    }
+    };
     loadScript(0);
     
     pui.screenIsReady = true;
@@ -6824,4 +6824,4 @@ pui.findParentGrid = function(obj) {
     parent = obj.parentElement;
   }
   return null;
-}
+};
