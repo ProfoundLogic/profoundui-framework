@@ -6845,29 +6845,21 @@ pui.findParentGrid = function(obj) {
 /**
  * Request a Job Log download from the server. 
  * Called from the errscrn format in puiscreens.json and puiscreens.dspf in Profound.js and Profound UI.
- * @param {String} job        Formatted Job string; e.g. 123456/QTMHHTTP/PROFOUNDUI.
+ * @param {String} jobinfo        Encrypted, encoded job information.
  * @param {String|Null} serverURI   URI of a server from where the job logs can be fetched. The location in the address bar is used 
  *   for PJS in Genie and Profound UI.
- * @param {String} fnPrefix   Filename prefix. e.g. "Application Job" or "Controller Job".
+ * @param {String} filename   Filename for the prompt to save job log.
  * @param {Element} outputEl  HTML Element to get feedback about the download.
- * 
- * Note: in PUISCREENS.dspf, the ctlrDwnld_icon remains hidden, because the controller job is no longer active when the error panel displays.
- *   You can't download an active job from the controller. So, we should not even handle the controller, probably.
- *   
- * Security: in Profound UI the PUISPLEXIT program can be used: https://docs.profoundlogic.com/x/agClAQ 
  * 
  * var protocol = pui["appJob"]["serverProtocol"].split('/');
  * var jobLogServer = protocol[0].toLowerCase() + "://" + pui["appJob"]["serverName"] + ":" + pui["appJob"]["serverPort"] + '/profoundui/';
  * 
  */
-pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
+pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   outputEl.innerHTML = pui.getLanguageText('runtimeMsg', 'downloading x', ['...']);
   outputEl.style.opacity = '1';
   var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
   
-  var jobParts = job.split('/');
-  
-  var body = 'jobname='+jobParts[2] + '&jobuser='+jobParts[1] + '&jobnum='+jobParts[0];
   var filesaverPath = "/jszip/FileSaver.min.js";
   if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
     makeXHR();
@@ -6881,7 +6873,7 @@ pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
     xhr.onreadystatechange = joblogFetch;
     xhr.open('POST', uri, true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhr.send(body);
+    xhr.send('jobinfo='+jobinfo);
   }
   
   function joblogFetch(){
@@ -6891,7 +6883,6 @@ pui['downloadJobLog'] = function(job, serverURI, fnPrefix, outputEl) {
           var contentDisp = this.getResponseHeader('Content-Disposition');
           if (contentDisp === 'attachment'){
             // If the response is good, then the Content-Disposition header is "attachment".
-            var filename = fnPrefix.replace(' ', '_') + '_' + jobParts[0]+'_'+jobParts[1]+'_'+jobParts[2]+'.txt';
             var filesaver = saveAs( new Blob([this.response]), filename, {"type": "text/plain;charset=utf-8"});
             filesaver.onwriteend = filesaverWriteEnded;
           }
