@@ -1126,7 +1126,8 @@ pui.Grid = function () {
           "file": dbfile,
           "library": dblib,
           "AUTH": (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth),
-          "workspace_id": (pui["isCloud"] && pui.cloud.ws.id ? pui.cloud.ws.id : "")
+          "workspace_id": (pui["isCloud"] && pui.cloud.ws.id ? pui.cloud.ws.id : ""),
+          "q": encodeURIComponent(pui.getSQLVarName(me.tableDiv))
         },
         "async": true,
         "handler": function (response) {
