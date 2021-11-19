@@ -5453,7 +5453,6 @@ div.Glass>.pui-tablayout-body>div {
   position: absolute;
   width: 15px;
   height: 9px;
-  
 }
 .pui-spinner-up-arrow-input {
   background-image: url("../images/up.gif");
@@ -5461,6 +5460,11 @@ div.Glass>.pui-tablayout-body>div {
 .pui-spinner-down-arrow-input {
   background-image: url("../images/down.gif");
 }
+.pui-spinner-up-arrow-input[disabled], .pui-spinner-down-arrow-input[disabled] {
+  cursor: default;
+  opacity: 0.33;
+}
+
 /*Signature Pad Classes */ 
 
 .pui-signature-pad-clear-box {

@@ -1540,6 +1540,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       propConfigName == "font size" ||
       propConfigName == "font style" ||
       propConfigName == "font weight") {
+      // Special design-time rendering for spinner, date picker, checkbox, and radio button.
       designItem.drawIcon();
     }
     designItem.mirrorDown();

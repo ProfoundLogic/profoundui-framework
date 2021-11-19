@@ -22,9 +22,19 @@
 
 /**
  * Spinner Class
+ * Note: this widget is used in Designer's binding dialogs, so be careful to test those when making changes.
+ *       This rendering code is not used for the actual spinner widget in Designer; there is code in DesignItem doing that.
  * @constructor
+ * @param {Element} dom
+ * @param {String|Number} minValue
+ * @param {String|Number} maxValue
+ * @param {String|Number} increment
+ * @param {Boolean} runtimeMode
+ * @returns {pui.Spinner}
+ * 
+ * TODO: figure out why the Spinner class is constructed in a timeout, causing property setters to use timeouts.
+ *   There must be a better way.
  */
-
 pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
   // Private Properties / Constructor
@@ -58,24 +68,12 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   up.className = "input";  // to pick up the default zIndex value
   up.onclick = function() {
     me.spin(increment);
-  }
-  if (pui["is_old_ie"]) {
-    // in IE, a double-click does not send two onclick events
-    up.ondblclick = function() {
-      me.spin(increment);
-    }
-  }
+  };
     
   down.className = "input";  // to pick up the default zIndex value
   down.onclick = function() {
     me.spin(-increment);
-  }
-  if (pui["is_old_ie"]) {
-    // in IE, a double-click does not send two onclick events
-    down.ondblclick = function() {
-      me.spin(-increment);
-    }
-  }
+  };
   
   if (dom.pui==null || dom.pui.properties==null || dom.pui.properties["visibility"]==null || dom.pui.properties["visibility"]=="") {
     if ( context=="genie" && dom.fieldInfo!=null && dom.fieldInfo["attr"]!=null ) {
@@ -89,19 +87,6 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   if (runtimeMode) {
     dom.style.paddingRight = "16px";
     dom.style.boxSizing = "border-box";
-    dom.style.MozBoxSizing = "border-box";
-    dom.style.WebkitBoxSizing = "border-box";
-    // IE can report 'MSIE 7.0' in user agent when running later versions 
-    // in compatability view, regardless of the document mode.
-    // The document mode value is set consistently based on document mode, although
-    // it does not exist in IE7.
-    var ie7 = (pui["is_old_ie"] && pui["ie_mode"] == 7 && (typeof(document.documentMode == 7) == "undefined" || document.documentMode == 7));
-    if (ie7) {
-      var width = dom.offsetWidth;
-      width = width - 36;
-      if (width < 16) width = 16;
-      dom.style.width = width + "px";
-    }
   }
 
   dom.extraDomEls = [up, down];
@@ -150,26 +135,25 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     down.style.top = top + "px";
     down.style.zIndex = dom.style.zIndex;
     down.style.visibility = dom.style.visibility;
-  }
+  };
   
   me.positionSpinnButtons();  // run this in the constructor
   
   this.hide = function() {
     up.style.visibility = "hidden";
     down.style.visibility = "hidden";
-  }
+  };
   
   this.show = function() {
     up.style.visibility = "";
     down.style.visibility = "";
-  }
+  };
 
   this.spin = function(byValue) {
     if (dom.disabled) return;
     if (dom.readOnly) return;
     var num = Number(dom.value);
     if (isNaN(num)) num = 0;
-    var originalNum = num;
     num += byValue;
     num = Math.round(num * 10000) / 10000;
     if (minValue != null && num < minValue) num = minValue;
@@ -196,7 +180,7 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     }
 
     pui.checkEmptyText(dom);    
-  }
+  };
 
   this.setArrowClassNames = function(className) {
     if (className == null){
@@ -207,8 +191,23 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
       up.className = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
       down.className = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
     }
-  }
-}
+  };
+  
+  /**
+   * Add a "disabled" attribute to spinner buttons when input is disabled. Note: the "disabled" PUI property specifies an "attribute" 
+   * property, causing applyPropertyToField to set disabled via setAttribute. So, the dom.disabled is already set by this point.
+   */
+  this.setDisabled = function(){
+    if (dom.disabled){
+      up.setAttribute('disabled', 'true');
+      down.setAttribute('disabled', 'true');
+    }
+    else {
+      up.removeAttribute('disabled');
+      down.removeAttribute('disabled');
+    }
+  };
+};
 
 
 
@@ -235,7 +234,7 @@ pui.widgets.add({
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
           parms.dom.sizeMe = function() {
             parms.dom.spinner.positionSpinnButtons();
-          }
+          };
         }, 1);
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
@@ -249,13 +248,28 @@ pui.widgets.add({
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
-        }
+        };
       }
       if (parms.design) parms.dom.readOnly = true;
     },
     
     "value": function(parms) {
       parms.dom.value = parms.value;
+    },
+    
+    "disabled": function(parms){
+      if (!parms.design){
+        // I don't know why the constructor is in a timeout, but we must work around that (or rework the widget). MD.
+        if (parms.dom.spinner){
+          parms.dom.spinner.setDisabled();
+        }
+        else {
+          setTimeout( function(){
+            parms.dom.spinner.setDisabled();
+          }, 1);
+        }
+      }
+      // Note: designItem.setIcon is what renders the icons in Designer for some reason.
     },
     
     "visibility": function(parms) {
@@ -283,7 +297,7 @@ pui.widgets.add({
         if (parms.dom.spinner) parms.dom.spinner.setArrowClassNames(className);
         else setTimeout(function(){
           parms.dom.spinner.setArrowClassNames(className);
-        }, 1)
+        }, 1);
       } else {
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
