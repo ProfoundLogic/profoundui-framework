@@ -181,13 +181,17 @@ pui.layout.Layout.prototype.updatePropertyInDesigner = function(propertyName, va
  */
 pui.layout.Layout.prototype.stretch = function() {
   var dims = [];
+  
+  // Reset the sizes of each container so that no content inside them gets included in the browser's calculation of offsetWidth and 
+  // offsetHeight. Sometimes the content size may depend on the parent; so, if we did not reset these sizes, then there
+  // would be a catch-22 of dimension calculations. #7124. Use 0px and do not set the display to none to avoid mobile keyboard issues. #2512
   for (var i = 0; i < this.stretchList.length; i++) {
     var container = this.stretchList[i];
-    container.style.width = "";
-    container.style.height = "";
-    //For Android, don't hide the container while it is resizing. Issue 2512.
-    if(!pui["is_android"]) container.style.display = "none";
+    container.style.width = "0px";
+    container.style.height = "0px";
   }
+  
+  // While content is hidden, get the sizes of each container's parent.
   for (var i = 0; i < this.stretchList.length; i++) {
     var container = this.stretchList[i];
     var parent = container.parentNode;
@@ -196,6 +200,8 @@ pui.layout.Layout.prototype.stretch = function() {
       height: parent.offsetHeight
     });
   }
+  
+  // Fit each container to the previously-calculated size of its parent.
   for (var i = 0; i < this.stretchList.length; i++) {
     var container = this.stretchList[i];
     var dim = dims[i];
@@ -208,8 +214,8 @@ pui.layout.Layout.prototype.stretch = function() {
     if (dim.height < 0) dim.height = 0;
     container.style.width = dim.width + "px";
     container.style.height = dim.height + "px";
-    container.style.display = "";
   }
+  
   this.sizeContainers();
   this.center();
   
