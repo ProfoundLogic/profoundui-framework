@@ -27,7 +27,7 @@
  */
 pui.BaseGrid = function(){
   this.dataArray = [];              //A collection of objects containing data for each subfile record.
-  this.filteredDataArray = [];      //A subset of the records in this.dataArray.
+  this.visibleDataArray = [];      //A subset of the records in this.dataArray.
   this.fieldNames = [];
   
   this.expandToLayout = false;
@@ -967,7 +967,7 @@ pui.Grid = function () {
     
     // build csv or XLSX data    
     var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (me.isFiltered()) dataRecords = me.visibleDataArray;
     for (var i = 0, n=dataRecords.length; i < n; i++) {
       var line = "";
       var record = dataRecords[i];
@@ -1538,7 +1538,7 @@ pui.Grid = function () {
   function getDataArrayForRow(row, useFilter) {
 
     var dataRecords = me.dataArray;
-    if (useFilter && me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (useFilter && me.isFiltered()) dataRecords = me.visibleDataArray;
     var record = dataRecords[row - 1];
 
     // if data array has been sorted, we need to get the record
@@ -1571,7 +1571,7 @@ pui.Grid = function () {
   this.getDataValue = function (row, fieldName) {
     if (typeof row != "number") return null;
     if (typeof fieldName != "string") return null;
-    var record = getDataArrayForRow(row, true);
+    var record = getDataArrayForRow(row, false);
     if (record == null) return null;
     fieldName = pui.fieldUpper(fieldName);
     if (fieldName.length > 10 && !(pui["pjsDefaultMode"] === "case-sensitive" || pui.handler != null)) fieldName = pui.longFieldNameTable[fieldName];
@@ -1608,7 +1608,7 @@ pui.Grid = function () {
 
     var useFilter = (filtered != null && !filtered) ? false : true;
     var dataRecords = me.dataArray;
-    if (useFilter && me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (useFilter && me.isFiltered()) dataRecords = me.visibleDataArray;
     var result = [];
 
     for (var y = 0; y < dataRecords.length; y++) {
@@ -1630,7 +1630,7 @@ pui.Grid = function () {
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
     if (fieldName.length > 10 && !(pui["pjsDefaultMode"] === "case-sensitive" || pui.handler != null)) fieldName = pui.longFieldNameTable[fieldName];
-    var record = getDataArrayForRow(rowNum, true);
+    var record = getDataArrayForRow(rowNum, false);
     if (record != null) {
       var idx = getColumnIndex(fieldName);
       if (idx != null) {
@@ -1785,7 +1785,7 @@ pui.Grid = function () {
       return (me.totalRecs <= lastRow);
     } else {
       var dataRecords = me.dataArray;
-      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (me.isFiltered()) dataRecords = me.visibleDataArray;
       return (dataRecords.length <= lastRow);
     }
   };
@@ -1818,7 +1818,7 @@ pui.Grid = function () {
       }
     } else {
       var dataRecords = me.dataArray;
-      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (me.isFiltered()) dataRecords = me.visibleDataArray;
       if (dataRecords.length < lastRow && me.scrollbarObj != null) {
         me.recNum = me.recNum - lastRow + dataRecords.length;
         if (me.recNum < 1) me.recNum = 1;
@@ -2132,7 +2132,7 @@ pui.Grid = function () {
     }
     else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
-      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (me.isFiltered()) dataRecords = me.visibleDataArray;
       me.tableDiv.cursorRRN = 0;
       var rrn = me.recNum;
       if (dataRecords[me.recNum - 1] && dataRecords[me.recNum - 1].subfileRow != null) {
@@ -2191,38 +2191,31 @@ pui.Grid = function () {
         if (fieldData.empty != true) {
           var subfileRow = dataRecords[i - 1].subfileRow;
           if (subfileRow == null) subfileRow = i;
-         
-          if (checkRowHidden(valuesData)) { 
-            lastRow++;
-            me.rowsHidden++;  //Be sure to count rows hidden with a bound "row is hidden field". #6655.
-          }
-          else {
-            if (setRowBg) me.setRowBackground(rowNum, false, i - 1 );  //Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
+          if (setRowBg) me.setRowBackground(rowNum, false, i - 1 );  //Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
 
-            if (treeLevelItem !== null) 
-              handleTreeLevelItemPerRow(treeLevelItem);
-           
-            if (me.firstDisplayedRRN == 0)
-              me.firstDisplayedRRN = subfileRow;
-            me.lastDisplayedRRN = subfileRow;
+          if (treeLevelItem !== null) 
+            handleTreeLevelItemPerRow(treeLevelItem);
+          
+          if (me.firstDisplayedRRN == 0)
+            me.firstDisplayedRRN = subfileRow;
+          me.lastDisplayedRRN = subfileRow;
 
-            pui.renderFormat({
-              designMode: false,
-              name: pui.formatUpper(me.recordFormatName),
-              metaData: {
-                items: me.runtimeChildren
-              },
-              data: fieldData,
-              gridRecord: gridRecord,
-              ref: me.ref,
-              errors: me.errors,
-              rowNum: rowNum,
-              subfileRow: subfileRow,
-              dataArrayIndex: i - 1,
-              highlighting: me.highlighting,
-              treeLevelItem: treeLevelItem
-            });
-          }
+          pui.renderFormat({
+            designMode: false,
+            name: pui.formatUpper(me.recordFormatName),
+            metaData: {
+              items: me.runtimeChildren
+            },
+            data: fieldData,
+            gridRecord: gridRecord,
+            ref: me.ref,
+            errors: me.errors,
+            rowNum: rowNum,
+            subfileRow: subfileRow,
+            dataArrayIndex: i - 1,
+            highlighting: me.highlighting,
+            treeLevelItem: treeLevelItem
+          });
           
           if (me.selectionEnabled && me.selectionField != null) {
             var qualField = pui.formatUpper(me.recordFormatName) + "." + pui.fieldUpper(me.selectionField.fieldName) + "." + subfileRow;
@@ -2259,9 +2252,7 @@ pui.Grid = function () {
           me.setRowBackground(rowNum);
         }
         
-        if (fieldData.empty || !valuesData.hideRow) {
-          rowNum++;
-        }
+        rowNum++;
       }
 
       if (me.hasTreeLevelColumn && me.treeLevelField !== null && me.lastSelectedRRN !== null) {
@@ -2302,7 +2293,7 @@ pui.Grid = function () {
       if (totalRecs != null) me.totalRecs = totalRecs;
 
       me.fieldNames = [];
-      me.filteredDataArray = [];
+      me.visibleDataArray = [];
       //Clears DOM elements
       me["clear"](false);
       me.sorted = false;
@@ -2317,13 +2308,13 @@ pui.Grid = function () {
         }
         for(var i = 0; i < data.length; i++){
           me.dataArray[i] = [];
-          me.filteredDataArray[i] = [];
+          me.visibleDataArray[i] = [];
           var record = data[i];
           var fieldNumber = 0;
           for(var fieldName in record){
             var fieldValue = record[fieldName];
             me.dataArray[i][fieldNumber] = fieldValue;
-            me.filteredDataArray[i][fieldNumber] = fieldValue;
+            me.visibleDataArray[i][fieldNumber] = fieldValue;
             fieldNumber ++;
           }
         }
@@ -3715,7 +3706,7 @@ pui.Grid = function () {
       }
       
       me.dataArray.sort(doSort);
-      if (me.isFiltered()) me.filteredDataArray.sort(doSort);
+      if (me.isFiltered()) me.visibleDataArray.sort(doSort);
 
       updateResponseElementsDataArrayIndex();
 
@@ -3824,7 +3815,7 @@ pui.Grid = function () {
     }
     else {
       me.dataArray.sort(doInternalSort);
-      if (me.isFiltered()) me.filteredDataArray.sort(doInternalSort);
+      if (me.isFiltered()) me.visibleDataArray.sort(doInternalSort);
       updateResponseElementsDataArrayIndex();
     }
     
@@ -4156,7 +4147,7 @@ pui.Grid = function () {
     var idx = -1;
     if (rowNum != null){
       idx = me._getDataIndexFromDOMRow(rowNum - (me.hasHeader ? 0 : 1 ));  //Get the index of dataArray for the row. Handles hidden rows.
-      dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+      dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
     }
     
     if (pui.isRoutine(eventCode)) {
@@ -5601,7 +5592,7 @@ pui.Grid = function () {
   this.setCursorRRN = function (row) {
     var idx = me._getDataIndexFromDOMRow(row);
     if (idx >= 0){
-      var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+      var dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
       if (dataRecords[idx] == null || dataRecords[idx].length == 0) {
         me.tableDiv.cursorRRN = 0;
       }
@@ -5647,6 +5638,7 @@ pui.Grid = function () {
   function checkRowHidden(record) {
 
     var hidden = false;
+    var dirty = false;
 
     if (record.hideRow == null) {
       if (me.hiddenField != null) {
@@ -5662,23 +5654,63 @@ pui.Grid = function () {
         }
         if (me.hiddenFieldIndex != null) {
           //check if hiddenField value is 1
-          if (record[me.hiddenFieldIndex] == "1") {
+          if (record[me.hiddenFieldIndex] == "1" && !record.hideRow) {
             record.hideRow = true;
+            dirty = true;
           }
         }
       }
     }
+
+    // if this routine ended up marking a row hidden (due to a bound field)
+    // update the visibleDataArray accordingly.
+
+    if (dirty) {
+      me.rowsHidden = 0;
+      me.visibleDataArray = [];
+      for (var i = 0; i < me.dataArray.length; i++) {
+        var record = me.dataArray[i];
+        if (record.subfileRow == null) record.subfileRow = i + 1;
+        me.setFilteredOut(record);
+        if (!record.filteredOut && !record.hideRow) {
+          me.visibleDataArray.push(record);
+        }
+        if (record.hideRow) {
+          me.rowsHidden++;
+        }
+      }
+      dirty = false;
+    }
+
     if (record.hideRow == true) {
       hidden = true;
     }
+
     return hidden;
   }
 
   this.setupHiddenRows = function() {
+
     for(var i = 0; i < me.dataArray.length; i++){
       var record = me.dataArray[i];
       checkRowHidden(record);
     }
+
+    // rebuild me.visibleDataArray without any hidden rows
+    me.visibleDataArray = [];
+    me.rowsHidden = 0;
+    for (var i = 0; i < me.dataArray.length; i++) {
+      var record = me.dataArray[i];
+      if (record.subfileRow == null) record.subfileRow = i + 1;
+      me.setFilteredOut(record);
+      if (!record.filteredOut && !record.hideRow) {
+        me.visibleDataArray.push(record);
+      }
+      if (record.hideRow) {
+        me.rowsHidden++;
+      }
+    }
+
   };
 
   function checkSelected(record) {
@@ -5720,7 +5752,7 @@ pui.Grid = function () {
 
     var selRows = [];
     var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (me.isFiltered()) dataRecords = me.visibleDataArray;
     var start = 0;
 
     for (var row = start; row < dataRecords.length; row++) {
@@ -5760,7 +5792,7 @@ pui.Grid = function () {
         adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);  
       }
       
-      dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+      dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
       if (dataRecords[adjustedRow - 1] == null || typeof dataRecords[adjustedRow - 1].length != 'number' || dataRecords[adjustedRow - 1].length <= 0) {
         adjustedRow = -1;
       }
@@ -6857,7 +6889,7 @@ pui.Grid = function () {
             adjustedRow += (me.recNum - 1);
             var rowNumber = adjustedRow;
             var dataRecords = me.dataArray;
-            if (me.isFiltered()) dataRecords = me.filteredDataArray;
+            if (me.isFiltered()) dataRecords = me.visibleDataArray;
             if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].subfileRow != null) {
               adjustedRow = dataRecords[adjustedRow - 1].subfileRow;
             }
@@ -6940,7 +6972,7 @@ pui.Grid = function () {
                 // -or-
                 //  It's a right click and they aren't on a selected row.
                 var isRowSelected = (clickedRow <= me.dataArray.length) && me.dataArray[clickedRow - 1].selected;
-                if (me.isFiltered()) isRowSelected = (clickedRow <= me.dataArray.length) && me.filteredDataArray[clickedRow - 1].selected;
+                if (me.isFiltered()) isRowSelected = (clickedRow <= me.visibleDataArray.length) && me.visibleDataArray[clickedRow - 1].selected;
 
                 // When right-clicking a row that isn't selected, deselect other rows.
                 // When left-click + ctrl/meta key was used, deselect the clicked row.
@@ -6962,7 +6994,7 @@ pui.Grid = function () {
               }
             } //done deselecting others.
 
-            var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
+            var dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
             var adjustedRow = row + me.recNum - 1 + (me.hasHeader ? 0 : 1);
 
             // Compensate for any rows in the visible grid that were hidden, up to the row of the clicked cell.
@@ -7157,7 +7189,7 @@ pui.Grid = function () {
   
   /**
    * Select or deselect a record. If selection field enabled, set it up for the record, if necessary.
-   * @param {Object} record   One record from me.dataArray or filteredDataArray.
+   * @param {Object} record   One record from me.dataArray or visibleDataArray.
    * @param {Boolean} select  When true, selects record; when false, deselects record.
    * @param {Number} index  Used when grid not sorted; should be RRN - 1 or index in me.dataArray.
    * @param {Boolean|Undefined} leaveNullSel  When true: if record.selection is null, leave it null.
@@ -8344,22 +8376,29 @@ pui.Grid = function () {
 
   this.handleHideRow = function(rrn, status, callGetData) {
     
-    var dataRecords = me.isFiltered() ? me.filteredDataArray : me.dataArray;
-    var row = me.getRowInDataArray(dataRecords, rrn);
+    var row = me.getRowInDataArray(me.dataArray, rrn);
     if(row == null) return;
-    var record = dataRecords[row - 1];
+    var record = me.dataArray[row - 1];
     if (record == null) return;
-    // Track how many rows are hidden so other functions know how to 
-    if (status === true && record.hideRow !== true){
-      me.rowsHidden++;
-      if (me.rowsHidden > me.dataArray.length) me.rowsHidden = me.dataArray.length;
-    }
-    else if (status === false && record.hideRow === true){
-      me.rowsHidden--;
-      if (me.rowsHidden < 0) me.rowsHidden = 0;
-    }
-    record.hideRow = status;
+    //if (record.hideRow != null && record.hideRow === status) return;
     
+    record.hideRow = status;
+
+    // rebuild me.visibleDataArray without any hidden rows
+    me.rowsHidden = 0;
+    me.visibleDataArray = [];
+    for (var i = 0; i < me.dataArray.length; i++) {
+      var record = me.dataArray[i];
+      if (record.subfileRow == null) record.subfileRow = i + 1;
+      me.setFilteredOut(record);
+      if (!record.filteredOut && !record.hideRow) {
+        me.visibleDataArray.push(record);
+      }
+      if (record.hideRow) {
+        me.rowsHidden++;
+      }
+    }
+  
     if (!me.sorted) {
       // When the grid is not sorted there is no mapping from DOM row to dataArray index, so set the mapping; some operations require it. #6391.
       for (var i = 0; i < me.dataArray.length; i++) {
@@ -8367,8 +8406,8 @@ pui.Grid = function () {
       }
     }
     
-    if (callGetData)
-      me.getData();
+    if (callGetData) me.getData();
+
     pui.modified = true;
     if (me.hiddenField != null) {
       if (record.hiddenFieldInfo == null) {
@@ -8387,10 +8426,13 @@ pui.Grid = function () {
       record.hiddenFieldInfo.value = (status) ? "1" : "0";
       if (record.hiddenFieldInfo.responseValue) record.hiddenFieldInfo.responseValue = record.hiddenFieldInfo.value;
     }
+
   };
+
   this["hideRow"] = function(rrn) {
     me.handleHideRow(rrn, true, true);
   };
+
   this["showRow"] = function(rrn) {
     me.handleHideRow(rrn, false, true);
   };
@@ -8656,7 +8698,7 @@ pui.Grid = function () {
       var idxes = headerCell.searchIndexes;
       var done = false;
       var dataRecords = me.dataArray;
-      if (me.isFiltered()) dataRecords = me.filteredDataArray;
+      if (me.isFiltered()) dataRecords = me.visibleDataArray;
       for (var i = start; i < dataRecords.length; i++) {
         for (var j = 0; j < idxes.length; j++) {
           var idx = idxes[j];
@@ -8783,7 +8825,7 @@ pui.Grid = function () {
       // Do client-side filtering.
       var idxes = headerCell.searchIndexes;
       var col = headerCell.columnId;
-      me.filteredDataArray = [];
+      me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
         var record = me.dataArray[i];
         if (record.subfileRow == null) record.subfileRow = i + 1;
@@ -8825,8 +8867,8 @@ pui.Grid = function () {
           }
         }
         me.setFilteredOut(record);
-        if (!record.filteredOut) {
-          me.filteredDataArray.push(record);
+        if (!record.filteredOut && !record.hideRow) {
+          me.visibleDataArray.push(record);
         }
       }
     } //done client-side filtering.
@@ -9135,15 +9177,16 @@ pui.Grid = function () {
     else{
       // Remove client-side filtering.
       var col = headerCell.columnId;
-      me.filteredDataArray = [];
+      me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
         var record = me.dataArray[i];
+        if (record.subfileRow == null) record.subfileRow = i + 1;
         if (record.filteredOutArray != null) {
           record.filteredOutArray[col] = false;
         }
         me.setFilteredOut(record);
-        if (!record.filteredOut) {
-          me.filteredDataArray.push(record);
+        if (!record.filteredOut && !record.hideRow) {
+          me.visibleDataArray.push(record);
         }
       }
     }
@@ -9168,12 +9211,14 @@ pui.Grid = function () {
 
     if (me.usePagingFilter()) return submitPagingFilter("", ""); //Clears the field, submits screen.
     
+    me.visibleDataArray = [];
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
       record.filteredOutArray = null;
       record.filteredOut = false;
+      if (record.subfileRow == null) record.subfileRow = i + 1;
+      if (!record.hideRow) me.visibleDataArray.push(record);
     }
-    me.filteredDataArray = [];
     if (me.isDataGrid() && me.forceDataArray == false) {
       me.totalRecs = null; // make sure the CGI gives us count of results.
       me.recNum = 1; // Show record 1 on row 1.
@@ -9199,11 +9244,14 @@ pui.Grid = function () {
   };
 
   /**
-   * Returns true if client-side filtering is enabled. Usually used to decide to use me.filteredDataArray versus me.dataArray.
+   * Returns true if client-side filtering is enabled. Usually used to decide to use me.visibleDataArray versus me.dataArray.
+   * @param {Boolean} ignoreHiddenRows  if false or not passed and there are hidden rows, it is considered "filtered", 
+   *                                    if true only if rows were filteredOut via setFilter() will this return true.
    * @returns {Boolean}
    */
-  this.isFiltered = function () {
-    if (me.filterResponse != null) return false; //With server-side filtering for paging grids, me.dataArray should be used.
+  this.isFiltered = function (ignoreHiddenRows) {
+    if (me.filterResponse != null) return false; // With server-side filtering for paging grids, me.dataArray should be used.
+    if (!ignoreHiddenRows && me.rowsHidden > 0) return true; // Use me.visibleDataArray if some rows were hidden
     var headerRow = me.cells[0];
     if (headerRow == null) return false;
     for (var i = 0; i < headerRow.length; i++) {
@@ -9212,7 +9260,7 @@ pui.Grid = function () {
     }
     return false;
   };
-
+  
   this.setFilterIcon = function (headerCell) {
     if (headerCell.filterIcon == null) {
       headerCell.filterIcon = document.createElement("img");
@@ -9399,7 +9447,7 @@ pui.Grid = function () {
     // if data array has been sorted, we need to get the record
     // based on it's original subfile row rather than
     // it's position in the array.
-    if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered()) {
+    if (typeof me.sorted != "undefined" && me.sorted === true || me.isFiltered(true)) {
       found = false;
       for (var i = 0; i < dataRecords.length; i++) {
         if (dataRecords[i].subfileRow == idx) {
@@ -9415,7 +9463,7 @@ pui.Grid = function () {
 
   this["getRowNumber"] = function (rrn) {
     var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (me.isFiltered()) dataRecords = me.visibleDataArray;
     var idx = me.getRowInDataArray(dataRecords, rrn);
     if (idx == null) idx = rrn;
     if (idx < 1) idx = 1;
@@ -9426,7 +9474,7 @@ pui.Grid = function () {
   this["getRRN"] = function (rowNum) {
 	var row = rowNum;
     var dataRecords = me.dataArray;
-    if (me.isFiltered()) dataRecords = me.filteredDataArray;
+    if (me.isFiltered()) dataRecords = me.visibleDataArray;
 
     if (row < 1) row = 1;
     if (row > dataRecords.length) row = dataRecords.length;
@@ -10125,8 +10173,8 @@ pui.Grid = function () {
     else{
       //Get data and put into a map to get a list of easily navigatable unique values
       var dataRecords = me.dataArray;
-      if (me.isFiltered() && me.filteredDataArray != null && me.filteredDataArray.length > 0)
-        dataRecords = me.filteredDataArray;
+      if (me.isFiltered() && me.visibleDataArray != null && me.visibleDataArray.length > 0)
+        dataRecords = me.visibleDataArray;
       for (var i = 0; i < dataRecords.length; i++) {
         var record = dataRecords[i];
         if (record.subfileRow == null) record.subfileRow = i + 1;
@@ -10719,7 +10767,7 @@ pui.Grid.prototype._unhiddenRowIter = function(visCb, findRow, foundCb){
   }
   
   if (this.recNum > 0 && this.rowsHidden > 0){
-    var dataArray = this.isFiltered() ? this.filteredDataArray : this.dataArray;
+    var dataArray = this.isFiltered() ? this.visibleDataArray : this.dataArray;
     var dataArrayOffset = this.recNum - 1;
     var hiddenRows = 0, visibleRows = 0;
     var rowNum = rowHdrOffset;
@@ -10746,7 +10794,7 @@ pui.Grid.prototype._unhiddenRowIter = function(visCb, findRow, foundCb){
 };
 
 /**
- * Given a visible row number, return the index in this.dataArray or this.filteredDataArray whose record maps to the row.
+ * Given a visible row number, return the index in this.dataArray or this.visibleDataArray whose record maps to the row.
  * @param {Number} row  The row number. If there is no header, then 0 is the first row, 1 is the 2nd, etc. Else, 1 is the first data row, 2 is the 2nd, etc.
  * @returns {Number}    Returns -1 if this.recNum is not set; else, index of this.dataArray matching row.
  */
