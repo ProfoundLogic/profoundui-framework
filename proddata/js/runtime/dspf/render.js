@@ -2690,7 +2690,7 @@ pui.renderFormat = function(parms) {
         // Convert PHP-style grid data (array of name/value pairs) to normal grid format (2-dimensional array of data and an array of field names) 
         if (pui.handler != null && subfileData == null) {
           subfileData = data[pui.formatUpper(properties["record format name"])];
-		  if (!subfileData) subfileData = [];
+          if (!subfileData) subfileData = [];
             fieldNames = [];
             var dataArray = [];
             var fieldNamesObj = {};

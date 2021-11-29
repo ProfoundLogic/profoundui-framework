@@ -51,7 +51,7 @@ pui.attachDragDrop = function(dom, properties) {
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
         var dataRecords = dom.grid.dataArray;
-        if (dom.grid.isFiltered()) dataRecords = dom.grid.filteredDataArray;
+        if (dom.grid.isFiltered()) dataRecords = dom.grid.visibleDataArray;
         var minLastRow = dataRecords.length - dom.grid.recNum + 1;
         if (lastRow > minLastRow) lastRow = minLastRow;
       }
@@ -94,7 +94,7 @@ pui.attachDragDrop = function(dom, properties) {
 
     if (isGrid) {
       var dataRecords = dom.grid.dataArray;
-      if (dom.grid.isFiltered()) dataRecords = dom.grid.filteredDataArray;
+      if (dom.grid.isFiltered()) dataRecords = dom.grid.visibleDataArray;
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
         var minLastRow = dataRecords.length - dom.grid.recNum + 1;
@@ -145,7 +145,7 @@ pui.attachDragDrop = function(dom, properties) {
             var lastLine = lines.length - 1;
             if (!dropTarget.grid.isDataGrid()) {
               dataRecords = dropTarget.grid.dataArray;
-              if (dropTarget.grid.isFiltered()) dataRecords = dropTarget.grid.filteredDataArray;
+              if (dropTarget.grid.isFiltered()) dataRecords = dropTarget.grid.visibleDataArray;
               var minLastLine = dataRecords.length - dropTarget.grid.recNum + 2;
               if (lastLine > minLastLine) lastLine = minLastLine;
               // Note: if grid is DB-driven then there's no current way to get RRN, so row index becomes target record number.
@@ -560,7 +560,7 @@ pui.attachDragDrop = function(dom, properties) {
       var dataRecordsPos = grid.recNum - 1 + row - headerAdjust;
       var recnum = dataRecordsPos > 0 ? dataRecordsPos : 0;    //In case dataRecordsPos is out of bounds use 0, the top of subfile.
 
-      var dataRecords = grid.isFiltered() ? grid.filteredDataArray : grid.dataArray;
+      var dataRecords = grid.isFiltered() ? grid.visibleDataArray : grid.dataArray;
       if (dataRecordsPos > 0 && dataRecords.length > 0 && dataRecords[0] && dataRecords[0].subfileRow != null){
         // The grid is filtered/sorted: target record number should use subfile record number instead of the visible row index. #5999
         if (dataRecordsPos < dataRecords.length ){
