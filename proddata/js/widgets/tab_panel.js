@@ -40,9 +40,9 @@ pui.widgets.tabStyles = {
     height: 21,
     leftWidth: 3,
     rightWidth: 3,
-    defaultBackColor: "#deecfd",
+    defaultBackColor: "#deecfd", 
     hiColor: "#15428b",
-    selColor: "#15428b",
+    selColor: "#15428b", 
     borderColor: "#8db2e3",
     leftMargin: 3
   },
@@ -431,7 +431,7 @@ function TabPanel() {
         leftSpan.style.backgroundRepeat = "no-repeat";
         leftSpan.style.height = (settings.height + 2) + "px";
         leftSpan.style.width = settings.leftWidth + "px";
-        leftSpan.style.cssFloat = "left";    // Forefox
+        leftSpan.style.cssFloat = "left";    // Firefox
         leftSpan.style.styleFloat = "left";  // IE
         leftSpan.style.display = "inline-block";
       }
@@ -472,8 +472,16 @@ function TabPanel() {
         else {
           if (settings.separated != true) {
             leftSpan.style.backgroundColor = me.backColor;            
-            rightSpan.style.backgroundColor = me.backColor;  
-            tabSpan.style.backgroundColor = me.backColor;  
+            rightSpan.style.backgroundColor = me.backColor; 
+            tabSpan.style.backgroundColor = me.backColor;
+            
+            //Some tab styles have noticeable corners caused by a background color being set - 5974
+            if((this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic") && i == me.selectedTab){
+              leftSpan.style.backgroundSize = "cover";
+              rightSpan.style.backgroundSize = "cover";
+              leftSpan.style.backgroundColor = "";            
+              rightSpan.style.backgroundColor = ""; 
+            }  
           }
           tabSpan.style.cursor = "default";      
           if (settings.selColor != null) tabSpan.style.color = settings.selColor;
@@ -1074,7 +1082,17 @@ function TabPanel() {
       if (settings.separated != true) {
         leftSpan.style.backgroundColor = me.backColor;            
         rightSpan.style.backgroundColor = me.backColor;  
-        tabSpan.style.backgroundColor = me.backColor;  
+        tabSpan.style.backgroundColor = me.backColor;
+
+        //5974 - Remove visible corners
+        if(this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic"){
+          leftSpan.style.backgroundSize = "cover";
+          rightSpan.style.backgroundSize = "cover";
+          leftSpan.style.backgroundColor = "";            
+          rightSpan.style.backgroundColor = ""; 
+          leftSpan.style.height = settings.height + "px";
+          rightSpan.style.height = settings.height + "px";
+        }   
       }
       if (settings.selColor != null) tabSpan.style.color = settings.selColor;
       if (settings.selBold == true) tabSpan.style.fontWeight = "bold";
