@@ -29,7 +29,7 @@ pui.ResponsiveLayout = function(parms, dom){
   pui.layout.Template.call(this, parms, dom);  //super(). sets up container, forProxy, designMode, etc.
   
   // Public
-  this.previewMode = (parms && parms.previewMode);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
+  this.previewMode = (parms && typeof parms.previewMode === "boolean" && parms.previewMode === true);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
   
   // Pseudo-private properties, inheritable.
   this._numchildren = 0;
@@ -210,7 +210,7 @@ pui.ResponsiveLayout.prototype.setContainerNames = function(nameList) {
     }
   }
 
-  if((this.previewMode || this.designMode) && this._mainnode != null){    // If setNumItems has already run, then modify existing names.
+  if (this._mainnode != null) {    // If setNumItems has already run, then modify existing names.
     for (var i = 0; i < this._mainnode.childNodes.length; i++) {
       var div = this._mainnode.childNodes[i];
       if (div.tagName === 'DIV'){
