@@ -1438,6 +1438,13 @@ pui.renderFormat = function(parms) {
         if (prop == "domEls") continue;
 
         var propValue = items[i][prop];
+        if (prop == "value") {
+          propValue = {};
+          for (var cProp in items[i][prop]) {
+            if (cProp !== "revert")
+            propValue[cProp] = items[i][prop][cProp];
+          }
+        }
         var newValue;
 
         if (pui.wf.tracker && pui.isRoutine(propValue)) {
