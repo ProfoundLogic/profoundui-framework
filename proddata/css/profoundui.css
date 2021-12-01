@@ -5409,15 +5409,7 @@ div.Glass>.pui-tablayout-body>div {
   position: absolute;
   top: 0px;
   left: 0px;
-}
-
-.combo-spacer {
-  height: 0px;
-  font-size: 0px;
-  padding: 0px;
-  margin: 0px;
-  border: 0px none;
-  cursor: default;
+  box-sizing: border-box;
 }
 
 .combo-option {
@@ -5442,7 +5434,11 @@ div.Glass>.pui-tablayout-body>div {
   z-index: 130;
   height: 110px;
   font-size: 12px;
+  box-sizing: border-box;
 }
+
+/* Avoid scrollbars in Firefox overlaying option text. */
+.combo-options.padr .combo-option { padding-right: 20px; }
 
 /* Spinner Classes */
 .pui-spinner-up-arrow-input, .pui-spinner-down-arrow-input {

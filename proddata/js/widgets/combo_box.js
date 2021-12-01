@@ -33,333 +33,319 @@ pui.ComboBoxWidget = function() {
   this["choice values"]= [];  
   this["select box placement"] = "";
   
-  var me = this;
-  var box;
-  this._box = null;
-
-  this._arrow = null;
-  var choicesDiv;
-  this._choicesDiv = null;
-  
-  var spacerDiv = null;
-  
-  this.init = function() {
-    if (me.div == null) {
-      me.div = document.createElement("div");
-      if (me.container != null) me.container.appendChild(me.div);
-      me.div.style.position = "absolute";
-      me.div.style.top = "100px";
-      me.div.style.left = "100px";
- 
-    }
-  
-    //When adding a combo box in design mode, a dotted border is hardcoded in Designer.js
-    // as an inline style. Clearing the border allows css classes to be used
-    if(me.design) me.div.style.border = "";
-    if (me.div.style.width == null) me.div.style.width = "80px";
-    if (context == "genie" && (me.div.style.height == null || me.div.style.height == "")) 
-      me.div.style.height = "20px";
-    if (pui["is_quirksmode"]) {
-      if (pui["is_old_ie"]) me.div.style.height = "22px";
-      else me.div.style.height = "19px";
-    }
-    
-    if (me._box == null) {
-      me._box = document.createElement("input");
-      me.div.appendChild(me._box);
-      box = me._box;
-    }
-
-    box.type = "text";
-    // Default off if not set by 'html auto complete' property.
-    if (box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
-      box.setAttribute("autocomplete", "off");
-      if (context == "dspf")
-        box.setAttribute("name", pui.randomTextBoxName());
-    }
-    
-    box.style.fontFamily = me.div.style.fontFamily;  
-    if (typeof me.div.name == "string")
-      box.name = me.div.name;
-    if (me.design) {
-      box.style.cursor = "default";
-      box.readOnly = true;
-    }
-
-    addEvent(box, "keyup", function(event) {
-      event = event || window.event;
-      var keyCode = event.keyCode;
-      
-      if (choicesDiv.style.display === "none" || box.readOnly || box.disabled) {
-        return;
-      }
-
-      // Check for printable character being typed
-      if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222) || keyCode === 32) {
-        filterChoices(box.value);
-      }
-
-    });
-        
-    if (me._arrow == null) {
-      me._arrow = document.createElement("div");
-      me.div.appendChild(me._arrow);
-      
-      me._arrow.addEventListener('mousedown', me);
-      me._arrow.addEventListener('mouseup', me);
-    }
-    me._arrow.className = "combo-arrow";
-    me._arrow.combo = true;
-    
-    var win;
-    var prt = me.div.parentNode;
-    while (prt) {
-    
-      if (prt.isPUIWindow) {
-      
-        win = prt;
-        break;
-      
-      }
-    
-      prt = prt.parentNode;
-    
-    }
-
-    if (me._choicesDiv == null) {
-      me._choicesDiv = document.createElement("div");
-      choicesDiv = me._choicesDiv;    //todo: move "choicesDiv" references from closure into this._choicesDiv and test.
-      choicesDiv.className = "combo-options";
-      if (context == "dspf" && inDesignMode()) {
-        toolbar.designer.container.appendChild(choicesDiv);
-      }
-      else {
-        if (win) {
-          win.appendChild(choicesDiv);
-        }
-        else {
-          pui.runtimeContainer.appendChild(choicesDiv);
-        } 
-      }
-    }
-    choicesDiv.style.display = "none";
-    choicesDiv.className = "combo-options";
-    me.setClass(me.div.className.split(" ")[1]);
-    
-    pui.widgetsToCleanup.push(me);  //Causes destroy to be called when record format or screen changes; ensure listeners are removed. #7139.
-  };
-
-  this.draw = function() {
-    var boxWidth = 0;  
-    var comWidth = me.div.style.width;	//get the width of the combo box
-    var newWidth = me.div.offsetWidth; //get the width in pixels
-    var arrowWidth = me._arrow.offsetWidth + 3;
-    
-    if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
-      boxWidth = (1 - (arrowWidth / newWidth)) * 100; //find the percent width for input box
-      if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
-      box.style.width = boxWidth + "%";  //the new width + the % sign
-      box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
-    }
-    else{    //if the width of the combo box does not end in a % sign
-      boxWidth = parseInt(comWidth) - arrowWidth ;  //get the number of the width - width of arrow div (arrowWidth)
-      if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
-      box.style.width = boxWidth + "px";  //the new width + "px" 
-    }
-  };
-  
-  this.setValue = function(value) {
-    box.value = value;    
-    pui.checkEmptyText(box);
-  };
-
-  this.getValue = function() {
-    return box.value;
-  };
-  
-  this.setReadOnly = function(isReadOnly) {
-    box.readOnly = isReadOnly;
-  };
-
-  this.setDisabled = function(isDisabled) {
-    box.disabled = isDisabled;
-  };
-
-  this.setMaxLength = function(maxLength) {
-    box.maxLength = maxLength;
-  };
-  
-  this.setBoxAttribute = function(attr, value) {
-    box.setAttribute(attr, value);
-  };
-  
-  this.setClass = function(className) {
-    box.className = "combo-main-box " + className.split(" ")[0];
-    pui.addCssClass(choicesDiv, box.className.split(" ")[1] + "-combo-options");
-    pui.addCssClass(me._arrow, box.className.split(" ")[1] + "-combo-arrow");
-    if(spacerDiv != null) {
-      pui.addCssClass(spacerDiv, box.className.split(" ")[1] + "-combo-spacer");
-    }
-  };
-  
-  this.assignJSEvent = function(jsEventName, func) {
-    // re-assign event to the box and remove it from the main div element of the combo box
-    box[jsEventName] = func;
-    if (me.div[jsEventName] != null) {
-      me.div[jsEventName] = function() {};
-    }
-  };
-
-  this.clear = function() {
-    me["choices"] = [];
-    me["choice values"] = [];
-    box.value = "";
-    pui.checkEmptyText(box);
-  };
-  
-  this.getBox = function() {
-    return me._box;
-  };
-  
-  this.setFocus = function() {  
-    me._box.focus();
-  };
-
-  function setChoicesPos() {
-  
-    var top = me.div.offsetTop;
-    var left = me.div.offsetLeft;
-    
-    var prt = me.div.parentNode;
-    if (prt.parentNode.grid) {
-    
-      // Add cell offset. 
-      top += prt.offsetTop;
-      left += prt.offsetLeft;
-    
-      // Add grid offset.
-      prt = prt.parentNode;
-      top += prt.offsetTop;
-      left += prt.offsetLeft;
-      
-      prt = prt.parentNode;
-    
-    }
-    
-    // Add any container offset.
-    if (prt.getAttribute("container") == "true") {
-    
-      var offset = pui.layout.getContainerOffset(prt);
-      top += offset.y;
-      left += offset.x;
-    
-    }
-    
-    // Add Genie window offset, if any. 
-    if (context == "genie") {
-    
-      if (me.div.parentNode["layerInfo"]) {
-      
-        top += me.div.parentNode.offsetTop + me.div.parentNode.clientTop;
-        left += me.div.parentNode.offsetLeft + me.div.parentNode.clientLeft;
-      
-      }
-    
-    }
-    
-    // Shift down by height of widget div. 
-    top += me.div.offsetHeight;
-    
-    choicesDiv.style.top = top + "px";
-    choicesDiv.style.left = left + "px";
-  
-  }
-
-  this['showChoices'] = function() {
-    //Change arrow when opened
-    if(this._arrow.className.split(" ")[0] != "open"){
-      this._arrow.className = "open combo-arrow " + this._box.className.split(" ")[1] + "-combo-arrow";
-    }
-
-    if (typeof(me.div["onoptiondisplay"]) == "function") {
-      me.div["onoptiondisplay"]();
-    }
-    
-    choicesDiv.innerHTML = "";
-    choicesDiv.style.display = "";
-    if (me["choices"].length > 5 || me["choices"].length == 0) {
-      choicesDiv.style.height = "";
-    }
-    else {
-      choicesDiv.style.height = "auto";
-    }
-    
-    setChoicesPos();
-    var minWidth = parseInt(me.div.style.width);
-    if (pui["is_old_ie"] && me["choices"].length > 5) minWidth = minWidth - 22;
-    if (minWidth < 20) minWidth = 20;
-
-    spacerDiv = document.createElement("div");
-    spacerDiv.className = "combo-spacer";
-    spacerDiv.style.width = minWidth + "px";
-    choicesDiv.appendChild(spacerDiv);
-
-    for (var i = 0; i < me["choices"].length; i++) {
-      var optDiv = document.createElement("div");
-      optDiv.innerHTML = me["choices"][i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-      optDiv.choiceValue = me["choice values"][i];
-      if (optDiv.choiceValue == null) optDiv.choiceValue =  me["choices"][i];
-      optDiv.choiceText =  me["choices"][i];
-      optDiv.className = "combo-option";
-      optDiv.addEventListener('click', me);
-      optDiv.addEventListener('mousedown', me);
-      optDiv.addEventListener('mouseover', me);
-      optDiv.addEventListener('mouseout', me);
-      choicesDiv.appendChild(optDiv);
-    }
-    var top = parseInt(choicesDiv.style.top, 10);
-
-    if (me["select box placement"] === "above") {
-      choicesDiv.style.top = top - me.div.offsetHeight - choicesDiv.offsetHeight + "px";
-    } else if (me["select box placement"] !== "below") {
-      var scrollTop = pui.getWindowScrollTop();
-      if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
-        var newTop = top - choicesDiv.offsetHeight - box.offsetHeight - 3;
-        if (newTop - scrollTop >= 0) top = newTop;
-      }
-      choicesDiv.style.top = top + "px";    
-    }
-    
-    // When the choices are visible, then add document listeners to hide them on scroll or click. 
-    // These are cleaned up in destroy and when the choices are hidden.
-    document.addEventListener('click', this);
-    document.addEventListener('scroll', this, true);  //Listen for all scroll events on the page when the choices are visible. #7139.
-  };
-  
-  function filterChoices(search) {
-    search = search.toLowerCase();
-    var optDivs = choicesDiv.getElementsByClassName("combo-option");
-    for (var i = 0; i < optDivs.length; i++) {
-      var optDiv = optDivs[i];
-      if (!search) {
-        optDiv.style.display = "";
-        continue;
-      }      
-      var text = getInnerText(optDiv).trim().toLowerCase();
-      if (text.indexOf(search) >= 0) {
-        optDiv.style.display = "";
-      }
-      else {
-        optDiv.style.display = "none";
-      }
-    }
-  }
-  
+  this.box = null;         //the input box.
+  this._arrow = null;       //the down/up arrow.
+  this._choicesDiv = null;  //the container for the choices.
 };
 pui.ComboBoxWidget.prototype = Object.create(pui.BaseClass.prototype);
 
 /**
+ * Initialize the ComboBox elements. Called once when the "field type" property is set.
+ */
+pui.ComboBoxWidget.prototype.init = function() {
+  
+  if (this.div == null) {
+    this.div = document.createElement("div");
+    if (this.container != null) this.container.appendChild(this.div);
+    this.div.style.position = "absolute";
+    this.div.style.top = "100px";
+    this.div.style.left = "100px";
+
+  }
+
+  //When adding a combo box in design mode, a dotted border is hardcoded in Designer.js
+  // as an inline style. Clearing the border allows css classes to be used
+  if (this.design) this.div.style.border = "";
+  if (this.div.style.width == null) this.div.style.width = "80px";
+  if (context == "genie" && (this.div.style.height == null || this.div.style.height == "")) 
+    this.div.style.height = "20px";
+
+  if (this.box == null) {
+    this.box = document.createElement("input");
+    this.div.appendChild(this.box);
+  }
+
+  this.box.type = "text";
+  // Default off if not set by 'html auto complete' property.
+  if (this.box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
+    this.box.setAttribute("autocomplete", "off");
+    if (context == "dspf")
+      this.box.setAttribute("name", pui.randomTextBoxName());
+  }
+
+  this.box.style.fontFamily = this.div.style.fontFamily;
+  if (typeof this.div.name == "string")
+    this.box.name = this.div.name;
+  if (this.design) {
+    this.box.style.cursor = "default";
+    this.box.readOnly = true;
+  }
+
+  this.box.addEventListener("keyup", this);
+
+  if (this._arrow == null) {
+    this._arrow = document.createElement("div");
+    this.div.appendChild(this._arrow);
+
+    this._arrow.addEventListener('mousedown', this);
+    this._arrow.addEventListener('mouseup', this);
+  }
+  this._arrow.className = "combo-arrow";
+  this._arrow.combo = true;
+
+  var win;
+  var prt = this.div.parentNode;
+  while (prt) {
+
+    if (prt.isPUIWindow) {
+
+      win = prt;
+      break;
+
+    }
+
+    prt = prt.parentNode;
+
+  }
+
+  if (this._choicesDiv == null) {
+    this._choicesDiv = document.createElement("div");
+    this._choicesDiv.className = "combo-options";
+    if (context == "dspf" && inDesignMode()) {
+      toolbar.designer.container.appendChild(this._choicesDiv);
+    }
+    else {
+      if (win) {
+        win.appendChild(this._choicesDiv);
+      }
+      else {
+        pui.runtimeContainer.appendChild(this._choicesDiv);
+      } 
+    }
+  }
+  this._choicesDiv.style.display = "none";
+  this._choicesDiv.className = "combo-options";
+  this.setClass(this.div.className.split(" ")[1]);
+
+  pui.widgetsToCleanup.push(this);  //Causes destroy to be called when record format or screen changes; ensure listeners are removed. #7139.
+};
+
+/**
+ * Set the widths and z-index of the input box. Called in "field type" and "width" property setters; can be called in doDetectSubfilePatterns.
+ */
+pui.ComboBoxWidget.prototype.draw = function() {
+  var boxWidth = 0;  
+  var comWidth = this.div.style.width;	//get the width of the combo box
+  var newWidth = this.div.offsetWidth; //get the width in pixels
+  var arrowWidth = this._arrow.offsetWidth + 3;
+
+  if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
+    boxWidth = (1 - (arrowWidth / newWidth)) * 100; //find the percent width for input box
+    if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
+    this.box.style.width = boxWidth + "%";  //the new width + the % sign
+    this.box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
+  }
+  else{    //if the width of the combo box does not end in a % sign
+    boxWidth = parseInt(comWidth) - arrowWidth ;  //get the number of the width - width of arrow div (arrowWidth)
+    if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
+    this.box.style.width = boxWidth + "px";  //the new width + "px" 
+  }
+};
+
+pui.ComboBoxWidget.prototype.setValue = function(value) {
+  this.box.value = value;    
+  pui.checkEmptyText(this.box);
+};
+
+pui.ComboBoxWidget.prototype.getValue = function() {
+  return this.box.value;
+};
+
+pui.ComboBoxWidget.prototype.setReadOnly = function(isReadOnly) {
+  this.box.readOnly = isReadOnly;
+};
+
+pui.ComboBoxWidget.prototype.setDisabled = function(isDisabled) {
+  this.box.disabled = isDisabled;
+};
+
+pui.ComboBoxWidget.prototype.setMaxLength = function(maxLength) {
+  this.box.maxLength = maxLength;
+};
+
+pui.ComboBoxWidget.prototype.setBoxAttribute = function(attr, value) {
+  this.box.setAttribute(attr, value);
+};
+
+pui.ComboBoxWidget.prototype.setClass = function(className) {
+  this.box.className = "combo-main-box " + className.split(" ")[0];
+  pui.addCssClass(this._choicesDiv, this.box.className.split(" ")[1] + "-combo-options");
+  pui.addCssClass(this._arrow, this.box.className.split(" ")[1] + "-combo-arrow");
+};
+
+pui.ComboBoxWidget.prototype.assignJSEvent = function(jsEventName, func) {
+  // re-assign event to the box and remove it from the main div element of the combo box
+  this.box[jsEventName] = func;
+  if (this.div[jsEventName] != null) {
+    this.div[jsEventName] = function() {};
+  }
+};
+
+/**
+ * Clear choices and choice values. Used in the "field type" property setter.
+ */
+pui.ComboBoxWidget.prototype.clear = function() {
+  this["choices"] = [];
+  this["choice values"] = [];
+  this.box.value = "";
+  pui.checkEmptyText(this.box);
+};
+
+/**
+ * Returns the input box; used in several property setters and in pui.floatPlaceholder.
+ * @returns {Element}
+ */
+pui.ComboBoxWidget.prototype.getBox = function() {
+  return this.box;
+};
+
+/**
+ * Show the choices drop-down when the arrow was clicked or the "showChoices" API method was called.
+ */
+pui.ComboBoxWidget.prototype['showChoices'] = function() {
+  var choicesDiv = this._choicesDiv; 
+
+  // Change arrow when opened
+  if (this._arrow.className.split(" ")[0] != "open"){
+    this._arrow.className = "open combo-arrow " + this.box.className.split(" ")[1] + "-combo-arrow";
+  }
+
+  if (typeof(this.div["onoptiondisplay"]) == "function") this.div["onoptiondisplay"]();
+  
+  choicesDiv.innerHTML = "";
+  choicesDiv.style.display = "";
+  if (this["choices"].length > 5 || this["choices"].length == 0) {
+    // The default height set in CSS is 110px, so let CSS determine the height with 0 or > 5 elements.
+    choicesDiv.style.height = "";
+  }
+  else {
+    // With fewer than 6 elements, override the CSS height of 110px with just enough space for the elements.
+    choicesDiv.style.height = "auto";
+  }
+
+  //
+  // Set the position of the choices box.
+  //
+  var top = this.div.offsetTop;
+  var left = this.div.offsetLeft;
+
+  var prt = this.div.parentNode;
+  if (prt.parentNode.grid) {
+
+    // Add cell offset. 
+    top += prt.offsetTop;
+    left += prt.offsetLeft;
+
+    // Add grid offset.
+    prt = prt.parentNode;
+    top += prt.offsetTop;
+    left += prt.offsetLeft;
+
+    prt = prt.parentNode;
+
+  }
+
+  // Add any container offset.
+  if (prt.getAttribute("container") == "true") {
+
+    var offset = pui.layout.getContainerOffset(prt);
+    top += offset.y;
+    left += offset.x;
+
+  }
+
+  // Add Genie window offset, if any. 
+  if (context == "genie") {
+
+    if (this.div.parentNode["layerInfo"]) {
+
+      top += this.div.parentNode.offsetTop + this.div.parentNode.clientTop;
+      left += this.div.parentNode.offsetLeft + this.div.parentNode.clientLeft;
+
+    }
+
+  }
+
+  // Shift down by height of widget div. 
+  top += this.div.offsetHeight;
+
+  choicesDiv.style.top = top + "px";
+  choicesDiv.style.left = left + "px";
+    
+  //
+  // Add an DIV for each choice/value.
+  //
+  for (var i=0, n=this["choices"].length; i < n; i++){
+    var optDiv = document.createElement("div");
+    optDiv.innerHTML = this["choices"][i];
+    optDiv.choiceValue = this["choice values"][i];
+    if (optDiv.choiceValue == null) optDiv.choiceValue = this["choices"][i];
+    optDiv.choiceText =  this["choices"][i];
+    optDiv.className = "combo-option";
+    optDiv.addEventListener('click', this);
+    optDiv.addEventListener('mousedown', this);
+    optDiv.addEventListener('mouseover', this);
+    optDiv.addEventListener('mouseout', this);
+    choicesDiv.appendChild(optDiv);
+  }
+  
+  //
+  // Set the choice options width so that the right border aligns with the combo box.
+  //
+  var minWidth = this.div.offsetWidth;
+  if (minWidth < 20 && /\d+px$/.test(this.div.style.width)) minWidth = parseInt(this.div.style.width);  //Fallback to parsing the style.
+  
+  // The scrollbar overlay or position is browser-specific; width must be adjusted for some browsers. #7160.
+  choicesDiv.classList.remove('padr20');
+  if (choicesDiv.scrollHeight > choicesDiv.offsetHeight){
+    // There is a scrollbar.
+    
+    // Compensate for browser variations. #7160.
+    // IE11 places scrollbars outside the element when setting width via min-width.
+    if (pui['is_ie']) minWidth -= 17;
+    // Firefox overlays the scrollbar on the DIV. If any option text is longer than the combo width, fix how the scrollbar covers it.
+    else if (pui['is_firefox']) choicesDiv.classList.add('padr');
+  }
+  // Note: use min-width (not width) so that combo options can automatically expand further right if needed.
+  if (minWidth < 20) minWidth = 20;
+  choicesDiv.style.minWidth = minWidth + 'px';
+  
+  //
+  // Place the choices DIV above or below the combo-box depending on the placement property.
+  //
+  top = parseInt(choicesDiv.style.top, 10);
+  if (this["select box placement"] === "above") {
+    choicesDiv.style.top = top - this.div.offsetHeight - choicesDiv.offsetHeight + "px";
+  }
+  else if (this["select box placement"] !== "below") {
+    var scrollTop = pui.getWindowScrollTop();
+    if (top - scrollTop + choicesDiv.offsetHeight > pui["getWindowSize"]()["height"]) {
+      // If there is not enough room on the page below the combo-box, then place the options above it.
+      var newTop = top - choicesDiv.offsetHeight - this.box.offsetHeight - 3;
+      if (newTop - scrollTop >= 0) top = newTop;
+    }
+    choicesDiv.style.top = top + "px";    
+  }
+  
+  // When the choices are visible, then add document listeners to hide them on scroll or click. 
+  // These are cleaned up in destroy and when the choices are hidden.
+  document.addEventListener('click', this);
+  document.addEventListener('scroll', this, true);  //Listen for all scroll events on the page when the choices are visible. #7139.
+};
+
+/**
  * Set the ComboBox input element's CSS style. Fix any problem characters.
+ * Called internally and by Designer.
  * @param {String} propertyName
  * @param {String} propertyValue
  */
@@ -369,10 +355,10 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
   var styleName = words.join("");
 
   if (propertyName == "text transform" && propertyValue == "uppercase"){
-    this._box.value = pui.replaceProblemCaseChars(this._box.value, false);  //Prevent German eszett from becoming "SS". lower-case eszett becomes capital eszett.
+    this.box.value = pui.replaceProblemCaseChars(this.box.value, false);  //Prevent German eszett from becoming "SS". lower-case eszett becomes capital eszett.
   }
 
-  this._box.style[styleName] = propertyValue;
+  this.box.style[styleName] = propertyValue;
   this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
 };
 
@@ -382,7 +368,7 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
 pui.ComboBoxWidget.prototype['hideChoices'] = function() {
   //change arrow when closed
   if(this._arrow != null && this._arrow.className.split(" ")[0] == "open"){
-    this._arrow.className = "combo-arrow " + this._box.className.split(" ")[1] + "-combo-arrow";
+    this._arrow.className = "combo-arrow " + this.box.className.split(" ")[1] + "-combo-arrow";
   }
   this._choicesDiv.innerHTML = "";
   this._choicesDiv.style.display = "none";
@@ -403,15 +389,71 @@ pui.ComboBoxWidget.prototype._removeHideListeners = function(){
  * @param {Event} e
  */
 pui.ComboBoxWidget.prototype['handleEvent'] = function(e){
+  var target = e.target;
   switch (e.type){
     case 'click':
-      if (e.target && e.target.parentNode == this._choicesDiv){
+      // Click fired on a choice option or the document.
+      
+      if (target && target.parentNode == this._choicesDiv){
         // The user clicked on an option on this combo-box.
-        this._optionClick(e);        
+        
+        if (!this.box.readOnly && !this.design) {
+          this.box.value = target.choiceValue;
+          this.box.modified = true;
+          this.div.modified = true;
+          pui.updateReactState(this.div);
+          if (this.formatName != null && pui.ctlRecModified != null) {
+            pui.ctlRecModified[this.formatName] = true;
+          }
+          if (context == "genie" && this.box.fieldInfo != null && this.box.fieldInfo["idx"] != null) {
+            pui.response[this.box.fieldInfo["idx"]] = this.box;
+          }
+
+          var tip = this.box.validationTip;
+          if (tip != null) {
+            tip.hide();
+            tip.doneShowing = true;
+            pui.removeCssClass(this.box, tip.getInvalidClass());
+          }
+          pui.checkEmptyText(this.box);
+        }
+        this['hideChoices']();
+        if (!pui["is_touch"] || pui["is_mouse_capable"]) this.box.focus();
+        if (this.div.selectEvent != null && !this.box.readOnly && !this.design) {
+          this.div.selectEvent(this.box.value, target.choiceText, this.div);
+        }
+        preventEvent(e);
+
       }
-      else if (e.target != this._arrow){
-        // The click was on the document anywhere but this arrow. Handled by this object's document click listener.
+      else if (target != this._arrow){
+        // The click was on the document anywhere but this arrow.
          this['hideChoices']();
+      }
+      break;
+      
+    case 'keyup':
+      // Keyup fired on the input box.
+      var keyCode = e.keyCode;
+      
+      if (this._choicesDiv.style.display === "none" || this.box.readOnly || this.box.disabled) {
+        return;
+      }
+
+      // Check for printable character being typed. 
+      if ((keyCode == 8) || (keyCode >= 46 && keyCode <= 90) || (keyCode >= 96 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222) || keyCode === 32) {
+        // A printable character was typed, so hide any the combo options
+        var search = this.box.value.toLowerCase();
+        
+        var optDivs = this._choicesDiv.getElementsByClassName("combo-option");
+        for (var i=0, n=optDivs.length, optDiv; i < n && (optDiv = optDivs[i]); i++) {
+          if (search) {
+            var text = getInnerText(optDiv).trim().toLowerCase();
+            optDiv.style.display = text.indexOf(search) >= 0 ? "" : "none";
+          }
+          else {
+            optDiv.style.display = "";
+          }
+        }
       }
       break;
       
@@ -421,24 +463,24 @@ pui.ComboBoxWidget.prototype['handleEvent'] = function(e){
       break;
     case 'mouseup':
       // Mouseup on the Arrow element.
-      if (this._choicesDiv.style.display == 'none' && !this._box.disabled) this['showChoices']();
+      if (this._choicesDiv.style.display == 'none' && !this.box.disabled) this['showChoices']();
       else this['hideChoices']();
       preventEvent(e);      
       break;
       
     // Set the class name of the option elements. CSS rules for these were changed to use :hover, but customers may still use the old class.
     case 'mouseover':
-      e.target.classList.add('combo-option-select');
+      target.classList.add('combo-option-select');
       break;
     case 'mouseout':
-      e.target.classList.remove('combo-option-select');
+      target.classList.remove('combo-option-select');
       break;
 
     case 'scroll':
       // If anywhere on the page containing this combo-box scrolls, then hide the options on-scroll to avoid the elements separating. #7139.
       // (Anywhere except the choicesDiv, which may have many elements; e.g. WRKACTJOB choices.)
       // Note: no need to throttle this scroll-linked code with timeouts, because the listener is quickly removed upon scroll.
-      if (e.target != this._choicesDiv) this['hideChoices']();
+      if (target != this._choicesDiv) this['hideChoices']();
       break;
   }
 };
@@ -453,43 +495,31 @@ pui.ComboBoxWidget.prototype.destroy = function(){
 };
 
 /**
- * Handle the user clicking on an option DIV element.
- * @param {MouseEvent} e
+ * Global property setter. The propertySetters code would be simpler if all the non "field type" properties were handled by this class.
+ * @param {Object} parms
  */
-pui.ComboBoxWidget.prototype._optionClick = function(e){
-  var target = getTarget(e);
-  if (!this._box.readOnly && !this.design) {
-    this._box.value = target.choiceValue;
-    this._box.modified = true;
-    this.div.modified = true;
-    pui.updateReactState(this.div);
-    if (this.formatName != null && pui.ctlRecModified != null) {
-      pui.ctlRecModified[this.formatName] = true;
-    }
-    if (context == "genie" && this._box.fieldInfo != null && this._box.fieldInfo["idx"] != null) {
-      pui.response[this._box.fieldInfo["idx"]] = this._box;
-    }
-
-    var tip = this._box.validationTip;
-    if (tip != null) {
-      tip.hide();
-      tip.doneShowing = true;
-      pui.removeCssClass(this._box, tip.getInvalidClass());
-    }
-    pui.checkEmptyText(this._box);
+pui.ComboBoxWidget.prototype.setProperty = function(parms){
+  switch (parms.propertyName) {
+    case "color":          
+    case "font family":    
+    case "font size":      
+    case "font style":     
+    case "font variant":   
+    case "font weight":    
+    case "letter spacing": 
+    case "text align":     
+    case "text decoration":
+    case "text transform": 
+    case "word spacing":   
+    case "background color":   
+      this.setStyleProperty(parms.propertyName, parms.value);
+      break;
+      
+    case "select box placement": 
+      if (!parms.design) this["select box placement"] = parms.value;
+      break;
   }
-  this['hideChoices']();
-  if (!pui["is_touch"] || pui["is_mouse_capable"]) this.setFocus();
-  if (this.div.selectEvent != null && !this._box.readOnly && !this.design) {
-    this.div.selectEvent(this._box.value, target.choiceText, this.div);
-  }
-  preventEvent(e);
 };
-
-
-
-
-
 
 
 
@@ -513,8 +543,9 @@ pui.widgets.add({
       }
       parms.dom.comboBoxWidget.div = parms.dom;
       parms.dom.comboBoxWidget.design = parms.design;
-      var width = parms.evalProperty("width");
       parms.dom.comboBoxWidget.oldDom = parms.oldDom;
+      
+      // Fetch each "css class" property value so they can be added to the main DOM element.
       var base = "css class";
       var suffix = "";
       var cls = "";
@@ -540,7 +571,10 @@ pui.widgets.add({
         cls = trim(cls);
       }
       parms.dom.className = "combo-main " + trim(cls);
+      
       parms.dom.comboBoxWidget.init();
+      
+      var width = parms.evalProperty("width");
       if (width != null && width != "") {
         parms.dom.style.width = width;
       }
@@ -800,34 +834,13 @@ pui.widgets.add({
             parms.dom.comboBoxWidget.getBox().removeAttribute("name");
         }
       }
-    },
-
-    "select box placement": function(parms) {
-      try {
-        if (!parms.design && parms.dom.comboBoxWidget != null) 
-          parms.dom.comboBoxWidget["select box placement"] = parms.value;
-      }
-      catch(e) { }
     }
 
   },
   
-  globalPropertySetter: function(parms) {    
-    switch (parms.propertyName) {
-      case "color":          
-      case "font family":    
-      case "font size":      
-      case "font style":     
-      case "font variant":   
-      case "font weight":    
-      case "letter spacing": 
-      case "text align":     
-      case "text decoration":
-      case "text transform": 
-      case "word spacing":   
-      case "background color":   
-        parms.dom.comboBoxWidget.setStyleProperty(parms.propertyName, parms.value);
-        break;
+  globalPropertySetter: function(parms) {
+    if (parms.dom && parms.dom.comboBoxWidget && typeof parms.dom.comboBoxWidget.setProperty === 'function'){
+      parms.dom.comboBoxWidget.setProperty(parms);
     }
   },
   
