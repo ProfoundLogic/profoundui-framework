@@ -5346,8 +5346,15 @@ pui.closeSession = function() {
   catch(e) {
   }
 
-  if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
-    navigator["app"]["exitApp"](); 
+  // Uncomment this to restore the previous behavior of pui.closeSession() terminating the Android mobile client app.
+  // if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
+  //   navigator["app"]["exitApp"](); 
+  // }
+
+  // If mobile client, restart the webview and return to the connections screen
+  if (window["puiMobileClient"] != null) {
+    window.location.href = "index.html";
+    return;
   }
 };
 
