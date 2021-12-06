@@ -1493,6 +1493,7 @@ pui.renderFormat = function(parms) {
             }
             else {
 
+              propValue["revert"] = false;
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
 
               // normalize range low/high for date data type   
