@@ -133,6 +133,10 @@ function getElementValue(id, autocompUseValueField) {
     if (!elem.checked && elem.uncheckedValue != null) return elem.uncheckedValue;
     return elem.checked;  // "checked value" and/or "unchecked value" not present, so just return true or false
   }
+
+  if (elem.tagName == "INPUT" && elem.type == "radio") {
+    return elem.checked;
+  }
   
   if (elem.tagName == "TEXTAREA"){
     elemValue = elem.value;
@@ -454,6 +458,7 @@ function setTab(tabPanelId, tab) {
 // trims leading spaces from a string
 // example: s = ltrim(s);
 function ltrim(str){
+  if (typeof str !== "string") return str;
   while(str.charAt(0)==" "){
     str = str.replace(str.charAt(0),"");
   }
@@ -463,6 +468,7 @@ function ltrim(str){
 // trims trailing spaces from a string
 // example: s = rtrim(s);
 function rtrim(str){
+  if (typeof str !== "string") return str;
   while(str.charAt((str.length -1))==" "){
     str = str.substring(0,str.length-1);
   }
@@ -471,9 +477,9 @@ function rtrim(str){
 
 // trims a string
 // example: s = trim(s);
-function trim(str)
-{
-   return str.replace(/^\s*|\s*$/g,"");
+function trim(str){
+  if (typeof str !== "string") return str;
+  return str.replace(/^\s*|\s*$/g,"");
 }
 
 // attaches a pop-up calendar to any input field
@@ -2978,3 +2984,47 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
   return newValue;
 
 };
+
+/**
+ * pui.getRadioGroupValue(): Get the value from a group of radio buttons via
+ *                           the field bound to the "radio button group" 
+ *                           property.
+ * 
+ * @param {String} fieldName  Name of the field bound to the "radio button group" property
+ * @returns {String|Null} Value of radio button group, null if not found
+ * 
+ */
+ pui["getRadioGroupValue"] = function(fieldName) {
+
+  if (typeof fieldName !== "string") return null;
+  if (typeof pui.responseElements !== "object") return null;
+
+  // Find response element array for this radio button group.
+  //  (There may be multiple formats on the screen, so we 
+  //   search all of them.)
+
+  var doms = null;
+  var formats = currentFormatNames();
+  for (var i=formats.length-1; i>=0; i--) {
+    var fmtfld = formats[i].toUpperCase() + "." + fieldName.toUpperCase();
+    if (typeof pui.responseElements[fmtfld] !== "undefined") {
+      doms = pui.responseElements[fmtfld];
+      break;
+    }
+  }
+  if (doms == null) return null;
+
+  // Find the DOM element that was checked for this
+  // radio button group.
+  
+  var value = null;
+  for (var j = 0; j < doms.length; j++) {
+    var radioDom = doms[j];
+    if (radioDom.checked && radioDom["radioValue"] != null) {
+      value = radioDom["radioValue"];
+      break;
+    }
+  }
+
+  return value;
+}
