@@ -2298,7 +2298,7 @@ pui.Grid = function () {
       me["clear"](false);
       me.sorted = false;
       if(me["dataProps"]["load all rows"] == "true"){
-        resetAllDefaultSortDescending();
+        resetAllDefaultSortDescending(false);
       }
 
       //Get data from sql request and put into data array
@@ -3438,12 +3438,32 @@ pui.Grid = function () {
   /**
    * Set .sortDescending on all header cells to default values. Necessary because other columns may have been sorted previously; when
    * one or more columns are being sorted now, those other columns can be sorted in the correct direction when clicked in the future.
+   * @param {Boolean} forMultiSort  "true" passed when called from multi-sort panel only. See comments below.
    * @returns {undefined}
    */
-  function resetAllDefaultSortDescending() {
+  function resetAllDefaultSortDescending(forMultiSort) {
     var headerRow = me.cells[0];
     for (var col = 0; col < headerRow.length; col++) {
-      headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); //use .columnId instead of .col in case column moved.
+      // fix for #7194: parm forMultiSort is added to handle multi-sort.
+      // Prior to the fix for #7194, the code is always
+      // headerRow[col].sortDescending =!isDefaultSortDescending(headerRow[col].columnId)
+      // with the "!".
+      // That logic is needed so that after 1st load, when you click a column to do client-side sorting,
+      // then the column is sorted Ascending.
+      // But that logic does NOT work when we need to return the "return sort order" for server-side sorting for 
+      // multi-sort. In that case, we must NOT use the "!". Otherwise, the sort order for any column NOT used
+      // on multi-sort panel is *opposite* of what it should be (the default sort order). In a sense, that should not 
+      // matter since the column is NOT used for sorting anyway, but it's wrong; the doc page says we return
+      // the default sort order for any unsorted column, so we should make it work like that.
+      // To minimize regression bugs, parm "forMultiSort" is added to this function. "true" is passed for 
+      // multi-sort only, and default of "false" is passed everywhere else, so that the behavior for all other cases
+      // is the same as before.
+      if (forMultiSort)
+        // note that there is no "!" here
+        headerRow[col].sortDescending =   isDefaultSortDescending(headerRow[col].columnId); //use .columnId instead of .col in case column moved.
+      else
+        // note the "!" here
+        headerRow[col].sortDescending = ! isDefaultSortDescending(headerRow[col].columnId); //use .columnId instead of .col in case column moved.
     }
   }
   
@@ -3457,7 +3477,7 @@ pui.Grid = function () {
     sortMultiOrder = [];
     if (!(colPriority instanceof Array)) return;
     
-    resetAllDefaultSortDescending();
+    resetAllDefaultSortDescending(true);
     
     var returnOrder = '';
     var columnResponse = '';
@@ -3497,9 +3517,7 @@ pui.Grid = function () {
         }
       }
       if (!columnDisplayed) {
-        // note the "not" in front of isDefaultSortDescending();
-        // see similar logic in resetAllDefaultSortDescending()
-        returnOrder += comma + (!isDefaultSortDescending(columnId) ? 'D' : 'A');
+        returnOrder += comma + (isDefaultSortDescending(columnId) ? 'D' : 'A');
         comma = ',';
       }
     }
@@ -3555,7 +3573,7 @@ pui.Grid = function () {
                 //With multi-sort and doInitialSort, the cell.sortDescending should have previously been set to the desired direction.
     if (cell != null){
       desc = cell.sortDescending;
-      resetAllDefaultSortDescending();
+      resetAllDefaultSortDescending(false);
       if (desc == null){
         desc = cell.sortDescending;  //Use the default that was just set. false here means sort will become ascending.
       }
@@ -3845,7 +3863,7 @@ pui.Grid = function () {
       clientSortColumnId = cell.columnId;
       
       desc = cell.sortDescending;     //desc means "was descending". true here means sort will become ascending.
-      resetAllDefaultSortDescending();
+      resetAllDefaultSortDescending(false);
       if (desc == null){
         desc = cell.sortDescending;  //Use the default that was just set. false here means sort will become ascending.
       }
