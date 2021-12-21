@@ -1559,6 +1559,10 @@ pui.renderFormat = function(parms) {
             }
             else if (prop == "field name sort response") {
               dom.fieldNameSortResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);
+              dom.fieldNameSortResponseFieldLength = propValue.dataLength;
+            }
+            else if (prop == "initial sort field") {
+              dom.initialSortFieldLength = propValue.dataLength;
             }
             else if (prop == "filter response") {
               dom.filterResponseField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(propValue.fieldName);

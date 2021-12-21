@@ -2934,7 +2934,7 @@ pui.Grid = function () {
             placeSortIcon = true;
           }
           else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && 
-                   me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.col)) { // use .col, not .columnId
+                   me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.col, parseInt(me.tableDiv.initialSortFieldLength))) { // use .col, not .columnId
             placeSortIcon = true;
           }
 
@@ -3073,7 +3073,7 @@ pui.Grid = function () {
           pui.columnSortResponseGrid = null;
         }
         else if (me.tableDiv.fieldNameSortResponseField != null) {
-          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col);    // use .col, not .columnId
+          me.fieldNameSortResponse = me.getFieldNameFromColumnIndex(cell.col, parseInt(me.tableDiv.fieldNameSortResponseFieldLength));    // use .col, not .columnId
           if (me.fieldNameSortResponse == null) {
             me.returnSortOrder = null;
             return;
@@ -3491,7 +3491,7 @@ pui.Grid = function () {
     function getIsDescendingAndSetResponseFields(arrEl, hcell){
       columnResponse += comma + arrEl.cid;
       if (me.tableDiv.fieldNameSortResponseField != null){
-        fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.col );   // use .col, not .columnId
+        fieldNameResponse += comma + me.getFieldNameFromColumnIndex( hcell.col, parseInt(me.tableDiv.fieldNameSortResponseFieldLength) );   // use .col, not .columnId
       }
       comma = ',';
       return arrEl.desc;
@@ -8566,7 +8566,7 @@ pui.Grid = function () {
     menu.style.display = "none";
   };
 
-  this.getFieldNameFromColumnIndex = function (columnIndex) {
+  this.getFieldNameFromColumnIndex = function (columnIndex, fieldLength) {
     if (columnIndex == null || isNaN(columnIndex)) return null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
@@ -8574,19 +8574,34 @@ pui.Grid = function () {
       if (itm["field type"] == "html container") val = itm["html"];
       if (val != null && typeof val == "object" && val["fieldName"] != null) {
         var col = Number(itm["column"]);
-        if (col == columnIndex) return val["fieldName"].toUpperCase();
+        if (col == columnIndex) {
+          // For #7062, to fix the bug but avoid breaking current code (that works around the bug) as much as possible:
+          // 1. Look at the field bound to the "field name sort response" or "initial sort field".
+          // 2. If it is <= 10 characters long, return the "fieldName" property.
+          // 3. If it is > 10, return the "longName" if it exists (but fall back to "fieldName" if it does not).
+          if (fieldLength <= 10) {
+            return val["fieldName"].toUpperCase();
+          } else {
+            if (val["longName"] !== undefined)
+              return val["longName"].toUpperCase();
+            else
+              return val["fieldName"].toUpperCase();
+          }
+        }
       }
     }
     return null;
   };
 
   this.getColumnIndexFromFieldName = function (fieldName) {
+    // Note: customer may pass the short field name or long field name for "initial sort field"
     var fieldNameUpper = pui.fieldUpper(fieldName);
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
-      if (val != null && typeof val == "object" && val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) {
+      if (val != null && typeof val == "object" && ((val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) || 
+                                                    (val["longName"]  != null && pui.fieldUpper(val["longName"])  == fieldNameUpper)    )) {
         var columnIndex = Number(itm["column"]);
         if (columnIndex != null && !isNaN(columnIndex)) return columnIndex;
       }
