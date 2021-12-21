@@ -312,7 +312,7 @@ pui.buildLabel = function(dom, labelText, label) {
     label.style.backgroundColor = "transparent";
   }
   
-  label.innerHTML = '<label for="' + dom.id + '">' + labelText + '</label>';
+  label.innerHTML = '<label title="' + dom.title + '" for="' + dom.id + '">' + labelText + '</label>';
   label.className = 'label-for';
   var cls = trim(dom.className.split(" ")[0]);
   if (cls != "")
