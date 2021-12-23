@@ -626,6 +626,8 @@ div.cell > div.dbd { padding: 0px 4px; }
 .grid-multisort table {
   width: 100%;
   border-collapse: collapse;
+  display: block;
+  overflow-y: scroll;
 }
 
 .grid-multisort table td {
@@ -717,7 +719,10 @@ div.cell > div.dbd { padding: 0px 4px; }
 .grid-multifilter table {
   width: 100%;
   border-collapse: collapse;
+  display: block;
+  overflow-y: scroll;
 }
+
 .grid-multifilter table tr:hover {
   width: 100%;
   border-collapse: collapse;
