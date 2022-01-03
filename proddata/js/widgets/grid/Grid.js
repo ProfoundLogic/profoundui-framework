@@ -2255,6 +2255,13 @@ pui.Grid = function () {
         rowNum++;
       }
 
+      // #7190: Background of some rows beyond the last visible row may have been set previously. Reset them.
+      if (setRowBg && (lastRow < numRows)) {
+        for (var rowNbr = lastRow + 1 ; rowNbr <= numRows; rowNbr++) {
+          me.setRowBackground(rowNbr);
+        }
+      }
+
       if (me.hasTreeLevelColumn && me.treeLevelField !== null && me.lastSelectedRRN !== null) {
         var myTreeLevelItemId = me.tableDiv.id + me.treeLevelItemId + "." + me.lastSelectedRRN;
         var myTreeLevelItemObj = getObj(myTreeLevelItemId);
