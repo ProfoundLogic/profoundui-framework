@@ -376,5 +376,6 @@ var pui = {
   endsWith: {},
   autocomplete: {},
   context: {},
-  dynamicText: {}
+  dynamicText: {},
+  visualViewport: {}
 };
