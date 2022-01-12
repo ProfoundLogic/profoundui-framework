@@ -859,16 +859,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
 
-    // Rebuild the object if widget type different
-    if (widget && widget.name && domObj.getAttribute("puiwdgt") != widget.name) {
-      mismatch = true;
-      if (widget.name == "date field") {
-        domObj.removeAttribute("spellcheck");
-        delete properties["spell check"];
-        properties.width = domObj.style.width = "100px";
-      }
-    }
-
     //if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {
     if (mismatch) {
       rebuildCSSAttr = true;
@@ -882,6 +872,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.position = domObj.style.position;
       newDomObj.style.cursor = domObj.style.cursor;
       newDomObj.style.visibility = domObj.style.visibility;
+      
+      // In case the old DOM object had that attribute, copy it to the new one. "puiwdgt" allows more useful CSS selectors for custom styling.
+      var attr = domObj.getAttribute('puiwdgt');
+      if (attr) newDomObj.setAttribute('puiwdgt', attr);
 
       newDomObj.id = domObj.id;
       if (typeof domObj.name == "string")
@@ -949,11 +943,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (tag == "div" && effectiveValue != "tab panel") newDomObj.tabPanel = null; // in case element used to be a tab panel, deactivate all tab panel functionality
       if (isDesignMode || effectiveValue == "chart" || effectiveValue == "radio button") rebuildCSSAttr = true;
     }
-
-    if (widget && widget.name)
-      newDomObj.setAttribute('puiwdgt', widget.name);
-    else
-      newDomObj.removeAttribute('puiwdgt');
 
     // set all css and attribute properties
     if (rebuildCSSAttr) {
