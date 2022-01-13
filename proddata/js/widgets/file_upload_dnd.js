@@ -360,13 +360,31 @@ pui.widgets.add({
   globalAfterSetter: pui['fileupload'].globalAfterSetter
 });
 
-/*
-  Prevent a dropped file from becoming the new page.
-  http://stackoverflow.com/questions/6756583/prevent-browser-from-loading-a-drag-and-dropped-file
-  Required for Firefox, Chrome, and IE11.
-*/
+/**
+ * Prevent a dropped file from becoming the new page.
+ * http://stackoverflow.com/questions/6756583/prevent-browser-from-loading-a-drag-and-dropped-file
+ * #7243: only prevent files from dropping; don't prevent text from being drag-dropped on the page.
+ * @param {Event} e
+ */
 pui["fileupload"].myPreventDef = function(e) {
-  e.preventDefault();
+  var list = e.dataTransfer.items;  //Edge, Chrome, Firefox
+  if (list != null){
+    for (var i=0, n=list.length; i < n; i++){
+      if (list[i]['kind'] === 'file'){
+        e.preventDefault();
+        return;
+      }
+    }
+  }
+  list = e.dataTransfer.types;  //IE11
+  if (list != null){
+    for (var i=0, n=list.length; i < n; i++){
+      if (list[i] === 'Files'){
+        e.preventDefault();
+        return;
+      }
+    }
+  }
 };
 window.addEventListener("dragover", pui["fileupload"].myPreventDef, false);
 window.addEventListener("drop", pui["fileupload"].myPreventDef, false);
