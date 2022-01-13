@@ -5052,10 +5052,12 @@ pui["signon"] = function(config) {
   if (workstnid == null) workstnid = "";
   workstnid = workstnid.toUpperCase();
   var log = config["log"];
+  var plog = config["plog"];
   pui.renderLog = (config["renderLog"] === true);
   if (container == null) container = "pui";
   if (debug == null) debug = "0";
   if (log == null) log = "0";
+  if (plog == null) plog = "0";
   if (typeof container == "string") container = document.getElementById(container);
   addEvent(document.body, "keydown", pui.handleHotKey);
   addEvent(document.body, "help", pui.handleF1);
@@ -5085,6 +5087,7 @@ pui["signon"] = function(config) {
     "pathname": location.pathname,
     "debug": debug,
     "log": log,
+    "plog": plog,
     "workstnid": workstnid,
     "atrium_item": atriumitem    
   };
@@ -5239,6 +5242,7 @@ pui.start = function() {
   var suffixid = parms["suffixid"];
   var duplicateid = parms["duplicateid"];
   var log = parms["log"];
+  var plog = parms["plog"];
   var atriumItem = parms["atrium_item"];
   var initPgm = parms["initpgm"];
   var jsonURL = parms["jsonURL"];
@@ -5275,6 +5279,7 @@ pui.start = function() {
     "container": container, 
     "debug": debug, 
     "log": log, 
+    "plog": plog,
     "workstnid": workstnid,
     "suffixid": suffixid,
     "duplicateid": duplicateid,    
