@@ -324,11 +324,19 @@ function RPGspRequest(arg) {
                 }
                 
                 sending = true;
+                var aborted = false;
                 
                 // Register handler only if sending an asynchronous request. Otherwise, call the
                 // handler after the send. 
                 // This is necessary to get around a Mozilla quirk - the handler is not called for synchronous requests.
-                if (async == true) xmlhttpObj.onreadystatechange = handler;            
+                if (async == true) {
+                  xmlhttpObj.onload = handler;
+                  xmlhttpObj.onerror = handler;
+                  xmlhttpObj.onabort = function() {
+                    aborted = true;
+                    handler();
+                  }
+                }
 
                 if (me["sendAsBinary"] == true) {
                 
@@ -349,7 +357,12 @@ function RPGspRequest(arg) {
                   
                 function handler() {
                  if (xmlhttpObj.readyState == 4) {
-                  statusMessage = xmlhttpObj.status + " - " + xmlhttpObj.statusText;
+                  if (xmlhttpObj.status === 0) {
+                    statusMessage = aborted ? "Request aborted." : "Request failed. Check the browser console for more details.";
+                  }
+                  else {
+                    statusMessage = xmlhttpObj.status + " - " + xmlhttpObj.statusText;
+                  }
                   if (me["onready"] != null) me["onready"](me);
                   if (xmlhttpObj.status == 200) {
                     sendOK = true;
