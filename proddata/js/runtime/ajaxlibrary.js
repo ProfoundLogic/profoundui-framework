@@ -453,7 +453,7 @@ function RPGspRequest(arg) {
   
   this.abort = function() {
   
-    if (sending == null || sending == true) return;
+    if (sending !== true) return;
     
     try {
       xmlhttpObj.abort();
