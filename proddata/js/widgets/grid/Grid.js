@@ -3512,7 +3512,7 @@ pui.Grid = function () {
     comma = '';
     var columnIdMax = 0;
     if (me.runtimeChildren.length > 0) {
-      var columnIdMaxCol = me.runtimeChildren.reduce(function(prev, current) {return (prev["columnId"] > current["columnId"]) ? prev : current});
+      var columnIdMaxCol = me.runtimeChildren.reduce(function(prev, current) {return (prev["columnId"] > current["columnId"]) ? prev : current;});
       columnIdMax = columnIdMaxCol["columnId"];
     }
     
@@ -4524,8 +4524,12 @@ pui.Grid = function () {
         }
       }
       if (stype == "sliding") {
-        if (me.isDataGrid()) me.scrollbarObj.interval = 250;
-        else me.scrollbarObj.interval = 1;
+        if (!me.isDataGrid() || (me["dataProps"]["load fields into widgets"] == 'true' && me["dataProps"]["load all rows"] == 'true')){
+          me.scrollbarObj.interval = 1;  //Grids that do not make network requests on each scroll event can scroll smoothly.
+        }
+        else {
+          me.scrollbarObj.interval = 250;  //Grids that make network requests on each scroll event need a delay.
+        }
         var numRows = me.cells.length;
         if (me.hasHeader) numRows = numRows - 1;
         me.scrollbarObj.rowsPerPage = numRows;
