@@ -201,16 +201,7 @@ pui.nodejs = false;
 
 pui.cloudSite = 'profoundjs.com';  //The domain that Profound.js Spaces runs under.
 
-// MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
-pui.mime_openxml = "application/vnd.openxmlformats";
-pui.mime_xlsx_base = pui.mime_openxml+"-officedocument.spreadsheetml";
-pui.xmlstart = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-pui.xlsx_domain = "http://schemas.openxmlformats.org";
-pui.xlsx_xmlns_spreadsheet    = pui.xlsx_domain+ "/spreadsheetml/2006/main";
-pui.xlsx_xmlns_package_rels   = pui.xlsx_domain+ "/package/2006/relationships";
-pui.xlsx_xmlns_officedoc_rels = pui.xlsx_domain+ "/officeDocument/2006/relationships";
-
-// Namespace needed for creating SVG elements and polygons, circles, etc. Used in Designer Responsive Layout Editor.
+// Namespace needed for creating SVG elements and polygons, circles, etc. Used in Designer Responsive Layout Editor, Join Editor, etc.
 pui.SVGNS = "http://www.w3.org/2000/svg";
 
 // Cross-ref to look up the "real" property name when a "display name" is used.

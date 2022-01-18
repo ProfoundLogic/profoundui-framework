@@ -769,7 +769,7 @@ pui.Grid = function () {
     var numericData = [];
     var graphicData = [];
     var boundVisibility = [];
-    var boundDate = [];
+    var boundValFormats = [];
     var imageData = [];
     var hyperlinks = [], columnIds = [];
 
@@ -783,13 +783,12 @@ pui.Grid = function () {
       numericData.push(false);
       graphicData.push(false);
       boundVisibility.push(false);
-      boundDate.push(false);
+      boundValFormats.push(false);
       imageData.push(false);
       hyperlinks.push(false);
       columnIds.push(-1);
     }
 
-    var tempformats = [];
     var colcount = 0;
 
     // go through all grid elements, retrieve field names, and identify data index by field name   
@@ -843,16 +842,9 @@ pui.Grid = function () {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm['columnId']; //Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j;             //Map the column number to the corresponding index in fieldNames and me.dataArray.
+                colcount++;                
+                boundValFormats[col] = val;  //Save this info so we can format later.
                 
-                if (exportXLSX) tempformats[col] = val;
-                
-                colcount++;
-                if (val["formatting"] == "Number") {
-                  numericData[col] = true;
-                }
-                else if(val["formatting"] == "Date"){
-                  boundDate[col] = val; //Save this info so we can format later.
-                }
                 if (val["dataType"] == "graphic") {
                   graphicData[col] = true;
                 }
@@ -913,20 +905,18 @@ pui.Grid = function () {
     var worksheet;
     var workbook;
     var drawing;
-    var hyperlinksXL = [];
     var useDrawing = false;
-    var useHyperlinks = false;
     if (exportXLSX){
-      workbook = new pui.xlsx_workbook();
       worksheet = new pui.xlsx_worksheet(colcount);
-      worksheet.setDefaultRowHeight( me.rowHeight );
+      workbook = new pui.xlsx_workbook(worksheet);
+      worksheet.defaultRowHeightpx = me.rowHeight;
       var widthsUse = [];
       
       if (!me.hidableColumns || me.exportVisableOnly) widths = me.getColumnWidths().split(",");
       
       for (var i = 0; i < columnArray.length && i < widths.length; i++) { //Get column widths. Omit any columns that are not being exported.
         if (columnArray[i] > -1) {
-          widthsUse.push(widths[i]);
+          widthsUse.push(Number(widths[i]));
         }
       }
       worksheet.setColumnWidths( widthsUse );
@@ -935,14 +925,14 @@ pui.Grid = function () {
       // Look at each column containing a value, set the format. Use same order that cell values will use.
       for (var i = 0; i < columnArray.length; i++) {
         if (columnArray[i] > -1) {
-          worksheet.setColumnFormat(colcount, tempformats[i]); //pass data type, decPos, etc.
+          worksheet.setColumnFormat(boundValFormats[i], colcount); //pass data type, decPos, etc.
           colcount++;
         }
       }
-      tempformats = null;
     }
 
     //Build cell headings.
+    var worksheetCol = 0;
     if (me.hasHeader && me.exportWithHeadings) {
       if (exportXLSX) worksheet.newRow();
       for (var i = 0; i < columnArray.length; i++) {
@@ -953,7 +943,7 @@ pui.Grid = function () {
           else heading = getInnerText(me.cells[0][i]);
           
           heading = heading.replace(/<br>/g, " ");
-          if (exportXLSX) worksheet.addCell(rtrim(heading), "char" );
+          if (exportXLSX) worksheet.setCell(rtrim(heading), worksheetCol++);
           heading = heading.replace(/"/g, '""');  // "  encode quotes
           heading = heading.replace("\n", "");  // chrome appends new line chars at the end of the heading when using getInnerText()
           heading = heading.replace("\r", "");
@@ -961,6 +951,8 @@ pui.Grid = function () {
           data += stringDelimiter + heading + stringDelimiter;
         }
       }
+      
+      if (exportXLSX) worksheet.headerRowHeightpx = me.headerHeight;
     }
 
     data = "\uFEFF" + data;
@@ -990,9 +982,9 @@ pui.Grid = function () {
       // build CSV and XLSX data for this row.
 
       if (exportXLSX) worksheet.newRow();
+      worksheetCol = 0;
 
       for (var j = 0, m=columnArray.length; j < m; j++) {
-        var forceDate = false;
         var idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
@@ -1005,28 +997,26 @@ pui.Grid = function () {
           if (graphicData[j]) {
             value = pui.formatting.decodeGraphic(value);
           }
-          var xlsxvalue = value; //XLSX can't use "," as decimal separator and needn't escape '"'.
-          if (numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
-            value = value.replace('.', ',');
+          
+          var bndvalfmt = boundValFormats[j];
+          if (typeof bndvalfmt === 'object' && bndvalfmt !== null){
+            var formatting = bndvalfmt['formatting'];
+            if (formatting === 'Date' || formatting === 'Time' || formatting === 'Time Stamp'){
+              // Format CSV date same as rendered date; "0001-01-01" becomes "".
+              value = pui.evalBoundProperty(bndvalfmt, fieldData, me.ref);
+            }
           }
-          else if (typeof boundDate[j] === "object" && boundDate[j] != null ){
-            // Format CSV date same as rendered date; "0001-01-01" becomes "".
-            value = pui.evalBoundProperty(boundDate[j], fieldData, me.ref);
-            xlsxvalue = value;
-            forceDate = true; //Even if the data type is not date, make sure it is formatted as a date.
-          }
-
-          //Convert value and xlsxvalue to Strings incase they are numbers #4085
-          if (typeof value === 'number') value = String(value);
-          if (typeof xlsxvalue === 'number') xlsxvalue = String(xlsxvalue);
-
-          value = value.replace(/"/g, '""'); // "
+          
           if (boundVisibility[j] !== false) {
             if (pui.evalBoundProperty(boundVisibility[j], fieldData, me.ref) == "hidden") {
               value = "";
-              xlsxvalue = "";
             }
           }
+          
+          var xlsxvalue = value; //XLSX need not escape quotes (").
+          
+          if (typeof value === 'string') value = value.replace(/"/g, '""');  //Escape all double-quotes. Note: type may be number. #4085.
+          
           if (line != "") line += delimiter;
           line += stringDelimiter + rtrim(value) + stringDelimiter;
           
@@ -1034,25 +1024,26 @@ pui.Grid = function () {
             
             if (typeof imageData[j] == "object" && imageData[j] != null){   //The cell data is an image.
               useDrawing = true;
-              var colNum = worksheet.addCell("");     //Add a blank cell.
-              if(xlsxvalue != null && xlsxvalue.length > 0)
-                drawing.addImage(worksheet.getCurRow(), colNum, xlsxvalue, imageData[j] );
-            }else{ 
+              worksheet.setCell("", worksheetCol);     //Add a blank cell.
+              if (typeof xlsxvalue === 'string' && xlsxvalue.length > 0) 
+                drawing.addImage(worksheet.lastRowNum, worksheetCol, xlsxvalue, imageData[j] );
+            }
+            else {
               //The cell data is a string or number and not an image.
-              var colNum = worksheet.addCell(rtrim(xlsxvalue), (forceDate ? "date" : null) );
-             
+              var linkstring = null;
               if (typeof hyperlinks[j] == "object" && hyperlinks[j] != null){
-                useHyperlinks = true;
-                var linkXL = { row: worksheet.getCurRow(), col: colNum };
+                // There is a hyperlink in the cell.
                 if (hyperlinks[j].link != null){
-                  linkXL.target = hyperlinks[j].link; //hard-coded link
-                }else if(hyperlinks[j].linkBound != null){
-                  linkXL.target = record[ hyperlinks[j].linkBound ];  //bound link.
+                  linkstring = hyperlinks[j].link; //hard-coded link
+                } else if(hyperlinks[j].linkBound != null){
+                  linkstring = record[ hyperlinks[j].linkBound ];  //bound link.
                 }
-                
-                hyperlinksXL.push(linkXL);
               }
+              
+              worksheet.setCell(rtrim(xlsxvalue), worksheetCol, linkstring);
             } //end else: cell data that is not an image.
+
+            worksheetCol++;
           }
         }
       }
@@ -1063,21 +1054,14 @@ pui.Grid = function () {
     if (exportXLSX){
       if (useDrawing && me.pagingBar.xlsxExportPics ){
         // Export with pictures.
-        worksheet.useDrawing();
+        worksheet.useDrawing = true;
         workbook.drawing = drawing;
         workbook.feedbackObj = me.pagingBar;
         me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
         me.pagingBar.showTempStatusDiv();
       }
       
-      if (useHyperlinks){
-        worksheet.setHyperlinks(hyperlinksXL);
-        workbook.hyperlinks = hyperlinksXL;
-      }
-      
-      workbook.fileName = fileName;
-      workbook.worksheet = worksheet;
-      workbook.download();
+      workbook.download(fileName);
     }
     else {
       pui.downloadAsAttachment("text/csv", fileName + ".csv", data);
@@ -1337,17 +1321,17 @@ pui.Grid = function () {
       if (fieldOrder.length > 0 && fieldOrder.length < numCols) numCols = fieldOrder.length;
 
       var worksheet = new pui.xlsx_worksheet(numCols);
-      var workbook = new pui.xlsx_workbook();
+      var workbook = new pui.xlsx_workbook(worksheet);
       workbook.feedbackObj = me.pagingBar;
-      
+            
       // If the DB-Driven grid got a PUI0009101 response, then set the column formats if we can match columns.
       if (response['fields'] != null) {
         // Find the field info for each column. Note: the order of keys in "fields" may not match the order in "results".
         fieldOrder.forEach(function(el, idx){
           field = el.fieldName;
-          var foundEl = response['fields'].find( matchingField );
+          var foundEl = response['fields'].find( matchingField );          
           var format = foundEl ? { "dataType": foundEl["type"], "decPos": foundEl["decPos"] } : {'dataType':'char'};
-          worksheet.setColumnFormat(idx, format);
+          worksheet.setColumnFormat(format, idx);
         });
       }
 
@@ -1362,7 +1346,7 @@ pui.Grid = function () {
               field = colEl.fieldName;
               var foundEl = me.columnInfo.find( matchingField );
               heading = (foundEl ? foundEl['name'] : '');
-              worksheet.setCell(colNum, heading, 'char');
+              worksheet.setCell(heading, colNum);
             }
           }
         }
@@ -1371,19 +1355,14 @@ pui.Grid = function () {
           for (var n=fieldOrder.length; colNum < n; colNum++){
             // Get the headings directly from the DOM cells.
             heading = me.cells[0][colNum] ? rtrim(getInnerText(me.cells[0][colNum])) : '';
-            worksheet.setCell(colNum, heading, 'char');
+            worksheet.setCell(heading, colNum);
           }
         }
         
-        // In case numCols != the grid's "number of columns": use blanks in those headings. #6192.
-        while (colNum < numCols){
-          worksheet.setCell(colNum++, '', "char");
-        }
+        worksheet.headerRowHeightpx = me.headerHeight;
       }
 
-      // XLSX can't use "," as separator. Assume appJob decimalFormat is the same as the CGI helper job's decimal format.
-      var hasCommaSep = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
-      // Look at each result cell. Format if necessary. Add to worksheet.
+      // Look at each result cell. and add to worksheet.
       for (var rowNum=0, n=response["results"].length; rowNum < n; rowNum++) {
         worksheet.newRow();
         var row = response["results"][rowNum];
@@ -1394,25 +1373,12 @@ pui.Grid = function () {
           // An alias may be in lowercase when the result may be upper. #6600.
           if (value == null && field.fieldName) value = row[ field.fieldName.toUpperCase() ];
           
-          if (value != null){
-            var datatype = worksheet.formats[colNum]["dataType"];
-            if (hasCommaSep && (datatype == "zoned" || datatype == "packed")) {
-              value = value.replace(/[.]/g, ""); //remove thousands separator.
-              value = value.replace(",", "."); //decimal separator becomes ".".
-            }
-          }
-          else {
-            value = '';  //There could be more or fewer result fields than columns.
-          }
-          //Note: Excel accepts scientific notation as values, so float/real/double are sent verbatim.
-          worksheet.setCell(colNum, value);
+          worksheet.setCell(value, colNum, null, response['fields'] == null);
           colNum++;
         }
       }
 
-      workbook.fileName = fileName;
-      workbook.worksheet = worksheet;
-      workbook.download();
+      workbook.download(fileName);      
     } //end makexlsx().
   };
 
