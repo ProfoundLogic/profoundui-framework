@@ -3513,31 +3513,289 @@ pui.setHtmlWithEjs = function(dom, html) {
   }
 };
 
+//
+// Classes for exporting XLSX documents.
+//
+
+/**
+ * Parent class for XLSX exporting classes, containing read-only properties the child classes inherit.
+ * Child classes can call deleteOwnProperties because of pui.BaseClass.
+ * @type Object
+ */
+pui.xlsx = Object.create(pui.BaseClass.prototype, {
+  XMLSTART: {value: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'},
+  XMLNS_BASE: {value: 'http://schemas.openxmlformats.org'},
+  MIME_OPENXML: {value: 'application/vnd.openxmlformats'}    //MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
+});
+// These read-only properties depend on the initially defined ones.
+Object.defineProperties(pui.xlsx, {
+  MIME_XLSX_BASE: {value: pui.xlsx.MIME_OPENXML + '-officedocument.spreadsheetml'},
+  XMLNS_SPREADSHEET: {value: pui.xlsx.XMLNS_BASE + '/spreadsheetml/2006/main'},
+  XMLNS_PACKAGE_RELS: {value: pui.xlsx.XMLNS_BASE + '/package/2006/relationships'},
+  XMLNS_OFFICEDOC_RELS: {value: pui.xlsx.XMLNS_BASE + '/officeDocument/2006/relationships'}
+});
+
 /**
  * A class that creates an XLSX workbook, which must contain a worksheet and can contain images and hyperlinks.
  * @constructor
+ * @param {pui.xlsx_worksheet} worksheet 
  */
-pui.xlsx_workbook = function(){
-  this.fileName = "sheet";
-  this.worksheet = null;  //xlsx_worksheet - required before download
-  this.drawing = null;    //xlsx_drawing or undefined
+pui.xlsx_workbook = function(worksheet){
+  /**
+   * For now the workbook supports a single worksheet.
+   * @type pui.xlsx_worksheet
+   */
+  this.worksheet = worksheet;
+  this.worksheet.workbook = this;  //Worksheets need access to some workbook methods.
   
-  // Allows hyperlink targets (the URLs) to be generated as "relationships" in the workbook.
-  // An array of { text:"", target:"", row:"", col:""}.
-  // Let the relationship id, rId#, be +2 over the array index. E.g. hyperlink[0] is "rId2".
-  this.hyperlinks = null;
+  /**
+   * @type pui.xlsx_drawing
+   */
+  this.drawing = null;    //xlsx_drawing or undefined
 
   // An object that implements setDownloadStatus and fireDownloadCleanup; e.g. the grid's paging bar.
   this.feedbackObj = null;
+  
+  this.sst = {};  //Shared strings table. mapping of strings to values used in dataset.
+  this.sst_count = 0;
+  
+  /**
+   * Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
+   * The two formats here are used for all of our exported XLSX workbooks. "numFmtId" points to this.NUM_FMTS.
+   * @type Array.<String>  "<cellXfs>".
+   */
+  this.cellFormats = [
+    // s=0: general, no formatting.
+    {numfmtid:0, fontid:0, fillid:0, borderid:0, xfid:0},
+    // s=1: number with 2 decimal places. numFmtId 2 is defined implicitly.
+    {numfmtid:2, fontid:0, fillid:0, borderid:0, xfid:0, applynumberformat:1}
+  ];
+  this.cellFormat2DecPos = 1;  //Format for s="1", numFmtId="2", defined above.
+  
+  // Blue colored font--needed when hyperlinks are used in a worksheet.
+  this.cellFormatHyperlink = {numfmtid:0, fontid:1, fillid:0, borderid:0, xfid:1};
+  this.cellFormatHyperlinkId = -1;
+  
+  // General, no formatting, align wrap--needed for cells that have newlines.
+  this.cellFormatWrap = {numfmtid:0, fontid:0, fillid:0, borderid:0, xfid:0, applyalignment:1, alignment: {wraptext: 1}};
+  this.cellFormatWrapId = -1;
+
+  /**
+   * Number formats - may be used in cell formats. "<numFmts>". numFmtIds 0-49 are defined implicitly: 
+   * https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
+   * Other formats must be defined explicitly in the XML. A cell format must also be defined for each numFmt.
+   * @type Object    The key is the Profound UI string; the value is an object with properties: id, cellFormatId, format.
+   */
+  this.numFmts = {};
+  this.numFmtsCount = 0;
 };
-pui.xlsx_workbook.prototype = Object.create(pui.BaseClass.prototype);
+pui.xlsx_workbook.prototype = Object.create(pui.xlsx);
+
+/**
+ * Add a string to the workbook's shared strings table and return the object, or just return the already defined object.
+ * @param {String} value          Assume value is a non-empty string.
+ * @param {Boolean} useHyperlink
+ * @returns {Object}
+ */
+pui.xlsx_workbook.prototype.useSharedString = function(value, useHyperlink){
+  var storedVal = this.sst[value];   //Reference the object from the shared strings table.
+  if (storedVal == null){
+    storedVal = this.sst[value] = {
+      value: this.sst_count++,      //store the unique shared string and its ID, then increment the ID.
+      isString: true
+    };
+
+    if (useHyperlink){
+      // The cell has a hyperlink, so use that style.
+      storedVal.cellFormatId = this.useFormatHyperlink();
+    }
+    else if (/[\n\r]/.test(value)){
+      // The cell has wrapping characters, so add a style for that.
+      storedVal.cellFormatId = this.useFormatWrap();
+    } 
+
+  }
+  return storedVal;
+};
+
+/**
+ * Define a cell format that uses a blue font for hyperlinks and return the format, or just return the already defined cell format id.
+ * @returns {Number}  Cell format ID.
+ */
+pui.xlsx_workbook.prototype.useFormatHyperlink = function(){
+  if (this.cellFormatHyperlinkId < 0) this.cellFormatHyperlinkId = this.cellFormats.push(this.cellFormatHyperlink) - 1;
+  return this.cellFormatHyperlinkId;
+};
+
+/**
+ * Define a cell format that wraps cell text at NL|CR and return the format, or just return the already defined cell format id.
+ * @returns {Number}  Cell format ID.
+ */
+pui.xlsx_workbook.prototype.useFormatWrap = function(){
+  if (this.cellFormatWrapId < 0) this.cellFormatWrapId = this.cellFormats.push(this.cellFormatWrap) - 1;
+  return this.cellFormatWrapId;
+};
+
+/**
+ * Return a cellFormatId associated with a format string. If a number format associated with the format string does not exist,
+ * then create a number format and return a cellFormatId referencing it. Cells reference cellFormats directly. Cell formats 
+ * reference Number Formats.
+ * @param {String} formatStr    A format used by Profound UI; e.g. "Y-m-d". See https://docs.profoundlogic.com/x/A4Bw
+ * @param {String} locale       Needed for certain formats, e.g. he_IL.
+ * @returns {Number}
+ */
+pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale){
+  var cellFormatId;
+  if (typeof formatStr !== 'string') formatStr = '';
+  if (typeof locale !== 'string') locale = '';
+
+  var numfmt = this.numFmts[ locale + formatStr ];
+  if (numfmt != null){
+    // A cell format and number format already exist for the format string;
+    cellFormatId = numfmt.cellFormatId;
+  }
+  else {
+    // The format does not match any cell or number formats defined so far; so create a cell format and, if necessary, a number format.
+
+    // Does the format correspond to any formats that are built-in to the XLSX specs?
+    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
+    var numFmtId = -1;
+    switch (formatStr){
+      case 'm-d-y':     numFmtId = 14; break;  //mm-dd-yy
+      case 'j-M-y':     numFmtId = 15; break;  //d-mmm-yy
+      case 'j-M':       numFmtId = 16; break;  //d-mmm
+      case 'M-y':       numFmtId = 17; break;  //mmm-yy
+      case 'g:i A':     numFmtId = 18; break;  //h:mm AM/PM.   Note: when am|pm exist in the format, the cell displays in 12-hour form.
+      case 'g:i:s A':   numFmtId = 19; break;  //h:mm:ss AM/PM
+      case 'g:i:s':     numFmtId = 19; break;  //h:mm:ss  Assume adding am|pm is a better match here than showing the 24-hour format.
+      case 'G:i':       numFmtId = 20; break;  //h:mm
+      case 'G:i:s':     numFmtId = 21; break;  //h:mm:ss
+      case 'm/d/y G:i': numFmtId = 22; break;  //m/d/yy h:mm
+      case 'i:s':       numFmtId = 45; break;  //mm:ss
+      case 'isu':       numFmtId = 47; break;  //mmss.0
+    }
+
+    if (numFmtId >= 0){
+      // The number format is implicitly defined in the document specs; add a cell format to reference it.
+      cellFormatId = this.defineCellFormat(numFmtId);
+    }
+    else {
+      // The number format must be explicitly defined, and a cell format must be added for it.
+      var xlformat = '';
+      
+      // Some locales use their own version of format like "l F j Y". Other locales can be implemented like this, as needed.
+      if (locale === 'he_IL') xlformat += '[$-101040D]';
+      
+      switch (formatStr){
+        // "R" means just the hour. i.e. *HMS, *JIS time formats, not the full RFC2822 date.
+        case 'R:i:s': xlformat = 'hh:mm:ss'; break;
+        
+        // "R" means just the hour. i.e. *ISO, *EUR time formats.
+        case 'R.i.s': xlformat = 'hh\\.mm\\.ss'; break;
+          
+        // There is no equivalent for "g" or "h" without am|pm, so output am|pm.
+        case 'g:i:s': xlformat = 'h:mm:ss am/pm'; break;
+        case 'h:i:s': xlformat = 'hh:mm:ss am/pm'; break;
+          
+        // Full Date/Time; RFC 2822. Note: there is no time-zone format code for XLSX, so omit UTC offset.
+        case 'R': xlformat = 'ddd\\,\\ dd\\ mmm\\ yyyy\\ hh:mm:ss'; break;
+          
+        // Work around our standard timestamp pattern to avoid adding milliseconds twice. Microseconds smaller than a millisecond 
+        // are not shown. Also, Excel shows the date oddly if "." is used instead of ":".
+        case 'Y-m-d-H.i.s.uu': xlformat = 'yyyy\\-mm\\-dd\\-hh\\.mm\\.ss.0'; break;
+
+        default:
+          // Translate each Profound UI formatting character code into the Excel code. Modify when necessary.
+          // https://support.microsoft.com/en-us/office/number-format-codes-5026bbd6-04bc-48cd-bf33-80f18b4eae68
+          for (var i=0, n=formatStr.length; i < n; i++){
+            var fchar = formatStr.charAt(i);
+            switch (fchar){
+              // Day
+              case 'd': xlformat += 'dd'; break;     //2-digit day of month
+              case 'D': xlformat += 'ddd'; break;    //Short day of week name
+              case 'j': xlformat += 'd'; break;      //day of month without leading zero.
+              case 'l': xlformat += 'dddd'; break;   //Full day of week name.
+              case 'S': xlformat += '\\S'; break;    //suffix for day of month; e.g. st, nd, rd, th; unsupported.
+              case 'z': xlformat += '\\z'; break;    //day of the year starting from 0.
+
+              // Month
+              case 'F': xlformat += 'mmmm'; break;   //Full month name.
+              case 'm': xlformat += 'mm'; break;     //2-digit month number.
+              case 'M': xlformat += 'mmm'; break;    //Short month name.
+              case 'n': xlformat += 'm'; break;      //month number without leading zero.
+
+              // Year
+              case 'Y': xlformat += 'yyyy'; break;
+              case 'y': xlformat += 'yy'; break;
+
+              // Time
+              case 'g': xlformat += 'h'; break;      //12-hour format without leading zeros; time will display as 24-hour unless am|pm is in the format.
+              case 'h': xlformat += 'hh'; break;     //12-hour format with leading zeros; time will display as 24-hour unless am|pm is in the format.
+              case 'G': xlformat += 'h'; break;      //24-hour without leading zeros.
+              case 'H': xlformat += 'hh'; break;     //24-hour with leading zeros.
+
+              case 'i': xlformat += 'mm'; break;     //minutes with leading zeros (if preceded by colon)
+              case 's': xlformat += 'ss'; break;     //seconds with leading zeros (if preceded by colon)
+              case 'u': xlformat += '.0'; break;     //microseconds.
+
+              // Note: if am|pm are included in the format, then the hours are 12-hour form; otherwise, hours are 24-hour form.
+              case 'a': xlformat += 'am/pm'; break;
+              case 'A': xlformat += 'AM/PM'; break;
+
+              case '"': xlformat += '&quot;'; break;
+
+              // Separator characters that Excel expects should include backslashes.
+              case ' ': xlformat += '\\ '; break;
+              case '-': xlformat += '\\-'; break;
+              case '.': xlformat += '\\.'; break;
+              case ',': xlformat += '\\,'; break;
+
+              // Characters to output unchanged.
+              case '/': xlformat += '/'; break;
+              case ':': xlformat += ':'; break;
+
+              // Other characters will be part of the string. Precede with a slash.
+              default: xlformat += '\\' + fchar; break;
+            }
+          }
+          break;
+      }
+      
+      numFmtId = 164 + this.numFmtsCount;    //Excel seems to reserve number format IDs up to 164.
+      this.numFmtsCount++;
+      
+      cellFormatId = this.defineCellFormat(numFmtId);
+      numfmt = {
+        id: numFmtId,
+        cellFormatId: cellFormatId,
+        code: xlformat
+      };
+      this.numFmts[locale + formatStr] = numfmt;
+    }
+  }
+  
+  return cellFormatId;
+};
+
+/**
+ * Define a cell format that uses the number format id; add that format to the list of cell formats.
+ * @param {Number} numFmtId
+ * @returns {Number}  Returns the cell format ID that uses the number format ID.
+ */
+pui.xlsx_workbook.prototype.defineCellFormat = function(numFmtId){
+  var cellFmt = {numfmtid: numFmtId, fontid:0, fillid:0, borderid:0, xfid:0, applynumberformat:1};
+  return this.cellFormats.push(cellFmt) - 1;
+};
 
 /**
  * Create a xlsx file from the worksheet and cause a Save As dialog to appear in the browser asynchronously.
  * Loads the necessary JavaScript libraries if they are not loaded already.
- * @returns {undefined}
+ * Pre-conditions: setWorksheet must have been called.
+ * @param {String} fileName
  */
-pui.xlsx_workbook.prototype.download = function(){
+pui.xlsx_workbook.prototype.download = function(fileName){
+  this.fileName = fileName || "sheet";
+  
   // If necessary, load the required JSZip library and FileSaver "polyfill".
   var path = "/jszip/jszip.min.js";
   if (typeof JSZip == "function"){
@@ -3578,17 +3836,16 @@ pui.xlsx_workbook.prototype._loadSaveAsJS = function(){
 
 pui.xlsx_workbook.prototype._librariesLoaded = function(){
   if (this.drawing){
-    this.drawing.loadImages( this._fullyloaded.bind(this), this.feedbackObj );
+    this.drawing.loadImages( this._build.bind(this), this.feedbackObj );
   }else{
-    this._fullyloaded();
+    this._build();
   }
 };
  
 /**
- * JSZip and the FileSaver are loaded, so build the Excel workbook.
- * Pre-Condition: this.worksheet must be set.
+ * JSZip and the FileSaver are loaded, so build the Excel workbook. Also, call a method to prompt to save it.
  */
-pui.xlsx_workbook.prototype._fullyloaded = function(){
+pui.xlsx_workbook.prototype._build = function(){
   if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == 'function')
     this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
 
@@ -3596,55 +3853,62 @@ pui.xlsx_workbook.prototype._fullyloaded = function(){
   // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
 
   //[Content_Types].xml
-  var content_types = pui.xmlstart
-  +'<Types xmlns="'+pui.xlsx_domain+'/package/2006/content-types">'
-  +  '<Default Extension="rels" ContentType="'+pui.mime_openxml+'-package.relationships+xml"/>'
+  var content_types = pui.xlsx.XMLSTART
+  +'<Types xmlns="'+pui.xlsx.XMLNS_BASE+'/package/2006/content-types">'
+  +  '<Default Extension="rels" ContentType="'+pui.xlsx.MIME_OPENXML+'-package.relationships+xml"/>'
   +  '<Default Extension="xml" ContentType="application/xml"/>';
   if (this.drawing){
-    var extraExtensions = this.drawing.getExtensions();
+    var extraExtensions = this.drawing.extensions;
     for (var ext in extraExtensions ){
       content_types += '<Default Extension="'+ext+'" ContentType="'+extraExtensions[ext]+'"/>';
     }
   }
   content_types +=
-     '<Override PartName="/xl/workbook.xml" ContentType="'+pui.mime_xlsx_base+'.sheet.main+xml"/>'
-  +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+pui.mime_xlsx_base+'.worksheet+xml"/>'
-  +  '<Override PartName="/xl/styles.xml" ContentType="'+pui.mime_xlsx_base+'.styles+xml"/>'
-  +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+pui.mime_xlsx_base+'.sharedStrings+xml"/>';
+     '<Override PartName="/xl/workbook.xml" ContentType="'+this.MIME_XLSX_BASE+'.sheet.main+xml"/>'
+  +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+this.MIME_XLSX_BASE+'.worksheet+xml"/>'
+  +  '<Override PartName="/xl/styles.xml" ContentType="'+this.MIME_XLSX_BASE+'.styles+xml"/>'
+  +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+this.MIME_XLSX_BASE+'.sharedStrings+xml"/>';
   if (this.drawing != null){
-    content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+pui.mime_openxml+'-officedocument.drawing+xml"/>';
+    content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+this.MIME_OPENXML+'-officedocument.drawing+xml"/>';
   }
   content_types += '</Types>';
 
   //_rels/.rels
-  var rels = pui.xmlstart
-  +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
-  +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/officeDocument" Target="xl/workbook.xml"/>'
+  var rels = this.XMLSTART
+  +'<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">'
+  +  '<Relationship Id="rId1" Type="'+this.XMLNS_OFFICEDOC_RELS+'/officeDocument" Target="xl/workbook.xml"/>'
   +'</Relationships>';
 
   //xl/workbook.xml
   var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-  +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
-  //Try the following 2 lines for iOS compatibility.
-//    +'<workbook xmlns="'+pui.xlsx_xmlns_spreadsheet+'" xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'"'
-//    +' xmlns:mc="'+pui.xlsx_domain+'/markup-compatibility/2006" mc:Ignorable="x15 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">'
+  +'<workbook xmlns="'+this.XMLNS_SPREADSHEET+'" xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'">'
   +  '<sheets>'
   +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
   +  '</sheets>'
   +'</workbook>';
 
   //xl/_rels/workbook.xml.rels
-  var workbookrels = pui.xmlstart
-  +'<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">'
-  +  '<Relationship Id="rId3" Type="'+pui.xlsx_xmlns_officedoc_rels+'/styles" Target="styles.xml"/>'
-  +  '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/worksheet" Target="worksheets/sheet1.xml"/>'
-  +  '<Relationship Id="rId4" Type="'+pui.xlsx_xmlns_officedoc_rels+'/sharedStrings" Target="sharedStrings.xml"/>'
+  var workbookrels = this.XMLSTART
+  +'<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">'
+  +  '<Relationship Id="rId3" Type="'+this.XMLNS_OFFICEDOC_RELS+'/styles" Target="styles.xml"/>'
+  +  '<Relationship Id="rId1" Type="'+this.XMLNS_OFFICEDOC_RELS+'/worksheet" Target="worksheets/sheet1.xml"/>'
+  +  '<Relationship Id="rId4" Type="'+this.XMLNS_OFFICEDOC_RELS+'/sharedStrings" Target="sharedStrings.xml"/>'
   +'</Relationships>';
 
   //x1/styles.xml - at least one of each font, fill, and border is required.
-  var styles = pui.xmlstart 
-  +'<styleSheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'">'
-  +  '<fonts count="2">'
+  var styles = this.XMLSTART +'<styleSheet xmlns="'+this.XMLNS_SPREADSHEET+'">';
+  
+  // Add Number formats for all date, time, and timestamp formats used.
+  if (this.numFmtsCount > 0){
+    styles += '<numFmts count="'+this.numFmtsCount+'">';
+    for (var key in this.numFmts){
+      var numFmt = this.numFmts[key];
+      if (numFmt.id > 0) styles += '<numFmt numFmtId="'+ numFmt.id +'" formatCode="'+ numFmt.code +'"/>';
+    }
+    styles += '</numFmts>';
+  }
+  
+  styles += '<fonts count="2">'
   +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
   // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
   +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
@@ -3655,71 +3919,93 @@ pui.xlsx_workbook.prototype._fullyloaded = function(){
   +  '<cellStyleXfs count="2">'
   +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>'  //normal font.
   +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>'  //blue font for hyperlinks
-  +'</cellStyleXfs>' 
-  // Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
-  // numFmtIds 0-49 are not defined explicitly:
-  // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
-  // To define formats not built into Excel, <numFmts><numFmt /></numFmts> must be specified for each.
-  // For now, handle 2-decimal formating; everything else gets general formatting.
-  +  '<cellXfs count="4">'
-  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'   // general, no formatting.
-  +    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' //number with 2 decimal places.
-  +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="1"/>'   // blue for hyperlink
-  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">'   // general, no formatting, align wrap.
-  +      '<alignment wrapText="1"/>'
-  +    '</xf>'
-  +  '</cellXfs>'
-  +  '<dxfs count="0"/>'
-  +'</styleSheet>';
-
-  var sheetrels;
-  // Hyperlinks and drawings need sheet relationships.
-  if (this.drawing || this.hyperlinks){
-    sheetrels = pui.xmlstart + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
-
-    if (this.drawing){
-      sheetrels += '<Relationship Id="rId1" Type="'+pui.xlsx_xmlns_officedoc_rels+'/drawing" Target="../drawings/drawing1.xml"/>';
-    }
-    if (this.hyperlinks != null && this.hyperlinks.length > 0){
-      for (var i=0; i < this.hyperlinks.length; i++){
-        sheetrels += '<Relationship Id="rId'+(i+2)+'" Type="'+pui.xlsx_xmlns_officedoc_rels+'/hyperlink" Target="'
-          + pui.xmlEscape(this.hyperlinks[i].target) + '" TargetMode="External"/>';
-      }
-    }
-
-    sheetrels += '</Relationships>';
+  +'</cellStyleXfs>';
+  
+  //
+  // Cell Formats - formatting applied to cells.
+  //
+  styles += '<cellXfs count="' + this.cellFormats.length + '">';
+  
+  for (var i=0, n=this.cellFormats.length; i < n; i++){
+    var cellfmt = this.cellFormats[i];
+    
+    styles += '<xf';
+    var attr = cellfmt.numfmtid || 0;
+    styles += ' numFmtId="'+ attr +'"';
+    
+    attr = cellfmt.fontid || 0;
+    styles += ' fontId="'+ attr +'"';
+    
+    attr = cellfmt.fillid || 0;
+    styles += ' fillId="'+ attr +'"';
+    
+    attr = cellfmt.borderid || 0;
+    styles += ' borderId="'+ attr +'"';
+    
+    attr = cellfmt.xfid || 0;
+    styles += ' xfId="'+ attr +'"';
+    
+    if (cellfmt.applynumberformat) styles += ' applyNumberFormat="'+ cellfmt.applynumberformat +'"';
+    if (cellfmt.applyalignment) styles += ' applyAlignment="'+ cellfmt.applyalignment +'"';
+    
+    if (cellfmt.alignment && cellfmt.alignment.wraptext) styles += '><alignment wrapText="'+cellfmt.alignment.wraptext+'"/></xf>';
+    else styles += '/>';
   }
-
+  styles += '</cellXfs>'
+  +'<dxfs count="0"/>'
+  +'</styleSheet>';
+  
   var zip = new JSZip();
 
   zip["file"]("[Content_Types].xml", content_types);
   zip["file"]("_rels/.rels", rels);
   zip["file"]("xl/workbook.xml", workbook);
   zip["file"]("xl/styles.xml", styles);
-  zip["file"]("xl/sharedStrings.xml", this.worksheet.getSharedStringsXML() );
+  zip["file"]("xl/sharedStrings.xml", this.getSharedStringsXML() );
   zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
   zip["file"]("xl/worksheets/sheet1.xml", this.worksheet.getSheetXML() );
-  if (this.drawing || this.hyperlinks){
-    zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
-    if (this.drawing){
-      zip["file"]("xl/drawings/drawing1.xml", this.drawing.getDrawingXML());
-      zip["file"]("xl/drawings/_rels/drawing1.xml.rels", this.drawing.getDrawingRelsXML());
-      var images = this.drawing.getImages();
-      for (var i=0; i < images.length; i++){
-        if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
-          zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
-      }
+  
+  var relationships = this.worksheet.rels;
+  if (this.drawing){
+    relationships.push({type: 'drawing', target: '../drawings/drawing1.xml'});
+    
+    zip["file"]("xl/drawings/drawing1.xml", this.drawing.getDrawingXML());
+    zip["file"]("xl/drawings/_rels/drawing1.xml.rels", this.drawing.getDrawingRelsXML());
+    var images = this.drawing.rels;
+    for (var i=0; i < images.length; i++){
+      if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
+        zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
     }
+  }
+  
+  if (relationships.length > 0){
+    // Hyperlinks and drawings need sheet relationships.
+    var sheetrels = this.XMLSTART + '<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">';
+
+    for (var i=0, n=relationships.length; i < n; i++){
+      var rel = relationships[i];
+      var targetmode = '';
+      if (rel.type === 'hyperlink') targetmode = ' TargetMode="External"';
+
+      sheetrels += '<Relationship Id="rId'+ (i+1) +'" Type="'+this.XMLNS_OFFICEDOC_RELS+'/'+ rel.type  +'" Target="'
+        + pui.xmlEscape(rel.target) + '"'+ targetmode +'/>';
+    }
+
+    sheetrels += '</Relationships>';
+    
+    zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
   }
 
   // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
-  var zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": pui.mime_xlsx_base+".sheet"};
+  var zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": this.MIME_XLSX_BASE+".sheet"};
   var promise = zip["generateAsync"](zipconfig);
   promise["then"](this._zipResolved.bind(this), this._cleanup.bind(this));
 };
 
 pui.xlsx_workbook.prototype._cleanup = function(){
   if (this.feedbackObj && typeof this.feedbackObj.fireDownloadCleanup == 'function') this.feedbackObj.fireDownloadCleanup();
+  this.worksheet.deleteOwnProperties();
+  if (this.drawing) this.drawing.deleteOwnProperties();
   this.deleteOwnProperties();
 };
 
@@ -3728,557 +4014,837 @@ pui.xlsx_workbook.prototype._zipResolved = function(blob){
   this._cleanup();
 };
 
+/**
+ * Return an XML document string containing the Excel shared strings table.
+ * @returns {String}
+ */
+pui.xlsx_workbook.prototype.getSharedStringsXML = function(){
+  // Order the shared strings by the index id. Assume there are no gaps in indices.
+  var sst_inorder = [];
+  for (var str in this.sst){
+    var obj = this.sst[str];
+    var idx = obj.value;
+    sst_inorder[idx] = str;
+  }
+
+  var xml = this.XMLSTART + '<sst xmlns="'+this.XMLNS_SPREADSHEET+'" count="'
+    + String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
+  for (var i=0, n=sst_inorder.length; i < n; i++){
+    xml += '<si><t>' + pui.xmlEscape(sst_inorder[i]) + '</t></si>';
+  }
+  xml += '</sst>';
+  return xml;
+};
+
+/**
+ * Convert an ECMAScript Date to a Microsoft OADate, the number of days since Dec 30th, 1899 12am (midnight). Treat all dates as local.
+ * Note: dates between Jan 1 1900 and March 1 1900 return a number incorrect by 1 day, due to an XL design problem. Do not use this for those dates.
+ * Source: https://stackoverflow.com/questions/15549823/oadate-to-milliseconds-timestamp-in-javascript
+ * License: Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+ * Bibliography:
+ *   https://docs.microsoft.com/en-us/dotnet/api/system.datetime.tooadate?&view=net-6.0#System_DateTime_ToOADate
+ *   https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year
+ *   https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system
+ * @param {Date} date    Date to convert
+ * @returns {Number}
+ */
+pui.xlsx_workbook.prototype.dateToOADate = function(date){
+  var temp = new Date(date);
+  temp.setHours(0,0,0,0);    //Set temp to start of day and get whole days between dates,
+  var temp2 = new Date(1899, 11, 30);   //December 30th 1899 00:00:00 (midnight).
+  var days = Math.round((temp - temp2) / 8.64e7);
+  // Get decimal part of day, OADate always assumes 24 hours in day
+  var partDay = (Math.abs((date - temp) % 8.64e7) / 8.64e7).toFixed(10);
+  return Number(days + partDay.substr(1));
+};
+
 //
 // end of xlsx_workbook class.
-// 
+//
+
+//
+// xlsx_worksheet class.
+//
 
 /**
  * Worksheet object for creating XML strings for MS Excel 2007+ workbooks.
  * @constructor
  * @param {Number} numcols
- * @returns {undefined}
+ * @returns {pui.xlsx_worksheet}
  */
 pui.xlsx_worksheet = function(numcols){
+  this.numColumns = numcols;
+  this.rows = [];
+  this.lastRowNum = -1;  //The index of the last row in rows; -1 when no rows are added.
   
-  var me = this;
+  /**
+   * @type Number    Height in pixels. Set by Grid.
+   */
+  this.defaultRowHeightpx = 20;
+  this.colWidths = [];
   
-  var numColumns = numcols;
-  var rows = null;
-  var sst = {}; //Shared strings table. mapping of strings to values used in dataset.
-  var sst_count = 0;
-  var defaultRowHeightpx = 20;
-  var colWidths = [];
+  this.useDrawing = false; //When true, one drawing reference is included in the sheet xml.
   
-  var curCol = 0; //Needed for this.addCell.
+  this.formats = [];    //column formats.
   
-  var useDrawing = false; //When true, one drawing reference is included in the sheet xml.
+  this.charcounts = [];  //max number of characters in each column; to calculate <col width="">.
+  this.fontMaxDigitWidth = 7; //max pixel width of 11pt font.
   
-  var hyperlinks;
+  /**
+   * Relationships for hyperlink targets or drawings. Generated as "Relationship" tags in the sheet xml.rels file.
+   * Let the relationship id, "rId#", be the array index + 1. 
+   * @type Array.<Object>    Array of objects with properties: type (link|drawing), target, targetmode ("External" for links).
+   */
+  this.rels = [];
   
+  /**
+   * References hyperlink "relationships" with cells in the worksheet. Generated as "hyperlink" tags in the sheet XML.
+   * @type Array.<Object>  List of objects with properties: row, col, relId--the relationship object containing the link target.
+   */
+  this.hyperlink_refs = [];
+  
+  //
+  // Store default time/date/timestamp separators and formats and the locale default in case cell formats are unknown.
+  //
+  var datfmt = pui.getSQLDateFmt();
+  this.datsep = null;
+  switch (datfmt.sep){
+    case 1: this.datsep = '/'; break;
+    case 2: this.datsep = '-'; break;
+    case 3: this.datsep = '.'; break;
+    case 4: this.datsep = ','; break;
+    case 5: this.datsep = ' '; break;
+    case 7: this.datsep = pui.appJob && pui.appJob.dateSeparator ? pui.appJob.dateSeparator : null; break;  //*JOB
+  }
+  
+  // Default format strings per type: date, time, timestamp. Keys correspond to field formatting keys.
+  this.defaultFmtStr = {
+    'dateFormat': 'Y-m-d',
+    'timeFormat': 'H.i.s'
+  };
+  
+  // Get date format string. Default is *ISO. Separator is fixed, as with USA, EUR, and JIS. "this.tsformatStr" needs "this.datsep".
+  switch (datfmt.fmt){
+    case 1: this.defaultFmtStr['dateFormat'] = 'Y-m-d'; this.datsep = '-'; break; //*ISO
+    case 2: this.defaultFmtStr['dateFormat'] = 'm/d/Y'; this.datsep = '/'; break; //*USA
+    case 3: this.defaultFmtStr['dateFormat'] = 'd.m.Y'; this.datsep = '.'; break; //*EUR
+    case 4: this.defaultFmtStr['dateFormat'] = 'Y-m-d'; this.datsep = '-'; break; //*JIS
+    case 5: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'm'+this.datsep+'d'+this.datsep+'y'; break; //*MDY
+    case 6: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'd'+this.datsep+'m'+this.datsep+'y'; break; //*DMY
+    case 7: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'y'+this.datsep+'m'+this.datsep+'d'; break; //*YMD
+    case 8: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'y'+this.datsep+'z'; break; //*JUL
+  }
+  
+  var timfmt = pui.getSQLTimeFmt();
+  var timesep = null;
+  switch (timfmt.sep){
+    case 3: timesep = '.'; break;
+    case 4: timesep = ','; break;
+    case 5: timesep = ' '; break;
+    case 6: timesep = ':'; break;
+    case 7: timesep = pui.appJob && pui.appJob.timeSeparator ? pui.appJob.timeSeparator : null; break;  //*JOB
+  }
+  
+  // Get time format string. Default is *ISO. Separator is fixed, as with USA, EUR, and JIS.
+  switch (timfmt.fmt){
+    case 1: this.defaultFmtStr['timeFormat'] = 'H.i.s'; break; //*ISO
+    case 2: this.defaultFmtStr['timeFormat'] = 'h:m A'; break; //*USA
+    case 3: this.defaultFmtStr['timeFormat'] = 'h.m.s'; break; //*EUR
+    case 4: this.defaultFmtStr['timeFormat'] = 'h:m:s'; break; //*JIS
+    case 9: if (typeof timesep === 'string') this.defaultFmtStr['timeFormat'] = 'h'+timesep+'m'+timesep+'s'; break; //*HMS
+  }
+  
+  this.defaultFmtStr['timeStampFormat'] = this.defaultFmtStr['dateFormat'] + this.datsep + this.defaultFmtStr['timeFormat'] + '.uu';
+  
+  this.locale = pui['locale'] && pui.locales[pui["locale"]] ? pui.locales[pui["locale"]] : 'en_US';
+  
+  // Needed for storing numbers. Assume appJob decimalFormat is the same as the CGI helper job's decimal format.
+  this.decimalSepComma = pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J");
+};
+pui.xlsx_worksheet.prototype = Object.create(pui.xlsx);
+
+/**
+ * Add a new row for cells to go. Grid should add cells and rows in a sequential order.
+ */
+pui.xlsx_worksheet.prototype.newRow = function(){
+  this.lastRowNum = this.rows.push([]) - 1;
+};
+
+/**
+ * @param {Array.<Number>} arr  An array with Numeric pixel values for each column in the grid.
+ */
+pui.xlsx_worksheet.prototype.setColumnWidths = function(arr){
+  this.colWidths = arr;
+};
+
+/**
+ * Set a column's format internally. The format determines XLSX style and whether a column's cells need to be in the Shared Strings
+ * Table. All are stored as strings except:
+ *   "zoned", "packed", and "floating" are stored as literal value.
+ *   "date", "time", and "timestamp" are stored as floating point numbers.
+ * @param {Object} format   References bound value object from grid's me.runtimeChildren. Includes properties:
+ *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); locale; dateFormat, etc.
+ * @param {Number} col      The zero-based column index.
+ */
+pui.xlsx_worksheet.prototype.setColumnFormat = function(format, col){
+  if (typeof this.formats[col] !== 'object' || this.formats[col] === null) this.formats[col] = {'dataType': 'char'};
+  
+  this.numColumns = Math.max(this.numColumns, col);
+  
+  var datatype = "char";
+  if (typeof format["dataType"] === 'string'){
+    if (format["dataType"].length == 1){
+      //If DB-driven grid calls setColumnFormat, then type names are in IBM format.
+      switch (format["dataType"]) {
+        case "L": datatype = "date"; break;
+        case "T": datatype = "time"; break;
+        case "Z": datatype = "timestamp"; break;
+        case "G": datatype = "graphic"; break;
+        case "F": datatype = "floating"; break;
+        case "P": datatype = "packed"; break;
+        case "B": // binary
+        case "I": // integer
+        case "S": // zoned decimal
+        case "U": // unsigned
+        case "Y": // keyboard shift of numeric only - zoned
+          datatype = "zoned"; break;
+      }
+      this.formats[col]["dataType"] = datatype;
+    }
+    else {
+      datatype = format["dataType"];
+      this.formats[col]["dataType"] = datatype;
+    }
+  }
+
+  //
+  // Copy other formatting properties needed for some data types.
+  //
+
+  if (typeof format['decPos'] === 'string') {
+    this.formats[col]['decPos'] = format['decPos'];
+    
+    // If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
+    if (format['decPos'] === "2") this.formats[col].cellFormatId = this.workbook.cellFormat2DecPos;
+  }
+ 
+  // Assume: if the format has dateFormat then it can be formatted as a date; timeFormat formats as time; timeStampFormat formats as TS.
+  // Note: "dataType" and "formatting" may be different, as in #3972 screen dump having zoned columns formatted as Dates.
+  var formatKey = false;
+  if (typeof format['dateFormat'] === 'string' && format['dateFormat'].length > 0) formatKey = 'dateFormat';
+  else if (typeof format['timeFormat'] === 'string' && format['timeFormat'].length > 0) formatKey = 'timeFormat';
+  else if (typeof format['timeStampFormat'] === 'string' && format['timeStampFormat'].length > 0) formatKey = 'timeStampFormat';
+
+  if (typeof formatKey === 'string'){
+    
+    if (typeof format['locale'] === 'string') this.formats[col]['locale'] = format['locale'];
+    else this.formats[col]['locale'] = this.locale;
+    
+    // The column has a date, time, or timestamp type; set the format string, id, and locale on the column.
+    var formatStr = format[formatKey];
+    if (typeof formatStr !== 'string') formatStr = this.defaultFmtStr[formatKey];
+    this.formats[col][formatKey] = formatStr;
+    this.formats[col].cellFormatId = this.workbook.getCellFormatId(formatStr, this.formats[col]['locale']); 
+  }
+  
+  if (typeof format['formatting'] === 'string') this.formats[col]['formatting'] = format['formatting'];
+};
+
+/**
+ * Set a cell value on the last row added to the sheet. Decide what cellFormat it should use.
+ * Pre-Conditions: numbers do not have thousands separators. (As of Jan 2022 the grid does not include 1000s separators.)
+ * @param {String|Number} value  Value to occupy a cell, may become a URL or converted to a number, date, or shared string value.
+ *                               Note: test case for when (typeof value === 'number') is in #4085.
+ * @param {Number} col           The zero-based column index of the worksheet.
+ * @param {undefined|Null|String} hyperlink  A hyperlink string when defined.
+ * @param {undefined|Boolean} tryConvert     When true, values should try converting to date, time, timestamp, or
+ *   numerics. This should only be true when the column formats are unknown, as in a Custom SQL or Data URL Grids.
+ */
+pui.xlsx_worksheet.prototype.setCell = function(value, col, hyperlink, tryConvert){
+  if ((typeof value !== 'string' && typeof value !== 'number') || (typeof value === 'string' && value.length === 0)){
+    // When values are not non-empty strings nor numbers, then leave the cell empty. 
+    this.rows[this.lastRowNum][col] = {value: null};
+    return;
+  }
+  
+  // Define the cell's format from either the column format or a new char format.
+  var colFormatObj = this.formats[col];
+  if (colFormatObj == null) this.formats[col] = colFormatObj = { "dataType": "char" };
+  
+  this.numColumns = Math.max(this.numColumns, col);
+  this.updateCharCount(value, col);
+  
+  // Determine how to store the cell value. Cells must only contain numbers, including floating point, scientific notation, period 
+  // decimal points, and negative signs. Other characters require the value to be stored as a string.
+  // 
+  // Try parsing date, time, and timestamp values first according to their formats.
+  if (typeof colFormatObj['dateFormat'] === 'string' && colFormatObj['dateFormat'].length > 0){
+    if (this.tryTimestamp(value, col, 'dateFormat')) return;
+    // The value did not parse as a date or as a date that XL supports. e.g. pre 1900-01-01 or decimal formatted as date. 
+    // Try storing as number in case the field was a number formatted as a date. #3972.
+    if (this.tryFloatingPoint(value, col)) return;
+    if (this.tryFixedPoint(value, col)) return;
+  }
+  else if (typeof colFormatObj['timeFormat'] === 'string' && colFormatObj['timeFormat'].length > 0){
+    if (this.tryTime(value, col, 'timeFormat')) return;
+  }
+  else if (typeof colFormatObj['timeStampFormat'] === 'string' && colFormatObj['timeStampFormat'].length > 0){
+    if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
+    if (this.tryFloatingPoint(value, col)) return;
+    if (this.tryFixedPoint(value, col)) return;
+  }
+  
+  // Try parsing values according to data types. Note: DBD grids can have data-types and not date|time|timeStamp Formats.
+  switch (colFormatObj['dataType']){
+    case "floating":
+      if (this.tryFloatingPoint(value, col)) return;
+      break;
+    case "packed":
+    case "zoned":
+      if (this.tryFixedPoint(value, col)) return;
+      break;
+    case "date":
+      if (this.tryTimestamp(value, col, 'dateFormat')) return;
+      if (this.tryFloatingPoint(value, col)) return;
+      if (this.tryFixedPoint(value, col)) return;
+      break;
+    case "timestamp":
+      if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
+      if (this.tryFloatingPoint(value, col)) return;
+      if (this.tryFixedPoint(value, col)) return;
+      break;
+    case "time":
+      if (this.tryTime(value, col, 'timeFormat')) return;
+      break;
+  }
+  
+  // Handle when a number or date cell formatting is set that did not not match dataType. e.g. char formatted as number or date.
+  switch (colFormatObj['formatting']){
+    case 'Date':
+    case 'Time Stamp':
+    case 'Number':
+      if (this.tryFixedPoint(value, col)) return;
+      if (this.tryFloatingPoint(value, col)) return;
+      break;
+  }
+  
+  if (tryConvert){
+    // Try to detect the type of data based on patterns; when possible store it as a numeric value instead of a string.
+    if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
+    if (this.tryTimestamp(value, col, 'dateFormat')) return;
+    if (this.tryTime(value, col, 'timeFormat')) return;
+    if (this.tryFloatingPoint(value, col)) return;
+    if (this.tryFixedPoint(value, col)) return;
+  }
+  
+  if (typeof hyperlink === 'string' && hyperlink.length > 0) this.addHyperlink(hyperlink, col);
+  else hyperlink = false;
+
+  // Anything not already handled belongs in the shared strings table (SST); the doc would be invalid if cell tags contained non-numeric data. #3972.  
+  this.rows[this.lastRowNum][col] = this.workbook.useSharedString(value, hyperlink !== false);
+};
+
+/**
+ * If the value is a fixed decimal (zoned/packed), parse it as a number and store it.
+ * @param {String|Number} value
+ * @param {Number} col
+ * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
+ */
+pui.xlsx_worksheet.prototype.tryFixedPoint = function(value, col){
+  if (typeof value === 'string'){
+    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+$/.test(value)){
+      // XLSX stores numbers with "." decimal separator (and no thousands separators). Decimal separator becomes ".".
+      value = Number( value.replace(",", ".") );
+    }
+    else if (/^[-+]?[0-9]*\.?[0-9]+$/.test(value)){
+      // The number is a valid floating point, decimal, exponent, or hex value. Try to parse the number, and store it. Do not store
+      // values that are not numbers; characters in the <c><v> tag must represent valid numbers.
+      value = Number(value);
+    }
+  }
+  
+  if (typeof value === 'number' && !isNaN(value)) {
+    var cellfmtid = this.formats[col]['decPos'] === '2' ? this.workbook.cellFormat2DecPos : 0;
+    this.rows[this.lastRowNum][col] = {value: value, cellFormatId: cellfmtid};
+    return true;
+  }
+  
+  return false;
+};
+
+/**
+ * If the value is a floating point or exponent notation, parse it as a number and store it.
+ * @param {String|Number} value
+ * @param {Number} col
+ * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
+ */
+pui.xlsx_worksheet.prototype.tryFloatingPoint = function(value, col){
+  if (typeof value === 'string'){
+    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)){
+      value = Number ( value.replace(',','.'));
+    }
+    else if (/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)){
+      value = Number(value);
+    }
+  }
+  
+  if (typeof value === 'number' && !isNaN(value)) {
+    this.rows[this.lastRowNum][col] = {value: value, cellFormatId: 0};
+    return true;
+  }
+  
+  return false;
+};
+
+/**
+ * Get the locale and format string for column (or use defaults), and parse a date.
+ * @param {String|Number} value
+ * @param {Number} col
+ * @param {String} formatKey
+ * @returns {Array}           Returns Date in index 0 (if string was valid); the format string is in index 1; locale in index 2.
+ */
+pui.xlsx_worksheet.prototype.parseDateVal = function(value, col, formatKey){
+  if (typeof value !== 'string') value = String(value);
+  
+  var locale = this.formats[col]['locale'];
+  if (typeof locale !== 'string') locale = this.locale;
+  
+  var formatStr = this.formats[col][formatKey];
+  if (typeof formatStr !== 'string') formatStr = this.defaultFmtStr[formatKey];
+  
+  var dateobj = pui.formatting.Date.parse(value, formatStr, locale);
+  
+  return [dateobj, formatStr, locale];
+};
+
+/**
+ * Attempt to parse, convert, and assign to the cell in the last row a numeric value representing a timestamp (or date) that XL can 
+ * serialize numerically.
+ * @param {String} value
+ * @param {Number} col
+ * @param {String} formatKey
+ * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
+ */
+pui.xlsx_worksheet.prototype.tryTimestamp = function(value, col, formatKey){
+  var parsed = this.parseDateVal(value, col, formatKey);
+  // Excel has no formatter for "z", and our Y-z parser fails for days 32 through 366; just leave these as strings so they display consistently.
+  if (parsed[1] === 'Y-z') return false;
+  
+  if (parsed[0] instanceof Date){
+    var dateobj = parsed[0];
+    var year = dateobj.getFullYear();
+    var month = dateobj.getMonth();
+    var day = dateobj.getDate();
+    if (year === 1 && month === 0 && day === 1){
+      // If the cell contains 0001-01-01... then leave the cell empty. Note: load-all grids pass blanks instead of 0001-01-01 to
+      // setCell. DBD, Custom SQL, and Data URL grids do pass them as values.
+      this.rows[this.lastRowNum][col] = {value: null};
+      return true;
+    }
+    
+    if (year < 1900 || (year === 1900 && month < 2)){
+      // Store any dates before March 1 1900 as strings to avoid a leap year bug in XL and because dates before Jan 1 1900 are
+      // serialized as strings. (Returning true saves other parsers from trying to convert the value.)
+      this.rows[this.lastRowNum][col] = this.workbook.useSharedString(value);
+      return true;
+    }
+    
+    var num = this.workbook.dateToOADate(dateobj);
+    if (!isNaN(num) && num >= 2){
+      // The date is on or after Jan 1, 1900 (2 days after Dec 30 1899 00:00:00) and can be formatted as a date.
+      this.rows[this.lastRowNum][col] = {
+        value: num,
+        cellFormatId: this.workbook.getCellFormatId(parsed[1], parsed[2])  //Creates or re-uses existing cell and number formats.
+      };
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Attempt to parse, convert, and assign a numeric value representing a valid XLSX time to a cell in the last row.
+ * @param {String} value
+ * @param {Number} col
+ * @param {String} formatKey
+ * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
+ */
+pui.xlsx_worksheet.prototype.tryTime = function(value, col, formatKey){
+  var parsed = this.parseDateVal(value, col, formatKey);
+  if (parsed[0] instanceof Date){
+    var hours = parsed[0].getHours();
+    var mins = parsed[0].getMinutes();
+    var secs = parsed[0].getSeconds();
+    var ms = parsed[0].getMilliseconds();
+    
+    this.rows[this.lastRowNum][col] = {
+      value: hours / 24 + mins / 1440 + secs / 86400 + ms / 86400000,  // Note: times in xlsx are 0 to .99999; e.g. 0.5 for 12:00 pm.
+      cellFormatId: this.workbook.getCellFormatId(parsed[1])  //Creates or re-uses existing cell and number formats.
+    };
+    return true;
+  }
+  return false;
+};
+
+/**
+ * Add a reference of the hyperlink target to the cell in the last row. If the hyperlink target is not already defined, then it gets defined.
+ * @param {String} hyperlinkTarget
+ * @param {Number} col 
+ */
+pui.xlsx_worksheet.prototype.addHyperlink = function(hyperlinkTarget, col){
+  var relId = -1;
+  // Reuse the link target if it already exists.
+  for (var i=0, n=this.rels.length; i < n; i++){
+    var rel = this.rels[i];
+    if (rel.type === 'hyperlink' && rel.target === hyperlinkTarget){
+      relId = i;
+      break;
+    }
+  }
+  
+  if (relId < 0) relId = this.rels.push({ type: 'hyperlink', target: hyperlinkTarget }) - 1;
+  
+  // Add the reference. Assume "addHyperlink" is only called once per cell.
+  this.hyperlink_refs.push({row: this.lastRowNum, col: col, relId: relId});
+};
+
+/**
+ * Check the character count in new value, and increase the count if necessary. Counts are needed when deciding column widths.
+ * Note: setting counts in setCell avoids looping over every cell in every column when saving the XML.
+ * @param {String|Number} value
+ * @param {Number} col
+ */
+pui.xlsx_worksheet.prototype.updateCharCount = function(value, col){
+  var len = 0;
+  if (typeof value === 'string') len = value.length;
+  
+  if (this.rows.length == 1){
+    // The first row: get the column style information from each cell.
+    this.charcounts[col] = len;
+  }
+  else {
+    // For other rows, track the max character length of data in each column.
+    this.charcounts[col] = Math.max(this.charcounts[col], len );
+
+    // Allow enough room for 10-char dates, e.g., yyyy-mm-dd.
+    if (this.formats[col]['dataType'] === 'date') this.charcounts[col] = Math.max(this.charcounts[col], 10);
+  }
+};
+
+/**
+ * Return an XML document string containing the spreadsheet data.
+ * @returns {String}
+ */
+pui.xlsx_worksheet.prototype.getSheetXML = function(){
+  this.makemap();
+  
+  var xml = this.XMLSTART + '<worksheet xmlns="'+this.XMLNS_SPREADSHEET+'"'+' xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'">'
+  +'<dimension ref="A1:'+ this.map[this.numColumns - 1] + this.rows.length + '"/>'
+  // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
+  +'<sheetFormatPr defaultRowHeight="'+(this.defaultRowHeightpx * 0.75)+'" customHeight="1" />'
+  +'<cols>' ;
+    
+  // Configure each column with widths, and with styles for new cells.
+  for (var col=0, n=this.numColumns; col < n; col++){
+    // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
+    // If widths are missing, then use the character count.
+    // Calculate column width based on number of characters. Formula comes from:
+    // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
+    var width = 0;
+    if (typeof this.colWidths[col] === 'number')
+      width = pui.round( (this.colWidths[col] - 5)/7, 2);
+    else if (this.charcounts[col] != null && ! isNaN(parseInt(this.charcounts[col],10)) )
+      width = Math.floor((this.charcounts[col] * this.fontMaxDigitWidth + 5)/this.fontMaxDigitWidth * 256) / 256 + 5;
+    
+    if (width < 0) width = 0;    //Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
+    else if (width > 255) width = 255;
+  
+    // Set a style for cells the user may add in the column in the future.
+    var style = '';
+    if (this.formats[col] != null && this.formats[col].cellFormatId) style = ' style="' + this.formats[col].cellFormatId + '"';
+    
+    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'"'+style+ ' customWidth="1"/>';
+  }
+  xml += '</cols><sheetData>';
+  
+  // Set the height of the header row to be different than the normal row height, if necessary. In points: points = 0.75 * pixel_value.
+  var rowHeightStr = '';
+  if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
+    rowHeightStr = ' ht="'+ Math.round(this.headerRowHeightpx * 0.75) +'" customHeight="1"';
+  }
+  
+  // Output each row with either numeric data or reference to shared-strings table.
+  for (var row=0, n=this.rows.length; row < n; row++){
+    var r = String(row+1);
+    xml += '<row r="'+r+'"'+rowHeightStr+'>';
+    var rowObj = this.rows[row];
+    if (rowObj != null){
+      // Look in each column in the row for cells to output.
+      for (var col=0; col < this.numColumns; col++){
+        var cell = rowObj[col];
+        // The cell should always have a value of type, number. If not, just omit it, leaving a blank cell. #6192. Also, empty character cells are omitted.
+        if (cell != null && typeof cell.value === 'number'){
+
+          xml += '<c r="' + this.map[col] + r + '"';
+
+          // Cell formats must be recorded with each cell tag to take effect.
+          if (typeof cell.cellFormatId === 'number') xml += ' s="'+ cell.cellFormatId +'"';
+
+          // String cell values correspond to an entries in the workbook's shared strings table (SST).
+          if (cell.isString) xml += ' t="s"';  
+
+          xml += '><v>' + cell.value + '</v></c>';
+        }
+      }
+    }
+    xml += '</row>';
+    rowHeightStr = '';
+  }
+
+  xml += '</sheetData>'; 
+  if (this.useDrawing){
+    xml += '<drawing r:id="rId1"/>';
+  }
+  
+  // Hyperlinks reference cells; e.g. A2. Their texts are in the shared strings table.
+  var hyperlink_refs = this.hyperlink_refs;
+  if (hyperlink_refs.length > 0){
+    xml += '<hyperlinks>';
+    for (var i=0, n=hyperlink_refs.length; i < n; i++ ){
+      var row = hyperlink_refs[i].row + 1;
+      var relId = hyperlink_refs[i].relId + 1;      
+      xml += '<hyperlink ref="'+ this.map[hyperlink_refs[i].col] + row +'" r:id="rId'+relId+'" />';
+    }
+    xml += '</hyperlinks>';
+  }
+  xml += '</worksheet>';
+  
+  return xml;
+};
+
+/**
+ * Fill the map of column indexes to excel-style column names for as many columns as needed.
+ */
+pui.xlsx_worksheet.prototype.makemap = function(){
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
-  var map = [];
+  this.map = [];
   
-  this.formats = [];
-  for (var i=0; i < numColumns; i++){
-    me.formats[i] = {"dataType":"char"}; //Default all to char so unhandled types are set as literal text.
+  var mapctr = 0;
+
+  var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var d3 = "";
+  var d2 = "";
+
+  // Loop over the digits to create the map for as many columns that are used.
+  // The left-most digit is blank until the 2nd and 3rd pass ZZ.
+  var numcols = this.numColumns;
+  for(var i=-1; i < 26 && mapctr < numcols; i++){
+
+    var d2start = -1; //Let the k loop run once with no 2nd digit; then 2nd digits are included.
+    if (i >= 0) d2start = 0;  //passed ZZ: 2nd digit should start at "A" instead of "".
+
+    // Loop for the middle digit, which is blank until the 3rd digit passes Z the first time.
+    for(var j=d2start; j < 26 && mapctr < numcols; j++){
+
+      for(var k=0; k < 26 && mapctr < numcols; k++){
+        this.map[mapctr] = d3 + d2 + digits[k];
+        mapctr++;
+      }
+      d2 = digits[(j + 1) % 26 ];    //get the next digit; wraps around to 0 if next is 26.
+    }
+    d3 = digits[i + 1]; //note: the last time this runs, it will return undefined; but no matter.
   }
-
-  var charcounts = [];  //max number of characters in each column; to calculate <col width="">.
-  var fontMaxDigitWidth = 7; //max pixel width of 11pt font.
-  makemap();
-  
-  /**
-   * Add a new row for cells to go. Grid should add cells and rows in a sequential order.
-   * @returns {undefined}
-   */
-  this.newRow = function(){
-    if (rows == null) rows = [];
-    rows.push([]);
-    curCol = 0;
-  };
-  
-  /**
-   * Returns the current row of the sheet. If no rows have been added, returns -1.
-   * @returns {Number}
-   */
-  this.getCurRow = function(){
-    if (rows == null) return -1;
-    return rows.length - 1;
-  };
-  
-  /**
-   * 
-   * @param {Number} ht   Height in pixels.
-   * @returns {undefined}
-   */
-  this.setDefaultRowHeight = function(ht){
-    defaultRowHeightpx = ht;
-  };
-  
-  /**
-   * 
-   * @param {Object|Array} arr  An array with Numeric pixel values for each column in the grid.
-   * @returns {undefined}
-   */
-  this.setColumnWidths = function(arr){
-    colWidths = arr;
-  };
-  
-  /**
-   * Set a column's format internally. The format determines XLSX style and whether a column's
-   * cells need to be in the Shared Strings Table. All are stored as strings except:
-   *   "zoned", "packed", and "floating", which are stored as literal value.
-   * @param {Number} col      The zero-based column index.
-   * @param {Object} format   References bound value object from grid's me.runtimeChildren. Includes properties:
-   *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); maxLength; etc.
-   * @returns {undefined}
-   */
-  this.setColumnFormat = function(col, format){
-    if (format["dataType"] != null){
-      if (format["dataType"].length == 1){
-        //If DB-driven grid calls setColumnFormat, then type names are in IBM format. 
-        var datatype = "char";
-        switch (format["dataType"]) {
-          case "L": datatype = "date"; break;
-          case "T": datatype = "time"; break;
-          case "Z": datatype = "timestamp"; break;
-          case "G": datatype = "graphic"; break;
-          case "F": datatype = "floating"; break;
-          case "P": datatype = "packed"; break;
-          case "B": // binary
-          case "I": // integer
-          case "S": // zoned decimal
-          case "U": // unsigned
-          case "Y": // keyboard shift of numeric only - zoned
-            datatype = "zoned"; break;
-        }
-        me.formats[col]["dataType"] = datatype;
-      }else{
-        me.formats[col]["dataType"] = format["dataType"];
-      }
-    }
-    if (format["decPos"] != null) me.formats[col]["decPos"] = format["decPos"];
-  };
-  
-  /**
-   * Append a cell to the current row. Used in Load-all grids.
-   * @param {String} value
-   * @param {Null|String} format
-   * @returns {Number}      Returns the column number of the cell that was added.
-   */
-  this.addCell = function(value, format){
-    var retval = curCol;
-    me.setCell(curCol, value, format);
-    curCol++;
-    return retval;
-  };
-  
-  this.useDrawing = function(){
-    useDrawing = true;
-  };
-  
-  /**
-   * Allows hyperlink "relationships" to be associated with cells in the grid.
-   * @param {Array} hlinks    Array of objects with .row, .col, and .target properties.
-   * @returns {undefined}
-   */
-  this.setHyperlinks = function(hlinks){
-    hyperlinks = hlinks;
-  };
-
-  /**
-   * Set a cell value on the last row added to the sheet.
-   * @param {Number} col          The zero-based column index.
-   * @param {String} value        The numeric value for the sheet, or string value for shared-strings table.
-   * @param {Null|String} format  When not null, overrides the default column format.
-   * @returns {undefined}
-   */
-  this.setCell = function(col, value, format){
-    // If this is on the first row, get the column style information from each cell.
-    if (rows.length == 1){
-      charcounts[col] = value.length;
-    }else{
-      // For other rows, track the max character length of data in each column.
-      charcounts[col] = Math.max(charcounts[col], value.length );
-    }
-
-    var fmt;
-    if (format != null) fmt = format;     // Cell overrides default column format.
-    else if (me.formats[col]) fmt = me.formats[col]["dataType"];   // Default format is set per column.
-    
-    var storedVal;
-    switch (fmt){
-      case "floating":
-      case "packed":
-      case "zoned":
-        storedVal = {value: value};
-        break;
-      // Non-integer or floating points must go into the shared strings table.
-      case "char":
-      case "varchar":
-      case "graphic":
-      // String is a data type for node designer and viewdesigner added on 2/5/19, 5f706f3.
-      case "string":
-      // Store time/date types as strings. In the future we could translate their values to native Excel data.
-      case "date":
-      case "timestamp":
-      case "time":
-      // The XLSX is invalid if strings get into value tags, so default all else to strings in case data type isn't defined yet.
-      default:
-        storedVal = sst[value];   //Reference the object from the shared strings table.
-        if (storedVal == null){
-          storedVal = {};
-          storedVal.value = sst_count++;  //store the unique shared string and its ID, then increment the ID.
-          storedVal.hasNL = /[\n\r]/.test(value);    //Determines when to add wrap alignment.
-          sst[value] = storedVal;
-        }
-        break;
-    }
-
-    // If the cell overrides the default column format, then store as object.
-    if (format != null && (me.formats[col] == null || format != me.formats[col]["dataType"])){
-      storedVal.format = format;
-    }
-    
-    rows[rows.length - 1][col] = storedVal;
-  };
-  
-  /**
-   * Return an XML document string containing the Excel shared strings table.
-   * @returns {String}
-   */
-  this.getSharedStringsXML = function(){
-    // Order the shared strings by the index id. Assume there are no gaps in indices.
-    var sst_inorder = [];
-    for( var str in sst ){
-      var obj = sst[str];
-      var idx = obj.value;
-      sst_inorder[idx] = str;
-    }
-
-    var xml = pui.xmlstart + '<sst xmlns="'+pui.xlsx_xmlns_spreadsheet+'" count="'
-      + String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
-    for (var i=0; i < sst_inorder.length; i++){
-      xml += '<si><t>' + pui.xmlEscape(sst_inorder[i]) + '</t></si>';
-    }
-    xml += '</sst>';
-    return xml;
-  };
-  
-  /**
-   * Return an XML document string containing the spreadsheet data.
-   * @returns {String}
-   */
-  this.getSheetXML = function(){
-    var xml = pui.xmlstart + '<worksheet xmlns="'+pui.xlsx_xmlns_spreadsheet+'"'+' xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'">'
-    +'<dimension ref="A1:'+ map[numColumns - 1] + (rows == null ? 1 : rows.length) + '"/>'
-    // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
-    +'<sheetFormatPr defaultRowHeight="'+(defaultRowHeightpx * 0.75)+'" customHeight="1" />'
-    +'<cols>' ;
-    
-    // Build a map [row][col] to whether a cell has a hyperlink so we later can set the style.
-    var useHyperlinkStyle = {};
-    if (hyperlinks != null && hyperlinks.length > 0){
-      for (var i=0; i < hyperlinks.length; i++ ){
-        var hlinkrow = hyperlinks[i].row;
-        var hlinkcol = hyperlinks[i].col;
-        if (useHyperlinkStyle[hlinkrow] == null){
-          useHyperlinkStyle[hlinkrow] = {};
-        }
-        useHyperlinkStyle[hlinkrow][hlinkcol] = true; 
-      }
-    }
-    
-    // Configure each column with widths, and with styles for new cells.
-    for (var col=0; col < numColumns; col++){
-      // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
-      // If widths are missing, then use the character count.
-      // Calculate column width based on number of characters. Formula comes from:
-      // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
-      var width = 0;
-      if (colWidths[col] != null )
-        width = pui.round( (colWidths[col] - 5)/7, 2);
-      else if (charcounts[col] != null && ! isNaN(parseInt(charcounts[col],10)) )
-        width = Math.floor((charcounts[col] * fontMaxDigitWidth + 5)/fontMaxDigitWidth * 256) / 256 + 5;
-      
-      if (width < 0) width = 0;    //Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
-      else if (width > 255) width = 255;
-      
-      //If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
-      var style = me.formats[col]["decPos"] == "2" ? 's="1"' : '';
-      
-      xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'" '+style+ ' customWidth="1"/>';
-    }
-    xml += '</cols><sheetData>';
-    
-    // Output each row with either numeric data or reference to shared-strings table.
-    if (rows != null) {
-      for (var row=0; row < rows.length; row++){
-        var r = String(row+1);
-        xml += '<row r="'+r+'">';
-        
-        for (var col=0; col < numColumns; col++){
-          xml += '<c r="' + map[col] + r + '"';
-          
-          var fmt = me.formats[col]["dataType"]; //Default each cell in a column to the column format.
-          
-          var cell = rows[row][col];
-          if (cell == null){
-            cell = '';    //cell should always be defined, but handle undefined in case we missed something. #6192.
-            console.log('Undefined cell at [%d,%d].', row, col);
-          }
-          
-          // Some cells (e.g. headers, forced dates) override default format; extract format.
-          if (cell.format != null){
-            fmt = cell.format;
-          }
-          
-          switch (fmt){
-            case "floating":
-            case "packed":
-            case "zoned":
-              if(me.formats[col]["decPos"] == "2"){
-                xml += ' s="1"'; //Use the 2nd cell format (defined in <cellXfs>).
-              }
-              break;
-            case "char":
-            case "varchar":
-            case "graphic":
-            case "string":
-            // TODO: date/time values could be converted to native excel formats if all variations are handled.
-            case "date":
-            case "timestamp":
-            case "time":
-            default:
-              xml += ' t="s"';
-              if (useHyperlinkStyle[row] != null && useHyperlinkStyle[row][col] === true ){
-                xml += ' s="2"'; //Use the 3rd cell format defined in <cellXfs>.
-              }
-              else if (cell.hasNL){
-                xml += ' s="3"'; //If there is a newline then use the wrapText alignment style.
-              }
-              break;
-          }
-
-          var val = cell.value;
-          if (val == null) val = '';
-          xml += '><v>' + val + '</v></c>';
-        }
-        
-        xml += '</row>';
-      }
-    }
-    xml += '</sheetData>'; 
-    if (useDrawing){
-      xml += '<drawing r:id="rId1"/>';
-    }
-    
-    // Hyperlinks reference cells; e.g. A2. Their texts are in the shared strings table.
-    if (hyperlinks != null && hyperlinks.length > 0){
-      xml += '<hyperlinks>';
-      for (var i=0; i < hyperlinks.length; i++ ){
-        var r = hyperlinks[i].row + 1;
-        xml += '<hyperlink ref="'+ map[hyperlinks[i].col] + r +'" r:id="rId'+(i+2)+'" />';
-      }
-      xml += '</hyperlinks>';
-    }
-    xml += '</worksheet>';
-    
-    return xml;
-  };
-
-  /**
-   * Fill the map of column indexes to excel-style column names for as many columns as needed.
-   * @returns {undefined}
-   */
-  function makemap(){
-    var mapctr = 0;
-
-    var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    var d3 = "";
-    var d2 = "";
-
-    // Loop over the digits to create the map for as many columns that are used.
-    // The left-most digit is blank until the 2nd and 3rd pass ZZ.
-    for(var i=-1; i < 26 && mapctr < numcols; i++){
-
-      var d2start = -1; //Let the k loop run once with no 2nd digit; then 2nd digits are included.
-      if (i >= 0) d2start = 0;  //passed ZZ: 2nd digit should start at "A" instead of "".
-
-      // Loop for the middle digit, which is blank until the 3rd digit passes Z the first time.
-      for(var j=d2start; j < 26 && mapctr < numcols; j++){
-
-        for(var k=0; k < 26 && mapctr < numcols; k++){
-          map[mapctr] = d3 + d2 + digits[k];
-          mapctr++;
-        }
-        d2 = digits[(j + 1) % 26 ];    //get the next digit; wraps around to 0 if next is 26.
-      }
-      d3 = digits[i + 1]; //note: the last time this runs, it will return undefined; but no matter.
-    }
-  }
-  
 };
+
+//
+// end of xlsx_worksheet class.
+//
 
 /**
  * Object for creating XML strings for MS Excel 2007+ picture references.
  * @constructor
- * @returns {undefined}
+ * @returns {pui.xlsx_drawing}
  */
 pui.xlsx_drawing = function(){
+  // A collection of file extensions for all image types needed in the drawing.
+  this.extensions = {};
   
-  var nameCtr = 1;     //Counter of image names.
-  var extensions = {}; //File extensions needed for the different types of images.
-  var rels = [];       //List of relationships; e.g. rId1 is ../media/image1.png, etc.
-  var anchors = [];    //List of row/columns and relationship IDs.
+  // List of relationships; e.g. rId1 is ../media/image1.png, etc.
+  // An array of objects: {name: imageName, image: blob }
+  // Before being used outside this class, the images should have already been loaded with loadImages.
+  this.rels = [];
   
-  /**
-   * Add URI and dimensions of an image to the drawing. 
-   * @param {Number} row
-   * @param {Number} column
-   * @param {String} imageURI   This should already be right-trimmed.
-   * @param {Object} dimens     Dimensions: top, left, width, height numeric values in pixels.
-   *                            These should never be null or undefined.
-   * @returns {undefined}
-   */
-  this.addImage = function(row, column, imageURI, dimens){
-    var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
-    if (matches == null){
-      console.log("Unsupported image type in URI:",imageURI);
-      return;
-    }
-    var ext = matches[1].toLowerCase();   //Upper-case content-types will break the spreadsheet. #5356.
-    if (ext == "jpeg") ext = "jpg";
-    else if (ext == "tif") ext = "tiff";  //Excel expects image/tiff as content-type.
-    
-    //Look for the URL in a list of existing URLs.
-    var rel = -1;
-    for (var i=0; i < rels.length; i++){
-      if (rels[i].uri == imageURI ){
-        rel = i;
-        break;
-      }
-    }
-    if (rel < 0 ){   //There isn't a relationship for the URI; add it.
-      //Generate a new image name: Use the image name counter for base name.
-      var newName = "image"+nameCtr + "." + ext;
-      nameCtr++;
-      
-      //Choose the appropriate content-type: png: image/png; etc. Add to a collection.
-      extensions[ext] = "image/"+ext;
-      
-      rels.push({ name: newName, uri: imageURI });    //Store the relationship. 
-      rel = rels.length - 1;
-    }
-    //Store the picture position, rId, and dimensions.
-    anchors.push({row: row, col: column, rel: rel,
-      top: dimens.top, left: dimens.top, width: dimens.width, height: dimens.height
-    });
-  };
+  // Private properties.
   
-  // returns XML text for drawing1.xml
-  this.getDrawingXML = function(){
-    var xml = pui.xmlstart
-    + '<xdr:wsDr xmlns:xdr="'+pui.xlsx_domain+'/drawingml/2006/spreadsheetDrawing" xmlns:a="'+pui.xlsx_domain+'/drawingml/2006/main">';
-    for (var i=0; i < anchors.length; i++){
-      xml +=
-      '<xdr:twoCellAnchor editAs="oneCell">'
-      + '<xdr:from>'
-      +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
-      // Offsets are in English Metric Units (EMU): 914400 EMU per inch. At 96 pixels per inch, a pixel is 9525 EMUs.
-      // https://msdn.microsoft.com/en-us/library/ff531172(v=office.12).aspx
-      +   '<xdr:colOff>'+ Math.round(anchors[i].left * 9525) +'</xdr:colOff>'
-      +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
-      +   '<xdr:rowOff>'+ Math.round(anchors[i].top * 9525) +'</xdr:rowOff>'
-      + '</xdr:from>'
-      + '<xdr:to>'
-      +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
-      +   '<xdr:colOff>'+ Math.round((anchors[i].width + anchors[i].left)*9525) +'</xdr:colOff>'
-      +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
-      +   '<xdr:rowOff>'+ Math.round((anchors[i].height + anchors[i].top)*9525) +'</xdr:rowOff>'
-      + '</xdr:to>'
-      + '<xdr:pic>'
-      + '<xdr:nvPicPr>'
-      +   '<xdr:cNvPr id="'+(i+1)+'" name="Picture '+(i+1)+'"/>'
-      +   '<xdr:cNvPicPr>'
-      +     '<a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>'
-      +   '</xdr:cNvPicPr>'
-      + '</xdr:nvPicPr>'
-      +   '<xdr:blipFill>'
-      +     '<a:blip xmlns:r="'+pui.xlsx_xmlns_officedoc_rels+'" r:embed="rId'+(anchors[i].rel + 1)+'">'
-      +     '</a:blip>'
-      +     '<a:srcRect/>'
-      +     '<a:stretch>'
-      +       '<a:fillRect/>'
-      +     '</a:stretch>'
-      +   '</xdr:blipFill>'
-      +   '<xdr:spPr bwMode="auto">'
-      +     '<a:xfrm>'    //Note: Excel adds some "a" tags to xfrm. Omitting them seems fine.
-      +     '</a:xfrm>'
-      +     '<a:prstGeom prst="rect">'
-      +       '<a:avLst/>'
-      +     '</a:prstGeom>'
-      +     '<a:noFill/>'
-      +   '</xdr:spPr>'
-      + '</xdr:pic>'
-      + '<xdr:clientData/>'
-      + '</xdr:twoCellAnchor>';
-    }
-    xml += '</xdr:wsDr>';
-    return xml;
-  };
+  // Counter of image names.
+  this.nameCtr = 1;
   
-  /**
-   * Returns XML text for drawing1.xml.rels
-   * @returns {String}
-   */
-  this.getDrawingRelsXML = function(){
-    var xml = pui.xmlstart
-    + '<Relationships xmlns="'+pui.xlsx_xmlns_package_rels+'">';
-    for (var i=0; i < rels.length; i++){
-      xml += '<Relationship Id="rId'+(i+1)+'" Type="'+pui.xlsx_xmlns_officedoc_rels + '/image" Target="../media/'+ rels[i].name +'"/>';
-    }
-    xml += '</Relationships>';
-    return xml;
-  };
-  
-  /**
-   * Download the images into this drawing object, then execute a callback.
-   * @param {Function} cbFinished       Runs when all images are loaded into blobs.
-   * @param {Object} feedbackObj        An object with the setDownloadStatus function.
-   */
-  this.loadImages = function(cbFinished, feedbackObj){
-    if (rels.length < 1){   //It's possible image URLs didn't parse, but don't stop the download. #5342.
-      cbFinished();
-      return;
-    }
-    
-    var dlcount = 0;
-    
-    //Handler for XHR.onload. Waits until all XHRs are finished, moves the images to rel[i].image, then calls callback.
-    function checkDone(){
-      dlcount++;
-      if (feedbackObj && typeof feedbackObj.setDownloadStatus == 'function')
-        feedbackObj.setDownloadStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (dlcount / rels.length))+"%" ]) );
-      if (dlcount < rels.length) return;  //Wait until all xhr's are finished.
-      
-      //All are finished, so extract the images.
-      for (var i=0; i < rels.length; i++){
-        if (rels[i].xhr.status == 200 ) rels[i].image = rels[i].xhr.response;
-        rels[i].xhr = null;
-        try{  delete rels[i].xhr;  }catch(exc){}
-      }
-      cbFinished();
-    }
-    
-    //Make XHRs for each image, and download all asynchronously.
-    for (var i=0; i < rels.length; i++){
-      rels[i].xhr = new XMLHttpRequest();
-      rels[i].xhr.open("GET", rels[i].uri, true );
-      rels[i].xhr["responseType"] = "blob";
-      rels[i].xhr.onload = checkDone;
-      rels[i].xhr.send();
-    }
-  };
-  
-  /**
-   * Return an array of objects: {name: imageName, image: blob }
-   * The images should have already been loaded with loadImages.
-   * @returns {Array}
-   */
-  this.getImages = function(){
-    return rels;
-  };
-  
-  /**
-   * Return a collection of file extensions for all images in the drawing.
-   * @returns {Object}
-   */
-  this.getExtensions = function(){
-    return extensions;
-  };
+  // List of row/columns and relationship IDs.
+  this.anchors = [];
 };
+pui.xlsx_drawing.prototype = Object.create(pui.xlsx);
+
+/**
+ * Add URI and dimensions of an image to the drawing. 
+ * @param {Number} row
+ * @param {Number} column
+ * @param {String} imageURI   This should already be right-trimmed.
+ * @param {Object} dimens     Dimensions: top, left, width, height numeric values in pixels.
+ *                            These should never be null or undefined.
+ */
+pui.xlsx_drawing.prototype.addImage = function(row, column, imageURI, dimens){
+  var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
+  if (matches == null){
+    console.log("Unsupported image type in URI:",imageURI);
+    return;
+  }
+  var ext = matches[1].toLowerCase();   //Upper-case content-types will break the spreadsheet. #5356.
+  if (ext == "jpeg") ext = "jpg";
+  else if (ext == "tif") ext = "tiff";  //Excel expects image/tiff as content-type.
+  
+  //Look for the URL in a list of existing URLs.
+  var rel = -1;
+  for (var i=0; i < this.rels.length; i++){
+    if (this.rels[i].uri == imageURI ){
+      rel = i;
+      break;
+    }
+  }
+  if (rel < 0 ){   //There isn't a relationship for the URI; add it.
+    //Generate a new image name: Use the image name counter for base name.
+    var newName = "image"+this.nameCtr + "." + ext;
+    this.nameCtr++;
+    
+    //Choose the appropriate content-type: png: image/png; etc. Add to a collection.
+    this.extensions[ext] = "image/"+ext;
+    
+    this.rels.push({ name: newName, uri: imageURI });    //Store the relationship. 
+    rel = this.rels.length - 1;
+  }
+  //Store the picture position, rId, and dimensions.  
+  this.anchors.push({row: row, col: column, rel: rel,
+    top: dimens.top, left: dimens.top, width: dimens.width, height: dimens.height
+  });
+};
+
+/**
+ * returns XML text for drawing1.xml
+ * @returns {String}
+ */
+pui.xlsx_drawing.prototype.getDrawingXML = function(){
+  var anchors = this.anchors;
+  var xml = this.XMLSTART
+  + '<xdr:wsDr xmlns:xdr="'+this.XMLNS_BASE+'/drawingml/2006/spreadsheetDrawing" xmlns:a="'+this.XMLNS_BASE+'/drawingml/2006/main">';
+  for (var i=0; i < anchors.length; i++){
+    xml +=
+    '<xdr:twoCellAnchor editAs="oneCell">'
+    + '<xdr:from>'
+    +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
+    // Offsets are in English Metric Units (EMU): 914400 EMU per inch. At 96 pixels per inch, a pixel is 9525 EMUs.
+    // https://msdn.microsoft.com/en-us/library/ff531172(v=office.12).aspx
+    +   '<xdr:colOff>'+ Math.round(anchors[i].left * 9525) +'</xdr:colOff>'
+    +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
+    +   '<xdr:rowOff>'+ Math.round(anchors[i].top * 9525) +'</xdr:rowOff>'
+    + '</xdr:from>'
+    + '<xdr:to>'
+    +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
+    +   '<xdr:colOff>'+ Math.round((anchors[i].width + anchors[i].left)*9525) +'</xdr:colOff>'
+    +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
+    +   '<xdr:rowOff>'+ Math.round((anchors[i].height + anchors[i].top)*9525) +'</xdr:rowOff>'
+    + '</xdr:to>'
+    + '<xdr:pic>'
+    + '<xdr:nvPicPr>'
+    +   '<xdr:cNvPr id="'+(i+1)+'" name="Picture '+(i+1)+'"/>'
+    +   '<xdr:cNvPicPr>'
+    +     '<a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>'
+    +   '</xdr:cNvPicPr>'
+    + '</xdr:nvPicPr>'
+    +   '<xdr:blipFill>'
+    +     '<a:blip xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'" r:embed="rId'+(anchors[i].rel + 1)+'">'
+    +     '</a:blip>'
+    +     '<a:srcRect/>'
+    +     '<a:stretch>'
+    +       '<a:fillRect/>'
+    +     '</a:stretch>'
+    +   '</xdr:blipFill>'
+    +   '<xdr:spPr bwMode="auto">'
+    +     '<a:xfrm>'    //Note: Excel adds some "a" tags to xfrm. Omitting them seems fine.
+    +     '</a:xfrm>'
+    +     '<a:prstGeom prst="rect">'
+    +       '<a:avLst/>'
+    +     '</a:prstGeom>'
+    +     '<a:noFill/>'
+    +   '</xdr:spPr>'
+    + '</xdr:pic>'
+    + '<xdr:clientData/>'
+    + '</xdr:twoCellAnchor>';
+  }
+  xml += '</xdr:wsDr>';
+  return xml;
+};
+
+/**
+ * Returns XML text for drawing1.xml.rels
+ * @returns {String}
+ */
+pui.xlsx_drawing.prototype.getDrawingRelsXML = function(){
+  var xml = this.XMLSTART
+  + '<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">';
+  for (var i=0; i < this.rels.length; i++){
+    xml += '<Relationship Id="rId'+(i+1)+'" Type="'+this.XMLNS_OFFICEDOC_RELS + '/image" Target="../media/'+ this.rels[i].name +'"/>';
+  }
+  xml += '</Relationships>';
+  return xml;
+};
+
+/**
+ * Download the images into this drawing object, then execute a callback.
+ * @param {Function} cbFinished       Runs when all images are loaded into blobs.
+ * @param {Object} feedbackObj        An object with the setDownloadStatus function.
+ */
+pui.xlsx_drawing.prototype.loadImages = function(cbFinished, feedbackObj){
+  if (this.rels.length < 1){   //It's possible image URLs didn't parse, but don't stop the download. #5342.
+    cbFinished();
+    return;
+  }
+  
+  this.dlcount = 0;
+  this.feedbackObj = feedbackObj;
+  var checkDone = this._checkDone.bind(this);
+  this.cbFinished = cbFinished;
+  
+  // Make XHRs for each image, downloading all asynchronously.
+  for (var i=0; i < this.rels.length; i++){
+    this.rels[i].xhr = new XMLHttpRequest();
+    this.rels[i].xhr.open("GET", this.rels[i].uri, true );
+    this.rels[i].xhr["responseType"] = "blob";
+    this.rels[i].xhr.onload = checkDone;
+    this.rels[i].xhr.send();
+  }
+};
+
+/**
+ * Handler for XMLHTTPRequest.onload. Waits until all requests are finished, moves the images to rel[i].image, then calls callback.
+ */
+pui.xlsx_drawing.prototype._checkDone = function(){
+  this.dlcount++;
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == 'function')
+    this.feedbackObj.setDownloadStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (this.dlcount / this.rels.length))+"%" ]) );
+  if (this.dlcount < this.rels.length) return;  //Wait until all xhr's are finished.
+
+  //All are finished, so extract the images.
+  for (var i=0; i < this.rels.length; i++){
+    if (this.rels[i].xhr.status == 200 ) this.rels[i].image = this.rels[i].xhr.response;
+    this.rels[i].xhr = null;
+    try{  delete this.rels[i].xhr;  }catch(exc){}
+  }
+  this.cbFinished();
+};
+
+//
+// end of xlsx_drawing class.
+//
 
 /**
  * Returns the column descriptions for a database file or SQL statement.
@@ -5110,7 +5676,7 @@ pui["doSessionTimeout"] = function() {
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   var ajaxParams = {
     "timeout": "1"
-  }
+  };
   if (pui["isCloud"]) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
   }
