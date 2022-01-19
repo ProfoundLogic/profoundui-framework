@@ -447,7 +447,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
       if (this.designMode) e.stopPropagation();  //Prevent Resizer from moving the layout when dragging a tab.
 
       // If the user is clicking on a not-selected tab, switch to that tab.
-      var tabId = e.target.tabId;
+      var tabId = e.currentTarget.tabId;
       if (this.selectedTab != tabId){
         if (typeof this._ontabclick === 'string' && this._ontabclick.length > 0){
           try {
@@ -478,7 +478,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
       // Dragstart is the first event to fire when a drag is started. e.target is the element from which drag started.
       e.stopPropagation();
       
-      this._dragtabId = e.target.tabId;
+      this._dragtabId = e.currentTarget.tabId;
       
       if (!isNaN(this._dragtabId)){
         try {
@@ -493,7 +493,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
 
 
     case 'dragover':
-      if (e.target.tabId == this._dragtabId) return;  //Do not allow dropping onto self.
+      if (e.currentTarget.tabId == this._dragtabId) return;  //Do not allow dropping onto self.
       
       e.preventDefault();       //Let browser know that drop is allowed.
       e.stopPropagation();
@@ -524,7 +524,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
       var draggedTabId = this._dragtabId;
       if (isNaN(draggedTabId)) return;
 
-      var targetId = e.target.tabId;
+      var targetId = e.currentTarget.tabId;
       if (isNaN(targetId) || targetId == draggedTabId) return;
       
       var draggedTabIdx = this._findNodeIndexByTabId(draggedTabId);
