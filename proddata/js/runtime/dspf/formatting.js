@@ -378,7 +378,7 @@ pui.FieldFormat = {
         }
       }
       
-      if (obj.dataType == "graphic" && !pui.nodejs) {
+      if (obj['__pui_skipdecode'] !== true && obj.dataType == "graphic" && !pui.nodejs) {
         value = pui.formatting.decodeGraphic(value);
       }
 

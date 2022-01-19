@@ -4472,6 +4472,9 @@ pui.evalBoundProperty = function(propValue, data, ref) {
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
     fieldName = pui.fieldUpper(fieldName);
   }
+  
+  if (data['__pui_skipdecode']) formattingObj['__pui_skipdecode'] = data['__pui_skipdecode'];  //For load-fields-into-widgets.
+  
   var dataValue;
   if (formattingObj.dataType == "expression") {
     dataValue = pui.evalIndicatorExpression(formattingObj.fieldName, data);
