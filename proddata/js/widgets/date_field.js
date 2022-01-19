@@ -285,7 +285,7 @@ function show_calendar(dateField, str_datetime, format) {
       oneDay.puiCurrentDate = usa_dt(dt_current_day, format, dateField.formattingInfo);
 
       oneDay.onclick = function(e) {
-        pui.currentDateField.value = e.target.puiCurrentDate;
+        pui.currentDateField.value = e.currentTarget.puiCurrentDate;
         calendar_select();
         preventEvent(e);
       }
