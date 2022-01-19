@@ -994,7 +994,8 @@ pui.Grid = function () {
             value = hyperlinks[j].value;
           }
           
-          if (graphicData[j]) {
+          if (graphicData[j] && (me['dataProps'] == null || me['dataProps']['load fields into widgets'] !== "true")) {
+            // Decode values that the handler encoded in base64. (With load-fields-into-widgets, the CGI programs don't encode graphic fields.)
             value = pui.formatting.decodeGraphic(value);
           }
           
@@ -2151,6 +2152,9 @@ pui.Grid = function () {
             //set pui_show use the longname in render.js > EvalBoundProperty()
         if(me["dataProps"]["load fields into widgets"] == "true"){
           fieldData["__pui_show"] = true;
+          
+          // Avoid graphic fields being base64-decoded in pui.FieldFormat.format; only the handler encodes them as base64 for transfer.
+          fieldData['__pui_skipdecode'] = true;
         }
         var setRowBg = me.selectionEnabled || me.rowFontColorField != null || me.rowBackgroundField != null;
 
