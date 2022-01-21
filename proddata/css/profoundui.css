@@ -5408,13 +5408,12 @@ div.Glass>.pui-tablayout-body>div {
 
 .combo-main-box {
   border: 0px none;
-  padding-top: 1px;
+  padding: 1px 1px 0 2px;
   font-weight: normal;
   outline: none;
   position: absolute;
   top: 0px;
   left: 0px;
-  box-sizing: border-box;
 }
 
 .combo-option {
