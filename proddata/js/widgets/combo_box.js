@@ -137,7 +137,7 @@ pui.ComboBoxWidget.prototype.draw = function() {
   var boxWidth = 0;  
   var comWidth = this.div.style.width;	//get the width of the combo box
   var newWidth = this.div.offsetWidth; //get the width in pixels
-  var arrowWidth = this._arrow.offsetWidth + 3;
+  var arrowWidth = parseInt(getComputedStyle(this._arrow).width) + 3;
 
   if (comWidth[comWidth.length - 1] === "%") {	//if the last character of the width is a % sign
     boxWidth = (1 - (arrowWidth / newWidth)) * 100; //find the percent width for input box
@@ -145,7 +145,7 @@ pui.ComboBoxWidget.prototype.draw = function() {
     this.box.style.width = boxWidth + "%";  //the new width + the % sign
     this.box.style.zIndex = -1; // Disable input box to overlaps dropdown button of comboBoxWidget
   }
-  else{    //if the width of the combo box does not end in a % sign
+  else {    //if the width of the combo box does not end in a % sign
     boxWidth = parseInt(comWidth) - arrowWidth ;  //get the number of the width - width of arrow div (arrowWidth)
     if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0;  //if the width is not a number or < 0 -- width = 1 
     this.box.style.width = boxWidth + "px";  //the new width + "px" 
