@@ -179,11 +179,11 @@ pui.SignaturePad = function() {
     clearBox.onmousedown = function(e) {
       preventEvent(e);
       return false;
-    }
+    };
     clearBox.onclick = function(e) {
       me.clear();
       setModified();
-    }
+    };
     me.container.appendChild(clearBox);
     if (me.designMode) {
       moveBox = document.createElement("div");
@@ -213,7 +213,7 @@ pui.SignaturePad = function() {
         moveBox.style.display = "none";
       }
     }
-  }
+  };
   
   this.resize = function(dontClear) {
     canvas.style.width = me.container.offsetWidth + "px";
@@ -223,27 +223,27 @@ pui.SignaturePad = function() {
     setContext();
     if (dontClear == true) me.redraw();
     else strokes = [];
-  }
+  };
   
   this.clear = function() {
     if (canvasContext != null) canvasContext.clearRect(0, 0, me.container.offsetWidth, me.container.offsetHeight);
     me.resize();
-  }
+  };
   
   this.setColor = function(color) {
     me.color = color;
     setContext();
-  }
+  };
 
   this.setBackgroundColor = function(color) {
     me.backgroundColor = color;
     setContext();  
-  }
+  };
   
   this.showOrHideClearBox = function() {
     if (me.readOnly || me.disabled) clearBox.style.visibility = "hidden";
     else clearBox.style.visibility = "";
-  }
+  };
 
   this.getValue = function() {
     var json = "[";
@@ -259,7 +259,7 @@ pui.SignaturePad = function() {
     }
     json += "]";
     return json;
-  }
+  };
   
   this.setValue = function(value) {
     me.clear();
@@ -271,14 +271,14 @@ pui.SignaturePad = function() {
     }
     catch(e) { };
     me.redraw();
-  }
+  };
 
   this.redraw = function() {
     if (canvasContext == null) return;
     canvasContext.beginPath();
     for (var i = 0; i < strokes.length; i++) {
       var points = strokes[i];
-      for (j = 0; j < points.length; j += 2) {
+      for (var j = 0; j < points.length; j += 2) {
         if (j + 1 > points.length) break;  // point values should come as x,y pairs
         var prevIndex = j - 2;
         if (prevIndex < 0) prevIndex = 0;
@@ -290,9 +290,9 @@ pui.SignaturePad = function() {
       }
     }
     canvasContext.closePath();
-  }
+  };
 
-}
+};
 
 
 
@@ -315,7 +315,8 @@ pui.widgets.add({
         parms.dom.signaturePad.init();
         parms.dom.sizeMe = function() {
           parms.dom.signaturePad.resize(true);
-        }
+        };
+        parms.dom.alwaysSizeMe = true;  //Ensure that the widget can be used in tab layout tabs other than the first. #6423.
       }
     },
     
