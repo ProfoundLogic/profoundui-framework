@@ -29,8 +29,8 @@ pui.widgets.add({
     "condition": function(props, data, designer){
       if (designer) return true; //Always load for Visual Designer.
       if (typeof props["html"] == "string") return props["html"].indexOf("<%") >= 0;  //Hard-coded value.
-      if (props["html"] != null && typeof props["html"]["fieldName"] == "string"){  //Bound value (DSPF only).
-        var value = data[ props["html"]["fieldName"].toUpperCase() ];
+      if (context === 'dspf' && pui.isBound(props['html'])){
+        var value = pui.evalBoundProperty(props['html'], data);
         if (value != null ) return value.indexOf("<%") >= 0;
       }
       return false;
