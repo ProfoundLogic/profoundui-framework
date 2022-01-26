@@ -2417,6 +2417,7 @@ pui.highlightText = function(node, text) {
 
 pui.dehighlightText = function(div) {
   var spans = div.getElementsByTagName("span");
+  var span;
   while(spans.length && (span = spans[0])) {
     var parent = span.parentNode;
     parent.replaceChild(span.firstChild, span);

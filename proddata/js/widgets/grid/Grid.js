@@ -9217,6 +9217,7 @@ pui.Grid = function () {
 
   this["removeAllFilters"] = function () {
     if (me.waitingOnRequest) return;
+    me.highlighting.text = "";  //#7258
     var headerRow = me.cells[0];
     for (var i = 0; i < headerRow.length; i++) {
       var headerCell = headerRow[i];
