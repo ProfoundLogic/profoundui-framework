@@ -43,7 +43,6 @@ function AutoComplete(config) {
   var leftCorner;
   var rightCorner;
   var shim;
-  var useShim;
   var firstField;
   var activeRecord = null;
   var records = new Array();
@@ -156,15 +155,15 @@ function AutoComplete(config) {
       }
       hiddenField.type = "hidden";
       hiddenField.value = textBox.value;
-      hiddenField.fieldInfo = textBox.fieldInfo;
       hiddenField.autoCompBox = textBox;
-      // Save the field row and col numbers as attributes because we are removing fieldInfo from the textbox. 
-      textBox.setAttribute("fieldRow", textBox.fieldInfo.row);
-      textBox.setAttribute("fieldCol", textBox.fieldInfo.col);
-      textBox.fieldInfo = null;
-      if (hiddenField.fieldInfo != null) {
-        var idx = hiddenField.fieldInfo["idx"];
+      if (textBox.fieldInfo != null){
+        // Save the field row and col numbers as attributes because we are removing fieldInfo from the textbox. 
+        textBox.setAttribute("fieldRow", textBox.fieldInfo.row);  //#6101.
+        textBox.setAttribute("fieldCol", textBox.fieldInfo.col);
+        var idx = textBox.fieldInfo["idx"];
+        hiddenField.fieldInfo = textBox.fieldInfo;
         pui.response[idx] = hiddenField;
+        textBox.fieldInfo = null;
       }
       document.forms["main"].appendChild(hiddenField);
     }
@@ -204,10 +203,6 @@ function AutoComplete(config) {
   if (typeof (config.shadow) != "undefined" && config.shadow == false) shadow = false;
   else shadow = true;
 
-  // Use shim only in IE6.
-  if (pui["is_old_ie"] && pui["ie_mode"] <= 6) useShim = true;
-  else useShim = false;
-
   // Assign events.
   if (typeof (config.beforequery) == "function") beforequery = config.beforequery;
   if (typeof (config.onload) == "function") onload = config.onload;
@@ -238,10 +233,8 @@ function AutoComplete(config) {
   resultPane.style.zIndex = zIndex;
   resultPane.className = "autocomplete-results " + trim(textBox.id) + "-autocomplete-results";
 
-  if (resultPane.addEventListener) resultPane.addEventListener("mousedown", doClick, false);
-  else if (resultPane.attachEvent) resultPane.attachEvent("onmousedown", doClick);
-  if (resultPane.addEventListener) resultPane.addEventListener("mouseup", doMouseUp, false);
-  else if (resultPane.attachEvent) resultPane.attachEvent("onmouseup", doMouseUp);
+  resultPane.addEventListener("mousedown", doClick, false);
+  resultPane.addEventListener("mouseup", doMouseUp, false);
   container.appendChild(resultPane);
 
   if (shadow) {
@@ -293,30 +286,12 @@ function AutoComplete(config) {
     container.appendChild(shadowDiv);
   }
 
-  if (useShim) {
-    shim = document.createElement("iframe");
-    shim.style.display = "none";
-    shim.style.visibility = "hidden";
-    shim.style.position = "absolute";
-    shim.style.margin = "0px";
-    shim.style.zIndex = zIndex - 2;
-    container.appendChild(shim);
-  }
-
   // Attach events.
-  if (textBox.addEventListener) {
-    textBox.addEventListener("keyup", doKeyUp, false);
-    textBox.addEventListener("keydown", doKeyDown, false);
-    textBox.addEventListener("blur", doBlur, false);
-    textBox.addEventListener("input", onInput, false);
-    window.addEventListener("resize", doResize, false);
-  }
-  else if (textBox.attachEvent) {
-    textBox.attachEvent("onkeyup", doKeyUp);
-    textBox.attachEvent("onkeydown", doKeyDown);
-    textBox.attachEvent("onblur", doBlur);
-    textBox.attachEvent("onresize", doResize);
-  }
+  textBox.addEventListener("keyup", doKeyUp, false);
+  textBox.addEventListener("keydown", doKeyDown, false);
+  textBox.addEventListener("blur", doBlur, false);
+  textBox.addEventListener("input", onInput, false);
+  window.addEventListener("resize", doResize, false);
 
   /* END CONSTRUCTOR */
 
@@ -716,7 +691,7 @@ function AutoComplete(config) {
 
       if (context === "dspf" && typeof data["valueField"] === "string") {
         valueField = data["valueField"];
-        hiddenField = { value: "" }
+        hiddenField = { value: "" };
         textBox.autoCompValueField = hiddenField;
       }
 
@@ -753,7 +728,6 @@ function AutoComplete(config) {
     position();
     if (scrollable) makeScrollable();
     if (shadow) applyShadow();
-    if (useShim) applyShim();
   }
 
   function position() {
@@ -826,7 +800,6 @@ function AutoComplete(config) {
 
     if (resultPane != null) resultPane.style.display = "none";
     if (shadow) shadowDiv.style.display = "none";
-    if (useShim) shim.style.display = "none";
     records = new Array();
     activeRecord = null;
 
@@ -859,27 +832,6 @@ function AutoComplete(config) {
     rightCorner.style.height = "6px";
     rightCorner.style.width = "6px";
     shadowDiv.style.display = "block";
-
-  }
-
-  function applyShim() {
-
-    var top = 0;
-    var left = 0;
-    var height;
-    var width;
-    var sizeTo;
-    if (shadow) sizeTo = shadowDiv;
-    else sizeTo = resultPane;
-    top = sizeTo.offsetTop;
-    left = sizeTo.offsetLeft;
-    height = sizeTo.offsetHeight;
-    width = sizeTo.offsetWidth + 1;
-    shim.style.top = top + "px";
-    shim.style.left = left + "px";
-    shim.style.height = height + "px";
-    shim.style.width = width + "px";
-    shim.style.display = "block";
 
   }
 
@@ -951,8 +903,7 @@ function AutoComplete(config) {
       resultPane.lastChild.setAttribute("recordIndex", String(i));
     }
     for (var i = 0; i < resultPane.childNodes.length; i++) {
-      if (resultPane.childNodes[i].attachEvent) resultPane.childNodes[i].attachEvent("onmousemove", doMouseMove);
-      else if (resultPane.childNodes[i].addEventListener) resultPane.childNodes[i].addEventListener("mousemove", doMouseMove, false);
+      resultPane.childNodes[i].addEventListener("mousemove", doMouseMove, false);
     }
 
   }
@@ -1158,7 +1109,7 @@ function applyAutoComp(properties, originalValue, domObj) {
 
     }
 
-    function safeUpperCase(str) {
+    var safeUpperCase = function (str) {
       // The following business gets around certain browsers (i.e. Chrome)
       // upper-casing the German eszett character to SS, which throws off 
       // matching in SQL WHERE clause. 
@@ -1169,7 +1120,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       str = str.toUpperCase();
       str = str.replace(/\u1E9E/g, "\u00DF");
       return str;
-    }
+    };
 
     var autoComp = new AutoComplete({
       textBox: domObj,
@@ -1373,6 +1324,7 @@ function applyAutoComp(properties, originalValue, domObj) {
           if (pui["force auto complete match"] !== false)
             domObj.value = "";
         } else {
+          if (domObj.autoCompValueField != null) domObj.autoCompValueField.value = domObj.value;  //#7294. Store the existing value.
           domObj.value = firstRec[firstField];
         }
       };
