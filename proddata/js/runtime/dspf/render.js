@@ -6856,7 +6856,8 @@ pui.findParentGrid = function(obj) {
  * 
  */
 pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
-  outputEl.innerHTML = pui.getLanguageText('runtimeMsg', 'downloading x', ['...']);
+  var xhr;
+  outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'downloading x', ['...']);
   outputEl.style.opacity = '1';
   var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
   
@@ -6869,7 +6870,7 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   }
   
   function makeXHR(){
-    var xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.onreadystatechange = joblogFetch;
     xhr.open('POST', uri, true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -6877,18 +6878,18 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   }
   
   function joblogFetch(){
-    if (this.readyState == XMLHttpRequest.DONE) {
-      if (this.status == 200){
-        if (typeof this.response === 'string' && this.response.length > 0){
-          var contentDisp = this.getResponseHeader('Content-Disposition');
+    if (xhr.readyState == 4) {
+      if (xhr.status == 200){
+        if (typeof xhr.response === 'string' && xhr.response.length > 0){
+          var contentDisp = xhr.getResponseHeader('Content-Disposition');
           if (contentDisp === 'attachment'){
             // If the response is good, then the Content-Disposition header is "attachment".
-            var filesaver = saveAs( new Blob([this.response]), filename, {"type": "text/plain;charset=utf-8"});
-            filesaver.onwriteend = filesaverWriteEnded;
+            var filesaver = saveAs( new Blob([xhr.response]), filename, {"type": "text/plain;charset=utf-8"});
+            filesaver['onwriteend'] = filesaverWriteEnded;
           }
           else {
             // The response is error plain text.
-            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + '<br>' + this.response;
+            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + '<br>' + xhr.response;
           }
         }
         else {
@@ -6896,7 +6897,7 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
         }
       }
       else {
-        outputEl.innerHTML = 'Job Log Error:<br>HTTP ' + this.status + '<br>' + this['responseURL'];
+        outputEl.innerHTML = 'Job Log Error:<br>HTTP ' + xhr.status + '<br>' + xhr['responseURL'];
       }
     }
   }
