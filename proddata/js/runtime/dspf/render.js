@@ -6858,7 +6858,6 @@ pui.findParentGrid = function(obj) {
 pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   var xhr;
   outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'downloading x', ['...']);
-  outputEl.style.opacity = '1';
   var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
   
   var filesaverPath = "/jszip/FileSaver.min.js";
@@ -6905,7 +6904,7 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   function filesaverWriteEnded(){
     outputEl.innerHTML = pui['getLanguageText']('runtimeText', 'upload finished text');
     setTimeout(function(){
-      outputEl.style.opacity = '0';
+      outputEl.innerHTML = '';
     }, 3000);
   }
 };
