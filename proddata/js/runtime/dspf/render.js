@@ -682,7 +682,6 @@ pui.render = function(parms) {
       var atriumSettings = Atrium["getSettings"]();
     }
     catch (error) {
-      console.error(error);
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (!atriumTimeout && pui["client side timeout"] == true) {
@@ -4343,7 +4342,6 @@ pui.submitResponse = function(response, value) {
       var atriumSettings = Atrium["getSettings"]();
     }
     catch (error) {
-      console.error(error);
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (atriumTimeout)
