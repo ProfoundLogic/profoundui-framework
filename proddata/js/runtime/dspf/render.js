@@ -1676,7 +1676,8 @@ pui.renderFormat = function(parms) {
                     (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
                     (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&                  
                     (!formattingObj["curSym"] || formattingObj["curSym"] == "") && 
-                    (!formattingObj["units"] || formattingObj["units"] == "")) {
+                    (!formattingObj["units"] || formattingObj["units"] == "") &&
+                    pui.appJob.decimalFormat != "I" && pui.appJob.decimalFormat != "J"){
 
                   dom.type = "number";  //Field uses numeric keyboard in Android.
                   //Note: iOS could show a number-only keyboard when .pattern="[0-9]*"; but that keyboard
