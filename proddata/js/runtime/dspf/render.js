@@ -1198,7 +1198,7 @@ pui.renderFormat = function(parms) {
           }
           pui.wf.tracker.update({
             name: propValue.routine,
-            designItem: "Screen",
+            designItem: designer,
             designer: designer,
             property: propname,
             data: wfData
