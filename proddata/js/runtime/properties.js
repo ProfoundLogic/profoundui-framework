@@ -792,8 +792,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       originalValue = properties.originalValue;
     } else {
       if (domObj.tagName == "DIV") {
-        if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
+        // Get the value from an existing floating placeholder first, then other possibilities; fallback to inner-text otherwise. #7323.
         if (domObj.floatingPlaceholder != null) originalValue = domObj.floatingPlaceholder.getValue();
+        else if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
         else if (domObj.slider != null) originalValue = domObj.slider.value;
         else originalValue = getInnerText(domObj);
       } else {
