@@ -842,7 +842,12 @@ pui.Grid = function () {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm['columnId']; //Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j;             //Map the column number to the corresponding index in fieldNames and me.dataArray.
-                colcount++;                
+                colcount++;
+
+                if (val["formatting"] == "Number") {
+                  numericData[col] = true;  //Needed for CSV exports when appjob uses comma decimal separators. #7351.
+                }
+
                 boundValFormats[col] = val;  //Save this info so we can format later.
                 
                 if (val["dataType"] == "graphic") {
@@ -998,7 +1003,12 @@ pui.Grid = function () {
             // Decode values that the handler encoded in base64. (With load-fields-into-widgets, the CGI programs don't encode graphic fields.)
             value = pui.formatting.decodeGraphic(value);
           }
-          
+
+          if (!exportXLSX && numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+            if (typeof value !== 'string') value = String(value);  //PJS program could write number, null, or boolean.
+            value = value.replace('.', ',');  //Data exported to CSV should use whatever decimal separator the application job uses. #7351.
+          }
+
           var bndvalfmt = boundValFormats[j];
           if (typeof bndvalfmt === 'object' && bndvalfmt !== null){
             var formatting = bndvalfmt['formatting'];
