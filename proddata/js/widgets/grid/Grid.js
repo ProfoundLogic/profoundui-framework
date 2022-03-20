@@ -2522,6 +2522,8 @@ pui.Grid = function () {
           for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
             if (me.runtimeChildren[jj]["columnId"] == treeLevelColumnId) {   // compare static design value
               var currentLeft = me.runtimeChildren[jj]["left"];
+              if (currentLeft === undefined) 
+                currentLeft = "10px";   // default; 
               currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
               currentLeft = parseInt(currentLeft);
               me.currentLeft = currentLeft;
