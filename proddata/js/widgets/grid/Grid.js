@@ -521,6 +521,13 @@ pui.Grid = function () {
     return collapsed;
   };
 
+  this.isTreeInitCollapsed = function () {
+    var treeInitCollapsed = me.treeInitCollapsed;
+    if (treeInitCollapsed === undefined)
+      treeInitCollapsed = false;
+    return treeInitCollapsed;
+  };
+
   this.collapse = function (button) {
     //if (me.visibility == "hidden") return;
     if (!me["expanded"]) return;
@@ -2533,7 +2540,7 @@ pui.Grid = function () {
         }
         var myGridId = me.tableDiv.id;
         var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
-                                '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
+                                '\").grid.toggleTreeLevel(rrn);\n}\n\n';
         treeLevelItem = {
           "id": myGridId + me.treeLevelItemId,
           "field type": "graphic button",
@@ -5319,6 +5326,13 @@ pui.Grid = function () {
         }
         break;
 
+      case "tree level collapsed":
+        if (!me.designMode) {
+          if (value == "true") me.treeInitCollapsed = true;
+          if (value == "false") me.treeInitCollapsed = false;
+        }
+        break;
+        
       case "single row zoom":
         if (value == "true") {
           me.singleRowZoom = true;
@@ -8236,7 +8250,7 @@ pui.Grid = function () {
     return count;
   };
 
-  this["toggleTreeLevel"] = function (elem, rrn) {
+  this["toggleTreeLevel"] = function (rrn) {
 
     var myTreeLevelData = me.treeLevelData[rrn-1];
     var myTreeLevel = myTreeLevelData.treeLevel;
@@ -8268,16 +8282,30 @@ pui.Grid = function () {
     
   };
 
-  this["expandTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
-      me["toggleTreeLevel"](elem, rrn);
+  this["expandTreeLevel"] = function (rrn) {
+    if (rrn === 0) {
+      for (var i = 1; i <= me.treeLevelData.length; i++) {  
+        this["expandTreeLevel"](i);
+      }
+    }
+    else {
+      var myTreeLevelData = me.treeLevelData[rrn-1];
+      if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
+        me["toggleTreeLevel"](rrn);
+    }
   };
 
-  this["collapseTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
-      me["toggleTreeLevel"](elem, rrn);
+  this["collapseTreeLevel"] = function (rrn) {
+    if (rrn === 0) {
+      for (var i = 1; i <= me.treeLevelData.length; i++) {  
+        this["collapseTreeLevel"](i);
+      }
+    }
+    else {
+      var myTreeLevelData = me.treeLevelData[rrn-1];
+      if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
+        me["toggleTreeLevel"](rrn);
+    }
   };
 
   this.getTreeLevelColumnId =  function () {
@@ -10605,6 +10633,7 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
       { name: "tree level field", helpDefault: "blank", help: 'This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+      { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf"},
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},
