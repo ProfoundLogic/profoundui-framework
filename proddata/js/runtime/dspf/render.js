@@ -2281,12 +2281,12 @@ pui.renderFormat = function(parms) {
             var myRRN = box["pui"]["rrn"];
           
             if (keyCode == 37) {  // left arrow key
-              myGrid["expandTreeLevel"](null, myRRN );
+              myGrid["expandTreeLevel"](myRRN );
               preventEvent(event);
               return false;
             }
             if (keyCode == 39) {  // right arrow key
-              myGrid["collapseTreeLevel"](null, myRRN );
+              myGrid["collapseTreeLevel"](myRRN );
               preventEvent(event);
               return false;
             }
@@ -3018,6 +3018,9 @@ pui.renderFormat = function(parms) {
         }
       }
     }
+   
+    if (grid.isTreeInitCollapsed()) 
+      grid["collapseTreeLevel"](0);
     grid.makeSortable();
     grid.restoreState();
   });
