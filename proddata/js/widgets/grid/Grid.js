@@ -522,6 +522,8 @@ pui.Grid = function () {
   };
 
   this.isTreeInitCollapsed = function () {
+    if (me.treeLevelField === null)
+      return false;
     var treeInitCollapsed = me.treeInitCollapsed;
     if (treeInitCollapsed === undefined)
       treeInitCollapsed = false;
