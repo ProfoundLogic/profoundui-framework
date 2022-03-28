@@ -454,7 +454,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
 
       { name: "Overlay", category: true }, 
-      { name: "overlay", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "overlay", choices: ["true", "false"], type: "boolean", helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "overlay range", ddsCompatProp: 1, helpDefault: 'blank', help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false }, 
       { name: "design overlay formats", displayName: (pui.nodedesigner ? "design overlay screens" : undefined), type: "list", helpDefault: "blank", help: "Specifies a list of additional screens to render in the designer when this screen is selected. This property is only used at design-time. It is ignored at run-time.", bind: false },
 
