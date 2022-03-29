@@ -521,6 +521,15 @@ pui.Grid = function () {
     return collapsed;
   };
 
+  this.isTreeInitCollapsed = function () {
+    if (me.treeLevelField === null)
+      return false;
+    var treeInitCollapsed = me.treeInitCollapsed;
+    if (treeInitCollapsed === undefined)
+      treeInitCollapsed = false;
+    return treeInitCollapsed;
+  };
+
   this.collapse = function (button) {
     //if (me.visibility == "hidden") return;
     if (!me["expanded"]) return;
@@ -842,7 +851,12 @@ pui.Grid = function () {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm['columnId']; //Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j;             //Map the column number to the corresponding index in fieldNames and me.dataArray.
-                colcount++;                
+                colcount++;
+
+                if (val["formatting"] == "Number") {
+                  numericData[col] = true;  //Needed for CSV exports when appjob uses comma decimal separators. #7351.
+                }
+
                 boundValFormats[col] = val;  //Save this info so we can format later.
                 
                 if (val["dataType"] == "graphic") {
@@ -998,7 +1012,12 @@ pui.Grid = function () {
             // Decode values that the handler encoded in base64. (With load-fields-into-widgets, the CGI programs don't encode graphic fields.)
             value = pui.formatting.decodeGraphic(value);
           }
-          
+
+          if (!exportXLSX && numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+            if (typeof value !== 'string') value = String(value);  //PJS program could write number, null, or boolean.
+            value = value.replace('.', ',');  //Data exported to CSV should use whatever decimal separator the application job uses. #7351.
+          }
+
           var bndvalfmt = boundValFormats[j];
           if (typeof bndvalfmt === 'object' && bndvalfmt !== null){
             var formatting = bndvalfmt['formatting'];
@@ -2512,6 +2531,8 @@ pui.Grid = function () {
           for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
             if (me.runtimeChildren[jj]["columnId"] == treeLevelColumnId) {   // compare static design value
               var currentLeft = me.runtimeChildren[jj]["left"];
+              if (currentLeft === undefined) 
+                currentLeft = "10px";   // default; 
               currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
               currentLeft = parseInt(currentLeft);
               me.currentLeft = currentLeft;
@@ -2521,7 +2542,7 @@ pui.Grid = function () {
         }
         var myGridId = me.tableDiv.id;
         var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
-                                '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
+                                '\").grid.toggleTreeLevel(rrn);\n}\n\n';
         treeLevelItem = {
           "id": myGridId + me.treeLevelItemId,
           "field type": "graphic button",
@@ -5307,6 +5328,13 @@ pui.Grid = function () {
         }
         break;
 
+      case "tree level collapsed":
+        if (!me.designMode) {
+          if (value == "true") me.treeInitCollapsed = true;
+          if (value == "false") me.treeInitCollapsed = false;
+        }
+        break;
+        
       case "single row zoom":
         if (value == "true") {
           me.singleRowZoom = true;
@@ -8224,7 +8252,7 @@ pui.Grid = function () {
     return count;
   };
 
-  this["toggleTreeLevel"] = function (elem, rrn) {
+  this["toggleTreeLevel"] = function (rrn) {
 
     var myTreeLevelData = me.treeLevelData[rrn-1];
     var myTreeLevel = myTreeLevelData.treeLevel;
@@ -8256,16 +8284,30 @@ pui.Grid = function () {
     
   };
 
-  this["expandTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
-      me["toggleTreeLevel"](elem, rrn);
+  this["expandTreeLevel"] = function (rrn) {
+    if (rrn === 0) {
+      for (var i = 1; i <= me.treeLevelData.length; i++) {  
+        this["expandTreeLevel"](i);
+      }
+    }
+    else {
+      var myTreeLevelData = me.treeLevelData[rrn-1];
+      if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
+        me["toggleTreeLevel"](rrn);
+    }
   };
 
-  this["collapseTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
-      me["toggleTreeLevel"](elem, rrn);
+  this["collapseTreeLevel"] = function (rrn) {
+    if (rrn === 0) {
+      for (var i = 1; i <= me.treeLevelData.length; i++) {  
+        this["collapseTreeLevel"](i);
+      }
+    }
+    else {
+      var myTreeLevelData = me.treeLevelData[rrn-1];
+      if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
+        me["toggleTreeLevel"](rrn);
+    }
   };
 
   this.getTreeLevelColumnId =  function () {
@@ -10464,21 +10506,21 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "value", helpDefault: "blank", help: "Sets the initialization value for the current element." },
 
       { name: "Subfile Settings", category: true, context: "dspf"},
-      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false },
+      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false },
+      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false },
       { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
       { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
       { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false},
-      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false },
+      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf" },
+      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf" },
+      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf" },
       { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false },
       { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf"},
       { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf" },
       { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 1 },
 
       { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
@@ -10593,6 +10635,7 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
       { name: "tree level field", helpDefault: "blank", help: 'This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+      { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf"},
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},

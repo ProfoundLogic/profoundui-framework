@@ -562,7 +562,7 @@ pui.widgets.add({
         
       }
       if (cls === "" && parms.dom.fieldInfo) {
-        var attr = parms.dom.fieldInfo.attr;
+        var attr = parms.dom.fieldInfo["attr"];
         cls += " A" + attr;
         if (parms.dom.fieldInfo.bypass) {
            var nonDisplay = (attr == "27" || attr == "2F" || attr == "37" || attr == "3F");
