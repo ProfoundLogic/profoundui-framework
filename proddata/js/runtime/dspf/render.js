@@ -682,7 +682,6 @@ pui.render = function(parms) {
       var atriumSettings = Atrium["getSettings"]();
     }
     catch (error) {
-      console.error(error);
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (!atriumTimeout && pui["client side timeout"] == true) {
@@ -1199,7 +1198,7 @@ pui.renderFormat = function(parms) {
           }
           pui.wf.tracker.update({
             name: propValue.routine,
-            designItem: "Screen",
+            designItem: designer,
             designer: designer,
             property: propname,
             data: wfData
@@ -1677,7 +1676,8 @@ pui.renderFormat = function(parms) {
                     (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
                     (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&                  
                     (!formattingObj["curSym"] || formattingObj["curSym"] == "") && 
-                    (!formattingObj["units"] || formattingObj["units"] == "")) {
+                    (!formattingObj["units"] || formattingObj["units"] == "") &&
+                    pui.appJob.decimalFormat != "I" && pui.appJob.decimalFormat != "J"){
 
                   dom.type = "number";  //Field uses numeric keyboard in Android.
                   //Note: iOS could show a number-only keyboard when .pattern="[0-9]*"; but that keyboard
@@ -2281,12 +2281,12 @@ pui.renderFormat = function(parms) {
             var myRRN = box["pui"]["rrn"];
           
             if (keyCode == 37) {  // left arrow key
-              myGrid["expandTreeLevel"](null, myRRN );
+              myGrid["expandTreeLevel"](myRRN );
               preventEvent(event);
               return false;
             }
             if (keyCode == 39) {  // right arrow key
-              myGrid["collapseTreeLevel"](null, myRRN );
+              myGrid["collapseTreeLevel"](myRRN );
               preventEvent(event);
               return false;
             }
@@ -3018,6 +3018,9 @@ pui.renderFormat = function(parms) {
         }
       }
     }
+   
+    if (grid.isTreeInitCollapsed()) 
+      grid["collapseTreeLevel"](0);
     grid.makeSortable();
     grid.restoreState();
   });
@@ -4343,7 +4346,6 @@ pui.submitResponse = function(response, value) {
       var atriumSettings = Atrium["getSettings"]();
     }
     catch (error) {
-      console.error(error);
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (atriumTimeout)
@@ -5312,10 +5314,6 @@ pui.start = function() {
       config["previewTab"] = parms["previewTab"];
     pui["run"](config);
   }
-};
-
-pui["downloadJobLog"] = function(jobLog) {
-  pui.downloadAsAttachment("text/plain", jobLog["fileName"], jobLog["data"]);
 };
 
 pui.newSession = function() {
@@ -6844,4 +6842,71 @@ pui.findParentGrid = function(obj) {
     parent = obj.parentElement;
   }
   return null;
+};
+
+/**
+ * Request a Job Log download from the server. 
+ * Called from the errscrn format in puiscreens.json and puiscreens.dspf in Profound.js and Profound UI.
+ * @param {String} jobinfo        Encrypted, encoded job information.
+ * @param {String|Null} serverURI   URI of a server from where the job logs can be fetched. The location in the address bar is used 
+ *   for PJS in Genie and Profound UI.
+ * @param {String} filename   Filename for the prompt to save job log.
+ * @param {Element} outputEl  HTML Element to get feedback about the download.
+ * 
+ * var protocol = pui["appJob"]["serverProtocol"].split('/');
+ * var jobLogServer = protocol[0].toLowerCase() + "://" + pui["appJob"]["serverName"] + ":" + pui["appJob"]["serverPort"] + '/profoundui/';
+ * 
+ */
+pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
+  var xhr;
+  outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'downloading x', ['...']);
+  var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
+  
+  var filesaverPath = "/jszip/FileSaver.min.js";
+  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
+    makeXHR();
+  }
+  else {
+    pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR });
+  }
+  
+  function makeXHR(){
+    xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = joblogFetch;
+    xhr.open('POST', uri, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send('jobinfo='+jobinfo);
+  }
+  
+  function joblogFetch(){
+    if (xhr.readyState == 4) {
+      if (xhr.status == 200){
+        if (typeof xhr.response === 'string' && xhr.response.length > 0){
+          var contentDisp = xhr.getResponseHeader('Content-Disposition');
+          if (contentDisp === 'attachment'){
+            // If the response is good, then the Content-Disposition header is "attachment".
+            var filesaver = saveAs( new Blob([xhr.response]), filename, {"type": "text/plain;charset=utf-8"});
+            filesaver['onwriteend'] = filesaverWriteEnded;
+          }
+          else {
+            // The response is error plain text.
+            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + '<br>' + xhr.response;
+          }
+        }
+        else {
+          outputEl.innerHTML = 'Error: Empty Response';
+        }
+      }
+      else {
+        outputEl.innerHTML = 'Job Log Error:<br>HTTP ' + xhr.status + '<br>' + xhr['responseURL'];
+      }
+    }
+  }
+  
+  function filesaverWriteEnded(){
+    outputEl.innerHTML = pui['getLanguageText']('runtimeText', 'upload finished text');
+    setTimeout(function(){
+      outputEl.innerHTML = '';
+    }, 3000);
+  }
 };

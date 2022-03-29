@@ -6165,6 +6165,11 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   border: 1px dashed #bcbcff;
 }
 
+#resp_previewtitle ul.prevmatches {
+  list-style: disc inside;
+  margin-left: 2px;
+}
+
 /* Responsive Layouts fallback for Internet Explorer 10-11. Use wrapping flex-box instead. */
 
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
@@ -17449,4 +17454,18 @@ div.listEditor > div.dlgbody {
 
 div.listEditor > div.dlgbody input {
   box-sizing: border-box;
+}
+
+div.joblogDL {
+  font-size: 11px;
+  white-space: pre;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+div.joblogDL > span.pui-material-icons { 
+ top: 4px;
+ cursor:inherit;
+ position:relative;
+ font-size:16px;
 }

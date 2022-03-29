@@ -1255,7 +1255,6 @@ pui.attachOnUserActivity = function() {
     var atriumSettings = Atrium["getSettings"]();
   }
   catch (error) {
-    console.error(error);
   }
   var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
   if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
@@ -1290,7 +1289,6 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
     var atriumSettings = Atrium["getSettings"]();
   }
   catch (error) {
-    console.error(error);
   }
   if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
     interval = pui.timeout - 10;
