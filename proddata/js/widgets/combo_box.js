@@ -359,7 +359,9 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
   }
 
   this.box.style[styleName] = propertyValue;
-  this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
+  if (pui["add combo style properties to choice list"]) {
+    this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
+  }
 };
 
 /**
