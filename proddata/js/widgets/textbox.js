@@ -98,6 +98,37 @@ pui.widgets.add({
       }
     }
   
+  },
+
+  globalAfterSetter: function(parms) {
+    // If the textbox has a floating placeholder, then properties have been applied to the placeholder div
+    // instead of the actual textbox. For certain properties (and this list should be added to), move them to
+    // the inner textbox.
+    if (parms.dom && parms.dom.floatingPlaceholder != null) {
+      var box = parms.dom.floatingPlaceholder.getBox();
+      var propertyName = parms.propertyName;
+      var pnm = getPropertiesNamedModel();
+      var stylename;
+
+      if (pnm[propertyName] && pnm[propertyName].stylename) stylename = pnm[propertyName].stylename;
+      else if (pnm[propertyName] && pnm[propertyName].attribute) stylename = pnm[propertyName].attribute;
+
+      if (stylename) {
+        switch (propertyName) {
+          case "disabled":
+          case "read only":
+            box[stylename] = parms.newValue;
+            parms.dom.removeAttribute(stylename);
+            break;          
+          case "border radius":
+          case "text align":
+          case "height":
+              box.style[stylename] = parms.dom.style[stylename];
+              parms.dom.style[stylename] = "";
+              break;
+        }
+      }
+    }
   }
   
 });
