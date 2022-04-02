@@ -725,7 +725,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
     pui.focusField.dom = dom;
     pui.focusField.setFocusFlag = true;
   }
-
+  
 
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
