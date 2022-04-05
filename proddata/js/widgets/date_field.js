@@ -784,7 +784,18 @@ pui.widgets.add({
     },
     "disabled": function(parms) {
       if (parms.dom.calimg) {
-        if (parms.value == "true") {
+        if (parms.value == "true" || parms.value == true
+          || parms.properties["read only"] == "true" || parms.properties["read only"] == true) {
+          parms.dom.calimg.style.visibility = "hidden";
+        } else {
+          parms.dom.calimg.style.visibility = "";
+        }        
+      }
+    },
+    "read only": function(parms) {
+      if (parms.dom.calimg) {
+        if (parms.value == "true" || parms.value == true
+          || parms.properties["disabled"] == "true" || parms.properties["disabled"] == true) {
           parms.dom.calimg.style.visibility = "hidden";
         } else {
           parms.dom.calimg.style.visibility = "";
