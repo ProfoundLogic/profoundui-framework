@@ -5497,6 +5497,31 @@ div.Glass>.pui-tablayout-body>div {
 .pui-signature-pad-canvas{
   background-color: #ffffcc;
 }
+/*For unsaved changes notice on previewForm and launchControllerDialog*/
+.pui-x-form-display-field{
+  color: red;
+  font-size: 12px;
+}
+
+/*CSS for Ext Js Message boxes
+  used for "unsaved changes" messages on launch dialogs
+*/
+.pui-message-box.x-window-dlg .ext-mb-text{
+  font-size: 14px;
+}
+.pui-message-box .x-window-header.x-unselectable.x-window-draggable{
+  background-color: lightgray;
+  border: 2px solid lightgray;
+}
+.pui-message-box.x-window .x-window-tr,
+.pui-message-box.x-window .x-window-tl
+{
+  padding: unset;
+}
+.pui-message-box.x-window-dlg .x-window-body{
+  padding: 10px 15px 10px 5px;
+}
+
 
 /* CSS for PUIWRKMAP */
 
