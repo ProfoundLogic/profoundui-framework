@@ -101,6 +101,11 @@ pui.widgets.add({
   },
 
   globalAfterSetter: function(parms) {
+
+    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+      pui.floatPlaceholder(parms.dom);
+    }
+
     // If the textbox has a floating placeholder, then properties have been applied to the placeholder div
     // instead of the actual textbox. For certain properties (and this list should be added to), move them to
     // the inner textbox.
