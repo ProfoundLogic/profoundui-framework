@@ -63,6 +63,12 @@ pui.widgets.add({
       }
     }
   
+  },
+
+  globalAfterSetter: function(parms) {
+    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+      pui.floatPlaceholder(parms.dom);
+    }
   }
   
 });
