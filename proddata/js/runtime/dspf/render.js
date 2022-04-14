@@ -2051,6 +2051,9 @@ pui.renderFormat = function(parms) {
             if (propname == "unchecked value") {
               dom.uncheckedValue = propValue;
             }
+            if (propname == "indeterminate value") {
+              dom.indeterminateValue = propValue;
+            }
             if (propname == "cursor row") {
               dom.cursorRow = propValue;
             }

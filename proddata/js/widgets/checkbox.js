@@ -41,7 +41,9 @@ pui.widgets.add({
     "field type": function(parms) {
       var objValue = parms.evalProperty("value");
       var checkedValue = parms.evalProperty("checked value");
+      var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
+      parms.dom.indeterminateValue = indeterminateValue;
       if (!pui["is_quirksmode"]) {
         if (!pui["is_old_ie"]) {
           parms.dom.style.margin = "2px";
@@ -51,8 +53,13 @@ pui.widgets.add({
         parms.dom.checked = parms.dom.originallyChecked;
       }
       else {
-        if (objValue == checkedValue) parms.dom.checked = true;
-        else parms.dom.checked = false;
+        if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+          parms.dom.indeterminate = true;
+        }
+        else {
+          if (objValue == checkedValue) parms.dom.checked = true;
+          else parms.dom.checked = false;
+        }
       }
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
@@ -76,9 +83,16 @@ pui.widgets.add({
     
     "value": function(parms) {
       var checkedValue = parms.evalProperty("checked value");      
+      var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
-      if (parms.value == checkedValue) parms.dom.checked = true;
-      else parms.dom.checked = false;
+      parms.dom.indeterminateValue = indeterminateValue;
+      if (indeterminateValue && parms.value === rtrim(indeterminateValue)) {
+        parms.dom.indeterminate = true;
+      }
+      else {
+        if (parms.value == checkedValue) parms.dom.checked = true;
+        else parms.dom.checked = false;
+      }
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
@@ -93,15 +107,41 @@ pui.widgets.add({
     },
     
     "checked value": function(parms) {
-      var objValue = parms.evalProperty("value");
+      var objValue = parms.evalProperty("value");      
       var checkedValue = parms.value;
+      var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
-      if (objValue == checkedValue) parms.dom.checked = true;
-      else parms.dom.checked = false;
+      parms.dom.indeterminateValue = indeterminateValue;
+      if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+        parms.dom.indeterminate = true;
+      }
+      else {
+        if (objValue == checkedValue) parms.dom.checked = true;
+        else parms.dom.checked = false;
+      }
       // Fixes printing problem for IE8. 
       // -- DR.
       pui.fixCheckPrint(parms.dom);        
     },
+
+    "indeterminate value": function(parms) {
+      var objValue = parms.evalProperty("value");      
+      var checkedValue = parms.evalProperty("checked value");
+      var indeterminateValue = parms.value;
+      parms.dom.checkedValue = checkedValue;
+      parms.dom.indeterminateValue = indeterminateValue;
+      if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+        parms.dom.indeterminate = true;
+      }
+      else {
+        if (objValue == checkedValue) parms.dom.checked = true;
+        else parms.dom.checked = false;
+      }
+      // Fixes printing problem for IE8. 
+      // -- DR.
+      pui.fixCheckPrint(parms.dom);        
+    },
+
     "visibility": function(parms) {
       
       if (!parms.design && parms.dom.labelObj) {
