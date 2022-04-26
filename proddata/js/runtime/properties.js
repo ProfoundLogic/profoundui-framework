@@ -390,7 +390,7 @@ function getPropertiesModel() {
     { name: "onoptiondisplay", type: "js", helpDefault: "blank", help: "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid.", controls: ["combo box","menu"] },
     { name: "onselect", wf: true, controls: ["combo box", "textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields." },
     { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." },
-    { name: "onprompt", wf: true, controls: ["textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the prompt is clicked on a textbox." }
+    { name: "onprompt", wf: true, controls: ["textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the prompt icon is clicked on a textbox. In your script, use special variable 'value' to retrieve the textbox value. Use 'this' to refer to the input DOM element." }
   ];
 
   //Remove remote server property if PJS. Not yet ready to implement.
@@ -1390,6 +1390,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       func = function () {
         eval("var value = arguments[0];");
         eval("var text = arguments[1];");
+        try {
+          eval(newValue);
+        } catch (err) {
+          pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
+        }
+      };
+    } else if (propConfigName == "onprompt") {
+      func = function () {
+        eval("var value = arguments[0];");
         try {
           eval(newValue);
         } catch (err) {

@@ -209,6 +209,11 @@ pui.addPrompt = function(parms) {
     });
   }
 
+  prompter.onclick = function() {
+    // Pass "this" and "value" parameters
+    parms.dom["onprompt"].call(parms.dom, parms.dom.value);    
+  }
+
   parms.dom.parentNode.appendChild(prompter);
   parms.dom.prompter = prompter;
   parms.dom.extraDomEls = [prompter];
