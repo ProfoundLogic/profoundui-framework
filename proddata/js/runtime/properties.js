@@ -147,6 +147,7 @@ function getPropertiesModel() {
     { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], helpDefault: "blank", help: "Specifies the default text to place into an empty field. When the field receives focus, the text is removed. This property is similar to the 'placeholder' property, but provides support for older browser that may not yet support the placeholder HTML5 attribute.", translate: true },
     { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], helpDefault: "blank", help: "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field. Older browsers may not support this feature.", translate: true },
     { name: "float placeholder", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "When set to true, the placeholder becomes a floating label on top of the input field once there is data in the input box or while focus is on the element.", helpNote: "Enabling a floating placeholder will alter the widget's DOM structure (by wrapping the INPUT element in a DIV element). Thus, any user code referencing a widget's DOM element may need to be modified after enabling the 'float placeholder' property on that widget.", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], hideFormatting: true, validDataTypes: ["indicator", "expression"], context: "dspf" },
+    { name: "prompt icon", type: "icon", helpDefault: "blank", help: "Identifies the prompt icon to use.", helpNote: "Material Icon set does not display in Internet Explorer 9 and lower.", controls: ["textbox"] },
     { name: "input type", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "range", "search", "tel", "time", "url", "week"], controls: ["combo box", "date field", "textbox"], helpDefault: "textbox", help: "Specifies an HTML5 input type. Some types may not yet be supported by the user's browser or mobile device. If a type is not specified or if the selected type is not supported, a standard textbox element will be used." },
     { name: "browser auto complete", hideFormatting: true, choices: ["on", "off", "Other..."], controls: ["combo box", "date field", "password field", "textbox", "spinner"], helpDefault: "off", help: "Specifies the value of the HTML textbox \"autocomplete\" attribute, which controls the browser's autocomplete/autofill feature. Browser autocomplete/autofill is disabled (\"off\") by default. Specify \"on\" to enable browser autocomplete/autofill or for further control, specify an autofill field name. See <a href=\"https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill-field\" target=\"_blank\">here</a> for details on autofill field names." },
     { name: "related field", helpDefault: "blank", help: "This property allows you to create a radio button group by associating multiple radio buttons with a field from the original application. Specify the id of the field to associate the radio button with. Additionally, this property can associate a text area with a group of textboxes by specify a comma separated list of textbox id's.", controls: ["radio button", "text area"], context: "genie" },
@@ -388,7 +389,8 @@ function getPropertiesModel() {
     { name: "onmouseup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse button is released off this element." },
     { name: "onoptiondisplay", type: "js", helpDefault: "blank", help: "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid.", controls: ["combo box","menu"] },
     { name: "onselect", wf: true, controls: ["combo box", "textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields." },
-    { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." }
+    { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." },
+    { name: "onprompt", wf: true, controls: ["textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the prompt is clicked on a textbox." }
   ];
 
   //Remove remote server property if PJS. Not yet ready to implement.
@@ -815,6 +817,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (widget == null) return dom;
     var tag = widget.tag;
     var inpType = widget.inputType;
+    if (isDesignMode) {
+      designItem.promptIcon = null;
+      designItem.removeIcon();
+    }
 
     switch (effectiveValue) {
       //case "button":
@@ -1251,6 +1257,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "spinner") {
       setTimeout(function () {
         if (domObj.spinner && domObj.style.visibility == "hidden") domObj.spinner.hide();
+      }, 1);
+    }
+    if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "textbox") {
+      setTimeout(function () {
+        if (domObj.prompter && domObj.style.visibility == "hidden") domObj.prompter.style.visibility = "hidden";
       }, 1);
     }
     if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.tagName == "A") {
