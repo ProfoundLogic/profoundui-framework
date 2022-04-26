@@ -153,7 +153,7 @@ pui.widgets.add({
 });
 
 
-pui.addPrompt(parms) {
+pui.addPrompt = function(parms) {
 
   var prompter = document.createElement("div");  
   var promptIcon = parms.evalProperty("prompt icon");
@@ -195,7 +195,7 @@ pui.addPrompt(parms) {
     });
   }
   
-  parmd.dom.parentNode.appendChild(prompter);
+  parms.dom.parentNode.appendChild(prompter);
   parms.dom.prompter = prompter;
 
 }
