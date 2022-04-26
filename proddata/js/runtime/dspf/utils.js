@@ -328,6 +328,8 @@ pui.floatPlaceholder = function(idOrDom) {
     div.style.position = input.style.position;
     div.style.left = input.style.left;
     div.style.top = input.style.top;
+    div.style.right = input.style.right;
+    div.style.bottom = input.style.bottom;
     div.style.width = input.style.width;
     div.pui = input.pui;
     if (input.cursorRecord != null)
@@ -351,7 +353,11 @@ pui.floatPlaceholder = function(idOrDom) {
       input.style.visibility = "";
     }
     div.appendChild(input);
-  } else {
+    div.sizeMe = input.sizeMe;
+    div.alwaysSizeMe = input.alwaysSizeMe;
+    div.extraDomEls = input.extraDomEls;
+  } 
+  else {
     div = input.parentNode;
     var classes = div.className.split(' ');
     for (var i = 0; i < classes.length; i++) {
@@ -370,6 +376,7 @@ pui.floatPlaceholder = function(idOrDom) {
 
   // Setup useful methods for outside use by the framework
   div.floatingPlaceholder = label;
+  pui.movePrompter(input);
   label.getValue = function() {
     return input.value;
   }

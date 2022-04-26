@@ -64,24 +64,20 @@ pui.widgets.add({
         itm.promptIcon = null;
         if (promptIcon) {
           itm.promptIcon = promptIcon;
-          parms.dom.sizeMe = function() {            
-            itm.drawIcon();
-            itm.mirrorDown();
-          }
+        }
+        parms.dom.sizeMe = function() {            
+          itm.drawIcon();
+          itm.mirrorDown();
         }
       }
-      else {
-        if (promptIcon) {
-          parms.dom.sizeMe = function() {
-            pui.movePrompter(parms.dom);
-          }
+      else {        
+        parms.dom.sizeMe = function() {
+          pui.movePrompter(parms.dom);
         }
       }
-      if (promptIcon) {
-        parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
-        if (!parms.design) {
-          pui.addPrompt(parms);
-        }
+      parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
+      if (promptIcon && !parms.design) {
+        pui.addPrompt(parms);
       }
     },
     
@@ -134,14 +130,22 @@ pui.widgets.add({
         itm.mirrorDown();
       }
     },
+
+    "visibility": function(parms) {
+      if (parms.dom.prompter) {
+        if (parms.value === "hidden") {
+          parms.dom.prompter.style.visibility = "hidden"; 
+        }
+        else {    
+          parms.dom.prompter.style.visibility = ""; 
+        }        
+      }
+    },
     
     "css class": function(parms) {
       if (parms.design) {
         parms.designItem.drawIcon();
       } 
-      else {        
-        // To Do
-      }
     }
   
   },
@@ -207,6 +211,7 @@ pui.addPrompt = function(parms) {
 
   parms.dom.parentNode.appendChild(prompter);
   parms.dom.prompter = prompter;
+  parms.dom.extraDomEls = [prompter];
 
   pui.movePrompter(parms.dom);
 
@@ -217,6 +222,7 @@ pui.movePrompter = function(inputDom) {
   
   var prompter = inputDom.prompter;
   if (!prompter) return;
+  if (inputDom.parentNode && inputDom.parentNode.floatingPlaceholder) inputDom = inputDom.parentNode;
   var left = inputDom.style.left;
   if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
   else left = inputDom.offsetLeft;
