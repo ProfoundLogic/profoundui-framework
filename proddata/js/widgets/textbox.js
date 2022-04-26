@@ -19,6 +19,7 @@
 
 
 
+
 pui.widgets.add({
   name: "textbox",
   tag: "input",
@@ -26,6 +27,8 @@ pui.widgets.add({
   defaults: {
     "css class": "input"
   },
+  pickIcon1IsDiv: true,
+  icon1Class: 'pui-prompt',
 
   propertySetters: {
   
@@ -53,9 +56,25 @@ pui.widgets.add({
             parms.dom.setAttribute("name", pui.randomTextBoxName());
         }
       }
+      var promptIcon = parms.evalProperty("prompt icon");
       if (parms.design) { 
         parms.dom.readOnly = true;
         parms.dom.spellcheck = false;
+        var itm = parms.designItem;
+        itm.promptIcon = null;
+        if (promptIcon) {
+          itm.promptIcon = promptIcon;
+          parms.dom.sizeMe = function() {            
+            itm.drawIcon();
+            itm.mirrorDown();
+          };
+        }
+      }
+      if (promptIcon) {
+        parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
+        if (!parms.design) {
+          pui.addPrompt(parms);
+        }
       }
     },
     
@@ -96,6 +115,26 @@ pui.widgets.add({
       if (!parms.design && parms.dom && parms.dom.autoComp && typeof parms.dom.autoComp.updateUrl === "function") {
         parms.dom.autoComp.updateUrl(parms.value);
       }
+    },
+    
+    "prompt icon": function(parms) {
+      var promptIcon = parms.value;
+      if (parms.design) {        
+        var itm = parms.designItem;
+        itm.promptIcon = null;
+        if (promptIcon) itm.promptIcon = promptIcon;
+        itm.drawIcon();
+        itm.mirrorDown();
+      }
+    },
+    
+    "css class": function(parms) {
+      if (parms.design) {
+        parms.designItem.drawIcon();
+      } 
+      else {        
+        // To Do
+      }
     }
   
   },
@@ -112,5 +151,53 @@ pui.widgets.add({
   }
   
 });
+
+
+pui.addPrompt(parms) {
+
+  var prompter = document.createElement("div");  
+  var promptIcon = parms.evalProperty("prompt icon");
+  prompter.classList.add("pui-prompt");
+  if (promptIcon.substr(0,9) === 'material:') {
+    var icon = promptIcon.substr(9);
+    prompter.innerText = trim(icon);
+    prompter.classList.add('pui-material-icons');
+  }
+  else if (promptIcon.substr(0, 12) === 'fontAwesome:') {
+    var icon = trim(promptIcon.substr(12));
+    prompter.classList.add('pui-fa-icons fa-' + icon);
+    prompter.innerText = '';
+  }
+  else {
+    var iconSets = pui.getDefaultIconSets();
+    if (pui["customIconList"] && pui["customIconList"]) {
+      if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
+        iconSets =  pui["customIconList"]["icons"];
+      }
+    }
+    var iconValueArr = promptIcon.split(':');
+    var iconValueType =  iconValueArr.shift().split('-');
+    var iconValueClassList = iconValueType.pop();
+    iconValueType = iconValueType.join('-');
+    var iconVal = iconValueArr.pop();
+    iconSets.every(function(iconSet) {
+      var type = iconSet["type"];
+      var iconClassName = iconSet["classList"][iconValueClassList];
+      if (iconValueType === type) {
+        var classes = (iconClassName + iconVal).split(" ");
+        for (var i = 0; i < classes.length; i++) {
+          prompter.classList.add(classes[i]);
+        }
+        prompter.innerHTML = '';
+        return false;
+      }
+      return true;
+    });
+  }
+  
+  parmd.dom.parentNode.appendChild(prompter);
+  parms.dom.prompter = prompter;
+
+}
 
 

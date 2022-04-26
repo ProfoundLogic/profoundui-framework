@@ -17500,3 +17500,25 @@ div.joblogDL > span.pui-material-icons {
  position:relative;
  font-size:16px;
 }
+
+
+div.pui-prompt {
+  position: absolute;
+  color: #009be3;
+  cursor: pointer;
+}
+
+div.pui-prompt-blueprint-textbox {
+  color: #009be3;
+}
+div.pui-prompt-blueprint-textbox:hover {
+  background-color: #5faee3aa;
+}
+
+div.pui-prompt-office-copy-textbox {
+  color: #6c757d;
+}
+div.pui-prompt-office-copy-textbox:hover {
+  background-color: #c7c7c7aa;
+}
+
