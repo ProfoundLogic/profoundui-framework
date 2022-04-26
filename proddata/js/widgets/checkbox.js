@@ -54,7 +54,7 @@ pui.widgets.add({
       }
       else {
         if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
-          parms.dom.indeterminate = true;
+          parms.dom["indeterminate"] = true;
         }
         else {
           if (objValue == checkedValue) parms.dom.checked = true;
@@ -87,7 +87,7 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
       if (indeterminateValue && parms.value === rtrim(indeterminateValue)) {
-        parms.dom.indeterminate = true;
+        parms.dom["indeterminate"] = true;
       }
       else {
         if (parms.value == checkedValue) parms.dom.checked = true;
@@ -113,7 +113,7 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
       if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
-        parms.dom.indeterminate = true;
+        parms.dom["indeterminate"] = true;
       }
       else {
         if (objValue == checkedValue) parms.dom.checked = true;
@@ -131,7 +131,7 @@ pui.widgets.add({
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
       if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
-        parms.dom.indeterminate = true;
+        parms.dom["indeterminate"] = true;
       }
       else {
         if (objValue == checkedValue) parms.dom.checked = true;
