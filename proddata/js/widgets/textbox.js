@@ -67,7 +67,14 @@ pui.widgets.add({
           parms.dom.sizeMe = function() {            
             itm.drawIcon();
             itm.mirrorDown();
-          };
+          }
+        }
+      }
+      else {
+        if (promptIcon) {
+          parms.dom.sizeMe = function() {
+            pui.movePrompter(parms.dom);
+          }
         }
       }
       if (promptIcon) {
@@ -158,6 +165,9 @@ pui.addPrompt = function(parms) {
   var prompter = document.createElement("div");  
   var promptIcon = parms.evalProperty("prompt icon");
   prompter.classList.add("pui-prompt");
+  for (var i = 0; i < parms.dom.classList.length; i++) {
+    prompter.classList.add("pui-prompt-" + parms.dom.classList[i]);
+  }
   if (promptIcon.substr(0,9) === 'material:') {
     var icon = promptIcon.substr(9);
     prompter.innerText = trim(icon);
@@ -194,10 +204,37 @@ pui.addPrompt = function(parms) {
       return true;
     });
   }
-  
+
   parms.dom.parentNode.appendChild(prompter);
   parms.dom.prompter = prompter;
 
+  pui.movePrompter(parms.dom);
+
 }
 
+
+pui.movePrompter = function(inputDom) {
+  
+  var prompter = inputDom.prompter;
+  if (!prompter) return;
+  var left = inputDom.style.left;
+  if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
+  else left = inputDom.offsetLeft;
+  if (isNaN(left)) left = 0;
+  var top;
+  top = inputDom.style.top;
+  if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
+  else top = inputDom.offsetTop;
+  if (isNaN(top)) top = 0;
+  prompter.style.left = left + inputDom.offsetWidth + 6 + "px";
+  top += parseInt((inputDom.offsetHeight - 18) / 2);
+  top -= 4;
+  if (pui["is_quirksmode"]) top -= 1;
+  prompter.style.top = top + "px";
+  prompter.style.zIndex = inputDom.style.zIndex;
+  prompter.style.visibility = inputDom.style.visibility;
+  prompter.style.filter = inputDom.style.filter;
+  prompter.style.opacity = inputDom.style.opacity;
+
+}
 
