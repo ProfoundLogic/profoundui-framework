@@ -1056,6 +1056,7 @@ pui.renderFormat = function(parms) {
   if (isDesignMode == null) isDesignMode = false;
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
+  var ddsFieldOrder = parms.metaData["dds field order"];
   var designer = parms.designer;
   var data = parms.data;
   var formatName = parms.name;
@@ -1221,6 +1222,10 @@ pui.renderFormat = function(parms) {
         }, designer);
       }
     }    
+
+    // 7415. Send field order to designer
+    designer.ddsFieldOrder = ddsFieldOrder;
+
   }
   
   if (!isDesignMode && isMainFormat) {
