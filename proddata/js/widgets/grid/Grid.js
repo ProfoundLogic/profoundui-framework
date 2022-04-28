@@ -8863,7 +8863,7 @@ pui.Grid = function () {
     var all = false;
     if (headerCell === "*all") {  // special value to indicate filter on all columns, only valid for client-side filtering on load-all grids
       all = true;
-      headerCell = 0;
+      headerCell = headerCell = me.cells[0][0];
     }
 
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
