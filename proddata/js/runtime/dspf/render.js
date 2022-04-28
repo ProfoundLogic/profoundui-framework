@@ -1379,7 +1379,7 @@ pui.renderFormat = function(parms) {
           dom.highlighted = false;
         }
 
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(items[i]["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(items[i]["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
@@ -2149,7 +2149,7 @@ pui.renderFormat = function(parms) {
           
         }
         
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(properties["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(properties["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
