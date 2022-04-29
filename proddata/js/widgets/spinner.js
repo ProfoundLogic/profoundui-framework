@@ -230,12 +230,12 @@ pui.widgets.add({
     "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
-        setTimeout( function() { 
+        if (parms.dom.spinner == undefined) {
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
           parms.dom.sizeMe = function() {
             parms.dom.spinner.positionSpinnButtons();
-          };
-        }, 1);
+          }
+        };
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
@@ -260,14 +260,7 @@ pui.widgets.add({
     "disabled": function(parms){
       if (!parms.design){
         // I don't know why the constructor is in a timeout, but we must work around that (or rework the widget). MD.
-        if (parms.dom.spinner){
-          parms.dom.spinner.setDisabled();
-        }
-        else {
-          setTimeout( function(){
-            parms.dom.spinner.setDisabled();
-          }, 1);
-        }
+        parms.dom.spinner.setDisabled();
       }
       // Note: designItem.setIcon is what renders the icons in Designer for some reason.
     },
@@ -294,10 +287,7 @@ pui.widgets.add({
     "css class": function(parms) {
       var className = parms.value.split(' ').shift();
       if (!parms.design) {
-        if (parms.dom.spinner) parms.dom.spinner.setArrowClassNames(className);
-        else setTimeout(function(){
-          parms.dom.spinner.setArrowClassNames(className);
-        }, 1);
+        parms.dom.spinner.setArrowClassNames(className);
       } else {
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
@@ -326,6 +316,24 @@ pui.widgets.add({
             parms.dom.removeAttribute("name");
         }
       }
+    }
+
+  },
+
+  globalAfterSetter: function(parms) {
+
+    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+      // Find old spinner buttons
+      var extraDomEls = parms.oldDom.extraDomEls;
+      // Destroy old spinner buttons
+      for (var i = 0; i < extraDomEls.length; ++i) {
+        if (extraDomEls[i].parentNode)
+          extraDomEls[i].parentNode.removeChild(extraDomEls[i]);
+      }
+      // Add floating placeholder to dom
+      pui.floatPlaceholder(parms.dom);
+      // Reformat spinner buttons
+      parms.dom.spinner.setArrowClassNames();
     }
 
   }
