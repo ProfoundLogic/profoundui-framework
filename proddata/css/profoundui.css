@@ -12521,6 +12521,9 @@ input.blueprint-checkbox {
   height: 20px;
   margin: 1px !important;
 }
+input.blueprint-checkbox:indeterminate {
+  opacity: 1;
+}
 
 .label-for-blueprint-radio-button, input.blueprint-checkbox:checked+.label-for-blueprint-checkbox {
   background-repeat: no-repeat;
@@ -15110,6 +15113,9 @@ input.office-copy-checkbox {
   height: 20px;
   margin: 1px !important;
 }
+input.office-copy-checkbox:indeterminate {
+  opacity: 1;
+}
 
 input.office-copy-checkbox:checked+.label-for-office-copy-checkbox {
   background-image: url(../images/widgetsets/office-copy/checkbox-gray.png);
@@ -17494,3 +17500,25 @@ div.joblogDL > span.pui-material-icons {
  position:relative;
  font-size:16px;
 }
+
+
+div.pui-prompt {
+  position: absolute;
+  color: #009be3;
+  cursor: pointer;
+}
+
+div.pui-prompt-blueprint-textbox {
+  color: #009be3;
+}
+div.pui-prompt-blueprint-textbox:hover {
+  background-color: #5faee3aa;
+}
+
+div.pui-prompt-office-copy-textbox {
+  color: #6c757d;
+}
+div.pui-prompt-office-copy-textbox:hover {
+  background-color: #c7c7c7aa;
+}
+
