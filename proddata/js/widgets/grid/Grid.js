@@ -2464,7 +2464,7 @@ pui.Grid = function () {
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
 
               // Highlight cells in the column.
-              if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
+              if (me.highlighting != null && me.highlighting.text != "" && (idx === me.highlighting.col || me.highlighting.col === "*all")) {
                 if (row[idx].tagName == "DIV") {
                   pui.highlightText(row[idx], me.highlighting.text);
                   row[idx].highlighted = true;
@@ -8648,7 +8648,7 @@ pui.Grid = function () {
    * @param {Object|Element} headerCell    A DOM element for a column header.
    * @returns {undefined}
    */
-  this.setSearchIndexes = function (headerCell) {
+  this.setSearchIndexes = function (headerCell, all) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
     if (me.isDataGrid() && me.forceDataArray == false) return;
     if (headerCell.searchIndexes != null) return; //searchIndexes is already setup.
@@ -8667,7 +8667,7 @@ pui.Grid = function () {
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
       // The current itm maps to the headerCell's column.
-      if (pui.isBound(val) && !isNaN(col) && col == headerCell.col) {
+      if (all || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         // Find the index of the dataArray column that corresponds to fieldName.
         // me.fieldNames maps me.dataArray columns to fieldNames.
@@ -8859,14 +8859,30 @@ pui.Grid = function () {
    */
   this["setFilter"] = function (headerCell, text) {
     if (me.waitingOnRequest) return;
+
+    var all = false;
+    if (headerCell === "*all") {  // special value to indicate filter on all columns, only valid for client-side filtering on load-all grids
+      all = true;
+      headerCell = me.cells[0][0];
+    }
+
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     if (me.usePagingFilter()) return setPagingFilter(headerCell, text);
-    me.setSearchIndexes(headerCell);
+    me.setSearchIndexes(headerCell, all);
     me.highlighting.columnId = headerCell.columnId; //need to set when called from API w/o startFilter.
-    me.highlighting.col = headerCell.col;
+    me.highlighting.col = all ? "*all" : headerCell.col;
     me.highlighting.text = text;
-    me.setFilterIcon(headerCell);
+    if (all) {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        me.removeFilterIcon(headerRow[i]);
+        headerRow[i].filterText = null;
+      }
+    }
+    else {
+      me.setFilterIcon(headerCell);
+    }
     headerCell.filterText = text;
     
     if (me.showQuickFilters) {
@@ -8889,6 +8905,7 @@ pui.Grid = function () {
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
         var record = me.dataArray[i];
+        if (all) record.filteredOutArray = [];
         if (record.subfileRow == null) record.subfileRow = i + 1;
         for (var j = 0; j < idxes.length; j++) {
           var idx = idxes[j];

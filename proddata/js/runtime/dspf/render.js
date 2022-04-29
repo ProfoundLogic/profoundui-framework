@@ -1056,6 +1056,7 @@ pui.renderFormat = function(parms) {
   if (isDesignMode == null) isDesignMode = false;
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
+  var ddsFieldOrder = parms.metaData["dds field order"];
   var designer = parms.designer;
   var data = parms.data;
   var formatName = parms.name;
@@ -1221,6 +1222,10 @@ pui.renderFormat = function(parms) {
         }, designer);
       }
     }    
+
+    // 7415. Send field order to designer
+    designer.ddsFieldOrder = ddsFieldOrder;
+
   }
   
   if (!isDesignMode && isMainFormat) {
@@ -1379,7 +1384,7 @@ pui.renderFormat = function(parms) {
           dom.highlighted = false;
         }
 
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(items[i]["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(items[i]["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
@@ -2051,6 +2056,9 @@ pui.renderFormat = function(parms) {
             if (propname == "unchecked value") {
               dom.uncheckedValue = propValue;
             }
+            if (propname == "indeterminate value") {
+              dom.indeterminateValue = propValue;
+            }
             if (propname == "cursor row") {
               dom.cursorRow = propValue;
             }
@@ -2146,7 +2154,7 @@ pui.renderFormat = function(parms) {
           
         }
         
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(properties["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(properties["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
