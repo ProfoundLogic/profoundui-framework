@@ -1668,11 +1668,20 @@ pui.Grid = function () {
 
     // find the DOM element
     var field = null;
+    var property = null;
+    var formattingInfo = null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      var rtval = me.runtimeChildren[i].value;
-      if (pui.isBound(rtval) && pui.fieldUpper(rtval["fieldName"]) == fieldName) {
-        field = me.runtimeChildren[i];
-        break;
+      var runtimeChild = me.runtimeChildren[i];
+      for (var prop in runtimeChild) {
+        var propValue = runtimeChild[prop];
+        if (pui.isBound(propValue) && pui.fieldUpper(propValue["fieldName"]) === fieldName) {
+          field = runtimeChild;
+          property = prop;
+          formattingInfo = Object.assign({}, propValue);
+          formattingInfo.value = value;
+          break;
+        }
+        if (property) break;
       }
     }
     if (field == null) return false;
@@ -1696,7 +1705,7 @@ pui.Grid = function () {
         break;
       }
 
-      if (domTest && pui.isInputCapableProperty("value", domTest) && me.isDataGrid() == false) {
+      if (domTest && pui.isInputCapableProperty(property, domTest) && me.isDataGrid() == false) {
         var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
         if (pui.responseElements[qualField] == null) {
           pui.responseElements[qualField] = [{
@@ -1712,7 +1721,7 @@ pui.Grid = function () {
     }
 
     // Update DOM element
-    changeElementValue(el, value);
+    applyProperty(el, property, pui.FieldFormat.format(formattingInfo));
     return true;
   };
 
