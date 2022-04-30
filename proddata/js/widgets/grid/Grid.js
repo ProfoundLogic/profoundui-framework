@@ -1670,58 +1670,68 @@ pui.Grid = function () {
     var field = null;
     var property = null;
     var formattingInfo = null;
+    var list = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var runtimeChild = me.runtimeChildren[i];
       for (var prop in runtimeChild) {
         var propValue = runtimeChild[prop];
         if (pui.isBound(propValue) && pui.fieldUpper(propValue["fieldName"]) === fieldName) {
-          field = runtimeChild;
-          property = prop;
-          formattingInfo = Object.assign({}, propValue);
+          var formattingInfo = Object.assign({}, propValue);
           formattingInfo.value = value;
+          list.push({
+            field: runtimeChild,
+            property: prop,
+            formattingInfo: formattingInfo
+          });
+        }
+      }
+    }
+    if (list.length === 0) return false;
+
+    for (var x = 0; x < list.length; x++) {
+      var entry = list[x];
+      var field = entry.field;
+      var property = entry.property;
+      
+      var el = field.domEls[rowNum - 1];
+
+      // If an element has never been rendered, there is no way to mark it "modified" because
+      // there is no DOM element. As a workaround, we'll add a simple object containing 
+      // the value to the pui.responseElements array. If this does get rendered, the
+      // code in runtime/dspf/render.js will replace this object with the real DOM element.
+
+      if (el == null) {
+
+        // Look for another row that has been rendered so
+        // we can get info about the DOM elements
+        // NOTE: This assumes the DOM elements for each row will be the same.
+
+        var domTest = null;
+        for (var i in field.domEls) {
+          domTest = field.domEls[i];
           break;
         }
-        if (property) break;
-      }
-    }
-    if (field == null) return false;
 
-    var el = field.domEls[rowNum - 1];
-
-    // If an element has never been rendered, there is no way to mark it "modified" because
-    // there is no DOM element. As a workaround, we'll add a simple object containing 
-    // the value to the pui.responseElements array. If this does get rendered, the
-    // code in runtime/dspf/render.js will replace this object with the real DOM element.
-
-    if (el == null) {
-
-      // Look for another row that has been rendered so
-      // we can get info about the DOM elements
-      // NOTE: This assumes the DOM elements for each row will be the same.
-
-      var domTest = null;
-      for (var i in field.domEls) {
-        domTest = field.domEls[i];
-        break;
-      }
-
-      if (domTest && pui.isInputCapableProperty(property, domTest) && me.isDataGrid() == false) {
-        var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
-        if (pui.responseElements[qualField] == null) {
-          pui.responseElements[qualField] = [{
-            responseValue: String(value),
-            modifiedBeforeRender: true
-          }];
+        if (domTest && pui.isInputCapableProperty(property, domTest) && me.isDataGrid() == false) {
+          var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+          if (pui.responseElements[qualField] == null) {
+            pui.responseElements[qualField] = [{
+              responseValue: String(value),
+              modifiedBeforeRender: true
+            }];
+          }
+          if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+            pui.responseElements[qualField][0].responseValue = String(value);
+          }
         }
-        if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
-          pui.responseElements[qualField][0].responseValue = String(value);
-        }
+
+        continue;
       }
-      return false;
+
+      // Update DOM element
+      applyProperty(el, property, pui.FieldFormat.format(entry.formattingInfo));
     }
 
-    // Update DOM element
-    applyProperty(el, property, pui.FieldFormat.format(formattingInfo));
     return true;
   };
 
