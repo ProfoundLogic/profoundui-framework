@@ -2689,6 +2689,10 @@ pui.renderFormat = function(parms) {
           
         }
 
+        if (properties["persist state"] === "program only" && subfile["renderCount"] === 1) {
+          sessionStorage.removeItem(dom.grid.storageKey);
+        }
+
         if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null)  {
           dom.grid.useServerState = true;
           dom.grid.storedState = subfile["storedState"];
