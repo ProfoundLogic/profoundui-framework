@@ -8884,6 +8884,9 @@ pui.Grid = function () {
       all = true;
       headerCell = me.cells[0][0];
     }
+    else if (!me.cells[0][0].filterIcon && me.cells[0][0].filterAll) {
+      me["removeFilter"](me.cells[0][0]) ;
+    }
 
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
@@ -8898,6 +8901,7 @@ pui.Grid = function () {
         me.removeFilterIcon(headerRow[i]);
         headerRow[i].filterText = null;
       }
+      headerCell.filterAll = true;
     }
     else {
       me.setFilterIcon(headerCell);
@@ -8970,18 +8974,23 @@ pui.Grid = function () {
       }
     } //done client-side filtering.
     me.getData();
-    if (persistState) me.saveFilters();
+    if (persistState) me.saveFilters(all, text);
     executeEvent("onfilterchange");
   };
 
 
-  this.saveFilters = function () {
+  this.saveFilters = function (all, text) {
     var filters = [];
-    var headerRow = me.cells[0];
-    for (var i = 0; i < headerRow.length; i++) {
-      var headerCell = headerRow[i];
-      if (headerCell.filterText != null && headerCell.filterText != "") {
-        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+    if (all) {
+      filters.push({ "text": text, "column": "*all", "curCol": "*all" });
+    }
+    else {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        var headerCell = headerRow[i];
+        if (headerCell.filterText != null && headerCell.filterText != "") {
+          filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+        }
       }
     }
     if (filters.length < 1) {
@@ -9273,6 +9282,7 @@ pui.Grid = function () {
     }
     else{
       // Remove client-side filtering.
+      if (headerCell.filterAll) delete headerCell.filterAll;
       var col = headerCell.columnId;
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
