@@ -85,6 +85,7 @@ pui["no focus"] = false;
 pui.restoreStyles = {};
 pui.windowStack = null;
 pui.screenEventsToCleanup = [];
+pui.programStorage = {};
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -2690,7 +2691,7 @@ pui.renderFormat = function(parms) {
         }
 
         if (properties["persist state"] === "program only" && subfile["renderCount"] === 1) {
-          sessionStorage.removeItem(dom.grid.storageKey);
+          delete pui.programStorage[dom.grid.storageKey];
         }
 
         if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null)  {
