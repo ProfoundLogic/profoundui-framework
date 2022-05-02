@@ -309,6 +309,7 @@ pui.Grid = function () {
   var designBorderStyle = "solid";
   var persistState = false;
   var sessionState = false;
+  var programState = false;
   var movableColumns = false;
   var resizableColumns = false;
   var columnSignature;
@@ -4114,6 +4115,9 @@ pui.Grid = function () {
         if(sessionState == true){
           state = JSON.parse(sessionStorage[me.storageKey]);
         }
+        else if(programState == true){
+          state = JSON.parse(pui.programStorage[me.storageKey]);
+        }
         else{
           state = JSON.parse(localStorage[me.storageKey]);
         }
@@ -4168,6 +4172,9 @@ pui.Grid = function () {
     if (persistState == true){
       if(sessionState == true){
         sessionStorage[me.storageKey] = JSON.stringify(stg);
+      }
+      else if(programState == true){
+        pui.programStorage[me.storageKey] = JSON.stringify(stg);
       }
       else{
         localStorage[me.storageKey] = JSON.stringify(stg);
@@ -5114,9 +5121,13 @@ pui.Grid = function () {
         if(value == "true" || value == true){
           persistState = (me.designMode == false && pui.isLocalStorage() ); 
         }
-        else if (value === "session only" || value === "program only") {
+        else if (value === "session only") {
           persistState = (me.designMode == false && pui.isSessionStorage() ); 
           sessionState = (me.designMode == false && pui.isSessionStorage() );
+        }
+        else if (value === "program only") {
+          persistState = (me.designMode == false); 
+          programState = true;
         }
         break;
 
@@ -8558,6 +8569,9 @@ pui.Grid = function () {
         if(sessionState == true){
           try{ delete sessionStorage[me.storageKey]; }catch(exc){}
         }
+        else if(programState == true){
+          try{ delete pui.programStorage[me.storageKey]; }catch(exc){}
+        }        
         else{
           try{ delete localStorage[me.storageKey]; }catch(exc){}
         }
