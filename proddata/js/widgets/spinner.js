@@ -100,6 +100,22 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   
   // Public Methods
   this.positionSpinnButtons = function() {
+    // When Spinner buttons are rendered off screen dom.offsetWidth and dom.offsetHeight are not set
+    var offsetWidth = dom.offsetWidth;
+    var styleWidth = dom.style.width;
+    if (offsetWidth == 0 && styleWidth != null && typeof styleWidth == "string" && styleWidth.length >= 3 && styleWidth.substr(styleWidth.length - 2, 2) == "px")
+    offsetWidth = parseInt(styleWidth);
+    if (isNaN(offsetWidth)) offsetWidth = 0;
+
+    var offsetHeight = dom.offsetHeight;
+    var styleHeight = dom.style.height;
+    if (offsetHeight == 0 && styleHeight != null && typeof styleHeight == "string" && styleHeight.length >= 3 && styleHeight.substr(styleHeight.length - 2, 2) == "px")
+    offsetHeight = parseInt(styleHeight);
+    if (isNaN(offsetHeight)) offsetHeight = 0;
+    // Height hasn't been set and the spinner is the default height
+    if (offsetHeight == 0 && styleHeight == "") 
+      offsetHeight = 18;
+
     var left;
     left = dom.style.left;
     if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
@@ -110,8 +126,8 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
     else top = dom.offsetTop;
     if (isNaN(top)) top = 0;
-    up.style.left = left +  dom.offsetWidth - 15 + "px";
-    top += parseInt((dom.offsetHeight - 18) / 2);
+    up.style.left = left + offsetWidth - 15 + "px";
+    top += parseInt((offsetHeight - 18) / 2);
     if (pui["is_quirksmode"]) top -= 1;
     up.style.top = top + "px";
     up.style.zIndex = dom.style.zIndex;
@@ -125,11 +141,11 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
     else top = dom.offsetTop;
     if (isNaN(top)) top = 0;
-    down.style.left = left + dom.offsetWidth - 15 + "px";
+    down.style.left = left + offsetWidth - 15 + "px";
     top += 9;
-    top += parseInt((dom.offsetHeight - 18) / 2);
-    if (dom.offsetHeight % 2 == 1) {
-      if (dom.offsetHeight < 18) top -= 1;
+    top += parseInt((offsetHeight - 18) / 2);
+    if (offsetHeight % 2 == 1) {
+      if (offsetHeight < 18) top -= 1;
       else top += 1;
     }
     down.style.top = top + "px";
@@ -251,6 +267,8 @@ pui.widgets.add({
         };
       }
       if (parms.design) parms.dom.readOnly = true;
+
+      parms.dom.alwaysSizeMe = true; //Make sure the spinner buttons get positioned correctly when inside inactive layouts.
     },
     
     "value": function(parms) {
