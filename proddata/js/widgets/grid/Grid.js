@@ -1729,7 +1729,12 @@ pui.Grid = function () {
       }
 
       // Update DOM element
-      applyProperty(el, property, pui.FieldFormat.format(entry.formattingInfo));
+      if (property === "value") {
+        changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
+      }
+      else {
+        applyProperty(el, property, pui.FieldFormat.format(entry.formattingInfo));
+      }
     }
 
     return true;
