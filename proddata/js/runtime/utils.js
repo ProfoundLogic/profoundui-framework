@@ -4562,7 +4562,7 @@ pui.xlsx_worksheet.prototype.getSheetXML = function(){
     var style = '';
     if (this.formats[col] != null && this.formats[col].cellFormatId) style = ' style="' + this.formats[col].cellFormatId + '"';
     
-    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'"'+style+ ' customWidth="1"/>';
+    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'" '+style+ ' customWidth="1"/>';
   }
   xml += '</cols><sheetData>';
   
