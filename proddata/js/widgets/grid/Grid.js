@@ -4108,7 +4108,7 @@ pui.Grid = function () {
 
     var state = null;
 
-    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null)) {
+    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null) || (programState && pui.programStorage[me.storageKey] != null)) {
 
       try {
 
