@@ -4517,7 +4517,7 @@ pui.xlsx_worksheet.prototype.updateCharCount = function(value, col){
   var len = 0;
   if (typeof value === 'string') len = value.length;
   
-  if (this.rows.length == 1){
+  if (this.rows.length == 1 || this.charcounts[col] == null){
     // The first row: get the column style information from each cell.
     this.charcounts[col] = len;
   }
