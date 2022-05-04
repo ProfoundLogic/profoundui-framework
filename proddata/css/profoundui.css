@@ -280,7 +280,6 @@ div.menu-bar-separator {
 
 .pui-calendar {
   position: absolute;
-  width: 219px;
   z-index: 100;
 }
 
@@ -12347,7 +12346,6 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   ;
   width: auto;
   height: auto;
-  margin: 0 0 0 -75px;
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar, .pui-calendar-blueprint-date-field.pui-calendar *, .pui-calendar-blueprint-date-field.pui-calendar :after, .pui-calendar-blueprint-date-field.pui-calendar ::after {
