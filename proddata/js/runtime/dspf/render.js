@@ -5735,8 +5735,8 @@ pui.showMessageSubfileHelp = function(textObj) {
   help = help.replace("Cause . . . . . :", "<strong>Cause:</strong>");
   help = help.replace("Recovery  . . . :", "<strong>Recovery:</strong>");
   
-  var content = '<div style="height: 30px; text-align: center; padding-top: 3px;"><strong>Additional Message Information</strong></div>';
-  content += '<div style="height: 215px; overflow-y: auto; white-space: normal;">';
+  var content = '<div class="pui-sflmsg-panel-heading"><strong>Additional Message Information</strong></div>';
+  content += '<div class="pui-sflmsg-panel-content">';
   content += "<strong>Message Id:</strong> " + id + "<br/><br/>";
   content += "<strong>Message:</strong> " + text + "<br/><br/>";
   content += "<strong>Date/Time:</strong> " + date + " " + time;
@@ -5769,32 +5769,19 @@ pui.showMessageSubfileHelp = function(textObj) {
   div.style.left = left + "px";
   div.style.top = top + "px";
   div.style.width = width + "px";
-  div.style.height = "250px";
-  div.style.border = "1px solid #cccccc";
+  div.className = "pui-sflmsg-panel";
   div.style.zIndex = pui.windowZIndex;
-  div.style.whiteSpace = "normal";
-  div.style.fontFamily = "Arial";
-  div.style.backgroundColor = "#ffffff";
-  div.style.color = "#555555";
-  div.style.paddingLeft = "8px";
   div.innerHTML = content;
   div.style.display = "";
-  var img = document.createElement("img");
-  img.style.position = "absolute";
-  img.style.top = "3px";
-  img.style.right = "2px";
-  img.style.cursor = "pointer";
-  img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
-  img.onmouseover = function() {
-    img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1_hover.png");
-  };
-  img.onmouseout = function() {
-    img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
-  };
-  img.onclick = function() {
+  var closeButton = document.createElement("div");
+  closeButton.style.position = "absolute";
+  closeButton.style.top = "3px";
+  closeButton.style.right = "2px";
+  closeButton.className = "pui-sflmsg-panel-close-button";  
+  closeButton.onclick = function() {
     div.style.display = "none";
   };
-  div.appendChild(img);
+  div.appendChild(closeButton);
   
   pui.messageSubfileHelpWindowDiv = div;
   
