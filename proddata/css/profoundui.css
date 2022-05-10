@@ -17520,3 +17520,36 @@ div.pui-prompt-office-copy-textbox:hover {
   background-color: #c7c7c7aa;
 }
 
+
+div.pui-sflmsg-panel {
+  height: 250px;
+  border: 1px solid #cccccc;  
+  white-space: normal;
+  font-family: Arial;
+  background-color: #ffffff;
+  color: #555555;
+  padding-left: 8px;
+}
+
+div.pui-sflmsg-panel-heading {
+  height: 30px;
+  text-align: center;
+  padding-top: 3px; 
+}
+
+div.pui-sflmsg-panel-content {
+  height: 215px;
+  overflow-y: auto;
+  white-space: normal;
+}
+
+div.pui-sflmsg-panel-close-button {
+  cursor: pointer;
+  background-image: url(/profoundui/proddata/images/buttons/close/x1.png);  
+  height: 16px;
+  width: 16px;
+}
+
+div.pui-sflmsg-panel-close-button:hover {
+  background-image: url(/profoundui/proddata/images/buttons/close/x1_hover.png);  
+}
