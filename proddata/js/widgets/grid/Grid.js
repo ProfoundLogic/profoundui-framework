@@ -9819,9 +9819,15 @@ pui.Grid = function () {
     return colsInfo.filter(function(col) {
       return col["showing"];
     })
-    .sort(function(a, b) {
-      var colA = getCurrentColumnFromId(a["columnId"]);
-      var colB = getCurrentColumnFromId(b["columnId"]);
+    .sort(function(a, b) { // Sort columns by their currentColumn value
+      var colA, colB;
+      if (me.designMode && a["currentColumn"] != null && b["currentColumn"] != null) {
+        colA = a["currentColumn"];
+        colB = b["currentColumn"];
+      } else {
+        colA = getCurrentColumnFromId(a["columnId"]);
+        colB = getCurrentColumnFromId(b["columnId"]);
+      }
       if (colA > colB) return 1;
       else return -1;
     })
