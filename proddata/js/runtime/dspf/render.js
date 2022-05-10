@@ -2690,7 +2690,7 @@ pui.renderFormat = function(parms) {
           
         }
 
-        if (properties["persist state"] === "program only" && subfile["renderCount"] === 1) {
+        if (properties["persist state"] === "program only" && subfile && subfile["renderCount"] === 1) {
           delete pui.programStorage[dom.grid.storageKey];
         }
 
