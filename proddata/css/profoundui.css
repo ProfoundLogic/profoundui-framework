@@ -17545,7 +17545,8 @@ div.pui-sflmsg-panel-content {
 
 div.pui-sflmsg-panel-close-button {
   cursor: pointer;
-  background-image: url(/profoundui/proddata/images/buttons/close/x1.png);  
+  background-image: url(/profoundui/proddata/images/buttons/close/x1.png);
+  background-repeat: no-repeat;
   height: 16px;
   width: 16px;
 }
