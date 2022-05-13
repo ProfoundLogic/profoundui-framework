@@ -2487,7 +2487,7 @@ pui.renderFormat = function(parms) {
             addEvent(boxDom, "blur", function(e) {
               var target = getTarget(e);
               if (target.needChangeEvent) {
-                target.onchange(e);
+                if (typeof target.onchange === "function") target.onchange(e);
                 target.needChangeEvent = false;
               }
             });
