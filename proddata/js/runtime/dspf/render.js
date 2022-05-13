@@ -5746,19 +5746,15 @@ pui.showMessageSubfileHelp = function(textObj) {
   
   var gridObj = textObj.parentNode.parentNode;
   var top = parseInt(gridObj.style.top);
-  top = top - 260;
   var left = parseInt(gridObj.style.left);
   left += 3;
   var node = gridObj.parentNode;
-  while (node !== document.body) {
-    if (node.style && node.style.position === "absolute") {
-      top += node.offsetTop;
-      left += node.offsetLeft;      
-    }
-    node = node.parentNode;
-  }
-  if (top < 5) top = 5;
-  
+  while (node && node !== pui.runtimeContainer && node !== document.body) {    
+    top += node.offsetTop;
+    left += node.offsetLeft;
+    node = node.offsetParent;
+  }  
+
   var minWidth = 600;
   var width = gridObj.clientWidth - 25;
   if (width < minWidth) {
@@ -5768,14 +5764,12 @@ pui.showMessageSubfileHelp = function(textObj) {
   var div;
   if (pui.messageSubfileHelpWindowDiv == null || pui.messageSubfileHelpWindowDiv.parentNode == null) {
     div = document.createElement("div");
-    document.body.appendChild(div);
+    pui.runtimeContainer.appendChild(div);
   }
   else {
     div = pui.messageSubfileHelpWindowDiv;
   }
   div.style.position = "absolute";
-  div.style.left = left + "px";
-  div.style.top = top + "px";
   div.style.width = width + "px";
   div.className = "pui-sflmsg-panel";
   div.style.zIndex = pui.windowZIndex;
@@ -5788,7 +5782,12 @@ pui.showMessageSubfileHelp = function(textObj) {
   closeButton.className = "pui-sflmsg-panel-close-button";  
   closeButton.onclick = function() {
     div.style.display = "none";
+    if (div.parentNode) div.parentNode.removeChild(div);
   };
+  div.style.left = left + "px";
+  top = top - div.offsetHeight - 5;
+  if (top < 5) top = 5;
+  div.style.top = top + "px";
   div.appendChild(closeButton);
   
   pui.messageSubfileHelpWindowDiv = div;
