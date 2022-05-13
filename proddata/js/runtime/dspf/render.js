@@ -5747,9 +5747,17 @@ pui.showMessageSubfileHelp = function(textObj) {
   var gridObj = textObj.parentNode.parentNode;
   var top = parseInt(gridObj.style.top);
   top = top - 260;
-  if (top < 5) top = 5;
   var left = parseInt(gridObj.style.left);
   left += 3;
+  var node = gridObj.parentNode;
+  while (node !== document.body) {
+    if (node.style && node.style.position === "absolute") {
+      top += node.offsetTop;
+      left += node.offsetLeft;      
+    }
+    node = node.parentNode;
+  }
+  if (top < 5) top = 5;
   
   var minWidth = 600;
   var width = gridObj.clientWidth - 25;
@@ -5760,7 +5768,7 @@ pui.showMessageSubfileHelp = function(textObj) {
   var div;
   if (pui.messageSubfileHelpWindowDiv == null || pui.messageSubfileHelpWindowDiv.parentNode == null) {
     div = document.createElement("div");
-    gridObj.parentNode.appendChild(div);
+    document.body.appendChild(div);
   }
   else {
     div = pui.messageSubfileHelpWindowDiv;
