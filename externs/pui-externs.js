@@ -377,5 +377,6 @@ var pui = {
   autocomplete: {},
   context: {},
   dynamicText: {},
-  visualViewport: {}
+  visualViewport: {},
+  getColumnIndexFromFieldName: {}
 };
