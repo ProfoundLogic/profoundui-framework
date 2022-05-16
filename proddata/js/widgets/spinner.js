@@ -32,8 +32,6 @@
  * @param {Boolean} runtimeMode
  * @returns {pui.Spinner}
  * 
- * TODO: figure out why the Spinner class is constructed in a timeout, causing property setters to use timeouts.
- *   There must be a better way.
  */
 pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
@@ -75,15 +73,6 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     me.spin(-increment);
   };
   
-  if (dom.pui==null || dom.pui.properties==null || dom.pui.properties["visibility"]==null || dom.pui.properties["visibility"]=="") {
-    if ( context=="genie" && dom.fieldInfo!=null && dom.fieldInfo["attr"]!=null ) {
-      var attr = dom.fieldInfo["attr"];
-      if (attr == "27" || attr == "2F" || attr == "37" || attr == "3F") {
-        me.hide();      
-      }
-    }
-  }
-  
   if (runtimeMode) {
     dom.style.paddingRight = "16px";
     dom.style.boxSizing = "border-box";
@@ -104,13 +93,13 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     var offsetWidth = dom.offsetWidth;
     var styleWidth = dom.style.width;
     if (offsetWidth == 0 && styleWidth != null && typeof styleWidth == "string" && styleWidth.length >= 3 && styleWidth.substr(styleWidth.length - 2, 2) == "px")
-    offsetWidth = parseInt(styleWidth);
+      offsetWidth = parseInt(styleWidth);
     if (isNaN(offsetWidth)) offsetWidth = 0;
 
     var offsetHeight = dom.offsetHeight;
     var styleHeight = dom.style.height;
     if (offsetHeight == 0 && styleHeight != null && typeof styleHeight == "string" && styleHeight.length >= 3 && styleHeight.substr(styleHeight.length - 2, 2) == "px")
-    offsetHeight = parseInt(styleHeight);
+      offsetHeight = parseInt(styleHeight);
     if (isNaN(offsetHeight)) offsetHeight = 0;
     // Height hasn't been set and the spinner is the default height
     if (offsetHeight == 0 && styleHeight == "") 
@@ -131,7 +120,6 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (pui["is_quirksmode"]) top -= 1;
     up.style.top = top + "px";
     up.style.zIndex = dom.style.zIndex;
-    up.style.visibility = dom.style.visibility;
 
     left = dom.style.left;
     if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
@@ -150,7 +138,6 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     }
     down.style.top = top + "px";
     down.style.zIndex = dom.style.zIndex;
-    down.style.visibility = dom.style.visibility;
   };
   
   me.positionSpinnButtons();  // run this in the constructor
@@ -160,6 +147,16 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     down.style.visibility = "hidden";
   };
   
+  // Block of code needs to be below definition of this.hide()
+  if (dom.pui==null || dom.pui.properties==null || dom.pui.properties["visibility"]==null || dom.pui.properties["visibility"]=="") {
+    if ( context=="genie" && dom.fieldInfo!=null && dom.fieldInfo["attr"]!=null ) {
+      var attr = dom.fieldInfo["attr"];
+      if (attr == "27" || attr == "2F" || attr == "37" || attr == "3F") {
+        me.hide();
+      }
+    }
+  }
+
   this.show = function() {
     up.style.visibility = "";
     down.style.visibility = "";
@@ -208,7 +205,9 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
       down.className = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
     }
   };
-  
+
+  me.setArrowClassNames();
+
   /**
    * Add a "disabled" attribute to spinner buttons when input is disabled. Note: the "disabled" PUI property specifies an "attribute" 
    * property, causing applyPropertyToField to set disabled via setAttribute. So, the dom.disabled is already set by this point.
@@ -277,17 +276,15 @@ pui.widgets.add({
     
     "disabled": function(parms){
       if (!parms.design){
-        // I don't know why the constructor is in a timeout, but we must work around that (or rework the widget). MD.
         parms.dom.spinner.setDisabled();
       }
       // Note: designItem.setIcon is what renders the icons in Designer for some reason.
     },
     
     "visibility": function(parms) {
-      
-      // Oddly, 'spinner' is attached on a time delay, see above. Better make sure it's there -- DR.
-      if (!parms.design && parms.dom.spinner) {
-      
+
+      if (!parms.design) {
+
         if (parms.value == "hidden") {
         
           parms.dom.spinner.hide();
@@ -304,7 +301,7 @@ pui.widgets.add({
     },
     "css class": function(parms) {
       var className = parms.value.split(' ').shift();
-      if (!parms.design) {
+      if (!parms.design && parms.dom.spinner) {
         parms.dom.spinner.setArrowClassNames(className);
       } else {
         var up = parms.designItem.icon1;
@@ -353,6 +350,9 @@ pui.widgets.add({
       // Reformat spinner buttons
       parms.dom.spinner.setArrowClassNames();
     }
+
+    if (context == "genie" && typeof parms.dom.sizeMe == "function") // 7492.
+      parms.dom.sizeMe();
 
   }
   
