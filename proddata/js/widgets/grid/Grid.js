@@ -6902,16 +6902,19 @@ pui.Grid = function () {
         // show custom context menu
         var x = pui.getMouseX(event);
         var y = pui.getMouseY(event);
+        var offset = {x:0, y:0};
         var ctrOffset = pui.getOffset(pui.runtimeContainer);
         if (context == "genie") ctrOffset = pui.getOffset(pui["getActiveContainer"]()); //handles grid inside a window. #3541.
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode; // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
 
-          var offset = {x:0, y:0};
           if (context == "dspf" && parent.getAttribute("container") == "true") {
 
-            offset = pui.layout.getContainerOffset(parent);
+            // 7489. pui.layout.getContainerOffset does not work as expected is this case
+            var parentOffset = pui.getOffset(parent);
+            offset.x = parentOffset[0];
+            offset.y = parentOffset[1];
 
           }
           else if (parent.isPUIWindow) {
@@ -6921,12 +6924,13 @@ pui.Grid = function () {
 
           }
 
-          offset.x += ctrOffset[0];
-          offset.y += ctrOffset[1];
-          x -= offset.x;
-          y -= offset.y;
-
         }
+
+        offset.x += ctrOffset[0];
+        offset.y += ctrOffset[1];
+        x -= offset.x;
+        y -= offset.y;
+
         // Center under the finger for touch devices.
         if (pui["is_touch"] && !pui["is_mouse_capable"]) {
 
@@ -6969,13 +6973,48 @@ pui.Grid = function () {
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
         // Position after show, as some browsers (FF) report menu width 0 when hidden.
+        // 7489. Calculate the maximum coordinate the pop-up menu should be placed at to not be cutoff by its container
+        var screenMaxX = 0;
+        var screenMaxY = 0;
+        var containerMaxX = undefined;
+        var containerMaxY = undefined;
+        var maxX;
+        var maxY;
+
+        // Calculate the maximum coordinates which would fit within the pop-up menu's container
+        if (parent != null
+            && parent.clientWidth != null && parent.clientWidth >= contextMenu.clientWidth
+            && parent.clientHeight != null && parent.clientHeight >= contextMenu.clientHeight) {
+          containerMaxX = parent.clientWidth;
+          containerMaxY = parent.clientHeight;
+        }
+
+        // Calculate the maximum coordinates that would fit within the screen
         var doc = document.documentElement;
         var docScrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
         var docScrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10 - ctrOffset[0]; // width of menu plus scrollbar
-        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10 - ctrOffset[1]; // height of menu plus scrollbar
+        screenMaxX = doc.clientWidth + docScrollLeft - offset.x;
+        screenMaxY = doc.clientHeight + docScrollTop - offset.y;
+
+        // Determine which set of coordinates should be used
+        if (containerMaxX == undefined || containerMaxY == undefined) {
+          maxX = screenMaxX;
+          maxY = screenMaxY;
+        }
+        else {
+          maxX = Math.min(screenMaxX, containerMaxX);
+          maxY = Math.min(screenMaxY, containerMaxY);
+        }
+
+        // Shift max coords by the size of the pop-up menu
+        maxX -= (contextMenu.clientWidth + 10); // width of menu plus scrollbar
+        maxY -= (contextMenu.clientHeight + 10); // height of menu plus scrollbar
+
+        // Make sure the pop-up is not positioned outside of the calculated maximum coordinates
         if (x > maxX) x = maxX;
         if (y > maxY) y = maxY;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";
 
