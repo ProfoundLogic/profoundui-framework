@@ -5736,7 +5736,7 @@ pui.showMessageSubfileHelp = function(textObj) {
   help = help.replace("Recovery  . . . :", "<strong>Recovery:</strong>");
   help = help.trim();
   if (help && help.substr(0, 1) !== "<") {  // no markup already added
-    help = "<br/><br/><strong>Additional Information:</strong>" + help;
+    help = "<br/><br/><strong>Additional Information:</strong> " + help;
   }
   
   var content = '<div class="pui-sflmsg-panel-heading"><strong>Additional Message Information</strong></div>';
