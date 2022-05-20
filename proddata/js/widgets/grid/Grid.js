@@ -8714,6 +8714,22 @@ pui.Grid = function () {
     return null;
   };
 
+  this["getColumnIdFromFieldName"] = function (fieldName) {
+    // Note: customer may pass the short field name or long field name
+    var fieldNameUpper = pui.fieldUpper(fieldName);
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"];
+      if (val != null && typeof val == "object" && ((val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) || 
+                                                    (val["longName"]  != null && pui.fieldUpper(val["longName"])  == fieldNameUpper)    )) {
+        var columnId = itm["columnId"];
+        if (columnId != null && !isNaN(columnId)) return columnId;
+      }
+    }
+    return null;
+  };
+
   /**
    * Set headerCell.searchIndexes[] to be an array of integers that map to 
    * fields in me.dataArray[][]. Also put references to runtimeChildren[].value
