@@ -378,5 +378,6 @@ var pui = {
   context: {},
   dynamicText: {},
   visualViewport: {},
-  getColumnIndexFromFieldName: {}
+  getColumnIndexFromFieldName: {},
+  columnHeadings: {}
 };
