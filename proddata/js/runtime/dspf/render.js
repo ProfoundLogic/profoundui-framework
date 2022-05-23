@@ -3061,14 +3061,16 @@ pui.renderFormat = function(parms) {
     if (screenProperties != null) {
       if (parms.runOnload !== false) {
 
-        var initialRoutine = screenProperties["initial routine"];
-        if (initialRoutine && initialRoutine["routine"]) {
-          var routineName = initialRoutine["routine"];
-          try {
-            eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
-          }
-          catch (err) {
-            console.error(err);
+        if (pui.clientLogic) {
+          var initialRoutine = screenProperties["initial routine"];
+          if (initialRoutine && initialRoutine["routine"]) {
+            var routineName = initialRoutine["routine"];
+            try {
+              eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
+            }
+            catch (err) {
+              console.error(err);
+            }
           }
         }
 
