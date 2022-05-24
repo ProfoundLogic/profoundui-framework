@@ -5620,6 +5620,7 @@ pui.setupWindowDiv = function(parms, layer) {
   windowDiv.style.left = left;
   windowDiv.style.top = top;
   windowDiv.isPUIWindow = true;
+  windowDiv.className = "pui-window-div";
   pui.runtimeContainer.appendChild(windowDiv);
   parms.container = windowDiv;
   pui.lastWindow = windowDiv;
