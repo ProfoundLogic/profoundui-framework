@@ -8917,7 +8917,7 @@ pui.Grid = function () {
     }
     
     if (headerCell.filterText != null && headerCell.filterText != "") {
-      me.ffbox.setText(headerCell.filterText);
+      me.ffbox.setText(headerCell.filterAll ? "" : headerCell.filterText);
       me.highlighting.text = headerCell.filterText;
       me.getData();
     }
@@ -9077,8 +9077,14 @@ pui.Grid = function () {
 
 
   this["getFilter"] = function (headerCell) {
+    var all = false;
+    if (headerCell === "*all") {
+      headerCell = 0;
+      all = true;
+    }
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
+    if (all && !headerCell.filterAll || !all && headerCell.filterAll) return null;
     return headerCell.filterText;
   };
 
