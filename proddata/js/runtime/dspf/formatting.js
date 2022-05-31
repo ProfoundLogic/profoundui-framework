@@ -280,7 +280,6 @@ pui.formatting = {
   },
   keywords: {
     DATFMT: {
-      '*JOB': { pattern: 'Ymd', defaultSep: '-' },
       '*MDY': { pattern: 'mdy', defaultSep: '/' },
       '*DMY': { pattern: 'dmy', defaultSep: '/' },
       '*YMD': { pattern: 'ymd', defaultSep: '/' },
@@ -291,7 +290,6 @@ pui.formatting = {
       '*JIS': { pattern: 'Ymd', defaultSep: '-' }
     },
     DATSEP: {
-      '*JOB': '/',
       '/': '/',
       '-': '-',
       '.': '.',
@@ -306,7 +304,6 @@ pui.formatting = {
       '*JIS': { pattern: 'Ris', defaultSep: ':' }
     },
     TIMSEP: {
-      '*JOB': ':',
       ':': ':',
       '.': '.',
       ',': ',',
@@ -875,6 +872,8 @@ pui.FieldFormat = {
       }
     },
     parseKeywords: function(keywords) {
+
+      // Check for formatting in the object's keywords
       var datFmt, datSep;
       if(keywords && keywords.length > 0){
         var datFmtRegex = /^\s*DATFMT\s*\(\s*(\*\w{3})\s*\)\s*$/;
@@ -890,19 +889,23 @@ pui.FieldFormat = {
         }
       }
       
+      // Check for a default pattern when not set in keywords
       var displayPattern;
       var internalPattern;
       if (!datFmt && pui["default date pattern"]) {
         
         displayPattern = pui["default date pattern"];
-        internalPattern = "Y-m-d";
+        internalPattern = pui.formatting.Date.stdDatePattern;
         
       }
+
       else {
         
-        datFmt = datFmt || '*ISO';
+        // Set formatting and separator to placeholder values if unset
+        datFmt = datFmt || '*JOB';
         datSep = datSep || '*JOB';
         
+        // Set internal date formatting
         if(pui.formatting.keywords.DATFMT[datFmt]){
           internalPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
         }
@@ -910,34 +913,54 @@ pui.FieldFormat = {
           internalPattern = pui.formatting.keywords.DATFMT['*ISO'].pattern;
         }
         
+        // Set internal date separator
         var internalSep;
         var overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
-        if(overridable){
+        if (overridable && pui.formatting.keywords.DATSEP[datSep]) {
           internalSep = pui.formatting.keywords.DATSEP[datSep];
         }
+        else if(pui.formatting.keywords.DATFMT[datFmt]){
+          internalSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
+        }
         else{
-          if(pui.formatting.keywords.DATFMT[datFmt]){
-            internalSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
-          }
-          else{
-            internalSep = '-';
-          }
+          internalSep = '-';
         }
         
+        // Set date formatting to the job's date formatting if appropriate
         displayPattern = internalPattern;
-        if(datFmt == '*JOB' && pui.appJob && pui.appJob.dateFormat){
+        if (datFmt == '*JOB'
+            && pui.appJob
+            && pui.appJob.dateFormat
+            && pui.formatting.keywords.DATFMT[pui.appJob.dateFormat])
           datFmt = pui.appJob.dateFormat;
-          displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
-        }
+
+        // If the date format is currently invalid, set to default
+        if (pui.formatting.keywords.DATFMT[datFmt] == undefined)
+          datFmt = '*ISO';
+
+        displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
         
+        // Set date separator to the job's date separator
         var displaySep = internalSep;
         overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
-        if(overridable){
-          if(datSep == '*JOB' && pui.appJob && pui.appJob.dateSeparator){
+        if (datSep == '*JOB') {
+          if (overridable // If the current date format's separators are overridable then set to the jobs separator
+              && pui.appJob
+              && pui.appJob.dateSeparator
+              && pui.formatting.keywords.DATSEP[pui.appJob.dateSeparator])
             datSep = pui.appJob.dateSeparator;
-          }
-          displaySep = pui.formatting.keywords.DATSEP[datSep];
+          else if (pui.formatting.keywords.DATFMT[datFmt]) // If not overridable, set to date format's default separators
+            datSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
         }
+
+        // If the date separator is invalid, set to default
+        if (pui.formatting.keywords.DATSEP[datSep] == undefined)
+          datSep = '-';
+
+
+        displaySep = pui.formatting.keywords.DATSEP[datSep];
+
+        // Change formatting to patterns
         internalPattern = internalPattern.replace(/\B/g, internalSep);
         displayPattern = displayPattern.replace(/\B/g, displaySep);
       
@@ -1076,6 +1099,8 @@ pui.FieldFormat = {
       }
     },
     parseKeywords: function(keywords) {
+
+      // Check for formatting information in the object's keywords
       var timFmt, timSep;
       if(keywords && keywords.length > 0){
         var timFmtRegex = /^\s*TIMFMT\s*\(\s*(\*\w{3})\s*\)\s*$/;
@@ -1090,11 +1115,15 @@ pui.FieldFormat = {
           }
         }
       }
-      
-      timFmt = timFmt || '*ISO';
-      timSep = timSep || '*JOB';
-      
+
+      var displayPattern;
       var internalPattern;
+
+      // Set the format and separator to placeholders if still unset
+      timFmt = timFmt || '*JOB';
+      timSep = timSep || '*JOB';
+
+      // Set internal format
       if(pui.formatting.keywords.TIMFMT[timFmt]){
         internalPattern = pui.formatting.keywords.TIMFMT[timFmt].pattern;
       }
@@ -1102,29 +1131,51 @@ pui.FieldFormat = {
         internalPattern = pui.formatting.keywords.TIMFMT['*ISO'].pattern;
       }
       
+      // Set internal pattern
       var internalSep;
-      if(timFmt == '*HMS'){
+      if(timFmt == '*HMS'){ // If overridable, use time separator from keywords
         internalSep = pui.formatting.keywords.TIMSEP[timSep] || ':';
       }
-      else{
-        if(pui.formatting.keywords.TIMFMT[timFmt]){
-          internalSep = pui.formatting.keywords.TIMFMT[timFmt].defaultSep;
-        }
-        else{
-          internalSep = '.';
-        }
+      else if(pui.formatting.keywords.TIMFMT[timFmt]){ // If not overridable set to format's default separator
+        internalSep = pui.formatting.keywords.TIMFMT[timFmt].defaultSep;
+      }
+      else{ // Set to default
+        internalSep = '.';
       }
       
-      var displayPattern = internalPattern;
-      
+      // Set time format to the job's time format if appropriate
+      displayPattern = internalPattern;
+      if (timFmt == '*JOB'
+          && pui.appJob
+          && pui.appJob.timeFormat
+          && pui.formatting.keywords.TIMFMT[pui.appJob.timeFormat])
+        timFmt = pui.appJob.timeFormat;
+
+      // Set time format to default if necessary
+      if (pui.formatting.keywords.TIMFMT[timFmt] == undefined)
+        timFmt = '*ISO';
+
+      displayPattern = pui.formatting.keywords.TIMFMT[timFmt].pattern;
+
+      // Set time separator to the job's time separator
       var displaySep = internalSep;
-      if(timFmt == '*HMS'){
-        if(timSep == '*JOB' && pui.appJob && pui.appJob.timeSeparator){
+      if (timSep == '*JOB') {
+        // If the job's time separator is valid, then set the separator to the job's separator
+        if (pui.appJob
+            && pui.appJob.timeSeparator
+            && pui.formatting.keywords.TIMSEP[pui.appJob.timeSeparator])
           timSep = pui.appJob.timeSeparator;
-        }
-        displaySep = pui.formatting.keywords.TIMSEP[timSep];
+        // If the time format is valid and the job's time separator is invalid, then set the separator to the job's default
+        else if (pui.formatting.keywords.TIMFMT[timFmt])
+          timSep = pui.formatting.keywords.TIMFMT[timFmt].defaultSep;
       }
-      
+
+      // If the time separator is invalid, set to default
+      if (pui.formatting.keywords.TIMSEP[timSep] == undefined)
+        timSep = '.';
+
+      displaySep = pui.formatting.keywords.TIMSEP[timSep];
+
       return {
         internal: internalPattern.replace(/\B/g, internalSep),
         display: displayPattern.replace(/\B/g, displaySep)
