@@ -5782,6 +5782,8 @@ pui.Grid = function () {
 
   function checkSelected(record) {
 
+    if (record == null) return false;
+
     var selected = false;
 
     if (record.selected == null) {
