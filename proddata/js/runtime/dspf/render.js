@@ -86,6 +86,10 @@ pui.restoreStyles = {};
 pui.windowStack = null;
 pui.screenEventsToCleanup = [];
 pui.programStorage = {};
+pui.recording = {
+  "payloads": [],
+  "responses": []
+};
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -530,6 +534,7 @@ pui.popstate = function(e) {
 
 
 pui.render = function(parms) {
+  if (pui.recordTest) pui.record(parms);
 
   pui.clientLogic = parms.clientLogic;
 
@@ -4369,6 +4374,11 @@ pui.submitResponse = function(response, value) {
     
     function sendRichDisplayScreen() {
 
+      if (pui.recordTest) pui.recording["payloads"].push({
+        url: url,
+        data: Object.assign({}, response)
+      });
+
       if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
 
       ajaxJSON({
@@ -5017,6 +5027,11 @@ pui["run"] = function(config) {
       url += "/" + puiRefreshId;
     }
 
+    if (pui.recordTest) pui.recording["payloads"].push({
+      url: url,
+      data: ajaxParams
+    });
+
     ajaxJSON({
       "url": url,
       "method": method,
@@ -5151,6 +5166,11 @@ pui["signon"] = function(config) {
 
   if (pui.observer != null) return;
 
+  if (pui.recordTest) pui.recording["payloads"].push({
+    url: url,
+    data: ajaxParams
+  });
+
   ajaxJSON({
     "url": url,
     "method": "post",
@@ -5263,6 +5283,7 @@ pui.start = function() {
   var duplicateid = parms["duplicateid"];
   var log = parms["log"];
   var plog = parms["plog"];
+  pui.recordTest = (parms["record"] === "1");
   var atriumItem = parms["atrium_item"];
   var initPgm = parms["initpgm"];
   var jsonURL = parms["jsonURL"];

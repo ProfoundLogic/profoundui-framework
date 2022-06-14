@@ -5734,3 +5734,25 @@ pui.getStorageKey = function(screenParms, prefix){
   
   return storageKey;
 };
+
+
+/**
+ * Capture server's response into test recording
+ * @param {Object} parms  5250 or Rich Display parms
+ */
+pui.record = function(parms) {  
+  if (parms["5250"]) {
+    var entry = JSON.parse(JSON.stringify(parms["5250"], function(key, value) {
+      if (["buffer", "matched screens"].includes(key)) return undefined;
+      return value;
+    }));
+  }
+  else {
+    var layer = parms["layers"][parms["layers"].length - 1];
+    var entry = JSON.parse(JSON.stringify(layer, function(key, value) {
+      if (["metaData", "fileId", "file", "library", "ref"].includes(key)) return undefined;
+      return value;
+    }));
+  }
+  pui.recording["responses"].push(entry);
+}
