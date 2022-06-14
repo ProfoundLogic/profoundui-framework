@@ -1663,13 +1663,13 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
     if (cssClass == "PR" || cssClass == "PR-UL") {
       dom.readOnly = true;
       dom.tabIndex = "-1";
-      if (dom.tagName == "SELECT") {
+      if (dom.tagName == "SELECT" && !inDesignMode()) {
         dom.disabled = true;
       }
       if (dom.comboBoxWidget != null) {
         var boxDom = dom.comboBoxWidget.getBox();
         boxDom.readOnly = true;
-        boxDom.disabled = true;
+        if (!inDesignMode()) boxDom.disabled = true;
         boxDom.tabIndex = "-1";
       }
       if (dom.floatingPlaceholder != null) {
