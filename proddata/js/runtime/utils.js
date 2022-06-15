@@ -5746,7 +5746,7 @@ pui.record = function(parms) {
       if (["buffer", "matchedScreens", "msgw"].includes(key)) return undefined;
       return value;
     }));
-    entry.layers = [ entry.layers[entry.layers.length - 1] ];
+    entry["layers"] = [ entry["layers"][entry["layers"].length - 1] ];
   }
   else {
     var layer = parms["layers"][parms["layers"].length - 1];
