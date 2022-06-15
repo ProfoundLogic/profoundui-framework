@@ -5743,14 +5743,15 @@ pui.getStorageKey = function(screenParms, prefix){
 pui.record = function(parms) {  
   if (parms["5250"]) {
     var entry = JSON.parse(JSON.stringify(parms["5250"], function(key, value) {
-      if (["buffer", "matched screens"].includes(key)) return undefined;
+      if (["buffer", "matchedScreens", "msgw"].includes(key)) return undefined;
       return value;
     }));
+    entry.layers = [ entry.layers[entry.layers.length - 1] ];
   }
   else {
     var layer = parms["layers"][parms["layers"].length - 1];
     var entry = JSON.parse(JSON.stringify(layer, function(key, value) {
-      if (["metaData", "fileId", "file", "library", "ref"].includes(key)) return undefined;
+      if (["metaData", "fileId", "file", "library", "ref", , "renderCount"].includes(key)) return undefined;
       return value;
     }));
   }
