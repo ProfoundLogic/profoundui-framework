@@ -5740,20 +5740,6 @@ pui.getStorageKey = function(screenParms, prefix){
  * Capture server's response into test recording
  * @param {Object} parms  5250 or Rich Display parms
  */
-pui.record = function(parms) {  
-  if (parms["5250"]) {
-    var entry = JSON.parse(JSON.stringify(parms["5250"], function(key, value) {
-      if (["buffer", "matchedScreens", "msgw"].includes(key)) return undefined;
-      return value;
-    }));
-    entry["layers"] = [ entry["layers"][entry["layers"].length - 1] ];
-  }
-  else {
-    var layer = parms["layers"][parms["layers"].length - 1];
-    var entry = JSON.parse(JSON.stringify(layer, function(key, value) {
-      if (["metaData", "fileId", "file", "library", "ref", , "renderCount"].includes(key)) return undefined;
-      return value;
-    }));
-  }
-  pui.recording["responses"].push(entry);
+pui.record = function(parms) {
+  pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
 }
