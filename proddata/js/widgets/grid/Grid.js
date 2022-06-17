@@ -3260,6 +3260,7 @@ pui.Grid = function () {
               // Find the entry in me.columnInfo whose column ID matches the saved column. Set the found name, etc. (and stop looking).
               me.columnInfo.every(function(orgCol) {
                 if (orgCol["columnId"] === columnId) {
+                  col['blankHeader'] = orgCol['blankHeader'];  //7384: prevent header from being cleared when saved state header was blank but the new header was not.
                   col["name"] = orgCol["name"];
                   col['field'] = orgCol['field']; //For DBD grids, field names are stored with the columns. Save to allow later matching. #6600
                   return false;
@@ -8744,7 +8745,7 @@ pui.Grid = function () {
    * Called by startFind, find, setFilter, startFilter.
    * 
    * @param {Object|Element} headerCell    A DOM element for a column header.
-   * @returns {undefined}
+   * @param {Boolean} all
    */
   this.setSearchIndexes = function (headerCell, all) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
