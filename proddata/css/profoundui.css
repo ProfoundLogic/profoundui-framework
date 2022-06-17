@@ -17560,3 +17560,30 @@ div.pui-sflmsg-panel-close-button {
 div.pui-sflmsg-panel-close-button:hover {
   background-image: url(/profoundui/proddata/images/buttons/close/x1_hover.png);  
 }
+
+div.pui-replay {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: 2px solid #66f;
+  border-radius: 5px;
+  padding: 2px;
+  background-color: #fff; 
+}
+
+div.pui-replay .pui-material-icons {
+  cursor: pointer;
+  color: #339933;
+  font-size: 22px;
+  font-weight: bold;
+  user-select: none;
+}
+
+div.pui-replay .pui-replay-step {
+  vertical-align: top;
+  font-size: 16px;
+  margin-left: 5px;
+  margin-right: 5px;
+  cursor: default;
+  user-select: none;
+}
