@@ -999,11 +999,7 @@ pui.Base64 = {
 
 pui["downloadJSON"] = function() {
   if (pui.recordTest) {    
-    // Combine payload info with response info
-    for (var i = 0; i < pui.recording["payloads"].length; i++) {
-      pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
-    }
-    var json = JSON.stringify({ "payloads": pui.recording["payloads"] }, null, 2);
+    pui.saveRecording();    
   }
   else {
     if (pui["savedJSON"] == null) {
@@ -1017,9 +1013,8 @@ pui["downloadJSON"] = function() {
       }
       catch(err) { }
     }
+    pui.downloadAsAttachment("text/plain", "json.txt", json);
   }
-
-  pui.downloadAsAttachment("text/plain", "json.txt", json);  
 };
 
 

@@ -4917,20 +4917,23 @@ pui["run"] = function(config) {
   addEvent(document.body, "keydown", pui.handleHotKey);
   addEvent(document.body, "help", pui.handleF1);
   addEvent(document.body, "mousedown", pui.clearCursor);
-  if (config["jsonURL"] == null && config["mode"] != "preview") {
+  if (config["jsonURL"] == null && config["replay"] == null && config["mode"] != "preview") {
     pui.assignUnloadEvents();
   }
   container.setAttribute("tabindex", "0");
   pui.runtimeContainer = container;
   pui.showWaitAnimation();
   var method = "post";
-  var url = getProgramURL("PUI0001200.pgm");  
-  if (config["jsonURL"] != null) {
-  
+  var url = getProgramURL("PUI0001200.pgm");
+  var jsonURL = config["jsonURL"];
+  if (config["replay"]) {
+    jsonURL = "/profoundui/userdata/recordings/" + config["replay"];
+    if (!jsonURL.endsWith(".json")) jsonURL += ".json";
+  }  
+  if (jsonURL != null) {  
     // Use GET here to avoid 412 - Precondition Failed in Chrome and IOS7 Safari.
-    url = config["jsonURL"] + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
-    method = "get";  
-    
+    url = jsonURL + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
+    method = "get";    
   }
   var ajaxParams = {
     "program": program.toUpperCase(),
@@ -5041,6 +5044,16 @@ pui["run"] = function(config) {
       "suppressAlert": true,
       "handler": function(parms) {
         function loadMobileExtensionFilesCompletion() {
+          if (Array.isArray(parms["payloads"])) {  // Recording replay
+            pui.replay = parms;            
+            pui.replayStep = Number(config["step"]);
+            if (!pui.replayStep || isNaN(pui.replayStep)) pui.replayStep = 1;
+            var container = parms.container;
+            parms = parms["payloads"][pui.replayStep - 1]["response"];
+            parms = JSON.parse(JSON.stringify(parms));
+            parms.container = container;
+            pui.createReplayUI();
+          }
           pui.render(parms);
         }
         function loadDependencyFilesCompletion () {
@@ -5287,6 +5300,8 @@ pui.start = function() {
   var atriumItem = parms["atrium_item"];
   var initPgm = parms["initpgm"];
   var jsonURL = parms["jsonURL"];
+  var replay = parms["replay"];
+  var step = parms["step"];
   var mode = parms["mode"];
   var controller = parms["controller"];
   var mobile = (parms["mobile"] === "1");
@@ -5331,7 +5346,7 @@ pui.start = function() {
     "lang": lang,
     "renderLog": pui.renderLog
   };
-  if (program == null && jsonURL == null && mode == null) {
+  if (program == null && jsonURL == null && replay == null && mode == null) {
     // Signed in session. Look for Atrium item 
     // and initial program request.
     if (atriumItem != null) {
@@ -5345,6 +5360,8 @@ pui.start = function() {
   else {
     config["program"] = program;
     if (jsonURL != null) config["jsonURL"] = jsonURL;
+    if (replay != null) config["replay"] = replay;
+    if (step != null) config["step"] = step;
     if (mode != null) config["mode"] = mode;
     if (config["mode"] === "preview")
       config["previewTab"] = parms["previewTab"];
