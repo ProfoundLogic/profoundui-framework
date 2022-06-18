@@ -5747,7 +5747,6 @@ pui.record = function(parms) {
 
 /**
  * Save test recording to file system
-
  */
 pui.saveRecording = function() {
 
@@ -5824,7 +5823,9 @@ pui.saveRecording = function() {
 
 }
 
-
+/**
+ * Create recording replay user interface with arrows for advancing screens
+ */
 pui.createReplayUI = function() {
   
   function advance(increment) {
