@@ -5755,7 +5755,7 @@ pui.saveRecording = function() {
   for (var i = 0; i < pui.recording["payloads"].length; i++) {
     pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
   }
-  var json = JSON.stringify({ "payloads": pui.recording["payloads"] }, null, 2);
+  var json = JSON.stringify({ "payloads": pui.recording["payloads"] });
   var recordingName = prompt("Enter recording name");
   if (!recordingName) return;
 
