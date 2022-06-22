@@ -5741,6 +5741,9 @@ pui.getStorageKey = function(screenParms, prefix){
  * @param {Object} parms  5250 or Rich Display parms
  */
 pui.record = function(parms) {
+  // Capture the user from the first server response.
+  if (!pui.recording["user"] && parms.appJob) pui.recording["user"] = parms.appJob.user;
+
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
 }
 
