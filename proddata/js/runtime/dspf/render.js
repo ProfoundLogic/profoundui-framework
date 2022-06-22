@@ -4927,7 +4927,7 @@ pui["run"] = function(config) {
   var url = getProgramURL("PUI0001200.pgm");
   var jsonURL = config["jsonURL"];
   if (config["replay"]) {
-    jsonURL = "/profoundui/userdata/recordings/" + config["replay"];
+    jsonURL = "/profoundui/userdata/automated-testing/tests/" + config["replay"];
     if (!jsonURL.endsWith(".json")) jsonURL += ".json";
   }  
   if (jsonURL != null) {  
