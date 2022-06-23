@@ -9088,7 +9088,9 @@ pui.Grid = function () {
       headerCell = 0;
       all = true;
     }
-    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
+    // If filter "*all" and column #0 is hidden, headerCell will have -1 value and the function will not return the current filter text.
+    // Therefore, we need to force the column number to 0.
+    if (typeof headerCell == "number") headerCell = me.cells[0][all ? 0 : getCurrentColumnFromId(headerCell)];
     if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
     if (all && !headerCell.filterAll || !all && headerCell.filterAll) return null;
     return headerCell.filterText;
