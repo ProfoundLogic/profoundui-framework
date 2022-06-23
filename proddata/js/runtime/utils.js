@@ -5741,9 +5741,6 @@ pui.getStorageKey = function(screenParms, prefix){
  * @param {Object} parms  5250 or Rich Display parms
  */
 pui.record = function(parms) {
-  // Capture the user from the first server response.
-  if (!pui.recording["user"] && parms.appJob) pui.recording["user"] = parms.appJob.user;
-
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
 }
 
@@ -5754,10 +5751,13 @@ pui.record = function(parms) {
 pui.saveRecording = function() {
 
   // Combine payload info with response info
+  let user = null;
   for (var i = 0; i < pui.recording["payloads"].length; i++) {
+    // Capture the user from the server response.
+    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
     pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
   }
-  var json = JSON.stringify({ "payloads": pui.recording["payloads"] });
+  var json = JSON.stringify({ user, "payloads": pui.recording["payloads"] });
   var recordingName = prompt("Enter recording name");
   if (!recordingName) return;
 
