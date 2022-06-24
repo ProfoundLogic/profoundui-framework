@@ -280,7 +280,6 @@ div.menu-bar-separator {
 
 .pui-calendar {
   position: absolute;
-  width: 219px;
   z-index: 100;
 }
 
@@ -5497,6 +5496,31 @@ div.Glass>.pui-tablayout-body>div {
 .pui-signature-pad-canvas{
   background-color: #ffffcc;
 }
+/*For unsaved changes notice on previewForm and launchControllerDialog*/
+.pui-x-form-display-field{
+  color: red;
+  font-size: 12px;
+}
+
+/*CSS for Ext Js Message boxes
+  used for "unsaved changes" messages on launch dialogs
+*/
+.pui-message-box.x-window-dlg .ext-mb-text{
+  font-size: 14px;
+}
+.pui-message-box .x-window-header.x-unselectable.x-window-draggable{
+  background-color: lightgray;
+  border: 2px solid lightgray;
+}
+.pui-message-box.x-window .x-window-tr,
+.pui-message-box.x-window .x-window-tl
+{
+  padding: unset;
+}
+.pui-message-box.x-window-dlg .x-window-body{
+  padding: 10px 15px 10px 5px;
+}
+
 
 /* CSS for PUIWRKMAP */
 
@@ -12322,7 +12346,6 @@ div[id^='dspfDesigner'] .puiresp>div, .x-dd-drag-proxy .puiresp>div {
   ;
   width: auto;
   height: auto;
-  margin: 0 0 0 -75px;
 }
 
 .pui-calendar-blueprint-date-field.pui-calendar, .pui-calendar-blueprint-date-field.pui-calendar *, .pui-calendar-blueprint-date-field.pui-calendar :after, .pui-calendar-blueprint-date-field.pui-calendar ::after {
@@ -12496,6 +12519,9 @@ input.blueprint-checkbox {
   height: 20px;
   margin: 1px !important;
 }
+input.blueprint-checkbox:indeterminate {
+  opacity: 1;
+}
 
 .label-for-blueprint-radio-button, input.blueprint-checkbox:checked+.label-for-blueprint-checkbox {
   background-repeat: no-repeat;
@@ -12555,6 +12581,9 @@ input.blueprint-checkbox-no-label, input.blueprint-radio-button, input.blueprint
   width: 20px;
   opacity: 0;
   cursor: pointer;
+}
+input.blueprint-checkbox-no-label:indeterminate {
+  opacity: 1;
 }
 
 input.blueprint-radio-button {
@@ -15085,6 +15114,9 @@ input.office-copy-checkbox {
   height: 20px;
   margin: 1px !important;
 }
+input.office-copy-checkbox:indeterminate {
+  opacity: 1;
+}
 
 input.office-copy-checkbox:checked+.label-for-office-copy-checkbox {
   background-image: url(../images/widgetsets/office-copy/checkbox-gray.png);
@@ -15147,6 +15179,9 @@ input.office-copy-checkbox-no-label {
   width: 20px;
   height: 20px;
   margin: 1px !important;
+}
+input.office-copy-checkbox-no-label:indeterminate {
+  opacity: 1;
 }
 
 input.office-copy-checkbox-no-label:checked+.label-for-office-copy-checkbox-no-label {
@@ -17468,4 +17503,87 @@ div.joblogDL > span.pui-material-icons {
  cursor:inherit;
  position:relative;
  font-size:16px;
+}
+
+
+div.pui-prompt {
+  position: absolute;
+  color: #009be3;
+  cursor: pointer;
+}
+
+div.pui-prompt-blueprint-textbox {
+  color: #009be3;
+}
+div.pui-prompt-blueprint-textbox:hover {
+  background-color: #5faee3aa;
+}
+
+div.pui-prompt-office-copy-textbox {
+  color: #6c757d;
+}
+div.pui-prompt-office-copy-textbox:hover {
+  background-color: #c7c7c7aa;
+}
+
+
+div.pui-sflmsg-panel {
+  height: 250px;
+  border: 1px solid #cccccc;  
+  white-space: normal;
+  font-family: Arial;
+  background-color: #ffffff;
+  color: #555555;
+  padding-left: 8px;
+}
+
+div.pui-sflmsg-panel-heading {
+  height: 30px;
+  text-align: center;
+  padding-top: 3px; 
+}
+
+div.pui-sflmsg-panel-content {
+  height: 215px;
+  overflow-y: auto;
+  white-space: normal;
+}
+
+div.pui-sflmsg-panel-close-button {
+  cursor: pointer;
+  background-image: url(/profoundui/proddata/images/buttons/close/x1.png);
+  background-repeat: no-repeat;
+  height: 16px;
+  width: 16px;
+}
+
+div.pui-sflmsg-panel-close-button:hover {
+  background-image: url(/profoundui/proddata/images/buttons/close/x1_hover.png);  
+}
+
+div.pui-replay {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: 2px solid #66f;
+  border-radius: 5px;
+  padding: 2px;
+  background-color: #fff; 
+}
+
+div.pui-replay .pui-material-icons {
+  cursor: pointer;
+  color: #339933;
+  font-size: 22px;
+  font-weight: bold;
+  user-select: none;
+}
+
+div.pui-replay .pui-replay-step {
+  vertical-align: top;
+  font-size: 16px;
+  margin-left: 5px;
+  margin-right: 5px;
+  cursor: default;
+  user-select: none;
 }

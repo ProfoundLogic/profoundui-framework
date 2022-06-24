@@ -231,3 +231,8 @@ pui.wf = {
     plugins[category][plugin.name] = plugin;
   }
 };
+
+// Controls whether style properties (such as text transform) apply
+// to both the input box and choices list of a combo box, or whether
+// it only applies to the input box.
+pui["add combo style properties to choice list"] = true;

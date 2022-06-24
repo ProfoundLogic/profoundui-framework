@@ -15,10 +15,13 @@ Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
 Function.bind = function(value){};
 
+Event.stopImmediatePropagation = function() {};
+
 //Map functions -- used by ShowMultiFilterPanel in Grid.js
 Map.has = function() {};
 Map.set = function() {};
 Map.entries = function () {};
+
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
