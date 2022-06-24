@@ -309,6 +309,7 @@ pui.Grid = function () {
   var designBorderStyle = "solid";
   var persistState = false;
   var sessionState = false;
+  var programState = false;
   var movableColumns = false;
   var resizableColumns = false;
   var columnSignature;
@@ -1668,51 +1669,75 @@ pui.Grid = function () {
 
     // find the DOM element
     var field = null;
+    var property = null;
+    var formattingInfo = null;
+    var list = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      var rtval = me.runtimeChildren[i].value;
-      if (pui.isBound(rtval) && pui.fieldUpper(rtval["fieldName"]) == fieldName) {
-        field = me.runtimeChildren[i];
-        break;
-      }
-    }
-    if (field == null) return false;
-
-    var el = field.domEls[rowNum - 1];
-
-    // If an element has never been rendered, there is no way to mark it "modified" because
-    // there is no DOM element. As a workaround, we'll add a simple object containing 
-    // the value to the pui.responseElements array. If this does get rendered, the
-    // code in runtime/dspf/render.js will replace this object with the real DOM element.
-
-    if (el == null) {
-
-      // Look for another row that has been rendered so
-      // we can get info about the DOM elements
-      // NOTE: This assumes the DOM elements for each row will be the same.
-
-      var domTest = null;
-      for (var i in field.domEls) {
-        domTest = field.domEls[i];
-        break;
-      }
-
-      if (domTest && pui.isInputCapableProperty("value", domTest) && me.isDataGrid() == false) {
-        var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
-        if (pui.responseElements[qualField] == null) {
-          pui.responseElements[qualField] = [{
-            responseValue: String(value),
-            modifiedBeforeRender: true
-          }];
-        }
-        if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
-          pui.responseElements[qualField][0].responseValue = String(value);
+      var runtimeChild = me.runtimeChildren[i];
+      for (var prop in runtimeChild) {
+        var propValue = runtimeChild[prop];
+        if (pui.isBound(propValue) && pui.fieldUpper(propValue["fieldName"]) === fieldName) {
+          var formattingInfo = Object.assign({}, propValue);
+          formattingInfo.value = value;
+          list.push({
+            field: runtimeChild,
+            property: prop,
+            formattingInfo: formattingInfo
+          });
         }
       }
-      return false;
+    }
+    if (list.length === 0) return false;
+
+    for (var x = 0; x < list.length; x++) {
+      var entry = list[x];
+      var field = entry.field;
+      var property = entry.property;
+      
+      var el = field.domEls[rowNum - 1];
+
+      // If an element has never been rendered, there is no way to mark it "modified" because
+      // there is no DOM element. As a workaround, we'll add a simple object containing 
+      // the value to the pui.responseElements array. If this does get rendered, the
+      // code in runtime/dspf/render.js will replace this object with the real DOM element.
+
+      if (el == null) {
+
+        // Look for another row that has been rendered so
+        // we can get info about the DOM elements
+        // NOTE: This assumes the DOM elements for each row will be the same.
+
+        var domTest = null;
+        for (var i in field.domEls) {
+          domTest = field.domEls[i];
+          break;
+        }
+
+        if (domTest && pui.isInputCapableProperty(property, domTest) && me.isDataGrid() == false) {
+          var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+          if (pui.responseElements[qualField] == null) {
+            pui.responseElements[qualField] = [{
+              responseValue: String(value),
+              modifiedBeforeRender: true
+            }];
+          }
+          if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+            pui.responseElements[qualField][0].responseValue = String(value);
+          }
+        }
+
+        continue;
+      }
+
+      // Update DOM element
+      if (property === "value") {
+        changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
+      }
+      else {
+        applyProperty(el, property, pui.FieldFormat.format(entry.formattingInfo));
+      }
     }
 
-    // Update DOM element
-    changeElementValue(el, value);
     return true;
   };
 
@@ -2464,7 +2489,7 @@ pui.Grid = function () {
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
 
               // Highlight cells in the column.
-              if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
+              if (me.highlighting != null && me.highlighting.text != "" && (idx === me.highlighting.col || me.highlighting.col === "*all")) {
                 if (row[idx].tagName == "DIV") {
                   pui.highlightText(row[idx], me.highlighting.text);
                   row[idx].highlighted = true;
@@ -3235,6 +3260,7 @@ pui.Grid = function () {
               // Find the entry in me.columnInfo whose column ID matches the saved column. Set the found name, etc. (and stop looking).
               me.columnInfo.every(function(orgCol) {
                 if (orgCol["columnId"] === columnId) {
+                  col['blankHeader'] = orgCol['blankHeader'];  //7384: prevent header from being cleared when saved state header was blank but the new header was not.
                   col["name"] = orgCol["name"];
                   col['field'] = orgCol['field']; //For DBD grids, field names are stored with the columns. Save to allow later matching. #6600
                   return false;
@@ -4083,12 +4109,15 @@ pui.Grid = function () {
 
     var state = null;
 
-    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null)) {
+    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null) || (programState && pui.programStorage[me.storageKey] != null)) {
 
       try {
 
         if(sessionState == true){
           state = JSON.parse(sessionStorage[me.storageKey]);
+        }
+        else if(programState == true){
+          state = JSON.parse(pui.programStorage[me.storageKey]);
         }
         else{
           state = JSON.parse(localStorage[me.storageKey]);
@@ -4144,6 +4173,9 @@ pui.Grid = function () {
     if (persistState == true){
       if(sessionState == true){
         sessionStorage[me.storageKey] = JSON.stringify(stg);
+      }
+      else if(programState == true){
+        pui.programStorage[me.storageKey] = JSON.stringify(stg);
       }
       else{
         localStorage[me.storageKey] = JSON.stringify(stg);
@@ -5090,9 +5122,13 @@ pui.Grid = function () {
         if(value == "true" || value == true){
           persistState = (me.designMode == false && pui.isLocalStorage() ); 
         }
-        else if(value == "session only"){
+        else if (value === "session only") {
           persistState = (me.designMode == false && pui.isSessionStorage() ); 
           sessionState = (me.designMode == false && pui.isSessionStorage() );
+        }
+        else if (value === "program only") {
+          persistState = (me.designMode == false); 
+          programState = true;
         }
         break;
 
@@ -5746,6 +5782,8 @@ pui.Grid = function () {
   };
 
   function checkSelected(record) {
+
+    if (record == null) return false;
 
     var selected = false;
 
@@ -6867,16 +6905,19 @@ pui.Grid = function () {
         // show custom context menu
         var x = pui.getMouseX(event);
         var y = pui.getMouseY(event);
+        var offset = {x:0, y:0};
         var ctrOffset = pui.getOffset(pui.runtimeContainer);
         if (context == "genie") ctrOffset = pui.getOffset(pui["getActiveContainer"]()); //handles grid inside a window. #3541.
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode; // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
 
-          var offset = {x:0, y:0};
           if (context == "dspf" && parent.getAttribute("container") == "true") {
 
-            offset = pui.layout.getContainerOffset(parent);
+            // 7489. pui.layout.getContainerOffset does not work as expected is this case
+            var parentOffset = pui.getOffset(parent);
+            offset.x = parentOffset[0];
+            offset.y = parentOffset[1];
 
           }
           else if (parent.isPUIWindow) {
@@ -6886,12 +6927,13 @@ pui.Grid = function () {
 
           }
 
-          offset.x += ctrOffset[0];
-          offset.y += ctrOffset[1];
-          x -= offset.x;
-          y -= offset.y;
-
         }
+
+        offset.x += ctrOffset[0];
+        offset.y += ctrOffset[1];
+        x -= offset.x;
+        y -= offset.y;
+
         // Center under the finger for touch devices.
         if (pui["is_touch"] && !pui["is_mouse_capable"]) {
 
@@ -6934,13 +6976,48 @@ pui.Grid = function () {
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
         // Position after show, as some browsers (FF) report menu width 0 when hidden.
+        // 7489. Calculate the maximum coordinate the pop-up menu should be placed at to not be cutoff by its container
+        var screenMaxX = 0;
+        var screenMaxY = 0;
+        var containerMaxX = undefined;
+        var containerMaxY = undefined;
+        var maxX;
+        var maxY;
+
+        // Calculate the maximum coordinates which would fit within the pop-up menu's container
+        if (parent != null
+            && parent.clientWidth != null && parent.clientWidth >= contextMenu.clientWidth
+            && parent.clientHeight != null && parent.clientHeight >= contextMenu.clientHeight) {
+          containerMaxX = parent.clientWidth;
+          containerMaxY = parent.clientHeight;
+        }
+
+        // Calculate the maximum coordinates that would fit within the screen
         var doc = document.documentElement;
         var docScrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
         var docScrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10 - ctrOffset[0]; // width of menu plus scrollbar
-        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10 - ctrOffset[1]; // height of menu plus scrollbar
+        screenMaxX = doc.clientWidth + docScrollLeft - offset.x;
+        screenMaxY = doc.clientHeight + docScrollTop - offset.y;
+
+        // Determine which set of coordinates should be used
+        if (containerMaxX == undefined || containerMaxY == undefined) {
+          maxX = screenMaxX;
+          maxY = screenMaxY;
+        }
+        else {
+          maxX = Math.min(screenMaxX, containerMaxX);
+          maxY = Math.min(screenMaxY, containerMaxY);
+        }
+
+        // Shift max coords by the size of the pop-up menu
+        maxX -= (contextMenu.clientWidth + 10); // width of menu plus scrollbar
+        maxY -= (contextMenu.clientHeight + 10); // height of menu plus scrollbar
+
+        // Make sure the pop-up is not positioned outside of the calculated maximum coordinates
         if (x > maxX) x = maxX;
         if (y > maxY) y = maxY;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";
 
@@ -7384,6 +7461,9 @@ pui.Grid = function () {
     // So don't focus a SELECT in firefox. If placeCursorOnRow called us, then it
     // will try finding another input element on the row.
     if (tag == "SELECT" && pui["is_firefox"]) return false;
+
+    // Do not give focus to inputBox and do not select text if it is readOnly/protected
+    if (inputBox.readOnly || Object.values(inputBox.classList).includes("PR")) return false;
 
     try {
       inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
@@ -8534,6 +8614,9 @@ pui.Grid = function () {
         if(sessionState == true){
           try{ delete sessionStorage[me.storageKey]; }catch(exc){}
         }
+        else if(programState == true){
+          try{ delete pui.programStorage[me.storageKey]; }catch(exc){}
+        }        
         else{
           try{ delete localStorage[me.storageKey]; }catch(exc){}
         }
@@ -8637,6 +8720,22 @@ pui.Grid = function () {
     return null;
   };
 
+  this["getColumnIdFromFieldName"] = function (fieldName) {
+    // Note: customer may pass the short field name or long field name
+    var fieldNameUpper = pui.fieldUpper(fieldName);
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"];
+      if (val != null && typeof val == "object" && ((val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) || 
+                                                    (val["longName"]  != null && pui.fieldUpper(val["longName"])  == fieldNameUpper)    )) {
+        var columnId = itm["columnId"];
+        if (columnId != null && !isNaN(columnId)) return columnId;
+      }
+    }
+    return null;
+  };
+
   /**
    * Set headerCell.searchIndexes[] to be an array of integers that map to 
    * fields in me.dataArray[][]. Also put references to runtimeChildren[].value
@@ -8646,9 +8745,9 @@ pui.Grid = function () {
    * Called by startFind, find, setFilter, startFilter.
    * 
    * @param {Object|Element} headerCell    A DOM element for a column header.
-   * @returns {undefined}
+   * @param {Boolean} all
    */
-  this.setSearchIndexes = function (headerCell) {
+  this.setSearchIndexes = function (headerCell, all) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
     if (me.isDataGrid() && me.forceDataArray == false) return;
     if (headerCell.searchIndexes != null) return; //searchIndexes is already setup.
@@ -8667,7 +8766,7 @@ pui.Grid = function () {
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
       // The current itm maps to the headerCell's column.
-      if (pui.isBound(val) && !isNaN(col) && col == headerCell.col) {
+      if (all || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         // Find the index of the dataArray column that corresponds to fieldName.
         // me.fieldNames maps me.dataArray columns to fieldNames.
@@ -8824,7 +8923,7 @@ pui.Grid = function () {
     }
     
     if (headerCell.filterText != null && headerCell.filterText != "") {
-      me.ffbox.setText(headerCell.filterText);
+      me.ffbox.setText(headerCell.filterAll ? "" : headerCell.filterText);
       me.highlighting.text = headerCell.filterText;
       me.getData();
     }
@@ -8859,14 +8958,34 @@ pui.Grid = function () {
    */
   this["setFilter"] = function (headerCell, text) {
     if (me.waitingOnRequest) return;
+
+    var all = false;
+    if (headerCell === "*all") {  // special value to indicate filter on all columns, only valid for client-side filtering on load-all grids
+      all = true;
+      headerCell = me.cells[0][0];
+    }
+    else if (!me.cells[0][0].filterIcon && me.cells[0][0].filterAll) {
+      me["removeFilter"](me.cells[0][0]) ;
+    }
+
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     if (me.usePagingFilter()) return setPagingFilter(headerCell, text);
-    me.setSearchIndexes(headerCell);
+    me.setSearchIndexes(headerCell, all);
     me.highlighting.columnId = headerCell.columnId; //need to set when called from API w/o startFilter.
-    me.highlighting.col = headerCell.col;
+    me.highlighting.col = all ? "*all" : headerCell.col;
     me.highlighting.text = text;
-    me.setFilterIcon(headerCell);
+    if (all) {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        me.removeFilterIcon(headerRow[i]);
+        headerRow[i].filterText = null;
+      }
+      headerCell.filterAll = true;
+    }
+    else {
+      me.setFilterIcon(headerCell);
+    }
     headerCell.filterText = text;
     
     if (me.showQuickFilters) {
@@ -8889,6 +9008,7 @@ pui.Grid = function () {
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
         var record = me.dataArray[i];
+        if (all) record.filteredOutArray = [];
         if (record.subfileRow == null) record.subfileRow = i + 1;
         for (var j = 0; j < idxes.length; j++) {
           var idx = idxes[j];
@@ -8934,18 +9054,23 @@ pui.Grid = function () {
       }
     } //done client-side filtering.
     me.getData();
-    if (persistState) me.saveFilters();
+    if (persistState) me.saveFilters(all, text);
     executeEvent("onfilterchange");
   };
 
 
-  this.saveFilters = function () {
+  this.saveFilters = function (all, text) {
     var filters = [];
-    var headerRow = me.cells[0];
-    for (var i = 0; i < headerRow.length; i++) {
-      var headerCell = headerRow[i];
-      if (headerCell.filterText != null && headerCell.filterText != "") {
-        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+    if (all) {
+      filters.push({ "text": text, "column": "*all", "curCol": "*all" });
+    }
+    else {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        var headerCell = headerRow[i];
+        if (headerCell.filterText != null && headerCell.filterText != "") {
+          filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+        }
       }
     }
     if (filters.length < 1) {
@@ -8958,8 +9083,14 @@ pui.Grid = function () {
 
 
   this["getFilter"] = function (headerCell) {
+    var all = false;
+    if (headerCell === "*all") {
+      headerCell = 0;
+      all = true;
+    }
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
+    if (all && !headerCell.filterAll || !all && headerCell.filterAll) return null;
     return headerCell.filterText;
   };
 
@@ -9237,6 +9368,7 @@ pui.Grid = function () {
     }
     else{
       // Remove client-side filtering.
+      if (headerCell.filterAll) delete headerCell.filterAll;
       var col = headerCell.columnId;
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
@@ -9754,9 +9886,15 @@ pui.Grid = function () {
     return colsInfo.filter(function(col) {
       return col["showing"];
     })
-    .sort(function(a, b) {
-      var colA = getCurrentColumnFromId(a["columnId"]);
-      var colB = getCurrentColumnFromId(b["columnId"]);
+    .sort(function(a, b) { // Sort columns by their currentColumn value
+      var colA, colB;
+      if (me.designMode && a["currentColumn"] != null && b["currentColumn"] != null) {
+        colA = a["currentColumn"];
+        colB = b["currentColumn"];
+      } else {
+        colA = getCurrentColumnFromId(a["columnId"]);
+        colB = getCurrentColumnFromId(b["columnId"]);
+      }
       if (colA > colB) return 1;
       else return -1;
     })
@@ -10590,7 +10728,7 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf"},
       { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-      { name: "persist state", choices: ["true", "false", "session only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed.", context: "dspf" },
+      { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },

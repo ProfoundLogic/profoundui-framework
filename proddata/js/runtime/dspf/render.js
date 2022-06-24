@@ -85,6 +85,11 @@ pui["no focus"] = false;
 pui.restoreStyles = {};
 pui.windowStack = null;
 pui.screenEventsToCleanup = [];
+pui.programStorage = {};
+pui.recording = {
+  "payloads": [],
+  "responses": []
+};
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -529,6 +534,7 @@ pui.popstate = function(e) {
 
 
 pui.render = function(parms) {
+  if (pui.recordTest) pui.record(parms);
 
   pui.clientLogic = parms.clientLogic;
 
@@ -1056,6 +1062,7 @@ pui.renderFormat = function(parms) {
   if (isDesignMode == null) isDesignMode = false;
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
+  var ddsFieldOrder = parms.metaData["dds field order"];
   var designer = parms.designer;
   var data = parms.data;
   var formatName = parms.name;
@@ -1221,6 +1228,10 @@ pui.renderFormat = function(parms) {
         }, designer);
       }
     }    
+
+    // 7415. Send field order to designer
+    designer.ddsFieldOrder = ddsFieldOrder;
+
   }
   
   if (!isDesignMode && isMainFormat) {
@@ -1379,7 +1390,7 @@ pui.renderFormat = function(parms) {
           dom.highlighted = false;
         }
 
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(items[i]["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(items[i]["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
@@ -2051,6 +2062,9 @@ pui.renderFormat = function(parms) {
             if (propname == "unchecked value") {
               dom.uncheckedValue = propValue;
             }
+            if (propname == "indeterminate value") {
+              dom.indeterminateValue = propValue;
+            }
             if (propname == "cursor row") {
               dom.cursorRow = propValue;
             }
@@ -2146,7 +2160,7 @@ pui.renderFormat = function(parms) {
           
         }
         
-        if (parms.highlighting != null && parms.highlighting.text != "" && String(properties["column"]) === String(parms.highlighting.col)) {
+        if (parms.highlighting != null && parms.highlighting.text != "" && (String(properties["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {  
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
@@ -2478,7 +2492,7 @@ pui.renderFormat = function(parms) {
             addEvent(boxDom, "blur", function(e) {
               var target = getTarget(e);
               if (target.needChangeEvent) {
-                target.onchange(e);
+                if (typeof target.onchange === "function") target.onchange(e);
                 target.needChangeEvent = false;
               }
             });
@@ -2679,6 +2693,10 @@ pui.renderFormat = function(parms) {
           
           dom.grid.storageKey = "pui-grid-" + parms["library"] + "-" + parms["file"] + "-" + recName;
           
+        }
+
+        if (properties["persist state"] === "program only" && subfile && subfile["renderCount"] === 1) {
+          delete pui.programStorage[dom.grid.storageKey];
         }
 
         if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null)  {
@@ -3048,14 +3066,16 @@ pui.renderFormat = function(parms) {
     if (screenProperties != null) {
       if (parms.runOnload !== false) {
 
-        var initialRoutine = screenProperties["initial routine"];
-        if (initialRoutine && initialRoutine["routine"]) {
-          var routineName = initialRoutine["routine"];
-          try {
-            eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
-          }
-          catch (err) {
-            console.error(err);
+        if (pui.clientLogic) {
+          var initialRoutine = screenProperties["initial routine"];
+          if (initialRoutine && initialRoutine["routine"]) {
+            var routineName = initialRoutine["routine"];
+            try {
+              eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
+            }
+            catch (err) {
+              console.error(err);
+            }
           }
         }
 
@@ -4354,6 +4374,11 @@ pui.submitResponse = function(response, value) {
     
     function sendRichDisplayScreen() {
 
+      if (pui.recordTest) pui.recording["payloads"].push({
+        url: url,
+        data: Object.assign({}, response)
+      });
+
       if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
 
       ajaxJSON({
@@ -4892,20 +4917,23 @@ pui["run"] = function(config) {
   addEvent(document.body, "keydown", pui.handleHotKey);
   addEvent(document.body, "help", pui.handleF1);
   addEvent(document.body, "mousedown", pui.clearCursor);
-  if (config["jsonURL"] == null && config["mode"] != "preview") {
+  if (config["jsonURL"] == null && config["replay"] == null && config["mode"] != "preview") {
     pui.assignUnloadEvents();
   }
   container.setAttribute("tabindex", "0");
   pui.runtimeContainer = container;
   pui.showWaitAnimation();
   var method = "post";
-  var url = getProgramURL("PUI0001200.pgm");  
-  if (config["jsonURL"] != null) {
-  
+  var url = getProgramURL("PUI0001200.pgm");
+  var jsonURL = config["jsonURL"];
+  if (config["replay"]) {
+    jsonURL = "/profoundui/userdata/recordings/" + config["replay"];
+    if (!jsonURL.endsWith(".json")) jsonURL += ".json";
+  }  
+  if (jsonURL != null) {  
     // Use GET here to avoid 412 - Precondition Failed in Chrome and IOS7 Safari.
-    url = config["jsonURL"] + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
-    method = "get";  
-    
+    url = jsonURL + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
+    method = "get";    
   }
   var ajaxParams = {
     "program": program.toUpperCase(),
@@ -5002,6 +5030,11 @@ pui["run"] = function(config) {
       url += "/" + puiRefreshId;
     }
 
+    if (pui.recordTest) pui.recording["payloads"].push({
+      url: url,
+      data: ajaxParams
+    });
+
     ajaxJSON({
       "url": url,
       "method": method,
@@ -5011,6 +5044,16 @@ pui["run"] = function(config) {
       "suppressAlert": true,
       "handler": function(parms) {
         function loadMobileExtensionFilesCompletion() {
+          if (Array.isArray(parms["payloads"])) {  // Recording replay
+            pui.replay = parms;            
+            pui.replayStep = Number(config["step"]);
+            if (!pui.replayStep || isNaN(pui.replayStep)) pui.replayStep = 1;
+            var container = parms.container;
+            parms = parms["payloads"][pui.replayStep - 1]["response"];
+            parms = JSON.parse(JSON.stringify(parms));
+            parms.container = container;
+            pui.createReplayUI();
+          }
           pui.render(parms);
         }
         function loadDependencyFilesCompletion () {
@@ -5136,6 +5179,11 @@ pui["signon"] = function(config) {
 
   if (pui.observer != null) return;
 
+  if (pui.recordTest) pui.recording["payloads"].push({
+    url: url,
+    data: ajaxParams
+  });
+
   ajaxJSON({
     "url": url,
     "method": "post",
@@ -5248,9 +5296,12 @@ pui.start = function() {
   var duplicateid = parms["duplicateid"];
   var log = parms["log"];
   var plog = parms["plog"];
+  pui.recordTest = (parms["record"] === "1");
   var atriumItem = parms["atrium_item"];
   var initPgm = parms["initpgm"];
   var jsonURL = parms["jsonURL"];
+  var replay = parms["replay"];
+  var step = parms["step"];
   var mode = parms["mode"];
   var controller = parms["controller"];
   var mobile = (parms["mobile"] === "1");
@@ -5295,7 +5346,7 @@ pui.start = function() {
     "lang": lang,
     "renderLog": pui.renderLog
   };
-  if (program == null && jsonURL == null && mode == null) {
+  if (program == null && jsonURL == null && replay == null && mode == null) {
     // Signed in session. Look for Atrium item 
     // and initial program request.
     if (atriumItem != null) {
@@ -5309,6 +5360,8 @@ pui.start = function() {
   else {
     config["program"] = program;
     if (jsonURL != null) config["jsonURL"] = jsonURL;
+    if (replay != null) config["replay"] = replay;
+    if (step != null) config["step"] = step;
     if (mode != null) config["mode"] = mode;
     if (config["mode"] === "preview")
       config["previewTab"] = parms["previewTab"];
@@ -5605,6 +5658,7 @@ pui.setupWindowDiv = function(parms, layer) {
   windowDiv.style.left = left;
   windowDiv.style.top = top;
   windowDiv.isPUIWindow = true;
+  windowDiv.className = "pui-window-div";
   pui.runtimeContainer.appendChild(windowDiv);
   parms.container = windowDiv;
   pui.lastWindow = windowDiv;
@@ -5721,9 +5775,13 @@ pui.showMessageSubfileHelp = function(textObj) {
   help = help.replace(/&amp;N/g, "<br/><br/>");
   help = help.replace("Cause . . . . . :", "<strong>Cause:</strong>");
   help = help.replace("Recovery  . . . :", "<strong>Recovery:</strong>");
+  help = help.trim();
+  if (help && help.substr(0, 1) !== "<") {  // no markup already added
+    help = "<br/><br/><strong>Additional Information:</strong> " + help;
+  }
   
-  var content = '<div style="height: 30px; text-align: center; padding-top: 3px;"><strong>Additional Message Information</strong></div>';
-  content += '<div style="height: 215px; overflow-y: auto; white-space: normal;">';
+  var content = '<div class="pui-sflmsg-panel-heading"><strong>Additional Message Information</strong></div>';
+  content += '<div class="pui-sflmsg-panel-content">';
   content += "<strong>Message Id:</strong> " + id + "<br/><br/>";
   content += "<strong>Message:</strong> " + text + "<br/><br/>";
   content += "<strong>Date/Time:</strong> " + date + " " + time;
@@ -5733,11 +5791,15 @@ pui.showMessageSubfileHelp = function(textObj) {
   
   var gridObj = textObj.parentNode.parentNode;
   var top = parseInt(gridObj.style.top);
-  top = top - 260;
-  if (top < 5) top = 5;
   var left = parseInt(gridObj.style.left);
   left += 3;
-  
+  var node = gridObj.parentNode;
+  while (node && node !== pui.runtimeContainer && node !== document.body) {    
+    top += node.offsetTop;
+    left += node.offsetLeft;
+    node = node.offsetParent;
+  }  
+
   var minWidth = 600;
   var width = gridObj.clientWidth - 25;
   if (width < minWidth) {
@@ -5747,41 +5809,31 @@ pui.showMessageSubfileHelp = function(textObj) {
   var div;
   if (pui.messageSubfileHelpWindowDiv == null || pui.messageSubfileHelpWindowDiv.parentNode == null) {
     div = document.createElement("div");
-    gridObj.parentNode.appendChild(div);
+    pui.runtimeContainer.appendChild(div);
   }
   else {
     div = pui.messageSubfileHelpWindowDiv;
   }
   div.style.position = "absolute";
-  div.style.left = left + "px";
-  div.style.top = top + "px";
   div.style.width = width + "px";
-  div.style.height = "250px";
-  div.style.border = "1px solid #cccccc";
+  div.className = "pui-sflmsg-panel";
   div.style.zIndex = pui.windowZIndex;
-  div.style.whiteSpace = "normal";
-  div.style.fontFamily = "Arial";
-  div.style.backgroundColor = "#ffffff";
-  div.style.color = "#555555";
-  div.style.paddingLeft = "8px";
   div.innerHTML = content;
   div.style.display = "";
-  var img = document.createElement("img");
-  img.style.position = "absolute";
-  img.style.top = "3px";
-  img.style.right = "2px";
-  img.style.cursor = "pointer";
-  img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
-  img.onmouseover = function() {
-    img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1_hover.png");
-  };
-  img.onmouseout = function() {
-    img.src = pui.normalizeURL("/profoundui/proddata/images/buttons/close/x1.png");
-  };
-  img.onclick = function() {
+  var closeButton = document.createElement("div");
+  closeButton.style.position = "absolute";
+  closeButton.style.top = "3px";
+  closeButton.style.right = "2px";
+  closeButton.className = "pui-sflmsg-panel-close-button";  
+  closeButton.onclick = function() {
     div.style.display = "none";
+    if (div.parentNode) div.parentNode.removeChild(div);
   };
-  div.appendChild(img);
+  div.style.left = left + "px";
+  top = top - div.offsetHeight - 5;
+  if (top < 5) top = 5;
+  div.style.top = top + "px";
+  div.appendChild(closeButton);
   
   pui.messageSubfileHelpWindowDiv = div;
   

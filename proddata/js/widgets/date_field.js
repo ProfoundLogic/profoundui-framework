@@ -352,23 +352,65 @@ function show_calendar(dateField, str_datetime, format) {
   calobj.appendChild(calForm);
   
   var offset = pui.getOffset(clickobj);
-  var left = offset[0] + 6;
-  var top = offset[1] + 1 + clickobj.offsetHeight; 
+  var imageTop = offset[1];
+  var imageLeft = offset[0];
+  var imageHeight = clickobj.offsetHeight;
+  var imageWidth = clickobj.offsetWidth;
 
+  var position = dateField.calPosition; //from "calendar position" property
+  var calWidth = calobj.offsetWidth;
+  var calHeight = calobj.offsetHeight;
+   
+  //For null and "right" case - sets to the right and centers
+  var left = imageLeft + imageHeight + 6;
+  var top = imageTop - (calHeight / 2);
 
-
-  if (dateField.offsetTop > 250) {  // don't want calendar to go below the bottom of the screen
-    top -= 150;
-    left += 11;
-  }    
+  switch(position){
+    case "above-right" : 
+      left = imageLeft + imageWidth - 6;
+      top = imageTop - calHeight;
+      break;
+    case "below-right" :
+      left = imageLeft + imageWidth - 6;
+      top = imageTop + imageHeight;
+      break;
+    case "above-left" : 
+      left = imageLeft - calWidth + 6; 
+      top = imageTop - calHeight;
+      break;
+    case "below-left" : 
+      left = imageLeft - calWidth + 6; 
+      top = imageTop + imageHeight;
+      break;
+    case "left" :
+      left = imageLeft - calWidth - 5;
+      top = imageTop - (calHeight / 2);
+      break;
+	}
 
   var winSize = pui["getWindowSize"]();
-  var max = winSize["width"] - 250; // 250 is the width of the popup calendar (table) plus the scrollbar.
-  if (max < 0) max = 0;
-  if (left > max) left = max;
-  
-  max = Math.max(0, winSize["height"] - 170 + window.pageYOffset); //the popup height + 11px.
-  if (top > max) top = max;
+  //Should be [0,0] unless the page is scrolled
+  var winTop = window.pageYOffset;
+  var winLeft = window.pageYOffset;
+
+  //Below Screen -- bottom left corner must be above screen bottom
+  if((top + calHeight) > winSize["height"]){
+    top = winSize["height"] - calHeight - 10; 
+    left += 10;
+  }
+  //Checks if right corner is across right screen edge
+  if((left + calWidth) > winSize["width"]){
+    left = winSize["width"] - calWidth - 10;
+  }
+  //Checks if top is above screen top
+  if(top <  window.pageYOffset){ 
+    top = window.pageYOffset + 10; 
+    left += 10; //caledars off the corners are indented, calendars off to the side shouldn't be
+  }
+  //Checks if the left side is across screen left
+  if(left <  window.pageXOffset){ 
+    left = window.pageXOffset + 10;
+  }
   
   calobj.style.left = left + "px";
   calobj.style.top = top + "px";
@@ -699,6 +741,7 @@ pui.widgets.add({
     "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       parms.dom.puiShowToday = parms.evalProperty("show today option");
+      parms.dom.calPosition = parms.evalProperty("calendar position");
       if (!parms.design) {
         if (parms.dom.tagName == "INPUT" && !parms.dom.readOnly && !parms.dom.disabled) {
           var format; 
@@ -782,15 +825,6 @@ pui.widgets.add({
         }        
       }
     },
-    "disabled": function(parms) {
-      if (parms.dom.calimg) {
-        if (parms.value == "true") {
-          parms.dom.calimg.style.visibility = "hidden";
-        } else {
-          parms.dom.calimg.style.visibility = "";
-        }        
-      }
-    },
     "css class": function(parms) {
       var className = parms.value.split(" ").shift();
       className = "pui-cal pui-cal-" + className + " pui-calendar-icon";
@@ -822,6 +856,34 @@ pui.widgets.add({
           else
             parms.dom.removeAttribute("name");
         }
+      }
+    }
+    
+  },
+
+  globalAfterSetter: function(parms) {
+
+    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+      pui.floatPlaceholder(parms.dom);
+    }
+    
+    var calImg;
+    if (parms.dom && parms.dom.floatingPlaceholder != null) {
+      pui.movePropertiesFromFloatingPlaceholderDiv(parms);
+      calImg = parms.dom.floatingPlaceholder.getBox().calimg;
+    }
+
+    if (parms.dom && parms.dom.calimg) {
+      calImg = parms.dom.calimg;
+    }
+
+    if (calImg) {
+      if (parms.properties["read only"] == "true" || parms.properties["read only"] == true
+          || parms.properties["disabled"] == "true" || parms.properties["disabled"] == true) {
+        calImg.style.visibility = "hidden";
+      }
+      else {
+        calImg.style.visibility = "";
       }
     }
   }

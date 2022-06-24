@@ -359,7 +359,9 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyV
   }
 
   this.box.style[styleName] = propertyValue;
-  this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
+  if (pui["add combo style properties to choice list"]) {
+    this._choicesDiv.style[styleName] = propertyValue;  //Let the choices DIVs match the style in the the input box. #6490.
+  }
 };
 
 /**
@@ -862,6 +864,17 @@ pui.widgets.add({
     
   },
   globalAfterSetter: function(parms) {
+    // Fixes issue 7434, allows the combo box to retain its floating placeholder after re-render.
+    // Seems as though the default for the combo box is to preserve the floating placeholder but
+    // The div containing the combo box does not have the correct classes after re-render
+    if (parms.propertyName == 'field type'
+        && parms.oldDom && parms.oldDom.floatingPlaceholder != null
+        && parms.dom && parms.dom.floatingPlaceholder != null
+        && parms.dom.className.indexOf("pui-floating-placeholder-combo-main") == -1) {
+      parms.dom.removeChild(parms.dom.floatingPlaceholder);
+      pui.floatPlaceholder(parms.dom);
+    }
+
     if (parms.propertyName.substr(0, 9) == "css class") {
       if (parms.dom.className.indexOf("combo-main") == -1) {
         parms.dom.className = "combo-main " + parms.dom.className;

@@ -168,7 +168,7 @@ var en_US = function(dict) {
             dictMsg["duplicate actions"]            = "Duplicate action(s) found for this row/column, unpredictable results could occur. Please review actions and delete duplicates.";
 
             // Jumpstart only.
-            dictMsg["subfile full"]        			    = "There are more than 9,999 records; only the first 9,999 records are displayed.";
+            dictMsg["subfile full"]        			= "There are more than 9,999 records; only the first 9,999 records are displayed.";
             
             break;
 

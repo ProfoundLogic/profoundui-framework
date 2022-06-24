@@ -998,18 +998,23 @@ pui.Base64 = {
 
 
 pui["downloadJSON"] = function() {
-  if (pui["savedJSON"] == null) {
-    pui.alert("JSON is not available.");
-    return;
+  if (pui.recordTest) {    
+    pui.saveRecording();    
   }
-  var json = pui["savedJSON"];
-  if (typeof JSON === "object" && typeof JSON.parse === "function" && typeof JSON.stringify === "function") {
-    try {  // just in case something goes wrong or browser doesn't support
-      json = JSON.stringify(JSON.parse(pui["savedJSON"]), null, "  ");  // make it pretty
+  else {
+    if (pui["savedJSON"] == null) {
+      pui.alert("JSON is not available.");
+      return;
     }
-    catch(err) { }
+    var json = pui["savedJSON"];
+    if (typeof JSON === "object" && typeof JSON.parse === "function" && typeof JSON.stringify === "function") {
+      try {  // just in case something goes wrong or browser doesn't support
+        json = JSON.stringify(JSON.parse(pui["savedJSON"]), null, "  ");  // make it pretty
+      }
+      catch(err) { }
+    }
+    pui.downloadAsAttachment("text/plain", "json.txt", json);
   }
-  pui.downloadAsAttachment("text/plain", "json.txt", json);  
 };
 
 
