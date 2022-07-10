@@ -3037,8 +3037,11 @@ pui.renderFormat = function(parms) {
       }
     }
    
-    if (grid.isTreeInitCollapsed()) 
-      grid["collapseTreeLevel"](0);
+    if (grid.isTreeInitCollapsed()) {
+      grid.gridTree.collapseAll();
+      grid.refreshGridTree();
+    }
+      
     grid.makeSortable();
     grid.restoreState();
   });
