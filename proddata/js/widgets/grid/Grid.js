@@ -229,6 +229,7 @@ pui.Grid = function () {
   this.selectionField = null;
   this.hiddenField = null;
   this.treeLevelData = null;
+  this.gridTree = null;
   this.treeLevelDataInitDone = false;
   this.hasTreeLevelColumn = false;
   this.treeLevelField = null;
@@ -2546,6 +2547,8 @@ pui.Grid = function () {
             var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false};
             me.treeLevelData.push(treeLevelData);
           }
+          me.gridTree = new pui.GridTree();
+          me.gridTree.load(me.treeLevelData);
         }
 
         if (!me.treeLevelDataInitDone) {
@@ -8335,62 +8338,56 @@ pui.Grid = function () {
     return count;
   };
 
-  this["toggleTreeLevel"] = function (rrn) {
+  this["expandTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.showChildren(node);
+    me.refreshGridTree(node);
+  };
 
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    var myTreeLevel = myTreeLevelData.treeLevel;
-    
-    var wasCollapsed;
-    if (myTreeLevelData.treeLevelCollapsed) {
-      wasCollapsed = true;
-      myTreeLevelData.treeLevelCollapsed = false;
-    } else { 
-      wasCollapsed = false;
-      myTreeLevelData.treeLevelCollapsed = true;
+  this["collapseTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.hideChildren(node);
+    me.refreshGridTree(node);
+  };
+
+  this["toggleTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.toggleChildren(node);
+    me.refreshGridTree(node);
+  }
+
+  this.refreshGridTree = function (affectedNode) {
+
+    // New way to handle grid tree:
+    // Use a REAL model tree stored in me.gridTree.
+    // Call me.gridTree.hideChildren() or me.gridTree.showChilden() or me.gridTree.toggleChildren(),
+    // which will expand/collapse the nodes in the model tree.
+    // Use the model tree to refresh the data in treeLevelData[].
+    // Then use data in treeLevelData[] to call showShow() or hideRow() to show/hide each affected row in the grid.
+    // Note that me.gridTree is a real tree structure; whereas treeLevelData[] is just an array.
+    // To improve performance, each element of array treeLevelData[] contains the corresponding object 
+    // "node" in the tree me.gridTree, so that we don't have to do lookup when needed.
+
+    if (affectedNode === undefined || affectedNode === null) {      // handle whole tree
+      var fromIndex = 0;
+      var toIndex = me.treeLevelData.length;
+    } else {                                                        // handle affected node and its descendants only
+      fromIndex = parseInt(affectedNode.data) - 1                   // node.data is the RRN of the affected node
+      toIndex = me.gridTree.getMaxRRN(affectedNode);                // highest RRN of node's descendants; do NOT use -1 here
     }
 
-    for (var i = rrn + 1; i <= me.treeLevelData.length; i++) {    // start at rrn+1; hide rows below clicked row if needed
-      if (me.treeLevelData[i-1].treeLevel > myTreeLevel) {
-        if (wasCollapsed) {                                       // clicked row was collapsed; expand it
-          me.handleHideRow(i, false, false);                      // call showRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = false;
-        } else {                                                  // clicked row was expanded; collapse it
-          me.handleHideRow(i, true, false);                       // call hideRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = true;
-        }
-      } else {
-        break;
-      }
+    for (var i = fromIndex; i < toIndex; i++) {                     // handle affected range only    
+      var rrn = (i + 1);
+      var node = me.treeLevelData[i].node;
+      if (node.showRow)                                   
+        me.handleHideRow(rrn, false, false);                        // call showRow() but does NOT call getData()
+      else                                                
+        me.handleHideRow(rrn, true, false);                         // call hideRow() but does NOT call getData()
+      me.treeLevelData[i].treeLevelCollapsed = (node.currentState === "collapsed")? true: false;
     }
     
     me.getData();
     
-  };
-
-  this["expandTreeLevel"] = function (rrn) {
-    if (rrn === 0) {
-      for (var i = 1; i <= me.treeLevelData.length; i++) {  
-        this["expandTreeLevel"](i);
-      }
-    }
-    else {
-      var myTreeLevelData = me.treeLevelData[rrn-1];
-      if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
-        me["toggleTreeLevel"](rrn);
-    }
-  };
-
-  this["collapseTreeLevel"] = function (rrn) {
-    if (rrn === 0) {
-      for (var i = 1; i <= me.treeLevelData.length; i++) {  
-        this["collapseTreeLevel"](i);
-      }
-    }
-    else {
-      var myTreeLevelData = me.treeLevelData[rrn-1];
-      if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
-        me["toggleTreeLevel"](rrn);
-    }
   };
 
   this.getTreeLevelColumnId =  function () {
