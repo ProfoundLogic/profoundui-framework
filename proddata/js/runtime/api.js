@@ -310,6 +310,8 @@ function changeElementValue(id, val) {
         pui.genie.markFieldAndRelatedDirty(elem);   //Issue 5671. Ensure the field is marked dirty so that the mandatory entry check passes.
       }
       elem.value = val;
+      
+      if (elem.autoCompValueField != null) elem.autoCompValueField.value = val;  //7444. make sure someone can clear the field.
     }
   }
   
