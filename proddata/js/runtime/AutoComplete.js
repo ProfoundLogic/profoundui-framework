@@ -42,7 +42,6 @@ function AutoComplete(config) {
   var centerShadow;
   var leftCorner;
   var rightCorner;
-  var shim;
   var firstField;
   var activeRecord = null;
   var records = new Array();
@@ -223,7 +222,7 @@ function AutoComplete(config) {
     maxHeight = config.maxHeight;
   }
 
-  // Create result pane, shim, and shadowing divs. These will be sized/positioned when data is shown or when the window is resized.
+  // Create result pane, and shadowing divs. These will be sized/positioned when data is shown or when the window is resized.
 
   resultPane = document.createElement("div");
   resultPane.style.display = "none";
@@ -321,12 +320,12 @@ function AutoComplete(config) {
   };
 
   this.destroy = function () {
-    removeEvent(textBox, "keyup", doKeyUp);
-    removeEvent(textBox, "keydown", doKeyDown);
-    removeEvent(textBox, "blur", doBlur);
-    removeEvent(textBox, "input", onInput);
-    removeEvent(textBox, "resize", doResize);
-    removeEvent(window, "resize", doResize);
+    textBox.removeEventListener("keyup", doKeyUp);
+    textBox.removeEventListener("keydown", doKeyDown);
+    textBox.removeEventListener("blur", doBlur);
+    textBox.removeEventListener("input", onInput);
+    textBox.removeEventListener("resize", doResize);
+    window.removeEventListener("resize", doResize);
     resultPane = null;
     shadowDiv = null;
     leftShadow = null;
@@ -334,7 +333,6 @@ function AutoComplete(config) {
     centerShadow = null;
     leftCorner = null;
     rightCorner = null;
-    shim = null;
     firstField = null;
     activeRecord = null;
     records = null;
