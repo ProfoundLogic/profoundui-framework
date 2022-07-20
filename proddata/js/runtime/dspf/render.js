@@ -6900,26 +6900,35 @@ pui.findParentGrid = function(obj) {
 };
 
 /**
- * Request a Job Log download from the server. 
- * Called from the errscrn format in puiscreens.json and puiscreens.dspf in Profound.js and Profound UI.
- * @param {String} jobinfo        Encrypted, encoded job information.
- * @param {String|Null} serverURI   URI of a server from where the job logs can be fetched. The location in the address bar is used 
- *   for PJS in Genie and Profound UI.
- * @param {String} filename   Filename for the prompt to save job log.
- * @param {Element} outputEl  HTML Element to get feedback about the download.
- * 
- * var protocol = pui["appJob"]["serverProtocol"].split('/');
- * var jobLogServer = protocol[0].toLowerCase() + "://" + pui["appJob"]["serverName"] + ":" + pui["appJob"]["serverPort"] + '/profoundui/';
- * 
+ * Request a Job Log download from the server and prompt the user to save it.
+ * Assume only Profound UI calls this function when a user clicked a "Download Job Log" link in puiscreens.dspf.
+ * The link to download the job log should only be visible if there is a joblog key.
+ * @param {Object} parms
  */
-pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
-  var xhr;
+pui['downloadJobLog'] = function(parms) {
+  var xhr, outputEl, jobinfo, filename;
+  if (arguments.length === 1 && typeof parms === 'object' && parms !== null){
+    filename = parms['filename'];
+    jobinfo = parms['jobinfo'];
+    outputEl = parms['outputEl'];
+  } 
+  else if (arguments.length === 4){
+    // Handle PJS error screen from 6.0.0-beta4 or older.
+    jobinfo = arguments[0];
+    filename = arguments[2];
+    outputEl = arguments[3];
+  }
+
+  if (outputEl == null || parms == null || typeof jobinfo !== 'string' || typeof filename !== 'string'){
+    console.log('Cannot download job log. Parameter(s) to function are incorrect.');
+    return;
+  }
+  
   outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'downloading x', ['...']);
-  var uri = typeof serverURI !== 'string' || serverURI.length < 1 || serverURI !== '/profoundui' ? getProgramURL('PUI0009118.pgm') : serverURI + '/PUI0009118.pgm';
   
   var filesaverPath = "/jszip/FileSaver.min.js";
   if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
-    makeXHR();
+    makeXHR(); 
   }
   else {
     pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR });
@@ -6928,7 +6937,7 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
   function makeXHR(){
     xhr = new XMLHttpRequest();
     xhr.onreadystatechange = joblogFetch;
-    xhr.open('POST', uri, true);
+    xhr.open('POST', getProgramURL('PUI0009118.pgm'), true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send('jobinfo='+jobinfo);
   }
@@ -6939,7 +6948,7 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
         if (typeof xhr.response === 'string' && xhr.response.length > 0){
           var contentDisp = xhr.getResponseHeader('Content-Disposition');
           if (contentDisp === 'attachment'){
-            // If the response is good, then the Content-Disposition header is "attachment".
+            // The Content-Disposition header is "attachment" when the response is good. Store the results.
             var filesaver = saveAs( new Blob([xhr.response]), filename, {"type": "text/plain;charset=utf-8"});
             filesaver['onwriteend'] = filesaverWriteEnded;
           }
@@ -6949,11 +6958,11 @@ pui['downloadJobLog'] = function(jobinfo, serverURI, filename, outputEl) {
           }
         }
         else {
-          outputEl.innerHTML = 'Error: Empty Response';
+          outputEl.innerHTML = 'Job log download error: Empty Response';
         }
       }
       else {
-        outputEl.innerHTML = 'Job Log Error:<br>HTTP ' + xhr.status + '<br>' + xhr['responseURL'];
+        outputEl.innerHTML = 'Job log download error:<br>HTTP ' + xhr.status + '<br>' + xhr['responseURL'];
       }
     }
   }
