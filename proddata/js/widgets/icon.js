@@ -55,7 +55,12 @@ function handleIcon(parms) {
             var iconClassName = iconSet["classList"][iconValueClassList];
             if (iconValueType === type) {
               iconDiv.className = iconClassName + iconVal;
-              iconDiv.innerText = '';
+              // If custom Material icon, then innerHTML = icon name
+              if (iconValue.startsWith("material-")) {
+                iconDiv.innerText = trim(iconVal);
+              } else {
+                iconDiv.innerText = '';
+              }
               return false;
             }
             return true;
