@@ -5055,6 +5055,7 @@ pui["run"] = function(config) {
             parms = parms["payloads"][pui.replayStep - 1]["response"];
             parms = JSON.parse(JSON.stringify(parms));
             parms.container = container;
+            parms["version"] = pui["version"];
             pui.createReplayUI();
           }
           pui.render(parms);
