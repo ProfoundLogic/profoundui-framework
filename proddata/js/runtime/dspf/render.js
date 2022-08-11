@@ -72,6 +72,7 @@ pui.responseRoutineRow = null;
 pui.responseRoutineGrid = null;
 pui.ddBypassValidation = "false";
 pui.lastFormatName = null;
+pui.scrolledGridName = null
 pui.placeCursorOnSubfile = false;
 pui.iPadEmulation = false;
 pui.iPhoneEmulation = false;
@@ -3025,14 +3026,14 @@ pui.renderFormat = function(parms) {
         if (pui.keyMap[formatName] != null ){
           if (pui.keyMap[formatName]["PageDown"] == null) {
             pui.keyMap[formatName]["PageDown"] = [];
+          }
             pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
             grid.pagingBar.pageDownHotKeyDefined = true;
-          }
           if (pui.keyMap[formatName]["PageUp"] == null) {
             pui.keyMap[formatName]["PageUp"] = [];
+          }
             pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
             grid.pagingBar.pageUpHotKeyDefined = true;
-          }
         }
       }
     }
@@ -4749,7 +4750,8 @@ pui.handleHotKey = function(e, keyName) {
           var dom = domArray[i];
           if (!dom.disabled) allDisabled = false;
           if (dom.parentPagingBar != null) {
-            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
+            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()
+                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
               dom.parentPagingBar.grid.pageDown();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4760,7 +4762,8 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined) {
+            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined
+                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
@@ -4770,7 +4773,8 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
+            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()
+                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
               dom.parentPagingBar.grid.pageUp();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4781,7 +4785,8 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined) {
+            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined
+                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
