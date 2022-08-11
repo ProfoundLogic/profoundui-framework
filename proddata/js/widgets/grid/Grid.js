@@ -4460,6 +4460,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -4486,6 +4487,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
