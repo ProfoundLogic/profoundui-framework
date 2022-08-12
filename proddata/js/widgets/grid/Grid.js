@@ -4703,6 +4703,16 @@ pui.Grid = function () {
       propertyToSwitch = multOccurMatch[1];  //handle any number of "database file n" properties.
     }
 
+    var multOccurMatch = /^(grid row translation placeholder key) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder key n" properties.
+    }
+
+    var multOccurMatch = /^(grid row translation placeholder value) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder value n" properties.
+    }
+
     switch (propertyToSwitch) {
       case "id":
       case "parent window":
@@ -5636,9 +5646,13 @@ pui.Grid = function () {
           customGridSortFunction = value;
         }
         break;
-      case "translation placeholders":
-        
+      case "grid row translation placeholders":
         break;
+      case "grid row translation placeholder key":
+        break;
+      case "grid row translation placeholder value":
+        break;
+
       default:
         if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
         pui.alert("Grid property not handled: " + property);
@@ -10802,10 +10816,10 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "ending row", helpDefault: "blank", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
       { name: "data columns", type: "list", helpDefault: "blank", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler" },
 
-      { name: "Translations", category: true, context: "dspf" }, 
-      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false, context: "dspf" }, 
-      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf" }, 
-      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", context: "dspf" },
+      { name: "Translations", category: true, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["grid row translation placeholder key", "grid row translation placeholder value"], canBeRemoved: false, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", context: "dspf", nodedesigner: false },
 
       { name: "Position", category: true },
       { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },

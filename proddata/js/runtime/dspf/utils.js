@@ -53,6 +53,7 @@ pui.isSubfileProperty = function(propertyName) {
     case "subfile changed": return true;
     case "row font color": return true;
     case "row background": return true;
+    case "grid row translation placeholder value": return true;
     default: return false;
   }
 }
