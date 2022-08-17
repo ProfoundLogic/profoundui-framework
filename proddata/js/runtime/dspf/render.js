@@ -6320,7 +6320,7 @@ pui.translate = function(parms) {
       var translationPlaceholderKeys = [];
       var translationPlaceholderValues = [];
 
-      for(const property in screen){
+      for(property in screen){
         if(property.includes('translation placeholder key')){
           translationPlaceholderKeys.push(screen[property]);
           var value = 'translation placeholder value' + property.slice(27);
@@ -6338,7 +6338,7 @@ pui.translate = function(parms) {
           var gridRowTranslationPlaceholderKeys = [];
           var gridRowTranslationPlaceholderValues = [];
           var gridContainer = items[item["grid"]];
-          for(const property in gridContainer){
+          for(property in gridContainer){
             if(property.includes('grid row translation placeholder key')){
               var value = 'grid row translation placeholder value' + property.slice(38);
               if(!pui.isBound(value)){
