@@ -1637,7 +1637,7 @@ pui.renderFormat = function(parms) {
                 case "tab names":
                 case "tool tip":
                   for(var key = 0; key < gridObj.translationPlaceholderKeys.length; key++){
-                    newValue = newValue.replaceAll('(&' + gridObj.translationPlaceholderKeys[key] + ')', 
+                    newValue = newValue["replaceAll"]('(&' + gridObj.translationPlaceholderKeys[key] + ')', 
                     pui.evalBoundProperty(gridObj.translationPlaceholderValues[key], data, parms["ref"]));
                   }
               }
@@ -6432,7 +6432,7 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
       }              
       
       for(var i = 0; i < translationPlaceholderKeys.length; i++){
-        obj[propName] = obj[propName].replaceAll('(&' + translationPlaceholderKeys[i] + ')', translationPlaceholderValues[i]);
+        obj[propName] = obj[propName]["replaceAll"]('(&' + translationPlaceholderKeys[i] + ')', translationPlaceholderValues[i]);
       }
 
     }    
