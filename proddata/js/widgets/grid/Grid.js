@@ -138,6 +138,9 @@ pui.Grid = function () {
     this.slidingScrollBar = true;
   }
 
+  // object property setting for maximum number of columns permitted in a Grid
+  this.maxNumberOfColumns = 100;
+
   this.subfileEnd = false;
 
   this.subfileHidden = false;
@@ -391,6 +394,10 @@ pui.Grid = function () {
       addColumnIcon = createIcon("plus", "Add New Column");
       addColumnIcon.onclick = function () {
         var itm = me.tableDiv.designItem;
+        if (itm.properties["number of columns"] > me.maxNumberOfColumns) {
+          pui.alert("Maximum number of columns reached.")
+          return;
+        }
         itm.designer.undo.start("Add Grid Column");
         itm.designer.undo.add(itm, "column widths");
         itm.designer.undo.add(itm, "number of columns");
@@ -1361,7 +1368,8 @@ pui.Grid = function () {
         // Get headings for each column.
         colNum = 0;
         worksheet.newRow();
-        if (me.hidableColumns || me.movableColumns){
+        // if (me.hidableColumns || me.movableColumns){
+        if (me.hidableColumns){  
           // If any columns remain, then they are likely hidden. Find their headings by their field name.
           if (Array.isArray(me.columnInfo) && me.columnInfo.length > 0){
             for (len=fieldOrder.length; colNum < len && (colEl = fieldOrder[colNum]); colNum++){
@@ -4881,9 +4889,12 @@ pui.Grid = function () {
         var oldNumCols = me.vLines.length - 1;
         if (oldNumCols < 0) oldNumCols = 0;
         var newNumCols = parseInt(value);
+        if (newNumCols > me.maxNumberOfColumns) {
+          pui.alert('WARNING: Number of maximum columns reached when loading Grid.');
+        }
         if (isNaN(newNumCols)) newNumCols = oldNumCols;
         if (newNumCols < 1) newNumCols = 1;
-        if (newNumCols > 99) newNumCols = 99;
+        if (newNumCols > me.maxNumberOfColumns && me.designMode) newNumCols = me.maxNumberOfColumns;
         if (newNumCols > oldNumCols) {
           while (newNumCols > me.vLines.length - 1) me.addColumn();
         }
@@ -5037,7 +5048,8 @@ pui.Grid = function () {
         }
         me.setHeadings();
         
-        if (me.designMode && me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
+        // if (me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){
+        if (!me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
           for (var i=0; i < me.columnInfo.length && i < me.columnHeadings.length; i++){
             me.columnInfo[i]['name'] = me.columnHeadings[i];
           }
