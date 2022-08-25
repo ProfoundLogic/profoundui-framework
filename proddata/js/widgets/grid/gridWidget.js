@@ -86,6 +86,14 @@ pui.widgets.add({
         }
       }
     }
+    
+    // if the number of columns property is directly modify and is greater than the maximum
+    // permitted then set to maximum number of columns
+    if (parms.propertyName == "number of columns" &&
+        parms.value > parms.dom.grid.maxNumberOfColumns){
+          parms.newValue = parms.dom.grid.maxNumberOfColumns;
+        }
+
     if (parms.propertyName == "field type") {
       parms.dom.sizeMe = function() {
         if (parms.dom.grid.expandToLayout) parms.dom.grid.doExpandToLayout();
