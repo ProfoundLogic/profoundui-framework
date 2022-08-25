@@ -479,10 +479,10 @@ function getScreenPropertiesModel(designScreen) {
       { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
 
-      { name: "Translations", category: true }, 
-      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false }, 
-      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "" }, 
-      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "" },
+      { name: "Translations", category: true, nodedesigner: false}, 
+      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
 
       { name: "Response", category: true }, 
       { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." }, 

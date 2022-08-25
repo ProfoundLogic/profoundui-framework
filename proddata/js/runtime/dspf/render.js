@@ -1412,7 +1412,7 @@ pui.renderFormat = function(parms) {
       if (leftpx == "NaNpx") leftpx = "0px";
       if (toppx == "NaNpx") toppx = "0px";
       if (items[i].left != null) dom.style.left = leftpx;
-       if (items[i].top != null) dom.style.top = toppx;
+      if (items[i].top != null) dom.style.top = toppx;
       if (!isDesignMode && items[i]["parent tab panel"] != null && items[i]["parent tab panel"] != "") {
         dom.style.visibility = "hidden";
       }
@@ -1497,13 +1497,15 @@ pui.renderFormat = function(parms) {
               }
             }
 
-            if ( items[i]["field type"] == "grid" && (prop == "row background" || prop == "row font color") ){
+            if (items[i]["field type"] == "grid" && (prop == "row background" || prop == "row font color")) {
               // These grid properties are per-record fields; values can be different per record. To avoid letting an indicator's 
               // off-value become the color for each row, this must be blank or not evaluated here. Issue 4775. 6391.
               newValue = "";
             }
+            else if (prop.includes("grid row translation placeholder value") && items[i]["field type"] == "grid") {
+              newValue = propValue;
+            }
             else {
-
               propValue["revert"] = false;
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
 
@@ -1617,6 +1619,29 @@ pui.renderFormat = function(parms) {
               rangeLowDateISO  = dateISO;
             else
               rangeHighDateISO = dateISO;            
+          }
+          if(items[i]["grid"] != null) { //Check for unresolved translation placeholders for widgets in grid rows
+            if(gridObj.translationPlaceholderKeys){
+              switch(prop){
+                case "value":
+                case "html":
+                case "on text":
+                case "off text":
+                case "label":
+                case "alternate text":
+                case "empty text":
+                case "placeholder":
+                case "choices":
+                case "blank option label":
+                case "names":
+                case "tab names":
+                case "tool tip":
+                  for(var key = 0; key < gridObj.translationPlaceholderKeys.length; key++){
+                    newValue = newValue["replaceAll"]('(&' + gridObj.translationPlaceholderKeys[key] + ')', 
+                    pui.evalBoundProperty(gridObj.translationPlaceholderValues[key], data, parms["ref"]));
+                  }
+              }
+            }
           }
         } // endif not bound to a field
 
@@ -1896,6 +1921,17 @@ pui.renderFormat = function(parms) {
                 if (dom.grid.treeLevelColumnId == null)  
                   dom.grid.treeLevelColumnId = 0;
               }
+            }
+
+            if (propname.includes("grid row translation placeholder key") && properties["field type"] == "grid") {
+              if(!dom.grid.translationPlaceholderKeys || !dom.grid.translationPlaceholderValues)
+              {
+                dom.grid.translationPlaceholderKeys = [];
+                dom.grid.translationPlaceholderValues = [];
+              }
+              dom.grid.translationPlaceholderKeys.push(properties[propname]);
+              var value = 'grid row translation placeholder value' + propname.slice(36);
+              dom.grid.translationPlaceholderValues.push(properties[value]);
             }
 
             if (propname == "row font color" && properties["field type"] == "grid") {
@@ -6281,16 +6317,42 @@ pui.translate = function(parms) {
       var format = formats[iFmt];
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
+      var translationPlaceholderKeys = [];
+      var translationPlaceholderValues = [];
+
+      for(property in screen){
+        if(property.includes('translation placeholder key')){
+          translationPlaceholderKeys.push(screen[property]);
+          var value = 'translation placeholder value' + property.slice(27);
+          translationPlaceholderValues.push(pui.evalBoundProperty(screen[value], format["data"], format["ref"]));
+        }
+      }
       
-      msg += pui.doTranslate(screen, translationMap, true);
+      msg += pui.doTranslate(screen, translationMap, true, translationPlaceholderKeys, translationPlaceholderValues);
       
       for (var iItem = 0; iItem < items.length; iItem++) {
         
         var item = items[iItem];
-        msg += pui.doTranslate(item, translationMap);
-        
-      }
-      
+        if(item["grid"])
+        {
+          var gridRowTranslationPlaceholderKeys = [];
+          var gridRowTranslationPlaceholderValues = [];
+          var gridContainer = items[item["grid"]];
+          for(property in gridContainer){
+            if(property.includes('grid row translation placeholder key')){
+              var value = 'grid row translation placeholder value' + property.slice(38);
+              if(!pui.isBound(value)){
+                gridRowTranslationPlaceholderKeys.push(gridContainer[property]);
+                gridRowTranslationPlaceholderValues.push(gridContainer[value]);
+              }
+            }
+          }
+          msg += pui.doTranslate(item, translationMap, false, gridRowTranslationPlaceholderKeys, gridRowTranslationPlaceholderValues);
+        }
+        else {
+          msg += pui.doTranslate(item, translationMap, false, translationPlaceholderKeys, translationPlaceholderValues);
+        }
+      }  
     }    
     
   }
@@ -6303,7 +6365,7 @@ pui.translate = function(parms) {
 
 };
 
-pui.doTranslate = function(obj, translationMap, isScreen) {
+pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderKeys, translationPlaceholderValues) {
 
   isScreen = (isScreen === true);
   
@@ -6357,7 +6419,7 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
         }
         
       }
-      
+
       if (phrases.length == 1) {
         
         obj[propName] = phrases[0];  
@@ -6369,6 +6431,10 @@ pui.doTranslate = function(obj, translationMap, isScreen) {
         
       }              
       
+      for(var i = 0; i < translationPlaceholderKeys.length; i++){
+        obj[propName] = obj[propName]["replaceAll"]('(&' + translationPlaceholderKeys[i] + ')', translationPlaceholderValues[i]);
+      }
+
     }    
     
   }
