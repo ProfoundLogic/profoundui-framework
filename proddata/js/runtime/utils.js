@@ -1094,7 +1094,7 @@ pui["unload"] = function() {
   if (pui.shutdownOnClose && pui.observer == null) {
     pui["halted"] = true;
     window["puihalted"] = true;
-    pui.killFrames();
+    if (!pui["keep frames"]) pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
