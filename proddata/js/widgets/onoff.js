@@ -65,10 +65,10 @@ pui.OnOffSwitch = function() {
   
   this.init = function() {
     offLabel.className = "off-label";
-    offSpan.innerHTML = "OFF";
+    //offSpan.innerHTML = "OFF";
     offLabel.appendChild(offSpan);
     onLabel.className = "on-label";
-    onSpan.innerHTML = "ON";
+    //onSpan.innerHTML = "ON";
     onLabel.appendChild(onSpan);
     handleLeftDiv.className = "onoff-handle-left";
     handleRightDiv.className = "onoff-handle-right";
