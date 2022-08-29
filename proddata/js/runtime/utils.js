@@ -4597,7 +4597,13 @@ pui.xlsx_worksheet.prototype.getSheetXML = function(){
       }
     }
     xml += '</row>';
-    rowHeightStr = '';
+
+    // 7601 to fix issue where row heights not correct when header row height is specified
+    rowHeightStr='';
+    if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
+      rowHeightStr = ' ht="'+ Math.round(this.defaultRowHeightpx * 0.75) +'" customHeight="1"';
+    }
+    
   }
 
   xml += '</sheetData>'; 
