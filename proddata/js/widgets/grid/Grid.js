@@ -1738,6 +1738,9 @@ pui.Grid = function () {
         continue;
       }
 
+      // Prevent format() from base64-decoding a Graphic field. Assume setDataValue is passed the desired value. Issue 7701.
+      entry.formattingInfo['__pui_skipdecode'] = true;
+
       // Update DOM element
       if (property === "value") {
         changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
