@@ -267,6 +267,11 @@ pui.CSSButton = function() {
     if (me.designMode) return;
     link.target = target;
   }
+
+  this.setDownloadFile = function(downloadFile) {
+    if (me.designMode) return;
+    link["download"] = downloadFile;
+  }
   
   this.setLineHeight = function(containerHeight) {
     if (me.container == null) return;
@@ -436,6 +441,10 @@ pui.widgets.add({
     
     "target": function(parms) {
       parms.dom.button.setTarget(parms.value);
+    },
+
+    "download file": function(parms) {
+      parms.dom.button.setDownloadFile(parms.value);
     },
     
     "height": function(parms) {
