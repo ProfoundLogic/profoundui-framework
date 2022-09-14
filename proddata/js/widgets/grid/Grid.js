@@ -140,6 +140,7 @@ pui.Grid = function () {
 
   // object property setting for maximum number of columns permitted in a Grid
   this.maxNumberOfColumns = 100;
+  this["rowclicked"] = 0;
 
   this.subfileEnd = false;
 
@@ -1969,6 +1970,10 @@ pui.Grid = function () {
    */
   this.getData = function (csvFile) {
     
+    // 7647: make explicit call to hide context menu because scrolling the grid does not result in the
+    // context menu from being hidden and the 'onclick' is unrecognised.
+    me.hideContextMenu();
+
     if (me.tableDiv.disabled == true) return;
     if (me.designMode) return;
     var numRows = me.cells.length;
@@ -4237,6 +4242,10 @@ pui.Grid = function () {
 
         eval("var row = arguments[1];");
         eval("var rowNumber = arguments[1];");
+        
+        // 7536: ensure rowclicked property visible to event code
+        pui["temporary_property"] = me.rowclicked
+        eval("var rowclicked = pui.temporary_property");
 
         if (eventName == "onrowclick") {
           eval("var isRightClick = arguments[2];");
@@ -5664,6 +5673,8 @@ pui.Grid = function () {
         break;
       case "grid row translation placeholder value":
         break;
+      case "rowclicked":
+        break;
 
       default:
         if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
@@ -7085,6 +7096,13 @@ pui.Grid = function () {
       if (target.combo)
         return;
       
+      // 7536: capture row clicked from target and store in grid property
+      if (typeof(target.offsetParent.row) != "undefined") {
+        me["rowclicked"] = target.offsetParent.row;
+      } else {
+        me["rowclicked"] = target.row; 
+      }
+
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION" && target.tagName != "BUTTON") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
@@ -10762,7 +10780,8 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
-      
+      { name: "rowclicked", format: "number",readOnly: true, helpDefault: "bind", help: "Specifies row value clicked in a grid.", context: "dspf"},
+
       //Reset the  browser cache Data for a table
       { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
