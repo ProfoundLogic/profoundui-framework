@@ -1739,6 +1739,9 @@ pui.Grid = function () {
         continue;
       }
 
+      // Prevent format() from base64-decoding a Graphic field. Assume setDataValue is passed the desired value. Issue 7701.
+      entry.formattingInfo['__pui_skipdecode'] = true;
+
       // Update DOM element
       if (property === "value") {
         changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
@@ -8812,7 +8815,7 @@ pui.Grid = function () {
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
       // The current itm maps to the headerCell's column.
-      if (all || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
+      if ((pui.isBound(val) && all) || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         // Find the index of the dataArray column that corresponds to fieldName.
         // me.fieldNames maps me.dataArray columns to fieldNames.

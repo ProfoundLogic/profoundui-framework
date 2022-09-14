@@ -5910,6 +5910,7 @@ pui.returnCursor = function(e, dom) {
   if (e != null) target = getTarget(e);
   if (dom != null) target = dom;
   var cell = target.parentNode;
+  if (cell && cell.comboBoxWidget) cell = cell.parentNode;
   var parentGrid = null;
   if (cell != null && cell.parentNode != null) {
     parentGrid = cell.parentNode.grid;
