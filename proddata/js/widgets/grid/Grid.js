@@ -7497,8 +7497,9 @@ pui.Grid = function () {
   }
 
   /**
-   * Try to focus the first supported input element in a cell. Text inputs may
-   * be highlighted.
+   * Try to focus the first supported input element in a cell. Text inputs may be highlighted.
+   * 
+   * Regression test case (important): See Redmine #7727.
    * 
    * @param {object} cell  Cell dom in the grid.
    * @returns {boolean}    Returns true if element was found and focused. False otherwise.
