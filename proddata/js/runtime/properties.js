@@ -180,6 +180,11 @@ function getPropertiesModel() {
     { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"],  helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
     { name: "calendar position", choices: ["below-right", "above-right", "right", "below-left", "above-left", "left"], validDataTypes: ["char", "varchar", "string"], helpDefault: "[blank]", help: "Controls the position and orientation of the calendar. The default [blank] is the same as 'right'", context: "dspf" },
 
+    { name: "Translations", category: true, nodedesigner: false}, 
+    { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+    { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+    { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
+    
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "right", help: "Controls the position and orientation of validation and error tool tips. When 'alert' is selected, an alert box will be used instead of a tool tip.", context: "dspf" },
     { name: "error message attach", choices: ["window", "parent"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "window", help: "Controls what the tool tip is attached to. 'window' means the tip is always visible, even if the widget is not visible inside layouts. 'parent' means the tip is visible when the widget is; only use 'parent' if the widget is in an overflowed layout and the tip should scroll with the widget.", context: "dspf" },
