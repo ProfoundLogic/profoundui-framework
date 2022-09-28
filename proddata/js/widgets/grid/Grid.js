@@ -7534,9 +7534,6 @@ pui.Grid = function () {
     // will try finding another input element on the row.
     if (tag == "SELECT" && pui["is_firefox"]) return false;
 
-    // Do not give focus to inputBox and do not select text if it is readOnly/protected
-    if (inputBox.readOnly || Object.values(inputBox.classList).includes("PR")) return false;
-
     try {
       inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
 
