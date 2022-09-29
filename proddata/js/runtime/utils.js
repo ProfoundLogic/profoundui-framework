@@ -1091,11 +1091,11 @@ pui.beforeUnload = function(event) {
 };
 
 pui["unload"] = function() {
-  // For Genie: if pui.hardshutdownOnClose is true, then send flag hardshutdown=1 so that the Genie CTL job 
+  // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job 
   // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used 
   // on next sign on.
   var hardshutdownOnClose = false;
-  if (pui.genie !== null && pui.hardshutdownOnClose)
+  if (pui.genie !== null && pui["hardshutdownOnClose"])
     hardshutdownOnClose = true;
 
   if ((pui.shutdownOnClose || hardshutdownOnClose) && pui.observer == null) {
