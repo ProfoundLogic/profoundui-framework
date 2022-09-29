@@ -93,7 +93,6 @@ var pui = {
   closeMessage: {},
   confirmOnClose: {},
   shutdownOnClose: {},
-  hardshutdownOnClose: {},
   currentDate: {},
   currentTime: {},
   currentUser: {},
