@@ -1633,7 +1633,7 @@ pui.renderFormat = function(parms) {
           }
         } // endif not bound to a field
 
-        if(items[i].grid != null){ //Resolve translation placeholder values 
+        if(items[i].grid != null && !isDesignMode){ //Resolve translation placeholder values 
           switch(prop){
             case "value":
             case "tab names":
@@ -6456,7 +6456,7 @@ pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
 pui.addWidgetTranslationPlaceholders = function(widget, map, data, ref) {
   if(widget != null && map != null){
     for(property in widget){
-      if(property.includes('translation placeholder key')){
+      if(property.includes('translation placeholder key') && !property.includes('grid row')){
         var value = 'translation placeholder value' + property.slice(27);
         if(map.keys.indexOf(widget[property]) > -1) {
           map.values[map.keys.indexOf(widget[property])] = pui.evalBoundProperty(widget[value], data, ref);
