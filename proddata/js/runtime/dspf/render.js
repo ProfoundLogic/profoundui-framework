@@ -1633,7 +1633,7 @@ pui.renderFormat = function(parms) {
           }
         } // endif not bound to a field
 
-        if(items[i].grid != null && !isDesignMode){ //Resolve translation placeholder values 
+        if(items[i].grid != null && !isDesignMode && !pui.genie){ //Resolve translation placeholder values 
           switch(prop){
             case "value":
             case "tab names":
