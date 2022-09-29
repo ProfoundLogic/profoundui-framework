@@ -1633,7 +1633,7 @@ pui.renderFormat = function(parms) {
           }
         } // endif not bound to a field
 
-        if(items[i].grid != null && !isDesignMode && !pui.genie){ //Resolve translation placeholder values 
+        if(items[i].grid != null && !isDesignMode){ //Resolve translation placeholder values 
           switch(prop){
             case "value":
             case "tab names":
@@ -1650,22 +1650,26 @@ pui.renderFormat = function(parms) {
             case "choices":
             case "blank option label":
             case "names":
-              var gridObj = null;
+              var gridTranslationPlaceholderMap = null;
               var gridDom = getObj(items[i].grid);
-              if (gridDom != null) {
-                gridObj = gridDom.grid;
-                var tempTranslationPlaceholderMap = {keys: [], values: []};
-                for(key in gridObj.translationPlaceholderMap.keys){
-                  tempTranslationPlaceholderMap.keys.push(gridObj.translationPlaceholderMap.keys[key]);
-                }
-                for(value in gridObj.translationPlaceholderMap.values){
-                  tempTranslationPlaceholderMap.values.push(pui.evalBoundProperty(gridObj.translationPlaceholderMap.values[value], data, parms.ref));
-                }
+              if(gridDom != null) {
+                gridTranslationPlaceholderMap = gridDom.grid.translationPlaceholderMap;
+                if(gridTranslationPlaceholderMap != null){
+                  if(gridTranslationPlaceholderMap.keys != null && gridTranslationPlaceholderMap.values != null){                  
+                    var tempTranslationPlaceholderMap = {keys: [], values: []};
+                    for(key in gridTranslationPlaceholderMap.keys){
+                      tempTranslationPlaceholderMap.keys.push(gridTranslationPlaceholderMap.keys[key]);
+                    }
+                    for(value in gridTranslationPlaceholderMap.values){
+                      tempTranslationPlaceholderMap.values.push(pui.evalBoundProperty(gridTranslationPlaceholderMap.values[value], data, parms.ref));
+                    }
               
-                tempTranslationPlaceholderMap = pui.addWidgetTranslationPlaceholders(items[i], tempTranslationPlaceholderMap, data, parms.ref);
-                 
-                for(var p = 0; p < tempTranslationPlaceholderMap.keys.length; p++){
-                  newValue = newValue["replaceAll"]('(&' + tempTranslationPlaceholderMap.keys[p] + ')', tempTranslationPlaceholderMap.values[p]);
+                    tempTranslationPlaceholderMap = pui.addWidgetTranslationPlaceholders(items[i], tempTranslationPlaceholderMap, data, parms.ref);
+                    
+                    for(var p = 0; p < tempTranslationPlaceholderMap.keys.length; p++){
+                      newValue = newValue["replaceAll"]('(&' + tempTranslationPlaceholderMap.keys[p] + ')', tempTranslationPlaceholderMap.values[p]);
+                    }
+                  }
                 }
               }
           }
