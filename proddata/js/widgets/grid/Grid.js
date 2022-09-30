@@ -7106,20 +7106,10 @@ pui.Grid = function () {
       if (target.combo)
         return;
       
-      // 7536: capture row clicked from target and store in grid property
-      if (typeof(target.offsetParent.row) != "undefined") {
-        me.rowclicked = target.offsetParent.row;
-      } else {
-        me.rowclicked = target.row; 
-      }
-      
+      // 7536: capture row clicked from target and store in grid property 
       // 7208: capture column clicked from target and store in grid property
-      if (typeof(target.offsetParent.col) != "undefined") {
-        me.columnclicked = target.offsetParent.col;
-      } else {
-        me.columnclicked = target.col; 
-      }
-
+      me.rowclicked = row;
+      me.columnclicked = col;
       me["row clicked"] = me.rowclicked;
       me["column clicked"] = me.columnclicked;
 
