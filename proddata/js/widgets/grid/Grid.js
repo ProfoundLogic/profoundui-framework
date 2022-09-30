@@ -7487,8 +7487,9 @@ pui.Grid = function () {
   }
 
   /**
-   * Try to focus the first supported input element in a cell. Text inputs may
-   * be highlighted.
+   * Try to focus the first supported input element in a cell. Text inputs may be highlighted.
+   * 
+   * Regression test case (important): See Redmine #7727.
    * 
    * @param {object} cell  Cell dom in the grid.
    * @returns {boolean}    Returns true if element was found and focused. False otherwise.
@@ -7523,9 +7524,6 @@ pui.Grid = function () {
     // So don't focus a SELECT in firefox. If placeCursorOnRow called us, then it
     // will try finding another input element on the row.
     if (tag == "SELECT" && pui["is_firefox"]) return false;
-
-    // Do not give focus to inputBox and do not select text if it is readOnly/protected
-    if (inputBox.readOnly || Object.values(inputBox.classList).includes("PR")) return false;
 
     try {
       inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
