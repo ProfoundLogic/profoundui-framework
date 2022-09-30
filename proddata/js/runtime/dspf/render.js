@@ -91,6 +91,7 @@ pui.recording = {
   "payloads": [],
   "responses": []
 };
+pui.translationMap = [];
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
@@ -1317,6 +1318,13 @@ pui.renderFormat = function(parms) {
             gridObj.runtimeChildren.push(items[i]);
             continue;
           }
+
+          // Resolve translations. 
+          var msg  = '';
+          msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
+          if (msg != "") {  
+            pui.alert("Missing translation data:\n\n" + msg);    
+          }
         }
       }
       else if ( lazyLayouts[gridId] != null ){
@@ -1505,6 +1513,9 @@ pui.renderFormat = function(parms) {
             else if (prop.includes("grid row translation placeholder value") && items[i]["field type"] == "grid") {
               newValue = propValue;
             }
+            else if (prop.includes("translation placeholder value") && items[i]["grid"] != null) {
+              newValue = propValue;
+            }
             else {
               propValue["revert"] = false;
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
@@ -1620,30 +1631,49 @@ pui.renderFormat = function(parms) {
             else
               rangeHighDateISO = dateISO;            
           }
-          if(items[i]["grid"] != null) { //Check for unresolved translation placeholders for widgets in grid rows
-            if(gridObj.translationPlaceholderKeys){
-              switch(prop){
-                case "value":
-                case "html":
-                case "on text":
-                case "off text":
-                case "label":
-                case "alternate text":
-                case "empty text":
-                case "placeholder":
-                case "choices":
-                case "blank option label":
-                case "names":
-                case "tab names":
-                case "tool tip":
-                  for(var key = 0; key < gridObj.translationPlaceholderKeys.length; key++){
-                    newValue = newValue["replaceAll"]('(&' + gridObj.translationPlaceholderKeys[key] + ')', 
-                    pui.evalBoundProperty(gridObj.translationPlaceholderValues[key], data, parms["ref"]));
-                  }
-              }
-            }
-          }
         } // endif not bound to a field
+
+        if(items[i].grid != null && !isDesignMode){ //Resolve translation placeholder values 
+          switch(prop){
+            case "value":
+            case "tab names":
+            case "header text":
+            case "export file name":
+            case "tool tip":
+            case "on text":
+            case "off text":
+            case "html":
+            case "label":
+            case "alternate text":
+            case "empty text":
+            case "placeholder":
+            case "choices":
+            case "blank option label":
+            case "names":
+              var gridTranslationPlaceholderMap = null;
+              var gridDom = getObj(items[i].grid);
+              if(gridDom != null) {
+                gridTranslationPlaceholderMap = gridDom.grid.translationPlaceholderMap;
+                if(gridTranslationPlaceholderMap != null){
+                  if(gridTranslationPlaceholderMap.keys != null && gridTranslationPlaceholderMap.values != null){                  
+                    var tempTranslationPlaceholderMap = {keys: [], values: []};
+                    for(key in gridTranslationPlaceholderMap.keys){
+                      tempTranslationPlaceholderMap.keys.push(gridTranslationPlaceholderMap.keys[key]);
+                    }
+                    for(value in gridTranslationPlaceholderMap.values){
+                      tempTranslationPlaceholderMap.values.push(pui.evalBoundProperty(gridTranslationPlaceholderMap.values[value], data, parms.ref));
+                    }
+              
+                    tempTranslationPlaceholderMap = pui.addWidgetTranslationPlaceholders(items[i], tempTranslationPlaceholderMap, data, parms.ref);
+                    
+                    for(var p = 0; p < tempTranslationPlaceholderMap.keys.length; p++){
+                      newValue = newValue["replaceAll"]('(&' + tempTranslationPlaceholderMap.keys[p] + ')', tempTranslationPlaceholderMap.values[p]);
+                    }
+                  }
+                }
+              }
+          }
+        }
 
         properties[prop] = newValue;
 
@@ -1923,17 +1953,6 @@ pui.renderFormat = function(parms) {
               }
             }
 
-            if (propname.includes("grid row translation placeholder key") && properties["field type"] == "grid") {
-              if(!dom.grid.translationPlaceholderKeys || !dom.grid.translationPlaceholderValues)
-              {
-                dom.grid.translationPlaceholderKeys = [];
-                dom.grid.translationPlaceholderValues = [];
-              }
-              dom.grid.translationPlaceholderKeys.push(properties[propname]);
-              var value = 'grid row translation placeholder value' + propname.slice(36);
-              dom.grid.translationPlaceholderValues.push(properties[value]);
-            }
-
             if (propname == "row font color" && properties["field type"] == "grid") {
               if (pui.isBound(items[i][propname])) {
                 dom.grid.rowFontColorField = items[i][propname];
@@ -1944,6 +1963,10 @@ pui.renderFormat = function(parms) {
               if (pui.isBound(items[i][propname])) {
                 dom.grid.rowBackgroundField = items[i][propname];
               }
+            }
+
+            if (propname.includes("grid row translation placeholders") && properties["field type"] == "grid"){
+              dom.grid.translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, items[i], null, data, parms.ref); 
             }
             
             if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
@@ -6291,17 +6314,17 @@ pui.translate = function(parms) {
   
   // Translation map will always be sent from up-to-date backend.
   // Allow compatability with older backend for now. 
-  var translationMap = parms["translations"];
-  if (translationMap == null) {
+  pui.translationMap = parms["translations"];
+  if (pui.translationMap == null) {
     
     return;
     
   }
   
   // The map comes in UTF-16, hex encoded.
-  for (var i in translationMap) {
+  for (var i in pui.translationMap) {
     
-    translationMap[i] = pui.formatting.decodeGraphic(translationMap[i]);
+    pui.translationMap[i] = pui.formatting.decodeGraphic(pui.translationMap[i]);
     
   }
   
@@ -6318,131 +6341,142 @@ pui.translate = function(parms) {
       var format = formats[iFmt];
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
-      var translationPlaceholderKeys = [];
-      var translationPlaceholderValues = [];
-
-      for(property in screen){
-        if(property.includes('translation placeholder key')){
-          translationPlaceholderKeys.push(screen[property]);
-          var value = 'translation placeholder value' + property.slice(27);
-          translationPlaceholderValues.push(pui.evalBoundProperty(screen[value], format["data"], format["ref"]));
-        }
-      }
+      var translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, null, screen, format["data"], format["ref"]);
       
-      msg += pui.doTranslate(screen, translationMap, true, translationPlaceholderKeys, translationPlaceholderValues);
+      msg += pui.doTranslate(screen, pui.translationMap, true, translationPlaceholderMap);
       
       for (var iItem = 0; iItem < items.length; iItem++) {
         
         var item = items[iItem];
-        if(item["grid"])
-        {
-          var gridRowTranslationPlaceholderKeys = [];
-          var gridRowTranslationPlaceholderValues = [];
-          var gridContainer = items[item["grid"]];
-          for(property in gridContainer){
-            if(property.includes('grid row translation placeholder key')){
-              var value = 'grid row translation placeholder value' + property.slice(38);
-              if(!pui.isBound(value)){
-                gridRowTranslationPlaceholderKeys.push(gridContainer[property]);
-                gridRowTranslationPlaceholderValues.push(gridContainer[value]);
-              }
-            }
-          }
-          msg += pui.doTranslate(item, translationMap, false, gridRowTranslationPlaceholderKeys, gridRowTranslationPlaceholderValues);
-        }
-        else {
-          msg += pui.doTranslate(item, translationMap, false, translationPlaceholderKeys, translationPlaceholderValues);
+        if(!item["grid"]) { //skip items in grid now, and we will call doTranslate on them later
+          var itemTranslationPlaceholderMap = pui.buildTranslationPlaceholderMap(item, null, screen, format["data"], format["ref"]); 
+          msg += pui.doTranslate(item, pui.translationMap, false, itemTranslationPlaceholderMap);
         }
       }  
     }    
-    
   }
   
-  if (msg != "") {
-  
-    return "Missing translation data:\n\n" + msg;
-    
+  if (msg != "") {  
+    return "Missing translation data:\n\n" + msg;    
   }
 
 };
 
-pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderKeys, translationPlaceholderValues) {
-
+pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderMap) {
   isScreen = (isScreen === true);
-  
   var rtn = "";
   
-  for (var propName in obj) {
-    
-    var propVal = obj[propName];
-    
-    if (pui.isTranslated(propVal)) {
-      
+  for (var propName in obj) {    
+    var propVal = obj[propName];    
+    if (pui.isTranslated(propVal)) {      
       var phraseIds = propVal["translations"];
       var phrases = [];
-      for (var i = 0; i < phraseIds.length; i++) {
-        
+      for (var i = 0; i < phraseIds.length; i++) {        
         var id = phraseIds[i];
         // Id zero is reserved for blank/empty entry in 
         // list-type properties. 
         var phrase = (id == 0) ? "" : translationMap[id];
-        if (phrase != null) {
-          
-          phrases.push(phrase);
-          
+        if (phrase != null) {          
+          phrases.push(phrase);          
         }
-        else {
-        
+        else {        
           var designValue = propVal["designValue"];
-          if (phraseIds.length > 1) {
-            
-            designValue = JSON.parse(designValue)[i];
-            
-          }
-          
-          phrases.push(designValue);
-          
-          if (isScreen) {
-            
-            rtn += "Record format \"" + trim(obj["record format name"]) + "\" ";
-            
+          if (phraseIds.length > 1) {            
+            designValue = JSON.parse(designValue)[i];            
+          }          
+          phrases.push(designValue);          
+          if (isScreen) {            
+            rtn += "Record format \"" + trim(obj["record format name"]) + "\" ";            
           }
           else {
-            
-            rtn += "Widget \"" + trim(obj["id"]) + "\" ";
-            
-          }
-          
+            rtn += "Widget \"" + trim(obj["id"]) + "\" ";            
+          }          
           rtn += ", property \"" + trim(propName) + "\". ";
           rtn += "Phrase: " + designValue;
-          rtn += " (" + id + ").\n";
-        
-        }
-        
+          rtn += " (" + id + ").\n";        
+        }        
       }
 
-      if (phrases.length == 1) {
-        
-        obj[propName] = phrases[0];  
-        
+      if (phrases.length == 1) {        
+        obj[propName] = phrases[0];          
       }
-      else if (phrases.length > 1) {
-      
-        obj[propName] = JSON.stringify(phrases);
-        
+      else if (phrases.length > 1) {      
+        obj[propName] = JSON.stringify(phrases);        
       }              
       
-      for(var i = 0; i < translationPlaceholderKeys.length; i++){
-        obj[propName] = obj[propName]["replaceAll"]('(&' + translationPlaceholderKeys[i] + ')', translationPlaceholderValues[i]);
+      if(!obj["grid"]){      
+        for(var i = 0; i < translationPlaceholderMap.keys.length; i++){
+          obj[propName] = obj[propName]["replaceAll"]('(&' + translationPlaceholderMap.keys[i] + ')', translationPlaceholderMap.values[i]);
+        }
       }
-
-    }    
-    
-  }
-  
-  return rtn;
-  
+    }        
+  }  
+  return rtn; 
 };
+
+/**
+ * Builds a map in the format of {keys: [], values: []}.
+ * It will take parameters in the function of either a screen alone, the grid alone, or a screen and a widget.
+ * If we are doing translations for a screen, or a screen and a widget, all bound values will be resolved.
+ * If we are doing translations for a grid, bound values will not be resolved, so that they can be resolved on each grid row.
+ * @returns {undefined}
+ */
+pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
+  var map = {
+    keys: [],
+    values: []
+  }
+
+  if(grid){ //Build a map for a grid
+    for(property in grid){
+      if(property.includes('grid row translation placeholder key')){
+        var value = 'grid row translation placeholder value' + property.slice(36);
+        map.keys.push(grid[property]);
+        map.values.push(grid[value]);
+      }
+    }
+  }
+  else{ //Then we are building a map for a screen
+    for(property in screen){
+      if(property.includes('translation placeholder key')){
+        var value = 'translation placeholder value' + property.slice(27);
+        map.keys.push(screen[property]);
+        map.values.push(pui.evalBoundProperty(screen[value], data, ref));
+      }
+    }
+  }
+
+  if(widget){
+    map = pui.addWidgetTranslationPlaceholders(widget, map, data, ref);
+  }
+  return map;
+}
+
+/**
+ * This function will take an existing Translation Placeholder Map, in the format of {keys: [], values: []} and will add the
+ * translation placeholders to it from the included widget.
+ * @returns {undefined}
+ */
+pui.addWidgetTranslationPlaceholders = function(widget, map, data, ref) {
+  if(widget != null && map != null){
+    for(property in widget){
+      if(property.includes('translation placeholder key') && !property.includes('grid row')){
+        var value = 'translation placeholder value' + property.slice(27);
+        if(map.keys.indexOf(widget[property]) > -1) {
+          map.values[map.keys.indexOf(widget[property])] = pui.evalBoundProperty(widget[value], data, ref);
+        }
+        else{
+          map.keys.push(widget[property]);
+          map.values.push(pui.evalBoundProperty(widget[value], data, ref));
+        }        
+      }
+    }
+  }
+  else{
+    pui.alert("Missing translation data:\n\nTranslation Placeholder error processing widget level translation placeholders.")
+  }
+  return map;
+}
 
 /**
  * Set timeout to show help overlays when they come into view. Assume this onscroll
