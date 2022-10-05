@@ -300,6 +300,8 @@ pui.Grid = function () {
   this._setLineTops = setLineTops;
   this._setLineHeights = setLineHeights;
   this._positionIcons = positionIcons;
+
+  this.isMessageSubfile = false;
   
   var me = this;
 
@@ -2168,7 +2170,9 @@ pui.Grid = function () {
         rrn = dataRecords[me.recNum - 1].subfileRow;
       }
       me.tableDiv.returnRRN = rrn;
-      if (me.fileId != null) {
+      // Record 'topRRN' (what IBM calls 'Subfile Min RRN') for the File Information Data Structure.
+      // Only do this if it's a 'real' subfile, not a message subfile. #7742
+      if (me.fileId != null && !me.isMessageSubfile) {
         pui.topRRNs["toprrn." + me.fileId] = rrn;
       }
       me.clearData();
@@ -4764,7 +4768,6 @@ pui.Grid = function () {
       case "subfile changed":
 
       case "subfile message key":
-      case "subfile program message queue":
       case "subfile control program message queue":
 
       case "allow drag":
@@ -5685,6 +5688,10 @@ pui.Grid = function () {
         break;
       case "column clicked":
         break;  
+      
+      case "subfile program message queue":
+        me.isMessageSubfile = true;
+        break;
 
       default:
         if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
