@@ -1091,33 +1091,49 @@ pui.beforeUnload = function(event) {
 };
 
 pui["unload"] = function() {
-  if (pui.shutdownOnClose && pui.observer == null) {
+  // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job 
+  // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used 
+  // on next sign on.
+  var hardshutdownOnClose = false;
+  if (pui.genie !== null && pui["hardshutdownOnClose"])
+    hardshutdownOnClose = true;
+
+  if ((pui.shutdownOnClose || hardshutdownOnClose) && pui.observer == null) {
     pui["halted"] = true;
     window["puihalted"] = true;
-    pui.killFrames();
+    if (!pui["keep frames"]) pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
     if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
-  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
-    try {
-      url = pui["overrideSubmitUrl"](url);
-    }
-    catch(e) {
-    }
-  }  
+    if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+      try {
+        url = pui["overrideSubmitUrl"](url);
+      }
+      catch(e) {
+      }
+    }  
     // Redmine #4624
     // Use Blob to set Content-Type: application/x-www-form-urlencoded
     // Otherwise, Profound.js controller is unable to parse the POST.
     if (navigator != null && typeof navigator["sendBeacon"] == "function" && typeof window["Blob"] == "function") {
-      var data = "shutdown=1" + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
+      if (hardshutdownOnClose)
+        var shutdownFlag = "hardshutdown=1";
+      else
+        shutdownFlag = "shutdown=1";
+      var data = shutdownFlag + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
       var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
       navigator["sendBeacon"](url, blob);
     }
     else {
-      var ajaxParams = {
-        "shutdown": "1"
-      };
+      if (hardshutdownOnClose)
+        ajaxParams = {
+          "hardshutdown": "1"
+        };
+      else
+        var ajaxParams = {
+          "shutdown": "1"
+        };
       if (pui["isCloud"]) {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
@@ -4597,7 +4613,13 @@ pui.xlsx_worksheet.prototype.getSheetXML = function(){
       }
     }
     xml += '</row>';
-    rowHeightStr = '';
+
+    // 7601 to fix issue where row heights not correct when header row height is specified
+    rowHeightStr='';
+    if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
+      rowHeightStr = ' ht="'+ Math.round(this.defaultRowHeightpx * 0.75) +'" customHeight="1"';
+    }
+    
   }
 
   xml += '</sheetData>'; 
@@ -5751,10 +5773,13 @@ pui.record = function(parms) {
 pui.saveRecording = function() {
 
   // Combine payload info with response info
+  var user = null;
   for (var i = 0; i < pui.recording["payloads"].length; i++) {
+    // Capture the user from the server response.
+    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
     pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
   }
-  var json = JSON.stringify({ "payloads": pui.recording["payloads"] });
+  var json = JSON.stringify({ "user": user, "payloads": pui.recording["payloads"] });
   var recordingName = prompt("Enter recording name");
   if (!recordingName) return;
 

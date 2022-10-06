@@ -120,6 +120,8 @@ pui.widgets.add({
       }
     },
     "visibility": function(parms) {
+      // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
+      // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
       
       if (!parms.design && parms.dom.labelObj) {
       

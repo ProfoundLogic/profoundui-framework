@@ -138,6 +138,11 @@ pui.Grid = function () {
     this.slidingScrollBar = true;
   }
 
+  // object property setting for maximum number of columns permitted in a Grid
+  this.maxNumberOfColumns = 100;
+  this.rowclicked = 0;
+  this.columnclicked = 0;
+
   this.subfileEnd = false;
 
   this.subfileHidden = false;
@@ -229,6 +234,7 @@ pui.Grid = function () {
   this.selectionField = null;
   this.hiddenField = null;
   this.treeLevelData = null;
+  this.gridTree = null;
   this.treeLevelDataInitDone = false;
   this.hasTreeLevelColumn = false;
   this.treeLevelField = null;
@@ -390,6 +396,10 @@ pui.Grid = function () {
       addColumnIcon = createIcon("plus", "Add New Column");
       addColumnIcon.onclick = function () {
         var itm = me.tableDiv.designItem;
+        if (itm.properties["number of columns"] > me.maxNumberOfColumns) {
+          pui.alert("Maximum number of columns reached.")
+          return;
+        }
         itm.designer.undo.start("Add Grid Column");
         itm.designer.undo.add(itm, "column widths");
         itm.designer.undo.add(itm, "number of columns");
@@ -1360,7 +1370,8 @@ pui.Grid = function () {
         // Get headings for each column.
         colNum = 0;
         worksheet.newRow();
-        if (me.hidableColumns || me.movableColumns){
+        // if (me.hidableColumns || me.movableColumns){
+        if (me.hidableColumns){  
           // If any columns remain, then they are likely hidden. Find their headings by their field name.
           if (Array.isArray(me.columnInfo) && me.columnInfo.length > 0){
             for (len=fieldOrder.length; colNum < len && (colEl = fieldOrder[colNum]); colNum++){
@@ -1729,6 +1740,9 @@ pui.Grid = function () {
         continue;
       }
 
+      // Prevent format() from base64-decoding a Graphic field. Assume setDataValue is passed the desired value. Issue 7701.
+      entry.formattingInfo['__pui_skipdecode'] = true;
+
       // Update DOM element
       if (property === "value") {
         changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
@@ -1960,6 +1974,10 @@ pui.Grid = function () {
    */
   this.getData = function (csvFile) {
     
+    // 7647: make explicit call to hide context menu because scrolling the grid does not result in the
+    // context menu from being hidden and the 'onclick' is unrecognised.
+    me.hideContextMenu();
+
     if (me.tableDiv.disabled == true) return;
     if (me.designMode) return;
     var numRows = me.cells.length;
@@ -2546,6 +2564,8 @@ pui.Grid = function () {
             var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false};
             me.treeLevelData.push(treeLevelData);
           }
+          me.gridTree = new pui.GridTree();
+          me.gridTree.load(me.treeLevelData);
         }
 
         if (!me.treeLevelDataInitDone) {
@@ -4226,6 +4246,14 @@ pui.Grid = function () {
 
         eval("var row = arguments[1];");
         eval("var rowNumber = arguments[1];");
+        
+        // 7536: ensure rowclicked property visible to event code
+        pui["temporary_property"] = me.rowclicked;
+        eval("var rowclicked = pui.temporary_property");
+
+        // 7208: ensure colclicked property visible to event code
+        pui["temporary_property"] = me.columnclicked;
+        eval("var columnclicked = pui.temporary_property");
 
         if (eventName == "onrowclick") {
           eval("var isRightClick = arguments[2];");
@@ -4457,6 +4485,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -4483,6 +4512,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -4698,6 +4728,16 @@ pui.Grid = function () {
       propertyToSwitch = multOccurMatch[1];  //handle any number of "database file n" properties.
     }
 
+    var multOccurMatch = /^(grid row translation placeholder key) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder key n" properties.
+    }
+
+    var multOccurMatch = /^(grid row translation placeholder value) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder value n" properties.
+    }
+
     switch (propertyToSwitch) {
       case "id":
       case "parent window":
@@ -4876,9 +4916,12 @@ pui.Grid = function () {
         var oldNumCols = me.vLines.length - 1;
         if (oldNumCols < 0) oldNumCols = 0;
         var newNumCols = parseInt(value);
+        if (newNumCols > me.maxNumberOfColumns) {
+          pui.alert('WARNING: Number of maximum columns reached when loading Grid.');
+        }
         if (isNaN(newNumCols)) newNumCols = oldNumCols;
         if (newNumCols < 1) newNumCols = 1;
-        if (newNumCols > 99) newNumCols = 99;
+        if (newNumCols > me.maxNumberOfColumns && me.designMode) newNumCols = me.maxNumberOfColumns;
         if (newNumCols > oldNumCols) {
           while (newNumCols > me.vLines.length - 1) me.addColumn();
         }
@@ -5032,7 +5075,8 @@ pui.Grid = function () {
         }
         me.setHeadings();
         
-        if (me.designMode && me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
+        // if (me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){
+        if (!me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
           for (var i=0; i < me.columnInfo.length && i < me.columnHeadings.length; i++){
             me.columnInfo[i]['name'] = me.columnHeadings[i];
           }
@@ -5631,6 +5675,17 @@ pui.Grid = function () {
           customGridSortFunction = value;
         }
         break;
+      case "grid row translation placeholders":
+        break;
+      case "grid row translation placeholder key":
+        break;
+      case "grid row translation placeholder value":
+        break;
+      case "row clicked":
+        break;
+      case "column clicked":
+        break;  
+
       default:
         if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
         pui.alert("Grid property not handled: " + property);
@@ -7051,6 +7106,13 @@ pui.Grid = function () {
       if (target.combo)
         return;
       
+      // 7536: capture row clicked from target and store in grid property 
+      // 7208: capture column clicked from target and store in grid property
+      me.rowclicked = row;
+      me.columnclicked = col;
+      me["row clicked"] = me.rowclicked;
+      me["column clicked"] = me.columnclicked;
+
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION" && target.tagName != "BUTTON") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
@@ -7425,8 +7487,9 @@ pui.Grid = function () {
   }
 
   /**
-   * Try to focus the first supported input element in a cell. Text inputs may
-   * be highlighted.
+   * Try to focus the first supported input element in a cell. Text inputs may be highlighted.
+   * 
+   * Regression test case (important): See Redmine #7727.
    * 
    * @param {object} cell  Cell dom in the grid.
    * @returns {boolean}    Returns true if element was found and focused. False otherwise.
@@ -7461,9 +7524,6 @@ pui.Grid = function () {
     // So don't focus a SELECT in firefox. If placeCursorOnRow called us, then it
     // will try finding another input element on the row.
     if (tag == "SELECT" && pui["is_firefox"]) return false;
-
-    // Do not give focus to inputBox and do not select text if it is readOnly/protected
-    if (inputBox.readOnly || Object.values(inputBox.classList).includes("PR")) return false;
 
     try {
       inputBox.focus(); // Focus the input element; when not firefox or not a SELECT, then it's safe to focus.
@@ -8332,62 +8392,56 @@ pui.Grid = function () {
     return count;
   };
 
-  this["toggleTreeLevel"] = function (rrn) {
+  this["expandTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.showChildren(node);
+    me.refreshGridTree(node);
+  };
 
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    var myTreeLevel = myTreeLevelData.treeLevel;
-    
-    var wasCollapsed;
-    if (myTreeLevelData.treeLevelCollapsed) {
-      wasCollapsed = true;
-      myTreeLevelData.treeLevelCollapsed = false;
-    } else { 
-      wasCollapsed = false;
-      myTreeLevelData.treeLevelCollapsed = true;
+  this["collapseTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.hideChildren(node);
+    me.refreshGridTree(node);
+  };
+
+  this["toggleTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.toggleChildren(node);
+    me.refreshGridTree(node);
+  }
+
+  this.refreshGridTree = function (affectedNode) {
+
+    // New way to handle grid tree:
+    // Use a REAL model tree stored in me.gridTree.
+    // Call me.gridTree.hideChildren() or me.gridTree.showChilden() or me.gridTree.toggleChildren(),
+    // which will expand/collapse the nodes in the model tree.
+    // Use the model tree to refresh the data in treeLevelData[].
+    // Then use data in treeLevelData[] to call showShow() or hideRow() to show/hide each affected row in the grid.
+    // Note that me.gridTree is a real tree structure; whereas treeLevelData[] is just an array.
+    // To improve performance, each element of array treeLevelData[] contains the corresponding object 
+    // "node" in the tree me.gridTree, so that we don't have to do lookup when needed.
+
+    if (affectedNode === undefined || affectedNode === null) {      // handle whole tree
+      var fromIndex = 0;
+      var toIndex = me.treeLevelData.length;
+    } else {                                                        // handle affected node and its descendants only
+      fromIndex = parseInt(affectedNode.data) - 1                   // node.data is the RRN of the affected node
+      toIndex = me.gridTree.getMaxRRN(affectedNode);                // highest RRN of node's descendants; do NOT use -1 here
     }
 
-    for (var i = rrn + 1; i <= me.treeLevelData.length; i++) {    // start at rrn+1; hide rows below clicked row if needed
-      if (me.treeLevelData[i-1].treeLevel > myTreeLevel) {
-        if (wasCollapsed) {                                       // clicked row was collapsed; expand it
-          me.handleHideRow(i, false, false);                      // call showRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = false;
-        } else {                                                  // clicked row was expanded; collapse it
-          me.handleHideRow(i, true, false);                       // call hideRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = true;
-        }
-      } else {
-        break;
-      }
+    for (var i = fromIndex; i < toIndex; i++) {                     // handle affected range only    
+      var rrn = (i + 1);
+      var node = me.treeLevelData[i].node;
+      if (node.showRow)                                   
+        me.handleHideRow(rrn, false, false);                        // call showRow() but does NOT call getData()
+      else                                                
+        me.handleHideRow(rrn, true, false);                         // call hideRow() but does NOT call getData()
+      me.treeLevelData[i].treeLevelCollapsed = (node.currentState === "collapsed")? true: false;
     }
     
     me.getData();
     
-  };
-
-  this["expandTreeLevel"] = function (rrn) {
-    if (rrn === 0) {
-      for (var i = 1; i <= me.treeLevelData.length; i++) {  
-        this["expandTreeLevel"](i);
-      }
-    }
-    else {
-      var myTreeLevelData = me.treeLevelData[rrn-1];
-      if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
-        me["toggleTreeLevel"](rrn);
-    }
-  };
-
-  this["collapseTreeLevel"] = function (rrn) {
-    if (rrn === 0) {
-      for (var i = 1; i <= me.treeLevelData.length; i++) {  
-        this["collapseTreeLevel"](i);
-      }
-    }
-    else {
-      var myTreeLevelData = me.treeLevelData[rrn-1];
-      if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
-        me["toggleTreeLevel"](rrn);
-    }
   };
 
   this.getTreeLevelColumnId =  function () {
@@ -8766,7 +8820,7 @@ pui.Grid = function () {
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
       // The current itm maps to the headerCell's column.
-      if (all || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
+      if ((pui.isBound(val) && all) || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         // Find the index of the dataArray column that corresponds to fieldName.
         // me.fieldNames maps me.dataArray columns to fieldNames.
@@ -9088,7 +9142,9 @@ pui.Grid = function () {
       headerCell = 0;
       all = true;
     }
-    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
+    // If filter "*all" and column #0 is hidden, headerCell will have -1 value and the function will not return the current filter text.
+    // Therefore, we need to force the column number to 0.
+    if (typeof headerCell == "number") headerCell = me.cells[0][all ? 0 : getCurrentColumnFromId(headerCell)];
     if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
     if (all && !headerCell.filterAll || !all && headerCell.filterAll) return null;
     return headerCell.filterText;
@@ -10732,7 +10788,9 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
-      
+      { name: "row clicked", format: "number",readOnly: true, helpDefault: "bind", help: "Specifies row value clicked in a grid.", context: "dspf"},
+      { name: "column clicked", format: "number",readOnly: true, helpDefault: "bind", help: "Specifies column value clicked in a grid.", context: "dspf"},
+
       //Reset the  browser cache Data for a table
       { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
@@ -10774,6 +10832,7 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "tree level field", helpDefault: "blank", help: 'This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf"},
+      
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},
@@ -10796,6 +10855,11 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "starting row", helpDefault: "blank", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie-nohandler" },
       { name: "ending row", helpDefault: "blank", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
       { name: "data columns", type: "list", helpDefault: "blank", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler" },
+
+      { name: "Translations", category: true, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["grid row translation placeholder key", "grid row translation placeholder value"], canBeRemoved: false, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", context: "dspf", nodedesigner: false },
 
       { name: "Position", category: true },
       { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },

@@ -249,7 +249,7 @@ pui.widgets.add({
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
           parms.dom.sizeMe = function() {
             parms.dom.spinner.positionSpinnButtons();
-          }
+          };
         };
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
@@ -275,15 +275,18 @@ pui.widgets.add({
     },
     
     "disabled": function(parms){
-      if (!parms.design){
+      if (!parms.design && parms.dom.spinner){
         parms.dom.spinner.setDisabled();
       }
       // Note: designItem.setIcon is what renders the icons in Designer for some reason.
     },
     
     "visibility": function(parms) {
+      // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely 
+      // indicates "false" in Designer when tabs are drawn or switched. Since parms.dom.spinner is undefined in Designer, do not 
+      // assume that parms.dom.spinner exists when parms.design is false. #7606.
 
-      if (!parms.design) {
+      if (!parms.design && parms.dom.spinner) {
 
         if (parms.value == "hidden") {
         
