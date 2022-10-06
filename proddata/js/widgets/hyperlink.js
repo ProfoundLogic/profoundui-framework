@@ -22,7 +22,7 @@
 pui["encode hyperlink spaces"] = null;
 pui["default hyperlink tabindex"] = null;
 
-pui.buildHyperlink = function(dom, value, designMode, href, target, tabIdx) {
+pui.buildHyperlink = function(dom, value, designMode, href, target, tabIdx, downloadFile) {
   dom.innerHTML = "";
   var a = document.createElement("a");
   var noHref = false;
@@ -36,6 +36,10 @@ pui.buildHyperlink = function(dom, value, designMode, href, target, tabIdx) {
   if ( (context == "genie" && pui["encode hyperlink spaces"] != false) ||
        (pui["encode hyperlink spaces"] == true) ) {
     text = text.replace(/ /g, "\u00a0");
+  }
+  
+  if (typeof downloadFile === "string" && downloadFile.trim() !== "") {
+    a["download"] = downloadFile;
   }
   
   a.appendChild(document.createTextNode(text));
@@ -98,7 +102,7 @@ pui.widgets.add({
   
     "field type": function(parms) {
       
-      pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"));
+      pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"), parms.evalProperty("download file"));
       if (parms.design) {
         designUtils.addEvent(parms.dom, "mouseover", function() {
           setTimeout(parms.designItem.designer.selection.positionSizies, 0);
@@ -110,7 +114,7 @@ pui.widgets.add({
     },
     
     "value": function(parms) {
-      pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"));
+      pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"), parms.evalProperty("download file"));
     }
     
   }

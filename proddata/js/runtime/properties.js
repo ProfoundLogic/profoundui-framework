@@ -116,6 +116,7 @@ function getPropertiesModel() {
     { name: "straight edge", choices: ["all", "left", "right", "top", "bottom"], helpDefault: "theme", help: "Determines which parts of the element will have a straight edge instead of rounded corners.", controls: ["css button", "css panel", "layout"] },
     { name: "hyperlink reference", helpDefault: "browser", help: "This property specifies an href attribute for the hyperlink. It is used as an alternative to the response property or the onclick event property.", controls: ["hyperlink", "css button"] },
     { name: "target", helpDefault: "_self", help: "This property specifies where to open the hyperlink reference.", choices: ["_parent", "_blank", "_top", "_self"], controls: ["hyperlink", "css button"] },
+    { name: "download file", helpDefault: "blank", attribute: "download", help: "Specifies the name of the file to download when clicking on the link (instead of navigating to the link/file).", controls: ["hyperlink", "css button"] },
     { name: "checked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is checked.", controls: ["checkbox"], bind: false },
     { name: "unchecked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is not checked.", controls: ["checkbox"], bind: false },
     { name: "indeterminate value", helpDefault: "blank", help: "Specifies the value that renders a checkbox in an indeterminate state (neither checked nor unchecked).", controls: ["checkbox"], bind: false },
@@ -179,6 +180,11 @@ function getPropertiesModel() {
     { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"],  helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
     { name: "calendar position", choices: ["below-right", "above-right", "right", "below-left", "above-left", "left"], validDataTypes: ["char", "varchar", "string"], helpDefault: "[blank]", help: "Controls the position and orientation of the calendar. The default [blank] is the same as 'right'", context: "dspf" },
 
+    { name: "Translations", category: true, nodedesigner: false}, 
+    { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+    { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+    { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
+    
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "right", help: "Controls the position and orientation of validation and error tool tips. When 'alert' is selected, an alert box will be used instead of a tool tip.", context: "dspf" },
     { name: "error message attach", choices: ["window", "parent"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "window", help: "Controls what the tool tip is attached to. 'window' means the tip is always visible, even if the widget is not visible inside layouts. 'parent' means the tip is visible when the widget is; only use 'parent' if the widget is in an overflowed layout and the tip should scroll with the widget.", context: "dspf" },
@@ -478,6 +484,11 @@ function getScreenPropertiesModel(designScreen) {
       { name: "override attribute", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Use this property to together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
+
+      { name: "Translations", category: true, nodedesigner: false}, 
+      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
 
       { name: "Response", category: true }, 
       { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." }, 
