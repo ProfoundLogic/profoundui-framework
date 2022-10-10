@@ -2980,11 +2980,11 @@ pui.Grid = function () {
           else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
             placeSortIcon = true;
           }
-          else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && 
-                   me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.col, parseInt(me.tableDiv.initialSortFieldLength))) { // use .col, not .columnId
+          else if (me.tableDiv.fieldNameSortResponseField != null && typeof me.initialSortField === 'string' && 
+                   me.initialSortField.toUpperCase() == me.getFieldNameFromColumnIndex(headerCell.col, parseInt(me.tableDiv.initialSortFieldLength))) { // use .col, not .columnId
             placeSortIcon = true;
           }
-
+          
           if (placeSortIcon) {
             detachSortIcon();
             appendIcon(headerCell, me.sortIcon);
