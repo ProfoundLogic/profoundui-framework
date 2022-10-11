@@ -302,6 +302,7 @@ pui.Grid = function () {
   this._positionIcons = positionIcons;
 
   this.isMessageSubfile = false;
+  this.placeCussor = false;
   
   var me = this;
 
@@ -3793,6 +3794,8 @@ pui.Grid = function () {
           if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
 
             me.recNum = i + 1;
+            if (me.placeCursor)
+              me.placeCursorRRN = me.recNum;
             break;
 
           }
@@ -4761,7 +4764,6 @@ pui.Grid = function () {
       case "subfile next changed":
       case "subfile record number":
       case "position at top":
-      case "place cursor":
       case "cursor record number":
       case "cursor progression":
       case "subfile return rrn":
@@ -4796,6 +4798,10 @@ pui.Grid = function () {
         break;
 
       case "return sort order":
+        break;
+
+      case "place cursor":
+        me.placeCussor = true;
         break;
 
       case "record format name":
