@@ -302,7 +302,7 @@ pui.Grid = function () {
   this._positionIcons = positionIcons;
 
   this.isMessageSubfile = false;
-  this.placeCussor = false;
+  this.placeCursorFlag = false;
   
   var me = this;
 
@@ -3794,7 +3794,7 @@ pui.Grid = function () {
           if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
 
             me.recNum = i + 1;
-            if (me.placeCursor)
+            if (me.placeCursorFlag)
               me.placeCursorRRN = me.recNum;
             break;
 
@@ -4801,7 +4801,8 @@ pui.Grid = function () {
         break;
 
       case "place cursor":
-        me.placeCussor = true;
+        if (value === "true")
+          me.placeCursorFlag = true;
         break;
 
       case "record format name":
