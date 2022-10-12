@@ -303,6 +303,7 @@ pui.Grid = function () {
 
   this.isMessageSubfile = false;
   this.placeCursorFlag = false;
+  this.positionAtTop = false;
   
   var me = this;
 
@@ -533,6 +534,17 @@ pui.Grid = function () {
     if (me.initCollapsed == null && me.initExpanded == false) collapsed = true;
     if (collapsed == null) collapsed = false;
     return collapsed;
+  };
+
+  this.updateRecNumFromSflRcdNbr = function (recNum) {
+    // move logic from render.js to here, to be reusable
+    var numRows = me.cells.length;
+    if (me.hasHeader) numRows = numRows - 1;
+    if (me.isInitCollapsed())
+      numRows = numRows * me.foldMultiple;
+    var pageNum = parseInt( (recNum - 1) / numRows);
+    var topRecNum = pageNum * numRows + 1;
+    me.recNum = topRecNum;
   };
 
   this.isTreeInitCollapsed = function () {
@@ -3784,24 +3796,21 @@ pui.Grid = function () {
 
       me.recNum = 1;
       if (me.sflrcdnbr > 0 && restoringOrInitialSort) {
-
         // These are automatic sorts at render time. 
         // Need to set grid 'recNum' property (data array sequence number)
         // based on rrn provided by the program.
-
         for (var i = 0; i < me.dataArray.length; i++) {
-
           if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
-
             me.recNum = i + 1;
+
             if (me.placeCursorFlag)
-              me.placeCursorRRN = me.recNum;
+              me.placeCursorRRN = me.recNum;    // place cursor on row with rrn=sflrcdnbr
+            if (!me.positionAtTop)
+              me.updateRecNumFromSflRcdNbr(me.recNum);
+            
             break;
-
           }
-
         }
-
       }
 
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
@@ -4763,7 +4772,6 @@ pui.Grid = function () {
       case "subfile size":
       case "subfile next changed":
       case "subfile record number":
-      case "position at top":
       case "cursor record number":
       case "cursor progression":
       case "subfile return rrn":
@@ -4798,6 +4806,11 @@ pui.Grid = function () {
         break;
 
       case "return sort order":
+        break;
+
+      case "position at top":
+        if (value === "true")
+          me.positionAtTop = true;
         break;
 
       case "place cursor":

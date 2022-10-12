@@ -2937,14 +2937,7 @@ pui.renderFormat = function(parms) {
           dom.grid.sflrcdnbr = 0;
         }
         if (properties["position at top"] != "true") {
-          var numRows = dom.grid.cells.length;
-          if (dom.grid.hasHeader) numRows = numRows - 1;
-          if (dom.grid.isInitCollapsed()) {
-            numRows = numRows * dom.grid.foldMultiple;
-          }
-          var pageNum = parseInt( (recNum - 1) / numRows);
-          var topRecNum = pageNum * numRows + 1;
-          dom.grid.recNum = topRecNum;
+          dom.grid.updateRecNumFromSflRcdNbr(recNum);
         }
         else {          
           dom.grid.recNum = recNum;
