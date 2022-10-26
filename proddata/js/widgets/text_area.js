@@ -568,6 +568,17 @@ pui.widgets.add({
       parms.dom.value = parms.value;
     }
   
+  },
+
+  globalAfterSetter: function(parms) {
+
+    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+      pui.floatPlaceholder(parms.dom);
+    }
+
+    if (parms.dom && parms.dom.floatingPlaceholder != null) {
+      pui.movePropertiesFromFloatingPlaceholderDiv(parms);
+    }
   }
   
 });

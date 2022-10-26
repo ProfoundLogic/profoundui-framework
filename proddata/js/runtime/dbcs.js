@@ -93,5 +93,5 @@ function validateByteCount(event, field) {
 	
 }
 
-
-
+// Expose function for server-side require()
+pui.getEBCDICByteCount = getEBCDICByteCount;

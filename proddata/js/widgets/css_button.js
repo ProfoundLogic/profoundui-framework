@@ -267,6 +267,11 @@ pui.CSSButton = function() {
     if (me.designMode) return;
     link.target = target;
   }
+
+  this.setDownloadFile = function(downloadFile) {
+    if (me.designMode) return;
+    link["download"] = downloadFile;
+  }
   
   this.setLineHeight = function(containerHeight) {
     if (me.container == null) return;
@@ -437,12 +442,18 @@ pui.widgets.add({
     "target": function(parms) {
       parms.dom.button.setTarget(parms.value);
     },
+
+    "download file": function(parms) {
+      parms.dom.button.setDownloadFile(parms.value);
+    },
     
     "height": function(parms) {
       parms.dom.button.setLineHeight(parms.value);
     },
     
    "visibility": function(parms) {
+      // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
+      // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
       if (!parms.design) {
         // Fixes IE10 Ellipsis Rendering Issue .. when visibility is hidden
         if (parms.value == "hidden") {

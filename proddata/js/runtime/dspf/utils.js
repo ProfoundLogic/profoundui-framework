@@ -53,6 +53,7 @@ pui.isSubfileProperty = function(propertyName) {
     case "subfile changed": return true;
     case "row font color": return true;
     case "row background": return true;
+    case "grid row translation placeholder value": return true;
     default: return false;
   }
 }
@@ -328,6 +329,8 @@ pui.floatPlaceholder = function(idOrDom) {
     div.style.position = input.style.position;
     div.style.left = input.style.left;
     div.style.top = input.style.top;
+    div.style.right = input.style.right;
+    div.style.bottom = input.style.bottom;
     div.style.width = input.style.width;
     div.pui = input.pui;
     if (input.cursorRecord != null)
@@ -351,7 +354,11 @@ pui.floatPlaceholder = function(idOrDom) {
       input.style.visibility = "";
     }
     div.appendChild(input);
-  } else {
+    div.sizeMe = input.sizeMe;
+    div.alwaysSizeMe = input.alwaysSizeMe;
+    div.extraDomEls = input.extraDomEls;
+  } 
+  else {
     div = input.parentNode;
     var classes = div.className.split(' ');
     for (var i = 0; i < classes.length; i++) {
@@ -370,6 +377,7 @@ pui.floatPlaceholder = function(idOrDom) {
 
   // Setup useful methods for outside use by the framework
   div.floatingPlaceholder = label;
+  pui.movePrompter(input);
   label.getValue = function() {
     return input.value;
   }
@@ -406,3 +414,31 @@ pui.floatPlaceholder = function(idOrDom) {
   }
 }
 
+pui.movePropertiesFromFloatingPlaceholderDiv = function(parms) {
+  // If the input has a floating placeholder, then properties have been applied to the placeholder div
+  // instead of the actual input. For certain properties (and this list should be added to), move them to
+  // the inner input.
+  var box = parms.dom.floatingPlaceholder.getBox();
+  var propertyName = parms.propertyName;
+  var pnm = getPropertiesNamedModel();
+  var stylename;
+
+  if (pnm[propertyName] && pnm[propertyName].stylename) stylename = pnm[propertyName].stylename;
+  else if (pnm[propertyName] && pnm[propertyName].attribute) stylename = pnm[propertyName].attribute;
+
+  if (stylename) {
+    switch (propertyName) {
+      case "disabled":
+      case "read only":
+        box[stylename] = parms.newValue;
+        parms.dom.removeAttribute(stylename);
+        break;
+      case "border radius":
+      case "text align":
+      case "height":
+        box.style[stylename] = parms.dom.style[stylename];
+        parms.dom.style[stylename] = "";
+        break;
+    }
+  }
+}

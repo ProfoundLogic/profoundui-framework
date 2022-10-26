@@ -138,6 +138,11 @@ pui.Grid = function () {
     this.slidingScrollBar = true;
   }
 
+  // object property setting for maximum number of columns permitted in a Grid
+  this.maxNumberOfColumns = 100;
+  this.rowclicked = 0;
+  this.columnclicked = 0;
+
   this.subfileEnd = false;
 
   this.subfileHidden = false;
@@ -229,6 +234,7 @@ pui.Grid = function () {
   this.selectionField = null;
   this.hiddenField = null;
   this.treeLevelData = null;
+  this.gridTree = null;
   this.treeLevelDataInitDone = false;
   this.hasTreeLevelColumn = false;
   this.treeLevelField = null;
@@ -294,6 +300,10 @@ pui.Grid = function () {
   this._setLineTops = setLineTops;
   this._setLineHeights = setLineHeights;
   this._positionIcons = positionIcons;
+
+  this.isMessageSubfile = false;
+  this.placeCursorFlag = false;
+  this.positionAtTop = false;
   
   var me = this;
 
@@ -309,6 +319,7 @@ pui.Grid = function () {
   var designBorderStyle = "solid";
   var persistState = false;
   var sessionState = false;
+  var programState = false;
   var movableColumns = false;
   var resizableColumns = false;
   var columnSignature;
@@ -389,6 +400,10 @@ pui.Grid = function () {
       addColumnIcon = createIcon("plus", "Add New Column");
       addColumnIcon.onclick = function () {
         var itm = me.tableDiv.designItem;
+        if (itm.properties["number of columns"] > me.maxNumberOfColumns) {
+          pui.alert("Maximum number of columns reached.")
+          return;
+        }
         itm.designer.undo.start("Add Grid Column");
         itm.designer.undo.add(itm, "column widths");
         itm.designer.undo.add(itm, "number of columns");
@@ -519,6 +534,26 @@ pui.Grid = function () {
     if (me.initCollapsed == null && me.initExpanded == false) collapsed = true;
     if (collapsed == null) collapsed = false;
     return collapsed;
+  };
+
+  this.updateRecNumFromSflRcdNbr = function (recNum) {
+    // move logic from render.js to here, to be reusable
+    var numRows = me.cells.length;
+    if (me.hasHeader) numRows = numRows - 1;
+    if (me.isInitCollapsed())
+      numRows = numRows * me.foldMultiple;
+    var pageNum = parseInt( (recNum - 1) / numRows);
+    var topRecNum = pageNum * numRows + 1;
+    me.recNum = topRecNum;
+  };
+
+  this.isTreeInitCollapsed = function () {
+    if (me.treeLevelField === null)
+      return false;
+    var treeInitCollapsed = me.treeInitCollapsed;
+    if (treeInitCollapsed === undefined)
+      treeInitCollapsed = false;
+    return treeInitCollapsed;
   };
 
   this.collapse = function (button) {
@@ -842,7 +877,12 @@ pui.Grid = function () {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm['columnId']; //Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j;             //Map the column number to the corresponding index in fieldNames and me.dataArray.
-                colcount++;                
+                colcount++;
+
+                if (val["formatting"] == "Number") {
+                  numericData[col] = true;  //Needed for CSV exports when appjob uses comma decimal separators. #7351.
+                }
+
                 boundValFormats[col] = val;  //Save this info so we can format later.
                 
                 if (val["dataType"] == "graphic") {
@@ -998,7 +1038,12 @@ pui.Grid = function () {
             // Decode values that the handler encoded in base64. (With load-fields-into-widgets, the CGI programs don't encode graphic fields.)
             value = pui.formatting.decodeGraphic(value);
           }
-          
+
+          if (!exportXLSX && numericData[j] && pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J")) {
+            if (typeof value !== 'string') value = String(value);  //PJS program could write number, null, or boolean.
+            value = value.replace('.', ',');  //Data exported to CSV should use whatever decimal separator the application job uses. #7351.
+          }
+
           var bndvalfmt = boundValFormats[j];
           if (typeof bndvalfmt === 'object' && bndvalfmt !== null){
             var formatting = bndvalfmt['formatting'];
@@ -1340,7 +1385,8 @@ pui.Grid = function () {
         // Get headings for each column.
         colNum = 0;
         worksheet.newRow();
-        if (me.hidableColumns || me.movableColumns){
+        // if (me.hidableColumns || me.movableColumns){
+        if (me.hidableColumns){  
           // If any columns remain, then they are likely hidden. Find their headings by their field name.
           if (Array.isArray(me.columnInfo) && me.columnInfo.length > 0){
             for (len=fieldOrder.length; colNum < len && (colEl = fieldOrder[colNum]); colNum++){
@@ -1649,51 +1695,78 @@ pui.Grid = function () {
 
     // find the DOM element
     var field = null;
+    var property = null;
+    var formattingInfo = null;
+    var list = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      var rtval = me.runtimeChildren[i].value;
-      if (pui.isBound(rtval) && pui.fieldUpper(rtval["fieldName"]) == fieldName) {
-        field = me.runtimeChildren[i];
-        break;
-      }
-    }
-    if (field == null) return false;
-
-    var el = field.domEls[rowNum - 1];
-
-    // If an element has never been rendered, there is no way to mark it "modified" because
-    // there is no DOM element. As a workaround, we'll add a simple object containing 
-    // the value to the pui.responseElements array. If this does get rendered, the
-    // code in runtime/dspf/render.js will replace this object with the real DOM element.
-
-    if (el == null) {
-
-      // Look for another row that has been rendered so
-      // we can get info about the DOM elements
-      // NOTE: This assumes the DOM elements for each row will be the same.
-
-      var domTest = null;
-      for (var i in field.domEls) {
-        domTest = field.domEls[i];
-        break;
-      }
-
-      if (domTest && pui.isInputCapableProperty("value", domTest) && me.isDataGrid() == false) {
-        var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
-        if (pui.responseElements[qualField] == null) {
-          pui.responseElements[qualField] = [{
-            responseValue: String(value),
-            modifiedBeforeRender: true
-          }];
-        }
-        if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
-          pui.responseElements[qualField][0].responseValue = String(value);
+      var runtimeChild = me.runtimeChildren[i];
+      for (var prop in runtimeChild) {
+        var propValue = runtimeChild[prop];
+        if (pui.isBound(propValue) && pui.fieldUpper(propValue["fieldName"]) === fieldName) {
+          var formattingInfo = Object.assign({}, propValue);
+          formattingInfo.value = value;
+          list.push({
+            field: runtimeChild,
+            property: prop,
+            formattingInfo: formattingInfo
+          });
         }
       }
-      return false;
+    }
+    if (list.length === 0) return false;
+
+    for (var x = 0; x < list.length; x++) {
+      var entry = list[x];
+      var field = entry.field;
+      var property = entry.property;
+      
+      var el = field.domEls[rowNum - 1];
+
+      // If an element has never been rendered, there is no way to mark it "modified" because
+      // there is no DOM element. As a workaround, we'll add a simple object containing 
+      // the value to the pui.responseElements array. If this does get rendered, the
+      // code in runtime/dspf/render.js will replace this object with the real DOM element.
+
+      if (el == null) {
+
+        // Look for another row that has been rendered so
+        // we can get info about the DOM elements
+        // NOTE: This assumes the DOM elements for each row will be the same.
+
+        var domTest = null;
+        for (var i in field.domEls) {
+          domTest = field.domEls[i];
+          break;
+        }
+
+        if (domTest && pui.isInputCapableProperty(property, domTest) && me.isDataGrid() == false) {
+          var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
+          if (pui.responseElements[qualField] == null) {
+            pui.responseElements[qualField] = [{
+              responseValue: String(value),
+              modifiedBeforeRender: true
+            }];
+          }
+          if (pui.responseElements[qualField][0] != null && pui.responseElements[qualField][0].modifiedBeforeRender) {
+            pui.responseElements[qualField][0].responseValue = String(value);
+          }
+        }
+
+        continue;
+      }
+
+      // Prevent format() from base64-decoding a Graphic field. Assume setDataValue is passed the desired value. Issue 7701.
+      entry.formattingInfo['__pui_skipdecode'] = true;
+
+      // Update DOM element
+      if (property === "value") {
+        changeElementValue(el, pui.FieldFormat.format(entry.formattingInfo));
+      }
+      else {
+        applyProperty(el, property, pui.FieldFormat.format(entry.formattingInfo));
+      }
     }
 
-    // Update DOM element
-    changeElementValue(el, value);
     return true;
   };
 
@@ -1916,6 +1989,10 @@ pui.Grid = function () {
    */
   this.getData = function (csvFile) {
     
+    // 7647: make explicit call to hide context menu because scrolling the grid does not result in the
+    // context menu from being hidden and the 'onclick' is unrecognised.
+    me.hideContextMenu();
+
     if (me.tableDiv.disabled == true) return;
     if (me.designMode) return;
     var numRows = me.cells.length;
@@ -2106,7 +2183,9 @@ pui.Grid = function () {
         rrn = dataRecords[me.recNum - 1].subfileRow;
       }
       me.tableDiv.returnRRN = rrn;
-      if (me.fileId != null) {
+      // Record 'topRRN' (what IBM calls 'Subfile Min RRN') for the File Information Data Structure.
+      // Only do this if it's a 'real' subfile, not a message subfile. #7742
+      if (me.fileId != null && !me.isMessageSubfile) {
         pui.topRRNs["toprrn." + me.fileId] = rrn;
       }
       me.clearData();
@@ -2445,7 +2524,7 @@ pui.Grid = function () {
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
 
               // Highlight cells in the column.
-              if (me.highlighting != null && me.highlighting.text != "" && idx === me.highlighting.col) {
+              if (me.highlighting != null && me.highlighting.text != "" && (idx === me.highlighting.col || me.highlighting.col === "*all")) {
                 if (row[idx].tagName == "DIV") {
                   pui.highlightText(row[idx], me.highlighting.text);
                   row[idx].highlighted = true;
@@ -2502,6 +2581,8 @@ pui.Grid = function () {
             var treeLevelData = {treeLevel: me.getDataValue(ii+1, me.treeLevelField), treeLevelCollapsed: false};
             me.treeLevelData.push(treeLevelData);
           }
+          me.gridTree = new pui.GridTree();
+          me.gridTree.load(me.treeLevelData);
         }
 
         if (!me.treeLevelDataInitDone) {
@@ -2512,6 +2593,8 @@ pui.Grid = function () {
           for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
             if (me.runtimeChildren[jj]["columnId"] == treeLevelColumnId) {   // compare static design value
               var currentLeft = me.runtimeChildren[jj]["left"];
+              if (currentLeft === undefined) 
+                currentLeft = "10px";   // default; 
               currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
               currentLeft = parseInt(currentLeft);
               me.currentLeft = currentLeft;
@@ -2521,7 +2604,7 @@ pui.Grid = function () {
         }
         var myGridId = me.tableDiv.id;
         var myOnclickFunction = 'myFunction = function (event, elem) {\n  getObj(\"' + myGridId + 
-                                '\").grid.toggleTreeLevel(elem, rrn);\n}\n\n';
+                                '\").grid.toggleTreeLevel(rrn);\n}\n\n';
         treeLevelItem = {
           "id": myGridId + me.treeLevelItemId,
           "field type": "graphic button",
@@ -2910,11 +2993,11 @@ pui.Grid = function () {
           else if (me.tableDiv.columnSortResponseField != null && me.initialSortColumn == headerCell.columnId) {
             placeSortIcon = true;
           }
-          else if (me.tableDiv.fieldNameSortResponseField != null && me.initialSortField != null && 
-                   me.initialSortField == me.getFieldNameFromColumnIndex(headerCell.col, parseInt(me.tableDiv.initialSortFieldLength))) { // use .col, not .columnId
+          else if (me.tableDiv.fieldNameSortResponseField != null && typeof me.initialSortField === 'string' && 
+                   me.initialSortField.toUpperCase() == me.getFieldNameFromColumnIndex(headerCell.col, parseInt(me.tableDiv.initialSortFieldLength))) { // use .col, not .columnId
             placeSortIcon = true;
           }
-
+          
           if (placeSortIcon) {
             detachSortIcon();
             appendIcon(headerCell, me.sortIcon);
@@ -3214,6 +3297,7 @@ pui.Grid = function () {
               // Find the entry in me.columnInfo whose column ID matches the saved column. Set the found name, etc. (and stop looking).
               me.columnInfo.every(function(orgCol) {
                 if (orgCol["columnId"] === columnId) {
+                  col['blankHeader'] = orgCol['blankHeader'];  //7384: prevent header from being cleared when saved state header was blank but the new header was not.
                   col["name"] = orgCol["name"];
                   col['field'] = orgCol['field']; //For DBD grids, field names are stored with the columns. Save to allow later matching. #6600
                   return false;
@@ -3712,22 +3796,21 @@ pui.Grid = function () {
 
       me.recNum = 1;
       if (me.sflrcdnbr > 0 && restoringOrInitialSort) {
-
         // These are automatic sorts at render time. 
         // Need to set grid 'recNum' property (data array sequence number)
         // based on rrn provided by the program.
-
         for (var i = 0; i < me.dataArray.length; i++) {
-
           if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
-
             me.recNum = i + 1;
+
+            if (me.placeCursorFlag)
+              me.placeCursorRRN = me.recNum;    // place cursor on row with rrn=sflrcdnbr
+            if (!me.positionAtTop)
+              me.updateRecNumFromSflRcdNbr(me.recNum);
+            
             break;
-
           }
-
         }
-
       }
 
       if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
@@ -4062,12 +4145,15 @@ pui.Grid = function () {
 
     var state = null;
 
-    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null)) {
+    if ((pui.isLocalStorage() && localStorage[me.storageKey] != null)|| (pui.isSessionStorage() && sessionStorage[me.storageKey] != null) || (programState && pui.programStorage[me.storageKey] != null)) {
 
       try {
 
         if(sessionState == true){
           state = JSON.parse(sessionStorage[me.storageKey]);
+        }
+        else if(programState == true){
+          state = JSON.parse(pui.programStorage[me.storageKey]);
         }
         else{
           state = JSON.parse(localStorage[me.storageKey]);
@@ -4124,6 +4210,9 @@ pui.Grid = function () {
       if(sessionState == true){
         sessionStorage[me.storageKey] = JSON.stringify(stg);
       }
+      else if(programState == true){
+        pui.programStorage[me.storageKey] = JSON.stringify(stg);
+      }
       else{
         localStorage[me.storageKey] = JSON.stringify(stg);
       }
@@ -4173,6 +4262,14 @@ pui.Grid = function () {
 
         eval("var row = arguments[1];");
         eval("var rowNumber = arguments[1];");
+        
+        // 7536: ensure rowclicked property visible to event code
+        pui["temporary_property"] = me.rowclicked;
+        eval("var rowclicked = pui.temporary_property");
+
+        // 7208: ensure colclicked property visible to event code
+        pui["temporary_property"] = me.columnclicked;
+        eval("var columnclicked = pui.temporary_property");
 
         if (eventName == "onrowclick") {
           eval("var isRightClick = arguments[2];");
@@ -4404,6 +4501,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -4430,6 +4528,7 @@ pui.Grid = function () {
             return true;
           }
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+            pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
@@ -4645,6 +4744,16 @@ pui.Grid = function () {
       propertyToSwitch = multOccurMatch[1];  //handle any number of "database file n" properties.
     }
 
+    var multOccurMatch = /^(grid row translation placeholder key) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder key n" properties.
+    }
+
+    var multOccurMatch = /^(grid row translation placeholder value) \d+$/.exec(property);
+    if (multOccurMatch != null && multOccurMatch[1] != null){
+      propertyToSwitch = multOccurMatch[1];  //handle any number of "translation placeholder value n" properties.
+    }
+
     switch (propertyToSwitch) {
       case "id":
       case "parent window":
@@ -4663,15 +4772,12 @@ pui.Grid = function () {
       case "subfile size":
       case "subfile next changed":
       case "subfile record number":
-      case "position at top":
-      case "place cursor":
       case "cursor record number":
       case "cursor progression":
       case "subfile return rrn":
       case "subfile changed":
 
       case "subfile message key":
-      case "subfile program message queue":
       case "subfile control program message queue":
 
       case "allow drag":
@@ -4700,6 +4806,16 @@ pui.Grid = function () {
         break;
 
       case "return sort order":
+        break;
+
+      case "position at top":
+        if (value === "true")
+          me.positionAtTop = true;
+        break;
+
+      case "place cursor":
+        if (value === "true")
+          me.placeCursorFlag = true;
         break;
 
       case "record format name":
@@ -4823,9 +4939,12 @@ pui.Grid = function () {
         var oldNumCols = me.vLines.length - 1;
         if (oldNumCols < 0) oldNumCols = 0;
         var newNumCols = parseInt(value);
+        if (newNumCols > me.maxNumberOfColumns) {
+          pui.alert('WARNING: Number of maximum columns reached when loading Grid.');
+        }
         if (isNaN(newNumCols)) newNumCols = oldNumCols;
         if (newNumCols < 1) newNumCols = 1;
-        if (newNumCols > 99) newNumCols = 99;
+        if (newNumCols > me.maxNumberOfColumns && me.designMode) newNumCols = me.maxNumberOfColumns;
         if (newNumCols > oldNumCols) {
           while (newNumCols > me.vLines.length - 1) me.addColumn();
         }
@@ -4979,7 +5098,8 @@ pui.Grid = function () {
         }
         me.setHeadings();
         
-        if (me.designMode && me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
+        // if (me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){
+        if (!me.designMode && !me.hidableColumns && me.columnInfo instanceof Array){   //Fixes column names reverting to original value on rename and then resize.
           for (var i=0; i < me.columnInfo.length && i < me.columnHeadings.length; i++){
             me.columnInfo[i]['name'] = me.columnHeadings[i];
           }
@@ -5069,9 +5189,13 @@ pui.Grid = function () {
         if(value == "true" || value == true){
           persistState = (me.designMode == false && pui.isLocalStorage() ); 
         }
-        else if(value == "session only"){
+        else if (value === "session only") {
           persistState = (me.designMode == false && pui.isSessionStorage() ); 
           sessionState = (me.designMode == false && pui.isSessionStorage() );
+        }
+        else if (value === "program only") {
+          persistState = (me.designMode == false); 
+          programState = true;
         }
         break;
 
@@ -5307,6 +5431,13 @@ pui.Grid = function () {
         }
         break;
 
+      case "tree level collapsed":
+        if (!me.designMode) {
+          if (value == "true") me.treeInitCollapsed = true;
+          if (value == "false") me.treeInitCollapsed = false;
+        }
+        break;
+        
       case "single row zoom":
         if (value == "true") {
           me.singleRowZoom = true;
@@ -5567,6 +5698,21 @@ pui.Grid = function () {
           customGridSortFunction = value;
         }
         break;
+      case "grid row translation placeholders":
+        break;
+      case "grid row translation placeholder key":
+        break;
+      case "grid row translation placeholder value":
+        break;
+      case "row clicked":
+        break;
+      case "column clicked":
+        break;  
+      
+      case "subfile program message queue":
+        me.isMessageSubfile = true;
+        break;
+
       default:
         if (typeof property === "string" && property.substr(0, 17) === "user defined data") break;
         pui.alert("Grid property not handled: " + property);
@@ -5718,6 +5864,8 @@ pui.Grid = function () {
   };
 
   function checkSelected(record) {
+
+    if (record == null) return false;
 
     var selected = false;
 
@@ -6839,16 +6987,19 @@ pui.Grid = function () {
         // show custom context menu
         var x = pui.getMouseX(event);
         var y = pui.getMouseY(event);
+        var offset = {x:0, y:0};
         var ctrOffset = pui.getOffset(pui.runtimeContainer);
         if (context == "genie") ctrOffset = pui.getOffset(pui["getActiveContainer"]()); //handles grid inside a window. #3541.
         var parent = contextMenu.parentNode;
         if (parent != null && parent.tagName == "FORM") parent = parent.parentNode; // this will handle Genie (although the the context menu option is not available in Genie yet)
         if (parent != null) {
 
-          var offset = {x:0, y:0};
           if (context == "dspf" && parent.getAttribute("container") == "true") {
 
-            offset = pui.layout.getContainerOffset(parent);
+            // 7489. pui.layout.getContainerOffset does not work as expected is this case
+            var parentOffset = pui.getOffset(parent);
+            offset.x = parentOffset[0];
+            offset.y = parentOffset[1];
 
           }
           else if (parent.isPUIWindow) {
@@ -6858,12 +7009,13 @@ pui.Grid = function () {
 
           }
 
-          offset.x += ctrOffset[0];
-          offset.y += ctrOffset[1];
-          x -= offset.x;
-          y -= offset.y;
-
         }
+
+        offset.x += ctrOffset[0];
+        offset.y += ctrOffset[1];
+        x -= offset.x;
+        y -= offset.y;
+
         // Center under the finger for touch devices.
         if (pui["is_touch"] && !pui["is_mouse_capable"]) {
 
@@ -6906,13 +7058,48 @@ pui.Grid = function () {
         contextMenu.style.visibility = "";
         contextMenu.style.display = "";
         // Position after show, as some browsers (FF) report menu width 0 when hidden.
+        // 7489. Calculate the maximum coordinate the pop-up menu should be placed at to not be cutoff by its container
+        var screenMaxX = 0;
+        var screenMaxY = 0;
+        var containerMaxX = undefined;
+        var containerMaxY = undefined;
+        var maxX;
+        var maxY;
+
+        // Calculate the maximum coordinates which would fit within the pop-up menu's container
+        if (parent != null
+            && parent.clientWidth != null && parent.clientWidth >= contextMenu.clientWidth
+            && parent.clientHeight != null && parent.clientHeight >= contextMenu.clientHeight) {
+          containerMaxX = parent.clientWidth;
+          containerMaxY = parent.clientHeight;
+        }
+
+        // Calculate the maximum coordinates that would fit within the screen
         var doc = document.documentElement;
         var docScrollLeft = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
         var docScrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-        var maxX = document.documentElement.clientWidth + docScrollLeft - contextMenu.clientWidth - 10 - ctrOffset[0]; // width of menu plus scrollbar
-        var maxY = document.documentElement.clientHeight + docScrollTop - contextMenu.clientHeight - 10 - ctrOffset[1]; // height of menu plus scrollbar
+        screenMaxX = doc.clientWidth + docScrollLeft - offset.x;
+        screenMaxY = doc.clientHeight + docScrollTop - offset.y;
+
+        // Determine which set of coordinates should be used
+        if (containerMaxX == undefined || containerMaxY == undefined) {
+          maxX = screenMaxX;
+          maxY = screenMaxY;
+        }
+        else {
+          maxX = Math.min(screenMaxX, containerMaxX);
+          maxY = Math.min(screenMaxY, containerMaxY);
+        }
+
+        // Shift max coords by the size of the pop-up menu
+        maxX -= (contextMenu.clientWidth + 10); // width of menu plus scrollbar
+        maxY -= (contextMenu.clientHeight + 10); // height of menu plus scrollbar
+
+        // Make sure the pop-up is not positioned outside of the calculated maximum coordinates
         if (x > maxX) x = maxX;
         if (y > maxY) y = maxY;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
         contextMenu.style.left = x + "px";
         contextMenu.style.top = y + "px";
 
@@ -6946,6 +7133,13 @@ pui.Grid = function () {
       if (target.combo)
         return;
       
+      // 7536: capture row clicked from target and store in grid property 
+      // 7208: capture column clicked from target and store in grid property
+      me.rowclicked = row;
+      me.columnclicked = col;
+      me["row clicked"] = me.rowclicked;
+      me["column clicked"] = me.columnclicked;
+
       var isRight = pui.isRightClick(e);
       if (target.tagName != "INPUT" && target.tagName != "SELECT" && target.tagName != "OPTION" && target.tagName != "BUTTON") {
         if (!me.hasHeader) executeEvent("onrowclick", row + 1, isRight, e, col);
@@ -7320,8 +7514,9 @@ pui.Grid = function () {
   }
 
   /**
-   * Try to focus the first supported input element in a cell. Text inputs may
-   * be highlighted.
+   * Try to focus the first supported input element in a cell. Text inputs may be highlighted.
+   * 
+   * Regression test case (important): See Redmine #7727.
    * 
    * @param {object} cell  Cell dom in the grid.
    * @returns {boolean}    Returns true if element was found and focused. False otherwise.
@@ -8224,48 +8419,56 @@ pui.Grid = function () {
     return count;
   };
 
-  this["toggleTreeLevel"] = function (elem, rrn) {
+  this["expandTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.showChildren(node);
+    me.refreshGridTree(node);
+  };
 
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    var myTreeLevel = myTreeLevelData.treeLevel;
-    
-    var wasCollapsed;
-    if (myTreeLevelData.treeLevelCollapsed) {
-      wasCollapsed = true;
-      myTreeLevelData.treeLevelCollapsed = false;
-    } else { 
-      wasCollapsed = false;
-      myTreeLevelData.treeLevelCollapsed = true;
+  this["collapseTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.hideChildren(node);
+    me.refreshGridTree(node);
+  };
+
+  this["toggleTreeLevel"] = function (rrn) {
+    var node = me.treeLevelData[rrn-1].node;
+    me.gridTree.toggleChildren(node);
+    me.refreshGridTree(node);
+  }
+
+  this.refreshGridTree = function (affectedNode) {
+
+    // New way to handle grid tree:
+    // Use a REAL model tree stored in me.gridTree.
+    // Call me.gridTree.hideChildren() or me.gridTree.showChilden() or me.gridTree.toggleChildren(),
+    // which will expand/collapse the nodes in the model tree.
+    // Use the model tree to refresh the data in treeLevelData[].
+    // Then use data in treeLevelData[] to call showShow() or hideRow() to show/hide each affected row in the grid.
+    // Note that me.gridTree is a real tree structure; whereas treeLevelData[] is just an array.
+    // To improve performance, each element of array treeLevelData[] contains the corresponding object 
+    // "node" in the tree me.gridTree, so that we don't have to do lookup when needed.
+
+    if (affectedNode === undefined || affectedNode === null) {      // handle whole tree
+      var fromIndex = 0;
+      var toIndex = me.treeLevelData.length;
+    } else {                                                        // handle affected node and its descendants only
+      fromIndex = parseInt(affectedNode.data) - 1                   // node.data is the RRN of the affected node
+      toIndex = me.gridTree.getMaxRRN(affectedNode);                // highest RRN of node's descendants; do NOT use -1 here
     }
 
-    for (var i = rrn + 1; i <= me.treeLevelData.length; i++) {    // start at rrn+1; hide rows below clicked row if needed
-      if (me.treeLevelData[i-1].treeLevel > myTreeLevel) {
-        if (wasCollapsed) {                                       // clicked row was collapsed; expand it
-          me.handleHideRow(i, false, false);                      // call showRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = false;
-        } else {                                                  // clicked row was expanded; collapse it
-          me.handleHideRow(i, true, false);                       // call hideRow() but does NOT call getData()
-          me.treeLevelData[i-1].treeLevelCollapsed = true;
-        }
-      } else {
-        break;
-      }
+    for (var i = fromIndex; i < toIndex; i++) {                     // handle affected range only    
+      var rrn = (i + 1);
+      var node = me.treeLevelData[i].node;
+      if (node.showRow)                                   
+        me.handleHideRow(rrn, false, false);                        // call showRow() but does NOT call getData()
+      else                                                
+        me.handleHideRow(rrn, true, false);                         // call hideRow() but does NOT call getData()
+      me.treeLevelData[i].treeLevelCollapsed = (node.currentState === "collapsed")? true: false;
     }
     
     me.getData();
     
-  };
-
-  this["expandTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (myTreeLevelData.treeLevelCollapsed)             // expand if currently collapsed
-      me["toggleTreeLevel"](elem, rrn);
-  };
-
-  this["collapseTreeLevel"] = function (elem, rrn) {
-    var myTreeLevelData = me.treeLevelData[rrn-1];
-    if (!myTreeLevelData.treeLevelCollapsed)            // collapse if currently expanded
-      me["toggleTreeLevel"](elem, rrn);
   };
 
   this.getTreeLevelColumnId =  function () {
@@ -8492,6 +8695,9 @@ pui.Grid = function () {
         if(sessionState == true){
           try{ delete sessionStorage[me.storageKey]; }catch(exc){}
         }
+        else if(programState == true){
+          try{ delete pui.programStorage[me.storageKey]; }catch(exc){}
+        }        
         else{
           try{ delete localStorage[me.storageKey]; }catch(exc){}
         }
@@ -8595,6 +8801,22 @@ pui.Grid = function () {
     return null;
   };
 
+  this["getColumnIdFromFieldName"] = function (fieldName) {
+    // Note: customer may pass the short field name or long field name
+    var fieldNameUpper = pui.fieldUpper(fieldName);
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var itm = me.runtimeChildren[i];
+      var val = itm["value"];
+      if (itm["field type"] == "html container") val = itm["html"];
+      if (val != null && typeof val == "object" && ((val["fieldName"] != null && pui.fieldUpper(val["fieldName"]) == fieldNameUpper) || 
+                                                    (val["longName"]  != null && pui.fieldUpper(val["longName"])  == fieldNameUpper)    )) {
+        var columnId = itm["columnId"];
+        if (columnId != null && !isNaN(columnId)) return columnId;
+      }
+    }
+    return null;
+  };
+
   /**
    * Set headerCell.searchIndexes[] to be an array of integers that map to 
    * fields in me.dataArray[][]. Also put references to runtimeChildren[].value
@@ -8604,9 +8826,9 @@ pui.Grid = function () {
    * Called by startFind, find, setFilter, startFilter.
    * 
    * @param {Object|Element} headerCell    A DOM element for a column header.
-   * @returns {undefined}
+   * @param {Boolean} all
    */
-  this.setSearchIndexes = function (headerCell) {
+  this.setSearchIndexes = function (headerCell, all) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
     if (me.isDataGrid() && me.forceDataArray == false) return;
     if (headerCell.searchIndexes != null) return; //searchIndexes is already setup.
@@ -8625,7 +8847,7 @@ pui.Grid = function () {
       var val = itm["value"];
       if (itm["field type"] == "html container") val = itm["html"];
       // The current itm maps to the headerCell's column.
-      if (pui.isBound(val) && !isNaN(col) && col == headerCell.col) {
+      if ((pui.isBound(val) && all) || (pui.isBound(val) && !isNaN(col) && col == headerCell.col)) {
         var fieldName = pui.fieldUpper(val["fieldName"]);
         // Find the index of the dataArray column that corresponds to fieldName.
         // me.fieldNames maps me.dataArray columns to fieldNames.
@@ -8782,7 +9004,7 @@ pui.Grid = function () {
     }
     
     if (headerCell.filterText != null && headerCell.filterText != "") {
-      me.ffbox.setText(headerCell.filterText);
+      me.ffbox.setText(headerCell.filterAll ? "" : headerCell.filterText);
       me.highlighting.text = headerCell.filterText;
       me.getData();
     }
@@ -8817,14 +9039,34 @@ pui.Grid = function () {
    */
   this["setFilter"] = function (headerCell, text) {
     if (me.waitingOnRequest) return;
+
+    var all = false;
+    if (headerCell === "*all") {  // special value to indicate filter on all columns, only valid for client-side filtering on load-all grids
+      all = true;
+      headerCell = me.cells[0][0];
+    }
+    else if (!me.cells[0][0].filterIcon && me.cells[0][0].filterAll) {
+      me["removeFilter"](me.cells[0][0]) ;
+    }
+
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     if (me.usePagingFilter()) return setPagingFilter(headerCell, text);
-    me.setSearchIndexes(headerCell);
+    me.setSearchIndexes(headerCell, all);
     me.highlighting.columnId = headerCell.columnId; //need to set when called from API w/o startFilter.
-    me.highlighting.col = headerCell.col;
+    me.highlighting.col = all ? "*all" : headerCell.col;
     me.highlighting.text = text;
-    me.setFilterIcon(headerCell);
+    if (all) {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        me.removeFilterIcon(headerRow[i]);
+        headerRow[i].filterText = null;
+      }
+      headerCell.filterAll = true;
+    }
+    else {
+      me.setFilterIcon(headerCell);
+    }
     headerCell.filterText = text;
     
     if (me.showQuickFilters) {
@@ -8847,6 +9089,7 @@ pui.Grid = function () {
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
         var record = me.dataArray[i];
+        if (all) record.filteredOutArray = [];
         if (record.subfileRow == null) record.subfileRow = i + 1;
         for (var j = 0; j < idxes.length; j++) {
           var idx = idxes[j];
@@ -8892,18 +9135,23 @@ pui.Grid = function () {
       }
     } //done client-side filtering.
     me.getData();
-    if (persistState) me.saveFilters();
+    if (persistState) me.saveFilters(all, text);
     executeEvent("onfilterchange");
   };
 
 
-  this.saveFilters = function () {
+  this.saveFilters = function (all, text) {
     var filters = [];
-    var headerRow = me.cells[0];
-    for (var i = 0; i < headerRow.length; i++) {
-      var headerCell = headerRow[i];
-      if (headerCell.filterText != null && headerCell.filterText != "") {
-        filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+    if (all) {
+      filters.push({ "text": text, "column": "*all", "curCol": "*all" });
+    }
+    else {
+      var headerRow = me.cells[0];
+      for (var i = 0; i < headerRow.length; i++) {
+        var headerCell = headerRow[i];
+        if (headerCell.filterText != null && headerCell.filterText != "") {
+          filters.push({ "text": headerCell.filterText, "column": headerCell.columnId, "curCol": headerCell.col });
+        }
       }
     }
     if (filters.length < 1) {
@@ -8916,8 +9164,16 @@ pui.Grid = function () {
 
 
   this["getFilter"] = function (headerCell) {
-    if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
+    var all = false;
+    if (headerCell === "*all") {
+      headerCell = 0;
+      all = true;
+    }
+    // If filter "*all" and column #0 is hidden, headerCell will have -1 value and the function will not return the current filter text.
+    // Therefore, we need to force the column number to 0.
+    if (typeof headerCell == "number") headerCell = me.cells[0][all ? 0 : getCurrentColumnFromId(headerCell)];
     if (headerCell == null || typeof headerCell.filterText == 'undefined') return null;
+    if (all && !headerCell.filterAll || !all && headerCell.filterAll) return null;
     return headerCell.filterText;
   };
 
@@ -9195,6 +9451,7 @@ pui.Grid = function () {
     }
     else{
       // Remove client-side filtering.
+      if (headerCell.filterAll) delete headerCell.filterAll;
       var col = headerCell.columnId;
       me.visibleDataArray = [];
       for (var i = 0; i < me.dataArray.length; i++) {
@@ -9712,9 +9969,15 @@ pui.Grid = function () {
     return colsInfo.filter(function(col) {
       return col["showing"];
     })
-    .sort(function(a, b) {
-      var colA = getCurrentColumnFromId(a["columnId"]);
-      var colB = getCurrentColumnFromId(b["columnId"]);
+    .sort(function(a, b) { // Sort columns by their currentColumn value
+      var colA, colB;
+      if (me.designMode && a["currentColumn"] != null && b["currentColumn"] != null) {
+        colA = a["currentColumn"];
+        colB = b["currentColumn"];
+      } else {
+        colA = getCurrentColumnFromId(a["columnId"]);
+        colB = getCurrentColumnFromId(b["columnId"]);
+      }
       if (colA > colB) return 1;
       else return -1;
     })
@@ -10464,21 +10727,21 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "value", helpDefault: "blank", help: "Sets the initialization value for the current element." },
 
       { name: "Subfile Settings", category: true, context: "dspf"},
-      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false },
+      { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false },
+      { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false },
       { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
       { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
       { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false},
-      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false },
+      { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf" },
+      { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf" },
+      { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf" },
       { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+      { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false },
       { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf"},
       { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 1 },
-      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf", ddsCompatProp: 1 },
+      { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf" },
       { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 1 },
 
       { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
@@ -10548,11 +10811,13 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf"},
       { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
       { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-      { name: "persist state", choices: ["true", "false", "session only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is dislpayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed.", context: "dspf" },
+      { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
       { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
       { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
-      
+      { name: "row clicked", format: "number",readOnly: true, helpDefault: "bind", help: "Specifies row value clicked in a grid.", context: "dspf"},
+      { name: "column clicked", format: "number",readOnly: true, helpDefault: "bind", help: "Specifies column value clicked in a grid.", context: "dspf"},
+
       //Reset the  browser cache Data for a table
       { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },
       { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
@@ -10593,6 +10858,8 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
       { name: "tree level field", helpDefault: "blank", help: 'This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
       { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+      { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf"},
+      
       { name: "Grid Data", category: true },
       { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
       { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false},
@@ -10615,6 +10882,11 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "starting row", helpDefault: "blank", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie-nohandler" },
       { name: "ending row", helpDefault: "blank", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
       { name: "data columns", type: "list", helpDefault: "blank", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler" },
+
+      { name: "Translations", category: true, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["grid row translation placeholder key", "grid row translation placeholder value"], canBeRemoved: false, context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf", nodedesigner: false }, 
+      { name: "grid row translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", context: "dspf", nodedesigner: false },
 
       { name: "Position", category: true },
       { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },

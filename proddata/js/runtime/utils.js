@@ -1091,33 +1091,49 @@ pui.beforeUnload = function(event) {
 };
 
 pui["unload"] = function() {
-  if (pui.shutdownOnClose && pui.observer == null) {
+  // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job 
+  // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used 
+  // on next sign on.
+  var hardshutdownOnClose = false;
+  if (pui.genie !== null && pui["hardshutdownOnClose"])
+    hardshutdownOnClose = true;
+
+  if ((pui.shutdownOnClose || hardshutdownOnClose) && pui.observer == null) {
     pui["halted"] = true;
     window["puihalted"] = true;
-    pui.killFrames();
+    if (!pui["keep frames"]) pui.killFrames();
     var url;
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
     else url = getProgramURL("PUI0002110.pgm");
     if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
-  if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
-    try {
-      url = pui["overrideSubmitUrl"](url);
-    }
-    catch(e) {
-    }
-  }  
+    if (pui["overrideSubmitUrl"] != null && typeof pui["overrideSubmitUrl"] == "function") {
+      try {
+        url = pui["overrideSubmitUrl"](url);
+      }
+      catch(e) {
+      }
+    }  
     // Redmine #4624
     // Use Blob to set Content-Type: application/x-www-form-urlencoded
     // Otherwise, Profound.js controller is unable to parse the POST.
     if (navigator != null && typeof navigator["sendBeacon"] == "function" && typeof window["Blob"] == "function") {
-      var data = "shutdown=1" + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
+      if (hardshutdownOnClose)
+        var shutdownFlag = "hardshutdown=1";
+      else
+        shutdownFlag = "shutdown=1";
+      var data = shutdownFlag + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
       var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
       navigator["sendBeacon"](url, blob);
     }
     else {
-      var ajaxParams = {
-        "shutdown": "1"
-      };
+      if (hardshutdownOnClose)
+        ajaxParams = {
+          "hardshutdown": "1"
+        };
+      else
+        var ajaxParams = {
+          "shutdown": "1"
+        };
       if (pui["isCloud"]) {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
@@ -1255,7 +1271,6 @@ pui.attachOnUserActivity = function() {
     var atriumSettings = Atrium["getSettings"]();
   }
   catch (error) {
-    console.error(error);
   }
   var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
   if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
@@ -1290,7 +1305,6 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
     var atriumSettings = Atrium["getSettings"]();
   }
   catch (error) {
-    console.error(error);
   }
   if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
     interval = pui.timeout - 10;
@@ -4519,7 +4533,7 @@ pui.xlsx_worksheet.prototype.updateCharCount = function(value, col){
   var len = 0;
   if (typeof value === 'string') len = value.length;
   
-  if (this.rows.length == 1){
+  if (this.rows.length == 1 || this.charcounts[col] == null){
     // The first row: get the column style information from each cell.
     this.charcounts[col] = len;
   }
@@ -4564,7 +4578,7 @@ pui.xlsx_worksheet.prototype.getSheetXML = function(){
     var style = '';
     if (this.formats[col] != null && this.formats[col].cellFormatId) style = ' style="' + this.formats[col].cellFormatId + '"';
     
-    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'"'+style+ ' customWidth="1"/>';
+    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'" '+style+ ' customWidth="1"/>';
   }
   xml += '</cols><sheetData>';
   
@@ -4599,7 +4613,13 @@ pui.xlsx_worksheet.prototype.getSheetXML = function(){
       }
     }
     xml += '</row>';
-    rowHeightStr = '';
+
+    // 7601 to fix issue where row heights not correct when header row height is specified
+    rowHeightStr='';
+    if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
+      rowHeightStr = ' ht="'+ Math.round(this.defaultRowHeightpx * 0.75) +'" customHeight="1"';
+    }
+    
   }
 
   xml += '</sheetData>'; 
@@ -5736,3 +5756,144 @@ pui.getStorageKey = function(screenParms, prefix){
   
   return storageKey;
 };
+
+
+/**
+ * Capture server's response into test recording
+ * @param {Object} parms  5250 or Rich Display parms
+ */
+pui.record = function(parms) {
+  pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
+}
+
+
+/**
+ * Save test recording to file system
+ */
+pui.saveRecording = function() {
+
+  // Combine payload info with response info
+  var user = null;
+  for (var i = 0; i < pui.recording["payloads"].length; i++) {
+    // Capture the user from the server response.
+    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
+    pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
+  }
+  var json = JSON.stringify({ "user": user, "payloads": pui.recording["payloads"] });
+  var recordingName = prompt("Enter recording name");
+  if (!recordingName) return;
+
+  var fileName = recordingName;
+  if (!fileName.endsWith(".json")) fileName += ".json";
+  
+  if (!pui["recording path"]) {
+    pui.downloadAsAttachment("text/plain", fileName, json);
+    return;
+  }
+
+  // Setup multipart form data.
+  var parts = [];
+  parts.push({
+    "name": "path",
+    "value": pui["recording path"] + fileName
+  });
+  parts.push({
+    "name": "text",
+    "value": "1"
+  });
+  parts.push({
+    "name": "replace",
+    "value": "Y"
+  });
+  parts.push({
+    "name": "json",
+    "value": json,
+    "fileName": fileName
+  });
+  var multiPart = new pui.MultiPart();
+  multiPart.addParts(parts);
+  var url = getProgramURL("PUI0001109.pgm");
+  url = url.replace("/auth", "");
+  multiPart.send(url, function(request) {    
+    // Check http layer error.
+    var error;
+    var response = {};
+    if (request.getStatus() != 200) {
+      error = request.getStatusMessage();
+    }
+    
+    // Check application-reported error.
+    if (!error) {
+      response = eval("(" + request.getResponseText() + ")");
+      if (!response["success"]) {
+        error = response["errorText"];
+      }
+    }
+    
+    // Report error and quit on failure.
+    if (error) {
+      pui.alert(error);
+      return;
+    }
+
+    pui.alert("Recording saved.");
+    
+    // Clear recording
+    pui.recording = {
+      "payloads": [],
+      "responses": []
+    };
+
+  });
+
+}
+
+/**
+ * Create recording replay user interface with arrows for advancing screens
+ */
+pui.createReplayUI = function() {
+  
+  function advance(increment) {
+    var stepNumber = pui.replayStep + increment;
+    if (!pui.replay["payloads"][stepNumber - 1]) return false;
+    var container = pui.replay.container;
+    var parms = pui.replay["payloads"][stepNumber - 1]["response"];
+    parms = JSON.parse(JSON.stringify(parms));
+    parms.container = container;
+    pui.replayStep = stepNumber;
+    step.innerHTML = "Step " + stepNumber;
+    if (parms["5250"]) {
+      context = "genie";
+      pui.render5250(parms);
+    }
+    else {
+      context = "dspf";
+      pui.render(parms);
+    }
+  }
+  
+  var prev = document.createElement("span");
+  prev.classList.add("pui-material-icons");
+  prev.innerHTML = "keyboard_arrow_left";
+  prev.onclick = function() {
+    advance(-1);
+  }
+
+  var step = document.createElement("span");
+  step.classList.add("pui-replay-step");
+  step.innerHTML = "Step " + pui.replayStep;
+
+  var next = document.createElement("span");
+  next.classList.add("pui-material-icons");  
+  next.innerHTML = "keyboard_arrow_right";
+  next.onclick = function() {
+    advance(+1);
+  }
+
+  var replayDiv = document.createElement("div");
+  replayDiv.classList.add("pui-replay");
+  replayDiv.appendChild(prev);
+  replayDiv.appendChild(step);
+  replayDiv.appendChild(next);
+  document.body.appendChild(replayDiv);
+}

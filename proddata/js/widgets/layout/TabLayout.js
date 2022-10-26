@@ -448,7 +448,19 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
 
       // If the user is clicking on a not-selected tab, switch to that tab.
       var tabId = e.currentTarget.tabId;
+
       if (this.selectedTab != tabId){
+
+        // if the same field is defined on different tabs then the value of the field must be
+        // the value of the first element in the field array for that tab.
+        if (pui.cursorValues.record != null){
+          if (pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)].length > 1){
+            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].value = 
+            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][this.selectedTab].value
+            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].modified = true;
+          }
+        }
+
         if (typeof this._ontabclick === 'string' && this._ontabclick.length > 0){
           try {
             // Expose the "tab" variable, and run the ontabclick code. If the ontabclick code returns false, then prevent the tab change.
