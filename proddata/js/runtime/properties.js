@@ -95,7 +95,7 @@ function getPropertiesModel() {
     { name: "letter spacing", stylename: "letterSpacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], formattingProp: true, helpDefault: "css", help: "Specifies the spacing between each letter of a word inside the current element. <b>Examples:</b> <p style='letter-spacing:4px;'>4px: Positive values increase the distance between letters.</p><p style='letter-spacing:-1px;'>-1px: Negative values decrease the distance between letters.</p><br>", helpAdd: ["other"] },
     { name: "text align", stylename: "textAlign", choices: ["left", "right", "center", "justify"], helpDefault: "css", help: "Specifies the alignment of the text inside the current element.<br><b>Examples:</b> <table style='width:100%;' cellpadding='0' cellspacing='2'><tr><td><div style='text-align:left;width:100%;border:1px solid black;'>This text is aligned left.</div></td></tr><tr><td><div style='text-align:right;width:100%;border:1px solid black;'>This text is aligned right.</div></td></tr><tr><td><div style='text-align:center;width:100%;border:1px solid black;'>This text is aligned center.</div></td></tr><tr><td><div style='text-align:justify; text-align-last:justify; width:100%;border:1px solid black;'>This text has justified alignment.</div></td></tr></table>", helpNote: "The CSS property 'text-align-last' can be used to set the alignment of the final line of a group of text.", formattingProp: true },
     { name: "text decoration", stylename: "textDecoration", format: "underline / none", choices: ["none", "underline", "overline", "line-through"], helpDefault: "none", help: "Specifies the decoration on the text inside the current element. <br><b>Examples:</b><br>None, <span style='text-decoration:underline;'>Underline</span>, <span style='text-decoration:overline;'>Overline</span>, <span style='text-decoration:line-through;'>Line-through</span>.", formattingProp: true },
-    { name: "text transform", stylename: "textTransform", choices: ["capitalize", "uppercase", "lowercase", "none"], helpDefault: "none", help: "Specifies the transformation used as the default formatting of the text inside the current element. </br><b>Examples:</b> <br><br>capitalize: Changes The First Character Of Each Word To Uppercase<br><br>uppercase: CHANGES ALL CHARACTERS OF EACH WORD TO UPPERCASE<br><br>lowercase: changes all characters of each word to lowercase", helpNote: "This only affects how the information is <i>displayed</i> in the browser. To send <u>transformed values</u> to your backend program, you must also <u>set</u> the <i>Text Transform</i> attribute of the <b>Binding Dialog</b> for the value being returned to the program. " },
+    { name: "text transform", stylename: "textTransform", choices: ["capitalize", "uppercase", "lowercase", "none"], helpDefault: "none", help: "Specifies the transformation used as the default formatting of the text inside the current element. <br><b>Examples:</b> <br><br>capitalize: Changes The First Character Of Each Word To Uppercase<br><br>uppercase: CHANGES ALL CHARACTERS OF EACH WORD TO UPPERCASE<br><br>lowercase: changes all characters of each word to lowercase", helpNote: "This only affects how the information is <i>displayed</i> in the browser. To send <u>transformed values</u> to your backend program, you must also <u>set</u> the <i>Text Transform</i> attribute of the <b>Binding Dialog</b> for the value being returned to the program. " },
     { name: "white space", stylename: "whiteSpace", choices: ["normal", "pre", "nowrap", "pre-wrap", "pre-line"], helpDefault: "widget", help: "Specifies how white space inside the current element is handled. The default is <i>nowrap</i> for most widgets. The prefix 'pre-' is short for 'preserve'. ", helpNote: "If 'pre', 'pre-wrap', or 'pre-line' aren't used, all white space is 'collapsed', meaning it doesn't display.", controls: ["html container", "hyperlink"] },
     { name: "word spacing", stylename: "wordSpacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], helpDefault: "css", help: "Specifies the spacing between each word inside the current element. <b>Examples:</b><span style='word-spacing:-2px;'>-2px: Negative values decrease the spacing between words.</span><br><span style='word-spacing:2px;'>2px: Positive values increase the spacing between words.</span>.", helpAdd: ["other"], formattingProp: true },
     { name: "spell check", attribute: "spellcheck", choices: ["true", "false"], helpDefault: "browser", help: "Specifies whether the element will use the browser based spell checking. The default behavior is determined by the user's browser settings.", hideFormatting: true, validDataTypes: ["indicator"], controls: ["textbox", "text area"] },
@@ -116,8 +116,10 @@ function getPropertiesModel() {
     { name: "straight edge", choices: ["all", "left", "right", "top", "bottom"], helpDefault: "theme", help: "Determines which parts of the element will have a straight edge instead of rounded corners.", controls: ["css button", "css panel", "layout"] },
     { name: "hyperlink reference", helpDefault: "browser", help: "This property specifies an href attribute for the hyperlink. It is used as an alternative to the response property or the onclick event property.", controls: ["hyperlink", "css button"] },
     { name: "target", helpDefault: "_self", help: "This property specifies where to open the hyperlink reference.", choices: ["_parent", "_blank", "_top", "_self"], controls: ["hyperlink", "css button"] },
+    { name: "download file", helpDefault: "blank", attribute: "download", help: "Specifies the name of the file to download when clicking on the link (instead of navigating to the link/file).", controls: ["hyperlink", "css button"] },
     { name: "checked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is checked.", controls: ["checkbox"], bind: false },
     { name: "unchecked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is not checked.", controls: ["checkbox"], bind: false },
+    { name: "indeterminate value", helpDefault: "blank", help: "Specifies the value that renders a checkbox in an indeterminate state (neither checked nor unchecked).", controls: ["checkbox"], bind: false },
     { name: "on value", helpDefault: "blank", help: "Specifies the value to send to the application when the on/off switch is on.", controls: ["on off switch"], bind: false },
     { name: "off value", helpDefault: "blank", help: "Specifies the value to send to the application when the on/off switch is off.", controls: ["on off switch"], bind: false },
     { name: "on text", helpDefault: "ON", help: "Specifies the text to to display for the 'on' state of an on/off switch.", controls: ["on off switch"], translate: true },
@@ -145,7 +147,8 @@ function getPropertiesModel() {
     { name: "input only", choices: ["true", "false"], bind: false, type: "boolean", helpDefault: "false", help: "Defines whether the current element is input only or not. An input only element is always initialized when the screen appears.", controls: ["checkbox", "combo box", "date field", "password field", "select box", "spinner", "text area", "textbox"], context: "dspf", viewdesigner: false },
     { name: "empty text", controls: ["combo box", "date field", "spinner", "text area", "textbox"], helpDefault: "blank", help: "Specifies the default text to place into an empty field. When the field receives focus, the text is removed. This property is similar to the 'placeholder' property, but provides support for older browser that may not yet support the placeholder HTML5 attribute.", translate: true },
     { name: "placeholder", attribute: "placeholder", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], helpDefault: "blank", help: "Uses the HTML5 placeholder attribute to specify a short hint that describes the expected value of an input field. Older browsers may not support this feature.", translate: true },
-    { name: "float placeholder", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "When set to true, the placeholder becomes a floating label on top of the input field once there is data in the input box or while focus is on the element.", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], hideFormatting: true, validDataTypes: ["indicator", "expression"], context: "dspf" },
+    { name: "float placeholder", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "When set to true, the placeholder becomes a floating label on top of the input field once there is data in the input box or while focus is on the element.", helpNote: "Enabling a floating placeholder will alter the widget's DOM structure (by wrapping the INPUT element in a DIV element). Thus, any user code referencing a widget's DOM element may need to be modified after enabling the 'float placeholder' property on that widget.", controls: ["combo box", "date field", "spinner", "text area", "textbox", "password field"], hideFormatting: true, validDataTypes: ["indicator", "expression"], context: "dspf" },
+    { name: "prompt icon", type: "icon", helpDefault: "blank", help: "Identifies the prompt icon to use.", helpNote: "Material Icon set does not display in Internet Explorer 9 and lower.", controls: ["textbox"] },
     { name: "input type", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "range", "search", "tel", "time", "url", "week"], controls: ["combo box", "date field", "textbox"], helpDefault: "textbox", help: "Specifies an HTML5 input type. Some types may not yet be supported by the user's browser or mobile device. If a type is not specified or if the selected type is not supported, a standard textbox element will be used." },
     { name: "browser auto complete", hideFormatting: true, choices: ["on", "off", "Other..."], controls: ["combo box", "date field", "password field", "textbox", "spinner"], helpDefault: "off", help: "Specifies the value of the HTML textbox \"autocomplete\" attribute, which controls the browser's autocomplete/autofill feature. Browser autocomplete/autofill is disabled (\"off\") by default. Specify \"on\" to enable browser autocomplete/autofill or for further control, specify an autofill field name. See <a href=\"https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill-field\" target=\"_blank\">here</a> for details on autofill field names." },
     { name: "related field", helpDefault: "blank", help: "This property allows you to create a radio button group by associating multiple radio buttons with a field from the original application. Specify the id of the field to associate the radio button with. Additionally, this property can associate a text area with a group of textboxes by specify a comma separated list of textbox id's.", controls: ["radio button", "text area"], context: "genie" },
@@ -175,7 +178,13 @@ function getPropertiesModel() {
     { name: "label for", helpDefault: "blank", help: "Specifies the ID of the element that this is a label for. This property will cause a &lt;label&gt; tag to be generated for this element with the 'for' attribute set to the ID specified.", canBeRemoved: true, controls: ["output field"] },
     { name: "show today option", format: "true / false", choices: ["true", "false", "auto-select"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "false", help: "Controls whether the user has a Today option on the calendar pop-up to jump to the current date.<br /><br />The special value 'auto-select' causes the Today option to place the current date value into the date field and close the pop-up automatically.", controls: ["date field"] },
     { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"],  helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
+    { name: "calendar position", choices: ["below-right", "above-right", "right", "below-left", "above-left", "left"], validDataTypes: ["char", "varchar", "string"], helpDefault: "[blank]", help: "Controls the position and orientation of the calendar. The default [blank] is the same as 'right'", context: "dspf" },
 
+    { name: "Translations", category: true, nodedesigner: false}, 
+    { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+    { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+    { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
+    
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "right", help: "Controls the position and orientation of validation and error tool tips. When 'alert' is selected, an alert box will be used instead of a tool tip.", context: "dspf" },
     { name: "error message attach", choices: ["window", "parent"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "window", help: "Controls what the tool tip is attached to. 'window' means the tip is always visible, even if the widget is not visible inside layouts. 'parent' means the tip is visible when the widget is; only use 'parent' if the widget is in an overflowed layout and the tip should scroll with the widget.", context: "dspf" },
@@ -387,7 +396,8 @@ function getPropertiesModel() {
     { name: "onmouseup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse button is released off this element." },
     { name: "onoptiondisplay", type: "js", helpDefault: "blank", help: "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid.", controls: ["combo box","menu"] },
     { name: "onselect", wf: true, controls: ["combo box", "textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields." },
-    { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." }
+    { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." },
+    { name: "onprompt", wf: true, controls: ["textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the prompt icon is clicked on a textbox. In your script, use special variable 'value' to retrieve the textbox value. Use 'this' to refer to the input DOM element." }
   ];
 
   //Remove remote server property if PJS. Not yet ready to implement.
@@ -454,7 +464,7 @@ function getScreenPropertiesModel(designScreen) {
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
 
       { name: "Overlay", category: true }, 
-      { name: "overlay", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "overlay", choices: ["true", "false"], type: "boolean", helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "overlay range", ddsCompatProp: 1, helpDefault: 'blank', help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false }, 
       { name: "design overlay formats", displayName: (pui.nodedesigner ? "design overlay screens" : undefined), type: "list", helpDefault: "blank", help: "Specifies a list of additional screens to render in the designer when this screen is selected. This property is only used at design-time. It is ignored at run-time.", bind: false },
 
@@ -474,6 +484,11 @@ function getScreenPropertiesModel(designScreen) {
       { name: "override attribute", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Use this property to together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
       { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
+
+      { name: "Translations", category: true, nodedesigner: false}, 
+      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
+      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
+      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
 
       { name: "Response", category: true }, 
       { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." }, 
@@ -725,7 +740,7 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
     pui.focusField.dom = dom;
     pui.focusField.setFocusFlag = true;
   }
-
+  
 
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
@@ -792,8 +807,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       originalValue = properties.originalValue;
     } else {
       if (domObj.tagName == "DIV") {
-        if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
+        // Get the value from an existing floating placeholder first, then other possibilities; fallback to inner-text otherwise. #7323.
         if (domObj.floatingPlaceholder != null) originalValue = domObj.floatingPlaceholder.getValue();
+        else if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
         else if (domObj.slider != null) originalValue = domObj.slider.value;
         else originalValue = getInnerText(domObj);
       } else {
@@ -813,6 +829,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (widget == null) return dom;
     var tag = widget.tag;
     var inpType = widget.inputType;
+    if (isDesignMode) {
+      designItem.promptIcon = null;
+      designItem.removeIcon();
+    }
 
     switch (effectiveValue) {
       //case "button":
@@ -1251,6 +1271,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         if (domObj.spinner && domObj.style.visibility == "hidden") domObj.spinner.hide();
       }, 1);
     }
+    if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "textbox") {
+      setTimeout(function () {
+        if (domObj.prompter && domObj.style.visibility == "hidden") domObj.prompter.style.visibility = "hidden";
+      }, 1);
+    }
     if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.tagName == "A") {
       domObj.firstChild.style.color = effectiveValue;
     } else if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.nextSibling != null && domObj.firstChild.nextSibling.tagName == "A") { // assuming first child is a text node, and has a sibling that is a hyperlink
@@ -1377,6 +1402,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       func = function () {
         eval("var value = arguments[0];");
         eval("var text = arguments[1];");
+        try {
+          eval(newValue);
+        } catch (err) {
+          pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
+        }
+      };
+    } else if (propConfigName == "onprompt") {
+      func = function () {
+        eval("var value = arguments[0];");
         try {
           eval(newValue);
         } catch (err) {
@@ -1640,13 +1674,13 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
     if (cssClass == "PR" || cssClass == "PR-UL") {
       dom.readOnly = true;
       dom.tabIndex = "-1";
-      if (dom.tagName == "SELECT") {
+      if (dom.tagName == "SELECT" && !inDesignMode()) {
         dom.disabled = true;
       }
       if (dom.comboBoxWidget != null) {
         var boxDom = dom.comboBoxWidget.getBox();
         boxDom.readOnly = true;
-        boxDom.disabled = true;
+        if (!inDesignMode()) boxDom.disabled = true;
         boxDom.tabIndex = "-1";
       }
       if (dom.floatingPlaceholder != null) {

@@ -149,14 +149,16 @@ pui.ExternalFiles = function() {
               pui["onload"](parms);
             }
 
-            var initialRoutine = props["initial routine"];
-            if (initialRoutine && initialRoutine["routine"]) {
-              var routineName = initialRoutine["routine"];
-              try {
-                eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
-              }
-              catch (err) {
-                console.error(err);
+            if (pui.clientLogic) {
+              var initialRoutine = props["initial routine"];
+              if (initialRoutine && initialRoutine["routine"]) {
+                var routineName = initialRoutine["routine"];
+                try {
+                  eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}; \r\npui[\"routineFunction\"]();");
+                }
+                catch (err) {
+                  console.error(err);
+                }
               }
             }
 

@@ -78,8 +78,9 @@ Object.defineProperties(pui.ResponsiveLayout.prototype, {
 });
 
 // Prototype properties: attached to prototype once, not to the class instances each time a constructor is called.
-pui.ResponsiveLayout.prototype._findRulesRegex1 = /^(screen|all)\s*(.*)$/i;
+pui.ResponsiveLayout.prototype._findRulesRegex1 = /^(not )?(screen|all)\s*(.*)$/i;
 pui.ResponsiveLayout.prototype._findRulesRegex2 = /and\s*\([^)]+\)/gi;
+pui.ResponsiveLayout.prototype._findRulesRegexDisabled = /^disable/i;
 pui.ResponsiveLayout.prototype._findRulesRegex_minmax = /^and\s*\(\s*(min|max)-(width|height)\s*:\s*(\d+)\s*px\s*\)$/i;
 pui.ResponsiveLayout.prototype._findRulesRegex_orient = /^and\s*\(\s*orientation\s*:\s*(portrait|landscape)\s*\)/i;
 
@@ -329,9 +330,9 @@ pui.ResponsiveLayout.prototype._findRules = function(parent){
     else if (rule.type == rule["MEDIA_RULE"] ){
       conditionText = rule["conditionText"] || rule.media.mediaText;  //mediaText is for IE.
       var reMatches1 = conditionText.match(this._findRulesRegex1);
-      if (reMatches1 != null){      //Rule starts with screen or all.
+      if (reMatches1 != null){      //Rule starts with screen or all, optionally with not in front.
 
-        var reMatches2 = reMatches1[2].match(this._findRulesRegex2);
+        var reMatches2 = reMatches1[3].match(this._findRulesRegex2);
         var ruleSatisfies = true;
         if (reMatches2 != null){    //Rule has "and" with media feature in parentheses.
 
@@ -362,11 +363,14 @@ pui.ResponsiveLayout.prototype._findRules = function(parent){
             }
           }
         }
-        if (ruleSatisfies){
+        
+        var foundNot = reMatches1[1] === "not";  //True when the media query does not start with "not".
+        if ( (ruleSatisfies && !foundNot) || (foundNot && !ruleSatisfies) ){
+          // The rule satisfies the dimensions and there is no "not". Or there was a "not" and rule does not satisfy dimensions.
           this._findRules(rule);
         }
       }
-      else{
+      else if (conditionText.match(this._findRulesRegexDisabled) == null) {
         console.log("Unsupported media rule:", conditionText);
       }
     }

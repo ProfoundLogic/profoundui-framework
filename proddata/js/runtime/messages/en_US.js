@@ -168,7 +168,7 @@ var en_US = function(dict) {
             dictMsg["duplicate actions"]            = "Duplicate action(s) found for this row/column, unpredictable results could occur. Please review actions and delete duplicates.";
 
             // Jumpstart only.
-            dictMsg["subfile full"]        			    = "There are more than 9,999 records; only the first 9,999 records are displayed.";
+            dictMsg["subfile full"]        			= "There are more than 9,999 records; only the first 9,999 records are displayed.";
             
             break;
 
@@ -217,7 +217,7 @@ var en_US = function(dict) {
             dictMsg["message id"]                   = "Message Id";
             dictMsg["ctlr job"]                     = "Controller Job";
             dictMsg["app job"]                      = "Application Job";
-            dictMsg["joblog download"]              = "Download Job Logs";
+            dictMsg["joblog download"]              = "Download Job Log";
             dictMsg["curr user"]                    = "Current User";
             dictMsg["remote ip"]                    = "Remote IP Address";
             dictMsg["remote port"]                  = "Remote Port";
