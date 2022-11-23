@@ -1058,7 +1058,7 @@ pui["keepAlive"] = function() {
   if (pui["isCloud"]) params["workspace_id"] = pui.cloud.ws.id;
   
   ajax({
-    "url": url,
+    "url": pui.addRequestId(url),
     "method": "post",
     "params": params,
     "sendAsBinary": false,
