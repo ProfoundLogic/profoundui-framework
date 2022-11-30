@@ -4438,7 +4438,7 @@ pui.submitResponse = function(response, value) {
       if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
 
       ajaxJSON({
-        "url": url,
+        "url": pui.addRequestId(url),
         "method": "post",
         "params": response,
         "sendAsBinary": false,
@@ -5096,7 +5096,7 @@ pui["run"] = function(config) {
     });
 
     ajaxJSON({
-      "url": url,
+      "url": pui.addRequestId(url),
       "method": method,
       "sendAsBinary": false,
       "params": ajaxParams,
@@ -5246,7 +5246,7 @@ pui["signon"] = function(config) {
   });
 
   ajaxJSON({
-    "url": url,
+    "url": pui.addRequestId(url),
     "method": "post",
     "sendAsBinary": false,
     "params": ajaxParams,

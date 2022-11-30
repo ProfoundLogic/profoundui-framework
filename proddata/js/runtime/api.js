@@ -166,6 +166,7 @@ function getElementValue(id, autocompUseValueField) {
   }
   if (elem.comboBoxWidget != null) elemValue = elem.comboBoxWidget.getValue();
   if (elem.floatingPlaceholder != null) elemValue = elem.floatingPlaceholder.getValue();
+  if (elem.signaturePad != null) elemValue = elem.signaturePad.getValue();
   if (elem.slider != null) elemValue = String(elem.value);
   if (elem.onOffSwitch != null) {
     elemValue = "";
@@ -1057,7 +1058,7 @@ pui["keepAlive"] = function() {
   if (pui["isCloud"]) params["workspace_id"] = pui.cloud.ws.id;
   
   ajax({
-    "url": url,
+    "url": pui.addRequestId(url),
     "method": "post",
     "params": params,
     "sendAsBinary": false,

@@ -5420,6 +5420,8 @@ div.Glass>.pui-tablayout-body>div {
   padding: 2px;
   cursor: default;
   background: none;
+  min-height: 1em;
+  min-width: 144px;
 }
 
 .combo-option:hover {
