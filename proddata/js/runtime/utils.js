@@ -1123,7 +1123,7 @@ pui["unload"] = function() {
         shutdownFlag = "shutdown=1";
       var data = shutdownFlag + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
       var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
-      navigator["sendBeacon"](url, blob);
+      navigator["sendBeacon"](pui.addRequestId(url), blob);
     }
     else {
       if (hardshutdownOnClose)
@@ -1138,7 +1138,7 @@ pui["unload"] = function() {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
       ajax({
-        url: url,
+        url: pui.addRequestId(url),
         method: "post",
         "suppressAlert": true,
         params: ajaxParams
@@ -5702,7 +5702,7 @@ pui["doSessionTimeout"] = function() {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
   }
   ajaxJSON({
-    "url": url,
+    "url": pui.addRequestId(url),
     "method": "post",
     "sendAsBinary": false,
     "suppressAlert": true,
@@ -5896,4 +5896,20 @@ pui.createReplayUI = function() {
   replayDiv.appendChild(step);
   replayDiv.appendChild(next);
   document.body.appendChild(replayDiv);
+}
+
+/**
+ * Adds unique identifier to a request URL.
+ */
+pui.addRequestId = function(url) {
+
+  if (url.indexOf("?") === -1) {
+    url += "?"
+  }
+  else {
+    url += "&"
+  }
+  url += "pui-rid=" + pui["newUUID"]();
+  return url;
+
 }
