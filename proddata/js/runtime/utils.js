@@ -5764,7 +5764,7 @@ pui.getStorageKey = function(screenParms, prefix){
  */
 pui.record = function(parms) {
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
-}
+};
 
 
 /**
@@ -5846,7 +5846,7 @@ pui.saveRecording = function() {
 
   });
 
-}
+};
 
 /**
  * Create recording replay user interface with arrows for advancing screens
@@ -5877,7 +5877,7 @@ pui.createReplayUI = function() {
   prev.innerHTML = "keyboard_arrow_left";
   prev.onclick = function() {
     advance(-1);
-  }
+  };
 
   var step = document.createElement("span");
   step.classList.add("pui-replay-step");
@@ -5888,7 +5888,7 @@ pui.createReplayUI = function() {
   next.innerHTML = "keyboard_arrow_right";
   next.onclick = function() {
     advance(+1);
-  }
+  };
 
   var replayDiv = document.createElement("div");
   replayDiv.classList.add("pui-replay");
@@ -5896,20 +5896,82 @@ pui.createReplayUI = function() {
   replayDiv.appendChild(step);
   replayDiv.appendChild(next);
   document.body.appendChild(replayDiv);
-}
+};
 
 /**
  * Adds unique identifier to a request URL.
+ * @param {String} url 
  */
 pui.addRequestId = function(url) {
 
   if (url.indexOf("?") === -1) {
-    url += "?"
+    url += "?";
   }
   else {
-    url += "&"
+    url += "&";
   }
   url += "pui-rid=" + pui["newUUID"]();
   return url;
 
-}
+};
+
+/**
+ ******************************************************************************
+ * A wrapper class for handling connections to a WebSocket server and adding/removing socket events.
+ * @constructor
+ * @param {String} uri
+ * @returns {pui.WebSocketClient}
+ */
+pui.WebSocketClient = function(uri){
+  this.uri = uri;
+};
+
+/**
+ * Connect or reconnect to a socket and register listeners.
+ */
+pui.WebSocketClient.prototype.connect = function(){
+  if (this.socket == null || this.socket.readyState === this.socket['CLOSED'] || this.socket.readyState === this.socket['CLOSING']){
+    this.socket = new WebSocket(this.uri);
+  }
+  // else: nothing else needs to be done for OPEN or CONNECTING.
+
+  this.socket.addEventListener('message', this);
+  this.socket.addEventListener('error', this);
+  this.socket.addEventListener('close', this);
+  this.socket.addEventListener('open', this);
+};
+
+/**
+ * Close the socket and cleanup.
+ */
+pui.WebSocketClient.prototype.disconnect = function(){
+  if (this.socket){
+    if (this.socket.readyState === this.socket['OPEN'] || this.socket.readyState === this.socket['CONNECTING']) this.socket.close();
+    this.onCloseOrDisconnect();
+  }
+};
+
+/**
+ * Cleanup events and socket upon socket closing or disconnect.
+ */
+pui.WebSocketClient.prototype.onCloseOrDisconnect = function(){
+  if (this.socket){
+    this.socket.removeEventListener('message', this);
+    this.socket.removeEventListener('error', this);
+    this.socket.removeEventListener('close', this);
+    this.socket.removeEventListener('open', this);
+    delete this.socket;
+  }
+};
+
+/**
+ * Handle close events. Child classes may override this.
+ * @param {Event} event
+ */
+pui.WebSocketClient.prototype['handleEvent'] = function(event){
+  switch(event.type){
+    case 'close':
+      this.onCloseOrDisconnect();
+      return;
+  }
+};
