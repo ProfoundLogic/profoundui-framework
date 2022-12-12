@@ -1,0 +1,203 @@
+//  Profound UI Runtime  -- A Javascript Framework for Rich Displays
+//  Copyright (c) 2022 Profound Logic Software, Inc.
+//
+//  This file is part of the Profound UI Runtime
+//
+//  The Profound UI Runtime is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Lesser General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  The Profound UI Runtime is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public License
+//  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
+//  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+pui["errorScreen"] = {};
+
+pui["errorScreen"]["onload"] = function() {
+
+  if (get("ESSTACK")) {
+    applyProperty("ErrorStackDownload", "visibility", "visible");
+  }
+
+  if ((window["puiMobileClient"] == null && window["device"] != null &&
+    window["device"]["platform"] == "iOS") ||
+    pui.genie != null) {
+  
+    applyProperty("btnBack", "visibility", "hidden");
+    applyProperty("btnBack", "field type", "graphics button");
+  
+  }
+  
+  var jobinfo;
+  if (pui.genie != null) {
+  
+    applyProperty("NewSessionButton", "value", pui.getLanguageText("runtimeText", "ok"));
+    applyProperty("NewSessionButton", "onclick", "pui.click();");
+  
+    if (pui.appJob != null && typeof pui.appJob["appjoblogkey"] === "string" && pui.appJob["appjoblogkey"].length > 0){
+      // The job log can be downloaded if a key exists for it.
+      applyProperty("JobLogDownload", "visibility", "visible");
+    }
+  }
+  else {
+    // Not in Genie. Automatically attempt to fetch the job log from the server before it
+    // is cleared. The download link should display after the log downloads.
+    sessionStorage.removeItem("joblog");
+  
+    jobinfo = pui["get"]("ESAPPJOBLOGKEY");
+    if (jobinfo.length > 0) {
+      // Load a helper function that facilitates prompting the user to save; then, download.
+      var filesaverPath = "/jszip/FileSaver.min.js";
+      if (typeof saveAs == "function"){
+        downloadJobLog();
+      }
+      else {
+        pui["loadJS"]({ "path": filesaverPath, "callback": downloadJobLog });
+      }
+    }
+    else {
+      console.log("Cannot download job log without job key.");
+    }
+  }
+  
+  pui.formatErrorText(); 
+  pui.confirmOnClose = false; 
+  pui.shutdownOnClose = false;
+  createMaximizeIcon();
+  
+  var xhr;
+  function downloadJobLog(){
+    xhr = new XMLHttpRequest();
+    xhr.addEventListener("error", xhrerror);
+    xhr.addEventListener("load", joblogFetch);
+    xhr.open("POST", pui.getProgramURL("PUI0009118.pgm"), true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send("jobinfo=" + jobinfo);
+  }
+  
+  function joblogFetch(){
+    if (typeof xhr.response === "string" && xhr.response.length > 0){
+      var contentDisp = xhr.getResponseHeader("Content-Disposition");
+      if (contentDisp === "attachment"){
+        // The Content-Disposition header is "attachment" when the response is good.
+        sessionStorage.setItem("joblog", xhr.response);  //Store the results in memory.
+        applyProperty("JobLogDownload", "visibility", "visible");  //show the download link.
+      }
+      else {
+        // The response is error plain text.
+        console.log(pui["getLanguageText"]("runtimeMsg", "failed to load x", ["Job Log"]) + "<br>" + xhr.response);
+      }
+    }
+    else {
+      console.log("Job log download error: Empty Response");
+    }
+  }
+  
+  function xhrerror(err){
+    console.log("Job log download error:", error);
+  } 
+
+  function createMaximizeIcon() {
+    pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
+    pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
+    pui["errorScreen"]["maximizeIcon"].title = "Maximize";
+    pui.runtimeContainer.appendChild(pui["errorScreen"]["maximizeIcon"]);
+    pui["errorScreen"]["maximizeIcon"].className = "";
+    applyProperty("MaximizeIcon", "field type", "icon");
+    applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
+    applyProperty("MaximizeIcon", "css class", "error-screen-maximize-icon");
+    window.addEventListener("resize", pui["errorScreen"]["positionMaximizeIcon"]);
+    pui["errorScreen"]["maximizeIcon"].addEventListener("click", pui["errorScreen"]["maximize"]);
+    pui["errorScreen"]["positionMaximizeIcon"]();    
+  }
+
+}
+
+
+pui.formatErrorText = function() {
+  var dom = document.getElementById("ESHELP");
+  var text;
+  if (dom != null) {
+    text = dom.innerHTML;
+    if (text != null) {
+      var searchFor = "Recovery  . . . :";
+      text = text.replace(searchFor, "<br/><br/>" + searchFor);
+      searchFor = searchFor.replace("  ", " ");  // replace 2 spaces with one (IE)
+      text = text.replace(searchFor, "<br/><br/>" + searchFor);
+      dom.innerHTML = text;
+    }
+  }
+};
+
+
+pui["errorScreen"]["maximize"] = function() {
+  if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
+    pui["errorScreen"]["onload"]["restore"]();
+    return;
+  }
+
+  let panel = document.querySelector("#ErrorPanel");
+
+  pui["errorScreen"]["savedStyle"] = [];
+  const save = pui["errorScreen"]["saveStyle"];
+  save(panel, "left");
+  save(panel, "width");
+  save(panel, "top");
+  save(panel, "height");
+  
+  panel.style.left = "5px";
+  panel.style.width = "calc(100% - 10px)";
+  panel.style.top = "5px";
+  panel.style.height = window.innerHeight - 10 + "px";
+  applyProperty(panel, "height", panel.style.height);
+  pui["errorScreen"]["positionMaximizeIcon"]();
+
+  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");    
+}
+
+pui["errorScreen"]["onload"]["restore"] = function() {
+  if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
+    pui["errorScreen"]["onload"]["mazimize"]();
+    return;
+  }
+
+  // Restore the panel to its original size and position.
+  let panel = document.querySelector("#ErrorPanel");
+  for (let i = 0; i < pui["errorScreen"]["savedStyle"].length; i++) {
+    let entry = pui["errorScreen"]["savedStyle"][i];
+    entry.dom.style[entry.prop] = entry.value;
+  }
+  applyProperty(panel, "height", panel.style.height);
+
+  pui["errorScreen"]["positionMaximizeIcon"]();
+
+  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");  
+}
+
+
+pui["errorScreen"]["positionMaximizeIcon"] = function() {    
+  setTimeout(function() {
+    if (pui["errorScreen"]["maximizeIcon"]) {
+      let panel = document.querySelector("#ErrorPanel");
+      let x = panel.offsetLeft + panel.offsetWidth - 35;
+      let y = panel.offsetTop + 10;  
+      pui["errorScreen"]["maximizeIcon"].style.left = x + "px";
+      pui["errorScreen"]["maximizeIcon"].style.top = y + "px";
+    }
+  }, 100);
+}
+
+pui["errorScreen"]["savedStyle"] = [];
+pui["errorScreen"]["saveStyle"] = function(dom, prop) {
+  let newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
+  pui["errorScreen"]["savedStyle"].push(newEntry);
+}
+
