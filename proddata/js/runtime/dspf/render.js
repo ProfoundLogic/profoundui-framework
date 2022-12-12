@@ -5483,20 +5483,6 @@ pui.closeSession = function() {
   }
 };
 
-pui.formatErrorText = function() {
-  var dom = document.getElementById("ESHELP");
-  var text;
-  if (dom != null) {
-    text = dom.innerHTML;
-    if (text != null) {
-      var searchFor = "Recovery  . . . :";
-      text = text.replace(searchFor, "<br/><br/>" + searchFor);
-      searchFor = searchFor.replace("  ", " ");  // replace 2 spaces with one (IE)
-      text = text.replace(searchFor, "<br/><br/>" + searchFor);
-      dom.innerHTML = text;
-    }
-  }
-};
 
 
 

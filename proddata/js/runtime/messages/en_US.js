@@ -218,6 +218,7 @@ var en_US = function(dict) {
             dictMsg["ctlr job"]                     = "Controller Job";
             dictMsg["app job"]                      = "Application Job";
             dictMsg["joblog download"]              = "Download Job Log";
+            dictMsg["error stack download"]         = "Download Error Stack";
             dictMsg["curr user"]                    = "Current User";
             dictMsg["remote ip"]                    = "Remote IP Address";
             dictMsg["remote port"]                  = "Remote Port";

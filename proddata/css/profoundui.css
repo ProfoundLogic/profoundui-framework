@@ -17493,14 +17493,15 @@ div.listEditor > div.dlgbody input {
   box-sizing: border-box;
 }
 
-div.joblogDL {
+div.joblogDL, div.errstackDL {
   font-size: 11px;
   white-space: pre;
   cursor: pointer;
   text-decoration: underline;
 }
 
-div.joblogDL > span.pui-material-icons { 
+div.joblogDL > span.pui-material-icons,
+div.errstackDL > span.pui-material-icons { 
  top: 4px;
  cursor:inherit;
  position:relative;
@@ -17588,4 +17589,11 @@ div.pui-replay .pui-replay-step {
   margin-right: 5px;
   cursor: default;
   user-select: none;
+}
+
+.error-screen-maximize-icon {
+  color: #fff;
+  position: absolute;
+  font-size: 18px;
+  cursor: pointer;
 }
