@@ -30,18 +30,18 @@ pui["errorScreen"]["onload"] = function() {
   if ((window["puiMobileClient"] == null && window["device"] != null &&
     window["device"]["platform"] == "iOS") ||
     pui.genie != null) {
-  
+
     applyProperty("btnBack", "visibility", "hidden");
     applyProperty("btnBack", "field type", "graphics button");
-  
+
   }
-  
+
   var jobinfo;
   if (pui.genie != null) {
-  
+
     applyProperty("NewSessionButton", "value", pui.getLanguageText("runtimeText", "ok"));
     applyProperty("NewSessionButton", "onclick", "pui.click();");
-  
+
     if (pui.appJob != null && typeof pui.appJob["appjoblogkey"] === "string" && pui.appJob["appjoblogkey"].length > 0){
       // The job log can be downloaded if a key exists for it.
       applyProperty("JobLogDownload", "visibility", "visible");
@@ -51,7 +51,7 @@ pui["errorScreen"]["onload"] = function() {
     // Not in Genie. Automatically attempt to fetch the job log from the server before it
     // is cleared. The download link should display after the log downloads.
     sessionStorage.removeItem("joblog");
-  
+
     jobinfo = pui["get"]("ESAPPJOBLOGKEY");
     if (jobinfo.length > 0) {
       // Load a helper function that facilitates prompting the user to save; then, download.
@@ -67,13 +67,13 @@ pui["errorScreen"]["onload"] = function() {
       console.log("Cannot download job log without job key.");
     }
   }
-  
-  pui.formatErrorText(); 
-  pui.confirmOnClose = false; 
+
+  pui.formatErrorText();
+  pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
   createMaximizeIcon();
   pui["errorScreen"]["interactiveStack"]();
-  
+
   var xhr;
   function downloadJobLog(){
     xhr = new XMLHttpRequest();
@@ -83,7 +83,7 @@ pui["errorScreen"]["onload"] = function() {
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("jobinfo=" + jobinfo);
   }
-  
+
   function joblogFetch(){
     if (typeof xhr.response === "string" && xhr.response.length > 0){
       var contentDisp = xhr.getResponseHeader("Content-Disposition");
@@ -101,10 +101,10 @@ pui["errorScreen"]["onload"] = function() {
       console.log("Job log download error: Empty Response");
     }
   }
-  
+
   function xhrerror(err){
     console.log("Job log download error:", error);
-  } 
+  }
 
   function createMaximizeIcon() {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
@@ -117,7 +117,7 @@ pui["errorScreen"]["onload"] = function() {
     applyProperty("MaximizeIcon", "css class", "pui-error-screen-maximize-icon");
     window.addEventListener("resize", pui["errorScreen"]["positionMaximizeIcon"]);
     pui["errorScreen"]["maximizeIcon"].addEventListener("click", pui["errorScreen"]["maximize"]);
-    pui["errorScreen"]["positionMaximizeIcon"]();    
+    pui["errorScreen"]["positionMaximizeIcon"]();
   }
 
 }
@@ -140,20 +140,20 @@ pui.formatErrorText = function() {
 
 
 pui["errorScreen"]["maximize"] = function() {
-  if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
+  if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["restore"]();
     return;
   }
 
-  let panel = document.querySelector("#ErrorPanel");
+  var panel = document.querySelector("#ErrorPanel");
 
   pui["errorScreen"]["savedStyle"] = [];
-  const save = pui["errorScreen"]["saveStyle"];
+  var save = pui["errorScreen"]["saveStyle"];
   save(panel, "left");
   save(panel, "width");
   save(panel, "top");
   save(panel, "height");
-  
+
   panel.style.left = "5px";
   panel.style.width = "calc(100% - 10px)";
   panel.style.top = "5px";
@@ -161,35 +161,35 @@ pui["errorScreen"]["maximize"] = function() {
   applyProperty(panel, "height", panel.style.height);
   pui["errorScreen"]["positionMaximizeIcon"]();
 
-  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");    
+  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");
 }
 
 pui["errorScreen"]["restore"] = function() {
-  if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
+  if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["onload"]["mazimize"]();
     return;
   }
 
   // Restore the panel to its original size and position.
-  let panel = document.querySelector("#ErrorPanel");
-  for (let i = 0; i < pui["errorScreen"]["savedStyle"].length; i++) {
-    let entry = pui["errorScreen"]["savedStyle"][i];
+  var panel = document.querySelector("#ErrorPanel");
+  for (var i = 0; i < pui["errorScreen"]["savedStyle"].length; i++) {
+    var entry = pui["errorScreen"]["savedStyle"][i];
     entry.dom.style[entry.prop] = entry.value;
   }
   applyProperty(panel, "height", panel.style.height);
 
   pui["errorScreen"]["positionMaximizeIcon"]();
 
-  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");  
+  applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
 }
 
 
-pui["errorScreen"]["positionMaximizeIcon"] = function() {    
+pui["errorScreen"]["positionMaximizeIcon"] = function() {
   setTimeout(function() {
     if (pui["errorScreen"]["maximizeIcon"]) {
-      let panel = document.querySelector("#ErrorPanel");
-      let x = panel.offsetLeft + panel.offsetWidth - 35;
-      let y = panel.offsetTop + 10;  
+      var panel = document.querySelector("#ErrorPanel");
+      var x = panel.offsetLeft + panel.offsetWidth - 35;
+      var y = panel.offsetTop + 10;
       pui["errorScreen"]["maximizeIcon"].style.left = x + "px";
       pui["errorScreen"]["maximizeIcon"].style.top = y + "px";
     }
@@ -198,7 +198,7 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
 
 pui["errorScreen"]["savedStyle"] = [];
 pui["errorScreen"]["saveStyle"] = function(dom, prop) {
-  let newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
+  var newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
   pui["errorScreen"]["savedStyle"].push(newEntry);
 }
 
@@ -209,7 +209,7 @@ pui["errorScreen"]["downloadStack"] = function() {
 
 
 pui["errorScreen"]["getStack"] = function() {
-  let stackData = get("ESSTACK");
+  var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
   }
@@ -241,21 +241,21 @@ pui["errorScreen"]["interactiveStack"] = function() {
   }
 
   // Set up the error screen
-  let container = getObj("ESHELP");
+  var container = getObj("ESHELP");
   container.innerHTML = "";
-  let selectedEntry = null;
+  var selectedEntry = null;
 
   // Create two side-by-side divs
-  let left = document.createElement("div");
-  let right = document.createElement("div");
+  var left = document.createElement("div");
+  var right = document.createElement("div");
   left.classList.add("pui-error-screen-stack-left");
   right.classList.add("pui-error-screen-stack-right");
-  right.innerHTML = `<pre class="error-code-lines"></pre><pre><code></code></pre>`;
+  right.innerHTML = '<pre class="error-code-lines"></pre><pre><code></code></pre>';
   container.appendChild(left);
   container.appendChild(right);
 
   // Add error stack entries to the left div
-  let stackData = get("ESSTACK");
+  var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
   }
@@ -265,20 +265,20 @@ pui["errorScreen"]["interactiveStack"] = function() {
   if (!stackData.parsedStack ||  stackData.parsedStack.length === 0) {
     return;
   }
-  let stack = stackData.parsedStack;
-  for (let i = 0; i < stack.length; i++) {
-    let entry = stack[i];
-    let div = document.createElement("div");
+  var stack = stackData.parsedStack;
+  for (var i = 0; i < stack.length; i++) {
+    var entry = stack[i];
+    var div = document.createElement("div");
     div.classList.add("pui-error-screen-stack-entry");
     div.innerText = entry.text;
     div.title = entry.title;
     entry.div = div;
     entry.codeObj = stackData.stackCode[i];
     // convert object to string
-    let codeLines = [];
+    var codeLines = [];
     entry.code = "";
-    for (let lineKey in entry.codeObj) {
-      let codeLine = lineKey + " " + entry.codeObj[lineKey];
+    for (var lineKey in entry.codeObj) {
+      var codeLine = lineKey + " " + entry.codeObj[lineKey];
       if (Number(lineKey) === entry.lineNumber) {
         // codeLine = `<mark class="pui-error-screen-highlighted-line">${codeLine}</mark>`;
         //codeLine = "«" + codeLine + "»";
@@ -301,17 +301,17 @@ pui["errorScreen"]["interactiveStack"] = function() {
     selectedEntry = entry;
     if (!entry || !entry.div) return;
     entry.div.classList.add("pui-stack-entry-selected");
-    let code = right.querySelector(".pui-error-screen-stack-right pre code");
+    var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
     if (typeof hljs === "object") hljs.highlightBlock(code);
     if (!entry.code) return;
 
     // Highlight the line of code in error
-    let codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
+    var codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
     codeLines.innerHTML = "";
-    for (let lineKey in entry.codeObj) {
-      let span = document.createElement("span");
+    for (var lineKey in entry.codeObj) {
+      var span = document.createElement("span");
       span.classList.add("error-code-line");
       span.innerHTML = "&nbsp;";
       if (Number(lineKey) === entry.lineNumber) {
