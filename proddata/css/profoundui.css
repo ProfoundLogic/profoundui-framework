@@ -17591,9 +17591,82 @@ div.pui-replay .pui-replay-step {
   user-select: none;
 }
 
-.error-screen-maximize-icon {
+.pui-error-screen-maximize-icon {
   color: #fff;
   position: absolute;
   font-size: 18px;
   cursor: pointer;
+}
+
+.pui-error-screen-stack-left {
+  float: left;
+  width: 300px;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding-right: 5px;
+}
+
+.pui-error-screen-stack-right {
+  position: relative;
+  float: left;
+  width: calc(100% - 310px);
+  height: 100%;
+  overflow: auto;  
+  box-sizing: border-box;  
+  background-color: #1e1e1e;
+  line-height: 1.4;
+  overflow-x: hidden;
+  border-radius: 6px;
+}
+.pui-error-screen-stack-right > pre {
+  margin: 0;
+  position: absolute;
+  overflow-x: hidden;
+}
+.pui-error-screen-stack-right > code {
+  margin: 0;
+  overflow-x: hidden;
+}
+.pui-error-screen-stack-right pre code.hljs {
+  overflow-x: hidden !important;
+  background: none;
+}
+
+div.pui-error-screen-stack-entry {
+  font-family: 'Source Sans Pro', "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  text-align: right;
+  color: #aaa;
+  font-weight: bold;
+  padding: 5px;
+  padding-right: 15px;
+  cursor: pointer;
+}
+div.pui-error-screen-stack-entry:hover {
+  background-color: #eee;
+}
+div.pui-error-screen-stack-entry.pui-stack-entry-selected {
+  background-color: #ccc;
+  color: #333;
+}
+mark.pui-error-screen-highlighted-line {
+  background-color: #600;
+}
+
+.pui-error-screen-stack-right pre.error-code-lines {
+  width: 100%;
+  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+  font-size: 1em;
+  padding-top: 14px;  
+}
+.pui-error-screen-stack-right pre.error-code-lines .error-code-line {
+  display: inline-block;
+  width: 100%;
+}
+.pui-error-screen-stack-right pre.error-code-lines .highlighted-error-code-line {
+  background-color: rgb(51 65 85);
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-color: rgb(56 189 248);
 }

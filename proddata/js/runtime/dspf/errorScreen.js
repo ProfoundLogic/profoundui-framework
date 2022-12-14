@@ -23,7 +23,7 @@ pui["errorScreen"] = {};
 
 pui["errorScreen"]["onload"] = function() {
 
-  if (get("ESSTACK")) {
+  if (pui["errorScreen"]["getStack"]()) {
     applyProperty("ErrorStackDownload", "visibility", "visible");
   }
 
@@ -72,6 +72,7 @@ pui["errorScreen"]["onload"] = function() {
   pui.confirmOnClose = false; 
   pui.shutdownOnClose = false;
   createMaximizeIcon();
+  pui["errorScreen"]["interactiveStack"]();
   
   var xhr;
   function downloadJobLog(){
@@ -113,7 +114,7 @@ pui["errorScreen"]["onload"] = function() {
     pui["errorScreen"]["maximizeIcon"].className = "";
     applyProperty("MaximizeIcon", "field type", "icon");
     applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
-    applyProperty("MaximizeIcon", "css class", "error-screen-maximize-icon");
+    applyProperty("MaximizeIcon", "css class", "pui-error-screen-maximize-icon");
     window.addEventListener("resize", pui["errorScreen"]["positionMaximizeIcon"]);
     pui["errorScreen"]["maximizeIcon"].addEventListener("click", pui["errorScreen"]["maximize"]);
     pui["errorScreen"]["positionMaximizeIcon"]();    
@@ -140,7 +141,7 @@ pui.formatErrorText = function() {
 
 pui["errorScreen"]["maximize"] = function() {
   if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
-    pui["errorScreen"]["onload"]["restore"]();
+    pui["errorScreen"]["restore"]();
     return;
   }
 
@@ -163,7 +164,7 @@ pui["errorScreen"]["maximize"] = function() {
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");    
 }
 
-pui["errorScreen"]["onload"]["restore"] = function() {
+pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {  
     pui["errorScreen"]["onload"]["mazimize"]();
     return;
@@ -201,3 +202,126 @@ pui["errorScreen"]["saveStyle"] = function(dom, prop) {
   pui["errorScreen"]["savedStyle"].push(newEntry);
 }
 
+
+pui["errorScreen"]["downloadStack"] = function() {
+  pui.downloadAsAttachment("text/plain", "error stack.txt", pui["errorScreen"]["getStack"]());
+}
+
+
+pui["errorScreen"]["getStack"] = function() {
+  let stackData = get("ESSTACK");
+  try {
+    stackData = JSON.parse(stackData);
+  }
+  catch (e) {
+    return "";
+  }
+  if (!stackData.stackText) {
+    return "";
+  }
+  return stackData.stackText;
+}
+
+
+pui["errorScreen"]["interactiveStack"] = function() {
+
+  // Load the highlighter if it's not already loaded
+  if (typeof hljs !== "object") {
+    pui["loadCSS"](pui.normalizeURL("/vlog/vs2015.min.css"));
+    pui["loadJS"]({
+      "path": pui.normalizeURL("/vlog/highlight.min.js"),
+      "callback": function() {
+        pui["errorScreen"]["interactiveStack"]();
+      },
+      "onerror": function() {
+      }
+
+    });
+    return;
+  }
+
+  // Set up the error screen
+  let container = getObj("ESHELP");
+  container.innerHTML = "";
+  let selectedEntry = null;
+
+  // Create two side-by-side divs
+  let left = document.createElement("div");
+  let right = document.createElement("div");
+  left.classList.add("pui-error-screen-stack-left");
+  right.classList.add("pui-error-screen-stack-right");
+  right.innerHTML = `<pre class="error-code-lines"></pre><pre><code></code></pre>`;
+  container.appendChild(left);
+  container.appendChild(right);
+
+  // Add error stack entries to the left div
+  let stackData = get("ESSTACK");
+  try {
+    stackData = JSON.parse(stackData);
+  }
+  catch (e) {
+    return;
+  }
+  if (!stackData.parsedStack ||  stackData.parsedStack.length === 0) {
+    return;
+  }
+  let stack = stackData.parsedStack;
+  for (let i = 0; i < stack.length; i++) {
+    let entry = stack[i];
+    let div = document.createElement("div");
+    div.classList.add("pui-error-screen-stack-entry");
+    div.innerText = entry.text;
+    div.title = entry.title;
+    entry.div = div;
+    entry.codeObj = stackData.stackCode[i];
+    // convert object to string
+    let codeLines = [];
+    entry.code = "";
+    for (let lineKey in entry.codeObj) {
+      let codeLine = lineKey + " " + entry.codeObj[lineKey];
+      if (Number(lineKey) === entry.lineNumber) {
+        // codeLine = `<mark class="pui-error-screen-highlighted-line">${codeLine}</mark>`;
+        //codeLine = "«" + codeLine + "»";
+      }
+      codeLines.push(codeLine);
+    }
+    entry.code = codeLines.join("\n");
+
+    div.addEventListener("click", function() {
+      showStackEntry(entry);
+    });
+    left.appendChild(div);
+  }
+  showStackEntry(stack[0]);
+
+  function showStackEntry(entry) {
+    if (selectedEntry != null) {
+      selectedEntry.div.classList.remove("pui-stack-entry-selected");
+    }
+    selectedEntry = entry;
+    if (!entry || !entry.div) return;
+    entry.div.classList.add("pui-stack-entry-selected");
+    let code = right.querySelector(".pui-error-screen-stack-right pre code");
+    code.textContent = entry.code;
+    if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
+    if (typeof hljs === "object") hljs.highlightBlock(code);
+    if (!entry.code) return;
+
+    // Highlight the line of code in error
+    let codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
+    codeLines.innerHTML = "";
+    for (let lineKey in entry.codeObj) {
+      let span = document.createElement("span");
+      span.classList.add("error-code-line");
+      span.innerHTML = "&nbsp;";
+      if (Number(lineKey) === entry.lineNumber) {
+        span.classList.add("highlighted-error-code-line");
+      }
+      codeLines.appendChild(span);
+      // Add a new line text node
+      codeLines.appendChild(document.createTextNode("\n"));
+    }
+
+  }
+
+}
