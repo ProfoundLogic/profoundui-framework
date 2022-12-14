@@ -23,8 +23,10 @@ pui["errorScreen"] = {};
 
 pui["errorScreen"]["onload"] = function() {
 
+  var stackConfig = pui["errorScreen"]["getStackConfig"]();
+
   if (pui["errorScreen"]["getStack"]()) {
-    applyProperty("ErrorStackDownload", "visibility", "visible");
+    if (stackConfig["downloadStack"] !== false) applyProperty("ErrorStackDownload", "visibility", "visible");    
   }
 
   if ((window["puiMobileClient"] == null && window["device"] != null &&
@@ -72,7 +74,7 @@ pui["errorScreen"]["onload"] = function() {
   pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
   createMaximizeIcon();
-  pui["errorScreen"]["interactiveStack"]();
+  if (stackConfig["interactive"]) pui["errorScreen"]["interactiveStack"]();
 
   var xhr;
   function downloadJobLog(){
@@ -222,6 +224,20 @@ pui["errorScreen"]["getStack"] = function() {
   return stackData.stackText;
 }
 
+pui["errorScreen"]["getStackConfig"] = function() {
+  var stackData = get("ESSTACK");
+  try {
+    stackData = JSON.parse(stackData);
+  }
+  catch (e) {
+    return {};
+  }
+  if (!stackData.stackConfig) {
+    return {};
+  }
+  return stackData.stackConfig;
+}
+
 
 pui["errorScreen"]["interactiveStack"] = function() {
 
@@ -241,8 +257,10 @@ pui["errorScreen"]["interactiveStack"] = function() {
   }
 
   // Set up the error screen
-  var container = getObj("ESHELP");
+  var container = getObj("ESHELP");  
   container.innerHTML = "";
+  container.style.left = "10px";
+  container.style.width = "calc(100% - 20px)";
   var selectedEntry = null;
 
   // Create two side-by-side divs
@@ -287,24 +305,38 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     entry.code = codeLines.join("\n");
 
-    div.addEventListener("click", function() {
-      showStackEntry(entry);
-    });
+    function addListener(entry) {
+      div.addEventListener("click", function() {
+        showStackEntry(entry);
+      });
+    }
+    addListener(entry)
+
     left.appendChild(div);
   }
   showStackEntry(stack[0]);
 
   function showStackEntry(entry) {
+    var stackConfig = pui["errorScreen"]["getStackConfig"]();
     if (selectedEntry != null) {
       selectedEntry.div.classList.remove("pui-stack-entry-selected");
+      if (stackConfig["editor"]) applyProperty("EditInIDE", "visibility", "hidden");
     }
+    pui["errorScreen"]["currentStackEntry"] = entry;
     selectedEntry = entry;
-    if (!entry || !entry.div) return;
+    if (!entry || !entry.div) return;    
+    if (stackConfig["editor"] && 
+        entry.fileName && 
+        (entry.fileName.endsWith(".js") || entry.fileName.endsWith(".json")) &&
+        entry.code
+       ) {
+      applyProperty("EditInIDE", "visibility", "visible");
+    }
     entry.div.classList.add("pui-stack-entry-selected");
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
-    if (typeof hljs === "object") hljs.highlightBlock(code);
+    if (typeof hljs === "object") hljs.highlightElement(code);
     if (!entry.code) return;
 
     // Highlight the line of code in error
@@ -324,4 +356,33 @@ pui["errorScreen"]["interactiveStack"] = function() {
 
   }
 
+}
+
+
+pui["errorScreen"]["currentStackEntry"] = null;
+
+pui["errorScreen"]["editInIDE"] = function() {
+  if (!pui["errorScreen"]["currentStackEntry"]) return;
+  var entry = pui["errorScreen"]["currentStackEntry"];
+  var stackConfig = pui["errorScreen"]["getStackConfig"]();
+  var url = stackConfig["editor"];
+
+  // Setup common editor shortcuts
+  if (url === "vscode") url = "vscode://file/$file:$line:$column";
+  if (url === "pjs" || url === "profound.js" || url === "profoundjs") url = "http://localhost:8081/ide/?ifsFile=$file&line=$line&column=$column"
+
+  // Replace variables
+  var fileName = entry.fileName.replace(/\\/g, "/");
+  var lineNumber = entry.lineNumber;
+  var columnNumber = entry.columnNumber;
+  if (!fileName.endsWith(".js")) {
+    lineNumber = 1;
+    columnNumber = 1;
+  }
+  url = url.replace("$file", fileName);
+  url = url.replace("$line", lineNumber);
+  url = url.replace("$column", columnNumber);
+
+  // Open the URL
+  window.open(url, "_blank");
 }

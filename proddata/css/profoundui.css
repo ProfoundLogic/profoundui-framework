@@ -17493,7 +17493,7 @@ div.listEditor > div.dlgbody input {
   box-sizing: border-box;
 }
 
-div.joblogDL, div.errstackDL {
+div.joblogDL, div.errstackDL, div.editInIDE {
   font-size: 11px;
   white-space: pre;
   cursor: pointer;
@@ -17501,7 +17501,8 @@ div.joblogDL, div.errstackDL {
 }
 
 div.joblogDL > span.pui-material-icons,
-div.errstackDL > span.pui-material-icons { 
+div.errstackDL > span.pui-material-icons,
+div.editInIDE > span.pui-material-icons { 
  top: 4px;
  cursor:inherit;
  position:relative;
