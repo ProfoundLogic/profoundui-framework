@@ -41,7 +41,7 @@ pui["errorScreen"]["onload"] = function() {
   var jobinfo;
   if (pui.genie != null) {
 
-    applyProperty("NewSessionButton", "value", pui.getLanguageText("runtimeText", "ok"));
+    applyProperty("NewSessionButton", "value", pui["getLanguageText"]("runtimeText", "ok"));
     applyProperty("NewSessionButton", "onclick", "pui.click();");
 
     if (pui.appJob != null && typeof pui.appJob["appjoblogkey"] === "string" && pui.appJob["appjoblogkey"].length > 0){
@@ -105,7 +105,7 @@ pui["errorScreen"]["onload"] = function() {
   }
 
   function xhrerror(err){
-    console.log("Job log download error:", error);
+    console.log("Job log download error:", err);
   }
 
   function createMaximizeIcon() {
@@ -122,7 +122,7 @@ pui["errorScreen"]["onload"] = function() {
     pui["errorScreen"]["positionMaximizeIcon"]();
   }
 
-}
+};
 
 
 pui.formatErrorText = function() {
@@ -164,7 +164,7 @@ pui["errorScreen"]["maximize"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");
-}
+};
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
@@ -183,7 +183,7 @@ pui["errorScreen"]["restore"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
-}
+};
 
 
 pui["errorScreen"]["positionMaximizeIcon"] = function() {
@@ -385,4 +385,4 @@ pui["errorScreen"]["editInIDE"] = function() {
 
   // Open the URL
   window.open(url, "_blank");
-}
+};
