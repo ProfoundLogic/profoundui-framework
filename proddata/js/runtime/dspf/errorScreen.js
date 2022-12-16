@@ -23,10 +23,10 @@ pui["errorScreen"] = {};
 
 pui["errorScreen"]["onload"] = function() {
 
-  var stackConfig = pui["errorScreen"]["getStackConfig"]();
+  var config = pui["errorScreen"]["getConfig"]();
 
   if (pui["errorScreen"]["getStack"]()) {
-    if (stackConfig["downloadStack"] !== false) applyProperty("ErrorStackDownload", "visibility", "visible");    
+    if (config["type"] !== "production") applyProperty("ErrorStackDownload", "visibility", "visible");    
   }
 
   if ((window["puiMobileClient"] == null && window["device"] != null &&
@@ -74,7 +74,7 @@ pui["errorScreen"]["onload"] = function() {
   pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
   createMaximizeIcon();
-  if (stackConfig["interactive"]) pui["errorScreen"]["interactiveStack"]();
+  if (config["type"] === "development-advanced") pui["errorScreen"]["interactiveStack"]();
 
   var xhr;
   function downloadJobLog(){
@@ -111,7 +111,7 @@ pui["errorScreen"]["onload"] = function() {
   function createMaximizeIcon() {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
     pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
-    pui["errorScreen"]["maximizeIcon"].title = "Maximize";
+    pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
     pui.runtimeContainer.appendChild(pui["errorScreen"]["maximizeIcon"]);
     pui["errorScreen"]["maximizeIcon"].className = "";
     applyProperty("MaximizeIcon", "field type", "icon");
@@ -164,7 +164,8 @@ pui["errorScreen"]["maximize"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");
-};
+  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "restore");
+}
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
@@ -183,7 +184,8 @@ pui["errorScreen"]["restore"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
-};
+  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
+}
 
 
 pui["errorScreen"]["positionMaximizeIcon"] = function() {
@@ -224,7 +226,7 @@ pui["errorScreen"]["getStack"] = function() {
   return stackData.stackText;
 }
 
-pui["errorScreen"]["getStackConfig"] = function() {
+pui["errorScreen"]["getConfig"] = function() {
   var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
@@ -232,10 +234,10 @@ pui["errorScreen"]["getStackConfig"] = function() {
   catch (e) {
     return {};
   }
-  if (!stackData.stackConfig) {
+  if (!stackData.config) {
     return {};
   }
-  return stackData.stackConfig;
+  return stackData.config;
 }
 
 
@@ -317,15 +319,15 @@ pui["errorScreen"]["interactiveStack"] = function() {
   showStackEntry(stack[0]);
 
   function showStackEntry(entry) {
-    var stackConfig = pui["errorScreen"]["getStackConfig"]();
+    var config = pui["errorScreen"]["getConfig"]();
     if (selectedEntry != null) {
       selectedEntry.div.classList.remove("pui-stack-entry-selected");
-      if (stackConfig["editor"]) applyProperty("EditInIDE", "visibility", "hidden");
+      if (config["editor"]) applyProperty("EditInIDE", "visibility", "hidden");
     }
     pui["errorScreen"]["currentStackEntry"] = entry;
     selectedEntry = entry;
     if (!entry || !entry.div) return;    
-    if (stackConfig["editor"] && 
+    if (config["editor"] && 
         entry.fileName && 
         (entry.fileName.endsWith(".js") || entry.fileName.endsWith(".json")) &&
         entry.code
@@ -336,12 +338,12 @@ pui["errorScreen"]["interactiveStack"] = function() {
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
-    if (typeof hljs === "object") hljs.highlightElement(code);
-    if (!entry.code) return;
+    if (typeof hljs === "object") hljs.highlightElement(code);    
 
     // Highlight the line of code in error
     var codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
     codeLines.innerHTML = "";
+    if (!entry.code) return;
     for (var lineKey in entry.codeObj) {
       var span = document.createElement("span");
       span.classList.add("error-code-line");
@@ -364,8 +366,8 @@ pui["errorScreen"]["currentStackEntry"] = null;
 pui["errorScreen"]["editInIDE"] = function() {
   if (!pui["errorScreen"]["currentStackEntry"]) return;
   var entry = pui["errorScreen"]["currentStackEntry"];
-  var stackConfig = pui["errorScreen"]["getStackConfig"]();
-  var url = stackConfig["editor"];
+  var config = pui["errorScreen"]["getConfig"]();
+  var url = config["editor"];
 
   // Setup common editor shortcuts
   if (url === "vscode") url = "vscode://file/$file:$line:$column";
@@ -386,3 +388,47 @@ pui["errorScreen"]["editInIDE"] = function() {
   // Open the URL
   window.open(url, "_blank");
 };
+
+
+pui["errorScreen"]["downloadJobLog"] = function() {
+
+  var feedback_element = getObj("JobLogDownload_fb");
+  var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " ";  //e.g. "Application Job ".
+  var file_ext = ".txt";
+  
+  if (pui.genie != null) {
+    // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
+    var appJob = pui.appJob;
+    var job_num_user_name = "NA";
+    if (appJob.number && appJob.user && appJob.name) {
+      job_num_user_name = appJob.number +"_"+ appJob.user +"_"+ appJob.name;
+    }
+  
+    pui["downloadJobLog"]({
+      "outputEl": feedback_element,
+      "jobinfo": appJob.appjoblogkey,
+      "filename": filename_prefix + job_num_user_name + file_ext
+    });
+  }
+  else {
+    // In Profound.js and not in Genie the job log should have already downloaded due to "onload". Prompt to save it.
+    var joblog = sessionStorage.getItem("joblog");
+    if (typeof joblog !== "string" || joblog.length < 1){
+      feedback_element.innerHTML = "Job log failed to download. Please check browser console for more information.";
+    }
+    else {
+      var job_num_user_name = pui.get("ESAPPJOB").replace(/\//g, "_");
+      var filesaver = saveAs(
+        new Blob([joblog]),
+        filename_prefix + job_num_user_name + file_ext,
+        {"type": "text/plain;charset=utf-8"}
+      );
+      filesaver.onwriteend = waitAndClearLinkText;
+    }
+  }
+  
+  function waitAndClearLinkText(){
+    setTimeout(function(){ feedback_element.innerHTML = ""; }, 3000);
+  }
+  
+}
