@@ -81,7 +81,7 @@ pui["errorScreen"]["onload"] = function() {
     xhr = new XMLHttpRequest();
     xhr.addEventListener("error", xhrerror);
     xhr.addEventListener("load", joblogFetch);
-    xhr.open("POST", pui.getProgramURL("PUI0009118.pgm"), true);
+    xhr.open("POST", getProgramURL("PUI0009118.pgm"), true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("jobinfo=" + jobinfo);
   }
@@ -111,7 +111,7 @@ pui["errorScreen"]["onload"] = function() {
   function createMaximizeIcon() {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
     pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
-    pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
+    pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
     pui.runtimeContainer.appendChild(pui["errorScreen"]["maximizeIcon"]);
     pui["errorScreen"]["maximizeIcon"].className = "";
     applyProperty("MaximizeIcon", "field type", "icon");
@@ -164,8 +164,8 @@ pui["errorScreen"]["maximize"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");
-  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "restore");
-}
+  pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "restore");
+};
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
@@ -184,8 +184,8 @@ pui["errorScreen"]["restore"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
-  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
-}
+  pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
+};
 
 
 pui["errorScreen"]["positionMaximizeIcon"] = function() {
@@ -198,18 +198,18 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
       pui["errorScreen"]["maximizeIcon"].style.top = y + "px";
     }
   }, 100);
-}
+};
 
 pui["errorScreen"]["savedStyle"] = [];
 pui["errorScreen"]["saveStyle"] = function(dom, prop) {
   var newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
   pui["errorScreen"]["savedStyle"].push(newEntry);
-}
+};
 
 
 pui["errorScreen"]["downloadStack"] = function() {
   pui.downloadAsAttachment("text/plain", "error stack.txt", pui["errorScreen"]["getStack"]());
-}
+};
 
 
 pui["errorScreen"]["getStack"] = function() {
@@ -224,7 +224,7 @@ pui["errorScreen"]["getStack"] = function() {
     return "";
   }
   return stackData.stackText;
-}
+};
 
 pui["errorScreen"]["getConfig"] = function() {
   var stackData = get("ESSTACK");
@@ -238,7 +238,7 @@ pui["errorScreen"]["getConfig"] = function() {
     return {};
   }
   return stackData.config;
-}
+};
 
 
 pui["errorScreen"]["interactiveStack"] = function() {
@@ -312,7 +312,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
         showStackEntry(entry);
       });
     }
-    addListener(entry)
+    addListener(entry);
 
     left.appendChild(div);
   }
@@ -358,7 +358,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
 
   }
 
-}
+};
 
 
 pui["errorScreen"]["currentStackEntry"] = null;
@@ -371,7 +371,7 @@ pui["errorScreen"]["editInIDE"] = function() {
 
   // Setup common editor shortcuts
   if (url === "vscode") url = "vscode://file/$file:$line:$column";
-  if (url === "pjs" || url === "profound.js" || url === "profoundjs") url = "http://localhost:8081/ide/?ifsFile=$file&line=$line&column=$column"
+  if (url === "pjs" || url === "profound.js" || url === "profoundjs") url = "http://localhost:8081/ide/?ifsFile=$file&line=$line&column=$column";
 
   // Replace variables
   var fileName = entry.fileName.replace(/\\/g, "/");
@@ -398,15 +398,15 @@ pui["errorScreen"]["downloadJobLog"] = function() {
   
   if (pui.genie != null) {
     // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
-    var appJob = pui.appJob;
+    var appJob = pui['appJob'];
     var job_num_user_name = "NA";
-    if (appJob.number && appJob.user && appJob.name) {
-      job_num_user_name = appJob.number +"_"+ appJob.user +"_"+ appJob.name;
+    if (appJob['number'] && appJob['user'] && appJob['name']) {
+      job_num_user_name = appJob['number'] +"_"+ appJob['user'] +"_"+ appJob['name'];
     }
   
     pui["downloadJobLog"]({
       "outputEl": feedback_element,
-      "jobinfo": appJob.appjoblogkey,
+      "jobinfo": appJob['appjoblogkey'],
       "filename": filename_prefix + job_num_user_name + file_ext
     });
   }
@@ -431,4 +431,4 @@ pui["errorScreen"]["downloadJobLog"] = function() {
     setTimeout(function(){ feedback_element.innerHTML = ""; }, 3000);
   }
   
-}
+};
