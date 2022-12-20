@@ -220,10 +220,10 @@ pui["errorScreen"]["getStack"] = function() {
   catch (e) {
     return "";
   }
-  if (!stackData.stackText) {
+  if (!stackData['stackText']) {
     return "";
   }
-  return stackData.stackText;
+  return stackData['stackText'];
 };
 
 pui["errorScreen"]["getConfig"] = function() {
