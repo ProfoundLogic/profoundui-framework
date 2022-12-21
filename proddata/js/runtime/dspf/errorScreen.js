@@ -26,7 +26,7 @@ pui["errorScreen"]["onload"] = function() {
   var config = pui["errorScreen"]["getConfig"]();
 
   if (pui["errorScreen"]["getStack"]()) {
-    if (config["type"] !== "production") applyProperty("ErrorStackDownload", "visibility", "visible");    
+    if (config["type"] !== "production") applyProperty("ErrorStackDownload", "visibility", "visible");
   }
 
   if ((window["puiMobileClient"] == null && window["device"] != null &&
@@ -259,7 +259,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
   }
 
   // Set up the error screen
-  var container = getObj("ESHELP");  
+  var container = getObj("ESHELP");
   container.innerHTML = "";
   container.style.left = "10px";
   container.style.width = "calc(100% - 20px)";
@@ -282,10 +282,10 @@ pui["errorScreen"]["interactiveStack"] = function() {
   catch (e) {
     return;
   }
-  if (!stackData.parsedStack ||  stackData.parsedStack.length === 0) {
+  if (!stackData['parsedStack'] ||  stackData['parsedStack'].length === 0) {
     return;
   }
-  var stack = stackData.parsedStack;
+  var stack = stackData['parsedStack'];
   for (var i = 0; i < stack.length; i++) {
     var entry = stack[i];
     var div = document.createElement("div");
@@ -293,26 +293,17 @@ pui["errorScreen"]["interactiveStack"] = function() {
     div.innerText = entry.text;
     div.title = entry.title;
     entry.div = div;
-    entry.codeObj = stackData.stackCode[i];
+    entry.codeObj = stackData['stackCode'][i];
     // convert object to string
     var codeLines = [];
     entry.code = "";
     for (var lineKey in entry.codeObj) {
       var codeLine = lineKey + " " + entry.codeObj[lineKey];
-      if (Number(lineKey) === entry.lineNumber) {
-        // codeLine = `<mark class="pui-error-screen-highlighted-line">${codeLine}</mark>`;
-        //codeLine = "«" + codeLine + "»";
-      }
       codeLines.push(codeLine);
     }
     entry.code = codeLines.join("\n");
 
-    function addListener(entry) {
-      div.addEventListener("click", function() {
-        showStackEntry(entry);
-      });
-    }
-    addListener(entry);
+    div.addEventListener('click', showStackEntry.bind(null, entry));
 
     left.appendChild(div);
   }
@@ -326,9 +317,9 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     pui["errorScreen"]["currentStackEntry"] = entry;
     selectedEntry = entry;
-    if (!entry || !entry.div) return;    
-    if (config["editor"] && 
-        entry.fileName && 
+    if (!entry || !entry.div) return;
+    if (config["editor"] &&
+        entry.fileName &&
         (entry.fileName.endsWith(".js") || entry.fileName.endsWith(".json")) &&
         entry.code
        ) {
@@ -338,7 +329,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
-    if (typeof hljs === "object") hljs.highlightElement(code);    
+    if (typeof hljs === "object") hljs['highlightElement'](code);
 
     // Highlight the line of code in error
     var codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
@@ -395,7 +386,7 @@ pui["errorScreen"]["downloadJobLog"] = function() {
   var feedback_element = getObj("JobLogDownload_fb");
   var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " ";  //e.g. "Application Job ".
   var file_ext = ".txt";
-  
+
   if (pui.genie != null) {
     // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
     var appJob = pui['appJob'];
@@ -403,7 +394,7 @@ pui["errorScreen"]["downloadJobLog"] = function() {
     if (appJob['number'] && appJob['user'] && appJob['name']) {
       job_num_user_name = appJob['number'] +"_"+ appJob['user'] +"_"+ appJob['name'];
     }
-  
+
     pui["downloadJobLog"]({
       "outputEl": feedback_element,
       "jobinfo": appJob['appjoblogkey'],
@@ -426,9 +417,9 @@ pui["errorScreen"]["downloadJobLog"] = function() {
       filesaver.onwriteend = waitAndClearLinkText;
     }
   }
-  
+
   function waitAndClearLinkText(){
     setTimeout(function(){ feedback_element.innerHTML = ""; }, 3000);
   }
-  
+
 };
