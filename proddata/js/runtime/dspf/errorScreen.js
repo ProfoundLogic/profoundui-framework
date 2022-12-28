@@ -177,7 +177,7 @@ pui["errorScreen"]["restore"] = function() {
   var panel = document.querySelector("#ErrorPanel");
   for (var i = 0; i < pui["errorScreen"]["savedStyle"].length; i++) {
     var entry = pui["errorScreen"]["savedStyle"][i];
-    entry.dom.style[entry.prop] = entry.value;
+    entry.dom.style[entry["prop"]] = entry.value;
   }
   applyProperty(panel, "height", panel.style.height);
 
