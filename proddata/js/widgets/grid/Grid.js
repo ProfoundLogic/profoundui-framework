@@ -7502,7 +7502,7 @@ pui.Grid = function () {
 
       if (inputBox.tagName == "INPUT" || inputBox.tagName == "TEXTAREA" || inputBox.tagName == "SELECT" || inputBox.comboBoxWidget != null || inputBox.floatingPlaceholder != null) {
 
-        if (inputBox.style.visibility != "hidden" && inputBox.style.display != "none") {
+        if (inputBox.style.visibility != "hidden" && inputBox.style.display != "none" && inputBox.clientWidth > 0) {
 
           found = true;
           break;
