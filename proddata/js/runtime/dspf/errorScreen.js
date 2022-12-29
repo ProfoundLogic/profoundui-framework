@@ -26,7 +26,7 @@ pui["errorScreen"]["onload"] = function() {
   var config = pui["errorScreen"]["getConfig"]();
 
   if (pui["errorScreen"]["getStack"]()) {
-    if (config["type"] !== "production") applyProperty("ErrorStackDownload", "visibility", "visible");    
+    if (config["type"] !== "production") applyProperty("ErrorStackDownload", "visibility", "visible");
   }
 
   if ((window["puiMobileClient"] == null && window["device"] != null &&
@@ -81,7 +81,7 @@ pui["errorScreen"]["onload"] = function() {
     xhr = new XMLHttpRequest();
     xhr.addEventListener("error", xhrerror);
     xhr.addEventListener("load", joblogFetch);
-    xhr.open("POST", pui.getProgramURL("PUI0009118.pgm"), true);
+    xhr.open("POST", getProgramURL("PUI0009118.pgm"), true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("jobinfo=" + jobinfo);
   }
@@ -111,7 +111,7 @@ pui["errorScreen"]["onload"] = function() {
   function createMaximizeIcon() {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
     pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
-    pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
+    pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
     pui.runtimeContainer.appendChild(pui["errorScreen"]["maximizeIcon"]);
     pui["errorScreen"]["maximizeIcon"].className = "";
     applyProperty("MaximizeIcon", "field type", "icon");
@@ -164,8 +164,8 @@ pui["errorScreen"]["maximize"] = function() {
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-restore");
-  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "restore");
-}
+  pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "restore");
+};
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
@@ -177,15 +177,15 @@ pui["errorScreen"]["restore"] = function() {
   var panel = document.querySelector("#ErrorPanel");
   for (var i = 0; i < pui["errorScreen"]["savedStyle"].length; i++) {
     var entry = pui["errorScreen"]["savedStyle"][i];
-    entry.dom.style[entry.prop] = entry.value;
+    entry.dom.style[entry["prop"]] = entry.value;
   }
   applyProperty(panel, "height", panel.style.height);
 
   pui["errorScreen"]["positionMaximizeIcon"]();
 
   applyProperty("MaximizeIcon", "icon", "fontAwesome-regular:window-maximize");
-  pui["errorScreen"]["maximizeIcon"].title = pui.getLanguageText("runtimeText", "maximize");
-}
+  pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
+};
 
 
 pui["errorScreen"]["positionMaximizeIcon"] = function() {
@@ -198,18 +198,18 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
       pui["errorScreen"]["maximizeIcon"].style.top = y + "px";
     }
   }, 100);
-}
+};
 
 pui["errorScreen"]["savedStyle"] = [];
 pui["errorScreen"]["saveStyle"] = function(dom, prop) {
   var newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
   pui["errorScreen"]["savedStyle"].push(newEntry);
-}
+};
 
 
 pui["errorScreen"]["downloadStack"] = function() {
   pui.downloadAsAttachment("text/plain", "error stack.txt", pui["errorScreen"]["getStack"]());
-}
+};
 
 
 pui["errorScreen"]["getStack"] = function() {
@@ -220,11 +220,11 @@ pui["errorScreen"]["getStack"] = function() {
   catch (e) {
     return "";
   }
-  if (!stackData.stackText) {
+  if (!stackData['stackText']) {
     return "";
   }
-  return stackData.stackText;
-}
+  return stackData['stackText'];
+};
 
 pui["errorScreen"]["getConfig"] = function() {
   var stackData = get("ESSTACK");
@@ -238,7 +238,7 @@ pui["errorScreen"]["getConfig"] = function() {
     return {};
   }
   return stackData.config;
-}
+};
 
 
 pui["errorScreen"]["interactiveStack"] = function() {
@@ -259,7 +259,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
   }
 
   // Set up the error screen
-  var container = getObj("ESHELP");  
+  var container = getObj("ESHELP");
   container.innerHTML = "";
   container.style.left = "10px";
   container.style.width = "calc(100% - 20px)";
@@ -282,10 +282,10 @@ pui["errorScreen"]["interactiveStack"] = function() {
   catch (e) {
     return;
   }
-  if (!stackData.parsedStack ||  stackData.parsedStack.length === 0) {
+  if (!stackData['parsedStack'] ||  stackData['parsedStack'].length === 0) {
     return;
   }
-  var stack = stackData.parsedStack;
+  var stack = stackData['parsedStack'];
   for (var i = 0; i < stack.length; i++) {
     var entry = stack[i];
     var div = document.createElement("div");
@@ -293,26 +293,17 @@ pui["errorScreen"]["interactiveStack"] = function() {
     div.innerText = entry.text;
     div.title = entry.title;
     entry.div = div;
-    entry.codeObj = stackData.stackCode[i];
+    entry.codeObj = stackData['stackCode'][i];
     // convert object to string
     var codeLines = [];
     entry.code = "";
     for (var lineKey in entry.codeObj) {
       var codeLine = lineKey + " " + entry.codeObj[lineKey];
-      if (Number(lineKey) === entry.lineNumber) {
-        // codeLine = `<mark class="pui-error-screen-highlighted-line">${codeLine}</mark>`;
-        //codeLine = "«" + codeLine + "»";
-      }
       codeLines.push(codeLine);
     }
     entry.code = codeLines.join("\n");
 
-    function addListener(entry) {
-      div.addEventListener("click", function() {
-        showStackEntry(entry);
-      });
-    }
-    addListener(entry)
+    div.addEventListener('click', showStackEntry.bind(null, entry));
 
     left.appendChild(div);
   }
@@ -326,9 +317,9 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     pui["errorScreen"]["currentStackEntry"] = entry;
     selectedEntry = entry;
-    if (!entry || !entry.div) return;    
-    if (config["editor"] && 
-        entry.fileName && 
+    if (!entry || !entry.div) return;
+    if (config["editor"] &&
+        entry.fileName &&
         (entry.fileName.endsWith(".js") || entry.fileName.endsWith(".json")) &&
         entry.code
        ) {
@@ -338,7 +329,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
-    if (typeof hljs === "object") hljs.highlightElement(code);    
+    if (typeof hljs === "object") hljs['highlightElement'](code);
 
     // Highlight the line of code in error
     var codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
@@ -358,7 +349,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
 
   }
 
-}
+};
 
 
 pui["errorScreen"]["currentStackEntry"] = null;
@@ -371,7 +362,7 @@ pui["errorScreen"]["editInIDE"] = function() {
 
   // Setup common editor shortcuts
   if (url === "vscode") url = "vscode://file/$file:$line:$column";
-  if (url === "pjs" || url === "profound.js" || url === "profoundjs") url = "http://localhost:8081/ide/?ifsFile=$file&line=$line&column=$column"
+  if (url === "pjs" || url === "profound.js" || url === "profoundjs") url = "http://localhost:8081/ide/?ifsFile=$file&line=$line&column=$column";
 
   // Replace variables
   var fileName = entry.fileName.replace(/\\/g, "/");
@@ -395,18 +386,18 @@ pui["errorScreen"]["downloadJobLog"] = function() {
   var feedback_element = getObj("JobLogDownload_fb");
   var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " ";  //e.g. "Application Job ".
   var file_ext = ".txt";
-  
+
   if (pui.genie != null) {
     // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
-    var appJob = pui.appJob;
+    var appJob = pui['appJob'];
     var job_num_user_name = "NA";
-    if (appJob.number && appJob.user && appJob.name) {
-      job_num_user_name = appJob.number +"_"+ appJob.user +"_"+ appJob.name;
+    if (appJob['number'] && appJob['user'] && appJob['name']) {
+      job_num_user_name = appJob['number'] +"_"+ appJob['user'] +"_"+ appJob['name'];
     }
-  
+
     pui["downloadJobLog"]({
       "outputEl": feedback_element,
-      "jobinfo": appJob.appjoblogkey,
+      "jobinfo": appJob['appjoblogkey'],
       "filename": filename_prefix + job_num_user_name + file_ext
     });
   }
@@ -426,9 +417,9 @@ pui["errorScreen"]["downloadJobLog"] = function() {
       filesaver.onwriteend = waitAndClearLinkText;
     }
   }
-  
+
   function waitAndClearLinkText(){
     setTimeout(function(){ feedback_element.innerHTML = ""; }, 3000);
   }
-  
-}
+
+};

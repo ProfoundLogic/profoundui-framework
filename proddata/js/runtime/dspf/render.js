@@ -2371,8 +2371,10 @@ pui.renderFormat = function(parms) {
       // check set cursor row / column
       if ( !isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
-           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" ) {
+           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != ""  && 
+           dom.clientWidth > 0) {
         var crow = properties["cursor row"];
+
         if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
           var adj = parseInt(crow, 10);
           if (dom.parentNode.parentNode.grid.hasHeader) {
