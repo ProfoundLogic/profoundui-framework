@@ -2371,8 +2371,10 @@ pui.renderFormat = function(parms) {
       // check set cursor row / column
       if ( !isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
-           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" ) {
+           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != ""  && 
+           dom.clientWidth > 0) {
         var crow = properties["cursor row"];
+
         if (dom.parentNode && dom.parentNode.parentNode && dom.parentNode.parentNode.grid) {
           var adj = parseInt(crow, 10);
           if (dom.parentNode.parentNode.grid.hasHeader) {
@@ -5483,20 +5485,6 @@ pui.closeSession = function() {
   }
 };
 
-pui.formatErrorText = function() {
-  var dom = document.getElementById("ESHELP");
-  var text;
-  if (dom != null) {
-    text = dom.innerHTML;
-    if (text != null) {
-      var searchFor = "Recovery  . . . :";
-      text = text.replace(searchFor, "<br/><br/>" + searchFor);
-      searchFor = searchFor.replace("  ", " ");  // replace 2 spaces with one (IE)
-      text = text.replace(searchFor, "<br/><br/>" + searchFor);
-      dom.innerHTML = text;
-    }
-  }
-};
 
 
 
