@@ -1522,6 +1522,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
           (domObj.disabled != null && domObj.disabled == true)) {
           return;
         }
+        if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
+          // Issue PJS-225, bypass validation should work when a button's onclick event fires.
+          pui.bypassValidation = domObj.bypassValidation;
+        }
+
         eval("var row;");
         if (subfileRow != null) {
           eval("row = " + subfileRow + ";");
