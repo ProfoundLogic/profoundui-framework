@@ -95,11 +95,12 @@ pui.layout.template.load = function(parms){
     case 'css panel':
       dom = pui.layout.template.cssPanelTemplate(parms, dom);
       break;
-    case 'accordion':
-      dom = pui.layout.template.accordionTemplate(parms, dom);
-      break;
 
     // Constructors for these templates do everything, obviating an extra template loader file.
+    case 'accordion':
+      new pui.Accordion(parms, dom);
+      break;
+    
     case 'tab panel':
       new pui.TabLayout(parms, dom);
       break;

@@ -29,7 +29,7 @@ pui.ResponsiveLayout = function(parms, dom){
   pui.layout.Template.call(this, parms, dom);  //super(). sets up container, forProxy, designMode, etc.
   
   // Public
-  this.previewMode = (parms && typeof parms.previewMode === "boolean" && parms.previewMode === true);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
+  this.previewMode = (parms && parms.previewMode === true);   //Is the layout used as a preview in the Responsive Editor. (See ResponsiveDialog)
   
   // Pseudo-private properties, inheritable.
   this._numchildren = 0;
@@ -65,7 +65,34 @@ pui.ResponsiveLayout = function(parms, dom){
       // The node will disappear automatically when a new screen is rendered, because the 5250 div is cleared.
     }
   }
-  
+
+  if (!this.previewMode && this.layout && this.layout.previousTemplate !== 'responsive layout'){
+    // Ensure that default properties are used in case they are not set; e.g. when someone changes template type from other template.
+    if (!parms.properties) parms.properties = {};
+    var pname = 'layout items';
+    
+    // There are widgets inside containers. Make sure enough containers exist to hold them.
+    if (parms.lastContWithWidget > 0){
+      var num = parseInt(parms.properties[pname]);
+      if (num < 0 || isNaN(num)) num = this.DEFAULTNUMITEMS;
+
+      // Use default or ensure there are enough sections to hold the widgets being moved from the other template containers.
+      parms.properties[pname] = Math.max(num, parms.lastContWithWidget);
+
+      // In designer you must also update the design property, or else when you save, then the new tab is lost.
+      this.layout.updatePropertyInDesigner(pname, parms.properties[pname]);
+    }
+
+    pname = 'style rules';
+    if (typeof parms.properties[pname] !== 'string' || parms.properties[pname].length < 1){
+      // If there are no style rules as a result of a template change, then add something basic. Note that rules could be defined
+      // in an external stylesheet, in which case this property would need to be blank.
+      parms.properties[pname] = '@media screen { #_id_ > .puiresp { display:grid; } }';
+
+      this.layout.updatePropertyInDesigner(pname, parms.properties[pname]);
+    }
+  }
+
   this._initialSetProperties(parms);
 };
 pui.ResponsiveLayout.prototype = Object.create(pui.layout.Template.prototype);
@@ -126,8 +153,7 @@ pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
   this._setContainers( mainnode.children );  //Make sure the Layout object associated with this knows where the containers are.
 
   // When the number of containers change, then CSS can make the containers resize; child nodes need to be told of the resize.
-  var layout = this.container.layout;
-  if (layout) layout.sizeContainers();
+  if (this.layout) this.layout.sizeContainers();
 };
 
 
@@ -176,16 +202,16 @@ pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
     }
     else {
       // Changes in CSS can make the containers resize; child nodes need to be told of the resize.
-      var layout = this.container.layout;
-      if (layout) layout.sizeContainers();
+      if (this.layout) this.layout.sizeContainers();
     }
   }
 };
 
 /**
  * Re-evaluate style rules for new dimensions when necessary and when the dimensions may have changed.
+ * @param {undefined|Boolean} skipSizeContainers  True when called from Layout resize.
  */
-pui.ResponsiveLayout.prototype.resize = function() {
+pui.ResponsiveLayout.prototype.resize = function(skipSizeContainers) {
   if ((!this._useViewport || this.designMode) && this._origCssText != ""){
     this._stylenode.textContent = this._origCssText;
     this._manipulateCSSOM();
@@ -274,8 +300,7 @@ pui.ResponsiveLayout.prototype._checkWidth = function() {
     if (this._stylenode.sheet != null){
       this._manipulateCSSOM();
       // Changes in CSS can make the containers resize; child nodes need to be told of the resize.
-      var layout = this.container.layout;
-      if (layout) layout.sizeContainers();
+      if (this.layout) this.layout.sizeContainers();
     }
   }
   else if (this._checkCount < this._maxChecks){
@@ -528,8 +553,8 @@ pui.ResponsiveLayout.prototype.setProperty = function(property, value){
   }
   
   // Store template property values--any handled by this class.
-  if (this.container.layout && this.container.layout.templateProps){
-    this.container.layout.templateProps[property] = value;
+  if (this.layout && this.layout.templateProps){
+    this.layout.templateProps[property] = value;
   }
   return true;
 };
