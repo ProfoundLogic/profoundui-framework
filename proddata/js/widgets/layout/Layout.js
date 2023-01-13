@@ -128,7 +128,8 @@ pui.layout.Layout.prototype.applyTemplate = function() {
     template: this.template,
     properties: this.templateProps,
     proxyMode: this.designItem != null && this.designItem.isProxy,
-    designMode: this.designMode
+    designMode: this.designMode,
+    layout: this /*Make sure the layout object can be reached in the temporary DOM element created when constructing a layout.*/
   };
   var rv = pui.layout.template.applyTemplate(parms);
   if (rv.success) {
@@ -313,11 +314,9 @@ pui.layout.Layout.prototype.center = function() {
 pui.layout.Layout.prototype.resize = function() {
   var div = this.layoutDiv;
   var panel = div.panel;
-  var accordion = div.accordion;
   var layoutTClass = div.layoutT;
   
   if (panel) panel.resize();
-  else if (accordion) accordion.resize(null, true);
   else if (layoutTClass) layoutTClass.resize();
   
   this.childrenSized = {};  //If this layout has been sized, then its children should also be when the tab/section becomes visible.
@@ -326,20 +325,13 @@ pui.layout.Layout.prototype.resize = function() {
 };
 
 /**
- * Figure out which template type this layout contains, and get the active container for it. Needed in Templates that hide containers 
+ * Get the index of the active container for this layout. Needed in Templates that hide containers 
  * that their children are now visible: render should happen, or resize should happen to children.
  * @returns {Number}    Returns -1 if the layout does not hide sections.
  */
 pui.layout.Layout.prototype.getVisibleContainerIndex = function(){
-  var div = this.layoutDiv;
-  var accordion = div.accordion;
-  var layoutTClass = div.layoutT;
-  
-  var cont = -1;
-  if (accordion) cont = accordion.getExpandedSection();
-  else if (layoutTClass && layoutTClass.selectedTab != null) cont = parseInt(layoutTClass.selectedTab, 10);  //TabLayout
-  
-  return cont;
+  var layoutTClass = this.layoutDiv.layoutT;
+  return layoutTClass ? layoutTClass.getVisibleContainerIndex() : -1;
 };
 
 /**
@@ -350,7 +342,6 @@ pui.layout.Layout.prototype.getVisibleContainerIndex = function(){
 pui.layout.Layout.prototype.setProperty = function(property, value) {
   if (value == null) value = "";
   var panel = this.layoutDiv.panel;
-  var accordion = this.layoutDiv.accordion;
   
   // Avoid re-evaluating a template upon changing either of these multiple-occurence properties.
   var multOccurMatch = /^(css class|user defined data) \d+$/.exec(property);
@@ -489,16 +480,6 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       this.templateProps[property] = value;
       break;
 
-    case "small sections":
-      if (accordion != null) accordion.setMini(value == "true" || value == true);
-      this.templateProps[property] = value;
-      break;
-
-    case "allow collapse":
-      if (accordion != null) accordion.setAllowCollapse(value);
-      this.templateProps[property] = value;
-      break;
-
     case "header height":
       if (panel != null) panel.setHeaderHeight(value);
       this.templateProps[property] = value;
@@ -511,19 +492,16 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
 
     case "header theme":
       if (panel != null) panel.setHeaderSwatch(value);
-      if (accordion != null) accordion.setHeaderSwatch(value);
       this.templateProps[property] = value;
       break;
 
     case "body theme":
       if (panel != null) panel.setBodySwatch(value);
-      if (accordion != null) accordion.setBodySwatch(value);
       this.templateProps[property] = value;
       break;
 
     case "straight edge":
       if (panel != null) panel.setStraightEdge(value);
-      if (accordion != null) accordion.setStraightEdge(value);
       this.templateProps[property] = value;
       break;
 
@@ -536,31 +514,11 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
     case "text decoration":
     case "text transform":
       if (panel != null) panel.setStyle(property, value);
-      else if (accordion != null) {
-        accordion.setStyle(property, value);
-        if (property == "font family" || property == "font size") {
-          accordion.resize();
-        }
-      }
       this.templateProps[property] = value;
       break;
       
     case 'lazy load':
       this.templateProps[property] = value;
-      break;
-
-    case "onsectionclick":
-      if (!this.designMode) {
-         this.layoutDiv[property + "event"] = function() {
-          eval("var section = arguments[0];");
-          try {
-            return eval(value);
-          }
-          catch(err) {
-            pui.scriptError(err, "Onexpand Error:\n");
-          }
-        };
-      }
       break;
       
     case 'field type':
@@ -586,8 +544,8 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
       this.templateProps[property] = value;
       if (this.designMode && !toolbar.loadingDisplay && !toolbar.pastingFormat) {
         var rv = this.applyTemplate();
-        accordion = this.layoutDiv.accordion;
-        if (accordion != null) accordion.resize();
+        layoutT = this.layoutDiv.layoutT;
+        if (layoutT != null) layoutT.resize();
         if (rv.success == false) {
           this.templateProps[property] = savedValue;
           var me = this;
@@ -798,6 +756,7 @@ pui.layout.Template = function(parms, dom) {
   this.forProxy = (parms && parms.proxyMode);
   this.designMode = (parms && parms.designMode);
   
+  if (parms) this.layout = parms.layout;
   if (dom) this.linkToDom(dom);
 };
 pui.layout.Template.prototype = Object.create(pui.BaseClass.prototype);
@@ -844,7 +803,7 @@ pui.layout.Template.prototype.destroy = function(){
  * @returns {undefined|Boolean} 
  */
 pui.layout.Template.prototype._updatePropertyInDesigner = function(propertyName, value){
-  if (this.container && this.container.layout) return this.container.layout.updatePropertyInDesigner(propertyName, value);
+  if (this.layout) return this.layout.updatePropertyInDesigner(propertyName, value);
 };
 
 /**
@@ -858,9 +817,7 @@ pui.layout.Template.prototype._updatePropertyInDesigner = function(propertyName,
  * @param {Array} containers
  */
 pui.layout.Template.prototype._setContainers = function(containers){
-  if (this.container && this.container.layout){
-    this.container.layout.containers = containers;
-  }
+  if (this.layout) this.layout.containers = containers;
 };
 
 /**
@@ -901,8 +858,9 @@ pui.layout.Template.prototype.setPropertyAfter = function(property, value){};
 
 /**
  * Placeholder for subclasses to override. Called when the layout should update its own dimension-dependant styles.
+ * @param {undefined|Boolean} skipSizeContainers  True when called from Layout resize.
  */
-pui.layout.Template.prototype.resize = function() {};
+pui.layout.Template.prototype.resize = function(skipSizeContainers) {};
 
 /**
  * Subclasses must override this. This render is called after all properties are set, allowing DOM manipulation to happen once.
@@ -910,3 +868,10 @@ pui.layout.Template.prototype.resize = function() {};
  */
 pui.layout.Template.prototype.render = function(screenParms) {};
 
+/**
+ * Called by Layout.getVisibleContainerIndex. Child classes may override; e.g. TabLayout, Accordion,
+ * @returns {Number}
+ */
+pui.layout.Template.prototype.getVisibleContainerIndex = function(){
+  return -1;
+};

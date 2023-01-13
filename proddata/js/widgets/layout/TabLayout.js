@@ -27,7 +27,7 @@
 pui.TabLayout = function(parms, dom) {
   TabPanel.call(this);  //Import TabPanel properties and methods into this instance.
   
-  pui.layout.Template.call(this, parms, dom);  //Super class constructor.
+  pui.layout.Template.call(this, parms, dom);  //Super class constructor; sets this.layout, forProxy, designMode, etc.
   
   // Private
   this._rendered = false;   //Becomes true after initial render.
@@ -44,12 +44,28 @@ pui.TabLayout = function(parms, dom) {
   this.linkToDom(dom); //assigns this.container, etc.
     
   // Use a default value when the "tab names" property is empty or not set.
-  if (parms.properties && parms.properties['tab names'] == null) this.setProperty('tab names');
-  
+  if (parms.properties && parms.properties['tab names'] == null){
+    var tabnames = this.INITIALLIST;
+    var tablen = tabnames.split(',').length;  //3.
+
+    if (parms.lastContWithWidget > tablen){
+      // The template type changed. Ensure there are enough tabs to hold the widgets being moved from the other template containers. PUI-213.
+      for (var nextn=tablen + 1, n=parms.lastContWithWidget; nextn <= n; nextn++) tabnames += ',Tab '+ nextn;
+    }
+
+    this.setProperty('tab names', tabnames);
+
+    // In designer you must also update the design property, or else when you save, then the new tab is lost.
+    this.layout.updatePropertyInDesigner('tab names', tabnames);
+  }
+
   // Setting properties initially is required for handling special cases:
   // * "template" set after other properties; then, applyTemplate reloads the class, clearing previously set properties.
   // * "tab response" of 0 formatted as "" would keep renderFormat from setting the property.
-  this._initialSetProperties(parms);  
+  this._initialSetProperties(parms);
+
+  //PUI-213: when the layout contains widgets and the template changed, then make sure widgets can move to the Tab Layout.
+  if (parms.lastContWithWidget > 0) this.render();
 };
 pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype);  //TabLayout is subclass of Template.
 
@@ -193,8 +209,8 @@ pui.TabLayout.prototype.setProperty = function(property, value){
   }
   
   // Store template property values--any handled by this class.
-  if (this.container.layout && this.container.layout.templateProps){
-    this.container.layout.templateProps[property] = value;
+  if (this.layout && this.layout.templateProps){
+    this.layout.templateProps[property] = value;
   }
   return true;
 };
@@ -348,7 +364,7 @@ pui.TabLayout.prototype.drawChanged = function(){
   this.selectedTab = parseInt(this.selectedTab, 10);
   
   var templateProps;
-  if (this.container.layout && this.container.layout.templateProps) templateProps = this.container.layout.templateProps;
+  if (this.layout && this.layout.templateProps) templateProps = this.layout.templateProps;
   
   // For style properties that inherit, make sure tab styles use the value set for the widget property through CSS inheritance. The styles are on the main DIV.
   if (templateProps){
@@ -367,7 +383,7 @@ pui.TabLayout.prototype.drawChanged = function(){
     tabSpan.innerHTML = this.tabs[i];
     
     // If the "text decoration" property is set, then set it on each tab inline. Text-decoration cannot be inherited.
-    tabSpan.style.textDecoration = typeof templateProps['text decoration'] === 'string' ? templateProps['text decoration'] : '';
+    if (templateProps) tabSpan.style.textDecoration = typeof templateProps['text decoration'] === 'string' ? templateProps['text decoration'] : '';
     
     // Hide hidden tabs; make sure others aren't hidden.
     tabIdx = this._findNodeIndexByTabId( tabSpan.tabId );
@@ -418,7 +434,7 @@ pui.TabLayout.prototype.drawChanged = function(){
     if (i === this.selectedTab){
       bodyDiv.style.display = "";
       
-      var layout = this.container.layout;
+      var layout = this.layout;
       if (layout != null){
         // Lazy loads the items, if they weren't already.
         if (!this.designMode) layout.renderItems( this.selectedTab );
@@ -456,7 +472,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
         if (pui.cursorValues.record != null){
           if (pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)].length > 1){
             pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].value = 
-            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][this.selectedTab].value
+            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][this.selectedTab].value;
             pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].modified = true;
           }
         }
@@ -556,7 +572,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
       this._headerArea.insertBefore(draggedOuterSpan, targetOuterSpan );
       
       if (this.designMode){
-        var designItem = this.container.layout.designItem;
+        var designItem = this.layout.designItem;
         if (designItem) designItem.designer.undo.addSnapshot('Edit Layout', designItem.designer);
         
         // Also re-order the containers.
@@ -687,10 +703,11 @@ pui.TabLayout.prototype._findNodeIndexByTabId = function(tabId){
  * something in Designer; called when moving item to main canvas or into container; called when width or height changes, because of
  * Layout.js::setProperty. 
  * Scroll buttons must be added when TabLayout is initially in hidden tab/section. Also #4711.
+ * @param {undefined|Boolean} skipSizeContainers  True when called from Layout resize.
  * Overrides pui.layout.Template.resize.
  * @public
  */
-pui.TabLayout.prototype.resize = function() {
+pui.TabLayout.prototype.resize = function(skipSizeContainers) {
   if (this._rendered) {
     this._getActiveTabPos();
     this._checkScrollButtons();
@@ -713,4 +730,13 @@ pui.TabLayout.prototype.destroy = function(){
     delete dom["showTab"];
   }
   pui.layout.Template.prototype.destroy.call(this);  //Remove dom.layoutT and dom.sizeMe; call deleteOwnProperties.
+};
+
+/**
+ * 
+ * Overrides pui.layout.Template.getVisibleContainerIndex
+ * @returns {Number}
+ */
+pui.TabLayout.prototype.getVisibleContainerIndex = function(){
+  return this.selectedTab != null ? parseInt(this.selectedTab, 10) : -1;
 };
