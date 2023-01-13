@@ -3987,7 +3987,28 @@ pui.buildResponse = function(customResponseElements) {
             if (invalid) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues.join(", ") + "." });
+
+              // Present valid values as a comma separated list where the last value is separated by "or" 
+              // and if any of the values are blank, use the word "blank" instead.              
+              for (var i = 0; i < validValues.length; i++) {
+                if (typeof validValues[i] === "string" && validValues[i].trim() === "") {
+                  validValues[i] = pui["getLanguageText"]("runtimeMsg", "blank");
+                }
+              }
+              var valuesCount = validValues.length;
+              if (valuesCount > 1) {
+                var lastValue = validValues.pop();                
+                validValues = validValues.join(", ");
+                if (valuesCount > 2) {
+                  validValues += ",";
+                }
+                validValues += " " + pui["getLanguageText"]("runtimeMsg", "or") + " " + lastValue;
+              }
+              else {
+                validValues = validValues[0];
+              }
+
+              response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues + "." });
               if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
