@@ -63,7 +63,7 @@ function onPasswordElementMove(parms) {
     var eyeElementID = dom.id.replace('Password','PasswordEye');
     var eyeElement = document.getElementById(eyeElementID);
     if (eyeElement !== null) {
-      eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 12) + 'px';
+      eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 9) + 'px';
       eyeElement.style.left = passwordElement.offsetLeft + (passwordElement.offsetWidth - 35) + 'px';
     }
   }  
