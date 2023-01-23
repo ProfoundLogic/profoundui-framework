@@ -4825,8 +4825,15 @@ pui.handleHotKey = function(e, keyName) {
           var dom = domArray[i];
           if (!dom.disabled) allDisabled = false;
           if (dom.parentPagingBar != null) {
-            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+
+            // ---- locate dom grid that had been the orignal target...
+            if ((pui.scrolledGridName !== undefined && pui.scrolledGridName !== null) && 
+              dom.parentPagingBar.grid.recordFormatName != pui.scrolledGridName){
+                continue;
+            }
+            // ----  
+        
+            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
               dom.parentPagingBar.grid.pageDown();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4837,8 +4844,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
@@ -4848,8 +4854,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
               dom.parentPagingBar.grid.pageUp();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4860,8 +4865,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
