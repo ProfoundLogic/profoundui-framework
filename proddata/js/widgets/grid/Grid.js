@@ -1068,7 +1068,7 @@ pui.Grid = function () {
               "bound value formatting": bndvalfmt,
               "item properties": items[j],
               "grid properties": me.tableDiv.pui.properties,
-              "record number": i + 1,
+              "record number": i + 1
             });
             if (result != null) value = result;
           }
