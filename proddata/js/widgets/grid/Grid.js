@@ -807,6 +807,7 @@ pui.Grid = function () {
     var boundValFormats = [];
     var imageData = [];
     var hyperlinks = [], columnIds = [];
+    var items = [];
 
     saveResponsesToDataArray(); //save any changes the user may have made to the widgets before exporting #6869
     
@@ -822,6 +823,7 @@ pui.Grid = function () {
       imageData.push(false);
       hyperlinks.push(false);
       columnIds.push(-1);
+      items.push(null);
     }
 
     var colcount = 0;
@@ -834,6 +836,7 @@ pui.Grid = function () {
         var col = Number(itm["column"]);
         // If: "col" is valid and a widget for the column was not already found. (there can be multiple widgets per column, but only one exports).
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
+          items[col] = itm;
           if (pui.isBound(itm["visibility"])) {
             boundVisibility[col] = itm["visibility"];
           }
@@ -1058,7 +1061,18 @@ pui.Grid = function () {
               value = "";
             }
           }
-          
+
+          if (typeof pui["process export value"] === "function") {
+            var result = pui["process export value"]({
+              "value": value,
+              "bound value formatting": bndvalfmt,
+              "item properties": items[j],
+              "grid properties": me.tableDiv.pui.properties,
+              "record number": i + 1,
+            });
+            if (result != null) value = result;
+          }
+
           var xlsxvalue = value; //XLSX need not escape quotes (").
           
           if (typeof value === 'string') value = value.replace(/"/g, '""');  //Escape all double-quotes. Note: type may be number. #4085.
