@@ -233,17 +233,19 @@ pui.layout.Layout.prototype.sizeContainers = function( visidx ) {
   if (typeof visidx !== 'number') visidx = this.getVisibleContainerIndex();
 
   var containers = this.containers;
-  var container = containers[visidx];
-  if (container != null){
-    // The template has an active container, so size that one's children.
-    pui.resizeChildrenOf(container, true);
-    this.childrenSized[visidx] = true;
-  }
-  else {
-    // Assume the layout hides no containers, so resize all.
-    for (var i=0, n=containers.length; i < n && (container = containers[i]); i++) {
+  if (containers != null){
+    var container = containers[visidx];
+    if (container != null){
+      // The template has an active container, so size that one's children.
       pui.resizeChildrenOf(container, true);
-      this.childrenSized[i] = true;
+      this.childrenSized[visidx] = true;
+    }
+    else {
+      // Assume the layout hides no containers, so resize all.
+      for (var i=0, n=containers.length; i < n && (container = containers[i]); i++) {
+        pui.resizeChildrenOf(container, true);
+        this.childrenSized[i] = true;
+      }
     }
   }
 };
@@ -330,8 +332,12 @@ pui.layout.Layout.prototype.resize = function() {
  * @returns {Number}    Returns -1 if the layout does not hide sections.
  */
 pui.layout.Layout.prototype.getVisibleContainerIndex = function(){
-  var layoutTClass = this.layoutDiv.layoutT;
-  return layoutTClass ? layoutTClass.getVisibleContainerIndex() : -1;
+  var rv = -1;
+  if (this.layoutDiv){
+    var layoutTClass = this.layoutDiv.layoutT;
+    rv = layoutTClass ? layoutTClass.getVisibleContainerIndex() : -1;
+  }
+  return rv;
 };
 
 /**
