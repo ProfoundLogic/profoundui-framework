@@ -5783,15 +5783,13 @@ pui.saveRecording = function() {
   var recordingName;
   // Get recording name from macro variables in the URL query string
   var qryParms = getQueryStringParms();
-  if (qryParms["macro"] != null) {
-    for (x = 1; x < 99; x++) {  // check for up to 99 macro variables
-      var macroVarName = qryParms["var" + x];
-      var macroVarValue = qryParms["value" + x];
-      if (!macroVarName && !macroVarValue) break;
-      if (macroVarName === "testid") {  // look for testid macro variable
-        recordingName = macroVarValue;
-        break;
-      }
+  for (x = 1; x < 99; x++) {  // check for up to 99 macro variables
+    var macroVarName = qryParms["var" + x];
+    var macroVarValue = qryParms["value" + x];
+    if (!macroVarName && !macroVarValue) break;
+    if (macroVarName === "testid") {  // look for testid macro variable
+      recordingName = macroVarValue;
+      break;
     }
   }
   // Prompt for recording name if not found in macro variables
