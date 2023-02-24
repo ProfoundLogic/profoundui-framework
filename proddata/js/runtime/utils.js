@@ -1051,15 +1051,16 @@ function fieldExit(obj, minus) {
   if (needsOnchange && typeof obj.onchange === 'function') {
     obj.onchange();
   }
-  goNext(obj);
+  
+  // inserted to enable CHECK(ER) functionality...
+  if (obj.getAttribute("autoenter") === "Y") {
+      pressKey("enter");
+  } else {
+      goNext(obj);
+  }
+  
   return true;
 }
-
-
-
-
-
-
 
 pui.beforeUnload = function(event) {
   if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) return;
