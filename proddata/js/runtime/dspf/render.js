@@ -544,7 +544,7 @@ pui.render = function(parms) {
     var rv = pui["beforeRender"](parms);
     if (rv) parms = rv;
   }
-
+// Set the local parameter for PJS version
   if (parms["pjsVersion"] != null) {
     pui.pjsVersion = parms["pjsVersion"];
   }
@@ -572,7 +572,7 @@ pui.render = function(parms) {
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
-
+  // Error Handling for client
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = null;
     var parmVersion = parms["version"].split('.');
@@ -591,7 +591,7 @@ pui.render = function(parms) {
       console.error(msg);
     }
   }
-
+   // Identifying the version of Internet explorer.
   if (pui["is_old_ie"] && pui["ie_mode"] >= 9) {
     
     pui.addCssClass(pui.runtimeContainer, "pui-ie9plus");

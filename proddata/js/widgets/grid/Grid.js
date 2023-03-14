@@ -4514,8 +4514,11 @@ pui.Grid = function () {
             }
             return true;
           }
+          // Run this function since it is a display file.
           else if (me.forceDataArray == true || context == "dspf" || pui.usingGenieHandler) {
+             // Set the Scroll grid name.
             pui.scrolledGridName = me.recordFormatName;
+             // Run a Page up key.
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
               setTimeout(function () {
