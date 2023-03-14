@@ -40,7 +40,7 @@ pui.PagingScrollBar = function () {
   this.ready = false;
 
   var me = this;
-
+  var scrollbarId;
   var ignoreOnScroll = false;
   var pagedUp = false;
   var pagedDown = false;
@@ -209,7 +209,7 @@ pui.PagingScrollBar = function () {
   };
 
   function handle(delta) {
-    document.getElementById(me.grid.recordFormatName+'scrollbar').scrollTop -= delta * multiplier;
+    document.getElementById(scrollbarId).scrollTop -= delta * multiplier;
   }
 
   /**
