@@ -51,8 +51,11 @@ pui.PagingScrollBar = function () {
 
   this.init = function () {
     outerDiv = document.createElement("div");
-    if (me.id)
-      outerDiv.id = me.id;
+    
+    if(me.grid.recordFormatName)	
+      scrollbarId=me.grid.recordFormatName+'scrollbar';
+    
+    outerDiv.id=scrollbarId;
     outerDiv.style.position = "absolute";
     outerDiv.style.width = "23px";
     outerDiv.style.overflowY = "scroll";
@@ -206,7 +209,7 @@ pui.PagingScrollBar = function () {
   };
 
   function handle(delta) {
-    outerDiv.scrollTop -= delta * multiplier;
+    document.getElementById(me.grid.recordFormatName+'scrollbar').scrollTop -= delta * multiplier;
   }
 
   /**
