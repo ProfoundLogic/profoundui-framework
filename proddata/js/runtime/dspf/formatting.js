@@ -52,7 +52,7 @@ pui.formatting = {
     },
     getParseObj: function(chr, matchIndex, locale) {
       /*  returns an object with the following properties:
-          {  
+          {
             r: string representation of the regular expression capturing group to match,
             c: the code to get the parsed value from the string once the full regular expression match is executed
             g: group count. helps keep track of match index. 1 for a capturing group, 0 for non-capturing (?:foo)
@@ -96,7 +96,7 @@ pui.formatting = {
       var esc = false;
       var chr = '';
       var fn = 'return ';
-      
+
       // The standard timestamp pattern (Y-m-d-H-i-s.uu) causes the millisecond
       // portion of the underlying JS Date object (identified by 'u')
       // to be inserted twice. So if the millisecond is 123, a timestamp
@@ -105,13 +105,13 @@ pui.formatting = {
       // A proper fix would be to update all timestamp formats to end in 'uU',
       // but this would require changes to all customer display files, so we'll
       // just change it in here as a workaround -SK
-       
+
       if (format === "Y-m-d-H.i.s.uu") {
         format = "Y-m-d-H.i.s.uU";
       }
       for(var i=0; i<format.length; i++){
         chr = format.charAt(i);
-        if(!esc && chr == '\\'){ // 
+        if(!esc && chr == '\\'){ //
           esc = true;
         }
         else if(esc) {
@@ -127,7 +127,7 @@ pui.formatting = {
       if(!pui.formatting.Date.formats.locales[locale]){
         pui.formatting.Date.formats.locales[locale] = {};
       }
-      
+
       pui.formatting.Date.formats.locales[locale][fmt] = new Function('date', fn);
     },
     newParser: function(fmt, locale) {
@@ -137,7 +137,7 @@ pui.formatting = {
       var regex = '';
       var code = '';
       var matchIndex = 1;
-      
+
       // The standard timestamp pattern (Y-m-d-H-i-s.uu) causes the same code
       // "u = parseInt(matches[the-match-index], 10);" to be output twice,
       // breaking the millisecond portion of the pattern (it'll always take
@@ -147,11 +147,11 @@ pui.formatting = {
       // the capital U character).  A proper fix would be to update all
       // formats (saved in all customer dspfs) but since that's very
       // difficult to do, I just change the pattern temporarily.  -SK
-       
+
       if (format === "Y-m-d-H.i.s.uu") {
         format = "Y-m-d-H.i.s.uU";
       }
-                
+
       for(var i=0; i<format.length; i++){
         chr = format.charAt(i);
         if(!esc && chr == '\\'){
@@ -168,7 +168,7 @@ pui.formatting = {
           code += parseObj.c;
         }
       }
-      
+
       var fn = 'var y = 1, m = 0, d = 1; '+
         'var h = 0, i = 0, s = 0, u = 0; '+
         'var regexObj = new RegExp("^' +
@@ -179,19 +179,19 @@ pui.formatting = {
         code +
         'var dt = new Date(y, m, d, h, i, s, u); '+
         'dt.setFullYear(y);' +
-        
+
         //strict validation: prevent date rollover
         'if(dt.getFullYear() !== y || dt.getMonth() !== m || dt.getDate() !== d ||  '+
         'dt.getHours() !== h || dt.getMinutes() !== i || dt.getSeconds() !== s) '+
         'return null;' +
-        
+
         'return dt; '+
         '}else return null;';
-        
+
       if(!pui.formatting.Date.parsers.locales[locale]){
         pui.formatting.Date.parsers.locales[locale] = {};
       }
-      
+
       pui.formatting.Date.parsers.locales[locale][fmt] = new Function('str', fn);
     },
     getSuffix: function(day) {
@@ -208,7 +208,7 @@ pui.formatting = {
           return 'rd';
         default:
           return 'th';
-      } 
+      }
     },
     getMonthNum: function(month, locale, abbrev) {
       var months;
@@ -246,7 +246,7 @@ pui.formatting = {
   // Pad a string on the right with a specified number of pad characters.
   // If the string is longer than "len", then the string is truncated. (Could happen with PJS, mobile, or PHP., issue4344.)
   rightPad: function(str, len, chr) {
-    str += ''; 
+    str += '';
     if (str.length > len){
       str = str.substr(0, len);   //Truncate.
     }else{
@@ -260,7 +260,7 @@ pui.formatting = {
     return (/^(?:zoned|floating|packed)$/).test(dataType);
   },
   encodeGraphic: function(text, fieldLength) {
-  	for (var i = 0; i < text.length; i++) {  
+  	for (var i = 0; i < text.length; i++) {
   		var charCode = text.charCodeAt(i);
   		if (charCode > 0xFFFF) {
   			// Character is outside of UCS-2 (fixed 2-byte encoding) range.
@@ -270,13 +270,13 @@ pui.formatting = {
   	// Blank pad field to full length.
   	while (text.length < fieldLength) {
   		text += " ";
-  	}    
+  	}
   	return pui.Base64.encode(text);
   },
   decodeGraphic: function(input) {
- 
+
     return pui.Base64.decode(input);
-  
+
   },
   keywords: {
     DATFMT: {
@@ -319,11 +319,11 @@ pui.formatting = {
 };
 
 Date.prototype.format = function(str, locale) {
-  
+
   if(!(pui.formatting.Date.formats.locales[locale] && pui.formatting.Date.formats.locales[locale][str])){
     pui.formatting.Date.newFormat(str, locale);
   }
-  
+
   return pui.formatting.Date.formats.locales[locale][str](this);
 
 };
@@ -335,7 +335,7 @@ pui.FieldFormat = {
         var cpy = {};
         for (var i in obj) {
           cpy[i] = obj[i];
-        }      
+        }
         try {
           var ret = pui["inputfilter"](cpy.value, cpy, context);
           if (typeof ret == "string") obj.value = ret;
@@ -374,7 +374,7 @@ pui.FieldFormat = {
           }
         }
       }
-      
+
       if (obj['__pui_skipdecode'] !== true && obj.dataType == "graphic" && !pui.nodejs) {
         value = pui.formatting.decodeGraphic(value);
       }
@@ -407,7 +407,7 @@ pui.FieldFormat = {
       }
 
       obj.maxLength = (obj.dataLength == "undefined" ? null : obj.dataLength);
-      
+
       return value;
     },
     revert: function(obj) {
@@ -418,7 +418,7 @@ pui.FieldFormat = {
         if (!isNaN(dataLength)) {
           value = pui.formatting.leftPad(value, dataLength, " ");
         }
-      }      
+      }
       if(obj.textTransform == 'uppercase'){
         // In case the field did not have text-transform style also set to "uppercase": replace any lower-case ß with upper to avoid becoming SS due to toUpperCase().
         value = pui.replaceProblemCaseChars(value, false);
@@ -438,7 +438,7 @@ pui.FieldFormat = {
       }
       if (obj.dataType == "graphic" && !pui.nodejs) {
         var dataLength = parseInt(obj.dataLength, 10);
-        value = pui.formatting.encodeGraphic(value, dataLength);        
+        value = pui.formatting.encodeGraphic(value, dataLength);
       }
       return value;
     }
@@ -461,27 +461,27 @@ pui.FieldFormat = {
         strValue = strValue.substr(1);
       }
       var numValue = parseFloat(strValue, 10) || 0;
-      
+
       // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
       strValue = strValue.replace(/-/g, '');
 
-      var strInt;      
+      var strInt;
       //scrap everything from decimal point on
       strInt = strValue.replace(/\..*/, '');
       if ((strInt == "" || strInt == "-") && pui.appJob["decimalFormat"] == "J") {
         strInt = "0";
       }
-      
+
       var strDec;
-      //scrap everything up to and including decimal point      
+      //scrap everything up to and including decimal point
       var strValueWithDecimalPoint = strValue;
       if (strValueWithDecimalPoint.indexOf(".") == -1) strValueWithDecimalPoint += ".";
-      strDec = strValueWithDecimalPoint.replace(/.*\./, ''); 
-      
+      strDec = strValueWithDecimalPoint.replace(/.*\./, '');
+
       var maxLength = dataLength;
       var keyFilter = '[\\d';
 
-      if (obj.edtWrd != null && obj.edtWrd != "") {    
+      if (obj.edtWrd != null && obj.edtWrd != "") {
         if(pui.formatting.isNumericType(obj.dataType)) {
           return pui.applyEditWord(obj);
         }
@@ -495,11 +495,11 @@ pui.FieldFormat = {
         if (commaDecimal) keyFilter += ',';
         else keyFilter += '\\.';
       }
-           
+
       if(obj.zeroFill === true || obj.zeroFill === "true"){
         strValue = pui.formatting.leftPad(strValue, dataLength + (decLength ? 1 : 0), '0');
       }
-      
+
       if(obj.numSep === true || obj.numSep === "true"){
         var regex = /(\d+)(\d{3})/;
         while(regex.test(strInt)){
@@ -517,7 +517,7 @@ pui.FieldFormat = {
       //format negative numbers
       var isNegative = numValue < 0;
       //Account for previously saved lowercase 'CR' value #4027
-      if(obj.negNum) obj.negNum = obj.negNum.toUpperCase();       
+      if(obj.negNum) obj.negNum = obj.negNum.toUpperCase();
       if(obj.negNum == '(999.00)'){
         if(isNegative){
           strValue = '(' + strValue + ')';
@@ -584,7 +584,7 @@ pui.FieldFormat = {
           strValue = '';
         }
       }
-      
+
       keyFilter += ']';
       if (isNaN(maxLength)) maxLength = null;
       obj.maxLength = maxLength;
@@ -594,18 +594,18 @@ pui.FieldFormat = {
     },
     revert: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
-      
+
       var decimalChar = ".";
       if (commaDecimal) decimalChar = ",";
-      
+
       var value = String(obj.value);
-      
+
       // Remove all chars except 0-9, decimal char, and negative sign (remove decimal char if used
       // for formatting, but leave it if used as a decimal sign)
       if (obj.edtWrd != null) {
         var negSign = "-";
         var g1 = /-/.test(value);
-        if(!g1) negSign = "";  
+        if(!g1) negSign = "";
         var originalValue = value;
         value = "";
         for (var i = 0; i < originalValue.length; i++) {
@@ -621,12 +621,12 @@ pui.FieldFormat = {
         if (commaDecimal) value = value.replace(/\./g, '');
         else value = value.replace(/,/g, '');
       }
-      
+
       var parts = value.split(decimalChar);
       if(parts.length > 1){
         value = parts.join('.');
       }
-      
+
       if (obj.curSym){
         value = value.replace(new RegExp('^' + pui.formatting.escapeRe(obj.curSym)), '');
       }
@@ -634,20 +634,20 @@ pui.FieldFormat = {
       if(obj.units){
         value = value.replace(new RegExp(pui.formatting.escapeRe(obj.units) + '$'), '');
       }
-      
+
       if(obj.edtWrd != null && value.indexOf('-') != -1) {                           // checks for '-' in between the strings and replace it with empty string.
         value = trim(value);
         if(!(value.substring(0,1) == '-') && !(value.substring(value.length-1) == '-')){
-           value = value.replace(/-/g,''); 
+           value = value.replace(/-/g,'');
         }
       }
-      
+
       var valid = true;
       var stripped = value.replace(/[^\d\-]/g, '');
       if(/-/.test(stripped) && !/(^-|-$)/.test(stripped)){
         valid = false;
       }
-      
+
       if(obj.negNum && /[\-()CR]/.test(value)){
         if(obj.negNum == '(999.00)'){
           value = value.replace(/\(/, '').replace(/\)/, '');
@@ -660,7 +660,7 @@ pui.FieldFormat = {
         }
         value = '-' + value;
       }
-      
+
       if (valid && value == "-") {
         valid = false;
       }
@@ -670,7 +670,7 @@ pui.FieldFormat = {
       if(valid){
         valid = !(/[^\d.\-]/.test(value)) && value.split('-').length <= 2 && value.split('.').length <= 2;
       }
-      
+
       var errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid number", [ obj.value ]);
       if(valid){
         parts = value.replace(/-/, '').split('.');
@@ -695,15 +695,15 @@ pui.FieldFormat = {
 
       if (valid && obj.zeroFill == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
         value = pui.formatting.leftPad(value, parseInt(obj.dataLength, 10), '0');
-      }      
-      
+      }
+
       if (valid && obj["numBlankFill"] == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
         var dataLength = Number(obj.dataLength);
         if (!isNaN(dataLength)) {
           value = pui.formatting.leftPad(value, dataLength, " ");
         }
-      }      
-      
+      }
+
       return valid ? value : { msg: errorMsg };
 
     }
@@ -764,7 +764,7 @@ pui.FieldFormat = {
             obj.maxLength = 8;
             return "";
           }
-        }        
+        }
         if (value == "" || value == "0") return "";
         //determine date format from numeric data
         parsedKWs.internal = (obj.dateFormat || parsedKWs.display).replace(/[^mdyY]/g, '');
@@ -783,7 +783,7 @@ pui.FieldFormat = {
             parsedKWs.internal += "d";
           }
           value = pui.formatting.leftPad(value, 6, '0');
-        } 
+        }
       }
 
       if (obj.dataType == "timestamp")
@@ -801,7 +801,7 @@ pui.FieldFormat = {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"];
       else
-        locale = obj.locale;      
+        locale = obj.locale;
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       //determine date format from numeric data
@@ -819,14 +819,29 @@ pui.FieldFormat = {
              ((value.length == 7) && (dateFormat == "m/d/Y" || dateFormat == "d/m/Y")) ) {
           value = "0" + value;
         }
-      }      
+      }
       if (obj.dataType == "char" || obj.dataType == "varchar") {
         // check for omitted leading zero and autopad it with a "0"
-        if ( ((value.length == 7) && (dateFormat == "m/d/y" || dateFormat == "d/m/y")) ||
-             ((value.length == 9) && (dateFormat == "m/d/Y" || dateFormat == "d/m/Y")) ) {
+        // Declare simple date patterns having a missing leading 0 (not meant to be an advanced date validation).
+        var dmyRegex = new RegExp("^([1-9])(\\/|-|\\.)(1[0-2]|0[1-9])(\\/|-|\\.)(?:[0-9]{2})?[0-9]{2}$", "gm"); // dmy date with a missing leading 0
+        var mdyRegex = new RegExp("^([1-9])(\\/|-|\\.)(3[01]|[12][0-9]|0[1-9])(\\/|-|\\.)(?:[0-9]{2})?[0-9]{2}$", "gm"); // mdy date with a missing leading 0
+        var myRegex = new RegExp("^([1-9])\\/(?:[0-9]{2})?[0-9]{2}$", "gm"); // m/y date with missing leading 0
+        // Only add omitted "0" if the existing value is a valid date with a missing leading 0.
+        if ( (value.length == 7 &&
+              ((dateFormat == "m/d/y" || dateFormat == "m-d-y") && mdyRegex.test(value) == true) || // a valid mdy date
+              ((dateFormat == "d/m/y" || dateFormat == "d-m-y" || dateFormat == "d.m.y") && dmyRegex.test(value) == true) // a valid dmy date
+             ) ||
+             (value.length == 9 &&
+              ((dateFormat == "m/d/Y" || dateFormat == "m-d-Y") && mdyRegex.test(value) == true) || // a valid mdY date
+              ((dateFormat == "d/m/Y" || dateFormat == "d-m-Y" || dateFormat == "d.m.Y") && dmyRegex.test(value) == true) // a valid dmY date
+             ) ||
+             (value.length == 6 &&
+              (dateFormat == "m/Y") && myRegex.test(value) == true // a valid Y/m date
+             )
+           ) {
           value = "0" + value;
         }
-      }      
+      }
       if (obj.dataType == "zoned" && parseInt(obj.dataLength, 10) == value.length) {
         if ( ((value.length == 6) && (dateFormat == "m/d/y" || dateFormat == "d/m/y")) ||
              ((value.length == 8) && (dateFormat == "m/d/Y" || dateFormat == "d/m/Y")) ) {
@@ -888,23 +903,23 @@ pui.FieldFormat = {
           }
         }
       }
-      
+
       // Check for a default pattern when not set in keywords
       var displayPattern;
       var internalPattern;
       if (!datFmt && pui["default date pattern"]) {
-        
+
         displayPattern = pui["default date pattern"];
         internalPattern = pui.formatting.Date.stdDatePattern;
-        
+
       }
 
       else {
-        
+
         // Set formatting and separator to placeholder values if unset
         datFmt = datFmt || '*JOB';
         datSep = datSep || '*JOB';
-        
+
         // Set internal date formatting
         if(pui.formatting.keywords.DATFMT[datFmt]){
           internalPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
@@ -912,7 +927,7 @@ pui.FieldFormat = {
         else{
           internalPattern = pui.formatting.keywords.DATFMT['*ISO'].pattern;
         }
-        
+
         // Set internal date separator
         var internalSep;
         var overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
@@ -925,7 +940,7 @@ pui.FieldFormat = {
         else{
           internalSep = '-';
         }
-        
+
         // Set date formatting to the job's date formatting if appropriate
         displayPattern = internalPattern;
         if (datFmt == '*JOB'
@@ -939,7 +954,7 @@ pui.FieldFormat = {
           datFmt = '*ISO';
 
         displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
-        
+
         // Set date separator to the job's date separator
         var displaySep = internalSep;
         overridable = /^(?:\*MDY|\*DMY|\*YMD|\*JUL)$/.test(datFmt);
@@ -963,54 +978,54 @@ pui.FieldFormat = {
         // Change formatting to patterns
         internalPattern = internalPattern.replace(/\B/g, internalSep);
         displayPattern = displayPattern.replace(/\B/g, displaySep);
-      
+
       }
-      
+
       return {
         internal: internalPattern,
         display: displayPattern
       };
-      
-    },    
+
+    },
 
     // return index where keyword DATFMT is found or -1 otherewise; cloned from parseKeywords()
-    findDatFmtIndex: function(keywords) {          
-      
+    findDatFmtIndex: function(keywords) {
+
       if(keywords && keywords.length > 0) {
         var datFmtRegex = /^\s*DATFMT\s*\(\s*(\*\w{3})\s*\)\s*$/i;
         for (var i=0; i < keywords.length; i++) {
           if (datFmtRegex.test(keywords[i]))
-            return i;   // return found index          
+            return i;   // return found index
         }
       }
 
       return -1;        // return -1 for not found
     } ,
 
-    // return date in *ISO format, for compare 
+    // return date in *ISO format, for compare
     getDateISO: function(boxValue, formattingObj) {
 
-      var returnBoxValue = boxValue;                                      // assume in *ISO format already                   
-  
+      var returnBoxValue = boxValue;                                      // assume in *ISO format already
+
       // return date in *ISO format
-      // "boxValue" is in format of DDS keyword for the date field to be compared, with default of *ISO. 
+      // "boxValue" is in format of DDS keyword for the date field to be compared, with default of *ISO.
       // Need to use normalized *ISO value for compare.
       // Note that if there's no DDS keyword, then "boxValue" is in *ISO format already.
-  
+
       if (typeof formattingObj.keywords != "undefined") {                 // some DDS keyword specified
         // need to replace any DATFMT() keyword with DATFMT(*ISO)
         // Note that there maybe more than one keywords specfied (e.g. DATSEP); we need to keep that
         var   indexSave;
-        indexSave = this.findDatFmtIndex(formattingObj.keywords);  
+        indexSave = this.findDatFmtIndex(formattingObj.keywords);
         if (indexSave >= 0) {                                             // keyword DATFMT found
-          var   keyWordSave; 
+          var   keyWordSave;
           keyWordSave = formattingObj.keywords[indexSave];
           formattingObj.keywords[indexSave] = "DATFMT(*ISO)";
           returnBoxValue = pui.FieldFormat.format(formattingObj);         // convert to *ISO YYYY-MM-DD format
           formattingObj.keywords[indexSave] = keyWordSave;                // put back saved value
         }                                                                 // ENDIF keyword DATFMT found
       }                                                                   // ENDIF some DDS keyword specified
-  
+
       return returnBoxValue;
     }
   },
@@ -1020,7 +1035,7 @@ pui.FieldFormat = {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"];
       else
-        locale = obj.locale;      
+        locale = obj.locale;
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       if(pui.formatting.isNumericType(obj.dataType)){
@@ -1056,7 +1071,7 @@ pui.FieldFormat = {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"];
       else
-        locale = obj.locale;           
+        locale = obj.locale;
       var value = obj.value + '';
       var parsedKWs = this.parseKeywords(obj.keywords);
       if(pui.formatting.isNumericType(obj.dataType)){
@@ -1086,7 +1101,7 @@ pui.FieldFormat = {
           // Replace 'R' formatting character with 'H' before sending back to the server to prevent a time greater than '24:00:00'
           parsedKWs.internal = parsedKWs.internal.replace(/([^\\]?)R/g, '$1' + 'H');
            if ((obj.dataType == "char" || obj.dataType == "varchar") && (obj.timeFormat == "H:i" || obj.timeFormat == "H:i:s")){
-            //parseKWs.internal has a common value H.i.s/R.i.s which is now change if obj.timeFormat is different. 
+            //parseKWs.internal has a common value H.i.s/R.i.s which is now change if obj.timeFormat is different.
            parsedKWs.internal = "H:i:s";
           }
           return d.format(parsedKWs.internal, locale);
@@ -1130,7 +1145,7 @@ pui.FieldFormat = {
       else{
         internalPattern = pui.formatting.keywords.TIMFMT['*ISO'].pattern;
       }
-      
+
       // Set internal pattern
       var internalSep;
       if(timFmt == '*HMS'){ // If overridable, use time separator from keywords
@@ -1142,7 +1157,7 @@ pui.FieldFormat = {
       else{ // Set to default
         internalSep = '.';
       }
-      
+
       // Set time format to the job's time format if appropriate
       displayPattern = internalPattern;
       if (timFmt == '*JOB'
@@ -1180,7 +1195,7 @@ pui.FieldFormat = {
         internal: internalPattern.replace(/\B/g, internalSep),
         display: displayPattern.replace(/\B/g, displaySep)
       };
-      
+
     }
   },
   "Time Stamp": {
@@ -1189,7 +1204,7 @@ pui.FieldFormat = {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"];
       else
-        locale = obj.locale;           
+        locale = obj.locale;
       var value = obj.value + '';
       if(obj.timeStampFormat){
         var d = pui.formatting.Date.parse(value, pui.formatting.Date.stdTimeStampPattern, locale);
@@ -1208,7 +1223,7 @@ pui.FieldFormat = {
       if (pui["locale"] && pui.locales[pui["locale"]])
         locale = pui["locale"];
       else
-        locale = obj.locale;           
+        locale = obj.locale;
       var value = obj.value + '';
       var d = pui.formatting.Date.parse(value, obj.timeStampFormat, locale);
       if(d){
@@ -1227,7 +1242,7 @@ pui.FieldFormat = {
       var value = obj.value + '';
       var validKeys = '\\d';
       var maxLength;
-      
+
       switch(obj.special){
         case 'Percentage':
           value = value.replace(/[^\d\-.]/g, '');
@@ -1490,7 +1505,7 @@ pui.FieldFormat = {
     }
   },
   validate: function(value, obj) {
-  
+
     var types = {
       "char": { def: '',  rx: '.*' },
       "varchar": { def: '',  rx: '.*' },
@@ -1503,15 +1518,15 @@ pui.FieldFormat = {
       "time": { def: '00:00:00', rx: '(?:[0-1][0-9]|2[0-3])(?::[0-5][0-9]){2}' },
       "timestamp": { def: '0001-01-01-00.00.00.000000', rx: '\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])-(?:[0-1][0-9]|2[0-3])(?:\\.[0-5][0-9]){2}\\.\\d{6}' }
     };
-    
+
     var rx = new RegExp('^' + types[obj.dataType].rx + '$', 'i');
     //if(!value.test(rx)
-    
+
     return value;
-  
+
   },
   isValidFormat: (function() {
-  
+
     var invalid = {
       "char": {},
       "varchar": {},
@@ -1564,7 +1579,7 @@ pui.FieldFormat = {
       },
       "reference": {}
     };
-    
+
     return function(obj) {
       // obj.dataType isn't a known type or the dataType/format combo is invalid.
       // Or the formatting is blank (issue 2216).
@@ -1575,6 +1590,6 @@ pui.FieldFormat = {
       }
       return true;
     };
-    
+
   })()
 };

@@ -770,11 +770,8 @@ pui["errorTip"] = function(el, msg, hideDelay) {
 
 pui["expandAccordionSection"] = function(id, section) {
   var obj = getObj(id);
-  if (obj == null) return;
-  var accordion = obj.accordion;
-  if (accordion == null) return;
-  accordion.expandSection(section);
-}
+  if (obj && obj.layoutT && typeof obj.layoutT.expandSection === 'function') obj.layoutT.expandSection(section);
+};
 
 
 pui["runAttnProgram"] = function() {

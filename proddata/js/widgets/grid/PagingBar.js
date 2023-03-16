@@ -77,7 +77,7 @@ pui.PagingBar = function() {
    * @returns {undefined}
    */
   function autoPageUp(fromClick) {
-    if (me.prevLink.disabled) return;
+    if (me.prevLink.disabled || me.prevLink.disabled === undefined) return;
     if (context != "genie" || pui.usingGenieHandler) {
       // pui.attachResponse/clickEvent handles pageUp for clicks when "page up response" is defined.
       // pageUpHotKeyDefined can be true even if "page up response" is undefined,
@@ -97,7 +97,7 @@ pui.PagingBar = function() {
    * @returns {undefined}
    */
   function autoPageDown(fromClick) {
-    if (me.nextLink.disabled) return;
+    if (me.nextLink.disabled || me.nextLink.disabled === undefined) return;
     if (context != "genie" || pui.usingGenieHandler) {
       if (me.pageDownHotKeyDefined && (!fromClick || me.pageDownResponseDefined)) return; 
       if (me.grid.designMode) return;

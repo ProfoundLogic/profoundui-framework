@@ -2136,10 +2136,15 @@ pui["getDisplayType"] = function() {
   
 };
 
+/**
+ * Run a command on the PC.
+ * @param {String|Array} arg
+ */
 function runPCCommand(arg) {
-  
+
   var listenerMode = 1;    //The PC command implementation. Use the Listener by default.
-  
+  var getSignature = false;
+
   // Support legacy options, "use pc listener" and "pc listener mode".
   if (pui["use pc listener"]) listenerMode = 1;
   if (window["HTTPS"]!=null && window["HTTPS"]=="ON" && listenerMode == 1) listenerMode = 2;
@@ -2151,41 +2156,54 @@ function runPCCommand(arg) {
       case "applet":
         listenerMode = 0;
         break;
+
       case "listener":
+      case "listener_m1":
         listenerMode = 1;
         break;
+      case "listener_m1s":
+        listenerMode = 1;
+        getSignature = true;
+        break;
+
       case "listener_m2":
         listenerMode = 2;
         break;
+      case "listener_m2s":
+        listenerMode = 2;
+        getSignature = true;
+        break;
+
       case "launcher":
         listenerMode = 3;
         break;
+
       default:
         listenerMode = 1;
         console.log("Unsupported pc command mode:",pui["pc command mode"]);
     }
   }
-  
+
   // Load Java Applet if needed.
-  
+
   if (listenerMode == 0) {
     var applet = document.getElementById("PCCommandApplet");
     if (!applet) {
       pui.appletCommandData = arg;
       loadPCCommandApplet("runCommandCb");
-      return;  
+      return;
     }
   }
-  
+
   var commandList = [];
   var nextCommand = 0;
-  
+
   // for backward compatibility, the argument to this function
   //   can be one of the following:
   //      string = just contains the command to run
   //      object = an object containing { "command": the-command, "wait": true/false }
   //      array  = array of objects (as 'object' above) to run multiple commands
-  
+
   if (typeof arg == "string") {
     commandList = [ { "command": arg, "wait": false } ];
   }
@@ -2193,18 +2211,37 @@ function runPCCommand(arg) {
     commandList = arg;
   }
 
+  var listener_base_url = "http://localhost:" + (typeof pui["pc listener port"] == "number" ? pui["pc listener port"] : 80) + "/";
+  var url_parm_cmdwait = "";  //URL parameters that will get the "cmd" and "wait" components.
+  var command;
+  var wait;
+
+  var crypt_request_parms = {
+    "url": getProgramURL("PUI0009117.pgm"),
+    "method": "post",
+    "params": {
+      "auth": (pui["appJob"] && pui["appJob"]["auth"] ? pui["appJob"]["auth"] : "") /*5594. avoid atrium error--just warn in console.*/
+    },
+    "async": true
+  };
+
+  doRunPCCommand();
+
+  /**
+   * Get the next command from a list, and route a request to the appropriate program.
+   */
   function doRunPCCommand() {
-    
+
     if (nextCommand >= commandList.length) return;
-    var command = commandList[nextCommand]["command"];
-    var wait = commandList[nextCommand]["wait"];
+    command = commandList[nextCommand]["command"];
+    wait = commandList[nextCommand]["wait"];
     nextCommand += 1;
 
     if (typeof(pui["onPCCommand"]) == "function") {
       try {
-        var userHandlerRc = pui["onPCCommand"](command, wait);  
+        var userHandlerRc = pui["onPCCommand"](command, wait);
         if (userHandlerRc == null || userHandlerRc == true ) {
-          setTimeout(function() { doRunPCCommand(); }, 0);
+          setTimeout(doRunPCCommand, 0);
           return;
         }
       }
@@ -2213,108 +2250,193 @@ function runPCCommand(arg) {
       }
     }
 
-    if (listenerMode == 1 || listenerMode == 2) {   //Use PC Listener (ajax or image version).
-      
-      var waitArg = (wait) ? "1" : "0";
-      var port = (typeof pui["pc listener port"] == "number") ? pui["pc listener port"] : 80;
-      var url = "http://localhost:" + port + "/?cmd=" + encodeURIComponent(command) + "&wait=" + waitArg;
-      
-      if ( listenerMode == 2 ) {   //The image version.
-        url += "&type=image&rnd=" + String(Math.random()) + String(new Date().getTime());
-        var cmdImg = new Image();
-        cmdImg.onload = function() {
-          doRunPCCommand();
-        };
-        cmdImg.onerror = function(){
-          // Show error messages in Firefox, Chrome, Edge.
-          console.log("PC Command Listener m2 failure.");
-          showFailureMsg(command);
-        };
-        cmdImg.src = url;
+    url_parm_cmdwait = "?cmd=" + encodeURIComponent(command) + "&wait=" + (wait ? "1" : "0");
+
+    // Use PC Listener -- either via direct XMLHTTPRequest (1) or requesting an image from a URL (2).
+    if (listenerMode == 1 || listenerMode == 2) {
+      if (getSignature){
+        // Get the signature of the data before sending a request to the listener.
+        crypt_request_parms['params']['cmd'] = command;
+        // Tell PUI0009117 to generate a signature of the command string to establish trust.
+        crypt_request_parms["params"]["sign"] = 1;
+        // Allow customer to set different hashing algorithm for their private/public keys than the default of SHA-512.
+        crypt_request_parms["params"]["hashalg"] =
+                typeof pui['pccmd hash sign algorithm'] === 'string' ? pui['pccmd hash sign algorithm'].toUpperCase() : 'SHA-512';
+
+        crypt_request_parms["handler"] = crypt_response_handler_listener;
+        ajaxJSON(crypt_request_parms);
       }
       else {
-        var req = new pui.Ajax(url);
-        req.method = "GET";
-        req.async = (wait) ? false : true;
-        req["suppressAlert"] = true;
-        req["onfail"] = function(req) {
-          if (req.getStatus() != 200) {
-            console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
-            showFailureMsg(command);
-          }
-        };
-        req["onsuccess"] = function() {
-          doRunPCCommand();
-        };
-        try {
-          req.send();
-        }
-        catch(exc){
-          // Network errors can throw exceptions from req.send, causing Genie UIs to freeze when the PC Command Listener is not enabled.
-          console.log("PC Command Listener failure.", exc);
+        do_pc_listener('');
+      }
+    }
+    // Use the PC Launcher.
+    else if (listenerMode == 3) {
+      crypt_request_parms['params']['cmd'] = command;
+      crypt_request_parms['handler'] = crypt_response_handler_launcher;
+      // The command will be encrypted via a CGI program so that only Profound UI instances can send commands.
+      ajaxJSON(crypt_request_parms);
+    }
+    else {
+      doApplet();   //As of 2023 the applet should not work in Chrome, Firefox, etc. But keep code in place just in case it does.
+    }
+  }
+
+  /**
+   * Run a command via the PC Command Listener program.
+   * @param {String} signature_parm
+   */
+  function do_pc_listener(signature_parm){
+    if ( listenerMode == 2 ) {   //The image version.
+
+      var cmdImg = new Image();
+      cmdImg.onload = doRunPCCommand;  //After this command loads look for another.
+      cmdImg.onerror = function(){
+        // Show error messages in Firefox, Chrome, Edge.
+        console.log('PC Command Listener image mode failure.');
+        showFailureMsg(command);
+      };
+      cmdImg.src = listener_base_url + url_parm_cmdwait
+        + '&type=image&rnd=' + String(Math.random()) + String(new Date().getTime()) + signature_parm;
+    }
+    else {
+      // Call the listener program via XMLHTTPRequest.
+      var req = new pui.Ajax(listener_base_url + url_parm_cmdwait + signature_parm);
+      req.method = "GET";
+      req.async = (wait) ? false : true;
+      req["suppressAlert"] = true;
+      req["onfail"] = function(req) {
+        if (req.getStatus() != 200) {
+          console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
           showFailureMsg(command);
         }
-      }
-      return;
-    }
-    
-    if (listenerMode == 3) {     //Use the PC Command Launcher: custom protocol handler.
-      
-      // Encrypt the command via a CGI program so that the protocol handler will trust it.
-      ajaxJSON({
-        "url": getProgramURL("PUI0009117.pgm"),
-        "method": "post",
-        "params": {
-          "cmd": command,
-          "auth": (pui["appJob"] && pui["appJob"]["auth"] ? pui["appJob"]["auth"] : "") /*5594. avoid atrium error--just warn in console.*/
-        },
-        "async": true,
-        "handler": function(response, err){
-          // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
-          // Note: no onload or onerror events fire for custom protocol iframes. Also,
-          // you can't use XMLHttpRequest to load custom protocols; you must use iframes.
-          if (response != null ) {
-            if (response["cmd"]){
-              var url = "puilaunch:" + encodeURIComponent(response["cmd"]);
+      };
 
-              var iframe = document.createElement("iframe");
-              iframe.style.display = "none";
-              iframe.src = url;
-              document.body.appendChild(iframe);
-
-              // This delay is necessary, because in some browsers (Chrome), the iframe isn't loaded without the delay.
-              // A long enough delay is necessary; otherwise, the command is unreliable #4597.
-              // 0ms is too short. A longer delay keeps the node in memory longer but shouldn't hurt anything.
-              setTimeout(function(){
-                // The iframe could be orphaned from the DOM if the screen changed before it was removed.
-                if (iframe != null && iframe.parentNode != null){
-                  document.body.removeChild(iframe); //Remove the iframe; it's no longer needed.
-                }
-                iframe = null;
-                doRunPCCommand();
-              }, 5000);
-            }
-            else if (response["error"]){
-              console.log("PC Command signing error:",response["error"]);
-            }
-          }else{
-            console.log("Empty response from PC command signing program.");
+      req["onsuccess"] = function(req) {
+        try {
+          var respmsg = JSON.parse(req.getResponseText());
+          if (!respmsg['success'] && typeof respmsg['error'] === 'string'){
+            // The response was JSON, and the JSON had an error.
+            console.log("PC Command Listener failure.", respmsg['error']);
+            showFailureMsg(command);
+            return;
           }
-        } //end handler().
-      });
-      
-      return;
+        }
+        catch(ignore){/*Listener may be old version that did not return messages in JSON.*/}
+
+        doRunPCCommand();
+      };
+
+      try {
+        req.send();
+      }
+      catch(exc){
+        // Network errors can throw exceptions from req.send, causing Genie UIs to freeze when the PC Command Listener is not enabled.
+        console.log("PC Command Listener failure.", exc);
+        showFailureMsg(command);
+      }
     }
-    
+  }
+
+
+  /**
+   * Handle a response from the crypto CGI program. Use the PC Command Launcher to run a command.
+   * @param {Object} response
+   * @param {Error|Undefined} err
+   */
+  function crypt_response_handler_launcher(response, err){
+    try {
+      if (err)
+        throw err;
+
+      if (response == null)
+        throw 'Empty response from PCCMD crypt program.';
+
+      if (response['error'] != null || (typeof response['error'] === 'string' && response['error'].length > 0))
+        throw "PCCMD crypt error: " + String(response["error"]);
+
+      if (typeof response['cmd'] !== 'string' || response['cmd'].length == 0)
+        throw 'PCCMD crypt response was missing a command.';
+
+      // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
+      // Note: no onload or onerror events fire for custom protocol iframes. Also,
+      // you can't use XMLHttpRequest to load custom protocols; you must use iframes.
+
+      var url = "puilaunch:" + encodeURIComponent(response['cmd']);
+
+      var iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = url;
+      document.body.appendChild(iframe);
+
+      // This delay is necessary, because in some browsers (Chrome), the iframe isn't loaded without the delay.
+      // A long enough delay is necessary; otherwise, the command is unreliable #4597.
+      // 0ms is too short. A longer delay keeps the node in memory longer but shouldn't hurt anything.
+      setTimeout(function(){
+        // The iframe could be orphaned from the DOM if the screen changed before it was removed.
+        if (iframe != null && iframe.parentNode != null){
+          document.body.removeChild(iframe); //Remove the iframe; it's no longer needed.
+        }
+        iframe = null;
+        doRunPCCommand();
+      }, 5000);
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+
+  /**
+   * Handle a response from the crypto CGI program. Pass the command signature to the PC Command Listener.
+   * @param {Object} response
+   * @param {Error|Undefined} err
+   */
+  function crypt_response_handler_listener(response, err){
+    try {
+      if (err) throw err;
+
+      if (typeof response !== 'object' || response === null) throw 'Empty response';
+
+      if (response['success'] !== true){
+        var msg = typeof response['error'] === 'string' && response['error'].length > 0 ? response['error'] : 'Unknown error';
+        throw msg;
+      }
+
+      // If a signature exists in the response, then pass it on to the listener.
+      var sig_parm = '';
+      if (typeof response['sig'] === 'string' && response['sig'].length > 0)
+        sig_parm = '&sig=' + encodeURIComponent(response['sig']);
+
+      do_pc_listener(sig_parm);
+    }
+    catch(err){
+      console.log(err);
+      showFailureMsg(command);
+    }
+  }
+
+  function showFailureMsg(command){
+    console.log("Command: " + command);
+    var msg = pui["getLanguageText"]("runtimeMsg", "pccommand error");
+    if (pui["alert pccommand errors"] !== false) alert(msg);
+    else console.log(msg);
+    console.log("Visit https://docs.profoundlogic.com/x/aQFK for more information on supporting STRPCCMD.");
+  }
+
+  /**
+   * Use the Java applet to run a PC Command.
+   * Note: as of 2023 Java applets cannot run in Firefox, Chrome, etc. This remains in case customers have a way to make it run.
+   */
+  function doApplet(){
     // When running multiple commands with the Java applet
     //  join them together into a single string.
     //
     // NOTE: This does not work quite right because the parenthesis
     //       can change the meaning of some commands.  But, since
     //       the applet does not have a way to tell us when it's
-    //       finished running a command, we use this as a workaround 
+    //       finished running a command, we use this as a workaround
     //       -SK
-    
+
     if (nextCommand==0 && commandList.length>0) {
       var arr = [];
       for (var i=0; i<commandList.length; i++) {
@@ -2322,7 +2444,7 @@ function runPCCommand(arg) {
       }
       command = arr.join(" && ");
     }
-    
+
     try {
       applet["runCommand"](command);
     }
@@ -2332,18 +2454,7 @@ function runPCCommand(arg) {
         msg += e.name + ":\n\n" + e.message + ".";
       }
       alert(msg);
-    }  
-    
-  }
-
-  doRunPCCommand();
-  
-  function showFailureMsg(command){
-    console.log("Command: " + command);
-    var msg = pui["getLanguageText"]("runtimeMsg", "pccommand error");
-    if (pui["alert pccommand errors"] !== false) alert(msg);
-    else console.log(msg);
-    console.log("Visit https://docs.profoundlogic.com/x/aQFK for more information on supporting STRPCCMD.");
+    }
   }
 }
 

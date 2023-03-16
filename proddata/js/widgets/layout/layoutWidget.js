@@ -35,6 +35,7 @@ pui.widgets.add({
         parms.designItem.multipleSelection = false;
       }
     }
+    var layout = parms.dom.layout;
 
     if (!parms.design && parms.propertyName == "field type") {
       parms.dom.layout.setProperty("center vertically", parms.properties["center vertically"]);
@@ -100,6 +101,7 @@ pui.widgets.add({
           
         }
       }
+      parms.dom.layout.previousTemplate = parms.dom.layout.template;
       parms.dom.layout.template = parms.properties["template"];
       var savedTemplateName = null;
       if (parms.propertyName == "template") {
@@ -115,8 +117,12 @@ pui.widgets.add({
       }
       var rv = parms.dom.layout.applyTemplate();
       if (rv.success == false && savedTemplateName != null) {
-        parms.dom.layout.template = savedTemplateName;
-        parms.dom.layout.updatePropertyInDesigner("template", savedTemplateName);
+        // The template change could not be applied, so restore the old value of the "template" property.
+        layout.template = savedTemplateName;
+
+        // Rollback the change. Use a delay because other events in propertyWindow may fire later and overwite this rollback.
+        setTimeout(layout.updatePropertyInDesigner.bind(layout), 1, 'template', savedTemplateName);
+
         setProperty = false;
       }
       if (rv.success == true && (!parms.design || toolbar.loadingDisplay || toolbar.pastingFormat)) {

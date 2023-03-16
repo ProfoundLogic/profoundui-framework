@@ -807,6 +807,7 @@ pui.Grid = function () {
     var boundValFormats = [];
     var imageData = [];
     var hyperlinks = [], columnIds = [];
+    var items = [];
 
     saveResponsesToDataArray(); //save any changes the user may have made to the widgets before exporting #6869
     
@@ -822,6 +823,7 @@ pui.Grid = function () {
       imageData.push(false);
       hyperlinks.push(false);
       columnIds.push(-1);
+      items.push(null);
     }
 
     var colcount = 0;
@@ -834,6 +836,7 @@ pui.Grid = function () {
         var col = Number(itm["column"]);
         // If: "col" is valid and a widget for the column was not already found. (there can be multiple widgets per column, but only one exports).
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
+          items[col] = itm;
           if (pui.isBound(itm["visibility"])) {
             boundVisibility[col] = itm["visibility"];
           }
@@ -1058,7 +1061,18 @@ pui.Grid = function () {
               value = "";
             }
           }
-          
+
+          if (typeof pui["process export value"] === "function") {
+            var result = pui["process export value"]({
+              "value": value,
+              "bound value formatting": bndvalfmt,
+              "item properties": items[j],
+              "grid properties": me.tableDiv.pui.properties,
+              "record number": i + 1
+            });
+            if (result != null) value = result;
+          }
+
           var xlsxvalue = value; //XLSX need not escape quotes (").
           
           if (typeof value === 'string') value = value.replace(/"/g, '""');  //Escape all double-quotes. Note: type may be number. #4085.
@@ -7256,11 +7270,13 @@ pui.Grid = function () {
               var recNum = me.recNum + cell.row;
               if (me.hasHeader) recNum = recNum - 1;
               var cursorReturned = false;
-              for (var j = 0; j < itm.domEls.length; j++) {
-                var dom = itm.domEls[j];
-                if (dom != null && dom.dataArrayIndex == recNum - 1) {
-                  pui.returnCursor(e, dom);
-                  cursorReturned = true;
+              if (itm && itm.domEls) {
+                for (var j = 0; j < itm.domEls.length; j++) {
+                  var dom = itm.domEls[j];
+                  if (dom != null && dom.dataArrayIndex == recNum - 1) {
+                    pui.returnCursor(e, dom);
+                    cursorReturned = true;
+                  }
                 }
               }
               if (cursorReturned) break;
@@ -10840,7 +10856,7 @@ pui.BaseGrid.getPropertiesModel = function(){
       { name: "database join", type: "join", bind: false, helpDefault: "blank", help: "The Database Join specifications between multiple tables to be used for a dynamic, database-driven grid.", controls: ["chart", "grid"], context: "dspf" },
       { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", hasOKHandler: true},
       { name: "selection criteria", type: "long", helpDefault: "blank", help: "Optional expression identifying which records should be retrieved from the database file." },
-      { name: "order by", type: "field", multiple: true, uppercase: true, helpDefault: "blank", help: "Optional expression identifying which fields determine the order of the records retrieved from the database file." },
+      { name: "order by", type: "field", multiple: true, uppercase: true, helpDefault: "blank", help: 'Optional expression identifying which fields determine the order of the records retrieved from the database file. Both custom SQL grids and Database-Driven grids can use this property. <a href="https://docs.profoundlogic.com/x/vIAc" target="_blank">More info...</a>' },
       { name: "custom sql", type: "long", helpDefault: "blank", help: "Specifies a sql statement to use to retrieve the records for a database-driven grid.",  hasOKHandler: true },
 
       { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>" },

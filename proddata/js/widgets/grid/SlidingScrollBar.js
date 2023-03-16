@@ -776,6 +776,17 @@ pui.SlidingScrollBar = function() {
      */
     if (typeof WheelEvent == 'function'){ //MDN recommends using the standard "wheel" event as of 5/3/2019.
       gridDom.addEventListener('wheel', wheel, false);
+
+      //-- PUI206 if any vLines or hlines then add the same event listener...
+      for (var i = 0;i < gridDom.grid.vLines.length; i++) {
+        gridDom.grid.vLines[i].addEventListener('wheel', wheel, false);
+      }
+
+      for (var i = 0;i < gridDom.grid.hLines.length; i++) {
+        gridDom.grid.hLines[i].addEventListener('wheel', wheel, false);
+      }
+      //--
+
     }
     else {
       // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019

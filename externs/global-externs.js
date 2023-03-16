@@ -14,6 +14,7 @@ Object.entries = function() {};
 Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
 Function.bind = function(value){};
+Object.before = {};
 
 Event.stopImmediatePropagation = function() {};
 

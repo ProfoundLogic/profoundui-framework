@@ -26,10 +26,6 @@ pui.layout.template.applyTemplate = function(parms) {
   var processDOM = pui.layout.template.processDOM;
   
   var containers = getContainers(dom);
-  var newDom = pui.layout.template.load(parms);  //A temporary element that is not attached to the DOM. The element is used to build layouts.
-  processDOM(newDom);
-  var newContainers = getContainers(newDom);
-  var stretchList = [];
   
   // find last container that has any widgets
   for (var x = containers.length - 1; x >= 0; x -= 1) {
@@ -37,6 +33,22 @@ pui.layout.template.applyTemplate = function(parms) {
   }
   x += 1;
   
+  parms.lastContWithWidget = x;  //PUI-213: when template changes make sure items can move into the new template.
+
+  var newDom = pui.layout.template.load(parms);  //A temporary element that is not attached to the DOM. The element is used to build layouts.
+  processDOM(newDom);
+  var newContainers = getContainers(newDom);
+  var stretchList = [];
+  
+  // TODO: instead of moving from the old container to the new container you could do this:
+  // 1. given parameters request that the template be able to accommodate whatever widgets are in the layout.
+  //    Each JavaScript-based template would have functions to check if a change can be accommodated.
+  //    a. return if the changes cannot accommodate the widgets.
+  //    b. if the template is HTML based, then use the old approach by attempting to load the template and then checking containers.
+  // 2. For JS templates just use the old dom element; no need to clone, move widgets, move nodes, or re-attach properties.
+  // Then you could simplify some of the template code; e.g. maybe get rid of pui.layout.Template.prototype.linkToDom.
+
+
   // Make sure changing the layout doesn't lose any widgets. If the function returns here, then the DOM and layout 
   // objects created in template.load are discarded.
   if (x > newContainers.length) {
@@ -82,12 +94,6 @@ pui.layout.template.applyTemplate = function(parms) {
     // Various places in Designer call sizeMe when the layout needs to be sized.
     dom.sizeMe = dom.panel.resize;
     dom.panel.container = dom;
-  }
-  
-  if (newDom.accordion != null) {
-    dom.accordion = newDom.accordion;
-    dom.sizeMe = dom.accordion.resize;
-    dom.accordion.container = dom;
   }
   
   if (newDom.layoutT != null){
