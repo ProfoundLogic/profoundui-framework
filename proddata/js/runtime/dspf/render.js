@@ -3987,7 +3987,28 @@ pui.buildResponse = function(customResponseElements) {
             if (invalid) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues.join(", ") + "." });
+
+              // Present valid values as a comma separated list where the last value is separated by "or" 
+              // and if any of the values are blank, use the word "blank" instead.              
+              for (var i = 0; i < validValues.length; i++) {
+                if (typeof validValues[i] === "string" && validValues[i].trim() === "") {
+                  validValues[i] = pui["getLanguageText"]("runtimeMsg", "blank");
+                }
+              }
+              var valuesCount = validValues.length;
+              if (valuesCount > 1) {
+                var lastValue = validValues.pop();                
+                validValues = validValues.join(", ");
+                if (valuesCount > 2) {
+                  validValues += ",";
+                }
+                validValues += " " + pui["getLanguageText"]("runtimeMsg", "or") + " " + lastValue;
+              }
+              else {
+                validValues = validValues[0];
+              }
+
+              response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues + "." });
               if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
               continue;
             }
@@ -4804,8 +4825,15 @@ pui.handleHotKey = function(e, keyName) {
           var dom = domArray[i];
           if (!dom.disabled) allDisabled = false;
           if (dom.parentPagingBar != null) {
-            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+
+            // ---- locate dom grid that had been the orignal target...
+            if ((pui.scrolledGridName !== undefined && pui.scrolledGridName !== null) && 
+              dom.parentPagingBar.grid.recordFormatName != pui.scrolledGridName){
+                continue;
+            }
+            // ----  
+        
+            if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
               dom.parentPagingBar.grid.pageDown();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4816,8 +4844,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
@@ -4827,8 +4854,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
               dom.parentPagingBar.grid.pageUp();
               preventEvent(e);
               if (pui["is_old_ie"]) {
@@ -4839,8 +4865,7 @@ pui.handleHotKey = function(e, keyName) {
               }
               return false;
             }
-            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined
-                && dom.parentPagingBar.grid.recordFormatName == pui.scrolledGridName) {
+            if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
                   try {
