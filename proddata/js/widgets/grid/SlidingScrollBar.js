@@ -375,7 +375,7 @@ pui.SlidingScrollBar = function() {
       }
     }
 
-    if ((me.showRowNum || me.showRowRange) && me.totalRows > 1) {
+    if (typeof startRowParm !== "undefined" && (me.showRowNum || me.showRowRange) && me.totalRows > 1) {
       rowNumDiv.style.display = "";
       rowNumHideRequest += 1;
       if (rowNumHideRequest > 10000) rowNumHideRequest = 0;

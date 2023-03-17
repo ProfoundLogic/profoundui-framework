@@ -2282,40 +2282,7 @@ pui.renderFormat = function(parms) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-          addEvent(boxDom, "keydown", function(event) {
-            event = event || window.event;
-            var target = getTarget(event);
-            if (target.autoComp && target.autoComp.isOpen())
-              return;
-            var keyCode = event.keyCode;
-            var box = target;
-            if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
-            if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
-            if (keyCode == 37) {  // left arrow key
-              if (getCursorPosition(box) <= 0) {
-                pui.goToClosestElement(target, "left");
-                preventEvent(event);
-                return false;
-              }
-            }
-            if (keyCode == 38) {  // up arrow key
-              pui.goToClosestElement(target, "up");
-              preventEvent(event);
-              return false;
-            }
-            if (keyCode == 39) {  // right arrow key
-              if (getCursorPosition(box) >= box.value.length) {
-                pui.goToClosestElement(target, "right");
-                preventEvent(event);
-                return false;
-              }
-            }
-            if (keyCode == 40) {  // down arrow key
-              pui.goToClosestElement(target, "down");
-              preventEvent(event);
-              return false;
-            }
-          });
+          pui.addarrowKeyEventHandler(boxDom); 
         }
       }
 
@@ -3208,6 +3175,9 @@ pui.renderFormat = function(parms) {
       }
     }
   }
+  if (pui["enable arrow keys"] == true) {
+   pui.enableArrowKeysForGridQuickFilters(); 
+  } 
   time = timer(time);
   if (pui.renderLog)
     console.log("Format " + formatName + " rendered in " + time + "ms");
@@ -3247,7 +3217,102 @@ pui.renderFormat = function(parms) {
       qualField += "." + (parms.subfileRow);
     }
   }
+
+
+
 };  // pui.renderFormat
+
+ // Add arrow key event handler for grid quick filters
+pui.enableArrowKeysForGridQuickFilters = function() {
+   
+  // Reset the "arrowDownDetected" flag because the pui.addarrowKeyEventHandler 
+  //  is only created once, when this js file is first loaded. 
+  pui.arrowKeyEventHandler.resetArrowDownDetectedBeforeOnQuickFilter(); 
+  var grid = null;
+  var inputElement = null;
+  var inputElementArray = null; 
+  var gridArray = document.querySelectorAll("[puiwdgt='grid']"); 
+  if (gridArray.length < 1) {
+    return; 
+  }; 
+  for (var i=0;i < gridArray.length;i++) {
+     inputElementArray = gridArray[i].querySelectorAll("input.qf"); 
+     if (inputElementArray.length < 1) {
+        continue; 
+     }; 
+     for (var y=0;y < inputElementArray.length;y++) {
+      inputElementArray[y].style.left = "2px";
+      inputElementArray[y].style.top = "30px";
+      pui.addarrowKeyEventHandler(inputElementArray[y]);        
+     }; 
+  }; 
+   
+  
+} /* pui.enableArrowKeysForGridQuickFilters */
+
+
+pui.arrowKeyEventHandler = new function() {
+  var me = this; 
+  me.arrowDownDetectedBeforeOnQuickFilter = false; 
+
+  me.resetArrowDownDetectedBeforeOnQuickFilter = function() {
+     me.arrowDownDetectedBeforeOnQuickFilter = false; 
+  }; 
+  
+  me.handler = function(event) {
+    event = event || window.event;
+    var target = getTarget(event);
+    if (target.autoComp && target.autoComp.isOpen())
+      return;
+    var keyCode = event.keyCode;
+    var box = target;
+    if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+    if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
+    if (keyCode == 37) {  // left arrow key
+      if (getCursorPosition(box) <= 0) {
+        pui.goToClosestElement(target, "left");
+        preventEvent(event);
+        return false;
+      }
+    }
+    if (keyCode == 38) {  // up arrow key
+      pui.goToClosestElement(target, "up");
+      preventEvent(event);
+      return false;
+    }
+    if (keyCode == 39) {  // right arrow key
+      if (getCursorPosition(box) >= box.value.length) {
+        pui.goToClosestElement(target, "right");
+        preventEvent(event);
+        return false;
+      }
+    }
+    if (keyCode == 40) {  // down arrow key
+      pui.goToClosestElement(target, "down");
+      preventEvent(event);
+      // Check if it's the first time the down key is hit on a quick filter. If so, fire the down key even again. 
+      if (!me.arrowDownDetectedBeforeOnQuickFilter && target.className.includes("qf") && target.nodeName === "INPUT"){
+        me.arrowDownDetectedBeforeOnQuickFilter = true;
+        setTimeout(function() {
+          target.dispatchEvent(event);
+        }, 50)
+      }
+      return false;
+    }
+  }
+}
+
+// Add arrow key event handler
+//   Note: Blur event handler for quick filters redraws the grid losing the focus on the grid field on first execution.  
+//         Workaround is to fire the down key event for a second time. 
+pui.addarrowKeyEventHandler = function(element) {
+  if (typeof element === "undefined" || typeof element.tagName === "undefined" || element.tagName !== "INPUT" ) {
+    return; 
+  }
+  addEvent(element, "keydown", pui.arrowKeyEventHandler.handler );
+
+} /* end addarrowKeyEventHandler */
+ 
 
 
 pui.attachResponse = function(dom) {
