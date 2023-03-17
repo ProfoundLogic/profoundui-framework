@@ -6169,14 +6169,84 @@ pui.gotoNextElementAndPossiblySelect = function(target) {
   }
 };
 
+pui.positionIsCalc= function(position){
+  var isCalc = position.search(/calc/i);
+  if (isCalc >= 0) return true;
+  else return false;
+}
 
+pui.getCalcValue = function(domElement,position){
+  // TODO: Get the values of percent.
+  // TODO: calculate for the base PX.
+  var positionValue;
+  var parentSpread;
+  if (position == 'left' || position == 'right') {
+    positionValue = domElement.style[position];
+    parentSpread = domElement.parentNode.offsetWidth;
+  }
+  if (position == 'bottom' || position == 'top') {
+    positionValue = domElement.style[position];
+    parentSpread = domElement.parentNode.offsetHeight;
+  }
+  var value;
+  // TODO: remove the "calc","(" and ")"
+  value = positionValue.replace(/calc|[{()}]/gi,"");
+  // Divide the current value into 3. 1st value ( percent ), operand (+, -, *, /), 2nd value
+  value = value.split(" ");
+  // Value 0 is the first value, 1 is the operand and 2 is the 2nd value
+  // Only passed 1 value (might be uneccessary but gonna put it anyway.)
+  if (value.length < 2) {
+    if (value[0].search("%") >= 0 ) {
+      return pui.measurementInPixel(value[0],parentSpread);
+    }
+    return pui.measurementInPixel(value[0]);
+  }
+  var firstValue;
+  var secondValue;
+  var operand = value[1];
+  // Calculate
+    // Get percent in decimal.
+      // Check if Percent 
+  if (value[0].search("%") >= 0 ) {
+    // Example 50% will be ( 50/100 = 0.5 (value as decimal) * parentWidth )
+    firstValue = pui.measurementInPixel(value[0],parentSpread);
+  }
+  else{
+    firstValue = pui.measurementInPixel(value[0]);
+  }
+  secondValue = pui.measurementInPixel(value[2]);
+  return eval(firstValue + operand + secondValue)
+}
+pui.measurementInPixel = function (value,parentSpread) {
+  // Default value on parameters does not work on compilation.
+  // If percent the parentSpread ( total width or height of the parent ) is required.
+  if (value.search("%") >= 0 ) {
+    // no parentSpread, do nothing
+    if (!parentSpread) return null;
+    return Math.round((parseInt(value)/100) * parseInt(parentSpread) );
+  }
+  // Rem is reliant on font-size of the html while em is reliant on the parent div.
+    // setting the value of 16 seems to work okay.
+  if (value.search(/rem/i) >= 0 || value.search(/em/i) >= 0 ) {
+    return parseInt(parseInt(value) * 16);
+  }else {
+    return parseInt(value);
+  }
+}
 pui.goToClosestElement = function(baseElem, direction) {
   if (baseElem.parentNode.comboBoxWidget != null) baseElem = baseElem.parentNode;
   if (baseElem.parentNode.floatingPlaceholder != null) baseElem = baseElem.parentNode;
-  var baseX = parseInt(baseElem.style.left);
+  var parentWidth = baseElem.parentNode.offsetWidth;
+  var parentHeight = baseElem.parentNode.offsetHeight;
+  // TODO: Check for the "calc"
+  // TODO: condition if it has calc.
+  // Get the value of baseX
+  var baseX = pui.positionIsCalc(baseElem.style.left) ? pui.getCalcValue(baseElem,'left') : pui.measurementInPixel(baseElem.style.left,parentWidth);
   if (isNaN(baseX)) return null;
-  var baseY = parseInt(baseElem.style.top);
+  // Get the value of baseY
+  var baseY = pui.positionIsCalc(baseElem.style.top) ? pui.getCalcValue(baseElem,'top') : pui.measurementInPixel(baseElem.style.top,parentHeight);
   if (isNaN(baseY)) return null;
+  // Get the parent of the inputs
   var container = baseElem.parentNode;
   var gridDom = container.parentNode;
   if (gridDom.grid != null) {  // the base element is within a grid
@@ -6197,6 +6267,7 @@ pui.goToClosestElement = function(baseElem, direction) {
   var curXDiff = 99999;
   var curYDiff = 99999;
   var elems = [];
+  // Function to add elements/inputs in the elems variable.
   function addElemsByTag(tag) {
     var elemsForThisTag = container.getElementsByTagName(tag);
     var elem;
@@ -6219,11 +6290,18 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (elem.readOnly || elem.disabled || elem.style.visibility == "hidden" || elem.parentNode.style.visibility == "hidden") continue;
     if (elem.tagName == "A") elem = elem.parentNode;
     var mainElem = elem;
+    // var mainElemWidth = elem;
+    // var mainElemHeigth = elem;
     if (elem.parentNode.comboBoxWidget != null) mainElem = elem.parentNode;
     if (elem.parentNode.floatingPlaceholder != null) mainElem = elem.parentNode;
-    var x = parseInt(mainElem.style.left);
+    // if (pui.positionIsCalc(mainElem.style.left)) var x = pui.getCalcValue(mainElem,'left')
+    // else var x = pui.measurementInPixel(mainElem.style.left,parentWidth);
+    var x = pui.positionIsCalc(mainElem.style.left) ? pui.getCalcValue(mainElem,'left') : pui.measurementInPixel(mainElem.style.left,parentWidth);
     if (isNaN(x)) continue;
-    var y = parseInt(mainElem.style.top);
+    // if (pui.positionIsCalc(mainElem.style.top)) var y = pui.getCalcValue(mainElem,'top')
+    // else var y = pui.measurementInPixel(mainElem.style.top,parentHeight);
+    var y = pui.positionIsCalc(mainElem.style.top) ? pui.getCalcValue(mainElem,'top') : pui.measurementInPixel(mainElem.style.top,parentHeight);
+
     if (isNaN(y)) continue;
     gridDom = mainElem.parentNode.parentNode;
     if (gridDom.grid != null) {  // the element is within a grid
@@ -6255,7 +6333,6 @@ pui.goToClosestElement = function(baseElem, direction) {
       }
     }
   }
-
   if (curElem != null) {
     try {
       curElem.focus();
