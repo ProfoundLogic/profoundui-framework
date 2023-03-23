@@ -107,9 +107,8 @@ pui.widgets.add({
       if (parms.propertyName == "template") {
         savedTemplateName = parms.dom.layout.template;
         parms.dom.layout.template = parms.value;
-        
-        // The template switched, so the old one should be destroyed to clear listeners and memory.
-        if (parms.value != parms.properties["template"] && parms.dom.layoutT) parms.dom.layoutT.destroy();
+        // The template switched. Note: there is no need to destroy the old layoutT because a new one gets created when applyTemplate
+        // runs. If you were to destroy the layoutT here, then using the widget causes errors after switching templates. PUI-213
       }
       var nmodel = makeNamedModel(pui.layout.getPropertiesModel());
       for (var prop in parms.properties) {
