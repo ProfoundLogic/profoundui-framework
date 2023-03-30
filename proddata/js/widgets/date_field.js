@@ -20,7 +20,7 @@
 
 
 
-var gDateField = new Array(); 
+var gDateField = []; 
 var gDateCount = 0;
 pui.currentDateField = null;
 
@@ -50,7 +50,7 @@ function show_calendar(dateField, str_datetime, format) {
     arr_months = pui.locales[locale]['monthNames'];
     dayNames = pui.locales[locale]['shortDayNames'];
     if(showWeekNum == "true" && pui.locales[locale]['weekNumberShort']){
-      var weekHead = pui.locales[locale]['weekNumberShort'];
+      weekHead = pui.locales[locale]['weekNumberShort'];
     }
     else if(showWeekNum == "true"){weekHead = "Wk";}
 
@@ -214,8 +214,9 @@ function show_calendar(dateField, str_datetime, format) {
            dt_current_day.getMonth() == dt_firstday.getMonth()) {
 
     //calculate default week number
+    var weekNum;
     if(showWeekNum == "true"){
-      if(weekNum == null) {var weekNum = 1;}
+      if(weekNum == null) {weekNum = 1;}
       var startDate = dt_current_day;
       if(startDate.getDay() == n_weekstart){
         // Get Thursday in current week -- this will also mdetrmine which year the week is in
@@ -390,8 +391,8 @@ function show_calendar(dateField, str_datetime, format) {
 
   var winSize = pui["getWindowSize"]();
   //Should be [0,0] unless the page is scrolled
-  var winTop = window.pageYOffset;
-  var winLeft = window.pageYOffset;
+//  var winTop = window.pageYOffset;
+//  var winLeft = window.pageYOffset;
 
   //Below Screen -- bottom left corner must be above screen bottom
   if((top + calHeight) > winSize["height"]){
@@ -451,7 +452,7 @@ function str2dt(str_datetime){
   return (new Date (result[3], result[2]-1, result[1], result[4], result[5], result[6]));
 }
 function dt2dtstr(dt_datetime){
-  return (new String (
+  return (String (
       dt_datetime.getDate()+"-"+(dt_datetime.getMonth()+1)+"-"+dt_datetime.getFullYear()+" "));
 }
 function usa_dt(dt_datetime, format, formattingInfo){
@@ -491,9 +492,9 @@ function usa_dt(dt_datetime, format, formattingInfo){
   var yr4;
   var returnVal;
 
-  month       = new String(dt_datetime.getMonth() + 1);
-  day         = new String(dt_datetime.getDate());
-  yr          = new String(dt_datetime.getFullYear());
+  month       = String(dt_datetime.getMonth() + 1);
+  day         = String(dt_datetime.getDate());
+  yr          = String(dt_datetime.getFullYear());
 
   mon=month;
   if(month.length==1) mon = "0" + month;
@@ -592,7 +593,7 @@ function usa_dtstr2str(str_date, format, formattingInfo) {
   return str;
 }
 function dt2tmstr (dt_datetime) {
-  return (new String (dt_datetime.getHours()+":"+dt_datetime.getMinutes()+":"+dt_datetime.getSeconds()));
+  return (String (dt_datetime.getHours()+":"+dt_datetime.getMinutes()+":"+dt_datetime.getSeconds()));
 }
 function hide_calendar(){
   var calobj = getObj('popcal');
