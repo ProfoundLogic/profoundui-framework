@@ -113,7 +113,8 @@ pui.layout.template.load = function(parms){
       break;
 
     default:
-      // custom function provided instead of HTML. (None of our templates reach here, but a customer's could.)
+      // custom function provided instead of HTML. (Customer templates could reach this; also
+      // simple container, table, and mobile device reach here.)
       if (typeof template == "function")  dom = template(parms);
       // The template is probably contained in an HTML string and needs to be processed.
       else dom = pui.layout.template.processHTML(parms, dom);

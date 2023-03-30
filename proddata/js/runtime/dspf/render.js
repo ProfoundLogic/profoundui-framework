@@ -544,7 +544,7 @@ pui.render = function(parms) {
     var rv = pui["beforeRender"](parms);
     if (rv) parms = rv;
   }
-
+// Set the local parameter for PJS version
   if (parms["pjsVersion"] != null) {
     pui.pjsVersion = parms["pjsVersion"];
   }
@@ -572,7 +572,7 @@ pui.render = function(parms) {
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
-
+  // Error Handling for client
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = null;
     var parmVersion = parms["version"].split('.');
@@ -591,7 +591,7 @@ pui.render = function(parms) {
       console.error(msg);
     }
   }
-
+   // Identifying the version of Internet explorer.
   if (pui["is_old_ie"] && pui["ie_mode"] >= 9) {
     
     pui.addCssClass(pui.runtimeContainer, "pui-ie9plus");
@@ -2282,40 +2282,7 @@ pui.renderFormat = function(parms) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-          addEvent(boxDom, "keydown", function(event) {
-            event = event || window.event;
-            var target = getTarget(event);
-            if (target.autoComp && target.autoComp.isOpen())
-              return;
-            var keyCode = event.keyCode;
-            var box = target;
-            if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
-            if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
-            if (keyCode == 37) {  // left arrow key
-              if (getCursorPosition(box) <= 0) {
-                pui.goToClosestElement(target, "left");
-                preventEvent(event);
-                return false;
-              }
-            }
-            if (keyCode == 38) {  // up arrow key
-              pui.goToClosestElement(target, "up");
-              preventEvent(event);
-              return false;
-            }
-            if (keyCode == 39) {  // right arrow key
-              if (getCursorPosition(box) >= box.value.length) {
-                pui.goToClosestElement(target, "right");
-                preventEvent(event);
-                return false;
-              }
-            }
-            if (keyCode == 40) {  // down arrow key
-              pui.goToClosestElement(target, "down");
-              preventEvent(event);
-              return false;
-            }
-          });
+          pui.addarrowKeyEventHandler(boxDom); 
         }
       }
 
@@ -3208,6 +3175,9 @@ pui.renderFormat = function(parms) {
       }
     }
   }
+  if (pui["enable arrow keys"] == true) {
+   pui.enableArrowKeysForGridQuickFilters(); 
+  } 
   time = timer(time);
   if (pui.renderLog)
     console.log("Format " + formatName + " rendered in " + time + "ms");
@@ -3247,7 +3217,102 @@ pui.renderFormat = function(parms) {
       qualField += "." + (parms.subfileRow);
     }
   }
+
+
+
 };  // pui.renderFormat
+
+ // Add arrow key event handler for grid quick filters
+pui.enableArrowKeysForGridQuickFilters = function() {
+   
+  // Reset the "arrowDownDetected" flag because the pui.addarrowKeyEventHandler 
+  //  is only created once, when this js file is first loaded. 
+  pui.arrowKeyEventHandler.resetArrowDownDetectedBeforeOnQuickFilter(); 
+  var grid = null;
+  var inputElement = null;
+  var inputElementArray = null; 
+  var gridArray = document.querySelectorAll("[puiwdgt='grid']"); 
+  if (gridArray.length < 1) {
+    return; 
+  }; 
+  for (var i=0;i < gridArray.length;i++) {
+     inputElementArray = gridArray[i].querySelectorAll("input.qf"); 
+     if (inputElementArray.length < 1) {
+        continue; 
+     }; 
+     for (var y=0;y < inputElementArray.length;y++) {
+      inputElementArray[y].style.left = "2px";
+      inputElementArray[y].style.top = "30px";
+      pui.addarrowKeyEventHandler(inputElementArray[y]);        
+     }; 
+  }; 
+   
+  
+} /* pui.enableArrowKeysForGridQuickFilters */
+
+
+pui.arrowKeyEventHandler = new function() {
+  var me = this; 
+  me.arrowDownDetectedBeforeOnQuickFilter = false; 
+
+  me.resetArrowDownDetectedBeforeOnQuickFilter = function() {
+     me.arrowDownDetectedBeforeOnQuickFilter = false; 
+  }; 
+  
+  me.handler = function(event) {
+    event = event || window.event;
+    var target = getTarget(event);
+    if (target.autoComp && target.autoComp.isOpen())
+      return;
+    var keyCode = event.keyCode;
+    var box = target;
+    if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
+    if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
+    if (keyCode == 37) {  // left arrow key
+      if (getCursorPosition(box) <= 0) {
+        pui.goToClosestElement(target, "left");
+        preventEvent(event);
+        return false;
+      }
+    }
+    if (keyCode == 38) {  // up arrow key
+      pui.goToClosestElement(target, "up");
+      preventEvent(event);
+      return false;
+    }
+    if (keyCode == 39) {  // right arrow key
+      if (getCursorPosition(box) >= box.value.length) {
+        pui.goToClosestElement(target, "right");
+        preventEvent(event);
+        return false;
+      }
+    }
+    if (keyCode == 40) {  // down arrow key
+      pui.goToClosestElement(target, "down");
+      preventEvent(event);
+      // Check if it's the first time the down key is hit on a quick filter. If so, fire the down key even again. 
+      if (!me.arrowDownDetectedBeforeOnQuickFilter && target.className.includes("qf") && target.nodeName === "INPUT"){
+        me.arrowDownDetectedBeforeOnQuickFilter = true;
+        setTimeout(function() {
+          target.dispatchEvent(event);
+        }, 50)
+      }
+      return false;
+    }
+  }
+}
+
+// Add arrow key event handler
+//   Note: Blur event handler for quick filters redraws the grid losing the focus on the grid field on first execution.  
+//         Workaround is to fire the down key event for a second time. 
+pui.addarrowKeyEventHandler = function(element) {
+  if (typeof element === "undefined" || typeof element.tagName === "undefined" || element.tagName !== "INPUT" ) {
+    return; 
+  }
+  addEvent(element, "keydown", pui.arrowKeyEventHandler.handler );
+
+} /* end addarrowKeyEventHandler */
+ 
 
 
 pui.attachResponse = function(dom) {
@@ -6169,14 +6234,84 @@ pui.gotoNextElementAndPossiblySelect = function(target) {
   }
 };
 
+pui.positionIsCalc= function(position){
+  var isCalc = position.search(/calc/i);
+  if (isCalc >= 0) return true;
+  else return false;
+}
 
+pui.getCalcValue = function(domElement,position){
+  // TODO: Get the values of percent.
+  // TODO: calculate for the base PX.
+  var positionValue;
+  var parentSpread;
+  if (position == 'left' || position == 'right') {
+    positionValue = domElement.style[position];
+    parentSpread = domElement.parentNode.offsetWidth;
+  }
+  if (position == 'bottom' || position == 'top') {
+    positionValue = domElement.style[position];
+    parentSpread = domElement.parentNode.offsetHeight;
+  }
+  var value;
+  // TODO: remove the "calc","(" and ")"
+  value = positionValue.replace(/calc|[{()}]/gi,"");
+  // Divide the current value into 3. 1st value ( percent ), operand (+, -, *, /), 2nd value
+  value = value.split(" ");
+  // Value 0 is the first value, 1 is the operand and 2 is the 2nd value
+  // Only passed 1 value (might be uneccessary but gonna put it anyway.)
+  if (value.length < 2) {
+    if (value[0].search("%") >= 0 ) {
+      return pui.measurementInPixel(value[0],parentSpread);
+    }
+    return pui.measurementInPixel(value[0]);
+  }
+  var firstValue;
+  var secondValue;
+  var operand = value[1];
+  // Calculate
+    // Get percent in decimal.
+      // Check if Percent 
+  if (value[0].search("%") >= 0 ) {
+    // Example 50% will be ( 50/100 = 0.5 (value as decimal) * parentWidth )
+    firstValue = pui.measurementInPixel(value[0],parentSpread);
+  }
+  else{
+    firstValue = pui.measurementInPixel(value[0]);
+  }
+  secondValue = pui.measurementInPixel(value[2]);
+  return eval(firstValue + operand + secondValue)
+}
+pui.measurementInPixel = function (value,parentSpread) {
+  // Default value on parameters does not work on compilation.
+  // If percent the parentSpread ( total width or height of the parent ) is required.
+  if (value.search("%") >= 0 ) {
+    // no parentSpread, do nothing
+    if (!parentSpread) return null;
+    return Math.round((parseInt(value)/100) * parseInt(parentSpread) );
+  }
+  // Rem is reliant on font-size of the html while em is reliant on the parent div.
+    // setting the value of 16 seems to work okay.
+  if (value.search(/rem/i) >= 0 || value.search(/em/i) >= 0 ) {
+    return parseInt(parseInt(value) * 16);
+  }else {
+    return parseInt(value);
+  }
+}
 pui.goToClosestElement = function(baseElem, direction) {
   if (baseElem.parentNode.comboBoxWidget != null) baseElem = baseElem.parentNode;
   if (baseElem.parentNode.floatingPlaceholder != null) baseElem = baseElem.parentNode;
-  var baseX = parseInt(baseElem.style.left);
+  var parentWidth = baseElem.parentNode.offsetWidth;
+  var parentHeight = baseElem.parentNode.offsetHeight;
+  // TODO: Check for the "calc"
+  // TODO: condition if it has calc.
+  // Get the value of baseX
+  var baseX = pui.positionIsCalc(baseElem.style.left) ? pui.getCalcValue(baseElem,'left') : pui.measurementInPixel(baseElem.style.left,parentWidth);
   if (isNaN(baseX)) return null;
-  var baseY = parseInt(baseElem.style.top);
+  // Get the value of baseY
+  var baseY = pui.positionIsCalc(baseElem.style.top) ? pui.getCalcValue(baseElem,'top') : pui.measurementInPixel(baseElem.style.top,parentHeight);
   if (isNaN(baseY)) return null;
+  // Get the parent of the inputs
   var container = baseElem.parentNode;
   var gridDom = container.parentNode;
   if (gridDom.grid != null) {  // the base element is within a grid
@@ -6197,6 +6332,7 @@ pui.goToClosestElement = function(baseElem, direction) {
   var curXDiff = 99999;
   var curYDiff = 99999;
   var elems = [];
+  // Function to add elements/inputs in the elems variable.
   function addElemsByTag(tag) {
     var elemsForThisTag = container.getElementsByTagName(tag);
     var elem;
@@ -6219,11 +6355,18 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (elem.readOnly || elem.disabled || elem.style.visibility == "hidden" || elem.parentNode.style.visibility == "hidden") continue;
     if (elem.tagName == "A") elem = elem.parentNode;
     var mainElem = elem;
+    // var mainElemWidth = elem;
+    // var mainElemHeigth = elem;
     if (elem.parentNode.comboBoxWidget != null) mainElem = elem.parentNode;
     if (elem.parentNode.floatingPlaceholder != null) mainElem = elem.parentNode;
-    var x = parseInt(mainElem.style.left);
+    // if (pui.positionIsCalc(mainElem.style.left)) var x = pui.getCalcValue(mainElem,'left')
+    // else var x = pui.measurementInPixel(mainElem.style.left,parentWidth);
+    var x = pui.positionIsCalc(mainElem.style.left) ? pui.getCalcValue(mainElem,'left') : pui.measurementInPixel(mainElem.style.left,parentWidth);
     if (isNaN(x)) continue;
-    var y = parseInt(mainElem.style.top);
+    // if (pui.positionIsCalc(mainElem.style.top)) var y = pui.getCalcValue(mainElem,'top')
+    // else var y = pui.measurementInPixel(mainElem.style.top,parentHeight);
+    var y = pui.positionIsCalc(mainElem.style.top) ? pui.getCalcValue(mainElem,'top') : pui.measurementInPixel(mainElem.style.top,parentHeight);
+
     if (isNaN(y)) continue;
     gridDom = mainElem.parentNode.parentNode;
     if (gridDom.grid != null) {  // the element is within a grid
@@ -6255,7 +6398,6 @@ pui.goToClosestElement = function(baseElem, direction) {
       }
     }
   }
-
   if (curElem != null) {
     try {
       curElem.focus();

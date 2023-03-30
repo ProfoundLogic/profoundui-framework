@@ -1449,7 +1449,6 @@ pui.FieldFormat = {
             return { msg: msg };
           }
           else {
-            console.error(msg);
             return obj.value;
           }
         }
@@ -1463,7 +1462,6 @@ pui.FieldFormat = {
               return { msg: msg };
             }
             else {
-              console.error(msg);
               return obj.value;
             }
           }
