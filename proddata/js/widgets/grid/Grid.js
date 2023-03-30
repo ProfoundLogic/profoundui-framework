@@ -2729,7 +2729,7 @@ pui.Grid = function () {
     filterMultiPanelLoading = null;
     try {
       this.deleteOwnProperties();   //Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
-      delete me;
+      me = null;
     } catch(ignored){}
   };
 
