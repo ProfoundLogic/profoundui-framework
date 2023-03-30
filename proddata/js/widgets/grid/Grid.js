@@ -10267,8 +10267,6 @@ pui.Grid = function () {
 
     if (filterMultiPanel) {
       filterMultiPanel.parentNode.removeChild(filterMultiPanel);
-      delete filterMultiPanel;
-      filterMultiPanel = null;
     }
 
     filterMultiPanel = document.createElement('div');
