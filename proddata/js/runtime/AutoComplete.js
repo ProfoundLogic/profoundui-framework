@@ -534,7 +534,7 @@ function AutoComplete(config) {
       recordDiv.className += " autocomplete-selected";
 
       // scroll record into view if necessary
-      if (scrollIntoView == true && typeof recordDiv.scrollIntoView != null) {
+      if (scrollIntoView == true && typeof recordDiv.scrollIntoView === "function") {
 
         // get window scroll top
         var scrOfY = 0;
