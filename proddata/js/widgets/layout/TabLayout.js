@@ -469,11 +469,14 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
 
         // if the same field is defined on different tabs then the value of the field must be
         // the value of the first element in the field array for that tab.
+        // Redmine #7660. (See also Redmine 7927).
         if (pui.cursorValues.record != null){
-          if (pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)].length > 1){
-            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].value = 
-            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][this.selectedTab].value;
-            pui.responseElements[(pui.cursorValues.record + '.' + pui.cursorValues.field)][0].modified = true;
+          var respKey = pui.cursorValues.record + '.' + pui.cursorValues.field;
+          var respArr = pui.responseElements[respKey];
+
+          if (Array.isArray(respArr) && respArr.length > 1){
+            respArr[0].value = respArr[this.selectedTab].value;
+            respArr[0].modified = true;
           }
         }
 
