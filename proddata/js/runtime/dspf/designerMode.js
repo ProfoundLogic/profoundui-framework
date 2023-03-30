@@ -31,6 +31,5 @@ else {
     pui.viewdesigner = true;
   else if (match && match[1].toLowerCase() === "nodedesigner")
     pui.nodedesigner = true;
-  delete match;
 }
 pui.codeBased = false;
