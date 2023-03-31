@@ -1057,7 +1057,6 @@ pui.setupGridsDisplayedScrollBar = function(){
  * @returns {undefined}
  */
 pui.renderFormat = function(parms) {
-
   var time = timer();
   // retrieve parameters
   var isDesignMode = parms.designMode;
@@ -1065,6 +1064,7 @@ pui.renderFormat = function(parms) {
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
   var ddsFieldOrder = parms.metaData["dds field order"];
+  var subfileFieldOrder = parms.metaData["subfile field order"];
   var designer = parms.designer;
   var data = parms.data;
   var formatName = parms.name;
@@ -1233,6 +1233,7 @@ pui.renderFormat = function(parms) {
 
     // 7415. Send field order to designer
     designer.ddsFieldOrder = ddsFieldOrder;
+    designer.subfileFieldOrder = subfileFieldOrder;
 
   }
   
