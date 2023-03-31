@@ -2013,7 +2013,6 @@ pui.isHTML5InputType = function(type) {
     case "url":
     case "month":
     case "tel":
-    case "url":
     // not provided as a choice in the "input type" property, but could be valid HTML5 input types
     case "color":
     case "datetime-local":
