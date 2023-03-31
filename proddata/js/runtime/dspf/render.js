@@ -3818,7 +3818,6 @@ pui.buildResponse = function(customResponseElements) {
             case "hidden":
             case "":
             // following are new HTML5 input types
-            case "number":
             case "date":
             case "datetime":
             case "time":
@@ -3826,7 +3825,6 @@ pui.buildResponse = function(customResponseElements) {
             case "url":
             case "month":
             case "tel":
-            case "url":
             case "color":
             case "datetime-local":
             case "search":
