@@ -723,7 +723,7 @@ pui["uploadSignature"] = function(params) {
   }
   
   var imgDataUrl = sigpad.firstChild.toDataURL(params["imageType"]);
-  params["data"] = new String(imgDataUrl);
+  params["data"] = String(imgDataUrl);
   
   pui.uploadDataUrl(params, params["handler"]);
     
