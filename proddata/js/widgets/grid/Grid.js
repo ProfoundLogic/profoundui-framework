@@ -2535,6 +2535,14 @@ pui.Grid = function () {
               else if (row[idx].style.textAlign != null && row[idx].style.textAlign != "") {
                 alignCSS = " text-align:" + row[idx].style.textAlign;
               }
+              // If decimal format is "J" make sure decimal values less than 1 have a leading 0. 
+              if (pui.appJob["decimalFormat"] == "J" 
+                   && dataValue.charAt(0) == "," 
+                   && dataValue.length > 1 
+                   && !Number["isNaN"](Number["parseInt"](dataValue.substring(1)))) {
+                 
+                 dataValue = '0' + dataValue;
+              }
               row[idx].innerHTML = '<div style="' + paddingCSS + alignCSS + '" class="dbd">' + dataValue + '</div>';
 
               // Highlight cells in the column.
