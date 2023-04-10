@@ -17,7 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
 pui.runtimeContainer = null;
 pui.renderCount = 0;
 pui["refresh interval"] = null;
@@ -53,7 +52,7 @@ pui.topRRNs = {};
 pui.sflModes = {};
 pui.subfileChangedFields = {};
 pui.dragDropFields = {};
-pui.changedFields ={};
+pui.changedFields = {};
 pui.windowTopField = null;
 pui.windowLeftField = null;
 pui.populateWindowTopLeft = true;
@@ -72,7 +71,7 @@ pui.responseRoutineRow = null;
 pui.responseRoutineGrid = null;
 pui.ddBypassValidation = "false";
 pui.lastFormatName = null;
-pui.scrolledGridName = null
+pui.scrolledGridName = null;
 pui.placeCursorOnSubfile = false;
 pui.iPadEmulation = false;
 pui.iPhoneEmulation = false;
@@ -95,13 +94,13 @@ pui.translationMap = [];
 
 // this is normally stored in a theme, but themes are not available at runtime
 // so for now, this is just hardcoded
-pui.standardRowHeight = 20;  
+pui.standardRowHeight = 20;
 pui.standardColumnWidth = 8;
-pui["leftOffset"] = 140;  
-pui.topOffset = 0;  
-pui.pagingBarHeight = 27;  
-pui["vertical button spacing"] = 33;     // this accounts for the height of the button as well, used in non-window formats
-pui["horizontal button spacing"] = 90;   // this accounts for the width of the button as well, used in window formats
+pui["leftOffset"] = 140;
+pui.topOffset = 0;
+pui.pagingBarHeight = 27;
+pui["vertical button spacing"] = 33; // this accounts for the height of the button as well, used in non-window formats
+pui["horizontal button spacing"] = 90; // this accounts for the width of the button as well, used in window formats
 
 pui["highlight on focus"] = false;
 
@@ -116,16 +115,16 @@ pui["loading animation"]["top"] = 10;
 pui["loading animation"]["width"] = 16;
 pui["loading animation"]["height"] = 16;
 pui["loading animation"]["zIndex"] = 250;
-pui["loading animation"]["css"] = 'pui-animation';
+pui["loading animation"]["css"] = "pui-animation";
 
-pui["auto tab"] = false;  // when the user reaches the end of the field, the cursor is automatically advanced to the next field
+pui["auto tab"] = false; // when the user reaches the end of the field, the cursor is automatically advanced to the next field
 pui["enable arrow keys"] = false;
 pui["horizontal auto arrange"] = false;
-pui["buttons per row"] = 1;  //required when pui["horizontal auto arrange"] set to true
+pui["buttons per row"] = 1; // required when pui["horizontal auto arrange"] set to true
 pui["strict tab control"] = false;
 
 // Parent namespace for wikihelp functions, settings, and objects.
-pui["wikihelp"] = {}; 
+pui["wikihelp"] = {};
 
 pui.fkeyValues = {
   "F1": 1,
@@ -151,7 +150,7 @@ pui.fkeyValues = {
   "F21": 21,
   "F22": 22,
   "F23": 23,
-  "F24": 24,  
+  "F24": 24,
   "Enter": 0
 };
 
@@ -180,22 +179,21 @@ pui.aidKeyValues = {
   "F21": 0xB9,
   "F22": 0xBA,
   "F23": 0xBB,
-  "F24": 0xBC,  
-  "Pause/Break": 0xBD,          // Clear Key
+  "F24": 0xBC,
+  "Pause/Break": 0xBD, // Clear Key
   "Clear": 0xBD,
   "Enter": 0xF1,
-  "Alt-F1": 0xF3,               // Help Key
+  "Alt-F1": 0xF3, // Help Key
   "Help": 0xF3,
   "PageUp": 0xF4,
   "PageDown": 0xF5,
   "Print": 0xF6,
-  "RecordBackspace": 0xF8,      // Not implemented
-  "AutoEnter": 0x3F             // Not implemented
-  
+  "RecordBackspace": 0xF8, // Not implemented
+  "AutoEnter": 0x3F // Not implemented
+
 };
 
-
-pui.protectFormat = function(format) {
+pui.protectFormat = function (format) {
   var items = format["metaData"]["items"];
   for (var i = 0; i < items.length; i++) {
     var itm = items[i];
@@ -203,7 +201,7 @@ pui.protectFormat = function(format) {
     if (type == "checkbox" || type == "combo box" || type == "date field" || type == "password field" || type == "radio button" || type == "select box" || type == "spinner" | type == "text area" || type == "textbox") {
       itm["read only"] = "true";
       var done = false;
-      var suffix = 1;      
+      var suffix = 1;
       var prop = "css class";
       if (itm[prop] == "PR" || itm[prop] == "PR-UL") done = true;
       while (itm[prop] != null) {
@@ -216,9 +214,7 @@ pui.protectFormat = function(format) {
   }
 };
 
-
-pui.doClearLine = function(clearLine, format, oRange, startingLine) {
-
+pui.doClearLine = function (clearLine, format, oRange, startingLine) {
   var clearFrom, clearTo;
   var rangeFrom, rangeTo;
 
@@ -241,7 +237,7 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
       clearFrom = startingLine;
       clearTo = startingLine + clearLine - 1;
   }
-  
+
   if (oRange == null) oRange = "";
   var rangeArr = oRange.split("-");
   if (rangeArr.length != 2) {
@@ -291,9 +287,8 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
   }
 };
 
-
 // check if two overlay ranges overlap
-pui.rangeOverlap = function(range1, range2) {
+pui.rangeOverlap = function (range1, range2) {
   if (range1 == null) return false;
   if (range2 == null) return false;
   var arr1 = range1.split("-");
@@ -315,11 +310,10 @@ pui.rangeOverlap = function(range1, range2) {
   return false;
 };
 
-
 // determine if record formats below subfiles need to be pushed down and by how much
 // also handle "clear line" property
-pui.overlayAdjust = function(formats) {
-  function isValueInMultOccurProperty(value, obj, baseProp) {
+pui.overlayAdjust = function (formats) {
+  function isValueInMultOccurProperty (value, obj, baseProp) {
     var name = baseProp;
     var i = 1;
 
@@ -354,7 +348,7 @@ pui.overlayAdjust = function(formats) {
           else startingLine = "1";
         }
         startingLine = parseInt(startingLine);
-        if (isNaN(startingLine) || startingLine < 1) startingLine = 1;        
+        if (isNaN(startingLine) || startingLine < 1) startingLine = 1;
         var isInputCapableFormat = false;
         var items = format["metaData"]["items"];
         for (var x = 0; x < items.length; x++) {
@@ -372,7 +366,7 @@ pui.overlayAdjust = function(formats) {
               pui.protectFormat(formats[j]);
             }
           }
-        }      
+        }
       }
       if (format["subfiles"] != null) {
         var oRange = format["metaData"]["screen"]["overlay range"];
@@ -401,10 +395,10 @@ pui.overlayAdjust = function(formats) {
         var oRangeArr = oRange.split("-");
         if (oRangeArr.length == 2) {
           var oLow = Number(oRangeArr[0]);
-          if (!isNaN(oLow) && oLow > oHigh) {  // overlay range low of this format is higher than the overlow range high of the subfile control format
+          if (!isNaN(oLow) && oLow > oHigh) { // overlay range low of this format is higher than the overlow range high of the subfile control format
             var rows = Number(oGrid["number of rows"]);
             if (isNaN(rows) || rows <= 0) break;
-            if (oGrid["has header"] == "true") rows = rows - 1;            
+            if (oGrid["has header"] == "true") rows = rows - 1;
             var rowHeight = Number(oGrid["row height"]);
             if (isNaN(rowHeight) || rowHeight <= 0) break;
             var foldMultiple = oGrid["fold multiple"];
@@ -436,15 +430,12 @@ pui.overlayAdjust = function(formats) {
             }
           }
         }
-      }      
+      }
     }
   }
-
 };
 
-
-pui.cleanup = function() {
-
+pui.cleanup = function () {
   pui.dummyBox = null;
 
   if (pui.oldRenderParms != null && pui.isPreview != true) {
@@ -467,43 +458,42 @@ pui.cleanup = function() {
     }
     delete pui.oldRenderParms;
   }
-  
+
   for (var i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
     if (grid != null && typeof grid.destroy == "function") grid.destroy();
   }
   pui.gridsDisplayed = [];
-  
+
   for (var i = 0; i < pui.layoutsDisplayed.length; i++) {
     var layout = pui.layoutsDisplayed[i];
     if (layout != null && typeof layout.destroy == "function") layout.destroy();
   }
   pui.layoutsDisplayed = [];
-  
+
   if (typeof FusionCharts != "undefined")
-    for (var i = 0; i < pui.chartsRendered.length; i++)      
-      if (FusionCharts(pui.chartsRendered[i]))
-        FusionCharts(pui.chartsRendered[i]).dispose();      
+  { for (var i = 0; i < pui.chartsRendered.length; i++)
+  { if (FusionCharts(pui.chartsRendered[i]))
+  { FusionCharts(pui.chartsRendered[i]).dispose(); } } }
   pui.chartsRendered = [];
-  
-  for (var i = 0; i < pui.widgetsToCleanup.length; i++){
+
+  for (var i = 0; i < pui.widgetsToCleanup.length; i++) {
     var widget = pui.widgetsToCleanup[i];
     if (widget != null && typeof widget.destroy == "function") widget.destroy();
   }
   pui.widgetsToCleanup = [];
 
-  for (var i = 0; i < pui.screenEventsToCleanup.length; i++){
+  for (var i = 0; i < pui.screenEventsToCleanup.length; i++) {
     var screenEvent = pui.screenEventsToCleanup[i];
     removeEvent(screenEvent.eventObj, screenEvent.eventName, screenEvent.eventFunc);
   }
   pui.screenEventsToCleanup = [];
-  
+
   for (var prop in pui.restoreStyles)
-    document.body.style[prop] = pui.restoreStyles[prop];
+  { document.body.style[prop] = pui.restoreStyles[prop]; }
   pui.restoreStyles = {};
-  
+
   if (!pui["keep frames"]) pui.killFrames();
-  
 };
 
 pui.resizeTimeout = 0;
@@ -512,14 +502,14 @@ pui.resizeTimeout = 0;
  * Tell all immediate children of runtime container that it resized. All layouts are reached recursively.
  * @param {Event} event
  */
-pui.resize = function(event) {
+pui.resize = function (event) {
   if (pui.runtimeContainer == null) return;
 
-  clearTimeout(pui.resizeTimeout);    //throttle resizing
+  clearTimeout(pui.resizeTimeout); // throttle resizing
   pui.resizeTimeout = setTimeout(pui.resizeChildrenOf, 10, pui.runtimeContainer);
 };
 
-pui.popstate = function(e) {
+pui.popstate = function (e) {
   if (e == null) return;
   var state = e.state;
   if (state == null) return;
@@ -529,13 +519,12 @@ pui.popstate = function(e) {
       pui.bypassValidation = "true";
       pui.sendBackButtonResponse = true;
       pui.respond();
-    }    
+    }
   }
   history.forward();
 };
 
-
-pui.render = function(parms) {
+pui.render = function (parms) {
   if (pui.recordTest) pui.record(parms);
 
   pui.clientLogic = parms.clientLogic;
@@ -544,69 +533,63 @@ pui.render = function(parms) {
     var rv = pui["beforeRender"](parms);
     if (rv) parms = rv;
   }
-// Set the local parameter for PJS version
+  // Set the local parameter for PJS version
   if (parms["pjsVersion"] != null) {
     pui.pjsVersion = parms["pjsVersion"];
   }
 
   if (typeof pui.pjsDefaultMode_original == "undefined")
-    pui.pjsDefaultMode_original = pui["pjsDefaultMode"] || null;
+  { pui.pjsDefaultMode_original = pui["pjsDefaultMode"] || null; }
   if (parms["pjsDefaultMode"])
-    pui["pjsDefaultMode"] = parms["pjsDefaultMode"];
+  { pui["pjsDefaultMode"] = parms["pjsDefaultMode"]; }
   else
-    pui["pjsDefaultMode"] = pui.pjsDefaultMode_original;
+  { pui["pjsDefaultMode"] = pui.pjsDefaultMode_original; }
 
   if (typeof pui.widgetURLPrefix_original == "undefined")
-    pui.widgetURLPrefix_original = pui["widgetURLPrefix"] || null;
+  { pui.widgetURLPrefix_original = pui["widgetURLPrefix"] || null; }
   if (parms["pjsWidgetURLPrefix"])
-    pui["widgetURLPrefix"] = parms["pjsWidgetURLPrefix"];
+  { pui["widgetURLPrefix"] = parms["pjsWidgetURLPrefix"]; }
   else
-    pui["widgetURLPrefix"] = pui.widgetURLPrefix_original;
+  { pui["widgetURLPrefix"] = pui.widgetURLPrefix_original; }
 
   pui.pjs_session_id = null;
   if (parms["pjs_id"])
-    pui.pjs_session_id = parms["pjs_id"];
+  { pui.pjs_session_id = parms["pjs_id"]; }
 
   if (parms["pjsDatabaseConnections"])
-    pui["databaseConnections"] = parms["pjsDatabaseConnections"];
+  { pui["databaseConnections"] = parms["pjsDatabaseConnections"]; }
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
   // Error Handling for client
   if (parms["version"] != null && pui["version"] != null && parms["version"] != pui["version"]) {
     var msg = null;
-    var parmVersion = parms["version"].split('.');
+    var parmVersion = parms["version"].split(".");
     var parmBaseVersion = parmVersion.shift();
-    var parmFixPack = parmVersion.join('.');
+    var parmFixPack = parmVersion.join(".");
     if (parms["nodejs"]) {
       var compVers = pui["getVersionComparer"]();
-      if (compVers["isLessThan"](pui["version"], parms["version"])) {  // nodejs sends min version
-        msg = "Installed copy of Profound.js requires Profound UI client-side Version " + parmBaseVersion + ', Fix Pack ' + parmFixPack + " or above. Profound UI client-side version is Version " + pui["baseVersion"] + ', Fix Pack ' + pui["fixPackVersion"] + ".";
+      if (compVers["isLessThan"](pui["version"], parms["version"])) { // nodejs sends min version
+        msg = "Installed copy of Profound.js requires Profound UI client-side Version " + parmBaseVersion + ", Fix Pack " + parmFixPack + " or above. Profound UI client-side version is Version " + pui["baseVersion"] + ", Fix Pack " + pui["fixPackVersion"] + ".";
       }
-    } 
+    }
     else {
-      msg = "Profound UI server-side (Version " + parmBaseVersion + ', Fix Pack '+ parmFixPack + ") doesn't match client-side JavaScript (Version " + pui["baseVersion"] + ', Fix Pack '+ pui["fixPackVersion"] + ")";
+      msg = "Profound UI server-side (Version " + parmBaseVersion + ", Fix Pack " + parmFixPack + ") doesn't match client-side JavaScript (Version " + pui["baseVersion"] + ", Fix Pack " + pui["fixPackVersion"] + ")";
     }
     if (msg != null && window.console && window.console.error) {
       console.error(msg);
     }
   }
-   // Identifying the version of Internet explorer.
+  // Identifying the version of Internet explorer.
   if (pui["is_old_ie"] && pui["ie_mode"] >= 9) {
-    
     pui.addCssClass(pui.runtimeContainer, "pui-ie9plus");
-    
   }
   else {
-    
     pui.removeCssClass(pui.runtimeContainer, "pui-ie9plus");
-    
-  }  
-  
+  }
+
   if (pui.genie && pui.genie.middleDiv == null) {
-  
     pui.genie.middleDiv = document.getElementById("middle");
-  
   }
 
   if (!pui.resizeEventAssigned) {
@@ -631,14 +614,12 @@ pui.render = function(parms) {
 
   pui.oldRenderParms = parms;
 
-  
-
   // handle errors
   var success = parms.success;
   if (success == null) success = true;
-  if (!success) {    
+  if (!success) {
     document.body.innerHTML = "<h1>Unrecoverable Error</h1> <p>Unrecoverable error <strong>" + parms["exception"] + "</strong> occurred while handling an exception. The original exception id is <strong>" + parms["cause"] + "</strong>.</p> <p>Please contact the server administrator to determine the cause of the problem.";
-    pui.screenIsReady = true; //Allow Atrium tabs to be closed when there is an Unrecoverable Error.
+    pui.screenIsReady = true; // Allow Atrium tabs to be closed when there is an Unrecoverable Error.
     return;
   }
 
@@ -646,7 +627,7 @@ pui.render = function(parms) {
     window["Atrium"]["closeTab"]();
     return;
   }
-  
+
   if (parms["noKey"] == true) {
     pui.skipConfirm = true;
     var url = "/profoundui/key";
@@ -656,7 +637,7 @@ pui.render = function(parms) {
   }
 
   if (pui.genie == null) {
-      if (pui["refresh interval"] != null && pui["refresh interval"] > 0 && pui.renderCount >= pui["refresh interval"]) {
+    if (pui["refresh interval"] != null && pui["refresh interval"] > 0 && pui.renderCount >= pui["refresh interval"]) {
       pui["refresh"]();
       return;
     }
@@ -724,31 +705,29 @@ pui.render = function(parms) {
   pui.activeElement = null;
   pui.sendBackButtonResponse = false;
   pui.autoPageGrid = false;
-    
+
   var translateError = pui.translate(parms);
   if (translateError != null) {
-    
     pui.alert(translateError);
-    
   }
-  
+
   if (parms["message"]) {
     var format = parms["message"]["format"].toLowerCase();
     pui["message"] = parms["message"]["message"];
-    pui.resetResponseValues();    
+    pui.resetResponseValues();
     pui.hideWaitAnimation();
     if (pui.onmessageProps && pui.onmessageProps[format]) {
       try {
         eval('var message = pui["message"];');
         eval(pui.onmessageProps[format]);
       }
-      catch(err) {
+      catch (err) {
         pui.scriptError(err, "Onmessage Error:\n");
-      }      
+      }
     }
     return;
   }
-  
+
   if (parms["html"]) {
     // Render html
     parms.container.innerHTML = parms["html"];
@@ -756,8 +735,8 @@ pui.render = function(parms) {
     if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "100%";
     // Evaluate any <script> tags in the html
     var scripts = parms.container.getElementsByTagName("script");
-    
-    var loadScript = function(idx) {
+
+    var loadScript = function (idx) {
       var script = scripts[idx];
       if (script == null) return;
 
@@ -769,20 +748,20 @@ pui.render = function(parms) {
       else {
         pui["loadJS"]({
           "path": script.src,
-          "callback": function() {
+          "callback": function () {
             loadScript(idx + 1);
           },
-          "onerror": function() {
+          "onerror": function () {
             loadScript(idx + 1);
           }
         });
       }
     };
     loadScript(0);
-    
+
     pui.screenIsReady = true;
     pui.isHtml = true;
-    
+
     return;
   }
   else {
@@ -792,11 +771,11 @@ pui.render = function(parms) {
   if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "";
 
   var layers = parms["layers"];
-    
+
   for (var i = 0; i < layers.length; i++) {
     pui.overlayAdjust(layers[i].formats);
   }
-    
+
   // handle document title property
   if (layers.length > 0) {
     var layer = layers[layers.length - 1];
@@ -812,17 +791,17 @@ pui.render = function(parms) {
       }
     }
   }
-  
+
   // Prevent overlays from persisting incorrectly between screens by removing
   // existing elements on each render.
-  if( pui["wikihelp"]["overlays"] != null ) {
-    while(pui["wikihelp"]["overlays"].length > 0) {
+  if (pui["wikihelp"]["overlays"] != null) {
+    while (pui["wikihelp"]["overlays"].length > 0) {
       var overlay = pui["wikihelp"]["overlays"].pop();
-      if( overlay.parentNode != null && typeof overlay.parentNode.removeChild == "function")
-        overlay.parentNode.removeChild(overlay);
+      if (overlay.parentNode != null && typeof overlay.parentNode.removeChild == "function")
+      { overlay.parentNode.removeChild(overlay); }
       // Try to delete the extra object from the node. IE<8 can't delete it, so catch.
-      try{ delete overlay["pui"];}
-      catch(ex){}
+      try { delete overlay["pui"]; }
+      catch (ex) {}
       overlay = null;
     }
   }
@@ -830,7 +809,7 @@ pui.render = function(parms) {
   pui["wikihelp"]["overlays"] = [];
 
   pui.windowStack = [];
-  
+
   for (var i = 0; i < layers.length; i++) {
     pui.responseElements = {};
     pui.changeResponseElements = {};
@@ -853,8 +832,8 @@ pui.render = function(parms) {
     pui.cursorFields.position = null;
     pui.cursorFields.row = null;
     pui.cursorFields.column = null;
-    pui.cursorValues.record = null; 
-    pui.cursorValues.field = null; 
+    pui.cursorValues.record = null;
+    pui.cursorValues.field = null;
     pui.cursorValues.position = null;
     pui.cursorValues.elementId = null;
     pui.cursorValues.row = null;
@@ -877,7 +856,7 @@ pui.render = function(parms) {
       pui.lastWindowLeft = null;
       pui.lastWindowTop = null;
       var animation = null;
-      if (formats.length > 0 && formats[0].metaData != null && formats[0].metaData.screen != null ){
+      if (formats.length > 0 && formats[0].metaData != null && formats[0].metaData.screen != null) {
         animation = pui.evalBoundProperty(formats[0].metaData.screen["animation"], formats[0].data, formats[0].ref);
       }
       if (parms.transition && parms.transition["animation"]) {
@@ -890,7 +869,7 @@ pui.render = function(parms) {
       if (pui.canvasSize || parms.designMode || pui.genie != null) animation = null;
       if (animation) {
         pui.hideWaitAnimation();
-        var setupObj =  {
+        var setupObj = {
           container: parms.container,
           animation: animation,
           animatedScreenProperty: pui.evalBoundProperty(formats[0].metaData.screen["animated screen"], formats[0].data, formats[0].ref),
@@ -929,7 +908,7 @@ pui.render = function(parms) {
     }
 
     pui.lastFormatName = null;
-    
+
     var lastLayer = (i == layers.length - 1);
     pui.currentFormatNames = [];
     for (var j = 0; j < formats.length; j++) {
@@ -956,28 +935,27 @@ pui.render = function(parms) {
         pui.lastFormatName = null;
       }
     }
-    
+
     if (i > 0 && formats.length > 0 && pui.evalBoundProperty(formats[0].metaData.screen["center window"], formats[0].data, formats[0].ref) == "true") {
       pui.centerWindow();
     }
-    
+
     pui.windowStack.push(parms.container);
-    
   }
-  
+
   if (!pui.lastFormatName && pui["format"])
-	pui.lastFormatName = pui["format"];
+  { pui.lastFormatName = pui["format"]; }
 
   if (animation) pui.transitionAnimation.animate();
 
-  if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true) ) {
+  if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true)) {
     var cell = pui.focusField.dom.parentNode;
     if (cell != null && cell.parentNode != null && cell.parentNode.grid != null && parseInt(pui.focusField.dom.style.top) > parseInt(cell.style.height)) {
       // focus field is in the hidden portion of an expandable subfile
       pui["focusOnContainer"]();
     }
     else {
-      setTimeout(function() {
+      setTimeout(function () {
         if (pui.focusField.dom != null) {
           if (pui.focusField.dom.tagName == "DIV" || pui.focusField.dom.style.visibility == "hidden") {
             pui["focusOnContainer"]();
@@ -994,7 +972,7 @@ pui.render = function(parms) {
                     // for IE, this makes the cursor appear - workaround for IE8 bug where the cursor just doesn't show
                     pui.focusField.dom.select();
                     var tr = pui.focusField.dom.createTextRange();
-                    if (tr != null && tr.collapse !=  null && tr.select != null) {
+                    if (tr != null && tr.collapse != null && tr.select != null) {
                       tr.collapse();
                       tr.select();
                     }
@@ -1021,7 +999,7 @@ pui.render = function(parms) {
   pui.screenIsReady = true;
 
   pui.setupGridsDisplayedScrollBar();
-  
+
   if (pui.observed != null) pui.observed.update();
 
   // Does nothing if in design mode or break messages aren't enabled.
@@ -1033,7 +1011,7 @@ pui.render = function(parms) {
  * grids are displayed. renderFormat will call this again to setup scrollbars for grids added lazily.
  * @returns {undefined}
  */
-pui.setupGridsDisplayedScrollBar = function(){
+pui.setupGridsDisplayedScrollBar = function () {
   for (var i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
     if (grid.scrollbarObj != null && !grid.scrollBarsSetupAfterRender) {
@@ -1042,7 +1020,7 @@ pui.setupGridsDisplayedScrollBar = function(){
       }
       grid.scrollbarObj.ready = true;
       if (grid.scrollbarObj.rowsPerPage == 1) grid.scrollbarObj.draw();
-      //Needed so grids in lazy-load layouts are processed, but no grids are processed twice.
+      // Needed so grids in lazy-load layouts are processed, but no grids are processed twice.
       grid.scrollBarsSetupAfterRender = true;
     }
   }
@@ -1056,7 +1034,7 @@ pui.setupGridsDisplayedScrollBar = function(){
  * @param {Object} parms
  * @returns {undefined}
  */
-pui.renderFormat = function(parms) {
+pui.renderFormat = function (parms) {
   var time = timer();
   // retrieve parameters
   var isDesignMode = parms.designMode;
@@ -1072,40 +1050,34 @@ pui.renderFormat = function(parms) {
   var ctlErrors = [];
   var ctlErrorMap = {};
   var strictTabControl = pui["strict tab control"];
-  
+
   // Detect when code should only run if renderFormat is called for the record format (not grid or layout).
   var isMainFormat = parms.rowNum == null && parms.lazyContainerNum == null;
 
   if (pui["controller"] != null && screenProperties != null) {
-    
     var suffix = "";
     var cnt = 1;
     var propname = "error condition";
     while (screenProperties[propname + suffix]) {
-      
       var condition = pui.evalBoundProperty(screenProperties[propname + suffix], data);
       if (condition == "1") {
-        
         var msg = pui.evalBoundProperty(screenProperties["error message" + suffix], data);
-        ctlErrors.push({"msg": msg});
+        ctlErrors.push({ "msg": msg });
         break;
-        
       }
       suffix = " " + (++cnt);
-      
     }
-    
   }
-  
+
   if (!isDesignMode && parms.subfileRow == null && parms.lazyContainerNum == null) {
     pui.currentFormatNames.push(formatName);
   }
-  
+
   if (screenProperties != null) {
     if (pui.evalBoundProperty(screenProperties["show as window"], data, parms.ref) == "true") isWin = true;
     if (screenProperties["window reference"] != null && screenProperties["window reference"] != "") isWin = true;
   }
-  
+
   // Setup cursor and bypass validation.
   if (!isDesignMode && isMainFormat) {
     formatName = formatName || pui["format"];
@@ -1113,31 +1085,31 @@ pui.renderFormat = function(parms) {
     var namePrefix = pui.handler == null ? formatName + "." : "";
     // Note: all "return cursor location", RTNCSRLOC, fields need to be output for each format that uses them, even with overlays. Issue 4920.
     var obj = parms.metaData.screen["return cursor record"];
-    if (pui.isBound(obj)){
+    if (pui.isBound(obj)) {
       if (pui.cursorFields.record == null) pui.cursorFields.record = {};
       pui.cursorFields.record[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
     }
     obj = parms.metaData.screen["return cursor field"];
-    if (pui.isBound(obj)){
+    if (pui.isBound(obj)) {
       if (pui.cursorFields.field == null) pui.cursorFields.field = {};
       pui.cursorFields.field[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
     }
     obj = parms.metaData.screen["return cursor position"];
-    if (pui.isBound(obj)){
+    if (pui.isBound(obj)) {
       if (pui.cursorFields.position == null) pui.cursorFields.position = {};
       pui.cursorFields.position[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
     }
     obj = parms.metaData.screen["return cursor row"];
-    if (pui.isBound(obj)){
+    if (pui.isBound(obj)) {
       if (pui.cursorFields.row == null) pui.cursorFields.row = {};
       pui.cursorFields.row[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
     }
-    obj = parms.metaData.screen["return cursor column"];    
-    if (pui.isBound(obj)){
+    obj = parms.metaData.screen["return cursor column"];
+    if (pui.isBound(obj)) {
       if (pui.cursorFields.column == null) pui.cursorFields.column = {};
       pui.cursorFields.column[namePrefix + pui.fieldUpper(obj["fieldName"])] = true;
     }
-    
+
     obj = parms.metaData.screen["changed"];
     if (pui.isBound(obj)) pui.changedFields[formatName] = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["window left"];
@@ -1156,7 +1128,7 @@ pui.renderFormat = function(parms) {
     if (pui.isBound(obj)) pui.dragDropFields.targetElementId = namePrefix + pui.fieldUpper(obj["fieldName"]);
     obj = parms.metaData.screen["target record number"];
     if (pui.isBound(obj)) pui.dragDropFields.targetRecordNumber = namePrefix + pui.fieldUpper(obj["fieldName"]);
-    
+
     var idx = 1;
     obj = parms.metaData.screen["set off"];
     while (pui.isBound(obj)) {
@@ -1164,9 +1136,9 @@ pui.renderFormat = function(parms) {
       idx++;
       obj = parms.metaData.screen["set off " + idx];
     }
-    
+
     pui.ddBypassValidation = pui.evalBoundProperty(screenProperties["bypass validation"], data, parms.ref);
-    
+
     pui.cursorValues.setRow = pui.evalBoundProperty(screenProperties["set cursor row"], data, parms.ref);
     pui.cursorValues.setColumn = pui.evalBoundProperty(screenProperties["set cursor column"], data, parms.ref);
     pui.cursorValues.noFocus = pui.evalBoundProperty(screenProperties["no focus"], data, parms.ref);
@@ -1180,13 +1152,11 @@ pui.renderFormat = function(parms) {
       }
     }
 
-    
     if (parms.lastLayer && screenProperties["strict tab control"] != null && screenProperties["strict tab control"] != "") {
       strictTabControl = (pui.evalBoundProperty(screenProperties["strict tab control"], data, parms.ref) === "true");
     }
-
   }
-  
+
   // set record format level properties in Designer.
   if (isDesignMode) {
     designer.currentScreen.name = screenProperties["record format name"];
@@ -1218,8 +1188,8 @@ pui.renderFormat = function(parms) {
       if (pui.isBound(propValue)) {
         designer.dataFields.addUsage({
           fieldName: propValue.fieldName,
-          dataType: propValue.dataType,  
-          dataLength: propValue.dataLength,  
+          dataType: propValue.dataType,
+          dataLength: propValue.dataLength,
           decPos: propValue.decPos,
           refField: propValue.refField,
           keywords: propValue.keywords,
@@ -1229,84 +1199,82 @@ pui.renderFormat = function(parms) {
           "longName": propValue["longName"]
         }, designer);
       }
-    }    
+    }
 
     // 7415. Send field order to designer
     designer.ddsFieldOrder = ddsFieldOrder;
     designer.subfileFieldOrder = subfileFieldOrder;
-
   }
-  
+
   if (!isDesignMode && isMainFormat) {
     if (pui.evalBoundProperty(screenProperties["disable enter key"], data, parms.ref) == "true") {
       pui.disableEnter = true;
     }
-  } 	
-  
+  }
+
   // process items
   var namedModel = getPropertiesNamedModel();
   var tabPanels = [];
-  var activeTabs = [];  
+  var activeTabs = [];
   var gridsToRender = [];
-  var lazyLayouts = {};   //Collection of layouts whose contents load later. key: DOM ID of layout;
-    // value: when value is a pui.Layout, then it is a lazy-loaded layout being rendered on this pass.
-    //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that 
-    //  is inside the lazy layout, and this container will be rendered on a later pass.
+  var lazyLayouts = {}; // Collection of layouts whose contents load later. key: DOM ID of layout;
+  // value: when value is a pui.Layout, then it is a lazy-loaded layout being rendered on this pass.
+  //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that
+  //  is inside the lazy layout, and this container will be rendered on a later pass.
   var treeLevelItemAdded = false;
-  if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null ) {
-    items.push(parms.treeLevelItem);  // temp only; removed after loop below is done
+  if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null) {
+    items.push(parms.treeLevelItem); // temp only; removed after loop below is done
     treeLevelItemAdded = true;
   }
 
   for (var i = 0; i < items.length; i++) {
-
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
       continue;
     }
-    
+
     if (!isDesignMode && parms.rowNum != null && items[i]["field type"] == "output field" && items[i]["visibility"] == "hidden") {
       var top = parseInt(items[i]["top"]);
       var left = parseInt(items[i]["left"]);
       if (!isNaN(top) && top < 0 && !isNaN(left) && left < 0) {
         // don't render subfile hidden fields - this improves performance
         continue;
-      }      
+      }
     }
-    
+
     // don't allow invisible(auto arrange)/disabled function key buttons to be activated by a shortcut key
     // this is accomplished by removing the "shortcut key" property
     if (!isDesignMode) {
-      var autoArrange = items[i]["auto arrange"] || "false"; 
+      var autoArrange = items[i]["auto arrange"] || "false";
       if (autoArrange == "true" || (pui.isBound(autoArrange) && pui.evalBoundProperty(autoArrange, data, parms.ref) == "true")) {
         var vis = items[i]["visibility"];
         if (vis == "hidden" || (pui.isBound(vis) && pui.evalBoundProperty(vis, data, parms.ref) == "hidden")) {
           if (items[i]["shortcut key"] != null) delete items[i]["shortcut key"];
-        }      
+        }
       }
     }
     if (!isDesignMode && items[i]["shortcut key"] != null) {
       var dis = items[i]["disabled"];
       if (dis == "true" || (pui.isBound(dis) && pui.evalBoundProperty(dis, data, parms.ref) == "true")) {
         delete items[i]["shortcut key"];
-      }      
+      }
     }
-    
+
     // "export file name" property replaced "csv file name"; this supports files using older property.
-    if(items[i]["csv file name"] != null && items[i]["export file name"] == null)
-      items[i]["export file name"] = items[i]["csv file name"];
-  
+    if (items[i]["csv file name"] != null && items[i]["export file name"] == null)
+    { items[i]["export file name"] = items[i]["csv file name"]; }
+
     // Detect the item's container: a grid or layout.
     var gridObj = null;
     var container = null;
     var gridId = items[i].grid;
     var layoutId = items[i]["layout"];
-    if (gridId != null) {  // item belongs to a grid. Note: in parms.items, grid must come before its items; else, item won't render in grid.
+    if (gridId != null) { // item belongs to a grid. Note: in parms.items, grid must come before its items; else, item won't render in grid.
       var gridDom = getObj(gridId);
       if (gridDom != null) {
         gridObj = gridDom.grid;
         var colNum = Number(items[i].column);
         if (items[i]["columnId"] == undefined) items[i]["columnId"] = colNum;
-        if (isDesignMode) {        
+        if (isDesignMode) {
           var rowNum = (gridObj.hasHeader ? 1 : 0);
           container = gridObj.cells[rowNum][colNum];
         }
@@ -1315,20 +1283,20 @@ pui.renderFormat = function(parms) {
             container = gridObj.cells[parms.rowNum][colNum];
           }
           else {
-            if (items[i].domEls != null) delete items[i].domEls;  // must not be present, may be there from cached mvc response object
+            if (items[i].domEls != null) delete items[i].domEls; // must not be present, may be there from cached mvc response object
             gridObj.runtimeChildren.push(items[i]);
             continue;
           }
 
-          // Resolve translations. 
-          var msg  = '';
+          // Resolve translations.
+          var msg = "";
           msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
-          if (msg != "") {  
-            pui.alert("Missing translation data:\n\n" + msg);    
+          if (msg != "") {
+            pui.alert("Missing translation data:\n\n" + msg);
           }
         }
       }
-      else if ( lazyLayouts[gridId] != null ){
+      else if (lazyLayouts[gridId] != null) {
         // The item is inside a grid that is a child of a lazy layout.
         saveItemForLazyLoad(gridId, items[i]);
         continue;
@@ -1340,9 +1308,9 @@ pui.renderFormat = function(parms) {
       // (Meaning, the parms.items object must place the layouts before items that reference them.)
       if (layoutDom != null && layoutDom.layout != null) {
         var containerNumber = Number(items[i]["container"]);
-        
+
         // The item is within a lazy-load layout.
-        if ( lazyLayouts[layoutId] != null ){
+        if (lazyLayouts[layoutId] != null) {
           saveItemForLazyLoad(layoutId, items[i], containerNumber);
           continue;
         }
@@ -1351,24 +1319,24 @@ pui.renderFormat = function(parms) {
           container = layoutDom.layout.containers[containerNumber - 1];
         }
       }
-      else if ( lazyLayouts[layoutId] != null ){
+      else if (lazyLayouts[layoutId] != null) {
         // The item is inside a layout that is a child of a lazy layout.
         saveItemForLazyLoad(layoutId, items[i]);
         continue;
       }
     }
-    
+
     // If the item wasn't in a grid or layout, set its container to the canvas or a parameter.
     if (container == null) {
       if (isDesignMode) container = designer.container;
       else container = parms.container;
     }
-    
+
     // Create dom element for item.
     var dom;
-    if (!isDesignMode && parms.subfileRow != null && items[i].domEls != null && items[i].domEls[parms.subfileRow-1] != null) {
+    if (!isDesignMode && parms.subfileRow != null && items[i].domEls != null && items[i].domEls[parms.subfileRow - 1] != null) {
       // Item is already created inside a grid, so use that element.
-      dom = items[i].domEls[parms.subfileRow-1];
+      dom = items[i].domEls[parms.subfileRow - 1];
       if (container != null) {
         container.appendChild(dom);
         if (dom.redisplay == true) {
@@ -1401,19 +1369,17 @@ pui.renderFormat = function(parms) {
         }
 
         if (parms.highlighting != null && parms.highlighting.text != "" && (String(items[i]["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
-          if (dom.tagName == "DIV") {  
+          if (dom.tagName == "DIV") {
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
           }
         }
-
-      }      
+      }
     }
     else {
-    
       dom = document.createElement("div");
       dom.style.position = "absolute";
-      dom.setAttribute('puiwdgt', items[i]['field type']);  //Mark the dom Element to assist with styling in profoundui.css. Sets absolute position.
+      dom.setAttribute("puiwdgt", items[i]["field type"]); // Mark the dom Element to assist with styling in profoundui.css. Sets absolute position.
       var leftpx = items[i].left;
       var toppx = items[i].top;
       if (pui.isBound(leftpx)) leftpx = "0px";
@@ -1434,11 +1400,11 @@ pui.renderFormat = function(parms) {
           container.appendChild(dom);
         }
       }
-      
+
       // create design item object if in design mode
       var properties = {};
-      var designItem = null;    
-      if (isDesignMode) { 
+      var designItem = null;
+      if (isDesignMode) {
         var designItem = designer.addItem(dom, true);
         designItem.properties = properties;
         designItem.properties.newitem = "true";
@@ -1448,13 +1414,12 @@ pui.renderFormat = function(parms) {
           designItem.dom.style.borderStyle = "none";
         }
       }
-      
-      var rangeLowDateISO   = null;
-      var rangeHighDateISO  = null;
-      
+
+      var rangeLowDateISO = null;
+      var rangeHighDateISO = null;
+
       // get properties for the item and put them into the "properties" object.
       for (var prop in items[i]) {
-
         if (prop == "domEls") continue;
 
         var propValue = items[i][prop];
@@ -1462,12 +1427,12 @@ pui.renderFormat = function(parms) {
 
         if (pui.wf.tracker && pui.isRoutine(propValue)) {
           if (isDesignMode) {
-           var wfData = {};
-           if (parms.keepRoutines) wfData = null;
-           if (pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
-            wfData = pui.display.logic[propValue.routine];
-           }
-           pui.wf.tracker.update({
+            var wfData = {};
+            if (parms.keepRoutines) wfData = null;
+            if (pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
+              wfData = pui.display.logic[propValue.routine];
+            }
+            pui.wf.tracker.update({
               name: propValue.routine,
               designItem: designItem,
               designer: designer,
@@ -1475,14 +1440,14 @@ pui.renderFormat = function(parms) {
               data: wfData
             });
           }
-        }        
-      
+        }
+
         if (pui.isBound(propValue)) {
           if (isDesignMode) {
             designer.dataFields.addUsage({
               fieldName: propValue.fieldName,
-              dataType: propValue.dataType,  
-              dataLength: propValue.dataLength,  
+              dataType: propValue.dataType,
+              dataLength: propValue.dataLength,
               decPos: propValue.decPos,
               refField: propValue.refField,
               keywords: propValue.keywords,
@@ -1494,20 +1459,19 @@ pui.renderFormat = function(parms) {
             newValue = propValue;
           }
           else {
-          
             if (pui.isSQLProp(prop)) dom.hasBoundSQLProps = true;
             if (propValue["longName"] && propValue.fieldName) {
               if (!propValue["lowerCaseField"] && pui.handler == null) {
-                pui.longFieldNameTable[pui.fieldUpper(propValue["longName"])] =  pui.fieldUpper(propValue.fieldName);
+                pui.longFieldNameTable[pui.fieldUpper(propValue["longName"])] = pui.fieldUpper(propValue.fieldName);
                 pui.longFieldNameTable[pui.fieldUpper(propValue.fieldName)] = pui.fieldUpper(propValue["longName"]);
               } else {
-                pui.longFieldNameTable[propValue["longName"]] =  propValue.fieldName;
+                pui.longFieldNameTable[propValue["longName"]] = propValue.fieldName;
                 pui.longFieldNameTable[propValue.fieldName] = propValue["longName"];
               }
             }
 
             if (items[i]["field type"] == "grid" && (prop == "row background" || prop == "row font color")) {
-              // These grid properties are per-record fields; values can be different per record. To avoid letting an indicator's 
+              // These grid properties are per-record fields; values can be different per record. To avoid letting an indicator's
               // off-value become the color for each row, this must be blank or not evaluated here. Issue 4775. 6391.
               newValue = "";
             }
@@ -1521,19 +1485,19 @@ pui.renderFormat = function(parms) {
               propValue["revert"] = false;
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
 
-              // normalize range low/high for date data type   
+              // normalize range low/high for date data type
               if ((prop == "range low" || prop == "range high") && propValue.dataType == "date") {
-                var   dateFormatSave = propValue.dateFormat;
-                var   dateISO;
+                var dateFormatSave = propValue.dateFormat;
+                var dateISO;
 
-                propValue.dateFormat = "Y-m-d";                         // convert to *ISO format YYYY-DD-DD
+                propValue.dateFormat = "Y-m-d"; // convert to *ISO format YYYY-DD-DD
                 dateISO = pui.evalBoundProperty(propValue, data, parms.ref);
-                propValue.dateFormat = dateFormatSave;                  // put back saved value
+                propValue.dateFormat = dateFormatSave; // put back saved value
 
-                if (prop == "range low") 
-                  rangeLowDateISO  = dateISO;
+                if (prop == "range low")
+                { rangeLowDateISO = dateISO; }
                 else
-                  rangeHighDateISO = dateISO;
+                { rangeHighDateISO = dateISO; }
               }
             }
 
@@ -1541,11 +1505,11 @@ pui.renderFormat = function(parms) {
               // assign cursor record and field
               dom.cursorRecord = formatName;
               dom.cursorField = pui.fieldUpper(propValue.fieldName);
-              
-              if (dom["pui"] == null ) dom["pui"] = {};   //Expose field and format for custom widgets. #3440.
+
+              if (dom["pui"] == null) dom["pui"] = {}; // Expose field and format for custom widgets. #3440.
               dom["pui"]["formatName"] = formatName;
               dom["pui"]["fieldName"] = dom.cursorField;
-              
+
               // remove numeric formatting from auto-complete field where choice option is not the same as choice value
               if (items[i]["field type"] == "textbox") {
                 var dbFile = pui.evalBoundProperty(items[i]["choices database file"], data, parms.ref);
@@ -1597,11 +1561,11 @@ pui.renderFormat = function(parms) {
             }
             if (prop == "column sort response" || prop == "field name sort response") {
               if (pui.isBound(items[i]["return sort order"]))
-                dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
+              { dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName); }
             }
           }
-        }       // endif bound to a field
-        else {  // not bound to a field
+        } // endif bound to a field
+        else { // not bound to a field
           if (!isDesignMode && container != null && container.isPUIWindow) {
             if (container.signature == null) container.signature = "";
             if (prop == "id" || prop == "top" || prop == "left") {
@@ -1609,33 +1573,33 @@ pui.renderFormat = function(parms) {
             }
           }
 
-          newValue = propValue;                 // resolved value for property NOT bound to a field
-          
-          // normalize range low/high for date data type, for specified literals              
+          newValue = propValue; // resolved value for property NOT bound to a field
+
+          // normalize range low/high for date data type, for specified literals
           if ((prop == "range low" || prop == "range high") && items[i].value && items[i].value.dataType == "date") {
-            var   dateFieldValue = items[i].value;
-            var   formattingObjTemp = {};
-            var   dateISO;
-            
+            var dateFieldValue = items[i].value;
+            var formattingObjTemp = {};
+            var dateISO;
+
             // dummy up an object to pass to pui.FieldFormat.format() to convert to *ISO
             // this formattingObjTemp has no keyword, so the "To-Format" would be *ISO
-            formattingObjTemp.dataType    = dateFieldValue.dataType;
-            formattingObjTemp.dateFormat  = dateFieldValue.dateFormat;        // "From-Format": date format in json
-            formattingObjTemp.formatting  = dateFieldValue.formatting;
-            formattingObjTemp.locale      = dateFieldValue.locale;
-            formattingObjTemp.value       = newValue;                         // rangeLow/rangeHigh value in json format
-            formattingObjTemp.revert      = true;                             // back to *ISO format
-            dateISO                       = pui.FieldFormat.format(formattingObjTemp);
+            formattingObjTemp.dataType = dateFieldValue.dataType;
+            formattingObjTemp.dateFormat = dateFieldValue.dateFormat; // "From-Format": date format in json
+            formattingObjTemp.formatting = dateFieldValue.formatting;
+            formattingObjTemp.locale = dateFieldValue.locale;
+            formattingObjTemp.value = newValue; // rangeLow/rangeHigh value in json format
+            formattingObjTemp.revert = true; // back to *ISO format
+            dateISO = pui.FieldFormat.format(formattingObjTemp);
 
             if (prop == "range low")
-              rangeLowDateISO  = dateISO;
+            { rangeLowDateISO = dateISO; }
             else
-              rangeHighDateISO = dateISO;            
+            { rangeHighDateISO = dateISO; }
           }
         } // endif not bound to a field
 
-        if(items[i].grid != null && !isDesignMode){ //Resolve translation placeholder values 
-          switch(prop){
+        if (items[i].grid != null && !isDesignMode) { // Resolve translation placeholder values
+          switch (prop) {
             case "value":
             case "tab names":
             case "header text":
@@ -1653,22 +1617,22 @@ pui.renderFormat = function(parms) {
             case "names":
               var gridTranslationPlaceholderMap = null;
               var gridDom = getObj(items[i].grid);
-              if(gridDom != null) {
+              if (gridDom != null) {
                 gridTranslationPlaceholderMap = gridDom.grid.translationPlaceholderMap;
-                if(gridTranslationPlaceholderMap != null){
-                  if(gridTranslationPlaceholderMap.keys != null && gridTranslationPlaceholderMap.values != null){                  
-                    var tempTranslationPlaceholderMap = {keys: [], values: []};
-                    for(key in gridTranslationPlaceholderMap.keys){
+                if (gridTranslationPlaceholderMap != null) {
+                  if (gridTranslationPlaceholderMap.keys != null && gridTranslationPlaceholderMap.values != null) {
+                    var tempTranslationPlaceholderMap = { keys: [], values: [] };
+                    for (key in gridTranslationPlaceholderMap.keys) {
                       tempTranslationPlaceholderMap.keys.push(gridTranslationPlaceholderMap.keys[key]);
                     }
-                    for(value in gridTranslationPlaceholderMap.values){
+                    for (value in gridTranslationPlaceholderMap.values) {
                       tempTranslationPlaceholderMap.values.push(pui.evalBoundProperty(gridTranslationPlaceholderMap.values[value], data, parms.ref));
                     }
-              
+
                     tempTranslationPlaceholderMap = pui.addWidgetTranslationPlaceholders(items[i], tempTranslationPlaceholderMap, data, parms.ref);
-                    
-                    for(var p = 0; p < tempTranslationPlaceholderMap.keys.length; p++){
-                      newValue = newValue["replaceAll"]('(&' + tempTranslationPlaceholderMap.keys[p] + ')', tempTranslationPlaceholderMap.values[p]);
+
+                    for (var p = 0; p < tempTranslationPlaceholderMap.keys.length; p++) {
+                      newValue = newValue["replaceAll"]("(&" + tempTranslationPlaceholderMap.keys[p] + ")", tempTranslationPlaceholderMap.values[p]);
                     }
                   }
                 }
@@ -1677,9 +1641,8 @@ pui.renderFormat = function(parms) {
         }
 
         properties[prop] = newValue;
-
       } // endfor thru all properties
-  
+
       // Retain information about tab panels, tab-layouts and their active tabs.
       if (properties["field type"] == "tab panel" || (properties["field type"] == "layout" && properties["template"] == "tab panel")) {
         var tabPanelId = properties["id"];
@@ -1691,21 +1654,19 @@ pui.renderFormat = function(parms) {
           activeTabs.push(evalPropertyValue(properties["active tab"], "", dom));
         }
       }
-      
+
       // apply all properties
       for (var propname in properties) {
-
         var propConfig;
         if (dom.propertiesNamedModel == null) propConfig = pui.getPropConfig(namedModel, propname);
         else propConfig = pui.getPropConfig(dom.propertiesNamedModel, propname);
         if (propConfig != null) {
-
           var propValue = properties[propname];
-          
+
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
-            
-            //if (pui.isRoutine(formattingObj)) {
+
+            // if (pui.isRoutine(formattingObj)) {
             //  if (propname == "response") {
             //    var shortcutKey = properties["shortcut key"];
             //    if (shortcutKey != null && shortcutKey != "") {
@@ -1716,65 +1677,61 @@ pui.renderFormat = function(parms) {
             //    }
             //    if (gridId == null) {
             //      dom.responseValue = "0";
-            //    }                
+            //    }
             //    if (properties["onclick"] == null || properties["onclick"] == "") {
             //      dom.responseRoutine = formattingObj.routine;
             //      pui.attachResponse(dom);
             //    }
             //  }
-            //}
-            
+            // }
+
             if (pui.isBound(formattingObj)) {
-            
               formattingObj["revert"] = false;
 
               if (pui["is_touch"] && !pui["is_mouse_capable"] && propname == "value" && properties["field type"] == "textbox" && formattingObj["formatting"] == "Number") {
-              
                 // The following options put non-digit characters into the box. Such as spaces, separators, commas, etc.
                 // Any non-digit characters cause a browser to render a "number" element empty.
-                
-                // It appears that the designer will always define all of these values for Number formatting. They will be
-                // empty string, if not set. 
-                
-                // However, a user who is hand coding the screen may not define them? 
-                
-                if (formattingObj["numSep"] != "true" && 
-                    formattingObj["numBlankFill"] != "true" && 
-                    formattingObj["negNum"] != "(999.00)" && formattingObj["negNum"] != "999.00-" && formattingObj["negNum"] != "999.00 CR" &&  
-                    (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
-                    (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&                  
-                    (!formattingObj["curSym"] || formattingObj["curSym"] == "") && 
-                    (!formattingObj["units"] || formattingObj["units"] == "") &&
-                    pui.appJob.decimalFormat != "I" && pui.appJob.decimalFormat != "J"){
 
-                  dom.type = "number";  //Field uses numeric keyboard in Android.
-                  //Note: iOS could show a number-only keyboard when .pattern="[0-9]*"; but that keyboard
-                  //has no "-", and Y format allows "-". The iOS keyboard  has numbers and characters.
-                  
-                  //Browsers do not respect the maxlength attribute when input type="number"; so enforce the length manually. #3582.
-                  if (formattingObj["maxLength"] > 0){
-                    //Note: if the input were invalid (NaN), the .value property would be ""; so the length could not be
-                    //checked. Prevent a trailing dash from invalidating the value, and length enforcement still works.
-                    //Soft and hardware backspace keys do not fire textInput events.
-                    addEvent(dom, "textInput", function(e){
+                // It appears that the designer will always define all of these values for Number formatting. They will be
+                // empty string, if not set.
+
+                // However, a user who is hand coding the screen may not define them?
+
+                if (formattingObj["numSep"] != "true" &&
+                    formattingObj["numBlankFill"] != "true" &&
+                    formattingObj["negNum"] != "(999.00)" && formattingObj["negNum"] != "999.00-" && formattingObj["negNum"] != "999.00 CR" &&
+                    (!formattingObj["edtWrd"] || formattingObj["edtWrd"] == "") &&
+                    (!formattingObj["edtMsk"] || formattingObj["edtMsk"] == "") &&
+                    (!formattingObj["curSym"] || formattingObj["curSym"] == "") &&
+                    (!formattingObj["units"] || formattingObj["units"] == "") &&
+                    pui.appJob.decimalFormat != "I" && pui.appJob.decimalFormat != "J") {
+                  dom.type = "number"; // Field uses numeric keyboard in Android.
+                  // Note: iOS could show a number-only keyboard when .pattern="[0-9]*"; but that keyboard
+                  // has no "-", and Y format allows "-". The iOS keyboard  has numbers and characters.
+
+                  // Browsers do not respect the maxlength attribute when input type="number"; so enforce the length manually. #3582.
+                  if (formattingObj["maxLength"] > 0) {
+                    // Note: if the input were invalid (NaN), the .value property would be ""; so the length could not be
+                    // checked. Prevent a trailing dash from invalidating the value, and length enforcement still works.
+                    // Soft and hardware backspace keys do not fire textInput events.
+                    addEvent(dom, "textInput", function (e) {
                       var target = getTarget(e);
                       if (target == null || target.value == null) return;
-                      //When the field is empty, .value is "" and validity.valid is true. Allow dash. When validity.valid 
-                      //is false, then the field is not empty. Prevent, because another dash would not make it valid.
-                      //If the field is not empty and is valid, a trailing dash would invalidate. Deny.
-                      if (e.data == "-" && target["validity"] != null
-                      && ((target.value != "" && target["validity"].valid ) || !target["validity"].valid) ){
+                      // When the field is empty, .value is "" and validity.valid is true. Allow dash. When validity.valid
+                      // is false, then the field is not empty. Prevent, because another dash would not make it valid.
+                      // If the field is not empty and is valid, a trailing dash would invalidate. Deny.
+                      if (e.data == "-" && target["validity"] != null &&
+                      ((target.value != "" && target["validity"].valid) || !target["validity"].valid)) {
                         preventEvent(e);
                       }
-                      //Prevent field from becoming too long.
+                      // Prevent field from becoming too long.
                       else if (target.maxLength > 0 && target.value.length >= target.maxLength)
-                        preventEvent(e);
+                      { preventEvent(e); }
                     });
-                  } //endif maxLength > 0.
+                  } // endif maxLength > 0.
                 }
-                
               }
-              
+
               var fieldName, qualField;
               if (propname == "changed") {
                 setFieldNameAndQualField();
@@ -1787,7 +1744,7 @@ pui.renderFormat = function(parms) {
                 if (pui.isBlankElements[qualField] == null) pui.isBlankElements[qualField] = [];
                 pui.isBlankElements[qualField].push(dom);
               }
-              
+
               if (propname == "dup key response" && properties["allow dup key"] == "true") {
                 setFieldNameAndQualField();
                 if (pui.dupElements[qualField] == null) pui.dupElements[qualField] = [];
@@ -1806,10 +1763,10 @@ pui.renderFormat = function(parms) {
                     // IE has a bug: radio button names cannot be assigned dynamically (they stop working)
                     // So, the element has to be recreated
                     var newDom;
-                    try {  // IE9 doesn't support this syntax any more;
+                    try { // IE9 doesn't support this syntax any more;
                       newDom = document.createElement('<input name="' + radioName + '" type="radio">');
                     }
-                    catch(e) {
+                    catch (e) {
                       newDom = document.createElement("input");
                       newDom.name = radioName;
                       newDom.type = "radio";
@@ -1827,8 +1784,8 @@ pui.renderFormat = function(parms) {
                     newDom.disabled = dom.disabled;
                     dom.parentNode.replaceChild(newDom, dom);
                     newDom.checked = dom.checked;
-                    newDom.parentTabPanel = dom.parentTabPanel ;
-                    newDom.parentTab = dom.parentTab;                    
+                    newDom.parentTabPanel = dom.parentTabPanel;
+                    newDom.parentTab = dom.parentTab;
                     newDom.onblur = dom.onblur;
                     newDom.onchange = dom.onchange;
                     newDom.oninput = dom.oninput;
@@ -1844,7 +1801,7 @@ pui.renderFormat = function(parms) {
                     newDom.onmouseover = dom.onmouseover;
                     newDom.onmouseup = dom.onmouseup;
                     newDom["pui"] = dom["pui"];
-                    dom = newDom;                    
+                    dom = newDom;
                   }
                   dom["radioValue"] = properties["value"];
                 }
@@ -1860,7 +1817,7 @@ pui.renderFormat = function(parms) {
                   dom.modified = true;
                   pui.modified = true;
                 }
-                
+
                 if (propname == "page down response") {
                   pui.responseElements[qualField].push(dom.grid.pagingBar.nextImg);
                   pui.responseElements[qualField].push(dom.grid.pagingBar.nextLink);
@@ -1872,7 +1829,7 @@ pui.renderFormat = function(parms) {
                 else if (!isDataGrid) {
                   pui.responseElements[qualField].push(dom);
                 }
-                
+
                 if (propname == "menu response") {
                   dom.responseValue = "";
                 }
@@ -1924,14 +1881,14 @@ pui.renderFormat = function(parms) {
                 }
                 dom.formattingInfo = formattingObj;
               }
-              else if (dom.pui && dom.pui.widget && dom.pui.widget.isInputCapableProp(propname)){
+              else if (dom.pui && dom.pui.widget && dom.pui.widget.isInputCapableProp(propname)) {
                 setFieldNameAndQualField();
                 if (pui.responseElements[qualField] == null) pui.responseElements[qualField] = [];
                 pui.responseElements[qualField].push(dom);
                 dom.pui.widget.setFormattingObj(propname, formattingObj, qualField);
               }
             }
-            
+
             if (propname == "selection field" && properties["field type"] == "grid") {
               if (pui.isBound(items[i]["selection field"])) {
                 dom.grid.selectionField = items[i]["selection field"];
@@ -1948,9 +1905,9 @@ pui.renderFormat = function(parms) {
               if (pui.isBound(items[i]["tree level field"])) {
                 dom.grid.treeLevelField = items[i]["tree level field"]["fieldName"];
                 dom.grid.hasTreeLevelColumn = true;
-                dom.grid.sortable = false;  
-                if (dom.grid.treeLevelColumnId == null)  
-                  dom.grid.treeLevelColumnId = 0;
+                dom.grid.sortable = false;
+                if (dom.grid.treeLevelColumnId == null)
+                { dom.grid.treeLevelColumnId = 0; }
               }
             }
 
@@ -1966,10 +1923,10 @@ pui.renderFormat = function(parms) {
               }
             }
 
-            if (propname.includes("grid row translation placeholders") && properties["field type"] == "grid"){
-              dom.grid.translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, items[i], null, data, parms.ref); 
+            if (propname.includes("grid row translation placeholders") && properties["field type"] == "grid") {
+              dom.grid.translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, items[i], null, data, parms.ref);
             }
-            
+
             if (propname == "shortcut key" && propValue != null && propValue != "" && !pui.isBound(items[i]["response"])) {
               if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
               if (pui.keyMap[formatName][propValue] == null) pui.keyMap[formatName][propValue] = [];
@@ -1992,12 +1949,12 @@ pui.renderFormat = function(parms) {
               if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
                 if (properties["visibility"] != "hidden") {
                   pui.focusField.dom = dom;
-                  if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();                  
+                  if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
                   if (dom.floatingPlaceholder != null) pui.focusField.dom = dom.floatingPlaceholder.getBox();
                   pui.focusField.setFocusFlag = true;
-                }              
-              }              
-            }            
+                }
+              }
+            }
             if (propname == "focus class" && !pui.isBound(propValue) && trim(propValue) != "") {
               if (dom["pui"]["properties"]["field type"] === "combo box") {
                 var box = dom.comboBoxWidget.getBox();
@@ -2037,11 +1994,11 @@ pui.renderFormat = function(parms) {
               addEvent(dom, "keydown", pui.dupKey);
             }
             var allowFieldExit = false;
-            if (( pui["always allow field exit"] == true || pui["always allow field exit"]=="true" )
-                && ( properties["field type"] == "combo box"
-                  || properties["field type"] == "date field"
-                  || properties["field type"] == "spinner"
-                  || properties["field type"] == "textbox" ) ) {
+            if ((pui["always allow field exit"] == true || pui["always allow field exit"] == "true") &&
+                (properties["field type"] == "combo box" ||
+                  properties["field type"] == "date field" ||
+                  properties["field type"] == "spinner" ||
+                  properties["field type"] == "textbox")) {
               allowFieldExit = true;
             }
             if (propname == "allow field exit" && propValue == "true") {
@@ -2049,14 +2006,14 @@ pui.renderFormat = function(parms) {
             }
             if (allowFieldExit == true) {
               var boxDom = dom;
-              if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();            
-              if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();            
+              if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
+              if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
               if (pui.isBound(items[i]["value"]) && items[i]["value"]["rjZeroFill"] == "true") {
                 dom.rjZeroFill = true;
                 boxDom.rjZeroFill = true;
-              }             
-              addEvent(boxDom, "keydown", function(event) {
-                event = event || window.event;                
+              }
+              addEvent(boxDom, "keydown", function (event) {
+                event = event || window.event;
                 var key = event.keyCode;
                 if (key == pui["field exit key"] && !event.shiftKey && (pui["field exit key"] == 17 || !event.ctrlKey)) {
                   var target = getTarget(event);
@@ -2064,9 +2021,8 @@ pui.renderFormat = function(parms) {
                   if (pui.doFieldExit(target) == false) {
                     preventEvent(event);
                     return false;
-                  
                   }
-                }                
+                }
               });
             }
             if (propname == "validate name" && propValue == "true") {
@@ -2083,7 +2039,7 @@ pui.renderFormat = function(parms) {
                 pui.ctlRecModified[formatName] = true;
               }
             }
-            if (propname.length >= 11 && propname.substr(0,11) == "blank value" && propValue != null && propValue != "") {
+            if (propname.length >= 11 && propname.substr(0, 11) == "blank value" && propValue != null && propValue != "") {
               if (dom.blankValues == null) dom.blankValues = [];
               dom.blankValues.push(propValue);
               var box = dom;
@@ -2108,15 +2064,15 @@ pui.renderFormat = function(parms) {
             if (propname == "range low" && propValue != null && propValue != "") {
               dom.rangeLow = propValue;
               if (rangeLowDateISO != null)
-                dom.rangeLowDateISO = rangeLowDateISO;
+              { dom.rangeLowDateISO = rangeLowDateISO; }
             }
 
             if (propname == "range high" && propValue != null && propValue != "") {
               dom.rangeHigh = propValue;
               if (rangeHighDateISO != null)
-                dom.rangeHighDateISO = rangeHighDateISO;
+              { dom.rangeHighDateISO = rangeHighDateISO; }
             }
-                      
+
             if (propname == "checked value") {
               dom.checkedValue = propValue;
             }
@@ -2150,47 +2106,46 @@ pui.renderFormat = function(parms) {
                     dom.style.visibility = "hidden";
                   }
                   else {
-					if (shortcutKey != null)
-						pui.autoArrange.keys[shortcutKey] = true;
-                    if (isWin|| pui["horizontal auto arrange"]) {
-					  if (pui.autoArrange.top  == null) pui.autoArrange.top = parseInt(dom.style.top);
+                    if (shortcutKey != null)
+                    { pui.autoArrange.keys[shortcutKey] = true; }
+                    if (isWin || pui["horizontal auto arrange"]) {
+					  if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
                       if (pui.autoArrange.left == null) {
                         pui.autoArrange.left = parseInt(dom.style.left);
                         pui.autoArrange.startLeft = parseInt(dom.style.left);
                       }
                       else {
-						if (pui["horizontal auto arrange"]){
-							// This will re-arrange the buttons to fill the first line before wrapping to the second line
-							if(pui.autoArrange.buttonCount==null)
-								pui.autoArrange.buttonCount = 0;
-								
-							if (pui.autoArrange.startTop == null)
-								pui.autoArrange.startTop = parseInt(dom.style.top);
+                        if (pui["horizontal auto arrange"]) {
+                          // This will re-arrange the buttons to fill the first line before wrapping to the second line
+                          if (pui.autoArrange.buttonCount == null)
+                          { pui.autoArrange.buttonCount = 0; }
 
-							pui.autoArrange.buttonCount++;
-							
-							//calculate left using modulus 
-							pui.autoArrange.left = pui.autoArrange.startLeft + (pui.autoArrange.buttonCount % pui["buttons per row"]) * pui["horizontal button spacing"];
-							
-							//calculate top (the row) using division 
-							pui.autoArrange.top = pui.autoArrange.startTop + Math.floor(pui.autoArrange.buttonCount / pui["buttons per row"])*pui["vertical button spacing"];
-						
-						}
-						else{
-							//this is a window. it will move buttons on each line to fill blanks but not wrap to the previous line
-							if (pui.autoArrange.prevTop != null && Math.abs(parseInt(dom.style.top) - pui.autoArrange.prevTop) > 5) {
-							pui.autoArrange.left = pui.autoArrange.startLeft;
-							}
-							else {
-								pui.autoArrange.left += pui["horizontal button spacing"];
-							}
-						}
+                          if (pui.autoArrange.startTop == null)
+                          { pui.autoArrange.startTop = parseInt(dom.style.top); }
+
+                          pui.autoArrange.buttonCount++;
+
+                          // calculate left using modulus
+                          pui.autoArrange.left = pui.autoArrange.startLeft + (pui.autoArrange.buttonCount % pui["buttons per row"]) * pui["horizontal button spacing"];
+
+                          // calculate top (the row) using division
+                          pui.autoArrange.top = pui.autoArrange.startTop + Math.floor(pui.autoArrange.buttonCount / pui["buttons per row"]) * pui["vertical button spacing"];
+                        }
+                        else {
+                          // this is a window. it will move buttons on each line to fill blanks but not wrap to the previous line
+                          if (pui.autoArrange.prevTop != null && Math.abs(parseInt(dom.style.top) - pui.autoArrange.prevTop) > 5) {
+                            pui.autoArrange.left = pui.autoArrange.startLeft;
+                          }
+                          else {
+                            pui.autoArrange.left += pui["horizontal button spacing"];
+                          }
+                        }
 					 }
                       dom.style.left = pui.autoArrange.left + "px";
                       pui.autoArrange.prevTop = parseInt(dom.style.top);
 					  if (pui["horizontal auto arrange"]) dom.style.top = pui.autoArrange.top + "px";
                     }
-                    else {                
+                    else {
                       if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
                       else pui.autoArrange.top += pui["vertical button spacing"];
                       dom.style.top = pui.autoArrange.top + "px";
@@ -2204,11 +2159,11 @@ pui.renderFormat = function(parms) {
               pui.attachDragDrop(dom, properties);
             }
           }
-        
+
           if (!isDesignMode && propname == "visibility" && properties["parent tab panel"] != null && properties["parent tab panel"] != "") {
             propValue = "hidden";
           }
-          
+
           if (propValue != null && propValue != "") {
             var propParm = properties;
             if (isDesignMode) propParm = designItem.properties;
@@ -2216,33 +2171,27 @@ pui.renderFormat = function(parms) {
           }
 
           if (!isDesignMode && propname == "visibility" && propValue == "visible" && parms.rowNum != null) {
-            dom.style.visibility = "";  // ensures that the grid's visibility is not overridden
+            dom.style.visibility = ""; // ensures that the grid's visibility is not overridden
           }
-          
         }
-        
+
         if (parms.highlighting != null && parms.highlighting.text != "" && (String(properties["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
-          if (dom.tagName == "DIV") {  
+          if (dom.tagName == "DIV") {
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
           }
         }
-        
+
         if (pui["controller"] != null && propname.indexOf("error condition") == 0 && propValue == "1" && !ctlErrorMap[dom.id]) {
-          
           var suffix = "";
           if (propname.length > "error condition".length) {
-            
             suffix = " " + parseInt(propname.substr("error condition".length), 10);
-            
           }
           var msg = properties["error message" + suffix];
-          ctlErrors.push({"id": dom.id, "msg": msg});
+          ctlErrors.push({ "id": dom.id, "msg": msg });
           ctlErrorMap[dom.id] = true;
-          
         }
-        
-      } //done processing each in properties.
+      } // done processing each in properties.
 
       // float placeholder
       if (!isDesignMode && properties["float placeholder"] == "true") {
@@ -2255,7 +2204,7 @@ pui.renderFormat = function(parms) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-          addEvent(boxDom, "keyup", function(event) {
+          addEvent(boxDom, "keyup", function (event) {
             event = event || window.event;
             var target = getTarget(event);
             // Check for printable character being typed in
@@ -2283,7 +2232,7 @@ pui.renderFormat = function(parms) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-          pui.addarrowKeyEventHandler(boxDom); 
+          pui.addarrowKeyEventHandler(boxDom);
         }
       }
 
@@ -2292,11 +2241,11 @@ pui.renderFormat = function(parms) {
           var boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-          addEvent(boxDom, "keydown", function(event) {
+          addEvent(boxDom, "keydown", function (event) {
             event = event || window.event;
             var target = getTarget(event);
             if (target.autoComp && target.autoComp.isOpen())
-              return;
+            { return; }
             if (event.keyCode == 9) { // tab key
               gotoElement(target, !event.shiftKey);
               preventEvent(event);
@@ -2306,29 +2255,28 @@ pui.renderFormat = function(parms) {
         }
       }
 
-
       if (items[i]["grid"] !== undefined && items[i]["grid"] !== null) {
         var myGrid = getObj(items[i]["grid"]).grid;
-        if (myGrid.hasTreeLevelColumn && myGrid.treeLevelField !== null && 
-            items[i]["id"] == (items[i]["grid"] + myGrid.treeLevelItemId)) {    // button to expand/collapse tree levels
+        if (myGrid.hasTreeLevelColumn && myGrid.treeLevelField !== null &&
+            items[i]["id"] == (items[i]["grid"] + myGrid.treeLevelItemId)) { // button to expand/collapse tree levels
           var boxDom = dom;
           boxDom["pui"]["rrn"] = parms.subfileRow;
           boxDom["pui"]["grid"] = items[i]["grid"];
-          addEvent(boxDom, "keydown", function(event) {
+          addEvent(boxDom, "keydown", function (event) {
             event = event || window.event;
             var target = getTarget(event);
             var keyCode = event.keyCode;
             var box = target;
             var myGrid = getObj(box["pui"]["grid"]).grid;
             var myRRN = box["pui"]["rrn"];
-          
-            if (keyCode == 37) {  // left arrow key
-              myGrid["expandTreeLevel"](myRRN );
+
+            if (keyCode == 37) { // left arrow key
+              myGrid["expandTreeLevel"](myRRN);
               preventEvent(event);
               return false;
             }
-            if (keyCode == 39) {  // right arrow key
-              myGrid["collapseTreeLevel"](myRRN );
+            if (keyCode == 39) { // right arrow key
+              myGrid["collapseTreeLevel"](myRRN);
               preventEvent(event);
               return false;
             }
@@ -2337,9 +2285,9 @@ pui.renderFormat = function(parms) {
       }
 
       // check set cursor row / column
-      if ( !isDesignMode && properties["visibility"] != "hidden" &&
+      if (!isDesignMode && properties["visibility"] != "hidden" &&
            pui.cursorValues.setRow != null && pui.cursorValues.setRow != "" &&
-           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != ""  && 
+           pui.cursorValues.setColumn != null && pui.cursorValues.setColumn != "" &&
            dom.clientWidth > 0) {
         var crow = properties["cursor row"];
 
@@ -2347,11 +2295,11 @@ pui.renderFormat = function(parms) {
           var adj = parseInt(crow, 10);
           if (dom.parentNode.parentNode.grid.hasHeader) {
             adj += dom.parentNode.row - 1;
-          }  
+          }
           else {
             adj += dom.parentNode.row;
           }
-          crow = "" + adj;         
+          crow = "" + adj;
         }
         if (pui.cursorValues.setRow == crow) {
           var cursorMatch = false;
@@ -2366,42 +2314,40 @@ pui.renderFormat = function(parms) {
                 if (!isNaN(dataLength) && !isNaN(cursorColumn) && !isNaN(setColumn)) {
                   if (setColumn > cursorColumn && setColumn < cursorColumn + dataLength) {
                     cursorMatch = true;
-                  }                
+                  }
                 }
               }
             }
           }
           if (cursorMatch) {
-            //if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
-              // "set cursor row" and "set cursor column" take precedence over other propertiess like "set focus"
-              pui.focusField.dom = dom;
-              if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
-              if (dom.floatingPlaceholder != null) pui.focusField.dom = dom.floatingPlaceholder.getBox();
-              pui.focusField.setFocusFlag = true;
-            //}              
+            // if (pui.focusField.dom == null || pui.focusField.setFocusFlag != true) {
+            // "set cursor row" and "set cursor column" take precedence over other propertiess like "set focus"
+            pui.focusField.dom = dom;
+            if (dom.comboBoxWidget != null) pui.focusField.dom = dom.comboBoxWidget.getBox();
+            if (dom.floatingPlaceholder != null) pui.focusField.dom = dom.floatingPlaceholder.getBox();
+            pui.focusField.setFocusFlag = true;
+            // }
           }
-        } 
+        }
       }
-      
+
       // attach events that keep track of modified state / cursor, apply a key filter, set max length
       if (!isDesignMode) {
-
-        function setModified(e) {
+        function setModified (e) {
           pui.setModified(e, formatName);
         }
-        
+
         if ((window["React"] || window["Vue"]) && dom.formattingInfo) {
-          if (dom["pui"] == null ) dom["pui"] = {};          
+          if (dom["pui"] == null) dom["pui"] = {};
           dom.pui.data = data;
           if (parms.gridRecord) {
             dom.pui.data = parms.gridRecord;
           }
           dom.pui.dataProp = dom.formattingInfo.fieldName;
         }
-        
-        // textboxes and text areas    
+
+        // textboxes and text areas
         if ((dom.comboBoxWidget != null) || (dom.floatingPlaceholder != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
-          
           var boxDom = dom;
           if (dom.comboBoxWidget != null) {
             dom.comboBoxWidget.formatName = formatName;
@@ -2413,64 +2359,62 @@ pui.renderFormat = function(parms) {
           }
 
           if (dom.formattingInfo != null && dom.formattingInfo.maxLength != null) {
-
             boxDom.maxLength = dom.formattingInfo.maxLength;
             if (dom.tagName == "TEXTAREA") {
-              addEvent(dom, "keyup", function(e) {
+              addEvent(dom, "keyup", function (e) {
                 var target = getTarget(e);
                 var maxLength = Number(target.maxLength);
                 if (!isNaN(maxLength) && maxLength > 0 && target.value != null && target.value.length > maxLength) {
                   target.value = target.value.substr(0, maxLength);
                 }
               });
-              addEvent(dom, "paste", function(e) {
+              addEvent(dom, "paste", function (e) {
                 var target = getTarget(e);
-                setTimeout(function() {
+                setTimeout(function () {
                   var maxLength = Number(target.maxLength);
                   if (!isNaN(maxLength) && maxLength > 0 && target.value != null && target.value.length > maxLength) {
                     target.value = target.value.substr(0, maxLength);
                   }
                 }, 0);
               });
-              addEvent(dom, "keydown", function(event) {
+              addEvent(dom, "keydown", function (event) {
                 event = event || window.event;
                 var target = getTarget(event);
                 // Don't prevent keyboard actions like cut/copy/paste.
                 // Don't prevent typing into field when text is selected.
                 if (event.ctrlKey || target.selectionStart !== target.selectionEnd)
-                  return;
+                { return; }
                 var key = event.keyCode;
-                if ( (key >= 48 && key <= 57)    ||   // 0-9
-                     (key >= 65 && key <= 90)    ||   // a-z
-                     (key == 32)                 ||   // space
-                     (key >= 106 && key <= 111)  ||   // * + - . /
-                     (key >= 186 && key <= 192)  ||   // ; = , - . / `
-                     (key >= 219 && key <= 222) ) {   // [ \ ] '
+                if ((key >= 48 && key <= 57) || // 0-9
+                     (key >= 65 && key <= 90) || // a-z
+                     (key == 32) || // space
+                     (key >= 106 && key <= 111) || // * + - . /
+                     (key >= 186 && key <= 192) || // ; = , - . / `
+                     (key >= 219 && key <= 222)) { // [ \ ] '
                   var maxLength = Number(target.maxLength);
                   if (!isNaN(maxLength) && maxLength > 0 && target.value != null && target.value.length == maxLength) {
                     preventEvent(event);
                     return false;
                   }
                 }
-
               });
             }
           }
           if (dom.cursorRecord != null || dom.cursorField != null || dom.cursorRow != null || dom.cursorColumn != null) {
             addEvent(boxDom, "focus", pui.returnCursor);
             addEvent(boxDom, "keyup", pui.returnCursor);
-          }          
+          }
           addEvent(boxDom, "focus", pui.setActiveElement);
           addEvent(boxDom, "keydown", pui.setActiveElement);
           addEvent(boxDom, "change", setModified);
           addEvent(boxDom, "paste", setModified);
-          addEvent(boxDom, "input", setModified); //Make sure to catch that Chrome X changed the field. #5602.
-          
+          addEvent(boxDom, "input", setModified); // Make sure to catch that Chrome X changed the field. #5602.
+
           boxDom.cursorPosition = 0;
           addEvent(boxDom, "mouseup", pui.storeEventCursorPosition);
           addEvent(boxDom, "mousedown", pui.storeEventCursorPosition);
           addEvent(boxDom, "keyup", pui.storeEventCursorPosition);
-          
+
           // When an element on a mobile device receives focus, the virtual keyboard pops up. If that element is
           // inside a grid with "expand to layout" enabled, the grid will be cleared and re-rendered at the new
           // size, causing focus to be lost. This, in turn, causes the virtual keyboard to be closed again, and
@@ -2479,87 +2423,79 @@ pui.renderFormat = function(parms) {
 
           if (pui["is_touch"]) {
             boxDom.parentGridObj = pui.findParentGrid(boxDom);
-            addEvent(boxDom, "focus", function(evt) { 
+            addEvent(boxDom, "focus", function (evt) {
               if (evt.srcElement.parentGridObj) evt.srcElement.parentGridObj.resizeOnly = true;
-              setTimeout(function(input) {
+              setTimeout(function (input) {
                 if (input.parentGridObj) input.parentGridObj.resizeOnly = false;
               }, 1000, evt.srcElement);
             });
           }
-          
-          addEvent(boxDom, "keydown", function(event) {
+
+          addEvent(boxDom, "keydown", function (event) {
             event = event || window.event;
             var key = event.keyCode;
-            if (key >= 9 && key <= 45 && key != 32) return;   // includes keys like arrow keys, ctrl, shift, etc.
-            if (key >= 112 && key <= 145) return;             // includes f1-f12, num lock, scroll lock, etc.
-            if (event.ctrlKey && key != 88 && key != 86) return;  // all ctrl keys except Ctrl-X & Ctrl-V
+            if (key >= 9 && key <= 45 && key != 32) return; // includes keys like arrow keys, ctrl, shift, etc.
+            if (key >= 112 && key <= 145) return; // includes f1-f12, num lock, scroll lock, etc.
+            if (event.ctrlKey && key != 88 && key != 86) return; // all ctrl keys except Ctrl-X & Ctrl-V
             setModified(event);
           });
-          if(dom.formattingInfo && dom.formattingInfo.keyFilter){
-            //apply key filter
-            (function() {
+          if (dom.formattingInfo && dom.formattingInfo.keyFilter) {
+            // apply key filter
+            (function () {
               var keyFilter = dom.formattingInfo.keyFilter;
-              addEvent(boxDom, "keypress", function(e) {
+              addEvent(boxDom, "keypress", function (e) {
                 e = e || window.event;
                 pui.keyFilter(e, keyFilter);
               });
-              //Apply key filter to handle Android virtual keyboard keys, which don't always fire "keypress". Issue 3582.
-              if (dom.type == "number" && dom.formattingInfo["noExtraSpaces"] ){
-                addEvent(boxDom, "textInput", function(e) {
+              // Apply key filter to handle Android virtual keyboard keys, which don't always fire "keypress". Issue 3582.
+              if (dom.type == "number" && dom.formattingInfo["noExtraSpaces"]) {
+                addEvent(boxDom, "textInput", function (e) {
                   e = e || window.event;
-                  if(!keyFilter.test(e.data))
-                    preventEvent(e);
+                  if (!keyFilter.test(e.data))
+                  { preventEvent(e); }
                 });
               }
             })();
           }
           if (dom.formattingInfo != null && dom.formattingInfo.edtMsk != null && dom.formattingInfo.edtMsk != "") {
             boxDom.needChangeEvent = false;
-            addEvent(boxDom, "focus", function(e) {
+            addEvent(boxDom, "focus", function (e) {
               var target = getTarget(e);
               target.needChangeEvent = false;
             });
-            addEvent(boxDom, "blur", function(e) {
+            addEvent(boxDom, "blur", function (e) {
               var target = getTarget(e);
               if (target.needChangeEvent) {
                 if (typeof target.onchange === "function") target.onchange(e);
                 target.needChangeEvent = false;
               }
             });
-            addEvent(boxDom, "keyup", function(e) {
+            addEvent(boxDom, "keyup", function (e) {
               pui.applyEditMask(getTarget(e), e);
             });
-            addEvent(boxDom, "keydown", function(event) {
+            addEvent(boxDom, "keydown", function (event) {
               event = event || window.event;
               var key = event.keyCode;
-              var target = getTarget(event); 
+              var target = getTarget(event);
               var digit = null;
-              
-              // Allow default action to occur when delete, backspace, or space is typed 
+
+              // Allow default action to occur when delete, backspace, or space is typed
               // and all text is selected.
               if (key == 46 || key == 8 || key == 32) {
-              
                 var sel = false;
-                if (typeof(target.selectionStart) == "number") {
-                
+                if (typeof (target.selectionStart) == "number") {
                   sel = (target.selectionStart == 0 && target.selectionEnd == target.value.length);
-                
                 }
-                else if (typeof(document.selection) != "undefined") {
-                
+                else if (typeof (document.selection) != "undefined") {
                   sel = (document.selection.createRange().text == target.value);
-                
                 }
-                
+
                 if (sel) {
-                
                   target.value = "";
                   return;
-                
                 }
-              
               }
-              
+
               if (key >= 48 && key <= 57) digit = key - 48;
               if (key >= 96 && key <= 105) digit = key - 96;
               if (key == 46) digit = 0;
@@ -2567,8 +2503,8 @@ pui.renderFormat = function(parms) {
               if (digit != null) {
                 target = getTarget(event);
                 var value = target.value;
-                if (value == null) return;                
-                var pos = getCursorPosition(target);                
+                if (value == null) return;
+                var pos = getCursorPosition(target);
                 if (key == 8 && pos > 0) pos = pos - 1;
                 target.value = value.substr(0, pos) + String(digit) + value.substr(pos + 1);
                 if (key != 46 && key != 8) pos++;
@@ -2579,7 +2515,7 @@ pui.renderFormat = function(parms) {
                   try {
                     event.keyCode = 0;
                   }
-                  catch(e) {}
+                  catch (e) {}
                 }
                 return false;
               }
@@ -2589,10 +2525,10 @@ pui.renderFormat = function(parms) {
         }
         // checkboxes / radio buttons / dropdowns
         if (dom.tagName == "SELECT") {
-          addEvent(dom, "keydown", function(event) {
+          addEvent(dom, "keydown", function (event) {
             event = event || window.event;
             var key = event.keyCode;
-            if (key == 38 || key == 40) {  // up or down arrow
+            if (key == 38 || key == 40) { // up or down arrow
               setModified(event);
             }
           });
@@ -2605,42 +2541,41 @@ pui.renderFormat = function(parms) {
           addEvent(dom, "focus", pui.setActiveElement);
           addEvent(dom, "keydown", pui.setActiveElement);
           addEvent(dom, "change", setModified);
-          if (dom.tagName != "SELECT") {addEvent(dom, "click", setModified);}
-          else{
+          if (dom.tagName != "SELECT") { addEvent(dom, "click", setModified); }
+          else {
             // prevent pagedown key from selecting last option in select box (not operational for Firefox)
-            addEvent(dom, "keydown", function(e) {
-            if (!e) e = window.event;
-            var key = e.keyCode;
-            if (key == 34) {
-              e.cancel=true; 
-              if (e.preventDefault) e.preventDefault(); 
-              return false; 
+            addEvent(dom, "keydown", function (e) {
+              if (!e) e = window.event;
+              var key = e.keyCode;
+              if (key == 34) {
+                e.cancel = true;
+                if (e.preventDefault) e.preventDefault();
+                return false;
               }
             });
-            
+
             // If the SELECT box is in a subfile and browser is Firefox, then the pgup/pgdn
             // keys would change the value and also page the grid; this behavior is confusing. (See Issue 2556.)
             // So prevent the grid from paging in Firefox. preventEvent stops the key event bubbling
             // up to the grid. This forces the user to focus outside the SELECT in order to page.
-            if( parms.subfileRow > 0 && pui["is_firefox"] ){
-              addEvent(dom, "keydown", function(e){
+            if (parms.subfileRow > 0 && pui["is_firefox"]) {
+              addEvent(dom, "keydown", function (e) {
                 e = e || window.event;
-                if(e.keyCode == 33 || e.keyCode == 34){
+                if (e.keyCode == 33 || e.keyCode == 34) {
                   preventEvent(e);
                 }
               });
             }
           }
         }
-        
+
         if (dom.cursorRecord != null || dom.cursorField != null || dom.cursorRow != null || dom.cursorColumn != null) {
           addEvent(dom, "click", pui.returnCursor);
         }
-        
-        addEvent(dom, "click", pui.setActiveElement);
 
+        addEvent(dom, "click", pui.setActiveElement);
       }
-      
+
       // determine first field to set focus on
       if (!isDesignMode && !pui.iPadEmulation && pui.focusField.dom == null && !dom.disabled && !dom.readOnly && properties["visibility"] != "hidden") {
         if (dom.tagName == "INPUT") {
@@ -2658,7 +2593,7 @@ pui.renderFormat = function(parms) {
           pui.focusField.dom = dom.floatingPlaceholder.getBox();
         }
       }
-          
+
       // add grids to grids array, so that it shows up as a record format
       if (isDesignMode && properties["field type"] == "grid") {
         designer.grids.push(designItem);
@@ -2666,7 +2601,7 @@ pui.renderFormat = function(parms) {
       if (isDesignMode && properties["field type"] == "layout") {
         designer.layouts.push(designItem);
       }
-      
+
       // call widget's initialize function
       var fieldType = properties["field type"];
       if (fieldType != null) {
@@ -2679,25 +2614,25 @@ pui.renderFormat = function(parms) {
             designItem: designItem
           });
         }
-        
-        if (dom.pui && dom.pui.widget && dom.pui.widget){
+
+        if (dom.pui && dom.pui.widget && dom.pui.widget) {
           // Instances of BasicWidget wait for all properties to be set before rendering.
           dom.pui.widget.basicRender();
         }
         else if (dom.layoutT) dom.layoutT.render(parms);
       }
-            
+
       if (!isDesignMode && properties["field type"] == "layout") {
         // A list of layouts to be destroyed when pui.cleanup is called.
         pui.layoutsDisplayed.push(dom.layout);
         // Items in lazy-loaded layouts will render later. Store the format's fields and data
         // in case any of the items need them.
-        if (properties["lazy load"] == "true" && typeof dom.layout.saveFormat == "function" ){
-          lazyLayouts[ properties["id"] ] = dom.layout;
-          dom.layout.saveFormat( parms );
+        if (properties["lazy load"] == "true" && typeof dom.layout.saveFormat == "function") {
+          lazyLayouts[properties["id"]] = dom.layout;
+          dom.layout.saveFormat(parms);
         }
       }
-      
+
       // get grid data
       if (!isDesignMode && properties["field type"] == "grid") {
         var subfiles = parms.subfiles;
@@ -2714,22 +2649,18 @@ pui.renderFormat = function(parms) {
         if (subfile != null) errors = subfile.errors;
 
         dom.grid.fileId = parms["fileId"];
-        if (typeof(pui["view"]) != "undefined") {
-
+        if (typeof (pui["view"]) != "undefined") {
           dom.grid.storageKey = "pui-grid-" + pui["view"];
-          
-        }        
-        else if (typeof(parms["file"]) != "undefined" && typeof(parms["library"]) != "undefined") {
-          
+        }
+        else if (typeof (parms["file"]) != "undefined" && typeof (parms["library"]) != "undefined") {
           dom.grid.storageKey = "pui-grid-" + parms["library"] + "-" + parms["file"] + "-" + recName;
-          
         }
 
         if (properties["persist state"] === "program only" && subfile && subfile["renderCount"] === 1) {
           delete pui.programStorage[dom.grid.storageKey];
         }
 
-        if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null)  {
+        if (subfile != null && subfile["useServerState"] && subfile["storedState"] != null) {
           dom.grid.useServerState = true;
           dom.grid.storedState = subfile["storedState"];
         }
@@ -2739,52 +2670,52 @@ pui.renderFormat = function(parms) {
 
         if (fieldNames != null) dom.grid.fieldNames = fieldNames;
         else dom.grid.fieldNames = [];
-        
-        // Convert PHP-style grid data (array of name/value pairs) to normal grid format (2-dimensional array of data and an array of field names) 
+
+        // Convert PHP-style grid data (array of name/value pairs) to normal grid format (2-dimensional array of data and an array of field names)
         if (pui.handler != null && subfileData == null) {
           subfileData = data[pui.formatUpper(properties["record format name"])];
           if (!subfileData) subfileData = [];
-            fieldNames = [];
-            var dataArray = [];
-            var fieldNamesObj = {};
-            for (var j = 0; j < items.length; j++) {
-              var gridItem = items[j];
-              if (gridItem["grid"] === properties.id) {
-                for (var gridItemProp in gridItem) {
-                  var gridItemValue = gridItem[gridItemProp];
-                  if (pui.isBound(gridItemValue)) {
-                    fieldNamesObj[gridItemValue["fieldName"]] = true;
-                  }
+          fieldNames = [];
+          var dataArray = [];
+          var fieldNamesObj = {};
+          for (var j = 0; j < items.length; j++) {
+            var gridItem = items[j];
+            if (gridItem["grid"] === properties.id) {
+              for (var gridItemProp in gridItem) {
+                var gridItemValue = gridItem[gridItemProp];
+                if (pui.isBound(gridItemValue)) {
+                  fieldNamesObj[gridItemValue["fieldName"]] = true;
                 }
               }
             }
-            fieldNames = Object.keys(fieldNamesObj);
-			
-            for (var j = 0; j < subfileData.length; j++) {
-              var entry = [];
-              var record = subfileData[j];
-              for (var k = 0; k < fieldNames.length; k++) {
-                var fieldName = fieldNames[k];
-                entry.push(record[fieldName]);
-              }
-              dataArray.push(entry); 
+          }
+          fieldNames = Object.keys(fieldNamesObj);
+
+          for (var j = 0; j < subfileData.length; j++) {
+            var entry = [];
+            var record = subfileData[j];
+            for (var k = 0; k < fieldNames.length; k++) {
+              var fieldName = fieldNames[k];
+              entry.push(record[fieldName]);
             }
-            dom.grid.dataArray = dataArray; 
-            dom.grid.fieldNames = fieldNames; 
-            dom.grid.gridRecordData = subfileData;
-            subfile = {};
+            dataArray.push(entry);
+          }
+          dom.grid.dataArray = dataArray;
+          dom.grid.fieldNames = fieldNames;
+          dom.grid.gridRecordData = subfileData;
+          subfile = {};
         }
-        
+
         if (ref != null) dom.grid.ref = ref;
-        else dom.grid.ref = {};  
-        
+        else dom.grid.ref = {};
+
         if (errors != null) dom.grid.errors = errors;
-        
+
         var msgKey = items[i]["subfile message key"];
         var msgQ = items[i]["subfile program message queue"];
         var ctlMsgQ = items[i]["subfile control program message queue"];
-        if ( (msgKey != null && msgKey != "" && msgQ != null && msgQ != "") || 
-             (ctlMsgQ != null && ctlMsgQ != "") ) {
+        if ((msgKey != null && msgKey != "" && msgQ != null && msgQ != "") ||
+             (ctlMsgQ != null && ctlMsgQ != "")) {
           if (dom.grid.scrollbarObj != null) dom.grid.scrollbarObj.rowLabel = "Message";
           dom.grid.runtimeChildren.push({
             "id": "_msgsfltext",
@@ -2794,7 +2725,7 @@ pui.renderFormat = function(parms) {
             "left": "5px",
             "top": "5px",
             "cursor": "pointer",
-            "onclick": 'pui.showMessageSubfileHelp(this);',
+            "onclick": "pui.showMessageSubfileHelp(this);",
             "value": {
               "dataLength": "132",
               "dataType": "char",
@@ -2883,22 +2814,22 @@ pui.renderFormat = function(parms) {
             }
           });
         }
-        
+
         if (dom.grid.dataArray.length == 0) {
-          if (pui.isBound(items[i]["subfile message key"]) || 
+          if (pui.isBound(items[i]["subfile message key"]) ||
               pui.isBound(items[i]["subfile program message queue"])) {
             dom.grid.hideSubfile();
           }
         }
 
-        //if (properties["display subfile"] == "false") {
+        // if (properties["display subfile"] == "false") {
         if (subfile == null) {
           dom.grid.hideSubfile();
         }
-        
+
         var recNum = Number(properties["subfile record number"]);
         dom.grid.sflrcdnbr = recNum;
-        if (isNaN(recNum)) { 
+        if (isNaN(recNum)) {
           recNum = 1;
           dom.grid.sflrcdnbr = 0;
         }
@@ -2909,7 +2840,7 @@ pui.renderFormat = function(parms) {
         if (properties["position at top"] != "true") {
           dom.grid.updateRecNumFromSflRcdNbr(recNum);
         }
-        else {          
+        else {
           dom.grid.recNum = recNum;
         }
         if (properties["place cursor"] == "true") {
@@ -2920,7 +2851,7 @@ pui.renderFormat = function(parms) {
         gridsToRender.push(dom.grid);
         pui.gridsDisplayed.push(dom.grid);
       }
-      
+
       if (!isDesignMode && parms.subfileRow != null) {
         // save reference to dom
         dom.subfileRow = parms.subfileRow;
@@ -2928,43 +2859,35 @@ pui.renderFormat = function(parms) {
         if (items[i].domEls == null) items[i].domEls = [];
         items[i].domEls[parms.subfileRow - 1] = dom;
       }
-  	    	        
-    }  // end if already rendered condition
+    } // end if already rendered condition
 
     if ((pui["controller"] != null || typeof pui.handler == "function") && properties != null && properties["set as modified"] != "false") {
       dom.modified = true;
     }
-    
+
     if (!isDesignMode && parms.dataArrayIndex != null) {
       dom.dataArrayIndex = parms.dataArrayIndex;
     }
-    
-    // If rendering into collapsed grid, disable any elements which are 
-    // below the viewable portion of the cell. 
-    
-    if (!isDesignMode && gridObj != null && !gridObj["expanded"] && container ) {
-    
+
+    // If rendering into collapsed grid, disable any elements which are
+    // below the viewable portion of the cell.
+
+    if (!isDesignMode && gridObj != null && !gridObj["expanded"] && container) {
       var cell = container;
       var height = parseInt(cell.style.height);
       if (!isNaN(height)) {
-      
         var top = parseInt(dom.style.top);
-        if (isNaN(top)) top = 0;        
+        if (isNaN(top)) top = 0;
         if (top > height && (dom.tagName == "INPUT" || dom.tagName == "SELECT" || dom.tagName == "TEXTAREA") && !dom.disabled) {
-        
           dom.reenableOnExpand = true;
           dom.disabled = true;
-          
         }
-        
-      }         
-      
-    }    
+      }
+    }
+  } // end for loop to process all items
 
-  }  // end for loop to process all items
-
-  if (treeLevelItemAdded )
-    items.pop();  // remove temp treeLevelItem added to be processed in loop above
+  if (treeLevelItemAdded)
+  { items.pop(); } // remove temp treeLevelItem added to be processed in loop above
 
   // process server side errors for this format
   if (!isDesignMode) {
@@ -2992,12 +2915,12 @@ pui.renderFormat = function(parms) {
   for (var i = 0; i < tabPanels.length; i++) {
     var tabElem = document.getElementById(tabPanels[i]);
     var tabPanel = tabElem.tabPanel;
-    if (!tabPanel){
+    if (!tabPanel) {
       tabPanel = tabElem.layoutT;
     }
-    if (tabPanel && typeof tabPanel.drawChanged === 'function'){
+    if (tabPanel && typeof tabPanel.drawChanged === "function") {
       if (activeTabs[i]) tabPanel.selectedTab = activeTabs[i];
-      tabPanel.drawChanged();  //Re draws the tabs.
+      tabPanel.drawChanged(); // Re draws the tabs.
     }
   }
 
@@ -3007,9 +2930,9 @@ pui.renderFormat = function(parms) {
     }
   }
 
-  gridsToRender.forEach(function(grid) {
+  gridsToRender.forEach(function (grid) {
     if (pui.focusField != null && pui.focusField.setFocusFlag == true) {
-      grid.placeCursorRRN = null;  // "set focus" takes precedence over "place cursor" 
+      grid.placeCursorRRN = null; // "set focus" takes precedence over "place cursor"
     }
     if (grid.isInitCollapsed()) {
       grid.collapse(getObj(grid.tableDiv.id + "_expander"));
@@ -3024,7 +2947,7 @@ pui.renderFormat = function(parms) {
     }
     if (pui.placeCursorOnSubfile && pui.cursorValues.setColumn == null && pui.cursorValues.setRow == null) {
       if (pui.focusField == null || pui.focusField.setFocusFlag != true) {
-        setTimeout(function() {
+        setTimeout(function () {
           grid.placeCursor(true);
         }, 1);
       }
@@ -3036,53 +2959,51 @@ pui.renderFormat = function(parms) {
       // Paging scrollbar needs the PageUp/PageDown keys to be in the KeyMap so
       //  the handleHotKey routine can used to page up/down on scrollbar events.
       //  PagingBar handles those keys for Genie and GenieHandler. ???
-      if (!isDesignMode && typeof screenProperties["record format name"] === "string"
-        && grid.scrollbarObj.type == "paging" ) {
+      if (!isDesignMode && typeof screenProperties["record format name"] === "string" &&
+        grid.scrollbarObj.type == "paging") {
         var formatName = screenProperties["record format name"];
         var formatNameUC = pui.formatUpper(formatName);
         // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
         // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
-        if( pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null )
-          formatName = formatNameUC;
+        if (pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null)
+        { formatName = formatNameUC; }
 
-        if (pui.keyMap[formatName] != null ){
+        if (pui.keyMap[formatName] != null) {
           if (pui.keyMap[formatName]["PageDown"] == null) {
             pui.keyMap[formatName]["PageDown"] = [];
           }
-            pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
-            grid.pagingBar.pageDownHotKeyDefined = true;
+          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+          grid.pagingBar.pageDownHotKeyDefined = true;
           if (pui.keyMap[formatName]["PageUp"] == null) {
             pui.keyMap[formatName]["PageUp"] = [];
           }
-            pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
-            grid.pagingBar.pageUpHotKeyDefined = true;
+          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+          grid.pagingBar.pageUpHotKeyDefined = true;
         }
       }
     }
-   
+
     if (grid.isTreeInitCollapsed()) {
       grid.gridTree.collapseAll();
       grid.refreshGridTree();
     }
-      
+
     grid.makeSortable();
     grid.restoreState();
   });
-  
+
   // Render the items inside the lazy-loaded layouts' currently visible container if it wasn't already rendered.
   // (Needed by accordions. tabPanel.drawChanged causes a tab layout's items to render before this.)
-  for (var layoutid in lazyLayouts ){    
+  for (var layoutid in lazyLayouts) {
     var layout = lazyLayouts[layoutid];
-    if (layout){
+    if (layout) {
       var vci = -1;
-      if (typeof layout.getVisibleContainerIndex === 'function') vci = layout.getVisibleContainerIndex();
-      if (typeof layout.renderItems === 'function') layout.renderItems( vci );
+      if (typeof layout.getVisibleContainerIndex === "function") vci = layout.getVisibleContainerIndex();
+      if (typeof layout.renderItems === "function") layout.renderItems(vci);
     }
-    
   }
-  
-  if (!isDesignMode) {
 
+  if (!isDesignMode) {
     // execute global onload event
     if (pui["onload"] != null && typeof pui["onload"] == "function" && isMainFormat && parms.runOnload !== false && !pui.usingGenieHandler) {
       pui["onload"](parms);
@@ -3091,7 +3012,6 @@ pui.renderFormat = function(parms) {
     // execute format's onload event & onmessage event / save onsubmit event
     if (screenProperties != null) {
       if (parms.runOnload !== false) {
-
         if (pui.clientLogic) {
           var initialRoutine = screenProperties["initial routine"];
           if (initialRoutine && initialRoutine["routine"]) {
@@ -3112,14 +3032,14 @@ pui.renderFormat = function(parms) {
             eval('var file = "' + parms.file + '";');
             eval(onloadProp);
           }
-          catch(err) {
+          catch (err) {
             pui.scriptError(err, "Onload Error:\n");
           }
         }
       }
       pui.onsubmitProp = screenProperties["onsubmit"];
       if (screenProperties["onmessage"] && typeof screenProperties["record format name"] === "string") {
-        pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"];  // save for display.screen.executeMessage() API
+        pui.onmessageProps[screenProperties["record format name"].toLowerCase()] = screenProperties["onmessage"]; // save for display.screen.executeMessage() API
 
         if (parms["msgInfo"] != null && isMainFormat && parms.runOnload !== false && !pui.usingGenieHandler) {
           pui["message"] = parms["msgInfo"];
@@ -3127,16 +3047,15 @@ pui.renderFormat = function(parms) {
             eval('var message = pui["message"];');
             eval(screenProperties["onmessage"]);
           }
-          catch(err) {
+          catch (err) {
             pui.scriptError(err, "Onmessage Error:\n");
-          }          
+          }
         }
-
       }
 
       ["onkeydown", "onkeypress", "onkeyup"].forEach(function (eventPropName) {
         if (isMainFormat && parms.lastLayer && screenProperties[eventPropName] != null && screenProperties[eventPropName] != "") {
-          var func = function(e) {
+          var func = function (e) {
             pui["temp_event"] = e;
             eval("var event = pui.temp_event;");
             eval('var format = "' + screenProperties["record format name"] + '";');
@@ -3155,34 +3074,33 @@ pui.renderFormat = function(parms) {
           pui.screenEventsToCleanup.push({ eventObj: document.body, eventName: eventPropName.substr(2), eventFunc: func });
         }
       });
-
     }
-    
-    if ( parms.lazyContainerNum != null ){
-      if (pui.screenIsReady){
+
+    if (parms.lazyContainerNum != null) {
+      if (pui.screenIsReady) {
         // This layout loaded after pui.render() finished, so new grids need scrollbars setup here.
         pui.setupGridsDisplayedScrollBar();
       }
 
       // A container inside a lazy-loaded layout has just been rendered, so fire an event.
-      if ( parms.onlazyload != null ){
-        try{
-          eval('var lazyContainerNum = "'+parms.lazyContainerNum+'";');
+      if (parms.onlazyload != null) {
+        try {
+          eval('var lazyContainerNum = "' + parms.lazyContainerNum + '";');
           eval(parms.onlazyload);
         }
-        catch(err){
+        catch (err) {
           pui.scriptError(err, "OnLazyLoad Error:\n");
         }
       }
     }
   }
   if (pui["enable arrow keys"] == true) {
-   pui.enableArrowKeysForGridQuickFilters(); 
-  } 
+    pui.enableArrowKeysForGridQuickFilters();
+  }
   time = timer(time);
   if (pui.renderLog)
-    console.log("Format " + formatName + " rendered in " + time + "ms");
-  
+  { console.log("Format " + formatName + " rendered in " + time + "ms"); }
+
   /**
    * Save an item to render later when a lazy-load layout contains it (directly or indirectly).
    * If the item is directly in a layout being rendered on this pass, then contNum parameter must be set.
@@ -3190,27 +3108,27 @@ pui.renderFormat = function(parms) {
    * @param {Object} item
    * @param {Undefined|Number} contNum
    */
-  function saveItemForLazyLoad(containerId, item, contNum){
+  function saveItemForLazyLoad (containerId, item, contNum) {
     var lazylayout;
     // The item is in a container (grid/layout) that is in a lazy-layout.
-    if (lazyLayouts[containerId].root != null && lazyLayouts[containerId].container != null){
+    if (lazyLayouts[containerId].root != null && lazyLayouts[containerId].container != null) {
       lazylayout = lazyLayouts[containerId].root;
       contNum = lazyLayouts[containerId].container;
     }
-    else{
+    else {
       // The item is directly in a lazy-layout. (contNum parameter must be set.)
       lazylayout = lazyLayouts[containerId];
     }
-    lazylayout.deferLazyChild( contNum - 1, item);  //Save for later.
+    lazylayout.deferLazyChild(contNum - 1, item); // Save for later.
 
     // If this item can contain other items, then this allows this item's items to be deferred.
-    if (item["field type"] == "layout" || item["field type"] == "grid"){
+    if (item["field type"] == "layout" || item["field type"] == "grid") {
       lazyLayouts[item["id"]] = { root: lazylayout, container: contNum };
     }
   }
-  
+
   // Set fieldName and qualField variables used for bound fields.
-  function setFieldNameAndQualField(){
+  function setFieldNameAndQualField () {
     fieldName = pui.fieldUpper(formattingObj.fieldName);
     qualField = formatName + "." + fieldName;
     if (pui.handler != null) qualField = fieldName;
@@ -3218,109 +3136,99 @@ pui.renderFormat = function(parms) {
       qualField += "." + (parms.subfileRow);
     }
   }
+}; // pui.renderFormat
 
-
-
-};  // pui.renderFormat
-
- // Add arrow key event handler for grid quick filters
-pui.enableArrowKeysForGridQuickFilters = function() {
-   
-  // Reset the "arrowDownDetected" flag because the pui.addarrowKeyEventHandler 
-  //  is only created once, when this js file is first loaded. 
-  pui.arrowKeyEventHandler.resetArrowDownDetectedBeforeOnQuickFilter(); 
+// Add arrow key event handler for grid quick filters
+pui.enableArrowKeysForGridQuickFilters = function () {
+  // Reset the "arrowDownDetected" flag because the pui.addarrowKeyEventHandler
+  //  is only created once, when this js file is first loaded.
+  pui.arrowKeyEventHandler.resetArrowDownDetectedBeforeOnQuickFilter();
   var grid = null;
   var inputElement = null;
-  var inputElementArray = null; 
-  var gridArray = document.querySelectorAll("[puiwdgt='grid']"); 
+  var inputElementArray = null;
+  var gridArray = document.querySelectorAll("[puiwdgt='grid']");
   if (gridArray.length < 1) {
-    return; 
-  }; 
-  for (var i=0;i < gridArray.length;i++) {
-     inputElementArray = gridArray[i].querySelectorAll("input.qf"); 
-     if (inputElementArray.length < 1) {
-        continue; 
-     }; 
-     for (var y=0;y < inputElementArray.length;y++) {
+    return;
+  };
+  for (var i = 0; i < gridArray.length; i++) {
+    inputElementArray = gridArray[i].querySelectorAll("input.qf");
+    if (inputElementArray.length < 1) {
+      continue;
+    };
+    for (var y = 0; y < inputElementArray.length; y++) {
       inputElementArray[y].style.left = "2px";
       inputElementArray[y].style.top = "30px";
-      pui.addarrowKeyEventHandler(inputElementArray[y]);        
-     }; 
-  }; 
-   
-  
-} /* pui.enableArrowKeysForGridQuickFilters */
+      pui.addarrowKeyEventHandler(inputElementArray[y]);
+    };
+  };
+}; /* pui.enableArrowKeysForGridQuickFilters */
 
+pui.arrowKeyEventHandler = new function () {
+  var me = this;
+  me.arrowDownDetectedBeforeOnQuickFilter = false;
 
-pui.arrowKeyEventHandler = new function() {
-  var me = this; 
-  me.arrowDownDetectedBeforeOnQuickFilter = false; 
+  me.resetArrowDownDetectedBeforeOnQuickFilter = function () {
+    me.arrowDownDetectedBeforeOnQuickFilter = false;
+  };
 
-  me.resetArrowDownDetectedBeforeOnQuickFilter = function() {
-     me.arrowDownDetectedBeforeOnQuickFilter = false; 
-  }; 
-  
-  me.handler = function(event) {
+  me.handler = function (event) {
     event = event || window.event;
     var target = getTarget(event);
     if (target.autoComp && target.autoComp.isOpen())
-      return;
+    { return; }
     var keyCode = event.keyCode;
     var box = target;
     if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
     if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
-    if (keyCode == 37) {  // left arrow key
+    if (keyCode == 37) { // left arrow key
       if (getCursorPosition(box) <= 0) {
         pui.goToClosestElement(target, "left");
         preventEvent(event);
         return false;
       }
     }
-    if (keyCode == 38) {  // up arrow key
+    if (keyCode == 38) { // up arrow key
       pui.goToClosestElement(target, "up");
       preventEvent(event);
       return false;
     }
-    if (keyCode == 39) {  // right arrow key
+    if (keyCode == 39) { // right arrow key
       if (getCursorPosition(box) >= box.value.length) {
         pui.goToClosestElement(target, "right");
         preventEvent(event);
         return false;
       }
     }
-    if (keyCode == 40) {  // down arrow key
+    if (keyCode == 40) { // down arrow key
       pui.goToClosestElement(target, "down");
       preventEvent(event);
-      // Check if it's the first time the down key is hit on a quick filter. If so, fire the down key even again. 
-      if (!me.arrowDownDetectedBeforeOnQuickFilter && target.className.includes("qf") && target.nodeName === "INPUT"){
+      // Check if it's the first time the down key is hit on a quick filter. If so, fire the down key even again.
+      if (!me.arrowDownDetectedBeforeOnQuickFilter && target.className.includes("qf") && target.nodeName === "INPUT") {
         me.arrowDownDetectedBeforeOnQuickFilter = true;
-        setTimeout(function() {
+        setTimeout(function () {
           target.dispatchEvent(event);
-        }, 50)
+        }, 50);
       }
       return false;
     }
-  }
-}
+  };
+}();
 
 // Add arrow key event handler
-//   Note: Blur event handler for quick filters redraws the grid losing the focus on the grid field on first execution.  
-//         Workaround is to fire the down key event for a second time. 
-pui.addarrowKeyEventHandler = function(element) {
-  if (typeof element === "undefined" || typeof element.tagName === "undefined" || element.tagName !== "INPUT" ) {
-    return; 
+//   Note: Blur event handler for quick filters redraws the grid losing the focus on the grid field on first execution.
+//         Workaround is to fire the down key event for a second time.
+pui.addarrowKeyEventHandler = function (element) {
+  if (typeof element === "undefined" || typeof element.tagName === "undefined" || element.tagName !== "INPUT") {
+    return;
   }
-  addEvent(element, "keydown", pui.arrowKeyEventHandler.handler );
+  addEvent(element, "keydown", pui.arrowKeyEventHandler.handler);
+}; /* end addarrowKeyEventHandler */
 
-} /* end addarrowKeyEventHandler */
- 
-
-
-pui.attachResponse = function(dom) {
-  function clickEvent() {
+pui.attachResponse = function (dom) {
+  function clickEvent () {
     if (dom.disabled == true) return;
     if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
-    
+
     if (dom.parentPagingBar != null) {
       if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
         dom.parentPagingBar.grid.pageDown();
@@ -3331,32 +3239,29 @@ pui.attachResponse = function(dom) {
         return;
       }
     }
-    
+
     if (dom.shortcutKey != null) {
-    
       pui.keyName = dom.shortcutKey;
-    
     }
-    
+
     var doms = [];
     if (dom.shortcutKey != null) {
       // If this is a grid paging bar item, do not pickup doms with matching shortcut key in other grids.
       // This allows paging controls for grids in same control format to function independently of one another.
-      if (dom.parentPagingBar){
+      if (dom.parentPagingBar) {
         doms.push(dom);
       }
-      
+
       for (var formatName in pui.keyMap) {
         var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
         if (keyMapDomArray != null) {
           for (var i = 0; i < keyMapDomArray.length; i++) {
-            if (!keyMapDomArray[i].parentPagingBar){    //Push if this item isn't in a grid. See issue 4807.
+            if (!keyMapDomArray[i].parentPagingBar) { // Push if this item isn't in a grid. See issue 4807.
               doms.push(keyMapDomArray[i]);
             }
           }
         }
       }
-
     }
     else {
       doms.push(dom);
@@ -3379,16 +3284,15 @@ pui.attachResponse = function(dom) {
         }
       }
     }
-    
+
     pui.destURL = null;
     pui.destParams = null;
     pui.destBookmarkable = null;
-    pui.destRedirect = null;    
-    
+    pui.destRedirect = null;
+
     if (dom.pui && dom.pui.properties && dom.pui.properties["destination url"]) {
-      
       var props = dom.pui.properties;
-      
+
       pui.destURL = props["destination url"];
       pui.destBookmarkable = (!props["bookmarkable"] || props["bookmarkable"] == "true");
       pui.destRedirect = (props["redirect to destination"] == "true");
@@ -3396,28 +3300,25 @@ pui.attachResponse = function(dom) {
 
       var suffix = 1;
       var prop1 = "destination parameter name";
-      var prop2 = "destination parameter value";          
+      var prop2 = "destination parameter value";
       while (props[prop1]) {
-        
         pui.destParams.push([props[prop1], props[prop2]]);
         prop1 = "destination parameter name " + (++suffix);
         prop2 = "destination parameter value " + suffix;
-        
       }
-      
-    }    
+    }
 
     pui.responseRoutine = dom.responseRoutine;
     pui.responseRoutineRow = dom.subfileRow;
     pui.responseRoutineGrid = dom.subfileName;
 
     var returnVal = pui.respond();
-    
+
     pui.destURL = null;
     pui.destParams = null;
     pui.destBookmarkable = null;
-    pui.destRedirect = null;     
-    
+    pui.destRedirect = null;
+
     if (returnVal == false) {
       for (var i = 0; i < doms.length; i++) {
         doms[i].responseValue = "0";
@@ -3426,27 +3327,26 @@ pui.attachResponse = function(dom) {
       pui.responseRoutine = null;
       pui.responseRoutineRow = null;
       pui.responseRoutineGrid = null;
-    }    
+    }
   }
 
   addEvent(dom, "click", clickEvent);
 };
 
-
-pui.showErrors = function(errors, rrn) {
+pui.showErrors = function (errors, rrn) {
   var globalMessages = [];
   for (var i = errors.length - 1; i >= 0; i = i - 1) {
     var err = errors[i];
     var msg = err.msg;
     if (err["encoded"]) {
-      msg = pui.formatting.decodeGraphic(msg);  
+      msg = pui.formatting.decodeGraphic(msg);
     }
-	
+
     // if error message is scripted, then resolve the value
     // this logic is cloned from properties.js.evalPropertyValue() where a scripted property value is resolved
     var js = null;
     var msgSave;
-    
+
     if (String(msg).substr(0, 3).toLowerCase() == "js:") {
       js = msg.substr(3);
     }
@@ -3457,7 +3357,7 @@ pui.showErrors = function(errors, rrn) {
       js = msg.substr(7);
     }
     if (js !== null && trim(js) !== "") {
-      msgSave = msg;                                // saved/restored if msg not found
+      msgSave = msg; // saved/restored if msg not found
       try {
         msg = eval(js);
       } catch (err) {
@@ -3467,14 +3367,14 @@ pui.showErrors = function(errors, rrn) {
             pui.alert("Expression '" + trim(js) + "' contains an error:\n\n" + err.message);
             pui.suppressPropertyScriptingErrors = false;
           }, 1);
-        } 
-      } 
-      
-      if (typeof(msg) == "undefined") {             // saved/restored if msg not found
+        }
+      }
+
+      if (typeof (msg) == "undefined") { // saved/restored if msg not found
         msg = msgSave;
       }
-    }     
-    
+    }
+
     // replace system formatting options
     msg = msg.replace(/&N/g, "<br/>");
     msg = msg.replace(/&P/g, "<br/>");
@@ -3487,34 +3387,33 @@ pui.showErrors = function(errors, rrn) {
       if (msg != null && msg != "") globalMessages.push(msg);
       continue;
     }
-    // 'dom' is the widget element. 
+    // 'dom' is the widget element.
     // 'tipBox' is the element the tool tip is attached to
     // this is the interior textbox for a combobox widget.
-    if (dom.parentNode && dom.parentNode.comboBoxWidget) {    
-      dom = dom.parentNode;    
-    }   
-    if (dom.parentNode && dom.parentNode.floatingPlaceholder) {    
-      dom = dom.parentNode;    
-    }   
-    var tipBox = dom;    
-    if (dom.comboBoxWidget != null) { 
+    if (dom.parentNode && dom.parentNode.comboBoxWidget) {
+      dom = dom.parentNode;
+    }
+    if (dom.parentNode && dom.parentNode.floatingPlaceholder) {
+      dom = dom.parentNode;
+    }
+    var tipBox = dom;
+    if (dom.comboBoxWidget != null) {
       tipBox = dom.comboBoxWidget.getBox();
     }
-    if (dom.floatingPlaceholder != null) { 
+    if (dom.floatingPlaceholder != null) {
       tipBox = dom.floatingPlaceholder.getBox();
     }
     if (dom.pui.properties["error message location"] == "alert") {
       globalMessages.push(msg);
-    
     }
     else {
       var tip = tipBox.validationTip;
       if (tip == null) {
-        tip = new pui.ValidationTip(dom); 
+        tip = new pui.ValidationTip(dom);
       }
       if (!tip.doneShowing) {
         pui.addCssClass(tipBox, tip.getInvalidClass());
-        tip.setMessage(msg); 
+        tip.setMessage(msg);
         tip.show(3000, true);
       }
       var cell = dom.parentNode;
@@ -3526,12 +3425,11 @@ pui.showErrors = function(errors, rrn) {
         }
       }
     }
+  }
 
-  }    
-  
   if (globalMessages.length > 0) {
     var messagesText = "";
-    for (var i = globalMessages.length - 1; i >= 0; i = i - 1) {  // these messages are in reverse order, so we loop backwards
+    for (var i = globalMessages.length - 1; i >= 0; i = i - 1) { // these messages are in reverse order, so we loop backwards
       if (i != globalMessages.length - 1) messagesText += "<br/>";
       messagesText += globalMessages[i];
     }
@@ -3539,20 +3437,20 @@ pui.showErrors = function(errors, rrn) {
     while (displayText.indexOf("<br/>") >= 0) {
       displayText = displayText.replace("<br/>", "\n");
     }
-    setTimeout(function() {
+    setTimeout(function () {
       pui.alert(displayText);
     }, 1);
   }
-  
+
   // show first error and focus cursor to it
   var setFocusField = !pui.screenIsReady;
-  setTimeout(function() {
+  setTimeout(function () {
     pui.ignoreBlurs = true;
     for (var i = 0; i < errors.length; i++) {
       var id = errors[i].id;
       if (rrn != null) id += "." + rrn;
       var dom = errors[i].dom;
-      
+
       if (dom == null && id != null) dom = getObj(id);
       if (dom != null) {
         if (dom.comboBoxWidget != null) dom = dom.comboBoxWidget.getBox();
@@ -3569,29 +3467,27 @@ pui.showErrors = function(errors, rrn) {
           if (!tip.doneShowing) dom.validationTip.show();
           break;
         }
-        catch(e) {
+        catch (e) {
         }
       }
     }
-    setTimeout(function() {
+    setTimeout(function () {
       pui.ignoreBlurs = false;
     }, 0);
   }, 0);
-
 };
 
-pui.respond = function() {
-
+pui.respond = function () {
   if (pui.observer != null) return false;
 
-  //if (!pui.screenIsReady) {
+  // if (!pui.screenIsReady) {
   if (pui["isServerBusy"]()) {
     return false;
   }
-  
+
   var response = pui.buildResponse();
-  
-  if (typeof response.valid == "boolean" && response.valid == false) {    
+
+  if (typeof response.valid == "boolean" && response.valid == false) {
     if (pui.bypassValidation != "true" && (pui.bypassValidation != "send data" || response.nobypass == true)) {
       response.nobypass = false;
       pui.showErrors(response.errors);
@@ -3606,7 +3502,7 @@ pui.respond = function() {
   // handle screen's "onsubmit" event
   if (pui.onsubmitProp != null && pui.onsubmitProp != "") {
     try {
-      pui.referenceToResponse = response;  // create temporary reference to response object, so it can be updated by certain API's
+      pui.referenceToResponse = response; // create temporary reference to response object, so it can be updated by certain API's
       var onsubmitReturnVal = eval(pui.onsubmitProp);
       if (typeof onsubmitReturnVal == "function") {
         onsubmitReturnVal = onsubmitReturnVal(response);
@@ -3618,14 +3514,14 @@ pui.respond = function() {
         return false;
       }
     }
-    catch(err) {
+    catch (err) {
       pui.scriptError(err, "Onsubmit Error:\n");
       pui.rrnTracker = {};
       pui.keyName = "";
       return false;
     }
   }
-  
+
   // handle global onsbumit event
   if (pui["onsubmit"] != null && typeof pui["onsubmit"] == "function") {
     if (pui["onsubmit"]() == false) {
@@ -3634,8 +3530,8 @@ pui.respond = function() {
       return false;
     }
   }
-  
-  pui.screenIsReady = false;  // this prevents double-submits
+
+  pui.screenIsReady = false; // this prevents double-submits
 
   pui.showWaitAnimation();
   var uploading = false;
@@ -3646,16 +3542,14 @@ pui.respond = function() {
     pui["haltFrames"]();
     pui.submitResponse(response);
   }
- 
+
   return true;
 };
 
-pui.buildResponse = function(customResponseElements) {
-    
+pui.buildResponse = function (customResponseElements) {
   var response = {};
-  
-  if (!customResponseElements) {
 
+  if (!customResponseElements) {
     for (var fieldName in pui.changeResponseElements) {
       var domArr = pui.changeResponseElements[fieldName];
       for (var i = 0; i < domArr.length; i++) {
@@ -3694,13 +3588,12 @@ pui.buildResponse = function(customResponseElements) {
 
     pui.gridsDisplayed.forEach(function (grid) {
       if (grid.useServerState && grid.storageKey != null && grid.storedState != null && grid.storedState != "") {
-        var storageKeyVar = pui.formatUpper(grid.recordFormatName) + ".storageKey"; 
+        var storageKeyVar = pui.formatUpper(grid.recordFormatName) + ".storageKey";
         var storedStateVar = pui.formatUpper(grid.recordFormatName) + ".storedState";
         response[storageKeyVar] = grid.storageKey;
         response[storedStateVar] = grid.storedState;
       }
     });
-    
   }
 
   var responseElements = pui.responseElements;
@@ -3709,8 +3602,8 @@ pui.buildResponse = function(customResponseElements) {
   for (var fieldName in responseElements) {
     var doms = responseElements[fieldName];
     var dom = doms[0];
-    
-    // If it's a 'radio button' control we want to change the 
+
+    // If it's a 'radio button' control we want to change the
     //  'dom' entry to the 'modified' one, if any.
     if (dom.type == "radio") {
     	for (var j = 0; j < doms.length; j++) {
@@ -3719,16 +3612,16 @@ pui.buildResponse = function(customResponseElements) {
     			dom = radioDom;
     			break;
     		}
-    	}    
+    	}
     }
-    
+
     var boxDom = dom;
     if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
     if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
     var value = null;
     if (dom.responseValue != null) {
-      value = dom.responseValue;      
-      if (value == "0") {  // handle same indicator variables bound to multiple buttons
+      value = dom.responseValue;
+      if (value == "0") { // handle same indicator variables bound to multiple buttons
         for (var i = 1; i < doms.length; i++) {
           if (doms[i].responseValue == "1") {
             value = "1";
@@ -3745,19 +3638,19 @@ pui.buildResponse = function(customResponseElements) {
           }
         }
       }
-      
+
       // When an element is modified by setDataValue, but never modified
-      // by normal means (i.e. modified before rendering) we need to set 
+      // by normal means (i.e. modified before rendering) we need to set
       // it in the rrnTracker, etc.
-      
+
       if (dom.modifiedBeforeRender) {
         var splitName = fieldName.split(".");
         var sflName = splitName[0];
-        var subfileRow = parseInt(splitName[splitName.length-1]);
+        var subfileRow = parseInt(splitName[splitName.length - 1]);
         if (!isNaN(subfileRow) && subfileRow > 0) {
           var rrnName = sflName + ".rrn";
           var trackerName = rrnName + "=" + subfileRow;
-          if (pui.rrnTracker[trackerName] != true) {            
+          if (pui.rrnTracker[trackerName] != true) {
             if (response[rrnName] == null) response[rrnName] = [];
             response[rrnName].push(subfileRow);
             pui.rrnTracker[trackerName] = true;
@@ -3773,26 +3666,26 @@ pui.buildResponse = function(customResponseElements) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "ME") });
-          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+          if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
           continue;
         }
         if (dom.MF == true && dom.modified == true && boxDom.maxLength != null && boxDom.value != null && (boxDom.maxLength != boxDom.value.length || boxDom.value === boxDom.emptyText)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "MF") });
-          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+          if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
           continue;
         }
       }
       if (pui.bypassValidation != "true" && pui.bypassValidation != "send data" && dom.puirequired == true && !dom.disabled) {
-        if ( (typeof boxDom.value == "string" && (trim(boxDom.value) == "" || boxDom.value === boxDom.emptyText)) ||
-             (dom["fileUpload"] != null && dom["fileUpload"].getCount() < 1) ) {
+        if ((typeof boxDom.value == "string" && (trim(boxDom.value) == "" || boxDom.value === boxDom.emptyText)) ||
+             (dom["fileUpload"] != null && dom["fileUpload"].getCount() < 1)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           var msg = pui["getLanguageText"]("runtimeMsg", "required");
           if (dom["fileUpload"] != null) msg = pui["getLanguageText"]("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
-          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+          if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
           continue;
         }
       }
@@ -3805,13 +3698,13 @@ pui.buildResponse = function(customResponseElements) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: dom, msg: msg });
-          if (dom.validationTip!=null && dom.validationTip.doneShowing!=null) dom.validationTip.doneShowing=false;
+          if (dom.validationTip != null && dom.validationTip.doneShowing != null) dom.validationTip.doneShowing = false;
           continue;
-        }        
+        }
       }
       if (dom.modified == true && (pui["controller"] != null || pui.bypassValidation != "true")) {
         if (dom.tagName == "INPUT") {
-          switch(dom.type) {
+          switch (dom.type) {
             case "text":
             case "number":
             case "password":
@@ -3833,23 +3726,21 @@ pui.buildResponse = function(customResponseElements) {
               value = dom.value;
               if (value === dom.emptyText) value = "";
               if (dom.autoCompValueField != null) {
-              
                 // Following config. value is undefined by default.
-                
+
                 // If set to false, don't use an empty hidden field value.
                 if (pui["force auto complete match"] != false || dom.autoCompValueField.value != "") {
                   value = dom.autoCompValueField.value;
                 }
-                
+
                 // Prevent character values from ever going into numeric fields by clearing the value: #4441.
                 // Formatting info tells the data type.
-                if ( dom.formattingInfo != null && dom.formattingInfo.dataType != "expression"
-                && pui.formatting.isNumericType( dom.formattingInfo.dataType )) {
-
+                if (dom.formattingInfo != null && dom.formattingInfo.dataType != "expression" &&
+                pui.formatting.isNumericType(dom.formattingInfo.dataType)) {
                   // See if the string has only characters that appear in numbers, including (0.00) 0,00 but not "CR".
                   // This will clear out anything containing non-numeric characters.
                   var numericRe = /^[0-9,.\- \(\)]+/;
-                  if (! numericRe.test(value) ){
+                  if (!numericRe.test(value)) {
                     value = "";
                   }
                 }
@@ -3893,13 +3784,13 @@ pui.buildResponse = function(customResponseElements) {
                   var negative = (value.indexOf("-") != -1);
                   value = numPart;
                   if (decPart != "") {
-                   value += decimalChar + decPart;
+                    value += decimalChar + decPart;
                   }
                   if (negative) value = "-" + value;
                 }
               }
               break;
-              
+
             case "checkbox":
               if (dom.checked) {
                 if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
@@ -3960,16 +3851,16 @@ pui.buildResponse = function(customResponseElements) {
           }
           else if (!dom.onOffSwitch.isOn && dom.onOffSwitch.offValue != null) {
             value = dom.onOffSwitch.offValue;
-          }        
+          }
         }
         if (dom.type == "grid selection") {
-          value = dom.value;  // this is not a real dom element
+          value = dom.value; // this is not a real dom element
         }
         if (dom.type == "grid hidden field") {
-          value = dom.value;  // this is not a real dom element
+          value = dom.value; // this is not a real dom element
         }
-        
-        if (dom.pui && dom.pui.widget){
+
+        if (dom.pui && dom.pui.widget) {
           value = dom.pui.widget.getFieldValue(fieldName);
         }
       }
@@ -3985,17 +3876,17 @@ pui.buildResponse = function(customResponseElements) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: dom, msg: pui["getLanguageText"]("runtimeMsg", "signature overflow") });
-          if (dom.validationTip!=null && dom.validationTip.doneShowing!=null) dom.validationTip.doneShowing=false;
-          continue;          
+          if (dom.validationTip != null && dom.validationTip.doneShowing != null) dom.validationTip.doneShowing = false;
+          continue;
         }
       }
-      
+
       var formattingObj;
       if (dom.pui && dom.pui.widget && dom.pui.widget) formattingObj = dom.pui.widget.getFormattingObj(fieldName);
       else formattingObj = dom.formattingInfo;
       if (formattingObj != null && formattingObj.dataType != "expression") {
-        if (formattingObj.textTransform != "uppercase" && dom.pui && dom.pui.properties && dom.pui.properties["text transform"] == "uppercase" && formattingObj.dataType == "char"){
-          value = pui.replaceProblemCaseChars(value, true);   //Capital ẞ isn't supported in EBCDIC, so lower-case it for char.
+        if (formattingObj.textTransform != "uppercase" && dom.pui && dom.pui.properties && dom.pui.properties["text transform"] == "uppercase" && formattingObj.dataType == "char") {
+          value = pui.replaceProblemCaseChars(value, true); // Capital ẞ isn't supported in EBCDIC, so lower-case it for char.
         }
         formattingObj.value = value;
         formattingObj["revert"] = true;
@@ -4006,7 +3897,7 @@ pui.buildResponse = function(customResponseElements) {
           response.nobypass = true;
           if (response.errors == null) response.errors = [];
           response.errors.push({ dom: boxDom, msg: value.msg });
-          if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+          if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
           continue;
         }
 
@@ -4014,16 +3905,15 @@ pui.buildResponse = function(customResponseElements) {
         if (pui.bypassValidation == "send data") skipValidation = true;
         if (pui.isDup(dom)) skipValidation = true;
         if (dom.allowBlanks == true && typeof dom.value == "string" && trim(dom.value) == "") skipValidation = true;
-        
+
         if (!skipValidation) {
-        
           if (dom.validateName == true) {
             var valNameMsg = designUtils.validateName(value);
             if (valNameMsg != "" && valNameMsg != "is too long.") {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: "Name " + valNameMsg });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
@@ -4034,11 +3924,11 @@ pui.buildResponse = function(customResponseElements) {
               if (response.errors == null) response.errors = [];
               var msg = pui["getLanguageText"]("runtimeMsg", "invalid email");
               response.errors.push({ dom: boxDom, msg: msg });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
-        
+
           if (typeof dom.validValues == "string") {
             var validValues = pui.parseCommaSeparatedList(dom.validValues);
             var invalid = true;
@@ -4052,8 +3942,8 @@ pui.buildResponse = function(customResponseElements) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
 
-              // Present valid values as a comma separated list where the last value is separated by "or" 
-              // and if any of the values are blank, use the word "blank" instead.              
+              // Present valid values as a comma separated list where the last value is separated by "or"
+              // and if any of the values are blank, use the word "blank" instead.
               for (var i = 0; i < validValues.length; i++) {
                 if (typeof validValues[i] === "string" && validValues[i].trim() === "") {
                   validValues[i] = pui["getLanguageText"]("runtimeMsg", "blank");
@@ -4061,7 +3951,7 @@ pui.buildResponse = function(customResponseElements) {
               }
               var valuesCount = validValues.length;
               if (valuesCount > 1) {
-                var lastValue = validValues.pop();                
+                var lastValue = validValues.pop();
                 validValues = validValues.join(", ");
                 if (valuesCount > 2) {
                   validValues += ",";
@@ -4073,11 +3963,11 @@ pui.buildResponse = function(customResponseElements) {
               }
 
               response.errors.push({ dom: boxDom, msg: pui["getLanguageText"]("runtimeMsg", "validValues") + validValues + "." });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
-  
+
           if (typeof dom.compOperator == "string" && typeof dom.compValue == "string") {
             var compValue = dom.compValue;
             var boxValue = value;
@@ -4090,9 +3980,9 @@ pui.buildResponse = function(customResponseElements) {
               compValue = rtrim(compValue);
               compValueDisp = "'" + compValueDisp + "'";
             }
-            if (typeof boxValue == "string") boxValue = rtrim(boxValue);            
+            if (typeof boxValue == "string") boxValue = rtrim(boxValue);
             var msg = "";
-            switch(dom.compOperator) {
+            switch (dom.compOperator) {
               case "Equal":
                 if (compValue != boxValue) msg = "Value must equal " + compValueDisp + ".";
                 break;
@@ -4116,15 +4006,14 @@ pui.buildResponse = function(customResponseElements) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
-  
-          var   boxValueDateISO = null;
+
+          var boxValueDateISO = null;
 
           if (typeof dom.rangeLow == "string") {
-
             var rangeLow = dom.rangeLow;
             var boxValue = value;
 
@@ -4137,30 +4026,29 @@ pui.buildResponse = function(customResponseElements) {
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
 
             if (formattingObj.formatting == "Date") {
-              boxValueDateISO = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);  // *ISO format for compare
-              boxValue        = boxValueDateISO;                                           
-              rangeLow        = dom.rangeLowDateISO; 
+              boxValueDateISO = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj); // *ISO format for compare
+              boxValue = boxValueDateISO;
+              rangeLow = dom.rangeLowDateISO;
             }
 
             if (boxValue < rangeLow) {
               var rangeLowDisp = dom.rangeLow;
               if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid low range", [ rangeLowDisp ]);
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid low range", [rangeLowDisp]);
               if (dom.rangeHigh != null) {
                 var rangeHighDisp = dom.rangeHigh;
                 if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
+                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [rangeLowDisp, rangeHighDisp]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
-  
+
           if (typeof dom.rangeHigh == "string") {
-            
             var rangeHigh = dom.rangeHigh;
             var boxValue = value;
 
@@ -4170,41 +4058,40 @@ pui.buildResponse = function(customResponseElements) {
             }
 
             if (formattingObj.formatting == "Date") {
-              if (boxValueDateISO == null)                                                  // not done yet
-                boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);     // *ISO format for compare
+              if (boxValueDateISO == null) // not done yet
+              { boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj); } // *ISO format for compare
               else
-                boxValue = boxValueDateISO;                
-              rangeHigh = dom.rangeHighDateISO;                         
+              { boxValue = boxValueDateISO; }
+              rangeHigh = dom.rangeHighDateISO;
             }
 
             if (typeof rangeHigh == "string") rangeHigh = rtrim(rangeHigh);
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
 
-            if (boxValue > rangeHigh) {  
+            if (boxValue > rangeHigh) {
               var rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [ rangeHighDisp ]);
+              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [rangeHighDisp]);
               if (dom.rangeLow != null) {
                 var rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [ rangeLowDisp, rangeHighDisp ]);
+                msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [rangeLowDisp, rangeHighDisp]);
               }
               response.valid = false;
               if (response.errors == null) response.errors = [];
               response.errors.push({ dom: boxDom, msg: msg });
-              if (boxDom.validationTip!=null && boxDom.validationTip.doneShowing!=null) boxDom.validationTip.doneShowing=false;
+              if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
             }
           }
-        
         }
-                
+
         response[fieldName] = value;
         if (dom.subfileRow != null) {
           var sflName = fieldName.split(".")[0];
           var rrnName = sflName + ".rrn";
           var trackerName = rrnName + "=" + dom.subfileRow;
-          if (pui.rrnTracker[trackerName] != true) {            
+          if (pui.rrnTracker[trackerName] != true) {
             if (response[rrnName] == null) response[rrnName] = [];
             response[rrnName].push(dom.subfileRow);
             pui.rrnTracker[trackerName] = true;
@@ -4217,7 +4104,7 @@ pui.buildResponse = function(customResponseElements) {
       }
     }
   }
-  
+
   if (pui.responseRoutine) {
     response["routine"] = pui.responseRoutine;
     if (pui.responseRoutineRow && pui.responseRoutineGrid) {
@@ -4225,34 +4112,34 @@ pui.buildResponse = function(customResponseElements) {
       response["routineGrid"] = pui.responseRoutineGrid;
     }
   }
-  
+
   if (customResponseElements) {
     return response;
   }
-  
+
   if (pui.keyName != null && pui.keyName != "") {
     var fkey = pui.fkeyValues[pui.keyName];
-    if (fkey != null && fkey > 0) { 
+    if (fkey != null && fkey > 0) {
       response["fkey"] = String(fkey);
     }
     var aid = pui.aidKeyValues[pui.keyName];
-    if (aid != null) { 
+    if (aid != null) {
       response["aid"] = String(aid);
     }
     else {
       response["aid"] = pui.aidKeyValues["Enter"]; // Default to enter key if key not found.
-    }    
+    }
   }
-  
+
   // Handle "return cursor location" fields, which may be collections. Each format that uses these types of fields should get values,
   // even when overlaid. See issue 4920 for test case.
-  function fillReturnCursorData(field, value){
+  function fillReturnCursorData (field, value) {
     if (field != null && field != "" && value != null && value != "") {
-      if (typeof field == "object"){
-        for (var qualfield in field){
+      if (typeof field == "object") {
+        for (var qualfield in field) {
           response[qualfield] = value;
         }
-      }else{
+      } else {
         response[field] = value;
       }
     }
@@ -4262,14 +4149,14 @@ pui.buildResponse = function(customResponseElements) {
   fillReturnCursorData(pui.cursorFields.position, pui.cursorValues.position);
   fillReturnCursorData(pui.cursorFields.row, pui.cursorValues.row);
   fillReturnCursorData(pui.cursorFields.column, pui.cursorValues.column);
-  
+
   var rowNum = Number(pui.cursorValues.row);
   if (!isNaN(rowNum) && rowNum > 0) response["row"] = String(rowNum);
   var columnNum = Number(pui.cursorValues.column);
   if (!isNaN(columnNum) && columnNum > 0) response["column"] = String(columnNum);
   if (pui.cursorValues.wrow != null) response["wrow"] = String(pui.cursorValues.wrow);
   if (pui.cursorValues.wcolumn != null) response["wcolumn"] = String(pui.cursorValues.wcolumn);
-  
+
   for (var cursorRRNFieldName in pui.cursorRRNs) {
     var dom = pui.cursorRRNs[cursorRRNFieldName];
     if (dom.cursorRRN != null) {
@@ -4304,7 +4191,7 @@ pui.buildResponse = function(customResponseElements) {
       response[sflModeFieldName] = "1";
     }
   }
-  
+
   if (pui.columnSortResponseGrid != null) {
     var field = pui.columnSortResponseGrid.tableDiv.columnSortResponseField;
     var value = pui.columnSortResponseGrid.columnSortResponse;
@@ -4330,7 +4217,7 @@ pui.buildResponse = function(customResponseElements) {
       response[field] = value;
     }
   }
-  
+
   if (pui.filterResponseGrid != null) {
     var field = pui.filterResponseGrid.tableDiv.filterResponseField;
     var value = pui.filterResponseGrid.filterResponse;
@@ -4338,7 +4225,7 @@ pui.buildResponse = function(customResponseElements) {
       response[field] = value;
     }
   }
-  
+
   for (var fmt in pui.changedFields) {
     if (pui.ctlRecModified[fmt] && (pui["controller"] != null || pui.bypassValidation != "true")) {
       response[pui.changedFields[fmt]] = "1";
@@ -4347,14 +4234,14 @@ pui.buildResponse = function(customResponseElements) {
       response[pui.changedFields[fmt]] = "0";
     }
   }
-  
+
   if (pui.populateWindowTopLeft) {
     if (pui.windowTopField != null && pui.lastWindow != null) {
       response[pui.windowTopField] = String(parseInt(pui.lastWindow.style.top));
     }
     if (pui.windowLeftField != null && pui.lastWindow != null) {
       response[pui.windowLeftField] = String(parseInt(pui.lastWindow.style.left));
-    }  
+    }
   }
 
   if (pui.validCommandKeyField != null) {
@@ -4365,10 +4252,10 @@ pui.buildResponse = function(customResponseElements) {
       response[pui.validCommandKeyField] = "0";
     }
   }
-  
+
   for (var i = 0; i < pui.setOffFields.length; i++) {
     var setOffField = pui.setOffFields[i];
-    if (response[setOffField] == null) {  // not already set
+    if (response[setOffField] == null) { // not already set
       response[setOffField] = "0";
     }
   }
@@ -4400,37 +4287,29 @@ pui.buildResponse = function(customResponseElements) {
       response[pui.backButtonField] = "0";
     }
   }
-  
+
   if (pui["controller"] != null) {
-  
     var count = 0;
     var layers = pui.oldRenderParms["layers"];
     for (var i = 0; i < layers.length; i++) {
-    
       var formats = layers[i]["formats"];
       for (var j = 0; j < formats.length; j++) {
-      
         response["pui-recname." + (++count)] = formats[j]["metaData"]["screen"]["record format name"];
-      
       }
-    
-    }  
-  
+    }
   }
-  
+
   if (typeof pui["beforeRespond"] === "function") {
     var rv = pui["beforeRespond"](response);
     if (rv) response = rv;
   }
-  
+
   return response;
 };
 
-
-pui.submitResponse = function(response, value) {
-
-  if (pui["isCloudPreview"]) {    
-    setTimeout(function() {
+pui.submitResponse = function (response, value) {
+  if (pui["isCloudPreview"]) {
+    setTimeout(function () {
       pui.screenIsReady = true;
       pui.hideWaitAnimation();
     }, 500);
@@ -4458,7 +4337,7 @@ pui.submitResponse = function(response, value) {
     try {
       url = pui["overrideSubmitUrl"](url);
     }
-    catch(e) {
+    catch (e) {
     }
   }
 
@@ -4482,10 +4361,10 @@ pui.submitResponse = function(response, value) {
         if (query != "") query += "&";
         query += paramStr;
       }
-      if (query != "") url += "?" + query;    
+      if (query != "") url += "?" + query;
       if (pui.destRedirect) {
         if (pui.destBookmarkable) {
-          location.href = url;  
+          location.href = url;
         }
         else {
           var code = "postTo(\"" + url + "\"";
@@ -4500,9 +4379,9 @@ pui.submitResponse = function(response, value) {
       else {
         pui["controller"] = url;
       }
-    }   
+    }
     pui.handler(response);
-  }  
+  }
   else {
     pui.timeoutMonitor.end();
     try {
@@ -4512,15 +4391,14 @@ pui.submitResponse = function(response, value) {
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
     if (atriumTimeout)
-      Atrium["resetInactivityTimeout"]();
+    { Atrium["resetInactivityTimeout"](); }
     pui.showWaitAnimation();
-    
-    function sendRichDisplayScreen() {
 
-      if (pui.recordTest) pui.recording["payloads"].push({
+    function sendRichDisplayScreen () {
+      if (pui.recordTest) { pui.recording["payloads"].push({
         url: url,
         data: Object.assign({}, response)
-      });
+      }); }
 
       if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
 
@@ -4531,10 +4409,10 @@ pui.submitResponse = function(response, value) {
         "sendAsBinary": false,
         "saveResponse": true,
         "suppressAlert": true,
-        "handler": function(parms) {
+        "handler": function (parms) {
           if (parms == null) {
-            //document.body.style.backgroundColor = "#DFE8F6";
-            document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
+            // document.body.style.backgroundColor = "#DFE8F6";
+            document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + "<br/><br/>" + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
             var returnVal = shutDown();
             if (returnVal == false) return;
             pui.shutdownOnClose = false;
@@ -4544,54 +4422,53 @@ pui.submitResponse = function(response, value) {
           }
           parms.container = pui.runtimeContainer;
 
-          /* Check for a session timeout message.  If retries are configured, 
+          /* Check for a session timeout message.  If retries are configured,
            * do them here. */
-          
+
           var formatName = "";
           var displayFile = "";
-          if (parms != null 
-              && parms["layers"] != null 
-              && parms["layers"][0] != null 
-              && parms["layers"][0]["formats"] != null 
-              && parms["layers"][0]["formats"][0] != null 
-              && parms["layers"][0]["formats"][0]["name"] != null 
-              && parms["layers"][0]["formats"][0]["file"] != null) {
-            formatName = parms["layers"][0]["formats"][0]["name"]; 
-            displayFile = parms["layers"][0]["formats"][0]["file"]; 
+          if (parms != null &&
+              parms["layers"] != null &&
+              parms["layers"][0] != null &&
+              parms["layers"][0]["formats"] != null &&
+              parms["layers"][0]["formats"][0] != null &&
+              parms["layers"][0]["formats"][0]["name"] != null &&
+              parms["layers"][0]["formats"][0]["file"] != null) {
+            formatName = parms["layers"][0]["formats"][0]["name"];
+            displayFile = parms["layers"][0]["formats"][0]["file"];
           }
-          if (pui["session timeout retries"] > 0 ) {
-            if ((formatName === "TIMOUTSCRN" && displayFile === "PUISCREENS")
-                 || (pui.genie && parms != null && parms["exception"] == "PUI0003")) {
+          if (pui["session timeout retries"] > 0) {
+            if ((formatName === "TIMOUTSCRN" && displayFile === "PUISCREENS") ||
+                 (pui.genie && parms != null && parms["exception"] == "PUI0003")) {
               pui.sessionRetryCount += 1;
               if (pui.sessionRetryCount <= pui["session timeout retries"]) {
-                setTimeout( sendRichDisplayScreen, 2000 );
+                setTimeout(sendRichDisplayScreen, 2000);
                 return;
               }
             }
           }
           pui.sessionRetryCount = 0;
-          
+
           // If any items depend on external files, wait for those to load before
           // rendering. Otherwise, pui.render/render5250 is called without waiting.
-          if (pui.genie == null) pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
+          if (pui.genie == null) pui.loadDependencyFiles(parms, function () { pui.render(parms); });
           // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
           else pui.render5250(parms);
         },
-        "onfail": function(req) {
+        "onfail": function (req) {
           if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
           pui.hideWaitAnimation();
           pui.resetResponseValues();
           if (pui["onoffline"] != null) pui["onoffline"]();
-        }      
+        }
       });
     }
     sendRichDisplayScreen();
   }
 };
-pui["submit"] = pui.submitResponse;  // short-hand
+pui["submit"] = pui.submitResponse; // short-hand
 
-
-pui.resetResponseValues = function() {
+pui.resetResponseValues = function () {
   // set response values back to "0"
   for (var fieldName in pui.responseElements) {
     var doms = pui.responseElements[fieldName];
@@ -4604,8 +4481,7 @@ pui.resetResponseValues = function() {
   pui.screenIsReady = true;
 };
 
-
-pui.cancelResponse = function(messages) {
+pui.cancelResponse = function (messages) {
   for (var id in messages) {
     var msg = messages[id];
     var dom = getObj(id);
@@ -4615,10 +4491,10 @@ pui.cancelResponse = function(messages) {
       tip = new pui.ValidationTip(dom);
       tip.setMessage(msg);
       tip.show();
-    }    
+    }
   }
   pui.hideWaitAnimation();
-  for (var i = 0; i < pui.gridsDisplayed.length; i++) {  
+  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
     grid["unMask"]();
   }
@@ -4626,25 +4502,24 @@ pui.cancelResponse = function(messages) {
   pui.resetResponseValues();
 };
 
-
-pui.evalBoundProperty = function(propValue, data, ref) {
+pui.evalBoundProperty = function (propValue, data, ref) {
   if (!pui.isBound(propValue) && !pui.isTranslated(propValue) && !pui.isRoutine(propValue)) return propValue;
-  
+
   var formattingObj = propValue;
 
   if (data == null) {
     if (formattingObj["designValue"] != null) return formattingObj["designValue"];
     return "";
   }
- 
+
   var fieldName = formattingObj.fieldName;
   if (data["__pui_show"] && formattingObj["longName"]) fieldName = formattingObj["longName"];
   if (formattingObj["lowerCaseField"] != true && pui.handler == null) {
     fieldName = pui.fieldUpper(fieldName);
   }
-  
-  if (data['__pui_skipdecode']) formattingObj['__pui_skipdecode'] = data['__pui_skipdecode'];  //For load-fields-into-widgets.
-  
+
+  if (data["__pui_skipdecode"]) formattingObj["__pui_skipdecode"] = data["__pui_skipdecode"]; // For load-fields-into-widgets.
+
   var dataValue;
   if (formattingObj.dataType == "expression") {
     dataValue = pui.evalIndicatorExpression(formattingObj.fieldName, data);
@@ -4652,7 +4527,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
   else {
     dataValue = data[fieldName];
     if (dataValue == null) dataValue = "";
-  }              
+  }
   formattingObj.value = dataValue;
   if (formattingObj.dataType == "reference" && ref != null) {
     var referenceObj = ref[fieldName];
@@ -4662,7 +4537,7 @@ pui.evalBoundProperty = function(propValue, data, ref) {
       formattingObj.decPos = String(referenceObj.decPos);
     }
   }
-  
+
   if (formattingObj["formatting"] == "Text") {
     if (pui.formatting.isNumericType(formattingObj.dataType)) {
       if (formattingObj["textTransform"] != null) delete formattingObj["textTransform"];
@@ -4677,11 +4552,11 @@ pui.evalBoundProperty = function(propValue, data, ref) {
       formattingObj["negNum"] = "-999.00";
     }
   }
-  
+
   return pui.FieldFormat.format(formattingObj);
 };
 
-pui.evalIndicatorExpression = function(expression, data) {
+pui.evalIndicatorExpression = function (expression, data) {
   var iMainValue = false;
   var iRows = expression.split(" or ");
   for (var row = 0; row < iRows.length; row++) {
@@ -4712,8 +4587,7 @@ pui.evalIndicatorExpression = function(expression, data) {
   return "0";
 };
 
-
-pui.showWaitAnimation = function() {
+pui.showWaitAnimation = function () {
   pui.hideWaitAnimation();
   var animation;
   if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui["loading animation"]["default"] && pui["loading animation"]["text"] == null) {
@@ -4738,7 +4612,7 @@ pui.showWaitAnimation = function() {
       animation.style.height = height + "px";
     }
     if (pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0)
-      animation.alt = pui["loading animation"]["alt"];
+    { animation.alt = pui["loading animation"]["alt"]; }
     animation.style.position = "absolute";
     var left = pui["loading animation"]["left"];
     if (pui.isHtml && left < 0) left = 0;
@@ -4755,26 +4629,23 @@ pui.showWaitAnimation = function() {
     var grid = pui.gridsDisplayed[i];
     if (!grid.subfileHidden) grid.mask();
   }
-
 };
 
-pui.hideWaitAnimation = function() {
+pui.hideWaitAnimation = function () {
   var animation = getObj("_pui_loading_animation");
   if (animation != null && animation.parentNode != null) {
     animation.parentNode.removeChild(animation);
   }
-  
+
   for (var i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
-    if (!grid.subfileHidden) grid['unMask']();
+    if (!grid.subfileHidden) grid["unMask"]();
   }
 };
 
-
-pui.handleHotKey = function(e, keyName) {
-
+pui.handleHotKey = function (e, keyName) {
   if (context != "dspf" || pui.isHtml) return;
-   
+
   if (!e) e = window.event;
   var key = e.keyCode;
   var fkey;
@@ -4789,11 +4660,11 @@ pui.handleHotKey = function(e, keyName) {
 
   if (keyName == null) {
     if (fkey >= 1 && fkey <= 12) {
-      if(!pui["is_old_ie"] || (fkey > 1 || e.shiftKey)){
-        if(e.shiftKey){
+      if (!pui["is_old_ie"] || (fkey > 1 || e.shiftKey)) {
+        if (e.shiftKey) {
           fkey = fkey + 12;
         }
-        else if(e.modifiers && Event.SHIFT_MASK){
+        else if (e.modifiers && Event.SHIFT_MASK) {
           fkey = fkey + 12;
         }
         keyName = "F" + fkey;
@@ -4807,77 +4678,67 @@ pui.handleHotKey = function(e, keyName) {
     }
     else {
       switch (key) {
-        case 13: 
+        case 13:
           keyName = "Enter";
           break;
-        case 19: 
+        case 19:
           keyName = "Pause/Break";
           break;
-        case 27: 
+        case 27:
           keyName = "Escape";
           break;
-        case 33: 
+        case 33:
           keyName = "PageUp";
           break;
-        case 34: 
+        case 34:
           keyName = "PageDown";
           break;
-        case 44: 
+        case 44:
           keyName = "PrtScn";
           break;
       }
     }
   }
-  
-  if (keyName == "Ctrl-F9") {  // Handle shortcut to download the JSON for this screen
+
+  if (keyName == "Ctrl-F9") { // Handle shortcut to download the JSON for this screen
     pui["downloadJSON"]();
     return false;
   }
-  
+
   // NOTE: In most cases, only the command keys defined on the last format written (pui.lastFormatName)
-  //       are available. PageUp/PageDown are exceptions to this rule. 
-  //       This being the case, the Grid widgets Next/Prev links should probably also enable/disable 
-  //       based on this logic and also buttons/links created for ROLLUP/ROLLDOWN in non-SFLCTL formats 
-  //       should also show/hide accordingly. I don't think these are implemented correctly, but users have not 
+  //       are available. PageUp/PageDown are exceptions to this rule.
+  //       This being the case, the Grid widgets Next/Prev links should probably also enable/disable
+  //       based on this logic and also buttons/links created for ROLLUP/ROLLDOWN in non-SFLCTL formats
+  //       should also show/hide accordingly. I don't think these are implemented correctly, but users have not
   //       reported any problems yet.
   //       - DR 08/19/2015
   var processKey = (
-    keyName != null && pui.lastFormatName != null && 
+    keyName != null && pui.lastFormatName != null &&
     (
-      keyName == "Enter" || keyName == "PageUp" || keyName == "PageDown" || 
+      keyName == "Enter" || keyName == "PageUp" || keyName == "PageDown" ||
       pui.keyMap[pui.lastFormatName][keyName] != null
     )
-  );    
-    
+  );
+
   if (processKey && keyName == "PageUp" || keyName == "PageDown") {
-      
-    // Do not take action for page up / page down when multiple grids 
+    // Do not take action for page up / page down when multiple grids
     // with paging bar are on screen.
     var pbar = false;
     for (var i = 0; i < pui.gridsDisplayed.length; i++) {
-      
       var grid = pui.gridsDisplayed[i];
       if (grid.pagingBar && grid.pagingBar.showPagingControls) {
-        
         if (pbar == false) {
-          
           pbar = true;
-          
         }
         else {
-          
           processKey = false;
           break;
-          
         }
-        
       }
-      
     }
-      
   }
-  
-  if  (processKey) {
+
+  if (processKey) {
     var doms = [];
     var mustRespond = false;
     var pagingLinksUseKey = false;
@@ -4889,32 +4750,31 @@ pui.handleHotKey = function(e, keyName) {
           var dom = domArray[i];
           if (!dom.disabled) allDisabled = false;
           if (dom.parentPagingBar != null) {
-
             // ---- locate dom grid that had been the orignal target...
-            if ((pui.scrolledGridName !== undefined && pui.scrolledGridName !== null) && 
-              dom.parentPagingBar.grid.recordFormatName != pui.scrolledGridName){
-                continue;
+            if ((pui.scrolledGridName !== undefined && pui.scrolledGridName !== null) &&
+              dom.parentPagingBar.grid.recordFormatName != pui.scrolledGridName) {
+              continue;
             }
-            // ----  
-        
+            // ----
+
             if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
               dom.parentPagingBar.grid.pageDown();
               preventEvent(e);
               if (pui["is_old_ie"]) {
-                  try {
-                    e.keyCode = 0;
-                  }
-                  catch(e) {}
+                try {
+                  e.keyCode = 0;
+                }
+                catch (e) {}
               }
               return false;
             }
             if (dom.nextPage == true && !dom.parentPagingBar.pageDownResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
-                  try {
-                    e.keyCode = 0;
-                  }
-                  catch(e) {}
+                try {
+                  e.keyCode = 0;
+                }
+                catch (e) {}
               }
               return false;
             }
@@ -4925,17 +4785,17 @@ pui.handleHotKey = function(e, keyName) {
                 try {
                   e.keyCode = 0;
                 }
-                catch(e) {}
+                catch (e) {}
               }
               return false;
             }
             if (dom.prevPage == true && !dom.parentPagingBar.pageUpResponseDefined) {
               preventEvent(e);
               if (pui["is_old_ie"]) {
-                  try {
-                    e.keyCode = 0;
-                  }
-                  catch(e) {}
+                try {
+                  e.keyCode = 0;
+                }
+                catch (e) {}
               }
               return false;
             }
@@ -4945,17 +4805,17 @@ pui.handleHotKey = function(e, keyName) {
                 try {
                   e.keyCode = 0;
                 }
-                catch(e) {}
+                catch (e) {}
               }
               return false;
             }
           }
-          if (dom.prevPage == true || dom.nextPage == true){
+          if (dom.prevPage == true || dom.nextPage == true) {
             pagingLinksUseKey = true;
           }
           doms.push(dom);
         }
-        // I'm guessing the following block's purpose is to click when onclick is defined, but only when the shortcut key isn't also 
+        // I'm guessing the following block's purpose is to click when onclick is defined, but only when the shortcut key isn't also
         // for a grid's pageUp/pageDown. So, I added the "pagingLinksUseKey". For more explanation, see issue 4807.
         if (doms.length >= 1 && typeof doms[0].onclick == "function" && !doms[0].responseRoutine && dom.nextPage != true && dom.prevPage != true && !pagingLinksUseKey) {
           doms[0].onclick();
@@ -4965,7 +4825,7 @@ pui.handleHotKey = function(e, keyName) {
             try {
               e.keyCode = 0;
             }
-            catch(e) {}
+            catch (e) {}
           }
           return false;
         }
@@ -4975,7 +4835,7 @@ pui.handleHotKey = function(e, keyName) {
             try {
               e.keyCode = 0;
             }
-            catch(e) {}
+            catch (e) {}
           }
           return false;
         }
@@ -4991,7 +4851,7 @@ pui.handleHotKey = function(e, keyName) {
       for (var i = 0; i < doms.length; i++) {
         doms[i].responseValue = "1";
         if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
-          pui.bypassValidation = doms[i].bypassValidation;          
+          pui.bypassValidation = doms[i].bypassValidation;
         }
         if (doms[i].responseRoutine) {
           pui.responseRoutine = doms[i].responseRoutine;
@@ -5001,23 +4861,23 @@ pui.handleHotKey = function(e, keyName) {
       }
 
       var returnVal = pui.respond();
-      
+
       if (returnVal == false) {
         for (var i = 0; i < doms.length; i++) {
           doms[i].responseValue = "0";
-        }  
+        }
         pui.bypassValidation = "false";
         pui.responseRoutine = null;
         pui.responseRoutineRow = null;
         pui.responseRoutineGrid = null;
-      }    
+      }
 
       preventEvent(e);
       if (pui["is_old_ie"]) {
         try {
           e.keyCode = 0;
         }
-        catch(e) {}
+        catch (e) {}
       }
       return false;
     }
@@ -5029,20 +4889,17 @@ pui.handleHotKey = function(e, keyName) {
       try {
         e.keyCode = 0;
       }
-      catch(e) {}
+      catch (e) {}
     }
     return false;
   }
-
 };
 
-
-pui.handleF1 = function(e) {
+pui.handleF1 = function (e) {
   return pui.handleHotKey(e, "F1");
 };
 
-
-pui["run"] = function(config) {
+pui["run"] = function (config) {
   var mobile = (config["mobile"] === true);
   var screenshot = (config["screenshot"] === true);
   var parameter = config["parameter"];
@@ -5080,11 +4937,11 @@ pui["run"] = function(config) {
   if (config["replay"]) {
     jsonURL = "/profoundui/userdata/automated-testing/tests/" + config["replay"];
     if (!jsonURL.endsWith(".json")) jsonURL += ".json";
-  }  
-  if (jsonURL != null) {  
+  }
+  if (jsonURL != null) {
     // Use GET here to avoid 412 - Precondition Failed in Chrome and IOS7 Safari.
     url = jsonURL + "?r=" + Math.floor((Math.random() * 1000000000) + 1);
-    method = "get";    
+    method = "get";
   }
   var ajaxParams = {
     "program": program.toUpperCase(),
@@ -5105,7 +4962,7 @@ pui["run"] = function(config) {
   }
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
-  }  
+  }
   if (config["duplicateid"] == "1") {
     ajaxParams["duplicateid"] = "1";
   }
@@ -5127,10 +4984,10 @@ pui["run"] = function(config) {
     var genPreview = null;
     if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
     if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function")
-      genPreview = window.parent.noderun["generatePreview"];
+    { genPreview = window.parent.noderun["generatePreview"]; }
     var preview;
     if (genPreview)
-      preview = genPreview(config["previewTab"]);
+    { preview = genPreview(config["previewTab"]); }
     if (!preview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
@@ -5143,18 +5000,18 @@ pui["run"] = function(config) {
       if (window.opener && window.opener.pui && window.opener.pui.nodedesigner) dummySubmit = true;
       if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) dummySubmit = true;
       if (dummySubmit) {
-        pui.handler = function(response) {
+        pui.handler = function (response) {
           ajaxJSON({
             "url": "/profoundui/dummy_submit",
             "method": "post",
             "params": response,
             "sendAsBinary": false,
             "suppressAlert": true,
-            "handler": function() {
-               document.body.innerHTML = '<br/><br/>Preview screen submitted.';
+            "handler": function () {
+              document.body.innerHTML = "<br/><br/>Preview screen submitted.";
             },
-            "onfail": function() {
-               document.body.innerHTML = '<br/><br/>Preview screen submitted.';
+            "onfail": function () {
+              document.body.innerHTML = "<br/><br/>Preview screen submitted.";
             }
           });
         };
@@ -5164,12 +5021,11 @@ pui["run"] = function(config) {
       }
       // If any items depend on external files, wait for those to load before
       // rendering. Without dependencies, pui.render is called without waiting.
-      pui.loadDependencyFiles(preview, function(){ pui.render(preview); });
+      pui.loadDependencyFiles(preview, function () { pui.render(preview); });
     }
   }
   else {
-
-    // get puiRefreshId cookie 
+    // get puiRefreshId cookie
     var puiRefreshId = pui["getCookie"]("puiRefreshId");
     if (puiRefreshId != null) {
       // delete the cookie
@@ -5181,10 +5037,10 @@ pui["run"] = function(config) {
       url += "/" + puiRefreshId;
     }
 
-    if (pui.recordTest) pui.recording["payloads"].push({
+    if (pui.recordTest) { pui.recording["payloads"].push({
       url: url,
       data: ajaxParams
-    });
+    }); }
 
     ajaxJSON({
       "url": pui.addRequestId(url),
@@ -5193,10 +5049,10 @@ pui["run"] = function(config) {
       "params": ajaxParams,
       "saveResponse": true,
       "suppressAlert": true,
-      "handler": function(parms) {
-        function loadMobileExtensionFilesCompletion() {
-          if (Array.isArray(parms["payloads"])) {  // Recording replay
-            pui.replay = parms;            
+      "handler": function (parms) {
+        function loadMobileExtensionFilesCompletion () {
+          if (Array.isArray(parms["payloads"])) { // Recording replay
+            pui.replay = parms;
             pui.replayStep = Number(config["step"]);
             if (!pui.replayStep || isNaN(pui.replayStep)) pui.replayStep = 1;
             var container = parms.container;
@@ -5218,16 +5074,16 @@ pui["run"] = function(config) {
         // before rendering. Otherwise, pui.render is called without waiting.
         pui.loadDependencyFiles(parms, loadDependencyFilesCompletion);
       },
-      "onfail": function(req) {
+      "onfail": function (req) {
         pui.hideWaitAnimation();
-        setTimeout(function() {
+        setTimeout(function () {
           if (pui["onoffline"] == null) {
             if (!pui["suppress comm errors"])
-              pui.alert(pui.getNoConnectionMessage(req));
+            { pui.alert(pui.getNoConnectionMessage(req)); }
             if (pui["is_touch"]) {
-              setTimeout(function() {
+              setTimeout(function () {
                 if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
-                  navigator["app"]["exitApp"](); 
+                  navigator["app"]["exitApp"]();
                 }
               }, 500);
             }
@@ -5241,7 +5097,7 @@ pui["run"] = function(config) {
   }
 };
 
-pui["signon"] = function(config) {
+pui["signon"] = function (config) {
   var mobile = (config["mobile"] === true);
   var screenshot = (config["screenshot"] === true);
   var container = config["container"];
@@ -5264,32 +5120,32 @@ pui["signon"] = function(config) {
   pui.assignUnloadEvents();
   container.setAttribute("tabindex", "0");
   pui.runtimeContainer = container;
-  if (pui.observer == null) pui.showWaitAnimation();  
+  if (pui.observer == null) pui.showWaitAnimation();
   var url = getProgramURL("PUI0001200.pgm");
-  
+
   // New -- provide program parameter also for signed in sessions.
   var program = "";
   var library = "";
-  if (typeof(config["program"]) != "undefined") {
+  if (typeof (config["program"]) != "undefined") {
     library = "*LIBL";
     var progParts = config["program"].split("/");
     if (progParts.length == 2) {
       library = progParts[0];
       program = progParts[1];
-    } 
+    }
   }
-  
+
   var ajaxParams = {
     "signon": "1",
     "program": program.toUpperCase(),
-    "library": library.toUpperCase(),    
+    "library": library.toUpperCase(),
     "init": "1",
     "pathname": location.pathname,
     "debug": debug,
     "log": log,
     "plog": plog,
     "workstnid": workstnid,
-    "atrium_item": atriumitem    
+    "atrium_item": atriumitem
   };
   if (config["lang"] != null && config["lang"] != "") {
     ajaxParams["lang"] = config["lang"];
@@ -5298,7 +5154,7 @@ pui["signon"] = function(config) {
     ajaxParams["workspace_id"] = pui.cloud.ws.id;
     ajaxParams["workspace_url"] = location.href;
     if (screenshot) ajaxParams["screenshot"] = "1";
-  }  
+  }
   if (config["suffixid"] == "1") {
     ajaxParams["suffixid"] = "1";
   }
@@ -5317,7 +5173,7 @@ pui["signon"] = function(config) {
     }
   }
 
-  // get puiRefreshId cookie 
+  // get puiRefreshId cookie
   var puiRefreshId = pui["getCookie"]("puiRefreshId");
   if (puiRefreshId != null) {
     // delete the cookie
@@ -5331,10 +5187,10 @@ pui["signon"] = function(config) {
 
   if (pui.observer != null) return;
 
-  if (pui.recordTest) pui.recording["payloads"].push({
+  if (pui.recordTest) { pui.recording["payloads"].push({
     url: url,
     data: ajaxParams
-  });
+  }); }
 
   ajaxJSON({
     "url": pui.addRequestId(url),
@@ -5343,23 +5199,23 @@ pui["signon"] = function(config) {
     "params": ajaxParams,
     "saveResponse": true,
     "suppressAlert": true,
-    "handler": function(parms) {
+    "handler": function (parms) {
       parms.container = container;
-      
+
       // If any items depend on external files, wait for those to load before
       // rendering. Otherwise, pui.render is called without waiting.
-      pui.loadDependencyFiles(parms, function(){ pui.render(parms); });
+      pui.loadDependencyFiles(parms, function () { pui.render(parms); });
     },
-    "onfail": function(req) {
+    "onfail": function (req) {
       pui.hideWaitAnimation();
-      setTimeout(function() {
+      setTimeout(function () {
         if (pui["onoffline"] == null) {
           if (!pui["suppress comm errors"])
-            pui.alert(pui.getNoConnectionMessage(req));
+          { pui.alert(pui.getNoConnectionMessage(req)); }
           if (pui["is_touch"]) {
-            setTimeout(function() {
+            setTimeout(function () {
               if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
-                navigator["app"]["exitApp"](); 
+                navigator["app"]["exitApp"]();
               }
             }, 500);
           }
@@ -5372,9 +5228,7 @@ pui["signon"] = function(config) {
   });
 };
 
-
-pui.runMVC = function(response) {
-
+pui.runMVC = function (response) {
   response["profoundui"] = "1";
   ajaxJSON({
     "url": pui.normalizeURL(pui["controller"]),
@@ -5383,18 +5237,18 @@ pui.runMVC = function(response) {
     "sendAsBinary": false,
     "saveResponse": true,
     "suppressAlert": true,
-    "handler": function(parms) {
+    "handler": function (parms) {
       if (parms == null) {
-        document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '<br/><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
-        pui.closeSession();   //Without this, a parent atrium tab can't be closed by clicking [x].
+        document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + "<br/><br/>" + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
+        pui.closeSession(); // Without this, a parent atrium tab can't be closed by clicking [x].
         return;
-      }        
+      }
       parms.container = pui.runtimeContainer;
 
       var data = parms["data"];
       if (data == null) data = {};
-      if (parms["view"] != null) {   // view changed by controller
-        pui["view"] = parms["view"]; 
+      if (parms["view"] != null) { // view changed by controller
+        pui["view"] = parms["view"];
       }
       if (parms["redirect"] != null) {
         location.href = parms["redirect"];
@@ -5417,25 +5271,24 @@ pui.runMVC = function(response) {
       pui.show({
         "path": pui.normalizeURL(pui["view"]),
         "data": data,
-        "format": format,  // if not specified, the first format is used
+        "format": format, // if not specified, the first format is used
         "formats": formats,
         "appJob": appJob,
-        "handler": function(response) {
+        "handler": function (response) {
           pui.runMVC(response);
         }
       });
     },
-    "onfail": function(req) {
+    "onfail": function (req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation();
       pui.resetResponseValues();
       if (pui["onoffline"] != null) pui["onoffline"]();
-    }      
+    }
   });
-
 };
 
-pui.start = function() {
+pui.start = function () {
   pui.startMouseCapableMonitoring();
   var parms = getQueryStringParms();
   pui.canvasSize = parms["canvasSize"];
@@ -5472,9 +5325,9 @@ pui.start = function() {
     params["p" + i] = parmValue;
     params["l" + i] = parmLen;
   }
-  
+
   if (controller != null) pui["controller"] = controller;
-  
+
   if (pui["controller"] != null) {
     addEvent(document.body, "keydown", pui.handleHotKey);
     addEvent(document.body, "help", pui.handleF1);
@@ -5482,15 +5335,15 @@ pui.start = function() {
     pui.runMVC({});
     return;
   }
-  
+
   var config = {
-    "container": container, 
-    "debug": debug, 
-    "log": log, 
+    "container": container,
+    "debug": debug,
+    "log": log,
     "plog": plog,
     "workstnid": workstnid,
     "suffixid": suffixid,
-    "duplicateid": duplicateid,    
+    "duplicateid": duplicateid,
     "mobile": mobile,
     "screenshot": screenshot,
     "params": params,
@@ -5499,16 +5352,16 @@ pui.start = function() {
     "renderLog": pui.renderLog
   };
   if (program == null && jsonURL == null && replay == null && mode == null) {
-    // Signed in session. Look for Atrium item 
+    // Signed in session. Look for Atrium item
     // and initial program request.
     if (atriumItem != null) {
-      config["atrium_item"] = atriumItem; 
+      config["atrium_item"] = atriumItem;
     }
     else if (initPgm != null) {
       config["program"] = initPgm;
-    }  
+    }
     pui["signon"](config);
-  }  
+  }
   else {
     config["program"] = program;
     if (jsonURL != null) config["jsonURL"] = jsonURL;
@@ -5516,24 +5369,23 @@ pui.start = function() {
     if (step != null) config["step"] = step;
     if (mode != null) config["mode"] = mode;
     if (config["mode"] === "preview")
-      config["previewTab"] = parms["previewTab"];
+    { config["previewTab"] = parms["previewTab"]; }
     pui["run"](config);
   }
 };
 
-pui.newSession = function() {
+pui.newSession = function () {
   window.location.reload();
 };
 
-pui.closeSession = function() {
-
+pui.closeSession = function () {
   if (window.parent != window && pui.checkForAtrium(window.parent)) {
-    window["Atrium"]["closeTab"]();  
+    window["Atrium"]["closeTab"]();
     return;
   }
-  
-  var parentAccessible = pui.windowAccessible(window.parent); //Avoid exception when session is in iframe in different origin than parent. #5165.
-  
+
+  var parentAccessible = pui.windowAccessible(window.parent); // Avoid exception when session is in iframe in different origin than parent. #5165.
+
   if (window.parent != window && parentAccessible && window.parent.pui && window.parent.pui["isCloud"]) {
     var ext = window.parent["Ext"];
     if (ext && ext["getCmp"]) {
@@ -5546,46 +5398,40 @@ pui.closeSession = function() {
       }
     }
   }
-  
+
   if (window.parent != window && parentAccessible && window.parent.noderun && typeof window.parent.noderun["stopApp"] === "function") {
     window.parent.noderun["stopApp"]();
     return;
   }
- 
-  document.body.innerHTML = '<div id="close-browser-msg" style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + '</div>';
-  
-  // This can throw an exception in some older releases of FireFox 3 when attempting to 
+
+  document.body.innerHTML = '<div id="close-browser-msg" style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
+
+  // This can throw an exception in some older releases of FireFox 3 when attempting to
   // close a window that was not opened through scripting.
   try {
     window.close();
   }
-  catch(e) {
+  catch (e) {
   }
 
   // Uncomment this to restore the previous behavior of pui.closeSession() terminating the Android mobile client app.
   // if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
-  //   navigator["app"]["exitApp"](); 
+  //   navigator["app"]["exitApp"]();
   // }
 
   // If mobile client, restart the webview and return to the connections screen
   if (window["puiMobileClient"] != null) {
     window.location.href = "index.html";
-    return;
   }
 };
 
-
-
-
 // Mask the screen
-pui["maskScreen"] = function(parms) {
-
+pui["maskScreen"] = function (parms) {
   var bodyWidth = document.documentElement.clientWidth - 2;
   var bodyHeight = document.documentElement.clientHeight - 2;
   if (bodyWidth < 0) bodyWidth = 0;
   if (bodyHeight < 0) bodyHeight = 0;
-  
-  
+
   var maskDiv;
   if (pui.maskDiv == null) {
     maskDiv = document.createElement("div");
@@ -5596,23 +5442,21 @@ pui["maskScreen"] = function(parms) {
     maskDiv = pui.maskDiv;
   }
   pui.runtimeContainer.appendChild(maskDiv);
-  
+
   maskDiv.isPUIWindowMask = true;
   maskDiv.style.position = "absolute";
   maskDiv.style.padding = "0px";
-  
-  
- 
+
   maskDiv.style.left = "0px";
   maskDiv.style.top = "0px";
   if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
     maskDiv.style.display = "none";
-    setTimeout(function() {
-      //maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
-      //maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
+    setTimeout(function () {
+      // maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
+      // maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
 	  var runtimePosition = getDivPosition(pui.runtimeContainer);
-	  maskDiv.style.left = (0-runtimePosition.x) + "px";
-      maskDiv.style.top = (0-runtimePosition.y) + "px";
+	  maskDiv.style.left = (0 - runtimePosition.x) + "px";
+      maskDiv.style.top = (0 - runtimePosition.y) + "px";
       maskDiv.style.display = "";
     }, 0);
   }
@@ -5626,91 +5470,80 @@ pui["maskScreen"] = function(parms) {
   maskDiv.style.filter = "alpha(opacity=" + opacity + ")";
   if (typeof maskDiv.style.MozUserSelect != "undefined") maskDiv.style.MozUserSelect = "none";
 
-  
   addEvent(window, "resize", resize);
   addEvent(window, "scroll", scroll);
-  
-  
-  
- function getDivPosition(obj) {
-    var pos = {'x':0,'y':0};
-    if(obj.offsetParent) {
-        while(1) {
-          pos.x += obj.offsetLeft;
-          pos.y += obj.offsetTop;
-          if(!obj.offsetParent) {
-            break;
-          }
-          obj = obj.offsetParent;
+
+  function getDivPosition (obj) {
+    var pos = { "x": 0, "y": 0 };
+    if (obj.offsetParent) {
+      while (1) {
+        pos.x += obj.offsetLeft;
+        pos.y += obj.offsetTop;
+        if (!obj.offsetParent) {
+          break;
         }
-    } else if(obj.x) {
-        pos.x += obj.x;
-        pos.y += obj.y;
+        obj = obj.offsetParent;
+      }
+    } else if (obj.x) {
+      pos.x += obj.x;
+      pos.y += obj.y;
     }
     if (document.documentElement.scrollHeight > document.documentElement.clientHeight) {
-      // This corrects offset position being off when this code runs during a resize while the 
-      // vertical scrollbar is present. That results in scrollbars appearing when they shouldn't 
-      // after a resize while the mask is up.  
-      // This is arbitrary, but it's not cleaer how to calculate this correctly. 
-      // This is probably "good enough" for most browsers. 
-      pos.x += 8;  
-    
+      // This corrects offset position being off when this code runs during a resize while the
+      // vertical scrollbar is present. That results in scrollbars appearing when they shouldn't
+      // after a resize while the mask is up.
+      // This is arbitrary, but it's not cleaer how to calculate this correctly.
+      // This is probably "good enough" for most browsers.
+      pos.x += 8;
     }
     return pos;
   }
-  
-  
-  
-  
-  function resize() {
-    if (pui["resizeFrequency"] != null && pui.lastResizeTime != null && (new Date).getTime() - pui.lastResizeTime < pui["resizeFrequency"]) return; 
-    pui.lastResizeTime = (new Date).getTime();
-         
+
+  function resize () {
+    if (pui["resizeFrequency"] != null && pui.lastResizeTime != null && (new Date()).getTime() - pui.lastResizeTime < pui["resizeFrequency"]) return;
+    pui.lastResizeTime = (new Date()).getTime();
+
     bodyWidth = document.documentElement.clientWidth - 2;
     bodyHeight = document.documentElement.clientHeight - 2;
-    
+
     if (maskDiv != null) {
-        maskDiv.style.height = bodyHeight + "px";
-        maskDiv.style.width = bodyWidth + "px";
+      maskDiv.style.height = bodyHeight + "px";
+      maskDiv.style.width = bodyWidth + "px";
     }
-        
+
     scroll();
   }
-  
-  function scroll() {
-    if (pui["scrollFrequency"] != null && pui.lastScrollTime != null && (new Date).getTime() - pui.lastScrollTime < pui["scrollFrequency"]) return; 
-    pui.lastScrollTime = (new Date).getTime();
+
+  function scroll () {
+    if (pui["scrollFrequency"] != null && pui.lastScrollTime != null && (new Date()).getTime() - pui.lastScrollTime < pui["scrollFrequency"]) return;
+    pui.lastScrollTime = (new Date()).getTime();
 
     var top = document.documentElement.scrollTop;
     var left = document.documentElement.scrollLeft;
-    if(!pui["is_old_ie"]) {
+    if (!pui["is_old_ie"]) {
       top = window.pageYOffset;
       left = window.pageXOffset;
-    } 
-	  var runtimePosition = getDivPosition(pui.runtimeContainer);	
+    }
+	  var runtimePosition = getDivPosition(pui.runtimeContainer);
     if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
       left -= runtimePosition.x;
       if (context == "dspf") top -= runtimePosition.y;
-      else top = -pui.runtimeContainer.offsetTop;      
+      else top = -pui.runtimeContainer.offsetTop;
     }
-      
-    if(maskDiv != null) {
+
+    if (maskDiv != null) {
       maskDiv.style.top = top + "px";
       maskDiv.style.left = left + "px";
     }
   }
-  
 };
 
-
-
-pui["unmaskScreen"] = function() {
+pui["unmaskScreen"] = function () {
   if (pui.maskDiv == null) return;
   var parent = pui.maskDiv.parentNode;
   if (parent != pui.runtimeContainer) return;
   parent.removeChild(pui.maskDiv);
 };
-
 
 /**
  * Called by pui.render when a layer is not the first.
@@ -5719,14 +5552,13 @@ pui["unmaskScreen"] = function() {
  * @param {Object} layer  The current layer being rendered in pui.render.
  * @returns {undefined}
  */
-pui.setupWindowDiv = function(parms, layer) {
-
+pui.setupWindowDiv = function (parms, layer) {
   var format = layer.formats[0];
 
   pui.hideWaitAnimation();
 
   // disable elements of background screen
-  function disableByTag(tag) {
+  function disableByTag (tag) {
     var elems = parms.container.getElementsByTagName(tag);
     for (var i = 0; i < elems.length; i++) {
       var elem = elems[i];
@@ -5735,11 +5567,11 @@ pui.setupWindowDiv = function(parms, layer) {
       elem.removeAttribute("id");
       elem.disabled = true;
       elem.readOnly = true;
-      
-      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function"){
+
+      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function") {
         elem.layoutT.sentToBackground();
       }
-    }        
+    }
   }
   disableByTag("a");
   disableByTag("input");
@@ -5748,19 +5580,17 @@ pui.setupWindowDiv = function(parms, layer) {
   disableByTag("select");
   disableByTag("textarea");
 
-  
   var maskScreenValue;
   if (format != null) {
     maskScreenValue = pui.evalBoundProperty(format.metaData.screen["mask screen"], format.data, format.ref);
   }
   var maskScreen = true;
   if (maskScreenValue == "false") maskScreen = false;
-  
+
   if (maskScreen) {
     // mask screen
     pui["maskScreen"](parms);
   }
-
 
   var windowDiv = document.createElement("div");
   pui.windowZIndex++;
@@ -5792,7 +5622,7 @@ pui.setupWindowDiv = function(parms, layer) {
     top = top + "px";
     pui.populateWindowTopLeft = false;
   }
-  
+
   windowDiv.style.left = left;
   windowDiv.style.top = top;
   windowDiv.isPUIWindow = true;
@@ -5800,41 +5630,41 @@ pui.setupWindowDiv = function(parms, layer) {
   pui.runtimeContainer.appendChild(windowDiv);
   parms.container = windowDiv;
   pui.lastWindow = windowDiv;
-}; 
+};
 
 /**
  * Adjusts the left and top position of pui.lastWindow to be centered on the
  * screen. pui.lastWindow should be the window most recently added.
- * 
+ *
  * See issues 1430 and 1786 for example test cases if you change this function.
- * 
+ *
  * @returns {undefined}
  */
-pui.centerWindow = function() {
+pui.centerWindow = function () {
   // get dimensions of current window:
   var windowDims = pui.getDimensions(pui.lastWindow);
-  
+
   // Starting with pui.runtimeContainer, which is first in windowStack, find
   // a window that has a size to it.
   // Centering will happen on that "screen" size.
   var screenDims;
-  for (var w=0; w < pui.windowStack.length; w++) {
+  for (var w = 0; w < pui.windowStack.length; w++) {
     screenDims = pui.getDimensions(pui.windowStack[w]);
-    if (screenDims.x1!=screenDims.x2 && screenDims.y1!=screenDims.y2) break;
+    if (screenDims.x1 != screenDims.x2 && screenDims.y1 != screenDims.y2) break;
   }
-  
+
   // calculate centering:
-  
+
   var left = parseInt((screenDims.x2 - (windowDims.x2 - windowDims.x1)) / 2) - windowDims.x1;
   var top = parseInt((screenDims.y2 - (windowDims.y2 - windowDims.y1)) / 2) - windowDims.y1;
-  
+
   if (left < -windowDims.x1) left = -windowDims.x1;
   if (top < -windowDims.y1) top = -windowDims.y1;
   pui.lastWindow.style.left = left + "px";
   pui.lastWindow.style.top = top + "px";
 };
 
-pui.getDimensions = function(screen) {
+pui.getDimensions = function (screen) {
   var dims = {
     x1: 99999,
     y1: 99999,
@@ -5869,10 +5699,9 @@ pui.getDimensions = function(screen) {
   return dims;
 };
 
-
-pui.showMessageSubfileHelp = function(textObj) {
+pui.showMessageSubfileHelp = function (textObj) {
   // Allow the helpWindowDiv to be seen again when it is detached from the DOM but it and its parent aren't null. Issue 2992.
-  if (pui.messageSubfileHelpWindowDiv != null && !document.body.contains(pui.messageSubfileHelpWindowDiv)){
+  if (pui.messageSubfileHelpWindowDiv != null && !document.body.contains(pui.messageSubfileHelpWindowDiv)) {
     pui.messageSubfileHelpWindowDiv = null;
   }
 
@@ -5885,39 +5714,39 @@ pui.showMessageSubfileHelp = function(textObj) {
   var textId = textObj.id;
   var suffix = textId.substr(textId.indexOf("."));
   var prefix = "_msgsfl";
-  
+
   var id = get(prefix + "id" + suffix);
-  
+
   var date = get(prefix + "date" + suffix);
-  if (date.length == 7 && date.substr(0,1) == "1") {
+  if (date.length == 7 && date.substr(0, 1) == "1") {
     date = "20" + date.substr(1);
-    var year = Number(date.substr(0,4));
-    var month = Number(date.substr(4,2)) - 1;
-    var day = Number(date.substr(6,2));
+    var year = Number(date.substr(0, 4));
+    var month = Number(date.substr(4, 2)) - 1;
+    var day = Number(date.substr(6, 2));
     var dateObj = new Date(year, month, day);
     var dateFormat = pui.appJob.dateFormat;
     if (dateFormat == "") dateFormat = "*ISO";
     var keyword = pui.formatting.keywords.DATFMT[dateFormat];
     var dispFormat = keyword.pattern.replace(/\B/g, pui.appJob.dateSeparator);
-    date = dateObj.format(dispFormat, 'en_US');
+    date = dateObj.format(dispFormat, "en_US");
   }
-  
+
   var time = get(prefix + "time" + suffix);
   var tSep = pui.appJob["timeSeparator"];
   if (tSep == null) tSep = ".";
-  time = time.substr(0,2) + tSep + time.substr(2,2) + tSep + time.substr(4,2);
-  
+  time = time.substr(0, 2) + tSep + time.substr(2, 2) + tSep + time.substr(4, 2);
+
   var text = textObj.innerHTML;
-  
+
   var help = get(prefix + "help" + suffix);
   help = help.replace(/&amp;N/g, "<br/><br/>");
   help = help.replace("Cause . . . . . :", "<strong>Cause:</strong>");
   help = help.replace("Recovery  . . . :", "<strong>Recovery:</strong>");
   help = help.trim();
-  if (help && help.substr(0, 1) !== "<") {  // no markup already added
+  if (help && help.substr(0, 1) !== "<") { // no markup already added
     help = "<br/><br/><strong>Additional Information:</strong> " + help;
   }
-  
+
   var content = '<div class="pui-sflmsg-panel-heading"><strong>Additional Message Information</strong></div>';
   content += '<div class="pui-sflmsg-panel-content">';
   content += "<strong>Message Id:</strong> " + id + "<br/><br/>";
@@ -5926,24 +5755,24 @@ pui.showMessageSubfileHelp = function(textObj) {
   content += help;
   content += "<br/><br/>";
   content += "</div>";
-  
+
   var gridObj = textObj.parentNode.parentNode;
   var top = parseInt(gridObj.style.top);
   var left = parseInt(gridObj.style.left);
   left += 3;
   var node = gridObj.parentNode;
-  while (node && node !== pui.runtimeContainer && node !== document.body) {    
+  while (node && node !== pui.runtimeContainer && node !== document.body) {
     top += node.offsetTop;
     left += node.offsetLeft;
     node = node.offsetParent;
-  }  
+  }
 
   var minWidth = 600;
   var width = gridObj.clientWidth - 25;
   if (width < minWidth) {
     width = minWidth;
   }
-  
+
   var div;
   if (pui.messageSubfileHelpWindowDiv == null || pui.messageSubfileHelpWindowDiv.parentNode == null) {
     div = document.createElement("div");
@@ -5962,8 +5791,8 @@ pui.showMessageSubfileHelp = function(textObj) {
   closeButton.style.position = "absolute";
   closeButton.style.top = "3px";
   closeButton.style.right = "2px";
-  closeButton.className = "pui-sflmsg-panel-close-button";  
-  closeButton.onclick = function() {
+  closeButton.className = "pui-sflmsg-panel-close-button";
+  closeButton.onclick = function () {
     div.style.display = "none";
     if (div.parentNode) div.parentNode.removeChild(div);
   };
@@ -5972,15 +5801,14 @@ pui.showMessageSubfileHelp = function(textObj) {
   if (top < 5) top = 5;
   div.style.top = top + "px";
   div.appendChild(closeButton);
-  
+
   pui.messageSubfileHelpWindowDiv = div;
-  
 };
 
-pui.setActiveElement = function(e) {
+pui.setActiveElement = function (e) {
   var target = getTarget(e);
-  if (!(target.tagName=="INPUT" && target.type=="button"))
-    pui.activeElement = target;
+  if (!(target.tagName == "INPUT" && target.type == "button"))
+  { pui.activeElement = target; }
   var dom = target;
   if (dom.parentNode && dom.parentNode.comboBoxWidget) dom = dom.parentNode;
   if (dom.parentNode && dom.parentNode.floatingPlaceholder) dom = dom.parentNode;
@@ -5993,12 +5821,10 @@ pui.setActiveElement = function(e) {
         grid.setCursorRRN(cell.row);
       }
     }
-  }     
-    
+  }
 };
 
-
-pui.returnCursor = function(e, dom) {
+pui.returnCursor = function (e, dom) {
   var target;
   if (e != null) target = getTarget(e);
   if (dom != null) target = dom;
@@ -6016,10 +5842,10 @@ pui.returnCursor = function(e, dom) {
   if (elem.parentNode != null && elem.parentNode.comboBoxWidget != null) elem = elem.parentNode;
   if (elem.parentNode != null && elem.parentNode.floatingPlaceholder != null) elem = elem.parentNode;
   if (elem.tagName == "OPTION" && elem.parentNode.tagName == "SELECT") elem = elem.parentNode;
-  if (elem.tagName == "IMG" && elem.parentNode.tagName == "BUTTON"){
+  if (elem.tagName == "IMG" && elem.parentNode.tagName == "BUTTON") {
     elem = elem.parentNode;
     isButton = true;
-  } 
+  }
   pui.cursorValues.record = elem.cursorRecord;
   pui.cursorValues.field = elem.cursorField;
   var pos = getCursorPosition(target) + 1;
@@ -6037,7 +5863,7 @@ pui.returnCursor = function(e, dom) {
       if (!isNaN(winTop) && winTop > 0) {
         pui.cursorValues.wrow = pui.cursorValues.row;
         if (pui.cursorValues.row != null) pui.cursorValues.row = Number(pui.cursorValues.row) + winTop;
-        //pui.cursorValues.wrow = winTop;
+        // pui.cursorValues.wrow = winTop;
       }
     }
   }
@@ -6053,13 +5879,13 @@ pui.returnCursor = function(e, dom) {
   if (winLeft != null) {
     if (winLeft.length <= 2 || winLeft.substr(winLeft.length - 2) != "px") {
       winLeft = Number(winLeft);
-      //if (!isNaN(winLeft) && winLeft > 0) {
+      // if (!isNaN(winLeft) && winLeft > 0) {
       //  pui.cursorValues.wcolumn = winLeft;
-      //}
+      // }
     }
   }
 
-  if (elem.cursorColumn == null) { 
+  if (elem.cursorColumn == null) {
     pui.cursorValues.column = null;
   }
   else {
@@ -6068,7 +5894,6 @@ pui.returnCursor = function(e, dom) {
       pui.cursorValues.wcolumn = pui.cursorValues.column;
       pui.cursorValues.column = pui.cursorValues.column + winLeft + 1;
     }
-
   }
   if (!isButton) {
     for (var i = 0; i < pui.gridsDisplayed.length; i++) {
@@ -6080,7 +5905,7 @@ pui.returnCursor = function(e, dom) {
   }
 };
 
-pui.clearCursor = function(e) {
+pui.clearCursor = function (e) {
   var clear = false;
   var target = getTarget(e);
   if (target == document.body) clear = true;
@@ -6093,8 +5918,7 @@ pui.clearCursor = function(e) {
   }
 };
 
-
-pui.applyFocusClass = function(e) {
+pui.applyFocusClass = function (e) {
   var dom = getTarget(e);
   var cssClass = dom.className;
   if (cssClass == null) cssClass = "";
@@ -6116,8 +5940,7 @@ pui.applyFocusClass = function(e) {
   }
 };
 
-
-pui.removeFocusClass = function(e) {
+pui.removeFocusClass = function (e) {
   var dom = getTarget(e);
   var cssClass = dom.className;
   if (cssClass == null) cssClass = "";
@@ -6139,8 +5962,7 @@ pui.removeFocusClass = function(e) {
   }
 };
 
-
-pui.autoAdvanceOnKeyUp = function(event) {
+pui.autoAdvanceOnKeyUp = function (event) {
   event = event || window.event;
   var target = getTarget(event);
   // Do not auto-enter unless a printable character is typed in.
@@ -6157,8 +5979,7 @@ pui.autoAdvanceOnKeyUp = function(event) {
   }
 };
 
-
-pui.translateDataType = function(dtype) {
+pui.translateDataType = function (dtype) {
   switch (dtype) {
     case 0: return "char";
     case 7: return "zoned";
@@ -6172,96 +5993,92 @@ pui.translateDataType = function(dtype) {
   }
 };
 
-
-pui.gotoNextElementAndPossiblySelect = function(target) {
-    
-  function findNextObj(obj) {
+pui.gotoNextElementAndPossiblySelect = function (target) {
+  function findNextObj (obj) {
 	  var beforeElements = [];
 	  var afterElements = [];
-	  
+
 	  var allInputs = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
 	  var element = null;
 	  var objIdx = null;
-	  for(var iCnt=0;iCnt<allInputs.length;iCnt++){
+	  for (var iCnt = 0; iCnt < allInputs.length; iCnt++) {
 		  element = allInputs[iCnt];
-		  
+
 		  // 1. We don't need to keep track of current obj.
 		  // 2. We don't care about hidden, readonly or not focusable elements (this will not drop all 100% of them... but close)
 		  // 3. We want the element in the propery order (starting at current Obj)
 		  if (element == obj) objIdx = iCnt;
-		  else if (!element.clientHeight || !element.clientWidth || element.readOnly == "true" || element.disabled == "true" || element.tabIndex == "-1" ) continue;
+		  else if (!element.clientHeight || !element.clientWidth || element.readOnly == "true" || element.disabled == "true" || element.tabIndex == "-1") continue;
 		  else if (!objIdx) beforeElements.push(element);
 		  else afterElements.push(element);
 	  }
-	  
+
 	  // We want the afterElements to be before the beforeElements (so that it is in the proper order from current obj)
 	  var allElements = afterElements.concat(beforeElements);
 	  // Whatever the first element is, should be the next element we take them to...
 	  if (allElements.length > 0)
-		  return allElements[0];
-	  
+		  { return allElements[0]; }
+
 	  return null;
   }
-  
+
   var nextObj = target;
-  
+
   while ((nextObj = findNextObj(nextObj)) != null) {
-  
     var nextObjBox = nextObj;
     if (nextObj != null && nextObj.comboBoxWidget != null) nextObjBox = nextObj.comboBoxWidget.getBox();
     if (nextObj != null && nextObj.floatingPlaceholder != null) nextObjBox = nextObj.floatingPlaceholder.getBox();
-  
+
     var tag = nextObjBox.tagName;
     if (tag == "INPUT" || tag == "SELECT" || tag == "TEXTAREA" || tag == "A") {
-      if (!nextObjBox.readOnly && !nextObjBox.disabled && nextObj.style.visibility != "hidden" && nextObjBox.tabIndex != "-1" ) {
+      if (!nextObjBox.readOnly && !nextObjBox.disabled && nextObj.style.visibility != "hidden" && nextObjBox.tabIndex != "-1") {
         try {
           nextObjBox.focus();
           // If the element we are trying to force focus doesn't get focus -- then it has something else causing this field to not allow it to be focused
           // This should catch 100% of the other causes.
           if (document.activeElement != nextObjBox)
-        	  continue;
+        	  { continue; }
           if (pui["highlight on focus"]) nextObjBox.select();
-          setTimeout(function() {
+          setTimeout(function () {
             pui.returnCursor(null, nextObjBox);
           }, 0);
         }
-        catch(e) {}
+        catch (e) {}
         break;
       }
     }
-    
   }
 };
 
-pui.positionIsCalc= function(position){
+pui.positionIsCalc = function (position) {
   var isCalc = position.search(/calc/i);
   if (isCalc >= 0) return true;
   else return false;
-}
+};
 
-pui.getCalcValue = function(domElement,position){
+pui.getCalcValue = function (domElement, position) {
   // TODO: Get the values of percent.
   // TODO: calculate for the base PX.
   var positionValue;
   var parentSpread;
-  if (position == 'left' || position == 'right') {
+  if (position == "left" || position == "right") {
     positionValue = domElement.style[position];
     parentSpread = domElement.parentNode.offsetWidth;
   }
-  if (position == 'bottom' || position == 'top') {
+  if (position == "bottom" || position == "top") {
     positionValue = domElement.style[position];
     parentSpread = domElement.parentNode.offsetHeight;
   }
   var value;
   // TODO: remove the "calc","(" and ")"
-  value = positionValue.replace(/calc|[{()}]/gi,"");
+  value = positionValue.replace(/calc|[{()}]/gi, "");
   // Divide the current value into 3. 1st value ( percent ), operand (+, -, *, /), 2nd value
   value = value.split(" ");
   // Value 0 is the first value, 1 is the operand and 2 is the 2nd value
   // Only passed 1 value (might be uneccessary but gonna put it anyway.)
   if (value.length < 2) {
-    if (value[0].search("%") >= 0 ) {
-      return pui.measurementInPixel(value[0],parentSpread);
+    if (value[0].search("%") >= 0) {
+      return pui.measurementInPixel(value[0], parentSpread);
     }
     return pui.measurementInPixel(value[0]);
   }
@@ -6269,35 +6086,35 @@ pui.getCalcValue = function(domElement,position){
   var secondValue;
   var operand = value[1];
   // Calculate
-    // Get percent in decimal.
-      // Check if Percent 
-  if (value[0].search("%") >= 0 ) {
+  // Get percent in decimal.
+  // Check if Percent
+  if (value[0].search("%") >= 0) {
     // Example 50% will be ( 50/100 = 0.5 (value as decimal) * parentWidth )
-    firstValue = pui.measurementInPixel(value[0],parentSpread);
+    firstValue = pui.measurementInPixel(value[0], parentSpread);
   }
-  else{
+  else {
     firstValue = pui.measurementInPixel(value[0]);
   }
   secondValue = pui.measurementInPixel(value[2]);
-  return eval(firstValue + operand + secondValue)
-}
-pui.measurementInPixel = function (value,parentSpread) {
+  return eval(firstValue + operand + secondValue);
+};
+pui.measurementInPixel = function (value, parentSpread) {
   // Default value on parameters does not work on compilation.
   // If percent the parentSpread ( total width or height of the parent ) is required.
-  if (value.search("%") >= 0 ) {
+  if (value.search("%") >= 0) {
     // no parentSpread, do nothing
     if (!parentSpread) return null;
-    return Math.round((parseInt(value)/100) * parseInt(parentSpread) );
+    return Math.round((parseInt(value) / 100) * parseInt(parentSpread));
   }
   // Rem is reliant on font-size of the html while em is reliant on the parent div.
-    // setting the value of 16 seems to work okay.
-  if (value.search(/rem/i) >= 0 || value.search(/em/i) >= 0 ) {
+  // setting the value of 16 seems to work okay.
+  if (value.search(/rem/i) >= 0 || value.search(/em/i) >= 0) {
     return parseInt(parseInt(value) * 16);
-  }else {
+  } else {
     return parseInt(value);
   }
-}
-pui.goToClosestElement = function(baseElem, direction) {
+};
+pui.goToClosestElement = function (baseElem, direction) {
   if (baseElem.parentNode.comboBoxWidget != null) baseElem = baseElem.parentNode;
   if (baseElem.parentNode.floatingPlaceholder != null) baseElem = baseElem.parentNode;
   var parentWidth = baseElem.parentNode.offsetWidth;
@@ -6305,15 +6122,15 @@ pui.goToClosestElement = function(baseElem, direction) {
   // TODO: Check for the "calc"
   // TODO: condition if it has calc.
   // Get the value of baseX
-  var baseX = pui.positionIsCalc(baseElem.style.left) ? pui.getCalcValue(baseElem,'left') : pui.measurementInPixel(baseElem.style.left,parentWidth);
+  var baseX = pui.positionIsCalc(baseElem.style.left) ? pui.getCalcValue(baseElem, "left") : pui.measurementInPixel(baseElem.style.left, parentWidth);
   if (isNaN(baseX)) return null;
   // Get the value of baseY
-  var baseY = pui.positionIsCalc(baseElem.style.top) ? pui.getCalcValue(baseElem,'top') : pui.measurementInPixel(baseElem.style.top,parentHeight);
+  var baseY = pui.positionIsCalc(baseElem.style.top) ? pui.getCalcValue(baseElem, "top") : pui.measurementInPixel(baseElem.style.top, parentHeight);
   if (isNaN(baseY)) return null;
   // Get the parent of the inputs
   var container = baseElem.parentNode;
   var gridDom = container.parentNode;
-  if (gridDom.grid != null) {  // the base element is within a grid
+  if (gridDom.grid != null) { // the base element is within a grid
     var cellX = parseInt(baseElem.parentNode.style.left);
     if (isNaN(cellX)) return null;
     var cellY = parseInt(baseElem.parentNode.style.top);
@@ -6326,19 +6143,19 @@ pui.goToClosestElement = function(baseElem, direction) {
     baseY += cellY + gridY;
     container = gridDom.parentNode;
   }
-  
+
   var curElem = null;
   var curXDiff = 99999;
   var curYDiff = 99999;
   var elems = [];
   // Function to add elements/inputs in the elems variable.
-  function addElemsByTag(tag) {
+  function addElemsByTag (tag) {
     var elemsForThisTag = container.getElementsByTagName(tag);
     var elem;
     for (var i = 0; i < elemsForThisTag.length; i++) {
       elem = elemsForThisTag[i];
-      if (elem.tagName == "A" && elem.parentNode.pui != null && elem.parentNode.pui.properties != null && elem.parentNode.pui.properties["field type"] == "hyperlink" && elem.parentNode.tabIndex == -1 ){
-        continue; //Hyperlink widgets are A wrapped in DIV with tabIndex set on the DIV. Make sure to see the tabIndex. #4771.
+      if (elem.tagName == "A" && elem.parentNode.pui != null && elem.parentNode.pui.properties != null && elem.parentNode.pui.properties["field type"] == "hyperlink" && elem.parentNode.tabIndex == -1) {
+        continue; // Hyperlink widgets are A wrapped in DIV with tabIndex set on the DIV. Make sure to see the tabIndex. #4771.
       }
       if ((elem.tagName.toUpperCase() == "INPUT" && elem.type.toUpperCase() == "BUTTON") || elem.tabIndex == -1) continue;
       elems.push(elem);
@@ -6348,7 +6165,7 @@ pui.goToClosestElement = function(baseElem, direction) {
   addElemsByTag("select");
   addElemsByTag("textarea");
   addElemsByTag("a");
-  
+
   for (var i = 0; i < elems.length; i++) {
     var elem = elems[i];
     if (elem.readOnly || elem.disabled || elem.style.visibility == "hidden" || elem.parentNode.style.visibility == "hidden") continue;
@@ -6360,15 +6177,15 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (elem.parentNode.floatingPlaceholder != null) mainElem = elem.parentNode;
     // if (pui.positionIsCalc(mainElem.style.left)) var x = pui.getCalcValue(mainElem,'left')
     // else var x = pui.measurementInPixel(mainElem.style.left,parentWidth);
-    var x = pui.positionIsCalc(mainElem.style.left) ? pui.getCalcValue(mainElem,'left') : pui.measurementInPixel(mainElem.style.left,parentWidth);
+    var x = pui.positionIsCalc(mainElem.style.left) ? pui.getCalcValue(mainElem, "left") : pui.measurementInPixel(mainElem.style.left, parentWidth);
     if (isNaN(x)) continue;
     // if (pui.positionIsCalc(mainElem.style.top)) var y = pui.getCalcValue(mainElem,'top')
     // else var y = pui.measurementInPixel(mainElem.style.top,parentHeight);
-    var y = pui.positionIsCalc(mainElem.style.top) ? pui.getCalcValue(mainElem,'top') : pui.measurementInPixel(mainElem.style.top,parentHeight);
+    var y = pui.positionIsCalc(mainElem.style.top) ? pui.getCalcValue(mainElem, "top") : pui.measurementInPixel(mainElem.style.top, parentHeight);
 
     if (isNaN(y)) continue;
     gridDom = mainElem.parentNode.parentNode;
-    if (gridDom.grid != null) {  // the element is within a grid
+    if (gridDom.grid != null) { // the element is within a grid
       var cellX = parseInt(mainElem.parentNode.style.left);
       if (isNaN(cellX)) return null;
       var cellY = parseInt(mainElem.parentNode.style.top);
@@ -6390,7 +6207,7 @@ pui.goToClosestElement = function(baseElem, direction) {
       }
     }
     if ((direction == "right" && x > baseX) || (direction == "left" && baseX > x)) {
-      if (yDiff <=3 && xDiff < curXDiff) {
+      if (yDiff <= 3 && xDiff < curXDiff) {
         curElem = elems[i];
         curXDiff = xDiff;
         curYDiff = yDiff;
@@ -6401,35 +6218,32 @@ pui.goToClosestElement = function(baseElem, direction) {
     try {
       curElem.focus();
       if (pui["highlight on focus"]) curElem.select();
-      setTimeout(function() {
+      setTimeout(function () {
         pui.returnCursor(null, curElem);
       }, 0);
     }
-    catch(e) {}
+    catch (e) {}
   }
 };
 
-
-pui.fieldUpper = pui.formatUpper = function(fieldName) {
+pui.fieldUpper = pui.formatUpper = function (fieldName) {
   if (fieldName == null) return "";
   if (pui.handler != null || pui.viewdesigner || pui["pjsDefaultMode"] === "case-sensitive") return fieldName;
-  else return fieldName.toUpperCase(); 
+  else return fieldName.toUpperCase();
 };
 
-
-pui.doFieldExit = function(target) {
-
+pui.doFieldExit = function (target) {
   if (!target.disabled && !target.readOnly) {
-    if ( target.tagName == "TEXTAREA" 
-       || (target.tagName == "INPUT" &&  ( target.type=="text" 
-                                        || target.type=="number" 
-                                        || target.type=="password"))) {
+    if (target.tagName == "TEXTAREA" ||
+       (target.tagName == "INPUT" && (target.type == "text" ||
+                                        target.type == "number" ||
+                                        target.type == "password"))) {
       var pos = target.cursorPosition;
       if (pui["is_touch"] && !pui["is_mouse_capable"]) {
-         pos = getCursorPosition(target);
+        pos = getCursorPosition(target);
       }
       if (pos == null) return false;
-      
+
       if (pos < 0) pos = 0;
       var value = target.value.substr(0, pos);
       if (target.rjZeroFill == true && target.maxLength != null) {
@@ -6440,11 +6254,11 @@ pui.doFieldExit = function(target) {
       var needsOnchange = (target.value !== value);
    	  target.value = value;
 	  target.modified = true;
-      if (needsOnchange && typeof target.onchange === 'function') {
+      if (needsOnchange && typeof target.onchange === "function") {
   		  target.onchange();
       }
-    } 
-  }  
+    }
+  }
 
   if (target.autoAdvance == true) {
     pui.keyName = "Enter";
@@ -6453,112 +6267,103 @@ pui.doFieldExit = function(target) {
   else {
     pui.gotoNextElementAndPossiblySelect(target);
   }
-    
+
   return false;
 };
 
-pui.translate = function(parms) {
-  
+pui.translate = function (parms) {
   // Translation map will always be sent from up-to-date backend.
-  // Allow compatability with older backend for now. 
+  // Allow compatability with older backend for now.
   pui.translationMap = parms["translations"];
   if (pui.translationMap == null) {
-    
     return;
-    
   }
-  
+
   // The map comes in UTF-16, hex encoded.
   for (var i in pui.translationMap) {
-    
     pui.translationMap[i] = pui.formatting.decodeGraphic(pui.translationMap[i]);
-    
   }
-  
+
   var msg = "";
   var layers = parms["layers"];
-  
+
   for (var iLayer = 0; iLayer < layers.length; iLayer++) {
-  
     var layer = layers[iLayer];
     var formats = layer["formats"];
-    
+
     for (var iFmt = 0; iFmt < formats.length; iFmt++) {
-      
       var format = formats[iFmt];
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
       var translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, null, screen, format["data"], format["ref"]);
-      
+
       msg += pui.doTranslate(screen, pui.translationMap, true, translationPlaceholderMap);
-      
+
       for (var iItem = 0; iItem < items.length; iItem++) {
-        
         var item = items[iItem];
-        if(!item["grid"]) { //skip items in grid now, and we will call doTranslate on them later
-          var itemTranslationPlaceholderMap = pui.buildTranslationPlaceholderMap(item, null, screen, format["data"], format["ref"]); 
+        if (!item["grid"]) { // skip items in grid now, and we will call doTranslate on them later
+          var itemTranslationPlaceholderMap = pui.buildTranslationPlaceholderMap(item, null, screen, format["data"], format["ref"]);
           msg += pui.doTranslate(item, pui.translationMap, false, itemTranslationPlaceholderMap);
         }
-      }  
-    }    
-  }
-  
-  if (msg != "") {  
-    return "Missing translation data:\n\n" + msg;    
+      }
+    }
   }
 
+  if (msg != "") {
+    return "Missing translation data:\n\n" + msg;
+  }
 };
 
-pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderMap) {
+pui.doTranslate = function (obj, translationMap, isScreen, translationPlaceholderMap) {
   isScreen = (isScreen === true);
   var rtn = "";
-  
-  for (var propName in obj) {    
-    var propVal = obj[propName];    
-    if (pui.isTranslated(propVal)) {      
+
+  for (var propName in obj) {
+    var propVal = obj[propName];
+    if (pui.isTranslated(propVal)) {
       var phraseIds = propVal["translations"];
       var phrases = [];
-      for (var i = 0; i < phraseIds.length; i++) {        
+      for (var i = 0; i < phraseIds.length; i++) {
         var id = phraseIds[i];
-        // Id zero is reserved for blank/empty entry in 
-        // list-type properties. 
+        // Id zero is reserved for blank/empty entry in
+        // list-type properties.
         var phrase = (id == 0) ? "" : translationMap[id];
-        if (phrase != null) {          
-          phrases.push(phrase);          
+        if (phrase != null) {
+          phrases.push(phrase);
         }
-        else {        
+        else {
           var designValue = propVal["designValue"];
-          if (phraseIds.length > 1) {            
-            designValue = JSON.parse(designValue)[i];            
-          }          
-          phrases.push(designValue);          
-          if (isScreen) {            
-            rtn += "Record format \"" + trim(obj["record format name"]) + "\" ";            
+          if (phraseIds.length > 1) {
+            designValue = JSON.parse(designValue)[i];
+          }
+          phrases.push(designValue);
+          if (isScreen) {
+            rtn += "Record format \"" + trim(obj["record format name"]) + "\" ";
           }
           else {
-            rtn += "Widget \"" + trim(obj["id"]) + "\" ";            
-          }          
+            rtn += "Widget \"" + trim(obj["id"]) + "\" ";
+          }
           rtn += ", property \"" + trim(propName) + "\". ";
           rtn += "Phrase: " + designValue;
-          rtn += " (" + id + ").\n";        
-        }        
-      }
-
-      if (phrases.length == 1) {        
-        obj[propName] = phrases[0];          
-      }
-      else if (phrases.length > 1) {      
-        obj[propName] = JSON.stringify(phrases);        
-      }              
-      
-      if(!obj["grid"]){      
-        for(var i = 0; i < translationPlaceholderMap.keys.length; i++){
-          obj[propName] = obj[propName]["replaceAll"]('(&' + translationPlaceholderMap.keys[i] + ')', translationPlaceholderMap.values[i]);
+          rtn += " (" + id + ").\n";
         }
       }
-    }        
-  }  
-  return rtn; 
+
+      if (phrases.length == 1) {
+        obj[propName] = phrases[0];
+      }
+      else if (phrases.length > 1) {
+        obj[propName] = JSON.stringify(phrases);
+      }
+
+      if (!obj["grid"]) {
+        for (var i = 0; i < translationPlaceholderMap.keys.length; i++) {
+          obj[propName] = obj[propName]["replaceAll"]("(&" + translationPlaceholderMap.keys[i] + ")", translationPlaceholderMap.values[i]);
+        }
+      }
+    }
+  }
+  return rtn;
 };
 
 /**
@@ -6568,74 +6373,74 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
  * If we are doing translations for a grid, bound values will not be resolved, so that they can be resolved on each grid row.
  * @returns {undefined}
  */
-pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
+pui.buildTranslationPlaceholderMap = function (widget, grid, screen, data, ref) {
   var map = {
     keys: [],
     values: []
-  }
+  };
 
-  if(grid){ //Build a map for a grid
-    for(property in grid){
-      if(property.includes('grid row translation placeholder key')){
-        var value = 'grid row translation placeholder value' + property.slice(36);
+  if (grid) { // Build a map for a grid
+    for (property in grid) {
+      if (property.includes("grid row translation placeholder key")) {
+        var value = "grid row translation placeholder value" + property.slice(36);
         map.keys.push(grid[property]);
         map.values.push(grid[value]);
       }
     }
   }
-  else{ //Then we are building a map for a screen
-    for(property in screen){
-      if(property.includes('translation placeholder key')){
-        var value = 'translation placeholder value' + property.slice(27);
+  else { // Then we are building a map for a screen
+    for (property in screen) {
+      if (property.includes("translation placeholder key")) {
+        var value = "translation placeholder value" + property.slice(27);
         map.keys.push(screen[property]);
         map.values.push(pui.evalBoundProperty(screen[value], data, ref));
       }
     }
   }
 
-  if(widget){
+  if (widget) {
     map = pui.addWidgetTranslationPlaceholders(widget, map, data, ref);
   }
   return map;
-}
+};
 
 /**
  * This function will take an existing Translation Placeholder Map, in the format of {keys: [], values: []} and will add the
  * translation placeholders to it from the included widget.
  * @returns {undefined}
  */
-pui.addWidgetTranslationPlaceholders = function(widget, map, data, ref) {
-  if(widget != null && map != null){
-    for(property in widget){
-      if(property.includes('translation placeholder key') && !property.includes('grid row')){
-        var value = 'translation placeholder value' + property.slice(27);
-        if(map.keys.indexOf(widget[property]) > -1) {
+pui.addWidgetTranslationPlaceholders = function (widget, map, data, ref) {
+  if (widget != null && map != null) {
+    for (property in widget) {
+      if (property.includes("translation placeholder key") && !property.includes("grid row")) {
+        var value = "translation placeholder value" + property.slice(27);
+        if (map.keys.indexOf(widget[property]) > -1) {
           map.values[map.keys.indexOf(widget[property])] = pui.evalBoundProperty(widget[value], data, ref);
         }
-        else{
+        else {
           map.keys.push(widget[property]);
           map.values.push(pui.evalBoundProperty(widget[value], data, ref));
-        }        
+        }
       }
     }
   }
-  else{
-    pui.alert("Missing translation data:\n\nTranslation Placeholder error processing widget level translation placeholders.")
+  else {
+    pui.alert("Missing translation data:\n\nTranslation Placeholder error processing widget level translation placeholders.");
   }
   return map;
-}
+};
 
 /**
  * Set timeout to show help overlays when they come into view. Assume this onscroll
  * handler is attached only when help overlays are on.
  * @returns {undefined}
  */
-pui["wikihelp"].onscroll = function(){
+pui["wikihelp"].onscroll = function () {
   // If another handler is queued, then remove it so only one runs.
-  if (pui["wikihelp"].onscrollTimeoutVal != null ){
+  if (pui["wikihelp"].onscrollTimeoutVal != null) {
     clearTimeout(pui["wikihelp"].onscrollTimeoutVal);
   }
-  
+
   // Delay to avoid expensive checking all elements frequently (60fps is 16.6ms per frame).
   pui["wikihelp"].onscrollTimeoutVal = setTimeout(pui["wikihelp"].onscrollTimeout, 17);
 };
@@ -6644,53 +6449,53 @@ pui["wikihelp"].onscroll = function(){
  * Show help overlays when they come into view. Callback for setTimeout in onscroll.
  * @returns {undefined}
  */
-pui["wikihelp"].onscrollTimeout = function(){
+pui["wikihelp"].onscrollTimeout = function () {
   // Look at each overlay and retest its visibility if it isn't already visible.
-  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+  for (var i = 0; i < pui["wikihelp"]["overlays"].length; i++) {
     var overlay = pui["wikihelp"]["overlays"][i];
-    
-    if (!overlay["pui"].isVisible){
-      overlay["pui"].isVisible = pui["wikihelp"].isVisible( getObj(overlay["pui"]["fieldId"]) );
-      if( overlay["pui"].isVisible ) overlay.style.display = "block";
+
+    if (!overlay["pui"].isVisible) {
+      overlay["pui"].isVisible = pui["wikihelp"].isVisible(getObj(overlay["pui"]["fieldId"]));
+      if (overlay["pui"].isVisible) overlay.style.display = "block";
     }
   }
 };
 
 /**
  * Check if the specified element is not hidden underneath any other elements.
- * 
+ *
  * @param {String} el        Widget's DOM element to test.
  * @returns {Boolean|Null}
  *    False if the element is in a tab panel and the parent tab is not selected.
  *    True if the specified element is on top of other elements.
  */
-pui["wikihelp"].isVisible = function(el){
+pui["wikihelp"].isVisible = function (el) {
   if (el == null) return false;
-  
+
   // Check if the element is in a tab panel, and if the parent tab is selected.
-  if( el.parentTabPanel && el.parentTab ) {
+  if (el.parentTabPanel && el.parentTab) {
     var partabPanel = document.getElementById(el.parentTabPanel);
-    if( ! partabPanel ) return false;   //The parent tab panel could not be found. Assume element isn't visible.
+    if (!partabPanel) return false; // The parent tab panel could not be found. Assume element isn't visible.
     var seltab = partabPanel.getTab();
-    
-    if (seltab !== parseInt(el.parentTab,10) ) return false; //The parent tab is not selected, so element is not visible.
+
+    if (seltab !== parseInt(el.parentTab, 10)) return false; // The parent tab is not selected, so element is not visible.
   }
-  
-  var rect = el.getBoundingClientRect();    //Gets coordinates relative to viewport.
+
+  var rect = el.getBoundingClientRect(); // Gets coordinates relative to viewport.
   var midpx = Math.round((rect.left + rect.right) / 2);
   var midpy = Math.round((rect.top + rect.bottom) / 2);
-  
+
   // See what elements are at the widget's corners. (Note: elementFromPoint uses viewport coordinates.)
   // Testing 2px off exact corner catches grids and widgets that paint other elements in their exact corner.
   // Test multiple points in case element isn't scrolled completely in view.
-  var topleftEl  = document.elementFromPoint(rect.left  + 2, rect.top + 2);
+  var topleftEl = document.elementFromPoint(rect.left + 2, rect.top + 2);
   var botrightEl = document.elementFromPoint(rect.right - 2, rect.bottom - 2);
-  var botleftEl  = document.elementFromPoint(rect.left  + 2, rect.bottom - 2);
-  var midpEl     = document.elementFromPoint(midpx, midpy);
+  var botleftEl = document.elementFromPoint(rect.left + 2, rect.bottom - 2);
+  var midpEl = document.elementFromPoint(midpx, midpy);
 
-  if (topleftEl === el || midpEl === el || botrightEl === el || botleftEl === el
-  || el.contains(topleftEl) || el.contains(midpEl) || el.contains(botrightEl)
-  || el.contains(botleftEl) ){
+  if (topleftEl === el || midpEl === el || botrightEl === el || botleftEl === el ||
+  el.contains(topleftEl) || el.contains(midpEl) || el.contains(botrightEl) ||
+  el.contains(botleftEl)) {
     return true;
   }
 
@@ -6700,33 +6505,32 @@ pui["wikihelp"].isVisible = function(el){
 
 /**
  * Show overlays on every widget in the current formats.
- * If the overlays were previously created, they are made visible and the 
+ * If the overlays were previously created, they are made visible and the
  * function returns. Otherwise, overlay elements are created for each current
  * format.
- * 
+ *
  * @returns {undefined}
  */
-pui["wikihelp"]["overlayOn"] = function() {
+pui["wikihelp"]["overlayOn"] = function () {
   if (pui["layers"] == null) return;
-  
-  addEvent( window, "scroll", pui["wikihelp"].onscroll ); //If any widgets become visible, shows overlay.
-  
+
+  addEvent(window, "scroll", pui["wikihelp"].onscroll); // If any widgets become visible, shows overlay.
+
   // If the overlays have already been constructed, then show them.
-  if( pui["wikihelp"]["overlays"].length > 0 ) {
-    for(var i=0; i < pui["wikihelp"]["overlays"].length; i++) {
+  if (pui["wikihelp"]["overlays"].length > 0) {
+    for (var i = 0; i < pui["wikihelp"]["overlays"].length; i++) {
       var overlay = pui["wikihelp"]["overlays"][i];
 
       // Re-test visibility in case elements changed since the overlays were created.
-      overlay["pui"].isVisible = pui["wikihelp"].isVisible( getObj(overlay["pui"]["fieldId"]) );
-      
-      if( overlay["pui"].isVisible ) overlay.style.display = "block";
-      
+      overlay["pui"].isVisible = pui["wikihelp"].isVisible(getObj(overlay["pui"]["fieldId"]));
+
+      if (overlay["pui"].isVisible) overlay.style.display = "block";
+
       // Elements inside hidden accordion sections can't report a valid offsetWidth/offsetHeight.
       // Try fetching those values again in case the elements are visible now.
       var el = document.getElementById(overlay["pui"]["fieldId"]);
       pui["wikihelp"].sizeOverlay(el, overlay);
-      
-    }//end showing each overlay.
+    }// end showing each overlay.
   }
   // The overlays haven't been constructed yet; create them.
   else {
@@ -6736,54 +6540,54 @@ pui["wikihelp"]["overlayOn"] = function() {
 
 /**
  * Create overlay divs for each item in all current formats.
- * 
+ *
  * @param {boolean} displayOverlays    If true, the overlay's style.display value is block.
  *                                  Else, the style.display value is none.
  * @returns {undefined}
  */
-pui["wikihelp"].createOverlays = function(displayOverlays) {
+pui["wikihelp"].createOverlays = function (displayOverlays) {
   var curfmtNames = currentFormatNames();
   // Look in each layer.
-  for(var lyrIdx=0; lyrIdx < pui["layers"].length; lyrIdx++ ) {
+  for (var lyrIdx = 0; lyrIdx < pui["layers"].length; lyrIdx++) {
     var layer = pui["layers"][lyrIdx];
     // Look in each format.
-    for(var fmtIdx=0; fmtIdx < layer.formats.length; fmtIdx++ ) {
+    for (var fmtIdx = 0; fmtIdx < layer.formats.length; fmtIdx++) {
       var format = layer.formats[fmtIdx];
       // Ignore formats that aren't current.
-      if( pui.arrayIndexOf(curfmtNames, format.name) < 0 ) continue;
+      if (pui.arrayIndexOf(curfmtNames, format.name) < 0) continue;
 
       // Look at each item in this format.
-      for(var itmIdx=0; itmIdx < format.metaData.items.length; itmIdx++ ) {
+      for (var itmIdx = 0; itmIdx < format.metaData.items.length; itmIdx++) {
         var item = format.metaData.items[itmIdx];
-        if( ! item.id ) continue;
-        
+        if (!item.id) continue;
+
         // Get the widget element to determine the overlay's position and size.
-        var el = getObj( item.id );
-        if( ! el ) continue;
-        if( item["field type"] === "layout") continue;
-        if( item["field type"] === "panel") continue;
-        if( item["field type"] === "css panel") continue;
-        if( item["visibility"] === "hidden") continue;
-          
+        var el = getObj(item.id);
+        if (!el) continue;
+        if (item["field type"] === "layout") continue;
+        if (item["field type"] === "panel") continue;
+        if (item["field type"] === "css panel") continue;
+        if (item["visibility"] === "hidden") continue;
+
         // Info to pass on to the onclick handler and to pui.wikihelp.skipItem.
         var details = {};
         details["dspf"] = format.file;
         details["recfmt"] = format.name;
         details["fieldId"] = item.id;
         details["field type"] = item["field type"];
-        
+
         // Pass along field name for bound fields.
-        if( typeof(item.value) == "object" && item.value.fieldName )
-          details["fieldName"] = item.value.fieldName;
-        else if(typeof(item["menu response"]) == "object" && item["menu response"].fieldName)
-          details["fieldName"] = item["menu response"].fieldName;
-        else if(typeof(item.response) == "object" && item.response.fieldName)
-          details["fieldName"] = item.response.fieldName;
+        if (typeof (item.value) == "object" && item.value.fieldName)
+        { details["fieldName"] = item.value.fieldName; }
+        else if (typeof (item["menu response"]) == "object" && item["menu response"].fieldName)
+        { details["fieldName"] = item["menu response"].fieldName; }
+        else if (typeof (item.response) == "object" && item.response.fieldName)
+        { details["fieldName"] = item.response.fieldName; }
         else
-          details["fieldName"] = "";
-        
+        { details["fieldName"] = ""; }
+
         // Let the end-developer limit which items to overlay via this API function.
-        if (typeof pui["wikihelp"]["skipItem"] == "function" && pui["wikihelp"]["skipItem"](details) === true ) continue;
+        if (typeof pui["wikihelp"]["skipItem"] == "function" && pui["wikihelp"]["skipItem"](details) === true) continue;
 
         // Create a new overlay div that we can position absolutely.
         var overlay = document.createElement("div");
@@ -6792,57 +6596,55 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
         el.parentNode.appendChild(overlay);
 
         overlay["pui"] = details;
-        
+
         // Pass the original element's tab details to the overlay to help determine visibility.
-        if( el.parentTabPanel && el.parentTab ) {
+        if (el.parentTabPanel && el.parentTab) {
           overlay["pui"].parentTabPanel = el.parentTabPanel;
           overlay["pui"].parentTab = parseInt(el.parentTab, 10);
         }
-        
+
         // Note: the onscroll event will re-test elements that were originally out of the viewport.
         overlay["pui"].isVisible = pui["wikihelp"].isVisible(el);
 
         // Show the overlay, unless there is a parent tab that isn't selected.
-        if( overlay["pui"].isVisible && displayOverlays ) overlay.style.display = "block";
+        if (overlay["pui"].isVisible && displayOverlays) overlay.style.display = "block";
         else overlay.style.display = "none";
-        
+
         // Extra details needed for special case widgets.
-        if( item["field type"] === "grid" && item["csv export"] === "true" ){
+        if (item["field type"] === "grid" && item["csv export"] === "true") {
           overlay["pui"].pagingBarHeight = pui.pagingBarHeight;
         }
-        if( item["field type"] === "styled button" ){
+        if (item["field type"] === "styled button") {
           overlay["pui"].itemHeight = item["height"];
         }
 
         overlay.style.zIndex = el.style.zIndex + 100;
-        
-        
+
         // Match the overlay's position with the position of the widget.
-        if( el.style.top.length > 0 ) overlay.style.top = el.style.top;
-        else if( el.style.bottom.length > 0 ) overlay.style.bottom = el.style.bottom;
-        if( el.style.left.length > 0 ) overlay.style.left = el.style.left;
-        else if( el.style.right.length > 0 ) overlay.style.right = el.style.right;
+        if (el.style.top.length > 0) overlay.style.top = el.style.top;
+        else if (el.style.bottom.length > 0) overlay.style.bottom = el.style.bottom;
+        if (el.style.left.length > 0) overlay.style.left = el.style.left;
+        else if (el.style.right.length > 0) overlay.style.right = el.style.right;
 
         // Look for user-defined text content.
-        if( pui["wikihelp"]["overlayText"] ) {
+        if (pui["wikihelp"]["overlayText"]) {
           overlay.appendChild(document.createTextNode(pui["wikihelp"]["overlayText"]));
         }
 
         // Add an image for the overlay.
-        if( pui["wikihelp"]["image"] ) {
+        if (pui["wikihelp"]["image"]) {
           var img = document.createElement("img");
           img.src = pui["wikihelp"]["image"];
           overlay.appendChild(img);
         }
 
         pui["wikihelp"].sizeOverlay(el, overlay);
-        
-        addEvent(overlay, "click", pui["wikihelp"].onClickOverlay );
-        pui["wikihelp"]["overlays"].push(overlay);
 
-      }//end looking at each item.
-    }//end looking at each format.
-  }//end looking at each layer.
+        addEvent(overlay, "click", pui["wikihelp"].onClickOverlay);
+        pui["wikihelp"]["overlays"].push(overlay);
+      }// end looking at each item.
+    }// end looking at each format.
+  }// end looking at each layer.
 };
 
 /**
@@ -6851,7 +6653,7 @@ pui["wikihelp"].createOverlays = function(displayOverlays) {
  * @param {Object} overlay  The help overlay object for a widget.
  * @returns {undefined}
  */
-pui["wikihelp"].sizeOverlay = function(el, overlay){
+pui["wikihelp"].sizeOverlay = function (el, overlay) {
   // Match the width/height of the widget on the page; zIndex over it.
   // Workaround for IE8,IE9 offset values returning 0: call getBoundingClientRect
   el.getBoundingClientRect();
@@ -6859,42 +6661,42 @@ pui["wikihelp"].sizeOverlay = function(el, overlay){
   var ovheight = el.offsetHeight;
 
   // Special cases; adjust position and size of overlay.
-  // 
+  //
   // Radio buttons and checkboxes have multiple elements not inside a parent div.
-  if( overlay["pui"]["field type"] === "radio button" ) {
+  if (overlay["pui"]["field type"] === "radio button") {
     overlay.style.margin = "3px 3px 0 5px";
-    // The next sibling 
-    if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+    // The next sibling
+    if (el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div") {
       ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
       ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
     }
   }
-  else if( overlay["pui"]["field type"] === "checkbox" ) {
+  else if (overlay["pui"]["field type"] === "checkbox") {
     overlay.style.margin = "2px";
-    if( el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div" ) {
+    if (el.nextSibling && el.nextSibling.tagName.toLowerCase() == "div") {
       ovwidth = el.offsetWidth + el.nextSibling.offsetWidth;
       ovheight = Math.max(el.offsetHeight, el.nextSibling.offsetHeight);
     }
   }
-  // Tab panels contain other elements, so only overlay the tabs to 
+  // Tab panels contain other elements, so only overlay the tabs to
   // prevent clicking them.
-  else if( overlay["pui"]["field type"] === "tab panel") {
+  else if (overlay["pui"]["field type"] === "tab panel") {
     // 2nd child Node contains the tabs. Use height from tabs.
     ovheight = el.childNodes[1].offsetHeight;
     overlay.style.fontSize = (ovheight * 0.85) + "px";
   }
-  else if( overlay["pui"]["field type"] === "date field") {
+  else if (overlay["pui"]["field type"] === "date field") {
     ovwidth = el.offsetWidth + 22;
   }
-  else if( overlay["pui"]["field type"] === "grid" && overlay["pui"].pagingBarHeight != null ) {
+  else if (overlay["pui"]["field type"] === "grid" && overlay["pui"].pagingBarHeight != null) {
     ovheight += overlay["pui"].pagingBarHeight;
   }
-  else if( overlay["pui"]["field type"] === "styled button" && !overlay["pui"].itemHeight ){
+  else if (overlay["pui"]["field type"] === "styled button" && !overlay["pui"].itemHeight) {
     ovheight = 0;
     // Look at the dimensions of each of the widget's child elements, and add overall height.
     var buttonChild = el.firstChild;
     while (buttonChild != null) {
-      if ( buttonChild.style != null && buttonChild.style.position == "absolute" ) {
+      if (buttonChild.style != null && buttonChild.style.position == "absolute") {
         var btnChildHgt = buttonChild.offsetTop + buttonChild.offsetHeight;
         if (btnChildHgt > ovheight) ovheight = btnChildHgt;
       }
@@ -6906,24 +6708,24 @@ pui["wikihelp"].sizeOverlay = function(el, overlay){
   overlay.style.height = ovheight + "px";
 
   // Set user-defined text size: scale the font unless explicitly told not to.
-  if( pui["wikihelp"]["overlayText"] && pui["wikihelp"]["fontScale"] != false ) {
+  if (pui["wikihelp"]["overlayText"] && pui["wikihelp"]["fontScale"] != false) {
     // Get user-defined font scaling factors or use the best determined
     // values for Helvetica font with latin characters.
     var fontScale = Number(pui["wikihelp"]["fontScale"]);
-    if( isNaN(fontScale)) fontScale = 1.56;
+    if (isNaN(fontScale)) fontScale = 1.56;
 
     // Calculate the largest font size for the text to remain in its box.
     // Works for most boxes with short (1-4 chars) strings.
     var fontWidth = ovwidth / pui["wikihelp"]["overlayText"].length;
-    var fontHeight = Math.min( fontWidth * fontScale, ovheight * fontScale / 2);
+    var fontHeight = Math.min(fontWidth * fontScale, ovheight * fontScale / 2);
     overlay.style.fontSize = fontHeight + "px";
   }
-  
+
   // Set image overlay size.
-  if( pui["wikihelp"]["image"] ) {
+  if (pui["wikihelp"]["image"]) {
     var img = overlay.getElementsByTagName("img")[0];
     // By default make the image square. Otherwise it stretches for some fields.
-    if( pui["wikihelp"]["imageSquare"] !== false ) {
+    if (pui["wikihelp"]["imageSquare"] !== false) {
       var size = Math.min(ovwidth, ovheight);
       img.width = size;
       img.height = size;
@@ -6937,13 +6739,13 @@ pui["wikihelp"].sizeOverlay = function(el, overlay){
 
 /**
  * Hide all wiki-help widget overlays.
- * 
+ *
  * @returns {undefined}
  */
-pui["wikihelp"]["overlayOff"] = function() {
-  removeEvent( window, "scroll", pui["wikihelp"].onscroll );
+pui["wikihelp"]["overlayOff"] = function () {
+  removeEvent(window, "scroll", pui["wikihelp"].onscroll);
 
-  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+  for (var i = 0; i < pui["wikihelp"]["overlays"].length; i++) {
     pui["wikihelp"]["overlays"][i].style.display = "none";
   }
 };
@@ -6952,20 +6754,20 @@ pui["wikihelp"]["overlayOff"] = function() {
  * Handler for wiki-help overlay onclick. This function packages the
  * display file name, current record format name, and field id into an object
  * and passes those values to a user-defined onclick function, if it exists.
- * 
+ *
  * @param {Object} event
  * @returns {Boolean}
  */
-pui["wikihelp"].onClickOverlay = function(event) {
-  event = event || window.event; //cross browser event.
-  preventEvent(event); //cross browser event.preventDefault and cancelBubble.
-  
-  var target = event.target || event.srcElement; //srcElement is for IE<9.
-  
+pui["wikihelp"].onClickOverlay = function (event) {
+  event = event || window.event; // cross browser event.
+  preventEvent(event); // cross browser event.preventDefault and cancelBubble.
+
+  var target = event.target || event.srcElement; // srcElement is for IE<9.
+
   // An image may capture the click event, so get the div node, which has the
   // parameters we need to pass along.
-  if( target.parentNode["pui"] && target.parentNode["pui"]["dspf"] ) target = target.parentNode;
-  
+  if (target.parentNode["pui"] && target.parentNode["pui"]["dspf"]) target = target.parentNode;
+
   // Export the event, display file name, record format name, clicked field id,
   // and field name to the user's handler function if it exists.
   var params = {};
@@ -6975,83 +6777,79 @@ pui["wikihelp"].onClickOverlay = function(event) {
   params["fieldName"] = target["pui"]["fieldName"];
   params["field type"] = target["pui"]["field type"];
   params["event"] = event;
-  if( typeof(pui["wikihelp"]["onclick"]) === "function") 
-    pui["wikihelp"]["onclick"](params);
+  if (typeof (pui["wikihelp"]["onclick"]) === "function")
+  { pui["wikihelp"]["onclick"](params); }
   params = null;
-  
+
   return false;
 };
 
 /**
  * Returns an object containing the display file name and all formats.
  * This is the screen-level-help API function.
- * 
+ *
  * @returns {Object}
  */
-pui["wikihelp"]["getScreenInfo"] = function() {
-  
-  if( pui["wikihelp"]["overlays"].length < 1 )
-    pui["wikihelp"].createOverlays(false);
-  
+pui["wikihelp"]["getScreenInfo"] = function () {
+  if (pui["wikihelp"]["overlays"].length < 1)
+  { pui["wikihelp"].createOverlays(false); }
+
   var info = {};
   info["formats"] = currentFormatNames();
   info["dspf"] = pui["layers"][0]["formats"][0].file;
-  
+
   info["fields"] = [];
   // If we need to fetch items from current formats, iterate over pui.wikihelp.overlays.
-  for(var i=0; i < pui["wikihelp"]["overlays"].length; i++ ) {
+  for (var i = 0; i < pui["wikihelp"]["overlays"].length; i++) {
     var field = {};
     field.id = pui["wikihelp"]["overlays"][i]["pui"]["fieldId"];
-    if( pui["wikihelp"]["overlays"][i]["pui"]["fieldName"]
-    && pui["wikihelp"]["overlays"][i]["pui"]["fieldName"].length > 0 )
-      field.name = pui["wikihelp"]["overlays"][i]["pui"]["fieldName"];
-    info["fields"].push( field );
+    if (pui["wikihelp"]["overlays"][i]["pui"]["fieldName"] &&
+    pui["wikihelp"]["overlays"][i]["pui"]["fieldName"].length > 0)
+    { field.name = pui["wikihelp"]["overlays"][i]["pui"]["fieldName"]; }
+    info["fields"].push(field);
   }
-  
+
   return info;
 };
 
-
-pui.isInputCapableProperty = function(propname, dom) {
-  
+pui.isInputCapableProperty = function (propname, dom) {
   if ((propname == "response") ||
-      (propname == "chart response") ||  
-      (propname == "menu response") ||  
-      (propname == "upload response") ||  
-      (propname == "tab response") ||  
-      (propname == "active tab") ||  
-      (propname == "active section") || 
-      (propname == "radio button group") ||  
-      (propname == "page down response" && dom.grid != null && dom.grid.pagingBar != null) ||  
-      (propname == "page up response" && dom.grid != null && dom.grid.pagingBar != null) ||  
-      (propname == "value" 
-      && (
-          (dom.tagName == "INPUT" && dom.type != "button") 
-          || dom.tagName == "SELECT"  
-          || dom.tagName == "TEXTAREA" 
-          || dom.comboBoxWidget != null 
-          || dom.floatingPlaceholder != null 
-          || dom.slider != null 
-          || dom.signaturePad != null 
-          || dom.onOffSwitch != null
-         )
+      (propname == "chart response") ||
+      (propname == "menu response") ||
+      (propname == "upload response") ||
+      (propname == "tab response") ||
+      (propname == "active tab") ||
+      (propname == "active section") ||
+      (propname == "radio button group") ||
+      (propname == "page down response" && dom.grid != null && dom.grid.pagingBar != null) ||
+      (propname == "page up response" && dom.grid != null && dom.grid.pagingBar != null) ||
+      (propname == "value" &&
+      (
+        (dom.tagName == "INPUT" && dom.type != "button") ||
+          dom.tagName == "SELECT" ||
+          dom.tagName == "TEXTAREA" ||
+          dom.comboBoxWidget != null ||
+          dom.floatingPlaceholder != null ||
+          dom.slider != null ||
+          dom.signaturePad != null ||
+          dom.onOffSwitch != null
       )
-     ) {
+      )
+  ) {
     return true;
   }
 
   return false;
 };
 
-
 pui.transitionAnimation = {
-  setup: function(config) {
+  setup: function (config) {
     this.animation = config.animation;
     this.animatedScreenProperty = config.animatedScreenProperty;
     if (this.animatedScreenProperty !== "previous") this.animatedScreenProperty = "new";
     this.overlay = (config.overlay === "true" || config.overlay === true);
     pui.transitionAnimation.cleanup();
-    
+
     // Capture previous screen and remove any id's to avoid clashing when the new screen is rendered
     var containerId = config.container.id;
     this.prevScreen = config.container;
@@ -7061,19 +6859,19 @@ pui.transitionAnimation = {
     for (var i = 0; i < allElems.length; i++) {
       var elem = allElems[i];
       if (elem.hasAttribute("id")) elem.removeAttribute("id");
-      
-      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function") elem.layoutT.sentToBackground();  //Fix 5044.
+
+      if (elem.layoutT != null && typeof elem.layoutT.sentToBackground == "function") elem.layoutT.sentToBackground(); // Fix 5044.
     }
 
     // Create new screen as brand new pui div
     this.newScreen = document.createElement("div");
     this.newScreen.id = containerId;
     this.newScreen.style.zIndex = 20;
-    this.prevScreen.parentNode.appendChild(this.newScreen);    
+    this.prevScreen.parentNode.appendChild(this.newScreen);
     return this.newScreen;
   },
-  
-  animate: function() {
+
+  animate: function () {
     this.adjustHeight();
     var animatedScreen = this.newScreen;
     if (this.animatedScreenProperty === "previous") {
@@ -7081,7 +6879,7 @@ pui.transitionAnimation = {
       animatedScreen = this.prevScreen;
     }
     if (!this.overlay || this.animatedScreenProperty === "previous") {
-      animatedScreen.addEventListener("animationend", function(event) {
+      animatedScreen.addEventListener("animationend", function (event) {
         pui.transitionAnimation.cleanup();
       }, false);
     }
@@ -7094,27 +6892,27 @@ pui.transitionAnimation = {
 
     // Remove class when animation completes to prevent scrollbars from appearing on iOS
     if (this.animatedScreenProperty === "new") {
-      animatedScreen.addEventListener("animationend", function(event) {
+      animatedScreen.addEventListener("animationend", function (event) {
         animatedScreen.className = "";
       }, false);
     }
-	
+
     animatedScreen.className = "pui-" + this.animation + "-" + this.animatedScreenProperty;
   },
-  
-  cleanup: function() {
+
+  cleanup: function () {
     if (!this.prevScreen) return;
     this.prevScreen.innerHTML = "";
     if (this.prevScreen.parentNode) this.prevScreen.parentNode.removeChild(this.prevScreen);
     this.prevScreen = null;
   },
-  
-  adjustHeight: function() {
+
+  adjustHeight: function () {
     // This logic was borrowed from Mobile Layout
-  
-    // If height is unset, IE returns "auto", and all others return "0px"    
+
+    // If height is unset, IE returns "auto", and all others return "0px"
     var parentStyle = pui.getComputedStyle(this.newScreen);
-    if (parentStyle != null && ( parentStyle["height"]=="0px" || parentStyle["height"]=="auto" )) {
+    if (parentStyle != null && (parentStyle["height"] == "0px" || parentStyle["height"] == "auto")) {
       pui.restoreStyles["padding"] = document.body.style.padding;
       document.body.style.padding = "0";
       pui.restoreStyles["height"] = document.body.style.height;
@@ -7126,24 +6924,21 @@ pui.transitionAnimation = {
       this.newScreen.style.padding = "0";
       this.newScreen.style.height = "100%";
     }
-    
-    // Layout widget also had some exceptions for iOS .. this should be tested and we should see if this logic needs to be added
-    
-    pui.resize();
 
+    // Layout widget also had some exceptions for iOS .. this should be tested and we should see if this logic needs to be added
+
+    pui.resize();
   }
 };
 
-function timer(time) {
-
+function timer (time) {
   var now = new Date().getTime();
   if (time)
-    now -= time;
+  { now -= time; }
   return now;
-
 }
 
-pui.findParentGrid = function(obj) {
+pui.findParentGrid = function (obj) {
   var parent = obj.parentElement;
   while (parent) {
     obj = parent;
@@ -7159,72 +6954,72 @@ pui.findParentGrid = function(obj) {
  * The link to download the job log should only be visible if there is a joblog key.
  * @param {Object} parms
  */
-pui['downloadJobLog'] = function(parms) {
+pui["downloadJobLog"] = function (parms) {
   var xhr, outputEl, jobinfo, filename;
-  if (arguments.length === 1 && typeof parms === 'object' && parms !== null){
-    filename = parms['filename'];
-    jobinfo = parms['jobinfo'];
-    outputEl = parms['outputEl'];
-  } 
-  else if (arguments.length === 4){
+  if (arguments.length === 1 && typeof parms === "object" && parms !== null) {
+    filename = parms["filename"];
+    jobinfo = parms["jobinfo"];
+    outputEl = parms["outputEl"];
+  }
+  else if (arguments.length === 4) {
     // Handle PJS error screen from 6.0.0-beta4 or older.
     jobinfo = arguments[0];
     filename = arguments[2];
     outputEl = arguments[3];
   }
 
-  if (outputEl == null || parms == null || typeof jobinfo !== 'string' || typeof filename !== 'string'){
-    console.log('Cannot download job log. Parameter(s) to function are incorrect.');
+  if (outputEl == null || parms == null || typeof jobinfo !== "string" || typeof filename !== "string") {
+    console.log("Cannot download job log. Parameter(s) to function are incorrect.");
     return;
   }
-  
-  outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'downloading x', ['...']);
-  
+
+  outputEl.innerHTML = pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]);
+
   var filesaverPath = "/jszip/FileSaver.min.js";
-  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null ){
-    makeXHR(); 
+  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(filesaverPath)) != null) {
+    makeXHR();
   }
   else {
     pui["loadJS"]({ "path": filesaverPath, "callback": makeXHR });
   }
-  
-  function makeXHR(){
+
+  function makeXHR () {
     xhr = new XMLHttpRequest();
     xhr.onreadystatechange = joblogFetch;
-    xhr.open('POST', getProgramURL('PUI0009118.pgm'), true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhr.send('jobinfo='+jobinfo);
+    xhr.open("POST", getProgramURL("PUI0009118.pgm"), true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send("jobinfo=" + jobinfo);
   }
-  
-  function joblogFetch(){
+
+  function joblogFetch () {
     if (xhr.readyState == 4) {
-      if (xhr.status == 200){
-        if (typeof xhr.response === 'string' && xhr.response.length > 0){
-          var contentDisp = xhr.getResponseHeader('Content-Disposition');
-          if (contentDisp === 'attachment'){
+      if (xhr.status == 200) {
+        if (typeof xhr.response === "string" && xhr.response.length > 0) {
+          var contentDisp = xhr.getResponseHeader("Content-Disposition");
+          if (contentDisp === "attachment") {
             // The Content-Disposition header is "attachment" when the response is good. Store the results.
-            var filesaver = saveAs( new Blob([xhr.response]), filename, {"type": "text/plain;charset=utf-8"});
-            filesaver['onwriteend'] = filesaverWriteEnded;
+            var filesaver = saveAs(new Blob([xhr.response]), filename, { "type": "text/plain;charset=utf-8" });
+            filesaver["onwriteend"] = filesaverWriteEnded;
           }
           else {
             // The response is error plain text.
-            outputEl.innerHTML = pui['getLanguageText']('runtimeMsg', 'failed to load x', ['Job Log']) + '<br>' + xhr.response;
+            outputEl.innerHTML = pui["getLanguageText"]("runtimeMsg", "failed to load x", ["Job Log"]) + "<br>" + xhr.response;
           }
         }
         else {
-          outputEl.innerHTML = 'Job log download error: Empty Response';
+          outputEl.innerHTML = "Job log download error: Empty Response";
         }
       }
       else {
-        outputEl.innerHTML = 'Job log download error:<br>HTTP ' + xhr.status + '<br>' + xhr['responseURL'];
+        outputEl.innerHTML = "Job log download error:<br>HTTP " + xhr.status + "<br>" + xhr["responseURL"];
       }
     }
   }
-  
-  function filesaverWriteEnded(){
-    outputEl.innerHTML = pui['getLanguageText']('runtimeText', 'upload finished text');
-    setTimeout(function(){
-      outputEl.innerHTML = '';
+
+  function filesaverWriteEnded () {
+    outputEl.innerHTML = pui["getLanguageText"]("runtimeText", "upload finished text");
+    setTimeout(function () {
+      outputEl.innerHTML = "";
     }, 3000);
   }
 };

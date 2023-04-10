@@ -17,21 +17,17 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.help = {};
 
-
-pui.help.show = function() {
-
+pui.help.show = function () {
   // get record level properties from meta data
   var layers = pui.oldRenderParms["layers"];
   if (layers == null) return;
   var layer = layers[layers.length - 1];
   var formats = layer.formats;
-  if (formats == null) return;  
-  if (formats.length == 0) return;    
-  var recordName = pui.cursorValues.record;  
+  if (formats == null) return;
+  if (formats.length == 0) return;
+  var recordName = pui.cursorValues.record;
   var format = formats[0];
   for (var i = 0; i < formats.length; i++) {
     if (formats[i].name == recordName) {
@@ -66,8 +62,8 @@ pui.help.show = function() {
           idx++;
           continue;
         }
-      }      
-      var helpArea = props["help area" + suffix];      
+      }
+      var helpArea = props["help area" + suffix];
       // check for record level match
       if (helpArea == "" || helpArea == null) {
         panelSuffix = suffix;
@@ -78,7 +74,7 @@ pui.help.show = function() {
       if (parts.length == 4) {
         var fromRow = Number(parts[0]);
         var fromCol = Number(parts[1]);
-        var toRow = Number(parts[2]);        
+        var toRow = Number(parts[2]);
         var toCol = Number(parts[3]);
         var row = Number(pui.cursorValues.row);
         var col = Number(pui.cursorValues.column);
@@ -87,7 +83,7 @@ pui.help.show = function() {
             panelSuffix = suffix;
             break;
           }
-        }        
+        }
       }
       // check for id match for a field or a constant
       if (helpArea == pui.cursorValues.elementId) {
@@ -97,15 +93,15 @@ pui.help.show = function() {
       idx++;
     }
   }
-  
+
   // show help
   if (panelSuffix == null) {
     var extendedHelpShown = pui.help.extendedHelp(props);
-    //if (!extendedHelpShown) {
-      // should submit screen with aid=0xF3 (Help) here ?
-    //}
+    // if (!extendedHelpShown) {
+    // should submit screen with aid=0xF3 (Help) here ?
+    // }
   }
-  
+
   if (panelSuffix != null) {
     if (props["help record" + panelSuffix] != null) {
       var helpRecord = props["help record" + panelSuffix];
@@ -125,7 +121,6 @@ pui.help.show = function() {
         else {
           helpLibrary = "*LIBL";
         }
-        
       }
       pui.showWaitAnimation();
       ajaxJSON({
@@ -138,7 +133,7 @@ pui.help.show = function() {
           "AUTH": pui.appJob["auth"]
         },
         "async": true,
-        "handler": function(response) {
+        "handler": function (response) {
           pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
@@ -161,10 +156,10 @@ pui.help.show = function() {
       else {
         helpPanlelLibrary = "*LIBL";
       }
-      var helpModule = props["help module" + panelSuffix]; 
-      // TODO: The help module and objects need to be multiple occurrence... 
-      // Send a parameter "modules" that has the total count, and then 
-      // pgroup1, library1, module1, etc. 
+      var helpModule = props["help module" + panelSuffix];
+      // TODO: The help module and objects need to be multiple occurrence...
+      // Send a parameter "modules" that has the total count, and then
+      // pgroup1, library1, module1, etc.
       pui.showWaitAnimation();
       ajaxJSON({
         "url": getProgramURL("PUI0009108.pgm"),
@@ -177,7 +172,7 @@ pui.help.show = function() {
           "AUTH": pui.appJob["auth"]
         },
         "async": true,
-        "handler": function(response) {
+        "handler": function (response) {
           pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
@@ -190,19 +185,16 @@ pui.help.show = function() {
       });
     }
   }
-
 };
 
-
-pui.help.renderHelpRecord = function(meta) {
-  
+pui.help.renderHelpRecord = function (meta) {
   var items = meta["items"];
   var namedModel = getPropertiesNamedModel();
   var container = document.createElement("div");
   container.style.width = "1000px";
   container.style.height = "750px";
   container.style.zIndex = 999;
-  if (pui.windowZIndex > 999){
+  if (pui.windowZIndex > 999) {
     container.style.zIndex = pui.windowZIndex + 1;
   }
   container.style.position = "absolute";
@@ -210,9 +202,8 @@ pui.help.renderHelpRecord = function(meta) {
   pui.runtimeContainer.appendChild(container);
 
   for (var i = 0; i < items.length; i++) {
-  
     var properties = items[i];
-    
+
     if (properties["id"] == "btnHELP") continue;
 
     // create dom element for item
@@ -226,14 +217,14 @@ pui.help.renderHelpRecord = function(meta) {
     dom.style.top = toppx;
     container.appendChild(dom);
     if (properties["field type"] == "button" || properties["field type"] == "styled button") {
-      dom.onclick = function() {
+      dom.onclick = function () {
         // close help panel
         container.innerHTML = "";
         container.parentNode.removeChild(container);
         container = null;
       };
     }
-  
+
     // apply all properties
     for (var propname in properties) {
       var propConfig = pui.getPropConfig(namedModel, propname);
@@ -241,41 +232,33 @@ pui.help.renderHelpRecord = function(meta) {
         var propValue = properties[propname];
         if (propValue != null && propValue != "") {
           dom = applyPropertyToField(propConfig, properties, dom, propValue, false);
-        }          
+        }
       }
     }
-    
-  	if (dom.pui && dom.pui.widget) dom.pui.widget.basicRender(); //a BasicWidget renders after properties are set.
+
+  	if (dom.pui && dom.pui.widget) dom.pui.widget.basicRender(); // a BasicWidget renders after properties are set.
     else if (dom.layoutT) dom.layoutT.render();
   }
-
 };
 
-
-
-pui.help.error = function(response) {
-
+pui.help.error = function (response) {
   var id = response["id"];
   var msg = response["message"];
   var help = response["help"];
-  
+
   var text = "An error has occurred trying to display help text.";
   if (id != null) text += "\n\nError Id: " + id;
   if (msg != null) text += "\n\nMessage: " + msg;
   if (help != null) text += "\n\n" + help;
-  
-  pui.alert(text);
 
+  pui.alert(text);
 };
 
-
-
-pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
-
+pui.help.renderPanelGroup = function (html, showExtendedHelpButton, props) {
   var container = document.createElement("div");
   container.className = "help-panel-group";
   container.style.zIndex = 999;
-  if (pui.windowZIndex > 999){
+  if (pui.windowZIndex > 999) {
     container.style.zIndex = pui.windowZIndex + 1;
   }
   pui.runtimeContainer.appendChild(container);
@@ -285,39 +268,35 @@ pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
   var returnButton = document.createElement("input");
   returnButton.type = "button";
   returnButton.value = "Return to Application";
-  returnButton.onclick = function() {
+  returnButton.onclick = function () {
     // close help panel
     container.innerHTML = "";
     container.parentNode.removeChild(container);
     container = null;
   };
   container.appendChild(returnButton);
-  
+
   if (showExtendedHelpButton == true) {
     container.appendChild(document.createTextNode("    "));
     var extendedHelpButton = document.createElement("input");
     extendedHelpButton.type = "button";
     extendedHelpButton.value = "Extended Help";
-    extendedHelpButton.onclick = function() {
+    extendedHelpButton.onclick = function () {
       pui.help.extendedHelp(props, container);
     };
     container.appendChild(extendedHelpButton);
   }
-  
+
   if (pui["help panel group toc"] == false) {
     var tocDiv = container.firstChild;
-    if (tocDiv != null && tocDiv.nodeType == 3) tocDiv = tocDiv.nextSibling;  // skip text node
+    if (tocDiv != null && tocDiv.nodeType == 3) tocDiv = tocDiv.nextSibling; // skip text node
     if (tocDiv != null && tocDiv.tagName == "DIV" && tocDiv.firstChild != null && tocDiv.firstChild.tagName == "A" && tocDiv.firstChild.name == "TOC") {
       tocDiv.style.display = "none";
     }
   }
-  
 };
 
-
-
-pui.help.extendedHelp = function(props, container) {
-
+pui.help.extendedHelp = function (props, container) {
   var params = {
     "modules": 0,
     "AUTH": pui.appJob["auth"]
@@ -347,10 +326,9 @@ pui.help.extendedHelp = function(props, container) {
           continue;
         }
       }
-      
+
       var helpPanelGroup = props["help panel group" + suffix];
       if (helpPanelGroup != null) {
-        
         var helpPanelGroupParts = helpPanelGroup.split("/");
         var helpPanlelLibrary;
         if (helpPanelGroupParts.length == 2) {
@@ -360,14 +338,14 @@ pui.help.extendedHelp = function(props, container) {
         else {
           helpPanlelLibrary = "*LIBL";
         }
-        var helpModule = props["help module" + suffix]; 
+        var helpModule = props["help module" + suffix];
 
         params["modules"]++;
-        params["pgroup" + params["modules"]]= helpPanelGroup;
-        params["library" + params["modules"]]= helpPanlelLibrary;
-        params["module" + params["modules"]]= helpModule;
+        params["pgroup" + params["modules"]] = helpPanelGroup;
+        params["library" + params["modules"]] = helpPanlelLibrary;
+        params["module" + params["modules"]] = helpModule;
       }
-      
+
       idx++;
     }
   }
@@ -381,7 +359,7 @@ pui.help.extendedHelp = function(props, container) {
     "method": "post",
     "params": params,
     "async": true,
-    "handler": function(response) {
+    "handler": function (response) {
       pui.hideWaitAnimation();
       var success = response["success"];
       if (success == true) {
@@ -398,9 +376,6 @@ pui.help.extendedHelp = function(props, container) {
       }
     }
   });
-  
+
   return true;
-
 };
-
-

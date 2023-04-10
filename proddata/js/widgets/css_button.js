@@ -17,38 +17,36 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * CSS Button Class
  * @constructor
  */
 
-pui.CSSButton = function() {
+pui.CSSButton = function () {
   this.container = null;
   this.designMode = null;
   this.forProxy = false;
-  this.useSpan = false;  // instead of hyperlink tag
+  this.useSpan = false; // instead of hyperlink tag
   var link;
   var innerSpan;
   var textSpan;
   var iconSpan;
-  
+
   var swatch = "a";
   var swatchLength = 1;
   var disabled = false;
   var iconShadowClass = " ui-icon-shadow";
   if (pui["is_firefox"]) iconShadowClass = "";
-  
+
   var me = this;
 
-  this.init = function() {
+  this.init = function () {
     if (me.forProxy || me.useSpan) {
-      link = document.createElement("span");  // using span circumvents conflicting Ext .x-dd-drag-ghost class css rule
+      link = document.createElement("span"); // using span circumvents conflicting Ext .x-dd-drag-ghost class css rule
     }
     else {
       link = document.createElement("a");
-    }  
+    }
     innerSpan = document.createElement("span");
     textSpan = document.createElement("span");
     iconSpan = document.createElement("span");
@@ -62,28 +60,28 @@ pui.CSSButton = function() {
     innerSpan.appendChild(iconSpan);
     link.appendChild(innerSpan);
     me.container.appendChild(link);
-    addEvent(link, "mouseover", function() {
+    addEvent(link, "mouseover", function () {
       if (disabled) return;
       pui.removeCssClass(link, "ui-btn-up-" + swatch);
       pui.addCssClass(link, "ui-btn-hover-" + swatch);
     });
-    addEvent(link, "mouseout", function() {
+    addEvent(link, "mouseout", function () {
       pui.removeCssClass(link, "ui-btn-hover-" + swatch);
       pui.addCssClass(link, "ui-btn-up-" + swatch);
     });
-    addEvent(link, "focus", function() {
+    addEvent(link, "focus", function () {
       if (disabled) return;
       pui.addCssClass(link, "ui-focus");
     });
-    addEvent(link, "blur", function() {
+    addEvent(link, "blur", function () {
       pui.removeCssClass(link, "ui-focus");
     });
-    function down() {
+    function down () {
       if (disabled) return;
       pui.removeCssClass(link, "ui-btn-up-" + swatch);
       pui.addCssClass(link, "ui-btn-down-" + swatch);
     }
-    function up() {
+    function up () {
       pui.removeCssClass(link, "ui-btn-down-" + swatch);
       pui.addCssClass(link, "ui-btn-up-" + swatch);
     }
@@ -91,20 +89,20 @@ pui.CSSButton = function() {
     addEvent(link, "touchstart", down);
     addEvent(document, "mouseup", up);
     addEvent(document, "touchend", up);
-  }
-  
-  this.setText = function(text) {
+  };
+
+  this.setText = function (text) {
     textSpan.innerHTML = text;
-  }
-  
-  this.setSwatch = function(newSwatch) {
-    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "a";  // default
-    
-    //Preconfigured themes A-G have the format 'A - Black'
-    //'B - Blue', etc. This makes sure only 'A', 'B', etc is used 
-    //for the class generation
+  };
+
+  this.setSwatch = function (newSwatch) {
+    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "a"; // default
+
+    // Preconfigured themes A-G have the format 'A - Black'
+    // 'B - Blue', etc. This makes sure only 'A', 'B', etc is used
+    // for the class generation
     var regex = / - {1}.*/g;
-    newSwatch = newSwatch.replace(regex, '');
+    newSwatch = newSwatch.replace(regex, "");
 
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
@@ -120,47 +118,47 @@ pui.CSSButton = function() {
     }
     swatch = newSwatch;
     swatchLength = swatch.length;
-  }
-  
-  this.setIconPosition = function(pos) {
+  };
+
+  this.setIconPosition = function (pos) {
     pui.removeCssClass(link, "ui-btn-icon-left");
     pui.removeCssClass(link, "ui-btn-icon-right");
     pui.removeCssClass(link, "ui-btn-icon-top");
     pui.removeCssClass(link, "ui-btn-icon-bottom");
     if (pos != "left" && pos != "right") return;
     pui.addCssClass(link, "ui-btn-icon-" + pos);
-  }
-  
-  this.setIcon = function(icon, iconType) {
-    if (icon && iconType == 'material') {
+  };
+
+  this.setIcon = function (icon, iconType) {
+    if (icon && iconType == "material") {
       iconSpan.className = "pui-material-icons";
       iconSpan.innerHTML = icon;
-    } else if (icon && iconType == 'fontAwesome') {
+    } else if (icon && iconType == "fontAwesome") {
       iconSpan.className = "pui-fa-icons fa-" + icon;
       iconSpan.innerHTML = "";
     } else {
-      if (icon && icon.indexOf(':') !== -1) {
+      if (icon && icon.indexOf(":") !== -1) {
         var iconSets = pui.getDefaultIconSets();
         icon = trim(icon);
         if (pui["customIconList"] && pui["customIconList"]) {
           if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
-            iconSets =  pui["customIconList"]["icons"];
+            iconSets = pui["customIconList"]["icons"];
           }
         }
-        var iconValueArr = icon.split(':');
-        var iconValueType =  iconValueArr.shift().split('-');
+        var iconValueArr = icon.split(":");
+        var iconValueType = iconValueArr.shift().split("-");
         var iconValueClassList = iconValueType.pop();
-        iconValueType = iconValueType.join('-');
+        iconValueType = iconValueType.join("-");
         var iconVal = iconValueArr.pop();
-        iconSets.every(function(iconSet) {
-            var type = iconSet["type"];
-            var iconClassName = iconSet["classList"][iconValueClassList];
-            if (iconValueType === type) {
-              iconSpan.className = iconClassName + iconVal;
-              iconSpan.innerHTML= '';
-              return false;
-            }
-            return true;
+        iconSets.every(function (iconSet) {
+          var type = iconSet["type"];
+          var iconClassName = iconSet["classList"][iconValueClassList];
+          if (iconValueType === type) {
+            iconSpan.className = iconClassName + iconVal;
+            iconSpan.innerHTML = "";
+            return false;
+          }
+          return true;
         });
       } else {
         if (icon == "left arrow") icon = "arrow-l";
@@ -168,23 +166,23 @@ pui.CSSButton = function() {
         if (icon == "up arrow") icon = "arrow-u";
         if (icon == "down arrow") icon = "arrow-d";
         if (icon == null) icon = "";
-        if (icon !=  "") icon = " ui-icon-" + icon;
+        if (icon != "") icon = " ui-icon-" + icon;
         iconSpan.className = "ui-icon" + icon + iconShadowClass;
-        iconSpan.innerHTML = ""; 
+        iconSpan.innerHTML = "";
       }
     }
   };
-  
-  this.setMini = function(flag) {
+
+  this.setMini = function (flag) {
     if (flag == true) pui.addCssClass(link, "ui-mini");
     else pui.removeCssClass(link, "ui-mini");
-  }
-  
-  this.setDisabled = function(flag) {
+  };
+
+  this.setDisabled = function (flag) {
     disabled = flag;
-  }
-  
-  this.setStraightEdge = function(edge) {
+  };
+
+  this.setStraightEdge = function (edge) {
     if (edge == null || pui.isBound(edge)) return;
     link.style.borderTopLeftRadius = "";
     link.style.borderTopRightRadius = "";
@@ -194,7 +192,7 @@ pui.CSSButton = function() {
     innerSpan.style.borderTopRightRadius = "";
     innerSpan.style.borderBottomLeftRadius = "";
     innerSpan.style.borderBottomRightRadius = "";
-    switch(edge) {
+    switch (edge) {
       case "left":
         link.style.borderTopLeftRadius = "0";
         link.style.borderBottomLeftRadius = "0";
@@ -205,7 +203,7 @@ pui.CSSButton = function() {
         link.style.borderTopRightRadius = "0";
         link.style.borderBottomRightRadius = "0";
         innerSpan.style.borderTopRightRadius = "0";
-        innerSpan.style.borderBottomRightRadius = "0";       
+        innerSpan.style.borderBottomRightRadius = "0";
         break;
       case "top":
         link.style.borderTopRightRadius = "0";
@@ -227,25 +225,25 @@ pui.CSSButton = function() {
         innerSpan.style.borderTopLeftRadius = "0";
         innerSpan.style.borderBottomLeftRadius = "0";
         innerSpan.style.borderTopRightRadius = "0";
-        innerSpan.style.borderBottomRightRadius = "0";       
-        break;      
+        innerSpan.style.borderBottomRightRadius = "0";
+        break;
       default:
         break;
     }
-  }
-  
-  this.setHeight = function(height) {  // can be in 100%    
+  };
+
+  this.setHeight = function (height) { // can be in 100%
     if (typeof height == "number") height = height + "px";
     link.style.height = height;
-  }
-  
-  this.setStyle = function(styleName, styleValue) {
+  };
+
+  this.setStyle = function (styleName, styleValue) {
     if (pui.isBound(styleValue)) styleValue = "";
     var parts = styleName.split(" ");
     if (parts.length == 2) {
       styleName = parts[0] + parts[1].substr(0, 1).toUpperCase() + parts[1].substr(1);
     }
-    if (styleName == 'cursor') {
+    if (styleName == "cursor") {
       iconSpan.style[styleName] = styleValue;
       link.style[styleName] = styleValue;
       innerSpan.style[styleName] = styleValue;
@@ -256,24 +254,24 @@ pui.CSSButton = function() {
     else {
       textSpan.style[styleName] = styleValue;
     }
-  }
-  
-  this.setHref = function(href) {
+  };
+
+  this.setHref = function (href) {
     if (me.designMode) return;
     link.href = href;
-  }
-  
-  this.setTarget = function(target) {
+  };
+
+  this.setTarget = function (target) {
     if (me.designMode) return;
     link.target = target;
-  }
+  };
 
-  this.setDownloadFile = function(downloadFile) {
+  this.setDownloadFile = function (downloadFile) {
     if (me.designMode) return;
     link["download"] = downloadFile;
-  }
-  
-  this.setLineHeight = function(containerHeight) {
+  };
+
+  this.setLineHeight = function (containerHeight) {
     if (me.container == null) return;
     if (containerHeight != null) {
       me.container.style.height = containerHeight;
@@ -281,39 +279,36 @@ pui.CSSButton = function() {
     if (me.container.style.height != null && me.container.style.height != "" && textSpan.innerHTML.toLowerCase().indexOf("<br") < 0) {
       var height = link.offsetHeight - 26;
       if (height < 0) height = 0;
-      textSpan.style.lineHeight =  height + "px";
+      textSpan.style.lineHeight = height + "px";
     }
     else {
       textSpan.style.lineHeight = null;
     }
-  }
-  
-  this.getLink = this.getMainSpan = function() {
+  };
+
+  this.getLink = this.getMainSpan = function () {
     return link;
-  }
+  };
 
-  this.getInnerSpan = function() {
+  this.getInnerSpan = function () {
     return innerSpan;
-  }
+  };
 
-  this.getTextSpan = function() {
+  this.getTextSpan = function () {
     return textSpan;
-  }
+  };
 
-  this.setAllStyles = function(properties) {
+  this.setAllStyles = function (properties) {
     var styles = ["color", "font family", "font size", "font style", "font variant", "font weight", "letter spacing", "text align", "text decoration", "text transform", "word spacing"];
     for (var i = 0; i < styles.length; i++) {
       var style = styles[i];
       var value = properties[style];
       if (value != null) me.setStyle(style, value);
     }
-  }
- 
-}
+  };
+};
 
-
-
-pui.widgets.getCSSButtonProxy = function(defaultParms) {
+pui.widgets.getCSSButtonProxy = function (defaultParms) {
   var defaults = {};
   for (var x in defaultParms) {
     defaults[x] = defaultParms[x];
@@ -337,11 +332,7 @@ pui.widgets.getCSSButtonProxy = function(defaultParms) {
   button.setMini(defaults["small button"] == "true");
   button.setStraightEdge(defaults["straight edge"]);
   return dom;
-}
-
-
-
-
+};
 
 pui.widgets.add({
   name: "css button",
@@ -351,9 +342,9 @@ pui.widgets.add({
     "width": "160px",
     "theme": "c - Gray"
   },
-  
-  globalPropertySetter: function(parms) {
-    switch(parms.propertyName) {
+
+  globalPropertySetter: function (parms) {
+    switch (parms.propertyName) {
       case "color":
       case "font family":
       case "font size":
@@ -371,10 +362,10 @@ pui.widgets.add({
         break;
     }
   },
-  
+
   propertySetters: {
 
-    "field type": function(parms) {
+    "field type": function (parms) {
       var button = new pui.CSSButton();
       button.container = parms.dom;
       button.designMode = parms.design;
@@ -392,66 +383,65 @@ pui.widgets.add({
       button.setStraightEdge(parms.evalProperty("straight edge"));
       button.setHeight("100%");
     },
-    
-    "theme": function(parms) {
+
+    "theme": function (parms) {
       parms.dom.button.setSwatch(parms.value);
     },
 
-    "value": function(parms) {
+    "value": function (parms) {
       parms.dom.button.setText(parms.value);
     },
 
-    "icon position": function(parms) {
+    "icon position": function (parms) {
       parms.dom.button.setIconPosition(parms.value);
     },
 
-    "icon": function(parms) {
+    "icon": function (parms) {
       if (parms.value) parms.value = trim(parms.value);
-      if (parms.value.substr(0,9) == 'material:') {
+      if (parms.value.substr(0, 9) == "material:") {
         var value = trim(parms.value.substr(9));
-        parms.dom.button.setIcon(value, 'material');
-        return;
-      } else if (parms.value.substr(0,12) == 'fontAwesome:') {
+        parms.dom.button.setIcon(value, "material");
+      } else if (parms.value.substr(0, 12) == "fontAwesome:") {
         var value = trim(parms.value.substr(12));
-        parms.dom.button.setIcon(value, 'fontAwesome');
+        parms.dom.button.setIcon(value, "fontAwesome");
       } else {
-        parms.dom.button.setIcon(parms.value);     
+        parms.dom.button.setIcon(parms.value);
       }
     },
 
-    "small button": function(parms) {
+    "small button": function (parms) {
       var mini = (parms.value == "true" || parms.value == true);
       parms.dom.button.setMini(mini);
     },
 
-    "disabled": function(parms) {
+    "disabled": function (parms) {
       var disabled = (parms.value == "true" || parms.value == true);
       parms.dom.button.setDisabled(disabled);
     },
 
-    "straight edge": function(parms) {
+    "straight edge": function (parms) {
       parms.dom.button.setStraightEdge(parms.value);
     },
-    
-    "hyperlink reference": function(parms) {
+
+    "hyperlink reference": function (parms) {
       var href = parms.value;
       if (parms.designMode) href = null;
       parms.dom.button.setHref(href);
     },
-    
-    "target": function(parms) {
+
+    "target": function (parms) {
       parms.dom.button.setTarget(parms.value);
     },
 
-    "download file": function(parms) {
+    "download file": function (parms) {
       parms.dom.button.setDownloadFile(parms.value);
     },
-    
-    "height": function(parms) {
+
+    "height": function (parms) {
       parms.dom.button.setLineHeight(parms.value);
     },
-    
-   "visibility": function(parms) {
+
+    "visibility": function (parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
       // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
       if (!parms.design) {
@@ -464,10 +454,9 @@ pui.widgets.add({
         }
       }
     },
-    "cursor": function(parms) {
+    "cursor": function (parms) {
       parms.dom.button.setStyle("cursor", parms.value);
     }
   }
-  
-});
 
+});

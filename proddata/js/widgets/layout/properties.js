@@ -31,9 +31,9 @@ pui.layout.getPropertiesModel = function (templateProperties) {
     { name: "Template Settings", category: true, context: "dspf" },
     { name: "template", choices: pui.layout.getTemplateList, blankChoice: false, helpDefault: "widget", help: "Specifies the name of the template used to render the layout.", bind: false, canBeRemoved: false }
   ];
-  
-  Array.prototype.push.apply(model, templateProperties); //Add all template properties.
-  
+
+  Array.prototype.push.apply(model, templateProperties); // Add all template properties.
+
   var partdeux = [
     { name: "Position", category: true },
     { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current layout." },
@@ -61,8 +61,14 @@ pui.layout.getPropertiesModel = function (templateProperties) {
     { name: "tool tip", type: "long", helpDefault: "blank", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
     { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
     { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], helpDefault: "css", help: "Determines whether the element is visible or hidden." },
-    { name: "inline style", type: "long", attribute: "style", helpDefault: "blank", help: "This property lets you define CSS properties that will be applied to the widget. These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon. You can learn more about CSS properties"
-    + " at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\"" },
+    {
+      name: "inline style",
+      type: "long",
+      attribute: "style",
+      helpDefault: "blank",
+      help: "This property lets you define CSS properties that will be applied to the widget. These properties are applied inline, and therefore take precedence over those defined in a CSS class. Multiple properties may be provided, separated by a semi-colon. You can learn more about CSS properties" +
+    " at the following link: http://www.w3schools.com/cssref/. If you define CSS properties that are defined by other widget properties, the widget properties overrule the CSS inline properties. These CSS properties are ignored and should be set using the widget properties: \"position\", \"visibility\", \"display\", \"left\", \"right\", \"top\", \"bottom\", \"width\", \"height\", \"overflow\""
+    },
 
     { name: "Events", category: true },
     { name: "onclick", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when the element is clicked." },
@@ -73,8 +79,8 @@ pui.layout.getPropertiesModel = function (templateProperties) {
     { name: "onmouseover", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved over this element." },
     { name: "onmouseup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse button is released off this element." }
   ];
-  
-  Array.prototype.push.apply(model, partdeux);  //Add all from part2 into model.
+
+  Array.prototype.push.apply(model, partdeux); // Add all from part2 into model.
 
   return model;
 };
@@ -91,7 +97,7 @@ pui.layout.adoptNamedProperties = function (list, propNames) {
     pui.layout.adoptedProperty = {};
   }
 
-  for (var i=0, n=propNames.length; i < n; i++) {
+  for (var i = 0, n = propNames.length; i < n; i++) {
     var propName = propNames[i];
     if (pui.layout.adoptedProperty[propName] == null) {
       // Create another cached copy of the global property for use by templates.
@@ -106,7 +112,7 @@ pui.layout.adoptNamedProperties = function (list, propNames) {
             pui.layout.adoptedProperty[propName][key] = nmodel[propName][key];
           }
           delete pui.layout.adoptedProperty[propName]["controls"];
-          //This may be added after property definitions are setup and has cyclic references and isn't needed.
+          // This may be added after property definitions are setup and has cyclic references and isn't needed.
           delete pui.layout.adoptedProperty[propName].selection;
         }
         catch (exc) {
@@ -114,7 +120,7 @@ pui.layout.adoptNamedProperties = function (list, propNames) {
         }
       }
     }
-    list.push( pui.layout.adoptedProperty[propName] );
+    list.push(pui.layout.adoptedProperty[propName]);
   }
 };
 
@@ -123,97 +129,119 @@ pui.layout.getProperties = function (template) {
   var templateProperties;
   var borderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"];
   var borderWidths = ["thin", "medium", "thick", "0px", "1px", "2px", "3px", "4px", "5px", "Other..."];
-  
+
   // Shared between tab panels and accordions.
   var lazyLoadProps = [
-    { name: "lazy load", choices: ["true", "false"], helpDefault: "false",
+    {
+      name: "lazy load",
+      choices: ["true", "false"],
+      helpDefault: "false",
       help: "When true, render contents of a tab or section after the user activates it instead of rendering everything immediately (which can be slower)."
     },
-    { name: "onlazyload", type: "js", helpDefault: "blank",
+    {
+      name: "onlazyload",
+      type: "js",
+      helpDefault: "blank",
       help: "Initiates a client-side script after a container is rendered lazily. (See lazy load property.)"
     }
   ];
-  
+
   switch (template) {
-    case 'css panel':
+    case "css panel":
       templateProperties = [
         {
           name: "has header",
           choices: ["true", "false"],
-          helpDefault: "theme", help: "Determines whether the panel has a header."
+          helpDefault: "theme",
+          help: "Determines whether the panel has a header."
         },
         {
           name: "header height",
           format: "number",
-          helpDefault: "theme", help: "Specifies the height of the panel header."
+          helpDefault: "theme",
+          help: "Specifies the height of the panel header."
         },
         {
           name: "header text",
-          helpDefault: "placeholder", help: "Specifies the text that will appear in the panel header.",
+          helpDefault: "placeholder",
+          help: "Specifies the text that will appear in the panel header.",
           translate: true
         },
         {
           name: "header theme",
           choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-          helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.",
-          helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
+          helpDefault: "theme",
+          help: "Specifies the jQuery Mobile theme to use for the panel header. The theme is associated with a set of cascading style sheet rules.",
+          helpAdd: ["other"],
+          helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
         },
         {
           name: "body theme",
           choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-          helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.",
-          helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
+          helpDefault: "theme",
+          help: "Specifies the jQuery Mobile theme to use for the panel body. The theme is associated with a set of cascading style sheet rules.",
+          helpAdd: ["other"],
+          helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
         },
         {
           name: "straight edge",
           choices: ["all", "left", "right", "top", "bottom"],
-          helpDefault: "theme", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
+          helpDefault: "theme",
+          help: "Determines which parts of the element will have a straight edge instead of rounded corners."
         }
       ];
 
       pui.layout.adoptNamedProperties(templateProperties, ["color", "font family", "font size", "font style", "font weight", "text align", "text decoration", "text transform"]);
       break;
 
-
-    case 'accordion':
+    case "accordion":
       templateProperties = [
         {
           name: "section names",
           type: "list",
-          helpDefault: "placeholder", help: "Specifies a comma separate list of section names for the accordion.",
+          helpDefault: "placeholder",
+          help: "Specifies a comma separate list of section names for the accordion.",
           translate: true
         },
         {
           name: "active section",
           format: "number",
-          helpDefault: "0", help: "This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program."
+          helpDefault: "0",
+          help: "This property specifies the initial active section on an Accordion Layout. Each section within an Accordion is identified by a sequential index, starting with 0 for the first section, 1 for the second section, and so on. When this property is bound to a field, the currently-active section will be included in the response when the screen is submitted to the server-side program."
         },
         {
           name: "header theme",
           choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-          helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.", 
-          helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
+          helpDefault: "theme",
+          help: "Specifies the jQuery Mobile theme to use for the accordion headers.  The theme is associated with a set of cascading style sheet rules.",
+          helpAdd: ["other"],
+          helpNote: "When you enter a custom value, a CSS class is add to the header the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the header using that CSS class name."
         },
         {
           name: "body theme",
           choices: ["A - Black", "B - Blue", "C - Gray", "D - Light Gray", "E - Yellow", "F - Green", "G - Red", "Other..."],
-          helpDefault: "theme", help: "Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.",
-          helpAdd: ["other"], helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
+          helpDefault: "theme",
+          help: "Specifies the jQuery Mobile theme to use for the content body of the accordion.  The theme is associated with a set of cascading style sheet rules.",
+          helpAdd: ["other"],
+          helpNote: "When you enter a custom value, a CSS class is add to the body of the panel in the form of <code>ui-btn-up-YourCustomValue</code>, where YourCustomValue is the exact text that was entered, including special characters, such as ' ', '-', and '_', and regardless of their validity in a CSS class name. This will allow you to customize the styling of the body using that CSS class name."
         },
         {
           name: "small sections",
           choices: ["true", "false"],
-          helpDefault: "false", help: "This property uses CSS to provide a smaller, more compact version of the header sections."
+          helpDefault: "false",
+          help: "This property uses CSS to provide a smaller, more compact version of the header sections."
         },
         {
           name: "allow collapse",
           choices: ["true", "false"],
-          helpDefault: "true", help: "Determines if the accordion can be fully collapsed."
+          helpDefault: "true",
+          help: "Determines if the accordion can be fully collapsed."
         },
         {
           name: "straight edge",
           choices: ["all", "left", "right", "top", "bottom"],
-          helpDefault: "blank", help: "Determines which parts of the element will have a straight edge instead of rounded corners."
+          helpDefault: "blank",
+          help: "Determines which parts of the element will have a straight edge instead of rounded corners."
         }
       ];
 
@@ -223,47 +251,53 @@ pui.layout.getProperties = function (template) {
         name: "onsectionclick",
         type: "js",
         wf: true,
-        helpDefault: "blank", help: "Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded."
+        helpDefault: "blank",
+        help: "Initiates a client-side script when an accordion section is expanded.  The section index is passed to the event as a parameter named \"section\".  If the client-side script evaluates to false, the section will not be expanded."
       });
 
-      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to templateProperties.
+      Array.prototype.push.apply(templateProperties, lazyLoadProps); // Add all lazyLoadProps to templateProperties.
       break;
 
-
-    case 'responsive layout':
+    case "responsive layout":
       templateProperties = [
-        { name: "layout items", helpDefault: "5", help: "The number of containers for this layout.", helpAdd: ["other"], choices: ['1', '2', '3', '4', '5', '6', 'Other...'] },
+        { name: "layout items", helpDefault: "5", help: "The number of containers for this layout.", helpAdd: ["other"], choices: ["1", "2", "3", "4", "5", "6", "Other..."] },
         { name: "style rules", type: "responsive", helpDefault: "blank", help: "String of CSS stylesheet rules, used to define positions and dimensions of containers. Leave empty when styles are expected to be defined in an external stylesheet. See <a target=\"_blank\" href=\"http://www.profoundlogic.com/docs/display/PUI/Responsive+Layout\">Responsive Layout</a> for more information." },
-        { name: "use viewport", helpDefault: "true", help: "Determines how @media rules in &quot;style rules&quot; are interpreted. When &quot;use viewport&quot; is true, " +   "the page size determines which @media rules to apply. When false, the layout's height and width determine which @media rules to apply. <br><br>See " +   "<a href=\"http://www.profoundlogic.com/docs/display/PUI/Responsive+Layout\" target=\"_blank\">Responsive Layout</a> for more information.", choices: ["true", "false"] },
+        { name: "use viewport", helpDefault: "true", help: "Determines how @media rules in &quot;style rules&quot; are interpreted. When &quot;use viewport&quot; is true, " + "the page size determines which @media rules to apply. When false, the layout's height and width determine which @media rules to apply. <br><br>See " + "<a href=\"http://www.profoundlogic.com/docs/display/PUI/Responsive+Layout\" target=\"_blank\">Responsive Layout</a> for more information.", choices: ["true", "false"] },
         { name: "container names", type: "list", helpDefault: "blank", help: "List of container names to aid in designing screens. Names appear only in Responsive Dialog preview and Designer canvas." }
       ];
       break;
 
-
-    case 'tab panel':
+    case "tab panel":
       templateProperties = [];
-      pui.layout.adoptNamedProperties(templateProperties, ["tab names", "active tab", "ontabclick", "tab response", "response AID", 
+      pui.layout.adoptNamedProperties(templateProperties, ["tab names", "active tab", "ontabclick", "tab response", "response AID",
         "bypass validation", "color", "font family", "font size", "font style", "font weight",
         // Note: the layout doesn't use text-align, which is useless with tabs; tabs are only as wide as the text.
         "text decoration", "text transform"]);
-      
-      templateProperties.push({ name: "movable tabs", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"],
-        hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange tabs at runtime.", context: "dspf" });
 
-      Array.prototype.push.apply(templateProperties, lazyLoadProps);  //Add all lazyLoadProps to templateProperties.
+      templateProperties.push({
+        name: "movable tabs",
+        choices: ["true", "false"],
+        type: "boolean",
+        validDataTypes: ["indicator", "expression"],
+        hideFormatting: true,
+        helpDefault: "false",
+        help: "Allows the user to rearrange tabs at runtime.",
+        context: "dspf"
+      });
+
+      Array.prototype.push.apply(templateProperties, lazyLoadProps); // Add all lazyLoadProps to templateProperties.
       break;
-      
-    case 'fieldset':
+
+    case "fieldset":
       templateProperties = [
         { name: "legend", help: "Text to display in the field set&apos;s legend.", helpDefault: "Field Set", "translate": true, bind: true, "showDesignValue": true },
-        { name: "legend align", help: "The alignment of the legend text.", helpDefault: "left", choices: ['left','center','right'] },
-        { name: "legend style", help: "Styling for the legend text.", type: 'long' },
+        { name: "legend align", help: "The alignment of the legend text.", helpDefault: "left", choices: ["left", "center", "right"] },
+        { name: "legend style", help: "Styling for the legend text.", type: "long" },
         { name: "border style", choices: borderStyles, helpDefault: "css", help: "The style of the element&apos;s border." },
         { name: "border width", format: "px", choices: borderWidths, helpDefault: "css", help: "The thickness of the element&apos;s border.", helpAdd: ["other"] }
       ];
-      pui.layout.adoptNamedProperties(templateProperties, ["border color" ]);
+      pui.layout.adoptNamedProperties(templateProperties, ["border color"]);
       break;
-
 
     default:
       // Other: user-defined templates or HTML-based ones that must be parsed.
@@ -271,14 +305,14 @@ pui.layout.getProperties = function (template) {
         template: template,
         returnProps: true
       };
-      
-      // A custom template, including properties, could be defined by a function instead of being parsed in HTML. (Undocumented, but at least one customer uses it.) # 
+
+      // A custom template, including properties, could be defined by a function instead of being parsed in HTML. (Undocumented, but at least one customer uses it.) #
       var tpl = pui.layout["templates"][template];
       if (typeof tpl == "function") return tpl(returnPropsArg);
 
       // The template is HTML text--either from one of our templates or from a user-defined one; properties must be parsed to be returned.
       return pui.layout.template.processHTML(returnPropsArg);
   }
-  
+
   return pui.layout.getPropertiesModel(templateProperties);
 };

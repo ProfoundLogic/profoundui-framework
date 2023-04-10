@@ -17,16 +17,12 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 /**
  * Slider Class
  * @constructor
  */
 
-pui.Slider = function() {
-
+pui.Slider = function () {
   this.div = null;
   this.orientation = "horizontal";
   this.value = 2;
@@ -41,10 +37,10 @@ pui.Slider = function() {
   var bar;
   var handle;
   var hiddenField;
- 
+
   var ipad = ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation);
-  
-  this.init = function() {
+
+  this.init = function () {
     // create bar
     bar = document.createElement("div");
     bar.className = "bar";
@@ -52,19 +48,19 @@ pui.Slider = function() {
     // create hidden field for post value in genie
     if (!me.design && context == "genie") {
       hiddenField = createNamedElement("input", me.div.name);
-      hiddenField.type = "hidden";      
+      hiddenField.type = "hidden";
       document.forms["main"].appendChild(hiddenField);
     }
-    
+
     // create handle
     handle = document.createElement("div");
     handle.className = "handle";
 
-    me.div.onselectstart = function(e) { return false; };
-    bar.onselectstart = function(e) { return false; };
-    handle.onselectstart = function(e) { return false; };
+    me.div.onselectstart = function (e) { return false; };
+    bar.onselectstart = function (e) { return false; };
+    handle.onselectstart = function (e) { return false; };
 
-    function mousedown(event) {
+    function mousedown (event) {
       if (me.readOnly) return;
       if (me.disabled) return;
       var vertical = (me.orientation == "vertical");
@@ -72,13 +68,13 @@ pui.Slider = function() {
       if (event != null && event.touches != null) {
         if (event.touches.length != 1) return;
         touchEvent = true;
-      }      
+      }
       var cursorStartX = getMouseX(event);
       var cursorStartY = getMouseY(event);
       var handleStartX = parseInt(handle.offsetLeft);
       var handleStartY = parseInt(handle.offsetTop);
-  
-      function mousemove(event) {
+
+      function mousemove (event) {
         var y = getMouseY(event) - cursorStartY;
         var x = getMouseX(event) - cursorStartX;
 
@@ -95,20 +91,20 @@ pui.Slider = function() {
         var pixelAdjust;
         if (vertical) pixelAdjust = handle.clientHeight / 2;
         else pixelAdjust = handle.clientWidth / 2;
-        
+
         var pos;
         if (vertical) pos = handleStartY + y;
         else pos = handleStartX + x;
-        
+
         var pct = (pos - pixelStart + pixelAdjust) / pixelRange;
         var value = valueRange * pct + me.minValue;
         if (value < me.minValue) value = me.minValue;
         if (value > me.maxValue) value = me.maxValue;
-        
+
         // round to nearest increment
         value = me.roundByIncrement(value);
-        
-        if (value != me.value) {        
+
+        if (value != me.value) {
           me.setValue(value);
           me.div.modified = true;
           pui.updateReactState(me.div);
@@ -118,12 +114,12 @@ pui.Slider = function() {
           if (!me.design && typeof me.div.onchange == "function") {
             me.div.onchange(event);
           }
-        }        
-        
+        }
+
         if (touchEvent) event.preventDefault();
       }
-        
-      function mouseup() {
+
+      function mouseup () {
         if (touchEvent) {
           removeEvent(document, "touchmove", mousemove);
           removeEvent(document, "touchend", mouseup);
@@ -133,50 +129,50 @@ pui.Slider = function() {
           removeEvent(document, "mouseup", mouseup);
         }
       }
-        
+
       if (touchEvent) {
         addEvent(document, "touchmove", mousemove);
-        addEvent(document, "touchend",   mouseup);
+        addEvent(document, "touchend", mouseup);
       }
       else {
         addEvent(document, "mousemove", mousemove);
-        addEvent(document, "mouseup",   mouseup);
+        addEvent(document, "mouseup", mouseup);
       }
-      
+
       preventEvent(event);
       return false;
     }
     addEvent(handle, "mousedown", mousedown);
     addEvent(handle, "touchstart", mousedown);
-    
+
     // add to div container and draw
     me.div.appendChild(bar);
-    me.div.appendChild(handle);    
+    me.div.appendChild(handle);
     me.draw();
-    
-    pui.widgetsToCleanup.push(me);  //Causes destroy to be called when record format or screen changes.
+
+    pui.widgetsToCleanup.push(me); // Causes destroy to be called when record format or screen changes.
   };
-    
-  this.roundByIncrement = function(value, roundDown) {
+
+  this.roundByIncrement = function (value, roundDown) {
     var halfAdjust = me.incrementValue / 2;
     if (roundDown == true) halfAdjust = 0;
     var newValue = parseInt((value + me.minValue + halfAdjust) / me.incrementValue) * me.incrementValue - me.minValue;
     newValue = Math.round(newValue * 1000000) / 1000000;
     return newValue;
   };
-  
-  this.draw = function() {
+
+  this.draw = function () {
     pui.addCssClass(me.div, "slider");
     if (ipad && !me.design) {
       pui.addCssClass(me.div, "touch");
     }
     pui.removeCssClass(me.div, me.orientation == "vertical" ? "horizontal" : "vertical");
     pui.addCssClass(me.div, me.orientation);
-    
+
     me.setValue(me.value);
   };
-  
-  this.validateValues = function() {
+
+  this.validateValues = function () {
     if (isNaN(me.incrementValue)) me.incrementValue = 1;
     if (me.incrementValue <= 0) me.incrementValue = 1;
     if (isNaN(me.minValue)) me.minValue = 0;
@@ -186,65 +182,57 @@ pui.Slider = function() {
     if (me.value > me.maxValue) me.value = me.maxValue;
     me.value = me.roundByIncrement(me.value);
     me.div.value = me.value;
-    if (!me.design && context == "genie") hiddenField.value = me.value;    
+    if (!me.design && context == "genie") hiddenField.value = me.value;
   };
-  
-  this.setValue = function(value) {
+
+  this.setValue = function (value) {
     value = Number(value);
     if (isNaN(value)) value = me.minValue;
     if (value < me.minValue) value = me.minValue;
-    if (value > me.maxValue) value = me.roundByIncrement(me.maxValue, true);    
-  
+    if (value > me.maxValue) value = me.roundByIncrement(me.maxValue, true);
+
     var valueRange = me.maxValue - me.minValue;
     var vertical = (me.orientation == "vertical");
     var pixelRange = 0;
     var pixelAdjust = 0;
-    
+
     if (vertical) pixelRange = bar.clientHeight;
     else pixelRange = bar.clientWidth;
-    
+
     if (vertical) pixelAdjust = handle.clientHeight / 2;
     else pixelAdjust = handle.clientWidth / 2;
-    
-    var pixelOffset = 10;    
+
+    var pixelOffset = 10;
     var pixels = parseInt(pixelRange / valueRange * (value - me.minValue) - pixelAdjust) + pixelOffset;
     if (isNaN(pixels)) pixels = 0; // in case of division by zero
-    
-    if (vertical){
+
+    if (vertical) {
       handle.style.top = pixels + "px";
-      handle.style.left = ""; //Use stylesheet value.
+      handle.style.left = ""; // Use stylesheet value.
     }
     else {
       handle.style.left = pixels + "px";
       handle.style.top = "";
     }
-    
+
     me.value = value;
     me.div.value = value;
-    if (!me.design && context == "genie") hiddenField.value = me.value;    
+    if (!me.design && context == "genie") hiddenField.value = me.value;
   };
-  
+
   /**
    * Remove global window event that otherwise stays registered. Called by pui.cleanup().
    * @returns {undefined}
    */
-  this.destroy = function(){
-    if ( me == null) return;
+  this.destroy = function () {
+    if (me == null) return;
     me.div = null;
     bar = null;
     handle = null;
     hiddenField = null;
     me = null;
   };
-  
 };
-
-
-
-
-
-
-
 
 pui.widgets.add({
   name: "slider",
@@ -254,31 +242,31 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.dom.slider == null) {
         parms.dom.slider = new pui.Slider();
       }
       parms.dom.slider.div = parms.dom;
       parms.dom.slider.design = parms.design;
-      parms.dom.slider.value = parms.evalProperty("value");       
+      parms.dom.slider.value = parms.evalProperty("value");
       parms.dom.slider.init();
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       if (parms.dom.slider != null) {
         parms.dom.slider.setValue(parms.value);
       }
     },
-    
-    "orientation": function(parms) {
+
+    "orientation": function (parms) {
       if (parms.dom.slider != null) {
         parms.dom.slider.orientation = parms.value;
         parms.dom.slider.draw();
       }
     },
-    
-    "min value": function(parms) {
+
+    "min value": function (parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.minValue = Number(parms.value);
         parms.dom.slider.maxValue = Number(parms.evalProperty("max value"));
@@ -288,7 +276,7 @@ pui.widgets.add({
       }
     },
 
-    "max value": function(parms) {
+    "max value": function (parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.maxValue = Number(parms.value);
         parms.dom.slider.minValue = Number(parms.evalProperty("min value"));
@@ -298,7 +286,7 @@ pui.widgets.add({
       }
     },
 
-    "increment value": function(parms) {
+    "increment value": function (parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.incrementValue = Number(parms.value);
         parms.dom.slider.value = Number(parms.evalProperty("value"));
@@ -306,8 +294,8 @@ pui.widgets.add({
         parms.dom.slider.draw();
       }
     },
-    
-    "read only": function(parms) {      
+
+    "read only": function (parms) {
       if (parms.dom.slider != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.slider.readOnly = true;
@@ -317,8 +305,8 @@ pui.widgets.add({
         }
       }
     },
-    
-    "disabled": function(parms) {      
+
+    "disabled": function (parms) {
       if (parms.dom.slider != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.slider.disabled = true;
@@ -328,32 +316,26 @@ pui.widgets.add({
         }
       }
     },
-    
-    "width": function(parms) {
+
+    "width": function (parms) {
       parms.dom.style.width = parms.value;
       if (parms.dom.slider != null) {
         parms.dom.slider.draw();
       }
     },
 
-    "height": function(parms) {
+    "height": function (parms) {
       parms.dom.style.height = parms.value;
       if (parms.dom.slider != null) {
         parms.dom.slider.draw();
       }
     }
-    
+
   },
 
-  globalAfterSetter: function(parms) {
-
+  globalAfterSetter: function (parms) {
     if (parms.propertyName.indexOf("css class") === 0 && parms.dom.slider != null)
-      parms.dom.slider.draw();
-
+    { parms.dom.slider.draw(); }
   }
-  
+
 });
-
-
-
-

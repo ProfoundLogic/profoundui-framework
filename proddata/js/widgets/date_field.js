@@ -17,60 +17,55 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
-var gDateField = []; 
+var gDateField = [];
 var gDateCount = 0;
 pui.currentDateField = null;
 
-function show_calendar(dateField, str_datetime, format) {
+function show_calendar (dateField, str_datetime, format) {
   var arr_months, week_days;
   var locale;
   var n_weekstart = 0;
   var weekHead;
   var showWeekNum = "false";
-  if (dateField.puiShowWeekNumber != null && dateField.puiShowWeekNumber === "true"){
+  if (dateField.puiShowWeekNumber != null && dateField.puiShowWeekNumber === "true") {
     showWeekNum = dateField.puiShowWeekNumber;
   }
 
   if (pui["locale"] && pui.locales[pui["locale"]])
-    locale = pui["locale"];
+  { locale = pui["locale"]; }
   else {
-    
     if (context == "dspf" && dateField.formattingInfo)
-      locale = dateField.formattingInfo.locale;
+    { locale = dateField.formattingInfo.locale; }
     else if (context == "genie")
-      locale = pui.genie.config["locale"];
+    { locale = pui.genie.config["locale"]; }
     if (locale == "")
-      locale = null;
-    
+    { locale = null; }
   }
   if (locale) {
-    arr_months = pui.locales[locale]['monthNames'];
-    dayNames = pui.locales[locale]['shortDayNames'];
-    if(showWeekNum == "true" && pui.locales[locale]['weekNumberShort']){
-      weekHead = pui.locales[locale]['weekNumberShort'];
+    arr_months = pui.locales[locale]["monthNames"];
+    dayNames = pui.locales[locale]["shortDayNames"];
+    if (showWeekNum == "true" && pui.locales[locale]["weekNumberShort"]) {
+      weekHead = pui.locales[locale]["weekNumberShort"];
     }
-    else if(showWeekNum == "true"){weekHead = "Wk";}
+    else if (showWeekNum == "true") { weekHead = "Wk"; }
 
     week_days = [];
-    if (pui.locales[locale]['weekStart'])
-      n_weekstart = pui.locales[locale]['weekStart'];
-    for(var i=0; i<dayNames.length; i++){
+    if (pui.locales[locale]["weekStart"])
+    { n_weekstart = pui.locales[locale]["weekStart"]; }
+    for (var i = 0; i < dayNames.length; i++) {
       week_days.push(dayNames[i]);
     }
   }
-  else{
-    arr_months = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+  else {
+    arr_months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     week_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-    if(showWeekNum == "true"){weekHead = "Wk";}
+    if (showWeekNum == "true") { weekHead = "Wk"; }
   }
 
   pui.currentDateField = dateField;
-  
-  var dt_datetime = (str_datetime == null || str_datetime == "" ?  new Date() : str2dt(str_datetime));
-  if(dt_datetime==null) dt_datetime = new Date();
+
+  var dt_datetime = (str_datetime == null || str_datetime == "" ? new Date() : str2dt(str_datetime));
+  if (dt_datetime == null) dt_datetime = new Date();
 
   var curMonth = dt_datetime.getMonth();
   var dt_prev_month = new Date(dt_datetime);
@@ -88,15 +83,15 @@ function show_calendar(dateField, str_datetime, format) {
     dt_next_month.setDate(dt_next_month.getDate() - 1);
   }
   var dt_prev_year = new Date(dt_datetime);
-  dt_prev_year.setFullYear(dt_datetime.getFullYear()-1);
+  dt_prev_year.setFullYear(dt_datetime.getFullYear() - 1);
   var dt_next_year = new Date(dt_datetime);
-  dt_next_year.setFullYear(dt_datetime.getFullYear()+1);
+  dt_next_year.setFullYear(dt_datetime.getFullYear() + 1);
   var dt_firstday = new Date(dt_datetime);
   dt_firstday.setDate(1);
-  dt_firstday.setDate(1-(7+dt_firstday.getDay()-n_weekstart)%7);
+  dt_firstday.setDate(1 - (7 + dt_firstday.getDay() - n_weekstart) % 7);
   var dt_lastday = new Date(dt_next_month);
   dt_lastday.setDate(0);
-  
+
   var today = new Date();
 
   var outerTable = document.createElement("table");
@@ -104,7 +99,7 @@ function show_calendar(dateField, str_datetime, format) {
 
   var outerBody = document.createElement("tbody");
   outerTable.appendChild(outerBody);
-  
+
   var otRow = document.createElement("tr");
   outerBody.appendChild(otRow);
 
@@ -121,7 +116,7 @@ function show_calendar(dateField, str_datetime, format) {
 
   var itRow = document.createElement("tr");
   innerBody.appendChild(itRow);
-  
+
   var arrowsPrevYear = document.createElement("td");
   arrowsPrevYear.className = "brndrow1";
   arrowsPrevYear.colSpan = "1";
@@ -130,22 +125,22 @@ function show_calendar(dateField, str_datetime, format) {
   prevYear.setAttribute("arrow", "1");
   prevYear.className = "pui-calendar-arrow-prev-year";
   var prevYearString = dt2dtstr(dt_prev_year);
-  prevYear.onclick = function(e) { 
+  prevYear.onclick = function (e) {
     show_calendar(pui.currentDateField, prevYearString + document.cal.time.value, format);
     preventEvent(e);
   };
   arrowsPrevYear.appendChild(prevYear);
   itRow.appendChild(arrowsPrevYear);
-  
+
   var arrowsPrevMonth = document.createElement("td");
   arrowsPrevMonth.className = "brndrow1";
   arrowsPrevMonth.colSpan = "1";
-  
+
   var prevMonth = document.createElement("span");
   prevMonth.setAttribute("arrow", "1");
   prevMonth.className = "pui-calendar-arrow-prev-month";
   var prevMonthString = dt2dtstr(dt_prev_month);
-  prevMonth.onclick = function(e) { 
+  prevMonth.onclick = function (e) {
     show_calendar(pui.currentDateField, prevMonthString + document.cal.time.value, format);
     preventEvent(e);
   };
@@ -155,7 +150,7 @@ function show_calendar(dateField, str_datetime, format) {
   var monthYear = document.createElement("td");
   monthYear.className = "calendar brndrow1 pui-calendar-month-year-header";
   monthYear.colSpan = "3";
-  if(showWeekNum == "true"){monthYear.colSpan = "4";}
+  if (showWeekNum == "true") { monthYear.colSpan = "4"; }
   monthYear.innerHTML = arr_months[dt_datetime.getMonth()] + " " + dt_datetime.getFullYear();
   itRow.appendChild(monthYear);
 
@@ -167,7 +162,7 @@ function show_calendar(dateField, str_datetime, format) {
   nextMonth.setAttribute("arrow", "1");
   nextMonth.className = "pui-calendar-arrow-next-month";
   var nextMonthString = dt2dtstr(dt_next_month);
-  nextMonth.onclick = function(e) { 
+  nextMonth.onclick = function (e) {
     show_calendar(pui.currentDateField, nextMonthString + document.cal.time.value, format);
     preventEvent(e);
   };
@@ -182,7 +177,7 @@ function show_calendar(dateField, str_datetime, format) {
   nextYear.setAttribute("arrow", "1");
   nextYear.className = "pui-calendar-arrow-next-year";
   var nextYearString = dt2dtstr(dt_next_year);
-  nextYear.onclick = function(e) { 
+  nextYear.onclick = function (e) {
     show_calendar(pui.currentDateField, nextYearString + document.cal.time.value, format);
     preventEvent(e);
   };
@@ -193,46 +188,45 @@ function show_calendar(dateField, str_datetime, format) {
 
   // print weekdays titles
   var weekdays = document.createElement("tr");
-  if(weekHead){
+  if (weekHead) {
     var weekName = document.createElement("td");
     weekName.className = "calendar brndrow2 pui-calendar-week-number-header";
     weekName.innerHTML = weekHead;
     weekdays.appendChild(weekName);
   }
-  for (var n=0; n<7; n++) {
+  for (var n = 0; n < 7; n++) {
     var dayName = document.createElement("td");
     dayName.className = "calendar brndrow2 pui-calendar-weekday-header";
-    dayName.innerHTML = week_days[(n_weekstart+n)%7];
+    dayName.innerHTML = week_days[(n_weekstart + n) % 7];
     weekdays.appendChild(dayName);
   }
 
   innerBody.appendChild(weekdays);
 
   // print calendar table
-  
+
   while (dt_current_day.getMonth() == dt_datetime.getMonth() ||
            dt_current_day.getMonth() == dt_firstday.getMonth()) {
-
-    //calculate default week number
+    // calculate default week number
     var weekNum;
-    if(showWeekNum == "true"){
-      if(weekNum == null) {weekNum = 1;}
+    if (showWeekNum == "true") {
+      if (weekNum == null) { weekNum = 1; }
       var startDate = dt_current_day;
-      if(startDate.getDay() == n_weekstart){
+      if (startDate.getDay() == n_weekstart) {
         // Get Thursday in current week -- this will also mdetrmine which year the week is in
         var currentThursday = new Date(startDate.getTime());
         currentThursday.setHours(0, 0, 0, 0);
-        if(n_weekstart == 0){currentThursday.setDate(currentThursday.getDate() + 4);}
-        else if(n_weekstart == 1){currentThursday.setDate(currentThursday.getDate() + 3);}
-        else if(n_weekstart == 6){currentThursday.setDate(currentThursday.getDate() + 5);}
-        
+        if (n_weekstart == 0) { currentThursday.setDate(currentThursday.getDate() + 4); }
+        else if (n_weekstart == 1) { currentThursday.setDate(currentThursday.getDate() + 3); }
+        else if (n_weekstart == 6) { currentThursday.setDate(currentThursday.getDate() + 5); }
+
         // January 4 is always in week 1.
         var Jan4 = new Date(currentThursday.getFullYear(), 0, 4);
         // Get the Thursday in week 1 and calculate the number of weeks from current week to week 1.
-        weekNum = 1 + Math.round(((currentThursday.getTime() - Jan4.getTime()) / 86400000
-                              - 3 + (Jan4.getDay() + 6) % 7) / 7);
+        weekNum = 1 + Math.round(((currentThursday.getTime() - Jan4.getTime()) / 86400000 -
+                              3 + (Jan4.getDay() + 6) % 7) / 7);
       }
-      
+
       if (typeof pui["week number calculator"] == "function") {
         weekNum = pui["week number calculator"](startDate);
       }
@@ -240,8 +234,8 @@ function show_calendar(dateField, str_datetime, format) {
     // print row header
     var dayRow = document.createElement("tr");
 
-    //Create week number cell only at the start of the week
-    if(showWeekNum == "true" && dt_current_day.getDay() == n_weekstart){
+    // Create week number cell only at the start of the week
+    if (showWeekNum == "true" && dt_current_day.getDay() == n_weekstart) {
       var weekNumCell = document.createElement("td");
       var weekNumClass = "calendar pui-calendar-week-number";
       weekNumCell.className = weekNumClass;
@@ -249,8 +243,7 @@ function show_calendar(dateField, str_datetime, format) {
       dayRow.appendChild(weekNumCell);
     }
 
-    for (var n_current_wday = 0; n_current_wday < 7; n_current_wday++){
-
+    for (var n_current_wday = 0; n_current_wday < 7; n_current_wday++) {
       var oneDay = document.createElement("td");
       var dayClass;
 
@@ -267,7 +260,7 @@ function show_calendar(dateField, str_datetime, format) {
         // print working days of current month
         dayClass = "calendar pui-calendar-workday-date";
       }
-      
+
       if (dt_current_day.getDate() == today.getDate() &&
          dt_current_day.getMonth() == today.getMonth() &&
          dt_current_day.getYear() == today.getYear()) {
@@ -285,39 +278,38 @@ function show_calendar(dateField, str_datetime, format) {
       oneDay.className = dayClass;
       oneDay.puiCurrentDate = usa_dt(dt_current_day, format, dateField.formattingInfo);
 
-      oneDay.onclick = function(e) {
+      oneDay.onclick = function (e) {
         pui.currentDateField.value = e.currentTarget.puiCurrentDate;
         calendar_select();
         preventEvent(e);
-      }
+      };
 
       oneDay.innerHTML = dt_current_day.getDate();
       dayRow.appendChild(oneDay);
-      
-      dt_current_day.setDate(dt_current_day.getDate()+1);
-    }
-    
-    innerBody.appendChild(dayRow);
 
+      dt_current_day.setDate(dt_current_day.getDate() + 1);
+    }
+
+    innerBody.appendChild(dayRow);
   }
 
   if (dateField.puiShowToday != null && (dateField.puiShowToday === "true" || dateField.puiShowToday === "auto-select")) {
     var todayButtonRow = document.createElement("tr");
     innerBody.appendChild(todayButtonRow);
-  
+
     var todayButtonCell = document.createElement("td");
     todayButtonCell.className = "pui-calendar-today-button-row";
     todayButtonCell.colSpan = "7";
-    if(showWeekNum == "true"){todayButtonCell.colSpan = "8";}
+    if (showWeekNum == "true") { todayButtonCell.colSpan = "8"; }
     todayButtonRow.appendChild(todayButtonCell);
-     
+
     var todayButton = document.createElement("span");
     todayButton.className = "pui-calendar-today-button";
-    if (locale && pui.locales[locale]['today'])
-      todayButton.innerHTML = pui.locales[locale]['today'];
+    if (locale && pui.locales[locale]["today"])
+    { todayButton.innerHTML = pui.locales[locale]["today"]; }
     else
-      todayButton.innerHTML = "Today";
-    todayButton.onclick = function(e) {
+    { todayButton.innerHTML = "Today"; }
+    todayButton.onclick = function (e) {
       if (pui.currentDateField.puiShowToday === "auto-select") {
         var currentDate = usa_dt(today, format, dateField.formattingInfo);
         pui.currentDateField.value = currentDate;
@@ -327,7 +319,7 @@ function show_calendar(dateField, str_datetime, format) {
         show_calendar(pui.currentDateField, "", format);
       }
       preventEvent(e);
-    }
+    };
     todayButtonCell.appendChild(todayButton);
   }
 
@@ -339,35 +331,35 @@ function show_calendar(dateField, str_datetime, format) {
   hiddenTime.name = "time";
   hiddenTime.value = dt2tmstr(dt_datetime);
   calForm.appendChild(hiddenTime);
- 
+
   var calobj = document.getElementById("popcal");
   calobj.innerHTML = "";
 
   calobj.className = "pui-calendar";
   var cls = trim(dateField.className.split(" ")[0]);
   if (cls != "")
-    calobj.className += " pui-calendar-" + cls;
-  
+  { calobj.className += " pui-calendar-" + cls; }
+
   var clickobj = dateField.calimg;
   calobj.appendChild(outerTable);
   calobj.appendChild(calForm);
-  
+
   var offset = pui.getOffset(clickobj);
   var imageTop = offset[1];
   var imageLeft = offset[0];
   var imageHeight = clickobj.offsetHeight;
   var imageWidth = clickobj.offsetWidth;
 
-  var position = dateField.calPosition; //from "calendar position" property
+  var position = dateField.calPosition; // from "calendar position" property
   var calWidth = calobj.offsetWidth;
   var calHeight = calobj.offsetHeight;
-   
-  //For null and "right" case - sets to the right and centers
+
+  // For null and "right" case - sets to the right and centers
   var left = imageLeft + imageHeight + 6;
   var top = imageTop - (calHeight / 2);
 
-  switch(position){
-    case "above-right" : 
+  switch (position) {
+    case "above-right" :
       left = imageLeft + imageWidth - 6;
       top = imageTop - calHeight;
       break;
@@ -375,112 +367,112 @@ function show_calendar(dateField, str_datetime, format) {
       left = imageLeft + imageWidth - 6;
       top = imageTop + imageHeight;
       break;
-    case "above-left" : 
-      left = imageLeft - calWidth + 6; 
+    case "above-left" :
+      left = imageLeft - calWidth + 6;
       top = imageTop - calHeight;
       break;
-    case "below-left" : 
-      left = imageLeft - calWidth + 6; 
+    case "below-left" :
+      left = imageLeft - calWidth + 6;
       top = imageTop + imageHeight;
       break;
     case "left" :
       left = imageLeft - calWidth - 5;
       top = imageTop - (calHeight / 2);
       break;
-	}
+  }
 
   var winSize = pui["getWindowSize"]();
-  //Should be [0,0] unless the page is scrolled
-//  var winTop = window.pageYOffset;
-//  var winLeft = window.pageYOffset;
+  // Should be [0,0] unless the page is scrolled
+  //  var winTop = window.pageYOffset;
+  //  var winLeft = window.pageYOffset;
 
-  //Below Screen -- bottom left corner must be above screen bottom
-  if((top + calHeight) > winSize["height"]){
-    top = winSize["height"] - calHeight - 10; 
+  // Below Screen -- bottom left corner must be above screen bottom
+  if ((top + calHeight) > winSize["height"]) {
+    top = winSize["height"] - calHeight - 10;
     left += 10;
   }
-  //Checks if right corner is across right screen edge
-  if((left + calWidth) > winSize["width"]){
+  // Checks if right corner is across right screen edge
+  if ((left + calWidth) > winSize["width"]) {
     left = winSize["width"] - calWidth - 10;
   }
-  //Checks if top is above screen top
-  if(top <  window.pageYOffset){ 
-    top = window.pageYOffset + 10; 
-    left += 10; //caledars off the corners are indented, calendars off to the side shouldn't be
+  // Checks if top is above screen top
+  if (top < window.pageYOffset) {
+    top = window.pageYOffset + 10;
+    left += 10; // caledars off the corners are indented, calendars off to the side shouldn't be
   }
-  //Checks if the left side is across screen left
-  if(left <  window.pageXOffset){ 
+  // Checks if the left side is across screen left
+  if (left < window.pageXOffset) {
     left = window.pageXOffset + 10;
   }
-  
+
   calobj.style.left = left + "px";
   calobj.style.top = top + "px";
 
-  // Using setTimeout() to prevent the 'click' event from "bleeding through" to the 
+  // Using setTimeout() to prevent the 'click' event from "bleeding through" to the
   //  popup calendar when using pui.showCalendar() on Android.
-  setTimeout( function() { 
+  setTimeout(function () {
     var calobj = getObj("popcal");
-    if (calobj != null && calobj.style.visibility !== 'visible') {
-      calobj.style.visibility = 'visible'; 
+    if (calobj != null && calobj.style.visibility !== "visible") {
+      calobj.style.visibility = "visible";
     }
-  }, 0 );
+  }, 0);
 }
 
-function allZeros(strd) {
+function allZeros (strd) {
   for (var i = 0; i < strd.length; i++) {
-    var ch = strd.substr(i,1);
+    var ch = strd.substr(i, 1);
     if (ch >= "1" && ch <= "9") return false;
   }
-  return true;  
+  return true;
 }
 
-function allDigits(strd) {
+function allDigits (strd) {
   for (var i = 0; i < strd.length; i++) {
-    var ch = strd.substr(i,1);
+    var ch = strd.substr(i, 1);
     if (ch < "0" || ch > "9") return false;
   }
-  return true;  
+  return true;
 }
 
-function str2dt(str_datetime){
+function str2dt (str_datetime) {
   var re_date = /^(\d+)\-(\d+)\-(\d+)\s+(\d+)\:(\d+)\:(\d+)$/;
   var result = re_date.exec(str_datetime);
   if (!result) {
     // invalid date format
     return new Date();
   }
-  return (new Date (result[3], result[2]-1, result[1], result[4], result[5], result[6]));
+  return (new Date(result[3], result[2] - 1, result[1], result[4], result[5], result[6]));
 }
-function dt2dtstr(dt_datetime){
-  return (String (
-      dt_datetime.getDate()+"-"+(dt_datetime.getMonth()+1)+"-"+dt_datetime.getFullYear()+" "));
+function dt2dtstr (dt_datetime) {
+  return (String(
+    dt_datetime.getDate() + "-" + (dt_datetime.getMonth() + 1) + "-" + dt_datetime.getFullYear() + " "));
 }
-function usa_dt(dt_datetime, format, formattingInfo){
+function usa_dt (dt_datetime, format, formattingInfo) {
   var dateFormat = null;
   if (formattingInfo != null) {
     var locale;
     if (pui["locale"] && pui.locales[pui["locale"]])
-      locale = pui["locale"]; 
+    { locale = pui["locale"]; }
     else
-      locale = formattingInfo.locale;
-      dateFormat = formattingInfo.dateFormat;
-      if (dateFormat == null) {
-        dateFormat = formattingInfo.customPattern;
-      }
-      if ((dateFormat == '' || dateFormat == null) && (pui['default date pattern'])){
-       dateFormat = pui['default date pattern'];
-      }   
+    { locale = formattingInfo.locale; }
+    dateFormat = formattingInfo.dateFormat;
+    if (dateFormat == null) {
+      dateFormat = formattingInfo.customPattern;
     }
+    if ((dateFormat == "" || dateFormat == null) && (pui["default date pattern"])) {
+      dateFormat = pui["default date pattern"];
+    }
+  }
 
-    if (dateFormat != null) {
-      return dt_datetime.format(dateFormat, locale);
-    }
+  if (dateFormat != null) {
+    return dt_datetime.format(dateFormat, locale);
+  }
 
   if (formattingInfo != null && formattingInfo["dataLength"] == "8" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YY" || format == "DD/MM/YY")) {
     format += "YY";
   }
   if (formattingInfo != null && formattingInfo["dataLength"] == "6" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YYYY" || format == "DD/MM/YYYY")) {
-    format = format.substr(0,6);
+    format = format.substr(0, 6);
   }
 
   var month;
@@ -492,117 +484,117 @@ function usa_dt(dt_datetime, format, formattingInfo){
   var yr4;
   var returnVal;
 
-  month       = String(dt_datetime.getMonth() + 1);
-  day         = String(dt_datetime.getDate());
-  yr          = String(dt_datetime.getFullYear());
+  month = String(dt_datetime.getMonth() + 1);
+  day = String(dt_datetime.getDate());
+  yr = String(dt_datetime.getFullYear());
 
-  mon=month;
-  if(month.length==1) mon = "0" + month;
-  
-  dy=day;
-  if(day.length==1) dy = "0" + day;
-  if( yr.length == 4 ){
+  mon = month;
+  if (month.length == 1) mon = "0" + month;
+
+  dy = day;
+  if (day.length == 1) dy = "0" + day;
+  if (yr.length == 4) {
     yr4 = yr;
-    yr = yr.substring(2,4);
+    yr = yr.substring(2, 4);
     yr2 = yr;
   }
-  else{
+  else {
     yr2 = yr;
-    yr = yr.substring(yr.length - 2,yr.length);
+    yr = yr.substring(yr.length - 2, yr.length);
     yr4 = yr;
   }
-  
+
   returnVal = format;
   returnVal = returnVal.replace("YYYY", yr4);
   returnVal = returnVal.replace("YY", yr2);
   returnVal = returnVal.replace("MM", mon);
   returnVal = returnVal.replace("DD", dy);
-  
+
   return returnVal;
 }
-function usa_dtstr2str(str_date, format, formattingInfo) {
-  if(str_date == null || str_date=="" || allZeros(str_date)) return "";
+function usa_dtstr2str (str_date, format, formattingInfo) {
+  if (str_date == null || str_date == "" || allZeros(str_date)) return "";
 
-  var ch1 = str_date.substr(0,1);
-  var ch2 = str_date.substr(1,1);
+  var ch1 = str_date.substr(0, 1);
+  var ch2 = str_date.substr(1, 1);
   if (ch1 >= "1" && ch1 <= "9" && ch2 == "/") str_date = "0" + str_date;
 
   if (formattingInfo != null && formattingInfo["edtWrd"] != null && formattingInfo["edtWrd"] != "" && allDigits(str_date)) {
-    if ( (formattingInfo["edtWrd"] == "'  /  /  '" && str_date.length == 6) ||
+    if ((formattingInfo["edtWrd"] == "'  /  /  '" && str_date.length == 6) ||
          (formattingInfo["edtWrd"] == "'  /  /    '" && str_date.length == 8)) {
-      str_date = str_date.substr(0,2) + "/" + str_date.substr(2,2) + "/" + str_date.substr(4);
+      str_date = str_date.substr(0, 2) + "/" + str_date.substr(2, 2) + "/" + str_date.substr(4);
     }
   }
-  
+
   if (formattingInfo != null && formattingInfo["dataLength"] == "8" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YY" || format == "DD/MM/YY")) {
     format += "YY";
   }
   if (formattingInfo != null && formattingInfo["dataLength"] == "6" && formattingInfo["decPos"] == "0" && (format == "MM/DD/YYYY" || format == "DD/MM/YYYY")) {
-    format = format.substr(0,6);
+    format = format.substr(0, 6);
   }
 
   var dateFormat = null;
   if (formattingInfo != null) {
-     dateFormat = formattingInfo.dateFormat;   
-     if (dateFormat == null) {
-       dateFormat = formattingInfo.customPattern;
-      }
-      if ((dateFormat == '' || dateFormat == null) && (pui['default date pattern'])){
-       dateFormat = pui['default date pattern'];
-      };     
-     if (dateFormat != null) {
+    dateFormat = formattingInfo.dateFormat;
+    if (dateFormat == null) {
+      dateFormat = formattingInfo.customPattern;
+    }
+    if ((dateFormat == "" || dateFormat == null) && (pui["default date pattern"])) {
+      dateFormat = pui["default date pattern"];
+    };
+    if (dateFormat != null) {
       if (pui["locale"] && pui.locales[pui["locale"]])
-        locale = pui["locale"]; 
+      { locale = pui["locale"]; }
       else
-        locale = formattingInfo.locale;      
+      { locale = formattingInfo.locale; }
       var d = pui.formatting.Date.parse(str_date, dateFormat, locale);
-      if(d){
-        return d.format('d-m-Y 00:00:00', locale);
+      if (d) {
+        return d.format("d-m-Y 00:00:00", locale);
       }
     }
- }
-  
-  var mo = "";  
+  }
+
+  var mo = "";
   var moPos = format.indexOf("MM");
   if (moPos >= 0) mo = str_date.substr(moPos, 2);
-  if (mo.substr(0,1) == " ") mo = "0" + mo.substr(1,1);
-  
-  var day = "";  
+  if (mo.substr(0, 1) == " ") mo = "0" + mo.substr(1, 1);
+
+  var day = "";
   var dayPos = format.indexOf("DD");
   if (dayPos >= 0) day = str_date.substr(dayPos, 2);
-  if (day.substr(0,1) == " ") day = "0" + day.substr(1,1);
-  
+  if (day.substr(0, 1) == " ") day = "0" + day.substr(1, 1);
+
   var yr2 = "";
   var yr4 = "";
   var yr2Pos = format.indexOf("YY");
   var yr4Pos = format.indexOf("YYYY");
   if (yr4Pos >= 0) {
-    yr4 = str_date.substr(yr4Pos, 4);  
+    yr4 = str_date.substr(yr4Pos, 4);
   }
   else {
     if (yr2Pos >= 0) {
-      yr2 = str_date.substr(yr2Pos, 2);  
+      yr2 = str_date.substr(yr2Pos, 2);
       var century = 2000;
       if (Number(yr2) > 39) century = 1900;
       yr4 = Number(yr2) + century;
-   }
+    }
   }
-  
-  var str=day+"-"+mo+"-"+""+yr4+" "+"00:00:00";
-  
+
+  var str = day + "-" + mo + "-" + "" + yr4 + " " + "00:00:00";
+
   return str;
 }
 function dt2tmstr (dt_datetime) {
-  return (String (dt_datetime.getHours()+":"+dt_datetime.getMinutes()+":"+dt_datetime.getSeconds()));
+  return (String(dt_datetime.getHours() + ":" + dt_datetime.getMinutes() + ":" + dt_datetime.getSeconds()));
 }
-function hide_calendar(){
-  var calobj = getObj('popcal');
-  if (calobj != null && calobj.style.visibility !== 'hidden') {
-    calobj.style.visibility='hidden';
+function hide_calendar () {
+  var calobj = getObj("popcal");
+  if (calobj != null && calobj.style.visibility !== "hidden") {
+    calobj.style.visibility = "hidden";
   }
 }
 
-function calendar_select() {
+function calendar_select () {
   pui.currentDateField.modified = true;
   pui.updateReactState(pui.currentDateField);
   if (pui.currentDateField.id != null && pui.currentDateField.id.indexOf(".") == -1 && pui.currentDateField.cursorRecord != null) {
@@ -622,7 +614,7 @@ function calendar_select() {
   }
 
   try { pui.currentDateField.focus(); }
-  catch(e) {};
+  catch (e) {};
   if (pui.currentDateField.onchange != null) {
     pui.currentDateField.onchange();
   }
@@ -632,16 +624,16 @@ function calendar_select() {
   pui.checkEmptyText(pui.currentDateField);
 }
 
-function cal(dateField, format) {
+function cal (dateField, format) {
   if (format == null || format == "") {
     if (context == "genie") format = pui.genie.config.defaultDateFormat;
     else format = pui.defaultDateFormat;
   }
-  if (format == null || format == "") format = "MM/DD/YY";  // default
+  if (format == null || format == "") format = "MM/DD/YY"; // default
   var newElem = document.createElement("div");
   newElem.className = "pui-calendar-icon";
-  if (dateField["cal icon class"]) newElem.className = "pui-calendar-icon " + dateField["cal icon class"]; 
-  newElem.style.left = parseInt(dateField.style.left) +  dateField.offsetWidth + 5 + "px";
+  if (dateField["cal icon class"]) newElem.className = "pui-calendar-icon " + dateField["cal icon class"];
+  newElem.style.left = parseInt(dateField.style.left) + dateField.offsetWidth + 5 + "px";
   var top = parseInt(dateField.style.top);
   top += parseInt((dateField.offsetHeight - 22) / 2);
   newElem.style.top = top + "px";
@@ -649,28 +641,28 @@ function cal(dateField, format) {
 
   // If original field's visiblity was hidden with 5250 attr code (instead of 'visiblity' property)
   // then also hide the calendar image.
-  if (dateField.pui==null || dateField.pui.properties==null || dateField.pui.properties["visibility"]==null || dateField.pui.properties["visibility"]=="") {
-    if ( context=="genie" && dateField.fieldInfo!=null && dateField.fieldInfo["attr"]!=null ) {
+  if (dateField.pui == null || dateField.pui.properties == null || dateField.pui.properties["visibility"] == null || dateField.pui.properties["visibility"] == "") {
+    if (context == "genie" && dateField.fieldInfo != null && dateField.fieldInfo["attr"] != null) {
       var attr = dateField.fieldInfo["attr"];
       if (attr == "27" || attr == "2F" || attr == "37" || attr == "3F") {
-        newElem.style.visibility = "hidden";      
+        newElem.style.visibility = "hidden";
       }
     }
   }
-  
+
   if (dateField.style.zIndex != null) newElem.style.zIndex = dateField.style.zIndex;
-  newElem.onclick = function(e) {
+  newElem.onclick = function (e) {
     show_calendar(dateField, usa_dtstr2str(dateField.value, format, dateField.formattingInfo), format);
     if (!e) e = window.event;
     if (e) {
       e.cancelBubble = true;
       e.returnValue = false;
       if (e.preventDefault) e.preventDefault();
-      if (e.stopPropagation) e.stopPropagation(); 
+      if (e.stopPropagation) e.stopPropagation();
     }
     return false;
   };
-  if (dateField.parentTab!=null && dateField.parentTabPanel!=null) {
+  if (dateField.parentTab != null && dateField.parentTabPanel != null) {
     newElem.parentTab = dateField.parentTab;
     newElem.parentTabPanel = dateField.parentTabPanel;
   }
@@ -684,9 +676,9 @@ function cal(dateField, format) {
   dateField.parentNode.appendChild(newElem);
   pui.moveCal(dateField);
   dateField.calimg.needsToBeMoved = false;
- 
+
   if (document.getElementById("popcal") == null) {
-    addEvent(document, "click", function(e) {
+    addEvent(document, "click", function (e) {
       var target = getTarget(e);
       var parent = target;
       while (parent != null) {
@@ -701,7 +693,7 @@ function cal(dateField, format) {
     document.body.appendChild(popcalDiv);
   }
 }
-pui.moveCal = function(dateField){
+pui.moveCal = function (dateField) {
   var gCalImage = dateField.calimg;
   if (gCalImage == null) return;
   gCalImage.style.display = "none";
@@ -711,13 +703,13 @@ pui.moveCal = function(dateField){
   gCalImage.style.top = top + "px";
   gCalImage.style.display = "block";
 };
-pui.moveCals = function() {
+pui.moveCals = function () {
   for (var i = 0; i < gDateCount; i++) {
     pui.moveCal(gDateField[i]);
   }
 };
 
-pui.removeCal = function(dateField) {
+pui.removeCal = function (dateField) {
   var cal = dateField.calimg;
   if (cal) {
     cal.parentNode.removeChild(cal);
@@ -725,27 +717,26 @@ pui.removeCal = function(dateField) {
   }
 };
 
-
 pui.widgets.add({
   name: "date field",
   tag: "input",
   newId: "Date",
   pickIcon1: pui.normalizeURL("/profoundui/proddata/images/cal.gif"),
-  icon1Class: 'pui-cal pui-cal-input pui-calendar-icon',
-  pickIcon1IsDiv: true, 
+  icon1Class: "pui-cal pui-cal-input pui-calendar-icon",
+  pickIcon1IsDiv: true,
   defaults: {
     "css class": "input"
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       parms.dom.value = parms.evalProperty("value");
       parms.dom.puiShowToday = parms.evalProperty("show today option");
       parms.dom.calPosition = parms.evalProperty("calendar position");
       if (!parms.design) {
         if (parms.dom.tagName == "INPUT" && !parms.dom.readOnly && !parms.dom.disabled) {
-          var format; 
+          var format;
           if (parms.properties["date format"]) {
             format = parms.properties["date format"];
           } else {
@@ -754,81 +745,79 @@ pui.widgets.add({
               if (pui.defaultDateFormat) {
                 format = pui.defaultDateFormat;
               } else {
-                format = "MM/DD/YY";  // default format
+                format = "MM/DD/YY"; // default format
               }
             }
-          } 
-          setTimeout(function() { 
-          
-            // Not sure why this code runs on a 1s time delay -- I found it this way. 
-            // But, what happens is that automatic detect/attach of calendar in Genie runs before this, 
-            // so the 'cal()' function does not run here. 
-            
-            // This means that it was impossible to change widget-level 'date format' to something other than 
-            // Genie's configuration or screen-level value. 
-            
+          }
+          setTimeout(function () {
+            // Not sure why this code runs on a 1s time delay -- I found it this way.
+            // But, what happens is that automatic detect/attach of calendar in Genie runs before this,
+            // so the 'cal()' function does not run here.
+
+            // This means that it was impossible to change widget-level 'date format' to something other than
+            // Genie's configuration or screen-level value.
+
             // -- DR.
-          
+
             if (parms.dom.calimg == null) {
-              cal(parms.dom, format); 
+              cal(parms.dom, format);
             }
             else if (context == "genie") {
               // Force recreate calendar, due to above -- DR.
               pui.removeCal(parms.dom);
-              cal(parms.dom, format);  
+              cal(parms.dom, format);
             }
-            
           }, 1);
           // Default off if not set by 'html auto complete' property.
           if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
             parms.dom.setAttribute("autocomplete", "off");
             if (context == "dspf")
-              parms.dom.setAttribute("name", pui.randomTextBoxName());
+            { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
           }
         }
         if (pui.iPadEmulation && !pui.iPhoneEmulation) {
-          addEvent(parms.dom, "focus", function(event) {
+          addEvent(parms.dom, "focus", function (event) {
             getObj("ipadKeyboard").style.display = "";
           });
-          addEvent(parms.dom, "blur", function(event) {
+          addEvent(parms.dom, "blur", function (event) {
             getObj("ipadKeyboard").style.display = "none";
           });
         }
-        parms.dom.sizeMe = function() {
+        parms.dom.sizeMe = function () {
           pui.moveCal(parms.dom);
         };
       }
       // Design mode
-      else {  
+      else {
         parms.dom.readOnly = true;
-        parms.dom.sizeMe = function() {
+        parms.dom.sizeMe = function () {
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
         };
       }
-      parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
+      parms.dom.alwaysSizeMe = true; // Don't just do sizeMe when dimensions are percents and in layouts.
     },
-    "value": function(parms) {
+    "value": function (parms) {
       parms.dom.value = parms.value;
     },
-    "input type": function(parms) {
+    "input type": function (parms) {
       try {
         if (!parms.design) parms.dom.setAttribute("type", parms.value);
-      } catch(e) { }
+      } catch (e) { }
     },
-    "visibility": function(parms) {
+    "visibility": function (parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
       // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
       if (parms.dom.calimg) {
         if (parms.value == "hidden") {
-          parms.dom.calimg.style.visibility = "hidden"; 
-        } else {    
-          parms.dom.calimg.style.visibility = ""; 
-        }        
+          parms.dom.calimg.style.visibility = "hidden";
+        } else {
+          parms.dom.calimg.style.visibility = "";
+        }
       }
     },
-    "css class": function(parms) {
+    "css class": function (parms) {
       var className = parms.value.split(" ").shift();
       className = "pui-cal pui-cal-" + className + " pui-calendar-icon";
       if (parms.design) {
@@ -837,39 +826,38 @@ pui.widgets.add({
         parms.dom["icon1 class"] = className;
       } else {
         if (parms.dom.calimg) {
-          parms.dom.calimg.className = className; 
+          parms.dom.calimg.className = className;
         } else {
           parms.dom["cal icon class"] = className;
         }
       }
     },
-    "show today option": function(parms) {
-       parms.dom.puiShowToday = parms.value;
+    "show today option": function (parms) {
+      parms.dom.puiShowToday = parms.value;
     },
-    "show week number": function(parms) {
-      //For displaying week number with in a set cycle length (ex. 1 year = 52)
+    "show week number": function (parms) {
+      // For displaying week number with in a set cycle length (ex. 1 year = 52)
       parms.dom.puiShowWeekNumber = parms.value;
     },
-    "browser auto complete": function(parms) {
+    "browser auto complete": function (parms) {
       if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
           if (parms.value == "off")
-            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
           else
-            parms.dom.removeAttribute("name");
+          { parms.dom.removeAttribute("name"); }
         }
       }
     }
-    
+
   },
 
-  globalAfterSetter: function(parms) {
-
-    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+  globalAfterSetter: function (parms) {
+    if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       pui.floatPlaceholder(parms.dom);
     }
-    
+
     var calImg;
     if (parms.dom && parms.dom.floatingPlaceholder != null) {
       pui.movePropertiesFromFloatingPlaceholderDiv(parms);
@@ -881,8 +869,8 @@ pui.widgets.add({
     }
 
     if (calImg) {
-      if (parms.properties["read only"] == "true" || parms.properties["read only"] == true
-          || parms.properties["disabled"] == "true" || parms.properties["disabled"] == true) {
+      if (parms.properties["read only"] == "true" || parms.properties["read only"] == true ||
+          parms.properties["disabled"] == "true" || parms.properties["disabled"] == true) {
         calImg.style.visibility = "hidden";
       }
       else {
@@ -890,5 +878,5 @@ pui.widgets.add({
       }
     }
   }
-  
+
 });

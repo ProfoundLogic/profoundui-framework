@@ -17,21 +17,19 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.widgets.add({
   name: "html container",
   inlineEdit: true,
-  
+
   // Pre-load ejs.min.js before rendering starts, if the container uses EJS tags.
   "dependencies": [{
     "script": "/ejs/ejs.min.js",
-    "condition": function(props, data, designer){
-      if (designer) return true; //Always load for Visual Designer.
-      if (typeof props["html"] == "string") return props["html"].indexOf("<%") >= 0;  //Hard-coded value.
-      if (context === 'dspf' && pui.isBound(props['html'])){
-        var value = pui.evalBoundProperty(props['html'], data);
-        if (value != null ) return value.indexOf("<%") >= 0;
+    "condition": function (props, data, designer) {
+      if (designer) return true; // Always load for Visual Designer.
+      if (typeof props["html"] == "string") return props["html"].indexOf("<%") >= 0; // Hard-coded value.
+      if (context === "dspf" && pui.isBound(props["html"])) {
+        var value = pui.evalBoundProperty(props["html"], data);
+        if (value != null) return value.indexOf("<%") >= 0;
       }
       return false;
     }
@@ -44,8 +42,8 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.design) {
         parms.dom.innerHTML = parms.evalProperty("html");
       }
@@ -53,8 +51,8 @@ pui.widgets.add({
         parms.dom.innerHTML = pui.ejs(parms.evalProperty("html"));
       }
     },
-    
-    "html": function(parms) {
+
+    "html": function (parms) {
       if (parms.design) {
         parms.dom.innerHTML = parms.value;
       }
@@ -66,4 +64,3 @@ pui.widgets.add({
   }
 
 });
-

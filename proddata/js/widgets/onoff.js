@@ -17,21 +17,19 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * On Off Switch Class
  * @constructor
  */
 
-pui.OnOffSwitch = function() {
+pui.OnOffSwitch = function () {
   this.container = null;
   this.disabled = false;
   this.readOnly = false;
   this.isOn = true;
   this.wideHandle = true;
   this.designMode = false;
-  
+
   var me = this;
   var offLabel = document.createElement("label");
   var offSpan = document.createElement("span");
@@ -41,8 +39,8 @@ pui.OnOffSwitch = function() {
   var handleRightDiv = document.createElement("div");
   var handleCenterDiv = document.createElement("div");
   var draggingHandle = false;
-  
-  function getOnPoint() {
+
+  function getOnPoint () {
     var totalWidth = me.container.offsetWidth;
     if (totalWidth == 0) {
       totalWidth = parseInt(me.container.style.width);
@@ -54,7 +52,7 @@ pui.OnOffSwitch = function() {
     return onPoint;
   }
 
-  function click(event) {
+  function click (event) {
     if (me.readOnly) return;
     if (me.disabled) return;
     if (me.designMode) return;
@@ -62,13 +60,13 @@ pui.OnOffSwitch = function() {
     me.toggle(true);
     me.setModified(event);
   }
-  
-  this.init = function() {
+
+  this.init = function () {
     offLabel.className = "off-label";
-    //offSpan.innerHTML = "OFF";
+    // offSpan.innerHTML = "OFF";
     offLabel.appendChild(offSpan);
     onLabel.className = "on-label";
-    //onSpan.innerHTML = "ON";
+    // onSpan.innerHTML = "ON";
     onLabel.appendChild(onSpan);
     handleLeftDiv.className = "onoff-handle-left";
     handleRightDiv.className = "onoff-handle-right";
@@ -86,7 +84,7 @@ pui.OnOffSwitch = function() {
     removeEvent(me.container, "click", click);
     addEvent(me.container, "click", click);
 
-    function dragStart(event) {
+    function dragStart (event) {
       if (me.readOnly) return;
       if (me.disabled) return;
       if (me.designMode) return;
@@ -95,10 +93,10 @@ pui.OnOffSwitch = function() {
       if (event != null && event.touches != null) {
         if (event.touches.length != 1) return;
         touchEvent = true;
-      }      
+      }
       var cursorStartX = getMouseX(event);
-      var handleStartX = parseInt(handleLeftDiv.style.left);  
-      function dragMove(event) {
+      var handleStartX = parseInt(handleLeftDiv.style.left);
+      function dragMove (event) {
         draggingHandle = true;
         var pos = handleStartX + getMouseX(event) - cursorStartX;
         if (pos < 0) pos = 0;
@@ -106,7 +104,7 @@ pui.OnOffSwitch = function() {
         me.positionHandle(pos);
         if (touchEvent) event.preventDefault();
       }
-      function dragEnd(event) {
+      function dragEnd (event) {
         if (touchEvent) {
           removeEvent(document, "touchmove", dragMove);
           removeEvent(document, "touchend", dragEnd);
@@ -133,16 +131,16 @@ pui.OnOffSwitch = function() {
           else {
             me.refresh(true);
           }
-          setTimeout(function() { draggingHandle = false }, 0);
+          setTimeout(function () { draggingHandle = false; }, 0);
         }
-      } 
+      }
       if (touchEvent) {
         addEvent(document, "touchmove", dragMove);
-        addEvent(document, "touchend",   dragEnd);
+        addEvent(document, "touchend", dragEnd);
       }
       else {
         addEvent(document, "mousemove", dragMove);
-        addEvent(document, "mouseup",   dragEnd);
+        addEvent(document, "mouseup", dragEnd);
       }
       preventEvent(event);
       return false;
@@ -151,9 +149,9 @@ pui.OnOffSwitch = function() {
     addEvent(me.container, "touchstart", dragStart);
 
     me.size();
-  }
- 
-  this.size = function() {
+  };
+
+  this.size = function () {
     var totalWidth = me.container.offsetWidth;
     if (totalWidth == 0) {
       totalWidth = parseInt(me.container.style.width);
@@ -164,9 +162,9 @@ pui.OnOffSwitch = function() {
     if (offLabelWidth < 0) offLabelWidth = 0;
     offLabel.style.width = offLabelWidth + "px";
     me.setWideHandle(me.wideHandle);
-  }
-  
-  this.setWideHandle = function(isWide) {
+  };
+
+  this.setWideHandle = function (isWide) {
     if (isWide) {
       var totalWidth = me.container.offsetWidth;
       if (totalWidth == 0) {
@@ -183,13 +181,12 @@ pui.OnOffSwitch = function() {
     }
     me.wideHandle = isWide;
     me.refresh();
-  }
-  
-  this.positionHandle = function(x, animate) {
+  };
 
-    var transitionProperties = ['transition', 'MozTransition', 'WebkitTransition', 'msTransition', 'OTransition'];
+  this.positionHandle = function (x, animate) {
+    var transitionProperties = ["transition", "MozTransition", "WebkitTransition", "msTransition", "OTransition"];
     var anim = " 0.3s ease";
-    for (var i= 0; i < transitionProperties.length; i++) {
+    for (var i = 0; i < transitionProperties.length; i++) {
       var tProp = transitionProperties[i];
       if (animate) {
         var anim = " 0.2s ease";
@@ -205,74 +202,74 @@ pui.OnOffSwitch = function() {
         handleLeftDiv.style[tProp] = "";
       }
     }
-  
-    var onPoint = getOnPoint();    
+
+    var onPoint = getOnPoint();
     onLabel.style.width = (x + 4) + "px";
     onSpan.style.marginLeft = (x - onPoint) + "px";
     offSpan.style.marginRight = (-x) + "px";
     handleLeftDiv.style.left = x + "px";
-  }
-  
-  this.setOn = function(animate) {
-    var onPoint = getOnPoint(); 
+  };
+
+  this.setOn = function (animate) {
+    var onPoint = getOnPoint();
     me.positionHandle(onPoint, animate);
     me.isOn = true;
-  }
-  
-  this.setOff = function(animate) {
+  };
+
+  this.setOff = function (animate) {
     me.positionHandle(0, animate);
     me.isOn = false;
-  }
+  };
 
-  this.set = function(value, animate) {
+  this.set = function (value, animate) {
     if (value) me.setOn(animate);
     else me.setOff(animate);
-  }
-  
-  this.toggle = function(animate) {
+  };
+
+  this.toggle = function (animate) {
     me.set(!me.isOn, animate);
-  }
-  
-  this.refresh = function(animate) {
+  };
+
+  this.refresh = function (animate) {
     me.set(me.isOn, animate);
-  }
+  };
 
-  this.changeOnText = function(text) {
+  this.changeOnText = function (text) {
     onSpan.innerHTML = text;
-  }
+  };
 
-  this.changeOffText = function(text) {
+  this.changeOffText = function (text) {
     offSpan.innerHTML = text;
-  }
-  
-  this.disable = function() {
+  };
+
+  this.disable = function () {
     me.disabled = true;
     pui.addCssClass(me.container, "onoff-switch-disabled");
-  }
-  
-  this.enable = function() {
+  };
+
+  this.enable = function () {
     me.disabled = false;
     pui.removeCssClass(me.container, "onoff-switch-disabled");
-  }
-  
-  this.setFontProperty = function(propName, value) {
+  };
+
+  this.setFontProperty = function (propName, value) {
     var words = propName.split(" ");
     var styleName = propName;
     if (words.length == 2) {
-      styleName = words[0] + words[1].substr(0,1).toUpperCase() + words[1].substr(1);
+      styleName = words[0] + words[1].substr(0, 1).toUpperCase() + words[1].substr(1);
     }
     onSpan.style[styleName] = value;
     offSpan.style[styleName] = value;
-  }
-  
-  this.setMouseCursor = function(value) {
+  };
+
+  this.setMouseCursor = function (value) {
     me.container.style.cursor = value;
     onLabel.style.cursor = value;
     offLabel.style.cursor = value;
     handleLeftDiv.style.cursor = value;
-  }
+  };
 
-  this.setModified = function(event) {
+  this.setModified = function (event) {
     me.container.modified = true;
     pui.updateReactState(me.container);
     if (context == "genie" && me.container.fieldInfo != null && me.container.fieldInfo["idx"] != null) {
@@ -281,16 +278,8 @@ pui.OnOffSwitch = function() {
     if (!me.designMode && typeof me.container.onchange == "function") {
       me.container.onchange(event);
     }
-  }
-}
-
-
-
-
-
-
-
-
+  };
+};
 
 pui.widgets.add({
   name: "on off switch",
@@ -300,8 +289,8 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.dom.onOffSwitch == null) {
         parms.dom.onOffSwitch = new pui.OnOffSwitch();
       }
@@ -310,111 +299,105 @@ pui.widgets.add({
       parms.dom.onOffSwitch.init();
       parms.dom.onOffSwitch.set(parms.evalProperty("value") == parms.evalProperty("on value"));
       if (parms.design) {
-        
         parms.dom.onOffSwitch.setMouseCursor("default");
         var nmodel = getPropertiesNamedModel();
         var propConfig;
         if (parms.properties["on text"]) {
-          
           propConfig = nmodel["on text"];
           applyPropertyToField(
             propConfig,
             parms.properties,
             parms.designItem.dom,
-            parms.properties["on text"], 
-            true, 
+            parms.properties["on text"],
+            true,
             parms.designItem
           );
-        
         }
         if (parms.properties["off text"]) {
-          
           propConfig = nmodel["off text"];
           applyPropertyToField(
             propConfig,
             parms.properties,
             parms.designItem.dom,
-            parms.properties["off text"], 
-            true, 
+            parms.properties["off text"],
+            true,
             parms.designItem
           );
-        
         }
-        
       }
       else {
         parms.dom.onOffSwitch.onValue = parms.evalProperty("on value");
         parms.dom.onOffSwitch.offValue = parms.evalProperty("off value");
       }
-      parms.dom.sizeMe = function() {
+      parms.dom.sizeMe = function () {
         parms.dom.onOffSwitch.size();
-      }
+      };
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.set(parms.value == parms.evalProperty("on value"));
       }
     },
 
-    "on value": function(parms) {
+    "on value": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.set(parms.evalProperty("value") == parms.value);
       }
     },
-    
-    "read only": function(parms) {      
+
+    "read only": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.readOnly = (parms.value == true || parms.value == "true");
       }
     },
-    
-    "disabled": function(parms) {      
+
+    "disabled": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         if (parms.value == true || parms.value == "true") parms.dom.onOffSwitch.disable();
         else parms.dom.onOffSwitch.enable();
       }
     },
 
-    "wide handle": function(parms) {      
+    "wide handle": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.setWideHandle(parms.value !== false && parms.value !== "false");
       }
     },
-    
-    "on text": function(parms) {      
+
+    "on text": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.changeOnText(parms.value);
       }
     },
-    
-    "off text": function(parms) {      
+
+    "off text": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.onOffSwitch.changeOffText(parms.value);
       }
-    },    
+    },
 
-    "width": function(parms) {
+    "width": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.style.width = parms.value;
         parms.dom.onOffSwitch.size();
       }
     },
 
-    "height": function(parms) {
+    "height": function (parms) {
       if (parms.dom.onOffSwitch != null) {
         parms.dom.style.height = parms.value;
         parms.dom.onOffSwitch.size();
       }
     }
-   
+
   },
-  
-  globalAfterSetter: function(parms) {
-    if (parms.propertyName.substr(0,9) == "css class" && parms.dom.onOffSwitch != null) {
+
+  globalAfterSetter: function (parms) {
+    if (parms.propertyName.substr(0, 9) == "css class" && parms.dom.onOffSwitch != null) {
       pui.addCssClass(parms.dom, "onoff-switch");
     }
-    switch(parms.propertyName) {
+    switch (parms.propertyName) {
       case "color":
       case "font family":
       case "font size":
@@ -431,14 +414,6 @@ pui.widgets.add({
         }
         break;
     }
-    
   }
 
 });
-
-
-
-
-
-
-

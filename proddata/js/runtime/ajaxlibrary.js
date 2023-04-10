@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
- 
 /*****************************************************************************************************/
 /*                                                                                                   */
 /* RPGsp AJAX Library Core                                                                           */
@@ -59,7 +57,7 @@
 /*                                                                                                   */
 /* Version 1.5.8 chgs:  Don't set Content-Length as it is now considered unsafe by browsers          */
 /*                                                                                                   */
-/* Version 1.5.9 chgs:  Allow reqData (alias for postData) and allow its use in both PUT and POST    */         
+/* Version 1.5.9 chgs:  Allow reqData (alias for postData) and allow its use in both PUT and POST    */
 /*                      requests. When sending non-form data, any name/value pairs should go onto    */
 /*                      URL instead of onto postData.                                                */
 /*                                                                                                   */
@@ -70,60 +68,59 @@
 /*                      Safari 3 Beta / Win                                                          */
 /*                      Chrome                                                                       */
 /*****************************************************************************************************/
-  
+
 /**
  * RPGspRequest Class
  * @constructor
  */
 
-function RPGspRequest(arg) {
-
+function RPGspRequest (arg) {
   // Public fields.
-  this["method"]         = null;
-  this["postData"]       = null;
-  this["reqData"]        = null;
-  this["url"]            = null;
-  this["async"]          = null;
-  this["user"]           = null;
-  this["password"]       = null;
-  this["suppressAlert"]  = null;
-  this["cacheBuster"]    = null;
-  this["onsuccess"]      = null;
-  this["onfail"]         = null;
-  this["onready"]        = null;
-  this["headers"]        = {};
-  this["params"]         = null;
-  this["sendAsBinary"]   = true;
+  this["method"] = null;
+  this["postData"] = null;
+  this["reqData"] = null;
+  this["url"] = null;
+  this["async"] = null;
+  this["user"] = null;
+  this["password"] = null;
+  this["suppressAlert"] = null;
+  this["cacheBuster"] = null;
+  this["onsuccess"] = null;
+  this["onfail"] = null;
+  this["onready"] = null;
+  this["headers"] = {};
+  this["params"] = null;
+  this["sendAsBinary"] = true;
   this["overrideMimeType"] = null;
-  
+
   // Private fields.
-  var xmlhttpObj     = null;  
-  var statusMessage  = null;
-  var sendOK         = null;
-  var sending        = null;
-  var alertFn = (typeof(pui) != "undefined" && typeof(pui.alert) != "undefined") ? pui.alert : alert;
-  
+  var xmlhttpObj = null;
+  var statusMessage = null;
+  var sendOK = null;
+  var sending = null;
+  var alertFn = (typeof (pui) != "undefined" && typeof (pui.alert) != "undefined") ? pui.alert : alert;
+
   // Reference to object that allows privileged methods to access the public members.
-  var me = this;    
-  
+  var me = this;
+
   // CONSTRUCTOR START.
-  
+
   // Handle alternate parameter style.
-  if (typeof(arguments[0]) == "object") {
+  if (typeof (arguments[0]) == "object") {
     var paramObj = arguments[0];
     for (var i in paramObj) {
-      if (typeof(this[i]) != "undefined") {
+      if (typeof (this[i]) != "undefined") {
         this[i] = paramObj[i];
       }
-    }    
+    }
   }
   else {
     this["url"] = arguments[0];
   }
-  
+
   // Create page request object.
   if (window.XMLHttpRequest) {
-    xmlhttpObj = new XMLHttpRequest();    
+    xmlhttpObj = new XMLHttpRequest();
   }
   else if (window.ActiveXObject) {
     xmlhttpObj = new ActiveXObject("Microsoft.XMLHTTP");
@@ -132,381 +129,352 @@ function RPGspRequest(arg) {
     alertFn("Ajax request error: Unsupported browser.");
     return;
   }
-  
+
   // CONSTRUCTOR END.
-  
+
   // Privileged methods.
-  this.send = function() {
+  this.send = function () {
+    // Validate the properties set by the user, and assign defaults for those
+    // properties not set.
+    var method = null;
+    var async = null;
+    var postData = null;
 
-                // Validate the properties set by the user, and assign defaults for those 
-                // properties not set.
-                var method   = null;
-                var async    = null;
-                var postData = null; 
-                
-                if (me["method"] == null) {
-                  method = "GET";
-                }
-                else {
-                  if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT" || me["method"].toUpperCase() != "DELETE")) {
-                    alertFn('Invalid value for property: "method".');
-                    return;
-                  }
-                  else {
-                    method = me["method"].toUpperCase();
-                  }                
-                }
-                
-                if (method == "POST" || method == "PUT" || method == "DELETE") {
-                  if (me["reqData"] != null) {
-                    postData = me["reqData"];
-                  }
-                  else if (me["postData"] != null) {
-                    postData = me["postData"];
-                  }
-                  if (postData != null) {
-                    if (typeof postData != "string") {
-                      alertFn('Invalid value for property: "postData".');
-                      return;
-                    }
-                  }
-                  else {
-                    // Never send null POST data. This confuses Chrome into changing the request type
-                    // and failing, in some situations.
-                    postData = "";
-                  }  
-                } 
-                
-                if (me["async"] == null) {
-                  async = true;
-                }
-                else if (me["async"] != true && me["async"] != false) {
-                  alertFn('Invalid value for property: "async".');
-                  return;
-                }
-                else {
-                  async = me["async"];
-                }
-                
-                // TODO: Somehow validate if this is a correctly formed URL to avoid JS errors on the send().
-                if (typeof me["url"] != "string") {
-                  alertFn('Invalid value for property: "url".');
-                  return;
-                }
-                
-                if (me["user"] != null) {
-                  if (typeof me["user"] != "string") {
-                    alertFn('Invalid value for property: "user".');
-                    return;                    
-                  }
-                }
-                
-                if (me["password"] != null) {
-                  if (typeof me["password"] != "string") {
-                    alertFn('Invalid value for property: "password".');
-                    return;                    
-                  }
-                }
+    if (me["method"] == null) {
+      method = "GET";
+    }
+    else {
+      if ((typeof me["method"] != "string") && (me["method"].toUpperCase() != "GET" || me["method"].toUpperCase() != "POST" || me["method"].toUpperCase() != "PUT" || me["method"].toUpperCase() != "DELETE")) {
+        alertFn('Invalid value for property: "method".');
+        return;
+      }
+      else {
+        method = me["method"].toUpperCase();
+      }
+    }
 
-                if (me["onsuccess"] != null) {
-                  if (typeof me["onsuccess"] != "function") {
-                    alertFn('Invalid value for event: "onsuccess".');
-                    return;
-                  }
-                }
-                
-                if (me["onfail"] != null) {
-                  if (typeof me["onfail"] != "function") {
-                    alertFn('Invalid value for event: "onfail".');
-                    return;
-                  }
-                }
-                
-                if (me["onready"] != null) {
-                  if (typeof me["onready"] != "function") {
-                    alertFn('Invalid value for event: "onready".');
-                    return;
-                  }
-                }
+    if (method == "POST" || method == "PUT" || method == "DELETE") {
+      if (me["reqData"] != null) {
+        postData = me["reqData"];
+      }
+      else if (me["postData"] != null) {
+        postData = me["postData"];
+      }
+      if (postData != null) {
+        if (typeof postData != "string") {
+          alertFn('Invalid value for property: "postData".');
+          return;
+        }
+      }
+      else {
+        // Never send null POST data. This confuses Chrome into changing the request type
+        // and failing, in some situations.
+        postData = "";
+      }
+    }
 
-                // Determine if postData is a set of name/value pairs (i.e. url-encoded form)
-                var isForm = true;
-                if (postData != null) {
-                  for (var name in me["headers"]) {
-                    if (name.toUpperCase() == "CONTENT-TYPE") {
-                       var ctype = me["headers"][name].toLowerCase();
-                       if (ctype.indexOf("www-form-urlencoded") == -1) {
-                         isForm = false;
-                       }
-                    }
-                  }                                    
-                }
+    if (me["async"] == null) {
+      async = true;
+    }
+    else if (me["async"] != true && me["async"] != false) {
+      alertFn('Invalid value for property: "async".');
+      return;
+    }
+    else {
+      async = me["async"];
+    }
 
-                // Handle params object.      
-                var url = me["url"];
-                var params = me["params"];                
-              
-                if (typeof(params) == "object") {
-                  var paramString = "";  
-                  for (var name in params) {
-                    var paramValue = params[name];
-                    var paramValues = [];
-                    if (typeof paramValue == "object") {  // handle multiple occurrences
-                      if (paramValue.length != null && paramValue.length > 0) {
-                        paramValues = paramValue;
-                      }
-                    }
-                    else {
-                      paramValues.push(paramValue);  // there is only 1 value
-                    }
-                    for (var i = 0; i < paramValues.length; i++) {
-                      if (paramString != "") paramString += "&";
-                      paramString += encodeURIComponent(name) + "=" + encodeURIComponent(paramValues[i]);     
-                    }
-                  }
-                  if (paramString != "") {
-                    if (isForm && (method == "POST" || method == "PUT" || method == "DELETE")) {
-                      if (postData != null && postData != "") postData += "&";
-                      else postData = "";
-                      postData += paramString;  
-                    }
-                    else {
-                      // Try to "intelligently" append to the URL.
-                      var urlParts = url.split("?");
-                      if (urlParts.length == 2 && urlParts[1] != "") {
-                        url = urlParts[0] + "?" + urlParts[1] + "&" + paramString;
-                      }
-                      else {
-                        url += "?" + paramString;
-                      }
-                    }
-                  }
-                }
+    // TODO: Somehow validate if this is a correctly formed URL to avoid JS errors on the send().
+    if (typeof me["url"] != "string") {
+      alertFn('Invalid value for property: "url".');
+      return;
+    }
 
-                if (method === "GET" && (me["cacheBuster"] === null || me["cacheBuster"] === true)) {
-                  url = pui["addUrlCacheBuster"](url);
-                }
-                
-                try {
-                
-                  if (typeof me["user"] == "string" && typeof me["password"] == "string")
-                    xmlhttpObj.open(method, url, async, me["user"], me["password"]);
-                  else
-                    xmlhttpObj.open(method, url, async);
-                  
-                  // Set any headers specified.
-                  var userCT = false;
-                  var headers = me["headers"];
-                  for (var name in headers) {
-                    xmlhttpObj.setRequestHeader(name, headers[name]);
-                    if (name.toUpperCase() == "CONTENT-TYPE") {
-                      userCT = true;  
-                    }
-                  }                  
-                  
-                  // Set content-type for POST request.
-                  if (method == "POST" || method == "PUT" || method == "DELETE") {
-                    if (!userCT) {
-                      xmlhttpObj.setRequestHeader('Content-type','application/x-www-form-urlencoded');
-                    }
-                  }
+    if (me["user"] != null) {
+      if (typeof me["user"] != "string") {
+        alertFn('Invalid value for property: "user".');
+        return;
+      }
+    }
 
-                  if (typeof me["overrideMimeType"] == 'string') {
-                    if (typeof xmlhttpObj["overrideMimeType"] == 'function') {
-                      xmlhttpObj["overrideMimeType"](me["overrideMimeType"]);
-                    }
-                  }
-                  
-                }
-                catch(e) {
-                  alertFn(e);
-                  return;
-                }
-                
-                sending = true;
-                var aborted = false;
-                
-                // Register handler only if sending an asynchronous request. Otherwise, call the
-                // handler after the send. 
-                // This is necessary to get around a Mozilla quirk - the handler is not called for synchronous requests.
-                if (async == true) {
-                  xmlhttpObj.onload = handler;
-                  xmlhttpObj.onerror = handler;
-                  xmlhttpObj.onabort = function() {
-                    aborted = true;
-                    handler();
-                  }
-                }
+    if (me["password"] != null) {
+      if (typeof me["password"] != "string") {
+        alertFn('Invalid value for property: "password".');
+        return;
+      }
+    }
 
-                if (me["sendAsBinary"] == true) {
-                
-                  try {
-                    xmlhttpObj["sendAsBinary"](postData);
-                  }
-                  catch(e) {
-                    xmlhttpObj.send(postData);   
-                  }                
-                
-                }
-                else {
-                  xmlhttpObj.send(postData);   
-                }
+    if (me["onsuccess"] != null) {
+      if (typeof me["onsuccess"] != "function") {
+        alertFn('Invalid value for event: "onsuccess".');
+        return;
+      }
+    }
 
-                
-                if (async != true) handler();
-                  
-                function handler() {
-                 if (xmlhttpObj.readyState == 4) {
-                  if (xmlhttpObj.status === 0) {
-                    statusMessage = aborted ? "Request aborted." : "Request failed. Check the browser console for more details.";
-                  }
-                  else {
-                    statusMessage = xmlhttpObj.status + " - " + xmlhttpObj.statusText;
-                  }
-                  if (me["onready"] != null) me["onready"](me);
-                  if (xmlhttpObj.status == 200) {
-                    sendOK = true;
-                    if (me["onsuccess"] != null) me["onsuccess"](me);
-                  }
-                  else {
-                    sendOK = false;
-                    if (me["suppressAlert"] != true) {
-                      alertFn(statusMessage);
-                    }
-                    if (me["onfail"] != null) me["onfail"](me);
-                  }
-                   sending = false;
-                 }
-                }
-                
-  }
+    if (me["onfail"] != null) {
+      if (typeof me["onfail"] != "function") {
+        alertFn('Invalid value for event: "onfail".');
+        return;
+      }
+    }
+
+    if (me["onready"] != null) {
+      if (typeof me["onready"] != "function") {
+        alertFn('Invalid value for event: "onready".');
+        return;
+      }
+    }
+
+    // Determine if postData is a set of name/value pairs (i.e. url-encoded form)
+    var isForm = true;
+    if (postData != null) {
+      for (var name in me["headers"]) {
+        if (name.toUpperCase() == "CONTENT-TYPE") {
+          var ctype = me["headers"][name].toLowerCase();
+          if (ctype.indexOf("www-form-urlencoded") == -1) {
+            isForm = false;
+          }
+        }
+      }
+    }
+
+    // Handle params object.
+    var url = me["url"];
+    var params = me["params"];
+
+    if (typeof (params) == "object") {
+      var paramString = "";
+      for (var name in params) {
+        var paramValue = params[name];
+        var paramValues = [];
+        if (typeof paramValue == "object") { // handle multiple occurrences
+          if (paramValue.length != null && paramValue.length > 0) {
+            paramValues = paramValue;
+          }
+        }
+        else {
+          paramValues.push(paramValue); // there is only 1 value
+        }
+        for (var i = 0; i < paramValues.length; i++) {
+          if (paramString != "") paramString += "&";
+          paramString += encodeURIComponent(name) + "=" + encodeURIComponent(paramValues[i]);
+        }
+      }
+      if (paramString != "") {
+        if (isForm && (method == "POST" || method == "PUT" || method == "DELETE")) {
+          if (postData != null && postData != "") postData += "&";
+          else postData = "";
+          postData += paramString;
+        }
+        else {
+          // Try to "intelligently" append to the URL.
+          var urlParts = url.split("?");
+          if (urlParts.length == 2 && urlParts[1] != "") {
+            url = urlParts[0] + "?" + urlParts[1] + "&" + paramString;
+          }
+          else {
+            url += "?" + paramString;
+          }
+        }
+      }
+    }
+
+    if (method === "GET" && (me["cacheBuster"] === null || me["cacheBuster"] === true)) {
+      url = pui["addUrlCacheBuster"](url);
+    }
+
+    try {
+      if (typeof me["user"] == "string" && typeof me["password"] == "string")
+      { xmlhttpObj.open(method, url, async, me["user"], me["password"]); }
+      else
+      { xmlhttpObj.open(method, url, async); }
+
+      // Set any headers specified.
+      var userCT = false;
+      var headers = me["headers"];
+      for (var name in headers) {
+        xmlhttpObj.setRequestHeader(name, headers[name]);
+        if (name.toUpperCase() == "CONTENT-TYPE") {
+          userCT = true;
+        }
+      }
+
+      // Set content-type for POST request.
+      if (method == "POST" || method == "PUT" || method == "DELETE") {
+        if (!userCT) {
+          xmlhttpObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        }
+      }
+
+      if (typeof me["overrideMimeType"] == "string") {
+        if (typeof xmlhttpObj["overrideMimeType"] == "function") {
+          xmlhttpObj["overrideMimeType"](me["overrideMimeType"]);
+        }
+      }
+    }
+    catch (e) {
+      alertFn(e);
+      return;
+    }
+
+    sending = true;
+    var aborted = false;
+
+    // Register handler only if sending an asynchronous request. Otherwise, call the
+    // handler after the send.
+    // This is necessary to get around a Mozilla quirk - the handler is not called for synchronous requests.
+    if (async == true) {
+      xmlhttpObj.onload = handler;
+      xmlhttpObj.onerror = handler;
+      xmlhttpObj.onabort = function () {
+        aborted = true;
+        handler();
+      };
+    }
+
+    if (me["sendAsBinary"] == true) {
+      try {
+        xmlhttpObj["sendAsBinary"](postData);
+      }
+      catch (e) {
+        xmlhttpObj.send(postData);
+      }
+    }
+    else {
+      xmlhttpObj.send(postData);
+    }
+
+    if (async != true) handler();
+
+    function handler () {
+      if (xmlhttpObj.readyState == 4) {
+        if (xmlhttpObj.status === 0) {
+          statusMessage = aborted ? "Request aborted." : "Request failed. Check the browser console for more details.";
+        }
+        else {
+          statusMessage = xmlhttpObj.status + " - " + xmlhttpObj.statusText;
+        }
+        if (me["onready"] != null) me["onready"](me);
+        if (xmlhttpObj.status == 200) {
+          sendOK = true;
+          if (me["onsuccess"] != null) me["onsuccess"](me);
+        }
+        else {
+          sendOK = false;
+          if (me["suppressAlert"] != true) {
+            alertFn(statusMessage);
+          }
+          if (me["onfail"] != null) me["onfail"](me);
+        }
+        sending = false;
+      }
+    }
+  };
   this["send"] = this.send;
-  
-  this.ok = function() {
-  
+
+  this.ok = function () {
     if (sendOK != null) {
       return sendOK;
     }
     else {
       return false;
     }
-    
-  }
+  };
   this["ok"] = this.ok;
-            
-  this.getResponseText = function() {
-  
+
+  this.getResponseText = function () {
     return xmlhttpObj.responseText;
-    
-  }
+  };
   this["getResponseText"] = this.getResponseText;
-                         
-  this.getResponseXML =  function() {
-  
+
+  this.getResponseXML = function () {
     return xmlhttpObj.responseXML;
-    
-  }
-  this["getResponseXML"] = this.getResponseXML;                         
-                         
-  this.getStatus = function() {
-  
-    return xmlhttpObj.status; 
-    
-  }
+  };
+  this["getResponseXML"] = this.getResponseXML;
+
+  this.getStatus = function () {
+    return xmlhttpObj.status;
+  };
   this["getStatus"] = this.getStatus;
-                   
-  this.getStatusText = function() {
-  
-    return xmlhttpObj.statusText; 
-    
-  }
+
+  this.getStatusText = function () {
+    return xmlhttpObj.statusText;
+  };
   this["getStatusText"] = this.getStatusText;
-                       
-  this.getStatusMessage = function() {
-  
+
+  this.getStatusMessage = function () {
     return statusMessage;
-    
-  }
+  };
   this["getStatusMessage"] = this.getStatusMessage;
-                          
-  this.getAllResponseHeaders = function() {
-  
+
+  this.getAllResponseHeaders = function () {
     if (!sendOK) return;
-    
+
     try {
       return xmlhttpObj.getAllResponseHeaders();
     }
-    catch(e) {
+    catch (e) {
       alertFn(e);
     }
-    
-  }
+  };
   this["getAllResponseHeaders"] = this.getAllResponseHeaders;
-  
-  this.getResponseHeader = function(headerName) {
-  
+
+  this.getResponseHeader = function (headerName) {
     if (!sendOK) return;
-    
+
     try {
       return xmlhttpObj.getResponseHeader(headerName);
     }
-    catch(e) {
+    catch (e) {
       alertFn(e);
     }
-    
-  }
+  };
   this["getResponseHeader"] = this.getResponseHeader;
-  
-  this.setRequestHeader = function(headerLabel, headerValue) {
-  
+
+  this.setRequestHeader = function (headerLabel, headerValue) {
     me["headers"][headerLabel] = headerValue;
-    
-  }
+  };
   this["setRequestHeader"] = this.setRequestHeader;
-  
-  this.abort = function() {
-  
+
+  this.abort = function () {
     if (sending !== true) return;
-    
+
     try {
       xmlhttpObj.abort();
     }
-    catch(e) {
+    catch (e) {
       alertFn(e);
     }
-    
-  }
+  };
   this["abort"] = this.abort;
-  
 }
 
-function ajax(url, handler) {
-
+function ajax (url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
   var callback;
-  var responseText = "";  
-  
-  if (arguments.length == 1 && typeof(arguments[0]) == "object") {
+  var responseText = "";
+
+  if (arguments.length == 1 && typeof (arguments[0]) == "object") {
     // In this case, the parameters are passed as a single JSON object to the RPGspRequest() constructor.
     // The callback and async properties need to be "nulled" in this case to maintain
-    // consistent operation of this function.  
+    // consistent operation of this function.
     var paramObj = arguments[0];
     paramObj["async"] = null;
     paramObj["onsuccess"] = null;
-    //paramObj["onfail"] = null;
-    if (typeof(paramObj["handler"]) == "function") {
+    // paramObj["onfail"] = null;
+    if (typeof (paramObj["handler"]) == "function") {
       async = true;
       callback = paramObj["handler"];
     }
     else {
       async = false;
-    } 
+    }
   }
   else {
     // Otherwise determine mode of operation based on the function parameters.
-    if (handler != null && typeof(handler) == "function") {
+    if (handler != null && typeof (handler) == "function") {
       async = true;
       callback = handler;
     }
@@ -514,52 +482,50 @@ function ajax(url, handler) {
       async = false;
     }
   }
-  ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
-  
+
   if (async == false) {
     return responseText;
   }
-  
-  function internalHandler(ajaxRequest) {
+
+  function internalHandler (ajaxRequest) {
     responseText += ajaxRequest.getResponseText();
     if (async == true) {
       callback(responseText);
     }
-  }  
-
+  }
 }
 
-function ajaxXML(url, handler) {
-
+function ajaxXML (url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
   var callback;
-  var responseXML = null;  
-  
-  if (arguments.length == 1 && typeof(arguments[0]) == "object") {
+  var responseXML = null;
+
+  if (arguments.length == 1 && typeof (arguments[0]) == "object") {
     // In this case, the parameters are passed as a single JSON object to the RPGspRequest() constructor.
     // The callback and async properties need to be "nulled" in this case to maintain
-    // consistent operation of this function.  
+    // consistent operation of this function.
     var paramObj = arguments[0];
     paramObj["async"] = null;
     paramObj["onsuccess"] = null;
     paramObj["onfail"] = null;
     paramObj["onsuccess"] = null;
-    if (typeof(paramObj["handler"]) == "function") {
+    if (typeof (paramObj["handler"]) == "function") {
       async = true;
       callback = paramObj["handler"];
     }
     else {
       async = false;
-    } 
+    }
   }
   else {
     // Otherwise determine mode of operation based on the function parameters.
-    if (handler != null && typeof(handler) == "function") {
+    if (handler != null && typeof (handler) == "function") {
       async = true;
       callback = handler;
     }
@@ -567,53 +533,51 @@ function ajaxXML(url, handler) {
       async = false;
     }
   }
-  ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
-  
+
   if (async == false) {
     return responseXML;
   }
-  
-  function internalHandler(ajaxRequest) {
+
+  function internalHandler (ajaxRequest) {
     responseXML = ajaxRequest.getResponseXML();
     if (async == true) {
       callback(responseXML);
     }
-  }  
-
+  }
 }
 
-function ajaxJSON(url, handler) {
-
+function ajaxJSON (url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
   var callback;
-  var responseObj = null;  
+  var responseObj = null;
   var saveResponse = false;
-  
-  if (arguments.length == 1 && typeof(arguments[0]) == "object") {
+
+  if (arguments.length == 1 && typeof (arguments[0]) == "object") {
     // In this case, the parameters are passed as a single JSON object to the RPGspRequest() constructor.
     // The callback and async properties need to be "nulled" in this case to maintain
-    // consistent operation of this function.  
+    // consistent operation of this function.
     var paramObj = arguments[0];
     paramObj["async"] = null;
     paramObj["onsuccess"] = null;
-    //paramObj["onfail"] = null;
+    // paramObj["onfail"] = null;
     if (paramObj["saveResponse"] == true) saveResponse = true;
-    if (typeof(paramObj["handler"]) == "function") {
+    if (typeof (paramObj["handler"]) == "function") {
       async = true;
       callback = paramObj["handler"];
     }
     else {
       async = false;
-    } 
+    }
   }
   else {
     // Otherwise determine mode of operation based on the function parameters.
-    if (handler != null && typeof(handler) == "function") {
+    if (handler != null && typeof (handler) == "function") {
       async = true;
       callback = handler;
     }
@@ -621,60 +585,58 @@ function ajaxJSON(url, handler) {
       async = false;
     }
   }
-  ajaxRequest  = new RPGspRequest(arguments[0]);
+  ajaxRequest = new RPGspRequest(arguments[0]);
   ajaxRequest["async"] = async;
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
-  
+
   if (async == false) {
     return responseObj;
   }
-  
-  function internalHandler(ajaxRequest) {
+
+  function internalHandler (ajaxRequest) {
     var responseText = ajaxRequest.getResponseText();
     if (saveResponse && typeof pui == "object") {
       pui["savedJSON"] = responseText;
     }
     try {
-      responseObj = eval("(" + responseText + ")");    
+      responseObj = eval("(" + responseText + ")");
     }
-    catch(e) {
-		callback(null, e);
-		return;
+    catch (e) {
+      callback(null, e);
+      return;
     }
-	if (async == true) {
+    if (async == true) {
 	  callback(responseObj);
-	}  
-  }  
-  
-
+    }
+  }
 }
 
-function ajaxSubmit(form, handler) { 
+function ajaxSubmit (form, handler) {
   var formObj;
   var postData = "";
-  var alertFn = (typeof(pui) != "undefined" && typeof(pui.alert) != "undefined") ? pui.alert : alert;
-  
-  if (typeof(form)=="object") {
-    formObj = form;    
+  var alertFn = (typeof (pui) != "undefined" && typeof (pui.alert) != "undefined") ? pui.alert : alert;
+
+  if (typeof (form) == "object") {
+    formObj = form;
   }
   else {
     formObj = document.getElementById(form);
-    if (formObj==null) {
+    if (formObj == null) {
       formObj = document.forms[form];
     }
   }
   var tagName;
-  if (formObj!=null) tagName = formObj.tagName;
-  if (formObj==null || tagName==null || tagName.toUpperCase() != "FORM") {
+  if (formObj != null) tagName = formObj.tagName;
+  if (formObj == null || tagName == null || tagName.toUpperCase() != "FORM") {
     alertFn("Ajax request error: Invalid form object.");
     return "";
   }
   if (form.action == "") {
     alertFn("Ajax request error: Invalid form action.");
-    return "";    
+    return "";
   }
-  
+
   for (var i = 0; i < formObj.elements.length; i++) {
     var elem = formObj.elements[i];
     if (elem.name != null && elem.name != "") {
@@ -694,43 +656,42 @@ function ajaxSubmit(form, handler) {
       if (elem.tagName == "TEXTAREA") go = true;
       if (elem.tagName == "SELECT") go = true;
       if (go) {
-        if (postData!="") postData += "&";
-        postData += elem.name + "=" + encodeURIComponent(elem.value)
+        if (postData != "") postData += "&";
+        postData += elem.name + "=" + encodeURIComponent(elem.value);
       }
     }
   }
-  
-  var ajaxRequest  = new RPGspRequest(formObj.action);
+
+  var ajaxRequest = new RPGspRequest(formObj.action);
   ajaxRequest["method"] = "POST";
   ajaxRequest["postData"] = postData;
   var responseText = "";
   var async;
-  
-  if (handler != null && typeof(handler) == "function") {
+
+  if (handler != null && typeof (handler) == "function") {
     async = true;
   }
   else {
     async = false;
     ajaxRequest["async"] = false;
   }
-  
+
   ajaxRequest["onsuccess"] = internalHandler;
   ajaxRequest.send();
-  
+
   if (async == false) {
     return responseText;
   }
-  
-  function internalHandler(ajaxRequest) {
+
+  function internalHandler (ajaxRequest) {
     responseText += ajaxRequest.getResponseText();
     if (async == true) {
       handler(responseText);
     }
-  }  
-  
+  }
 }
 
-if (typeof(window["pui"]) == "undefined") {
+if (typeof (window["pui"]) == "undefined") {
   window["pui"] = {};
 }
 

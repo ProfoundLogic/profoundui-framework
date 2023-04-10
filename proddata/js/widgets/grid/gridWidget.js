@@ -17,9 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 pui.widgets.add({
   name: "grid",
   customSizing: true,
@@ -30,8 +27,8 @@ pui.widgets.add({
     "column widths": "150,150,150",
     "column headings": "Heading 1,Heading 2,Heading 3"
   },
-  
-  globalPropertySetter: function(parms) {
+
+  globalPropertySetter: function (parms) {
     if (parms.dom.grid == null) {
       parms.dom.grid = new pui.Grid();
       parms.dom.grid.container = parms.dom.parentNode;
@@ -49,12 +46,12 @@ pui.widgets.add({
       // improve performance in IE (IE is very slow when setting the .scrollTop property on a div)
       if ((pui["is_old_ie"] || pui["is_opera"]) && !parms.design && parms.properties["scrollbar"] == "paging" && context == "dspf") {
         parms.dom.grid.dontSetPagingScrollTop = true;
-        setTimeout(function() {
+        setTimeout(function () {
           parms.dom.grid.dontSetPagingScrollTop = false;
           if (parms.dom.grid.scrollbarObj != null) parms.dom.grid.scrollbarObj.draw();
         }, 0);
       }
-      
+
       if (parms.properties["css class"] != null && parms.properties["css class"] != "") {
         parms.dom.className = parms.dom.grid.mainClass = parms.properties["css class"];
         parms.dom.grid.cellProps = {};
@@ -72,7 +69,7 @@ pui.widgets.add({
         parms.dom.grid.setProperty("column widths", parms.properties["column widths"]);
         parms.dom.grid.setProperty("column headings", parms.properties["column headings"]);
         parms.dom.grid.setAllCellStyles();
-        parms.dom.grid.sizeAllCells();      
+        parms.dom.grid.sizeAllCells();
         parms.dom.grid.setHeadings();
       }
       else {
@@ -86,16 +83,16 @@ pui.widgets.add({
         }
       }
     }
-    
+
     // if the number of columns property is directly modify and is greater than the maximum
     // permitted then set to maximum number of columns
     if (parms.propertyName == "number of columns" &&
-        parms.value > parms.dom.grid.maxNumberOfColumns){
-          parms.newValue = parms.dom.grid.maxNumberOfColumns;
-        }
+        parms.value > parms.dom.grid.maxNumberOfColumns) {
+      parms.newValue = parms.dom.grid.maxNumberOfColumns;
+    }
 
     if (parms.propertyName == "field type") {
-      parms.dom.sizeMe = function() {
+      parms.dom.sizeMe = function () {
         if (parms.dom.grid.expandToLayout) parms.dom.grid.doExpandToLayout();
         parms.dom.grid["alignColumnTotals"]();
       };
@@ -108,7 +105,7 @@ pui.widgets.add({
       parms.dom.style.borderWidth = "0px";
       parms.dom.style.padding = "0px";
       parms.dom.initTop = parms.properties["top"];
-      function setPropIfThere(prop) {
+      function setPropIfThere (prop) {
         if (parms.properties[prop] != null && parms.properties[prop] != "") {
           parms.dom.grid.setProperty(prop, parms.properties[prop]);
         }
@@ -130,18 +127,18 @@ pui.widgets.add({
       setPropIfThere("row height");
       setPropIfThere("border color");
       setPropIfThere("border width");
-      if (parms.design) setTimeout(function() { setPropIfThere("expand to layout"); }, 0);
+      if (parms.design) setTimeout(function () { setPropIfThere("expand to layout"); }, 0);
     }
     parms.dom.grid.setProperty(parms.propertyName, parms.value, parms.newValue);
   },
-  
-  initialize: function(parms) {
+
+  initialize: function (parms) {
     var sql = null;
     if (!parms.design && parms.dom != null && parms.dom.grid != null) {
-      if (parms.properties['field type']) parms.dom.setAttribute('puiwdgt', parms.properties['field type']);
-      
+      if (parms.properties["field type"]) parms.dom.setAttribute("puiwdgt", parms.properties["field type"]);
+
       parms.dom.grid.setAllCellStyles();
-      parms.dom.grid.sizeAllCells();      
+      parms.dom.grid.sizeAllCells();
       parms.dom.grid.setHeadings();
       if (parms.dom.grid.pagingBar != null) {
         parms.dom.grid.pagingBar.draw();
@@ -151,18 +148,14 @@ pui.widgets.add({
         parms.dom.grid.doExpandToLayout();
       }
     }
-    
+
     // reset top since other properties may have affected it
     if (parms.dom.initTop) parms.dom.grid.setProperty("top", parms.dom.initTop);
-    parms.dom.initLeft = parms.properties["left"];    
+    parms.dom.initLeft = parms.properties["left"];
 
     if (context == "genie" && !pui.usingGenieHandler && !parms.design && parms.dom != null && parms.dom.grid != null) {
       parms.dom.grid.consumeDataFromScreen(1, true);
     }
   }
-    
+
 });
-
-
-
-

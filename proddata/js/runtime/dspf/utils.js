@@ -17,32 +17,28 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
-function allowKeysSimple(allowedUnicodes, e){
+function allowKeysSimple (allowedUnicodes, e) {
   var key;
 
   key = e.keyCode;
 
-  for( var i=0; i < allowedUnicodes.length; i++ ){
-    if( allowedUnicodes[i] == key ){
-      if(e.modifiers && Event.SHIFT_MASK){
-        //case exits
+  for (var i = 0; i < allowedUnicodes.length; i++) {
+    if (allowedUnicodes[i] == key) {
+      if (e.modifiers && Event.SHIFT_MASK) {
+        // case exits
       }
-      else{
+      else {
         return true;
       }
     }
   }
   disableAction(e);
   return false;
-
 }
 
 // this function determines if a field bound to a property belongs to the subfile rather
 // than a standard record format or a control record
-pui.isSubfileProperty = function(propertyName) {
+pui.isSubfileProperty = function (propertyName) {
   switch (propertyName) {
     case "subfile next changed": return true;
     case "subfile message key": return true;
@@ -56,48 +52,46 @@ pui.isSubfileProperty = function(propertyName) {
     case "grid row translation placeholder value": return true;
     default: return false;
   }
-}
+};
 
+pui.unicodeToHex = function (unicode) {
+  if (unicode === null) return;
 
-pui.unicodeToHex = function(unicode) {
-
-  if(unicode === null) return;
-  
   var codesArray = [];
-  
+
   codesArray[128] = "20";
   codesArray[129] = "21";
   codesArray[130] = "22";
   codesArray[131] = "23";
   codesArray[132] = "24";
-  codesArray[10]  = "25";
-  codesArray[23]  = "26";
-  codesArray[27]  = "27";
+  codesArray[10] = "25";
+  codesArray[23] = "26";
+  codesArray[27] = "27";
   codesArray[136] = "28";
   codesArray[137] = "29";
   codesArray[138] = "2A";
   codesArray[139] = "2B";
   codesArray[140] = "2C";
-  codesArray[5]   = "2D";
-  codesArray[6]   = "2E";
-  codesArray[7]   = "2F";
+  codesArray[5] = "2D";
+  codesArray[6] = "2E";
+  codesArray[7] = "2F";
   codesArray[144] = "30";
   codesArray[145] = "31";
-  codesArray[22]  = "32";
+  codesArray[22] = "32";
   codesArray[147] = "33";
   codesArray[148] = "34";
   codesArray[149] = "35";
   codesArray[150] = "36";
-  codesArray[4]   = "37";
+  codesArray[4] = "37";
   codesArray[152] = "38";
   codesArray[153] = "39";
   codesArray[154] = "3A";
   codesArray[155] = "3B";
-  codesArray[20]  = "3C";
-  codesArray[21]  = "3D";
+  codesArray[20] = "3C";
+  codesArray[21] = "3D";
   codesArray[158] = "3E";
-  codesArray[26]  = "3F";
-                        
+  codesArray[26] = "3F";
+
   codesArray[181] = "A0";
   codesArray[126] = "A1";
   codesArray[115] = "A2";
@@ -114,7 +108,7 @@ pui.unicodeToHex = function(unicode) {
   codesArray[221] = "AD";
   codesArray[222] = "AE";
   codesArray[174] = "AF";
-  codesArray[94]  = "B0";
+  codesArray[94] = "B0";
   codesArray[163] = "B1";
   codesArray[165] = "B2";
   codesArray[183] = "B3";
@@ -124,22 +118,21 @@ pui.unicodeToHex = function(unicode) {
   codesArray[188] = "B7";
   codesArray[189] = "B8";
   codesArray[190] = "B9";
-  codesArray[91]  = "BA";
-  codesArray[93]  = "BB";
+  codesArray[91] = "BA";
+  codesArray[93] = "BB";
   codesArray[175] = "BC";
   codesArray[168] = "BD";
   codesArray[180] = "BE";
-  codesArray[215] = "BF";                     
- 
+  codesArray[215] = "BF";
+
   return codesArray[unicode];
-}
+};
 
-
-pui.hexToCSS = function(hex) {
+pui.hexToCSS = function (hex) {
   if (hex == null || typeof hex != "string") return [];
-  
+
   var cssArray = [];
-  
+
   cssArray["20"] = ["GRN"];
   cssArray["21"] = ["GRN", "RI"];
   cssArray["22"] = ["WHT"];
@@ -172,7 +165,7 @@ pui.hexToCSS = function(hex) {
   cssArray["3D"] = ["PNK", "UL", "RI"];
   cssArray["3E"] = ["BLU", "UL"];
   cssArray["3F"] = ["ND"];
-  
+
   cssArray["A0"] = ["GRN", "PR"];
   cssArray["A1"] = ["GRN", "RI", "PR"];
   cssArray["A2"] = ["WHT", "PR"];
@@ -204,51 +197,47 @@ pui.hexToCSS = function(hex) {
   cssArray["BC"] = ["PNK", "UL", "PR"];
   cssArray["BD"] = ["PNK", "UL", "RI", "PR"];
   cssArray["BE"] = ["BLU", "UL", "PR"];
-  cssArray["BF"] = ["ND", "PR"]; 
-  
+  cssArray["BF"] = ["ND", "PR"];
+
   return cssArray[hex];
-}
+};
 
-
-pui.attrToCSS = function(attr) {
+pui.attrToCSS = function (attr) {
   if (attr == null || typeof attr != "string" || attr.length < 1) return [];
   var unicode = attr.charCodeAt(0);
   var hex = pui.unicodeToHex(unicode);
   return pui.hexToCSS(hex);
-}
-
+};
 
 // path is in the format of "LIBRARY/FILE(MEMBER)"
-pui.parseLibraryFileMember = function(path) {
+pui.parseLibraryFileMember = function (path) {
   var parts = path.split("(");
   if (parts.length != 2) return null;
   var file = parts[0];
   var member = parts[1];
   if (member.substr(member.length - 1, 1) != ")") return null;
   member = member.substr(0, member.length - 1);
-  
+
   parts = file.split("/");
   if (parts.length != 2) return null;
   var library = parts[0];
   file = parts[1];
-  
+
   library = trim(library).toUpperCase();
   if (library == "") return null;
   file = trim(file).toUpperCase();
   if (file == "") return null;
   member = trim(member).toUpperCase();
   if (member == "") return null;
-  
+
   return {
     "library": library,
     "file": file,
     "member": member
-  }  
-}
+  };
+};
 
-
-
-pui.assignShortcutKey = function(shortcutKey, dom) {
+pui.assignShortcutKey = function (shortcutKey, dom) {
   var formatName = pui.lastFormatName;
   if (context != "dspf" || formatName == null) return;
 
@@ -272,34 +261,28 @@ pui.assignShortcutKey = function(shortcutKey, dom) {
   if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
   pui.keyMap[formatName][shortcutKey].push(dom);
 
-  if (dom["onclick"] == null || dom.responseValue == null) {    
+  if (dom["onclick"] == null || dom.responseValue == null) {
     pui.attachResponse(dom);
   }
-}
+};
 
-pui.getParentWindow = function(el) {
-
+pui.getParentWindow = function (el) {
   var win;
   var prt = el.parentNode;
   while (prt != null && prt != pui.runtimeContainer) {
-  
     if (prt.isPUIWindow == true) {
-    
       win = prt;
       break;
-    
     }
-    
+
     prt = prt.parentNode;
-  
   }
 
   return win;
-
-}
+};
 
 // Wrap input into a DIV and create a placeholder label
-pui.floatPlaceholder = function(idOrDom) {
+pui.floatPlaceholder = function (idOrDom) {
   if (typeof idOrDom === "string") {
     var id = idOrDom;
     var input = getObj(id);
@@ -314,7 +297,7 @@ pui.floatPlaceholder = function(idOrDom) {
   if (input.tagName !== "INPUT" && input.tagName !== "TEXTAREA") return;
   if (!input.placeholder) return;
   var div;
-  
+
   if (!isComboBox) {
     div = document.createElement("div");
     for (var i = 0; i < input.classList.length; i++) {
@@ -334,17 +317,17 @@ pui.floatPlaceholder = function(idOrDom) {
     div.style.width = input.style.width;
     div.pui = input.pui;
     if (input.cursorRecord != null)
-      div.cursorRecord = input.cursorRecord;
+    { div.cursorRecord = input.cursorRecord; }
     if (input.cursorField != null)
-      div.cursorField = input.cursorField;
+    { div.cursorField = input.cursorField; }
     if (input.cursorRow != null)
-      div.cursorRow = input.cursorRow;
+    { div.cursorRow = input.cursorRow; }
     if (input.cursorColumn != null)
-      div.cursorColumn = input.cursorColumn;
+    { div.cursorColumn = input.cursorColumn; }
     if (input.parentTab != null)
-      div.parentTab = input.parentTab;
+    { div.parentTab = input.parentTab; }
     if (input.parentTabPanel != null)
-      div.parentTabPanel = input.parentTabPanel;
+    { div.parentTabPanel = input.parentTabPanel; }
     input.style.position = "";
     input.style.left = "";
     input.style.top = "";
@@ -357,10 +340,10 @@ pui.floatPlaceholder = function(idOrDom) {
     div.sizeMe = input.sizeMe;
     div.alwaysSizeMe = input.alwaysSizeMe;
     div.extraDomEls = input.extraDomEls;
-  } 
+  }
   else {
     div = input.parentNode;
-    var classes = div.className.split(' ');
+    var classes = div.className.split(" ");
     for (var i = 0; i < classes.length; i++) {
       var cls = classes[i];
       cls = "pui-floating-placeholder-" + cls;
@@ -378,43 +361,43 @@ pui.floatPlaceholder = function(idOrDom) {
   // Setup useful methods for outside use by the framework
   div.floatingPlaceholder = label;
   pui.movePrompter(input);
-  label.getValue = function() {
+  label.getValue = function () {
     return input.value;
-  }
-  label.setValue = function(value) {
+  };
+  label.setValue = function (value) {
     input.value = value;
     pui.checkEmptyText(input);
-  }
-  label.getBox = function() {
+  };
+  label.getBox = function () {
     return input;
-  }
-  label.setMaxLength = function(maxLength) {
+  };
+  label.setMaxLength = function (maxLength) {
     if (maxLength) {
       input.setAttribute("maxlength", maxLength);
     }
-  }
-  label.assignJSEvent = function(jsEventName, func) {
+  };
+  label.assignJSEvent = function (jsEventName, func) {
     // re-assign event to the input box and remove it from the main div element
     input[jsEventName] = func;
     if (div[jsEventName] != null) {
-      div[jsEventName] = function() {};
+      div[jsEventName] = function () {};
     }
-  }
-  label.setReadOnly = function(isReadOnly) {
+  };
+  label.setReadOnly = function (isReadOnly) {
     input.readOnly = isReadOnly;
-  }
-  label.setDisabled = function(isDisabled) {
+  };
+  label.setDisabled = function (isDisabled) {
     input.disabled = isDisabled;
-  }
-  label.setBoxAttribute = function(attr, value) {
+  };
+  label.setBoxAttribute = function (attr, value) {
     input.setAttribute(attr, value);
-  }  
-  label.setFocus = function() {  
+  };
+  label.setFocus = function () {
     box.focus();
-  }
-}
+  };
+};
 
-pui.movePropertiesFromFloatingPlaceholderDiv = function(parms) {
+pui.movePropertiesFromFloatingPlaceholderDiv = function (parms) {
   // If the input has a floating placeholder, then properties have been applied to the placeholder div
   // instead of the actual input. For certain properties (and this list should be added to), move them to
   // the inner input.
@@ -441,4 +424,4 @@ pui.movePropertiesFromFloatingPlaceholderDiv = function(parms) {
         break;
     }
   }
-}
+};

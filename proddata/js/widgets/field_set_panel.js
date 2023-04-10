@@ -17,26 +17,23 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.widgets.add({
-	name: "field set panel",
-    canBelongToGrid: false,
-    tag: "fieldset",
-    newId: "FieldSet",
-    newValue: "Field Set",
-    container: true,
-    inlineEdit: true,
-    defaults: {
+  name: "field set panel",
+  canBelongToGrid: false,
+  tag: "fieldset",
+  newId: "FieldSet",
+  newValue: "Field Set",
+  container: true,
+  inlineEdit: true,
+  defaults: {
     	width: "300px",
     	height: "200px",
     	"z index": "8"
-    },
+  },
 
+  propertySetters: {
 
-    propertySetters: {
-	
-    	"field type": function(parms) {
+    	"field type": function (parms) {
     		var value = parms.evalProperty("value"),
     			color = parms.evalProperty("color"),
     			align = parms.evalProperty("text align");
@@ -47,12 +44,11 @@ pui.widgets.add({
     			if (align) {
     				align = ' align="' + align + '"';
     			}
-    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
     		}
-    		
     	},
-    
-    	"value": function(parms) {
+
+    	"value": function (parms) {
     		var value = parms.value,
     			color = parms.evalProperty("color"),
     			align = parms.evalProperty("text align");
@@ -63,13 +59,13 @@ pui.widgets.add({
     			if (align) {
     				align = ' align="' + align + '"';
     			}
-    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
     		} else {
     			parms.dom.innerHTML = "";
     		}
     	},
 
-    	"color": function(parms) {
+    	"color": function (parms) {
     		var value = parms.evalProperty("value"),
     			color = parms.value,
     			align = parms.evalProperty("text align");
@@ -80,13 +76,13 @@ pui.widgets.add({
     			if (align) {
     				align = ' align="' + align + '"';
     			}
-    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
     		} else {
     			parms.dom.innerHTML = "";
     		}
     	},
 
-    	"text align": function(parms) {
+    	"text align": function (parms) {
     		var value = parms.evalProperty("value"),
     			color = parms.evalProperty("color"),
     			align = parms.value;
@@ -97,11 +93,10 @@ pui.widgets.add({
     			if (align) {
     				align = ' align="' + align + '"';
     			}
-    			parms.dom.innerHTML = '<legend' + color + align + '>' + value + '</legend>';
+    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
     		} else {
     			parms.dom.innerHTML = "";
     		}
     	}
-    }
+  }
 });
-

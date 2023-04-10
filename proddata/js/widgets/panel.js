@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.widgets.panelStyles = {
   "Simple": {
     left: 10,
@@ -161,7 +159,7 @@ pui.widgets.panelStyles = {
     textBackground: "#0055e5",
     textTopPadding: "7px",
     width: 400,
-    height: 200,    
+    height: 200,
     dialog: true
   },
   "Classic Dialog": {
@@ -173,10 +171,10 @@ pui.widgets.panelStyles = {
     textBackground: "#0d89b8",
     textTopPadding: "7px",
     width: 400,
-    height: 200,    
+    height: 200,
     dialog: true
   },
-   "Simple Dialog": {
+  "Simple Dialog": {
     left: 4,
     right: 4,
     top: 30,
@@ -185,7 +183,7 @@ pui.widgets.panelStyles = {
     textBackground: "#bad0ee",
     textTopPadding: "7px",
     width: 400,
-    height: 200,    
+    height: 200,
     dialog: true
   },
   "Polished Dialog": {
@@ -197,7 +195,7 @@ pui.widgets.panelStyles = {
     textBackground: "#f1f3f3",
     textTopPadding: "7px",
     width: 400,
-    height: 200,    
+    height: 200,
     dialog: true
   },
   "Modern Dialog": {
@@ -209,7 +207,7 @@ pui.widgets.panelStyles = {
     textBackground: "#7d9ccd",
     textTopPadding: "14px",
     width: 400,
-    height: 300,    
+    height: 300,
     dialog: true
   },
   "Glass Dialog": {
@@ -236,16 +234,15 @@ pui.widgets.panelStyles = {
     height: 200,
     dialog: true
   }
-}
+};
 
 pui.widgets.defaultPanelWidth = 200;
 pui.widgets.defaultPanelHeight = 100;
 
-
-pui.widgets.getPanelProxy = function(defaults) {
+pui.widgets.getPanelProxy = function (defaults) {
   var pstyle = defaults["panel style"];
   var settings = pui.widgets.panelStyles[pstyle];
-  
+
   var parms = {};
   parms.dom = document.createElement("div");
   parms.dom.style.position = "relative";
@@ -253,11 +250,11 @@ pui.widgets.getPanelProxy = function(defaults) {
   if (settings.width != null) parms.dom.style.width = settings.width + "px";
   parms.dom.style.height = pui.widgets.defaultPanelHeight + "px";
   if (settings.height != null) parms.dom.style.height = settings.height + "px";
-  parms.isProxy = true;  
+  parms.isProxy = true;
 
   parms.properties = {};
   parms.properties.width = pui.widgets.defaultPanelWidth + "px";
-  if (settings.width != null) parms.properties.width = settings.width;;
+  if (settings.width != null) parms.properties.width = settings.width; ;
   parms.properties.height = pui.widgets.defaultPanelHeight + "px";
   if (settings.height != null) parms.properties.height = settings.height;
   parms.properties.value = "Panel Title";
@@ -268,23 +265,22 @@ pui.widgets.getPanelProxy = function(defaults) {
     parms.properties.value = "";
   }
   parms.properties["panel style"] = pstyle;
-  parms.evalProperty = function(propName) {
+  parms.evalProperty = function (propName) {
     return parms.properties[propName];
-  }
+  };
   pui.widgets["panel"].propertySetters["field type"](parms);
-  
+
   if (settings.textColor != null) parms.dom.panel.textDiv.style.color = settings.textColor;
   if (settings.textAlign != null) parms.dom.panel.textDiv.style.textAlign = settings.textAlign;
   if (settings.fontSize != null) parms.dom.panel.textDiv.style.fontSize = settings.fontSize;
   parms.dom.style.color = parms.dom.panel.textDiv.style.color;
   parms.dom.style.textAlign = parms.dom.panel.textDiv.style.textAlign;
-  parms.dom.style.fontSize = parms.dom.panel.textDiv.style.fontSize;  
-  
+  parms.dom.style.fontSize = parms.dom.panel.textDiv.style.fontSize;
+
   return parms.dom;
-}
+};
 
-pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
-
+pui.widgets.resizePanel = function (panel, settings, width, height, parms) {
   if (typeof width == "string") {
     if (width != "" && !isNaN(width)) width += "px";
     if (width.length >= 3 && width.substr(width.length - 2) == "px") width = parseInt(width);
@@ -294,7 +290,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
     if (height != "" && !isNaN(height)) height += "px";
     if (height.length >= 3 && height.substr(height.length - 2) == "px") height = parseInt(height);
     else height = panel.topLeftDiv.parentNode.offsetHeight;
-  }  
+  }
   if (typeof width != "number") width = parseInt(width);
   if (isNaN(width)) width = pui.widgets.defaultPanelWidth;
   if (typeof height != "number") height = parseInt(height);
@@ -308,7 +304,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   var resized = false;
   if (height < settings.top + settings.bottom) {
     height = settings.top + settings.bottom;
-    panel.textDiv.parentNode.style.height = height + "px";    
+    panel.textDiv.parentNode.style.height = height + "px";
     resized = true;
   }
   if (width < settings.left + settings.right) {
@@ -326,7 +322,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   panel.topMiddleDiv.style.left = (settings.left - overlap) + "px";
   panel.topMiddleDiv.style.height = settings.top + "px";
   panel.topMiddleDiv.style.width = (width - settings.left - settings.right + overlap * 2) + "px";
-  
+
   panel.topRightDiv.style.left = (width - settings.right) + "px";
   panel.topRightDiv.style.height = settings.top + "px";
   panel.topRightDiv.style.width = settings.right + "px";
@@ -353,7 +349,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   panel.bottomMiddleDiv.style.top = (height - settings.bottom) + "px";
   panel.bottomMiddleDiv.style.height = settings.bottom + "px";
   panel.bottomMiddleDiv.style.width = (width - settings.left - settings.right + overlap * 2) + "px";
-  
+
   panel.bottomRightDiv.style.left = (width - settings.right) + "px";
   panel.bottomRightDiv.style.top = (height - settings.bottom) + "px";
   panel.bottomRightDiv.style.height = settings.bottom + "px";
@@ -364,9 +360,7 @@ pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   panel.textDiv.style.width = (width - settings.left - settings.right) + "px";
   if (settings.top < 15) panel.textDiv.style.height = "15px";
   else panel.textDiv.style.height = settings.top + "px";
-
-}
-
+};
 
 pui.widgets.add({
   name: "panel",
@@ -380,12 +374,11 @@ pui.widgets.add({
     "panel style": "Simple",
     "z index": "8"
   },
-  
+
   propertySetters: {
 
-    "field type": function(parms) {
-
-      parms.dom.sizeMe = function() {
+    "field type": function (parms) {
+      parms.dom.sizeMe = function () {
         var pstyle = parms.properties["panel style"];
         var settings = pui.widgets.panelStyles[pstyle];
         if (settings == null) {
@@ -394,21 +387,21 @@ pui.widgets.add({
         }
         var panel = parms.dom.panel;
         pui.widgets.resizePanel(panel, settings, parms.dom.offsetWidth, parms.dom.offsetHeight, parms);
-      }
+      };
 
-      //parms.dom.style.fontFamily = "Arial";
-      //parms.dom.style.color = "#ffffff";
+      // parms.dom.style.fontFamily = "Arial";
+      // parms.dom.style.color = "#ffffff";
       if (parms.properties.color != null) {
         parms.dom.style.color = parms.properties.color;
       }
-      //parms.dom.style.fontSize = "12px";
-      //parms.dom.style.fontWeight = "bold";
+      // parms.dom.style.fontSize = "12px";
+      // parms.dom.style.fontWeight = "bold";
 
       parms.dom.innerHTML = "";
-      if (typeof parms.dom.style.MozUserSelect!="undefined") parms.dom.style.MozUserSelect = "none";
-      
+      if (typeof parms.dom.style.MozUserSelect != "undefined") parms.dom.style.MozUserSelect = "none";
+
       var panel = {};
-      
+
       panel.topLeftDiv = document.createElement("div");
       panel.topMiddleDiv = document.createElement("div");
       panel.topRightDiv = document.createElement("div");
@@ -417,9 +410,9 @@ pui.widgets.add({
       panel.rightImage = document.createElement("div");
       panel.bottomLeftDiv = document.createElement("div");
       panel.bottomMiddleDiv = document.createElement("div");
-      panel.bottomRightDiv = document.createElement("div");      
+      panel.bottomRightDiv = document.createElement("div");
       panel.textDiv = document.createElement("div");
-      
+
       panel.topLeftDiv.style.position = "absolute";
       panel.topLeftDiv.style.padding = "0px";
       panel.topLeftDiv.style.margin = "0px";
@@ -428,7 +421,7 @@ pui.widgets.add({
       panel.topMiddleDiv.style.margin = "0px";
       panel.topRightDiv.style.position = "absolute";
       panel.topRightDiv.style.padding = "0px";
-      panel.topRightDiv.style.margin = "0px";      
+      panel.topRightDiv.style.margin = "0px";
       panel.leftImage.style.position = "absolute";
       panel.leftImage.style.padding = "0px";
       panel.leftImage.style.margin = "0px";
@@ -438,7 +431,7 @@ pui.widgets.add({
       panel.middleDiv.className = "content-area";
       panel.rightImage.style.position = "absolute";
       panel.rightImage.style.padding = "0px";
-      panel.rightImage.style.margin = "0px";      
+      panel.rightImage.style.margin = "0px";
       panel.bottomLeftDiv.style.position = "absolute";
       panel.bottomLeftDiv.style.padding = "0px";
       panel.bottomLeftDiv.style.margin = "0px";
@@ -448,59 +441,59 @@ pui.widgets.add({
       panel.bottomRightDiv.style.position = "absolute";
       panel.bottomRightDiv.style.padding = "0px";
       panel.bottomRightDiv.style.margin = "0px";
-      
+
       panel.topLeftDiv.style.top = "0px";
       panel.topLeftDiv.style.left = "0px";
       panel.topLeftDiv.style.backgroundRepeat = "no-repeat";
-      
+
       panel.topMiddleDiv.style.top = "0px";
       panel.topMiddleDiv.style.backgroundRepeat = "repeat-x";
-      
+
       panel.topRightDiv.style.top = "0px";
       panel.topRightDiv.style.backgroundRepeat = "no-repeat";
-      
+
       panel.leftImage.style.left = "0px";
-                  
+
       panel.bottomLeftDiv.style.left = "0px";
       panel.bottomLeftDiv.style.backgroundRepeat = "no-repeat";
-      
+
       panel.bottomMiddleDiv.style.backgroundRepeat = "repeat-x";
-      
+
       panel.bottomRightDiv.style.backgroundRepeat = "no-repeat";
-      
+
       panel.leftImage.style.backgroundRepeat = "repeat-y";
       panel.rightImage.style.backgroundRepeat = "repeat-y";
-      
+
       panel.textDiv.style.position = "absolute";
       panel.textDiv.style.verticalAlign = "middle";
-      //panel.textDiv.style.display = "table-cell";
+      // panel.textDiv.style.display = "table-cell";
       panel.textDiv.style.display = "";
       if (!pui.iPadEmulation) {
         panel.textDiv.style.cursor = "default";
       }
       panel.textDiv.style.overflow = "hidden";
-      panel.textDiv.style.webkitTapHighlightColor = "rgba(0,0,0,0)"; 
-      
+      panel.textDiv.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
+
       // default styling
-      //panel.textDiv.style.fontFamily = "Arial";
-      //panel.textDiv.style.color = "#ffffff";
-      //panel.textDiv.style.fontSize = "12px";
-      //panel.textDiv.style.fontWeight = "bold";
+      // panel.textDiv.style.fontFamily = "Arial";
+      // panel.textDiv.style.color = "#ffffff";
+      // panel.textDiv.style.fontSize = "12px";
+      // panel.textDiv.style.fontWeight = "bold";
       if (parms.properties.color != null) {
-         panel.textDiv.style.color = parms.properties.color;
+        panel.textDiv.style.color = parms.properties.color;
       }
       if (parms.properties["text align"] != null) {
-         panel.textDiv.style.textAlign = parms.properties["text align"];
+        panel.textDiv.style.textAlign = parms.properties["text align"];
       }
       if (parms.properties["font size"] != null) {
-         panel.textDiv.style.fontSize = parms.properties["font size"];
+        panel.textDiv.style.fontSize = parms.properties["font size"];
       }
       parms.dom.style.fontFamily = panel.textDiv.style.fontFamily;
       parms.dom.style.color = panel.textDiv.style.color;
       parms.dom.style.fontSize = panel.textDiv.style.fontSize;
       parms.dom.style.fontWeight = panel.textDiv.style.fontWeight;
       parms.dom.style.textAlign = panel.textDiv.style.textAlign;
-      
+
       parms.dom.appendChild(panel.topLeftDiv);
       parms.dom.appendChild(panel.topMiddleDiv);
       parms.dom.appendChild(panel.topRightDiv);
@@ -511,15 +504,14 @@ pui.widgets.add({
       parms.dom.appendChild(panel.bottomMiddleDiv);
       parms.dom.appendChild(panel.bottomRightDiv);
       parms.dom.appendChild(panel.textDiv);
-      
-      // Enable dragging if within window      
-      var windowDiv = parms.dom.parentNode;      
+
+      // Enable dragging if within window
+      var windowDiv = parms.dom.parentNode;
       if (!parms.design && windowDiv != null && windowDiv.isPUIWindow == true) {
-        
-        new pui.MoveListenerBoundAtClick({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv});
-        
-        addEvent(panel.textDiv, "touchstart", function(e) {
-          if (e.touches.length != 1) return;  // Only deal with one finger
+        new pui.MoveListenerBoundAtClick({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv });
+
+        addEvent(panel.textDiv, "touchstart", function (e) {
+          if (e.touches.length != 1) return; // Only deal with one finger
           var touch = e.touches[0];
           windowDiv.touch = {};
           windowDiv.touch.startX = touch.pageX;
@@ -527,8 +519,8 @@ pui.widgets.add({
           windowDiv.touch.startLeft = parseInt(windowDiv.style.left);
           windowDiv.touch.startTop = parseInt(windowDiv.style.top);
         });
-        addEvent(panel.textDiv, "touchmove", function(e) {
-          if (e.touches.length != 1) return;  // Only deal with one finger
+        addEvent(panel.textDiv, "touchmove", function (e) {
+          if (e.touches.length != 1) return; // Only deal with one finger
           var touch = e.touches[0];
           var x = touch.pageX;
           var y = touch.pageY;
@@ -536,24 +528,24 @@ pui.widgets.add({
           windowDiv.style.top = (windowDiv.touch.startTop - windowDiv.touch.startY + y) + "px";
           e.preventDefault();
         });
-        
+
         panel.textDiv.style.cursor = "move";
         panel.topLeftDiv.style.cursor = "move";
         panel.topRightDiv.style.cursor = "move";
       }
 
       parms.dom.panel = panel;
-      
+
       var savedValue = parms.value;
       parms.value = parms.properties["panel style"];
       pui.widgets["panel"].propertySetters["panel style"](parms);
       parms.value = savedValue;
-      
+
       parms.dom.panel.textDiv.innerHTML = parms.evalProperty("value");
     },
-        
-    "panel style": function(parms) { 
-      var pstyle = parms.value;      
+
+    "panel style": function (parms) {
+      var pstyle = parms.value;
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
         var pstyle = pui.widgets.getPanelStyles()[0];
@@ -562,21 +554,21 @@ pui.widgets.add({
       var path = pui.normalizeURL("/profoundui/proddata/images/panels/" + pstyle + "/");
       parms.dom.panel.pstyle = pstyle;
       var panel = parms.dom.panel;
-      
-      panel.topLeftDiv.style.backgroundImage = "url('" + path + "topleft.png')";      
+
+      panel.topLeftDiv.style.backgroundImage = "url('" + path + "topleft.png')";
       panel.topMiddleDiv.style.backgroundImage = "url('" + path + "topmiddle.png')";
-      panel.topRightDiv.style.backgroundImage = "url('" + path + "topright.png')";          
-      
-      //panel.leftImage.src = path + "left.png";
-      //panel.leftImage.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + path + "left.png" + "', sizingMethod='scale')";
+      panel.topRightDiv.style.backgroundImage = "url('" + path + "topright.png')";
+
+      // panel.leftImage.src = path + "left.png";
+      // panel.leftImage.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + path + "left.png" + "', sizingMethod='scale')";
       panel.leftImage.style.backgroundImage = "url('" + path + "left.png')";
-      
+
       panel.middleDiv.style.backgroundColor = settings.background;
-      
-      //panel.rightImage.src = path + "right.png";
-      //panel.rightImage.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + path + "right.png" + "', sizingMethod='scale')";
+
+      // panel.rightImage.src = path + "right.png";
+      // panel.rightImage.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + path + "right.png" + "', sizingMethod='scale')";
       panel.rightImage.style.backgroundImage = "url('" + path + "right.png')";
-      
+
       panel.bottomLeftDiv.style.backgroundImage = "url('" + path + "bottomleft.png')";
       panel.bottomMiddleDiv.style.backgroundImage = "url('" + path + "bottommiddle.png')";
       panel.bottomRightDiv.style.backgroundImage = "url('" + path + "bottomright.png')";
@@ -586,11 +578,11 @@ pui.widgets.add({
       pui.widgets.resizePanel(panel, settings, parms.properties["width"], parms.properties["height"]);
     },
 
-    "value": function(parms) {
+    "value": function (parms) {
       parms.dom.panel.textDiv.innerHTML = parms.value;
     },
 
-    "width": function(parms) {
+    "width": function (parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
       else parms.dom.style.width = parms.value;
       var pstyle = parms.properties["panel style"];
@@ -603,8 +595,8 @@ pui.widgets.add({
 
       pui.widgets.resizePanel(panel, settings, parms.value, parms.properties["height"], parms);
     },
-    
-    "height": function(parms) {
+
+    "height": function (parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
       else parms.dom.style.height = parms.value;
       var pstyle = parms.properties["panel style"];
@@ -617,65 +609,63 @@ pui.widgets.add({
 
       pui.widgets.resizePanel(panel, settings, parms.properties["width"], parms.value, parms);
     },
-    
-    "color": function(parms) {
+
+    "color": function (parms) {
       var value = parms.value;
-      //if (value == null || value == "") value = "#ffffff";
+      // if (value == null || value == "") value = "#ffffff";
       parms.dom.panel.textDiv.style.color = value;
       parms.dom.style.color = parms.dom.panel.textDiv.style.color;
     },
-    
-    "font family": function(parms) {
+
+    "font family": function (parms) {
       var value = parms.value;
-      //if (value == null || value == "") value = "Arial";
+      // if (value == null || value == "") value = "Arial";
       parms.dom.panel.textDiv.style.fontFamily = value;
       parms.dom.style.fontFamily = parms.dom.panel.textDiv.style.fontFamily;
     },
-    
-    "font size": function(parms) {
+
+    "font size": function (parms) {
       var value = parms.value;
-      //if (value == null || value == "") value = "12px";
+      // if (value == null || value == "") value = "12px";
       parms.dom.panel.textDiv.style.fontSize = value;
       parms.dom.style.fontSize = parms.dom.panel.textDiv.style.fontSize;
     },
-    
-    "font style": function(parms) {
+
+    "font style": function (parms) {
       parms.dom.panel.textDiv.style.fontStyle = parms.value;
     },
 
-    "font variant": function(parms) {
+    "font variant": function (parms) {
       parms.dom.panel.textDiv.style.fontVariant = parms.value;
     },
 
-    "font weight": function(parms) {
+    "font weight": function (parms) {
       var value = parms.value;
-      //if (value == null || value == "") value = "bold";
+      // if (value == null || value == "") value = "bold";
       parms.dom.panel.textDiv.style.fontWeight = value;
       parms.dom.style.fontWeight = parms.dom.panel.textDiv.style.fontWeight;
     },
 
-    "letter spacing": function(parms) {
+    "letter spacing": function (parms) {
       parms.dom.panel.textDiv.style.letterSpacing = parms.value;
     },
 
-    "text align": function(parms) {
+    "text align": function (parms) {
       parms.dom.panel.textDiv.style.textAlign = parms.value;
     },
 
-    "text decoration": function(parms) {
+    "text decoration": function (parms) {
       parms.dom.panel.textDiv.style.textDecoration = parms.value;
     },
 
-    "text transform": function(parms) {
+    "text transform": function (parms) {
       parms.dom.panel.textDiv.style.textTransform = parms.value;
     },
-    
-    "word spacing": function(parms) {
+
+    "word spacing": function (parms) {
       parms.dom.panel.textDiv.style.wordSpacing = parms.value;
     }
 
   }
-  
+
 });
-
-

@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.widgets.tabStyles = {
   "Simple": {
     useImages: false,
@@ -40,9 +38,9 @@ pui.widgets.tabStyles = {
     height: 21,
     leftWidth: 3,
     rightWidth: 3,
-    defaultBackColor: "#deecfd", 
+    defaultBackColor: "#deecfd",
     hiColor: "#15428b",
-    selColor: "#15428b", 
+    selColor: "#15428b",
     borderColor: "#8db2e3",
     leftMargin: 3
   },
@@ -134,17 +132,16 @@ pui.widgets.tabStyles = {
   }
 };
 
-
-pui.widgets.preloadTabStyle = function(tabStyle) {
+pui.widgets.preloadTabStyle = function (tabStyle) {
   var tabStyleSettings = pui.widgets.tabStyles[tabStyle];
   if (tabStyleSettings != null) {
-    if (tabStyleSettings.preloaded != true) {   // not already preloaded
+    if (tabStyleSettings.preloaded != true) { // not already preloaded
       if (tabStyleSettings.useImages) {
         var extension = tabStyleSettings["imageFileExtension"];
         if (extension == null) extension = "gif";
         if (extension.substr(0, 1) == ".") extension = extension.substr(1);
-        function preload(imageSrc) {
-          var image = new Image(); 
+        function preload (imageSrc) {
+          var image = new Image();
           image.src = imageSrc;
         }
         var path = pui.normalizeURL("/profoundui/proddata/images/tabs/" + tabStyle.toLowerCase() + "/");
@@ -162,93 +159,92 @@ pui.widgets.preloadTabStyle = function(tabStyle) {
   }
 };
 
-
 /**
  * Tab Panel Class
  * Note: widgets/layout/pui.TabLayout adopts public properties and methods from this object via TabPanel.call.
  * (TabPanel properties should not be moved into a prototype; doing so would break TabLayout, which adopts TabPanel properties.)
  * @constructor
  */
-function TabPanel() {
+function TabPanel () {
   // Public Properties
   this.INITIALLIST = "Tab 1,Tab 2,Tab 3";
   this.TXT_CANNOTREMOVE = "The tab cannot be removed because it contains other elements that must be removed first.";
 
   // Private Properties
   var me = this;
-  
+
   // The number of pixels to scroll when first clicking scroll right/left.
   var beginScrollIncrement = Number(pui["tabpanel scroll speed"]);
-  if( isNaN(beginScrollIncrement) || beginScrollIncrement < 1) beginScrollIncrement = 5;
-  
+  if (isNaN(beginScrollIncrement) || beginScrollIncrement < 1) beginScrollIncrement = 5;
+
   var scrollAccelAmount = Number(pui["tabpanel scroll acceleration"]);
-  if( isNaN(scrollAccelAmount) || scrollAccelAmount < 0) scrollAccelAmount = 1;
-  
+  if (isNaN(scrollAccelAmount) || scrollAccelAmount < 0) scrollAccelAmount = 1;
+
   // These are set and cleared in onmouseup and onmousedown of the scroll buttons.
   var scrollLeftIval = null;
   var scrollRightIval = null;
-  
-  var leftScrollSpan = null; //These are set when scroll buttons are added.
+
+  var leftScrollSpan = null; // These are set when scroll buttons are added.
   var rightScrollSpan = null;
-  
+
   // These allow scrolling speed to increase the longer the button is held.
   var curScrollIncrement = 5;
   var scrollCounter = 0;
-  
+
   // Clicking a tab redraws the panel, so preserve the scrollLeft with this.
   this._lastScrollLeft = 0;
   this._needScrollToActive = true;
-  
+
   // This value is used in 3 places for themes that don't use images.
   var simpleSelectedTabBackgroundColor = "#B7C8F6";
-  
+
   // This is used to hide tabs dynamically. The key is the original, unmoved index of the tab. The value is true if hidden, false otherwise.
   this._hiddenTabs = {};
-  
+
   // Tab style information when tab panel styles are hard-coded.
-  var settings;      //The settings for the set tab style.
-  var path;          //path to images for the style.
-  var extension;     //File extension for images in the style.
-  var borderColor;   //CSS borderColor for the tabs.
-  
+  var settings; // The settings for the set tab style.
+  var path; // path to images for the style.
+  var extension; // File extension for images in the style.
+  var borderColor; // CSS borderColor for the tabs.
+
   this._preValidationSelectedTab = 0;
-  
+
   // Public Properties
   this.defaults = {};
   this.defaults.fontFamily = "arial";
   this.defaults.fontSize = "12px";
   this.defaults.color = "#333366";
-  
-  this.tabs = [];         //Array of strings: tab names.
+
+  this.tabs = []; // Array of strings: tab names.
   this.selectedTab = 0;
   this.container = null;
   this.backColor = "#eeeeff";
-  
+
   this.tabStyle = "Simple";
-  
-  this._headerArea = null;  //Holds all the tabs. Needs to be in class for add/removeIconOnClick.
-  
-  // Public Methods  
-  
+
+  this._headerArea = null; // Holds all the tabs. Needs to be in class for add/removeIconOnClick.
+
+  // Public Methods
+
   /**
-   * Hide a tab if that tab was not active or if sendTabResponse was false. If that tab was active, and sendTabResponse is false, 
+   * Hide a tab if that tab was not active or if sendTabResponse was false. If that tab was active, and sendTabResponse is false,
    * then select a different tab.
    * @param {Number} tabId
    */
-  this.hideTab = function(tabId) {
+  this.hideTab = function (tabId) {
     var redraw = false;
     if (this.selectedTab == tabId) {
-      if (!this.sendTabResponse){
+      if (!this.sendTabResponse) {
         // Find the first non-hidden tab and select it.
         var newSelectedTab = -1;
-        for (var i=0, n=this.tabs.length; i < n; i++){
-          if (i != tabId && this._hiddenTabs[i] !== true){
+        for (var i = 0, n = this.tabs.length; i < n; i++) {
+          if (i != tabId && this._hiddenTabs[i] !== true) {
             newSelectedTab = i;
             break;
           }
         }
 
-        if (newSelectedTab != -1){
+        if (newSelectedTab != -1) {
           this.selectedTab = newSelectedTab;
           this._hiddenTabs[tabId] = true;
           redraw = true;
@@ -262,60 +258,59 @@ function TabPanel() {
 
     if (redraw) this.drawChanged();
   };
-  
+
   /**
    * Un-hide a tab and re-draw the tabs and contents.
    * @param {Number} tabId
    */
-  this.showTab = function(tabId) {
+  this.showTab = function (tabId) {
     me._hiddenTabs[tabId] = false;
     me.drawChanged();
   };
-  
+
   // API Methods attached as container element's properties of the same name.
-  
+
   /**
    * API. Change to the specified tab. This method should be attached as the container DOM element's setTab method.
    * See "setTab( tabPanelid, tab )" (https://docs.profoundlogic.com/x/FwAy).
    * @param {Number} tabId
    */
-  this.setTab = function(tabId){
-    if (me.selectedTab != tabId){
+  this.setTab = function (tabId) {
+    if (me.selectedTab != tabId) {
       me.selectedTab = tabId;
-      
-      if (me._hiddenTabs[tabId]) me._hiddenTabs[tabId] = false;  //Unhide the tab when being set.
-      
+
+      if (me._hiddenTabs[tabId]) me._hiddenTabs[tabId] = false; // Unhide the tab when being set.
+
       me.processTabChange(tabId);
     }
   };
-  
-  this.getTab = function(){
+
+  this.getTab = function () {
     return me.selectedTab;
   };
-  
-  this.refresh = function(){
-    me.setTab( me.selectedTab );
+
+  this.refresh = function () {
+    me.setTab(me.selectedTab);
   };
-  
+
   // Other public methods.
-  
-  
-  this.setDefaultBackColor = function() {
+
+  this.setDefaultBackColor = function () {
     var settings = pui.widgets.tabStyles[me.tabStyle];
     if (settings != null && settings.defaultBackColor != null) {
       me.backColor = settings.defaultBackColor;
     }
   };
-  
+
   /**
    * Handle selectedTab change. Show elements for this tab, hide elements in non-active tabs. (Overridden)
    * Pre-Conditions: me.selectedTab is the active tab.
    * @returns {undefined}
    */
-  this.drawChanged = function(){
-    me.draw();  //Just re-draw everything.
+  this.drawChanged = function () {
+    me.draw(); // Just re-draw everything.
   };
-    
+
   /**
    * Clears the container and draws new elements for each tab, the content-area, the scroll
    * buttons, and the -/+ buttons (in design mode). Called when the widget is resized,
@@ -323,31 +318,29 @@ function TabPanel() {
    * (Overridden in TabLayout subclass.)
    * @returns {undefined}
    */
-  this.draw = function() {
+  this.draw = function () {
     // Load tab style settings.
     if (me.tabStyle == null || me.tabStyle == "") me.tabStyle = "Simple";
-    
+
     settings = pui.widgets.tabStyles[me.tabStyle];
-    if (settings == null) settings = pui.widgets.tabStyles["Simple"];  // a custom widget may not be installed on current system
-    
+    if (settings == null) settings = pui.widgets.tabStyles["Simple"]; // a custom widget may not be installed on current system
+
     path = pui.normalizeURL("/profoundui/proddata/images/tabs/" + me.tabStyle.toLowerCase() + "/");
     extension = settings["imageFileExtension"];
     if (extension == null) extension = "gif";
     if (extension.substr(0, 1) == ".") extension = extension.substr(1);
-    
+
     borderColor = "#aaaaaa";
     if (settings.borderColor != null) borderColor = settings.borderColor;
     // done loading settings.
-    
+
     me.container.innerHTML = "";
     me.container.style.backgroundColor = "";
-    
+
     if (settings.useDefaultStyles !== false) {
-      
       if (!me.container.style.fontFamily) me.container.style.fontFamily = me.defaults.fontFamily;
       if (!me.container.style.fontSize) me.container.style.fontSize = me.defaults.fontSize;
       if (!me.container.style.color) me.container.style.color = me.defaults.color;
-    
     }
 
     var adjust = 7;
@@ -358,10 +351,10 @@ function TabPanel() {
     me._headerArea.style.position = "absolute";
     me._headerArea.style.left = "0px";
     me._headerArea.style.top = "0px";
-    me._headerArea.style.height = (settings.height + adjust + 1) + "px";    
+    me._headerArea.style.height = (settings.height + adjust + 1) + "px";
     me._headerArea.style.padding = "0px";
     me._headerArea.style.whiteSpace = "nowrap";
-    me._headerArea.style.overflow = "hidden"; 
+    me._headerArea.style.overflow = "hidden";
 
     if (settings.backBar) {
       me.container.style.overflowX = "hidden";
@@ -375,7 +368,7 @@ function TabPanel() {
       }
     }
     me._headerArea.style.width = "100%";
-    
+
     var bottomDiv = document.createElement("div");
     bottomDiv.style.position = "absolute";
     bottomDiv.style.left = "0px";
@@ -419,10 +412,10 @@ function TabPanel() {
       var outerSpan = document.createElement("span");
       outerSpan.style.display = "inline-block";
       if (this._hiddenTabs[i]) outerSpan.style.display = "none";
-      
+
       if (i == me.selectedTab) {
         if (me.container.className != "")
-          outerSpan.className = me.container.className.split(" ")[0] + "-";
+        { outerSpan.className = me.container.className.split(" ")[0] + "-"; }
         outerSpan.className += "selected-tab";
       }
       if (settings.leftWidth != null) {
@@ -431,8 +424,8 @@ function TabPanel() {
         leftSpan.style.backgroundRepeat = "no-repeat";
         leftSpan.style.height = (settings.height + 2) + "px";
         leftSpan.style.width = settings.leftWidth + "px";
-        leftSpan.style.cssFloat = "left";    // Firefox
-        leftSpan.style.styleFloat = "left";  // IE
+        leftSpan.style.cssFloat = "left"; // Firefox
+        leftSpan.style.styleFloat = "left"; // IE
         leftSpan.style.display = "inline-block";
       }
       if (settings.rightWidth != null) {
@@ -441,22 +434,22 @@ function TabPanel() {
         rightSpan.style.backgroundRepeat = "no-repeat";
         rightSpan.style.height = (settings.height + 2) + "px";
         rightSpan.style.width = settings.rightWidth + "px";
-        rightSpan.style.cssFloat = "left";    // Forefox
-        rightSpan.style.styleFloat = "left";  // IE
+        rightSpan.style.cssFloat = "left"; // Forefox
+        rightSpan.style.styleFloat = "left"; // IE
         rightSpan.style.display = "inline-block";
       }
-      
+
       var tabSpan = document.createElement("span");
       tabSpan.tabId = i;
       tabSpan.innerHTML = me.tabs[i];
       tabSpan.style.display = "block";
-      tabSpan.style.cssFloat = "left";    // Forefox
-      tabSpan.style.styleFloat = "left";  // IE
+      tabSpan.style.cssFloat = "left"; // Forefox
+      tabSpan.style.styleFloat = "left"; // IE
       tabSpan.style.height = settings.height + "px";
       tabSpan.style.lineHeight = settings.height + "px";
       tabSpan.setAttribute("isTab", "true");
       tabSpan.style.display = "inline-block";
-      
+
       if (settings.useImages) {
         tabSpan.style.backgroundImage = "url(" + path + "middle" + (i == me.selectedTab ? "-sel" : "") + "." + extension + ")";
         tabSpan.style.backgroundRepeat = "repeat-x";
@@ -471,19 +464,19 @@ function TabPanel() {
         }
         else {
           if (settings.separated != true) {
-            leftSpan.style.backgroundColor = me.backColor;            
-            rightSpan.style.backgroundColor = me.backColor; 
+            leftSpan.style.backgroundColor = me.backColor;
+            rightSpan.style.backgroundColor = me.backColor;
             tabSpan.style.backgroundColor = me.backColor;
-            
-            //Some tab styles have noticeable corners caused by a background color being set - 5974
-            if((this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic") && i == me.selectedTab){
+
+            // Some tab styles have noticeable corners caused by a background color being set - 5974
+            if ((this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic") && i == me.selectedTab) {
               leftSpan.style.backgroundSize = "cover";
               rightSpan.style.backgroundSize = "cover";
-              leftSpan.style.backgroundColor = "";            
-              rightSpan.style.backgroundColor = ""; 
-            }  
+              leftSpan.style.backgroundColor = "";
+              rightSpan.style.backgroundColor = "";
+            }
           }
-          tabSpan.style.cursor = "default";      
+          tabSpan.style.cursor = "default";
           if (settings.selColor != null) tabSpan.style.color = settings.selColor;
           if (settings.selBold == true) tabSpan.style.fontWeight = "bold";
         }
@@ -496,21 +489,20 @@ function TabPanel() {
         tabSpan.style.borderRight = "1px solid " + borderColor;
         if (i != me.selectedTab) {
           tabSpan.style.borderBottom = "1px solid " + borderColor;
-          if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];  
-          else  tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
+          if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];
+          else tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
           if (context == "genie") {
-            tabSpan.style.filter = "progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=white,endColorStr=#"+simpleSelectedTabBackgroundColor+")";
+            tabSpan.style.filter = "progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=white,endColorStr=#" + simpleSelectedTabBackgroundColor + ")";
           }
           tabSpan.style.cursor = "pointer";
         }
         else {
-          tabSpan.style.backgroundColor = me.backColor;  
-          tabSpan.style.borderBottom = "1px solid " + me.backColor;  
-          tabSpan.style.cursor = "default";      
-        }        
+          tabSpan.style.backgroundColor = me.backColor;
+          tabSpan.style.borderBottom = "1px solid " + me.backColor;
+          tabSpan.style.cursor = "default";
+        }
       }
-      
-      
+
       tabSpan.onmouseover = me.tabSpanOnmouseover;
       tabSpan.onmouseout = me.tabSpanOnmouseout;
       // This method could be called from Genie in Design mode, so it must always be attached.
@@ -526,27 +518,27 @@ function TabPanel() {
     // done iterating over each tab.
     me.container.appendChild(bottomDiv);
     me.container.appendChild(me._headerArea);
-    
+
     leftScrollSpan = null;
     rightScrollSpan = null;
     // Do the tabs need scroll buttons. scrollWidth > offsetWidth on overflow.
-    if( me._headerArea.scrollWidth - me._headerArea.offsetWidth > 0 ){
+    if (me._headerArea.scrollWidth - me._headerArea.offsetWidth > 0) {
       me.addScrollButtons(me._headerArea);
 
       // Scroll to the selected tab if "active tab" is bound. When "active tab" is bound, then
       // the tabpanel is re-constructed each ExFmt; so lastScrollLeft would be null at first.
-      if (this.sendActiveTab && this._needScrollToActive){
+      if (this.sendActiveTab && this._needScrollToActive) {
         // The selected tab number should correspond to the array index of childNodes.
-        if( me._headerArea.childNodes != null && me.selectedTab >= 0 && me.selectedTab < me._headerArea.childNodes.length){
+        if (me._headerArea.childNodes != null && me.selectedTab >= 0 && me.selectedTab < me._headerArea.childNodes.length) {
           var outerSpan = me._headerArea.childNodes[me.selectedTab];
           // Put the selected tab in the middle of the tab panel.
-          me._lastScrollLeft = Math.round(outerSpan.offsetLeft - me._headerArea.offsetWidth / 2  + outerSpan.offsetWidth / 2);
+          me._lastScrollLeft = Math.round(outerSpan.offsetLeft - me._headerArea.offsetWidth / 2 + outerSpan.offsetWidth / 2);
         }
         this._needScrollToActive = false;
       }
       me._checkScrollButtons();
     }
-    
+
     var isDesign = inDesignMode();
 
     if (isDesign) {
@@ -559,10 +551,10 @@ function TabPanel() {
     processElements("textarea");
     processElements("button");
     processElements("img");
-        
+
     // Get all elements in the page with the specified tag. Check if they belong in this tab panel.
     // If they belong, show the ones in the active tab and hide the others.
-    function processElements(tag) {
+    function processElements (tag) {
       var container;
       if (context == "dspf" && !isDesign) {
         container = pui.runtimeContainer;
@@ -578,18 +570,18 @@ function TabPanel() {
             elem.style.visibility = "";
             applyProperty(elem, "visibility", "");
             if (elem.grid && elem.grid.setProperty) {
-              if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid['show']();
-              else elem.grid['hide']();
+              if (elem.grid.hasHeader || !elem.grid.subfileHidden) elem.grid["show"]();
+              else elem.grid["hide"]();
             }
-            // Render charts if not done already. A chart will not render when 
-            // the containing tab is inactive...   
+            // Render charts if not done already. A chart will not render when
+            // the containing tab is inactive...
             if (!inDesignMode() && elem.pui.properties["field type"] == "chart" && !elem.chart)
-              applyProperty(elem, "field type", "chart");            
+            { applyProperty(elem, "field type", "chart"); }
           }
           else {
             elem.style.visibility = "hidden";
             applyProperty(elem, "visibility", "hidden");
-            if (elem.grid && elem.grid.setProperty) elem.grid['hide']();
+            if (elem.grid && elem.grid.setProperty) elem.grid["hide"]();
             if (elem.validationTip != null) {
               elem.validationTip.hide();
             }
@@ -600,15 +592,14 @@ function TabPanel() {
         }
       }
     }
+  }; // end this.draw().
 
-  }; //end this.draw().
-  
   /**
    * Add +/- icons in top right of widget. Should be in design mode.
    * (Also called by TabLayout subclass.)
    * @returns {undefined}
    */
-  this.createAddRemoveIcons = function(){
+  this.createAddRemoveIcons = function () {
     var addIcon = designUtils.createAndAppendIcon("plus", "Add New Tab", me.container);
     var removeIcon = designUtils.createAndAppendIcon("minus", "Remove Tab", me.container);
     addIcon.style.right = "2px";
@@ -617,7 +608,7 @@ function TabPanel() {
     addIcon.onclick = me.addIconOnclick;
     removeIcon.onclick = me.removeIconOnclick;
   };
-    
+
   /**
    * The user changed the tab by clicking on one that isn't the selectedTab
    * or by calling the API method, setTab, on a tab that isn't selectedTab.
@@ -625,7 +616,7 @@ function TabPanel() {
    * @param {Number} tab
    * @returns {undefined}
    */
-  this.processTabChange = function(tab){
+  this.processTabChange = function (tab) {
     var dom = me.container;
     if (dom.disabled != true) {
       if (context == "dspf" && me.sendTabResponse == true) {
@@ -637,9 +628,9 @@ function TabPanel() {
           pui.keyName = me.responseAID;
         }
         var returnVal = pui.respond();
-        if (returnVal == false){  
-          dom.responseValue = null;   //Validation failed; send no response.
-          me.selectedTab = me._preValidationSelectedTab; //Prevent selectedTab from being out of sync.
+        if (returnVal == false) {
+          dom.responseValue = null; // Validation failed; send no response.
+          me.selectedTab = me._preValidationSelectedTab; // Prevent selectedTab from being out of sync.
         }
       }
       else {
@@ -650,16 +641,16 @@ function TabPanel() {
       }
     }
   };
-  
+
   /**
    * Restyle a tab using the settings when the mouse is over the tab.
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnmouseover = function(e) {
+  this.tabSpanOnmouseover = function (e) {
     var obj = getTarget(e);
     if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
-    if (obj.tabId == me.selectedTab) return; 
+    if (obj.tabId == me.selectedTab) return;
     if (settings.useImages && settings.hiImages) {
       obj.style.backgroundImage = "url(" + path + "middle-hi." + extension + ")";
       obj.previousSibling.style.backgroundImage = "url(" + path + "left-hi." + extension + ")";
@@ -669,16 +660,16 @@ function TabPanel() {
       obj.style.color = settings.hiColor;
     }
     if (settings.hiUnderline == true) {
-      obj.style.textDecoration = "underline";          
+      obj.style.textDecoration = "underline";
     }
   };
-  
+
   /**
    * Restore the tab's style using the settings when the mouse leaves the tab.
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnmouseout = function(e) {
+  this.tabSpanOnmouseout = function (e) {
     var obj = getTarget(e);
     if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
     if (obj.tabId == me.selectedTab) return;
@@ -694,15 +685,15 @@ function TabPanel() {
       obj.style.textDecoration = "";
     }
   };
-  
+
   /**
    * Handler for clicking a tab; changes the tab.
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnclick = function(e) {
+  this.tabSpanOnclick = function (e) {
     var target = e.target;
-    me._lastScrollLeft = target.parentNode.parentNode.scrollLeft; //_headerArea is 2 nodes up.
+    me._lastScrollLeft = target.parentNode.parentNode.scrollLeft; // _headerArea is 2 nodes up.
     if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
     var tab = target.tabId;
     if (me.container.ontabclick != null) {
@@ -710,7 +701,7 @@ function TabPanel() {
       var returnVal = me.container.ontabclick(tab);
       if (returnVal == false) return;
     }
-    
+
     if (me.container.tabKeys != null) {
       var tabKeysArray = me.container.tabKeys.split(",");
       if (tabKeysArray.length - 1 >= tab) {
@@ -722,7 +713,7 @@ function TabPanel() {
         }
       }
     }
-    me._preValidationSelectedTab = me.selectedTab; //In case validation fails with "tab response", selectedTab will be restored.
+    me._preValidationSelectedTab = me.selectedTab; // In case validation fails with "tab response", selectedTab will be restored.
     var changed = false;
     if (me.selectedTab != tab) changed = true;
     if (changed) me.selectedTab = tab;
@@ -732,16 +723,16 @@ function TabPanel() {
       if (selection.resizers.length > 1) selection.clear();
     }
     if (changed)
-      me.processTabChange(tab);
+    { me.processTabChange(tab); }
   };
-  
+
   /**
    * Event handler to show an inline Edit Box on a tab in Designer.
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOndblclick = function(e) {
-    if ( inDesignMode() ) {
+  this.tabSpanOndblclick = function (e) {
+    if (inDesignMode()) {
       var dom = e.target;
       if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
       // Get the widget's outer-most div.
@@ -751,7 +742,7 @@ function TabPanel() {
       // Add an inline edit-box and a handler for updating it.
       if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
         // onUpdate gets called inside InlineEditBox.update, after a call to InlineEditBox.hide.
-        itm.designer.inlineEditBox.onUpdate = function(newName) {
+        itm.designer.inlineEditBox.onUpdate = function (newName) {
           var idx = dom.tabId;
 
           // Replace the old name with the new name. Convert string to array,
@@ -773,26 +764,26 @@ function TabPanel() {
           itm.changed = true;
           itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
           itm.designer.propWindow.refreshProperty("tab names");
-          
+
           // Clear onUpdate's closure references.
           itm.designer.inlineEditBox.onUpdate = null;
           dom = itmDom = itm = null;
         };
 
-        itm.designer.inlineEditBox.show(itm, dom, "tab" );
+        itm.designer.inlineEditBox.show(itm, dom, "tab");
       }
     }
   };
-    
+
   /**
    * Handle clicking the [+] icon: add a new tab and refresh the properties window.
    * @returns {undefined}
    */
-  this.addIconOnclick = function() {
+  this.addIconOnclick = function () {
     var itm = toolbar.designer.getDesignItemByDomObj(me.container);
     var propValue = itm.properties["tab names"];
     if (pui.isTranslated(propValue)) {
-      // Number of tabs is controlled by this, 
+      // Number of tabs is controlled by this,
       // doesn't make sense to change.
       return;
     }
@@ -813,14 +804,14 @@ function TabPanel() {
     var tabNames;
     if (!pui.isBound(propValue) && !pui.isTranslated(propValue)) tabNames = pui.parseCommaSeparatedList(propValue);
     else tabNames = pui.parseCommaSeparatedList(propValue.designValue);
-    
+
     me.selectedTab = tabNames.length - 1;
-    
+
     // Setup the tab area to scroll all the way to the right; happens when scroll buttons are handled.
-    if (me._headerArea){
-      me._lastScrollLeft = me._headerArea.scrollWidth;  //This is too large but will be fixed later.
+    if (me._headerArea) {
+      me._lastScrollLeft = me._headerArea.scrollWidth; // This is too large but will be fixed later.
     }
-    
+
     var nmodel = getPropertiesNamedModel();
     var propConfig = nmodel["tab names"];
     itm.designer.undo.start("Add New Tab");
@@ -833,19 +824,19 @@ function TabPanel() {
     itm.designer.selection.add(itm);
     itm.designer.propWindow.refresh();
   };
-  
+
   /**
    * Handle clicking [-] icon. Remove the last tab and refresh the properties window.
    * @returns {undefined}
    */
-  this.removeIconOnclick = function() {
+  this.removeIconOnclick = function () {
     var itm = toolbar.designer.getDesignItemByDomObj(me.container);
     var propValue = itm.properties["tab names"];
     var tabNames;
     if (pui.isTranslated(propValue)) {
-      // Number of tabs is controlled by this, 
+      // Number of tabs is controlled by this,
       // doesn't make sense to change.
-      return;          
+      return;
     }
     else if (pui.isBound(propValue)) {
       var designValue = propValue.designValue;
@@ -859,13 +850,13 @@ function TabPanel() {
     }
     if (tabNames.length > 1) {
       // See if the tab Panel's last panel contains items. If yes, don't allow remove.
-      if ( me._cannotRemoveTab(tabNames.length - 1, itm) ) {
+      if (me._cannotRemoveTab(tabNames.length - 1, itm)) {
         itm.designer.selection.clear();
         itm.designer.selection.add(itm);
         itm.designer.propWindow.refresh();
         me.selectedTab = tabNames.length - 1;
         me.drawChanged();
-        pui.alert( me.TXT_CANNOTREMOVE );
+        pui.alert(me.TXT_CANNOTREMOVE);
       }
       else {
         // The tab panel's last panel doesn't contain items, or this is a Tab Layout.
@@ -884,15 +875,15 @@ function TabPanel() {
         itm.changed = true;
         itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
         itm.designer.propWindow.refreshProperty("tab names");
-        
+
         // If a new TabLayout wasn't created, then applyProperty failed, and selectedTab should be restored.
-        if (itm.dom.layoutT != null && itm.dom.layoutT == me){
+        if (itm.dom.layoutT != null && itm.dom.layoutT == me) {
           me.selectedTab = origSelectedTab;
         }
       }
     }
   };
-    
+
   /**
    * Returns true if widgets are associated with the specified tab; else false.
    * (Overridden in subclass, TabLayout.)
@@ -900,7 +891,7 @@ function TabPanel() {
    * @param {Object} itm            The design item for this tab panel widget.
    * @returns {Boolean}
    */
-  this._cannotRemoveTab = function(removeTabNum, itm){
+  this._cannotRemoveTab = function (removeTabNum, itm) {
     for (var i = 0; i < itm.designer.items.length; i++) {
       var elem = itm.designer.items[i].dom;
       if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
@@ -911,19 +902,18 @@ function TabPanel() {
     }
     return false;
   };
-  
+
   /**
    * Create buttons to scroll tabs left/right, styled like the tabs. (Note: the functions were moved to class methods
    * instead of anoymous declarations here to avoid new functions+closures repeatedly being allocated on resize, etc.)
    * @returns {undefined}
    */
-  this.addScrollButtons = function(){
-
+  this.addScrollButtons = function () {
     leftScrollSpan = me._createScrollButton("left");
     rightScrollSpan = me._createScrollButton("right");
-    
+
     // Avoid overlapping the +/- buttons.
-    if( inDesignMode() ) rightScrollSpan.style.right = "35px";
+    if (inDesignMode()) rightScrollSpan.style.right = "35px";
 
     // Setup the click handlers for both buttons.
     leftScrollSpan.onmousedown = leftScroll_onmousedown;
@@ -943,156 +933,155 @@ function TabPanel() {
 
     me.container.appendChild(leftScrollSpan);
     me.container.appendChild(rightScrollSpan);
-    
   };
-  
+
   /**
    * Scroll the top header div to the left when a scroll button is held down.
    * @returns {undefined}
    */
-  function scrollLeft(){
-    if( me._headerArea.scrollLeft > 0){
+  function scrollLeft () {
+    if (me._headerArea.scrollLeft > 0) {
       me._headerArea.scrollLeft -= curScrollIncrement;
-    }else{
+    } else {
       clearInterval(scrollLeftIval);
       leftScrollSpan.style.display = "none";
     }
     rightScrollSpan.style.display = "inline-block";
     scrollCounter++;
     // Scroll faster the longer the button is held.
-    if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+    if (scrollCounter > 0 && (scrollCounter % 5) == 0) curScrollIncrement += scrollAccelAmount;
   }
-  
+
   /**
    * Scroll the top header div to the right when a scroll button is held down.
    * @returns {undefined}
    */
-  function scrollRight(){
+  function scrollRight () {
     // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
     var leftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
-    if( me._headerArea.scrollLeft < leftMax){
+    if (me._headerArea.scrollLeft < leftMax) {
       // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
       // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-      try{me._headerArea.scrollLeft += curScrollIncrement;}catch(exc){}
-    }else{
+      try { me._headerArea.scrollLeft += curScrollIncrement; } catch (exc) {}
+    } else {
       clearInterval(scrollRightIval);
       rightScrollSpan.style.display = "none";
     }
     leftScrollSpan.style.display = "inline-block";
     scrollCounter++;
     // Scroll faster the longer the button is held.
-    if( scrollCounter > 0 && (scrollCounter % 5) == 0 ) curScrollIncrement += scrollAccelAmount;
+    if (scrollCounter > 0 && (scrollCounter % 5) == 0) curScrollIncrement += scrollAccelAmount;
   }
-  
+
   // Start scrolling.
-  function leftScroll_onmousedown(){
+  function leftScroll_onmousedown () {
     // Reset increment amount and speed counter. Start scrolling.
     curScrollIncrement = beginScrollIncrement;
     scrollCounter = 0;
     scrollLeftIval = setInterval(scrollLeft, 42);
   }
-  function rightScroll_onmousedown(){
+  function rightScroll_onmousedown () {
     curScrollIncrement = beginScrollIncrement;
     scrollCounter = 0;
     scrollRightIval = setInterval(scrollRight, 42);
   }
-  
+
   // Stop scrolling.
-  function leftScroll_onmouseup(){
+  function leftScroll_onmouseup () {
     clearInterval(scrollLeftIval);
   }
-  function rightScroll_onmouseup(){
+  function rightScroll_onmouseup () {
     clearInterval(scrollRightIval);
   }
-  
+
   /**
    * Check which scroll buttons should be visible, and show them.
    * @returns {undefined}
    */
-  this._checkScrollButtons = function(){
+  this._checkScrollButtons = function () {
     // Calculate scrollLeftMax: how far from left is the element scrolled.
     var topDiv_scrollLeftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
 
     // Avoid showing scroll buttons if we are close enough to an end. Fixes
     // button appearing/disappearing when Angle tabs shift by 1 pixel on click.
-    if( (topDiv_scrollLeftMax - me._lastScrollLeft) <= 3) me._lastScrollLeft = topDiv_scrollLeftMax;
-    else if( me._lastScrollLeft <= 3 ) me._lastScrollLeft = 0;
+    if ((topDiv_scrollLeftMax - me._lastScrollLeft) <= 3) me._lastScrollLeft = topDiv_scrollLeftMax;
+    else if (me._lastScrollLeft <= 3) me._lastScrollLeft = 0;
 
     // Restore the previous scrollLeft from before a tab was clicked, or to scroll to the active tab.
     me._headerArea.scrollLeft = me._lastScrollLeft;
 
     // Display either button only when needed.
-    if( me._headerArea.scrollLeft > 0 ){
+    if (me._headerArea.scrollLeft > 0) {
       leftScrollSpan.style.display = "inline-block";
-    }else {
-      leftScrollSpan.style.display = "";  //Stylesheet defaults these spans' display to none.
+    } else {
+      leftScrollSpan.style.display = ""; // Stylesheet defaults these spans' display to none.
     }
 
-    if( me._headerArea.scrollLeft < topDiv_scrollLeftMax){
+    if (me._headerArea.scrollLeft < topDiv_scrollLeftMax) {
       rightScrollSpan.style.display = "inline-block";
-    }else{
+    } else {
       rightScrollSpan.style.display = "";
     }
   };
-  
+
   /**
    * Create a scroll left or right button in the same style as the tabs.
    *   (Overridden in subclass.)
    * @param {String} cssClass     Extra CSS class: left or right.
    * @returns {Object}            A span DOM element as the tab.
    */
-  this._createScrollButton = function(cssClass ){
+  this._createScrollButton = function (cssClass) {
     // Create a parent span to encapsulate the button image, left, and right border.
     // Note: image is defined by CSS rule like :before { content: url(); }
     var outerSpan = document.createElement("span");
-    if(cssClass) outerSpan.className = "pui-tscrbtn "+cssClass;
+    if (cssClass) outerSpan.className = "pui-tscrbtn " + cssClass;
 
     // By default, scroll buttons use the same style as a selected tab. Allow
     // them to use style of unselected tab with config option.
     var bgimgSel = "-sel.";
-    if( pui["tabpanel scroll unsel style"] == true) bgimgSel = ".";
+    if (pui["tabpanel scroll unsel style"] == true) bgimgSel = ".";
 
     if (settings.leftWidth != null) {
       var leftSpan = document.createElement("span");
       leftSpan.className = "edge";
-      leftSpan.style.backgroundImage = "url(" + path + "left"+bgimgSel + extension + ")";
+      leftSpan.style.backgroundImage = "url(" + path + "left" + bgimgSel + extension + ")";
       leftSpan.style.height = (settings.height + 2) + "px";
       leftSpan.style.width = settings.leftWidth + "px";
     }
     if (settings.rightWidth != null) {
       var rightSpan = document.createElement("span");
       rightSpan.className = "edge";
-      rightSpan.style.backgroundImage = "url(" + path + "right"+bgimgSel + extension + ")";
+      rightSpan.style.backgroundImage = "url(" + path + "right" + bgimgSel + extension + ")";
       rightSpan.style.height = (settings.height + 2) + "px";
       rightSpan.style.width = settings.rightWidth + "px";
     }
 
     var tabSpan = document.createElement("span");
-    tabSpan.className = "mid";    
+    tabSpan.className = "mid";
     tabSpan.style.height = settings.height + "px";
 
     if (settings.useImages) {
-      tabSpan.style.backgroundImage = "url(" + path + "middle"+bgimgSel + extension + ")";
+      tabSpan.style.backgroundImage = "url(" + path + "middle" + bgimgSel + extension + ")";
       tabSpan.style.backgroundRepeat = "repeat-x";
       var leftMargin = 1;
       if (settings.leftMargin) leftMargin = settings.leftMargin;
       leftSpan.style.marginLeft = leftMargin + "px";
-      tabSpan.style.padding = (settings.height - 17) + "px 0.5em 0px"; //image is 
+      tabSpan.style.padding = (settings.height - 17) + "px 0.5em 0px"; // image is
 
       if (settings.separated != true) {
-        leftSpan.style.backgroundColor = me.backColor;            
-        rightSpan.style.backgroundColor = me.backColor;  
+        leftSpan.style.backgroundColor = me.backColor;
+        rightSpan.style.backgroundColor = me.backColor;
         tabSpan.style.backgroundColor = me.backColor;
 
-        //5974 - Remove visible corners
-        if(this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic"){
+        // 5974 - Remove visible corners
+        if (this.tabStyle == "Glass" || this.tabStyle == "Delicate" || this.tabStyle == "Classic") {
           leftSpan.style.backgroundSize = "cover";
           rightSpan.style.backgroundSize = "cover";
-          leftSpan.style.backgroundColor = "";            
-          rightSpan.style.backgroundColor = ""; 
+          leftSpan.style.backgroundColor = "";
+          rightSpan.style.backgroundColor = "";
           leftSpan.style.height = settings.height + "px";
           rightSpan.style.height = settings.height + "px";
-        }   
+        }
       }
       if (settings.selColor != null) tabSpan.style.color = settings.selColor;
       if (settings.selBold == true) tabSpan.style.fontWeight = "bold";
@@ -1105,11 +1094,11 @@ function TabPanel() {
       tabSpan.style.borderRight = "1px solid " + borderColor;
       tabSpan.style.borderBottom = "1px solid " + me.backColor;
       // Use color of selected tab unless overridden by config option.
-      if( pui["tabpanel scroll unsel style"] != true)
-        tabSpan.style.backgroundColor = me.backColor;
+      if (pui["tabpanel scroll unsel style"] != true)
+      { tabSpan.style.backgroundColor = me.backColor; }
       else if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];
-      else  
-        tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
+      else
+      { tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor; }
     }
 
     // Add the left border if it, exists, add the tab itself, and add the
@@ -1119,10 +1108,9 @@ function TabPanel() {
     if (settings.rightWidth != null) outerSpan.appendChild(rightSpan);
 
     return outerSpan;
-  };//end _createScrollButton().
-  
+  };// end _createScrollButton().
 }
-TabPanel.prototype = Object.create(pui.BaseClass.prototype);  //inherit deleteOwnProperties.
+TabPanel.prototype = Object.create(pui.BaseClass.prototype); // inherit deleteOwnProperties.
 
 pui.widgets.add({
   name: "tab panel",
@@ -1139,13 +1127,12 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
-    
-      parms.dom.sizeMe = function() {
+
+    "field type": function (parms) {
+      parms.dom.sizeMe = function () {
         parms.dom.tabPanel.draw();
       };
-    
+
       parms.dom.tabPanel = new TabPanel();
       var tabNamesString = parms.evalProperty("tab names");
       if (tabNamesString != null && tabNamesString != "") {
@@ -1159,15 +1146,15 @@ pui.widgets.add({
 
       parms.dom.tabPanel.tabStyle = parms.properties["tab panel style"];
       if (parms.design && pui.isBound(parms.dom.tabPanel.tabStyle))
-        parms.dom.tabPanel.tabStyle = "Simple";
-      if (parms.properties["background color"] == null || parms.properties["background color"] == "") {      
+      { parms.dom.tabPanel.tabStyle = "Simple"; }
+      if (parms.properties["background color"] == null || parms.properties["background color"] == "") {
         parms.dom.tabPanel.setDefaultBackColor();
       }
 
       if (context == "genie" || parms.design) {
         parms.dom.tabPanel.draw();
       }
-      
+
       if (!parms.design) {
         var tabPanel = parms.dom.tabPanel;
         // set and get current tab api's to the DOM element. Bind because tabPanel, not parms.dom, should be "this" inside these functions. #6785.
@@ -1178,8 +1165,8 @@ pui.widgets.add({
         parms.dom["showTab"] = tabPanel.showTab.bind(tabPanel);
       }
     },
-    
-    "tab names": function(parms) {
+
+    "tab names": function (parms) {
       if (parms.dom.tabPanel != null) {
         var tabNamesString = parms.value;
         if (tabNamesString != null && tabNamesString != "") {
@@ -1193,14 +1180,14 @@ pui.widgets.add({
         }
       }
     },
-    
-    "tab keys": function(parms) {
+
+    "tab keys": function (parms) {
       parms.dom.tabKeys = parms.value;
     },
-    
-    "tab panel style" : function(parms) {
+
+    "tab panel style": function (parms) {
       parms.dom.tabPanel.tabStyle = parms.value;
-      if (parms.properties["background color"] == null || parms.properties["background color"] == "") {      
+      if (parms.properties["background color"] == null || parms.properties["background color"] == "") {
         parms.dom.tabPanel.setDefaultBackColor();
       }
       if (context == "genie" || parms.design) {
@@ -1208,30 +1195,27 @@ pui.widgets.add({
       }
       pui.widgets.preloadTabStyle(parms.value);
     },
-    
-    "width": function(parms) {
+
+    "width": function (parms) {
       if (parms.design && pui.isPercent(parms.value)) {
         parms.dom.tabPanel.draw();
       }
     },
 
-    "height": function(parms) {
+    "height": function (parms) {
       if (parms.design && pui.isPercent(parms.value)) {
         parms.dom.tabPanel.draw();
       }
     },
-    
-    "response AID": function(parms) {
-      if (parms.dom.tabPanel){
+
+    "response AID": function (parms) {
+      if (parms.dom.tabPanel) {
         var value = parms.value;
-        if (typeof value !== 'string' || value.length === 0) value = null;
+        if (typeof value !== "string" || value.length === 0) value = null;
         parms.dom.tabPanel.responseAID = parms.value;
       }
     }
- 
+
   }
-  
+
 });
-
-
-

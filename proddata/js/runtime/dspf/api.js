@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 // Automate the clicking of a button/link/image that has a response property
 // Parameter 1: id or dom object reference to a button/link/image
 //              the parameter is optional -- if not passed, a response is still sent to the server
@@ -26,8 +24,8 @@
 // Example: pui.click("Submit");
 // Example: var obj = getObj("Submit"); pui.click(obj);
 // Example: var obj = getObj("Submit"); pui.click(obj);
-pui.click = function(button, skipjs) {
-  setTimeout(function() {
+pui.click = function (button, skipjs) {
+  setTimeout(function () {
     if (typeof button != "object") button = getObj(button);
     var originalResponseValue;
     if (button != null) {
@@ -49,34 +47,31 @@ pui.click = function(button, skipjs) {
     pui.responseRoutine = null;
     pui.responseRoutineRow = null;
     pui.responseRoutineGrid = null;
-    
+
     if (returnVal == false && button != null) {
       button.responseValue = originalResponseValue;
-    }    
+    }
   },
   0);
-}
-
+};
 
 // Goes to a url and skips the "This will end your session" confirmation box
 // Example: pui.link("mailto:support@profoundlogic.com");
-pui["link"] = function(url) {
+pui["link"] = function (url) {
   pui.skipConfirm = true;
-  setTimeout(function() {
+  setTimeout(function () {
     location.href = url;
   }, 1);
-  setTimeout(function() { 
-    pui.skipConfirm=false; 
+  setTimeout(function () {
+    pui.skipConfirm = false;
   }, 100);
-}
-
+};
 
 // move all elements located between from and to pixels up or down by a certain amount of pixels
 // useful in forms, where you want to collapse a section of the form that is not visible
 // Example: pui.shiftElements(100, 9999, -100)
-pui["shiftElements"] = function(from, to, moveBy) {
-
-  function processEls(tag) {
+pui["shiftElements"] = function (from, to, moveBy) {
+  function processEls (tag) {
     var els = document.getElementsByTagName(tag);
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
@@ -87,22 +82,20 @@ pui["shiftElements"] = function(from, to, moveBy) {
       }
     }
   }
-  
-  processEls("div");       // move output fields and labels
-  processEls("input");     // move textboxes, checkboxes, radio buttons
-  processEls("select");    // move dropdowns
-  processEls("textarea");  // move text areas
 
-}
+  processEls("div"); // move output fields and labels
+  processEls("input"); // move textboxes, checkboxes, radio buttons
+  processEls("select"); // move dropdowns
+  processEls("textarea"); // move text areas
+};
 
-
-// gets the height of the PUI runtime container based on the 
+// gets the height of the PUI runtime container based on the
 // absolute position and height of the elements within it
 // useful in positioning a footer that is placed into start.html
 // Example: getObj("footer").style.top = pui.getRuntimeContainerHeight() + "px";
-pui["getRuntimeContainerHeight"] = function() {
+pui["getRuntimeContainerHeight"] = function () {
   var containerHeight = 0;
-  function processEls(tag) {
+  function processEls (tag) {
     var els = document.getElementsByTagName(tag);
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
@@ -116,22 +109,20 @@ pui["getRuntimeContainerHeight"] = function() {
       }
     }
   }
-  
-  processEls("div");       // check output fields and labels
-  processEls("input");     // check textboxes, checkboxes, radio buttons
-  processEls("select");    // check dropdowns
-  processEls("textarea");  // check text areas
-  
+
+  processEls("div"); // check output fields and labels
+  processEls("input"); // check textboxes, checkboxes, radio buttons
+  processEls("select"); // check dropdowns
+  processEls("textarea"); // check text areas
+
   return containerHeight;
-}
+};
 
-
-pui["showHelp"] = function() {
+pui["showHelp"] = function () {
   pui.help.show();
-}
+};
 
-
-function getSystemName() {
+function getSystemName () {
   if (inDesignMode()) {
     return "SSSSSSSS";
   }
@@ -141,44 +132,41 @@ function getSystemName() {
   }
 }
 
-
-
 pui.cachedMeta = {};
-pui["show"] = function(parms) {
-  
+pui["show"] = function (parms) {
   // display meta data object or a path to a json file representing the display meta data should be provided
-  var path = parms["path"];        // string - can be IFS path or in the form of LIBRARY/FILE(SOURCE)
-  var meta = parms["meta"];        // object
+  var path = parms["path"]; // string - can be IFS path or in the form of LIBRARY/FILE(SOURCE)
+  var meta = parms["meta"]; // object
   var appJob = parms["appJob"] || {};
-  
+
   // the name of the format or multiple formats to be displayed should be provided
   // if omitted, the first format in the meta data is used
   var format = parms["format"] || parms["screen"];
   var formats = parms["formats"] || parms["screens"];
-  
+
   var data = parms["data"];
   if (data == null) data = {};
   data["__pui_show"] = true;
-  
+
   var handler = parms["handler"];
-  
+
   if (meta == null && path == null) return;
-  
+
   if (meta == null && pui.cachedMeta[path] != null) {
     meta = pui.cachedMeta[path];
   }
-  
-  if (meta == null) {    
-    var ajaxParms = {      
+
+  if (meta == null) {
+    var ajaxParms = {
       "method": "get",
       "cacheBuster": true,
-      "handler": function(metaObj) {
+      "handler": function (metaObj) {
         parms["meta"] = metaObj;
         parms["appJob"] = appJob;
         pui.cachedMeta[path] = metaObj;
         pui["show"](parms);
       }
-    }
+    };
     if (parms["method"]) ajaxParms["method"] = parms["method"];
     var memberInfo = pui.parseLibraryFileMember(path);
     if (memberInfo == null) {
@@ -186,26 +174,26 @@ pui["show"] = function(parms) {
       ajaxJSON(ajaxParms);
     }
     else {
-      ajaxParms["url"]= getProgramURL("PUI0001102.pgm");
-      ajaxParms["params"]= memberInfo;
-      ajaxParms["handler"] = function(json) {
-        json = json.replace(/''/g, "'");  // decode single quotes
+      ajaxParms["url"] = getProgramURL("PUI0001102.pgm");
+      ajaxParms["params"] = memberInfo;
+      ajaxParms["handler"] = function (json) {
+        json = json.replace(/''/g, "'"); // decode single quotes
         pui.display = null;
         eval(json);
         parms["meta"] = pui.display;
         pui.cachedMeta[path] = pui.display;
         pui["show"](parms);
-      }
+      };
       ajax(ajaxParms);
     }
     return;
   }
-  
+
   if (formats == null && format != null) {
     formats = [];
     formats.push(format);
   }
-  
+
   var formatList = [];
   if (formats != null) {
     for (var i = 0; i < meta["formats"].length; i++) {
@@ -222,36 +210,35 @@ pui["show"] = function(parms) {
       }
     }
   }
-  
+
   if (formatList.length == 0) {
     formatList.push({
       "metaData": meta["formats"][0],
       "data": data
-    });    
+    });
   }
-  
 
   var container = parms["container"];
   if (container != null && typeof container == "string") container = getObj(parms["container"]);
 
   if (container == null) pui.runtimeContainer = getObj("pui");
   else pui.runtimeContainer = container;
-  
+
   var layers = [{ "formats": formatList }];
-  
+
   var obj = {
     container: pui.runtimeContainer,
     "appJob": appJob,
     "layers": layers,
     success: true
-  }
+  };
   if (parms["transition"]) obj.transition = parms["transition"];
-  
+
   // Render screen after waiting for any existing PUI callbacks to complete, so
   // objects they reference aren't destroyed prematurely.
   setTimeout(function () {
     pui.handler = handler;
-    if (pui.handler == null) pui.handler = function() { };
+    if (pui.handler == null) pui.handler = function () { };
     pui.render(obj);
 
     if (parms["setDims"]) {
@@ -259,22 +246,16 @@ pui["show"] = function(parms) {
       container.style.width = screenDims.x2 + "px";
       container.style.height = screenDims.y2 + "px";
     }
-
   }, 0);
+};
 
-
-}
-
-
-
-pui["applyResponse"] = function(data, response) {
+pui["applyResponse"] = function (data, response) {
   for (var entry in response) {
     data[entry] = response[entry];
   }
-}
+};
 
-
-pui["setMLTCHCFLD"] = function(fieldId, checkboxes) {
+pui["setMLTCHCFLD"] = function (fieldId, checkboxes) {
   if (pui.bypassValidation == "true") return;
   var count = 0;
   for (var i = 0; i < checkboxes.length; i++) {
@@ -284,25 +265,23 @@ pui["setMLTCHCFLD"] = function(fieldId, checkboxes) {
 
   // can't use changeElementValue since this would normally be called with onsubmit, which occurs after the response is already built
   // changeElementValue(fieldId, String(count));
-  
+
   // instead, we update the response object directly
-  // first, we find the field in pui.responseElements 
+  // first, we find the field in pui.responseElements
   var elem = getObj(fieldId);
-  if (elem != null) { 
+  if (elem != null) {
     for (var fieldName in pui.responseElements) {
       var doms = pui.responseElements[fieldName];
       var dom = doms[0];
       if (dom == elem) {
         pui.referenceToResponse[fieldName] = String(count);
         return;
-      }     
+      }
     }
   }
-  
-}
+};
 
-
-pui["setPSHBTNFLD"] = function(fieldId, button) {
+pui["setPSHBTNFLD"] = function (fieldId, button) {
   // Retrive Choice Number from Button Id
   var id = button.id;
   var choiceNumber = "";
@@ -320,36 +299,32 @@ pui["setPSHBTNFLD"] = function(fieldId, button) {
 
   // Submit Screen
   pui.click(button, true);
-}
+};
 
-
-
-
-pui["buildFKeyMenu"] = function(parms) {
-
+pui["buildFKeyMenu"] = function (parms) {
   if (parms == null) parms = {};
 
-  var prefix = parms["prefix"];  // id prefix to identify fkeys - "link" or "btn"
+  var prefix = parms["prefix"]; // id prefix to identify fkeys - "link" or "btn"
   if (prefix == null) prefix = "btn";
-  
+
   var fkeyMenuId = parms["fkeyMenuId"];
   if (fkeyMenuId == null) {
     fkeyMenuId = "fkeyMenu";
     if (parms["format"] != null) fkeyMenuId = parms["format"] + "_" + fkeyMenuId;
     if (parms["file"] != null) fkeyMenuId = parms["file"] + "_" + fkeyMenuId;
   }
-  
+
   var skipF24 = parms["skipF24"];
   if (skipF24 == null) skipF24 = true;
-  
+
   var skipHelp = parms["skipHelp"];
   if (skipHelp == null) skipHelp = false;
-  
-  var availableKeys = parms["availableKeys"];  // can be specified as an id or an array of id's
-                                               // if not passed, all keys are assummed to be available
-                                               // the id points to an output element with content such as "F3=Exit  F5=Refresh  F12=Cancel"
+
+  var availableKeys = parms["availableKeys"]; // can be specified as an id or an array of id's
+  // if not passed, all keys are assummed to be available
+  // the id points to an output element with content such as "F3=Exit  F5=Refresh  F12=Cancel"
   if (typeof availableKeys == "string") {
-    availableKeys = [ availableKeys ];  // convert to array
+    availableKeys = [availableKeys]; // convert to array
   }
   var availableKeysString = "";
   if (availableKeys != null) {
@@ -361,12 +336,12 @@ pui["buildFKeyMenu"] = function(parms) {
     }
   }
   availableKeysString = trim(availableKeysString);
-  
+
   var fkeyMenuDOM = getObj(fkeyMenuId);
   if (fkeyMenuDOM == null) return;
-  
-  //var isWin = (pui.lastWindow != null);
-  //if (fkeyMenuDOM == null) {
+
+  // var isWin = (pui.lastWindow != null);
+  // if (fkeyMenuDOM == null) {
   //  if (isWin) {
   //    // imitate menu dom
   //    fkeyMenuDOM = {
@@ -379,31 +354,31 @@ pui["buildFKeyMenu"] = function(parms) {
   //  else {
   //    return;
   //  }
-  //}
+  // }
 
   var fkeyMenuWidget = fkeyMenuDOM.menuWidget;
   if (fkeyMenuWidget == null) return;
-  
+
   var container = fkeyMenuDOM.parentNode;
   if (container == null) return;
-  
+
   fkeyMenuWidget.choices = [];
   fkeyMenuWidget.choiceValues = [];
 
-  //if (isWin) {
+  // if (isWin) {
   //  pui.autoArrange.left = pui.autoArrange.startLeft;
   //  pui.autoArrange.prevTop = null;
-  //}
-  
+  // }
+
   var elem = container.firstChild;
   while (elem != null) {
     var id = elem.id;
     if (id == null || id.length <= prefix.length || id.substr(0, prefix.length) != prefix) {
       elem = elem.nextSibling;
       continue;
-    }  
+    }
     var lookFor = id.substr(prefix.length);
-    if (lookFor.substr(0,2) == "CA" || lookFor.substr(0,2) == "CF") {
+    if (lookFor.substr(0, 2) == "CA" || lookFor.substr(0, 2) == "CF") {
       lookFor = Number(lookFor.substr(2));
       if (isNaN(lookFor) || lookFor < 1 || lookFor > 24) {
         elem = elem.nextSibling;
@@ -413,7 +388,7 @@ pui["buildFKeyMenu"] = function(parms) {
     }
     lookFor += "=";
     if (lookFor == "Submit=") lookFor = null;
-    //if (isWin && pui.autoArrange.prevTop == null) pui.autoArrange.prevTop = parseInt(elem.style.top);
+    // if (isWin && pui.autoArrange.prevTop == null) pui.autoArrange.prevTop = parseInt(elem.style.top);
     elem.style.left = "-250px";
     elem.style.top = "-250px";
     var idx = -1;
@@ -449,19 +424,19 @@ pui["buildFKeyMenu"] = function(parms) {
       var i, j;
       // search for next equal sign (which is the 2nd equal sign from idx)
       for (i = idx; i < availableKeysString.length; i++) {
-        var ch = availableKeysString.substr(i,1);
+        var ch = availableKeysString.substr(i, 1);
         if (ch == "=") equalSigns++;
         if (equalSigns >= 2) break;
       }
       // go back to the previous space
-      if (equalSigns >= 2) {        
-        while (i > 0 && availableKeysString.substr(i,1) != " ") {
+      if (equalSigns >= 2) {
+        while (i > 0 && availableKeysString.substr(i, 1) != " ") {
           i = i - 1;
         }
       }
       // capture text until we get to the original equal sign
       for (j = i - 1; j >= 0; j = j - 1) {
-        var ch = availableKeysString.substr(j,1);
+        var ch = availableKeysString.substr(j, 1);
         if (ch == "=") break;
         avText = ch + avText;
       }
@@ -474,7 +449,7 @@ pui["buildFKeyMenu"] = function(parms) {
     fkeyMenuWidget.choices.push(text);
     fkeyMenuWidget.choiceValues.push(id);
 
-    //if (isWin) {
+    // if (isWin) {
     //  elem.style.top = pui.autoArrange.prevTop + "px";
     //  elem.style.left = pui.autoArrange.left + "px";
     //  if (elem.tagName == "INPUT") elem.value = text;
@@ -484,24 +459,19 @@ pui["buildFKeyMenu"] = function(parms) {
     //  else {
     //    pui.autoArrange.left += pui["horizontal button spacing"];
     //  }
-    //}
+    // }
 
     elem = elem.nextSibling;
   }
-  
-  fkeyMenuDOM["onoptionclick"] = function(value, text) {
+
+  fkeyMenuDOM["onoptionclick"] = function (value, text) {
     pui.click(value);
-  }
-  
+  };
+
   fkeyMenuWidget.draw();
-  
-}
+};
 
-
-
-
-pui["capturePhoto"] = function(parms) {
-
+pui["capturePhoto"] = function (parms) {
   var dir = parms["dir"];
   if (dir == null) dir = "/www/profoundui/htdocs/profoundui/userdata/images";
   var overwrite = parms["overwrite"];
@@ -515,7 +485,7 @@ pui["capturePhoto"] = function(parms) {
   if (cameraOptions["quality"] == null) cameraOptions["quality"] = 50;
   cameraOptions["destinationType"] = navigator["camera"]["DestinationType"]["FILE_URI"];
   cameraOptions["sourceType"] = navigator["camera"]["PictureSourceType"]["CAMERA"];
-  
+
   // targetWidth and targetHeight must be used together according to the cordova-plugin-camera API documentation
   if (cameraOptions["targetWidth"] == null || cameraOptions["targetHeight"] == null) {
     delete cameraOptions["targetWidth"];
@@ -524,10 +494,10 @@ pui["capturePhoto"] = function(parms) {
 
   // Ensure orientation is preserved, unless caller already set it
   if (cameraOptions["correctOrientation"] == null) cameraOptions["correctOrientation"] = true;
-  
+
   var handler = parms["handler"];
   if (handler == null) {
-    handler = function(response) {
+    handler = function (response) {
       if (response["success"] == false) {
         pui.alert(response["error"]);
       }
@@ -535,11 +505,11 @@ pui["capturePhoto"] = function(parms) {
         pui.alert("Photo captured successfully.");
       }
       else {
-        pui.alert("Invalid response.");  // this shouldn't happen
+        pui.alert("Invalid response."); // this shouldn't happen
       }
-    }
+    };
   }
-  
+
   if (navigator["camera"] == null) {
     handler({
       "success": false,
@@ -547,7 +517,7 @@ pui["capturePhoto"] = function(parms) {
     });
     return;
   }
-    
+
   // Retrieve image file location from specified source
   // If we change sourcetype to Camera.PictureSourceType.CAMERA,
   // We can pull up the camera and take a picture and use that picture.
@@ -558,77 +528,68 @@ pui["capturePhoto"] = function(parms) {
     cameraOptions
   );
 
-  function uploadPhoto(imageURI) {
-      var options = new window["FileUploadOptions"]();
-      options["fileKey"] = "file";
-      options["fileName"] = imageURI.substr(imageURI.lastIndexOf('/')+1);
-      options["mimeType"] = "image/jpeg";
+  function uploadPhoto (imageURI) {
+    var options = new window["FileUploadOptions"]();
+    options["fileKey"] = "file";
+    options["fileName"] = imageURI.substr(imageURI.lastIndexOf("/") + 1);
+    options["mimeType"] = "image/jpeg";
 
-      var params = {};
-      params["dir"] = dir;
-      params["overwrite"] = (overwrite ? "1" : "0");
-      params["flimit"] = "1";
-      params["slimit"] = "50";  // 50 MB limit
-      params["filename"] = fileName;
+    var params = {};
+    params["dir"] = dir;
+    params["overwrite"] = (overwrite ? "1" : "0");
+    params["flimit"] = "1";
+    params["slimit"] = "50"; // 50 MB limit
+    params["filename"] = fileName;
 
-      options["params"] = params;
+    options["params"] = params;
 
-      var ft = new window["FileTransfer"]();
-      var url = getProgramURL("PUI0009109.PGM");
-      url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
-      url += "&mode=ajax";
-      if (pui["isCloud"]) {
-        url += "&workspace_id=" + pui.cloud.ws.id;
-      }
-      ft["upload"](imageURI, 
-                encodeURI(url),
-                function(response) {
-                  var jsonResponse = {};
-                  try {
-                    jsonResponse = eval("(" + decodeURIComponent(response["response"]) + ")");
-                  }
-                  catch(e) {
-                    jsonResponse["success"] = false;
-                    jsonResponse["error"] = "Invalid response.";
-                  }
-                  response["success"]  = jsonResponse["success"];
-                  if (!response["success"]) {
-                  
-                    if (jsonResponse["key"]) {
-                    
-                      response["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + jsonResponse["key"]);
-                    
-                    }
-                    else {
-                    
-                      response["error"]  = jsonResponse["error"];
-                    
-                    }
-                  
-                  }
-                  handler(response);
-                }, 
-                function(response) {
-                  response["success"] = false;
-                  response["error"] = "An error has occurred: Code = " + response["code"];
-                  handler(response);
-                }, 
-                options
-      );
-      
+    var ft = new window["FileTransfer"]();
+    var url = getProgramURL("PUI0009109.PGM");
+    url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
+    url += "&mode=ajax";
+    if (pui["isCloud"]) {
+      url += "&workspace_id=" + pui.cloud.ws.id;
+    }
+    ft["upload"](imageURI,
+      encodeURI(url),
+      function (response) {
+        var jsonResponse = {};
+        try {
+          jsonResponse = eval("(" + decodeURIComponent(response["response"]) + ")");
+        }
+        catch (e) {
+          jsonResponse["success"] = false;
+          jsonResponse["error"] = "Invalid response.";
+        }
+        response["success"] = jsonResponse["success"];
+        if (!response["success"]) {
+          if (jsonResponse["key"]) {
+            response["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + jsonResponse["key"]);
+          }
+          else {
+            response["error"] = jsonResponse["error"];
+          }
+        }
+        handler(response);
+      },
+      function (response) {
+        response["success"] = false;
+        response["error"] = "An error has occurred: Code = " + response["code"];
+        handler(response);
+      },
+      options
+    );
   }
-                                
-}
+};
 
-pui.uploadDataUrl = function(params, callback) {
-
+pui.uploadDataUrl = function (params, callback) {
   var overwrite = (params["overwrite"] === true);
   var dataURL = params["data"];
-  var BASE64_MARKER = ';base64,';
+  var BASE64_MARKER = ";base64,";
   var base64Index = dataURL.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-  var encodedData = dataURL.substring(base64Index);  
+  var encodedData = dataURL.substring(base64Index);
   var contentType = params["imageType"];
-  
+
   var url = getProgramURL("PUI0009109.PGM");
   url += "?AUTH=" + encodeURIComponent(pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"]);
   url += "&mode=ajax";
@@ -636,7 +597,7 @@ pui.uploadDataUrl = function(params, callback) {
   if (pui["isCloud"]) {
     url += "&workspace_id=" + pui.cloud.ws.id;
   }
-  
+
   var myForm = [
     {
       "name": "file",
@@ -645,7 +606,7 @@ pui.uploadDataUrl = function(params, callback) {
       "filename": params["fileName"],
       "transferencoding": "base64"
     },
-    { 
+    {
       "name": "dir",
       "value": params["dir"]
     },
@@ -657,20 +618,19 @@ pui.uploadDataUrl = function(params, callback) {
       "name": "flimit",
       "value": "1"
     },
-    { 
+    {
       "name": "slimit",
       "value": String(Math.ceil(encodedData.length / 1048576))
     },
-    { 
+    {
       "name": "filename",
       "value": params["fileName"]
     }
   ];
-  
+
   var multiPart = new pui.MultiPart();
   multiPart.addParts(myForm);
-  multiPart.send(url, function(request) {
-        
+  multiPart.send(url, function (request) {
     var success = true;
     var error;
     if (request.getStatus() == 200) {
@@ -678,9 +638,9 @@ pui.uploadDataUrl = function(params, callback) {
       try {
         rsp = eval("(" + request.getResponseText() + ")");
       }
-      catch(e) {
+      catch (e) {
         success = false;
-        error = "Server response missing or invalid."
+        error = "Server response missing or invalid.";
       }
       if (rsp) {
         success = rsp["success"];
@@ -698,93 +658,72 @@ pui.uploadDataUrl = function(params, callback) {
       success = false;
       error = request.getStatus() + " - " + request.getStatusMessage() + ".";
     }
-    
-    if (typeof(callback) == "function") {
-      callback(success, error);  
+
+    if (typeof (callback) == "function") {
+      callback(success, error);
     }
-        
   });
-  
-}  
+};
 
-pui["uploadSignature"] = function(params) {
-
+pui["uploadSignature"] = function (params) {
   var sigpad = getObj(params["signaturePadId"]);
   if (sigpad == null || sigpad.firstChild == null) {
     return;
   }
-  
+
   if (params["imageType"] == null) {
     params["imageType"] = "image/png";
   }
-  
+
   if (params["fileName"] == null) {
     params["fileName"] = "signature.png";
   }
-  
+
   var imgDataUrl = sigpad.firstChild.toDataURL(params["imageType"]);
   params["data"] = String(imgDataUrl);
-  
+
   pui.uploadDataUrl(params, params["handler"]);
-    
-}
+};
 
-pui["errorTip"] = function(el, msg, hideDelay) {
-
+pui["errorTip"] = function (el, msg, hideDelay) {
   if (hideDelay == null) {
-  
     hideDelay = 3000;
-  
   }
   else if (hideDelay == 0) {
-  
     hideDelay = null;
-  
   }
 
-  if (typeof(el) == "string") {
-  
+  if (typeof (el) == "string") {
     el = getObj(el);
-  
   }
-  
+
   // In case this is called from within a blur event, we don't
   // want the message to be immediately hidden...
   pui.ignoreBlurs = true;
-  
+
   var tip = el.validationTip;
   if (tip == null) {
-  
     tip = new pui.ValidationTip(el);
-  
   }
   pui.addCssClass(el, tip.getInvalidClass());
-  tip.setMessage(msg); 
+  tip.setMessage(msg);
   tip.show(hideDelay);
 
-  setTimeout( function() { pui.ignoreBlurs = false; }, 0);
-}
-
-
-
-
-pui["expandAccordionSection"] = function(id, section) {
-  var obj = getObj(id);
-  if (obj && obj.layoutT && typeof obj.layoutT.expandSection === 'function') obj.layoutT.expandSection(section);
+  setTimeout(function () { pui.ignoreBlurs = false; }, 0);
 };
 
+pui["expandAccordionSection"] = function (id, section) {
+  var obj = getObj(id);
+  if (obj && obj.layoutT && typeof obj.layoutT.expandSection === "function") obj.layoutT.expandSection(section);
+};
 
-pui["runAttnProgram"] = function() {
- 
-  if (context == "dspf")	
-    pui.submitResponse({"attn":"1"});
-  
-}
+pui["runAttnProgram"] = function () {
+  if (context == "dspf")
+  { pui.submitResponse({ "attn": "1" }); }
+};
 
-
-pui["captureData"] = function(nameOrData, value) {
-
-  function captureByTagName(tagName) {
+pui["captureData"] = function (nameOrData, value) {
+  function captureByTagName (tagName) {
     var els = document.getElementsByTagName(tagName);
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
@@ -799,7 +738,7 @@ pui["captureData"] = function(nameOrData, value) {
       }
     }
   }
-  function capture() {
+  function capture () {
     captureByTagName("input");
     captureByTagName("button");
     captureByTagName("select");
@@ -819,17 +758,17 @@ pui["captureData"] = function(nameOrData, value) {
     }
   }
   return data;
-}
+};
 
-pui["getAllScreenProps"] = function(screen) {
-  if (screen && typeof screen != 'string') return false;
-  if (!pui.oldRenderParms || !pui.oldRenderParms['layers']) return false;
-  var layers = pui.oldRenderParms['layers'];
+pui["getAllScreenProps"] = function (screen) {
+  if (screen && typeof screen != "string") return false;
+  if (!pui.oldRenderParms || !pui.oldRenderParms["layers"]) return false;
+  var layers = pui.oldRenderParms["layers"];
   var screens = [];
   for (var i = 0; i < layers.length; i++) {
     var layer = layers[i];
     var formats = layer.formats;
-    for (var z = 0; z < formats.length; z++){
+    for (var z = 0; z < formats.length; z++) {
       var format = formats[z];
       var formatName = format.name;
       var data = format.data;
@@ -839,8 +778,8 @@ pui["getAllScreenProps"] = function(screen) {
         formatName: formatName
       };
       for (var prop in screenProperties) {
-        if (prop == 'onload' || prop =='onsubmit' || prop == 'onmessage') continue;
-        rec[prop] =  pui.evalBoundProperty(screenProperties[prop], data, ref);
+        if (prop == "onload" || prop == "onsubmit" || prop == "onmessage") continue;
+        rec[prop] = pui.evalBoundProperty(screenProperties[prop], data, ref);
       }
       screens.push(rec);
     }
@@ -850,13 +789,13 @@ pui["getAllScreenProps"] = function(screen) {
   // return false if the screen is not found, else return the array
   if (screen) return false;
   return screens;
-}
+};
 
-pui['getScreenProp'] = function(screen, propName) {
-  if (!screen || typeof screen != 'string') return false;
-  var screens = pui['getAllScreenProps']();
+pui["getScreenProp"] = function (screen, propName) {
+  if (!screen || typeof screen != "string") return false;
+  var screens = pui["getAllScreenProps"]();
   if (!screens) return false;
-  if (!propName){
+  if (!propName) {
     propName = screen;
     screen = currentFormatNames();
     if (screen.length > 1) screen = screen[screen.length - 1];
@@ -875,14 +814,13 @@ pui['getScreenProp'] = function(screen, propName) {
   } else {
     rec = screens[0];
   }
-  if (rec && rec[propName]) return rec[propName]
+  if (rec && rec[propName]) return rec[propName];
   else return false;
-}
+};
 
-pui["runLogic"] = function(routineName, routineRow, routineGrid) {
-
+pui["runLogic"] = function (routineName, routineRow, routineGrid) {
   if (pui.clientLogic && pui.clientLogic[routineName]) {
-    pui["routineFunction"] = function() { return false };
+    pui["routineFunction"] = function () { return false; };
     try {
       eval("pui[\"routineFunction\"] = function() {\r\n" + pui.clientLogic[routineName] + "\r\n}");
     }
@@ -899,4 +837,4 @@ pui["runLogic"] = function(routineName, routineRow, routineGrid) {
   pui.responseRoutineRow = routineRow;
   pui.responseRoutineGrid = routineGrid;
   pui.click();
-}
+};

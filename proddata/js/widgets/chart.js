@@ -17,7 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
 pui["charts"] = {};
 pui.chartsRendered = [];
 
@@ -27,36 +26,35 @@ pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2
 /**
  * Given some XML or JSON data, construct a new FusionCharts object and render it. This should
  * be called after the data is already loaded in the browser; e.g. after AJAX response arrives.
- * 
+ *
  * Note: Recent FusionCharts documentation (e.g. v3.11) recommends loading chart data in the
  * constructor rather than calling setXMLData or setJSONData. Either seems to behave the same.
- * 
+ *
  * @param {Object} parms   Description of parameters:
  * - dom - chart container
- * - domId - set for DB-driven, "chart url json", and "chart url" types. 
+ * - domId - set for DB-driven, "chart url json", and "chart url" types.
  * - type - chart type
  * - transparent (optional true)
  * - xmlURL or xmlData or jsonURL or jsonData
- *   
+ *
  * @returns {undefined}
  */
-pui.widgets.renderChart = function(parms) {
+pui.widgets.renderChart = function (parms) {
   if (parms.dom.isRendering) return;
-  
+
   parms.dom.isRendering = true;
-  
+
   if (typeof FusionCharts == "undefined") {
     // Dependency scripts should have been loaded before render-time.
     // If they didn't, then indicate a problem to the user and stop.
-    parms.dom.innerHTML = "<br/>&nbsp;&nbsp;" 
-      + pui["getLanguageText"]("runtimeMsg", "failed to load x", [pui["getLanguageText"]("runtimeText","chart")] );
+    parms.dom.innerHTML = "<br/>&nbsp;&nbsp;" +
+      pui["getLanguageText"]("runtimeMsg", "failed to load x", [pui["getLanguageText"]("runtimeText", "chart")]);
     console.log("Dependency FusionCharts not defined before rendering.");
     return;
   }
 
-  
-  if (inDesignMode()) return;  //User switched to design mode while async request was loading in Genie.
-  
+  if (inDesignMode()) return; // User switched to design mode while async request was loading in Genie.
+
   var maptype = parms.dom.pui.properties["map type"];
   var isMap = maptype != null && maptype != "";
 
@@ -64,9 +62,9 @@ pui.widgets.renderChart = function(parms) {
   // format is rendered. Then certain charts send XHR. The next format may clear "id" attributes from the first format before the
   // response arrives. To avoid setting multiple chart ids to "_Chart", don't render without an id. Otherwise disposing causes errors.
   if (parms.dom.id != null && parms.dom.id != "")
-    var chartId = parms.dom.id + "_Chart";
+  { var chartId = parms.dom.id + "_Chart"; }
   else if (parms.domId != null)
-      var chartId = parms.domId + "_Chart";   //certain charts send the additional domId property.
+  { var chartId = parms.domId + "_Chart"; } // certain charts send the additional domId property.
   else {
     console.log("Stopped rendering chart; missing id attribute.");
     return;
@@ -87,13 +85,13 @@ pui.widgets.renderChart = function(parms) {
   };
 
   // Allow the chart/map to be clickable by adding special things to the data.
-  if (typeof(parms.dom.pui.properties["chart response"]) != "undefined" || typeof(parms.dom.pui.properties["onchartclick"]) != "undefined") {
+  if (typeof (parms.dom.pui.properties["chart response"]) != "undefined" || typeof (parms.dom.pui.properties["onchartclick"]) != "undefined") {
     // Add a listener for legacy xmlurl chart to run after FusionCharts loads the data from the url.
     if (parms.xmlURL != null) {
       fc_parms["events"]["dataLoadRequestCompleted"] = pui.widgets.addChartLinks;
     }
 
-    //If XML or JSON data is loaded and ready now, add the links now.
+    // If XML or JSON data is loaded and ready now, add the links now.
     if (parms.xmlData != null) {
       parms.xmlData = pui.widgets.addXMLChartLinks(parms.dom.id, parms.xmlData, isMap);
     }
@@ -101,11 +99,11 @@ pui.widgets.renderChart = function(parms) {
       parms.jsonData = pui.widgets.addJSONChartLinks(parms.dom.id, parms.jsonData, isMap);
     }
   }
-  
+
   // Set dataSources for the FusionCharts constructor.
   if (parms.xmlData != null) {
     fc_parms["dataFormat"] = "xml";
-    fc_parms["dataSource"] = parms.xmlData; 
+    fc_parms["dataSource"] = parms.xmlData;
   }
   else if (parms.jsonData != null) {
     fc_parms["dataFormat"] = "json";
@@ -117,7 +115,7 @@ pui.widgets.renderChart = function(parms) {
   chartObj.dom = parms.dom;
   if (parms.transparent == true) chartObj.setTransparent(true);
 
-  if (parms.xmlURL != null && pui["legacy chart data url"] == true){
+  if (parms.xmlURL != null && pui["legacy chart data url"] == true) {
     // Let FusionCharts handle the XHR. (This was the "chart url" behavior before PUI 5.5.0.)
     chartObj.setXMLUrl(parms.xmlURL);
   }
@@ -126,23 +124,23 @@ pui.widgets.renderChart = function(parms) {
   chartObj.render();
   parms.dom.chart = document.getElementById(chartId);
   if (parms.dom.chart != null && parms.dom.chart.style.visibility == "visible")
-    parms.dom.chart.style.visibility = "";  // this inherits visibility from parent div
+  { parms.dom.chart.style.visibility = ""; } // this inherits visibility from parent div
 
   // Register a listener for when the layout becomes visible. Check if the chart failed to render. #6095
-  parms.dom.sizeMe = function(){
-    if (parms.dom.isRendering){
-      if (parms.dom.chart == null) chartObj.render();  //If isRendering is still true, then the chart likely failed to render.
+  parms.dom.sizeMe = function () {
+    if (parms.dom.isRendering) {
+      if (parms.dom.chart == null) chartObj.render(); // If isRendering is still true, then the chart likely failed to render.
     }
     else {
-      delete parms.dom.sizeMe; //No need to listen for this again if the chart is rendered.
+      delete parms.dom.sizeMe; // No need to listen for this again if the chart is rendered.
       delete parms.dom.alwaysSizeMe;
     }
   };
   parms.dom.alwaysSizeMe = true;
 
-  function complete() {
-    delete parms.dom.isRendering;   //FusionCharts code finished running.
-    delete parms.dom.sizeMe;        //No need to render again after the chart is rendered.
+  function complete () {
+    delete parms.dom.isRendering; // FusionCharts code finished running.
+    delete parms.dom.sizeMe; // No need to render again after the chart is rendered.
     delete parms.dom.alwaysSizeMe;
   }
 };
@@ -154,221 +152,174 @@ pui.widgets.renderChart = function(parms) {
  * @param {Object} argumentsObject
  * @returns {undefined}
  */
-pui.widgets.addChartLinks = function(eventObject, argumentsObject) {
-  
-  if( typeof argumentsObject["cancelDataLoad"] == "function")
-    argumentsObject["cancelDataLoad"]();
+pui.widgets.addChartLinks = function (eventObject, argumentsObject) {
+  if (typeof argumentsObject["cancelDataLoad"] == "function")
+  { argumentsObject["cancelDataLoad"](); }
   var id = eventObject["sender"].dom.id;
-  
+
   var maptype = eventObject["sender"].dom.pui.properties["map type"];
   var isMap = maptype != null && maptype != "";
-  
+
   if (argumentsObject["dataFormat"] == "xml") {
-    //Note: at some point FusionCharts changed, and the second argument became "dataSource" instead of "data".
+    // Note: at some point FusionCharts changed, and the second argument became "dataSource" instead of "data".
     var xml = pui.widgets.addXMLChartLinks(id, argumentsObject["dataSource"], isMap);
     eventObject["sender"]["setXMLData"](xml);
   }
-  //The case for JSON URL is no longer needed. Removed in 5.7.1. MD.
+  // The case for JSON URL is no longer needed. Removed in 5.7.1. MD.
 };
 
 /**
  * Add attributes to the XML tags so FusionCharts will call our doChartLink when someone
  * clicks on a data node in the chart or map.
- * 
+ *
  * For maps, this assumes the XML is in the form <chart><set id="" value="" /></chart>.
- * 
+ *
  * @param {String} id
  * @param {String} xml
  * @param {Boolean} isMap
  * @returns {doc.xml|String}
  */
-pui.widgets.addXMLChartLinks = function(id, xml, isMap) {
-
+pui.widgets.addXMLChartLinks = function (id, xml, isMap) {
   try {
-
     var doc;
-    if (typeof(DOMParser) != "undefined") {
-    
+    if (typeof (DOMParser) != "undefined") {
       var parser = new DOMParser();
       doc = parser.parseFromString(xml, "text/xml");
-      
     }
     else {
-  
       doc = new ActiveXObject("Microsoft.XMLDOM");
       doc.async = false;
       doc.loadXML(xml);
-    
     }
-    
+
     var categories = [];
     var dataSets;
     if (doc.getElementsByTagName("categories").length == 1) {
-      
       var els = doc.getElementsByTagName("category");
       for (var i = 0; i < els.length; i++)
-        categories.push(els[i].getAttribute("label"));
+      { categories.push(els[i].getAttribute("label")); }
       dataSets = doc.getElementsByTagName("dataset");
-    
     }
     else {
-  
       dataSets = [doc];
-      
     }
     for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
-      
       var dataSet = dataSets[dataSetIdx];
       var sets = dataSet.getElementsByTagName("set");
       for (var setIdx = 0; setIdx < sets.length; setIdx++) {
-      
-        var data = {"id": encodeURIComponent(id)};
+        var data = { "id": encodeURIComponent(id) };
         var set = sets[setIdx];
         if (dataSet.nodeName == "dataset") {
-          //Multi-series.
+          // Multi-series.
 
           data["name"] = dataSet.getAttribute("seriesname"); // According to FusionCharts docs.
           if (data["name"] == null)
-            data["name"] = dataSet.getAttribute("seriesName"); // According to our example.
+          { data["name"] = dataSet.getAttribute("seriesName"); } // According to our example.
           if (setIdx < categories.length)
-          data["category"] = encodeURIComponent(categories[setIdx]);
-        
+          { data["category"] = encodeURIComponent(categories[setIdx]); }
         }
         else {
-          //Single series data or map.
-          
-          if (isMap){
-            data["name"] = set.getAttribute("id");  //Maps use tags like: <set id="" value="" />.
+          // Single series data or map.
+
+          if (isMap) {
+            data["name"] = set.getAttribute("id"); // Maps use tags like: <set id="" value="" />.
           }
-          else{
+          else {
             data["name"] = set.getAttribute("name");
             if (data["name"] == null)
-              data["name"] = set.getAttribute("label");
+            { data["name"] = set.getAttribute("label"); }
           }
         }
-        data["name"] = encodeURIComponent(data["name"]);  //prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
-        
+        data["name"] = encodeURIComponent(data["name"]); // prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
+
         set.setAttribute("link", "j-pui.widgets.doChartLink-" + JSON.stringify(data));
-      
-      }     
-     
-      
+      }
     }
-   
-    if (typeof(XMLSerializer) != "undefined") {
-    
+
+    if (typeof (XMLSerializer) != "undefined") {
       return new XMLSerializer().serializeToString(doc);
-    
     }
-    else  {
-    
+    else {
       return doc.xml;
-    
     }
-
   }
-  catch(e) {
-  
+  catch (e) {
     return xml;
-  
   }
-
 };
 
 /**
- * 
+ *
  * @param {String} id
  * @param {String} json
  * @param {Boolean} isMap
  * @returns {Object}
  */
-pui.widgets.addJSONChartLinks = function(id, json, isMap) {
-
+pui.widgets.addJSONChartLinks = function (id, json, isMap) {
   try {
-
     var obj = eval("(" + json + ")");
-    
+
     var dataSets;
     var categories = [];
     if (obj["dataset"] instanceof Array) {
-      
       dataSets = obj["dataset"];
       for (var i = 0; i < obj["categories"][0]["category"].length; i++)
-        categories.push(obj["categories"][0]["category"][i]["label"]);
-      
+      { categories.push(obj["categories"][0]["category"][i]["label"]); }
     }
     else {
-      
       dataSets = [obj["data"]];
-      
     }
-     
+
     for (var dataSetIdx = 0; dataSetIdx < dataSets.length; dataSetIdx++) {
-    
-      var data = {"id": encodeURIComponent(id)};
+      var data = { "id": encodeURIComponent(id) };
       var dataSet = dataSets[dataSetIdx];
       var sets = (dataSet["data"] instanceof Array) ? dataSet["data"] : dataSet;
       for (var setIdx = 0; setIdx < sets.length; setIdx++) {
-        
         var set = sets[setIdx];
         if (dataSet["seriesname"] || dataSet["seriesName"]) {
-          
           data["name"] = dataSet["seriesname"] || dataSet["seriesName"];
           if (setIdx < categories.length)
-            data["category"] = encodeURIComponent(categories[setIdx]);
-          
+          { data["category"] = encodeURIComponent(categories[setIdx]); }
         }
         else {
-          
           if (isMap)
-            data["name"] = set["id"];    //Maps use "id" instead of "label".
+          { data["name"] = set["id"]; } // Maps use "id" instead of "label".
           else
-            data["name"] = set["label"]; //Charts use "label"
-          
+          { data["name"] = set["label"]; } // Charts use "label"
         }
-        data["name"] = encodeURIComponent(data["name"]);  //prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
-        
-        set["link"] = "j-pui.widgets.doChartLink-" + JSON.stringify(data);
-        
-      }    
-    
-    }
-  
-    return obj;
-  
-  }
-  catch(e) {
-  
-    return json;
-  
-  }
+        data["name"] = encodeURIComponent(data["name"]); // prevent Fusion-charts throwing a malformed URI exception for "%" etc. #6607
 
+        set["link"] = "j-pui.widgets.doChartLink-" + JSON.stringify(data);
+      }
+    }
+
+    return obj;
+  }
+  catch (e) {
+    return json;
+  }
 };
 
 /**
  * Handle a user clicking on a chart link. Data from the chart was set in one of the "add*ChartLinks" functions.
  * @param {Object} param    A JSON object of with id, name, and category. FusionCharts already decoded any URI-sensitive characters.
  */
-pui.widgets["doChartLink"] = function(param) {
-
+pui.widgets["doChartLink"] = function (param) {
   var param = JSON.parse(param);
   var id = param["id"];
   var name = param["name"];
   var category = param["category"];
-  
+
   var dom = getObj(id);
-  
-  if (typeof(dom.pui.properties["chart response"]) != "undefined") {
-  
+
+  if (typeof (dom.pui.properties["chart response"]) != "undefined") {
     if (category)
-      dom.responseValue = category + "|" + name;
+    { dom.responseValue = category + "|" + name; }
     else
-      dom.responseValue = name;
-    
+    { dom.responseValue = name; }
+
     if (dom.bypassValidation == "true" || dom.bypassValidation == "send data") {
-    
       pui.bypassValidation = dom.bypassValidation;
-      
     }
 
     pui.responseRoutine = dom.responseRoutine;
@@ -379,31 +330,22 @@ pui.widgets["doChartLink"] = function(param) {
       pui.responseRoutineRow = null;
       pui.responseRoutineGrid = null;
     }
-  
   }
-  else if (typeof(dom["onchartclick"]) == "function") {
-  
+  else if (typeof (dom["onchartclick"]) == "function") {
     if (category) {
-
-      dom["onchartclick"]({"name": name, "category": category});
-     
+      dom["onchartclick"]({ "name": name, "category": category });
     }
     else {
-      
       dom["onchartclick"](name);
-    
     }
-  
   }
-    
 };
 
-pui.widgets.setChartPreview = function(dom, chartType, isMap) {
+pui.widgets.setChartPreview = function (dom, chartType, isMap) {
   dom.innerHTML = "";
   if (isMap)
-    chartType = "Map";
+  { chartType = "Map"; }
   else {
-    
     var valid = false;
     for (var i = 0; i < pui.widgets.chartTypes.length; i++) {
       if (chartType == pui.widgets.chartTypes[i]) {
@@ -413,8 +355,7 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
         }
       }
     }
-    if (!valid) chartType = "Bar2D";  // set a default
-    
+    if (!valid) chartType = "Bar2D"; // set a default
   }
   var img = document.createElement("img");
   img.src = "/profoundui/proddata/images/charts/" + chartType + ".jpg?v=2";
@@ -427,15 +368,14 @@ pui.widgets.setChartPreview = function(dom, chartType, isMap) {
   dom.appendChild(img);
 };
 
-pui.widgets.getChartXMLStart = function(chartOptions){
+pui.widgets.getChartXMLStart = function (chartOptions) {
   var chartXML = '<?xml version="1.0" encoding="utf-8"?><chart';
   if (typeof chartOptions == "string" && chartOptions.length > 0) {
     chartXML += " " + chartOptions;
   }
-  chartXML += '>';
+  chartXML += ">";
   return chartXML;
 };
-
 
 pui.widgets.add({
   name: "chart",
@@ -446,11 +386,11 @@ pui.widgets.add({
     "background color": "#EEEEEE",
     "z index": "21"
   },
-  
+
   propertySetters: {
-  
-    "field type": function(parms) {
-      if (parms.dom["pui"] == null) parms.dom["pui"] = {}; //In case dom.pui isn't already set.
+
+    "field type": function (parms) {
+      if (parms.dom["pui"] == null) parms.dom["pui"] = {}; // In case dom.pui isn't already set.
 
       // Do not render chart in tab panel until the tab is activated. Note: if this chart were listed
       // before the parent tab panel in Designer's elements list, then at runtime the tab panel wouldn't
@@ -458,12 +398,12 @@ pui.widgets.add({
       var objid = parms.evalProperty("parent tab panel");
       var tp;
       // Avoid the warning: Empty string passed to getElementById().
-      if(objid != null && objid.length > 0) tp = getObj(objid);
+      if (objid != null && objid.length > 0) tp = getObj(objid);
       if (tp)
-        tp = tp.tabPanel;
+      { tp = tp.tabPanel; }
       var tn = parseInt(parms.evalProperty("parent tab"), 10);
-      if (tp && !isNaN(tn) && tn != tp.selectedTab){
-        if (typeof parms.properties["chart response"] != "undefined"){
+      if (tp && !isNaN(tn) && tn != tp.selectedTab) {
+        if (typeof parms.properties["chart response"] != "undefined") {
           // When the tab click handler calls applyProperty on "field type", dom.pui.properties is the argument.
           // So if the chart is to render correctly later, dom.pui.properties must be set correctly. Issue #3333.
           parms.dom["pui"]["properties"]["chart response"] = parms.properties["chart response"];
@@ -475,17 +415,13 @@ pui.widgets.add({
       var chartType;
       var isMap = (mapType != "");
       if (isMap) {
-
         if (mapType.toLowerCase().indexOf("maps/") == 0)
-          mapType = mapType.substr(5);
+        { mapType = mapType.substr(5); }
         mapType = "/fusionchartsxt/js/maps/" + mapType;
         chartType = mapType;
-        
       }
       else {
-        
         chartType = parms.evalProperty("chart type");
-        
       }
       if (parms.design) {
         pui.widgets.setChartPreview(parms.dom, chartType, isMap);
@@ -493,30 +429,30 @@ pui.widgets.add({
         parms.dom.style.border = "1px solid #999999";
       }
       else {
-        //Save ID in case a window or overlay clears the "id" attribute before the response 
-        //arrives. Avoids errors when we use AJAX to load chart data before renderChart.
+        // Save ID in case a window or overlay clears the "id" attribute before the response
+        // arrives. Avoids errors when we use AJAX to load chart data before renderChart.
         var domId = parms.dom.id;
-        
+
         // renderFormat doesn't set all dom.pui.properties that are needed later (e.g. "chart response"), so set them now.
         parms.dom["pui"]["properties"] = parms.properties;
 
-        // Do not do this on already rendered chart or FusionCharts will 
+        // Do not do this on already rendered chart or FusionCharts will
         // lose the reference to it and methods like 'dispose()' will fail!
         if (!parms.dom.chart)
-          parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
-            + pui["getLanguageText"]("runtimeMsg", "loading x", [pui["getLanguageText"]("runtimeText","chart")] );
-        if (chartType == "") chartType = "Bar2D";  // set a default
+        { parms.dom.innerHTML = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;" +
+            pui["getLanguageText"]("runtimeMsg", "loading x", [pui["getLanguageText"]("runtimeText", "chart")]); }
+        if (chartType == "") chartType = "Bar2D"; // set a default
         var url = parms.evalProperty("chart url");
         var jsonURL = parms.evalProperty("chart url json");
-        
-        if (url!=null && url!="") {
+
+        if (url != null && url != "") {
           url = pui.appendAuth(url);
         }
-        
-        if (jsonURL!=null && jsonURL!="") {
+
+        if (jsonURL != null && jsonURL != "") {
           jsonURL = pui.appendAuth(jsonURL);
         }
-        
+
         var xml = parms.evalProperty("chart xml");
         var json = parms.evalProperty("chart json");
 
@@ -527,9 +463,9 @@ pui.widgets.add({
             transparent: (parms.properties["chart overlay"] != "true"),
             xmlData: xml
           });
-          return;        
+          return;
         }
-        
+
         if (json != null && json != "") {
           pui.widgets.renderChart({
             dom: parms.dom,
@@ -537,26 +473,25 @@ pui.widgets.add({
             transparent: (parms.properties["chart overlay"] != "true"),
             jsonData: json
           });
-          return;        
+          return;
         }
-        
+
         var customSQL = parms.evalProperty("custom sql").toUpperCase();
-        var orderBy   = parms.evalProperty("order by").toUpperCase();
-        var maxCount  = parms.evalProperty("record limit").toUpperCase();
+        var orderBy = parms.evalProperty("order by").toUpperCase();
+        var maxCount = parms.evalProperty("record limit").toUpperCase();
         var chartOptions = parms.evalProperty("chart options");
-        
+
         if (url == "" && jsonURL == "" && customSQL == "") {
           // The chart data is provided by the properties "names" and "values",
           // or the chart is database-driven.
-          var file             = parms.evalProperty("database file").toUpperCase();
-          var nameField        = parms.evalProperty("name field").toUpperCase();
-          var valueField       = parms.evalProperty("value field").toUpperCase();
-          var summaryOption    = parms.evalProperty("summary option");
-          var where            = parms.evalProperty("selection criteria").toUpperCase();
-          var nameList         = parms.evalProperty("names");
-          var valueList        = parms.evalProperty("values");
-          
-          
+          var file = parms.evalProperty("database file").toUpperCase();
+          var nameField = parms.evalProperty("name field").toUpperCase();
+          var valueField = parms.evalProperty("value field").toUpperCase();
+          var summaryOption = parms.evalProperty("summary option");
+          var where = parms.evalProperty("selection criteria").toUpperCase();
+          var nameList = parms.evalProperty("names");
+          var valueList = parms.evalProperty("values");
+
           if (trim(nameList) != "" && trim(valueList) != "") {
             // The chart data is in the "names" and "values" properties.
             var chartXML = pui.widgets.getChartXMLStart(chartOptions);
@@ -589,14 +524,14 @@ pui.widgets.add({
                 dataValue = Number(dataValue);
               }
               if (isNaN(dataValue)) dataValue = 0;
-              
+
               var attrname = "label";
-              if (isMap) attrname = "id"; //Maps use a different attribute than charts.
-              
-              chartXML += '<set '+attrname+'="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
+              if (isMap) attrname = "id"; // Maps use a different attribute than charts.
+
+              chartXML += "<set " + attrname + '="' + pui.xmlEscape(dataName) + '" value="' + pui.xmlEscape(dataValue) + '" />';
             }
-            chartXML += '</chart>';
-            
+            chartXML += "</chart>";
+
             pui.widgets.renderChart({
               dom: parms.dom,
               type: chartType,
@@ -606,15 +541,15 @@ pui.widgets.add({
 
             return;
           }
-          
+
           if (file == "") {
-            parms.dom.innerHTML = "&nbsp;&nbsp;" 
-              + pui["getLanguageText"]("runtimeMsg", "data src not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
+            parms.dom.innerHTML = "&nbsp;&nbsp;" +
+              pui["getLanguageText"]("runtimeMsg", "data src not specfd x", [pui["getLanguageText"]("runtimeText", "chart")]);
             return;
           }
           if (nameField == "") {
-            parms.dom.innerHTML = "&nbsp;&nbsp;"
-              + pui["getLanguageText"]("runtimeMsg", "name fld not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
+            parms.dom.innerHTML = "&nbsp;&nbsp;" +
+              pui["getLanguageText"]("runtimeMsg", "name fld not specfd x", [pui["getLanguageText"]("runtimeText", "chart")]);
             return;
           }
           //
@@ -632,12 +567,12 @@ pui.widgets.add({
               valueField = nameField;
             }
             else {
-              parms.dom.innerHTML = "&nbsp;&nbsp;"
-                + pui["getLanguageText"]("runtimeMsg", "val fld not specfd x", [pui["getLanguageText"]("runtimeText","chart")] );
+              parms.dom.innerHTML = "&nbsp;&nbsp;" +
+                pui["getLanguageText"]("runtimeMsg", "val fld not specfd x", [pui["getLanguageText"]("runtimeText", "chart")]);
               return;
             }
           }
-          
+
           var sql = "SELECT ";
           if (summary != "") {
             valueField = summary + valueField + ")";
@@ -653,89 +588,81 @@ pui.widgets.add({
           }
           if (summary == "" && orderBy != "") sql += " ORDER BY " + orderBy;
           else sql += " ORDER BY " + nameField;
-          
-          url =  getProgramURL("PUI0009104.PGM");
+
+          url = getProgramURL("PUI0009104.PGM");
           var postData = "AUTH=";
           if (pui.pjs_session_id) postData += pui.pjs_session_id;
           else postData += pui.appJob.auth;
           if (pui["secLevel"] > 0) {
-         
-            postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
-          
+            postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+
             var pstring = pui.getSQLParams(parms.properties);
             if (pstring != "") {
-          
               postData += "&" + pstring;
-          
             }
-            
           }
           else {
-         
-            postData  += "&q=" + pui.aes.encryptString(sql);
-            
+            postData += "&q=" + pui.aes.encryptString(sql);
           }
-         postData += "&maxcount=" + maxCount;
-         if( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
-         
-         if (isMap) postData += "&isMap=Y"; //Tell PUI0009104 to use the correct XML for maps.
-         
-         if (pui["isCloud"])
-           postData += "&workspace_id=" + pui.cloud.ws.id;
+          postData += "&maxcount=" + maxCount;
+          if (pui["read db driven data as ebcdic"] !== true) postData += "&UTF8=Y";
 
-         var ajaxRequest = new pui.Ajax(url);
-         ajaxRequest["method"] = "post";
-         ajaxRequest["async"] = true;
-         ajaxRequest["postData"] = postData;
-         ajaxRequest["suppressAlert"] = true;
-         ajaxRequest["onsuccess"] = function() {
-           if (inDesignMode()) return;  // switched to design mode while async request was processing?             
-           var data = "invalid"; // Necessary to send some data, or a request gets made to the server?
-           var response = checkAjaxResponse(ajaxRequest, "Run Charting Query");
-           if (response) {
-             data = response;
-           }
-           // check if the returned xml data starts with a standard response
-           // if it does and the "chart options" property was specified, insert chart options into the data string
-           var startsWith = '<?xml version="1.0" encoding="utf-8"?><chart>';
-           if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "" && data.substr(0, startsWith.length) == startsWith) {
-             data = startsWith.substr(0, startsWith.length - 1) + " " + chartOptions + data.substr(startsWith.length - 1);
-           }
-           pui.widgets.renderChart({
-            dom: parms.dom,
-            domId: domId,
-            type: chartType,
-            transparent: (parms.properties["chart overlay"] != "true"),
-            xmlData: data
-           });
-           
-           var eventCode = parms.evalProperty("ondbload");
-           if (typeof eventCode != "string" || eventCode == "") eventCode = null;
-           if (eventCode) {
-             var success = true;
-             if (!response) success = false;
-             pui.executeDatabaseLoadEvent(eventCode, success, parms.dom.id);
-           }
-           
-         };
-         ajaxRequest.send(); 
+          if (isMap) postData += "&isMap=Y"; // Tell PUI0009104 to use the correct XML for maps.
+
+          if (pui["isCloud"])
+          { postData += "&workspace_id=" + pui.cloud.ws.id; }
+
+          var ajaxRequest = new pui.Ajax(url);
+          ajaxRequest["method"] = "post";
+          ajaxRequest["async"] = true;
+          ajaxRequest["postData"] = postData;
+          ajaxRequest["suppressAlert"] = true;
+          ajaxRequest["onsuccess"] = function () {
+            if (inDesignMode()) return; // switched to design mode while async request was processing?
+            var data = "invalid"; // Necessary to send some data, or a request gets made to the server?
+            var response = checkAjaxResponse(ajaxRequest, "Run Charting Query");
+            if (response) {
+              data = response;
+            }
+            // check if the returned xml data starts with a standard response
+            // if it does and the "chart options" property was specified, insert chart options into the data string
+            var startsWith = '<?xml version="1.0" encoding="utf-8"?><chart>';
+            if (chartOptions != null && typeof chartOptions == "string" && chartOptions != "" && data.substr(0, startsWith.length) == startsWith) {
+              data = startsWith.substr(0, startsWith.length - 1) + " " + chartOptions + data.substr(startsWith.length - 1);
+            }
+            pui.widgets.renderChart({
+              dom: parms.dom,
+              domId: domId,
+              type: chartType,
+              transparent: (parms.properties["chart overlay"] != "true"),
+              xmlData: data
+            });
+
+            var eventCode = parms.evalProperty("ondbload");
+            if (typeof eventCode != "string" || eventCode == "") eventCode = null;
+            if (eventCode) {
+              var success = true;
+              if (!response) success = false;
+              pui.executeDatabaseLoadEvent(eventCode, success, parms.dom.id);
+            }
+          };
+          ajaxRequest.send();
         }
-        //done with database-driven and "names"/"values" charts.
+        // done with database-driven and "names"/"values" charts.
 
-        else if(url != "" ){      //xmlURL
-        
+        else if (url != "") { // xmlURL
           // Support the old data URL method in case the new one breaks
           // some people's charts.
-          if( pui["legacy chart data url"] == true ){
-            // Encode ampersands in the url. 
+          if (pui["legacy chart data url"] == true) {
+            // Encode ampersands in the url.
 
-            // The url gets put into the <embed> or <object> tag parameters, where the ampersand has 
+            // The url gets put into the <embed> or <object> tag parameters, where the ampersand has
             // its own meaning.
 
             // This results in truncation of multiple query string parameters.
             // URL encoding the ampersands allows them to be treated normally as parameter separators.
             url = url.replace(/&/g, "%26");
-            
+
             // FusionCharts will make the AJAX request.
             pui.widgets.renderChart({
               dom: parms.dom,
@@ -745,35 +672,33 @@ pui.widgets.add({
               xmlURL: url
             });
           }
-          else{
-            //We make the AJAX request to avoid a problem in non-Chrome browsers with
-            //some URLs in FusionCharts. The URL should not have ampersands encoded as %26.
+          else {
+            // We make the AJAX request to avoid a problem in non-Chrome browsers with
+            // some URLs in FusionCharts. The URL should not have ampersands encoded as %26.
             ajax({
               url: url,
               method: "get",
               async: true,
-              handler: function(responseText){
+              handler: function (responseText) {
                 pui.widgets.renderChart({
-                dom: parms.dom,
-                domId: domId,
-                type: chartType,
-                transparent: (parms.properties["chart overlay"] != "true"),
-                xmlData: responseText
-               });
+                  dom: parms.dom,
+                  domId: domId,
+                  type: chartType,
+                  transparent: (parms.properties["chart overlay"] != "true"),
+                  xmlData: responseText
+                });
               }
             });
-            
           }
         }
-        
-        else if(jsonURL != "") {
-          
-          //We make AJAX request to avoid non-Chrome problem with some URLs in FusionCharts.
+
+        else if (jsonURL != "") {
+          // We make AJAX request to avoid non-Chrome problem with some URLs in FusionCharts.
           ajax({
             url: jsonURL,
             method: "get",
             async: true,
-            handler: function(responseText){
+            handler: function (responseText) {
               pui.widgets.renderChart({
                 dom: parms.dom,
                 domId: domId,
@@ -784,12 +709,11 @@ pui.widgets.add({
             }
           });
         }
-        
-        else if(customSQL != ""){
-          
-          var postData = 'AUTH=' + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
+
+        else if (customSQL != "") {
+          var postData = "AUTH=" + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
           if (pui["secLevel"] > 0) {
-            postData  += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+            postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
             var pstring = pui.getSQLParams(parms.properties);
             if (pstring != "") {
               postData += "&" + pstring;
@@ -798,56 +722,56 @@ pui.widgets.add({
           else {
             var sql = customSQL;
             if (orderBy != "") sql += " ORDER BY " + orderBy;
-            postData  += "&q=" + pui.aes.encryptString(sql);
+            postData += "&q=" + pui.aes.encryptString(sql);
           }
           postData += "&limit=" + maxCount;
-          if ( pui["read db driven data as ebcdic"] !== true ) postData += "&UTF8=Y";
+          if (pui["read db driven data as ebcdic"] !== true) postData += "&UTF8=Y";
           if (pui["isCloud"])
-            postData += "&workspace_id=" + pui.cloud.ws.id;
-          
+          { postData += "&workspace_id=" + pui.cloud.ws.id; }
+
           var xhr = new pui.Ajax(getProgramURL("PUI0009102.PGM"));
-          xhr['method'] = 'post';
-          xhr['async'] = true;
-          xhr['postData'] = postData;
-          xhr['suppressAlert'] = true;
-          xhr['onsuccess'] = function(){
+          xhr["method"] = "post";
+          xhr["async"] = true;
+          xhr["postData"] = postData;
+          xhr["suppressAlert"] = true;
+          xhr["onsuccess"] = function () {
             var chartXML = pui.widgets.getChartXMLStart(chartOptions);
             var response = checkAjaxResponse(xhr, "Custom SQL query");
-            if (! response || response['results'] == null){
+            if (!response || response["results"] == null) {
               var error = errors.pop();
-              if (error != null && typeof error == 'object'){
+              if (error != null && typeof error == "object") {
                 var domel = getObj(domId);
-                if (domel){
-                  domel.innerHTML = '<ul style="overflow-y:auto; white-space:normal"><li>Chart operation: ' + error.operation 
-                          + '<li>Id: ' + error.id + '<li>Message: ' + error.text + '<li>'+ error.text2 + '</ul>';
+                if (domel) {
+                  domel.innerHTML = '<ul style="overflow-y:auto; white-space:normal"><li>Chart operation: ' + error.operation +
+                          "<li>Id: " + error.id + "<li>Message: " + error.text + "<li>" + error.text2 + "</ul>";
                 } else {
                   console.log(error);
                 }
               }
               return;
             }
-            var attrname = isMap ? 'id' : 'label';  //Maps use different attribute than charts.
+            var attrname = isMap ? "id" : "label"; // Maps use different attribute than charts.
             // 9102 returns an array of objects with column-name / value pairs for each column. Get each record.
-            for (var i=0, n=response['results'].length; i < n; i++){
+            for (var i = 0, n = response["results"].length; i < n; i++) {
               // All but the last property are used as labels.
-              var keycount = Object.keys(response['results'][i]).length;
-              var label = '';
-              var value = '';
+              var keycount = Object.keys(response["results"][i]).length;
+              var label = "";
+              var value = "";
               var colCount = 0;
               // Get each column in this record.
-              for (var colname in response['results'][i]){
+              for (var colname in response["results"][i]) {
                 colCount++;
-                var val = response['results'][i][colname];
-                if (colCount < keycount){
-                  label += ' ' + val;
+                var val = response["results"][i][colname];
+                if (colCount < keycount) {
+                  label += " " + val;
                 }
                 else {
                   value = val;
                 }
               }
-              chartXML += '<set '+attrname+'="'+pui.xmlEscape(trim(label))+'" value="' + pui.xmlEscape(trim(value)) + '" />'; 
+              chartXML += "<set " + attrname + '="' + pui.xmlEscape(trim(label)) + '" value="' + pui.xmlEscape(trim(value)) + '" />';
             }
-            chartXML += '</chart>';
+            chartXML += "</chart>";
 
             pui.widgets.renderChart({
               dom: parms.dom,
@@ -855,61 +779,51 @@ pui.widgets.add({
               type: chartType,
               transparent: (parms.properties["chart overlay"] != "true"),
               xmlData: chartXML
-            });           
+            });
           };
           xhr.send();
         }
-      } //end else, not design mode.
+      } // end else, not design mode.
     },
-    
-    "width": function(parms) {
+
+    "width": function (parms) {
       parms.dom.width = parms.value;
       var isMap = (typeof parms.properties["map type"] != "undefined");
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"], isMap);
     },
-    
-    "height": function(parms) {
+
+    "height": function (parms) {
       parms.dom.height = parms.value;
       var isMap = (typeof parms.properties["map type"] != "undefined");
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.properties["chart type"], isMap);
     },
-    
-    "chart type": function(parms) {
+
+    "chart type": function (parms) {
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.value);
     },
-    "map type": function(parms) {
+    "map type": function (parms) {
       if (parms.design) pui.widgets.setChartPreview(parms.dom, parms.value, true);
-    },    
-    "visibility": function(parms) {
+    },
+    "visibility": function (parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
       // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
-    
+
       if (parms.dom.chart) {
-      
         if (parms.value == "hidden") {
-        
           parms.dom.chart.style.display = "none";
-        
         }
         else {
-        
           parms.dom.chart.style.display = "inline-block";
-        
-        }        
-      
+        }
       }
-    
     },
-    
-    "onchartclick": function(parms) {
+
+    "onchartclick": function (parms) {
       if (pui.isRoutine(parms.newValue)) {
         parms.dom.responseRoutine = parms.newValue.routine;
       }
     }
-    
-  }  
-  
+
+  }
+
 });
-
-
-

@@ -17,10 +17,9 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-if (typeof(window["pui"]) == "undefined") window["pui"] = {};
+if (typeof (window["pui"]) == "undefined") window["pui"] = {};
 
-function loadPCCommandApplet(callback) {
-
+function loadPCCommandApplet (callback) {
   if (document.getElementById("PCCommandApplet") == null) {
   	var applet = document.createElement("applet");
   	applet.id = "PCCommandApplet";
@@ -29,35 +28,28 @@ function loadPCCommandApplet(callback) {
   	applet.style.height = "0px";
   	applet.style.width = "0px";
   	var temp = eval(callback);
-  	if (typeof(temp) == "function") { // Test if it's a good function...
+  	if (typeof (temp) == "function") { // Test if it's a good function...
   	  var param = document.createElement("param");
   	  param.setAttribute("name", "callback");
   	  param.setAttribute("value", callback);
   	  applet.appendChild(param);
   	}
-  	document.body.appendChild(applet); 
+  	document.body.appendChild(applet);
   }
-
 }
 
-function copyToClipboard(data) {
-
-	var applet = document.getElementById("PCCommandApplet");
-	if (!applet) {
-	
+function copyToClipboard (data) {
+  var applet = document.getElementById("PCCommandApplet");
+  if (!applet) {
 	  pui.appletClipData = data;
 	  loadPCCommandApplet("copyToClipboardCb");
-	  return;  
-	
-	}
-	
-	applet["copyToClipboard"](data);
+	  return;
+  }
 
+  applet["copyToClipboard"](data);
 }
 
-window["copyToClipboardCb"] = function() {
-
+window["copyToClipboardCb"] = function () {
   copyToClipboardCb(pui.appletClipData);
-  pui.appletClipData = null;  
-
-}
+  pui.appletClipData = null;
+};
