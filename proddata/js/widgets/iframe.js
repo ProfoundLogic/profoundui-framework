@@ -17,9 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 pui.widgets.add({
   name: "iframe",
   newId: "IFrame",
@@ -31,10 +28,10 @@ pui.widgets.add({
     "background color": "#FFFFFF",
     "frame border": "true"
   },
-  
+
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.design) {
         parms.dom.innerHTML = "IFrame content will appear here.";
         parms.dom.style.overflow = "hidden";
@@ -54,38 +51,28 @@ pui.widgets.add({
           var html = '<iframe src="' + url;
           html += '" frameborder="';
           html += (parms.properties["frame border"] == "true") ? "1" : "0";
-          html += '"' + widthHeight + '>';
+          html += '"' + widthHeight + ">";
           parms.dom.innerHTML = html;
         }
       }
     },
-    "visibility": function(parms) {
-      
+    "visibility": function (parms) {
       if (!parms.design) {
-      
         var iframe = parms.dom.getElementsByTagName("iframe");
         if (iframe && iframe.length == 1) {
-      
           iframe = iframe[0];
           if (parms.value == "hidden") {
-          
             iframe.style.visibility = "hidden";
             iframe.style.display = "none";
-          
           }
           else {
-          
             iframe.style.visibility = "";
             iframe.style.display = "";
-          
           }
-        
         }
-      
       }
     }
-    
-  }
-  
-});
 
+  }
+
+});

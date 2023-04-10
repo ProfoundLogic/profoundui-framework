@@ -17,30 +17,28 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * CSS Panel Header
  * @constructor
  */
 
-pui.CSSPanelSection = function() {
+pui.CSSPanelSection = function () {
   this.container = null;
   this.type = "body";
   this.forLayout = false;
-  
+
   var mainSpan;
   var innerSpan;
   var textSpan;
   var iconSpan;
   var layoutContainer;
-  
+
   var swatch = "c";
   var swatchLength = 1;
-  
+
   var me = this;
 
-  this.init = function() {
+  this.init = function () {
     mainSpan = document.createElement("span");
     innerSpan = document.createElement("span");
     if (me.type == "header") textSpan = document.createElement("span");
@@ -60,27 +58,27 @@ pui.CSSPanelSection = function() {
       layoutContainer.style.width = "100%";
       layoutContainer.style.height = "100%";
       layoutContainer.style.overflow = "hidden";
-      mainSpan.appendChild(layoutContainer); 
+      mainSpan.appendChild(layoutContainer);
     }
     mainSpan.appendChild(innerSpan);
     me.container.appendChild(mainSpan);
-  }
-  
-  this.setText = function(text) {
+  };
+
+  this.setText = function (text) {
     if (me.type != "header") return;
     if (text == null || pui.isBound(text) || pui.isTranslated(text) || pui.isRoutine(text)) text = "";
     textSpan.innerHTML = text;
-  }
-  
-  this.setSwatch = function(newSwatch) {
-    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "c";  // default
+  };
 
-    //Preconfigured themes A-G have the format 'A - Black'
-    //'B - Blue', etc. This makes sure only 'A', 'B', etc is used 
-    //for the class generation
+  this.setSwatch = function (newSwatch) {
+    if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "c"; // default
+
+    // Preconfigured themes A-G have the format 'A - Black'
+    // 'B - Blue', etc. This makes sure only 'A', 'B', etc is used
+    // for the class generation
     var regex = / - {1}.*/g;
-    newSwatch = newSwatch.replace(regex, '');
-    
+    newSwatch = newSwatch.replace(regex, "");
+
     newSwatch = newSwatch.toLowerCase();
     if (swatch == newSwatch) return;
     var classes = mainSpan.className.split(" ");
@@ -95,9 +93,9 @@ pui.CSSPanelSection = function() {
     }
     swatch = newSwatch;
     swatchLength = swatch.length;
-  }
-  
-  this.setStraightEdge = function(edge) {
+  };
+
+  this.setStraightEdge = function (edge) {
     if (edge == null || pui.isBound(edge)) return;
     mainSpan.style.borderTopLeftRadius = "";
     mainSpan.style.borderTopRightRadius = "";
@@ -107,7 +105,7 @@ pui.CSSPanelSection = function() {
     innerSpan.style.borderTopRightRadius = "";
     innerSpan.style.borderBottomLeftRadius = "";
     innerSpan.style.borderBottomRightRadius = "";
-    switch(edge) {
+    switch (edge) {
       case "left":
         mainSpan.style.borderTopLeftRadius = "0";
         mainSpan.style.borderBottomLeftRadius = "0";
@@ -118,7 +116,7 @@ pui.CSSPanelSection = function() {
         mainSpan.style.borderTopRightRadius = "0";
         mainSpan.style.borderBottomRightRadius = "0";
         innerSpan.style.borderTopRightRadius = "0";
-        innerSpan.style.borderBottomRightRadius = "0";       
+        innerSpan.style.borderBottomRightRadius = "0";
         break;
       case "top":
         mainSpan.style.borderTopRightRadius = "0";
@@ -140,20 +138,20 @@ pui.CSSPanelSection = function() {
         innerSpan.style.borderTopLeftRadius = "0";
         innerSpan.style.borderBottomLeftRadius = "0";
         innerSpan.style.borderTopRightRadius = "0";
-        innerSpan.style.borderBottomRightRadius = "0";       
-        break;      
+        innerSpan.style.borderBottomRightRadius = "0";
+        break;
       default:
         break;
     }
-  }
-  
-  this.setHeight = function(height) {
+  };
+
+  this.setHeight = function (height) {
     if (typeof height == "number") height = height + "px";
     mainSpan.style.height = height;
-  }
-  
-  this.setStyle = function(styleName, styleValue) {
-    if (me.type != "header") return;  
+  };
+
+  this.setStyle = function (styleName, styleValue) {
+    if (me.type != "header") return;
     if (pui.isBound(styleValue)) styleValue = "";
     var parts = styleName.split(" ");
     if (parts.length == 2) {
@@ -165,18 +163,18 @@ pui.CSSPanelSection = function() {
     else {
       textSpan.style[styleName] = styleValue;
     }
-  }
-  
-  this.setAllStyles = function(properties) {
+  };
+
+  this.setAllStyles = function (properties) {
     var styles = ["color", "font family", "font size", "font style", "font variant", "font weight", "letter spacing", "text align", "text decoration", "text transform", "word spacing"];
     for (var i = 0; i < styles.length; i++) {
       var style = styles[i];
       var value = properties[style];
       if (value != null) me.setStyle(style, value);
     }
-  }
+  };
 
-  this.setLineHeight = function(containerHeight) {
+  this.setLineHeight = function (containerHeight) {
     if (me.type != "header") return;
     if (me.container == null) return;
     if (containerHeight != null) {
@@ -185,38 +183,35 @@ pui.CSSPanelSection = function() {
     if (me.container.style.height != null && me.container.style.height != "") {
       var height = link.offsetHeight - 26;
       if (height < 0) height = 0;
-      textSpan.style.lineHeight =  height + "px";
+      textSpan.style.lineHeight = height + "px";
     }
     else {
       textSpan.style.lineHeight = null;
     }
-  }
+  };
 
-  this.getMainSpan = function() {
+  this.getMainSpan = function () {
     return mainSpan;
-  }
+  };
 
-  this.getInnerSpan = function() {
+  this.getInnerSpan = function () {
     return mainSpan;
-  }
+  };
 
-  this.getTextSpan = function() {
+  this.getTextSpan = function () {
     return textSpan;
-  }
-
-}
-
-
+  };
+};
 
 /**
  * CSS Panel
  * @constructor
  */
 
-pui.CSSPanel = function() {
+pui.CSSPanel = function () {
   this.container = null;
   this.forLayout = false;
-  
+
   var headerDiv;
   var bodyDiv;
   var headerPanel;
@@ -224,10 +219,10 @@ pui.CSSPanel = function() {
   var hasHeader = true;
   var headerHeight = 40;
   var straightEdge = "none";
-  
-  var me = this;  
-  
-  this.init = function() {
+
+  var me = this;
+
+  this.init = function () {
     headerDiv = document.createElement("div");
     bodyDiv = document.createElement("div");
     headerDiv.style.position = "absolute";
@@ -260,7 +255,7 @@ pui.CSSPanel = function() {
       me.makeDraggable();
     }
     if (windowDiv == null) {
-      setTimeout(function() {
+      setTimeout(function () {
         var windowDiv = me.container.parentNode;
         if (windowDiv != null && windowDiv.isPUIWindow == true) {
           me.makeDraggable();
@@ -268,14 +263,14 @@ pui.CSSPanel = function() {
       }, 0);
     }
   };
-  
-  this.makeDraggable = function() {
+
+  this.makeDraggable = function () {
     var windowDiv = me.container.parentNode;
-    
+
     new pui.MoveListenerBoundAtClick({ attachto: headerDiv, move: windowDiv });
-    
-    addEvent(headerDiv, "touchstart", function(e) {
-      if (e.touches.length != 1) return;  // Only deal with one finger
+
+    addEvent(headerDiv, "touchstart", function (e) {
+      if (e.touches.length != 1) return; // Only deal with one finger
       var touch = e.touches[0];
       windowDiv.touch = {};
       windowDiv.touch.startX = touch.pageX;
@@ -283,8 +278,8 @@ pui.CSSPanel = function() {
       windowDiv.touch.startLeft = parseInt(windowDiv.style.left);
       windowDiv.touch.startTop = parseInt(windowDiv.style.top);
     });
-    addEvent(headerDiv, "touchmove", function(e) {
-      if (e.touches.length != 1) return;  // Only deal with one finger
+    addEvent(headerDiv, "touchmove", function (e) {
+      if (e.touches.length != 1) return; // Only deal with one finger
       var touch = e.touches[0];
       var x = touch.pageX;
       var y = touch.pageY;
@@ -293,11 +288,11 @@ pui.CSSPanel = function() {
       e.preventDefault();
     });
     headerDiv.style.cursor = "move";
-    if( headerDiv.firstChild != null) //avoid null error in IE9,IE10.
-      headerDiv.firstChild.style.cursor = "move";
+    if (headerDiv.firstChild != null) // avoid null error in IE9,IE10.
+    { headerDiv.firstChild.style.cursor = "move"; }
   };
 
-  this.setHasHeader = function(flag) {
+  this.setHasHeader = function (flag) {
     if (flag) {
       headerDiv.style.display = "";
     }
@@ -307,23 +302,23 @@ pui.CSSPanel = function() {
     hasHeader = flag;
     me.setStraightEdge(straightEdge);
     me.resize();
-  }
-  
-  this.setHeaderHeight = function(height) {
-    height = parseInt(height);
-    if (isNaN(height) || height <= 0) height = 40;  // default
-    headerHeight = height;    
-    me.resize();
-  }
+  };
 
-  this.setStraightEdge = function(edge) {
+  this.setHeaderHeight = function (height) {
+    height = parseInt(height);
+    if (isNaN(height) || height <= 0) height = 40; // default
+    headerHeight = height;
+    me.resize();
+  };
+
+  this.setStraightEdge = function (edge) {
     if (edge == null || pui.isBound(edge)) return;
     straightEdge = edge;
     if (!hasHeader) {
       bodyPanel.setStraightEdge(edge);
       return;
     }
-    switch(edge) {
+    switch (edge) {
       case "left":
         headerPanel.setStraightEdge("left");
         headerPanel.getMainSpan().style.borderBottomRightRadius = "0";
@@ -351,39 +346,39 @@ pui.CSSPanel = function() {
       case "all":
         headerPanel.setStraightEdge("all");
         bodyPanel.setStraightEdge("all");
-        break;      
+        break;
       default:
         headerPanel.setStraightEdge("bottom");
         bodyPanel.setStraightEdge("top");
         break;
     }
-  }
-  
-  this.setText = function(text) {
+  };
+
+  this.setText = function (text) {
     headerPanel.setText(text);
-  }
-  
-  this.getTextSpan = function() {
+  };
+
+  this.getTextSpan = function () {
     return headerPanel.getTextSpan();
-  }
-  
-  this.setStyle = function(styleName, styleValue) {
+  };
+
+  this.setStyle = function (styleName, styleValue) {
     headerPanel.setStyle(styleName, styleValue);
-  }
+  };
 
-  this.setAllStyles = function(properties) {
+  this.setAllStyles = function (properties) {
     headerPanel.setAllStyles(properties);
-  }
-  
-  this.setHeaderSwatch = function(swatch) {
-    headerPanel.setSwatch(swatch);
-  }
+  };
 
-  this.setBodySwatch = function(swatch) {
+  this.setHeaderSwatch = function (swatch) {
+    headerPanel.setSwatch(swatch);
+  };
+
+  this.setBodySwatch = function (swatch) {
     bodyPanel.setSwatch(swatch);
-  }
-  
-  this.resize = function(newHeight) {
+  };
+
+  this.resize = function (newHeight) {
     var totalHeight;
     if (typeof newHeight == "string") {
       if (newHeight.length < 3 || newHeight.substr(newHeight.length - 2, 2) != "px") {
@@ -393,34 +388,29 @@ pui.CSSPanel = function() {
     if (newHeight != null && !isNaN(parseInt(newHeight))) totalHeight = parseInt(newHeight);
     else totalHeight = me.container.offsetHeight;
     var hdrHeight = headerHeight;
-    if (!hasHeader) hdrHeight = - 1;
+    if (!hasHeader) hdrHeight = -1;
     var bodyHeight = totalHeight - hdrHeight - 5;
     if (bodyHeight < 0) bodyHeight = 0;
     if (hasHeader) headerDiv.style.height = hdrHeight + "px";
     bodyDiv.style.top = (hdrHeight + 1) + "px";
     bodyDiv.style.height = bodyHeight + "px";
-  }
-  
-  this.setHeight = function(height) {
+  };
+
+  this.setHeight = function (height) {
     me.container.style.height = height;
     me.resize(height);
-  }
-  
-  this.getHeaderMainSpan = function() {
+  };
+
+  this.getHeaderMainSpan = function () {
     return headerPanel.getMainSpan();
-  }
-  
-  this.getHeaderHeight = function() {
+  };
+
+  this.getHeaderHeight = function () {
     return headerHeight;
-  }
+  };
+};
 
-}
-
-
-
-
-
-pui.widgets.getCSSPanelProxy = function(defaultParms) {
+pui.widgets.getCSSPanelProxy = function (defaultParms) {
   var defaults = {};
   for (var x in defaultParms) {
     defaults[x] = defaultParms[x];
@@ -443,13 +433,9 @@ pui.widgets.getCSSPanelProxy = function(defaultParms) {
   panel.setStraightEdge(defaults["straight edge"]);
   panel.setHasHeader(defaults["has header"] !== "false" && defaults["has header"] !== false);
   panel.setHeaderHeight(defaults["header height"]);
-  panel.setHeight(defaults["height"]);  
+  panel.setHeight(defaults["height"]);
   return dom;
-}
-
-
-
-
+};
 
 pui.widgets.add({
   name: "css panel",
@@ -462,9 +448,9 @@ pui.widgets.add({
     "height": "300px",
     "z index": "8"
   },
-  
-  globalPropertySetter: function(parms) {
-    switch(parms.propertyName) {
+
+  globalPropertySetter: function (parms) {
+    switch (parms.propertyName) {
       case "color":
       case "font family":
       case "font size":
@@ -482,15 +468,14 @@ pui.widgets.add({
         break;
     }
   },
-  
+
   propertySetters: {
 
-    "field type": function(parms) {
-      
-      parms.dom.sizeMe = function() {
+    "field type": function (parms) {
+      parms.dom.sizeMe = function () {
         parms.dom.panel.resize();
-      }
-      
+      };
+
       var panel = new pui.CSSPanel();
       panel.container = parms.dom;
       parms.dom.innerHTML = "";
@@ -507,37 +492,36 @@ pui.widgets.add({
       panel.setHasHeader(hasHeader);
       panel.setHeaderHeight(parms.evalProperty("header height"));
     },
-    
-    "header theme": function(parms) {
+
+    "header theme": function (parms) {
       parms.dom.panel.setHeaderSwatch(parms.value);
     },
 
-    "body theme": function(parms) {
+    "body theme": function (parms) {
       parms.dom.panel.setBodySwatch(parms.value);
     },
 
-    "value": function(parms) {
+    "value": function (parms) {
       parms.dom.panel.setText(parms.value);
     },
 
-    "straight edge": function(parms) {
+    "straight edge": function (parms) {
       parms.dom.panel.setStraightEdge(parms.value);
     },
 
-    "has header": function(parms) {
+    "has header": function (parms) {
       var hasHeader = (parms.value !== "false" && parms.value !== false);
       parms.dom.panel.setHasHeader(hasHeader);
     },
 
-    "header height": function(parms) {
+    "header height": function (parms) {
       parms.dom.panel.setHeaderHeight(parms.value);
     },
-    
-    "height": function(parms) {
+
+    "height": function (parms) {
       parms.dom.panel.setHeight(parms.value);
     }
 
   }
-  
-});
 
+});

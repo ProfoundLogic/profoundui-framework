@@ -17,46 +17,44 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * TabLayout Class. Subclass of pui.layout.Template and adopts from the TabPanel class.
  * @param {Object} parms  Parameters used to build the layout template.
  * @param {Element} dom   A new or cloned DIV element constructor.
  * @constructor
  */
-pui.TabLayout = function(parms, dom) {
-  TabPanel.call(this);  //Import TabPanel properties and methods into this instance.
-  
-  pui.layout.Template.call(this, parms, dom);  //Super class constructor; sets this.layout, forProxy, designMode, etc.
-  
+pui.TabLayout = function (parms, dom) {
+  TabPanel.call(this); // Import TabPanel properties and methods into this instance.
+
+  pui.layout.Template.call(this, parms, dom); // Super class constructor; sets this.layout, forProxy, designMode, etc.
+
   // Private
-  this._rendered = false;   //Becomes true after initial render.
-  this._storageKey = null;  //For persistent storage when movableTabs is true. Set by pui.renderFormat().
-  this._tabSpans = [];      //The clickable tab SPAN elements. The array is convenient and preserves the original tab order.
-  
-    
+  this._rendered = false; // Becomes true after initial render.
+  this._storageKey = null; // For persistent storage when movableTabs is true. Set by pui.renderFormat().
+  this._tabSpans = []; // The clickable tab SPAN elements. The array is convenient and preserves the original tab order.
+
   // Importing from TabPanel made some methods own properties of this, so those would be used over the prototype properties. Assign the correct
   // prototype methods to this. (Note: when assigning a method to an object the method's "this" is that object; i.e. this TabLayout; no need to bind.)
   this.drawChanged = pui.TabLayout.prototype.drawChanged;
   this._cannotRemoveTab = pui.TabLayout.prototype._cannotRemoveTab;
   this._createScrollButton = pui.TabLayout.prototype._createScrollButton;
-  
-  this.linkToDom(dom); //assigns this.container, etc.
-    
-  // Use a default value when the "tab names" property is empty or not set.
-  if (parms.properties && parms.properties['tab names'] == null){
-    var tabnames = this.INITIALLIST;
-    var tablen = tabnames.split(',').length;  //3.
 
-    if (parms.lastContWithWidget > tablen){
+  this.linkToDom(dom); // assigns this.container, etc.
+
+  // Use a default value when the "tab names" property is empty or not set.
+  if (parms.properties && parms.properties["tab names"] == null) {
+    var tabnames = this.INITIALLIST;
+    var tablen = tabnames.split(",").length; // 3.
+
+    if (parms.lastContWithWidget > tablen) {
       // The template type changed. Ensure there are enough tabs to hold the widgets being moved from the other template containers. PUI-213.
-      for (var nextn=tablen + 1, n=parms.lastContWithWidget; nextn <= n; nextn++) tabnames += ',Tab '+ nextn;
+      for (var nextn = tablen + 1, n = parms.lastContWithWidget; nextn <= n; nextn++) tabnames += ",Tab " + nextn;
     }
 
-    this.setProperty('tab names', tabnames);
+    this.setProperty("tab names", tabnames);
 
     // In designer you must also update the design property, or else when you save, then the new tab is lost.
-    this.layout.updatePropertyInDesigner('tab names', tabnames);
+    this.layout.updatePropertyInDesigner("tab names", tabnames);
   }
 
   // Setting properties initially is required for handling special cases:
@@ -64,11 +62,10 @@ pui.TabLayout = function(parms, dom) {
   // * "tab response" of 0 formatted as "" would keep renderFormat from setting the property.
   this._initialSetProperties(parms);
 
-  //PUI-213: when the layout contains widgets and the template changed, then make sure widgets can move to the Tab Layout.
+  // PUI-213: when the layout contains widgets and the template changed, then make sure widgets can move to the Tab Layout.
   if (parms.lastContWithWidget > 0) this.render();
 };
-pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype);  //TabLayout is subclass of Template.
-
+pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype); // TabLayout is subclass of Template.
 
 /**
  * Assign template-specific properties to a DOM element. pui.layout.template.applyTemplate calls this.
@@ -76,10 +73,10 @@ pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype);  //TabLa
  * @param {Element} dom
  * @public
  */
-pui.TabLayout.prototype.linkToDom = function(dom){
-  pui.layout.Template.prototype.linkToDom.call(this, dom);  //Assign this.container=dom; set layoutT; assign resize to sizeMe.
- 
-  if (!this.designMode){
+pui.TabLayout.prototype.linkToDom = function (dom) {
+  pui.layout.Template.prototype.linkToDom.call(this, dom); // Assign this.container=dom; set layoutT; assign resize to sizeMe.
+
+  if (!this.designMode) {
     // Setup APIs that users can call like getObj('TabLayout1').showTab(1);
     dom.setTab = this.setTab.bind(this);
     dom.getTab = this.getTab.bind(this);
@@ -98,15 +95,15 @@ pui.TabLayout.prototype.linkToDom = function(dom){
  * @returns {Boolean}    When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
  * @public
  */
-pui.TabLayout.prototype.setProperty = function(property, value){
-  switch (property){
-    ///////////////////////////////////////////////////////////////////////////
-    case 'tab names':
+pui.TabLayout.prototype.setProperty = function (property, value) {
+  switch (property) {
+    /// ////////////////////////////////////////////////////////////////////////
+    case "tab names":
       // Validate the value and fallback to default if necessary.
-      if (value == null || value == ""){
+      if (value == null || value == "") {
         value = this.INITIALLIST;
       }
-      else if (pui.isBound(value)){
+      else if (pui.isBound(value)) {
         var tmplist = pui.parseCommaSeparatedList(value.designValue);
         // Use the bound value saved in designer or use default.
         value = tmplist.length == 0 ? this.INITIALLIST : value.designValue;
@@ -116,21 +113,21 @@ pui.TabLayout.prototype.setProperty = function(property, value){
 
       if (names.length != oldLen) {
         var cannotRemove = false;
-        if (this.designMode){
+        if (this.designMode) {
           // See if each tab potentially being removed can be.
-          for (var i=oldLen, n=names.length; i > n; i--){
-            if (this._cannotRemoveTab(i - 1)){
+          for (var i = oldLen, n = names.length; i > n; i--) {
+            if (this._cannotRemoveTab(i - 1)) {
               cannotRemove = true;
               break;
             }
           }
         }
 
-        if (cannotRemove){
+        if (cannotRemove) {
           pui.alert(this.TXT_CANNOTREMOVE);
           value = this.tabs.join();
           // Rollback the change.
-          var updatePropCallback = this._updatePropertyInDesigner.bind(this, 'tab names', value);
+          var updatePropCallback = this._updatePropertyInDesigner.bind(this, "tab names", value);
           setTimeout(updatePropCallback, 1);
         }
         else {
@@ -143,16 +140,16 @@ pui.TabLayout.prototype.setProperty = function(property, value){
       else {
         this.tabs = names;
       }
-      
-      if (this._rendered) { 
+
+      if (this._rendered) {
         // When applyProperty... is called after initial rendering, then draw what has changed (e.g. changing properties in designer).
         this._addRemoveTabs();
         this.drawChanged();
       }
       break;
-      /////////////////////////////////////////////////////////////////////////
-    
-    case 'active tab':
+      /// //////////////////////////////////////////////////////////////////////
+
+    case "active tab":
       // Set the initial active tab. Assume "active tab" is only set when the tab panel is rendering initially.
       if (!this.designMode) {
         value = parseInt(value, 10);
@@ -161,138 +158,138 @@ pui.TabLayout.prototype.setProperty = function(property, value){
       }
       break;
 
-    case 'ontabclick':
+    case "ontabclick":
       if (!this.designMode) this._ontabclick = value;
       break;
-      
-    case 'tab response':
+
+    case "tab response":
       // The property can only be bound to a decimal field, so always set the flag when the property is set.
       if (!this.designMode) this.sendTabResponse = true;
       break;
 
-    case 'response AID':
-      if (!this.designMode) { 
-        if (typeof value !== 'string' || value.length === 0) value = false;
+    case "response AID":
+      if (!this.designMode) {
+        if (typeof value !== "string" || value.length === 0) value = false;
         this.responseAID = value;
       }
       break;
-      
-    case 'bypass validation':
+
+    case "bypass validation":
       // Catch this case to prevent applyTemplate from running later, something that would cause everything to be rebuilt.
       // render or applyDesignProperty would set dom.bypassValidation to this value, so no need to do anything here.
       break;
-      
+
     // Inherited.
-    case 'color':
-    case 'font family':
-    case 'font size':
-    case 'font style':
-    case 'font weight':
-    case 'text transform':
+    case "color":
+    case "font family":
+    case "font size":
+    case "font style":
+    case "font weight":
+    case "text transform":
     // Not inherited.
-    case 'text decoration':
-      // Do nothing with these; applyPropertyToField sets the style on the main DIV element due to "propConfig.stylename". 
+    case "text decoration":
+      // Do nothing with these; applyPropertyToField sets the style on the main DIV element due to "propConfig.stylename".
       // Tabs inherit these styles from the main DIV. (Also, tabs may not exist when this property is set.)
       break;
-      
-    case 'movable tabs':
-      if (!this.designMode){
+
+    case "movable tabs":
+      if (!this.designMode) {
         // Allow tabs to be moved by the user. #7008.
-        this._movabletabs = value === 'true' || value === true;
+        this._movabletabs = value === "true" || value === true;
         // In case applyProperty is called after rendering, then update tabs.
         if (this._rendered) this.drawChanged();
       }
       break;
-    
+
     default:
-      return false;  //Let pui.Layout.prototype.setProperty handle other properties.
+      return false; // Let pui.Layout.prototype.setProperty handle other properties.
   }
-  
+
   // Store template property values--any handled by this class.
-  if (this.layout && this.layout.templateProps){
+  if (this.layout && this.layout.templateProps) {
     this.layout.templateProps[property] = value;
   }
   return true;
 };
 
 /**
- * Render the layout in the DOM. Called once in runtime, after all properties are set, allowing simpler handling of properties. 
+ * Render the layout in the DOM. Called once in runtime, after all properties are set, allowing simpler handling of properties.
  * In Designer, this can be called as the user sets any property in the Properties Window.
  * Overrides pui.layout.Template.render.
  * @param {Object|undefined} screenParms   Parameters sent to renderFormat that are not passed in property setters. Undefined when called in Designer.
  * @public
  */
-pui.TabLayout.prototype.render = function(screenParms) {
-  if (this._rendered){
+pui.TabLayout.prototype.render = function (screenParms) {
+  if (this._rendered) {
     this._addRemoveTabs();
-  } 
+  }
   else {
     // Create the tab headers and the body wrapper.
-    this._headerArea = document.createElement('div');  //wraps all tab spans. The child elements can be re-arranged in runtime.
-    this._headerArea.className = 'pui-tablayout-hdr';
+    this._headerArea = document.createElement("div"); // wraps all tab spans. The child elements can be re-arranged in runtime.
+    this._headerArea.className = "pui-tablayout-hdr";
     this.container.appendChild(this._headerArea);
-    
-    this._bodyWrap = document.createElement("div");  //wraps the tab containers. The element order does not change when tabs are re-arranged in runtime.
+
+    this._bodyWrap = document.createElement("div"); // wraps the tab containers. The element order does not change when tabs are re-arranged in runtime.
     this._bodyWrap.className = "pui-tablayout-body";
     this.container.appendChild(this._bodyWrap);
 
     // Add +/- icons to the container DOM element. The container gets replaced at least once while
     // properties are assigned. But child nodes are migrated to the new DOM (applyTemplate.js:~72).
     if (this.designMode) this.createAddRemoveIcons();
-    
+
     if (this.forProxy) this.container.style.position = "relative";
-    
+
     this._addRemoveTabs();
 
     // Arrange the tabs into an order stored in the browser.
-    if (this._movabletabs && !this.designMode){
+    if (this._movabletabs && !this.designMode) {
       var state;
-      this._storageKey = pui.getStorageKey(screenParms, 'pui-lyt-') + '-' + this.container.id;
-      if (sessionStorage[this._storageKey] != null){
+      this._storageKey = pui.getStorageKey(screenParms, "pui-lyt-") + "-" + this.container.id;
+      if (sessionStorage[this._storageKey] != null) {
         try {
           state = JSON.parse(sessionStorage[this._storageKey]);
         }
-        catch(ignored) {}
+        catch (ignored) {}
       }
-      
-      if (state != null && Array.isArray(state['order']) && state['order'].length > 0){
-        // In case the customer added a tab via applyProperty(...,'tab names'...) and the order is saved, then extra tabs must be 
+
+      if (state != null && Array.isArray(state["order"]) && state["order"].length > 0) {
+        // In case the customer added a tab via applyProperty(...,'tab names'...) and the order is saved, then extra tabs must be
         // added in order to use the saved order. #7008.
-        if (this.tabs.length < state['order'].length){
-          while (this.tabs.length < state['order'].length){
-            this.tabs.push('');
+        if (this.tabs.length < state["order"].length) {
+          while (this.tabs.length < state["order"].length) {
+            this.tabs.push("");
           }
           this._addRemoveTabs();
         }
-        
+
         var outerSpans = [];
         // Remove each tab outer element.
-        while (this._headerArea.childNodes.length > 0){
+        while (this._headerArea.childNodes.length > 0) {
           var outerSpan = this._headerArea.childNodes[0];
           this._headerArea.removeChild(outerSpan);
           outerSpans.push(outerSpan);
         }
 
         // Add the outer elements in the order that was saved.
-        while (state['order'].length > 0){
-          var tabId = state['order'][0];
+        while (state["order"].length > 0) {
+          var tabId = state["order"][0];
           var outerSpan = outerSpans[tabId];
           this._headerArea.appendChild(outerSpan);
-          state['order'].shift();
+          state["order"].shift();
         }
       }
     }
 
     this.addScrollButtons();
   }
-  
+
   this.drawChanged();
   this._getActiveTabPos();
-  this._checkScrollButtons();  //Shows/hides scroll buttons, scrolls to the active tab (_lastScrollLeft).
-  
+  this._checkScrollButtons(); // Shows/hides scroll buttons, scrolls to the active tab (_lastScrollLeft).
+
   // Make sure the Layout object associated with this knows where the containers are.
   this._setContainers(this._bodyWrap.children);
-  
+
   this._rendered = true;
 };
 
@@ -300,58 +297,57 @@ pui.TabLayout.prototype.render = function(screenParms) {
  * Add or remove tab Span and Div elements to match the number of tabs in this.tabs.
  * @private
  */
-pui.TabLayout.prototype._addRemoveTabs = function(){
+pui.TabLayout.prototype._addRemoveTabs = function () {
   var numTabsDesired = this.tabs.length;
   var nextTabId = this._tabSpans.length;
-  
-  // Append elements when the number of tabs increased.
-  while (numTabsDesired > this._tabSpans.length){
 
-    var outerSpan = document.createElement("span");  //encapsulates tab text, left and right borders.    
-    var tabSpan = document.createElement("span");  //holds tab text.
+  // Append elements when the number of tabs increased.
+  while (numTabsDesired > this._tabSpans.length) {
+    var outerSpan = document.createElement("span"); // encapsulates tab text, left and right borders.
+    var tabSpan = document.createElement("span"); // holds tab text.
     tabSpan.setAttribute("isTab", "true");
     tabSpan.tabId = nextTabId;
     this._tabSpans.push(tabSpan);
-    
-    tabSpan.addEventListener('mousedown', this);
-    if (this.designMode){
-      tabSpan.addEventListener('dblclick', this);
+
+    tabSpan.addEventListener("mousedown", this);
+    if (this.designMode) {
+      tabSpan.addEventListener("dblclick", this);
 
       tabSpan.draggable = true;
-      tabSpan.addEventListener('dragstart', this);
-      tabSpan.addEventListener('dragend', this);
-      tabSpan.addEventListener('dragover', this);
-      tabSpan.addEventListener('dragleave', this);
-      tabSpan.addEventListener('drop', this);
+      tabSpan.addEventListener("dragstart", this);
+      tabSpan.addEventListener("dragend", this);
+      tabSpan.addEventListener("dragover", this);
+      tabSpan.addEventListener("dragleave", this);
+      tabSpan.addEventListener("drop", this);
     }
 
-    outerSpan.appendChild( document.createElement("span") );
+    outerSpan.appendChild(document.createElement("span"));
     outerSpan.appendChild(tabSpan);
-    outerSpan.appendChild( document.createElement("span") );
+    outerSpan.appendChild(document.createElement("span"));
     this._headerArea.appendChild(outerSpan);
 
     var bodyDiv = document.createElement("div");
     bodyDiv.setAttribute("container", "true");
-    bodyDiv.containerNumber = nextTabId + 1;  //Make sure this is set, or else saving the RDF can orphan widgets that were in this layout. 7008.
+    bodyDiv.containerNumber = nextTabId + 1; // Make sure this is set, or else saving the RDF can orphan widgets that were in this layout. 7008.
     bodyDiv.tabId = nextTabId;
-    bodyDiv.style.display = 'none';
+    bodyDiv.style.display = "none";
     this._bodyWrap.appendChild(bodyDiv);
 
     nextTabId++;
   }
 
   // Remove elements when the number of tabs decreased.
-  while (numTabsDesired < this._tabSpans.length){
+  while (numTabsDesired < this._tabSpans.length) {
     var children = this._headerArea.children;
-    this._headerArea.removeChild( children[ children.length - 1 ] );
+    this._headerArea.removeChild(children[children.length - 1]);
 
     children = this._bodyWrap.children;
-    this._bodyWrap.removeChild( children[ children.length - 1 ] );
+    this._bodyWrap.removeChild(children[children.length - 1]);
 
     this._tabSpans.pop();
   }
 };
-  
+
 /**
  * Draw things that change when the active tab changes: tab texts, tabIds, this tab's visible container; hide containers for non-active tabs.
  * Called when selected tab changes, by processTabChange, parent methods.
@@ -359,95 +355,94 @@ pui.TabLayout.prototype._addRemoveTabs = function(){
  * Pre-Conditions: this.selectedTab is the active tab.
  * @public
  */
-pui.TabLayout.prototype.drawChanged = function(){
+pui.TabLayout.prototype.drawChanged = function () {
   var tabSpan, bodyDiv, outerSpan, tabIdx;
   this.selectedTab = parseInt(this.selectedTab, 10);
-  
+
   var templateProps;
   if (this.layout && this.layout.templateProps) templateProps = this.layout.templateProps;
-  
+
   // For style properties that inherit, make sure tab styles use the value set for the widget property through CSS inheritance. The styles are on the main DIV.
-  if (templateProps){
-    this._headerArea.style.color = typeof templateProps['color'] === 'string' && templateProps['color'].length > 0 ? 'inherit' : '';
-    this._headerArea.style.textTransform = typeof templateProps['text transform'] === 'string' && templateProps['text transform'].length > 0 ? 'inherit' : '';
-    this._headerArea.style.fontFamily = typeof templateProps['font family'] === 'string' && templateProps['font family'].length > 0 ? 'inherit' : '';
-    this._headerArea.style.fontSize = typeof templateProps['font size'] === 'string' && templateProps['font size'].length > 0 ? 'inherit' : '';
-    this._headerArea.style.fontStyle = typeof templateProps['font style'] === 'string' && templateProps['font style'].length > 0 ? 'inherit' : '';
-    this._headerArea.style.fontWeight = typeof templateProps['font weight'] === 'string' && templateProps['font weight'].length > 0 ? 'inherit' : '';
+  if (templateProps) {
+    this._headerArea.style.color = typeof templateProps["color"] === "string" && templateProps["color"].length > 0 ? "inherit" : "";
+    this._headerArea.style.textTransform = typeof templateProps["text transform"] === "string" && templateProps["text transform"].length > 0 ? "inherit" : "";
+    this._headerArea.style.fontFamily = typeof templateProps["font family"] === "string" && templateProps["font family"].length > 0 ? "inherit" : "";
+    this._headerArea.style.fontSize = typeof templateProps["font size"] === "string" && templateProps["font size"].length > 0 ? "inherit" : "";
+    this._headerArea.style.fontStyle = typeof templateProps["font style"] === "string" && templateProps["font style"].length > 0 ? "inherit" : "";
+    this._headerArea.style.fontWeight = typeof templateProps["font weight"] === "string" && templateProps["font weight"].length > 0 ? "inherit" : "";
   }
-  
-  
+
   // For each tab, redraw the tab, hide/show containers, etc. The order of this.tabs matches what is set in the property, e.g. set in the RDF.
-  for (var i=0, n=this.tabs.length; i < n; i++){
-    tabSpan = this._tabSpans[i];  //Get the tab from the collection of _tabSpans, which is in the original order, same as this.tabs.
+  for (var i = 0, n = this.tabs.length; i < n; i++) {
+    tabSpan = this._tabSpans[i]; // Get the tab from the collection of _tabSpans, which is in the original order, same as this.tabs.
     tabSpan.innerHTML = this.tabs[i];
-    
+
     // If the "text decoration" property is set, then set it on each tab inline. Text-decoration cannot be inherited.
-    if (templateProps) tabSpan.style.textDecoration = typeof templateProps['text decoration'] === 'string' ? templateProps['text decoration'] : '';
-    
+    if (templateProps) tabSpan.style.textDecoration = typeof templateProps["text decoration"] === "string" ? templateProps["text decoration"] : "";
+
     // Hide hidden tabs; make sure others aren't hidden.
-    tabIdx = this._findNodeIndexByTabId( tabSpan.tabId );
-    outerSpan = this._headerArea.childNodes[ tabIdx ];
+    tabIdx = this._findNodeIndexByTabId(tabSpan.tabId);
+    outerSpan = this._headerArea.childNodes[tabIdx];
     outerSpan.style.display = this._hiddenTabs[i] ? "none" : "";
-    
-    if (tabSpan.tabId === this.selectedTab) tabSpan.parentNode.classList.add('selected-tab');
-    else tabSpan.parentNode.classList.remove('selected-tab');
 
-    if (!this.designMode){
+    if (tabSpan.tabId === this.selectedTab) tabSpan.parentNode.classList.add("selected-tab");
+    else tabSpan.parentNode.classList.remove("selected-tab");
+
+    if (!this.designMode) {
       // Reset these events in case the selected tab or 'movable tabs' change.
-      tabSpan.removeAttribute('draggable');
-      tabSpan.removeEventListener('dragstart', this);
-      tabSpan.removeEventListener('dragend', this);
-      tabSpan.removeEventListener('dragover', this);
-      tabSpan.removeEventListener('dragleave', this);
-      tabSpan.removeEventListener('drop', this);
+      tabSpan.removeAttribute("draggable");
+      tabSpan.removeEventListener("dragstart", this);
+      tabSpan.removeEventListener("dragend", this);
+      tabSpan.removeEventListener("dragover", this);
+      tabSpan.removeEventListener("dragleave", this);
+      tabSpan.removeEventListener("drop", this);
 
-      if (this._movabletabs){
+      if (this._movabletabs) {
         // Allow tabs to be re-ordered in runtime.
-        if (this.sendTabResponse){
+        if (this.sendTabResponse) {
           // When clicking a tab sends a response, then only allow dragging of selected tab.
-          if (tabSpan.tabId === this.selectedTab){
+          if (tabSpan.tabId === this.selectedTab) {
             tabSpan.draggable = true;
-            tabSpan.addEventListener('dragstart', this);
-            tabSpan.addEventListener('dragend', this);
+            tabSpan.addEventListener("dragstart", this);
+            tabSpan.addEventListener("dragend", this);
           }
           else {
-            tabSpan.addEventListener('dragover', this);
-            tabSpan.addEventListener('dragleave', this);
-            tabSpan.addEventListener('drop', this);
+            tabSpan.addEventListener("dragover", this);
+            tabSpan.addEventListener("dragleave", this);
+            tabSpan.addEventListener("drop", this);
           }
         }
         else {
           // When no response is sent, then allow dragging inactive tabs.
           tabSpan.draggable = true;
-          tabSpan.addEventListener('dragstart', this);
-          tabSpan.addEventListener('dragend', this);
-          tabSpan.addEventListener('dragover', this);
-          tabSpan.addEventListener('dragleave', this);
-          tabSpan.addEventListener('drop', this);
+          tabSpan.addEventListener("dragstart", this);
+          tabSpan.addEventListener("dragend", this);
+          tabSpan.addEventListener("dragover", this);
+          tabSpan.addEventListener("dragleave", this);
+          tabSpan.addEventListener("drop", this);
         }
       }
     }
-    
+
     // Setup the containers.
     bodyDiv = this._bodyWrap.children[i];
-    if (i === this.selectedTab){
+    if (i === this.selectedTab) {
       bodyDiv.style.display = "";
-      
+
       var layout = this.layout;
-      if (layout != null){
+      if (layout != null) {
         // Lazy loads the items, if they weren't already.
-        if (!this.designMode) layout.renderItems( this.selectedTab );
-        
+        if (!this.designMode) layout.renderItems(this.selectedTab);
+
         // Make sure any child layouts and widgets in this tab know they are visible now.
-        if (layout.childrenSized[this.selectedTab] !== true) layout.sizeContainers( this.selectedTab );
+        if (layout.childrenSized[this.selectedTab] !== true) layout.sizeContainers(this.selectedTab);
       }
     }
     else {
       bodyDiv.style.display = "none";
     }
   }
-  
+
   this._checkScrollButtons();
 };
 
@@ -456,179 +451,172 @@ pui.TabLayout.prototype.drawChanged = function(){
  * @param {Event} e
  * @public
  */
-pui.TabLayout.prototype['handleEvent'] = function(e){
-  switch (e.type){
-    // Handle changing tabs. 
-    case 'mousedown':
-      if (this.designMode) e.stopPropagation();  //Prevent Resizer from moving the layout when dragging a tab.
+pui.TabLayout.prototype["handleEvent"] = function (e) {
+  switch (e.type) {
+    // Handle changing tabs.
+    case "mousedown":
+      if (this.designMode) e.stopPropagation(); // Prevent Resizer from moving the layout when dragging a tab.
 
       // If the user is clicking on a not-selected tab, switch to that tab.
       var tabId = e.currentTarget.tabId;
 
-      if (this.selectedTab != tabId){
-
+      if (this.selectedTab != tabId) {
         // if the same field is defined on different tabs then the value of the field must be
         // the value of the first element in the field array for that tab.
         // Redmine #7660. (See also Redmine 7927).
-        if (pui.cursorValues.record != null){
-          var respKey = pui.cursorValues.record + '.' + pui.cursorValues.field;
+        if (pui.cursorValues.record != null) {
+          var respKey = pui.cursorValues.record + "." + pui.cursorValues.field;
           var respArr = pui.responseElements[respKey];
 
-          if (Array.isArray(respArr) && respArr.length > 1){
+          if (Array.isArray(respArr) && respArr.length > 1) {
             respArr[0].value = respArr[this.selectedTab].value;
             respArr[0].modified = true;
           }
         }
 
-        if (typeof this._ontabclick === 'string' && this._ontabclick.length > 0){
+        if (typeof this._ontabclick === "string" && this._ontabclick.length > 0) {
           try {
             // Expose the "tab" variable, and run the ontabclick code. If the ontabclick code returns false, then prevent the tab change.
-            if (eval('var tab = ' + tabId + '; ' + this._ontabclick) == false) return;
+            if (eval("var tab = " + tabId + "; " + this._ontabclick) == false) return;
           }
-          catch(err) {
+          catch (err) {
             pui.scriptError(err, "Ontabclick Error:\n");
           }
         }
-        
-        this._preValidationSelectedTab = this.selectedTab; //In case validation fails with "tab response", selectedTab will be restored (in TabPanel.js).
+
+        this._preValidationSelectedTab = this.selectedTab; // In case validation fails with "tab response", selectedTab will be restored (in TabPanel.js).
         this.selectedTab = tabId;
         this._lastScrollLeft = this._headerArea.scrollLeft;
         this.processTabChange(tabId);
       }
       return;
-    
-    case 'dblclick':
-      this.tabSpanOndblclick(e);    //In Designer, show inline edit box for changing tab names.
+
+    case "dblclick":
+      this.tabSpanOndblclick(e); // In Designer, show inline edit box for changing tab names.
       return;
-      
-      
+
     //
     // Tab re-ordering events.
     //
-    case 'dragstart':       
+    case "dragstart":
       // Dragstart is the first event to fire when a drag is started. e.target is the element from which drag started.
       e.stopPropagation();
-      
+
       this._dragtabId = e.currentTarget.tabId;
-      
-      if (!isNaN(this._dragtabId)){
+
+      if (!isNaN(this._dragtabId)) {
         try {
           // Firefox requires setData before other drag events will fire.
-          e.dataTransfer.setData('text/plain', this._dragtabId);  //Dummy data to force events to fire.
-          e.dataTransfer.dropEffect = 'none';
-          e.dataTransfer.effectAllowed = 'move';
-        } 
-        catch(ignore){}
-      }      
+          e.dataTransfer.setData("text/plain", this._dragtabId); // Dummy data to force events to fire.
+          e.dataTransfer.dropEffect = "none";
+          e.dataTransfer.effectAllowed = "move";
+        }
+        catch (ignore) {}
+      }
       return;
 
+    case "dragover":
+      if (e.currentTarget.tabId == this._dragtabId) return; // Do not allow dropping onto self.
 
-    case 'dragover':
-      if (e.currentTarget.tabId == this._dragtabId) return;  //Do not allow dropping onto self.
-      
-      e.preventDefault();       //Let browser know that drop is allowed.
+      e.preventDefault(); // Let browser know that drop is allowed.
       e.stopPropagation();
-      
-      e.dataTransfer.dropEffect = 'move';
-      e.dataTransfer.effectAllowed = 'move';
+
+      e.dataTransfer.dropEffect = "move";
+      e.dataTransfer.effectAllowed = "move";
       return;
 
-    
-    case 'dragleave': 
-      e.preventDefault(); 
+    case "dragleave":
+      e.preventDefault();
       e.stopPropagation();
       return;
-    
-    
-    case 'drop':
-      e.preventDefault();  //Prevent page from redirecting as link.
+
+    case "drop":
+      e.preventDefault(); // Prevent page from redirecting as link.
       e.stopPropagation();
-      
-      if (!this._headerArea.contains(e.target)) return;  //Is the drop point valid.
-      
+
+      if (!this._headerArea.contains(e.target)) return; // Is the drop point valid.
+
       // Signal fetch of the data
       try {
-        e.dataTransfer.getData("text/plain"); //result is ignored; not all browsers implement it the same.
+        e.dataTransfer.getData("text/plain"); // result is ignored; not all browsers implement it the same.
       }
-      catch(ignore){}
-      
+      catch (ignore) {}
+
       var draggedTabId = this._dragtabId;
       if (isNaN(draggedTabId)) return;
 
       var targetId = e.currentTarget.tabId;
       if (isNaN(targetId) || targetId == draggedTabId) return;
-      
+
       var draggedTabIdx = this._findNodeIndexByTabId(draggedTabId);
       var dropTargetIdx = this._findNodeIndexByTabId(targetId);
       var leftToRight = (draggedTabIdx < dropTargetIdx);
-      
+
       // Re-order the tab elements.
-      var draggedOuterSpan = this._headerArea.childNodes[ draggedTabIdx ];
+      var draggedOuterSpan = this._headerArea.childNodes[draggedTabIdx];
       this._headerArea.removeChild(draggedOuterSpan);
-      
+
       // Find the index in _headerArea of the tab matching targetId; indexes removing a child can change the index.
       dropTargetIdx = this._findNodeIndexByTabId(targetId);
 
       if (leftToRight) dropTargetIdx += 1;
 
-      var targetOuterSpan = this._headerArea.childNodes[ dropTargetIdx ];
-      this._headerArea.insertBefore(draggedOuterSpan, targetOuterSpan );
-      
-      if (this.designMode){
+      var targetOuterSpan = this._headerArea.childNodes[dropTargetIdx];
+      this._headerArea.insertBefore(draggedOuterSpan, targetOuterSpan);
+
+      if (this.designMode) {
         var designItem = this.layout.designItem;
-        if (designItem) designItem.designer.undo.addSnapshot('Edit Layout', designItem.designer);
-        
+        if (designItem) designItem.designer.undo.addSnapshot("Edit Layout", designItem.designer);
+
         // Also re-order the containers.
-        var bodyElToMove = this._bodyWrap.childNodes[ draggedTabIdx ];
+        var bodyElToMove = this._bodyWrap.childNodes[draggedTabIdx];
         this._bodyWrap.removeChild(bodyElToMove);
-        var bodyElMoveBefore = this._bodyWrap.childNodes[ dropTargetIdx ];
+        var bodyElMoveBefore = this._bodyWrap.childNodes[dropTargetIdx];
         this._bodyWrap.insertBefore(bodyElToMove, bodyElMoveBefore);
-        
+
         // Change the tab names property, reset tabIds
-        var reorderedNames = '';
-        var comma = '';
+        var reorderedNames = "";
+        var comma = "";
         this._tabSpans = [];
-        for (var i=0, n=this._headerArea.childNodes.length; i < n; i++){
+        for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
           var outerSpan = this._headerArea.childNodes[i];
           var tabSpan = outerSpan.childNodes[1];
           this._tabSpans.push(tabSpan);
           tabSpan.tabId = i;
           reorderedNames += comma + tabSpan.innerHTML;
-          comma = ',';
-          
+          comma = ",";
+
           var bodyDiv = this._bodyWrap.childNodes[i];
           bodyDiv.tabId = i;
           // Needed for designer to get the correct container numbers, e.g. if user saves immediatly after dragging.
-          bodyDiv.containerNumber = i + 1; 
+          bodyDiv.containerNumber = i + 1;
         }
-        
+
         this.selectedTab = dropTargetIdx;
-        
-        this.setProperty('tab names', reorderedNames);
-        this._updatePropertyInDesigner('tab names', reorderedNames);
-        pui.ide.refreshRibbon();  //Make sure the Undo text is current.
-        this._setContainers(this._bodyWrap.children);  //Ensure Designer can get the correct container numbers.
+
+        this.setProperty("tab names", reorderedNames);
+        this._updatePropertyInDesigner("tab names", reorderedNames);
+        pui.ide.refreshRibbon(); // Make sure the Undo text is current.
+        this._setContainers(this._bodyWrap.children); // Ensure Designer can get the correct container numbers.
       }
       else {
         // Store the new order.
-        if (this._storageKey){
+        if (this._storageKey) {
           try {
-            var state = {'order': [] };
-            for (var i=0, n=this._headerArea.childNodes.length; i < n; i++){
+            var state = { "order": [] };
+            for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
               var outerSpan = this._headerArea.childNodes[i];
-              state['order'].push( outerSpan.childNodes[1].tabId );
+              state["order"].push(outerSpan.childNodes[1].tabId);
             }
             sessionStorage[this._storageKey] = JSON.stringify(state);
           }
-          catch(ignored) {}
+          catch (ignored) {}
         }
       }
       return;
-      
-      
-    case 'dragend': 
+
+    case "dragend":
       delete this._dragtabId;
-      return;
   }
 };
 
@@ -639,7 +627,7 @@ pui.TabLayout.prototype['handleEvent'] = function(e){
  * @returns {Boolean}  Returns true if any of the body DIVs have children; else false.
  * @private
  */
-pui.TabLayout.prototype._cannotRemoveTab = function(i){
+pui.TabLayout.prototype._cannotRemoveTab = function (i) {
   var children = this._bodyWrap.children;
   return (children && children[i] && children[i].children && children[i].children.length > 0);
 };
@@ -650,9 +638,9 @@ pui.TabLayout.prototype._cannotRemoveTab = function(i){
  * @param {String} cssClass
  * @returns {Element}
  */
-pui.TabLayout.prototype._createScrollButton = function(cssClass){
+pui.TabLayout.prototype._createScrollButton = function (cssClass) {
   var outerSpan = document.createElement("span");
-  if(cssClass) outerSpan.className = "pui-tscrbtn pui-tablayout "+cssClass;
+  if (cssClass) outerSpan.className = "pui-tscrbtn pui-tablayout " + cssClass;
 
   var leftSpan = document.createElement("span");
   leftSpan.className = "edge";
@@ -674,14 +662,14 @@ pui.TabLayout.prototype._createScrollButton = function(cssClass){
  * If "active tab" is bound, find the scroll position of the active tab. Do this only once, after the layout is visible.
  * @private
  */
-pui.TabLayout.prototype._getActiveTabPos = function(){
+pui.TabLayout.prototype._getActiveTabPos = function () {
   if (this.sendActiveTab && this._needScrollToActive && this._headerArea.offsetWidth > 0) {
     var idx = this._movabletabs ? this._findNodeIndexByTabId(this.selectedTab) : this.selectedTab;
     var outerSpan = this._headerArea.childNodes[idx];
 
     // Put the selected tab in the middle of the tab panel.
-    if (outerSpan){
-      this._lastScrollLeft = Math.round(outerSpan.offsetLeft - this._headerArea.offsetWidth / 2  + outerSpan.offsetWidth / 2);
+    if (outerSpan) {
+      this._lastScrollLeft = Math.round(outerSpan.offsetLeft - this._headerArea.offsetWidth / 2 + outerSpan.offsetWidth / 2);
       this._needScrollToActive = false;
     }
   }
@@ -693,8 +681,8 @@ pui.TabLayout.prototype._getActiveTabPos = function(){
  * @returns {Number}
  * @private
  */
-pui.TabLayout.prototype._findNodeIndexByTabId = function(tabId){
-  for (var i=0, n=this._headerArea.childNodes.length; i < n; i++){
+pui.TabLayout.prototype._findNodeIndexByTabId = function (tabId) {
+  for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
     var node = this._headerArea.childNodes[i];
     if (node.childNodes[1] && node.childNodes[1].tabId === tabId) return i;
   }
@@ -702,15 +690,15 @@ pui.TabLayout.prototype._findNodeIndexByTabId = function(tabId){
 };
 
 /**
- * Handle when the size changes for the parent of this layout, this layout becomes visible, or this layout is being added to 
+ * Handle when the size changes for the parent of this layout, this layout becomes visible, or this layout is being added to
  * something in Designer; called when moving item to main canvas or into container; called when width or height changes, because of
- * Layout.js::setProperty. 
+ * Layout.js::setProperty.
  * Scroll buttons must be added when TabLayout is initially in hidden tab/section. Also #4711.
  * @param {undefined|Boolean} skipSizeContainers  True when called from Layout resize.
  * Overrides pui.layout.Template.resize.
  * @public
  */
-pui.TabLayout.prototype.resize = function(skipSizeContainers) {
+pui.TabLayout.prototype.resize = function (skipSizeContainers) {
   if (this._rendered) {
     this._getActiveTabPos();
     this._checkScrollButtons();
@@ -722,24 +710,24 @@ pui.TabLayout.prototype.resize = function(skipSizeContainers) {
  * Overrides pui.layout.Template.destroy.
  * @public
  */
-pui.TabLayout.prototype.destroy = function(){
+pui.TabLayout.prototype.destroy = function () {
   // Remove DOM properties added by this class.
   var dom = this.container;
-  if (dom){
+  if (dom) {
     delete dom.setTab;
     delete dom.getTab;
     delete dom.refresh;
     delete dom["hideTab"];
     delete dom["showTab"];
   }
-  pui.layout.Template.prototype.destroy.call(this);  //Remove dom.layoutT and dom.sizeMe; call deleteOwnProperties.
+  pui.layout.Template.prototype.destroy.call(this); // Remove dom.layoutT and dom.sizeMe; call deleteOwnProperties.
 };
 
 /**
- * 
+ *
  * Overrides pui.layout.Template.getVisibleContainerIndex
  * @returns {Number}
  */
-pui.TabLayout.prototype.getVisibleContainerIndex = function(){
+pui.TabLayout.prototype.getVisibleContainerIndex = function () {
   return this.selectedTab != null ? parseInt(this.selectedTab, 10) : -1;
 };

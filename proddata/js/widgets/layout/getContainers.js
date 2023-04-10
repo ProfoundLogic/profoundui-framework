@@ -17,22 +17,21 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-// Note: this getContainers seems to not be a method of pui.Layout because it can be used for html-based templates. Also, when 
+// Note: this getContainers seems to not be a method of pui.Layout because it can be used for html-based templates. Also, when
 // layouts are created by cloning dom nodes, the containers still need to be fetched, even if there is no .layout attached to the DOM.
 
-pui.layout.template.getContainers = function(dom) {
+pui.layout.template.getContainers = function (dom) {
   var containers = [];
- 
-  function traverseNodes(el, isTopLevel) {
+
+  function traverseNodes (el, isTopLevel) {
     if (el == null) return;
-    if (!isTopLevel && el.layout != null) return;  // have reached an embedded layout, quit
+    if (!isTopLevel && el.layout != null) return; // have reached an embedded layout, quit
     if (el.getAttribute != null) {
       if (el.getAttribute("container") == "true") {
         containers.push(el);
         el.containerNumber = containers.length;
       }
-    } 
+    }
     var childNodes = el.childNodes;
     if (childNodes == null || childNodes.length == null) return;
     for (var i = 0; i < childNodes.length; i++) {
@@ -41,12 +40,11 @@ pui.layout.template.getContainers = function(dom) {
   }
 
   traverseNodes(dom, true);
-  
+
   return containers;
- 
 };
 
-pui.layout.getContainerOffset = function(containerDom) {
+pui.layout.getContainerOffset = function (containerDom) {
   var x = 0;
   var y = 0;
   var elem = containerDom;
@@ -62,13 +60,13 @@ pui.layout.getContainerOffset = function(containerDom) {
         else if (comp["paddingTop"]) y -= parseInt(comp["paddingTop"], 10);
       }
     }
-    
+
     // Responsive layout DIVs that are not offsetParents can have scroll values. #6451.
-    if (elem.parentNode && elem.parentNode != elem.offsetParent && elem.parentNode.className == 'puiresp'){
+    if (elem.parentNode && elem.parentNode != elem.offsetParent && elem.parentNode.className == "puiresp") {
       x -= elem.parentNode.scrollLeft;
       y -= elem.parentNode.scrollTop;
     }
-    
+
     elem = elem.offsetParent;
   }
   if (elem != null) {
@@ -82,11 +80,10 @@ pui.layout.getContainerOffset = function(containerDom) {
         if (comp["padding-top"]) y -= parseInt(comp["padding-top"], 10);
         else if (comp["paddingTop"]) y -= parseInt(comp["paddingTop"], 10);
       }
-    }    
+    }
   }
   return {
     x: x,
     y: y
   };
 };
-

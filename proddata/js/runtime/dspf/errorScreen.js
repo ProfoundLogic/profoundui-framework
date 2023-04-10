@@ -17,12 +17,9 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui["errorScreen"] = {};
 
-pui["errorScreen"]["onload"] = function() {
-
+pui["errorScreen"]["onload"] = function () {
   var config = pui["errorScreen"]["getConfig"]();
 
   if (pui["errorScreen"]["getStack"]()) {
@@ -32,19 +29,16 @@ pui["errorScreen"]["onload"] = function() {
   if ((window["puiMobileClient"] == null && window["device"] != null &&
     window["device"]["platform"] == "iOS") ||
     pui.genie != null) {
-
     applyProperty("btnBack", "visibility", "hidden");
     applyProperty("btnBack", "field type", "graphics button");
-
   }
 
   var jobinfo;
   if (pui.genie != null) {
-
     applyProperty("NewSessionButton", "value", pui["getLanguageText"]("runtimeText", "ok"));
     applyProperty("NewSessionButton", "onclick", "pui.click();");
 
-    if (pui.appJob != null && typeof pui.appJob["appjoblogkey"] === "string" && pui.appJob["appjoblogkey"].length > 0){
+    if (pui.appJob != null && typeof pui.appJob["appjoblogkey"] === "string" && pui.appJob["appjoblogkey"].length > 0) {
       // The job log can be downloaded if a key exists for it.
       applyProperty("JobLogDownload", "visibility", "visible");
     }
@@ -58,7 +52,7 @@ pui["errorScreen"]["onload"] = function() {
     if (jobinfo.length > 0) {
       // Load a helper function that facilitates prompting the user to save; then, download.
       var filesaverPath = "/jszip/FileSaver.min.js";
-      if (typeof saveAs == "function"){
+      if (typeof saveAs == "function") {
         downloadJobLog();
       }
       else {
@@ -77,7 +71,7 @@ pui["errorScreen"]["onload"] = function() {
   if (config["type"] === "development-advanced") pui["errorScreen"]["interactiveStack"]();
 
   var xhr;
-  function downloadJobLog(){
+  function downloadJobLog () {
     xhr = new XMLHttpRequest();
     xhr.addEventListener("error", xhrerror);
     xhr.addEventListener("load", joblogFetch);
@@ -86,13 +80,13 @@ pui["errorScreen"]["onload"] = function() {
     xhr.send("jobinfo=" + jobinfo);
   }
 
-  function joblogFetch(){
-    if (typeof xhr.response === "string" && xhr.response.length > 0){
+  function joblogFetch () {
+    if (typeof xhr.response === "string" && xhr.response.length > 0) {
       var contentDisp = xhr.getResponseHeader("Content-Disposition");
-      if (contentDisp === "attachment"){
+      if (contentDisp === "attachment") {
         // The Content-Disposition header is "attachment" when the response is good.
-        sessionStorage.setItem("joblog", xhr.response);  //Store the results in memory.
-        applyProperty("JobLogDownload", "visibility", "visible");  //show the download link.
+        sessionStorage.setItem("joblog", xhr.response); // Store the results in memory.
+        applyProperty("JobLogDownload", "visibility", "visible"); // show the download link.
       }
       else {
         // The response is error plain text.
@@ -104,11 +98,11 @@ pui["errorScreen"]["onload"] = function() {
     }
   }
 
-  function xhrerror(err){
+  function xhrerror (err) {
     console.log("Job log download error:", err);
   }
 
-  function createMaximizeIcon() {
+  function createMaximizeIcon () {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
     pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
     pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
@@ -121,11 +115,9 @@ pui["errorScreen"]["onload"] = function() {
     pui["errorScreen"]["maximizeIcon"].addEventListener("click", pui["errorScreen"]["maximize"]);
     pui["errorScreen"]["positionMaximizeIcon"]();
   }
-
 };
 
-
-pui.formatErrorText = function() {
+pui.formatErrorText = function () {
   var dom = document.getElementById("ESHELP");
   var text;
   if (dom != null) {
@@ -133,15 +125,14 @@ pui.formatErrorText = function() {
     if (text != null) {
       var searchFor = "Recovery  . . . :";
       text = text.replace(searchFor, "<br/><br/>" + searchFor);
-      searchFor = searchFor.replace("  ", " ");  // replace 2 spaces with one (IE)
+      searchFor = searchFor.replace("  ", " "); // replace 2 spaces with one (IE)
       text = text.replace(searchFor, "<br/><br/>" + searchFor);
       dom.innerHTML = text;
     }
   }
 };
 
-
-pui["errorScreen"]["maximize"] = function() {
+pui["errorScreen"]["maximize"] = function () {
   if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["restore"]();
     return;
@@ -167,7 +158,7 @@ pui["errorScreen"]["maximize"] = function() {
   pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "restore");
 };
 
-pui["errorScreen"]["restore"] = function() {
+pui["errorScreen"]["restore"] = function () {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["onload"]["mazimize"]();
     return;
@@ -187,9 +178,8 @@ pui["errorScreen"]["restore"] = function() {
   pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
 };
 
-
-pui["errorScreen"]["positionMaximizeIcon"] = function() {
-  setTimeout(function() {
+pui["errorScreen"]["positionMaximizeIcon"] = function () {
+  setTimeout(function () {
     if (pui["errorScreen"]["maximizeIcon"]) {
       var panel = document.querySelector("#ErrorPanel");
       var x = panel.offsetLeft + panel.offsetWidth - 35;
@@ -201,18 +191,16 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
 };
 
 pui["errorScreen"]["savedStyle"] = [];
-pui["errorScreen"]["saveStyle"] = function(dom, prop) {
+pui["errorScreen"]["saveStyle"] = function (dom, prop) {
   var newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
   pui["errorScreen"]["savedStyle"].push(newEntry);
 };
 
-
-pui["errorScreen"]["downloadStack"] = function() {
+pui["errorScreen"]["downloadStack"] = function () {
   pui.downloadAsAttachment("text/plain", "error stack.txt", pui["errorScreen"]["getStack"]());
 };
 
-
-pui["errorScreen"]["getStack"] = function() {
+pui["errorScreen"]["getStack"] = function () {
   var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
@@ -220,13 +208,13 @@ pui["errorScreen"]["getStack"] = function() {
   catch (e) {
     return "";
   }
-  if (!stackData['stackText']) {
+  if (!stackData["stackText"]) {
     return "";
   }
-  return stackData['stackText'];
+  return stackData["stackText"];
 };
 
-pui["errorScreen"]["getConfig"] = function() {
+pui["errorScreen"]["getConfig"] = function () {
   var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
@@ -240,18 +228,16 @@ pui["errorScreen"]["getConfig"] = function() {
   return stackData.config;
 };
 
-
-pui["errorScreen"]["interactiveStack"] = function() {
-
+pui["errorScreen"]["interactiveStack"] = function () {
   // Load the highlighter if it's not already loaded
   if (typeof hljs !== "object") {
     pui["loadCSS"](pui.normalizeURL("/vlog/vs2015.min.css"));
     pui["loadJS"]({
       "path": pui.normalizeURL("/vlog/highlight.min.js"),
-      "callback": function() {
+      "callback": function () {
         pui["errorScreen"]["interactiveStack"]();
       },
-      "onerror": function() {
+      "onerror": function () {
       }
 
     });
@@ -282,10 +268,10 @@ pui["errorScreen"]["interactiveStack"] = function() {
   catch (e) {
     return;
   }
-  if (!stackData['parsedStack'] ||  stackData['parsedStack'].length === 0) {
+  if (!stackData["parsedStack"] || stackData["parsedStack"].length === 0) {
     return;
   }
-  var stack = stackData['parsedStack'];
+  var stack = stackData["parsedStack"];
   for (var i = 0; i < stack.length; i++) {
     var entry = stack[i];
     var div = document.createElement("div");
@@ -293,7 +279,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
     div.innerText = entry.text;
     div.title = entry.title;
     entry.div = div;
-    entry.codeObj = stackData['stackCode'][i];
+    entry.codeObj = stackData["stackCode"][i];
     // convert object to string
     var codeLines = [];
     entry.code = "";
@@ -303,13 +289,13 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     entry.code = codeLines.join("\n");
 
-    div.addEventListener('click', showStackEntry.bind(null, entry));
+    div.addEventListener("click", showStackEntry.bind(null, entry));
 
     left.appendChild(div);
   }
   showStackEntry(stack[0]);
 
-  function showStackEntry(entry) {
+  function showStackEntry (entry) {
     var config = pui["errorScreen"]["getConfig"]();
     if (selectedEntry != null) {
       selectedEntry.div.classList.remove("pui-stack-entry-selected");
@@ -322,14 +308,14 @@ pui["errorScreen"]["interactiveStack"] = function() {
         entry.fileName &&
         (entry.fileName.endsWith(".js") || entry.fileName.endsWith(".json")) &&
         entry.code
-       ) {
+    ) {
       applyProperty("EditInIDE", "visibility", "visible");
     }
     entry.div.classList.add("pui-stack-entry-selected");
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
     code.textContent = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
-    if (typeof hljs === "object") hljs['highlightElement'](code);
+    if (typeof hljs === "object") hljs["highlightElement"](code);
 
     // Highlight the line of code in error
     var codeLines = right.querySelector(".pui-error-screen-stack-right pre.error-code-lines");
@@ -346,15 +332,12 @@ pui["errorScreen"]["interactiveStack"] = function() {
       // Add a new line text node
       codeLines.appendChild(document.createTextNode("\n"));
     }
-
   }
-
 };
-
 
 pui["errorScreen"]["currentStackEntry"] = null;
 
-pui["errorScreen"]["editInIDE"] = function() {
+pui["errorScreen"]["editInIDE"] = function () {
   if (!pui["errorScreen"]["currentStackEntry"]) return;
   var entry = pui["errorScreen"]["currentStackEntry"];
   var config = pui["errorScreen"]["getConfig"]();
@@ -380,31 +363,29 @@ pui["errorScreen"]["editInIDE"] = function() {
   window.open(url, "_blank");
 };
 
-
-pui["errorScreen"]["downloadJobLog"] = function() {
-
+pui["errorScreen"]["downloadJobLog"] = function () {
   var feedback_element = getObj("JobLogDownload_fb");
-  var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " ";  //e.g. "Application Job ".
+  var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " "; // e.g. "Application Job ".
   var file_ext = ".txt";
 
   if (pui.genie != null) {
     // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
-    var appJob = pui['appJob'];
+    var appJob = pui["appJob"];
     var job_num_user_name = "NA";
-    if (appJob['number'] && appJob['user'] && appJob['name']) {
-      job_num_user_name = appJob['number'] +"_"+ appJob['user'] +"_"+ appJob['name'];
+    if (appJob["number"] && appJob["user"] && appJob["name"]) {
+      job_num_user_name = appJob["number"] + "_" + appJob["user"] + "_" + appJob["name"];
     }
 
     pui["downloadJobLog"]({
       "outputEl": feedback_element,
-      "jobinfo": appJob['appjoblogkey'],
+      "jobinfo": appJob["appjoblogkey"],
       "filename": filename_prefix + job_num_user_name + file_ext
     });
   }
   else {
     // In Profound.js and not in Genie the job log should have already downloaded due to "onload". Prompt to save it.
     var joblog = sessionStorage.getItem("joblog");
-    if (typeof joblog !== "string" || joblog.length < 1){
+    if (typeof joblog !== "string" || joblog.length < 1) {
       feedback_element.innerHTML = "Job log failed to download. Please check browser console for more information.";
     }
     else {
@@ -412,14 +393,13 @@ pui["errorScreen"]["downloadJobLog"] = function() {
       var filesaver = saveAs(
         new Blob([joblog]),
         filename_prefix + job_num_user_name + file_ext,
-        {"type": "text/plain;charset=utf-8"}
+        { "type": "text/plain;charset=utf-8" }
       );
       filesaver.onwriteend = waitAndClearLinkText;
     }
   }
 
-  function waitAndClearLinkText(){
-    setTimeout(function(){ feedback_element.innerHTML = ""; }, 3000);
+  function waitAndClearLinkText () {
+    setTimeout(function () { feedback_element.innerHTML = ""; }, 3000);
   }
-
 };

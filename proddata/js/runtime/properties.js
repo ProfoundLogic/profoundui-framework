@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 var toolbar = null;
 var screenPropertiesObj = new Object();
 var cachedPropertiesModel = null;
@@ -28,18 +26,18 @@ var cachedScreens = {};
 pui.suppressPropertyScriptingErrors = false;
 
 // Provides list of properties and their definitions
-function getPropertiesModel() {
+function getPropertiesModel () {
   if (cachedPropertiesModel != null) return cachedPropertiesModel;
 
   if (pui.codeBased) {
     cachedPropertiesModel = [
-      { name: "Identification",  category: true }, 
-      { name: "bound field", helpDefault: "Field[<span title='A whole number value starting from 0001 determined by how many fields with unchanged names have previously been added to the Universal Display File.'>number</span>]", help: "Use this property to specify the bound field name and data type.", readOnly: true, canBeRemoved: false }, 
-      { name: "description", helpDefault: "blank", help: "Use this property to provide a text description (or comment) for the field.", bind: false }, 
-      
-      { name: "Misc", category: true }, 
-      { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], helpDefault: '<span title="The Format Property *document type* of the Record Format.">document type</span>', help: "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting.", bind: false }, 
-      { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "Determines whether the field is output or not." }, 
+      { name: "Identification", category: true },
+      { name: "bound field", helpDefault: "Field[<span title='A whole number value starting from 0001 determined by how many fields with unchanged names have previously been added to the Universal Display File.'>number</span>]", help: "Use this property to specify the bound field name and data type.", readOnly: true, canBeRemoved: false },
+      { name: "description", helpDefault: "blank", help: "Use this property to provide a text description (or comment) for the field.", bind: false },
+
+      { name: "Misc", category: true },
+      { name: "encoding", choices: ["none", "html", "json", "xml", "csv"], helpDefault: '<span title="The Format Property *document type* of the Record Format.">document type</span>', help: "Sets the encoding type for the field. If not set, the encoding will default based on the <i>document type</i> property setting.", bind: false },
+      { name: "visibility", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "Determines whether the field is output or not." },
       { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the field. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." }
     ];
     return cachedPropertiesModel;
@@ -59,37 +57,45 @@ function getPropertiesModel() {
     { name: "parent window", attribute: "parentWindow", helpDefault: "blank", help: "Specifies the window that this field belongs to.", context: "genie" },
     { name: "screen identifier", choices: ["true", "false"], blankChoice: false, helpDefault: "false", help: "If set to true, this element will be used to <u>detect the screen</u>. This means that any screen with an elment matching this one will receive the screen customizations that were saved to the .scn file. Because of this, the identifier element is suggested to be a <i>unique and static output field</i> of the screen(s) you would like the changes to apply to. For example, if the screen has a unique heading, it can be used as an identifier for the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.", helpNote: "At least one element on the screen must be marked as an identifier before you can save the screen.", context: "genie" },
     { name: "field type", displayName: "widget type", choices: pui.widgets.getWidgetList(false), blankChoice: false, helpDefault: "widget", help: "Specifies the type of control that is used to render the element.", bind: false, canBeRemoved: false },
-    { name: "description", helpDefault: "blank", help: "This property is used to provide a text description or comment for the element.", bind: false }, 
-    { name: "button style", choices: pui.widgets.getButtonStyles, helpDefault: "theme", help: "Specifies the style to be used for the look and feel of the button.", controls: ["styled button"] }, 
-    { name: "panel style", choices: pui.widgets.getPanelStyles, helpDefault: "theme", help: "Specifies the style to be used for the look and feel of the panel.", controls: ["panel"] }, 
-    { name: "value", helpDefault: "theme", help: "Sets the initial value of the current element.", translate: true }, 
+    { name: "description", helpDefault: "blank", help: "This property is used to provide a text description or comment for the element.", bind: false },
+    { name: "button style", choices: pui.widgets.getButtonStyles, helpDefault: "theme", help: "Specifies the style to be used for the look and feel of the button.", controls: ["styled button"] },
+    { name: "panel style", choices: pui.widgets.getPanelStyles, helpDefault: "theme", help: "Specifies the style to be used for the look and feel of the panel.", controls: ["panel"] },
+    { name: "value", helpDefault: "theme", help: "Sets the initial value of the current element.", translate: true },
     { name: "response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "char", "zoned"], helpDefault: "bind", help: "Specifies a response indicator to be returned to your program when the element is clicked.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button", "icon"], context: "dspf" },
     { name: "menu response", readOnly: true, hideFormatting: true, helpDefault: "bind", help: "Specifies a response field to be returned to your program containing the value of the selected menu option. The menu option values are set with the 'choice values' property.", controls: ["menu"], context: "dspf" },
     { name: "tab response", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "Specifies a numeric response field to be returned to your program when a tab is selected containing the index of the selected tab. Each of the Tab Panel's tabs are identified by a sequential index, starting from 0. For example, 0 refers to the first tab, 1 refers to the second tab, etc.", controls: ["tab panel"], context: "dspf" },
-    
-    { name: "upload response", readOnly: true, hideFormatting: true, validDataTypes: ["char"], helpDefault: "bind", help:
-      "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. " 
-      + (pui.nodedesigner ? '' : 'The data structure should be defined as follows:'
-      + '<pre class="propdefault">**FREE'+"\n" +  "DCL-DS UPLOADINFO QUALIFIED;\n" + "  NUMFILES  ZONED(3:0);\n" + "  DIRECTORY CHAR(256);\n" 
-      + "  FILES     CHAR(256) DIM(6);\n" + "END-DS UPLOADINFO;" + "</pre>"
+
+    {
+      name: "upload response",
+      readOnly: true,
+      hideFormatting: true,
+      validDataTypes: ["char"],
+      helpDefault: "bind",
+      help:
+      "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. " +
+      (pui.nodedesigner ? "" : "The data structure should be defined as follows:" +
+      '<pre class="propdefault">**FREE' + "\n" + "DCL-DS UPLOADINFO QUALIFIED;\n" + "  NUMFILES  ZONED(3:0);\n" + "  DIRECTORY CHAR(256);\n" +
+      "  FILES     CHAR(256) DIM(6);\n" + "END-DS UPLOADINFO;" + "</pre>"
       ) + '<br>See also the <a href="https://docs.profoundlogic.com/x/tgD7" target="_blank">Upload Response</a> documentation.',
-      controls: ["file upload", "file upload dnd"], context: "dspf" },
-    
-    { name: "radio button group", readOnly: true, helpDefault: "bind", help: "Specifies a response field to be returned to your program that allows you to associate multiple radio buttons together. The field name should be unique.", controls: ["radio button"], context: "dspf" }, 
+      controls: ["file upload", "file upload dnd"],
+      context: "dspf"
+    },
+
+    { name: "radio button group", readOnly: true, helpDefault: "bind", help: "Specifies a response field to be returned to your program that allows you to associate multiple radio buttons together. The field name should be unique.", controls: ["radio button"], context: "dspf" },
     { name: "chart response", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "Specifies a response field to be returned to your program containing the name of the data point selected by the user.", controls: ["chart"], context: "dspf" },
-    { name: "Alternate Destination", category: true, controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true }, 
-    { name: "destination url", hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "blank", help: "Specifies an alternate destination URL for the control. The screen will either be submitted to this URL or the browser will navigate to it, depending on the 'redirect to destination' property value.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true }, 
+    { name: "Alternate Destination", category: true, controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
+    { name: "destination url", hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "blank", help: "Specifies an alternate destination URL for the control. The screen will either be submitted to this URL or the browser will navigate to it, depending on the 'redirect to destination' property value.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     { name: "destination parameters", type: "destinationparams", readOnly: true, bind: false, helpDefault: "blank", help: "Identifies parameter names and the corresponding bound fields for use with 'destination url'.", relatedProperties: ["destination parameter name", "destination parameter value"], canBeRemoved: false, controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     { name: "destination parameter name", label: "Parameter Name", multOccur: true, hide: true, bind: false, help: "", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     { name: "destination parameter value", label: "Parameter Value", multOccur: true, hide: true, help: "", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     { name: "bookmarkable", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "By default, 'destination parameters' are added to the URL to facilitate bookmarking. If this property is set to 'false', then the parameters will only appear in the POST data.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
     { name: "redirect to destination", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "If set to 'true' the browser will navigate to the 'destination url', passing the 'destination parameters'. Otherwise, the screen will submit by Ajax call.", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "css button"], context: "dspf", viewdesigner: true },
-    
-    { name: "Font and Text", category: true }, 
+
+    { name: "Font and Text", category: true },
     { name: "color", stylename: "color", type: "color", helpDefault: "css", help: "Specifies the color of the text inside the current element.", helpAdd: ["color"], formattingProp: true },
     { name: "font family", stylename: "fontFamily", choices: ["Arial", "Consolas", "Courier New", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "Specifies the font face for the text of the current element.", helpAdd: ["font", "other"], formattingProp: true },
     { name: "font size", stylename: "fontSize", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "0.75em", "1.00em", "1.25em", "1.50em", "1.75em", "2.00em", "Other..."], helpDefault: "css", help: "Specifies the size of the text for the current element.<br><b>Examples:</b> <span style='font-size:12px;'>12px</span> <span style='font-size:2em;'>2em</span> <span style='font-size:1vh;'>1vh</span> <span style='font-size:12pt;'>12pt</span> <span style='font-size:70%;'>70%</span><br><br>", helpAdd: ["other"], helpNote: "1em = 12pt = 16px = 100%", formattingProp: true },
-    { name: "font style", stylename: "fontStyle", format: "italic / normal", choices: ["normal", "italic", "oblique"], helpDefault: "css", help: "Specifies the style of the font inside the current element. <br><b>Examples:</b>" +  "<p style=''>Normal Text</p>" +  "<p style='font-style:italic;'>Italic Text</p>" +  "<span style='font-style:oblique;'>Oblique Text</span>", helpNote: "The 'oblique' and 'italic' options will look the same for most fonts.", formattingProp: true },
+    { name: "font style", stylename: "fontStyle", format: "italic / normal", choices: ["normal", "italic", "oblique"], helpDefault: "css", help: "Specifies the style of the font inside the current element. <br><b>Examples:</b>" + "<p style=''>Normal Text</p>" + "<p style='font-style:italic;'>Italic Text</p>" + "<span style='font-style:oblique;'>Oblique Text</span>", helpNote: "The 'oblique' and 'italic' options will look the same for most fonts.", formattingProp: true },
     { name: "font variant", stylename: "fontVariant", choices: ["normal", "small-caps"], helpDefault: "css", help: "Specifies the font variant of the text inside the current element. <span style='font-variant:small-caps;'>'small caps' displays the text as capital letters with the same height of a lower case letter.</span>", formattingProp: true },
     { name: "font weight", stylename: "fontWeight", format: "bold / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"], helpDefault: "css", help: "Specifies the weight of the text inside the current element. <br><b>Examples:</b>" + "<p style='font-weight: normal'>Font Weight: Normal</p>" + "<p style='font-weight: bolder'>Font Weight: Bolder</p>" + "<p style='font-weight: bold'>Font Weight: Bold</p>" + "<p style='font-weight: lighter'>Font Weight: Lighter</p>" + "<p style='font-weight: 100'>Font Weight 100</p>" + "<p style='font-weight: 200'>Font Weight 200</p>" + "<p style='font-weight: 300'>Font Weight 300</p>" + "<p style='font-weight: 400'>Font Weight 400</p>" + "<p style='font-weight: 500'>Font Weight 500</p>" + "<p style='font-weight: 600'>Font Weight 600</p>" + "<p style='font-weight: 700'>Font Weight 700</p>" + "<p style='font-weight: 800'>Font Weight 800</p>" + "<span style='font-weight: 900'>Font Weight 900</span>", helpNote: "Not all fonts will display a difference between font weights.", formattingProp: true },
     { name: "letter spacing", stylename: "letterSpacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], formattingProp: true, helpDefault: "css", help: "Specifies the spacing between each letter of a word inside the current element. <b>Examples:</b> <p style='letter-spacing:4px;'>4px: Positive values increase the distance between letters.</p><p style='letter-spacing:-1px;'>-1px: Negative values decrease the distance between letters.</p><br>", helpAdd: ["other"] },
@@ -177,15 +183,15 @@ function getPropertiesModel() {
     { name: "message condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", controls: ["button", "output field", "styled button", "text area", "textbox", "css button"] },
     { name: "label for", helpDefault: "blank", help: "Specifies the ID of the element that this is a label for. This property will cause a &lt;label&gt; tag to be generated for this element with the 'for' attribute set to the ID specified.", canBeRemoved: true, controls: ["output field"] },
     { name: "show today option", format: "true / false", choices: ["true", "false", "auto-select"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "false", help: "Controls whether the user has a Today option on the calendar pop-up to jump to the current date.<br /><br />The special value 'auto-select' causes the Today option to place the current date value into the date field and close the pop-up automatically.", controls: ["date field"] },
-    { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"],  helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
+    { name: "show week number", format: "true / false", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "false", help: "Displays column with the week number within a time period. Default is 52 (1 year). See pui.calcWeekNum to customise", controls: ["date field"] },
     { name: "calendar position", choices: ["below-right", "above-right", "right", "below-left", "above-left", "left"], validDataTypes: ["char", "varchar", "string"], helpDefault: "[blank]", help: "Controls the position and orientation of the calendar. The default [blank] is the same as 'right'", context: "dspf", controls: ["date field"] },
     { name: "show visibility eye", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Enables the visibility eye for the password field so that that password toggling is enabled.", controls: ["password field"], hideFormatting: true, validDataTypes: ["indicator", "expression"] },
 
-    { name: "Translations", category: true, nodedesigner: false}, 
-    { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
-    { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
-    { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
-    
+    { name: "Translations", category: true, nodedesigner: false },
+    { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false, nodedesigner: false },
+    { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false },
+    { name: "translation placeholder value", label: "Placeholder Value", multOccur: true, hide: true, help: "", nodedesigner: false },
+
     { name: "Validation", category: true, context: "dspf" },
     { name: "error message location", choices: ["left", "right", "top", "bottom", "alert"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "right", help: "Controls the position and orientation of validation and error tool tips. When 'alert' is selected, an alert box will be used instead of a tool tip.", context: "dspf" },
     { name: "error message attach", choices: ["window", "parent"], validDataTypes: ["char", "varchar", "string", "indicator", "expression"], helpDefault: "window", help: "Controls what the tool tip is attached to. 'window' means the tip is always visible, even if the widget is not visible inside layouts. 'parent' means the tip is visible when the widget is; only use 'parent' if the widget is in an overflowed layout and the tip should scroll with the widget.", context: "dspf" },
@@ -209,9 +215,18 @@ function getPropertiesModel() {
     { name: "replacement data", label: "Replacement Data", validDataTypes: ["char"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "", context: "dspf", viewdesigner: false },
     { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf" },
     { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", context: "dspf", viewdesigner: false },
-    { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true,
+    {
+      name: "error enhanced mode",
+      label: "Enhanced Mode",
+      checkbox: true,
+      bind: false,
+      multOccur: true,
+      hide: true,
       // Note: do not put HTML markup in this help property. It is special and goes into the "title" attribute of an input element.
-      help: "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent.", context: "dspf", viewdesigner: false },
+      help: "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent.",
+      context: "dspf",
+      viewdesigner: false
+    },
 
     { name: "set as modified", choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "blank", help: "Marks an input field as modified when it is first displayed.", controls: ["check box", "combo box", "date field", "password field", "radio button", "select box", "slider", "spinner", "text area", "textbox"], context: "dspf" },
     { name: "bypass validation", choices: ["true", "false", "send data"], type: "boolean", controls: ["button", "styled button", "graphic button", "hyperlink", "image", "menu", "tab panel", "chart", "css button", "icon"], helpDefault: "blank", help: "This property, typically used on Cancel or Undo buttons, specifies that the element will not trigger client-side validation and will automatically discard all data modified by the user on the screen. It represents the CAxx set of DDS keywords. You can select 'send data' to bypass all client-side validation except for field data type validation and still send all data modified by the user.", validDataTypes: ["char", "indicator", "expression"], context: "dspf" },
@@ -236,24 +251,24 @@ function getPropertiesModel() {
     { name: "Database-Driven Chart", category: true, controls: ["chart"] },
     { name: "Database-Driven Image Data", category: true, controls: ["image"] },
 
-    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false},
-    { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", controls: ["textbox", "combo box", "select box", "chart", "image"], context: "dspf", nodedesigner: true, viewdesigner: false},
-    { name: "database file", type: "file", multOccur: (context=="dspf"), displayName: (pui.nodedesigner ? "database table" : undefined), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database table to use for the chart's data source.", controls: ["chart"] },
+    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false },
+    { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", controls: ["textbox", "combo box", "select box", "chart", "image"], context: "dspf", nodedesigner: true, viewdesigner: false },
+    { name: "database file", type: "file", multOccur: (context == "dspf"), displayName: (pui.nodedesigner ? "database table" : undefined), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database table to use for the chart's data source.", controls: ["chart"] },
     { name: "database join", type: "join", bind: false, helpDefault: "blank", help: "The Database Join specifications between multiple tables to be used for a dynamic, database-driven chart.", controls: ["chart"], context: "dspf" },
     { name: "name field", type: "field", uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database field that determines the names by which records would be represented in the chart.", controls: ["chart"] },
     { name: "value field", type: "field", uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database field that determines the numerical values from which the chart is to be built.", controls: ["chart"] },
     { name: "summary option", choices: ["none", "average", "count", "sum", "maximum", "minimum"], helpDefault: "blank", help: "Determines how values are used when creating the chart.", controls: ["chart"] },
     { name: "selection criteria", type: "long", helpDefault: "blank", help: "Optional expression identifying which records should be retrieved from the database table.", controls: ["chart"] },
     { name: "parameter value", bind: true, type: "long", secLevel: 1, multOccur: true, helpDefault: "blank", help: "Value for parameter marker in 'selection criteria' or 'custom sql' properties. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value.", controls: ["chart"] },
-    { name: "record limit", format: "number", helpDefault: "blank", help: "Sets a limit on how many records are to be used in the chart.", controls: ["chart"] },    
-    { name: "custom sql", type: "long", helpDefault: "blank", help: "Specifies an SQL statement to use to retrieve the records for a database-driven chart. The last column is used as the chart values. Earlier columns are concatenated into the chart labels.", controls: ["chart"]},
-    
+    { name: "record limit", format: "number", helpDefault: "blank", help: "Sets a limit on how many records are to be used in the chart.", controls: ["chart"] },
+    { name: "custom sql", type: "long", helpDefault: "blank", help: "Specifies an SQL statement to use to retrieve the records for a database-driven chart. The last column is used as the chart values. Earlier columns are concatenated into the chart labels.", controls: ["chart"] },
+
     { name: "blob table", type: "file", uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database table that contains a blob for this image.", controls: ["image"] },
     { name: "blob column", type: "field", uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Blob column in database table that image will be loaded from.", controls: ["image"] },
     { name: "blob selection criteria", type: "long", helpDefault: "blank", help: "Expression expression identifying which row to load image blob from.", controls: ["image"] },
     { name: "blob parameter value", bind: true, type: "long", multOccur: true, helpDefault: "blank", help: "Value for parameter marker in 'blob selection criteria' property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Blob Parameter Value.", controls: ["image"] },
 
-    { name: "choices database file", type: "file", multOccur: (context=="dspf"), displayName: (pui.nodedesigner ? "choices database table" : undefined), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database table to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete.", controls: ["combo box", "select box", "textbox"] },
+    { name: "choices database file", type: "file", multOccur: (context == "dspf"), displayName: (pui.nodedesigner ? "choices database table" : undefined), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database table to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete.", controls: ["combo box", "select box", "textbox"] },
     { name: "choices database join", type: "join", bind: false, helpDefault: "blank", help: "The Database Join specifications between multiple tables to be used for a dynamic database-driven dropdown box, list box, or text field with autocomplete.", controls: ["combo box", "select box", "textbox"], context: "dspf" },
     { name: "choice options field", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database field name used to retrieve the options for a dynamic dropdown box, list box, combo box, or text field with auto complete. Multiple fields can be specifed for a text field with auto complete. In this case, the field names should be comma separated.", controls: ["combo box", "select box", "textbox"] },
     { name: "choice values field", type: "field", uppercase: (pui.nodedesigner !== true), helpDefault: "[choice options field]", help: "Database field name used to retrieve the values sent back to the application. If omitted, the choice options field is used. In the case of a text field with autocomplete that has multiple option fields, the first option field is used.", controls: ["combo box", "select box", "textbox"] },
@@ -302,7 +317,7 @@ function getPropertiesModel() {
     { name: "height", stylename: "height", format: "px", helpDefault: "widget", help: "Height of the current element. Specify in pixels" + ((context == "genie") ? "." : " or as a percentage.") },
     { name: "width", stylename: "width", format: "px", helpDefault: "widget", help: "Width of the current element. Specify in pixels" + ((context == "genie") ? "." : " or as a percentage.") },
     { name: "min height", stylename: "minHeight", format: "px", helpDefault: "css", help: "Minimum height of the current element.", helpAdd: ["pixel"] },
-    { name: "min width", stylename: "minWidth", format: "px", helpDefault: "css", help: "Minimum width of the current element." , helpAdd: ["pixel"] },
+    { name: "min width", stylename: "minWidth", format: "px", helpDefault: "css", help: "Minimum width of the current element.", helpAdd: ["pixel"] },
     { name: "max height", stylename: "maxHeight", format: "px", helpDefault: "css", help: "Maximum height of the current element.", helpAdd: ["pixel"] },
     { name: "max width", stylename: "maxWidth", format: "px", helpDefault: "css", help: "Maximum width of the current element.", helpAdd: ["pixel"] },
     { name: "z index", stylename: "zIndex", format: "number", helpDefault: "css", help: "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements." },
@@ -340,7 +355,7 @@ function getPropertiesModel() {
     { name: "generate unique names", controls: ["file upload", "file upload dnd"], choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "If set to 'true' and \"overwrite files\" is set to 'false', then any uploaded files that already exist on the file system will be saved with automatically generated unique names." },
     { name: "allowed type", controls: ["file upload", "file upload dnd"], multOccur: true, choices: ["text/plain", "application/vnd.ms-word", "application/vnd.ms-excel", "application/pdf", "image/gif", "image/jpeg", "image/png", "Other..."], hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "[all file types]", help: "Specifies a MIME file type (as reported by the web browser) which is allowed to be uploaded. If not set, any file type will be allowed.<br /><br />To specify multiple types, right-click the property and select Add Another Allowed Type.", helpAdd: ["other"] },
     { name: "onupload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when files are uploaded.", controls: ["file upload", "file upload dnd"], context: "genie" },
-    { name: "show select", controls: ["file upload dnd"], choices: ["true","false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "When true, show the &quot;Select Files&quot; link in addition to &quot;Drop files here&quot; text." },
+    { name: "show select", controls: ["file upload dnd"], choices: ["true", "false"], type: "boolean", hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "When true, show the &quot;Select Files&quot; link in addition to &quot;Drop files here&quot; text." },
 
     { name: "Borders", category: true },
     { name: "border radius", stylename: "borderRadius", format: "px", choices: ["1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], helpDefault: "css", help: "This property allow you to create rounded corners by specifying a border radius.", helpAdd: ["other"] },
@@ -395,51 +410,49 @@ function getPropertiesModel() {
     { name: "onmouseout", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved off this element." },
     { name: "onmouseover", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved over this element." },
     { name: "onmouseup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse button is released off this element." },
-    { name: "onoptiondisplay", type: "js", helpDefault: "blank", help: "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid.", controls: ["combo box","menu"] },
+    { name: "onoptiondisplay", type: "js", helpDefault: "blank", help: "Initiates a client-side script before options are displayed. The script can change the options if needed.  The options are passed to the event as a parameter named 'options'. The values are passed to the event as a parameter named 'values'. The combo box widget will run this event any time the options are displayed. The menu widget will only run this event before displaying options if it is used as the context menu of a grid.", controls: ["combo box", "menu"] },
     { name: "onselect", wf: true, controls: ["combo box", "textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when a selection is made from the selection list of an auto-complete textbox or a combo box. In the case of an auto-complete textbox, the selected record is passed to the function as a JSON object that has properties named after the selected fields." },
     { name: "onspin", wf: true, controls: ["spinner"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the up or down arrow is clicked on a spinner element." },
     { name: "onprompt", wf: true, controls: ["textbox"], type: "js", helpDefault: "blank", help: "Initiates a client-side script when the prompt icon is clicked on a textbox. In your script, use special variable 'value' to retrieve the textbox value. Use 'this' to refer to the input DOM element." }
   ];
 
-  //Remove remote server property if PJS. Not yet ready to implement.
+  // Remove remote server property if PJS. Not yet ready to implement.
   if (pui.nodedesigner === true) {
-    var elemIndex = cachedPropertiesModel.map( function(elem) {
+    var elemIndex = cachedPropertiesModel.map(function (elem) {
       return elem.name;
     }).indexOf("remote system name");
 
     cachedPropertiesModel.splice(elemIndex, 1);
-
   }
 
   return cachedPropertiesModel;
 }
 
 // Provides list of global screen properties and their definitions
-function getScreenPropertiesModel(designScreen) {
-
+function getScreenPropertiesModel (designScreen) {
   // Universal Designer Screens
   if (pui.codeBased) {
     var model = [
-      { name: "Identification", category: true }, 
-      { name: "record format name", helpDefault: "blank", help: "Identifies the screen name used by server-side code to read input or write output.", maxLength: 10, bind: false, canBeRemoved: false }, 
-      { name: "description", helpDefault: "blank", help: "Describes the record format.", bind: false }, 
-      { name: "document type", choices: ["html", "json", "xml", "text", "csv"], helpDefault: "blank", help: "Specifies the type of document used to define the record format. This determines the default content type and affects the syntax highlighting within the editor.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] }, 
-      
-      { name: "Input", category: true }, 
-      { name: "input parameters", type: "inputfields", readOnly: true, bind: false, helpDefault: "bind", help: "Identifies input parameter names and the corresponding bound fields for the HTTP request.", relatedProperties: ["parameter name", "input field"], canBeRemoved: false }, 
-      { name: "parameter name", label: "Parameter Name", multOccur: true, hide: true, bind: false, help: "" }, 
+      { name: "Identification", category: true },
+      { name: "record format name", helpDefault: "blank", help: "Identifies the screen name used by server-side code to read input or write output.", maxLength: 10, bind: false, canBeRemoved: false },
+      { name: "description", helpDefault: "blank", help: "Describes the record format.", bind: false },
+      { name: "document type", choices: ["html", "json", "xml", "text", "csv"], helpDefault: "blank", help: "Specifies the type of document used to define the record format. This determines the default content type and affects the syntax highlighting within the editor.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
+
+      { name: "Input", category: true },
+      { name: "input parameters", type: "inputfields", readOnly: true, bind: false, helpDefault: "bind", help: "Identifies input parameter names and the corresponding bound fields for the HTTP request.", relatedProperties: ["parameter name", "input field"], canBeRemoved: false },
+      { name: "parameter name", label: "Parameter Name", multOccur: true, hide: true, bind: false, help: "" },
       { name: "input field", label: "Bound Field", hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "" },
-      
-      { name: "HTTP Header", category: true }, 
-      { name: "content type", helpDefault: "[based on document type]", help: "Specifies an HTTP response content type. If not specified, a default content type based on the document type is used.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] }, 
-      { name: "attachment name", helpDefault: "blank", help: "Specifies an attachment file name. When the attachment name is specified, the 'Content-Disposition: attachment' header is sent as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] }, 
-      { name: "no cache", choices: ["true", "false"], type: "boolean", helpDefault: "browser", help: "Specifies whether the 'Cache-Control: no-cache' HTTP header is sent, which causes the browser not to cache the response.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
+
+      { name: "HTTP Header", category: true },
+      { name: "content type", helpDefault: "[based on document type]", help: "Specifies an HTTP response content type. If not specified, a default content type based on the document type is used.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
+      { name: "attachment name", helpDefault: "blank", help: "Specifies an attachment file name. When the attachment name is specified, the 'Content-Disposition: attachment' header is sent as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
+      { name: "no cache", choices: ["true", "false"], type: "boolean", helpDefault: "browser", help: "Specifies whether the 'Cache-Control: no-cache' HTTP header is sent, which causes the browser not to cache the response.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
       { name: "custom header", multOccur: true, type: "long", helpDefault: "[default headers]", help: "Specifies custom HTTP headers to send as part of the HTTP response.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
-      
-      { name: "Misc", category: true }, 
-      { name: "separator", helpDefault: "blank", help: "Specifies an optional seperator value to output when multiple copies of this format are written. For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false }, 
-      { name: "destination", helpDefault: "STDOUT", help: "Specifies an IFS path to send the output to. The file path is set on the first write to this record format, and cannot be changed without closing and re-opening the display file. If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] }, 
-      { name: "existing file action", choices: ["append", "replace", "exception"], helpDefault: "exception", help: "Action to take if <i>destination</i> file already exists when the program starts writing this record format. 'append' will append to existing file content. 'replace' will delete/re-create the file. 'exception' will cause the handler to send an escape message to the program.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] }, 
+
+      { name: "Misc", category: true },
+      { name: "separator", helpDefault: "blank", help: "Specifies an optional seperator value to output when multiple copies of this format are written. For example, if the format is to be written into a JSON array, the comma character should be specified as a separator.", bind: false },
+      { name: "destination", helpDefault: "STDOUT", help: "Specifies an IFS path to send the output to. The file path is set on the first write to this record format, and cannot be changed without closing and re-opening the display file. If not specified, the output is sent to STDOUT.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
+      { name: "existing file action", choices: ["append", "replace", "exception"], helpDefault: "exception", help: "Action to take if <i>destination</i> file already exists when the program starts writing this record format. 'append' will append to existing file content. 'replace' will delete/re-create the file. 'exception' will cause the handler to send an escape message to the program.", hideFormatting: true, validDataTypes: ["char", "varchar", "string"] },
       { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the record format. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." }
     ];
     return model;
@@ -447,117 +460,117 @@ function getScreenPropertiesModel(designScreen) {
 
   // Rich Display File Screens
   if (context == "dspf") {
-    // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide; 
+    // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide;
 
     var model = [
-      { name: "Identification", category: true }, 
-      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Identifies the name that is used to access this screen from server code.", maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false }, 
-      { name: "description", helpDefault: "blank", help: "Describes the screen.", bind: false }, 
+      { name: "Identification", category: true },
+      { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Identifies the name that is used to access this screen from server code.", maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false },
+      { name: "description", helpDefault: "blank", help: "Describes the screen.", bind: false },
       { name: "document title", helpDefault: "blank", help: "Specifies the document title to use when this screen is displayed. Web browsers usually display the document title in a window's title bar when the window is open, and in the task bar when the window is minimized." },
 
-      { name: "External Files", category: true }, 
-      { name: "external css", type: "cssfile", multOccur: true, helpDefault: "blank", help: "Identifies the location of an external cascading style sheet file to apply to this screen. To specify multiple files, right-click the property and select Add Another External CSS." }, 
+      { name: "External Files", category: true },
+      { name: "external css", type: "cssfile", multOccur: true, helpDefault: "blank", help: "Identifies the location of an external cascading style sheet file to apply to this screen. To specify multiple files, right-click the property and select Add Another External CSS." },
       { name: "external javascript", type: "jsfile", multOccur: true, helpDefault: "blank", help: "Identifies the location of an external JavaScript file to load on this screen. To specify multiple files, right-click the property and select Add Another External JavaScript." },
 
-      { name: "Transition Animation", category: true }, 
-      { name: "animated screen", choices: ["previous", "new"], helpDefault: "new", help: "Specifies whether the previous screen is animated away to reveal the new screen or the new screen is animated on top of the previous screen. The default is to animate the new screen." }, 
-      { name: "animation", choices: ["slide-right", "slide-left", "slide-down", "slide-up", "fade", "zoom-in", "zoom-out", "Other..."], helpDefault: "blank", help: "Identifies the CSS class for the screen transition animation. The 'animated screen' property is appended to the 'animation' property to select the appropriate CSS class.", helpAdd: ["other"] }, 
+      { name: "Transition Animation", category: true },
+      { name: "animated screen", choices: ["previous", "new"], helpDefault: "new", help: "Specifies whether the previous screen is animated away to reveal the new screen or the new screen is animated on top of the previous screen. The default is to animate the new screen." },
+      { name: "animation", choices: ["slide-right", "slide-left", "slide-down", "slide-up", "fade", "zoom-in", "zoom-out", "Other..."], helpDefault: "blank", help: "Identifies the CSS class for the screen transition animation. The 'animated screen' property is appended to the 'animation' property to select the appropriate CSS class.", helpAdd: ["other"] },
       { name: "overlay screens", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines if both the previous and the newly rendered screen should remain after the animation completes. This is useful in presenting a mobile pop-up menu screen or similar. Defaults to false." },
 
-      { name: "Overlay", category: true }, 
-      { name: "overlay", choices: ["true", "false"], type: "boolean", helpDefault: 'false', help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "overlay range", ddsCompatProp: 1, helpDefault: 'blank', help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false }, 
+      { name: "Overlay", category: true },
+      { name: "overlay", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Specifies that the screen you are defining should appear on the display without the entire display being cleared first.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
+      { name: "overlay range", ddsCompatProp: 1, helpDefault: "blank", help: "Specifies a range of row numbers for this record format. This can be used to emulate certain behaviors of legacy green-screens in converted applications.", bind: false, viewdesigner: false },
       { name: "design overlay formats", displayName: (pui.nodedesigner ? "design overlay screens" : undefined), type: "list", helpDefault: "blank", help: "Specifies a list of additional screens to render in the designer when this screen is selected. This property is only used at design-time. It is ignored at run-time.", bind: false },
 
-      { name: "Behavior", category: true }, 
-      { name: "disable enter key", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "This property determines if pressing the Enter key will cause a response to be sent to the server. If set to true and the Enter key is not used as a shortcut key, the response will not be sent. Otherwise, the response is sent automatically.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "strict tab control", choices: ["true", "false"], type: "boolean", helpDefault: "use pui[\"strict tab control\"]", help: "When enabled, the tab key processing will be strictly controlled by the widgets. This can be used to prevent tabbing from going to the browser controls.<p>If this property is not set, the <code>pui[\"strict tab control\"]</code> configuration option will be used. If the configuration option is not set, this feature is disabled.</p><p><b>Warning:</b> Accessibility standards often require that it be possible to navigate to the browser controls without using a mouse, enabling this feature may violate those rules, so it should be used with caution.</p>", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program. It represents the INZRCD keyword.", viewdesigner: false }, 
-      { name: "protect", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "erase formats", type: "eraseformats", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: 'blank', help: "Identifies record formats to be erased when this record is written.", relatedProperties: ["erase format", "erase condition"], canBeRemoved: false, viewdesigner: false }, 
-      { name: "erase format", label: "Record Format Name", maxLength: 10, uppercase: true, multOccur: true, hide: true, bind: false, help: "", viewdesigner: false }, 
-      { name: "erase condition", label: "Erase Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false }, 
-      { name: "assume", choices: ["true", "false"], helpDefault: 'false', help: "Use this property to specify that the program is to assume that a record is already shown on the display when this file is opened.", bind: false, viewdesigner: false }, 
-      { name: "clear line", choices: ["*END", "*NO", "*ALL", "Other..."], ddsCompatProp: 1, helpDefault: "blank", help: "Use this property to clear (delete) a specific number of lines before the record is displayed. It represents the CLRL keyword.", helpAdd: ["other"], bind: false, viewdesigner: false }, 
-      { name: "starting line",  ddsCompatProp: 1, helpDefault: 'blank', help: "This property identifies the starting line of the record format. It is used in conjunction with 'clear line' property to specify where the clearing of lines begins. It represents the SLNO keyword.", bind: false, viewdesigner: false }, 
-      { name: "put override", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Use this property to override data contents or attributes of specific fields within a record. It represents the PUTOVR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "override data", choices: ["true", "false"], ddsCompatProp: 1, type: "boolean", helpDefault: "false", help: "Use this property together with the 'put override' property to override existing data contents already on the display. It represents the OVRDTA keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "override attribute", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "Use this property together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: 'false', help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
-      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: 'false', help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
+      { name: "Behavior", category: true },
+      { name: "disable enter key", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "This property determines if pressing the Enter key will cause a response to be sent to the server. If set to true and the Enter key is not used as a shortcut key, the response will not be sent. Otherwise, the response is sent automatically.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "strict tab control", choices: ["true", "false"], type: "boolean", helpDefault: "use pui[\"strict tab control\"]", help: "When enabled, the tab key processing will be strictly controlled by the widgets. This can be used to prevent tabbing from going to the browser controls.<p>If this property is not set, the <code>pui[\"strict tab control\"]</code> configuration option will be used. If the configuration option is not set, this feature is disabled.</p><p><b>Warning:</b> Accessibility standards often require that it be possible to navigate to the browser controls without using a mouse, enabling this feature may violate those rules, so it should be used with caution.</p>", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "initialize record", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: "false", help: "Specifies that if this record is not already on the display, it is to be written to the display before an input operation is sent from the program. It represents the INZRCD keyword.", viewdesigner: false },
+      { name: "protect", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: "false", help: "Specifies that when this record is displayed, all input-capable fields already on the display become protected. The read only property is set to true and the PR css class is applied.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "erase formats", type: "eraseformats", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: "blank", help: "Identifies record formats to be erased when this record is written.", relatedProperties: ["erase format", "erase condition"], canBeRemoved: false, viewdesigner: false },
+      { name: "erase format", label: "Record Format Name", maxLength: 10, uppercase: true, multOccur: true, hide: true, bind: false, help: "", viewdesigner: false },
+      { name: "erase condition", label: "Erase Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false },
+      { name: "assume", choices: ["true", "false"], helpDefault: "false", help: "Use this property to specify that the program is to assume that a record is already shown on the display when this file is opened.", bind: false, viewdesigner: false },
+      { name: "clear line", choices: ["*END", "*NO", "*ALL", "Other..."], ddsCompatProp: 1, helpDefault: "blank", help: "Use this property to clear (delete) a specific number of lines before the record is displayed. It represents the CLRL keyword.", helpAdd: ["other"], bind: false, viewdesigner: false },
+      { name: "starting line", ddsCompatProp: 1, helpDefault: "blank", help: "This property identifies the starting line of the record format. It is used in conjunction with 'clear line' property to specify where the clearing of lines begins. It represents the SLNO keyword.", bind: false, viewdesigner: false },
+      { name: "put override", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: "false", help: "Use this property to override data contents or attributes of specific fields within a record. It represents the PUTOVR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
+      { name: "override data", choices: ["true", "false"], ddsCompatProp: 1, type: "boolean", helpDefault: "false", help: "Use this property together with the 'put override' property to override existing data contents already on the display. It represents the OVRDTA keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
+      { name: "override attribute", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: "false", help: "Use this property together with the 'put override' property to override existing attributes already on the display. It represents the OVRATR keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
+      { name: "put retain", choices: ["true", "false"], type: "boolean", ddsCompatProp: 1, helpDefault: "false", help: "You use this property with the 'overlay' property to prevent the handler from deleting data that is already on the display when the application displays the record again. It represents the PUTRETAIN keyword.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
+      { name: "return data", choices: ["true", "false"], type: "boolean", bind: false, ddsCompatProp: 1, helpDefault: "false", help: "Specifies that when your program sends an input operation to this record format, the program is to return the same data that was returned on the previous input operation sent to this record format. This property is ignored if the record format has not already been read. It represents the RTNDTA keyword.", viewdesigner: false },
 
-      { name: "Translations", category: true, nodedesigner: false}, 
-      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false , nodedesigner: false}, 
-      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false }, 
-      { name: "translation placeholder value", label: "Placeholder Value",  multOccur: true, hide: true, help: "", nodedesigner: false },
+      { name: "Translations", category: true, nodedesigner: false },
+      { name: "translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["translation placeholder key", "translation placeholder value"], canBeRemoved: false, nodedesigner: false },
+      { name: "translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", nodedesigner: false },
+      { name: "translation placeholder value", label: "Placeholder Value", multOccur: true, hide: true, help: "", nodedesigner: false },
 
-      { name: "Response", category: true }, 
-      { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." }, 
-      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: 'bind', help: "Specifies boolean response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off.", viewdesigner: false }, 
-      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: 'bind', help: "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server.", viewdesigner: false }, 
+      { name: "Response", category: true },
+      { name: "changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true if data on any input element within the screen is modified." },
+      { name: "set off", multOccur: true, format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: "bind", help: "Specifies boolean response indicators that are to be set off. To specify additional set off indicators, right-click the property and select Add Another Set Off.", viewdesigner: false },
+      { name: "valid command key", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], ddsCompatProp: 1, helpDefault: "bind", help: "Specifies a response indicator that is set on when a response that is not associated with the Enter shortcut key is sent to the server.", viewdesigner: false },
       { name: "back button", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is set to true when the user presses the browser's back button. This feature will only work in browsers that support the HTML5 history.pushState() method." },
 
-      { name: "Messages", category: true }, 
-      { name: "error messages", type: "errmessages", readOnly: true, bind: false, helpDefault: "blank", help: "Identifies error messages to be displayed in association with this screen.", relatedProperties: ["error message", "error message id", "error message file", "error message library", "replacement data", "error condition", "error response", "error enhanced mode"], canBeRemoved: false }, 
-      { name: "error message", label: "Message Text", multOccur: true, hide: true, help: "" }, 
-      { name: "error message id", label: "Message Id", uppercase: true, maxLength: 7, multOccur: true, hide: true, help: "" }, 
-      { name: "error message file", label: "Message File", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "" }, 
-      { name: "error message library", label: "Library", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "" }, 
-      { name: "replacement data", label: "Replacement Data", validDataTypes: ["char"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "" }, 
-      { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "" }, 
-      { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "" }, 
+      { name: "Messages", category: true },
+      { name: "error messages", type: "errmessages", readOnly: true, bind: false, helpDefault: "blank", help: "Identifies error messages to be displayed in association with this screen.", relatedProperties: ["error message", "error message id", "error message file", "error message library", "replacement data", "error condition", "error response", "error enhanced mode"], canBeRemoved: false },
+      { name: "error message", label: "Message Text", multOccur: true, hide: true, help: "" },
+      { name: "error message id", label: "Message Id", uppercase: true, maxLength: 7, multOccur: true, hide: true, help: "" },
+      { name: "error message file", label: "Message File", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "" },
+      { name: "error message library", label: "Library", maxLength: 10, uppercase: true, multOccur: true, hide: true, help: "" },
+      { name: "replacement data", label: "Replacement Data", validDataTypes: ["char"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, help: "" },
+      { name: "error condition", label: "Error Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "" },
+      { name: "error response", label: "Error Response", validDataTypes: ["indicator"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "" },
       { name: "error enhanced mode", label: "Enhanced Mode", checkbox: true, bind: false, multOccur: true, hide: true, helpDefault: "checked", help: "If checked, allows error messages to display without ERRMSG/ERRMSGID-type restrictions. Errors can display regardless of whether format is already on the screen, and output data is also sent." },
 
-      { name: "Help", category: true, viewdesigner: false, ddsCompatProp: 1 }, 
-      { name: "help titles", type: "helptitles", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: 'blank', help: "Identifies the help title for the help panel. Multiple titles can be specified and conditioned using indicators.", relatedProperties: ["help title", "help title condition"], canBeRemoved: false, viewdesigner: false }, 
-      { name: "help title", label: "Help Title", multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
+      { name: "Help", category: true, viewdesigner: false, ddsCompatProp: 1 },
+      { name: "help titles", type: "helptitles", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: "blank", help: "Identifies the help title for the help panel. Multiple titles can be specified and conditioned using indicators.", relatedProperties: ["help title", "help title condition"], canBeRemoved: false, viewdesigner: false },
+      { name: "help title", label: "Help Title", multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
       { name: "help title condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false },
 
-      { name: "help panels", type: "helppanels", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: 'blank', help: "Identifies the help area and the specifc help record or help panel group to display when the help button is clicked.", relatedProperties: ["help record", "help display file", "help panel group", "help module", "help area", "help panel condition"], canBeRemoved: false, viewdesigner: false }, 
-      { name: "help record", label: "Help Record", uppercase: true, maxLength: 10, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
-      { name: "help display file", label: "Help Display File", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
-      { name: "help panel group", label: "Help Panel Group", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
-      { name: "help module", label: "Help Module", uppercase: true, maxLength: 32, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
-      { name: "help area", label: "Help Area", multOccur: true, bind: false, hide: true, help: "", viewdesigner: false }, 
+      { name: "help panels", type: "helppanels", readOnly: true, bind: false, ddsCompatProp: 1, helpDefault: "blank", help: "Identifies the help area and the specifc help record or help panel group to display when the help button is clicked.", relatedProperties: ["help record", "help display file", "help panel group", "help module", "help area", "help panel condition"], canBeRemoved: false, viewdesigner: false },
+      { name: "help record", label: "Help Record", uppercase: true, maxLength: 10, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
+      { name: "help display file", label: "Help Display File", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
+      { name: "help panel group", label: "Help Panel Group", uppercase: true, maxLength: 21, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
+      { name: "help module", label: "Help Module", uppercase: true, maxLength: 32, multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
+      { name: "help area", label: "Help Area", multOccur: true, bind: false, hide: true, help: "", viewdesigner: false },
       { name: "help panel condition", label: "Condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, multOccur: true, hide: true, format: "1 / 0", type: "boolean", help: "", viewdesigner: false },
 
-      { name: "Window", category: true }, 
-      { name: "show as window", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines whether this screen is shown as a pop-up window.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "window left", format: "px", helpDefault: "blank", help: "Represents the x-coordinate of the window. Can be expressed in pixels or columns." }, 
-      { name: "window top", format: "px", helpDefault: "blank", help: "Represents the y-coordinate of the window. Can be expressed in pixels or rows." }, 
-      { name: "center window", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "If set to true, the window will be centered within the boundaries of the previously rendered screen.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "mask screen", choices: ["true", "false"], type: "boolean", helpDefault: "true", help: "Determines if the screen is masked when a window is displayed. Defaults to true.", hideFormatting: true, validDataTypes: ["indicator", "expression"] }, 
-      { name: "remove windows", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Specify this property to remove all existing windows on the display before this window is displayed.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false }, 
+      { name: "Window", category: true },
+      { name: "show as window", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Determines whether this screen is shown as a pop-up window.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "window left", format: "px", helpDefault: "blank", help: "Represents the x-coordinate of the window. Can be expressed in pixels or columns." },
+      { name: "window top", format: "px", helpDefault: "blank", help: "Represents the y-coordinate of the window. Can be expressed in pixels or rows." },
+      { name: "center window", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "If set to true, the window will be centered within the boundaries of the previously rendered screen.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "mask screen", choices: ["true", "false"], type: "boolean", helpDefault: "true", help: "Determines if the screen is masked when a window is displayed. Defaults to true.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
+      { name: "remove windows", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "Specify this property to remove all existing windows on the display before this window is displayed.", hideFormatting: true, validDataTypes: ["indicator", "expression"], viewdesigner: false },
       { name: "window reference", ddsCompatProp: 1, helpDefault: "blank", help: "Use this property to refer to a record format name where the window and its properties have been defined.", maxLength: 10, bind: false, viewdesigner: false },
 
-      { name: "Cursor Location", category: true }, 
-      { name: "return cursor record", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to receive the name of the record format or screen on which the cursor is located." }, 
-      { name: "return cursor field", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to receive the name of the field on which the cursor is located." }, 
-      { name: "return cursor position", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to reveive the relative position of the cursor within an element." }, 
-      { name: "return cursor row", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will contain the row on which the cursor is located. The row number is based on the <i>cursor row</i> property assigned to the widgets on the screen.", viewdesigner: false }, 
-      { name: "return cursor column", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will contain the column on which the cursor is located. The column number is based on the <i>cursor column</i> property assigned to the widgets on the screen.", viewdesigner: false }, 
-      { name: "set cursor condition", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], format: "true / false", helpDefault: "bind", help: "This property can provide an indicator condition, which will be used to determine whether the <i>set cursor row</i> and <i>set cursor column</i> properties are used to set focus.", viewdesigner: false }, 
-      { name: "set cursor row", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false }, 
-      { name: "set cursor column", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false }, 
+      { name: "Cursor Location", category: true },
+      { name: "return cursor record", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to receive the name of the record format or screen on which the cursor is located." },
+      { name: "return cursor field", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to receive the name of the field on which the cursor is located." },
+      { name: "return cursor position", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to reveive the relative position of the cursor within an element." },
+      { name: "return cursor row", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will contain the row on which the cursor is located. The row number is based on the <i>cursor row</i> property assigned to the widgets on the screen.", viewdesigner: false },
+      { name: "return cursor column", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will contain the column on which the cursor is located. The column number is based on the <i>cursor column</i> property assigned to the widgets on the screen.", viewdesigner: false },
+      { name: "set cursor condition", readOnly: true, hideFormatting: true, validDataTypes: ["indicator", "expression"], format: "true / false", helpDefault: "bind", help: "This property can provide an indicator condition, which will be used to determine whether the <i>set cursor row</i> and <i>set cursor column</i> properties are used to set focus.", viewdesigner: false },
+      { name: "set cursor row", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false },
+      { name: "set cursor column", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property is used to set focus on a specific widget by identifying the widget's assigned cursor row and cursor column properties.", viewdesigner: false },
       { name: "no focus", choices: ["true", "false", "no focus on page"], type: "boolean", helpDefault: "false", help: "This property indicates that no field should receive focus when the screen first renders. When set to 'true', focus will not go to any input element, but key presses (such as for function keys) will still be detected by the application without any special action from the user.<br /><br />When set to 'no focus on page', no input element will get focus, but key presses will not be detected by the application until the user clicks on a component in the screen. This setting is useful to prevent Internet Explorer from taking focus away from another open window when the screen is rendered.", hideFormatting: true, validDataTypes: ["indicator", "expression"] },
 
-      { name: "Drag and Drop Response", category: true }, 
-      { name: "dd element id", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to retrieve the id of the element that is drag and dropped." }, 
-      { name: "dd record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to retrieve the record number of the grid row that is drag and dropped." }, 
-      { name: "target element id", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to retrieve the id of the target element in a drag and drop operation. Use this property to determine where an element was dropped." }, 
-      { name: "target record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to retrieve the record number of the target grid row in a drag and drop operation. Use this property to determine where within a subfile an element was dropped." }, 
+      { name: "Drag and Drop Response", category: true },
+      { name: "dd element id", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to retrieve the id of the element that is drag and dropped." },
+      { name: "dd record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to retrieve the record number of the grid row that is drag and dropped." },
+      { name: "target element id", readOnly: true, hideFormatting: true, validDataTypes: ["char", "varchar", "string"], helpDefault: "bind", help: "This property can be bound to a character field, which will be used to retrieve the id of the target element in a drag and drop operation. Use this property to determine where an element was dropped." },
+      { name: "target record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will be used to retrieve the record number of the target grid row in a drag and drop operation. Use this property to determine where within a subfile an element was dropped." },
       { name: "bypass validation", choices: ["true", "false", "send data"], type: "boolean", helpDefault: "false", help: "This property specifies that a drag and drop operation will not trigger client-side validation and will automatically discard all data modified by the user on the screen. You can select 'send data' to bypass all client-side validation except for field data type validation and still send all data modified by the user.", validDataTypes: ["char", "indicator", "expression"] },
 
-      { name: "Events", category: true }, 
-      { name: "initial routine", wf: true, bind: false, readOnly: true, helpDefault: "blank", help: "Executes logic to initialize the screen. Server-side steps are executed before the screen is rendered. Client-side steps are executed after the screen is rendered." }, 
-      { name: "onload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the screen loads." }, 
-      { name: "onsubmit", type: "js", helpDefault: "blank", help: "Initiates a client-side script or expression before a response is submitted to the screen. This typically occurs when a button or a hyperlink is clicked. If the expression evaluates to <i>false</i>, the response is not submitted." }, 
+      { name: "Events", category: true },
+      { name: "initial routine", wf: true, bind: false, readOnly: true, helpDefault: "blank", help: "Executes logic to initialize the screen. Server-side steps are executed before the screen is rendered. Client-side steps are executed after the screen is rendered." },
+      { name: "onload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the screen loads." },
+      { name: "onsubmit", type: "js", helpDefault: "blank", help: "Initiates a client-side script or expression before a response is submitted to the screen. This typically occurs when a button or a hyperlink is clicked. If the expression evaluates to <i>false</i>, the response is not submitted." },
       { name: "onmessage", type: "js", helpDefault: "blank", help: "Initiates a client-side script that receives a message from the Profound.js display.screen.write(), display.screen.execute(), or the display.screen.executeMessage() API, which allows you to partially update screen content instead of re-rendering the entire screen. The message is received in a variable named <b>message</b>." },
       { name: "onkeydown", type: "js", helpDefault: "blank", help: "Initiates a client-side script when a keyboard key is being pressed down on this screen." },
       { name: "onkeypress", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user presses and releases a keyboard key on this screen." },
       { name: "onkeyup", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user releases a keyboard key on this screen." },
-  
-      { name: "Misc", category: true }, 
+
+      { name: "Misc", category: true },
       { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the screen. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
       { name: "user defined routine", multOccur: true, wf: true, bind: false, readOnly: true, helpDefault: "blank", help: "Specifies a routine that is not automatically triggered by an event. Instead, it can be called and reused by other routines. To provide multiple user defined routines, right-click the property and select Add Another User Defined Routine." }
 
@@ -568,14 +581,14 @@ function getScreenPropertiesModel(designScreen) {
   // Genie Window
   if (designScreen.isWindow == true) {
     var model = [
-      { name: "Identification", category: true }, 
-      { name: "screen name", helpDefault: "[blank or matched screen name]", help: "The screen name is used to save the current screen to the server. The screen is saved to a .scn file under the selected skin. In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false }, 
-      
-      { name: "Window Subfile Options", category: true }, 
-      { name: "create combo boxes", variable: "pui.genie.config.createComboBoxesInWindow", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "<i>Default = false</i>.<br> This flag determines whether the option column will be converted to a combo box when a subfile is detected in a window format. Due to the limited amount of space in a window format, this can overflow the window, so it is disabled by default." }, 
-      
-      { name: "Events", category: true }, 
-      { name: "onpageload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the page loads but before screen design customizations are applied." }, 
+      { name: "Identification", category: true },
+      { name: "screen name", helpDefault: "[blank or matched screen name]", help: "The screen name is used to save the current screen to the server. The screen is saved to a .scn file under the selected skin. In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false },
+
+      { name: "Window Subfile Options", category: true },
+      { name: "create combo boxes", variable: "pui.genie.config.createComboBoxesInWindow", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "<i>Default = false</i>.<br> This flag determines whether the option column will be converted to a combo box when a subfile is detected in a window format. Due to the limited amount of space in a window format, this can overflow the window, so it is disabled by default." },
+
+      { name: "Events", category: true },
+      { name: "onpageload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the page loads but before screen design customizations are applied." },
       { name: "onload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the screen loads." }
     ];
     return model;
@@ -618,21 +631,20 @@ function getScreenPropertiesModel(designScreen) {
     { name: "set field background color", variable: "pui.genie.config.setFieldBackground", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "If set to true, Genie will set the background color of all fields to the match the main screen background color, preventing any underlying items from showing through. If set to false, all fields will be given a transparent background, allowing any underlying items to show through." },
     { name: "use fixed font", variable: "pui.genie.config.useFixedFont", choices: ["true", "false"], type: "boolean", helpDefault: "false", help: "If set to true, Genie will set the font for this screen to Monospace. If set to false, Genie will use the font specified in the style sheet for this skin." },
     { name: "adjust window borders", variable: "pui.genie.config.adjustWindowBorders", choices: ["true", "false"], type: "boolean", helpDefault: "true", help: "When set to true, Genie will adjust the position and height of reverse image/space window borders in order to prevent gaps in the border." },
-    
+
     { name: "Events", category: true },
     { name: "onpageload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the page loads but before screen design customizations are applied." },
     { name: "onload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the screen loads including all screen design customizations." },
     { name: "onsubmit", type: "js", helpDefault: "blank", help: "Initiates a client-side script or expression before a response is submitted to the screen. This typically occurs when a function key is pressed or a button/hyperlink is clicked. If the expression evaluates to <i>false</i>, the response is not submitted." },
     { name: "subfile row onclick", type: "js", helpDefault: "blank", help: "Initiates a client-side script when a subfile row is clicked. The JavaScript variable hiLine reports the line that is currently highlighted. This event only fires when the 'detect subfile patterns' option is not selected." },
-    { name: "subfile row ondblclick", type: "js",helpDefault: "blank", help: "Initiates a client-side script when a subfile row is double-clicked. The JavaScript variable hiLine reports the line that is currently highlighted. This event only fires when the 'detect subfile patterns' option is not selected." }
+    { name: "subfile row ondblclick", type: "js", helpDefault: "blank", help: "Initiates a client-side script when a subfile row is double-clicked. The JavaScript variable hiLine reports the line that is currently highlighted. This event only fires when the 'detect subfile patterns' option is not selected." }
   ];
 
   return model;
 }
 
-
 // Turn a model from an array to an object that you can access by property name
-function makeNamedModel(model) {
+function makeNamedModel (model) {
   var namedModel = {};
   for (var i = 0; i < model.length; i++) {
     namedModel[model[i].name] = model[i];
@@ -643,18 +655,14 @@ function makeNamedModel(model) {
   return namedModel;
 }
 
-
-
-function getPropertiesNamedModel() {
+function getPropertiesNamedModel () {
   if (cachedPropertiesNamedModel != null) return cachedPropertiesNamedModel;
   cachedPropertiesNamedModel = makeNamedModel(getPropertiesModel());
   return cachedPropertiesNamedModel;
 }
 
-
 // API used to apply property values in customization scripts
-function applyDesignProperty(domObj, propertyName, propertyValue) {
-
+function applyDesignProperty (domObj, propertyName, propertyValue) {
   // if an alias name ("display name") was used, revert it to the "real" name.
   if (pui.propertyAlias[propertyName]) propertyName = pui.propertyAlias[propertyName];
 
@@ -741,7 +749,6 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
     pui.focusField.dom = dom;
     pui.focusField.setFocusFlag = true;
   }
-  
 
   var nmodel;
   if (domObj.propertiesNamedModel == null) nmodel = getPropertiesNamedModel();
@@ -789,10 +796,9 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
  * @param {undefined|Boolean} skipDirty
  * @returns {undefined|Element}
  */
-function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
-
+function applyPropertyToField (propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
   if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type")
-    return domObj;
+  { return domObj; }
 
   if (newValue == "Other..." && isDesignMode && propConfig.name != "value") return domObj;
 
@@ -836,7 +842,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
 
     switch (effectiveValue) {
-      //case "button":
+      // case "button":
       //  // when switching an element to be a button, enforce default cursor
       //  if (isDesignMode) {
       //    if (!pui.isBound(designItem.properties["cursor"])) {
@@ -880,7 +886,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
 
-    //if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {
+    // if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {
     if (mismatch) {
       rebuildCSSAttr = true;
       newDomObj = document.createElement(tag);
@@ -893,20 +899,20 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.position = domObj.style.position;
       newDomObj.style.cursor = domObj.style.cursor;
       newDomObj.style.visibility = domObj.style.visibility;
-      
+
       // In case the old DOM object had that attribute, copy it to the new one. "puiwdgt" allows more useful CSS selectors for custom styling.
-      var attr = domObj.getAttribute('puiwdgt');
-      if (attr) newDomObj.setAttribute('puiwdgt', attr);
+      var attr = domObj.getAttribute("puiwdgt");
+      if (attr) newDomObj.setAttribute("puiwdgt", attr);
 
       newDomObj.id = domObj.id;
       if (typeof domObj.name == "string")
-        newDomObj.name = domObj.name;
+      { newDomObj.name = domObj.name; }
       if (context == "dspf") {
         if (newDomObj["pui"] == null) newDomObj["pui"] = {};
 
         if (domObj.cursorRecord != null) {
           newDomObj.cursorRecord = domObj.cursorRecord;
-          newDomObj["pui"]["formatName"] = domObj.cursorRecord; //Expose format name for custom widgets. #3440.
+          newDomObj["pui"]["formatName"] = domObj.cursorRecord; // Expose format name for custom widgets. #3440.
         }
         if (domObj.cursorField != null) {
           newDomObj.cursorField = domObj.cursorField;
@@ -992,7 +998,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
                 // To allow inline-style setting and removing, cache the style property.
                 if (isDesignMode)
-                  pui.cacheStyle(newDomObj, model[i].stylename, posdim);
+                { pui.cacheStyle(newDomObj, model[i].stylename, posdim); }
               } catch (e) {}
             }
           }
@@ -1000,7 +1006,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
             if (model[i].type == "boolean" && propValue == "true") propValue = true;
             if (model[i].type == "boolean" && propValue == "false") propValue = false;
             if (model[i].attribute == "disabled" && isDesignMode) propValue = false;
-            //try { newDomObj[model[i].attribute] = propValue }
+            // try { newDomObj[model[i].attribute] = propValue }
             try {
               if (propValue == false) {
                 if (newDomObj.getAttribute(model[i].attribute) != null) {
@@ -1072,7 +1078,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     if (dom.style.borderBottomStyle == "dotted") dom.style.borderBottomColor = borderColor;
   }
 
-
   // Execute widget's property setter methods
   var globalSetter = widget.globalPropertySetter;
   var setters = widget.propertySetters;
@@ -1082,7 +1087,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   }
   var setterParms;
   if (setter != null || globalSetter != null) {
-    setterParms = new pui.SetterParms( newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer );
+    setterParms = new pui.SetterParms(newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer);
   }
   if (globalSetter != null) {
     if (globalSetter(setterParms) == false) return;
@@ -1090,7 +1095,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (setter != null) {
     if (setter(setterParms) == false) return;
   }
-  
+
   if (reassigModifiedEvents) {
     if (newDomObj.comboBoxWidget != null) {
       var box = newDomObj.comboBoxWidget.getBox();
@@ -1110,7 +1115,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       pui.assignModifiedEvents(newDomObj);
     }
   }
-
 
   // Process change to id
   if (propConfigName == "id" && isDesignMode) {
@@ -1159,7 +1163,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
   }
 
-
   // Process change in Parent Tab Panel or Parent Tab
   if (propConfigName == "parent tab panel" && (isDesignMode || properties["visibility"] != "hidden")) {
     domObj.parentTabPanel = effectiveValue;
@@ -1170,16 +1173,13 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
   // Process change in position.
   if (propConfigName == "top" || propConfigName == "left" || propConfigName == "right" || propConfigName == "bottom") {
-
     pui.posFix(domObj);
-
   }
 
   // Set up empty text
   if (propConfigName == "empty text" && !isDesignMode) {
     pui.setEmptyText(domObj, effectiveValue);
   }
-
 
   var js = null;
   if (String(newValue).substr(0, 3).toLowerCase() == "js:") {
@@ -1210,33 +1210,33 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     } else {
       try {
         var posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
-        
+
         // Prevent German eszett from being changed to "SS" by changing it to captial eszett. 5369.
-        if (propConfig.stylename == "textTransform" && effectiveValue == "uppercase"){
-          if ((domObj.tagName == "INPUT" && domObj.type == "text") || domObj.tagName == "TEXTAREA"){
+        if (propConfig.stylename == "textTransform" && effectiveValue == "uppercase") {
+          if ((domObj.tagName == "INPUT" && domObj.type == "text") || domObj.tagName == "TEXTAREA") {
             domObj.value = pui.replaceProblemCaseChars(domObj.value, false);
             domObj.addEventListener("input", pui.onProblemInput);
           }
-          else if(domObj.comboBoxWidget != null){
+          else if (domObj.comboBoxWidget != null) {
             var comboInput = domObj.comboBoxWidget.getBox();
             comboInput.value = pui.replaceProblemCaseChars(comboInput.value, false);
             comboInput.addEventListener("input", pui.onProblemInput);
           }
-          else if(domObj.floatingPlaceholder != null){
+          else if (domObj.floatingPlaceholder != null) {
             var fpInput = domObj.floatingPlaceholder.getBox();
             fpInput.value = pui.replaceProblemCaseChars(fpInput.value, false);
             fpInput.addEventListener("input", pui.onProblemInput);
           }
         }
-        
+
         domObj.style[propConfig.stylename] = posdim;
 
         // To allow inline-style setting and removing, cache the style property.
         if (isDesignMode) {
           if (effectiveValue === null || effectiveValue.length == 0)
-            pui.removeCachedStyle(domObj, propConfig.stylename);
+          { pui.removeCachedStyle(domObj, propConfig.stylename); }
           else
-            pui.cacheStyle(domObj, propConfig.stylename, posdim);
+          { pui.cacheStyle(domObj, propConfig.stylename, posdim); }
         }
       } catch (err) {
         if (js == null && isDesignMode) {
@@ -1379,7 +1379,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (propConfig.type == "js") {
     var func = null;
     if (pui.isRoutine(newValue)) {
-      func = function(evt) {
+      func = function (evt) {
         if (!domObj.responseRoutine) {
           if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
             pui.bypassValidation = domObj.bypassValidation;
@@ -1435,7 +1435,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
         eval("var rowNumber;");
         if (domObj.dataArrayIndex != null) {
-            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+          eval("rowNumber = " + (domObj.dataArrayIndex + 1) + ";");
         }
         try {
           return eval(code);
@@ -1472,20 +1472,20 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
         eval("var choices;");
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choices"] != null) {
-            pui["temp_value"] = domObj.comboBoxWidget["choices"]; 
-            eval("choices = pui.temp_value.slice(0);");
+          pui["temp_value"] = domObj.comboBoxWidget["choices"];
+          eval("choices = pui.temp_value.slice(0);");
         }
         if (domObj.menuWidget != null && domObj.menuWidget.choices != null) {
-          pui["temp_value"] = domObj.menuWidget.choices; 
+          pui["temp_value"] = domObj.menuWidget.choices;
           eval("choices = pui.temp_value.slice(0);");
         }
         eval("var values;");
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choice values"] != null) {
-            pui["temp_value"] = domObj.comboBoxWidget["choice values"]; 
-            eval("values = pui.temp_value.slice(0);");
+          pui["temp_value"] = domObj.comboBoxWidget["choice values"];
+          eval("values = pui.temp_value.slice(0);");
         }
         if (domObj.menuWidget != null && domObj.menuWidget.choiceValues != null) {
-          pui["temp_value"] = domObj.menuWidget.choiceValues; 
+          pui["temp_value"] = domObj.menuWidget.choiceValues;
           eval("values = pui.temp_value.slice(0);");
         }
         try {
@@ -1514,10 +1514,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
       };
     }
-    else if (propConfigName != "onselect" && propConfigName != "ondragstart") { 
+    else if (propConfigName != "onselect" && propConfigName != "ondragstart") {
       // Handling for "onselect" one is provided inside the auto complete class.
       // Handling for "ondragstart" is in dragDrop.js
-      func = function(e) {
+      func = function (e) {
         if (pui.observer != null) return;
         if ((domObj.getAttribute != null && domObj.getAttribute("disabled") == "true") ||
           (domObj.disabled != null && domObj.disabled == true)) {
@@ -1538,7 +1538,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
         eval("var rowNumber;");
         if (domObj.dataArrayIndex != null) {
-            eval("rowNumber = " + (domObj.dataArrayIndex+1) + ";");
+          eval("rowNumber = " + (domObj.dataArrayIndex + 1) + ";");
         }
         pui["temp_event"] = e;
         eval("var event = pui.temp_event;");
@@ -1567,7 +1567,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   // Reflect changes to designer
   if (isDesignMode) {
     if (newValue != "" || properties[propConfigName] != null)
-      properties[propConfigName] = newValue;
+    { properties[propConfigName] = newValue; }
     designItem.propertiesChanged[propConfigName] = true;
     if (propConfigName == "field type" ||
       propConfigName == "left" || propConfigName == "right" ||
@@ -1595,9 +1595,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       if (propConfigName == "id" || propConfigName == "field type" || propConfigName == "value") {
         pui.ide.refreshElementList();
       }
-      if (!designItem.isProxy && skipDirty !== true){
+      if (!designItem.isProxy && skipDirty !== true) {
         designItem.designer.makeDirty();
-        pui.ide.refreshRibbon();  //Enable Save on toolbar
+        pui.ide.refreshRibbon(); // Enable Save on toolbar
       }
     }
   }
@@ -1610,7 +1610,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     setter = setters[propConfigName];
   }
   if (setter != null || globalSetter != null) {
-    setterParms = new pui.SetterParms( newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer );
+    setterParms = new pui.SetterParms(newValue, effectiveValue, isDesignMode, properties, originalValue, dom, domObj, propConfigName, designItem, resizer);
   }
   if (globalSetter != null) {
     globalSetter(setterParms);
@@ -1620,7 +1620,6 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   }
 
   return dom;
-
 }
 
 /**
@@ -1628,7 +1627,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
  * @constructor
  * @returns {pui.SetterParms}
  */
-pui.SetterParms = function (newValue, value, design, properties, originalValue, dom, oldDom, propertyName, designItem, resizer){
+pui.SetterParms = function (newValue, value, design, properties, originalValue, dom, oldDom, propertyName, designItem, resizer) {
   this.newValue = newValue;
   this.value = value;
   this.design = design;
@@ -1645,18 +1644,18 @@ pui.SetterParms = function (newValue, value, design, properties, originalValue, 
  * @param {String} propName
  * @returns {String}
  */
-pui.SetterParms.prototype.evalProperty = function(propName){
+pui.SetterParms.prototype.evalProperty = function (propName) {
   return evalPropertyValue(this.properties[propName], this.originalValue, this.dom);
 };
 
-function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
+function assignDomClasses (dom, classes, lastClassIsDspAtrField) {
   var classArray = [];
   var RI = false;
   var toCombineWithRI = [];
   var foundColor = false;
   var colorIdx = null;
 
-  function isColor(cssClass) {
+  function isColor (cssClass) {
     return (cssClass == "BLU" || cssClass == "GRN" || cssClass == "PNK" || cssClass == "RED" || cssClass == "TRQ" || cssClass == "WHT" || cssClass == "YLW");
   }
   for (var i = 0; i < classes.length; i++) {
@@ -1675,8 +1674,8 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
       }
     }
     classArray.push(cssClass);
-    //if (classString != "") classString += " ";
-    //classString += cssClass;
+    // if (classString != "") classString += " ";
+    // classString += cssClass;
     if (cssClass == "PR" || cssClass == "PR-UL") {
       dom.readOnly = true;
       dom.tabIndex = "-1";
@@ -1703,7 +1702,7 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
   }
   if (RI) {
     for (var i = 0; i < toCombineWithRI.length; i++) {
-      //classString += " RI-" + toCombineWithRI[i];
+      // classString += " RI-" + toCombineWithRI[i];
       classArray.push("RI-" + toCombineWithRI[i]);
     }
   }
@@ -1713,8 +1712,7 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
 }
 
 // Evaluate property if javascript used
-function evalPropertyValue(propertyValue) {
-
+function evalPropertyValue (propertyValue) {
   var effectiveValue = "";
 
   if (pui.isBound(propertyValue) || pui.isTranslated(propertyValue) || pui.isRoutine(propertyValue)) {
@@ -1754,9 +1752,7 @@ function evalPropertyValue(propertyValue) {
   return effectiveValue;
 }
 
-
-
-function getScreenProperties(designScreen, onsuccess, onfail) {
+function getScreenProperties (designScreen, onsuccess, onfail) {
   var skin = pui.skin;
   var skinsFolder = "genie skins";
   var query = "?type=genie_screen&skin=" + encodeURIComponent(skin) + "&screen=" + encodeURIComponent(designScreen.name) + "&mod=";
@@ -1780,7 +1776,7 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
       // Support skin customizations using "csv file name", which was replaced by "export file name".
       for (var i = 0; i < obj["items"].length; i++) {
         if (obj["items"][i]["csv_file_name"] != null && obj["items"][i]["export_file_name"] == null)
-          obj["items"][i]["export_file_name"] = obj["items"][i]["csv_file_name"];
+        { obj["items"][i]["export_file_name"] = obj["items"][i]["csv_file_name"]; }
       }
     }
     screenPropertiesObj[designScreen.screenId] = obj;
@@ -1793,9 +1789,6 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
   };
   request.send();
 }
-
-
-
 
 pui.addCustomProperty = function (parms) {
   var pm = getPropertiesModel();
@@ -1812,24 +1805,23 @@ pui.addCustomProperty = function (parms) {
     }
   }
 
-  
-  if (found && parms.controls && parms.controls.length > 0 ) {
+  if (found && parms.controls && parms.controls.length > 0) {
     // Check if the widget being added to a category is not already in the "controls" value of the existing category. #6803.
     var prop = pm[insertAt - 1];
-    if (prop && Array.isArray(prop.controls)){
+    if (prop && Array.isArray(prop.controls)) {
       var controls = prop.controls;
       // Look at each widget specified in the "controls" of the PUI property being added.
-      for (var i=0, n=parms.controls.length, newEntry; i < n && (newEntry = parms.controls[i]); i++){
+      for (var i = 0, n = parms.controls.length, newEntry; i < n && (newEntry = parms.controls[i]); i++) {
         found = false;
         // See if any widgets listed in the existing "controls" match the current new entry.
-        for (var j=0, m=controls.length, existingEntry; j < m && (existingEntry = controls[j]); j++){
-          if (newEntry == existingEntry){
-            found = true; 
+        for (var j = 0, m = controls.length, existingEntry; j < m && (existingEntry = controls[j]); j++) {
+          if (newEntry == existingEntry) {
+            found = true;
             break;
           }
         }
         // Add the widget to the "controls" list of the existing category.
-        if (!found) controls.push( newEntry );
+        if (!found) controls.push(newEntry);
       }
     }
   }
@@ -1838,26 +1830,24 @@ pui.addCustomProperty = function (parms) {
     pm.splice(insertAt, 0, {
       name: parms.category,
       category: true,
-      controls: JSON.parse(JSON.stringify(parms.controls))  //get a new copy of controls so that modifying it later does not modify for this entry.
+      controls: JSON.parse(JSON.stringify(parms.controls)) // get a new copy of controls so that modifying it later does not modify for this entry.
     });
     insertAt++;
   }
 
   // insert property into both the properties model (array for reading properties sequentially) and the properties named model (object for referencing properties by name)
   delete parms.category; // the category name doesn't belong on the property definition in the properties model
-  
-  if (parms.bidirectional && Array.isArray(parms.controls)){
-    for (var i=0, n=parms.controls.length; i < n; i++){
+
+  if (parms.bidirectional && Array.isArray(parms.controls)) {
+    for (var i = 0, n = parms.controls.length; i < n; i++) {
       var widgetName = parms.controls[i];
       pui.widgets.mapInputProp(widgetName, parms.name);
     }
   }
-  
+
   pm.splice(insertAt, 0, parms);
   pnm[parms.name] = parms;
-
 };
-
 
 // Styles that should be ignored if the user puts any into "inline css";
 // widget properties should set these.
@@ -1868,7 +1858,6 @@ pui.restrictedStylenames = [
 // Styles that should be ignored if the user puts any into "inline css" for
 // Layout widgets.
 pui.restrictedLayoutStylenames = ["overflow", "overflow-x", "overflow-y"];
-
 
 /**
  * Add the user's inline style to a widget if the style isn't in managedStylenames.
@@ -1929,9 +1918,9 @@ pui.addInlineCSS = function (domObj, valueToAssign, isLayout) {
  * @param {Object} domObj
  * @returns {undefined}
  */
-pui.removeInlineCSS = function(domObj) {
+pui.removeInlineCSS = function (domObj) {
   if (typeof (domObj.pui.styleInline) !== "object" || domObj.pui.styleInline === null)
-    return;
+  { return; }
 
   // For each style name explicitly set earlier, remove it from dom.style.
   for (var keyname in domObj.pui.styleInline) {
@@ -1970,7 +1959,7 @@ pui.cacheStyle = function (domObj, stylename, effectiveValue) {
   // Cache the style if it isn't restricted. (Ignore restricted values to avoid
   // repositioning when we re-assert cached values.)
   if (pui.arrayIndexOf(pui.restrictedStylenames, stylename) < 0)
-    domObj.pui.styleCached[stylename] = effectiveValue;
+  { domObj.pui.styleCached[stylename] = effectiveValue; }
 };
 
 /**
@@ -1986,7 +1975,6 @@ pui.cacheStyle = function (domObj, stylename, effectiveValue) {
  * @returns {undefined}
  */
 pui.removeCachedStyle = function (domObj, stylename) {
-
   if (typeof domObj.pui.styleCached != "undefined" &&
     domObj.pui.styleCached[stylename] != "undefined") {
     delete domObj.pui.styleCached[stylename];
@@ -2005,19 +1993,17 @@ pui.removeCachedStyle = function (domObj, stylename) {
   }
 };
 
-pui.getDatabaseConnectionPropertyChoices = function() {
-
+pui.getDatabaseConnectionPropertyChoices = function () {
   var choices = [];
   var connections = pui["getDatabaseConnections"]();
   if (connections) {
-    choices = connections.map(function(el) {
+    choices = connections.map(function (el) {
       return el["name"];
     });
   }
   choices.push("Other...");
   return choices;
-
 };
- 
+
 pui["getPropertiesModel"] = getPropertiesModel;
 pui["getPropertiesNamedModel"] = getPropertiesNamedModel;

@@ -16,23 +16,21 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
-  
 
-
-function getTarget(e) {
+function getTarget (e) {
   var targ;
   if (!e) e = window.event;
-  if (e.touches != null && e.touches.length == 1) {  // detect touch screen device like iPad
+  if (e.touches != null && e.touches.length == 1) { // detect touch screen device like iPad
     return e.touches[0].target;
   }
   if (e.target) targ = e.target;
   else if (e.srcElement) targ = e.srcElement;
   if (targ.nodeType == 3) // defeat Safari bug
-    targ = targ.parentNode;
+  { targ = targ.parentNode; }
   return targ;
 }
 
-function preventEvent(event) {
+function preventEvent (event) {
   if (!event) event = window.event;
   if (window.event) {
     window.event.cancelBubble = true;
@@ -49,20 +47,20 @@ function preventEvent(event) {
  * @param {Event} event
  * @returns {Boolean}
  */
-pui.preventEvent = function(event){
+pui.preventEvent = function (event) {
   preventEvent(event);
   return false;
 };
 
 // IE cannot reliably get elements by name when the element is created/modified with javascript
-// The following types of statements do not work reliably in IE6 or IE7: 
+// The following types of statements do not work reliably in IE6 or IE7:
 //   document.forms[formName].elements[elemName]
 //   document.getElementsByName(elemName)
 // This is a known IE bug. The following is a workaround:
-function getElementByName_iefix(elemName) {
+function getElementByName_iefix (elemName) {
   var form = document.forms["main"];
   var n = form.length;
-  for(var i = 0; i < n; i++ ) {
+  for (var i = 0; i < n; i++) {
     var obj = form.elements[i];
     if (obj.name == elemName) {
       return obj;
@@ -71,26 +69,24 @@ function getElementByName_iefix(elemName) {
   return null;
 }
 
-
-function disableAction(e){
-  if(pui["is_old_ie"] && pui["ie_mode"] >= 5){
+function disableAction (e) {
+  if (pui["is_old_ie"] && pui["ie_mode"] >= 5) {
     e.cancelBubble = true;
     e.returnValue = false;
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
   }
-  else{
+  else {
     e.preventDefault();
     e.stopPropagation();
   }
 }
 
-function preventDoubleSubmit(){
-
+function preventDoubleSubmit () {
   if (pui["isServerBusy"]()) return false;
 
   hide_calendar();
-  
+
   // Execute onsubmit function
   if (designScreens[0] && screenPropertiesObj[designScreens[0].screenId] != null && screenPropertiesObj[designScreens[0].screenId].screen != null) {
     var onsubmitProp = screenPropertiesObj[designScreens[0].screenId].screen["onsubmit"];
@@ -99,25 +95,23 @@ function preventDoubleSubmit(){
         var onsubmitReturnVal = eval(onsubmitProp);
         if (onsubmitReturnVal == false) return false;
       }
-      catch(err) {
+      catch (err) {
         pui.scriptError(err, "Onsubmit Error:\n");
         return false;
       }
     }
   }
-  
+
   pui["haltFrames"]();
   pui.submitLog(pui.genie.formSubmitted = true);
   var cursorPos = getCursorPosition(lastActiveElement);
   if (lastActiveElement != null && lastActiveElement.tagName == "INPUT" && lastActiveElement.maxLength != null && lastActiveElement.maxLength > 0 && cursorPos == lastActiveElement.maxLength) {
     // cursor beyond last character
-    cursorPos -= 1;  // set to last character
+    cursorPos -= 1; // set to last character
   }
-  document.getElementById('cursorPos').value = cursorPos;
+  document.getElementById("cursorPos").value = cursorPos;
   return true;
 }
-
-
 
 /***************************************************************
 *  This section of code handles only allowing a set number of  *
@@ -130,32 +124,32 @@ function preventDoubleSubmit(){
 /**
  * @param {Object} e
  */
-function numericOnly(e){
-  if(!e) e = window.event;
+function numericOnly (e) {
+  if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
-  var allowedUnicodes = new Array(8,9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,48,49,50,51,52,53,54,55,56,57,91,93,96,97,98,99,100,101,102,103,104,105,112,123,144,145,112,113,114,115,116,117,118,119,120,121,122,123);
+  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123);
   allowKeys(allowedUnicodes, e);
 }
-function numericDecimalOnly(e){
-  if(!e) e = window.event;
-  var target = e.srcElement || e.target;
-  if (target.autoComp != null) return;  
-  var allowedUnicodes = new Array(8,9,13,16,17,18,19,20,27,32,33,34,35,36,37,38,39,40,45,46,48,49,50,51,52,53,54,55,56,57,91,93,96,97,98,99,100,101,102,103,104,105,110,112,123,144,145,188,190,112,113,114,115,116,117,118,119,120,121,122,123,189,109);
-  allowKeys(allowedUnicodes, e);
-}
-function numericSignOnly(e){
-  if(!e) e = window.event;
-  var target = e.srcElement || e.target;
-  if (target.autoComp != null) return;  
-  var allowedUnicodes = new Array(8,9,13,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,48,49,50,51,52,53,54,55,56,57,91,93,96,97,98,99,100,101,102,103,104,105,109,112,123,144,145,112,113,114,115,116,117,118,119,120,121,122,123,189,pui["field exit key"]);
-  allowKeys(allowedUnicodes, e);
-}
-function alphabeticOnly(e) {
-  if(!e) e = window.event;
+function numericDecimalOnly (e) {
+  if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
-  // As per 5250 manual, allow a-z, A-Z, comma, dot, hyphen, and space.  
+  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 112, 123, 144, 145, 188, 190, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, 109);
+  allowKeys(allowedUnicodes, e);
+}
+function numericSignOnly (e) {
+  if (!e) e = window.event;
+  var target = e.srcElement || e.target;
+  if (target.autoComp != null) return;
+  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"]);
+  allowKeys(allowedUnicodes, e);
+}
+function alphabeticOnly (e) {
+  if (!e) e = window.event;
+  var target = e.srcElement || e.target;
+  if (target.autoComp != null) return;
+  // As per 5250 manual, allow a-z, A-Z, comma, dot, hyphen, and space.
   var allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,.- ";
   var allowedUnicodes = new Array();
   for (var i = 0; i < allowedChars.length; i++) {
@@ -164,17 +158,17 @@ function alphabeticOnly(e) {
   allowedUnicodes.push(8, 9, 13, 16, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 110);
   allowKeys(allowedUnicodes, e);
 }
-function inhibitKeyboard(e) {
+function inhibitKeyboard (e) {
   e = e || window.event;
   if (typeof e.keyCode != "undefined") { // onkeydown
     if (e.ctrlKey == true && e.keyCode == 86) {
       disableAction(e);
       return false;
     }
-    var allowed = allowKeys([13,112,123,144,145,112,113,114,115,116,117,118,119,120,121,122,123], e);
+    var allowed = allowKeys([13, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123], e);
     if (!allowed) {
       if (!pui.isFieldExit(e) && !e.shiftKey && !e.altKey && !e.ctrlKey && e.key.length == 1)
-        pui.alert(pui["getLanguageText"]("runtimeMsg", "keyboard input inhibited"));
+      { pui.alert(pui["getLanguageText"]("runtimeMsg", "keyboard input inhibited")); }
       return false;
     }
   }
@@ -184,84 +178,79 @@ function inhibitKeyboard(e) {
   }
 }
 
-function defaultField(e){
+function defaultField (e) {
   var allowedUnicodes = new Array(256);
-  
-  
-  for(var i = 0; i <= 255; i++) {
-    allowedUnicodes[i] = i; 
-  } 
-  
-  if(!e) e = window.event;
-  allowKeys(allowedUnicodes, e); 
+
+  for (var i = 0; i <= 255; i++) {
+    allowedUnicodes[i] = i;
+  }
+
+  if (!e) e = window.event;
+  allowKeys(allowedUnicodes, e);
 }
 
-
-function getCursorPosition(obj) { 
+function getCursorPosition (obj) {
   var cur;
   if (typeof obj == "string") obj = getObj(obj);
   if (obj == null) return -1;
   if (obj.tagName != "INPUT" || !pui.isTextbox(obj)) return -1;
-  if (document.selection!=null) {
-    if (obj==null) obj = document.activeElement; 
-    cur = document.selection.createRange(); 
+  if (document.selection != null) {
+    if (obj == null) obj = document.activeElement;
+    cur = document.selection.createRange();
   }
-  var pos = 0; 
-  if (obj!=null && cur!=null && obj.createTextRange!=null) {  // IE
+  var pos = 0;
+  if (obj != null && cur != null && obj.createTextRange != null) { // IE
     try {
-      var tr = obj.createTextRange(); 
-      if (tr) { 
-        while (cur.compareEndPoints("StartToStart", tr) > 0) { 
-          tr.moveStart("character", 1); 
-          pos++; 
-        } 
-        return pos; 
-      } 
+      var tr = obj.createTextRange();
+      if (tr) {
+        while (cur.compareEndPoints("StartToStart", tr) > 0) {
+          tr.moveStart("character", 1);
+          pos++;
+        }
+        return pos;
+      }
     }
-    catch(e) {
+    catch (e) {
       return -1;
     }
-  } 
-  else if (obj!=null) {  // Firefox
-     try {
-       if (obj.selectionStart!=null) return obj.selectionStart;
-     }
-     catch(err) { };
   }
-  return -1; 
-} 
+  else if (obj != null) { // Firefox
+    try {
+      if (obj.selectionStart != null) return obj.selectionStart;
+    }
+    catch (err) { };
+  }
+  return -1;
+}
 
 /**
  * If in Visual Designer or in Genie with Design Mode on, then returns true; else false. Note: this must
  * be called after pui.dspfDesign(), after pui.loadDependencyFiles to correctly detect Visual Designer.
  * @returns {Boolean}
  */
-function inDesignMode() {
+function inDesignMode () {
   if (pui.ide && pui.ide.designerId) return true;
   if (toolbar == null) return false;
   if (toolbar.designer == null) return false;
   return true;
 }
 
-
-
-// Checks Ajax response for errors, and adds any messages to the 
-// global "errors" object. 
+// Checks Ajax response for errors, and adds any messages to the
+// global "errors" object.
 // Returns either standard response object or false to indicate error with the response.
-function checkAjaxResponse(ajaxRequest, operation) {
-
+function checkAjaxResponse (ajaxRequest, operation) {
   // Check for HTTP-layer error.
   var errorId;
-  var error   = "";
-  var error2  = "";
-  var responseObj;  
+  var error = "";
+  var error2 = "";
+  var responseObj;
   var isXML = false;
   if (ajaxRequest.getStatus() != 200) {
     errorId = "HTTP " + ajaxRequest.getStatus();
     error = ajaxRequest.getStatusText() + ".";
   }
   // Check for application-layer error.
-  // Assume success if there is an XML response (charting).   
+  // Assume success if there is an XML response (charting).
   else {
     isXML = (ajaxRequest.getResponseText().indexOf("<?xml") != -1);
     if (isXML == false) {
@@ -269,11 +258,11 @@ function checkAjaxResponse(ajaxRequest, operation) {
         responseObj = eval("(" + ajaxRequest.getResponseText() + ")");
         if (responseObj.success != true) {
           errorId = responseObj.errorId;
-          error   = responseObj.errorText;
-          error2  = responseObj.errorText2;
+          error = responseObj.errorText;
+          error2 = responseObj.errorText2;
         }
       }
-      catch(e) {
+      catch (e) {
         errorId = "CPF9897";
         error = "The server response is missing or invalid.";
       }
@@ -285,14 +274,13 @@ function checkAjaxResponse(ajaxRequest, operation) {
       id: errorId,
       text: error,
       text2: error2
-    });    
+    });
     return false;
   }
   else {
     if (isXML == true) return ajaxRequest.getResponseText();
     else return responseObj.response;
   }
-  
 }
 
 /**
@@ -302,22 +290,22 @@ function checkAjaxResponse(ajaxRequest, operation) {
  * @param {String} labelText
  * @param {Object|undefined} label    Only passed by DesignItem.js drawIcon when in design mode.
  */
-pui.buildLabel = function(dom, labelText, label) {
+pui.buildLabel = function (dom, labelText, label) {
   var designMode = true;
-  if (label == null){
+  if (label == null) {
     designMode = false;
     var label = document.createElement("div");
     label.style.position = "absolute";
     label.style.borderStyle = "none";
     label.style.backgroundColor = "transparent";
   }
-  
-  label.innerHTML = '<label title="' + dom.title + '" for="' + dom.id + '">' + labelText + '</label>';
-  label.className = 'label-for';
+
+  label.innerHTML = '<label title="' + dom.title + '" for="' + dom.id + '">' + labelText + "</label>";
+  label.className = "label-for";
   var cls = trim(dom.className.split(" ")[0]);
   if (cls != "")
-    pui.addCssClass(label, 'label-for-' + cls);
-  
+  { pui.addCssClass(label, "label-for-" + cls); }
+
   // get z-index from the original element
   if (dom.currentStyle) {
     label.style.zIndex = dom.currentStyle.zIndex;
@@ -326,8 +314,8 @@ pui.buildLabel = function(dom, labelText, label) {
     label.style.zIndex = document.defaultView.getComputedStyle(dom, null).getPropertyValue("z-index");
   }
   else {
-    label.style.zIndex = 20;  // default z-index for input fields
-  }      
+    label.style.zIndex = 20; // default z-index for input fields
+  }
 
   // Set the Y position of the label to the input's Y position.
   if (dom.style.top != "") label.style.top = dom.style.top;
@@ -344,7 +332,7 @@ pui.buildLabel = function(dom, labelText, label) {
   label.style.fontWeight = dom.style.fontWeight;
   label.style.backgroundColor = dom.style.backgroundColor;
 
-  if (!designMode){
+  if (!designMode) {
     if (dom.style.cursor) {
       label.style.cursor = dom.style.cursor;
     }
@@ -356,78 +344,76 @@ pui.buildLabel = function(dom, labelText, label) {
     dom.labelObj = label;
     dom.extraDomEls = [];
     dom.extraDomEls.push(label);
-    
-    if (dom.parentNode != null)     //If a grid column was removed, then parentNode could be null. #4855.
-      dom.parentNode.appendChild(label);  //If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
+
+    if (dom.parentNode != null) // If a grid column was removed, then parentNode could be null. #4855.
+    { dom.parentNode.appendChild(label); } // If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
   }
-  
+
   // Determine the X position. (Happens after appending child so that label width can be used for "right".)
   var width = dom.offsetWidth;
   if (width < 20) width = 20;
-  
-  if (dom.style.left != ""){
-    if (dom.style.left.indexOf('calc') != -1) {
+
+  if (dom.style.left != "") {
+    if (dom.style.left.indexOf("calc") != -1) {
       // Add the input's width to a CSS calc function's parameters.
-      setCalcString('left', ' + ' + width);
+      setCalcString("left", " + " + width);
     }
     else {
       var styledim = pui.getStyleDim(dom.style.left);
-      if (styledim[1] == 'px'){
-        label.style.left = (styledim[0] + width) + 'px';    //The units were in px; simply add.
+      if (styledim[1] == "px") {
+        label.style.left = (styledim[0] + width) + "px"; // The units were in px; simply add.
       }
       else {
         // For any other units, let CSS calculate position. Calc avoids the need to use the sizeMe function when inside containers that can resize. #5692.
-        label.style.left = 'calc('+dom.style.left +' + ' + width + 'px)';
+        label.style.left = "calc(" + dom.style.left + " + " + width + "px)";
       }
     }
   }
-  else if (dom.style.right != ""){
-    label.style.left = "";  //Since the DOM.style.left is blank, the label's left must be cleared. #5479
+  else if (dom.style.right != "") {
+    label.style.left = ""; // Since the DOM.style.left is blank, the label's left must be cleared. #5479
     var brect = label.getBoundingClientRect();
     var labelWidth = brect.width;
     if (labelWidth < 10) labelWidth = 10;
-    
-    if (dom.style.right.indexOf('calc') != -1) {
-      setCalcString('right', ' - ' + labelWidth);  //Add the input's width to a CSS calc function's parameters.
+
+    if (dom.style.right.indexOf("calc") != -1) {
+      setCalcString("right", " - " + labelWidth); // Add the input's width to a CSS calc function's parameters.
     }
     else {
       var styledim = pui.getStyleDim(dom.style.right);
-      if (styledim[1] == 'px'){
-        label.style.right = (styledim[0] - labelWidth) + 'px';   //The units were in px; simply subtract.
+      if (styledim[1] == "px") {
+        label.style.right = (styledim[0] - labelWidth) + "px"; // The units were in px; simply subtract.
       }
       else {
-        label.style.right = 'calc('+dom.style.right +' - '+ labelWidth + 'px)';   //Let CSS calculate the position.
+        label.style.right = "calc(" + dom.style.right + " - " + labelWidth + "px)"; // Let CSS calculate the position.
       }
     }
   }
-  
-  if (dom.style.top == "" && dom.style.bottom != ""){
-    label.style.top = ""; //Since the DOM.style.top is blank, the label's top must be cleared.
+
+  if (dom.style.top == "" && dom.style.bottom != "") {
+    label.style.top = ""; // Since the DOM.style.top is blank, the label's top must be cleared.
   }
-  
-  function setCalcString(styleProp, appendPxStr){
+
+  function setCalcString (styleProp, appendPxStr) {
     var calcString = trim(dom.style[styleProp]);
-    var lastParenth = calcString.lastIndexOf(')');
+    var lastParenth = calcString.lastIndexOf(")");
     if (lastParenth != -1) {
-      calcString = calcString.substr(0,lastParenth);
-      calcString += appendPxStr + 'px)';
+      calcString = calcString.substr(0, lastParenth);
+      calcString += appendPxStr + "px)";
       label.style[styleProp] = calcString;
     }
   }
 };
 
 // Returns the PC-side timestamp in milliseconds since 1970/01/01 as a string.
-function getTimeStamp() {
-
+function getTimeStamp () {
   return String(new Date().getTime());
-
 }
 
 // Polyfills for older browsers.
 
 if (!Array.prototype.find) {
-  Object.defineProperty(Array.prototype, 'find', {
-    value: function(predicate) {
+  Object.defineProperty(Array.prototype, "find", {
+    value: function (predicate) {
       // 1. Let O be ? ToObject(this value).
       if (this == null) {
         throw TypeError('"this" is null or not defined');
@@ -439,8 +425,8 @@ if (!Array.prototype.find) {
       var len = o.length >>> 0;
 
       // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-      if (typeof predicate !== 'function') {
-        throw TypeError('predicate must be a function');
+      if (typeof predicate !== "function") {
+        throw TypeError("predicate must be a function");
       }
 
       // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -470,12 +456,12 @@ if (!Array.prototype.find) {
   });
 }
 
-// Polyfill from From MDN Array.prototype.findIndex doc page. Array properties should not be enumerable, or else iterating over 
+// Polyfill from From MDN Array.prototype.findIndex doc page. Array properties should not be enumerable, or else iterating over
 // the array  will include the shim method; issue #6535.
 if (!Array.prototype.findIndex) {
-  Object.defineProperty(Array.prototype, 'findIndex', {
-    value: function(predicate) {
-     // 1. Let O be ? ToObject(this value).
+  Object.defineProperty(Array.prototype, "findIndex", {
+    value: function (predicate) {
+      // 1. Let O be ? ToObject(this value).
       if (this == null) {
         throw new TypeError('"this" is null or not defined');
       }
@@ -486,8 +472,8 @@ if (!Array.prototype.findIndex) {
       var len = o.length >>> 0;
 
       // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-      if (typeof predicate !== 'function') {
-        throw new TypeError('predicate must be a function');
+      if (typeof predicate !== "function") {
+        throw new TypeError("predicate must be a function");
       }
 
       // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -513,15 +499,14 @@ if (!Array.prototype.findIndex) {
       // 7. Return -1.
       return -1;
     },
-    'configurable': true,  //Note: this must be quoted so the obfuscated does not change it, and so fusion-charts.js does not have issues. 6535.
-    'writable': true
+    "configurable": true, // Note: this must be quoted so the obfuscated does not change it, and so fusion-charts.js does not have issues. 6535.
+    "writable": true
   });
 }
 
 if (!Array.prototype.includes) {
-  Object.defineProperty(Array.prototype, 'includes', {
-    value: function(searchElement, fromIndex) {
-
+  Object.defineProperty(Array.prototype, "includes", {
+    value: function (searchElement, fromIndex) {
       if (this == null) {
         throw new TypeError('"this" is null or not defined');
       }
@@ -548,8 +533,8 @@ if (!Array.prototype.includes) {
       //  b. If k < 0, let k be 0.
       var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
 
-      function sameValueZero(x, y) {
-        return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
+      function sameValueZero (x, y) {
+        return x === y || (typeof x === "number" && typeof y === "number" && isNaN(x) && isNaN(y));
       }
 
       // 7. Repeat, while k < len
@@ -589,12 +574,12 @@ if (location.origin === undefined) {
 }
 
 if (!Object.entries) {
-  Object.entries = function( obj ){
-    var ownProps = Object.keys( obj ),
-        i = ownProps.length,
-        resArray = new Array(i); // preallocate the Array
+  Object.entries = function (obj) {
+    var ownProps = Object.keys(obj),
+      i = ownProps.length,
+      resArray = new Array(i); // preallocate the Array
     while (i--)
-      resArray[i] = [ownProps[i], obj[ownProps[i]]];
+    { resArray[i] = [ownProps[i], obj[ownProps[i]]]; }
 
     return resArray;
   };
@@ -602,11 +587,11 @@ if (!Object.entries) {
 
 if (!String.prototype.includes) {
   Object.defineProperty(String.prototype, "includes", {
-    value: function(search, start) {
-      'use strict';
+    value: function (search, start) {
+      "use strict";
 
       if (search instanceof RegExp) {
-        throw TypeError('first argument must not be a RegExp');
+        throw TypeError("first argument must not be a RegExp");
       }
       if (start === undefined) { start = 0; }
       return this.indexOf(search, start) !== -1;
@@ -615,15 +600,15 @@ if (!String.prototype.includes) {
 }
 
 if (!String.prototype.startsWith) {
-  Object.defineProperty(String.prototype, 'startsWith', {
-      value: function(search, rawPos) {
-          var pos = rawPos > 0 ? rawPos|0 : 0;
-          return this.substring(pos, pos + search.length) === search;
-      }
+  Object.defineProperty(String.prototype, "startsWith", {
+    value: function (search, rawPos) {
+      var pos = rawPos > 0 ? rawPos | 0 : 0;
+      return this.substring(pos, pos + search.length) === search;
+    }
   });
 }
 
-pui.getPropConfig = function(namedModel, propertyName) {
+pui.getPropConfig = function (namedModel, propertyName) {
   var config = namedModel[propertyName];
   if (config == null) {
     var parts = propertyName.split(" ");
@@ -639,7 +624,7 @@ pui.getPropConfig = function(namedModel, propertyName) {
           if (prop == "name") {
             config["name"] = propertyName;
           }
-          else if (typeof value == "object" && value.length != null) {  // array
+          else if (typeof value == "object" && value.length != null) { // array
             config[prop] = [];
             for (var i = 0; i < value.length; i++) {
               config[prop].push(value[i]);
@@ -655,28 +640,22 @@ pui.getPropConfig = function(namedModel, propertyName) {
   return config;
 };
 
-
 // Returns index of element in array, if found, or -1 if not.
 pui.arrayIndexOf = function (array, element) {
-
   for (var i = 0; i < array.length; i++) {
     if (array[i] == element) return i;
   }
   return -1;
-
 };
 
 // Calls a function for each array element.
-pui.arrayForEach = function(array, func) {
-
+pui.arrayForEach = function (array, func) {
   for (var i = 0; i < array.length; i++) {
     func(array[i]);
   }
-  
 };
 
-
-pui.safeParseInt = function(stringValue, nanValue) {
+pui.safeParseInt = function (stringValue, nanValue) {
   if (nanValue == null) nanValue = 0;
   var number = parseInt(stringValue, 10);
   if (isNaN(number)) number = nanValue;
@@ -689,68 +668,58 @@ pui.safeParseInt = function(stringValue, nanValue) {
         pui.keyFilter(e, regEx);
       });
 */
-pui.keyFilter = (function() {
-
+pui.keyFilter = (function () {
   var specialKeys = {
-    9: 'Tab',
-    13: 'Enter',
-    16: 'Shift',
-    17: 'Ctrl',
-    18: 'Alt',
-    19: 'Pause',
-    20: 'Caps Lock',
-    27: 'Esc',
-    33: 'Page Up',
-    34: 'Page Down',
-    35: 'End',
-    36: 'Home',
-    37: 'Left',
-    38: 'Up',
-    39: 'Right',
-    40: 'Down',
-    45: 'Insert',
-    //Safari
-    3: 'Enter',
-    63234: 'Left',
-    63235: 'Right',
-    63232: 'Up',
-    63233: 'Down',
-    63276: 'Page Up',
-    63277: 'Page Down',
-    63272: 'Delete',
-    63273: 'Home',
-    63275: 'End'
+    9: "Tab",
+    13: "Enter",
+    16: "Shift",
+    17: "Ctrl",
+    18: "Alt",
+    19: "Pause",
+    20: "Caps Lock",
+    27: "Esc",
+    33: "Page Up",
+    34: "Page Down",
+    35: "End",
+    36: "Home",
+    37: "Left",
+    38: "Up",
+    39: "Right",
+    40: "Down",
+    45: "Insert",
+    // Safari
+    3: "Enter",
+    63234: "Left",
+    63235: "Right",
+    63232: "Up",
+    63233: "Down",
+    63276: "Page Up",
+    63277: "Page Down",
+    63272: "Delete",
+    63273: "Home",
+    63275: "End"
   };
-  return function(e, re) {
-
+  return function (e, re) {
     var chr = e.key || String.fromCharCode(e.charCode || e.keyCode);
-    if(e.ctrlKey 
-        || (chr && chr.length > 1)
-        || (!chr && !e.key && specialKeys[e.keyCode])){
+    if (e.ctrlKey ||
+        (chr && chr.length > 1) ||
+        (!chr && !e.key && specialKeys[e.keyCode])) {
       return;
     }
-    
-    if(!re.test(chr)){
+
+    if (!re.test(chr)) {
       preventEvent(e);
     }
   };
-
 })();
 
-
-
-
-
-function allowKeys(allowedUnicodes, e) {
-
+function allowKeys (allowedUnicodes, e) {
   // Allow user-defined key mappings in Genie.
 
   if (context == "genie" && pui.genie.getMappedKeyName(e) != "") {
-  
     return true;
-  
   }
-  
+
   if (context == "dspf") return allowKeysSimple(allowedUnicodes, e);
 
   var obj;
@@ -761,12 +730,12 @@ function allowKeys(allowedUnicodes, e) {
   var success;
   var shiftKey;
 
-  //key=(typeof event!='undefined')?window.event.keyCode:e.keyCode;
+  // key=(typeof event!='undefined')?window.event.keyCode:e.keyCode;
   key = e.keyCode;
   obj = e.target || e.srcElement; // IE doesn't use .target
-  
+
   var isTextbox = pui.isTextbox(obj);
-  
+
   if (pui.genie.formSubmitted) {
     if (pui.genie.config.enableKeyAhead) {
       if (e.modifiers) shiftKey = e.modifiers && Event.SHIFT_MASK;
@@ -777,10 +746,10 @@ function allowKeys(allowedUnicodes, e) {
     disableAction(e);
     return false;
   }
-  
+
   lastActiveElement = obj;
-  
-  if (key == 9) {      // tab key
+
+  if (key == 9) { // tab key
     if (e.modifiers) shiftKey = e.modifiers && Event.SHIFT_MASK;
     if (!e.modifiers) shiftKey = e.shiftKey;
     if (shiftKey) {
@@ -788,7 +757,7 @@ function allowKeys(allowedUnicodes, e) {
       if (success) {
         disableAction(e);
         return false;
-      }    
+      }
     }
     else {
       success = goNext(obj, true);
@@ -798,49 +767,48 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
   }
-  //if (key == 8) {     // backspace key
-  
-    // Let's not do this anymore...
-  
-    //if (isTextbox) {
-    //  pos = getCursorPosition(obj);
-    //  if (pos == 0) {
-    //    goPrev(obj);
-    //    disableAction(e);
-    //    return false;              
-    //  }
-    //}
-    //else {
-    //  if (obj.tagName != "TEXTAREA") goPrev(obj);
-    //  disableAction(e);
-    //  return false;
-    //}
-  //} 
-  else if (key == 35 && isTextbox) {     // end key
+  // if (key == 8) {     // backspace key
+
+  // Let's not do this anymore...
+
+  // if (isTextbox) {
+  //  pos = getCursorPosition(obj);
+  //  if (pos == 0) {
+  //    goPrev(obj);
+  //    disableAction(e);
+  //    return false;
+  //  }
+  // }
+  // else {
+  //  if (obj.tagName != "TEXTAREA") goPrev(obj);
+  //  disableAction(e);
+  //  return false;
+  // }
+  // }
+  else if (key == 35 && isTextbox) { // end key
     if (obj.value != rtrim(obj.value)) {
       obj.value = rtrim(obj.value);
-    }  
+    }
   }
-  else if (key == 37) {     // left key
+  else if (key == 37) { // left key
     if (isTextbox) {
       pos = getCursorPosition(obj);
       if (pos == 0) {
         goPrev(obj);
         disableAction(e);
-        return false;        
+        return false;
       }
     }
     else {
       if (obj.tagName != "TEXTAREA") {
         goPrev(obj);
         disableAction(e);
-        return false;        
+        return false;
       }
     }
   }
-  else if (key == 38 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // up key
-    
-    // Do not process up key if the field is an auto complete field and the 
+  else if (key == 38 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") { // up key
+    // Do not process up key if the field is an auto complete field and the
     // result pane is open.
     if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
       if (!pui.genie.config.browserAutoComplete) {
@@ -850,71 +818,69 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
   }
-  else if (key == 39) {     // right key
+  else if (key == 39) { // right key
     if (isTextbox) {
-      maxLength = Number(obj.getAttribute('maxLength'));    
+      maxLength = Number(obj.getAttribute("maxLength"));
       pos = getCursorPosition(obj);
       len = obj.value.length;
       if (pos >= len) {
         goNext(obj);
         disableAction(e);
-        return false;        
+        return false;
       }
     }
     else {
       if (obj.tagName != "TEXTAREA") {
         goNext(obj);
         disableAction(e);
-        return false;        
+        return false;
       }
     }
   }
-  else if (key == 40 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") {     // down key
-    
-    // Do not process up key if the field is an auto complete field and the 
-    // result pane is open.    
-    if (obj.autoComp == null || obj.autoComp.isOpen() == false) {    
+  else if (key == 40 && obj.tagName != "SELECT" && obj.tagName != "TEXTAREA") { // down key
+    // Do not process up key if the field is an auto complete field and the
+    // result pane is open.
+    if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
       if (!pui.genie.config.browserAutoComplete) {
         goDown(obj);
         disableAction(e);
         return false;
       }
     }
-    
   }
-  else if (key == 45 && pui["is_ie"] && isTextbox && context == "genie" && e.shiftKey != true && e.ctrlKey != true){   // insert key
+  else if (key == 45 && pui["is_ie"] && isTextbox && context == "genie" && e.shiftKey != true && e.ctrlKey != true) { // insert key
     // When a Genie field is full of whitespace and a user types Insert, then IE won't let them type because the field
     // is full because gotFocusField() in 5250/utils.js filled it. Trim after the caret to allow typing. Issue 4592.
     var selectEnd = obj.selectionEnd;
     var curval = obj.value.substring(0, selectEnd);
     curval += rtrim(obj.value.substring(selectEnd));
     obj.value = curval;
-    obj.setSelectionRange(selectEnd, selectEnd); //setting value changed cursor position, so reset it.
+    obj.setSelectionRange(selectEnd, selectEnd); // setting value changed cursor position, so reset it.
   }
-  if (isTextbox && pui.isFieldExit(e)) {    
+  if (isTextbox && pui.isFieldExit(e)) {
     pui.storeCursorPosition(obj);
     fieldExit(obj);
     disableAction(e);
-    return false;    
+    return false;
   }
-  if (key == 109 && isTextbox) {    // numpad minus sign
+  if (key == 109 && isTextbox) { // numpad minus sign
     pui.storeCursorPosition(obj);
     if (fieldExit(obj, true)) {
       disableAction(e);
       return false;
     }
   }
-  
-  if (e.ctrlKey == true && (key == 67 || key == 86)) {  // allow ctrl-c and ctrl-v for copy/paste
+
+  if (e.ctrlKey == true && (key == 67 || key == 86)) { // allow ctrl-c and ctrl-v for copy/paste
     return true;
   }
-      
-  for( var i=0; i < allowedUnicodes.length; i++ ){
-    if( allowedUnicodes[i] == key ){
-      if(e.modifiers && Event.SHIFT_MASK){
-        //case exits
+
+  for (var i = 0; i < allowedUnicodes.length; i++) {
+    if (allowedUnicodes[i] == key) {
+      if (e.modifiers && Event.SHIFT_MASK) {
+        // case exits
       }
-      else{
+      else {
         return true;
       }
     }
@@ -923,41 +889,41 @@ function allowKeys(allowedUnicodes, e) {
   return false;
 }
 
-function fieldExit(obj, minus) {
+function fieldExit (obj, minus) {
   if (obj.readOnly == true) return false;
   var blankFill;
   var zeroFill;
   var rightAdjust = false;
   var maxLength;
-  var signedNumeric = obj.getAttribute('signedNumeric');
+  var signedNumeric = obj.getAttribute("signedNumeric");
   var needsOnchange = false;
-  if (minus && (signedNumeric==null || signedNumeric!='Y')) return false;
+  if (minus && (signedNumeric == null || signedNumeric != "Y")) return false;
   var pos = obj.cursorPosition;
   if (pui["is_touch"] && !pui["is_mouse_capable"]) {
-     pos = getCursorPosition(obj);
+    pos = getCursorPosition(obj);
   }
   if (pos == null) return false;
   if (pos < 0) return false;
   if (pos >= 0) {
-  needsOnchange = (obj.value !== obj.value.substr(0, pos)); 
+    needsOnchange = (obj.value !== obj.value.substr(0, pos));
     obj.value = obj.value.substr(0, pos);
-    blankFill = obj.getAttribute('blankFill');
-    if (signedNumeric!=null && signedNumeric=='Y') blankFill = "Y";
-    if (blankFill!=null && blankFill=='Y') {
+    blankFill = obj.getAttribute("blankFill");
+    if (signedNumeric != null && signedNumeric == "Y") blankFill = "Y";
+    if (blankFill != null && blankFill == "Y") {
       rightAdjust = true;
-      fill = '                                                                                ';
-    }    
-    zeroFill = obj.getAttribute('zeroFill');
-    if (zeroFill!=null && zeroFill=='Y') {
+      fill = "                                                                                ";
+    }
+    zeroFill = obj.getAttribute("zeroFill");
+    if (zeroFill != null && zeroFill == "Y") {
       rightAdjust = true;
-      fill = '00000000000000000000000000000000000000000000000000000000000000000000000000000000';
-    }    
-    maxLength = obj.getAttribute('maxLength');    
-    if (rightAdjust && maxLength!=null) {
+      fill = "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    }
+    maxLength = obj.getAttribute("maxLength");
+    if (rightAdjust && maxLength != null) {
       var newValue = fill + ltrim(obj.value);
       newValue = newValue.substr(newValue.length - maxLength);
-      if (signedNumeric!=null && signedNumeric=='Y') {
-        if (newValue.substr(newValue.length - 1) != '-') {
+      if (signedNumeric != null && signedNumeric == "Y") {
+        if (newValue.substr(newValue.length - 1) != "-") {
           if (minus) {
             newValue += "-";
           }
@@ -970,24 +936,24 @@ function fieldExit(obj, minus) {
       obj.value = newValue;
     }
   }
-  if (needsOnchange && typeof obj.onchange === 'function') {
+  if (needsOnchange && typeof obj.onchange === "function") {
     obj.onchange();
   }
-  
+
   // inserted to enable CHECK(ER) functionality...
   if (obj.getAttribute("autoenter") === "Y") {
-      pressKey("enter");
+    pressKey("enter");
   } else {
-      goNext(obj);
+    goNext(obj);
   }
-  
+
   return true;
 }
 
-pui.beforeUnload = function(event) {
+pui.beforeUnload = function (event) {
   if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) return;
   if (pui.observer != null) return;
-  
+
   if (pui.confirmOnClose && !pui.skipConfirm) {
     if (context == "genie" && pui.isSignOnScreen()) return;
     var par = window;
@@ -997,10 +963,10 @@ pui.beforeUnload = function(event) {
       try {
         if (typeof par["pui"] != "undefined") return;
       }
-      catch(e) {
+      catch (e) {
       }
-    } 
-    if (pui.genie != null || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && typeof pui.ide.isDirty === 'function' && pui.ide.isDirty())) {
+    }
+    if (pui.genie != null || !pui.designer.Designer || (context == "dspf" && pui.designer.Designer && typeof pui.ide.isDirty === "function" && pui.ide.isDirty())) {
       var theCloseMessage;
       if (pui.codeBased) theCloseMessage = pui.closeMessage;
       else theCloseMessage = pui["getLanguageText"]("runtimeMsg", "closeMessage");
@@ -1013,13 +979,13 @@ pui.beforeUnload = function(event) {
   }
 };
 
-pui["unload"] = function() {
-  // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job 
-  // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used 
+pui["unload"] = function () {
+  // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job
+  // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used
   // on next sign on.
   var hardshutdownOnClose = false;
   if (pui.genie !== null && pui["hardshutdownOnClose"])
-    hardshutdownOnClose = true;
+  { hardshutdownOnClose = true; }
 
   if ((pui.shutdownOnClose || hardshutdownOnClose) && pui.observer == null) {
     pui["halted"] = true;
@@ -1033,30 +999,30 @@ pui["unload"] = function() {
       try {
         url = pui["overrideSubmitUrl"](url);
       }
-      catch(e) {
+      catch (e) {
       }
-    }  
+    }
     // Redmine #4624
     // Use Blob to set Content-Type: application/x-www-form-urlencoded
     // Otherwise, Profound.js controller is unable to parse the POST.
     if (navigator != null && typeof navigator["sendBeacon"] == "function" && typeof window["Blob"] == "function") {
       if (hardshutdownOnClose)
-        var shutdownFlag = "hardshutdown=1";
+      { var shutdownFlag = "hardshutdown=1"; }
       else
-        shutdownFlag = "shutdown=1";
+      { shutdownFlag = "shutdown=1"; }
       var data = shutdownFlag + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
       var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
       navigator["sendBeacon"](pui.addRequestId(url), blob);
     }
     else {
       if (hardshutdownOnClose)
-        ajaxParams = {
-          "hardshutdown": "1"
-        };
+      { ajaxParams = {
+        "hardshutdown": "1"
+      }; }
       else
-        var ajaxParams = {
-          "shutdown": "1"
-        };
+      { var ajaxParams = {
+        "shutdown": "1"
+      }; }
       if (pui["isCloud"]) {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
@@ -1071,22 +1037,20 @@ pui["unload"] = function() {
   }
 };
 
-pui.assignUnloadEvents = function() {
+pui.assignUnloadEvents = function () {
   if (window.addEventListener) {
     window.addEventListener("beforeunload", pui.beforeUnload, false);
     if (!pui.designer.Designer || pui.genie != null)
-      window.addEventListener("unload", pui["unload"], false);        
-  }	
+    { window.addEventListener("unload", pui["unload"], false); }
+  }
   else if (window.attachEvent) {
     window.attachEvent("onbeforeunload", pui.beforeUnload);
     if (!pui.designer.Designer || pui.genie != null)
-      window.attachEvent("onunload", pui["unload"]);
-  }  
+    { window.attachEvent("onunload", pui["unload"]); }
+  }
 };
 
-
-pui.downloadAsAttachment = function(contentType, fileName, data) {
-
+pui.downloadAsAttachment = function (contentType, fileName, data) {
   var form = document.createElement("form");
   form.action = getProgramURL("PUI0009106.pgm") + "?contentType=" + contentType + "&fileName=" + fileName;
   if (pui["isCloud"]) {
@@ -1099,16 +1063,14 @@ pui.downloadAsAttachment = function(contentType, fileName, data) {
   form.appendChild(hiddenField);
   document.body.appendChild(form);
   pui.skipConfirm = true;
-  form.submit();    
-  setTimeout(function() {
+  form.submit();
+  setTimeout(function () {
     form.parentNode.removeChild(form);
     pui.skipConfirm = false;
-  }, 0);    
-
+  }, 0);
 };
 
-
-pui.addCssClass = function(dom, clsName) {
+pui.addCssClass = function (dom, clsName) {
   var cls = dom.className;
   if (cls == null) cls = "";
   var clsArray = cls.split(" ");
@@ -1119,7 +1081,6 @@ pui.addCssClass = function(dom, clsName) {
   }
   newClsArray.push(clsName);
   dom.className = newClsArray.join(" ");
-  return;
 };
 
 /**
@@ -1128,19 +1089,19 @@ pui.addCssClass = function(dom, clsName) {
  * @param {type} clsName  Name of class to remove from className.
  * @returns {undefined}
  */
-pui.removeCssClass = function(dom, clsName) {
+pui.removeCssClass = function (dom, clsName) {
   dom.className = pui.removeFromStringList(dom.className, clsName);
 };
 
 /**
  * Remove a string from a delimiter-separated string of entries. e.g. css class name.
- * 
+ *
  * @param {String} separatedListStr   Space-separated list or other type of list string.
  * @param {String} remString          The entry to remove.
  * @param {Null|String} separator     (optional) The delimiter character. Default is space.
  * @returns {String}                  Returns the list sans remString or empty string.
  */
-pui.removeFromStringList = function(separatedListStr, remString, separator){
+pui.removeFromStringList = function (separatedListStr, remString, separator) {
   if (separatedListStr == null) return "";
   if (separatedListStr == "") return "";
   if (separator == null || separator == "") separator = " ";
@@ -1152,31 +1113,30 @@ pui.removeFromStringList = function(separatedListStr, remString, separator){
   return newClsArray.join(" ");
 };
 
-
-pui.setEmptyText = function(dom, emptyText) {
+pui.setEmptyText = function (dom, emptyText) {
   if (dom.readOnly || dom.disabled) return;
-  if (emptyText ==  null || emptyText == null) return;
+  if (emptyText == null || emptyText == null) return;
   var box = dom;
   if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
   if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
   box.emptyText = emptyText;
   pui.checkEmptyText(box);
-  addEvent(box, "focus", function(e) {
+  addEvent(box, "focus", function (e) {
     var target = getTarget(e);
     if (target.value == target.emptyText) {
       target.value = "";
       pui.removeCssClass(target, "empty-text");
     }
   });
-  addEvent(box, "blur", function(e) {
+  addEvent(box, "blur", function (e) {
     var target = getTarget(e);
     pui.checkEmptyText(target);
   });
 };
 
-pui.checkEmptyText = function(dom) {
+pui.checkEmptyText = function (dom) {
   if (dom.readOnly || dom.disabled) return;
-  if (dom.emptyText ==  null || dom.emptyText == null) return;
+  if (dom.emptyText == null || dom.emptyText == null) return;
   if (dom.value == "") {
     dom.value = dom.emptyText;
   }
@@ -1188,7 +1148,7 @@ pui.checkEmptyText = function(dom) {
   }
 };
 
-pui.attachOnUserActivity = function() {
+pui.attachOnUserActivity = function () {
   if (pui.onUserActivityAttached) return;
   try {
     var atriumSettings = Atrium["getSettings"]();
@@ -1197,28 +1157,27 @@ pui.attachOnUserActivity = function() {
   }
   var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
   if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
-  function onUserActivity() {
+  function onUserActivity () {
     if (atriumTimeout) Atrium["resetInactivityTimeout"]();
     else if (pui["client side timeout"] == true) pui.timeoutMonitor.timer.reset();
     if (pui["onuseractivity"] != null) pui["onuseractivity"]();
   }
   addEvent(document.body, "keydown", onUserActivity);
-  addEvent(document.body, "mousemove",onUserActivity);
-  addEvent(document.body, "click",onUserActivity);
-  addEvent(document.body, "touchstart",onUserActivity);
-  addEvent(document.body, "touchmove",onUserActivity);
+  addEvent(document.body, "mousemove", onUserActivity);
+  addEvent(document.body, "click", onUserActivity);
+  addEvent(document.body, "touchstart", onUserActivity);
+  addEvent(document.body, "touchmove", onUserActivity);
   pui.onUserActivityAttached = true;
 };
-
 
 // Keeps the server job from timing out
 pui.autoKeepAlive = {};
 pui.autoKeepAlive.lastServerAccess = new Date().getTime();
 pui.autoKeepAlive.started = false;
-pui.autoKeepAlive.timeout = 600;  // in seconds
+pui.autoKeepAlive.timeout = 600; // in seconds
 pui.autoKeepAlive.intervalId = null;
 
-pui.autoKeepAlive.setup = function() {  // called when screen is rendered
+pui.autoKeepAlive.setup = function () { // called when screen is rendered
   if (pui.autoKeepAlive.started) {
     pui.autoKeepAlive.reset();
     return;
@@ -1230,43 +1189,42 @@ pui.autoKeepAlive.setup = function() {  // called when screen is rendered
   catch (error) {
   }
   if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
-    interval = pui.timeout - 10;
+  { interval = pui.timeout - 10; }
   if (interval == null) return;
   pui.autoKeepAlive.timeout = interval;
   pui.autoKeepAlive.start();
 };
 
-pui.autoKeepAlive.start = function() {
+pui.autoKeepAlive.start = function () {
   if (pui.autoKeepAlive.started) return;
   var milliseconds = pui.autoKeepAlive.timeout * 1000;
   // checking should be more frequent than timeout
   milliseconds = milliseconds / 4;
-  if (milliseconds > 3000) milliseconds = 3000;  // at least every 3 seconds
+  if (milliseconds > 3000) milliseconds = 3000; // at least every 3 seconds
   pui.autoKeepAlive.intervalId = setInterval(pui.autoKeepAlive.check, milliseconds);
   pui.autoKeepAlive.reset();
   pui.autoKeepAlive.started = true;
 };
 
-pui.autoKeepAlive.stop = function() {
+pui.autoKeepAlive.stop = function () {
   if (!pui.autoKeepAlive.started) return;
   clearInterval(pui.autoKeepAlive.intervalId);
   pui.autoKeepAlive.started = false;
 };
 
-pui.autoKeepAlive.reset = function() {
+pui.autoKeepAlive.reset = function () {
   pui.autoKeepAlive.lastServerAccess = new Date().getTime();
 };
 
-pui.autoKeepAlive.check = function() {
-  var elapsedTime = (new Date().getTime()) - pui.autoKeepAlive.lastServerAccess;  // elapsed time since last server access
+pui.autoKeepAlive.check = function () {
+  var elapsedTime = (new Date().getTime()) - pui.autoKeepAlive.lastServerAccess; // elapsed time since last server access
   if (elapsedTime >= pui.autoKeepAlive.timeout * 1000) {
     pui["keepAlive"]();
     pui.autoKeepAlive.reset();
   }
 };
 
-
-pui.isRightClick = function(e) {
+pui.isRightClick = function (e) {
   if (!e) e = window.event;
   if (e.which != null) {
     if (e.which > 1) {
@@ -1287,35 +1245,35 @@ pui.isRightClick = function(e) {
  * @param {Boolean|undefined} handleZoom      Pass true when handling mouse events on the design canvas or items inside of it
  * @returns {Array.<Number>}    [ left, top ].
  */
-pui.getOffset = function(obj, handleZoom) {
+pui.getOffset = function (obj, handleZoom) {
   var curleft = 0;
   var curtop = 0;
-  var countdown = -1;   // When it reaches zero, compensate that element's scroll for zoom.
+  var countdown = -1; // When it reaches zero, compensate that element's scroll for zoom.
 
   // Elements inside the scaled designer canvas need adjustments.
-  handleZoom = handleZoom === true && context == "dspf" && toolbar != null && toolbar.designer != null && toolbar.designer.container != null
+  handleZoom = handleZoom === true && context == "dspf" && toolbar != null && toolbar.designer != null && toolbar.designer.container != null &&
     // Avoid calculating for zoom when element is not related to the canvas; e.g. Responsive Editor.
-    && toolbar.designer.container.parentNode != null && toolbar.designer.container.parentNode.parentNode != null
-    && toolbar.designer.container.parentNode.parentNode.contains(obj);
-  
+    toolbar.designer.container.parentNode != null && toolbar.designer.container.parentNode.parentNode != null &&
+    toolbar.designer.container.parentNode.parentNode.contains(obj);
+
   // Get offsets from obj and each offsetParent until there are no more parents.
-  while(obj != null ){
+  while (obj != null) {
     var subtractScroll = true;
 
     var tmpleft = obj.offsetLeft;
     var tmptop = obj.offsetTop;
 
-    if (handleZoom){
+    if (handleZoom) {
       // obj is the mobile-device-looking div, which is the parent of the canvas.
-      if (obj.isCanvasOutline){
+      if (obj.isCanvasOutline) {
         // Include the zoom-adjusted offsets and borders but not the scroll left/top.
         tmpleft = Math.round((obj.offsetLeft + obj.clientLeft) * toolbar.zoomDecimal);
         tmptop = Math.round((obj.offsetTop + obj.clientTop) * toolbar.zoomDecimal);
-        countdown = 1; //two parents up from this should adjust for zoom.
+        countdown = 1; // two parents up from this should adjust for zoom.
         subtractScroll = false;
       }
-      // obj has scrollbars affected by zoom. this is "dspfDesignerN_" when there's no mobile div, 
-      else if (countdown == 0){
+      // obj has scrollbars affected by zoom. this is "dspfDesignerN_" when there's no mobile div,
+      else if (countdown == 0) {
         tmpleft -= Math.round(obj.scrollLeft * toolbar.zoomDecimal);
         tmptop -= Math.round(obj.scrollTop * toolbar.zoomDecimal);
         subtractScroll = false;
@@ -1327,7 +1285,7 @@ pui.getOffset = function(obj, handleZoom) {
         tmpleft = Math.round((obj.offsetLeft + obj.clientLeft - obj.scrollLeft) * toolbar.zoomDecimal);
         tmptop = Math.round((obj.offsetTop + obj.clientTop - obj.scrollTop) * toolbar.zoomDecimal);
         subtractScroll = false;
-        //obj is the canvas. One parent up from this should adjust for zoom. (unless isCanvasOutline is reached first).
+        // obj is the canvas. One parent up from this should adjust for zoom. (unless isCanvasOutline is reached first).
         if (obj == toolbar.designer.container) countdown = 0;
       }
     }
@@ -1336,9 +1294,9 @@ pui.getOffset = function(obj, handleZoom) {
     curtop += tmptop;
 
     // Compensate for content scroll position, but not for the body tag.
-    // body.scrollTop/Left in Chrome, Safari, and Opera is the window scroll 
+    // body.scrollTop/Left in Chrome, Safari, and Opera is the window scroll
     // top/left. Offset shouldn't change when the page scrolls.
-    if( obj.tagName !== "BODY" && subtractScroll) {
+    if (obj.tagName !== "BODY" && subtractScroll) {
       curleft -= obj.scrollLeft;
       curtop -= obj.scrollTop;
     }
@@ -1347,7 +1305,7 @@ pui.getOffset = function(obj, handleZoom) {
     if (obj.className == "scroller") {
       var transform = obj.style["transform"];
       if (transform == null) transform = obj.style["webkitTransform"];
-      if (transform != null && typeof transform == "string" && transform.substr(0,10) == "translate(") {
+      if (transform != null && typeof transform == "string" && transform.substr(0, 10) == "translate(") {
         transform = transform.substr(10);
         transform = transform.split(")")[0];
         var transformParts = transform.split(",");
@@ -1362,40 +1320,38 @@ pui.getOffset = function(obj, handleZoom) {
           }
         }
       }
-
     }
     // Note: when handling zoom using offsetParent would skip elements that need to be detected.
     // Omit TD nodes to avoid double counting offsets; e.g. elements inside table or mobile scroller layouts.
     // offsetParent is the next non-static element, but div.puiresp are static and can have scroll. Don't skip their scroll. #6005.
-    if (obj.parentNode && obj.parentNode.tagName != 'TD'
-    && (handleZoom || (obj.parentNode.className == 'puiresp' && (obj.parentNode.scrollTop > 0 || obj.parentNode.scrollLeft > 0)))){
+    if (obj.parentNode && obj.parentNode.tagName != "TD" &&
+    (handleZoom || (obj.parentNode.className == "puiresp" && (obj.parentNode.scrollTop > 0 || obj.parentNode.scrollLeft > 0)))) {
       obj = obj.parentNode;
     }
     else obj = obj.offsetParent;
   }
-  return [curleft,curtop];
+  return [curleft, curtop];
 };
-
 
 /**
  * Provides common methods for child classes.
  * @constructor
  * @returns {pui.BaseClass}
  */
-pui.BaseClass = function(){};
+pui.BaseClass = function () {};
 
 /**
  * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
  * It may also be called like this: pui.BaseClass.prototype.deleteOwnProperties.call(someObject);
  */
-pui.BaseClass.prototype.deleteOwnProperties = function(){
-  if (this != null && this != window && this != document){
+pui.BaseClass.prototype.deleteOwnProperties = function () {
+  if (this != null && this != window && this != document) {
     var propnames = Object.getOwnPropertyNames(this);
-    for (var i=0, n=propnames.length; i < n; i++){
+    for (var i = 0, n = propnames.length; i < n; i++) {
       try {
-        delete this[propnames[i]];  //Removes any properties that were assigned like: "this.foo = bar";.
+        delete this[propnames[i]]; // Removes any properties that were assigned like: "this.foo = bar";.
       }
-      catch(exc) {
+      catch (exc) {
         console.log(exc);
       }
     }
@@ -1406,7 +1362,7 @@ pui.BaseClass.prototype.deleteOwnProperties = function(){
  * Returns false. Can be used as a listener to 'selectstart' to disable selection, etc.
  * @returns {Boolean}
  */
-pui.BaseClass.prototype.returnFalse = function(){
+pui.BaseClass.prototype.returnFalse = function () {
   return false;
 };
 //
@@ -1418,12 +1374,10 @@ pui.BaseClass.prototype.returnFalse = function(){
  * @constructor
  */
 
-pui.MultiPart = function() {
-
+pui.MultiPart = function () {
   // Public methods.
-  this.addParts = function(partsArray) {
-
-    if (typeof(partsArray.length) == "undefined") {
+  this.addParts = function (partsArray) {
+    if (typeof (partsArray.length) == "undefined") {
       partsArray = new Array(partsArray);
     }
     var part;
@@ -1434,11 +1388,9 @@ pui.MultiPart = function() {
       }
       parts.push(part);
     }
-    
   };
-  
-  this.send = function(url, callback) {
 
+  this.send = function (url, callback) {
     var newline = "\r\n";
     var partsString = "";
     var part;
@@ -1448,14 +1400,14 @@ pui.MultiPart = function() {
     // Step one: Turn parts objects UTF-8 encoded part string.
     for (var i = 0; i < parts.length; i++) {
       part = parts[i];
-      if (typeof(part["NAME"]) != "string" || typeof(part["VALUE"]) != "string") {
+      if (typeof (part["NAME"]) != "string" || typeof (part["VALUE"]) != "string") {
         continue;
       }
       partsString += "--" + boundary + newline;
       partsString += "Content-Disposition: form-data; name=\"" + part["NAME"] + "\"";
-      if (typeof(part["FILENAME"]) == "string") {
+      if (typeof (part["FILENAME"]) == "string") {
         contentType = "application/octet-stream";
-        if (typeof(part["CONTENTTYPE"]) == "string") {
+        if (typeof (part["CONTENTTYPE"]) == "string") {
           contentType = part["CONTENTTYPE"];
         }
         partsString += "; filename=\"" + part["FILENAME"] + "\"" + newline;
@@ -1480,18 +1432,16 @@ pui.MultiPart = function() {
     req["postData"] = partsString;
     req["onready"] = callback;
     req.send();
-
   };
-  
+
   // Private fields.
-  
+
   var me = this;
-  var parts = new Array();  
-  
-  // Private methods.  
+  var parts = new Array();
 
-  function getBoundary() {
+  // Private methods.
 
+  function getBoundary () {
     // Generate unique boundary sequence which does not
     // appear in any part values.
     var quit = false;
@@ -1515,30 +1465,27 @@ pui.MultiPart = function() {
     }
 
     return boundary;
-
   }
-
 };
 
-pui.storeEventCursorPosition = function(e) {
-   var obj = getTarget(e);
-   pui.storeCursorPosition(obj);
+pui.storeEventCursorPosition = function (e) {
+  var obj = getTarget(e);
+  pui.storeCursorPosition(obj);
 };
 
-pui.storeCursorPosition = function( obj ) {
-   obj.cursorPosition = getCursorPosition(obj);
+pui.storeCursorPosition = function (obj) {
+  obj.cursorPosition = getCursorPosition(obj);
 };
 
 /**
  * Parse a comma-separated string of field names and return them in a list.
- * 
+ *
  * @param {String} propVal
  * @param {Boolean} stopAtFrom  When true, if " FROM " is detected outside a string
  *                              or parentheses, return fieldnames found before it.
  * @returns {Array}   Empty array if no fields parsed.
  */
-pui.getFieldList = function(propVal, stopAtFrom) {
-
+pui.getFieldList = function (propVal, stopAtFrom) {
   var fields = new Array();
   var fromstr = " from ";
   var frompos = 0;
@@ -1547,35 +1494,34 @@ pui.getFieldList = function(propVal, stopAtFrom) {
   var parenLevel = 0;
   var inQuote = false;
   for (var i = 0; i < propVal.length; i++) {
-    
-    if( stopAtFrom === true && frompos == 6){
+    if (stopAtFrom === true && frompos == 6) {
       // Remove " from " from the last field name, and stop looking.
       field = field.substr(0, field.length - 6);
       break;
     }
-    
-    character =  propVal.charAt(i);
+
+    character = propVal.charAt(i);
     if (!inQuote) {
-      if (character == "("){
+      if (character == "(") {
         parenLevel += 1;
         frompos = 0;
       }
-      else if (character == ")"){
+      else if (character == ")") {
         parenLevel -= 1;
         frompos = 0;
       }
-      else if (character == "'"){
+      else if (character == "'") {
         inQuote = true;
         frompos = 0;
       }
-      else if ( parenLevel == 0 ){
+      else if (parenLevel == 0) {
         // If this character matches another character in " from ", then increase position.
-        if( character.toLowerCase() == fromstr.charAt(frompos) )
-          frompos++;
+        if (character.toLowerCase() == fromstr.charAt(frompos))
+        { frompos++; }
         else
-          frompos = 0; //" from " didn't match, so reset position.
+        { frompos = 0; } // " from " didn't match, so reset position.
       }
-      
+
       if (parenLevel < 1) parenLevel = 0;
     }
     else {
@@ -1591,43 +1537,39 @@ pui.getFieldList = function(propVal, stopAtFrom) {
     }
   }
   fields.push(trim(field));
-  
-  return fields;
 
+  return fields;
 };
 
 pui.sqlProps = {
-            
-  "remote system name" : null,
-  "database file" : null,
-  "database fields" : null,
-  "selection criteria" : null,
-  "order by" : null,
-  "custom sql" : null,
-  "name field" : null,
-  "value field" : null,
-  "summary option" : null,
-  "choices database file" : null,
-  "choice options field" : null,
-  "choice values field" : null,
-  "choices selection criteria" : null,
+
+  "remote system name": null,
+  "database file": null,
+  "database fields": null,
+  "selection criteria": null,
+  "order by": null,
+  "custom sql": null,
+  "name field": null,
+  "value field": null,
+  "summary option": null,
+  "choices database file": null,
+  "choice options field": null,
+  "choice values field": null,
+  "choices selection criteria": null,
   "parameter value": null,
   "choices parameter value": null,
   "case sensitive": null,
   "blob table": null,
   "blob column": null,
   "blob selection criteria": null
-            
-};
-
-pui.isSQLProp = function(prop) {
-
-  return (typeof(pui.sqlProps[prop]) != "undefined");  
 
 };
 
-pui.getSQLVarName = function(dom) {
+pui.isSQLProp = function (prop) {
+  return (typeof (pui.sqlProps[prop]) != "undefined");
+};
 
+pui.getSQLVarName = function (dom) {
   var varName = context + ".";
 
   var id = dom.id;
@@ -1636,34 +1578,25 @@ pui.getSQLVarName = function(dom) {
   }
 
   if (context == "genie" && dom.parentNode != pui.runtimeContainer) {
-  
-    // Strip window index, as the server 
-    // processing is not aware of the resulting id at 
+    // Strip window index, as the server
+    // processing is not aware of the resulting id at
     // .scn file processing time.
     var pos = id.lastIndexOf("_W");
     if (pos != -1) {
-    
       id = id.substr(0, id.lastIndexOf("_W") + 2);
-    
     }
-  
   }
 
-  var inGrid = (typeof(dom.parentNode.parentNode.grid) != "undefined");
+  var inGrid = (typeof (dom.parentNode.parentNode.grid) != "undefined");
   if (!inGrid || dom.hasBoundSQLProps) {
-  
     varName += id;
-  
   }
   else {
-  
     var len = id.lastIndexOf(".") + 1;
     varName += id.substr(0, len) + "*";
-  
   }
-  
-  return varName;
 
+  return varName;
 };
 
 /**
@@ -1674,73 +1607,65 @@ pui.getSQLVarName = function(dom) {
  * @param {FormData|undefined} formData  Output. When not undefined, this gets appended to. (for Grid XLSX data-grid export.)
  * @returns {String}
  */
-pui.getSQLParams = function(properties, obj, formData) {
-
+pui.getSQLParams = function (properties, obj, formData) {
   var isTextbox = (properties["field type"] == "textbox");
   var idx = 1;
   var propVal = "";
-  var paramString = "";       //The returned URL string.
-  var paramStringAnd = "";    //URL parameter separator. Becomes "&" after first parameter is set.
+  var paramString = ""; // The returned URL string.
+  var paramStringAnd = ""; // URL parameter separator. Becomes "&" after first parameter is set.
   var pnameregex = /^(choices |blob )?(parameter value)( \d+)?/;
   var suffix = "";
-  
+
   // Determine which property name is given and what the maximum parameter number is. There may be gaps between numbers.
   var maxidx = 1;
   var propname;
-  for (var p in properties){
+  for (var p in properties) {
     var matches = pnameregex.exec(p);
-    if (matches){
-      if (propname == null){
+    if (matches) {
+      if (propname == null) {
         propname = (matches[1] ? matches[1] : "") + matches[2];
       }
-      if (matches[3] != null){
-        maxidx = Math.max(maxidx, parseInt(matches[3],10));
+      if (matches[3] != null) {
+        maxidx = Math.max(maxidx, parseInt(matches[3], 10));
       }
     }
   }
   if (propname == null) return datetimestring();
-  
+
   // Get each non-empty parameter in numerical order.
   do {
-        
     propVal = evalPropertyValue(properties[propname + suffix]);
-    
+
     if (propVal != "") {
-    
       var paramNum = idx;
-      
+
       if (isTextbox) {
-      
         paramNum += 1;
-      
-      }    
-    
+      }
+
       var tmpval = encodeURIComponent(propVal);
       paramString += paramStringAnd + "p" + paramNum + "=" + tmpval;
-      
+
       if (formData != null) formData.append("p" + paramNum, tmpval);
 
       if (obj != null) {
-      
         obj["p" + paramNum] = propVal;
-      
       }
-      
+
       paramStringAnd = "&";
     }
-  
+
     idx++;
-    
+
     suffix = " " + idx;
-  
   } while (idx <= maxidx);
-  
+
   return datetimestring();
-  
-  function datetimestring(){
+
+  function datetimestring () {
     var dateFmt = pui.getSQLDateFmt();
     var timeFmt = pui.getSQLTimeFmt();
-    
+
     var tmpval = encodeURIComponent(dateFmt.fmt);
     paramString += paramStringAnd + "datfmt=" + encodeURIComponent(tmpval);
     if (formData != null) formData.append("datfmt", tmpval);
@@ -1748,22 +1673,20 @@ pui.getSQLParams = function(properties, obj, formData) {
     tmpval = encodeURIComponent(dateFmt.sep);
     paramString += "&datsep=" + tmpval;
     if (formData != null) formData.append("datsep", tmpval);
-    
+
     tmpval = encodeURIComponent(timeFmt.fmt);
     paramString += "&timfmt=" + tmpval;
     if (formData != null) formData.append("timfmt", tmpval);
-    
+
     tmpval = encodeURIComponent(timeFmt.sep);
     paramString += "&timsep=" + tmpval;
     if (formData != null) formData.append("timsep", tmpval);
-    
+
     return paramString;
   }
-
 };
 
-
-pui.isPercent = function(value) {
+pui.isPercent = function (value) {
   if (value == null) return false;
   if (typeof value != "string") return false;
   if (value == "") return false;
@@ -1771,8 +1694,7 @@ pui.isPercent = function(value) {
   return false;
 };
 
-
-pui.isNumericString = function(value) {
+pui.isNumericString = function (value) {
   if (value == null) return false;
   if (typeof value != "string") return false;
   var num = Number(value);
@@ -1781,23 +1703,17 @@ pui.isNumericString = function(value) {
   return false;
 };
 
-// Returns checks for position/dimension style given as a number and 
-// assigns px unit, if so. 
+// Returns checks for position/dimension style given as a number and
+// assigns px unit, if so.
 
-pui.getPosDimString = function(styleName, value) {
-
+pui.getPosDimString = function (styleName, value) {
   if (styleName == "top" || styleName == "left" || styleName == "height" || styleName == "width") {
-  
     if (pui.isNumericString(value)) {
-    
       return value + "px";
-    
     }
-  
   }
-  
-  return value;
 
+  return value;
 };
 
 /**
@@ -1808,47 +1724,44 @@ pui.getPosDimString = function(styleName, value) {
  * @param {String} styleVal
  * @returns {Array}
  */
-pui.getStyleDim = function(styleVal){
+pui.getStyleDim = function (styleVal) {
   var unit = "", val = "";
-  if (typeof styleVal == "string"){
+  if (typeof styleVal == "string") {
     var re = /^([0-9.,-]+)(cm|mm|in|px|pt|pc|em|ex|ch|rem|vw|vh|vmin|vmax|%)$/i;
     var matches = re.exec(styleVal);
-    if (matches != null){
+    if (matches != null) {
       var num = Number(matches[1]);
       if (isNaN(num)) num = 0;
       val = num;
       unit = matches[2];
     }
-    else val = styleVal;  //The style is non-numeric or the unit is unsupported.
+    else val = styleVal; // The style is non-numeric or the unit is unsupported.
   }
   return [val, unit];
 };
 
-pui.getWindowScrollTop = function() {  // gets window scroll top position
+pui.getWindowScrollTop = function () { // gets window scroll top position
   var scrOfY = 0;
-  if ( typeof( window.pageYOffset ) == 'number' ) {
-    //Netscape compliant
+  if (typeof (window.pageYOffset) == "number") {
+    // Netscape compliant
     scrOfY = window.pageYOffset;
-  } else if ( document.body && document.body.scrollTop ) {
-    //DOM compliant
+  } else if (document.body && document.body.scrollTop) {
+    // DOM compliant
     scrOfY = document.body.scrollTop;
-  } else if ( document.documentElement && document.documentElement.scrollTop ) {
-    //IE6 standards compliant mode
+  } else if (document.documentElement && document.documentElement.scrollTop) {
+    // IE6 standards compliant mode
     scrOfY = document.documentElement.scrollTop;
   }
   return scrOfY;
 };
 
-pui.getNoConnectionMessage = function(req) {
-
+pui.getNoConnectionMessage = function (req) {
   var msg = pui["getLanguageText"]("runtimeMsg", "no connection message");
-  
+
   if (pui["no connection status"] == true) {
-  
     msg += "\n" + req.getStatusMessage();
-  
   }
-  
+
   if (pui["isCloud"]) {
     var details = req.getResponseText();
     if (details) {
@@ -1857,103 +1770,81 @@ pui.getNoConnectionMessage = function(req) {
   }
 
   return msg;
-
 };
 
-pui.getSQLDateFmt = function() {
-
+pui.getSQLDateFmt = function () {
   var fmt = null;
   var sep = null;
-  
-  if (typeof(pui["sql date format"]) == "string") {
-  
+
+  if (typeof (pui["sql date format"]) == "string") {
     fmt = pui.SQLDateFmts[pui["sql date format"].toUpperCase()];
-  
-  }  
-  
+  }
+
   if (fmt == null) {
-  
     fmt = pui.SQLDateFmts["*ISO"];
-  
   }
-  
-  if (typeof(pui["sql date separator"]) == "string") {
-  
+
+  if (typeof (pui["sql date separator"]) == "string") {
     sep = pui.SQLDateSeps[pui["sql date separator"].toUpperCase()];
-  
-  }  
-  
-  if (sep == null) {
-  
-    sep = pui.SQLDateSeps["/"];
-  
   }
-  
+
+  if (sep == null) {
+    sep = pui.SQLDateSeps["/"];
+  }
+
   return {
-  
+
     fmt: fmt,
     sep: sep
-  
-  };
 
+  };
 };
 
-pui.getSQLTimeFmt = function() {
-
+pui.getSQLTimeFmt = function () {
   var fmt = null;
   var sep = null;
-  
-  if (typeof(pui["sql time format"]) == "string") {
-  
+
+  if (typeof (pui["sql time format"]) == "string") {
     fmt = pui.SQLTimeFmts[pui["sql time format"].toUpperCase()];
-  
-  }  
-  
+  }
+
   if (fmt == null) {
-  
     fmt = pui.SQLTimeFmts["*ISO"];
-  
   }
-  
-  if (typeof(pui["sql time separator"]) == "string") {
-  
+
+  if (typeof (pui["sql time separator"]) == "string") {
     sep = pui.SQLTimeSeps[pui["sql time separator"].toUpperCase()];
-  
-  }  
-  
-  if (sep == null) {
-  
-    sep = pui.SQLTimeSeps[":"];
-  
   }
-  
+
+  if (sep == null) {
+    sep = pui.SQLTimeSeps[":"];
+  }
+
   return {
-  
+
     fmt: fmt,
     sep: sep
-  
-  };
 
+  };
 };
 
-
-pui.getDomain = function() {
-  var parts = location.href.split('://');
+pui.getDomain = function () {
+  var parts = location.href.split("://");
   var prepend = "";
   var domain = "";
   if (parts.length > 1) {
-    prepend = parts[0] + '://';
+    prepend = parts[0] + "://";
     parts.splice(0, 1);
-    domain = parts.join('://');
+    domain = parts.join("://");
   }
   else {
     domain = location.href;
   }
-  domain = prepend + domain.split('/')[0];
+  domain = prepend + domain.split("/")[0];
   return domain;
 };
 
-pui.getLink = function(path) {
+pui.getLink = function (path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
   var domain = pui.getDomain();
@@ -1966,7 +1857,7 @@ pui.getLink = function(path) {
   return null;
 };
 
-pui.getScript = function(path) {
+pui.getScript = function (path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
   var domain = pui.getDomain();
@@ -1983,7 +1874,7 @@ pui.getScript = function(path) {
 //   - string (comma separated): 'A,B,C'
 //   - string (json formatted): '["A","B","C"]'
 //   - javascript array
-pui.parseCommaSeparatedList = function(list) {
+pui.parseCommaSeparatedList = function (list) {
   if (typeof list != "string") {
     if (list instanceof Array) return list;
     else return [];
@@ -1994,16 +1885,15 @@ pui.parseCommaSeparatedList = function(list) {
     try {
       listArray = eval(list);
     }
-    catch(e) {
+    catch (e) {
     }
   }
   if (listArray == null) listArray = list.split(",");
   return listArray;
 };
 
-
-pui.isHTML5InputType = function(type) {
-  switch(type) {
+pui.isHTML5InputType = function (type) {
+  switch (type) {
     // provided as a choice in the "input type" property
     case "number":
     case "date":
@@ -2016,7 +1906,7 @@ pui.isHTML5InputType = function(type) {
     // not provided as a choice in the "input type" property, but could be valid HTML5 input types
     case "color":
     case "datetime-local":
-    //case "range":
+    // case "range":
     case "search":
     case "week":
       return true;
@@ -2025,95 +1915,81 @@ pui.isHTML5InputType = function(type) {
   }
 };
 
-
-pui.isTextbox = function(obj) {
-
+pui.isTextbox = function (obj) {
   if (obj.tagName == "INPUT") {
     if (obj.type == null || obj.type == "" || obj.type == "text" || pui.isHTML5InputType(obj.type) || obj.type == "password") {
       return true;
     }
   }
-  
-  return false;
 
+  return false;
 };
 
-pui.isFieldExit = function(e) {
-
+pui.isFieldExit = function (e) {
   e = e || window.event;
   var key = e.keyCode;
   var fe = pui["field exit key"];
-  
-  if ((key == fe) && 
-      (!e.shiftKey || fe == 16) && 
+
+  if ((key == fe) &&
+      (!e.shiftKey || fe == 16) &&
       (!e.ctrlKey || fe == 17)) {
-  
     return true;
-      
   }
   else {
-  
     return false;
-  
-  }        
-  
+  }
 };
 
-pui.hasParent = function(node) {
-
+pui.hasParent = function (node) {
   var prt = node.parentNode;
   return (prt != null && (!pui["is_old_ie"] || prt.nodeName != "#document-fragment"));
-
 };
 
-pui.appendAuth = function(url) {  
-   // When using PJSCALL to call a PJS module from Genie, we have Genie app job info in pui.appJob
-   // and AUTH info in PUISSNP. In that case, we DO want to send AUTH even though pui.nodejs is "true".
-   if (!inDesignMode() && 
-       (!pui.nodejs || pui.pjs_session_id || (pui["appJob"]["name"] && pui["appJob"]["user"] && pui["appJob"]["number"])) && 
+pui.appendAuth = function (url) {
+  // When using PJSCALL to call a PJS module from Genie, we have Genie app job info in pui.appJob
+  // and AUTH info in PUISSNP. In that case, we DO want to send AUTH even though pui.nodejs is "true".
+  if (!inDesignMode() &&
+       (!pui.nodejs || pui.pjs_session_id || (pui["appJob"]["name"] && pui["appJob"]["user"] && pui["appJob"]["number"])) &&
        typeof url == "string" && url.search("AUTH=") == -1) {
-     if (url.search(/\?/) == -1) url += '?';
-     else url += '&';
+    if (url.search(/\?/) == -1) url += "?";
+    else url += "&";
     var auth = pui.pjs_session_id ? pui.pjs_session_id : pui["appJob"]["auth"];
     url += "AUTH=" + encodeURIComponent(auth);
-   }
-   return url;
+  }
+  return url;
 };
 
-
-
-pui.validateEmail = function(email) { 
+pui.validateEmail = function (email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
 
-pui.isBound = function(propVal) {
+pui.isBound = function (propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["fieldName"] == "string");
 };
 
-pui.isTranslated = function(propVal) {
-  return (propVal != null && typeof propVal == "object"
-    && typeof propVal["translations"] == "object"
-    && propVal["translations"] != null
-    && typeof propVal["translations"].length == "number");
+pui.isTranslated = function (propVal) {
+  return (propVal != null && typeof propVal == "object" &&
+    typeof propVal["translations"] == "object" &&
+    propVal["translations"] != null &&
+    typeof propVal["translations"].length == "number");
 };
 
-pui.isRoutine = function(propVal) {
+pui.isRoutine = function (propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["routine"] == "string");
 };
 
-pui.isJoin = function(propVal) {
+pui.isJoin = function (propVal) {
   return (propVal != null && typeof propVal == "object" && propVal["join"] == true);
 };
 
-pui.taphold = function(target, handler, threshold) {
-
+pui.taphold = function (target, handler, threshold) {
   // Some notes:
   //   1) We do not check pui["is_touch"] here because some Windows-based
   //      touch devices will return 'false' for that.  Instead, we add the
   //      event listeners for touchstart/end with a try/catch.
-  //   2) threshold is set to 475ms because at 500ms some browsers will 
-  //      bring up their own context menus, we want to take control 
+  //   2) threshold is set to 475ms because at 500ms some browsers will
+  //      bring up their own context menus, we want to take control
   //      before that happens. (If a customer finds 475 to be too short,
   //      we should consider making this a configurable option so that
   //      anyone can tune it to their own liking.) -SK
@@ -2121,85 +1997,69 @@ pui.taphold = function(target, handler, threshold) {
   if (!target || !target.addEventListener) return;
   if (typeof handler != "function") return;
   if (typeof threshold != "number") threshold = 475;
-  
+
   var timeoutId;
 
-  function start(e) {
-  
-    timeoutId = setTimeout(function() {
-    
+  function start (e) {
+    timeoutId = setTimeout(function () {
       timeoutId = null;
       handler(e);
-    
     }, threshold);
-  
-  } 
+  }
 
-  function stop(e) {
-  
+  function stop (e) {
     clearTimeout(timeoutId);
     timeoutId = null;
-      
-  }  
-  
+  }
+
   try {
     target.addEventListener("touchstart", start, false);
-    target.addEventListener("touchend", stop, false);  
+    target.addEventListener("touchend", stop, false);
   }
   catch (e) {
     /* ignore error */
   }
-  
 };
 
-// Used to fix IE8 printing issue, see here: 
+// Used to fix IE8 printing issue, see here:
 // http://stackoverflow.com/questions/3591464/print-page-shows-unchanged-checkbox-in-ie-with-doctype
 // --DR.
-pui.fixCheckPrint = function(el) {
-
+pui.fixCheckPrint = function (el) {
   if (el.checked) {
-  
     el.setAttribute("checked", "checked");
-  
   }
   else {
-  
     el.removeAttribute("checked");
-  
   }
-
 };
 
 /**
  * Encode special characters in a string so the string can be used in an XML document as an EntityValue or AttValue (attribute).
- * https://www.w3.org/TR/xml/#NT-AttValue 
+ * https://www.w3.org/TR/xml/#NT-AttValue
  * @param {String} str
  * @returns {String}
  */
-pui.xmlEscape = function(str) {
-
+pui.xmlEscape = function (str) {
   str = "" + str;
   str = str.replace(/&/g, "&amp;");
   str = str.replace(/</g, "&lt;");
   str = str.replace(/>/g, "&gt;");
-  str = str.replace(/"/g, "&quot;");   // " - fake comment to fix syntax highlighting
-  str = str.replace(/\u001a/g, "&#x25a1;");    // the "substitute" character breaks XLSX files. replace with unicode square. Issue #6149. 
-  str = str.replace(/\u000c/g, "&#x25a1;"); //form feed
-  return str;  
-
+  str = str.replace(/"/g, "&quot;"); // " - fake comment to fix syntax highlighting
+  str = str.replace(/\u001a/g, "&#x25a1;"); // the "substitute" character breaks XLSX files. replace with unicode square. Issue #6149.
+  str = str.replace(/\u000c/g, "&#x25a1;"); // form feed
+  return str;
 };
 
-
-// Used to fix Redmine 692 - iFrame close error issue when not in the same domain - Firefox and Chrome 
+// Used to fix Redmine 692 - iFrame close error issue when not in the same domain - Firefox and Chrome
 // Function is used in this utils.js, genie.js and render.js
 
-pui.checkForAtrium = function(parentWindow) {
+pui.checkForAtrium = function (parentWindow) {
   var hasAtrium = false;
-  
+
   try {
-    hasAtrium = (typeof(parentWindow["Atrium"]) != "undefined" && typeof(parentWindow["Atrium"]["api"]) != "undefined");
+    hasAtrium = (typeof (parentWindow["Atrium"]) != "undefined" && typeof (parentWindow["Atrium"]["api"]) != "undefined");
   }
-  catch(e) {
+  catch (e) {
   }
 
   return hasAtrium;
@@ -2210,50 +2070,46 @@ pui.checkForAtrium = function(parentWindow) {
  * @param {Object} parentWindow
  * @returns {Boolean}
  */
-pui.windowAccessible = function(parentWindow) {
+pui.windowAccessible = function (parentWindow) {
   var accessible = false;
   try {
-    if (parentWindow.location["host"] != null) accessible = true; //Throws exception if parent has different origin.
+    if (parentWindow.location["host"] != null) accessible = true; // Throws exception if parent has different origin.
   }
-  catch(exc){}
+  catch (exc) {}
   return accessible;
 };
 
-pui.isLocalStorage = function() {
-
-try {
-if (localStorage != null && typeof(window.localStorage) != "undefined")
-    return true;
-  
-  else
-    return false;
-  }
-  
-catch(e){
-  return false;
-  }
-};
-
-pui.isSessionStorage = function() {
-
+pui.isLocalStorage = function () {
   try {
-  if (sessionStorage != null && typeof(window.sessionStorage) != "undefined")
-      return true;
-    
+    if (localStorage != null && typeof (window.localStorage) != "undefined")
+    { return true; }
+
     else
-      return false;
-    }
-    
-  catch(e){
+    { return false; }
+  }
+
+  catch (e) {
     return false;
   }
 };
 
+pui.isSessionStorage = function () {
+  try {
+    if (sessionStorage != null && typeof (window.sessionStorage) != "undefined")
+    { return true; }
 
+    else
+    { return false; }
+  }
 
-pui.normalizeColor = function(value) {
-  if (value.substr(0,1) == "#") value = value.toUpperCase();
-  if (value.substr(0,4) == "rgb(" && value.substr(value.length-1, 1) == ")") {
+  catch (e) {
+    return false;
+  }
+};
+
+pui.normalizeColor = function (value) {
+  if (value.substr(0, 1) == "#") value = value.toUpperCase();
+  if (value.substr(0, 4) == "rgb(" && value.substr(value.length - 1, 1) == ")") {
     value = value.substr(4, value.length - 5);
     value = value.replace(/ /g, "");
     var hexCodes = value.split(",");
@@ -2262,68 +2118,51 @@ pui.normalizeColor = function(value) {
       var hex = Number(hexCodes[i]).toString(16).toUpperCase();
       if (hex.length == 1) hex = "0" + hex;
       value += hex;
-    } 
+    }
   }
   return value;
 };
 
-pui.logException = function(e, prefix) {
-
+pui.logException = function (e, prefix) {
   var msg;
   if (e.stack) {
-  
     msg = e.toString();
     var parts = e.stack.split("\n");
     if (parts.length >= 1) {
-    
       if (msg.indexOf(trim(parts[0])) != 0 || parts.length < 2) {
-      
         msg += " " + trim(parts[0]);
-      
       }
       else {
-      
         msg += " " + trim(parts[1]);
-      
       }
-    
     }
-  
   }
   else {
-  
     if (typeof prefix == "string") msg = prefix;
     msg += " " + e.toString();
-  
   }
-  
-  console.log(msg);
 
+  console.log(msg);
 };
 
 // This fixes:
 // http://redmine/issues/791
 
-pui.posFix = function(elem) {
-
+pui.posFix = function (elem) {
   if (pui["is_chrome"] && pui.isTextbox(elem)) {
-  
     // Yes, that's really all there is to it!
     var temp = elem.value;
     elem.value = "";
     elem.value = temp;
-  
   }
-
 };
 
-
-pui.highlightText = function(node, text) {
-  if(node === undefined || !node) return;
+pui.highlightText = function (node, text) {
+  if (node === undefined || !node) return;
   if (node.tagName == "SPAN" && node.className == "pui-highlight") return;
 
-  if(node.hasChildNodes()) {
-    for(var i=0; i < node.childNodes.length; i++) {
+  if (node.hasChildNodes()) {
+    for (var i = 0; i < node.childNodes.length; i++) {
       pui.highlightText(node.childNodes[i], text);
     }
   }
@@ -2331,7 +2170,7 @@ pui.highlightText = function(node, text) {
     var content = node.nodeValue;
     if (content != null && typeof content == "string") {
       var contentLower = content.toLowerCase();
-      while (contentLower.indexOf(String.fromCharCode(160)) != -1) {    
+      while (contentLower.indexOf(String.fromCharCode(160)) != -1) {
         contentLower = contentLower.replace(String.fromCharCode(160), " ");
       }
       var textLower = text.toLowerCase();
@@ -2341,7 +2180,7 @@ pui.highlightText = function(node, text) {
         var hiSpan = document.createElement("span");
         hiSpan.appendChild(document.createTextNode(foundText));
         hiSpan.className = "pui-highlight";
-  
+
         var after = node.splitText(idx);
         after.nodeValue = after.nodeValue.substring(text.length);
         node.parentNode.insertBefore(hiSpan, after);
@@ -2350,23 +2189,21 @@ pui.highlightText = function(node, text) {
   }
 };
 
-
-pui.dehighlightText = function(div) {
+pui.dehighlightText = function (div) {
   var spans = div.getElementsByTagName("span");
   var span;
-  while(spans.length && (span = spans[0])) {
+  while (spans.length && (span = spans[0])) {
     var parent = span.parentNode;
     parent.replaceChild(span.firstChild, span);
     parent.normalize();
   }
 };
 
-
-pui.startMouseCapableMonitoring = function() {
+pui.startMouseCapableMonitoring = function () {
   if (pui["is_mouse_capable"]) {
     return;
   }
-  
+
   if (pui.isLocalStorage() && localStorage["pui-is-mouse-capable"] == "true") {
     // if iOS or Android dont set the mouse_capable flag #4460
     if (pui["is_android"] || pui["is_ios"]) return;
@@ -2386,72 +2223,62 @@ pui.startMouseCapableMonitoring = function() {
     if (hadMouseOver) {
       // if iOS or Android dont set the mouse_capable flag #4460
       if (pui["is_android"] || pui["is_ios"]) {
-        removeEvent(docElement, 'mousedown', onMouseDown);
-        removeEvent(docElement, 'mousemove', onMouseMove);
+        removeEvent(docElement, "mousedown", onMouseDown);
+        removeEvent(docElement, "mousemove", onMouseMove);
         return;
       }
       pui["is_mouse_capable"] = true;
       if (pui.isLocalStorage()) {
         localStorage.setItem("pui-is-mouse-capable", "true");
       }
-      removeEvent(docElement, 'mousedown', onMouseDown);
-      removeEvent(docElement, 'mousemove', onMouseMove);
+      removeEvent(docElement, "mousedown", onMouseDown);
+      removeEvent(docElement, "mousemove", onMouseMove);
     }
     hadMouseOver = true;
   };
 
   var hadMouseOver = false;
-  addEvent(docElement, 'mousedown', onMouseDown);
-  addEvent(docElement, 'mousemove', onMouseMove);
+  addEvent(docElement, "mousedown", onMouseDown);
+  addEvent(docElement, "mousemove", onMouseMove);
 };
 
-pui.killFrames = function() {
-  
-  // For Redmine #2287, Chrome doesn't seem to fire the "unload" 
+pui.killFrames = function () {
+  // For Redmine #2287, Chrome doesn't seem to fire the "unload"
   // event for iframes when a Chrome tab is closed.
   if (pui["is_chrome"]) {
-
     var iframes = document.getElementsByTagName("iframe");
     for (var i = 0; i < iframes.length; i++) {
-
       var iframe = iframes[i];
-      
+
       var puiObj = null;
       try {
         puiObj = iframe.contentWindow["pui"];
         iframe.contentWindow["puihalted"] = true;
       }
-      catch(e) { /* ignore */ }
-      
+      catch (e) { /* ignore */ }
+
       if (puiObj != null && typeof puiObj["unload"] === "function") {
         puiObj["halted"] = true;
         puiObj["unload"]();
       }
       else {
         iframe.src = "";
-      } 
-      
+      }
     }
-
-  }  
-  
+  }
 };
 
-
-pui["haltFrames"] = function() {
-  
+pui["haltFrames"] = function () {
   var iframes = document.getElementsByTagName("iframe");
   for (var i = 0; i < iframes.length; i++) {
-
     var iframe = iframes[i];
-    if( iframe != null ){
-    
+    if (iframe != null) {
       var puiObj = null;
       try {
         puiObj = iframe.contentWindow["pui"];
         iframe.contentWindow["puihalted"] = true;
       }
-      catch(e) { /* ignore */ }
+      catch (e) { /* ignore */ }
 
       if (puiObj != null && typeof puiObj === "object") {
         puiObj["halted"] = true;
@@ -2462,8 +2289,8 @@ pui["haltFrames"] = function() {
 
       // Since haltFrames can be called in the middle of a session, avoid breaking the
       // back button behavior by removing the element before clearing "src". Issue 2503.
-      if( iframe.parentNode != null )
-        iframe.parentNode.removeChild(iframe);
+      if (iframe.parentNode != null)
+      { iframe.parentNode.removeChild(iframe); }
 
       // Prevent the browser from trying to continue loading the document.
       iframe.src = "";
@@ -2475,50 +2302,50 @@ pui["haltFrames"] = function() {
  * Initialize the break-message settings, storage, and event handlers. Start
  * polling. Called by init() in runtime/5250/init.js or render() in
  * runtime/dspf/render.js.
- * 
+ *
  * Requires a browser that supports localStorage and JSON.
- * 
+ *
  * Note: un-obfuscated so that you can stop by setting pui["brkmsg enable"]=false,
- * and resume by calling pui.breakMessagesInit() from the console or 
+ * and resume by calling pui.breakMessagesInit() from the console or
  * user script.
- * 
+ *
  * @returns {undefined}
  */
-pui["breakMessagesInit"] = function(){
+pui["breakMessagesInit"] = function () {
   // Do nothing if local storage isn't supported or break-messages not enabled.
-  if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
-  if( !pui.isLocalStorage() || typeof(JSON) !== "object") return;
+  if (inDesignMode() || pui["brkmsg enable"] !== true) return;
+  if (!pui.isLocalStorage() || typeof (JSON) !== "object") return;
   // Do nothing if there is no user or user is QTMHHTP1. (user may not be set for PJS session.)
-  if(typeof(pui.appJob) !== "object" || pui.appJob["user"] == null || pui.appJob["user"].length <= 0
-  || pui.appJob["user"] === "QTMHHTP1" ) return;
-  
+  if (typeof (pui.appJob) !== "object" || pui.appJob["user"] == null || pui.appJob["user"].length <= 0 ||
+  pui.appJob["user"] === "QTMHHTP1") return;
+
   // Ensure that polling interval is valid.
   pui["brkmsg poll interval"] = Number(pui["brkmsg poll interval"]);
-  if( isNaN(pui["brkmsg poll interval"]))
-    pui["brkmsg poll interval"] = 30;
+  if (isNaN(pui["brkmsg poll interval"]))
+  { pui["brkmsg poll interval"] = 30; }
   // Fastest interval allowed is 1 second.
-  else if( pui["brkmsg poll interval"] < 1 )
-    pui["brkmsg poll interval"] = 1;
-  
+  else if (pui["brkmsg poll interval"] < 1)
+  { pui["brkmsg poll interval"] = 1; }
+
   // Ensure that max-error-count exists.
   pui["brkmsg max errors"] = Number(pui["brkmsg max errors"]);
-  if( isNaN(pui["brkmsg max errors"]))
-    pui["brkmsg max errors"] = 3;
-  
-  // Maximum messages to show at once. 
+  if (isNaN(pui["brkmsg max errors"]))
+  { pui["brkmsg max errors"] = 3; }
+
+  // Maximum messages to show at once.
   pui["brkmsg max messages"] = Number(pui["brkmsg max messages"]);
-  if( isNaN(pui["brkmsg max messages"]))
-    pui["brkmsg max messages"] = 10;
-  
+  if (isNaN(pui["brkmsg max messages"]))
+  { pui["brkmsg max messages"] = 10; }
+
   // User polling timeout in seconds. UserId will be cleared from localStorage
   // if no polling happened for that user recently.
   pui["brkmsg user timeout"] = Number(pui["brkmsg user timeout"]);
-  if( isNaN(pui["brkmsg user timeout"]))
-    pui["brkmsg user timeout"] = 300;
+  if (isNaN(pui["brkmsg user timeout"]))
+  { pui["brkmsg user timeout"] = 300; }
   // Prevent unpredictable behavior when timeout happens too quickly.
-  else if( pui["brkmsg user timeout"] <= pui["brkmsg poll interval"] )
-    pui["brkmsg user timeout"] = pui["brkmsg poll interval"] + 10;
-  
+  else if (pui["brkmsg user timeout"] <= pui["brkmsg poll interval"])
+  { pui["brkmsg user timeout"] = pui["brkmsg poll interval"] + 10; }
+
   // Current error count.
   pui.breakMessageErrors = 0;
 
@@ -2527,243 +2354,242 @@ pui["breakMessagesInit"] = function(){
 
   // If we are a new session and old messages exist, then get ready to show them.
   var msgs;
-  try{ msgs = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"])); }
+  try { msgs = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"])); }
   // If the messages couldn't parse, just clear them.
-  catch(exc){ localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], "[]"); }
+  catch (exc) { localStorage.setItem("brkmsgMessages_" + pui.appJob["user"], "[]"); }
 
   // Setup the non-Atrium container and event listener.
-  if( window.parent == window || !pui.checkForAtrium(window.parent) ){
+  if (window.parent == window || !pui.checkForAtrium(window.parent)) {
     // Create a UI container.
     var container = document.createElement("div");
     container.id = "pui-break-messages";
     container.style.zIndex = pui.windowZIndex++;
     pui.runtimeContainer.appendChild(container);
 
-    if( pui.isLocalStorage()){
+    if (pui.isLocalStorage()) {
       // Avoid duplicate event handlers by removing before adding.
       removeEvent(window, "storage", pui.breakMessagesOnStorage);
       // Listen on our window for messages from storage.
       addEvent(window, "storage", pui.breakMessagesOnStorage);
       // Show pending messages.
-      if(msgs) pui.breakMessagesShow(msgs);
+      if (msgs) pui.breakMessagesShow(msgs);
     }
-  } 
+  }
   // Setup the Atrium event handler.
-  else{
+  else {
     // Attach a single handler to the Atrium window for all child windows.
     removeEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
     addEvent(window.parent, "storage", window.parent["Atrium"]["api"]["breakMessagesOnStorage"]);
     // Show pending messages.
-    if(msgs) window.parent["Atrium"]["api"]["breakMessagesShow"](msgs,pui.appJob["user"]);
+    if (msgs) window.parent["Atrium"]["api"]["breakMessagesShow"](msgs, pui.appJob["user"]);
   }
 
-  pui.breakMessagesStartPoll();  
-};//end breakMessagesInit.
+  pui.breakMessagesStartPoll();
+};// end breakMessagesInit.
 
 /**
  * Check if this session's job should assume the active polling role. If too
  * much time has passed since the last poll, take over as active poller and
  * return true. Otherwise, don't take over and return false.
  * Returns false if the session isn't active.
- * 
+ *
  * @returns {Boolean}
  */
-pui.breakMessagesPollCheck = function(){
-  if( !pui || !pui.appJob || pui.appJob["auth"].length <= 0
-  || pui.appJob["user"].length <= 0 ) return false;
+pui.breakMessagesPollCheck = function () {
+  if (!pui || !pui.appJob || pui.appJob["auth"].length <= 0 ||
+  pui.appJob["user"].length <= 0) return false;
 
   //
   // See if we should take over as active poller.
   //
-  var activePoller = localStorage.getItem("brkmsgActivePoller_"+pui.appJob["user"]);
-  var lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+pui.appJob["user"]));
-  if( isNaN(lastPoll) ) lastPoll = 0;
-  
-  // Calculate how many milliseconds since the last poll; calculate how many 
+  var activePoller = localStorage.getItem("brkmsgActivePoller_" + pui.appJob["user"]);
+  var lastPoll = Number(localStorage.getItem("brkmsgLastPoll_" + pui.appJob["user"]));
+  if (isNaN(lastPoll)) lastPoll = 0;
+
+  // Calculate how many milliseconds since the last poll; calculate how many
   // seconds is too many: the polling interval + 10 seconds.
   // Assume the other process is gone after that long.
   var now = Date.now();
   var difference_ms = now - lastPoll;
-  var compareto_ms = pui["brkmsg poll interval"]*1000 + 10000;
-  
+  var compareto_ms = pui["brkmsg poll interval"] * 1000 + 10000;
+
   // If there was no activePoller or the last recorded one was too long ago,
   // then take over as active poller.
-  if( activePoller === null
-  || (difference_ms >= compareto_ms && activePoller !== pui.appJob["auth"])){
+  if (activePoller === null ||
+  (difference_ms >= compareto_ms && activePoller !== pui.appJob["auth"])) {
     activePoller = pui.appJob["auth"];
-    localStorage.setItem("brkmsgActivePoller_"+pui.appJob["user"], activePoller);
-    localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], now );
+    localStorage.setItem("brkmsgActivePoller_" + pui.appJob["user"], activePoller);
+    localStorage.setItem("brkmsgLastPoll_" + pui.appJob["user"], now);
   }
-  
+
   //
   // Get the list of all userIds in local storage. See if we should remove any.
   //
   var userIds;
   var listChanged = false;
-  try{
+  try {
     userIds = JSON.parse(localStorage.getItem("brkmsgUserIds"));
   }
-  catch(exc){ listChanged = true;}
-  if( userIds == null || typeof(userIds.pop) !== "function") {
+  catch (exc) { listChanged = true; }
+  if (userIds == null || typeof (userIds.pop) !== "function") {
     userIds = [];
     listChanged = true;
   }
-  
+
   // Make sure current user is in array.
   var activeList = [];
-  if( pui.arrayIndexOf(userIds, pui.appJob["user"]) < 0 ){
+  if (pui.arrayIndexOf(userIds, pui.appJob["user"]) < 0) {
     activeList.push(pui.appJob["user"]);
     listChanged = true;
   }
-  
+
   // Look at all users from storage and see if they have been inactive too long.
-  for(var i=0; i < userIds.length; i++){
-    if( userIds[i] !== pui.appJob["user"]){
-      lastPoll = Number(localStorage.getItem("brkmsgLastPoll_"+userIds[i]));
-      if(isNaN(lastPoll)) lastPoll = 0;
+  for (var i = 0; i < userIds.length; i++) {
+    if (userIds[i] !== pui.appJob["user"]) {
+      lastPoll = Number(localStorage.getItem("brkmsgLastPoll_" + userIds[i]));
+      if (isNaN(lastPoll)) lastPoll = 0;
 
       // Users keys should be cleared.
-      if( Date.now() - lastPoll >= pui["brkmsg user timeout"]*1000 ){
-        localStorage.removeItem("brkmsgLastPoll_"+userIds[i]);
-        localStorage.removeItem("brkmsgActivePoller_"+userIds[i]);
-        localStorage.removeItem("brkmsgMessages_"+userIds[i]);
+      if (Date.now() - lastPoll >= pui["brkmsg user timeout"] * 1000) {
+        localStorage.removeItem("brkmsgLastPoll_" + userIds[i]);
+        localStorage.removeItem("brkmsgActivePoller_" + userIds[i]);
+        localStorage.removeItem("brkmsgMessages_" + userIds[i]);
         listChanged = true;
       }
       // User is still active, keep them.
       else activeList.push(userIds[i]);
     }
   }
-  if(listChanged) localStorage.setItem("brkmsgUserIds", JSON.stringify(activeList));
-  
+  if (listChanged) localStorage.setItem("brkmsgUserIds", JSON.stringify(activeList));
+
   activeList = null;
   userIds = null;
-  
+
   return activePoller === pui.appJob["auth"];
 };
 
 /**
- * Start a new Interval function to poll for break messages. 
- * 
+ * Start a new Interval function to poll for break messages.
+ *
  * @returns {undefined}
  */
-pui.breakMessagesStartPoll = function(){
-  if( inDesignMode() || pui["brkmsg enable"] !== true ) return;
+pui.breakMessagesStartPoll = function () {
+  if (inDesignMode() || pui["brkmsg enable"] !== true) return;
 
   // Stop a previous Interval if it existed.
-  if( typeof(pui.breakMessagePoller) === "number")
-    clearInterval(pui.breakMessagePoller);
+  if (typeof (pui.breakMessagePoller) === "number")
+  { clearInterval(pui.breakMessagePoller); }
 
   // Start a new poller.
-  pui.breakMessagePoller = setInterval(function(){
+  pui.breakMessagePoller = setInterval(function () {
     // If the user logged off or brkmsg became disabled, then stop the poller.
-    if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
-    || pui.appJob["user"] === "QTMHHTP1" || pui["brkmsg enable"] !== true){
+    if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
+    pui.appJob["user"] === "QTMHHTP1" || pui["brkmsg enable"] !== true) {
       pui.breakMessagesStopPoll();
       return;
     }
-    
+
     // See if we should assume the role as active poller or we are active poller.
-    if( pui.breakMessagesPollCheck() ){
+    if (pui.breakMessagesPollCheck()) {
       // We are the poller, so poll the server. Otherwise, do nothing.
       ajaxJSON({
         "url": getProgramURL("PUI0009116.PGM"),
         "method": "post",
         "async": true,
-        "suppressAlert": true, /*Popup alerts every interval would be very annoying.*/
+        "suppressAlert": true, /* Popup alerts every interval would be very annoying. */
         "params": { "AUTH": pui.appJob["auth"] },
         /* Handler for errors, such as 404. */
-        "onfail": function(){
+        "onfail": function () {
           pui.breakMessageErrors++;
           // If too many errors were encountered polling, then stop polling.
-          if( pui.breakMessageErrors >= pui["brkmsg max errors"] ) {
+          if (pui.breakMessageErrors >= pui["brkmsg max errors"]) {
             pui.breakMessagesStopPoll();
             console.log("Stopped break-message polling; too many errors.");
           }
         },
-        /* Handler for successful response. parms is a JSON object.*/
-        "handler": function(parms){
+        /* Handler for successful response. parms is a JSON object. */
+        "handler": function (parms) {
           // There was an error.
-          if( parms == null || typeof(parms) !== "object" || parms["error"] ){
+          if (parms == null || typeof (parms) !== "object" || parms["error"]) {
             pui.breakMessageErrors++;
             // If too many errors were encountered polling, then stop polling.
             // Errors here are usually from session time out.
-            if( pui.breakMessageErrors >= pui["brkmsg max errors"] ) {
+            if (pui.breakMessageErrors >= pui["brkmsg max errors"]) {
               pui.breakMessagesStopPoll();
             }
           }
           // There was at least one new message.
-          else if( parms["success"] && parms["messages"] != null
-          && typeof(parms["messages"].pop) === "function"
-          && parms["messages"].length > 0 ) {
-          
+          else if (parms["success"] && parms["messages"] != null &&
+          typeof (parms["messages"].pop) === "function" &&
+          parms["messages"].length > 0) {
             var brkMessages;
             // Try adding the new messages to any stored ones.
-            try{
+            try {
               // Get existing messages.
-              brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
+              brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"]));
             }
             // Existing messages failed to parse. Ignore.
-            catch(exc){ console.log(exc); }
+            catch (exc) { console.log(exc); }
 
             // If the existing messages aren't an array, discard them.
-            if( brkMessages == null || typeof(brkMessages.pop) !== "function"){
+            if (brkMessages == null || typeof (brkMessages.pop) !== "function") {
               brkMessages = [];
             }
             // Add new messages to end of array, and store the modified array.
             brkMessages = brkMessages.concat(parms["messages"]);
-            
+
             // Make sure the new array isn't too large.
-            if( pui["brkmsg max messages"] > 0 && brkMessages.length > pui["brkmsg max messages"] ) {
+            if (pui["brkmsg max messages"] > 0 && brkMessages.length > pui["brkmsg max messages"]) {
               // Get the last elements from the array.
               brkMessages = brkMessages.slice(brkMessages.length - pui["brkmsg max messages"], brkMessages.length);
             }
-            
+
             // Send the message to Atrium.
-            if( window != window.parent && pui.checkForAtrium(window.parent)){
-              //Send to Atrium if Ext.msgbox is being shown. Avoid triggering a custom function twice; a storage event will trigger breakMessagesShow.
+            if (window != window.parent && pui.checkForAtrium(window.parent)) {
+              // Send to Atrium if Ext.msgbox is being shown. Avoid triggering a custom function twice; a storage event will trigger breakMessagesShow.
               if (typeof window.parent["Atrium"]["brkmsg handler"] !== "function")
-                window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
+              { window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages, pui.appJob["user"]); }
             }
             else {
               // Non-Atrium: show the message
-              pui.breakMessagesShow(brkMessages );
+              pui.breakMessagesShow(brkMessages);
             }
             // Store the message, sending it to any other tabs.
-            localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+            localStorage.setItem("brkmsgMessages_" + pui.appJob["user"], JSON.stringify(brkMessages));
           }
           // Else no error and success==false: there were no messages.
         }
       });
 
-      localStorage.setItem("brkmsgLastPoll_"+pui.appJob["user"], Date.now() );
-    }//done with active poll.
-    
+      localStorage.setItem("brkmsgLastPoll_" + pui.appJob["user"], Date.now());
+    }// done with active poll.
+
     // Fallback for IE8, which supports storage but not storage events:
     // redraw the messages from local storage in case another tab cleared or
     // caught any.
-    if( pui.isLocalStorage() && typeof(window.addEventListener) === "undefined"
-    && typeof(JSON) === "object" ){
-      try{
-        var brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-        if( window != window.parent && pui.checkForAtrium(window.parent)){
-          window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages,pui.appJob["user"]);
+    if (pui.isLocalStorage() && typeof (window.addEventListener) === "undefined" &&
+    typeof (JSON) === "object") {
+      try {
+        var brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"]));
+        if (window != window.parent && pui.checkForAtrium(window.parent)) {
+          window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages, pui.appJob["user"]);
         }
         else {
           // Non-Atrium: show the message
-          pui.breakMessagesShow(brkMessages );
+          pui.breakMessagesShow(brkMessages);
         }
       }
-      catch(exc){ console.log(exc); }
+      catch (exc) { console.log(exc); }
     }
-  }, pui["brkmsg poll interval"] * 1000 );
+  }, pui["brkmsg poll interval"] * 1000);
 };
 
 /**
  * Stop the polling interval and detach break-message storage event listeners.
- * 
+ *
  * @returns {undefined}
  */
-pui.breakMessagesStopPoll = function(){
+pui.breakMessagesStopPoll = function () {
   clearInterval(pui.breakMessagePoller);
   removeEvent(window, "storage", pui.breakMessagesOnStorage);
 };
@@ -2772,13 +2598,13 @@ pui.breakMessagesStopPoll = function(){
  * Dismiss a break message and remove it from local storage. The message will
  * also disappear from other tabs.
  * This function is the onclick handler for the message Close icon.
- * 
+ *
  * @param {Event|Object} event
  * @returns {undefined}
  */
-pui.breakMessageDismiss = function(event){
-  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
-  || pui.appJob["user"] === "QTMHHTP1"){
+pui.breakMessageDismiss = function (event) {
+  if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
+  pui.appJob["user"] === "QTMHHTP1") {
     return;
   }
   // So that when the close button is highlighted
@@ -2788,25 +2614,25 @@ pui.breakMessageDismiss = function(event){
 
   var target = getTarget(event);
   var msgIdx = target["msgIdx"];
-  
+
   var brkMessages;
   // Try removing just the clicked element from the messages.
-  try{
-    brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_"+pui.appJob["user"]));
-    if(brkMessages !== null && typeof(brkMessages.splice) === "function") {
+  try {
+    brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"]));
+    if (brkMessages !== null && typeof (brkMessages.splice) === "function") {
       // Remove the clicked message from the array.
       if (!msgIdx && msgIdx != 0) msgIdx = brkMessages.length - 1;
-      brkMessages.splice(msgIdx,1);
+      brkMessages.splice(msgIdx, 1);
     }
     else
-      brkMessages = [];
+    { brkMessages = []; }
   }
-  catch(exc){
+  catch (exc) {
     console.log(exc);
     brkMessages = [];
   }
   // Update the store, and signal any other tabs to redraw
-  localStorage.setItem("brkmsgMessages_"+pui.appJob["user"], JSON.stringify(brkMessages));
+  localStorage.setItem("brkmsgMessages_" + pui.appJob["user"], JSON.stringify(brkMessages));
   // Redraw the messages with new indices.
   pui.breakMessagesShow(brkMessages);
   brkMessages = null;
@@ -2815,26 +2641,26 @@ pui.breakMessageDismiss = function(event){
 /**
  * Put a div on the screen for each specified message. This can be called
  * by the AJAX handler or the onStorage handler when new messages arrive.
- * 
+ *
  * @param {Array|Object} messages   An array of objects that must have these
  *   members: date, time, msg, jobName, jobUserName, jobNum, jobCurProfName.
- *   
+ *
  * @returns {undefined}
  */
-pui.breakMessagesShow = function(messages) {
-  if (typeof pui["brkmsg handler"] == "function") return pui["brkmsg handler"](messages); //Let the end-pgmr-defined function handle the messages.
+pui.breakMessagesShow = function (messages) {
+  if (typeof pui["brkmsg handler"] == "function") return pui["brkmsg handler"](messages); // Let the end-pgmr-defined function handle the messages.
   pui.breakMessageShowing = false;
-  if(messages == null || typeof(messages.pop) !== "function") return;
-  
+  if (messages == null || typeof (messages.pop) !== "function") return;
+
   var bkmsgcont = document.getElementById("pui-break-messages");
-  if(!bkmsgcont) return;
+  if (!bkmsgcont) return;
 
   // Clear existing messages from the page. The messages argument contains the
   // same messages as the store, so make sure what is visible agrees with
   // what other tabs show.
   bkmsgcont.innerHTML = "";
-  
-  if( messages.length == 0) {
+
+  if (messages.length == 0) {
     pui["unmaskScreen"]();
     return;
   }
@@ -2844,12 +2670,12 @@ pui.breakMessagesShow = function(messages) {
   // Keep pushing the container to the top.
   pui.windowZIndex += 2;
   bkmsgcont.style.zIndex = pui.windowZIndex;
-  
+
   var top = 10;
   var left = 10;
 
   // Show each message in a set of DIVs.
-  for(var i=0; i < messages.length; i++ ){
+  for (var i = 0; i < messages.length; i++) {
     var curmsg = messages[i];
     curmsg["to"] = pui.appJob["user"];
 
@@ -2861,7 +2687,7 @@ pui.breakMessagesShow = function(messages) {
     var msgtitlewrap = document.createElement("div");
     msgtitlewrap.className = "msg-titlewrap";
     msgwrap.appendChild(msgtitlewrap);
-    
+
     var msgtitle = document.createElement("div");
     msgtitle.className = "title";
     msgtitlewrap.appendChild(msgtitle);
@@ -2873,33 +2699,33 @@ pui.breakMessagesShow = function(messages) {
 
     addEvent(closeImg, "click", pui.breakMessageDismiss);
     addEvent(closeImg, "keydown", pui.breakMessageDismiss);
-    
+
     var msgbody = document.createElement("div");
     msgbody.className = "msg-body";
-    
+
     // Use the user-defined formatter if it exists.
-    if( typeof(pui["breakMessageFormat"]) === "function"){
-      var stringwrap = {"title":"","body":""};
+    if (typeof (pui["breakMessageFormat"]) === "function") {
+      var stringwrap = { "title": "", "body": "" };
       pui["breakMessageFormat"](curmsg, stringwrap);
       msgtitle.innerHTML = stringwrap.title;
       msgbody.innerHTML = stringwrap.body;
     }
     else {
-      try{
-        msgtitle.innerHTML = curmsg["date"]+" "+curmsg["time"] + "<br>"
-          + curmsg["jobNum"] +"/"+ curmsg["jobUserName"] +"/"+ curmsg["jobName"];
-        msgbody.innerHTML = curmsg["to"] +":<br>"+ curmsg["msg"];
+      try {
+        msgtitle.innerHTML = curmsg["date"] + " " + curmsg["time"] + "<br>" +
+          curmsg["jobNum"] + "/" + curmsg["jobUserName"] + "/" + curmsg["jobName"];
+        msgbody.innerHTML = curmsg["to"] + ":<br>" + curmsg["msg"];
       }
-      catch(exc){ console.log(exc); }
+      catch (exc) { console.log(exc); }
     }
-    
+
     msgwrap.appendChild(msgbody);
     bkmsgcont.appendChild(msgwrap);
     msgbody = null;
     msgwrap = null;
     msgtitle = null;
     curmsg = null;
-    
+
     top += 1;
     left += 10;
   }
@@ -2913,62 +2739,54 @@ pui.breakMessagesShow = function(messages) {
  * that still exist in the local storage object. The event may fire when
  * the active poller stored a new message or when the user dismissed a visible
  * message.
- * 
+ *
  * @param {type} e
  * @returns {Boolean}
  */
-pui.breakMessagesOnStorage = function(e){
-  if(typeof(pui.appJob) !== "object" || pui.appJob["user"].length <= 0
-  || pui.appJob["user"] === "QTMHHTP1"  ){
+pui.breakMessagesOnStorage = function (e) {
+  if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
+  pui.appJob["user"] === "QTMHHTP1") {
     return false;
   }
-  
+
   // Only handle changes to break messages for current user.
-  if(e.key !== "brkmsgMessages_"+pui.appJob["user"]) return false;
-  try{
+  if (e.key !== "brkmsgMessages_" + pui.appJob["user"]) return false;
+  try {
     var messages = JSON.parse(e.newValue);
-    pui.breakMessagesShow( messages );
+    pui.breakMessagesShow(messages);
   }
-  catch(exc){ console.log(exc); }
+  catch (exc) { console.log(exc); }
   return false;
 };
 
-pui.submitLog = function(submittingFlag) {
-  
+pui.submitLog = function (submittingFlag) {
   if (!pui["submit log"])
-    return;
-  
+  { return; }
+
   console.log("=".repeat(80));
   console.log(new Date().toString() + ": submit flag = " + submittingFlag);
   console.log("-".repeat(80));
   try {
-    
     throw new Error();
-    
   }
-  catch(e) {
-    
+  catch (e) {
     var lines = e.stack.split("\n");
     if (lines[0].indexOf("Error") == 0)
-      lines.shift();
+    { lines.shift(); }
     lines.shift();
     for (var i = 0; i < lines.length; i++)
-      if (lines[i] != "")
-        console.log(lines[i].replace(/^\s*at\s/, ""));
-    
+    { if (lines[i] != "")
+    { console.log(lines[i].replace(/^\s*at\s/, "")); } }
   }
-  
 };
 
 if (typeof String.prototype.repeat != "function")
-  String.prototype.repeat = function(n) {
-    
-    var val = "";
-    for (var i = 0; i < n; i++)
-      val += this;
-    return val;
-    
-  };
+{ String.prototype.repeat = function (n) {
+  var val = "";
+  for (var i = 0; i < n; i++)
+  { val += this; }
+  return val;
+}; }
 
 /**
  * Do a polling wait for some condition to happen. Execute a callback when finished.
@@ -2979,30 +2797,22 @@ if (typeof String.prototype.repeat != "function")
  *                            Accepts one parameter: true when condition is met, false when max time expired.
  * @returns {undefined}
  */
-pui.wait = function(interval, max, check, proceed) {
-
+pui.wait = function (interval, max, check, proceed) {
   var elapsed = 0;
   var handle = setInterval(
-    function() {
-
+    function () {
       elapsed += interval;
       if (check() === true) {
-        
         clearInterval(handle);
         proceed(true);
-        
       }
       else if (elapsed >= max) {
-
         clearInterval(handle);
-        proceed(false);   
-      
+        proceed(false);
       }
-    
     },
     interval
   );
-  
 };
 
 /**
@@ -3012,30 +2822,30 @@ pui.wait = function(interval, max, check, proceed) {
  * @param {Object|Null} formatData      Input. The "data" property of the current RDF format. This is needed
  *                                      if a conditional dependency needs to test a bound field's value.
  *                                      This is null for Genie and Designer.
- * @param {Boolean} designer            True if page is Designer. False for Genie, RDF. Needed for some 
+ * @param {Boolean} designer            True if page is Designer. False for Genie, RDF. Needed for some
  *                                      conditional dependencies.
  * @returns {undefined}
  */
-pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
-  if( item != null ){
-    var fieldtype = item["field type"] || item["field_type"]; //Genie uses "field_type"; RDF uses "field type".
-    if( fieldtype != null ){
+pui.addItemDependenciesTo = function (item, dependencies, formatData, designer) {
+  if (item != null) {
+    var fieldtype = item["field type"] || item["field_type"]; // Genie uses "field_type"; RDF uses "field type".
+    if (fieldtype != null) {
       // In pre-render time, parms items don't have widget names, which
       // is the key under which pui.widgets stores dependencies.
       // So try to resolve the widget name from "field type" and template if necessary.
-      if( fieldtype == "layout" && item["template"] == "css panel" ) fieldtype = "css panel"; //special case.
+      if (fieldtype == "layout" && item["template"] == "css panel") fieldtype = "css panel"; // special case.
 
-      if( pui.widgets[fieldtype] != null && pui.widgets[fieldtype]["dependencies"] != null 
-      && pui.widgets[fieldtype]["dependencies"].length > 0 ){
+      if (pui.widgets[fieldtype] != null && pui.widgets[fieldtype]["dependencies"] != null &&
+      pui.widgets[fieldtype]["dependencies"].length > 0) {
         // List of dependencies that the Visual Designer will ignore and not fetch.
-        var designerIgnoredDependencies = ['/fusionchartsxt/js/pui-fusioncharts.js'];
+        var designerIgnoredDependencies = ["/fusionchartsxt/js/pui-fusioncharts.js"];
         // Used to avoid loading redundant dependencies.
         var scripts = document.getElementsByTagName("script");
         var links = document.getElementsByTagName("link");
 
         var widdep = pui.widgets[fieldtype]["dependencies"];
         if (inDesignMode() && widdep.length > 0) {
-          widdep = widdep.filter(function(file) {
+          widdep = widdep.filter(function (file) {
             if (designerIgnoredDependencies.indexOf(file) !== -1) {
               return false;
             }
@@ -3046,30 +2856,30 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
         var origin = "";
         var re = /^(https?:\/\/[^\/]+)\//i;
         var matches = document.URL.match(re);
-        if( matches != null && matches.length == 2) origin = matches[1];
-        
+        if (matches != null && matches.length == 2) origin = matches[1];
+
         // Add each dependency to a list.
-        for( var dp=0; dp < widdep.length; dp++ ){
+        for (var dp = 0; dp < widdep.length; dp++) {
           var dependUri = widdep[dp];
           var useDependency = false;
-          if (typeof widdep[dp] == "object" && widdep[dp] != null && typeof widdep[dp]["condition"] == "function"){
-            //The dependency is conditional, so load only when it passes a test.
-            if (widdep[dp]["condition"](item, formatData, designer)){
+          if (typeof widdep[dp] == "object" && widdep[dp] != null && typeof widdep[dp]["condition"] == "function") {
+            // The dependency is conditional, so load only when it passes a test.
+            if (widdep[dp]["condition"](item, formatData, designer)) {
               dependUri = widdep[dp]["script"];
               useDependency = true;
             }
-          }else if(typeof widdep[dp] == "string"){
-            useDependency = true;  //Always use dependency when it is a string.
+          } else if (typeof widdep[dp] == "string") {
+            useDependency = true; // Always use dependency when it is a string.
           }
-          if(useDependency){
+          if (useDependency) {
             // Make both the relative URI and the full URL for comparison.
             var uri = pui.normalizeURL(dependUri);
-            var url = pui.normalizeURL( origin + uri);
+            var url = pui.normalizeURL(origin + uri);
 
             // Avoid adding the same script multiple times by checking if it already exists.
-            var scriptExists = false;  
-            for(var sc=0; sc < scripts.length; sc++){
-              if( scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)) {
+            var scriptExists = false;
+            for (var sc = 0; sc < scripts.length; sc++) {
+              if (scripts[sc].type.toLowerCase() == "text/javascript" && (scripts[sc].src == url || scripts[sc].src == uri)) {
                 scriptExists = true;
                 break;
               }
@@ -3077,7 +2887,7 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
 
             // Avoiding adding the same stylesheet multiple times by checking if it already exists
             if (links && !scriptExists) {
-              for (var l=0; l<links.length; l++) {
+              for (var l = 0; l < links.length; l++) {
                 if (links[l].type.toLowerCase() == "text/css" && (links[l].href == url || links[l].href == uri)) {
                   scriptExists = true;
                   break;
@@ -3086,12 +2896,12 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
             }
 
             // If the file wasn't already loaded in <head>, and if the
-            // dependency wasn't already added to the list, add it to the list.          
-            if( !scriptExists && pui.arrayIndexOf(dependencies, uri) < 0 ){
+            // dependency wasn't already added to the list, add it to the list.
+            if (!scriptExists && pui.arrayIndexOf(dependencies, uri) < 0) {
               dependencies.push(uri);
             }
-          } //done if useDep.
-        }//done linking each dependency.
+          } // done if useDep.
+        }// done linking each dependency.
       }
     }
   }
@@ -3099,77 +2909,73 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer ){
 
 /**
  * Look for any widgets that have dependencies; look for enqueued custom layout templates to fetch. Then execute the callback.
- * 
+ *
  * When dependencies exist, add script/link tags to the document.head for each dependency. Execute
  * the callback after finished loading all. This should be called once before DSPF render-time,
  * or once before loading Genie items during rendering.
- * 
+ *
  * @param {Object} parm        Contains list of items or rendering parameters with items buried inside. For
  *    Genie/RDF, this would be the JSON response from the CGI program. With Designer, it has a list of widgets.
  * @param {Function} callback  Function to execute on success or failure to load files.
  */
-pui.loadDependencyFiles = function(parm, callback ){
-  
+pui.loadDependencyFiles = function (parm, callback) {
   // List to be populated with unique URI strings.
   var dependencies = [];
-  
-  if( parm != null ){
+
+  if (parm != null) {
     // When called by genie() in 5250/genie.js, parm should be an entry from the global screenPropertiesObj.
     // When called by designer, parm is just an object with an "items" array and "designMode":true.
-    if( parm["items"] != null && parm["items"].length > 0){
-      for(var itm=0; itm < parm["items"].length; itm++){
-        
+    if (parm["items"] != null && parm["items"].length > 0) {
+      for (var itm = 0; itm < parm["items"].length; itm++) {
         // If the "dependencies" property exists, add to a list.
-        pui.addItemDependenciesTo( parm["items"][itm], dependencies, null, parm["designer"]);
+        pui.addItemDependenciesTo(parm["items"][itm], dependencies, null, parm["designer"]);
       }
     }
     // When called for pui.render, parm should contain layers and formats for the RDF/genie screen.
-    else if(parm["layers"] != null && parm["layers"].length > 0){
+    else if (parm["layers"] != null && parm["layers"].length > 0) {
       // Look in each layer.
-      for(var lay=0; lay < parm["layers"].length; lay++){
+      for (var lay = 0; lay < parm["layers"].length; lay++) {
         var layer = parm["layers"][lay];
-        if( layer != null && layer["formats"] != null && layer["formats"].length > 0){
+        if (layer != null && layer["formats"] != null && layer["formats"].length > 0) {
           // Look in each format
-          for(var fmt=0; fmt < layer["formats"].length; fmt++){
+          for (var fmt = 0; fmt < layer["formats"].length; fmt++) {
             var format = layer["formats"][fmt];
-            if( format != null && format["metaData"] != null && format["metaData"]["items"] != null && format["metaData"]["items"].length > 0){
+            if (format != null && format["metaData"] != null && format["metaData"]["items"] != null && format["metaData"]["items"].length > 0) {
               // Look at each item.
-              for(var itm=0; itm < format["metaData"]["items"].length; itm++){
-                
+              for (var itm = 0; itm < format["metaData"]["items"].length; itm++) {
                 // If the "dependencies" property exists, add to a list.
-                pui.addItemDependenciesTo( format["metaData"]["items"][itm], dependencies, format["data"], false);
-              }//end look at each item.
+                pui.addItemDependenciesTo(format["metaData"]["items"][itm], dependencies, format["data"], false);
+              }// end look at each item.
             }
-          }//end look in each format.
+          }// end look in each format.
         }
-      }//end look in each layer.
+      }// end look in each layer.
     }
   }
-  
-  pui.dependencies = dependencies; //Store the URLs globally to be accessed by callbacks.
-  
+
+  pui.dependencies = dependencies; // Store the URLs globally to be accessed by callbacks.
+
   myonload();
-  
+
   // Recursive method to load a css/js file and callback itself onsuccess or onerror. Overall, files
   // are loaded synchronously, one at a time, in FIFO order set in the "dependencies" property.
-  function myonload(){
-
-    if (pui.dependencies.length <= 0){
+  function myonload () {
+    if (pui.dependencies.length <= 0) {
       // Stop recursion. All dependencies are loaded or timed out (or there were none).
       pui.dependencies = null;
       checkTemplates();
       return;
     }
 
-    var url = pui.dependencies.shift(); //Remove first from queue.
+    var url = pui.dependencies.shift(); // Remove first from queue.
 
-    if( url != null && url.length > 0 ){      
+    if (url != null && url.length > 0) {
       var head = document.getElementsByTagName("head")[0];
 
       var fileref;
       var extn = url.substr(-4, 4).toLowerCase();
       if (extn === ".css") {
-        fileref = document.createElement("link"); 
+        fileref = document.createElement("link");
         fileref.setAttribute("type", "text/css");
         fileref.setAttribute("rel", "stylesheet");
       }
@@ -3179,30 +2985,29 @@ pui.loadDependencyFiles = function(parm, callback ){
       }
 
       fileref.onload = myonload;
-      fileref.onerror = filerefOnError;   
+      fileref.onerror = filerefOnError;
 
       // It's go time! (Assume the url is already normalized...)
       if (extn === ".css") {
         fileref.setAttribute("href", url);
       }
       else {
-        fileref.setAttribute("src", url); 
+        fileref.setAttribute("src", url);
       }
-      head.appendChild(fileref);      
-
-    }else{
-      myonload();   //If the string was empty, then look for the next dependency.
+      head.appendChild(fileref);
+    } else {
+      myonload(); // If the string was empty, then look for the next dependency.
     }
-  } //end myonload() recursive function.
-  
-  function filerefOnError(evt){
-    if (evt != null && evt.target != null) console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href );
+  } // end myonload() recursive function.
+
+  function filerefOnError (evt) {
+    if (evt != null && evt.target != null) console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href);
     myonload();
   }
-  
+
   // See if any custom layout templates need to load. They must be ready before pui.render or before Designer loads. Issues 3548, 5999.
-  function checkTemplates(){    
-    if (pui.customLayoutTemplateQueue instanceof Array && pui.customLayoutTemplateQueue.length > 0){
+  function checkTemplates () {
+    if (pui.customLayoutTemplateQueue instanceof Array && pui.customLayoutTemplateQueue.length > 0) {
       var tplt = pui.customLayoutTemplateQueue.shift();
       var req = new pui.Ajax({
         "url": tplt.url,
@@ -3217,22 +3022,21 @@ pui.loadDependencyFiles = function(parm, callback ){
     }
     else {
       if (pui.customLayoutTemplateQueue !== undefined) delete pui.customLayoutTemplateQueue;
-      callback();   //Execute and finish. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
+      callback(); // Execute and finish. (The callback is either pui.render or genie()/success() in 5250/genie.js.)
     }
   }
-  
-  function templateFail(req){
+
+  function templateFail (req) {
     // Note: processHTML will fall back to "simple container", because this template didn't exist.
     console.log("Failed to load custom layout template:", req.templateName);
     checkTemplates();
   }
-  
-  function templateSuccess(req){
+
+  function templateSuccess (req) {
     pui.layout["templates"][req.templateName] = req.getResponseText();
     checkTemplates();
   }
 };
-
 
 /**
  * For mobile apps, load any JS and CSS files in userdata/extension/mobile.
@@ -3249,7 +3053,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
       "suppressAlert": true,
       "sendAsBinary": false,
       "handler": function (response) {
-        if (response && response["status"] === 'success') {
+        if (response && response["status"] === "success") {
           loadFiles(response["data"]["files"]);
         } else {
           callback();
@@ -3264,7 +3068,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
   }
 
   // Load JS and CSS files. The last completion handler to get called will call the callback.
-  function loadFiles(files) {
+  function loadFiles (files) {
     if (files.length === 0) {
       callback();
     }
@@ -3273,7 +3077,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
       var loaded = false;
       var basename = file.split("?")[0];
 
-      if (basename.substr(-3).toLowerCase() == '.js') {
+      if (basename.substr(-3).toLowerCase() == ".js") {
         loaded = pui["loadJS"]({
           "path": file,
           "callback": loadFilesCompletion,
@@ -3282,17 +3086,16 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
             loadFilesCompletion();
           }
         });
-
-      } else if (basename.substr(-4).toLowerCase() == '.css') {
+      } else if (basename.substr(-4).toLowerCase() == ".css") {
         pui["loadCSS"](file);
       }
-      
+
       if (!loaded || loaded == false) {
-        setTimeout(loadFilesCompletion, 0);        
+        setTimeout(loadFilesCompletion, 0);
       }
 
       // Call callback when last file has been loaded
-      function loadFilesCompletion() {
+      function loadFilesCompletion () {
         var i = files.indexOf(file);
 
         if (i >= 0) {
@@ -3306,23 +3109,21 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
   }
 };
 
-
 /**
  * Round to a specified number of decimals.
  * Source:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
- * 
+ *
  * @param {Number} number
  * @param {Number} precision
  * @returns {Number}
  */
-pui.round = function(number, precision){
+pui.round = function (number, precision) {
   var factor = Math.pow(10, precision);
   var tempNumber = number * factor;
   var roundedTempNumber = Math.round(tempNumber);
-  return roundedTempNumber / factor;  
+  return roundedTempNumber / factor;
 };
-
 
 /**
  * Look for EJS tags in a string of HTML. If EJS is present, then supply data from
@@ -3330,15 +3131,14 @@ pui.round = function(number, precision){
  * @param {String} html
  * @returns {String}
  */
-pui.ejs = function(html) {
-  
-  if (html.indexOf("<%") < 0) return html;  // no ejs to process
-  
+pui.ejs = function (html) {
+  if (html.indexOf("<%") < 0) return html; // no ejs to process
+
   if (typeof window["ejs"] !== "object" || typeof window["ejs"]["render"] !== "function") {
     console.error("EJS templating library not loaded.");
     return html;
   }
-  
+
   // First, format the data properly for ejs
   if (pui.ejsData == null) {
     var data = {};
@@ -3349,10 +3149,10 @@ pui.ejs = function(html) {
     if (lastLayer == null) lastLayer = { formats: [] };
     var formats = lastLayer.formats;
     for (var i = 0; i < formats.length; i++) {
-      var format = formats[i];      
+      var format = formats[i];
       for (var name in format.data) {
         var value = format.data[name];
-        if (name.substr(0,3).toUpperCase() === "*IN") {
+        if (name.substr(0, 3).toUpperCase() === "*IN") {
           var ind = name.substr(3);
           if (!isNaN(Number(ind))) ind = Number(ind);
           flags[ind] = value;
@@ -3371,10 +3171,10 @@ pui.ejs = function(html) {
           var list = [];
           for (var j = 0; j < subfileData.length; j++) {
             var recordArray = subfileData[j];
-            var record = {};          
+            var record = {};
             for (var k = 0; k < fields.length; k++) {
-              var fieldName = fields[k]; 
-              if (fieldName.substr(0,3).toUpperCase() === "*IN") {
+              var fieldName = fields[k];
+              if (fieldName.substr(0, 3).toUpperCase() === "*IN") {
                 var ind = fieldName.substr(3);
                 if (!isNaN(Number(ind))) ind = Number(ind);
                 flags[ind] = recordArray[k];
@@ -3396,36 +3196,35 @@ pui.ejs = function(html) {
       }
     }
     var useflags = false;
-    for( var key in flags){ //Object.keys(flags).length > 0 would be nicer, but IE8 doesn't support Object.keys.
+    for (var key in flags) { // Object.keys(flags).length > 0 would be nicer, but IE8 doesn't support Object.keys.
       useflags = true;
       break;
     }
     if (useflags) data.flags = flags;
     pui.ejsData = data;
   }
-  
+
   try {
     html = window["ejs"]["render"](html, pui.ejsData);
   }
   catch (err) {
     console.error(err);
   }
-  
-  return html;
 
+  return html;
 };
 
 /**
- * Start loading the EJS library then check for EJS content. If the library is loaded, 
+ * Start loading the EJS library then check for EJS content. If the library is loaded,
  * then check for EJS content. This is used by the ajax_container.
  *
  * @param {Object} dom
  * @param {String} html
  * @returns {undefined}
  */
-pui.setHtmlWithEjs = function(dom, html) {
+pui.setHtmlWithEjs = function (dom, html) {
   if (pui.ejsLoading) {
-    setTimeout(function() {
+    setTimeout(function () {
       pui.setHtmlWithEjs(dom, html);
     }, 100);
     return;
@@ -3435,13 +3234,13 @@ pui.setHtmlWithEjs = function(dom, html) {
     dom.innerHTML = "";
     pui["loadJS"]({
       "path": pui.normalizeURL("/ejs/ejs.min.js"),
-      "callback": function() {
+      "callback": function () {
         dom.innerHTML = pui.ejs(html);
         pui.ejsLoaded = true;
         pui.ejsLoading = false;
       },
-      "onerror": function() {
-        pui.ejsLoading = false;        
+      "onerror": function () {
+        pui.ejsLoading = false;
       }
     });
   }
@@ -3460,42 +3259,42 @@ pui.setHtmlWithEjs = function(dom, html) {
  * @type Object
  */
 pui.xlsx = Object.create(pui.BaseClass.prototype, {
-  XMLSTART: {value: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'},
-  XMLNS_BASE: {value: 'http://schemas.openxmlformats.org'},
-  MIME_OPENXML: {value: 'application/vnd.openxmlformats'}    //MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
+  XMLSTART: { value: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' },
+  XMLNS_BASE: { value: "http://schemas.openxmlformats.org" },
+  MIME_OPENXML: { value: "application/vnd.openxmlformats" } // MIME or Content-Types used to create Excel 2007+ spreadsheets and for the download XHR.
 });
 // These read-only properties depend on the initially defined ones.
 Object.defineProperties(pui.xlsx, {
-  MIME_XLSX_BASE: {value: pui.xlsx.MIME_OPENXML + '-officedocument.spreadsheetml'},
-  XMLNS_SPREADSHEET: {value: pui.xlsx.XMLNS_BASE + '/spreadsheetml/2006/main'},
-  XMLNS_PACKAGE_RELS: {value: pui.xlsx.XMLNS_BASE + '/package/2006/relationships'},
-  XMLNS_OFFICEDOC_RELS: {value: pui.xlsx.XMLNS_BASE + '/officeDocument/2006/relationships'}
+  MIME_XLSX_BASE: { value: pui.xlsx.MIME_OPENXML + "-officedocument.spreadsheetml" },
+  XMLNS_SPREADSHEET: { value: pui.xlsx.XMLNS_BASE + "/spreadsheetml/2006/main" },
+  XMLNS_PACKAGE_RELS: { value: pui.xlsx.XMLNS_BASE + "/package/2006/relationships" },
+  XMLNS_OFFICEDOC_RELS: { value: pui.xlsx.XMLNS_BASE + "/officeDocument/2006/relationships" }
 });
 
 /**
  * A class that creates an XLSX workbook, which must contain a worksheet and can contain images and hyperlinks.
  * @constructor
- * @param {pui.xlsx_worksheet} worksheet 
+ * @param {pui.xlsx_worksheet} worksheet
  */
-pui.xlsx_workbook = function(worksheet){
+pui.xlsx_workbook = function (worksheet) {
   /**
    * For now the workbook supports a single worksheet.
    * @type pui.xlsx_worksheet
    */
   this.worksheet = worksheet;
-  this.worksheet.workbook = this;  //Worksheets need access to some workbook methods.
-  
+  this.worksheet.workbook = this; // Worksheets need access to some workbook methods.
+
   /**
    * @type pui.xlsx_drawing
    */
-  this.drawing = null;    //xlsx_drawing or undefined
+  this.drawing = null; // xlsx_drawing or undefined
 
   // An object that implements setDownloadStatus and fireDownloadCleanup; e.g. the grid's paging bar.
   this.feedbackObj = null;
-  
-  this.sst = {};  //Shared strings table. mapping of strings to values used in dataset.
+
+  this.sst = {}; // Shared strings table. mapping of strings to values used in dataset.
   this.sst_count = 0;
-  
+
   /**
    * Cell Formats - formatting applied to cells. 0-based index. Cells (<c>) refer to these in their "s" attribute.
    * The two formats here are used for all of our exported XLSX workbooks. "numFmtId" points to this.NUM_FMTS.
@@ -3503,22 +3302,22 @@ pui.xlsx_workbook = function(worksheet){
    */
   this.cellFormats = [
     // s=0: general, no formatting.
-    {numfmtid:0, fontid:0, fillid:0, borderid:0, xfid:0},
+    { numfmtid: 0, fontid: 0, fillid: 0, borderid: 0, xfid: 0 },
     // s=1: number with 2 decimal places. numFmtId 2 is defined implicitly.
-    {numfmtid:2, fontid:0, fillid:0, borderid:0, xfid:0, applynumberformat:1}
+    { numfmtid: 2, fontid: 0, fillid: 0, borderid: 0, xfid: 0, applynumberformat: 1 }
   ];
-  this.cellFormat2DecPos = 1;  //Format for s="1", numFmtId="2", defined above.
-  
+  this.cellFormat2DecPos = 1; // Format for s="1", numFmtId="2", defined above.
+
   // Blue colored font--needed when hyperlinks are used in a worksheet.
-  this.cellFormatHyperlink = {numfmtid:0, fontid:1, fillid:0, borderid:0, xfid:1};
+  this.cellFormatHyperlink = { numfmtid: 0, fontid: 1, fillid: 0, borderid: 0, xfid: 1 };
   this.cellFormatHyperlinkId = -1;
-  
+
   // General, no formatting, align wrap--needed for cells that have newlines.
-  this.cellFormatWrap = {numfmtid:0, fontid:0, fillid:0, borderid:0, xfid:0, applyalignment:1, alignment: {wraptext: 1}};
+  this.cellFormatWrap = { numfmtid: 0, fontid: 0, fillid: 0, borderid: 0, xfid: 0, applyalignment: 1, alignment: { wraptext: 1 } };
   this.cellFormatWrapId = -1;
 
   /**
-   * Number formats - may be used in cell formats. "<numFmts>". numFmtIds 0-49 are defined implicitly: 
+   * Number formats - may be used in cell formats. "<numFmts>". numFmtIds 0-49 are defined implicitly:
    * https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
    * Other formats must be defined explicitly in the XML. A cell format must also be defined for each numFmt.
    * @type Object    The key is the Profound UI string; the value is an object with properties: id, cellFormatId, format.
@@ -3534,23 +3333,22 @@ pui.xlsx_workbook.prototype = Object.create(pui.xlsx);
  * @param {Boolean} useHyperlink
  * @returns {Object}
  */
-pui.xlsx_workbook.prototype.useSharedString = function(value, useHyperlink){
-  var storedVal = this.sst[value];   //Reference the object from the shared strings table.
-  if (storedVal == null){
+pui.xlsx_workbook.prototype.useSharedString = function (value, useHyperlink) {
+  var storedVal = this.sst[value]; // Reference the object from the shared strings table.
+  if (storedVal == null) {
     storedVal = this.sst[value] = {
-      value: this.sst_count++,      //store the unique shared string and its ID, then increment the ID.
+      value: this.sst_count++, // store the unique shared string and its ID, then increment the ID.
       isString: true
     };
 
-    if (useHyperlink){
+    if (useHyperlink) {
       // The cell has a hyperlink, so use that style.
       storedVal.cellFormatId = this.useFormatHyperlink();
     }
-    else if (/[\n\r]/.test(value)){
+    else if (/[\n\r]/.test(value)) {
       // The cell has wrapping characters, so add a style for that.
       storedVal.cellFormatId = this.useFormatWrap();
-    } 
-
+    }
   }
   return storedVal;
 };
@@ -3559,7 +3357,7 @@ pui.xlsx_workbook.prototype.useSharedString = function(value, useHyperlink){
  * Define a cell format that uses a blue font for hyperlinks and return the format, or just return the already defined cell format id.
  * @returns {Number}  Cell format ID.
  */
-pui.xlsx_workbook.prototype.useFormatHyperlink = function(){
+pui.xlsx_workbook.prototype.useFormatHyperlink = function () {
   if (this.cellFormatHyperlinkId < 0) this.cellFormatHyperlinkId = this.cellFormats.push(this.cellFormatHyperlink) - 1;
   return this.cellFormatHyperlinkId;
 };
@@ -3568,26 +3366,26 @@ pui.xlsx_workbook.prototype.useFormatHyperlink = function(){
  * Define a cell format that wraps cell text at NL|CR and return the format, or just return the already defined cell format id.
  * @returns {Number}  Cell format ID.
  */
-pui.xlsx_workbook.prototype.useFormatWrap = function(){
+pui.xlsx_workbook.prototype.useFormatWrap = function () {
   if (this.cellFormatWrapId < 0) this.cellFormatWrapId = this.cellFormats.push(this.cellFormatWrap) - 1;
   return this.cellFormatWrapId;
 };
 
 /**
  * Return a cellFormatId associated with a format string. If a number format associated with the format string does not exist,
- * then create a number format and return a cellFormatId referencing it. Cells reference cellFormats directly. Cell formats 
+ * then create a number format and return a cellFormatId referencing it. Cells reference cellFormats directly. Cell formats
  * reference Number Formats.
  * @param {String} formatStr    A format used by Profound UI; e.g. "Y-m-d". See https://docs.profoundlogic.com/x/A4Bw
  * @param {String} locale       Needed for certain formats, e.g. he_IL.
  * @returns {Number}
  */
-pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale){
+pui.xlsx_workbook.prototype.getCellFormatId = function (formatStr, locale) {
   var cellFormatId;
-  if (typeof formatStr !== 'string') formatStr = '';
-  if (typeof locale !== 'string') locale = '';
+  if (typeof formatStr !== "string") formatStr = "";
+  if (typeof locale !== "string") locale = "";
 
-  var numfmt = this.numFmts[ locale + formatStr ];
-  if (numfmt != null){
+  var numfmt = this.numFmts[locale + formatStr];
+  if (numfmt != null) {
     // A cell format and number format already exist for the format string;
     cellFormatId = numfmt.cellFormatId;
   }
@@ -3597,110 +3395,110 @@ pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale){
     // Does the format correspond to any formats that are built-in to the XLSX specs?
     // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.numberingformat.aspx
     var numFmtId = -1;
-    switch (formatStr){
-      case 'm-d-y':     numFmtId = 14; break;  //mm-dd-yy
-      case 'j-M-y':     numFmtId = 15; break;  //d-mmm-yy
-      case 'j-M':       numFmtId = 16; break;  //d-mmm
-      case 'M-y':       numFmtId = 17; break;  //mmm-yy
-      case 'g:i A':     numFmtId = 18; break;  //h:mm AM/PM.   Note: when am|pm exist in the format, the cell displays in 12-hour form.
-      case 'g:i:s A':   numFmtId = 19; break;  //h:mm:ss AM/PM
-      case 'g:i:s':     numFmtId = 19; break;  //h:mm:ss  Assume adding am|pm is a better match here than showing the 24-hour format.
-      case 'G:i':       numFmtId = 20; break;  //h:mm
-      case 'G:i:s':     numFmtId = 21; break;  //h:mm:ss
-      case 'm/d/y G:i': numFmtId = 22; break;  //m/d/yy h:mm
-      case 'i:s':       numFmtId = 45; break;  //mm:ss
-      case 'isu':       numFmtId = 47; break;  //mmss.0
+    switch (formatStr) {
+      case "m-d-y": numFmtId = 14; break; // mm-dd-yy
+      case "j-M-y": numFmtId = 15; break; // d-mmm-yy
+      case "j-M": numFmtId = 16; break; // d-mmm
+      case "M-y": numFmtId = 17; break; // mmm-yy
+      case "g:i A": numFmtId = 18; break; // h:mm AM/PM.   Note: when am|pm exist in the format, the cell displays in 12-hour form.
+      case "g:i:s A": numFmtId = 19; break; // h:mm:ss AM/PM
+      case "g:i:s": numFmtId = 19; break; // h:mm:ss  Assume adding am|pm is a better match here than showing the 24-hour format.
+      case "G:i": numFmtId = 20; break; // h:mm
+      case "G:i:s": numFmtId = 21; break; // h:mm:ss
+      case "m/d/y G:i": numFmtId = 22; break; // m/d/yy h:mm
+      case "i:s": numFmtId = 45; break; // mm:ss
+      case "isu": numFmtId = 47; break; // mmss.0
     }
 
-    if (numFmtId >= 0){
+    if (numFmtId >= 0) {
       // The number format is implicitly defined in the document specs; add a cell format to reference it.
       cellFormatId = this.defineCellFormat(numFmtId);
     }
     else {
       // The number format must be explicitly defined, and a cell format must be added for it.
-      var xlformat = '';
-      
+      var xlformat = "";
+
       // Some locales use their own version of format like "l F j Y". Other locales can be implemented like this, as needed.
-      if (locale === 'he_IL') xlformat += '[$-101040D]';
-      
-      switch (formatStr){
+      if (locale === "he_IL") xlformat += "[$-101040D]";
+
+      switch (formatStr) {
         // "R" means just the hour. i.e. *HMS, *JIS time formats, not the full RFC2822 date.
-        case 'R:i:s': xlformat = 'hh:mm:ss'; break;
-        
+        case "R:i:s": xlformat = "hh:mm:ss"; break;
+
         // "R" means just the hour. i.e. *ISO, *EUR time formats.
-        case 'R.i.s': xlformat = 'hh\\.mm\\.ss'; break;
-          
+        case "R.i.s": xlformat = "hh\\.mm\\.ss"; break;
+
         // There is no equivalent for "g" or "h" without am|pm, so output am|pm.
-        case 'g:i:s': xlformat = 'h:mm:ss am/pm'; break;
-        case 'h:i:s': xlformat = 'hh:mm:ss am/pm'; break;
-          
+        case "g:i:s": xlformat = "h:mm:ss am/pm"; break;
+        case "h:i:s": xlformat = "hh:mm:ss am/pm"; break;
+
         // Full Date/Time; RFC 2822. Note: there is no time-zone format code for XLSX, so omit UTC offset.
-        case 'R': xlformat = 'ddd\\,\\ dd\\ mmm\\ yyyy\\ hh:mm:ss'; break;
-          
-        // Work around our standard timestamp pattern to avoid adding milliseconds twice. Microseconds smaller than a millisecond 
+        case "R": xlformat = "ddd\\,\\ dd\\ mmm\\ yyyy\\ hh:mm:ss"; break;
+
+        // Work around our standard timestamp pattern to avoid adding milliseconds twice. Microseconds smaller than a millisecond
         // are not shown. Also, Excel shows the date oddly if "." is used instead of ":".
-        case 'Y-m-d-H.i.s.uu': xlformat = 'yyyy\\-mm\\-dd\\-hh\\.mm\\.ss.0'; break;
+        case "Y-m-d-H.i.s.uu": xlformat = "yyyy\\-mm\\-dd\\-hh\\.mm\\.ss.0"; break;
 
         default:
           // Translate each Profound UI formatting character code into the Excel code. Modify when necessary.
           // https://support.microsoft.com/en-us/office/number-format-codes-5026bbd6-04bc-48cd-bf33-80f18b4eae68
-          for (var i=0, n=formatStr.length; i < n; i++){
+          for (var i = 0, n = formatStr.length; i < n; i++) {
             var fchar = formatStr.charAt(i);
-            switch (fchar){
+            switch (fchar) {
               // Day
-              case 'd': xlformat += 'dd'; break;     //2-digit day of month
-              case 'D': xlformat += 'ddd'; break;    //Short day of week name
-              case 'j': xlformat += 'd'; break;      //day of month without leading zero.
-              case 'l': xlformat += 'dddd'; break;   //Full day of week name.
-              case 'S': xlformat += '\\S'; break;    //suffix for day of month; e.g. st, nd, rd, th; unsupported.
-              case 'z': xlformat += '\\z'; break;    //day of the year starting from 0.
+              case "d": xlformat += "dd"; break; // 2-digit day of month
+              case "D": xlformat += "ddd"; break; // Short day of week name
+              case "j": xlformat += "d"; break; // day of month without leading zero.
+              case "l": xlformat += "dddd"; break; // Full day of week name.
+              case "S": xlformat += "\\S"; break; // suffix for day of month; e.g. st, nd, rd, th; unsupported.
+              case "z": xlformat += "\\z"; break; // day of the year starting from 0.
 
               // Month
-              case 'F': xlformat += 'mmmm'; break;   //Full month name.
-              case 'm': xlformat += 'mm'; break;     //2-digit month number.
-              case 'M': xlformat += 'mmm'; break;    //Short month name.
-              case 'n': xlformat += 'm'; break;      //month number without leading zero.
+              case "F": xlformat += "mmmm"; break; // Full month name.
+              case "m": xlformat += "mm"; break; // 2-digit month number.
+              case "M": xlformat += "mmm"; break; // Short month name.
+              case "n": xlformat += "m"; break; // month number without leading zero.
 
               // Year
-              case 'Y': xlformat += 'yyyy'; break;
-              case 'y': xlformat += 'yy'; break;
+              case "Y": xlformat += "yyyy"; break;
+              case "y": xlformat += "yy"; break;
 
               // Time
-              case 'g': xlformat += 'h'; break;      //12-hour format without leading zeros; time will display as 24-hour unless am|pm is in the format.
-              case 'h': xlformat += 'hh'; break;     //12-hour format with leading zeros; time will display as 24-hour unless am|pm is in the format.
-              case 'G': xlformat += 'h'; break;      //24-hour without leading zeros.
-              case 'H': xlformat += 'hh'; break;     //24-hour with leading zeros.
+              case "g": xlformat += "h"; break; // 12-hour format without leading zeros; time will display as 24-hour unless am|pm is in the format.
+              case "h": xlformat += "hh"; break; // 12-hour format with leading zeros; time will display as 24-hour unless am|pm is in the format.
+              case "G": xlformat += "h"; break; // 24-hour without leading zeros.
+              case "H": xlformat += "hh"; break; // 24-hour with leading zeros.
 
-              case 'i': xlformat += 'mm'; break;     //minutes with leading zeros (if preceded by colon)
-              case 's': xlformat += 'ss'; break;     //seconds with leading zeros (if preceded by colon)
-              case 'u': xlformat += '.0'; break;     //microseconds.
+              case "i": xlformat += "mm"; break; // minutes with leading zeros (if preceded by colon)
+              case "s": xlformat += "ss"; break; // seconds with leading zeros (if preceded by colon)
+              case "u": xlformat += ".0"; break; // microseconds.
 
               // Note: if am|pm are included in the format, then the hours are 12-hour form; otherwise, hours are 24-hour form.
-              case 'a': xlformat += 'am/pm'; break;
-              case 'A': xlformat += 'AM/PM'; break;
+              case "a": xlformat += "am/pm"; break;
+              case "A": xlformat += "AM/PM"; break;
 
-              case '"': xlformat += '&quot;'; break;
+              case '"': xlformat += "&quot;"; break;
 
               // Separator characters that Excel expects should include backslashes.
-              case ' ': xlformat += '\\ '; break;
-              case '-': xlformat += '\\-'; break;
-              case '.': xlformat += '\\.'; break;
-              case ',': xlformat += '\\,'; break;
+              case " ": xlformat += "\\ "; break;
+              case "-": xlformat += "\\-"; break;
+              case ".": xlformat += "\\."; break;
+              case ",": xlformat += "\\,"; break;
 
               // Characters to output unchanged.
-              case '/': xlformat += '/'; break;
-              case ':': xlformat += ':'; break;
+              case "/": xlformat += "/"; break;
+              case ":": xlformat += ":"; break;
 
               // Other characters will be part of the string. Precede with a slash.
-              default: xlformat += '\\' + fchar; break;
+              default: xlformat += "\\" + fchar; break;
             }
           }
           break;
       }
-      
-      numFmtId = 164 + this.numFmtsCount;    //Excel seems to reserve number format IDs up to 164.
+
+      numFmtId = 164 + this.numFmtsCount; // Excel seems to reserve number format IDs up to 164.
       this.numFmtsCount++;
-      
+
       cellFormatId = this.defineCellFormat(numFmtId);
       numfmt = {
         id: numFmtId,
@@ -3710,7 +3508,7 @@ pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale){
       this.numFmts[locale + formatStr] = numfmt;
     }
   }
-  
+
   return cellFormatId;
 };
 
@@ -3719,8 +3517,8 @@ pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale){
  * @param {Number} numFmtId
  * @returns {Number}  Returns the cell format ID that uses the number format ID.
  */
-pui.xlsx_workbook.prototype.defineCellFormat = function(numFmtId){
-  var cellFmt = {numfmtid: numFmtId, fontid:0, fillid:0, borderid:0, xfid:0, applynumberformat:1};
+pui.xlsx_workbook.prototype.defineCellFormat = function (numFmtId) {
+  var cellFmt = { numfmtid: numFmtId, fontid: 0, fillid: 0, borderid: 0, xfid: 0, applynumberformat: 1 };
   return this.cellFormats.push(cellFmt) - 1;
 };
 
@@ -3730,12 +3528,12 @@ pui.xlsx_workbook.prototype.defineCellFormat = function(numFmtId){
  * Pre-conditions: setWorksheet must have been called.
  * @param {String} fileName
  */
-pui.xlsx_workbook.prototype.download = function(fileName){
+pui.xlsx_workbook.prototype.download = function (fileName) {
   this.fileName = fileName || "sheet";
-  
+
   // If necessary, load the required JSZip library and FileSaver "polyfill".
   var path = "/jszip/jszip.min.js";
-  if (typeof JSZip == "function"){
+  if (typeof JSZip == "function") {
     this._loadSaveAsJS();
   }
   else {
@@ -3743,210 +3541,210 @@ pui.xlsx_workbook.prototype.download = function(fileName){
     pui["loadJS"]({
       "path": path,
       "callback": this._loadSaveAsJS.bind(this),
-      "onerror": function(){
-        console.log("Failed to load "+path);
+      "onerror": function () {
+        console.log("Failed to load " + path);
         cleanup();
       }
     });
   }
 };
 
-pui.xlsx_workbook.prototype._loadSaveAsJS = function(){
+pui.xlsx_workbook.prototype._loadSaveAsJS = function () {
   var path = "/jszip/FileSaver.min.js";
   // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
   // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
-  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null ){
+  if (typeof saveAs == "function" || pui.getScript(pui.normalizeURL(path)) != null) {
     this._librariesLoaded();
   }
-  else{
+  else {
     var cleanup = this._cleanup.bind(this);
     pui["loadJS"]({
       "path": path,
       "callback": this._librariesLoaded.bind(this),
-      "onerror": function(){
-        console.log("Failed to load "+path);
+      "onerror": function () {
+        console.log("Failed to load " + path);
         cleanup();
       }
     });
   }
 };
 
-pui.xlsx_workbook.prototype._librariesLoaded = function(){
-  if (this.drawing){
-    this.drawing.loadImages( this._build.bind(this), this.feedbackObj );
-  }else{
+pui.xlsx_workbook.prototype._librariesLoaded = function () {
+  if (this.drawing) {
+    this.drawing.loadImages(this._build.bind(this), this.feedbackObj);
+  } else {
     this._build();
   }
 };
- 
+
 /**
  * JSZip and the FileSaver are loaded, so build the Excel workbook. Also, call a method to prompt to save it.
  */
-pui.xlsx_workbook.prototype._build = function(){
-  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == 'function')
-    this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
+pui.xlsx_workbook.prototype._build = function () {
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function")
+  { this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing")); }
 
-  // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently 
+  // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently
   // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
 
-  //[Content_Types].xml
-  var content_types = pui.xlsx.XMLSTART
-  +'<Types xmlns="'+pui.xlsx.XMLNS_BASE+'/package/2006/content-types">'
-  +  '<Default Extension="rels" ContentType="'+pui.xlsx.MIME_OPENXML+'-package.relationships+xml"/>'
-  +  '<Default Extension="xml" ContentType="application/xml"/>';
-  if (this.drawing){
+  // [Content_Types].xml
+  var content_types = pui.xlsx.XMLSTART +
+  '<Types xmlns="' + pui.xlsx.XMLNS_BASE + '/package/2006/content-types">' +
+  '<Default Extension="rels" ContentType="' + pui.xlsx.MIME_OPENXML + '-package.relationships+xml"/>' +
+  '<Default Extension="xml" ContentType="application/xml"/>';
+  if (this.drawing) {
     var extraExtensions = this.drawing.extensions;
-    for (var ext in extraExtensions ){
-      content_types += '<Default Extension="'+ext+'" ContentType="'+extraExtensions[ext]+'"/>';
+    for (var ext in extraExtensions) {
+      content_types += '<Default Extension="' + ext + '" ContentType="' + extraExtensions[ext] + '"/>';
     }
   }
   content_types +=
-     '<Override PartName="/xl/workbook.xml" ContentType="'+this.MIME_XLSX_BASE+'.sheet.main+xml"/>'
-  +  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+this.MIME_XLSX_BASE+'.worksheet+xml"/>'
-  +  '<Override PartName="/xl/styles.xml" ContentType="'+this.MIME_XLSX_BASE+'.styles+xml"/>'
-  +  '<Override PartName="/xl/sharedStrings.xml" ContentType="'+this.MIME_XLSX_BASE+'.sharedStrings+xml"/>';
-  if (this.drawing != null){
-    content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="'+this.MIME_OPENXML+'-officedocument.drawing+xml"/>';
+     '<Override PartName="/xl/workbook.xml" ContentType="' + this.MIME_XLSX_BASE + '.sheet.main+xml"/>' +
+  '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="' + this.MIME_XLSX_BASE + '.worksheet+xml"/>' +
+  '<Override PartName="/xl/styles.xml" ContentType="' + this.MIME_XLSX_BASE + '.styles+xml"/>' +
+  '<Override PartName="/xl/sharedStrings.xml" ContentType="' + this.MIME_XLSX_BASE + '.sharedStrings+xml"/>';
+  if (this.drawing != null) {
+    content_types += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="' + this.MIME_OPENXML + '-officedocument.drawing+xml"/>';
   }
-  content_types += '</Types>';
+  content_types += "</Types>";
 
-  //_rels/.rels
-  var rels = this.XMLSTART
-  +'<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">'
-  +  '<Relationship Id="rId1" Type="'+this.XMLNS_OFFICEDOC_RELS+'/officeDocument" Target="xl/workbook.xml"/>'
-  +'</Relationships>';
+  // _rels/.rels
+  var rels = this.XMLSTART +
+  '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">' +
+  '<Relationship Id="rId1" Type="' + this.XMLNS_OFFICEDOC_RELS + '/officeDocument" Target="xl/workbook.xml"/>' +
+  "</Relationships>";
 
-  //xl/workbook.xml
-  var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-  +'<workbook xmlns="'+this.XMLNS_SPREADSHEET+'" xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'">'
-  +  '<sheets>'
-  +    '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'
-  +  '</sheets>'
-  +'</workbook>';
+  // xl/workbook.xml
+  var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+  '<workbook xmlns="' + this.XMLNS_SPREADSHEET + '" xmlns:r="' + this.XMLNS_OFFICEDOC_RELS + '">' +
+  "<sheets>" +
+  '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' +
+  "</sheets>" +
+  "</workbook>";
 
-  //xl/_rels/workbook.xml.rels
-  var workbookrels = this.XMLSTART
-  +'<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">'
-  +  '<Relationship Id="rId3" Type="'+this.XMLNS_OFFICEDOC_RELS+'/styles" Target="styles.xml"/>'
-  +  '<Relationship Id="rId1" Type="'+this.XMLNS_OFFICEDOC_RELS+'/worksheet" Target="worksheets/sheet1.xml"/>'
-  +  '<Relationship Id="rId4" Type="'+this.XMLNS_OFFICEDOC_RELS+'/sharedStrings" Target="sharedStrings.xml"/>'
-  +'</Relationships>';
+  // xl/_rels/workbook.xml.rels
+  var workbookrels = this.XMLSTART +
+  '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">' +
+  '<Relationship Id="rId3" Type="' + this.XMLNS_OFFICEDOC_RELS + '/styles" Target="styles.xml"/>' +
+  '<Relationship Id="rId1" Type="' + this.XMLNS_OFFICEDOC_RELS + '/worksheet" Target="worksheets/sheet1.xml"/>' +
+  '<Relationship Id="rId4" Type="' + this.XMLNS_OFFICEDOC_RELS + '/sharedStrings" Target="sharedStrings.xml"/>' +
+  "</Relationships>";
 
-  //x1/styles.xml - at least one of each font, fill, and border is required.
-  var styles = this.XMLSTART +'<styleSheet xmlns="'+this.XMLNS_SPREADSHEET+'">';
-  
+  // x1/styles.xml - at least one of each font, fill, and border is required.
+  var styles = this.XMLSTART + '<styleSheet xmlns="' + this.XMLNS_SPREADSHEET + '">';
+
   // Add Number formats for all date, time, and timestamp formats used.
-  if (this.numFmtsCount > 0){
-    styles += '<numFmts count="'+this.numFmtsCount+'">';
-    for (var key in this.numFmts){
+  if (this.numFmtsCount > 0) {
+    styles += '<numFmts count="' + this.numFmtsCount + '">';
+    for (var key in this.numFmts) {
       var numFmt = this.numFmts[key];
-      if (numFmt.id > 0) styles += '<numFmt numFmtId="'+ numFmt.id +'" formatCode="'+ numFmt.code +'"/>';
+      if (numFmt.id > 0) styles += '<numFmt numFmtId="' + numFmt.id + '" formatCode="' + numFmt.code + '"/>';
     }
-    styles += '</numFmts>';
+    styles += "</numFmts>";
   }
-  
-  styles += '<fonts count="2">'
-  +    '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
+
+  styles += '<fonts count="2">' +
+  '<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>' +
   // Color theme requires theme1.xml with zero-based index to <clrScheme> referencing a <sysClr> or <srgbClr> value.
-  +    '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>'
-  +  '</fonts>'
-  +  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'
-  +  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+  '<font><u/><sz val="11"/><color rgb="0563C1"/><name val="Calibri"/><family val="2"/><scheme val="minor"/></font>' +
+  "</fonts>" +
+  '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>' +
+  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
   // CellStyleFormats (Formatting Records) - at least one must exist; these are referenced as xfId="0" in cellXfs and cellStyles <xf> tags.
-  +  '<cellStyleXfs count="2">'
-  +    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>'  //normal font.
-  +    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>'  //blue font for hyperlinks
-  +'</cellStyleXfs>';
-  
+  '<cellStyleXfs count="2">' +
+  '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>' + // normal font.
+  '<xf numFmtId="0" fontId="1" fillId="0" borderId="0"/>' + // blue font for hyperlinks
+  "</cellStyleXfs>";
+
   //
   // Cell Formats - formatting applied to cells.
   //
   styles += '<cellXfs count="' + this.cellFormats.length + '">';
-  
-  for (var i=0, n=this.cellFormats.length; i < n; i++){
+
+  for (var i = 0, n = this.cellFormats.length; i < n; i++) {
     var cellfmt = this.cellFormats[i];
-    
-    styles += '<xf';
+
+    styles += "<xf";
     var attr = cellfmt.numfmtid || 0;
-    styles += ' numFmtId="'+ attr +'"';
-    
+    styles += ' numFmtId="' + attr + '"';
+
     attr = cellfmt.fontid || 0;
-    styles += ' fontId="'+ attr +'"';
-    
+    styles += ' fontId="' + attr + '"';
+
     attr = cellfmt.fillid || 0;
-    styles += ' fillId="'+ attr +'"';
-    
+    styles += ' fillId="' + attr + '"';
+
     attr = cellfmt.borderid || 0;
-    styles += ' borderId="'+ attr +'"';
-    
+    styles += ' borderId="' + attr + '"';
+
     attr = cellfmt.xfid || 0;
-    styles += ' xfId="'+ attr +'"';
-    
-    if (cellfmt.applynumberformat) styles += ' applyNumberFormat="'+ cellfmt.applynumberformat +'"';
-    if (cellfmt.applyalignment) styles += ' applyAlignment="'+ cellfmt.applyalignment +'"';
-    
-    if (cellfmt.alignment && cellfmt.alignment.wraptext) styles += '><alignment wrapText="'+cellfmt.alignment.wraptext+'"/></xf>';
-    else styles += '/>';
+    styles += ' xfId="' + attr + '"';
+
+    if (cellfmt.applynumberformat) styles += ' applyNumberFormat="' + cellfmt.applynumberformat + '"';
+    if (cellfmt.applyalignment) styles += ' applyAlignment="' + cellfmt.applyalignment + '"';
+
+    if (cellfmt.alignment && cellfmt.alignment.wraptext) styles += '><alignment wrapText="' + cellfmt.alignment.wraptext + '"/></xf>';
+    else styles += "/>";
   }
-  styles += '</cellXfs>'
-  +'<dxfs count="0"/>'
-  +'</styleSheet>';
-  
+  styles += "</cellXfs>" +
+  '<dxfs count="0"/>' +
+  "</styleSheet>";
+
   var zip = new JSZip();
 
   zip["file"]("[Content_Types].xml", content_types);
   zip["file"]("_rels/.rels", rels);
   zip["file"]("xl/workbook.xml", workbook);
   zip["file"]("xl/styles.xml", styles);
-  zip["file"]("xl/sharedStrings.xml", this.getSharedStringsXML() );
+  zip["file"]("xl/sharedStrings.xml", this.getSharedStringsXML());
   zip["file"]("xl/_rels/workbook.xml.rels", workbookrels);
-  zip["file"]("xl/worksheets/sheet1.xml", this.worksheet.getSheetXML() );
-  
+  zip["file"]("xl/worksheets/sheet1.xml", this.worksheet.getSheetXML());
+
   var relationships = this.worksheet.rels;
-  if (this.drawing){
-    relationships.push({type: 'drawing', target: '../drawings/drawing1.xml'});
-    
+  if (this.drawing) {
+    relationships.push({ type: "drawing", target: "../drawings/drawing1.xml" });
+
     zip["file"]("xl/drawings/drawing1.xml", this.drawing.getDrawingXML());
     zip["file"]("xl/drawings/_rels/drawing1.xml.rels", this.drawing.getDrawingRelsXML());
     var images = this.drawing.rels;
-    for (var i=0; i < images.length; i++){
-      if (images[i].image)        //If image failed to download, don't try to add 404/500 response as image.
-        zip["file"]( "xl/media/"+images[i].name, images[i].image, { "binary": true } );
+    for (var i = 0; i < images.length; i++) {
+      if (images[i].image) // If image failed to download, don't try to add 404/500 response as image.
+      { zip["file"]("xl/media/" + images[i].name, images[i].image, { "binary": true }); }
     }
   }
-  
-  if (relationships.length > 0){
+
+  if (relationships.length > 0) {
     // Hyperlinks and drawings need sheet relationships.
-    var sheetrels = this.XMLSTART + '<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">';
+    var sheetrels = this.XMLSTART + '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">';
 
-    for (var i=0, n=relationships.length; i < n; i++){
+    for (var i = 0, n = relationships.length; i < n; i++) {
       var rel = relationships[i];
-      var targetmode = '';
-      if (rel.type === 'hyperlink') targetmode = ' TargetMode="External"';
+      var targetmode = "";
+      if (rel.type === "hyperlink") targetmode = ' TargetMode="External"';
 
-      sheetrels += '<Relationship Id="rId'+ (i+1) +'" Type="'+this.XMLNS_OFFICEDOC_RELS+'/'+ rel.type  +'" Target="'
-        + pui.xmlEscape(rel.target) + '"'+ targetmode +'/>';
+      sheetrels += '<Relationship Id="rId' + (i + 1) + '" Type="' + this.XMLNS_OFFICEDOC_RELS + "/" + rel.type + '" Target="' +
+        pui.xmlEscape(rel.target) + '"' + targetmode + "/>";
     }
 
-    sheetrels += '</Relationships>';
-    
+    sheetrels += "</Relationships>";
+
     zip["file"]("xl/worksheets/_rels/sheet1.xml.rels", sheetrels);
   }
 
   // Firefox, Chrome, IE10,IE11, and Edge can prompt to save from a blob.
-  var zipconfig = {"type": "blob", "compression": "DEFLATE", "mimeType": this.MIME_XLSX_BASE+".sheet"};
+  var zipconfig = { "type": "blob", "compression": "DEFLATE", "mimeType": this.MIME_XLSX_BASE + ".sheet" };
   var promise = zip["generateAsync"](zipconfig);
   promise["then"](this._zipResolved.bind(this), this._cleanup.bind(this));
 };
 
-pui.xlsx_workbook.prototype._cleanup = function(){
-  if (this.feedbackObj && typeof this.feedbackObj.fireDownloadCleanup == 'function') this.feedbackObj.fireDownloadCleanup();
+pui.xlsx_workbook.prototype._cleanup = function () {
+  if (this.feedbackObj && typeof this.feedbackObj.fireDownloadCleanup == "function") this.feedbackObj.fireDownloadCleanup();
   this.worksheet.deleteOwnProperties();
   if (this.drawing) this.drawing.deleteOwnProperties();
   this.deleteOwnProperties();
 };
 
-pui.xlsx_workbook.prototype._zipResolved = function(blob){
+pui.xlsx_workbook.prototype._zipResolved = function (blob) {
   saveAs(blob, this.fileName + ".xlsx");
   this._cleanup();
 };
@@ -3955,21 +3753,21 @@ pui.xlsx_workbook.prototype._zipResolved = function(blob){
  * Return an XML document string containing the Excel shared strings table.
  * @returns {String}
  */
-pui.xlsx_workbook.prototype.getSharedStringsXML = function(){
+pui.xlsx_workbook.prototype.getSharedStringsXML = function () {
   // Order the shared strings by the index id. Assume there are no gaps in indices.
   var sst_inorder = [];
-  for (var str in this.sst){
+  for (var str in this.sst) {
     var obj = this.sst[str];
     var idx = obj.value;
     sst_inorder[idx] = str;
   }
 
-  var xml = this.XMLSTART + '<sst xmlns="'+this.XMLNS_SPREADSHEET+'" count="'
-    + String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
-  for (var i=0, n=sst_inorder.length; i < n; i++){
-    xml += '<si><t>' + pui.xmlEscape(sst_inorder[i]) + '</t></si>';
+  var xml = this.XMLSTART + '<sst xmlns="' + this.XMLNS_SPREADSHEET + '" count="' +
+    String(sst_inorder.length + 1) + '"  uniqueCount="' + String(sst_inorder.length) + '">';
+  for (var i = 0, n = sst_inorder.length; i < n; i++) {
+    xml += "<si><t>" + pui.xmlEscape(sst_inorder[i]) + "</t></si>";
   }
-  xml += '</sst>';
+  xml += "</sst>";
   return xml;
 };
 
@@ -3985,10 +3783,10 @@ pui.xlsx_workbook.prototype.getSharedStringsXML = function(){
  * @param {Date} date    Date to convert
  * @returns {Number}
  */
-pui.xlsx_workbook.prototype.dateToOADate = function(date){
+pui.xlsx_workbook.prototype.dateToOADate = function (date) {
   var temp = new Date(date);
-  temp.setHours(0,0,0,0);    //Set temp to start of day and get whole days between dates,
-  var temp2 = new Date(1899, 11, 30);   //December 30th 1899 00:00:00 (midnight).
+  temp.setHours(0, 0, 0, 0); // Set temp to start of day and get whole days between dates,
+  var temp2 = new Date(1899, 11, 30); // December 30th 1899 00:00:00 (midnight).
   var days = Math.round((temp - temp2) / 8.64e7);
   // Get decimal part of day, OADate always assumes 24 hours in day
   var partDay = (Math.abs((date - temp) % 8.64e7) / 8.64e7).toFixed(10);
@@ -4009,92 +3807,92 @@ pui.xlsx_workbook.prototype.dateToOADate = function(date){
  * @param {Number} numcols
  * @returns {pui.xlsx_worksheet}
  */
-pui.xlsx_worksheet = function(numcols){
+pui.xlsx_worksheet = function (numcols) {
   this.numColumns = numcols;
   this.rows = [];
-  this.lastRowNum = -1;  //The index of the last row in rows; -1 when no rows are added.
-  
+  this.lastRowNum = -1; // The index of the last row in rows; -1 when no rows are added.
+
   /**
    * @type Number    Height in pixels. Set by Grid.
    */
   this.defaultRowHeightpx = 20;
   this.colWidths = [];
-  
-  this.useDrawing = false; //When true, one drawing reference is included in the sheet xml.
-  
-  this.formats = [];    //column formats.
-  
-  this.charcounts = [];  //max number of characters in each column; to calculate <col width="">.
-  this.fontMaxDigitWidth = 7; //max pixel width of 11pt font.
-  
+
+  this.useDrawing = false; // When true, one drawing reference is included in the sheet xml.
+
+  this.formats = []; // column formats.
+
+  this.charcounts = []; // max number of characters in each column; to calculate <col width="">.
+  this.fontMaxDigitWidth = 7; // max pixel width of 11pt font.
+
   /**
    * Relationships for hyperlink targets or drawings. Generated as "Relationship" tags in the sheet xml.rels file.
-   * Let the relationship id, "rId#", be the array index + 1. 
+   * Let the relationship id, "rId#", be the array index + 1.
    * @type Array.<Object>    Array of objects with properties: type (link|drawing), target, targetmode ("External" for links).
    */
   this.rels = [];
-  
+
   /**
    * References hyperlink "relationships" with cells in the worksheet. Generated as "hyperlink" tags in the sheet XML.
    * @type Array.<Object>  List of objects with properties: row, col, relId--the relationship object containing the link target.
    */
   this.hyperlink_refs = [];
-  
+
   //
   // Store default time/date/timestamp separators and formats and the locale default in case cell formats are unknown.
   //
   var datfmt = pui.getSQLDateFmt();
   this.datsep = null;
-  switch (datfmt.sep){
-    case 1: this.datsep = '/'; break;
-    case 2: this.datsep = '-'; break;
-    case 3: this.datsep = '.'; break;
-    case 4: this.datsep = ','; break;
-    case 5: this.datsep = ' '; break;
-    case 7: this.datsep = pui.appJob && pui.appJob.dateSeparator ? pui.appJob.dateSeparator : null; break;  //*JOB
+  switch (datfmt.sep) {
+    case 1: this.datsep = "/"; break;
+    case 2: this.datsep = "-"; break;
+    case 3: this.datsep = "."; break;
+    case 4: this.datsep = ","; break;
+    case 5: this.datsep = " "; break;
+    case 7: this.datsep = pui.appJob && pui.appJob.dateSeparator ? pui.appJob.dateSeparator : null; break; //* JOB
   }
-  
+
   // Default format strings per type: date, time, timestamp. Keys correspond to field formatting keys.
   this.defaultFmtStr = {
-    'dateFormat': 'Y-m-d',
-    'timeFormat': 'H.i.s'
+    "dateFormat": "Y-m-d",
+    "timeFormat": "H.i.s"
   };
-  
+
   // Get date format string. Default is *ISO. Separator is fixed, as with USA, EUR, and JIS. "this.tsformatStr" needs "this.datsep".
-  switch (datfmt.fmt){
-    case 1: this.defaultFmtStr['dateFormat'] = 'Y-m-d'; this.datsep = '-'; break; //*ISO
-    case 2: this.defaultFmtStr['dateFormat'] = 'm/d/Y'; this.datsep = '/'; break; //*USA
-    case 3: this.defaultFmtStr['dateFormat'] = 'd.m.Y'; this.datsep = '.'; break; //*EUR
-    case 4: this.defaultFmtStr['dateFormat'] = 'Y-m-d'; this.datsep = '-'; break; //*JIS
-    case 5: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'm'+this.datsep+'d'+this.datsep+'y'; break; //*MDY
-    case 6: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'd'+this.datsep+'m'+this.datsep+'y'; break; //*DMY
-    case 7: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'y'+this.datsep+'m'+this.datsep+'d'; break; //*YMD
-    case 8: if (typeof this.datsep === 'string') this.defaultFmtStr['dateFormat'] = 'y'+this.datsep+'z'; break; //*JUL
+  switch (datfmt.fmt) {
+    case 1: this.defaultFmtStr["dateFormat"] = "Y-m-d"; this.datsep = "-"; break; //* ISO
+    case 2: this.defaultFmtStr["dateFormat"] = "m/d/Y"; this.datsep = "/"; break; //* USA
+    case 3: this.defaultFmtStr["dateFormat"] = "d.m.Y"; this.datsep = "."; break; //* EUR
+    case 4: this.defaultFmtStr["dateFormat"] = "Y-m-d"; this.datsep = "-"; break; //* JIS
+    case 5: if (typeof this.datsep === "string") this.defaultFmtStr["dateFormat"] = "m" + this.datsep + "d" + this.datsep + "y"; break; //* MDY
+    case 6: if (typeof this.datsep === "string") this.defaultFmtStr["dateFormat"] = "d" + this.datsep + "m" + this.datsep + "y"; break; //* DMY
+    case 7: if (typeof this.datsep === "string") this.defaultFmtStr["dateFormat"] = "y" + this.datsep + "m" + this.datsep + "d"; break; //* YMD
+    case 8: if (typeof this.datsep === "string") this.defaultFmtStr["dateFormat"] = "y" + this.datsep + "z"; break; //* JUL
   }
-  
+
   var timfmt = pui.getSQLTimeFmt();
   var timesep = null;
-  switch (timfmt.sep){
-    case 3: timesep = '.'; break;
-    case 4: timesep = ','; break;
-    case 5: timesep = ' '; break;
-    case 6: timesep = ':'; break;
-    case 7: timesep = pui.appJob && pui.appJob.timeSeparator ? pui.appJob.timeSeparator : null; break;  //*JOB
+  switch (timfmt.sep) {
+    case 3: timesep = "."; break;
+    case 4: timesep = ","; break;
+    case 5: timesep = " "; break;
+    case 6: timesep = ":"; break;
+    case 7: timesep = pui.appJob && pui.appJob.timeSeparator ? pui.appJob.timeSeparator : null; break; //* JOB
   }
-  
+
   // Get time format string. Default is *ISO. Separator is fixed, as with USA, EUR, and JIS.
-  switch (timfmt.fmt){
-    case 1: this.defaultFmtStr['timeFormat'] = 'H.i.s'; break; //*ISO
-    case 2: this.defaultFmtStr['timeFormat'] = 'h:m A'; break; //*USA
-    case 3: this.defaultFmtStr['timeFormat'] = 'h.m.s'; break; //*EUR
-    case 4: this.defaultFmtStr['timeFormat'] = 'h:m:s'; break; //*JIS
-    case 9: if (typeof timesep === 'string') this.defaultFmtStr['timeFormat'] = 'h'+timesep+'m'+timesep+'s'; break; //*HMS
+  switch (timfmt.fmt) {
+    case 1: this.defaultFmtStr["timeFormat"] = "H.i.s"; break; //* ISO
+    case 2: this.defaultFmtStr["timeFormat"] = "h:m A"; break; //* USA
+    case 3: this.defaultFmtStr["timeFormat"] = "h.m.s"; break; //* EUR
+    case 4: this.defaultFmtStr["timeFormat"] = "h:m:s"; break; //* JIS
+    case 9: if (typeof timesep === "string") this.defaultFmtStr["timeFormat"] = "h" + timesep + "m" + timesep + "s"; break; //* HMS
   }
-  
-  this.defaultFmtStr['timeStampFormat'] = this.defaultFmtStr['dateFormat'] + this.datsep + this.defaultFmtStr['timeFormat'] + '.uu';
-  
-  this.locale = pui['locale'] && pui.locales[pui["locale"]] ? pui.locales[pui["locale"]] : 'en_US';
-  
+
+  this.defaultFmtStr["timeStampFormat"] = this.defaultFmtStr["dateFormat"] + this.datsep + this.defaultFmtStr["timeFormat"] + ".uu";
+
+  this.locale = pui["locale"] && pui.locales[pui["locale"]] ? pui.locales[pui["locale"]] : "en_US";
+
   // Needed for storing numbers. Assume appJob decimalFormat is the same as the CGI helper job's decimal format.
   this.decimalSepComma = pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J");
 };
@@ -4103,14 +3901,14 @@ pui.xlsx_worksheet.prototype = Object.create(pui.xlsx);
 /**
  * Add a new row for cells to go. Grid should add cells and rows in a sequential order.
  */
-pui.xlsx_worksheet.prototype.newRow = function(){
+pui.xlsx_worksheet.prototype.newRow = function () {
   this.lastRowNum = this.rows.push([]) - 1;
 };
 
 /**
  * @param {Array.<Number>} arr  An array with Numeric pixel values for each column in the grid.
  */
-pui.xlsx_worksheet.prototype.setColumnWidths = function(arr){
+pui.xlsx_worksheet.prototype.setColumnWidths = function (arr) {
   this.colWidths = arr;
 };
 
@@ -4123,15 +3921,15 @@ pui.xlsx_worksheet.prototype.setColumnWidths = function(arr){
  *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); locale; dateFormat, etc.
  * @param {Number} col      The zero-based column index.
  */
-pui.xlsx_worksheet.prototype.setColumnFormat = function(format, col){
-  if (typeof this.formats[col] !== 'object' || this.formats[col] === null) this.formats[col] = {'dataType': 'char'};
-  
+pui.xlsx_worksheet.prototype.setColumnFormat = function (format, col) {
+  if (typeof this.formats[col] !== "object" || this.formats[col] === null) this.formats[col] = { "dataType": "char" };
+
   this.numColumns = Math.max(this.numColumns, col);
-  
+
   var datatype = "char";
-  if (typeof format["dataType"] === 'string'){
-    if (format["dataType"].length == 1){
-      //If DB-driven grid calls setColumnFormat, then type names are in IBM format.
+  if (typeof format["dataType"] === "string") {
+    if (format["dataType"].length == 1) {
+      // If DB-driven grid calls setColumnFormat, then type names are in IBM format.
       switch (format["dataType"]) {
         case "L": datatype = "date"; break;
         case "T": datatype = "time"; break;
@@ -4158,33 +3956,32 @@ pui.xlsx_worksheet.prototype.setColumnFormat = function(format, col){
   // Copy other formatting properties needed for some data types.
   //
 
-  if (typeof format['decPos'] === 'string') {
-    this.formats[col]['decPos'] = format['decPos'];
-    
+  if (typeof format["decPos"] === "string") {
+    this.formats[col]["decPos"] = format["decPos"];
+
     // If the data has 2 decimal positions, use the format our style XML says is for 2 decimal positions.
-    if (format['decPos'] === "2") this.formats[col].cellFormatId = this.workbook.cellFormat2DecPos;
+    if (format["decPos"] === "2") this.formats[col].cellFormatId = this.workbook.cellFormat2DecPos;
   }
- 
+
   // Assume: if the format has dateFormat then it can be formatted as a date; timeFormat formats as time; timeStampFormat formats as TS.
   // Note: "dataType" and "formatting" may be different, as in #3972 screen dump having zoned columns formatted as Dates.
   var formatKey = false;
-  if (typeof format['dateFormat'] === 'string' && format['dateFormat'].length > 0) formatKey = 'dateFormat';
-  else if (typeof format['timeFormat'] === 'string' && format['timeFormat'].length > 0) formatKey = 'timeFormat';
-  else if (typeof format['timeStampFormat'] === 'string' && format['timeStampFormat'].length > 0) formatKey = 'timeStampFormat';
+  if (typeof format["dateFormat"] === "string" && format["dateFormat"].length > 0) formatKey = "dateFormat";
+  else if (typeof format["timeFormat"] === "string" && format["timeFormat"].length > 0) formatKey = "timeFormat";
+  else if (typeof format["timeStampFormat"] === "string" && format["timeStampFormat"].length > 0) formatKey = "timeStampFormat";
 
-  if (typeof formatKey === 'string'){
-    
-    if (typeof format['locale'] === 'string') this.formats[col]['locale'] = format['locale'];
-    else this.formats[col]['locale'] = this.locale;
-    
+  if (typeof formatKey === "string") {
+    if (typeof format["locale"] === "string") this.formats[col]["locale"] = format["locale"];
+    else this.formats[col]["locale"] = this.locale;
+
     // The column has a date, time, or timestamp type; set the format string, id, and locale on the column.
     var formatStr = format[formatKey];
-    if (typeof formatStr !== 'string') formatStr = this.defaultFmtStr[formatKey];
+    if (typeof formatStr !== "string") formatStr = this.defaultFmtStr[formatKey];
     this.formats[col][formatKey] = formatStr;
-    this.formats[col].cellFormatId = this.workbook.getCellFormatId(formatStr, this.formats[col]['locale']); 
+    this.formats[col].cellFormatId = this.workbook.getCellFormatId(formatStr, this.formats[col]["locale"]);
   }
-  
-  if (typeof format['formatting'] === 'string') this.formats[col]['formatting'] = format['formatting'];
+
+  if (typeof format["formatting"] === "string") this.formats[col]["formatting"] = format["formatting"];
 };
 
 /**
@@ -4197,42 +3994,42 @@ pui.xlsx_worksheet.prototype.setColumnFormat = function(format, col){
  * @param {undefined|Boolean} tryConvert     When true, values should try converting to date, time, timestamp, or
  *   numerics. This should only be true when the column formats are unknown, as in a Custom SQL or Data URL Grids.
  */
-pui.xlsx_worksheet.prototype.setCell = function(value, col, hyperlink, tryConvert){
-  if ((typeof value !== 'string' && typeof value !== 'number') || (typeof value === 'string' && value.length === 0)){
-    // When values are not non-empty strings nor numbers, then leave the cell empty. 
-    this.rows[this.lastRowNum][col] = {value: null};
+pui.xlsx_worksheet.prototype.setCell = function (value, col, hyperlink, tryConvert) {
+  if ((typeof value !== "string" && typeof value !== "number") || (typeof value === "string" && value.length === 0)) {
+    // When values are not non-empty strings nor numbers, then leave the cell empty.
+    this.rows[this.lastRowNum][col] = { value: null };
     return;
   }
-  
+
   // Define the cell's format from either the column format or a new char format.
   var colFormatObj = this.formats[col];
   if (colFormatObj == null) this.formats[col] = colFormatObj = { "dataType": "char" };
-  
+
   this.numColumns = Math.max(this.numColumns, col);
   this.updateCharCount(value, col);
-  
-  // Determine how to store the cell value. Cells must only contain numbers, including floating point, scientific notation, period 
+
+  // Determine how to store the cell value. Cells must only contain numbers, including floating point, scientific notation, period
   // decimal points, and negative signs. Other characters require the value to be stored as a string.
-  // 
+  //
   // Try parsing date, time, and timestamp values first according to their formats.
-  if (typeof colFormatObj['dateFormat'] === 'string' && colFormatObj['dateFormat'].length > 0){
-    if (this.tryTimestamp(value, col, 'dateFormat')) return;
-    // The value did not parse as a date or as a date that XL supports. e.g. pre 1900-01-01 or decimal formatted as date. 
+  if (typeof colFormatObj["dateFormat"] === "string" && colFormatObj["dateFormat"].length > 0) {
+    if (this.tryTimestamp(value, col, "dateFormat")) return;
+    // The value did not parse as a date or as a date that XL supports. e.g. pre 1900-01-01 or decimal formatted as date.
     // Try storing as number in case the field was a number formatted as a date. #3972.
     if (this.tryFloatingPoint(value, col)) return;
     if (this.tryFixedPoint(value, col)) return;
   }
-  else if (typeof colFormatObj['timeFormat'] === 'string' && colFormatObj['timeFormat'].length > 0){
-    if (this.tryTime(value, col, 'timeFormat')) return;
+  else if (typeof colFormatObj["timeFormat"] === "string" && colFormatObj["timeFormat"].length > 0) {
+    if (this.tryTime(value, col, "timeFormat")) return;
   }
-  else if (typeof colFormatObj['timeStampFormat'] === 'string' && colFormatObj['timeStampFormat'].length > 0){
-    if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
+  else if (typeof colFormatObj["timeStampFormat"] === "string" && colFormatObj["timeStampFormat"].length > 0) {
+    if (this.tryTimestamp(value, col, "timeStampFormat")) return;
     if (this.tryFloatingPoint(value, col)) return;
     if (this.tryFixedPoint(value, col)) return;
   }
-  
+
   // Try parsing values according to data types. Note: DBD grids can have data-types and not date|time|timeStamp Formats.
-  switch (colFormatObj['dataType']){
+  switch (colFormatObj["dataType"]) {
     case "floating":
       if (this.tryFloatingPoint(value, col)) return;
       break;
@@ -4241,43 +4038,43 @@ pui.xlsx_worksheet.prototype.setCell = function(value, col, hyperlink, tryConver
       if (this.tryFixedPoint(value, col)) return;
       break;
     case "date":
-      if (this.tryTimestamp(value, col, 'dateFormat')) return;
+      if (this.tryTimestamp(value, col, "dateFormat")) return;
       if (this.tryFloatingPoint(value, col)) return;
       if (this.tryFixedPoint(value, col)) return;
       break;
     case "timestamp":
-      if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
+      if (this.tryTimestamp(value, col, "timeStampFormat")) return;
       if (this.tryFloatingPoint(value, col)) return;
       if (this.tryFixedPoint(value, col)) return;
       break;
     case "time":
-      if (this.tryTime(value, col, 'timeFormat')) return;
+      if (this.tryTime(value, col, "timeFormat")) return;
       break;
   }
-  
+
   // Handle when a number or date cell formatting is set that did not not match dataType. e.g. char formatted as number or date.
-  switch (colFormatObj['formatting']){
-    case 'Date':
-    case 'Time Stamp':
-    case 'Number':
+  switch (colFormatObj["formatting"]) {
+    case "Date":
+    case "Time Stamp":
+    case "Number":
       if (this.tryFixedPoint(value, col)) return;
       if (this.tryFloatingPoint(value, col)) return;
       break;
   }
-  
-  if (tryConvert){
+
+  if (tryConvert) {
     // Try to detect the type of data based on patterns; when possible store it as a numeric value instead of a string.
-    if (this.tryTimestamp(value, col, 'timeStampFormat')) return;
-    if (this.tryTimestamp(value, col, 'dateFormat')) return;
-    if (this.tryTime(value, col, 'timeFormat')) return;
+    if (this.tryTimestamp(value, col, "timeStampFormat")) return;
+    if (this.tryTimestamp(value, col, "dateFormat")) return;
+    if (this.tryTime(value, col, "timeFormat")) return;
     if (this.tryFloatingPoint(value, col)) return;
     if (this.tryFixedPoint(value, col)) return;
   }
-  
-  if (typeof hyperlink === 'string' && hyperlink.length > 0) this.addHyperlink(hyperlink, col);
+
+  if (typeof hyperlink === "string" && hyperlink.length > 0) this.addHyperlink(hyperlink, col);
   else hyperlink = false;
 
-  // Anything not already handled belongs in the shared strings table (SST); the doc would be invalid if cell tags contained non-numeric data. #3972.  
+  // Anything not already handled belongs in the shared strings table (SST); the doc would be invalid if cell tags contained non-numeric data. #3972.
   this.rows[this.lastRowNum][col] = this.workbook.useSharedString(value, hyperlink !== false);
 };
 
@@ -4287,25 +4084,25 @@ pui.xlsx_worksheet.prototype.setCell = function(value, col, hyperlink, tryConver
  * @param {Number} col
  * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryFixedPoint = function(value, col){
-  if (typeof value === 'string'){
-    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+$/.test(value)){
+pui.xlsx_worksheet.prototype.tryFixedPoint = function (value, col) {
+  if (typeof value === "string") {
+    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+$/.test(value)) {
       // XLSX stores numbers with "." decimal separator (and no thousands separators). Decimal separator becomes ".".
-      value = Number( value.replace(",", ".") );
+      value = Number(value.replace(",", "."));
     }
-    else if (/^[-+]?[0-9]*\.?[0-9]+$/.test(value)){
+    else if (/^[-+]?[0-9]*\.?[0-9]+$/.test(value)) {
       // The number is a valid floating point, decimal, exponent, or hex value. Try to parse the number, and store it. Do not store
       // values that are not numbers; characters in the <c><v> tag must represent valid numbers.
       value = Number(value);
     }
   }
-  
-  if (typeof value === 'number' && !isNaN(value)) {
-    var cellfmtid = this.formats[col]['decPos'] === '2' ? this.workbook.cellFormat2DecPos : 0;
-    this.rows[this.lastRowNum][col] = {value: value, cellFormatId: cellfmtid};
+
+  if (typeof value === "number" && !isNaN(value)) {
+    var cellfmtid = this.formats[col]["decPos"] === "2" ? this.workbook.cellFormat2DecPos : 0;
+    this.rows[this.lastRowNum][col] = { value: value, cellFormatId: cellfmtid };
     return true;
   }
-  
+
   return false;
 };
 
@@ -4315,21 +4112,21 @@ pui.xlsx_worksheet.prototype.tryFixedPoint = function(value, col){
  * @param {Number} col
  * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryFloatingPoint = function(value, col){
-  if (typeof value === 'string'){
-    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)){
-      value = Number ( value.replace(',','.'));
+pui.xlsx_worksheet.prototype.tryFloatingPoint = function (value, col) {
+  if (typeof value === "string") {
+    if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)) {
+      value = Number(value.replace(",", "."));
     }
-    else if (/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)){
+    else if (/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)) {
       value = Number(value);
     }
   }
-  
-  if (typeof value === 'number' && !isNaN(value)) {
-    this.rows[this.lastRowNum][col] = {value: value, cellFormatId: 0};
+
+  if (typeof value === "number" && !isNaN(value)) {
+    this.rows[this.lastRowNum][col] = { value: value, cellFormatId: 0 };
     return true;
   }
-  
+
   return false;
 };
 
@@ -4340,58 +4137,58 @@ pui.xlsx_worksheet.prototype.tryFloatingPoint = function(value, col){
  * @param {String} formatKey
  * @returns {Array}           Returns Date in index 0 (if string was valid); the format string is in index 1; locale in index 2.
  */
-pui.xlsx_worksheet.prototype.parseDateVal = function(value, col, formatKey){
-  if (typeof value !== 'string') value = String(value);
-  
-  var locale = this.formats[col]['locale'];
-  if (typeof locale !== 'string') locale = this.locale;
-  
+pui.xlsx_worksheet.prototype.parseDateVal = function (value, col, formatKey) {
+  if (typeof value !== "string") value = String(value);
+
+  var locale = this.formats[col]["locale"];
+  if (typeof locale !== "string") locale = this.locale;
+
   var formatStr = this.formats[col][formatKey];
-  if (typeof formatStr !== 'string') formatStr = this.defaultFmtStr[formatKey];
-  
+  if (typeof formatStr !== "string") formatStr = this.defaultFmtStr[formatKey];
+
   var dateobj = pui.formatting.Date.parse(value, formatStr, locale);
-  
+
   return [dateobj, formatStr, locale];
 };
 
 /**
- * Attempt to parse, convert, and assign to the cell in the last row a numeric value representing a timestamp (or date) that XL can 
+ * Attempt to parse, convert, and assign to the cell in the last row a numeric value representing a timestamp (or date) that XL can
  * serialize numerically.
  * @param {String} value
  * @param {Number} col
  * @param {String} formatKey
  * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryTimestamp = function(value, col, formatKey){
+pui.xlsx_worksheet.prototype.tryTimestamp = function (value, col, formatKey) {
   var parsed = this.parseDateVal(value, col, formatKey);
   // Excel has no formatter for "z", and our Y-z parser fails for days 32 through 366; just leave these as strings so they display consistently.
-  if (parsed[1] === 'Y-z') return false;
-  
-  if (parsed[0] instanceof Date){
+  if (parsed[1] === "Y-z") return false;
+
+  if (parsed[0] instanceof Date) {
     var dateobj = parsed[0];
     var year = dateobj.getFullYear();
     var month = dateobj.getMonth();
     var day = dateobj.getDate();
-    if (year === 1 && month === 0 && day === 1){
+    if (year === 1 && month === 0 && day === 1) {
       // If the cell contains 0001-01-01... then leave the cell empty. Note: load-all grids pass blanks instead of 0001-01-01 to
       // setCell. DBD, Custom SQL, and Data URL grids do pass them as values.
-      this.rows[this.lastRowNum][col] = {value: null};
+      this.rows[this.lastRowNum][col] = { value: null };
       return true;
     }
-    
-    if (year < 1900 || (year === 1900 && month < 2)){
+
+    if (year < 1900 || (year === 1900 && month < 2)) {
       // Store any dates before March 1 1900 as strings to avoid a leap year bug in XL and because dates before Jan 1 1900 are
       // serialized as strings. (Returning true saves other parsers from trying to convert the value.)
       this.rows[this.lastRowNum][col] = this.workbook.useSharedString(value);
       return true;
     }
-    
+
     var num = this.workbook.dateToOADate(dateobj);
-    if (!isNaN(num) && num >= 2){
+    if (!isNaN(num) && num >= 2) {
       // The date is on or after Jan 1, 1900 (2 days after Dec 30 1899 00:00:00) and can be formatted as a date.
       this.rows[this.lastRowNum][col] = {
         value: num,
-        cellFormatId: this.workbook.getCellFormatId(parsed[1], parsed[2])  //Creates or re-uses existing cell and number formats.
+        cellFormatId: this.workbook.getCellFormatId(parsed[1], parsed[2]) // Creates or re-uses existing cell and number formats.
       };
       return true;
     }
@@ -4406,17 +4203,17 @@ pui.xlsx_worksheet.prototype.tryTimestamp = function(value, col, formatKey){
  * @param {String} formatKey
  * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryTime = function(value, col, formatKey){
+pui.xlsx_worksheet.prototype.tryTime = function (value, col, formatKey) {
   var parsed = this.parseDateVal(value, col, formatKey);
-  if (parsed[0] instanceof Date){
+  if (parsed[0] instanceof Date) {
     var hours = parsed[0].getHours();
     var mins = parsed[0].getMinutes();
     var secs = parsed[0].getSeconds();
     var ms = parsed[0].getMilliseconds();
-    
+
     this.rows[this.lastRowNum][col] = {
-      value: hours / 24 + mins / 1440 + secs / 86400 + ms / 86400000,  // Note: times in xlsx are 0 to .99999; e.g. 0.5 for 12:00 pm.
-      cellFormatId: this.workbook.getCellFormatId(parsed[1])  //Creates or re-uses existing cell and number formats.
+      value: hours / 24 + mins / 1440 + secs / 86400 + ms / 86400000, // Note: times in xlsx are 0 to .99999; e.g. 0.5 for 12:00 pm.
+      cellFormatId: this.workbook.getCellFormatId(parsed[1]) // Creates or re-uses existing cell and number formats.
     };
     return true;
   }
@@ -4426,23 +4223,23 @@ pui.xlsx_worksheet.prototype.tryTime = function(value, col, formatKey){
 /**
  * Add a reference of the hyperlink target to the cell in the last row. If the hyperlink target is not already defined, then it gets defined.
  * @param {String} hyperlinkTarget
- * @param {Number} col 
+ * @param {Number} col
  */
-pui.xlsx_worksheet.prototype.addHyperlink = function(hyperlinkTarget, col){
+pui.xlsx_worksheet.prototype.addHyperlink = function (hyperlinkTarget, col) {
   var relId = -1;
   // Reuse the link target if it already exists.
-  for (var i=0, n=this.rels.length; i < n; i++){
+  for (var i = 0, n = this.rels.length; i < n; i++) {
     var rel = this.rels[i];
-    if (rel.type === 'hyperlink' && rel.target === hyperlinkTarget){
+    if (rel.type === "hyperlink" && rel.target === hyperlinkTarget) {
       relId = i;
       break;
     }
   }
-  
-  if (relId < 0) relId = this.rels.push({ type: 'hyperlink', target: hyperlinkTarget }) - 1;
-  
+
+  if (relId < 0) relId = this.rels.push({ type: "hyperlink", target: hyperlinkTarget }) - 1;
+
   // Add the reference. Assume "addHyperlink" is only called once per cell.
-  this.hyperlink_refs.push({row: this.lastRowNum, col: col, relId: relId});
+  this.hyperlink_refs.push({ row: this.lastRowNum, col: col, relId: relId });
 };
 
 /**
@@ -4451,20 +4248,20 @@ pui.xlsx_worksheet.prototype.addHyperlink = function(hyperlinkTarget, col){
  * @param {String|Number} value
  * @param {Number} col
  */
-pui.xlsx_worksheet.prototype.updateCharCount = function(value, col){
+pui.xlsx_worksheet.prototype.updateCharCount = function (value, col) {
   var len = 0;
-  if (typeof value === 'string') len = value.length;
-  
-  if (this.rows.length == 1 || this.charcounts[col] == null){
+  if (typeof value === "string") len = value.length;
+
+  if (this.rows.length == 1 || this.charcounts[col] == null) {
     // The first row: get the column style information from each cell.
     this.charcounts[col] = len;
   }
   else {
     // For other rows, track the max character length of data in each column.
-    this.charcounts[col] = Math.max(this.charcounts[col], len );
+    this.charcounts[col] = Math.max(this.charcounts[col], len);
 
     // Allow enough room for 10-char dates, e.g., yyyy-mm-dd.
-    if (this.formats[col]['dataType'] === 'date') this.charcounts[col] = Math.max(this.charcounts[col], 10);
+    if (this.formats[col]["dataType"] === "date") this.charcounts[col] = Math.max(this.charcounts[col], 10);
   }
 };
 
@@ -4472,107 +4269,105 @@ pui.xlsx_worksheet.prototype.updateCharCount = function(value, col){
  * Return an XML document string containing the spreadsheet data.
  * @returns {String}
  */
-pui.xlsx_worksheet.prototype.getSheetXML = function(){
+pui.xlsx_worksheet.prototype.getSheetXML = function () {
   this.makemap();
-  
-  var xml = this.XMLSTART + '<worksheet xmlns="'+this.XMLNS_SPREADSHEET+'"'+' xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'">'
-  +'<dimension ref="A1:'+ this.map[this.numColumns - 1] + this.rows.length + '"/>'
+
+  var xml = this.XMLSTART + '<worksheet xmlns="' + this.XMLNS_SPREADSHEET + '"' + ' xmlns:r="' + this.XMLNS_OFFICEDOC_RELS + '">' +
+  '<dimension ref="A1:' + this.map[this.numColumns - 1] + this.rows.length + '"/>' +
   // Set the row height. Excel default is 15 point, which is 20 pixels. 0.75 * pixels = points.
-  +'<sheetFormatPr defaultRowHeight="'+(this.defaultRowHeightpx * 0.75)+'" customHeight="1" />'
-  +'<cols>' ;
-    
+  '<sheetFormatPr defaultRowHeight="' + (this.defaultRowHeightpx * 0.75) + '" customHeight="1" />' +
+  "<cols>";
+
   // Configure each column with widths, and with styles for new cells.
-  for (var col=0, n=this.numColumns; col < n; col++){
+  for (var col = 0, n = this.numColumns; col < n; col++) {
     // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
     // If widths are missing, then use the character count.
     // Calculate column width based on number of characters. Formula comes from:
     // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
     var width = 0;
-    if (typeof this.colWidths[col] === 'number')
-      width = pui.round( (this.colWidths[col] - 5)/7, 2);
-    else if (this.charcounts[col] != null && ! isNaN(parseInt(this.charcounts[col],10)) )
-      width = Math.floor((this.charcounts[col] * this.fontMaxDigitWidth + 5)/this.fontMaxDigitWidth * 256) / 256 + 5;
-    
-    if (width < 0) width = 0;    //Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
+    if (typeof this.colWidths[col] === "number")
+    { width = pui.round((this.colWidths[col] - 5) / 7, 2); }
+    else if (this.charcounts[col] != null && !isNaN(parseInt(this.charcounts[col], 10)))
+    { width = Math.floor((this.charcounts[col] * this.fontMaxDigitWidth + 5) / this.fontMaxDigitWidth * 256) / 256 + 5; }
+
+    if (width < 0) width = 0; // Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
     else if (width > 255) width = 255;
-  
+
     // Set a style for cells the user may add in the column in the future.
-    var style = '';
+    var style = "";
     if (this.formats[col] != null && this.formats[col].cellFormatId) style = ' style="' + this.formats[col].cellFormatId + '"';
-    
-    xml += '<col min="'+(col+1)+'" max="'+(col+1)+'" width="'+width+'" '+style+ ' customWidth="1"/>';
+
+    xml += '<col min="' + (col + 1) + '" max="' + (col + 1) + '" width="' + width + '" ' + style + ' customWidth="1"/>';
   }
-  xml += '</cols><sheetData>';
-  
+  xml += "</cols><sheetData>";
+
   // Set the height of the header row to be different than the normal row height, if necessary. In points: points = 0.75 * pixel_value.
-  var rowHeightStr = '';
-  if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
-    rowHeightStr = ' ht="'+ Math.round(this.headerRowHeightpx * 0.75) +'" customHeight="1"';
+  var rowHeightStr = "";
+  if (typeof this.headerRowHeightpx === "number" && this.headerRowHeightpx > 0) {
+    rowHeightStr = ' ht="' + Math.round(this.headerRowHeightpx * 0.75) + '" customHeight="1"';
   }
-  
+
   // Output each row with either numeric data or reference to shared-strings table.
-  for (var row=0, n=this.rows.length; row < n; row++){
-    var r = String(row+1);
-    xml += '<row r="'+r+'"'+rowHeightStr+'>';
+  for (var row = 0, n = this.rows.length; row < n; row++) {
+    var r = String(row + 1);
+    xml += '<row r="' + r + '"' + rowHeightStr + ">";
     var rowObj = this.rows[row];
-    if (rowObj != null){
+    if (rowObj != null) {
       // Look in each column in the row for cells to output.
-      for (var col=0; col < this.numColumns; col++){
+      for (var col = 0; col < this.numColumns; col++) {
         var cell = rowObj[col];
         // The cell should always have a value of type, number. If not, just omit it, leaving a blank cell. #6192. Also, empty character cells are omitted.
-        if (cell != null && typeof cell.value === 'number'){
-
+        if (cell != null && typeof cell.value === "number") {
           xml += '<c r="' + this.map[col] + r + '"';
 
           // Cell formats must be recorded with each cell tag to take effect.
-          if (typeof cell.cellFormatId === 'number') xml += ' s="'+ cell.cellFormatId +'"';
+          if (typeof cell.cellFormatId === "number") xml += ' s="' + cell.cellFormatId + '"';
 
           // String cell values correspond to an entries in the workbook's shared strings table (SST).
-          if (cell.isString) xml += ' t="s"';  
+          if (cell.isString) xml += ' t="s"';
 
-          xml += '><v>' + cell.value + '</v></c>';
+          xml += "><v>" + cell.value + "</v></c>";
         }
       }
     }
-    xml += '</row>';
+    xml += "</row>";
 
     // 7601 to fix issue where row heights not correct when header row height is specified
-    rowHeightStr='';
-    if (typeof this.headerRowHeightpx === 'number' && this.headerRowHeightpx > 0){
-      rowHeightStr = ' ht="'+ Math.round(this.defaultRowHeightpx * 0.75) +'" customHeight="1"';
+    rowHeightStr = "";
+    if (typeof this.headerRowHeightpx === "number" && this.headerRowHeightpx > 0) {
+      rowHeightStr = ' ht="' + Math.round(this.defaultRowHeightpx * 0.75) + '" customHeight="1"';
     }
-    
   }
 
-  xml += '</sheetData>'; 
-  if (this.useDrawing){
+  xml += "</sheetData>";
+  if (this.useDrawing) {
     xml += '<drawing r:id="rId1"/>';
   }
-  
+
   // Hyperlinks reference cells; e.g. A2. Their texts are in the shared strings table.
   var hyperlink_refs = this.hyperlink_refs;
-  if (hyperlink_refs.length > 0){
-    xml += '<hyperlinks>';
-    for (var i=0, n=hyperlink_refs.length; i < n; i++ ){
+  if (hyperlink_refs.length > 0) {
+    xml += "<hyperlinks>";
+    for (var i = 0, n = hyperlink_refs.length; i < n; i++) {
       var row = hyperlink_refs[i].row + 1;
-      var relId = hyperlink_refs[i].relId + 1;      
-      xml += '<hyperlink ref="'+ this.map[hyperlink_refs[i].col] + row +'" r:id="rId'+relId+'" />';
+      var relId = hyperlink_refs[i].relId + 1;
+      xml += '<hyperlink ref="' + this.map[hyperlink_refs[i].col] + row + '" r:id="rId' + relId + '" />';
     }
-    xml += '</hyperlinks>';
+    xml += "</hyperlinks>";
   }
-  xml += '</worksheet>';
-  
+  xml += "</worksheet>";
+
   return xml;
 };
 
 /**
  * Fill the map of column indexes to excel-style column names for as many columns as needed.
  */
-pui.xlsx_worksheet.prototype.makemap = function(){
+pui.xlsx_worksheet.prototype.makemap = function () {
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
   this.map = [];
-  
+
   var mapctr = 0;
 
   var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -4582,21 +4377,19 @@ pui.xlsx_worksheet.prototype.makemap = function(){
   // Loop over the digits to create the map for as many columns that are used.
   // The left-most digit is blank until the 2nd and 3rd pass ZZ.
   var numcols = this.numColumns;
-  for(var i=-1; i < 26 && mapctr < numcols; i++){
-
-    var d2start = -1; //Let the k loop run once with no 2nd digit; then 2nd digits are included.
-    if (i >= 0) d2start = 0;  //passed ZZ: 2nd digit should start at "A" instead of "".
+  for (var i = -1; i < 26 && mapctr < numcols; i++) {
+    var d2start = -1; // Let the k loop run once with no 2nd digit; then 2nd digits are included.
+    if (i >= 0) d2start = 0; // passed ZZ: 2nd digit should start at "A" instead of "".
 
     // Loop for the middle digit, which is blank until the 3rd digit passes Z the first time.
-    for(var j=d2start; j < 26 && mapctr < numcols; j++){
-
-      for(var k=0; k < 26 && mapctr < numcols; k++){
+    for (var j = d2start; j < 26 && mapctr < numcols; j++) {
+      for (var k = 0; k < 26 && mapctr < numcols; k++) {
         this.map[mapctr] = d3 + d2 + digits[k];
         mapctr++;
       }
-      d2 = digits[(j + 1) % 26 ];    //get the next digit; wraps around to 0 if next is 26.
+      d2 = digits[(j + 1) % 26]; // get the next digit; wraps around to 0 if next is 26.
     }
-    d3 = digits[i + 1]; //note: the last time this runs, it will return undefined; but no matter.
+    d3 = digits[i + 1]; // note: the last time this runs, it will return undefined; but no matter.
   }
 };
 
@@ -4609,65 +4402,71 @@ pui.xlsx_worksheet.prototype.makemap = function(){
  * @constructor
  * @returns {pui.xlsx_drawing}
  */
-pui.xlsx_drawing = function(){
+pui.xlsx_drawing = function () {
   // A collection of file extensions for all image types needed in the drawing.
   this.extensions = {};
-  
+
   // List of relationships; e.g. rId1 is ../media/image1.png, etc.
   // An array of objects: {name: imageName, image: blob }
   // Before being used outside this class, the images should have already been loaded with loadImages.
   this.rels = [];
-  
+
   // Private properties.
-  
+
   // Counter of image names.
   this.nameCtr = 1;
-  
+
   // List of row/columns and relationship IDs.
   this.anchors = [];
 };
 pui.xlsx_drawing.prototype = Object.create(pui.xlsx);
 
 /**
- * Add URI and dimensions of an image to the drawing. 
+ * Add URI and dimensions of an image to the drawing.
  * @param {Number} row
  * @param {Number} column
  * @param {String} imageURI   This should already be right-trimmed.
  * @param {Object} dimens     Dimensions: top, left, width, height numeric values in pixels.
  *                            These should never be null or undefined.
  */
-pui.xlsx_drawing.prototype.addImage = function(row, column, imageURI, dimens){
-  var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); //URL may end in query or fragment; e.g. ?r=12345#something
-  if (matches == null){
-    console.log("Unsupported image type in URI:",imageURI);
+pui.xlsx_drawing.prototype.addImage = function (row, column, imageURI, dimens) {
+  var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); // URL may end in query or fragment; e.g. ?r=12345#something
+  if (matches == null) {
+    console.log("Unsupported image type in URI:", imageURI);
     return;
   }
-  var ext = matches[1].toLowerCase();   //Upper-case content-types will break the spreadsheet. #5356.
+  var ext = matches[1].toLowerCase(); // Upper-case content-types will break the spreadsheet. #5356.
   if (ext == "jpeg") ext = "jpg";
-  else if (ext == "tif") ext = "tiff";  //Excel expects image/tiff as content-type.
-  
-  //Look for the URL in a list of existing URLs.
+  else if (ext == "tif") ext = "tiff"; // Excel expects image/tiff as content-type.
+
+  // Look for the URL in a list of existing URLs.
   var rel = -1;
-  for (var i=0; i < this.rels.length; i++){
-    if (this.rels[i].uri == imageURI ){
+  for (var i = 0; i < this.rels.length; i++) {
+    if (this.rels[i].uri == imageURI) {
       rel = i;
       break;
     }
   }
-  if (rel < 0 ){   //There isn't a relationship for the URI; add it.
-    //Generate a new image name: Use the image name counter for base name.
-    var newName = "image"+this.nameCtr + "." + ext;
+  if (rel < 0) { // There isn't a relationship for the URI; add it.
+    // Generate a new image name: Use the image name counter for base name.
+    var newName = "image" + this.nameCtr + "." + ext;
     this.nameCtr++;
-    
-    //Choose the appropriate content-type: png: image/png; etc. Add to a collection.
-    this.extensions[ext] = "image/"+ext;
-    
-    this.rels.push({ name: newName, uri: imageURI });    //Store the relationship. 
+
+    // Choose the appropriate content-type: png: image/png; etc. Add to a collection.
+    this.extensions[ext] = "image/" + ext;
+
+    this.rels.push({ name: newName, uri: imageURI }); // Store the relationship.
     rel = this.rels.length - 1;
   }
-  //Store the picture position, rId, and dimensions.  
-  this.anchors.push({row: row, col: column, rel: rel,
-    top: dimens.top, left: dimens.top, width: dimens.width, height: dimens.height
+  // Store the picture position, rId, and dimensions.
+  this.anchors.push({
+    row: row,
+    col: column,
+    rel: rel,
+    top: dimens.top,
+    left: dimens.top,
+    width: dimens.width,
+    height: dimens.height
   });
 };
 
@@ -4675,55 +4474,55 @@ pui.xlsx_drawing.prototype.addImage = function(row, column, imageURI, dimens){
  * returns XML text for drawing1.xml
  * @returns {String}
  */
-pui.xlsx_drawing.prototype.getDrawingXML = function(){
+pui.xlsx_drawing.prototype.getDrawingXML = function () {
   var anchors = this.anchors;
-  var xml = this.XMLSTART
-  + '<xdr:wsDr xmlns:xdr="'+this.XMLNS_BASE+'/drawingml/2006/spreadsheetDrawing" xmlns:a="'+this.XMLNS_BASE+'/drawingml/2006/main">';
-  for (var i=0; i < anchors.length; i++){
+  var xml = this.XMLSTART +
+  '<xdr:wsDr xmlns:xdr="' + this.XMLNS_BASE + '/drawingml/2006/spreadsheetDrawing" xmlns:a="' + this.XMLNS_BASE + '/drawingml/2006/main">';
+  for (var i = 0; i < anchors.length; i++) {
     xml +=
-    '<xdr:twoCellAnchor editAs="oneCell">'
-    + '<xdr:from>'
-    +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
+    '<xdr:twoCellAnchor editAs="oneCell">' +
+    "<xdr:from>" +
+    "<xdr:col>" + anchors[i].col + "</xdr:col>" +
     // Offsets are in English Metric Units (EMU): 914400 EMU per inch. At 96 pixels per inch, a pixel is 9525 EMUs.
     // https://msdn.microsoft.com/en-us/library/ff531172(v=office.12).aspx
-    +   '<xdr:colOff>'+ Math.round(anchors[i].left * 9525) +'</xdr:colOff>'
-    +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
-    +   '<xdr:rowOff>'+ Math.round(anchors[i].top * 9525) +'</xdr:rowOff>'
-    + '</xdr:from>'
-    + '<xdr:to>'
-    +   '<xdr:col>'+anchors[i].col+'</xdr:col>'
-    +   '<xdr:colOff>'+ Math.round((anchors[i].width + anchors[i].left)*9525) +'</xdr:colOff>'
-    +   '<xdr:row>'+anchors[i].row+'</xdr:row>'
-    +   '<xdr:rowOff>'+ Math.round((anchors[i].height + anchors[i].top)*9525) +'</xdr:rowOff>'
-    + '</xdr:to>'
-    + '<xdr:pic>'
-    + '<xdr:nvPicPr>'
-    +   '<xdr:cNvPr id="'+(i+1)+'" name="Picture '+(i+1)+'"/>'
-    +   '<xdr:cNvPicPr>'
-    +     '<a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>'
-    +   '</xdr:cNvPicPr>'
-    + '</xdr:nvPicPr>'
-    +   '<xdr:blipFill>'
-    +     '<a:blip xmlns:r="'+this.XMLNS_OFFICEDOC_RELS+'" r:embed="rId'+(anchors[i].rel + 1)+'">'
-    +     '</a:blip>'
-    +     '<a:srcRect/>'
-    +     '<a:stretch>'
-    +       '<a:fillRect/>'
-    +     '</a:stretch>'
-    +   '</xdr:blipFill>'
-    +   '<xdr:spPr bwMode="auto">'
-    +     '<a:xfrm>'    //Note: Excel adds some "a" tags to xfrm. Omitting them seems fine.
-    +     '</a:xfrm>'
-    +     '<a:prstGeom prst="rect">'
-    +       '<a:avLst/>'
-    +     '</a:prstGeom>'
-    +     '<a:noFill/>'
-    +   '</xdr:spPr>'
-    + '</xdr:pic>'
-    + '<xdr:clientData/>'
-    + '</xdr:twoCellAnchor>';
+    "<xdr:colOff>" + Math.round(anchors[i].left * 9525) + "</xdr:colOff>" +
+    "<xdr:row>" + anchors[i].row + "</xdr:row>" +
+    "<xdr:rowOff>" + Math.round(anchors[i].top * 9525) + "</xdr:rowOff>" +
+    "</xdr:from>" +
+    "<xdr:to>" +
+    "<xdr:col>" + anchors[i].col + "</xdr:col>" +
+    "<xdr:colOff>" + Math.round((anchors[i].width + anchors[i].left) * 9525) + "</xdr:colOff>" +
+    "<xdr:row>" + anchors[i].row + "</xdr:row>" +
+    "<xdr:rowOff>" + Math.round((anchors[i].height + anchors[i].top) * 9525) + "</xdr:rowOff>" +
+    "</xdr:to>" +
+    "<xdr:pic>" +
+    "<xdr:nvPicPr>" +
+    '<xdr:cNvPr id="' + (i + 1) + '" name="Picture ' + (i + 1) + '"/>' +
+    "<xdr:cNvPicPr>" +
+    '<a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>' +
+    "</xdr:cNvPicPr>" +
+    "</xdr:nvPicPr>" +
+    "<xdr:blipFill>" +
+    '<a:blip xmlns:r="' + this.XMLNS_OFFICEDOC_RELS + '" r:embed="rId' + (anchors[i].rel + 1) + '">' +
+    "</a:blip>" +
+    "<a:srcRect/>" +
+    "<a:stretch>" +
+    "<a:fillRect/>" +
+    "</a:stretch>" +
+    "</xdr:blipFill>" +
+    '<xdr:spPr bwMode="auto">' +
+    "<a:xfrm>" + // Note: Excel adds some "a" tags to xfrm. Omitting them seems fine.
+    "</a:xfrm>" +
+    '<a:prstGeom prst="rect">' +
+    "<a:avLst/>" +
+    "</a:prstGeom>" +
+    "<a:noFill/>" +
+    "</xdr:spPr>" +
+    "</xdr:pic>" +
+    "<xdr:clientData/>" +
+    "</xdr:twoCellAnchor>";
   }
-  xml += '</xdr:wsDr>';
+  xml += "</xdr:wsDr>";
   return xml;
 };
 
@@ -4731,13 +4530,13 @@ pui.xlsx_drawing.prototype.getDrawingXML = function(){
  * Returns XML text for drawing1.xml.rels
  * @returns {String}
  */
-pui.xlsx_drawing.prototype.getDrawingRelsXML = function(){
-  var xml = this.XMLSTART
-  + '<Relationships xmlns="'+this.XMLNS_PACKAGE_RELS+'">';
-  for (var i=0; i < this.rels.length; i++){
-    xml += '<Relationship Id="rId'+(i+1)+'" Type="'+this.XMLNS_OFFICEDOC_RELS + '/image" Target="../media/'+ this.rels[i].name +'"/>';
+pui.xlsx_drawing.prototype.getDrawingRelsXML = function () {
+  var xml = this.XMLSTART +
+  '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">';
+  for (var i = 0; i < this.rels.length; i++) {
+    xml += '<Relationship Id="rId' + (i + 1) + '" Type="' + this.XMLNS_OFFICEDOC_RELS + '/image" Target="../media/' + this.rels[i].name + '"/>';
   }
-  xml += '</Relationships>';
+  xml += "</Relationships>";
   return xml;
 };
 
@@ -4746,21 +4545,21 @@ pui.xlsx_drawing.prototype.getDrawingRelsXML = function(){
  * @param {Function} cbFinished       Runs when all images are loaded into blobs.
  * @param {Object} feedbackObj        An object with the setDownloadStatus function.
  */
-pui.xlsx_drawing.prototype.loadImages = function(cbFinished, feedbackObj){
-  if (this.rels.length < 1){   //It's possible image URLs didn't parse, but don't stop the download. #5342.
+pui.xlsx_drawing.prototype.loadImages = function (cbFinished, feedbackObj) {
+  if (this.rels.length < 1) { // It's possible image URLs didn't parse, but don't stop the download. #5342.
     cbFinished();
     return;
   }
-  
+
   this.dlcount = 0;
   this.feedbackObj = feedbackObj;
   var checkDone = this._checkDone.bind(this);
   this.cbFinished = cbFinished;
-  
+
   // Make XHRs for each image, downloading all asynchronously.
-  for (var i=0; i < this.rels.length; i++){
+  for (var i = 0; i < this.rels.length; i++) {
     this.rels[i].xhr = new XMLHttpRequest();
-    this.rels[i].xhr.open("GET", this.rels[i].uri, true );
+    this.rels[i].xhr.open("GET", this.rels[i].uri, true);
     this.rels[i].xhr["responseType"] = "blob";
     this.rels[i].xhr.onload = checkDone;
     this.rels[i].xhr.send();
@@ -4770,17 +4569,17 @@ pui.xlsx_drawing.prototype.loadImages = function(cbFinished, feedbackObj){
 /**
  * Handler for XMLHTTPRequest.onload. Waits until all requests are finished, moves the images to rel[i].image, then calls callback.
  */
-pui.xlsx_drawing.prototype._checkDone = function(){
+pui.xlsx_drawing.prototype._checkDone = function () {
   this.dlcount++;
-  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == 'function')
-    this.feedbackObj.setDownloadStatus( pui["getLanguageText"]("runtimeMsg", "downloading x", [ Math.round(100 * (this.dlcount / this.rels.length))+"%" ]) );
-  if (this.dlcount < this.rels.length) return;  //Wait until all xhr's are finished.
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function")
+  { this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", [Math.round(100 * (this.dlcount / this.rels.length)) + "%"])); }
+  if (this.dlcount < this.rels.length) return; // Wait until all xhr's are finished.
 
-  //All are finished, so extract the images.
-  for (var i=0; i < this.rels.length; i++){
-    if (this.rels[i].xhr.status == 200 ) this.rels[i].image = this.rels[i].xhr.response;
+  // All are finished, so extract the images.
+  for (var i = 0; i < this.rels.length; i++) {
+    if (this.rels[i].xhr.status == 200) this.rels[i].image = this.rels[i].xhr.response;
     this.rels[i].xhr = null;
-    try{  delete this.rels[i].xhr;  }catch(exc){}
+    try { delete this.rels[i].xhr; } catch (exc) {}
   }
   this.cbFinished();
 };
@@ -4791,31 +4590,31 @@ pui.xlsx_drawing.prototype._checkDone = function(){
 
 /**
  * Returns the column descriptions for a database file or SQL statement.
- * @param {Object} parm   object with "file" optionally "library", or "customSQL" 
+ * @param {Object} parm   object with "file" optionally "library", or "customSQL"
  * @param {Function} cb - gets called with the {request} object
- * 
+ *
  *  **** IMPORTANT NOTE ******************************************
  *   The fields array returned for database file is different than
- *   the fields array returned for custom SQL statements.  
- *  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    
+ *   the fields array returned for custom SQL statements.
+ *  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *  Database File:
- *  Always returned: "field", "longName", "text", "type", "use", "canNull", "length" 
+ *  Always returned: "field", "longName", "text", "type", "use", "canNull", "length"
  *  Conditionally: "decPos", "key", "generatedBy", "ccsid"
- *  
+ *
  *  Custom SQL:
  *  Always returned: "DB2_COLUMN_NAME", "DB2_SYSTEM_COLUMN_NAME", "DB2_LABEL", "SQLTYPE",
  *                   "DATETIME_INTERVAL_CODE", "LENGTH", "PRECISION", "SCALE", "DB2_CCSID",
- *                   "DB2_COLUMN_GENERATED", "DB2_COLUMN_GENERATION_TYPE", "NULLABLE" 
- *  
+ *                   "DB2_COLUMN_GENERATED", "DB2_COLUMN_GENERATION_TYPE", "NULLABLE"
+ *
  */
-pui.getFieldDescriptions = function(parm, cb){
+pui.getFieldDescriptions = function (parm, cb) {
   var url;
-  var library=parm["library"] || "", 
-      file=parm["file"] || "", 
-      customSql=parm["customSql"] || "",
-      connection=parm["connection"] || "";
+  var library = parm["library"] || "",
+    file = parm["file"] || "",
+    customSql = parm["customSql"] || "",
+    connection = parm["connection"] || "";
   if (context == "genie") url = getProgramURL("PUI0009101.PGM");
-  if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true);  // use auth
+  if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true); // use auth
   var request = new pui.Ajax(url);
   request["async"] = true;
   request["method"] = "post";
@@ -4833,126 +4632,111 @@ pui.getFieldDescriptions = function(parm, cb){
   request.send();
 };
 
-
 /**
  *
  * Code to execute the "ondbload" event when data is loaded into a database-driven widget:
- * 
+ *
  *    @param {String}  func - event code to run
  *    @param {boolean} success - boolean true/false whether load succeeded
  *    @param {Object}  widget - id of widget to pass to event
  *
  * @return {boolean} true if the event was executed successful, false otherwise
- * 
+ *
  */
-pui.executeDatabaseLoadEvent = function(func, success, widget) {
- 
-   // create a "de-obfuscated" copy of the global errors array.
-  
-   var myError = null;
-   if (errors.length > 0) {
-     var lastError = errors.length - 1;
-     myError = { 
-       "operation": errors[lastError].operation,
-       "id": errors[lastError].id,
-       "text": errors[lastError].text,
-         "text2": errors[lastError].text2
-     };
-   }
+pui.executeDatabaseLoadEvent = function (func, success, widget) {
+  // create a "de-obfuscated" copy of the global errors array.
 
-   
-   // Run the event  
-   
-   try {
-     pui["temporary_property"] = myError;
-     eval("var response = { success: arguments[1], id: arguments[2], error: pui.temporary_property };");
-     var customFunction = eval(func);
-     if (typeof customFunction == "function") {
-       customFunction();
-     }
-   }
-   catch(err) {
-     pui.scriptError(err, "OndbLoad Error:\n");
-     return false;
-   }
+  var myError = null;
+  if (errors.length > 0) {
+    var lastError = errors.length - 1;
+    myError = {
+      "operation": errors[lastError].operation,
+      "id": errors[lastError].id,
+      "text": errors[lastError].text,
+      "text2": errors[lastError].text2
+    };
+  }
 
-   return true;
+  // Run the event
+
+  try {
+    pui["temporary_property"] = myError;
+    eval("var response = { success: arguments[1], id: arguments[2], error: pui.temporary_property };");
+    var customFunction = eval(func);
+    if (typeof customFunction == "function") {
+      customFunction();
+    }
+  }
+  catch (err) {
+    pui.scriptError(err, "OndbLoad Error:\n");
+    return false;
+  }
+
+  return true;
 };
 
-pui.scriptError = function(error, prefix) {
-  
+pui.scriptError = function (error, prefix) {
   if (pui["alert script errors"] === false) {
-    
     if (window.console && window.console.error) {
-     
       if (error.stack) { // Stack is not available on IE < 10
-        
         // FireFox does not include the error message in the first entry.
         var message = error.stack.split("\n");
         if (message[0] != error.toString())
-          message.splice(0, 0, error.toString());
+        { message.splice(0, 0, error.toString()); }
         message = message.join("\n");
-        
+
         if (prefix != null)
-          message = prefix + message;
+        { message = prefix + message; }
         console.error(message);
-      
       }
       else {
-
         var message = error.toString();
         if (prefix != null)
-          message = prefix + message;
+        { message = prefix + message; }
         console.error(message);
-       
       }
-      
     }
-    
   }
   else {
-    
     var message = error.message;
     if (prefix != null)
-      message = prefix + message;
+    { message = prefix + message; }
     pui.alert(message);
-    
   }
-  
 };
 
-pui.preFetchFontFiles = function() {
+pui.preFetchFontFiles = function () {
   // The preload font api is still not supported in every browser
   // One way to prefetch the icons is to make hidden divs that that
   // use the CSS classes so that the browser will automattically fetch
-  // the icon files. 
+  // the icon files.
   var iconFileList = [
-    'pui-material-icons',
-    'pui-fa-icons',
-    'blueprint-defaults',
-    'office-copy-defaults'
+    "pui-material-icons",
+    "pui-fa-icons",
+    "blueprint-defaults",
+    "office-copy-defaults"
   ];
-  iconFileList.forEach(function(iconClass) {
-    var div = document.createElement('div');
-    div.innerText = 'face';
+  iconFileList.forEach(function (iconClass) {
+    var div = document.createElement("div");
+    div.innerText = "face";
     div.className = iconClass;
-    div.style.visibility = 'hidden';
-    div.style.left = '-1000px';
-    div.style.position = 'absolute';
+    div.style.visibility = "hidden";
+    div.style.left = "-1000px";
+    div.style.position = "absolute";
     document.body.appendChild(div);
   });
 };
 
 pui.fetchMonacoIntelliSenseLibraries = function () {
   if (pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
-  ['profoundjs.d.ts', 'profoundui.d.ts'].forEach(function(file) {
-    var url = '/profoundui/proddata/typings/' + file;
+  ["profoundjs.d.ts", "profoundui.d.ts"].forEach(function (file) {
+    var url = "/profoundui/proddata/typings/" + file;
     var request = new pui.Ajax(url);
     request["async"] = true;
     request["headers"] = { "Content-Type": "text/plain" };
-    request["overrideMimeType"] = 'text/plain';
+    request["overrideMimeType"] = "text/plain";
     request["suppressAlert"] = true;
-    request["onsuccess"] = function(req) {
+    request["onsuccess"] = function (req) {
       var lib = req["getResponseText"]();
       if (lib) {
         // monaco/ace may not be loaded in the first check, so check again.
@@ -4961,43 +4745,41 @@ pui.fetchMonacoIntelliSenseLibraries = function () {
         window["monaco"]["languages"]["typescript"]["typescriptDefaults"]["addExtraLib"](lib, file);
       }
     };
-    request["onfail"] = function(req) {
+    request["onfail"] = function (req) {
       console.error(req["getStatusMessage"]());
     };
     request.send();
   });
 };
 
-pui.getDefaultIconSets = function() {
+pui.getDefaultIconSets = function () {
   return [{
-      "type": "material",
-      "title": "Material Icons",
-      "classList": {
-        "": "pui-material-icons"
-      }
-    },
-    {
-      "type": "fontAwesome",
-      "title": "Font Awesome Icons",
-      "classList": {
-        "brands": "pui-fa-brands-icons fa-",
-        "solid": "pui-fa-solid-icons fa-",
-        "regular": "pui-fa-regular-icons fa-"
-      }
-    }, {
-      "type": "jQueryIcons",
-      "title": "jQuery Mobile Icons",
-      "classList": {
-        "": "ui-icon ui-icon-"
-      }
+    "type": "material",
+    "title": "Material Icons",
+    "classList": {
+      "": "pui-material-icons"
     }
+  },
+  {
+    "type": "fontAwesome",
+    "title": "Font Awesome Icons",
+    "classList": {
+      "brands": "pui-fa-brands-icons fa-",
+      "solid": "pui-fa-solid-icons fa-",
+      "regular": "pui-fa-regular-icons fa-"
+    }
+  }, {
+    "type": "jQueryIcons",
+    "title": "jQuery Mobile Icons",
+    "classList": {
+      "": "ui-icon ui-icon-"
+    }
+  }
   ];
 };
 
-pui.randomTextBoxName = function() {
-
+pui.randomTextBoxName = function () {
   return Math.random().toString(36).replace(/[^a-z]+/g, "");
-
 };
 
 /**
@@ -5006,72 +4788,72 @@ pui.randomTextBoxName = function() {
  * @param {Object} params
  * @constructor
  */
-pui.MouseListener = function(params){
-  this.x = this.y = this.cursorStartX = this.cursorStartY = 0;  //All zero. These can be used in callbacks.
+pui.MouseListener = function (params) {
+  this.x = this.y = this.cursorStartX = this.cursorStartY = 0; // All zero. These can be used in callbacks.
 
-  this.downcb = params.downcb;       //optional Function. callback for mousedown.
-  this.movecb = params.movecb;       //optional Function. callback for mousemove.
-  this.upcb = params.upcb;           //optional Function. callback for mouseup.
-  
+  this.downcb = params.downcb; // optional Function. callback for mousedown.
+  this.movecb = params.movecb; // optional Function. callback for mousemove.
+  this.upcb = params.upcb; // optional Function. callback for mouseup.
+
   // attachto: element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
-  if (params.attachto instanceof Array){
-    for (var i=0; i < params.attachto.length; i++){
-      params.attachto[i].addEventListener('mousedown', this);
+  if (params.attachto instanceof Array) {
+    for (var i = 0; i < params.attachto.length; i++) {
+      params.attachto[i].addEventListener("mousedown", this);
     }
   }
-  else if(params.attachto != null){
-    params.attachto.addEventListener('mousedown', this);
+  else if (params.attachto != null) {
+    params.attachto.addEventListener("mousedown", this);
   }
 };
 
-pui.MouseListener.prototype['handleEvent'] = function(e){
-  switch(e.type){
-    case 'mousedown': this._mousedown(e); break;
-    case 'mousemove': this._mousemove(e); break;
-    case 'mouseup': this._mouseup(e); break;
+pui.MouseListener.prototype["handleEvent"] = function (e) {
+  switch (e.type) {
+    case "mousedown": this._mousedown(e); break;
+    case "mousemove": this._mousemove(e); break;
+    case "mouseup": this._mouseup(e); break;
   }
 };
 
-pui.MouseListener.prototype.mousedown = function(){}; //Child classes can implement this.
+pui.MouseListener.prototype.mousedown = function () {}; // Child classes can implement this.
 /**
  * Store the mouse pointer's starting position, register other listeners, call callbacks.
  * @param {MouseEvent} e
  */
-pui.MouseListener.prototype._mousedown = function(e){
-  preventEvent(e); //prevent selection start.
+pui.MouseListener.prototype._mousedown = function (e) {
+  preventEvent(e); // prevent selection start.
   var xy = pui.getMouseXY(e);
   this.cursorStartX = xy.x;
   this.cursorStartY = xy.y;
   this.mousedown();
 
-  document.addEventListener('mousemove', this);
-  document.addEventListener('mouseup', this);
+  document.addEventListener("mousemove", this);
+  document.addEventListener("mouseup", this);
 
-  if (typeof this.downcb === 'function') this.downcb(this);
+  if (typeof this.downcb === "function") this.downcb(this);
 };
 
-pui.MouseListener.prototype.mousemove = function(){}; //Child classes can implement this.
+pui.MouseListener.prototype.mousemove = function () {}; // Child classes can implement this.
 /**
  * Store the mouse pointer's current position and call callbacks.
  * @param {MouseEvent} e
  */
-pui.MouseListener.prototype._mousemove = function(e){
+pui.MouseListener.prototype._mousemove = function (e) {
   var xy = pui.getMouseXY(e);
   this.x = xy.x;
   this.y = xy.y;
   this.mousemove();
 
-  if (typeof this.movecb === 'function') this.movecb(this);
+  if (typeof this.movecb === "function") this.movecb(this);
 };
 
-pui.MouseListener.prototype.mouseup = function(){}; //Child classes can implement this.
+pui.MouseListener.prototype.mouseup = function () {}; // Child classes can implement this.
 /**
  * Remove event listeners for mousemove and mouseup, call callback.
  */
-pui.MouseListener.prototype._mouseup = function(){
-  document.removeEventListener('mousemove', this);
-  document.removeEventListener('mouseup', this);
-  if (typeof this.upcb === 'function') this.upcb(this);
+pui.MouseListener.prototype._mouseup = function () {
+  document.removeEventListener("mousemove", this);
+  document.removeEventListener("mouseup", this);
+  if (typeof this.upcb === "function") this.upcb(this);
   this.mouseup();
 };
 // end MouseListener class.
@@ -5086,20 +4868,20 @@ pui.MouseListener.prototype._mouseup = function(){
  * @constructor
  * @returns {pui.MoveListener}
  */
-pui.MoveListener = function(params, bounds){
-  pui.MouseListener.call(this, params); //Assigns downcb, movecb, upcb; adds mousedown listener.
-  this.moveEl = params.move;      //Element to move by setting its .style.top and .style.left. Or Element to resize by setting its .style.height and/or .style.width.
-  this.opacity = params.opacity;  //optional Number (integer). Default no change. When set, change the percent opacity of the opEl
-                                  // element to this value from mousedown until mouseup.
-  if (typeof bounds == 'object' && bounds !== null){
-    if (typeof bounds.left !== 'number') bounds.left = 0;
-    if (typeof bounds.top !== 'number') bounds.top = 0;
-    if (typeof bounds.right !== 'number') bounds.right = Infinity; //defaults to no bounds.
-    if (typeof bounds.bottom !== 'number') bounds.bottom = Infinity; //defaults to no bounds.
+pui.MoveListener = function (params, bounds) {
+  pui.MouseListener.call(this, params); // Assigns downcb, movecb, upcb; adds mousedown listener.
+  this.moveEl = params.move; // Element to move by setting its .style.top and .style.left. Or Element to resize by setting its .style.height and/or .style.width.
+  this.opacity = params.opacity; // optional Number (integer). Default no change. When set, change the percent opacity of the opEl
+  // element to this value from mousedown until mouseup.
+  if (typeof bounds == "object" && bounds !== null) {
+    if (typeof bounds.left !== "number") bounds.left = 0;
+    if (typeof bounds.top !== "number") bounds.top = 0;
+    if (typeof bounds.right !== "number") bounds.right = Infinity; // defaults to no bounds.
+    if (typeof bounds.bottom !== "number") bounds.bottom = Infinity; // defaults to no bounds.
     this._bounds = bounds;
   }
   else {
-    this._bounds = {left: 0, top: 0, right: Infinity, bottom: Infinity};
+    this._bounds = { left: 0, top: 0, right: Infinity, bottom: Infinity };
   }
 };
 pui.MoveListener.prototype = Object.create(pui.MouseListener.prototype);
@@ -5107,12 +4889,12 @@ pui.MoveListener.prototype = Object.create(pui.MouseListener.prototype);
 /**
  * Implements mousedown for MouseListener. Stores the starting positions of the Element being moved.
  */
-pui.MoveListener.prototype.mousedown = function(){
+pui.MoveListener.prototype.mousedown = function () {
   this.startX = this.moveEl.offsetLeft;
   this.startY = this.moveEl.offsetTop;
-  
-  if (typeof this.opacity === 'number'){
-    this.moveEl.style.opacity = '0.'+this.opacity;
+
+  if (typeof this.opacity === "number") {
+    this.moveEl.style.opacity = "0." + this.opacity;
   }
 };
 
@@ -5120,7 +4902,7 @@ pui.MoveListener.prototype.mousedown = function(){
  * Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
  * Implements mousemove for MouseListener.
  */
-pui.MoveListener.prototype.mousemove = function(){
+pui.MoveListener.prototype.mousemove = function () {
   var newx = this.startX + this.x - this.cursorStartX;
   var newy = this.startY + this.y - this.cursorStartY;
   if (newx < this._bounds.left) newx = this._bounds.left;
@@ -5129,13 +4911,13 @@ pui.MoveListener.prototype.mousemove = function(){
   if (newx > this._bounds.right - this.moveEl.offsetWidth) newx = this._bounds.right - this.moveEl.offsetWidth;
   if (newy > this._bounds.bottom - this.moveEl.offsetHeight) newy = this._bounds.bottom - this.moveEl.offsetHeight;
 
-  this.moveEl.style.left = newx + 'px';
-  this.moveEl.style.top = newy + 'px';
+  this.moveEl.style.left = newx + "px";
+  this.moveEl.style.top = newy + "px";
 };
 
-pui.MoveListener.prototype.mouseup = function(){
-  if (typeof this.opacity === 'number'){
-    this.moveEl.style.opacity = '';
+pui.MoveListener.prototype.mouseup = function () {
+  if (typeof this.opacity === "number") {
+    this.moveEl.style.opacity = "";
   }
 };
 // end MoveListener class.
@@ -5148,48 +4930,48 @@ pui.MoveListener.prototype.mouseup = function(){
  * @constructor
  * @returns {pui.MoveListenerBoundAtClick}
  */
-pui.MoveListenerBoundAtClick = function(params, bounds){
+pui.MoveListenerBoundAtClick = function (params, bounds) {
   pui.MoveListener.call(this, params, bounds);
 };
 pui.MoveListenerBoundAtClick.prototype = Object.create(pui.MoveListener.prototype);
 
 // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
-pui.MoveListenerBoundAtClick.prototype.mousemove = function(){
+pui.MoveListenerBoundAtClick.prototype.mousemove = function () {
   if (this.x < this._bounds.left) this.x = this._bounds.left;
   if (this.y < this._bounds.top) this.y = this._bounds.top;
   if (this.x > this._bounds.right) this.x = this._bounds.right;
   if (this.y > this._bounds.bottom) this.y = this._bounds.bottom;
 
-  this.moveEl.style.left = (this.startX - this.cursorStartX + this.x) + 'px';
-  this.moveEl.style.top = (this.startY - this.cursorStartY + this.y) + 'px';
+  this.moveEl.style.left = (this.startX - this.cursorStartX + this.x) + "px";
+  this.moveEl.style.top = (this.startY - this.cursorStartY + this.y) + "px";
 };
 // end MoveListenerBoundAtClick class.
 
 /**
  * Allow an element to be resized with the mouse. Inherits from pui.MouseListener.
- * @param {Object} params   required properties apart from those required from pui.MouseListener: resize, 
+ * @param {Object} params   required properties apart from those required from pui.MouseListener: resize,
  * @constructor
  * @returns {pui.MouseResizable}
  */
-pui.MouseResizable = function(params){
-  pui.MouseListener.call(this, params);   //Assigns downcb, movecb, upcb; adds mousedown listener.
-  this.minw = (typeof params.minw == 'number' && params.minw > 0) ? params.minw : 0; //optional. default to 0. Minimum width.
-  this.minh = (typeof params.minh == 'number' && params.minh > 0) ? params.minh : 0; //optional. default to 0. Minimum height.
-  this.maxw = params.maxw;    //optional. default to no bounds. Maximum width.
-  this.maxh = params.maxh;    //optional. default to no bounds. Maximum height.
-  this.resizeEl = params.resizeEl;  //required: the element to be resized.
-  
+pui.MouseResizable = function (params) {
+  pui.MouseListener.call(this, params); // Assigns downcb, movecb, upcb; adds mousedown listener.
+  this.minw = (typeof params.minw == "number" && params.minw > 0) ? params.minw : 0; // optional. default to 0. Minimum width.
+  this.minh = (typeof params.minh == "number" && params.minh > 0) ? params.minh : 0; // optional. default to 0. Minimum height.
+  this.maxw = params.maxw; // optional. default to no bounds. Maximum width.
+  this.maxh = params.maxh; // optional. default to no bounds. Maximum height.
+  this.resizeEl = params.resizeEl; // required: the element to be resized.
+
   // Private
-  var resize = (typeof params.resize == 'number' && params.resize >= 1 && params.resize <= 3) ? params.resize : 1;   //1=width (default), 2=height, 3=both.
-  this._doWidth = (resize & 1) == 1;  //true for 1 or 3.
-  this._doHeight = (resize & 2) == 2; //true for 2 or 3.
+  var resize = (typeof params.resize == "number" && params.resize >= 1 && params.resize <= 3) ? params.resize : 1; // 1=width (default), 2=height, 3=both.
+  this._doWidth = (resize & 1) == 1; // true for 1 or 3.
+  this._doHeight = (resize & 2) == 2; // true for 2 or 3.
 };
 pui.MouseResizable.prototype = Object.create(pui.MouseListener.prototype);
 
 /**
  * Implements mousedown for MouseListener. Set the starting X and Y on the resize element's offset width and height.
  */
-pui.MouseResizable.prototype.mousedown = function(){
+pui.MouseResizable.prototype.mousedown = function () {
   this.startX = this.resizeEl.offsetWidth;
   this.startY = this.resizeEl.offsetHeight;
 };
@@ -5197,26 +4979,26 @@ pui.MouseResizable.prototype.mousedown = function(){
 /**
  * Implements mousemove for MouseListener. Change the width and or height of the resizable element.
  */
-pui.MouseResizable.prototype.mousemove = function(){
-  if (this._doWidth){
+pui.MouseResizable.prototype.mousemove = function () {
+  if (this._doWidth) {
     var width = this.startX + this.x - this.cursorStartX;
     if (width < this.minw) width = this.minw;
-    if (typeof this.maxw === 'number' && width > this.maxw) width = this.maxw;
-    this.resizeEl.style.width = width + 'px';
-    this.width = width;       //Can be used in movecb.
+    if (typeof this.maxw === "number" && width > this.maxw) width = this.maxw;
+    this.resizeEl.style.width = width + "px";
+    this.width = width; // Can be used in movecb.
   }
-  if (this._doHeight){
+  if (this._doHeight) {
     var height = this.startY + this.y - this.cursorStartY;
     if (height < this.minh) height = this.minh;
-    if (typeof this.maxh === 'number' && height > this.maxh) height = this.maxh;
-    this.resizeEl.style.height = height + 'px';
-    this.height = height;     //Can be used in movecb.
+    if (typeof this.maxh === "number" && height > this.maxh) height = this.maxh;
+    this.resizeEl.style.height = height + "px";
+    this.height = height; // Can be used in movecb.
   }
 };
 // end of MouseResizable class.
 
 // Update React or Vue state
-pui.updateReactState = function(dom) {
+pui.updateReactState = function (dom) {
   if ((window["React"] || window["Vue"]) && dom != null && dom.pui && dom.pui.data && dom.pui.dataProp) {
     var els = {};
     els[dom.pui.dataProp] = [dom];
@@ -5225,14 +5007,14 @@ pui.updateReactState = function(dom) {
   }
 };
 
-pui.setModified = function(e, formatName) {
+pui.setModified = function (e, formatName) {
   if (context == "dspf") {
     if (!pui.screenIsReady) return;
     var target = getTarget(e);
-    
+
     // Don't set modified when target is ready only
     if (target.pui && target.pui.properties["read only"] === "true")
-      return;
+    { return; }
 
     target.modified = true;
     if (target.parentNode != null && (target.parentNode.comboBoxWidget != null || target.parentNode.floatingPlaceholder != null)) {
@@ -5246,7 +5028,7 @@ pui.setModified = function(e, formatName) {
     }
 
     if ((window["React"] || window["Vue"]) && target.pui.data && target.pui.dataProp) {
-      setTimeout(function() {  // allow the change to take affect before caputring the value
+      setTimeout(function () { // allow the change to take affect before caputring the value
         pui.updateReactState(target);
       }, 0);
     }
@@ -5268,24 +5050,24 @@ pui.setModified = function(e, formatName) {
     pui.response[idx] = target;
 
     // Allow SNGCHCFLD radio buttons to be unchecked if allowRadioClear is set true.
-    if (target.type == "radio" && pui["genie"]["allowRadioClear"] && target.className.indexOf("selection-field-single") >= 0){
-      if (e.type == "click"){
+    if (target.type == "radio" && pui["genie"]["allowRadioClear"] && target.className.indexOf("selection-field-single") >= 0) {
+      if (e.type == "click") {
         // Delay handling until after "change" so we can know the field just changed. Not all browsers
         // fire click before change, so the timeout also makes this approach cross-browser safe.
-        setTimeout(function(){
-          if (pui["ie_mode"] == 8 && target.checked != target.puiinitial ) target.justChanged = true;
-          if (target.checked && !target.justChanged ) target.checked = false;
+        setTimeout(function () {
+          if (pui["ie_mode"] == 8 && target.checked != target.puiinitial) target.justChanged = true;
+          if (target.checked && !target.justChanged) target.checked = false;
           target.justChanged = false;
-        },0);
+        }, 0);
       }
-      else if (e.type == "change"){
+      else if (e.type == "change") {
         target.justChanged = true;
       }
-    } //done special handling of SNGCHCFLD.
+    } // done special handling of SNGCHCFLD.
   }
 };
 
-pui.dupKey = function(event) {
+pui.dupKey = function (event) {
   event = event || window.event;
   var key = event.keyCode;
   if (key == pui["dup"]["keyCode"]) {
@@ -5300,7 +5082,7 @@ pui.dupKey = function(event) {
     if (isNaN(maxLen)) maxLen = 0;
     var pos = getCursorPosition(target);
     if (pos < 0) pos = 0;
-    value = value.substr(0, pos );
+    value = value.substr(0, pos);
     while (value.length < pos) {
       value += " ";
     }
@@ -5315,7 +5097,7 @@ pui.dupKey = function(event) {
   }
 };
 
-pui.isDup = function(parm) {
+pui.isDup = function (parm) {
   var value = "";
   if (typeof parm == "string") value = parm;
   if (typeof parm == "object") value = parm.value;
@@ -5330,16 +5112,16 @@ pui.isDup = function(parm) {
  * @param {Boolean|undefined} forceGlobal  If true, then the pattern is forced to use global match.
  * @returns {RegExp|Boolean}  Returns false if argument was not a regular expression.
  */
-pui.ensureRegExFrom = function(stringOrObj, forceGlobal){
+pui.ensureRegExFrom = function (stringOrObj, forceGlobal) {
   var regex = stringOrObj;
-  if (typeof stringOrObj === "string" && stringOrObj.length > 0){
+  if (typeof stringOrObj === "string" && stringOrObj.length > 0) {
     var flags = forceGlobal ? "ig" : "i";
     regex = new RegExp(stringOrObj, flags);
   }
-  
-  if ( typeof regex === "object" && regex instanceof RegExp ){
-    if (forceGlobal && !regex.global){
-      regex = new RegExp(regex.source, "ig");  //Pattern must be global.
+
+  if (typeof regex === "object" && regex instanceof RegExp) {
+    if (forceGlobal && !regex.global) {
+      regex = new RegExp(regex.source, "ig"); // Pattern must be global.
     }
   }
   else {
@@ -5355,22 +5137,22 @@ pui.ensureRegExFrom = function(stringOrObj, forceGlobal){
  * @param {Boolean} toLower   When true, the function is preparing screen input for the response. When false, server output is prepared for display.
  * @returns {String}
  */
-pui.replaceProblemCaseChars = function(str, toLower){
+pui.replaceProblemCaseChars = function (str, toLower) {
   if (str == null) return str;
   return toLower ? str.replace(/\u1E9E/g, "\u00DF") : str.replace(/\u00DF/g, "\u1E9E");
 };
 
 /**
- * Uppercase a string EXCEPT the lowercase ß eszett character. EBCDIC processing on server (e.g. PUI0001113) 
+ * Uppercase a string EXCEPT the lowercase ß eszett character. EBCDIC processing on server (e.g. PUI0001113)
  * does NOT support the uppercase ẞ eszett character. See issue 6715.
  * @param {String|Null} str
  * @returns {String}
  */
-pui.upperCaseExceptEszett = function(str) {
+pui.upperCaseExceptEszett = function (str) {
   if (str == null) return str;
   var parts = str.split("ß");
-  if (parts.length <= 1) 
-    return str.toUpperCase();
+  if (parts.length <= 1)
+  { return str.toUpperCase(); }
   for (var i = 0; i < parts.length; i++) {
     parts[i] = parts[i].toUpperCase();
   }
@@ -5382,14 +5164,14 @@ pui.upperCaseExceptEszett = function(str) {
  * Ensure typed or pasted ß characters become the upper-case version to avoid becomming "SS". Issue 5369. See also 5785 for test cases.
  * @param {Object} e
  */
-pui.onProblemInput = function(e){
-  if (e.target.value.match(/\u00DF/)){
+pui.onProblemInput = function (e) {
+  if (e.target.value.match(/\u00DF/)) {
     // Only adjust the value if the target matches ß. Avoid IE11 in Win7-8 focus jumping bug. Issue 5785.
     var cursorOrigPosition = e.target.selectionStart;
     e.target.value = pui.replaceProblemCaseChars(e.target.value, false);
-    if (pui["is_ie"]){
+    if (pui["is_ie"]) {
       // position the cursor to the original cursor position. Needed for Windows 7-8. Issue 5785.
-      e.target.setSelectionRange( cursorOrigPosition, cursorOrigPosition );
+      e.target.setSelectionRange(cursorOrigPosition, cursorOrigPosition);
     }
   }
 };
@@ -5399,45 +5181,45 @@ pui.onProblemInput = function(e){
  * @param {Object} event
  * @returns {Number}
  */
-pui.normalizeWheelDelta = function(event){
+pui.normalizeWheelDelta = function (event) {
   var delta = 0;
-  if (pui['is_firefox']) {
+  if (pui["is_firefox"]) {
     // In Firefox, deltaY is negative = wheel pushed forward/up, positive = wheel pulled back/down. Different versions use different
     // deltaMode values; deltaY is different depending on the mode. (v88 uses different modes depending on debugging or console logging.)
-    if (event.deltaMode == 0){
-      delta = Math.round(event.deltaY / 48);  //Sometimes the deltaY is 48, sometimes it is 51, so we must round.
+    if (event.deltaMode == 0) {
+      delta = Math.round(event.deltaY / 48); // Sometimes the deltaY is 48, sometimes it is 51, so we must round.
     }
-    else if (event.deltaMode == 1){
-      delta = event.deltaY / 3;  //Firefox version 87 and older use deltaMode 1 where I have seen. v88 also sometimes uses deltaMode 1. #6802.
+    else if (event.deltaMode == 1) {
+      delta = event.deltaY / 3; // Firefox version 87 and older use deltaMode 1 where I have seen. v88 also sometimes uses deltaMode 1. #6802.
     }
   }
-  else if (pui['is_ie']){
-    if (event.wheelDelta){
-      delta = event.wheelDelta / -120;   //The event is a deprecated MouseWheel instead of the recommened standard, WheelEvent. Sign is reversed.
+  else if (pui["is_ie"]) {
+    if (event.wheelDelta) {
+      delta = event.wheelDelta / -120; // The event is a deprecated MouseWheel instead of the recommened standard, WheelEvent. Sign is reversed.
     }
     else {
       // IE10-11, deltaY is multiple of 144.3000030517578, same sign as Firefox.   deltaMode: 0.
       // Edge, deltaY is multiple of 144.4499969482422, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 120.
-      delta = event.deltaY / 144;  
+      delta = event.deltaY / 144;
     }
   }
-  else if (pui['is_edge'] && event.wheelDelta) {
-    delta = event.wheelDelta / -120;  //Chromium Edge is different than Chrome or pre-Chromium Edge. #6182.
+  else if (pui["is_edge"] && event.wheelDelta) {
+    delta = event.wheelDelta / -120; // Chromium Edge is different than Chrome or pre-Chromium Edge. #6182.
   }
-  else if (pui['is_chrome']) {
+  else if (pui["is_chrome"]) {
     // Chrome, deltaY is multiple of 100, same sign as Firefox.    deltaMode: 0.
     delta = event.deltaY / 100;
   }
-  else if (pui['is_safari']){
+  else if (pui["is_safari"]) {
     // Safari, deltaY is multiple of 4.000244140625, same sign as Firefox. deltaMode: 0. also has "wheelDeltaY": 12.
     delta = event.deltaY / 4;
   }
-  else if (typeof event.deltaY == 'number' && (event.deltaY > 0 || event.deltaY < 0)){
-    if (event.wheelDelta) {   //Browser is Opera.
+  else if (typeof event.deltaY == "number" && (event.deltaY > 0 || event.deltaY < 0)) {
+    if (event.wheelDelta) { // Browser is Opera.
       delta = event.wheelDelta / 120;
     }
     else {
-      delta = event.deltaY / event.deltaY; //Handle other, let value be either +1 or -1. Assume sign is same as other browsers.
+      delta = event.deltaY / event.deltaY; // Handle other, let value be either +1 or -1. Assume sign is same as other browsers.
     }
   }
   return delta;
@@ -5449,13 +5231,13 @@ pui.normalizeWheelDelta = function(event){
  * @param {Number|String} precision
  * @returns {String}
  */
-pui.formatBytes = function(bytes, precision){
+pui.formatBytes = function (bytes, precision) {
   var units = ["B", "KB", "MB", "GB", "TB"];
   bytes = Math.max(bytes, 0);
   var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024));
   pow = Math.min(pow, units.length - 1);
   bytes = bytes / Math.pow(1024, pow);
-  precision = (typeof(precision) == "number" ? precision : 0);
+  precision = (typeof (precision) == "number" ? precision : 0);
 
   return (Math.round(bytes * Math.pow(10, precision)) / Math.pow(10, precision)) + " " + units[pow];
 };
@@ -5466,7 +5248,7 @@ pui.formatBytes = function(bytes, precision){
  * @param {Object|Event} event
  * @returns {Object|Null}
  */
-pui.getTRtargetRow = function(event){
+pui.getTRtargetRow = function (event) {
   // Note: we must use getTarget to handle #text nodes. Otherwise drag_leave leaves classes set when dragging quickly.
   var target = getTarget(event);
   if (target.tagName == "TD") target = target.parentNode;
@@ -5474,8 +5256,7 @@ pui.getTRtargetRow = function(event){
   return target;
 };
 
-pui["getDatabaseConnections"] = function() {
-
+pui["getDatabaseConnections"] = function () {
   if (pui["isCloud"] && inDesignMode()) {
     var connections = Array.isArray(pui.cloud.ws["settings"]["databaseConnections"]) ? pui.cloud.ws["settings"]["databaseConnections"].slice() : [];
     var workspaceConnection = { "name": "workspace", "driver": "mysql" };
@@ -5487,29 +5268,26 @@ pui["getDatabaseConnections"] = function() {
       }
     }
     if (!defaultFound)
-      workspaceConnection["default"] = true;
+    { workspaceConnection["default"] = true; }
     connections.splice(0, 0, workspaceConnection);
     return connections;
   }
   else {
     return pui["databaseConnections"];
   }
-
 };
 
-pui.getDatabaseConnection = function(name) {
-
+pui.getDatabaseConnection = function (name) {
   var connections = pui["getDatabaseConnections"]();
   if (!connections)
-    return;
+  { return; }
   if (typeof name === "string")
-    name = trim(name);
+  { name = trim(name); }
   for (var i = 0; i < connections.length; i++) {
     var connection = connections[i];
     if ((!name && connection["default"] === true) || connection["name"] === name)
-      return connection;
+    { return connection; }
   }
-
 };
 
 pui["getVersionComparer"] = function () {
@@ -5517,11 +5295,11 @@ pui["getVersionComparer"] = function () {
     version = version || "0.0.0";
 
     if (version && typeof version !== "string")
-      version = version.toString();
+    { version = version.toString(); }
 
     return version.split(".");
   };
-  var makeMatching = function(version1, version2){
+  var makeMatching = function (version1, version2) {
     var ver1 = getVersionParts(version1);
     var ver2 = getVersionParts(version2);
 
@@ -5532,16 +5310,15 @@ pui["getVersionComparer"] = function () {
       var len1 = ver1[i].length;
       var len2 = ver2[i].length;
       if (len1 > len2)
-        ver2[i] = "0".repeat(len1 - len2) + ver2[i];
+      { ver2[i] = "0".repeat(len1 - len2) + ver2[i]; }
       if (len2 > len1)
-        ver1[i] = "0".repeat(len2 - len1) + ver1[i];
+      { ver1[i] = "0".repeat(len2 - len1) + ver1[i]; }
     }
 
     return [
       ver1.join("."),
       ver2.join(".")
     ];
-      
   };
 
   return {
@@ -5558,12 +5335,12 @@ pui["newUUID"] = function () {
   var d = new Date().getTime();
 
   if (window["performance"] && typeof window["performance"]["now"] === "function")
-      d += window["performance"]["now"]();
+  { d += window["performance"]["now"](); }
 
-  var value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      var r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  var value = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c == "x" ? r : (r & 0x3 | 0x8)).toString(16);
   });
 
   return value;
@@ -5571,28 +5348,28 @@ pui["newUUID"] = function () {
 
 /**
  * Tell each child of the container that its parent container resized. (Used by pui.resize, pui.ide.doBodyResize, and Layout)
- * Tells layouts (and their child elements by recursion) that they should size. Layout elements can only be inside the runtime 
+ * Tells layouts (and their child elements by recursion) that they should size. Layout elements can only be inside the runtime
  * container, canvas, or other layouts; calling .stretch() recursively stretches other layouts; thus, resizeChildrenOf affects all
  * layouts via recursive Depth-First tree traversal.
  * @param {Element} container             A Designer canvas or the runtimeContainer.
  * @param {undefined|Boolean} inLayout    When true, container belongs to a layout.
  */
-pui.resizeChildrenOf = function(container, inLayout){
+pui.resizeChildrenOf = function (container, inLayout) {
   if (container == null) return;
   var childNodes = container.childNodes;
   var child, m = childNodes.length;
   for (var j = 0; j < m && (child = childNodes[j]); j++) {
     var layout = child.layout;
-    if (layout != null){
-      if (layout.assignHeightOnResize == true) layout.assignHeights(true);  //A top-most layout in cordova+iOS with 100% height needs extra work.
-      
-      layout.resize();  //Tell the layout to update any of its own dimension-dependant styles, then recursively stretch, size children, etc.
+    if (layout != null) {
+      if (layout.assignHeightOnResize == true) layout.assignHeights(true); // A top-most layout in cordova+iOS with 100% height needs extra work.
+
+      layout.resize(); // Tell the layout to update any of its own dimension-dependant styles, then recursively stretch, size children, etc.
     }
     // Non-layout widgets may need to be sized because they have percent-based dimensions or because they just became visible.
     else if (typeof child.sizeMe == "function") {
       // Always size some things regardless of dimension units. Date fields, charts ...
       var alwaysSizeMe = (child.alwaysSizeMe === true || (inLayout && child.grid != null));
-      
+
       if (alwaysSizeMe || pui.isPercent(child.style.width) || pui.isPercent(child.style.height)) child.sizeMe();
     }
   }
@@ -5602,19 +5379,19 @@ pui.resizeChildrenOf = function(container, inLayout){
  * Causes session timeout and displays timeout screen.
  * Used by pui["client side timeout"] and Atrium session timeout management.
  */
-pui["doSessionTimeout"] = function() {
+pui["doSessionTimeout"] = function () {
   hide_calendar();
-  function showMessage(container) {
+  function showMessage (container) {
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.backgroundImage = "none";
-    container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + 
-                              pui["getLanguageText"]("runtimeMsg", "session timed out") + '</div>';
+    container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' +
+                              pui["getLanguageText"]("runtimeMsg", "session timed out") + "</div>";
   }
   showMessage(pui.runtimeContainer);
   pui.showWaitAnimation();
-  var url = getProgramURL("PUI0001200.pgm");  // handler
+  var url = getProgramURL("PUI0001200.pgm"); // handler
   if (pui.genie != null) {
-    url = getProgramURL("PUI0002110.pgm");    // 5250 session controller
+    url = getProgramURL("PUI0002110.pgm"); // 5250 session controller
   }
   if (pui.psid != null && pui.psid != "") url += "/" + pui.psid;
   var ajaxParams = {
@@ -5629,32 +5406,30 @@ pui["doSessionTimeout"] = function() {
     "sendAsBinary": false,
     "suppressAlert": true,
     "params": ajaxParams,
-    "handler": function(response) {
+    "handler": function (response) {
       if (pui.genie != null) {
-        // When used outside of Genie, the 'onload' processing in the 
+        // When used outside of Genie, the 'onload' processing in the
         // time out screen will handle these flags.
         pui.confirmOnClose = false;
-        pui.shutdownOnClose = false;      
+        pui.shutdownOnClose = false;
         showMessage(document.body);
       }
       else {
         // render time out screen from PUISCREENS
         response.container = pui.runtimeContainer;
-        pui.handler = function() { };
+        pui.handler = function () { };
         pui.render(response);
       }
-      if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function"){
+      if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function") {
         pui["ontimeout"]();
       }
       if (pui.genie != null && pui.genie["close atrium tab on timeout"] == true) {
         if (window.parent != window && pui.checkForAtrium(window.parent)) {
           window["Atrium"]["closeTab"]();
-          return;
         }
       }
-      
     },
-    "onfail": function(req) {
+    "onfail": function (req) {
       showMessage(document.body);
     }
   });
@@ -5666,34 +5441,31 @@ pui["doSessionTimeout"] = function() {
  * @param {String} prefix       e.g. "pui-lyt-", "pui-grid-", ...
  * @returns {String}
  */
-pui.getStorageKey = function(screenParms, prefix){
-  var storageKey = '';
-  
-  if (typeof pui["view"] != "undefined"){
+pui.getStorageKey = function (screenParms, prefix) {
+  var storageKey = "";
+
+  if (typeof pui["view"] != "undefined") {
     storageKey = prefix + pui["view"];
   }
-  else if (screenParms != null && typeof screenParms["file"] == "string" && typeof screenParms["library"] == "string"){
+  else if (screenParms != null && typeof screenParms["file"] == "string" && typeof screenParms["library"] == "string") {
     storageKey = prefix + screenParms["library"] + "-" + screenParms["file"] + "-" + screenParms["name"];
   }
-  
+
   return storageKey;
 };
-
 
 /**
  * Capture server's response into test recording
  * @param {Object} parms  5250 or Rich Display parms
  */
-pui.record = function(parms) {
+pui.record = function (parms) {
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
 };
-
 
 /**
  * Save test recording to file system
  */
-pui.saveRecording = function() {
-
+pui.saveRecording = function () {
   // Combine payload info with response info
   var user = null;
   for (var i = 0; i < pui.recording["payloads"].length; i++) {
@@ -5705,11 +5477,11 @@ pui.saveRecording = function() {
   var recordingName;
   // Get recording name from macro variables in the URL query string
   var qryParms = getQueryStringParms();
-  for (x = 1; x < 99; x++) {  // check for up to 99 macro variables
+  for (x = 1; x < 99; x++) { // check for up to 99 macro variables
     var macroVarName = qryParms["var" + x];
     var macroVarValue = qryParms["value" + x];
     if (!macroVarName && !macroVarValue) break;
-    if (macroVarName === "testid") {  // look for testid macro variable
+    if (macroVarName === "testid") { // look for testid macro variable
       recordingName = macroVarValue;
       break;
     }
@@ -5722,7 +5494,7 @@ pui.saveRecording = function() {
 
   var fileName = recordingName;
   if (!fileName.endsWith(".json")) fileName += ".json";
-  
+
   if (!pui["recording path"]) {
     pui.downloadAsAttachment("text/plain", fileName, json);
     return;
@@ -5751,14 +5523,14 @@ pui.saveRecording = function() {
   multiPart.addParts(parts);
   var url = getProgramURL("PUI0001109.pgm");
   url = url.replace("/auth", "");
-  multiPart.send(url, function(request) {    
+  multiPart.send(url, function (request) {
     // Check http layer error.
     var error;
     var response = {};
     if (request.getStatus() != 200) {
       error = request.getStatusMessage();
     }
-    
+
     // Check application-reported error.
     if (!error) {
       response = eval("(" + request.getResponseText() + ")");
@@ -5766,7 +5538,7 @@ pui.saveRecording = function() {
         error = response["errorText"];
       }
     }
-    
+
     // Report error and quit on failure.
     if (error) {
       pui.alert(error);
@@ -5774,23 +5546,20 @@ pui.saveRecording = function() {
     }
 
     pui.alert("Recording saved.");
-    
+
     // Clear recording
     pui.recording = {
       "payloads": [],
       "responses": []
     };
-
   });
-
 };
 
 /**
  * Create recording replay user interface with arrows for advancing screens
  */
-pui.createReplayUI = function() {
-  
-  function advance(increment) {
+pui.createReplayUI = function () {
+  function advance (increment) {
     var stepNumber = pui.replayStep + increment;
     if (!pui.replay["payloads"][stepNumber - 1]) return false;
     var container = pui.replay.container;
@@ -5808,11 +5577,11 @@ pui.createReplayUI = function() {
       pui.render(parms);
     }
   }
-  
+
   var prev = document.createElement("span");
   prev.classList.add("pui-material-icons");
   prev.innerHTML = "keyboard_arrow_left";
-  prev.onclick = function() {
+  prev.onclick = function () {
     advance(-1);
   };
 
@@ -5821,9 +5590,9 @@ pui.createReplayUI = function() {
   step.innerHTML = "Step " + pui.replayStep;
 
   var next = document.createElement("span");
-  next.classList.add("pui-material-icons");  
+  next.classList.add("pui-material-icons");
   next.innerHTML = "keyboard_arrow_right";
-  next.onclick = function() {
+  next.onclick = function () {
     advance(+1);
   };
 
@@ -5837,10 +5606,9 @@ pui.createReplayUI = function() {
 
 /**
  * Adds unique identifier to a request URL.
- * @param {String} url 
+ * @param {String} url
  */
-pui.addRequestId = function(url) {
-
+pui.addRequestId = function (url) {
   if (url.indexOf("?") === -1) {
     url += "?";
   }
@@ -5849,7 +5617,6 @@ pui.addRequestId = function(url) {
   }
   url += "pui-rid=" + pui["newUUID"]();
   return url;
-
 };
 
 /**
@@ -5859,31 +5626,31 @@ pui.addRequestId = function(url) {
  * @param {String} uri
  * @returns {pui.WebSocketClient}
  */
-pui.WebSocketClient = function(uri){
+pui.WebSocketClient = function (uri) {
   this.uri = uri;
 };
 
 /**
  * Connect or reconnect to a socket and register listeners.
  */
-pui.WebSocketClient.prototype.connect = function(){
-  if (this.socket == null || this.socket.readyState === this.socket['CLOSED'] || this.socket.readyState === this.socket['CLOSING']){
+pui.WebSocketClient.prototype.connect = function () {
+  if (this.socket == null || this.socket.readyState === this.socket["CLOSED"] || this.socket.readyState === this.socket["CLOSING"]) {
     this.socket = new WebSocket(this.uri);
   }
   // else: nothing else needs to be done for OPEN or CONNECTING.
 
-  this.socket.addEventListener('message', this);
-  this.socket.addEventListener('error', this);
-  this.socket.addEventListener('close', this);
-  this.socket.addEventListener('open', this);
+  this.socket.addEventListener("message", this);
+  this.socket.addEventListener("error", this);
+  this.socket.addEventListener("close", this);
+  this.socket.addEventListener("open", this);
 };
 
 /**
  * Close the socket and cleanup.
  */
-pui.WebSocketClient.prototype.disconnect = function(){
-  if (this.socket){
-    if (this.socket.readyState === this.socket['OPEN'] || this.socket.readyState === this.socket['CONNECTING']) this.socket.close();
+pui.WebSocketClient.prototype.disconnect = function () {
+  if (this.socket) {
+    if (this.socket.readyState === this.socket["OPEN"] || this.socket.readyState === this.socket["CONNECTING"]) this.socket.close();
     this.onCloseOrDisconnect();
   }
 };
@@ -5891,12 +5658,12 @@ pui.WebSocketClient.prototype.disconnect = function(){
 /**
  * Cleanup events and socket upon socket closing or disconnect.
  */
-pui.WebSocketClient.prototype.onCloseOrDisconnect = function(){
-  if (this.socket){
-    this.socket.removeEventListener('message', this);
-    this.socket.removeEventListener('error', this);
-    this.socket.removeEventListener('close', this);
-    this.socket.removeEventListener('open', this);
+pui.WebSocketClient.prototype.onCloseOrDisconnect = function () {
+  if (this.socket) {
+    this.socket.removeEventListener("message", this);
+    this.socket.removeEventListener("error", this);
+    this.socket.removeEventListener("close", this);
+    this.socket.removeEventListener("open", this);
     delete this.socket;
   }
 };
@@ -5905,10 +5672,9 @@ pui.WebSocketClient.prototype.onCloseOrDisconnect = function(){
  * Handle close events. Child classes may override this.
  * @param {Event} event
  */
-pui.WebSocketClient.prototype['handleEvent'] = function(event){
-  switch(event.type){
-    case 'close':
+pui.WebSocketClient.prototype["handleEvent"] = function (event) {
+  switch (event.type) {
+    case "close":
       this.onCloseOrDisconnect();
-      return;
   }
 };

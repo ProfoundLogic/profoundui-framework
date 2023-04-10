@@ -21,9 +21,7 @@ if (pui["runtimeMsg"] == null) pui["runtimeMsg"] = {};
 if (pui["runtimeText"] == null) pui["runtimeText"] = {};
 if (pui["runtimeMessages"] == null) pui["runtimeMessages"] = {};
 
-
-pui["getLanguageText"] = function(dict, msgid, varvals) {
-
+pui["getLanguageText"] = function (dict, msgid, varvals) {
   var lang = pui["language"];
   if (lang == null || trim(lang) == "") {
     lang = "en_US";
@@ -36,84 +34,83 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
   // despite that the ISO code is "en_GB", we have our messages coded as "en_UK".
   // if for some reason someone uses the proper en_GB code and its not defined,
   // fall back to en_UK.
-   
+
   if (lang == "en_GB" && typeof pui[dict][lang] == "undefined") {
     lang = "en_UK";
   }
 
   // Get the message
 
-  var msg  = pui[dict][lang][msgid];
+  var msg = pui[dict][lang][msgid];
 
   // If for some reason a message is undefined in the selected
   // language, fall back to US English.
-  
-  if (typeof(msg) == "undefined") {
+
+  if (typeof (msg) == "undefined") {
     msg = pui[dict]["en_US"][msgid];
   }
- 
+
   // for backward compat w/old pui["runtimeMessages"][xxx] support.
-  
-  if (dict=="runtimeMsg" && typeof(pui["runtimeMessages"][msgid]) != "undefined") {
+
+  if (dict == "runtimeMsg" && typeof (pui["runtimeMessages"][msgid]) != "undefined") {
     msg = pui["runtimeMessages"][msgid];
   }
-  
+
   // for backward compat w/old pui["fileupload"][xxx] support.
-  
-  if ((dict=="runtimeMsg"||dict=="runtimeText") && msgid.substr(0,7) == "upload " 
-  && pui["fileupload"] != null && typeof(pui["fileupload"][msgid.substr(8)]) != "undefined") {
+
+  if ((dict == "runtimeMsg" || dict == "runtimeText") && msgid.substr(0, 7) == "upload " &&
+  pui["fileupload"] != null && typeof (pui["fileupload"][msgid.substr(8)]) != "undefined") {
     msg = pui["fileupload"][msgid.substr(8)];
-    if (msgid == "upload file limit") 
-       msg = msg.replace("{FILE_LIMIT}", "&1");
+    if (msgid == "upload file limit")
+    { msg = msg.replace("{FILE_LIMIT}", "&1"); }
   }
-  
+
   // Support old "csv export text" language setting, which has been replaced with "excel export text".
   var csvid = "csv export text";
   var excelexpid = "excel export text";
-  if (msgid == excelexpid && typeof pui["runtimeText"][lang][csvid] != "undefined"){
+  if (msgid == excelexpid && typeof pui["runtimeText"][lang][csvid] != "undefined") {
     msg = pui["runtimeText"][lang][csvid];
   }
-  
+
   // for backward compat w/old pui[xxxxx] texts
-  
+
   if (dict == "runtimeText") {
     var tmpmsgid = msgid;
-    if (msgid == excelexpid){
-      tmpmsgid = csvid;   //Lets the next loop use pui["csv export text"], if necessary.
+    if (msgid == excelexpid) {
+      tmpmsgid = csvid; // Lets the next loop use pui["csv export text"], if necessary.
     }
-    
-    var oldtext = [ "close browser text", "csv export text", "filter text", "reset data",
-                    "next link text", "previous link text", "remove filters text",
-                    "session ended text",  "sort ascending text", "sort descending text" ]; 
-    for (var m=0; m<oldtext.length; m++) {
-      if ( tmpmsgid==oldtext[m] && typeof(pui[oldtext[m]]) != "undefined" ) {
-         msg = pui[oldtext[m]];
+
+    var oldtext = ["close browser text", "csv export text", "filter text", "reset data",
+      "next link text", "previous link text", "remove filters text",
+      "session ended text", "sort ascending text", "sort descending text"];
+    for (var m = 0; m < oldtext.length; m++) {
+      if (tmpmsgid == oldtext[m] && typeof (pui[oldtext[m]]) != "undefined") {
+        msg = pui[oldtext[m]];
       }
     }
   }
-  
+
   // for backward compat w/old pui[xxxxx] messages
-  
+
   if (dict == "runtimeMsg") {
-    var oldmsg = [ "closeMessage", "no connection message" ];
-    for (var m=0; m<oldmsg.length; m++) {
-      if ( msgid==oldmsg[m] && typeof(pui[oldmsg[m]]) != "undefined" ) {
-         msg = pui[oldmsg[m]];
+    var oldmsg = ["closeMessage", "no connection message"];
+    for (var m = 0; m < oldmsg.length; m++) {
+      if (msgid == oldmsg[m] && typeof (pui[oldmsg[m]]) != "undefined") {
+        msg = pui[oldmsg[m]];
       }
     }
   }
-  
+
   // insert any replacement variable values &1, &2, &3, etc.
 
-  if (varvals!=null) {
-    for (var m=1; m<=varvals.length; m++) {
-      msg = msg.replace("&"+m, varvals[m-1]);
-    }    
+  if (varvals != null) {
+    for (var m = 1; m <= varvals.length; m++) {
+      msg = msg.replace("&" + m, varvals[m - 1]);
+    }
   }
 
   return msg;
 };
-
 
 // Import Dictionary Locales
 pui["runtimeMsg"]["en_US"] = en_US("runtimeMsg");

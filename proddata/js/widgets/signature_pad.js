@@ -17,14 +17,12 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * SignaturePad Class
  * @constructor
  */
 
-pui.SignaturePad = function() {
+pui.SignaturePad = function () {
   var me = this;
   var canvasContext;
   var canvas;
@@ -32,27 +30,27 @@ pui.SignaturePad = function() {
   var strokes = [];
   var clearBox;
   var moveBox;
-  
+
   this.container = null;
   this.className = "pui-signature-pad-canvas";
   this.designMode = false;
   this.designItem = null;
-  
-  function setContext() {
+
+  function setContext () {
     if (canvas.getContext == null) return;
     canvasContext = canvas.getContext("2d");
     if (canvasContext == null) return;
     if (me.color != null) canvasContext.strokeStyle = me.color;
     if (me.backgroundColor != null) {
-      canvas.style.backgroundColor = me.backgroundColor;      
+      canvas.style.backgroundColor = me.backgroundColor;
       canvasContext.fillStyle = me.backgroundColor;
 	  	canvasContext.fillRect(0, 0, me.container.offsetWidth, me.container.offsetHeight);
     }
     canvasContext.lineJoin = "round";
     canvasContext.lineWidth = 5;
   }
-  
-  function drawLine(x1, y1, x2, y2) {
+
+  function drawLine (x1, y1, x2, y2) {
     if (canvasContext == null) return;
     if (x2 == null && y2 == null) {
       canvasContext.lineTo(x1, y1);
@@ -63,24 +61,23 @@ pui.SignaturePad = function() {
     }
     canvasContext.stroke();
   }
-  
-  function setModified() {
+
+  function setModified () {
     me.container.modified = true;
     pui.updateReactState(me.container);
   }
-  
-  function startDrawing(event) {
 
+  function startDrawing (event) {
     if (me.readOnly || me.disabled) return;
-    
+
     if (canvasContext == null) return;
-    
+
     // Make sure signature location is correct when designer canvas is zoomed.
     var zoomFactor = 1;
     if (context == "dspf" && toolbar && toolbar.designer && toolbar.designer.container) zoomFactor = toolbar.zoomFactor;
-    
+
     var offset = pui.getOffset(me.container, true);
-    
+
     var touchEvent = false;
     if (event != null && event.touches != null) {
       if (event.touches.length != 1) {
@@ -88,8 +85,8 @@ pui.SignaturePad = function() {
       }
       touchEvent = true;
     }
-    
-    strokes.push([]);  // new stroke
+
+    strokes.push([]); // new stroke
     previous.x = (getMouseX(event) - offset[0]) * zoomFactor;
     previous.y = (getMouseY(event) - offset[1]) * zoomFactor;
     canvasContext.beginPath();
@@ -98,9 +95,8 @@ pui.SignaturePad = function() {
     stroke.push(previous.x);
     stroke.push(previous.y);
     setModified();
-    
-    function keepDrawing(event) {
-      
+
+    function keepDrawing (event) {
       if (me.readOnly || me.disabled) return;
 
       if (event != null && event.touches != null) {
@@ -112,18 +108,18 @@ pui.SignaturePad = function() {
       var x = (getMouseX(event) - offset[0]) * zoomFactor;
       var y = (getMouseY(event) - offset[1]) * zoomFactor;
 
-      //drawLine(previous.x, previous.y, x, y);
+      // drawLine(previous.x, previous.y, x, y);
       drawLine(x, y);
-      
+
       var stroke = strokes[strokes.length - 1];
       stroke.push(x);
       stroke.push(y);
-      
+
       previous.x = x;
       previous.y = y;
     }
 
-    function stopDrawing() {
+    function stopDrawing () {
       canvasContext.closePath();
       if (touchEvent) {
         removeEvent(canvas, "touchmove", keepDrawing);
@@ -144,15 +140,15 @@ pui.SignaturePad = function() {
 
     if (touchEvent) {
       addEvent(canvas, "touchmove", keepDrawing);
-      addEvent(canvas, "touchend",   stopDrawing);
-      addEvent(document, "touchend",   stopDrawing);
+      addEvent(canvas, "touchend", stopDrawing);
+      addEvent(document, "touchend", stopDrawing);
     }
     else {
       addEvent(canvas, "mousemove", keepDrawing);
-      addEvent(canvas, "mouseup",   stopDrawing);
-      addEvent(document, "mouseup",   stopDrawing);
+      addEvent(canvas, "mouseup", stopDrawing);
+      addEvent(document, "mouseup", stopDrawing);
     }
-    
+
     if (me.designMode && !me.designItem.isSelected()) {
       // select widget
       var designer = me.designItem.designer;
@@ -161,13 +157,12 @@ pui.SignaturePad = function() {
       selection.add(me.designItem);
       designer.propWindow.refresh();
     }
-    
+
     preventEvent(event);
     return false;
-
   }
-  
-  this.init = function() {
+
+  this.init = function () {
     me.container.innerHTML = "";
     me.container.className = "pui-signature-pad-container";
     canvas = document.createElement("canvas");
@@ -176,11 +171,11 @@ pui.SignaturePad = function() {
     clearBox = document.createElement("div");
     clearBox.className = "pui-signature-pad-clear-box";
     clearBox.innerHTML = "Clear";
-    clearBox.onmousedown = function(e) {
+    clearBox.onmousedown = function (e) {
       preventEvent(e);
       return false;
     };
-    clearBox.onclick = function(e) {
+    clearBox.onclick = function (e) {
       me.clear();
       setModified();
     };
@@ -194,11 +189,11 @@ pui.SignaturePad = function() {
     me.resize();
     // In case the canvas is in an IScroll, prevent the IScroll from handling the event.
     // pointerdown is captured before mousedown, making IScroll scroll. #6640.
-    canvas.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
-    
+    canvas.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+
     addEvent(canvas, "mousedown", startDrawing);
     addEvent(canvas, "touchstart", startDrawing);
-    addEvent(me.container, "dblclick", function(e) {
+    addEvent(me.container, "dblclick", function (e) {
       if (me.designMode) {
         var propWindow = me.designItem.designer.propWindow;
         propWindow.setActiveProperty("value", null, true, e);
@@ -214,8 +209,8 @@ pui.SignaturePad = function() {
       }
     }
   };
-  
-  this.resize = function(dontClear) {
+
+  this.resize = function (dontClear) {
     canvas.style.width = me.container.offsetWidth + "px";
     canvas.style.height = me.container.offsetHeight + "px";
     canvas.setAttribute("width", me.container.offsetWidth);
@@ -224,28 +219,28 @@ pui.SignaturePad = function() {
     if (dontClear == true) me.redraw();
     else strokes = [];
   };
-  
-  this.clear = function() {
+
+  this.clear = function () {
     if (canvasContext != null) canvasContext.clearRect(0, 0, me.container.offsetWidth, me.container.offsetHeight);
     me.resize();
   };
-  
-  this.setColor = function(color) {
+
+  this.setColor = function (color) {
     me.color = color;
     setContext();
   };
 
-  this.setBackgroundColor = function(color) {
+  this.setBackgroundColor = function (color) {
     me.backgroundColor = color;
-    setContext();  
+    setContext();
   };
-  
-  this.showOrHideClearBox = function() {
+
+  this.showOrHideClearBox = function () {
     if (me.readOnly || me.disabled) clearBox.style.visibility = "hidden";
     else clearBox.style.visibility = "";
   };
 
-  this.getValue = function() {
+  this.getValue = function () {
     var json = "[";
     for (var i = 0; i < strokes.length; i++) {
       var points = strokes[i];
@@ -260,8 +255,8 @@ pui.SignaturePad = function() {
     json += "]";
     return json;
   };
-  
-  this.setValue = function(value) {
+
+  this.setValue = function (value) {
     me.clear();
     if (value.length < 5 || value.substr(0, 2) != "[[" || value.substr(value.length - 2, 2) != "]]") {
       return;
@@ -269,17 +264,17 @@ pui.SignaturePad = function() {
     try {
       strokes = eval("(" + value + ")");
     }
-    catch(e) { };
+    catch (e) { };
     me.redraw();
   };
 
-  this.redraw = function() {
+  this.redraw = function () {
     if (canvasContext == null) return;
     canvasContext.beginPath();
     for (var i = 0; i < strokes.length; i++) {
       var points = strokes[i];
       for (var j = 0; j < points.length; j += 2) {
-        if (j + 1 > points.length) break;  // point values should come as x,y pairs
+        if (j + 1 > points.length) break; // point values should come as x,y pairs
         var prevIndex = j - 2;
         if (prevIndex < 0) prevIndex = 0;
         var x1 = points[prevIndex];
@@ -291,10 +286,7 @@ pui.SignaturePad = function() {
     }
     canvasContext.closePath();
   };
-
 };
-
-
 
 pui.widgets.add({
   name: "signature pad",
@@ -305,34 +297,34 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.dom.signaturePad == null) {
         parms.dom.signaturePad = new pui.SignaturePad();
         parms.dom.signaturePad.container = parms.dom;
         parms.dom.signaturePad.designMode = parms.design;
         if (parms.design) parms.dom.signaturePad.designItem = parms.designItem;
         parms.dom.signaturePad.init();
-        parms.dom.sizeMe = function() {
+        parms.dom.sizeMe = function () {
           parms.dom.signaturePad.resize(true);
         };
-        parms.dom.alwaysSizeMe = true;  //Ensure that the widget can be used in tab layout tabs other than the first. #6423.
+        parms.dom.alwaysSizeMe = true; // Ensure that the widget can be used in tab layout tabs other than the first. #6423.
       }
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       if (!parms.design) {
-        setTimeout(function() {
+        setTimeout(function () {
           parms.dom.signaturePad.setValue(parms.value);
         }, 0);
       }
     },
-    
-    "color": function(parms) {
+
+    "color": function (parms) {
       parms.dom.signaturePad.setColor(parms.value);
     },
 
-    "read only": function(parms) {      
+    "read only": function (parms) {
       if (parms.value == true || parms.value == "true") {
         parms.dom.signaturePad.readOnly = true;
       }
@@ -341,8 +333,8 @@ pui.widgets.add({
       }
       parms.dom.signaturePad.showOrHideClearBox();
     },
-    
-    "disabled": function(parms) {      
+
+    "disabled": function (parms) {
       if (parms.value == true || parms.value == "true") {
         parms.dom.signaturePad.disabled = true;
       }
@@ -351,22 +343,20 @@ pui.widgets.add({
       }
       parms.dom.signaturePad.showOrHideClearBox();
     },
-    
-    "width": function(parms) {
+
+    "width": function (parms) {
       parms.dom.style.width = parms.value;
       parms.dom.signaturePad.resize();
     },
-    
-    "height": function(parms) {
+
+    "height": function (parms) {
       parms.dom.style.height = parms.value;
       parms.dom.signaturePad.resize();
     },
-    
-    "background color": function(parms) {
+
+    "background color": function (parms) {
       parms.dom.signaturePad.setBackgroundColor(parms.value);
     }
   }
-  
+
 });
-
-
