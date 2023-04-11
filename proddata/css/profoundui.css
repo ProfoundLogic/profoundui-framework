@@ -4353,6 +4353,18 @@ a.ui-link-inherit {
 }
 
 /* misc */
+.readOnly {
+  filter: contrast(0.4);
+  background-color: #FFFFFF;
+  cursor: default;
+}
+.readOnly > input {
+  cursor: default;
+}
+
+.hidden {
+  display: none;
+}
 
 .ui-icon-check {
   background-position: -252px -1px;

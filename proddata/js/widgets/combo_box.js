@@ -52,8 +52,9 @@ pui.ComboBoxWidget.prototype.init = function () {
   // as an inline style. Clearing the border allows css classes to be used
   if (this.design) this.div.style.border = "";
   if (this.div.style.width == null) this.div.style.width = "80px";
-  if (context == "genie" && (this.div.style.height == null || this.div.style.height == ""))
-  { this.div.style.height = "20px"; }
+  if (context == "genie" && (this.div.style.height == null || this.div.style.height == "")) {
+    this.div.style.height = "20px";
+  }
 
   if (this.box == null) {
     this.box = document.createElement("input");
@@ -64,17 +65,24 @@ pui.ComboBoxWidget.prototype.init = function () {
   // Default off if not set by 'html auto complete' property.
   if (this.box.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
     this.box.setAttribute("autocomplete", "off");
-    if (context == "dspf")
-    { this.box.setAttribute("name", pui.randomTextBoxName()); }
+    if (context == "dspf") {
+      this.box.setAttribute("name", pui.randomTextBoxName());
+    }
   }
 
   this.box.style.fontFamily = this.div.style.fontFamily;
-  if (typeof this.div.name == "string")
-  { this.box.name = this.div.name; }
+  if (typeof this.div.name == "string") {
+    this.box.name = this.div.name;
+  }
   if (this.design) {
     this.box.style.cursor = "default";
     this.box.readOnly = true;
   }
+
+  var classes = this.div.className.split(" ");
+  var isReadOnly = classes.indexOf("readOnly");
+  this.box.disabled = isReadOnly > 0;
+  this.box.readOnly = isReadOnly > 0;
 
   this.box.addEventListener("keyup", this);
 
@@ -527,19 +535,22 @@ pui.widgets.add({
       var suffix = "";
       var cls = "";
       while (typeof parms.properties[base + suffix] == "string") {
-        if (cls != "")
-        { cls += " "; }
+        if (cls != "") {
+          cls += " ";
+        }
         cls += parms.properties[base + suffix];
 
-        if (suffix == "")
-        { suffix = " 2"; }
-        else
-        { suffix = " " + (parseInt(suffix, 10) + 1); }
+        if (suffix == "") {
+          suffix = " 2";
+        }
+        else {
+          suffix = " " + (parseInt(suffix, 10) + 1);
+        }
       }
       if (cls === "" && parms.dom.fieldInfo) {
         var attr = parms.dom.fieldInfo["attr"];
         cls += " A" + attr;
-        if (parms.dom.fieldInfo.bypass) {
+        if (parms.dom.fieldInfo["bypass"]) {
           var nonDisplay = (attr == "27" || attr == "2F" || attr == "37" || attr == "3F");
           cls += (nonDisplay) ? " hide" : " readOnly";
         }
@@ -769,8 +780,9 @@ pui.widgets.add({
 
     "input type": function (parms) {
       try {
-        if (!parms.design && parms.dom.comboBoxWidget != null)
-        { parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value); }
+        if (!parms.design && parms.dom.comboBoxWidget != null) {
+          parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value);
+        }
       }
       catch (e) { }
     },
@@ -779,10 +791,12 @@ pui.widgets.add({
       if (!parms.design && parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget.getBox().setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
-          if (parms.value == "off")
-          { parms.dom.comboBoxWidget.getBox().setAttribute("name", pui.randomTextBoxName()); }
-          else
-          { parms.dom.comboBoxWidget.getBox().removeAttribute("name"); }
+          if (parms.value == "off") {
+            parms.dom.comboBoxWidget.getBox().setAttribute("name", pui.randomTextBoxName());
+          }
+          else {
+            parms.dom.comboBoxWidget.getBox().removeAttribute("name");
+          }
         }
       }
     }
