@@ -455,8 +455,14 @@ pui.FieldFormat = {
       else if (decLength > 0 && strValue.substr(0, 1) === "0.") {
         strValue = strValue.substr(1);
       }
-      var numValue = parseFloat(strValue, 10) || 0;
-
+      
+      // If comma decimal is being used, remove '.' and replace ',' with a '.' and run parseFloat
+      if (!commaDecimal) {
+       var numValue = parseFloat(strValue, 10) || 0;
+      }
+      else {
+      var numValue = parseFloat(strValue.replace(/\./g, "").replace(/\,/g, "."), 10) || 0;
+      }
       // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
       strValue = strValue.replace(/-/g, "");
 
