@@ -482,15 +482,10 @@ pui.FieldFormat = {
         }
       }
 
-      if (decLength > 0) {
-        strDec = pui.formatting.rightPad(strDec, decLength, "0");
-        if (!commaDecimal) {
-          strValue = strInt + "." + strDec;
-        }
-        else if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
-          strValue = "0" + strValue;
-        }
 
+      if (decLength > 0){
+        strDec = pui.formatting.rightPad(strDec, decLength, '0');
+        strValue = strInt + (commaDecimal ? ',' : '.') + strDec;
         if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
         { maxLength++; }
         if (commaDecimal) keyFilter += ",";
