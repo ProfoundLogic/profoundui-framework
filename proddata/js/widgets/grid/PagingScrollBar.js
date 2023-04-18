@@ -49,8 +49,12 @@ pui.PagingScrollBar = function () {
   this.init = function () {
     outerDiv = document.createElement("div");
 
-    if (me.grid.recordFormatName)
-    { scrollbarId = me.grid.recordFormatName + "scrollbar"; }
+    if (typeof me.grid !== "undefined" && typeof me.grid.recordFormatName === "string" && me.grid.recordFormatName.length > 0) {
+     scrollbarId = me.grid.recordFormatName + "scrollbar"; 
+    }
+    else {
+     scrollbarId = "scrollbar" + Math.floor(Math.random() * 1000000).toString(); 
+    }
 
     outerDiv.id = scrollbarId;
     outerDiv.style.position = "absolute";
