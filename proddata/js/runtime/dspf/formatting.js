@@ -445,7 +445,21 @@ pui.FieldFormat = {
       var dataLength = parseInt(obj.dataLength, 10);
       var decLength = parseInt(obj.decPos, 10);
 
-      var strValue = (obj.value || 0) + "";
+      
+      var strValue;
+      if (!obj.value) {
+        strValue = "0"; 
+      } 
+      else if (isNaN(obj.value) && commaDecimal) {
+        // Database driven grids will return comma decimals when DCMFMT is 'J' which is something 
+        //  this function does not expect. 
+        //  Replace the comma with a period and the rest of the code will function normally. 
+        strValue = obj.value.replace(/\./g, "").replace(/\,/g, "."); 
+      }
+      else {
+        strValue = obj.value; 
+      }
+
       if (decLength > 0 && strValue === "0") {
         strValue = ".";
         while (strValue.length - 1 < decLength) {
@@ -455,14 +469,8 @@ pui.FieldFormat = {
       else if (decLength > 0 && strValue.substr(0, 1) === "0.") {
         strValue = strValue.substr(1);
       }
-      
-      // If comma decimal is being used, remove '.' and replace ',' with a '.' and run parseFloat
-      if (!commaDecimal) {
-       var numValue = parseFloat(strValue, 10) || 0;
-      }
-      else {
-      var numValue = parseFloat(strValue.replace(/\./g, "").replace(/\,/g, "."), 10) || 0;
-      }
+      var numValue = parseFloat(strValue, 10) || 0;
+     
       // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
       strValue = strValue.replace(/-/g, "");
 
@@ -490,11 +498,13 @@ pui.FieldFormat = {
 
       if (decLength > 0) {
         strDec = pui.formatting.rightPad(strDec, decLength, "0");
-        if (!commaDecimal) {
-          strValue = strInt + "." + strDec;
-        }
-        else if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
-          strValue = "0" + strValue;
+        strValue = strInt + (commaDecimal ? ',' : '.') + strDec;
+        if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
+           strValue = "0" + strValue;
+         }
+
+        if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
+             strValue = "0" + strValue;
         }
 
         if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
