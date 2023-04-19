@@ -539,19 +539,22 @@ pui.Grid = function () {
     // move logic from render.js to here, to be reusable
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
-    if (me.isInitCollapsed())
-    { numRows = numRows * me.foldMultiple; }
+    if (me.isInitCollapsed()) {
+      numRows = numRows * me.foldMultiple;
+    }
     var pageNum = parseInt((recNum - 1) / numRows);
     var topRecNum = pageNum * numRows + 1;
     me.recNum = topRecNum;
   };
 
   this.isTreeInitCollapsed = function () {
-    if (me.treeLevelField === null)
-    { return false; }
+    if (me.treeLevelField === null) {
+      return false;
+    }
     var treeInitCollapsed = me.treeInitCollapsed;
-    if (treeInitCollapsed === undefined)
-    { treeInitCollapsed = false; }
+    if (treeInitCollapsed === undefined) {
+      treeInitCollapsed = false;
+    }
     return treeInitCollapsed;
   };
 
@@ -749,8 +752,9 @@ pui.Grid = function () {
    */
   this.exportCSV = function (fileName, exportXLSX) {
     // If "xlsx export" is not set but a config flag is, then "Export to Excel" uses XLSX.
-    if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true"))
-    { exportXLSX = true; }
+    if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true")) {
+      exportXLSX = true;
+    }
 
     var delimiter;
     if (typeof (pui["csv separator"]) == "string") {
@@ -774,7 +778,8 @@ pui.Grid = function () {
     if (me.isDataGrid() && me.forceDataArray == false) {
       if (exportXLSX) {
         me.exportExcel_DataGrid(fileName);
-      } else {
+      }
+      else {
         me.getData(fileName);
       }
       return;
@@ -795,7 +800,7 @@ pui.Grid = function () {
     var boundVisibility = [];
     var boundValFormats = [];
     var imageData = [];
-    var hyperlinks = [], columnIds = [];
+    var hyperlinks = []; var columnIds = [];
     var items = [];
 
     saveResponsesToDataArray(); // save any changes the user may have made to the widgets before exporting #6869
@@ -830,8 +835,9 @@ pui.Grid = function () {
             boundVisibility[col] = itm["visibility"];
           }
           var val = itm["value"];
-          if (itm["radio button group"])
-          { val = itm["radio button group"]; }
+          if (itm["radio button group"]) {
+            val = itm["radio button group"];
+          }
           if (itm["field type"] == "html container") val = itm["html"];
 
           if (itm["field type"] == "image" && exportXLSX) val = itm["image source"];
@@ -857,7 +863,8 @@ pui.Grid = function () {
                 hyperlinks[col].value = val; // The value will be used as link text for each row.
                 val = hyperlink; // make sure the column is exported.
               }
-            } else if (hyperlink != null && hyperlink.length > 0) {
+            }
+            else if (hyperlink != null && hyperlink.length > 0) {
               // The link is hard-coded. The link will be used for every row.
               hyperlinks[col].link = hyperlink;
             }
@@ -920,10 +927,12 @@ pui.Grid = function () {
     var widths, headings, col, n, columnId;
     if (me.hidableColumns && !me.exportVisableOnly) {
       widths = []; headings = [];
-      var matchesCurCol = function (el) { return el["columnId"] == columnId; };
+      var matchesCurCol = function (el) {
+        return el["columnId"] == columnId;
+      };
       for (col = 0, n = columnIds.length; col < n; col++) {
         columnId = columnIds[col];
-        var heading = "", width = 100;
+        var heading = ""; var width = 100;
         if (columnId >= 0) {
           // Find the entry in columnInfo for the currentColumn.
           var found = me.columnInfo.find(matchesCurCol);
@@ -1077,8 +1086,9 @@ pui.Grid = function () {
             if (typeof imageData[j] == "object" && imageData[j] != null) { // The cell data is an image.
               useDrawing = true;
               worksheet.setCell("", worksheetCol); // Add a blank cell.
-              if (typeof xlsxvalue === "string" && xlsxvalue.length > 0)
-              { drawing.addImage(worksheet.lastRowNum, worksheetCol, xlsxvalue, imageData[j]); }
+              if (typeof xlsxvalue === "string" && xlsxvalue.length > 0) {
+                drawing.addImage(worksheet.lastRowNum, worksheetCol, xlsxvalue, imageData[j]);
+              }
             }
             else {
               // The cell data is a string or number and not an image.
@@ -1087,7 +1097,8 @@ pui.Grid = function () {
                 // There is a hyperlink in the cell.
                 if (hyperlinks[j].link != null) {
                   linkstring = hyperlinks[j].link; // hard-coded link
-                } else if (hyperlinks[j].linkBound != null) {
+                }
+                else if (hyperlinks[j].linkBound != null) {
                   linkstring = record[hyperlinks[j].linkBound]; // bound link.
                 }
               }
@@ -1150,7 +1161,8 @@ pui.Grid = function () {
       if (dbfile.length > 1) {
         dblib = dbfile[0];
         dbfile = dbfile[1];
-      } else {
+      }
+      else {
         dbfile = dbfile[0];
       }
 
@@ -1168,8 +1180,9 @@ pui.Grid = function () {
         "async": true,
         "handler": function (response) {
           var fldresp = null;
-          if (response != null && response["fields"] != null)
-          { fldresp = response["fields"]; }
+          if (response != null && response["fields"] != null) {
+            fldresp = response["fields"];
+          }
           setupajax(fldresp);
         },
         "suppressAlert": true,
@@ -1180,7 +1193,8 @@ pui.Grid = function () {
       });
       me.mask();
       me.gridLoading();
-    } else {
+    }
+    else {
       setupajax();
     }
 
@@ -1232,10 +1246,12 @@ pui.Grid = function () {
       }
 
       var fetchCounter = me["dataProps"]["allow any select statement"];
-      if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
-      { formData.append("FetchCounter", "Y"); }
-      if (pui["isCloud"])
-      { formData.append("workspace_id", pui.cloud.ws.id); }
+      if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true)) {
+        formData.append("FetchCounter", "Y");
+      }
+      if (pui["isCloud"]) {
+        formData.append("workspace_id", pui.cloud.ws.id);
+      }
 
       me.pagingBar.setTempStatusIcon("cancel", "cancel");
       me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
@@ -1300,7 +1316,7 @@ pui.Grid = function () {
       };
 
       // Show the download progress to the user on the paging bar.
-      var firstTS = 0, lastTS = 0;
+      var firstTS = 0; var lastTS = 0;
       xhr.addEventListener("progress", function (progress) {
         var msg = pui.formatBytes(progress["loaded"], 1);
         var total = progress["timeStamp"] - firstTS;
@@ -1330,13 +1346,17 @@ pui.Grid = function () {
     function makexlsx (response) {
       var field, colNum, heading, colEl, len;
       // Used to find array elements whose "field" property matches the closured field var.
-      function matchingField (el) { return el["field"] == field; }
+      function matchingField (el) {
+        return el["field"] == field;
+      }
 
       // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
       var fieldOrder = [];
       if ((me.movableColumns || me.hidableColumns) && Array.isArray(me.columnInfo) && me.columnInfo.length > 0) {
         // Get info on all visible columns or all columns, and sort that in order of being displayed.
-        var sortedcolinf = me.columnInfo.filter(function (el) { return el["showing"] || me.exportVisableOnly != true; });
+        var sortedcolinf = me.columnInfo.filter(function (el) {
+          return el["showing"] || me.exportVisableOnly != true;
+        });
         sortedcolinf.sort(function (a, b) {
           var colA = a["currentColumn"];
           if (colA < 0) colA = 999 + a["columnId"]; // Put hidden columns to the right of all visible cells in a relative order.
@@ -1359,8 +1379,9 @@ pui.Grid = function () {
       }
 
       var numCols = 0;
-      if (response["colWidths"] != null)
-      { numCols = response["colWidths"].length; }
+      if (response["colWidths"] != null) {
+        numCols = response["colWidths"].length;
+      }
       else {
         // In case the web service doesn't return "colWidths" with its data, count the number of fields in the results.
         numCols = Object.keys(response["results"][0]).length;
@@ -1467,7 +1488,9 @@ pui.Grid = function () {
       var cell = me.cells[row][col];
       for (var i = 0; i < cell.children.length; i++) {
         var temp = cell.children[i].id;
-        if (temp == "" || temp == null) { continue; }
+        if (temp == "" || temp == null) {
+          continue;
+        }
         else {
           temp = " " + temp;
           arr2.push(temp);
@@ -1599,10 +1622,12 @@ pui.Grid = function () {
       if (elem != null) {
         // This is not always a dom element, such as with 'selection field', etc.
         if (!elem.tagName) {
-          if (typeof elem.responseValue != "undefined")
-          { return elem.responseValue; }
-          else
-          { return elem.value; }
+          if (typeof elem.responseValue != "undefined") {
+            return elem.responseValue;
+          }
+          else {
+            return elem.value;
+          }
         }
         else {
           return getElementValue(elem);
@@ -1663,7 +1688,8 @@ pui.Grid = function () {
 
               // This will run if the row has not yet been rendered.
               // In that case we need to stick an element into the response array.
-            } else {
+            }
+            else {
               var qualField = pui.formatUpper(me.recordFormatName) + "." + fieldName + "." + rowNum;
               if (pui.responseElements[qualField] == null) {
                 record.selection = {
@@ -1815,7 +1841,8 @@ pui.Grid = function () {
 
     if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true") {
       return (me.totalRecs <= lastRow);
-    } else {
+    }
+    else {
       var dataRecords = me.dataArray;
       if (me.isFiltered()) dataRecords = me.visibleDataArray;
       return (dataRecords.length <= lastRow);
@@ -1845,7 +1872,8 @@ pui.Grid = function () {
         me.recNum = me.recNum - lastRow + me.totalRecs;
         if (me.recNum < 1) me.recNum = 1;
       }
-    } else {
+    }
+    else {
       var dataRecords = me.dataArray;
       if (me.isFiltered()) dataRecords = me.visibleDataArray;
       if (dataRecords.length < lastRow && me.scrollbarObj != null) {
@@ -1876,7 +1904,9 @@ pui.Grid = function () {
   };
 
   // Expose recNum -- the current grid record number. Needed for testing pageUp and pageDown in obfuscated code.
-  this["getRecNum"] = function () { return me.recNum; };
+  this["getRecNum"] = function () {
+    return me.recNum;
+  };
 
   this["unMask"] = function () {
     if (loadingDiv != null) loadingDiv.style.display = "none";
@@ -1959,9 +1989,13 @@ pui.Grid = function () {
     // Adjust size, so it doesn't get too big, too small, or too wide
     if (height > 100) {
       height = 100;
-      if (width < 100) { height = width - 5; }
+      if (width < 100) {
+        height = width - 5;
+      }
     }
-    if (height < 35) { height = 35; }
+    if (height < 35) {
+      height = 35;
+    }
 
     // Apply height & animation class
     animationDiv.style.width = height + "px";
@@ -2022,7 +2056,8 @@ pui.Grid = function () {
             sql += " ORDER BY " + orderBy;
           }
         }
-      } else if (me.sortBy != null) {
+      }
+      else if (me.sortBy != null) {
         // Allow the cache comparison know if sorting changed.
         sql += " ORDER BY " + me.sortBy;
       }
@@ -2055,8 +2090,9 @@ pui.Grid = function () {
           field.value = fieldValue;
           form.appendChild(field);
         }
-        if (pui["isCloud"])
-        { addField("workspace_id", pui.cloud.ws.id); }
+        if (pui["isCloud"]) {
+          addField("workspace_id", pui.cloud.ws.id);
+        }
         addField("delimiter", delimiter);
         addField("stringDelimiter", (stringDelimiter === "") ? "*NONE" : stringDelimiter);
         if (pui["read db driven data as ebcdic"] !== true) addField("UTF8", "Y");
@@ -2095,7 +2131,8 @@ pui.Grid = function () {
               if (headings) headings += delimiter;
               headings += stringDelimiter + heading + stringDelimiter;
             });
-          } else {
+          }
+          else {
             var headings = "";
             for (var i = 0; i < me.cells[0].length; i++) {
               var heading = getInnerText(me.cells[0][i]);
@@ -2138,7 +2175,9 @@ pui.Grid = function () {
       }
       else
       // We aren't doing a server-side Find, so clear all cells.
-      { me.clearData(); }
+      {
+        me.clearData();
+      }
 
       var receiveRoutine = receiveData;
       var limit = numRows;
@@ -2218,11 +2257,13 @@ pui.Grid = function () {
           if (subfileRow == null) subfileRow = i;
           if (setRowBg) me.setRowBackground(rowNum, false, i - 1); // Note: if rows are hidden rowNum may not correspond to the correct value in this.dataArray. 6391.
 
-          if (treeLevelItem !== null)
-          { handleTreeLevelItemPerRow(treeLevelItem); }
+          if (treeLevelItem !== null) {
+            handleTreeLevelItemPerRow(treeLevelItem);
+          }
 
-          if (me.firstDisplayedRRN == 0)
-          { me.firstDisplayedRRN = subfileRow; }
+          if (me.firstDisplayedRRN == 0) {
+            me.firstDisplayedRRN = subfileRow;
+          }
           me.lastDisplayedRRN = subfileRow;
 
           pui.renderFormat({
@@ -2289,8 +2330,9 @@ pui.Grid = function () {
       if (me.hasTreeLevelColumn && me.treeLevelField !== null && me.lastSelectedRRN !== null) {
         var myTreeLevelItemId = me.tableDiv.id + me.treeLevelItemId + "." + me.lastSelectedRRN;
         var myTreeLevelItemObj = getObj(myTreeLevelItemId);
-        if (myTreeLevelItemObj !== null)
-        { myTreeLevelItemObj.focus(); } // so that left/right arrow keys would expand/collapse tree level
+        if (myTreeLevelItemObj !== null) {
+          myTreeLevelItemObj.focus();
+        } // so that left/right arrow keys would expand/collapse tree level
       }
 
       if (me.isDataGrid() && me["dataProps"]["load all rows"] != "true") {
@@ -2364,10 +2406,12 @@ pui.Grid = function () {
           for (var i = 0; i < filters.length; i++) {
             var col = state["filters"][i]["column"];
             var text = state["filters"][i]["text"];
-            if (text == null || text == "")
-            { me["removeFilter"](col); }
-            else
-            { me["setFilter"](col, text); }
+            if (text == null || text == "") {
+              me["removeFilter"](col);
+            }
+            else {
+              me["setFilter"](col, text);
+            }
           }
           me.waitingOnRequest = true;
         }
@@ -2423,7 +2467,9 @@ pui.Grid = function () {
      * @returns {undefined}
      */
     function receiveData (data, totalRecs, matchRow) {
-      function colIdMatchingIdx (el) { return el["columnId"] === idx; }
+      function colIdMatchingIdx (el) {
+        return el["columnId"] === idx;
+      }
 
       if (me == null || me.cells == null) return; // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
@@ -2455,8 +2501,9 @@ pui.Grid = function () {
 
       // For each returned record, put the data into grid cells.
       for (var i = 0; i < data.length; i++) {
-        if (me.firstDisplayedRRN == 0)
-        { me.firstDisplayedRRN = (i + 1) + (me.recNum - 1); }
+        if (me.firstDisplayedRRN == 0) {
+          me.firstDisplayedRRN = (i + 1) + (me.recNum - 1);
+        }
         me.lastDisplayedRRN = (i + 1) + (me.recNum - 1);
 
         var record = data[i];
@@ -2555,6 +2602,15 @@ pui.Grid = function () {
     function getTreeLevelItem () {
       var treeLevelItem = null;
       if (me.hasTreeLevelColumn && me.treeLevelField !== null) {
+        /**  This conditional statement is solely for Expand To Layout feature (PUI-212)
+         * Check if the treeLevelData has value except null
+         * If it is check if the value of the array is equal to zero which means that the expandToLayout is true
+         * Remove the value of the treeLevelData to repopulate it with the true value from the gridTree */
+        if (me.treeLevelData) {
+          if (me.treeLevelData.length < 1 && me.expandToLayout) {
+            me.treeLevelData = null;
+          }
+        }
         if (me.treeLevelData == null) { // do one time only for load all grid or db grid with load all option
           me.treeLevelData = [];
           for (var ii = 0; ii < me.dataArray.length; ii++) {
@@ -2573,8 +2629,9 @@ pui.Grid = function () {
           for (var jj = 0; jj < me.runtimeChildren.length; jj++) {
             if (me.runtimeChildren[jj]["columnId"] == treeLevelColumnId) { // compare static design value
               var currentLeft = me.runtimeChildren[jj]["left"];
-              if (currentLeft === undefined)
-              { currentLeft = "10px"; } // default;
+              if (currentLeft === undefined) {
+                currentLeft = "10px";
+              } // default;
               currentLeft = currentLeft.substring(0, currentLeft.indexOf("px"));
               currentLeft = parseInt(currentLeft);
               me.currentLeft = currentLeft;
@@ -2609,8 +2666,9 @@ pui.Grid = function () {
       var treeLevelDataIndex = (subfileRow - 1);
       treeLevelItem["icon"] = "fontAwesome-solid:minus-square-tree-level";
       treeLevelItem["visibility"] = "visible";
-      if (me.treeLevelData[treeLevelDataIndex].treeLevelCollapsed)
-      { treeLevelItem["icon"] = "fontAwesome-solid:plus-square-tree-level"; }
+      if (me.treeLevelData[treeLevelDataIndex].treeLevelCollapsed) {
+        treeLevelItem["icon"] = "fontAwesome-solid:plus-square-tree-level";
+      }
       var myTreeLevel = me.treeLevelData[treeLevelDataIndex].treeLevel;
       // indent tree level
       // Note that this is done per row since it depends on the tree level
@@ -2625,8 +2683,9 @@ pui.Grid = function () {
       }
       // If this row does NOT have any lower-level row, do NOT show +/- icon
       // Note: me.treeLevelData[] uses zero-based index
-      if ((treeLevelDataIndex + 1) >= me.treeLevelData.length || me.treeLevelData[treeLevelDataIndex + 1].treeLevel <= myTreeLevel)
-      { treeLevelItem["visibility"] = "hidden"; } // just hide it or NOT create at all?
+      if ((treeLevelDataIndex + 1) >= me.treeLevelData.length || me.treeLevelData[treeLevelDataIndex + 1].treeLevel <= myTreeLevel) {
+        treeLevelItem["visibility"] = "hidden";
+      } // just hide it or NOT create at all?
     } // end of handleTreeLevelItemPerRow()
   }; // end of getData().
 
@@ -2692,7 +2751,8 @@ pui.Grid = function () {
     try {
       this.deleteOwnProperties(); // Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       me = null;
-    } catch (ignored) {}
+    }
+    catch (ignored) {}
   };
 
   this.getColumnWidths = function () {
@@ -3025,7 +3085,9 @@ pui.Grid = function () {
 
     function doSort () {
       if (!me.waitingOnRequest) // Respond to clicks only when data is not loading.
-      { sortColumnUsingSQL(cell, false); }
+      {
+        sortColumnUsingSQL(cell, false);
+      }
     }
     addEvent(cell, "click", doSort);
     cell.sortColumn = doSort;
@@ -3253,11 +3315,17 @@ pui.Grid = function () {
     if (me.hidableColumns) {
       var colState = state["hidableColState"];
       var widths = state["colWidths"];
-      if (widths) widths = widths.filter(function (size) { return (size); });
+      if (widths) {
+        widths = widths.filter(function (size) {
+          return (size);
+        });
+      }
       if (colState) {
         var savedCols = colState["cols"];
         // return newCols array
-        var cols = savedCols.map(function (col) { return col; });
+        var cols = savedCols.map(function (col) {
+          return col;
+        });
         var colSequence = state["colSequence"];
         if (cols != null) {
           cols.sort(function (a, b) {
@@ -3315,10 +3383,12 @@ pui.Grid = function () {
       for (var i = 0; i < filters.length; i++) {
         var col = state["filters"][i]["column"];
         var text = state["filters"][i]["text"];
-        if (text == null || text == "")
-        { me["removeFilter"](col); }
-        else
-        { me["setFilter"](col, text); }
+        if (text == null || text == "") {
+          me["removeFilter"](col);
+        }
+        else {
+          me["setFilter"](col, text);
+        }
       }
     }
   };
@@ -3393,7 +3463,8 @@ pui.Grid = function () {
           me.highlighting.text = text;
           me.setFilterIcon(headerCell);
           headerCell.filterText = text;
-        } else {
+        }
+        else {
           me.highlighting.text = null;
           me.removeFilterIcon(headerCell);
           headerCell.filterText = null;
@@ -3489,10 +3560,14 @@ pui.Grid = function () {
       // is the same as before.
       if (forMultiSort)
       // note that there is no "!" here
-      { headerRow[col].sortDescending = isDefaultSortDescending(headerRow[col].columnId); } // use .columnId instead of .col in case column moved.
+      {
+        headerRow[col].sortDescending = isDefaultSortDescending(headerRow[col].columnId);
+      } // use .columnId instead of .col in case column moved.
       else
       // note the "!" here
-      { headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId); } // use .columnId instead of .col in case column moved.
+      {
+        headerRow[col].sortDescending = !isDefaultSortDescending(headerRow[col].columnId);
+      } // use .columnId instead of .col in case column moved.
     }
   }
 
@@ -3534,7 +3609,9 @@ pui.Grid = function () {
     comma = "";
     var columnIdMax = 0;
     if (me.runtimeChildren.length > 0) {
-      var columnIdMaxCol = me.runtimeChildren.reduce(function (prev, current) { return (prev["columnId"] > current["columnId"]) ? prev : current; });
+      var columnIdMaxCol = me.runtimeChildren.reduce(function (prev, current) {
+        return (prev["columnId"] > current["columnId"]) ? prev : current;
+      });
       columnIdMax = columnIdMaxCol["columnId"];
     }
 
@@ -3619,7 +3696,8 @@ pui.Grid = function () {
       try {
         var args = "value1, value2, fieldName, isDescending, fieldDateFormat, fieldFormat, multiFields";
         sortingFunction = new Function(args, customGridSortFunction);
-      } catch (error) {
+      }
+      catch (error) {
         if (error) {
           console.log("Sort function error: ");
           console.error(error);
@@ -3771,10 +3849,12 @@ pui.Grid = function () {
           if (me.dataArray[i].subfileRow == me.sflrcdnbr) {
             me.recNum = i + 1;
 
-            if (me.placeCursorFlag)
-            { me.placeCursorRRN = me.recNum; } // place cursor on row with rrn=sflrcdnbr
-            if (!me.positionAtTop)
-            { me.updateRecNumFromSflRcdNbr(me.recNum); }
+            if (me.placeCursorFlag) {
+              me.placeCursorRRN = me.recNum;
+            } // place cursor on row with rrn=sflrcdnbr
+            if (!me.positionAtTop) {
+              me.updateRecNumFromSflRcdNbr(me.recNum);
+            }
 
             break;
           }
@@ -3804,7 +3884,8 @@ pui.Grid = function () {
       if (cell != null) {
         obj["columnId"] = cell.columnId;
         obj["descending"] = cell.sortDescending;
-      } else if (sortMultiOrder.length > 0) {
+      }
+      else if (sortMultiOrder.length > 0) {
         obj["multiSort"] = [];
         for (var i = 0; i < sortMultiOrder.length; i++) {
           obj["multiSort"].push({
@@ -4040,10 +4121,12 @@ pui.Grid = function () {
                       break;
                     }
                   }
-                } else {
+                }
+                else {
                   rowData = me.dataArray[dom.dataArrayIndex];
                 }
-              } else {
+              }
+              else {
                 for (var i = 0; i < me.dataArray.length; i++) {
                   if (me.dataArray[i].subfileRow === dom.subfileRow) {
                     rowData = me.dataArray[i];
@@ -4304,8 +4387,9 @@ pui.Grid = function () {
             }
             obj = getObj(id);
             if (obj == null) continue;
-            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging")
-            { me.scrollbarObj.enableMouseWheel(obj); }
+            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging") {
+              me.scrollbarObj.enableMouseWheel(obj);
+            }
             if (!obj.readOnly) continue;
             text = obj.value;
             text = text.replace(/ /g, "&nbsp;");
@@ -4322,12 +4406,14 @@ pui.Grid = function () {
             top = parseInt(obj.style.top);
             fieldInfo = obj.fieldInfo;
             obj.parentNode.removeChild(obj);
-            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging")
-            { me.scrollbarObj.enableMouseWheel(obj); }
+            if (me.scrollbarObj != null && me.scrollbarObj.type == "paging") {
+              me.scrollbarObj.enableMouseWheel(obj);
+            }
           }
           if (objClass == null || objClass == "" || objClass == "A20") {
             objClass = "";
-          } else if (objClass.indexOf("readOnly") != -1) {
+          }
+          else if (objClass.indexOf("readOnly") != -1) {
             // The data has other formatting; keep everything except readOnly and input. Issues 2551 & 1438.
             objClass = pui.removeFromStringList(objClass, "readOnly");
             objClass = pui.removeFromStringList(objClass, "input"); // input looks ugly in a grid.
@@ -4749,13 +4835,15 @@ pui.Grid = function () {
         break;
 
       case "position at top":
-        if (value === "true")
-        { me.positionAtTop = true; }
+        if (value === "true") {
+          me.positionAtTop = true;
+        }
         break;
 
       case "place cursor":
-        if (value === "true")
-        { me.placeCursorFlag = true; }
+        if (value === "true") {
+          me.placeCursorFlag = true;
+        }
         break;
 
       case "record format name":
@@ -4841,7 +4929,9 @@ pui.Grid = function () {
             else me.extendedSelection = false;
           }
           if (typeof (pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
-            me.tableDiv.onselectstart = function (e) { return false; };
+            me.tableDiv.onselectstart = function (e) {
+              return false;
+            };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
           }
         }
@@ -5058,8 +5148,9 @@ pui.Grid = function () {
       case "sortable columns":
         me.sortable = (value == "true");
         if (context == "genie") me.makeSortable();
-        if (me.hasTreeLevelColumn)
-        { me.sortable = false; }
+        if (me.hasTreeLevelColumn) {
+          me.sortable = false;
+        }
         break;
 
       case "default sort order":
@@ -5171,7 +5262,9 @@ pui.Grid = function () {
         var colNum = me.vLines.length - 1;
         var colWidths = me.getColumnWidths()
           .split(",")
-          .map(function (num) { return Number(num); });
+          .map(function (num) {
+            return Number(num);
+          });
         for (var i = 0; i < colNum; i++) {
           var header = me.columnHeadings[i];
           var blankHeader = false;
@@ -5221,7 +5314,9 @@ pui.Grid = function () {
             me.contextMenuId = contextMenuId;
           }
           if (pui["is_touch"]) {
-            me.tableDiv.onselectstart = function (e) { return false; };
+            me.tableDiv.onselectstart = function (e) {
+              return false;
+            };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
             if (typeof me.tableDiv.style.webkitUserSelect != "undefined") me.tableDiv.style.webkitUserSelect = "none";
           }
@@ -5859,7 +5954,7 @@ pui.Grid = function () {
     if (me.cells == null) return;
     var cols = me.cells[row];
     if (cols == null) return;
-    var dataRecords, adjustedRow = -1;
+    var dataRecords; var adjustedRow = -1;
     // Prepare data needed when fields are bound.
     if (me.recNum != null && !isNaN(me.recNum) && me.recNum > 0) {
       if (typeof recIdx == "number" && recIdx >= 0) {
@@ -5991,14 +6086,16 @@ pui.Grid = function () {
       }
       else {
         rowFontColor = rowFontColor || me.cellProps["row font color"];
-        if (!rowFontColor || !rowFontColor.trim())
-        	{ rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"]; }
+        if (!rowFontColor || !rowFontColor.trim()) {
+          rowFontColor = me.cellProps[(even ? "even" : "odd") + " row font color"];
+        }
 
         setColor(cols[i], rowFontColor || "", i);
 
         rowBackground = rowBackground || me.cellProps["row background"];
-        if (!rowBackground || !rowBackground.trim())
-        { rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"]; }
+        if (!rowBackground || !rowBackground.trim()) {
+          rowBackground = me.cellProps[(even ? "even" : "odd") + " row background"];
+        }
 
         setBackground(cols[i], rowBackground || "", i);
         cols[i].style.backgroundImage = "";
@@ -6101,7 +6198,8 @@ pui.Grid = function () {
       if (typeof window.pageXOffset == "number") {
         mouseLineDiff.x = rect.left + window.pageXOffset;
         mouseLineDiff.y = rect.top + window.pageYOffset;
-      } else {
+      }
+      else {
         // window.pageXOffset doesn't exist for IE8, so use documentElement.scrollLeft.
         // See: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
         mouseLineDiff.x = rect.left + document.documentElement.scrollLeft;
@@ -6137,7 +6235,8 @@ pui.Grid = function () {
       // columnPointer's parent is <body>, and the mouse position is based on <body>.
       offset.y = mouseLineDiff.y;
       offset.x = mouseLineDiff.x;
-    } else if (inLayoutContainer) {
+    }
+    else if (inLayoutContainer) {
       // We are in Designer and the Grid is inside a container. In Designer, the columnPointer's
       // parent is a designer div, not the body. So the mouse calculation cannot be used.
       offset = layContOff;
@@ -6314,13 +6413,16 @@ pui.Grid = function () {
                   colState["cols"] = cols;
                   colState["headings"] = me.columnHeadings;
                 }
-              } else {
+              }
+              else {
                 var colState = { "cols": cols, "headings": me.columnHeadings };
               }
               var colWidths = me
                 .getColumnWidths()
                 .split(",")
-                .map(function (size) { return Number(size); });
+                .map(function (size) {
+                  return Number(size);
+                });
 
               saveState(colState, "hidableColState");
               saveState(colWidths, "colWidths");
@@ -6336,7 +6438,8 @@ pui.Grid = function () {
             var designer = itm.designer;
             if (designer.dropContainer != null) {
               me.moveGridToDropContainer();
-            } else {
+            }
+            else {
               if (inLayoutContainer) {
                 if (designer.proxyDiv.style.display == "") {
                   me.moveGridToMainCanvas();
@@ -6598,11 +6701,14 @@ pui.Grid = function () {
                 var cell = me.cells[0][j];
                 colWidths[cell.columnId] = cell.clientWidth;
               }
-            } else {
+            }
+            else {
               var colWidths = me
                 .getColumnWidths()
                 .split(",")
-                .map(function (size) { return Number(size); });
+                .map(function (size) {
+                  return Number(size);
+                });
             }
             saveState(colWidths, "colWidths");
           }
@@ -6926,7 +7032,9 @@ pui.Grid = function () {
         if (pui["is_touch"] && !pui["is_mouse_capable"]) {
           x -= contextMenu.clientWidth / 2;
 
-          contextMenu.onselectstart = function (e) { return false; };
+          contextMenu.onselectstart = function (e) {
+            return false;
+          };
           if (typeof contextMenu.style.MozUserSelect != "undefined") contextMenu.style.MozUserSelect = "none";
           if (typeof contextMenu.style.webkitUserSelect != "undefined") contextMenu.style.webkitUserSelect = "none";
         }
@@ -7006,8 +7114,9 @@ pui.Grid = function () {
 
     cell.onclick = function (e) {
       var target = getTarget(e);
-      if (target.combo)
-      { return; }
+      if (target.combo) {
+        return;
+      }
 
       // 7536: capture row clicked from target and store in grid property
       // 7208: capture column clicked from target and store in grid property
@@ -7114,10 +7223,12 @@ pui.Grid = function () {
             else if (dataRecords[adjustedRow - 1] != null && dataRecords[adjustedRow - 1].length > 0) {
               // I don't know why when record.selection was null, the previous code here didn't set it up like it does in other calls to handleSelection.
               // But, to avoid breaking things I didn't consider, I added a new parameter to handleSelection, and it does what previous code here did. MD.
-              if (dataRecords[adjustedRow - 1].selected == true && !isRight)
-              { handleSelection(dataRecords[adjustedRow - 1], false, adjustedRow - 1, true); } // deselect
-              else
-              { handleSelection(dataRecords[adjustedRow - 1], true, adjustedRow - 1, true); } // select
+              if (dataRecords[adjustedRow - 1].selected == true && !isRight) {
+                handleSelection(dataRecords[adjustedRow - 1], false, adjustedRow - 1, true);
+              } // deselect
+              else {
+                handleSelection(dataRecords[adjustedRow - 1], true, adjustedRow - 1, true);
+              } // select
 
               var dataArrayIdx;
               if (me.rowsHidden > 0) dataArrayIdx = me._getDataIndexFromDOMRow(row); // Compensate for "row" being unreliable when any rows are hidden. #6655.
@@ -7183,8 +7294,9 @@ pui.Grid = function () {
         if (me.hasTreeLevelColumn && me.treeLevelField !== null && adjustedRow !== undefined) {
           var myTreeLevelItemId = me.tableDiv.id + me.treeLevelItemId + "." + adjustedRow;
           var myTreeLevelItemObj = getObj(myTreeLevelItemId);
-          if (myTreeLevelItemObj !== null)
-          { myTreeLevelItemObj.focus(); } // so that left/right arrow keys would expand/collapse tree level
+          if (myTreeLevelItemObj !== null) {
+            myTreeLevelItemObj.focus();
+          } // so that left/right arrow keys would expand/collapse tree level
         }
       }
     };
@@ -7359,8 +7471,9 @@ pui.Grid = function () {
         // Translate the data row to a row in the visible grid.
         var hdrOffset = me.hasHeader ? 1 : 0;
         var gridrow = index - me.recNum + 1 + hdrOffset; // note: recNum maps to dataArray index + 1.
-        if (gridrow < me.hLines.length - 1 && gridrow >= hdrOffset)
-        { me.setRowBackground(gridrow); }
+        if (gridrow < me.hLines.length - 1 && gridrow >= hdrOffset) {
+          me.setRowBackground(gridrow);
+        }
       }
     }
   };
@@ -7457,10 +7570,12 @@ pui.Grid = function () {
 
       // Set the properties for the correct column header for scenario
       // with hidden columns. This logic may be needed for other properties also?
-      if (propNameParm === "header font color" || propNameParm === "header background")
-      { index = cell.columnId; }
-      else
-      { index = col; }
+      if (propNameParm === "header font color" || propNameParm === "header background") {
+        index = cell.columnId;
+      }
+      else {
+        index = col;
+      }
 
       if (index < propValues.length) {
         propValue = propValues[index];
@@ -7658,11 +7773,13 @@ pui.Grid = function () {
     if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
     var fetchCounter = me["dataProps"]["allow any select statement"];
-    if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
-    { req["postData"] += "&FetchCounter=Y"; }
+    if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true)) {
+      req["postData"] += "&FetchCounter=Y";
+    }
 
-    if (pui["isCloud"])
-    { req["postData"] += "&workspace_id=" + pui.cloud.ws.id; }
+    if (pui["isCloud"]) {
+      req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+    }
 
     req["onready"] = function (req) {
       if (me["dataProps"]["load fields into widgets"] != "true") {
@@ -7832,7 +7949,9 @@ pui.Grid = function () {
     vLine.style.padding = "0px";
     vLine.style.zIndex = me.vBorderZIndex;
     // disable context menu when right clicked on vLine
-    vLine.oncontextmenu = function (e) { return false; };
+    vLine.oncontextmenu = function (e) {
+      return false;
+    };
     me.container.appendChild(vLine);
     me.vLines[n] = vLine;
     setLineWidths();
@@ -7900,7 +8019,8 @@ pui.Grid = function () {
         pui.alert(pui["getLanguageText"]("runtimeMsg", "cannot find col"));
         return;
       }
-    } else {
+    }
+    else {
       var col = columnId; // Designer must use cell.col not cell.columnId.
     }
 
@@ -7937,12 +8057,15 @@ pui.Grid = function () {
       // Rearrange dom cells so tabbing is correct
       if (me.cells[row].length > to) {
     	  var moveBefore = me.cells[row][to];
-        if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode)
-        { cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore); }
-      } else {
+        if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
+          cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
+        }
+      }
+      else {
     	  var moveAfter = me.cells[row][me.cells[row].length - 1];
-        if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode)
-    	    { cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling); }
+        if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
+          cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
+        }
       }
 
       me.cells[row].splice(to, 0, cell); // insert a copy of the cell into the to position
@@ -7972,7 +8095,8 @@ pui.Grid = function () {
         if (isTranslated) {
           if (!jsonAvailable) return;
           var arr = JSON.parse(value.designValue);
-        } else {
+        }
+        else {
           var arr = value.split(",");
         }
 
@@ -8005,7 +8129,8 @@ pui.Grid = function () {
             value.designValue = newValue;
             newValue = value;
           }
-        } else {
+        }
+        else {
           newValue = arr.join(",");
           different = (value != newValue);
         }
@@ -8037,7 +8162,8 @@ pui.Grid = function () {
       var columnHeadings = me.tableDiv.designItem.properties["column headings"];
       if (pui.isTranslated(columnHeadings) && jsonAvailable) {
         me.columnHeadings = JSON.parse(columnHeadings.designValue);
-      } else {
+      }
+      else {
         if (columnHeadings == null || typeof columnHeadings != "string") columnHeadings = "";
         me.columnHeadings = columnHeadings.split(",");
       }
@@ -8082,11 +8208,13 @@ pui.Grid = function () {
             // The rest run our normal routine.
             if (cellId == colId) {
               newCol = to;
-            } else {
+            }
+            else {
               if (col >= to && col < from + 1) newCol = newCol + 1;
               else newCol = handleColCheck(to, from, col, newCol);
             }
-          } else {
+          }
+          else {
             newCol = handleColCheck(to, from, col, newCol);
           }
           if (col != newCol) itm["column"] = String(newCol);
@@ -8145,7 +8273,9 @@ pui.Grid = function () {
     hLine.style.zIndex = me.hBorderZIndex;
     if (me.tableDiv.style.visibility == "hidden") hLine.style.visibility = "hidden";
     // disable context menu when right clicked on hLine
-    hLine.oncontextmenu = function (e) { return false; };
+    hLine.oncontextmenu = function (e) {
+      return false;
+    };
     me.container.appendChild(hLine);
     me.hLines[n] = hLine;
     setLineHeights();
@@ -8300,7 +8430,8 @@ pui.Grid = function () {
     if (affectedNode === undefined || affectedNode === null) { // handle whole tree
       var fromIndex = 0;
       var toIndex = me.treeLevelData.length;
-    } else { // handle affected node and its descendants only
+    }
+    else { // handle affected node and its descendants only
       fromIndex = parseInt(affectedNode.data) - 1; // node.data is the RRN of the affected node
       toIndex = me.gridTree.getMaxRRN(affectedNode); // highest RRN of node's descendants; do NOT use -1 here
     }
@@ -8308,10 +8439,12 @@ pui.Grid = function () {
     for (var i = fromIndex; i < toIndex; i++) { // handle affected range only
       var rrn = (i + 1);
       var node = me.treeLevelData[i].node;
-      if (node.showRow)
-      { me.handleHideRow(rrn, false, false); } // call showRow() but does NOT call getData()
-      else
-      { me.handleHideRow(rrn, true, false); } // call hideRow() but does NOT call getData()
+      if (node.showRow) {
+        me.handleHideRow(rrn, false, false);
+      } // call showRow() but does NOT call getData()
+      else {
+        me.handleHideRow(rrn, true, false);
+      } // call hideRow() but does NOT call getData()
       me.treeLevelData[i].treeLevelCollapsed = (node.currentState === "collapsed") ? true : false;
     }
 
@@ -8320,8 +8453,9 @@ pui.Grid = function () {
 
   this.getTreeLevelColumnId = function () {
     // if property "tree level column" is specified, then use that; otherwise use column 0
-    if (me.treeLevelColumnId !== null)
-    { return me.treeLevelColumnId; }
+    if (me.treeLevelColumnId !== null) {
+      return me.treeLevelColumnId;
+    }
     me.treeLevelColumnId = 0; // default
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       if (me.runtimeChildren[i]["value"]["fieldName"].toUpperCase() === me.treeLevelField.toUpperCase()) {
@@ -8506,7 +8640,9 @@ pui.Grid = function () {
           // If hidable columns is true, then the column order is also in hidableColState and must be reset. #5262.
           if (part === "colsequence" && stg["hidableColState"] && stg["hidableColState"]["cols"]) {
             if (stg["colWidths"] instanceof Array) {
-              var origwidths = stg["colWidths"].map(function (col) { return col; }); // get copy of current widths.
+              var origwidths = stg["colWidths"].map(function (col) {
+                return col;
+              }); // get copy of current widths.
               stg["colWidths"] = [];
             }
 
@@ -8531,13 +8667,22 @@ pui.Grid = function () {
       else {
         me.storedState = "{}"; // Ensure that settings in the server's PUISTATEP file are cleared. #6778.
         if (sessionState == true) {
-          try { delete sessionStorage[me.storageKey]; } catch (exc) {}
+          try {
+            delete sessionStorage[me.storageKey];
+          }
+          catch (exc) {}
         }
         else if (programState == true) {
-          try { delete pui.programStorage[me.storageKey]; } catch (exc) {}
+          try {
+            delete pui.programStorage[me.storageKey];
+          }
+          catch (exc) {}
         }
         else {
-          try { delete localStorage[me.storageKey]; } catch (exc) {}
+          try {
+            delete localStorage[me.storageKey];
+          }
+          catch (exc) {}
         }
       }
     }
@@ -8594,11 +8739,14 @@ pui.Grid = function () {
           // 3. If it is > 10, return the "longName" if it exists (but fall back to "fieldName" if it does not).
           if (fieldLength <= 10) {
             return val["fieldName"].toUpperCase();
-          } else {
-            if (val["longName"] !== undefined)
-            { return val["longName"].toUpperCase(); }
-            else
-            { return val["fieldName"].toUpperCase(); }
+          }
+          else {
+            if (val["longName"] !== undefined) {
+              return val["longName"].toUpperCase();
+            }
+            else {
+              return val["fieldName"].toUpperCase();
+            }
           }
         }
       }
@@ -8753,7 +8901,8 @@ pui.Grid = function () {
       findText = null; // Clear to prevent other async calls to getData from searching again.
       findColumn = null;
       findStartRow = null;
-    } else { // Client-side Find.
+    }
+    else { // Client-side Find.
       var start = 0;
       if (findNext) start = me.recNum;
       var textLower = text.toLowerCase();
@@ -8781,12 +8930,15 @@ pui.Grid = function () {
               if (me.scrollbarObj != null && me.scrollbarObj.type == "sliding") {
                 var rv = me.scrollbarObj.setScrollTopToRow(rec, false);
                 if (rv === false) me.getData();
-              } else if (me.pagingBar) {
+              }
+              else if (me.pagingBar) {
                 var lastPage = me["getRecordCount"]() - me.getSubfilePage() + 1;
                 if (rec > lastPage) me["scrollToRow"](lastPage);
                 else me["scrollToRow"](rec);
-              } else me.getData();
-            } else {
+              }
+              else me.getData();
+            }
+            else {
               me.getData();
             }
             done = true;
@@ -8936,8 +9088,9 @@ pui.Grid = function () {
               var rtleft = parseInt(rtChild["left"], 10);
               var rttop = parseInt(rtChild["top"], 10);
               if (rtChild["visibility"] == "hidden" ||
-              (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
-              { ignoreTest = true; }
+              (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0)) {
+                ignoreTest = true;
+              }
             }
           }
           if (record.filteredOutArray == null) record.filteredOutArray = [];
@@ -9055,7 +9208,9 @@ pui.Grid = function () {
         var list = JSON.parse(text);
         if (!Array.isArray(list)) return false;
       }
-      catch (e) { return false; }
+      catch (e) {
+        return false;
+      }
       for (var i = 0; i < list.length; i++) {
         text = trim(list[i]).toLowerCase();
         // For filtering blanks -- should be represented by 1 space
@@ -9187,7 +9342,9 @@ pui.Grid = function () {
           vals = JSON.parse(vals);
           if (!Array.isArray(vals)) vals = [];
         }
-        catch (e) { vals = []; }
+        catch (e) {
+          vals = [];
+        }
 
         if (vals.length > 0) {
           // This type of filter tells the CGI program how many values it will have.
@@ -9373,8 +9530,9 @@ pui.Grid = function () {
       }
       // Insert the icon before the sort icon (or multisort icon).
       if (me.sortIcon != null && me.sortIcon.parentNode === destination) destination.insertBefore(headerCell.filterIcon, me.sortIcon);
-      else if (headerCell.multiSortIcon != null && headerCell.multiSortIcon.parentNode === destination)
-      { destination.insertBefore(headerCell.filterIcon, headerCell.multiSortIcon); }
+      else if (headerCell.multiSortIcon != null && headerCell.multiSortIcon.parentNode === destination) {
+        destination.insertBefore(headerCell.filterIcon, headerCell.multiSortIcon);
+      }
       else destination.appendChild(headerCell.filterIcon);
     }
   };
@@ -9432,7 +9590,8 @@ pui.Grid = function () {
       var colnum = String(hcell.columnId + 1); // Let the columns in RPG be 1-based.
       if (colnum.length > 3) { // This should not happen. If it does, zero out the column.
         colnum = "000";
-      } else {
+      }
+      else {
         while (colnum.length < 3) colnum = "0" + colnum; // left-fill with zeroes.
       }
       // Make sure the filtertext is the exact length it should be.
@@ -9471,7 +9630,8 @@ pui.Grid = function () {
     if (value == null || value == "") {
       if (me.filterResponse != null && me.filterResponse != "") {
         value = me.filterResponse;
-      } else {
+      }
+      else {
         return;
       }
     }
@@ -9494,7 +9654,8 @@ pui.Grid = function () {
             break;
           }
         }
-      } else {
+      }
+      else {
         break; // Stop adding filters when response has no more.
       }
     }
@@ -9616,7 +9777,9 @@ pui.Grid = function () {
     var currentColWidths = me
       .getColumnWidths()
       .split(",")
-      .map(function (num) { return Number(num); });
+      .map(function (num) {
+        return Number(num);
+      });
     // Loop through the columns to toggle the current column selecte and get its current width
     // get the current widths of all displayed columns
     // add up all the hidden columns widths and remove any added adjustments from the total
@@ -9633,14 +9796,16 @@ pui.Grid = function () {
         var newCol = getCurrentColumnFromId(cols[i]["columnId"]);
         if (newCol > -1) cols[i]["width"] = currentColWidths[newCol];
         visibleCols.push(cols[i]);
-      } else {
+      }
+      else {
         totalRemovedWidth += cols[i]["width"] - (cols[i]["lastAdjustment"] || 0);
       }
     }
     // remove the column selected
     if (!checked) {
       me.rmvColumn(colId);
-    } else {
+    }
+    else {
       // else add the column, and get its current position
       me.addColumn(colId);
       var newCol = getCurrentColumnFromId(colId);
@@ -9664,7 +9829,8 @@ pui.Grid = function () {
               if (prevCol != -1) {
                 if (prevCol <= prevColCount) col = prevCol + 1;
                 break;
-              } else {
+              }
+              else {
                 prevColCount -= 1;
                 prevId = colSequence[prevColCount];
               }
@@ -9672,14 +9838,19 @@ pui.Grid = function () {
           }
         }
         // If the grid is not movable or the columns have not been moved
-      } else {
+      }
+      else {
         // Since we default with the first column, check to see if the user is re-displaying any column other than the first one.
         if (colId > 0) {
           // Filter out any columns that are after the current one
           // and reduce it down to the column right before the current one
           var lastCol = visibleCols
-            .filter(function (col) { return col["columnId"] < colId; })
-            .reduce(function (prev, cur) { return cur["columnId"] >= prev ? cur["columnId"] : prev; }, 0);
+            .filter(function (col) {
+              return col["columnId"] < colId;
+            })
+            .reduce(function (prev, cur) {
+              return cur["columnId"] >= prev ? cur["columnId"] : prev;
+            }, 0);
           col = getCurrentColumnFromId(lastCol) + 1;
         }
       }
@@ -9791,7 +9962,8 @@ pui.Grid = function () {
         if (me.designMode && a["currentColumn"] != null && b["currentColumn"] != null) {
           colA = a["currentColumn"];
           colB = b["currentColumn"];
-        } else {
+        }
+        else {
           colA = getCurrentColumnFromId(a["columnId"]);
           colB = getCurrentColumnFromId(b["columnId"]);
         }
@@ -9924,7 +10096,8 @@ pui.Grid = function () {
           if (e.target.innerHTML == "arrow_downward") {
             e.target.innerHTML = "arrow_upward";
             tr.sortDescending = false;
-          } else {
+          }
+          else {
             e.target.innerHTML = "arrow_downward";
             tr.sortDescending = true;
           }
@@ -9988,7 +10161,8 @@ pui.Grid = function () {
         pui.addCssClass(target, "move_origin");
         try {
           e.dataTransfer.setData("text/plain", target.columnId); // Firefox requires setData before other drag events fire.
-        } catch (exc) {}
+        }
+        catch (exc) {}
       }
     }
     function move_dragend (e) { // The drag sequence of events is finished.
@@ -10007,7 +10181,8 @@ pui.Grid = function () {
       var table = target_tr.parentNode.parentNode;
       if (target_tr.parentNode == table.tHead) {
         pui.removeCssClass(table.tHead.lastChild, "move_valid"); // The line was below table head.
-      } else {
+      }
+      else {
         pui.removeCssClass(target_tr, "move_valid");
       }
 
@@ -10073,7 +10248,8 @@ pui.Grid = function () {
           ordercell.innerHTML = order;
           order++;
           btn.style.visibility = "";
-        } else {
+        }
+        else {
           tr.order = -1;
           ordercell.innerHTML = "";
           btn.style.visibility = "hidden";
@@ -10147,12 +10323,20 @@ pui.Grid = function () {
       }
       filterText = "JVALUES " + JSON.stringify(tempArray);
       // WaitingOnRequest set to true in loadAllWithSQL - set false to allow Set Filter to run
-      if (me.waitingOnRequest == true) { me.waitingOnRequest = false; }
-      if (me.forceDataArray == true && me["dataProps"]["load all rows"] != "true") { me.forceDataArray = false; }
+      if (me.waitingOnRequest == true) {
+        me.waitingOnRequest = false;
+      }
+      if (me.forceDataArray == true && me["dataProps"]["load all rows"] != "true") {
+        me.forceDataArray = false;
+      }
       // If nothing checked, remove filter
-      if (filterText == null || tempArray.length == 0) { me["removeFilter"](col); }
+      if (filterText == null || tempArray.length == 0) {
+        me["removeFilter"](col);
+      }
       // Otherwise, set filter on grid
-      else { me["setFilter"](headerCell, filterText); }
+      else {
+        me["setFilter"](headerCell, filterText);
+      }
       me["unMask"]();
       filterMultiPanel = null;
     });
@@ -10269,8 +10453,9 @@ pui.Grid = function () {
     else {
       // Get data and put into a map to get a list of easily navigatable unique values
       var dataRecords = me.dataArray;
-      if (me.isFiltered() && me.visibleDataArray != null && me.visibleDataArray.length > 0)
-      { dataRecords = me.visibleDataArray; }
+      if (me.isFiltered() && me.visibleDataArray != null && me.visibleDataArray.length > 0) {
+        dataRecords = me.visibleDataArray;
+      }
       for (var i = 0; i < dataRecords.length; i++) {
         var record = dataRecords[i];
         if (record.subfileRow == null) record.subfileRow = i + 1;
@@ -10296,8 +10481,9 @@ pui.Grid = function () {
             var rtleft = parseInt(rtChild["left"], 10);
             var rttop = parseInt(rtChild["top"], 10);
             if (rtChild["visibility"] == "hidden" ||
-            (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0))
-            { ignoreTest = true; }
+            (!isNaN(rtleft) && !isNaN(rttop) && rtleft < 0 && rttop < 0)) {
+              ignoreTest = true;
+            }
           }
           if (!ignoreTest) dataMap.set(value, checked);
           checked = false;
@@ -10426,11 +10612,13 @@ pui.Grid = function () {
       if (pui["read db driven data as ebcdic"] !== true) req["postData"] += "&UTF8=Y";
 
       var fetchCounter = me["dataProps"]["allow any select statement"];
-      if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true))
-      { req["postData"] += "&FetchCounter=Y"; }
+      if (fetchCounter != null && (fetchCounter == "true" || fetchCounter == true)) {
+        req["postData"] += "&FetchCounter=Y";
+      }
 
-      if (pui["isCloud"])
-      { req["postData"] += "&workspace_id=" + pui.cloud.ws.id; }
+      if (pui["isCloud"]) {
+        req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+      }
 
       req["onready"] = function (req) {
         var response;
@@ -10498,8 +10686,9 @@ pui.Grid = function () {
       var connectionName = trim(me["dataProps"]["database connection"] || "");
       for (var i = 0; i < connections.length; i++) {
         var connection = connections[i];
-        if ((connectionName === "" && connection["default"] === true) || connectionName === connection["name"])
-        { return connection["driver"]; }
+        if ((connectionName === "" && connection["default"] === true) || connectionName === connection["name"]) {
+          return connection["driver"];
+        }
       }
     }
     else if (typeof pui["dbDriver"] !== "undefined") { // Old Profound.js backend w/o multi-DB support.
@@ -10764,7 +10953,7 @@ pui.BaseGrid.getPropertiesModel = function () {
  */
 pui.Grid.prototype.customSqlCallback = function (request) {
   var response, error;
-  var headings = "", columnWidths = "";
+  var headings = ""; var columnWidths = "";
   var itm = this.tableDiv.designItem;
 
   if (request.getStatus() != 200) {
@@ -10822,8 +11011,9 @@ pui.Grid.prototype.propDialogOnOK = function (propName, value) {
     case "custom sql":
       if (confirm("Adjust grid based on columns?")) {
         var parm = { "customSql": value };
-        if (pui.nodedesigner && typeof this["dataProps"]["database connection"] === "string")
-        { parm["connection"] = trim(this["dataProps"]["database connection"]); }
+        if (pui.nodedesigner && typeof this["dataProps"]["database connection"] === "string") {
+          parm["connection"] = trim(this["dataProps"]["database connection"]);
+        }
         pui.getFieldDescriptions(parm, this.customSqlCallback.bind(this));
       }
       break;
@@ -10854,7 +11044,7 @@ pui.Grid.prototype.propDialogOnOK = function (propName, value) {
  * @param {Function|undefined} foundCb  Called when "row" is found. parameters: "dataArrayIndex" and "rowNum", the found row.
  */
 pui.Grid.prototype._unhiddenRowIter = function (visCb, findRow, foundCb) {
-  var rowHdrOffset, idxHdrOffset, numRows = this.hLines.length - 1;
+  var rowHdrOffset; var idxHdrOffset; var numRows = this.hLines.length - 1;
   if (this.hasHeader) {
     rowHdrOffset = 1;
     idxHdrOffset = 0;
@@ -10867,7 +11057,7 @@ pui.Grid.prototype._unhiddenRowIter = function (visCb, findRow, foundCb) {
   if (this.recNum > 0 && this.rowsHidden > 0) {
     var dataArray = this.isFiltered() ? this.visibleDataArray : this.dataArray;
     var dataArrayOffset = this.recNum - 1;
-    var hiddenRows = 0, visibleRows = 0;
+    var hiddenRows = 0; var visibleRows = 0;
     var rowNum = rowHdrOffset;
     // Start from the first visible record, look at all visible records, calling "cb".
     for (var i = dataArrayOffset; i < dataArray.length && i < numRows + dataArrayOffset + hiddenRows; i++) {
