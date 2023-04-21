@@ -24,24 +24,23 @@
  * @param {Element} dom
  * @returns {Array.<Object>|Element}
  */
-pui.layout.template.processHTML = function(parms, dom) {
-
+pui.layout.template.processHTML = function (parms, dom) {
   var html = pui.layout["templates"][parms.template];
-  
-  if (typeof html != "string"){
-    //If a custom template is removed, then Designer and pui.render would crash when loading a screen using the missing template.
-    console.log("Template,",parms.template,", did not exist. Reverting to simple container.");
+
+  if (typeof html != "string") {
+    // If a custom template is removed, then Designer and pui.render would crash when loading a screen using the missing template.
+    console.log("Template,", parms.template, ", did not exist. Reverting to simple container.");
     html = pui.layout["templates"][parms.template] = pui.layout["templates"]["simple container"];
   }
-  
+
   var properties = parms.properties;
   var designMode = parms.designMode;
   var proxyMode = parms.proxyMode;
   var returnProps = parms.returnProps;
-  
+
   var propList = {};
-  
-  function findDynamicPart() {
+
+  function findDynamicPart () {
     var start = html.indexOf("{");
     if (start == -1) return null;
     var end = null;
@@ -72,8 +71,8 @@ pui.layout.template.processHTML = function(parms, dom) {
       end: end
     };
   }
-  
-  function evalProperty(obj) {
+
+  function evalProperty (obj) {
     if (obj == null) return "";
     if (typeof obj == "string") return obj;
     if (typeof obj == "number" || typeof obj == "boolean") return String(obj);
@@ -97,8 +96,8 @@ pui.layout.template.processHTML = function(parms, dom) {
     }
     return "";
   }
-  
-  function evalDynamicObj(obj) {
+
+  function evalDynamicObj (obj) {
     if (obj["designValue"] != null || obj["runtimeValue"] != null || obj["proxyValue"] != null) {
       var rv;
       if (designMode || returnProps) rv = evalProperty(obj["designValue"]);
@@ -110,30 +109,30 @@ pui.layout.template.processHTML = function(parms, dom) {
       return evalProperty(obj);
     }
   }
-  
-  function evalDynamicPart(part) {
+
+  function evalDynamicPart (part) {
     var obj;
     var expression = "(" + html.substring(part.start, part.end + 1) + ")";
     var obj = null;
     try {
       obj = eval(expression);
     }
-    catch(e) { };
+    catch (e) { };
     if (obj == null) return "";
     return evalDynamicObj(obj);
   }
 
-  function replaceDynamicPart(part, newValue) {
+  function replaceDynamicPart (part, newValue) {
     html = html.substr(0, part.start) + newValue + html.substr(part.end + 1);
   }
-  
+
   var dynamicPart = findDynamicPart();
   while (dynamicPart != null) {
     var newValue = evalDynamicPart(dynamicPart);
     replaceDynamicPart(dynamicPart, newValue);
     dynamicPart = findDynamicPart();
   }
-  
+
   if (returnProps) {
     var propArray = [];
     for (var prop in propList) {
@@ -146,4 +145,3 @@ pui.layout.template.processHTML = function(parms, dom) {
     return dom;
   }
 };
-

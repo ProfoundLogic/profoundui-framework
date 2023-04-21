@@ -17,39 +17,36 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui["fileupload"] = {};
 
 /**
- * File Upload Class. Parent class of FileUploadDND. 
+ * File Upload Class. Parent class of FileUploadDND.
  * (See test cases in #6686 for a large list.)
  * @param {Element} container
  * @constructor
  */
-pui["fileupload"].FileUpload = function(container) {
-
+pui["fileupload"].FileUpload = function (container) {
   // Private fields.
   this._mainBox = container;
-  
+
   // If no child constructor sets these prior to calling FileUpload constructor, then set them here.
   this._clearLinkClass = this._clearLinkClass || "clear";
   this._uploadLinkClass = this._uploadLinkClass || "upload";
   this._alwaysShowProgressBar = this._alwaysShowProgressBar || false;
-  this._validateBeforeUpload = this._validateBeforeUpload || true;    //Avoid duplicate names, too many files
+  this._validateBeforeUpload = this._validateBeforeUpload || true; // Avoid duplicate names, too many files
 
   this._abortLink = null; // visible when upload starts. hidden when stopped.
-  
-  this._transactionId = 1;  // This is used to avoid submitting twice? Or to prevent browser caching responses.
+
+  this._transactionId = 1; // This is used to avoid submitting twice? Or to prevent browser caching responses.
   this._submitHandle = null;
   this._timeout = 86400000;
-  this._error = "";   // This holds error from the last upload attempt. If non-empty, assume selectors haven't been marked "done".
+  this._error = ""; // This holds error from the last upload attempt. If non-empty, assume selectors haven't been marked "done".
   this._disabled = false;
-  
-  this._xhr = null;  // XMLHttpRequest. Referenced here to allow aborting.
-  
+
+  this._xhr = null; // XMLHttpRequest. Referenced here to allow aborting.
+
   this._selectionMode = this.MODE_STANDARD;
-  
+
   this._fileLimit = 1;
   this._sizeLimit = 10;
   this._targetDirectory = "";
@@ -58,27 +55,26 @@ pui["fileupload"].FileUpload = function(container) {
   this._generateNames = false;
   this._allowedTypes = [];
   this._actualFileNames = [];
-  
+
   // An array of File objects added to after the browser lets the user drop or choose a file.
   this.fileList = [];
-  
+
   this._createBoxes();
 };
 
-pui['fileupload'].FileUpload.prototype.MODE_STANDARD = 0;
-pui['fileupload'].FileUpload.prototype.MODE_ENHANCED = 1;
-pui['fileupload'].FileUpload.prototype.MODE_SINGLE = 2;
+pui["fileupload"].FileUpload.prototype.MODE_STANDARD = 0;
+pui["fileupload"].FileUpload.prototype.MODE_ENHANCED = 1;
+pui["fileupload"].FileUpload.prototype.MODE_SINGLE = 2;
 
 //
-// Public methods. 
+// Public methods.
 //
 
 /**
  * Render the widget's internal elements to reflect their states.
  * render is called in onchange/change events, this.clear, and when "field type" property is set.
  */
-pui['fileupload'].FileUpload.prototype.render = function() {
-
+pui["fileupload"].FileUpload.prototype.render = function () {
   if (this._table.tBodies.length > 0) {
     this._table.removeChild(this._table.tBodies[0]);
   }
@@ -86,7 +82,7 @@ pui['fileupload'].FileUpload.prototype.render = function() {
 
   if (this._error.length > 0) this._showMessage(this._error);
   else this._clearErrors();
-  
+
   var filesPending = false;
   for (var i = 0; i < this.fileList.length; i++) {
     var name = this.fileList[i].name + (" (" + pui.formatBytes(this.fileList[i].size, 2) + ")");
@@ -97,20 +93,20 @@ pui['fileupload'].FileUpload.prototype.render = function() {
     }
     else {
       row.className += " odd";
-    }      
+    }
     var col = row.insertCell(-1);
     col.className = "name-col";
     col.title = name;
     col.appendChild(document.createTextNode(name));
 
     // Indicate success for the file.
-    if( this.fileList[i].done ) {
+    if (this.fileList[i].done) {
       col = row.insertCell(-1);
       col.className = "remove-col";
 
       col = row.insertCell(-1);
       col.className = "status-col";
-      var txt = document.createTextNode(pui["getLanguageText"]("runtimeText","upload finished text"));
+      var txt = document.createTextNode(pui["getLanguageText"]("runtimeText", "upload finished text"));
       col.appendChild(txt);
     }
     // Add a "remove" link.
@@ -128,7 +124,7 @@ pui['fileupload'].FileUpload.prototype.render = function() {
         a.className = "remove";
         a.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload remove text")));
         a.puiFileIndex = i;
-        a.isRemoveLink = true; //Let this.handleEvent know what type of click to handle.
+        a.isRemoveLink = true; // Let this.handleEvent know what type of click to handle.
         a.addEventListener("click", this, false);
 
         col.appendChild(a);
@@ -136,27 +132,27 @@ pui['fileupload'].FileUpload.prototype.render = function() {
     }
   }
 
-  this._uploadLink.style.display = (context == "genie" && filesPending) ? "": "none";
+  this._uploadLink.style.display = (context == "genie" && filesPending) ? "" : "none";
   this._progressBar.style.display = this._alwaysShowProgressBar ? "" : "none";
-  this._abortLink.style.display = "none";   //render shouldn't be called while uploading, so this can hide.
-  
-  if (filesPending || this.fileList.length > 0){
+  this._abortLink.style.display = "none"; // render shouldn't be called while uploading, so this can hide.
+
+  if (filesPending || this.fileList.length > 0) {
     this._clearLink.style.display = "";
-    this._mainBox.classList.remove('empty'); //#6686. Services requested different styling when no files were selected.
+    this._mainBox.classList.remove("empty"); // #6686. Services requested different styling when no files were selected.
   }
   else {
     this._clearLink.style.display = "none";
-    this._mainBox.classList.add('empty');
+    this._mainBox.classList.add("empty");
   }
 };
 
-pui['fileupload'].FileUpload.prototype.setFileLimit = function(newLimit) {
+pui["fileupload"].FileUpload.prototype.setFileLimit = function (newLimit) {
   if (newLimit != null && !isNaN(newLimit)) {
     this._fileLimit = newLimit;
   }
 };
 
-pui['fileupload'].FileUpload.prototype.setSizeLimit = function(newLimit) {
+pui["fileupload"].FileUpload.prototype.setSizeLimit = function (newLimit) {
   if (newLimit != null && !isNaN(newLimit)) {
     this._sizeLimit = newLimit;
   }
@@ -167,99 +163,72 @@ pui['fileupload'].FileUpload.prototype.setSizeLimit = function(newLimit) {
  * @param {String} newMode
  * @returns {undefined}
  */
-pui['fileupload'].FileUpload.prototype.setMode = function(newMode) {
-
+pui["fileupload"].FileUpload.prototype.setMode = function (newMode) {
   var doclear = false;
   // It is necessary to clear all file selectors when the mode is changing.
-  if (newMode == "enhanced"){
+  if (newMode == "enhanced") {
     if (this._selectionMode != this.MODE_ENHANCED) doclear = true;
     this._selectionMode = this.MODE_ENHANCED;
   }
-  else if(newMode == "standard"){
+  else if (newMode == "standard") {
     if (this._selectionMode != this.MODE_STANDARD) doclear = true;
     this._selectionMode = this.MODE_STANDARD;
   }
-  else if(newMode == "single"){
+  else if (newMode == "single") {
     if (this._selectionMode != this.MODE_SINGLE) doclear = true;
     this._selectionMode = this.MODE_SINGLE;
   }
 
-  if (this._selectFilesLink && this._selectFilesLink.input){
+  if (this._selectFilesLink && this._selectFilesLink.input) {
     this._selectFilesLink.input.multiple = (this._selectionMode == this.MODE_ENHANCED);
   }
 
   if (doclear) this["clear"]();
 };
 
-pui['fileupload'].FileUpload.prototype.getTargetDirectory = function() {
-
+pui["fileupload"].FileUpload.prototype.getTargetDirectory = function () {
   return this._targetDirectory;
-
 };
 
-pui['fileupload'].FileUpload.prototype.setTargetDirectory = function(value) {
-
-  if (typeof(value) == "string") {
-
+pui["fileupload"].FileUpload.prototype.setTargetDirectory = function (value) {
+  if (typeof (value) == "string") {
     this._targetDirectory = value;
     if (this._targetDirectory.length > 1 && this._targetDirectory.charAt(this._targetDirectory.length - 1) == "/") {
-
       this._targetDirectory = this._targetDirectory.substr(0, this._targetDirectory.length - 1);
-
     }
-
   }
-
 };
 
-pui['fileupload'].FileUpload.prototype.setAltName = function(value) {
-
-  if (typeof(value) == "string") {
-
+pui["fileupload"].FileUpload.prototype.setAltName = function (value) {
+  if (typeof (value) == "string") {
     this._altName = value;
-
   }
-
 };
 
-pui['fileupload'].FileUpload.prototype.setDisabled = function(state) {
+pui["fileupload"].FileUpload.prototype.setDisabled = function (state) {
   this._disabled = state;
 };
 
-pui['fileupload'].FileUpload.prototype.setOverwrite = function(value) {
-
-  if (typeof(value) == "boolean") {
-
+pui["fileupload"].FileUpload.prototype.setOverwrite = function (value) {
+  if (typeof (value) == "boolean") {
     this._overwrite = value;
-
-  }    
-
-};
-
-pui['fileupload'].FileUpload.prototype.setGenerateNames = function(value) {
-
-  if (typeof(value) == "boolean") {
-
-    this._generateNames = value;
-
-  }    
-
-};
-
-pui['fileupload'].FileUpload.prototype.setUploadEvent = function(value) {
-
-  this._uploadEvent = value; 
-
-};
-
-pui['fileupload'].FileUpload.prototype.setAllowedTypes = function(types) {
-
-  if (Array.isArray(types)) {
-
-    this._allowedTypes = types;
-
   }
+};
 
+pui["fileupload"].FileUpload.prototype.setGenerateNames = function (value) {
+  if (typeof (value) == "boolean") {
+    this._generateNames = value;
+  }
+};
+
+pui["fileupload"].FileUpload.prototype.setUploadEvent = function (value) {
+  this._uploadEvent = value;
+};
+
+pui["fileupload"].FileUpload.prototype.setAllowedTypes = function (types) {
+  if (Array.isArray(types)) {
+    this._allowedTypes = types;
+  }
 };
 
 /**
@@ -267,11 +236,11 @@ pui['fileupload'].FileUpload.prototype.setAllowedTypes = function(types) {
  * In Genie, needed for validation and to know if autoUpload can occur.
  * @returns {Number}
  */
-pui['fileupload'].FileUpload.prototype.getCount = function() {
+pui["fileupload"].FileUpload.prototype.getCount = function () {
   var count = 0;
   for (var i = 0; i < this.fileList.length; i++) {
     if (context != "genie" || this.fileList[i].done != true)
-      count++;
+    { count++; }
   }
   return count;
 };
@@ -281,14 +250,10 @@ pui['fileupload'].FileUpload.prototype.getCount = function() {
  * TODO: see if this is necessary anymore now that the original uploader can warn upon picking files, preventing too many from being selected.
  * @returns {undefined|String}
  */
-pui['fileupload'].FileUpload.prototype.validateCount = function() {
-
+pui["fileupload"].FileUpload.prototype.validateCount = function () {
   if (this.getCount() > this._fileLimit) {
-
-    return pui["getLanguageText"]("runtimeMsg", "upload file limit", [ this._fileLimit ]);
-
-  } 
-
+    return pui["getLanguageText"]("runtimeMsg", "upload file limit", [this._fileLimit]);
+  }
 };
 
 /**
@@ -297,26 +262,18 @@ pui['fileupload'].FileUpload.prototype.validateCount = function() {
  * TODO: see if this is necessary anymore now that the original uploader can warn upon picking files, preventing duplicates from being selected.
  * @returns {String|undefined}  Returns a string error message if a duplicate was found.
  */
-pui['fileupload'].FileUpload.prototype.validateNames = function() {
-
+pui["fileupload"].FileUpload.prototype.validateNames = function () {
   if (this._selectionMode == this.MODE_STANDARD) {
-
     var arr = this["getFileNames"](true);
     var used = {};
     for (var i = 0; i < arr.length; i++) {
-
-      if (typeof(used[arr[i]]) != "undefined") {
-
+      if (typeof (used[arr[i]]) != "undefined") {
         return pui["getLanguageText"]("runtimeMsg", "upload duplicate file");
-
       }
 
       used[arr[i]] = true;
-
     }
-
   }
-
 };
 
 /**
@@ -325,11 +282,11 @@ pui['fileupload'].FileUpload.prototype.validateNames = function() {
  * Note: this checked for Cordova in the past to use FormElements instead of iframes.
  *   Iframes were replaced, but the tests for Cordova remain to preserve previous behavior. The tests could possibly be removed.
  */
-pui['fileupload'].FileUpload.prototype.upload = function() {
+pui["fileupload"].FileUpload.prototype.upload = function () {
   if (this._disabled) return;
   var cordova = (typeof window["cordova"] != "undefined");
 
-  if (this._submitHandle != null || (context == "genie" && pui.genie.formSubmitted)) {  
+  if (this._submitHandle != null || (context == "genie" && pui.genie.formSubmitted)) {
     return;
   }
 
@@ -341,7 +298,7 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
   this._clearErrors();
 
   if (!cordova && context == "genie") {
-    pui.submitLog(pui.genie.formSubmitted = true); 
+    pui.submitLog(pui.genie.formSubmitted = true);
     pui.showWaitAnimation();
   }
 
@@ -353,11 +310,11 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
   params["slimit"] = this._sizeLimit;
   params["altname"] = this._altName;
   this._addAllowedTypesParam(params);
-  
+
   params["files"] = [];
   for (var i = 0; i < this.fileList.length; i++) {
     if (this.fileList[i].done != true)
-      params["files"].push(this.fileList[i]);
+    { params["files"].push(this.fileList[i]); }
   }
 
   var me = this;
@@ -366,7 +323,7 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
     // We won't use the XHR ontimeout event because that only works for
     // asynchronous requests, and ours is synchronous.
     // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-    this._submitHandle = setTimeout(function(){
+    this._submitHandle = setTimeout(function () {
       me._completeTransaction(me._transactionId, {
         "success": false,
         "error": pui["getLanguageText"]("runtimeMsg", "upload timeout")
@@ -381,8 +338,8 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
   }
 
   // Always upload in Cordova. (This was the behavior before 12/17/19.)
-  if (cordova){
-    this._xhr = pui.upload(params, function(success, errorMsg) {
+  if (cordova) {
+    this._xhr = pui.upload(params, function (success, errorMsg) {
       if (!success) {
         me._error = errorMsg;
       }
@@ -390,9 +347,9 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
     });
   }
   // Else only call upload when files are chosen.
-  else if (params["files"].length > 0){
+  else if (params["files"].length > 0) {
     this._abortLink.style.display = "";
-    params["id"] = this._mainBox.id;  //Ensure PUI0009109 passes the Widget ID from POST data into the PUIUPLEXIT program. #6158
+    params["id"] = this._mainBox.id; // Ensure PUI0009109 passes the Widget ID from POST data into the PUIUPLEXIT program. #6158
     params["mode"] = "widget";
     this._xhr = pui.upload(params);
   }
@@ -405,7 +362,7 @@ pui['fileupload'].FileUpload.prototype.upload = function() {
  * Returns true if there is some timeout running for the upload.
  * @returns {Boolean}
  */
-pui['fileupload'].FileUpload.prototype.isSubmitting = function() {
+pui["fileupload"].FileUpload.prototype.isSubmitting = function () {
   return (this._submitHandle != null);
 };
 
@@ -413,7 +370,7 @@ pui['fileupload'].FileUpload.prototype.isSubmitting = function() {
  * Return the error value, which may be an empty string.
  * @returns {String}
  */
-pui['fileupload'].FileUpload.prototype.getError = function() {
+pui["fileupload"].FileUpload.prototype.getError = function () {
   return this._error;
 };
 
@@ -421,7 +378,7 @@ pui['fileupload'].FileUpload.prototype.getError = function() {
  * Return the ID of the main box (to go along with error information).
  * @returns {String}
  */
-pui['fileupload'].FileUpload.prototype.getId = function() {
+pui["fileupload"].FileUpload.prototype.getId = function () {
   return this._mainBox.id;
 };
 
@@ -432,9 +389,9 @@ pui['fileupload'].FileUpload.prototype.getId = function() {
 /**
  * Remove all files, errors, and re-renders the widget.
  */
-pui['fileupload'].FileUpload.prototype["clear"] = function() {
+pui["fileupload"].FileUpload.prototype["clear"] = function () {
   if (this._submitHandle == null && !this._disabled) {
-    while(this.fileList.length > 0) {
+    while (this.fileList.length > 0) {
       this.fileList.pop();
     }
 
@@ -449,12 +406,12 @@ pui['fileupload'].FileUpload.prototype["clear"] = function() {
  * @param {Boolean} validate  When true, only add those that are not done. Else add those that are.
  * @returns {Array} Returns an array of strings.
  */
-pui['fileupload'].FileUpload.prototype["getFileNames"] = function(validate) {
+pui["fileupload"].FileUpload.prototype["getFileNames"] = function (validate) {
   var names = [];
-  for (var i=0; i < this.fileList.length; i++) {
-    if (context != "genie" 
-      || ( validate && this.fileList[i].done != true )
-      || (!validate && this.fileList[i].done)){
+  for (var i = 0; i < this.fileList.length; i++) {
+    if (context != "genie" ||
+      (validate && this.fileList[i].done != true) ||
+      (!validate && this.fileList[i].done)) {
       names.push(this.fileList[i].name);
     }
   }
@@ -465,16 +422,12 @@ pui['fileupload'].FileUpload.prototype["getFileNames"] = function(validate) {
  * Returns an array containing actual file names saved to server.
  * @returns {Array}
  */
-pui['fileupload'].FileUpload.prototype["getActualFileNames"] = function() {
-
+pui["fileupload"].FileUpload.prototype["getActualFileNames"] = function () {
   return this._actualFileNames.slice();
-
 };
 
-pui['fileupload'].FileUpload.prototype["getGenerateNames"] = function() {
-
+pui["fileupload"].FileUpload.prototype["getGenerateNames"] = function () {
   return this._generateNames;
-
 };
 
 //
@@ -486,21 +439,21 @@ pui['fileupload'].FileUpload.prototype["getGenerateNames"] = function() {
  * @param {Number} id
  * @param {Object|String} response
  */
-pui['fileupload'].FileUpload.prototype._completeTransaction = function(id, response) {
+pui["fileupload"].FileUpload.prototype._completeTransaction = function (id, response) {
   // Quit if no current submit or if transaction id is not current.
-  // This indicates completion of transaction that has already been aborted. 
+  // This indicates completion of transaction that has already been aborted.
   if (this._submitHandle == null || id != this._transactionId) {
     return;
   }
   clearTimeout(this._submitHandle);
 
   var responseObj;
-  if (typeof(response) == "string") {
+  if (typeof (response) == "string") {
     try {
       responseObj = eval("(" + response + ")");
     }
-    catch(e) {
-      responseObj = {"success":false,"error": pui["getLanguageText"]("runtimeMsg", "upload invalid response")}; 
+    catch (e) {
+      responseObj = { "success": false, "error": pui["getLanguageText"]("runtimeMsg", "upload invalid response") };
     }
   }
   else {
@@ -509,18 +462,18 @@ pui['fileupload'].FileUpload.prototype._completeTransaction = function(id, respo
 
   if (!responseObj["success"]) {
     if (responseObj["key"]) {
-      responseObj["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + responseObj["key"] );
+      responseObj["error"] = pui["getLanguageText"]("runtimeMsg", "upload " + responseObj["key"]);
     }
     this._error = responseObj["error"];
     if (responseObj["key"] == "file limit")
-      this._error = this._error.replace("&1", this._fileLimit);
+    { this._error = this._error.replace("&1", this._fileLimit); }
     if (responseObj["key"] == "size limit")
-      this._error = this._error.replace("&1", this._sizeLimit);
+    { this._error = this._error.replace("&1", this._sizeLimit); }
   }
   // Success:
   else {
     // Mark all files as done.
-    for (var i=0; i < this.fileList.length; i++) {
+    for (var i = 0; i < this.fileList.length; i++) {
       this.fileList[i].done = true;
     }
     this._actualFileNames = responseObj["fileNames"];
@@ -542,11 +495,11 @@ pui['fileupload'].FileUpload.prototype._completeTransaction = function(id, respo
           "names": this._generateNames ? this["getActualFileNames"]() : this["getFileNames"](false)
         };
         var me = this;
-        var func1 = function(obj){
+        var func1 = function (obj) {
           eval("var info = arguments[0];");
           try {
             var func2 = eval(me._uploadEvent);
-            if (typeof(func2) == "function") {
+            if (typeof (func2) == "function") {
               func2(obj);
             }
           }
@@ -558,7 +511,7 @@ pui['fileupload'].FileUpload.prototype._completeTransaction = function(id, respo
       }
     }
   }
-  this.render();  //Make sure hidden elements are no longer hidden if unnecessary. Show errors.
+  this.render(); // Make sure hidden elements are no longer hidden if unnecessary. Show errors.
 
   this._xhr = null;
 };
@@ -567,7 +520,7 @@ pui['fileupload'].FileUpload.prototype._completeTransaction = function(id, respo
  * Handle exceptions with Genie uploads. (This is a function so that child classes can handle the error differently.)
  * @param {Event} e
  */
-pui['fileupload'].FileUpload.prototype._uploadEventException = function(e){
+pui["fileupload"].FileUpload.prototype._uploadEventException = function (e) {
   pui.scriptError(e, "onupload Error:\n");
 };
 
@@ -575,8 +528,8 @@ pui['fileupload'].FileUpload.prototype._uploadEventException = function(e){
  * Remove files if any were already uploaded. Or if there was an error, remove all files.
  * Called when SelectFiles clicked or boxdrop in FileUploadDND.
  */
-pui['fileupload'].FileUpload.prototype._checkAndRemoveFiles = function(){
-  if( this.fileList.length > 0 && this.fileList[0] && (this.fileList[0].done || this._error.length > 0 )) {
+pui["fileupload"].FileUpload.prototype._checkAndRemoveFiles = function () {
+  if (this.fileList.length > 0 && this.fileList[0] && (this.fileList[0].done || this._error.length > 0)) {
     while (this.fileList.length > 0) {
       this.fileList.pop();
     }
@@ -587,14 +540,14 @@ pui['fileupload'].FileUpload.prototype._checkAndRemoveFiles = function(){
  * Handler for xhr.onload event; i.e. the XMLHttpRequest finished.
  * @param {Event} event   onload event.
  */
-pui['fileupload'].FileUpload.prototype._xhrFinished = function(event) {
+pui["fileupload"].FileUpload.prototype._xhrFinished = function (event) {
   this._progressBar.value = 100;
   var responseObj;
   try {
     var responsetxt = event.target.responseText.replace(/'/g, "\""); // Single-quoted strings throw exceptions.
     responseObj = JSON.parse(responsetxt);
   }
-  catch(ignored){
+  catch (ignored) {
     responseObj = {
       "success": false,
       "error": pui["getLanguageText"]("runtimeMsg", "upload invalid response")
@@ -607,7 +560,7 @@ pui['fileupload'].FileUpload.prototype._xhrFinished = function(event) {
  * Handler for xhr.onprogress event.
  * @param {Event} event
  */
-pui['fileupload'].FileUpload.prototype._xhronprogress = function(event) {
+pui["fileupload"].FileUpload.prototype._xhronprogress = function (event) {
   if (event.lengthComputable) {
     var complete = (event.loaded / event.total * 100 | 0);
     this._progressBar.value = complete;
@@ -618,19 +571,19 @@ pui['fileupload'].FileUpload.prototype._xhronprogress = function(event) {
 /**
  * Handler for xhr.onabort event.
  */
-pui['fileupload'].FileUpload.prototype._xhronabort = function() {
+pui["fileupload"].FileUpload.prototype._xhronabort = function () {
   this.resetProgressBar();
-  var responseObj = {"success": false, "error": pui["getLanguageText"]("runtimeMsg", "upload cancelled")};
+  var responseObj = { "success": false, "error": pui["getLanguageText"]("runtimeMsg", "upload cancelled") };
   this._completeTransaction(this._transactionId, responseObj);
 };
 
-pui['fileupload'].FileUpload.prototype.resetProgressBar = function(){ this._progressBar.value = 0; };
+pui["fileupload"].FileUpload.prototype.resetProgressBar = function () { this._progressBar.value = 0; };
 
 /**
  * Original uploader sends file types to PUI0009109 for validation. Child classes may not, so this function gets overridden.
  * @param {Object} params
  */
-pui['fileupload'].FileUpload.prototype._addAllowedTypesParam = function(params){
+pui["fileupload"].FileUpload.prototype._addAllowedTypesParam = function (params) {
   params["allowedTypes"] = this._allowedTypes;
 };
 
@@ -639,10 +592,9 @@ pui['fileupload'].FileUpload.prototype._addAllowedTypesParam = function(params){
  * E.g. error tip happens with too many files, when drag/drop and autoSubmit true, when cancelling uploads.
  * @param {String} message
  */
-pui['fileupload'].FileUpload.prototype._showMessage = function(message){
-
-  if (this._mainBox.validationTip != null) this._mainBox.validationTip.hide();  //Hide with animation--takes tithis.
-  this._mainBox.validationTip = new pui.ValidationTip(this._mainBox); //New element can appear without waiting.
+pui["fileupload"].FileUpload.prototype._showMessage = function (message) {
+  if (this._mainBox.validationTip != null) this._mainBox.validationTip.hide(); // Hide with animation--takes tithis.
+  this._mainBox.validationTip = new pui.ValidationTip(this._mainBox); // New element can appear without waiting.
   this._mainBox.validationTip.setMessage(message);
   this._mainBox.validationTip.show();
 };
@@ -650,18 +602,17 @@ pui['fileupload'].FileUpload.prototype._showMessage = function(message){
 /**
  * Hide error tip, reset progress bar, clear internal "error".
  */
-pui['fileupload'].FileUpload.prototype._clearErrors = function(){
+pui["fileupload"].FileUpload.prototype._clearErrors = function () {
   this._error = "";
   this.resetProgressBar();
 
-  if (this._mainBox.validationTip != null && typeof this._mainBox.validationTip.hide == 'function'){
+  if (this._mainBox.validationTip != null && typeof this._mainBox.validationTip.hide == "function") {
     this._mainBox.validationTip.hide();
   }
 };
 
-
-pui['fileupload'].FileUpload.prototype._initFileInputElement = function(){
-  if (this._selectFilesLink.input != null){
+pui["fileupload"].FileUpload.prototype._initFileInputElement = function () {
+  if (this._selectFilesLink.input != null) {
     // IE10 does not allow the input's value to change via JS, so the old input must be replaced upon the user clicking clear or remove.
     this._selectFilesLink.input.removeEventListener("change", this, false);
     this._selectFilesLink.removeChild(this._selectFilesLink.input);
@@ -671,10 +622,10 @@ pui['fileupload'].FileUpload.prototype._initFileInputElement = function(){
   input.name = "file";
   input.type = "file";
   input.className = "control";
-  input.style.display = "none";   //Avoid odd Firefox problem where input overlaps link and cursor isn't a pointer.
+  input.style.display = "none"; // Avoid odd Firefox problem where input overlaps link and cursor isn't a pointer.
   // See Redmine #6441 - Retain "multiple" attribute when replacing input element.
   if (this._selectFilesLink.input != null)
-    input.multiple = this._selectFilesLink.input.multiple;
+  { input.multiple = this._selectFilesLink.input.multiple; }
 
   input.addEventListener("change", this, false);
 
@@ -682,13 +633,12 @@ pui['fileupload'].FileUpload.prototype._initFileInputElement = function(){
   this._selectFilesLink.appendChild(input);
 };
 
-
-pui['fileupload'].FileUpload.prototype._createBoxes = function(){
+pui["fileupload"].FileUpload.prototype._createBoxes = function () {
   this._controlBox = document.createElement("div");
   this._controlBox.className = "control-box";
-  
+
   this._createSelectFilesLink(this._controlBox, pui["getLanguageText"]("runtimeText", "upload select text"));
-  
+
   this._setupControlBox();
   this._createListBox();
 };
@@ -698,7 +648,7 @@ pui['fileupload'].FileUpload.prototype._createBoxes = function(){
  * @param {Element} parent
  * @param {String} linkText
  */
-pui['fileupload'].FileUpload.prototype._createSelectFilesLink = function(parent, linkText) {
+pui["fileupload"].FileUpload.prototype._createSelectFilesLink = function (parent, linkText) {
   this._selectFilesLink = document.createElement("a");
   this._selectFilesLink.className = "control-proxy";
   this._selectFilesLink.appendChild(document.createTextNode(linkText));
@@ -711,7 +661,7 @@ pui['fileupload'].FileUpload.prototype._createSelectFilesLink = function(parent,
 /**
  * Create a container for Select Files link, clear link, upload link, progress bar, and abort link.
  */
-pui['fileupload'].FileUpload.prototype._setupControlBox = function() {
+pui["fileupload"].FileUpload.prototype._setupControlBox = function () {
   this._clearLink = document.createElement("a");
   this._clearLink.href = "javascript: void(0);";
   this._clearLink.appendChild(document.createTextNode(pui["getLanguageText"]("runtimeText", "upload clear text")));
@@ -745,7 +695,7 @@ pui['fileupload'].FileUpload.prototype._setupControlBox = function() {
   this._mainBox.appendChild(this._controlBox);
 };
 
-pui['fileupload'].FileUpload.prototype._createListBox = function() {
+pui["fileupload"].FileUpload.prototype._createListBox = function () {
   this._listBox = document.createElement("div");
   this._listBox.className = "list-box";
 
@@ -759,44 +709,44 @@ pui['fileupload'].FileUpload.prototype._createListBox = function() {
 /**
  * Handle any events to which an instance of FileUpload was added as a listener.
  * @param {Event} e
- * @returns {undefined|Boolean} 
+ * @returns {undefined|Boolean}
  */
-pui['fileupload'].FileUpload.prototype['handleEvent'] = function(e){
-  if (e.type == 'click'){
-    switch (e.target){
-      case this._selectFilesLink:      //"Select Files" was clicked.
-        if (this._submitHandle != null || this._disabled || inDesignMode() ) {
+pui["fileupload"].FileUpload.prototype["handleEvent"] = function (e) {
+  if (e.type == "click") {
+    switch (e.target) {
+      case this._selectFilesLink: // "Select Files" was clicked.
+        if (this._submitHandle != null || this._disabled || inDesignMode()) {
           // If the file upload is disabled, in design mode, or ??, then do not respond to clicks on "Select Files".
           e.preventDefault();
           e.stopPropagation();
-          return false;      
+          return false;
         }
-        this._selectFilesLink.input.click(); //If the input is hidden, then regular clicks won't reach it. Force clicks to reach it.
+        this._selectFilesLink.input.click(); // If the input is hidden, then regular clicks won't reach it. Force clicks to reach it.
         return;
-      
-      case this._clearLink:            //"Clear" was clicked.
+
+      case this._clearLink: // "Clear" was clicked.
         this["clear"]();
         e.preventDefault();
         e.stopPropagation();
         return false;
-      
-      case this._abortLink:            //The "[x]" abort link in the control box was clicked.
+
+      case this._abortLink: // The "[x]" abort link in the control box was clicked.
         e.preventDefault();
         e.stopPropagation();
-        if( this._xhr && this._xhr.abort ) {
+        if (this._xhr && this._xhr.abort) {
           this._xhr.abort();
         }
         return false;
-      
-      case this._uploadLink:           //Handle click on the uploadLink, Genie only.
+
+      case this._uploadLink: // Handle click on the uploadLink, Genie only.
         if (this._submitHandle == null && !inDesignMode() && !pui.genie.formSubmitted) {
           // Let user attempt to upload again in case there was an error.
           // e.g. attempt to drop in file when there already was a file ready to upload.
-          this._clearErrors(); 
+          this._clearErrors();
 
           // Genie must validate here. In Rich UI validation is done as part of the main screen submit process.
           // DragDrop already does validation upon dropping. Assumes uploadLink cannot be clicked unless files are chosen.
-          if (this._validateBeforeUpload){
+          if (this._validateBeforeUpload) {
             // Count the files that were not already uploaded (those which did not have "Finished" indicated, if any).
             var err = this.validateCount();
             if (!err) {
@@ -814,15 +764,15 @@ pui['fileupload'].FileUpload.prototype['handleEvent'] = function(e){
         e.stopPropagation();
         return false;
     }
-    
-    if (e.target.isRemoveLink){
+
+    if (e.target.isRemoveLink) {
       // Handle a click on a "remove" link; remove a file from the selectors list and re-render.
       e.preventDefault();
       e.stopPropagation();
 
       // Ignore clicks while upload is in progress.
       if (this._submitHandle !== null) return false;
-      
+
       var target = e.target || e.srcElement;
       // Remove specified file.
       var index = target.puiFileIndex;
@@ -834,9 +784,9 @@ pui['fileupload'].FileUpload.prototype['handleEvent'] = function(e){
       return false;
     }
   }
-  else if (e.type == 'change'){
+  else if (e.type == "change") {
     var files = e.target.files;
-    
+
     if (this._selectionMode != this.MODE_STANDARD) {
       // For single selection or extended, existing choices get replaced with new choices.
       this.fileList = [];
@@ -845,7 +795,7 @@ pui['fileupload'].FileUpload.prototype['handleEvent'] = function(e){
     this._initFileInputElement(); // Ensure that onchange always fires after choosing another file. #5876.
 
     this._checkAndRemoveFiles();
-    
+
     // This original uploader now prevents files from being added that are too large, the wrong content-type, etc. So, clear error on change.
     this._clearErrors();
 
@@ -858,8 +808,8 @@ pui['fileupload'].FileUpload.prototype['handleEvent'] = function(e){
  * Display the chosen files that are valid; show a tip when files were not acceptable. (Used in the change listener and in child classes.)
  * @param {FileList} list
  */
-pui['fileupload'].FileUpload.prototype._processFileList = function(list){
-  // We are the last file. This should only run after all the files attempted to open. Process the list of dropped files. Once 
+pui["fileupload"].FileUpload.prototype._processFileList = function (list) {
+  // We are the last file. This should only run after all the files attempted to open. Process the list of dropped files. Once
   // here, we know if dropped objects were directories or readable files.
   var notice, pushlist = [];
   var hadError = false;
@@ -881,7 +831,7 @@ pui['fileupload'].FileUpload.prototype._processFileList = function(list){
     var allowedT = (this._allowedTypes.length <= 0 || this._allowedTypes.indexOf(ftypeTmp) >= 0);
 
     // 6839: FIX MIME type:
-    //  Historically, we allowed "image/jpg" for a jpeg even though the standard 
+    //  Historically, we allowed "image/jpg" for a jpeg even though the standard
     //  (and value provided by browsers) is "image/jpeg" so this is needed for
     //  backward compatibility.
     if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && this._allowedTypes.indexOf("image/jpeg") >= 0) allowedT = true;
@@ -893,10 +843,10 @@ pui['fileupload'].FileUpload.prototype._processFileList = function(list){
     // file was a directory. Browsers prevent JS from selecting
     // files not explicitly chosen by the user, so we can't read
     // everything in a directory. Ignore them for now.
-    if (!allowedT || list[i].isReadable === false ) {
+    if (!allowedT || list[i].isReadable === false) {
       hadError = true;
       notice = pui["getLanguageText"]("runtimeMsg", "upload invalid type");
-      console.log('Content-Type "%s" not permitted for upload.', ftypeTmp); //This is helpful.
+      console.log('Content-Type "%s" not permitted for upload.', ftypeTmp); // This is helpful.
     }
     // Don't add if the same filename is already in the list.
     else if (exists) {
@@ -916,7 +866,7 @@ pui['fileupload'].FileUpload.prototype._processFileList = function(list){
   // done looking at each dropped file.
 
   // Only add files if none of them had errors.
-  if( ! hadError ) {
+  if (!hadError) {
     for (var i = 0; i < pushlist.length; i++) {
       this.fileList.push(pushlist[i]);
     }
@@ -934,271 +884,201 @@ pui['fileupload'].FileUpload.prototype._processFileList = function(list){
 
 /**
  * Called by pui.respond to start uploading and to know when something is uploading.
- * @param {Object} param    Response object that gets passed on 
+ * @param {Object} param    Response object that gets passed on
  * @returns {Boolean}
  */
-pui.processUpload = function(param) {
-
+pui.processUpload = function (param) {
   if (pui.fileUploadElements.length > 0) {
-
     for (var i = 0; i < pui.fileUploadElements.length; i++) {
-    
       pui.fileUploadElements[i].upload();
-    
     }
-    
+
     pui.checkUploads(param);
-    
+
     return true;
-  
   }
   else {
-  
     return false;
-  
   }
-
 };
 
 /**
  * If necessary, cycle until uploads are complete, then submit or cancel a response.
  * @param {Object} param    Response object from pui.respond.
  */
-pui.checkUploads = function(param) {
+pui.checkUploads = function (param) {
+  var interval = 250;
 
-    var interval = 250;
-
-    var done = true;
-    for (var i = 0; i < pui.fileUploadElements.length; i++) {
-    
-      if (pui.fileUploadElements[i].isSubmitting()) {
-      
-        done = false;
-        break;
-      
-      }
-  
+  var done = true;
+  for (var i = 0; i < pui.fileUploadElements.length; i++) {
+    if (pui.fileUploadElements[i].isSubmitting()) {
+      done = false;
+      break;
     }
-    
-    if (done) {
-    
-      var errors = {};
-      var good = true;
-      for (var i = 0; i < pui.fileUploadElements.length; i++) {
- 
-        var error = pui.fileUploadElements[i].getError();
-        if (error != "") {
-        
-          good = false;
-          errors[pui.fileUploadElements[i].getId()] = error;
-        
-        }
-    
-      }
-      
-      if (good) {
-      
-        for (var i = 0; i < pui.fileUploadElements.length; i++) { 
-      
-          var fileUpload = pui.fileUploadElements[i];
-          var qualField = fileUpload.qualField;
-          
-          // Build response.
+  }
 
-          // Response looks like this: 
-          
-          // Header: 
-          
-          // Number of files (3S, 0)
-          // Directory (256A)
-          
-          // Detail (1 for each file):
-          
-          // Name (256A)
-          
-          var fileCount = fileUpload.getCount();
-          if (fileCount > 99) {
-          
-            fileCount = 99;
-          
+  if (done) {
+    var errors = {};
+    var good = true;
+    for (var i = 0; i < pui.fileUploadElements.length; i++) {
+      var error = pui.fileUploadElements[i].getError();
+      if (error != "") {
+        good = false;
+        errors[pui.fileUploadElements[i].getId()] = error;
+      }
+    }
+
+    if (good) {
+      for (var i = 0; i < pui.fileUploadElements.length; i++) {
+        var fileUpload = pui.fileUploadElements[i];
+        var qualField = fileUpload.qualField;
+
+        // Build response.
+
+        // Response looks like this:
+
+        // Header:
+
+        // Number of files (3S, 0)
+        // Directory (256A)
+
+        // Detail (1 for each file):
+
+        // Name (256A)
+
+        var fileCount = fileUpload.getCount();
+        if (fileCount > 99) {
+          fileCount = 99;
+        }
+        fileCount = String(fileCount);
+        while (fileCount.length < 3) {
+          fileCount = "0" + fileCount;
+        }
+
+        var targetDirectory = fileUpload.getTargetDirectory();
+        if (targetDirectory.length > 256) {
+          targetDirectory = targetDirectory.substr(0, 256);
+        }
+        else {
+          while (targetDirectory.length < 256) {
+            targetDirectory += " ";
           }
-          fileCount = String(fileCount);
-          while(fileCount.length < 3) {
-          
-            fileCount = "0" + fileCount;  
-          
-          }
-          
-          var targetDirectory = fileUpload.getTargetDirectory();
-          if (targetDirectory.length > 256) {
-          
-            targetDirectory = targetDirectory.substr(0, 256);
-          
+        }
+
+        var namesArray = (fileUpload["getGenerateNames"]()) ? fileUpload["getActualFileNames"]() : fileUpload["getFileNames"](false);
+        var names = "";
+        for (var j = 0; j < namesArray.length; j++) {
+          var name = namesArray[j];
+          if (name.length > 256) {
+            name = name.substr(0, 256);
           }
           else {
-          
-            while(targetDirectory.length < 256) {
-            
-              targetDirectory += " ";  
-            
+            while (name.length < 256) {
+              name += " ";
             }
-            
-          }          
-          
-          var namesArray = (fileUpload["getGenerateNames"]()) ? fileUpload["getActualFileNames"]() : fileUpload["getFileNames"](false);
-          var names = "";
-          for (var j = 0; j < namesArray.length; j++) {
-          
-            var name = namesArray[j];
-            if (name.length > 256) {
-            
-              name = name.substr(0, 256);
-            
-            }
-            else {
-            
-              while (name.length < 256) {
-              
-                name += " ";
-              
-              }
-              
-            }
-            
-            names += name;
-          
           }
-          
-          param[qualField] = fileCount + targetDirectory + names;
-      
+
+          names += name;
         }
-      
-        pui["haltFrames"]();
-        pui.submitResponse(param);  
-        
+
+        param[qualField] = fileCount + targetDirectory + names;
       }
-      else {
-      
-        pui.cancelResponse(errors);
-      
-      }
-    
+
+      pui["haltFrames"]();
+      pui.submitResponse(param);
     }
     else {
-    
-      setTimeout(function() {
-        pui.checkUploads(param);
-      }, interval);
-    
+      pui.cancelResponse(errors);
     }
-
+  }
+  else {
+    setTimeout(function () {
+      pui.checkUploads(param);
+    }, interval);
+  }
 };
 
 // Property setters. Some are re-used in child classes.
 
 pui["fileupload"].propset = {
-  "field type": function(parms) {
+  "field type": function (parms) {
+    if (parms.dom["fileUpload"] == null) {
+      parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
+      if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
+    }
 
-      if (parms.dom["fileUpload"] == null) {
+    // Process multiple occurrence property.
+    var suffix = 1;
+    var prop = "allowed type";
+    var types = [];
+    while (typeof (parms.properties[prop]) == "string") {
+      var mimeType = parms.evalProperty(prop);
+      if (types.length === 0 || types.indexOf(mimeType) === -1) types.push(mimeType);
 
-        parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
-        if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
+      // 6839: FIX MIME type:  Historically, PUI supported image/jpg (which is not a valid MIME type)
+      //   instead of the correct image/jpeg.  For backward compatibility, if one is specified,
+      //   allow both.
+      if (mimeType.toLowerCase() === "image/jpg" && types.indexOf("image/jpeg") === -1) types.push("image/jpeg");
+      if (mimeType.toLowerCase() === "image/jpeg" && types.indexOf("image/jpg") === -1) types.push("image/jpg");
 
-      }
+      prop = "allowed type " + (++suffix);
+    }
+    parms.dom["fileUpload"].setAllowedTypes(types);
 
-      // Process multiple occurrence property.
-      var suffix = 1;
-      var prop = "allowed type";
-      var types = [];
-      while (typeof(parms.properties[prop]) == "string") {
-
-        var mimeType = parms.evalProperty(prop);
-        if (types.length === 0 || types.indexOf(mimeType) === -1) types.push(mimeType); 
-
-        // 6839: FIX MIME type:  Historically, PUI supported image/jpg (which is not a valid MIME type)
-        //   instead of the correct image/jpeg.  For backward compatibility, if one is specified,
-        //   allow both.
-        if (mimeType.toLowerCase() === "image/jpg" && types.indexOf("image/jpeg") === -1)  types.push("image/jpeg");
-        if (mimeType.toLowerCase() === "image/jpeg" && types.indexOf("image/jpg") === -1)  types.push("image/jpg");
-
-        prop = "allowed type " + (++suffix);
-
-      }
-      parms.dom["fileUpload"].setAllowedTypes(types);
-
-      parms.dom["fileUpload"].render();
-
+    parms.dom["fileUpload"].render();
   },
 
-  "selection mode": function(parms) {
-
-    parms.dom["fileUpload"].setMode(parms.value); 
-
+  "selection mode": function (parms) {
+    parms.dom["fileUpload"].setMode(parms.value);
   },
 
-  "number of files": function(parms) {
-
+  "number of files": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setFileLimit(parseInt(parms.value, 10)); 
-
+    parms.dom["fileUpload"].setFileLimit(parseInt(parms.value, 10));
   },
 
-  "size limit": function(parms) {
-
+  "size limit": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setSizeLimit(parseInt(parms.value, 10)); 
-
+    parms.dom["fileUpload"].setSizeLimit(parseInt(parms.value, 10));
   },
 
-  "target directory": function(parms) {
-
+  "target directory": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setTargetDirectory(trim(parms.value));   
-
+    parms.dom["fileUpload"].setTargetDirectory(trim(parms.value));
   },
 
-  "rename to": function(parms) {
-
+  "rename to": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setAltName(trim(parms.value));   
-
+    parms.dom["fileUpload"].setAltName(trim(parms.value));
   },
 
-  "overwrite files": function(parms) {
-
+  "overwrite files": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);   
-
+    parms.dom["fileUpload"].setOverwrite(parms.value == "true" || parms.value == true);
   },
 
-  "generate unique names": function(parms) {
-
+  "generate unique names": function (parms) {
     if (parms.design) return;
 
-    parms.dom["fileUpload"].setGenerateNames(parms.value == "true" || parms.value == true);   
-
+    parms.dom["fileUpload"].setGenerateNames(parms.value == "true" || parms.value == true);
   },
 
-  "onupload": function(parms) {
-
+  "onupload": function (parms) {
     if (parms.design) return;
 
     parms.dom["fileUpload"].setUploadEvent(parms.newValue);
-
   },
 
-  "disabled": function(parms) {
-
+  "disabled": function (parms) {
     if (parms.design) return;
 
     var disabled = (parms.value == "true");
     parms.dom["fileUpload"].setDisabled(disabled);
-
   }
 };
 
@@ -1207,9 +1087,9 @@ pui["fileupload"].propset = {
  * TODO: it would be better for properties to not change the DOM repeatedly; let one final render() call setup the DOM.
  * @param {Object} parms
  */
-pui['fileupload'].globalAfterSetter = function(parms){
+pui["fileupload"].globalAfterSetter = function (parms) {
   var match = /^css class( \d+)?$/.exec(parms.propertyName);
-  if (match != null) parms.dom['fileUpload'].render();
+  if (match != null) parms.dom["fileUpload"].render();
 };
 
 pui.widgets.add({
@@ -1224,11 +1104,11 @@ pui.widgets.add({
     "selection mode": "standard",
     "size limit": "10",
     "number of files": "1",
-    "overwrite files": "false" 
+    "overwrite files": "false"
   },
-  
+
   propertySetters: pui["fileupload"].propset,
-  
-  globalAfterSetter: pui['fileupload'].globalAfterSetter
-  
+
+  globalAfterSetter: pui["fileupload"].globalAfterSetter
+
 });

@@ -28,9 +28,8 @@ else if (location.pathname.match(/^\/ide/i)) {
 else {
   var match = location.pathname.match(/\/([^\/]+)\/?$/i);
   if (match && match[1].toLowerCase() === "viewdesigner")
-    pui.viewdesigner = true;
+  { pui.viewdesigner = true; }
   else if (match && match[1].toLowerCase() === "nodedesigner")
-    pui.nodedesigner = true;
-  delete match;
+  { pui.nodedesigner = true; }
 }
 pui.codeBased = false;

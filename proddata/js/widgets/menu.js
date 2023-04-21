@@ -17,15 +17,12 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * Menu Widget Class
  * @constructor
  */
 
-pui.MenuWidget = function() {
-
+pui.MenuWidget = function () {
   // Private Properties
   var me = this;
   var displayedSubMenus = [];
@@ -33,34 +30,34 @@ pui.MenuWidget = function() {
   // Public Properties
   this.container = null;
   this.choices = [];
-  this.choiceValues = [];  
+  this.choiceValues = [];
   this.hoverBackgroundColor = null;
   this.hoverTextColor = null;
   this.animate = true;
   this.repeat = null; // background-repeat property and style.
   this.borderColor = null;
-  this.padding = null;  
+  this.padding = null;
   this.paddingLeft = null;
   this.optionImage = null;
   this.optionImages = [];
   this.optionHoverImage = null;
   this.orientation = "vertical";
-  
+
   // private functions
-  function drawMenu(parms) {
+  function drawMenu (parms) {
     var container = parms.container;
     var parentTable = parms.parentTable;
 
     // The showing property gets set in the Grid.js and gets checked when hiding the Menu.
-    // If the menu happens to have the same ID as another menu in a different record format, 
+    // If the menu happens to have the same ID as another menu in a different record format,
     // the menu will be hidden after the other one is displayed. #3870
     if (container.showing == undefined) container.showing = true;
     container.innerHTML = "";
-    // Apply the styles from profoundui.css. 
+    // Apply the styles from profoundui.css.
     pui.addCssClass(container, "pui-menu");
-    
-    if( parms.orientation == "horizontal")
-      pui.addCssClass(container, "pui-horizontal");
+
+    if (parms.orientation == "horizontal")
+    { pui.addCssClass(container, "pui-horizontal"); }
 
     var table = document.createElement("table");
     var cwidth = container.style.width;
@@ -79,14 +76,14 @@ pui.MenuWidget = function() {
     // CSS border handles style.
     if (bcolor != "" && bcolor != null) {
       bcolor = pui.normalizeColor(bcolor);
-      table.style.borderTop = "1px solid "+bcolor;
-      table.style.borderLeft = "1px solid "+bcolor;
+      table.style.borderTop = "1px solid " + bcolor;
+      table.style.borderLeft = "1px solid " + bcolor;
     }
-    
+
     for (var i = parms.from; i <= parms.to; i++) {
       if (getLevel(i) != mainLevel) continue;
       var choice = me.choices[i];
-      while (choice.substr(0,1) == "-") {
+      while (choice.substr(0, 1) == "-") {
         choice = choice.substr(1);
       }
       var choiceValue = me.choiceValues[i];
@@ -104,31 +101,31 @@ pui.MenuWidget = function() {
       td.innerHTML = choice;
       td.choiceValue = choiceValue;
       td.level = mainLevel;
-      if(inDesignMode()) td.choiceNum = i; // Needed for double-click to edit menu with submenus in designer.
+      if (inDesignMode()) td.choiceNum = i; // Needed for double-click to edit menu with submenus in designer.
       td.menuId = me.container.id;
       td.orientation = parms.orientation;
-      
+
       // Set inline padding of table cells if "menu option padding" is set.
-      if(me.padding != null && me.padding.length > 0){
+      if (me.padding != null && me.padding.length > 0) {
         // Set the top, bottom, and right. Allows the padding-left to get the default value
         // of 5px if "menu option indent" is not set and "menu option padding" is set.
         td.style.paddingTop = td.style.paddingBottom = td.style.paddingRight = me.padding;
       }
       // Set inline padding if "menu option indent" is set (Otherwise, CSS sets padding)
-      if(me.paddingLeft != null && me.paddingLeft.length > 0) td.style.paddingLeft = me.paddingLeft;
+      if (me.paddingLeft != null && me.paddingLeft.length > 0) td.style.paddingLeft = me.paddingLeft;
 
       // Set inline border if the menu "border color" property is set. Otherwise, css sets it.
       if (bcolor != "" && bcolor != null) {
-          td.style.borderRight = "1px solid " + bcolor;
-          td.style.borderBottom = "1px solid " + bcolor;
+        td.style.borderRight = "1px solid " + bcolor;
+        td.style.borderBottom = "1px solid " + bcolor;
       }
-      
+
       // Animating the fade-out, hover color requires inline opacity.
-      if (me.animate){
+      if (me.animate) {
         td.style.filter = "alpha(opacity=100)";
         td.style.opacity = 1;
       }
-      
+
       // Table cell backgrounds get the option-image property if set.
       if (me.optionImage != null && me.optionImage != "") {
         td.optionImage = me.optionImage;
@@ -146,7 +143,7 @@ pui.MenuWidget = function() {
         }
         // Set the background-repeat style on the cell if the "background repeat"
         // property was set. Otherwise, allow CSS to handle it.
-        if( me.repeat != null && me.repeat.length > 0){
+        if (me.repeat != null && me.repeat.length > 0) {
           td.style.backgroundRepeat = me.repeat;
           if (me.repeat == "no-repeat") {
             td.style.backgroundPosition = "left center";
@@ -183,15 +180,15 @@ pui.MenuWidget = function() {
       prevTR = tr;
     }
     container.appendChild(table);
-    
-    function assignEvents(td) {
-      td.oncontextmenu = function() { return false; }; 
-      td.onmouseover = function() {
+
+    function assignEvents (td) {
+      td.oncontextmenu = function () { return false; };
+      td.onmouseover = function () {
         td.animationDone = true;
         if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
           td.style.backgroundColor = me.hoverBackgroundColor;
         }
-        else{
+        else {
           // Set the class so a user can define custom style (when bg color isn't set).
           td.className = "menu-hover";
         }
@@ -202,7 +199,7 @@ pui.MenuWidget = function() {
           td.style.backgroundImage = "url('" + me.optionHoverImage + "')";
           // Set the background-repeat style on the cell if the "background repeat"
           // property was set. Otherwise, allow CSS to handle it.
-          if( me.repeat != null && me.repeat.length > 0){
+          if (me.repeat != null && me.repeat.length > 0) {
             td.style.backgroundRepeat = me.repeat;
             if (me.repeat == "no-repeat") {
               td.style.backgroundPosition = "left center";
@@ -220,17 +217,17 @@ pui.MenuWidget = function() {
         removeSameOrHigherLevelMenus(td);
         me.showSubMenu(td);
       };
-      td.onmouseout = function(e) {
+      td.onmouseout = function (e) {
         if (!e) e = window.event;
         var tgt = e.relatedTarget;
         if (tgt == null) tgt = e.toElement;
 
         // Some browsers (IE8) seem to set the "toElement" to the <TABLE>
         // instead of the <TD> that this routine expects.  This finds the <TD>...
-        while (tgt!=null && ( tgt.tagName == "TABLE" 
-               || tgt.tagName == "TBODY" 
-               || tgt.tagName == "TR")) {
-          if (tgt.firstChild == null) break;            
+        while (tgt != null && (tgt.tagName == "TABLE" ||
+               tgt.tagName == "TBODY" ||
+               tgt.tagName == "TR")) {
+          if (tgt.firstChild == null) break;
           tgt = tgt.firstChild;
         }
 
@@ -244,7 +241,7 @@ pui.MenuWidget = function() {
             if (!keep) {
               var nextElmTable = getParentTable(tgt);
               var curElmTable = getParentTable(td);
-              if (nextElmTable && nextElmTable === curElmTable ) keep = true;
+              if (nextElmTable && nextElmTable === curElmTable) keep = true;
             }
           }
           if (!keep) {
@@ -276,9 +273,9 @@ pui.MenuWidget = function() {
         if (me.hoverBackgroundColor != null && me.hoverBackgroundColor != "") {
           td.animationDone = false;
           if (me.animate) {
-            function animate(opacity) {
+            function animate (opacity) {
               opacity = opacity - 10;
-              if (opacity < 40) {;
+              if (opacity < 40) { ;
                 if (!td.animationDone) {
                   td.style.backgroundColor = "";
                 }
@@ -288,7 +285,7 @@ pui.MenuWidget = function() {
               td.style.filter = "alpha(opacity=" + opacity + ")";
               td.style.opacity = opacity / 100;
               if (td.animationDone) return;
-              setTimeout(function() { animate(opacity); }, 60);
+              setTimeout(function () { animate(opacity); }, 60);
             }
             animate(100);
           }
@@ -297,15 +294,14 @@ pui.MenuWidget = function() {
           }
         }
         else {
-          //when bg color isn't set, clear class. (for potential custom css).
+          // when bg color isn't set, clear class. (for potential custom css).
           td.className = "";
         }
-
       };
-      
+
       // Allow touch-to-click on HTML elements inside the TD: catch the event bubbling up to the TD on mobile. #5786.
-      if (pui["is_touch"] && !pui["is_mouse_capable"] && td.children.length > 0){
-        //Note: touchend is non-standard as of 12/5/19 but is a recommended spec. ontouchstart is less supported than adding the event listener.
+      if (pui["is_touch"] && !pui["is_mouse_capable"] && td.children.length > 0) {
+        // Note: touchend is non-standard as of 12/5/19 but is a recommended spec. ontouchstart is less supported than adding the event listener.
         td.addEventListener("touchend", itemChosen, false);
       }
       else {
@@ -314,7 +310,7 @@ pui.MenuWidget = function() {
       }
 
       // Allow editing of a top-menu value by double-clicking.
-      td.ondblclick = function(e) {
+      td.ondblclick = function (e) {
         var isDesign = inDesignMode();
         if (isDesign && td.orientation == "vertical" && td.level == 0) {
           var dom = designUtils.getTarget(e);
@@ -325,10 +321,10 @@ pui.MenuWidget = function() {
           var itm = toolbar.designer.getDesignItemByDomObj(itmDom);
           // Add an inline editor if the field isn't bound, translated,
           // and if the edited choice can be determined.
-          if (!pui.isBound(itm.properties["choices"])
-          && !pui.isTranslated(itm.properties["choices"])
-          && typeof(dom.choiceNum) === "number" ) {
-            itm.designer.inlineEditBox.onUpdate = function(newName) {
+          if (!pui.isBound(itm.properties["choices"]) &&
+          !pui.isTranslated(itm.properties["choices"]) &&
+          typeof (dom.choiceNum) === "number") {
+            itm.designer.inlineEditBox.onUpdate = function (newName) {
               var propValue = itm.properties["choices"];
               if (propValue == "") propValue = "Option 1,Option 2,Option 3";
               var optionNames = propValue.split(",");
@@ -347,12 +343,12 @@ pui.MenuWidget = function() {
           }
         }
       };
-      function itemChosen() {
+      function itemChosen () {
         if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
         if (me.container["onoptionclick"] != null && !me.usesLogic) {
           if (inDesignMode()) return;
           if (td.subMenuFrom != null) return;
-          me.container["onoptionclick"](td.choiceValue, getInnerText(td));            
+          me.container["onoptionclick"](td.choiceValue, getInnerText(td));
         }
         else if (context == "dspf") {
           if (td.subMenuFrom != null) return;
@@ -378,7 +374,7 @@ pui.MenuWidget = function() {
     }
   }
 
-  function getLevel(idx) {
+  function getLevel (idx) {
     var choice = me.choices[idx];
     var level = 0;
     if (choice == null) return level;
@@ -388,17 +384,17 @@ pui.MenuWidget = function() {
     }
     return level;
   }
-  
-  function hasSubMenu(idx) {
+
+  function hasSubMenu (idx) {
     if (idx >= me.choices.length - 1) return false;
-    if (getLevel(idx) + 1 == getLevel(idx+1)) return true;  // next item is one level higher
+    if (getLevel(idx) + 1 == getLevel(idx + 1)) return true; // next item is one level higher
     return false;
   }
 
-  function getParentTable(elm) {
+  function getParentTable (elm) {
     var parent = elm;
     while (parent) {
-      if (parent.tagName == 'TABLE') {
+      if (parent.tagName == "TABLE") {
         return parent;
       }
       parent = parent.parentElement;
@@ -406,7 +402,7 @@ pui.MenuWidget = function() {
     return false;
   }
 
-  function removeSameOrHigherLevelMenus(td) {
+  function removeSameOrHigherLevelMenus (td) {
     var toRemove = [];
     for (var i = 0; i < displayedSubMenus.length; i++) {
       if (displayedSubMenus[i].level >= td.level) {
@@ -418,21 +414,18 @@ pui.MenuWidget = function() {
     }
   }
 
-  
   // Public Methods
-  this.draw = function() {
-      
+  this.draw = function () {
     drawMenu({
       container: me.container,
       orientation: me.orientation,
       from: 0,
       to: me.choices.length - 1
     });
-
   };
-  
-  this.showSubMenu = function(td) {
-    if (td.subMenuFrom == null) return;  // this option does not have a sub menu
+
+  this.showSubMenu = function (td) {
+    if (td.subMenuFrom == null) return; // this option does not have a sub menu
     var table = td;
     while (table.tagName != "TABLE") {
       table = table.parentNode;
@@ -456,7 +449,7 @@ pui.MenuWidget = function() {
       destStyle.color = sourceStyle.color;
       destStyle.zIndex = sourceStyle.zIndex;
       destStyle.position = "absolute";
-      if(!pui.iPadEmulation) destStyle.cursor = sourceStyle.cursor;
+      if (!pui.iPadEmulation) destStyle.cursor = sourceStyle.cursor;
       me.container.parentNode.appendChild(td.subMenuContainer);
     }
     if (td.orientation == "vertical") {
@@ -496,8 +489,8 @@ pui.MenuWidget = function() {
     }
     if (addToArray) displayedSubMenus.push(td);
   };
-  
-  this.removeSubMenu = function(td) {
+
+  this.removeSubMenu = function (td) {
     if (td.subMenuContainer == null) return;
     for (var i = 0; i < displayedSubMenus.length; i++) {
       if (displayedSubMenus[i] == td) {
@@ -508,21 +501,17 @@ pui.MenuWidget = function() {
     td.subMenuContainer.parentNode.removeChild(td.subMenuContainer);
     td.subMenuContainer = null;
   };
-  
-  this.removeAllSubMenus = function() {
+
+  this.removeAllSubMenus = function () {
     var toRemove = [];
     for (var i = 0; i < displayedSubMenus.length; i++) {
       toRemove.push(displayedSubMenus[i]);
     }
     for (var i = 0; i < toRemove.length; i++) {
       me.removeSubMenu(toRemove[i]);
-    }  
+    }
   };
-  
 };
-
-
-
 
 pui.widgets.add({
   name: "menu",
@@ -542,8 +531,8 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       parms.dom.menuWidget = new pui.MenuWidget();
       parms.dom.menuWidget.usesLogic = pui.isRoutine(parms.properties["onoptionclick"]);
       if (parms.dom.menuWidget.usesLogic) {
@@ -556,18 +545,18 @@ pui.widgets.add({
       else {
         parms.dom.menuWidget.choices = ["Option 1", "Option 2", "Option 3"];
       }
-      
-      if (pui["onoptionclick value is text"] !== true){   // Disables fix for 4695, for issue 5336.
+
+      if (pui["onoptionclick value is text"] !== true) { // Disables fix for 4695, for issue 5336.
         var choiceValues = parms.evalProperty("choice values");
-        if (choiceValues != null && choiceValues != ""){
-          //If the customer has applied "choice values" property before this, then use those. #4695.
+        if (choiceValues != null && choiceValues != "") {
+          // If the customer has applied "choice values" property before this, then use those. #4695.
           parms.dom.menuWidget.choiceValues = pui.parseCommaSeparatedList(choiceValues);
         }
         else {
           parms.dom.menuWidget.choiceValues = [];
         }
       }
-      
+
       parms.dom.menuWidget.container = parms.dom;
       parms.dom.menuWidget.hoverTextColor = parms.properties["hover text color"];
       parms.dom.menuWidget.hoverBackgroundColor = parms.properties["hover background color"];
@@ -580,21 +569,21 @@ pui.widgets.add({
         parms.dom.menuWidget.optionImages = pui.parseCommaSeparatedList(parms.dom.menuWidget.optionImage);
       }
       parms.dom.menuWidget.optionHoverImage = parms.properties["option hover image"];
-      //Note: this is confusing; setting "background image" does nothing because
-      //"option image" controls it. But "background repeat" does take effect.
+      // Note: this is confusing; setting "background image" does nothing because
+      // "option image" controls it. But "background repeat" does take effect.
       parms.dom.menuWidget.repeat = parms.properties["background repeat"];
       parms.dom.menuWidget.padding = parms.properties["menu option padding"];
       parms.dom.menuWidget.paddingLeft = parms.properties["menu option indent"];
       parms.dom.menuWidget.animate = (parms.properties["animate"] != "false");
       var orientation = parms.properties["orientation"];
       if (orientation != "horizontal" && orientation != "vertical") {
-        orientation = "vertical";  // default
+        orientation = "vertical"; // default
       }
       parms.dom.menuWidget.orientation = orientation;
       parms.dom.menuWidget.draw();
     },
-    
-    "choices": function(parms) {
+
+    "choices": function (parms) {
       if (parms.dom.menuWidget != null) {
         var choices = parms.value;
         if (choices != null && choices != "") {
@@ -606,8 +595,8 @@ pui.widgets.add({
         parms.dom.menuWidget.draw();
       }
     },
-    
-    "choice values": function(parms) {
+
+    "choice values": function (parms) {
       if (parms.dom.menuWidget != null) {
         var choiceValues = parms.value;
         if (choiceValues != null && choiceValues != "") {
@@ -618,20 +607,20 @@ pui.widgets.add({
         }
       }
     },
-    
-    "hover background color": function(parms) {
+
+    "hover background color": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.hoverBackgroundColor = parms.value;
       }
     },
-    
-    "hover text color": function(parms) {
+
+    "hover text color": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.hoverTextColor = parms.value;
       }
     },
 
-    "animate": function(parms) {
+    "animate": function (parms) {
       if (parms.dom.menuWidget != null) {
         if (parms.value == "false") {
           parms.dom.menuWidget.animate = false;
@@ -642,8 +631,8 @@ pui.widgets.add({
         parms.dom.menuWidget.draw();
       }
     },
-    
-    "border color": function(parms) {
+
+    "border color": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.borderColor = parms.value;
         parms.dom.menuWidget.draw();
@@ -652,7 +641,7 @@ pui.widgets.add({
 
     // This property sets the table cell padding top/right/bottom.
     // CSS takes over if value is null.
-    "menu option padding": function(parms) {
+    "menu option padding": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.padding = parms.value;
         parms.dom.menuWidget.draw();
@@ -661,14 +650,14 @@ pui.widgets.add({
 
     // This property set the table cell padding-left style.
     // CSS takes over if value is null.
-    "menu option indent": function(parms) {
+    "menu option indent": function (parms) {
       if (parms.dom.menuWidget != null) {
-        parms.dom.menuWidget.paddingLeft = parms.value;        
+        parms.dom.menuWidget.paddingLeft = parms.value;
         parms.dom.menuWidget.draw();
       }
     },
 
-    "option image": function(parms) {
+    "option image": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.optionImage = parms.value;
         if (parms.value == null || parms.value == "") {
@@ -681,46 +670,46 @@ pui.widgets.add({
       }
     },
 
-    "option hover image": function(parms) {
+    "option hover image": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.optionHoverImage = parms.value;
         parms.dom.menuWidget.draw();
       }
     },
 
-    "background repeat": function(parms) {
+    "background repeat": function (parms) {
       if (parms.dom.menuWidget != null) {
         parms.dom.menuWidget.repeat = parms.value;
         parms.dom.menuWidget.draw();
       }
     },
 
-    "orientation": function(parms) {
+    "orientation": function (parms) {
       if (parms.dom.menuWidget != null) {
         var orientation = parms.value;
         if (orientation != "horizontal" && orientation != "vertical") {
-          orientation = "vertical";  // default
+          orientation = "vertical"; // default
         }
         parms.dom.menuWidget.orientation = orientation;
         parms.dom.menuWidget.draw();
       }
     }
   },
-  
-  globalPropertySetter: function(parms) {    
+
+  globalPropertySetter: function (parms) {
     switch (parms.propertyName) {
-      case "color":          
-      case "font family":    
-      case "font size":      
-      case "font style":     
-      case "font variant":   
-      case "font weight":    
+      case "color":
+      case "font family":
+      case "font size":
+      case "font style":
+      case "font variant":
+      case "font weight":
       case "letter spacing":
-      case "text align":     
+      case "text align":
       case "text decoration":
-      case "text transform": 
-      case "word spacing":   
-      case "background color":   
+      case "text transform":
+      case "word spacing":
+      case "background color":
       case "css class":
       case "css class 2":
       case "css class 3":
@@ -732,19 +721,16 @@ pui.widgets.add({
     }
   },
 
-  globalAfterSetter: function(parms) {
-
+  globalAfterSetter: function (parms) {
     // This prevents the class from being lost in some cases.
     // The applyPropertyToField() process overwrites dom.className with classes from the properties, so
     // internally assigned classes can be wiped out.
     // See Redmine #6042
     if (parms.propertyName.indexOf("css class") === 0)
-      pui.addCssClass(parms.dom, "pui-menu");
+    { pui.addCssClass(parms.dom, "pui-menu"); }
 
-    if (parms.propertyName === "width" && parms.dom.menuWidget != null) 
-      parms.dom.menuWidget.draw();
-
-
+    if (parms.propertyName === "width" && parms.dom.menuWidget != null)
+    { parms.dom.menuWidget.draw(); }
   }
-  
+
 });

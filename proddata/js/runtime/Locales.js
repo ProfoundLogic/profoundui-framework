@@ -17,28 +17,26 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * Locales Class
  * @constructor
  */
 
-pui.Locales = function() {
+pui.Locales = function () {
   // private variables
   var me = this;
   var localeArray = [];
 
   // public methods
-  this.getLocales = function() {
+  this.getLocales = function () {
     return localeArray;
   };
-    
-  this.add = function(obj) {
+
+  this.add = function (obj) {
     var name = obj["name"];
     if (name !== null) {
-      for(var i=0; i<localeArray.length; i++){
-        if(obj["text"] < localeArray[i]["text"]){
+      for (var i = 0; i < localeArray.length; i++) {
+        if (obj["text"] < localeArray[i]["text"]) {
           break;
         }
       }
@@ -47,7 +45,6 @@ pui.Locales = function() {
       me[name] = obj;
     }
   };
-  
 };
 
 pui.locales = new pui.Locales();

@@ -17,78 +17,75 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 /**
  * Session Class
  * This appears to be an undocumented API that is not called by any other Profound UI code.
  * @constructor
  */
 
-function Session() {
+function Session () {
   // Public Properties
   var cookieName = "GenieSession";
   if (context == "dspf") cookieName = "PUISession";
   var loaded = false;
-  
+
   // Private Properties
-  var state = {};  // state object to store all values
-  
-  function set(variable, value) {
+  var state = {}; // state object to store all values
+
+  function set (variable, value) {
     state[variable] = value;
   }
-  
-  function get(variable, defaultValue) {
+
+  function get (variable, defaultValue) {
     var value = state[variable];
     if (value == null) value = defaultValue;
     if (value == null) value = "";
     return value;
   }
-  
+
   // save the state object to a cookie
-  function save() {
-    pui['setCookie'](cookieName, JSON.stringify(state), null, '/', null, null, 'Strict' );
+  function save () {
+    pui["setCookie"](cookieName, JSON.stringify(state), null, "/", null, null, "Strict");
   }
-  
+
   // load the state from a cookie
-  function load() {
-    var json = pui['getCookie'](cookieName);
+  function load () {
+    var json = pui["getCookie"](cookieName);
     if (json == null) {
       state = {};
     }
     else {
       try {
-        state = JSON.parse(json);  //Note: evaluating code from cookies is a security vulnerability. Use JSON.parse, not eval.
+        state = JSON.parse(json); // Note: evaluating code from cookies is a security vulnerability. Use JSON.parse, not eval.
       }
-      catch(err) {
+      catch (err) {
         state = {};
       }
     }
     loaded = true;
   }
 
-  this.saveValue = function(variable, value) {
+  this.saveValue = function (variable, value) {
     if (!loaded) load();
     set(variable, value);
     save();
   };
-  
-  this.getValue = function(variable, defaultValue) {
+
+  this.getValue = function (variable, defaultValue) {
     if (!loaded) load();
     return get(variable, defaultValue);
   };
-  
-  this.clear = function() {
+
+  this.clear = function () {
     state = {};
     save();
   };
-  
+
   // synonyms
   this.setValue = this.saveValue;
   this.set = this.saveValue;
   this.put = this.saveValue;
-  this.get = this.getValue;  
-  
+  this.get = this.getValue;
 }
 
 var session = new Session();

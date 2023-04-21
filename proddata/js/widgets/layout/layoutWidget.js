@@ -17,16 +17,13 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 pui.widgets.add({
   name: "layout",
   canBelongToGrid: false,
   defaults: {
   },
-  
-  globalPropertySetter: function(parms) {
+
+  globalPropertySetter: function (parms) {
     if (parms.dom.layout == null) {
       parms.dom.layout = new pui.layout.Layout();
       parms.dom.layout.layoutDiv = parms.dom;
@@ -47,14 +44,13 @@ pui.widgets.add({
     if (parms.propertyName == "field type" || parms.propertyName == "template") {
       parms.dom.style.padding = "0px";
       parms.dom.style.borderWidth = "0px";
-      
+
       // we assume we want 100% height for browser viewport (should we remove these properties once this screen has finished?)
       if (!parms.design && parms.properties["height"] == "100%" && parms.dom.parentNode.id == "pui") {
-      
         // If height is unset, IE returns "auto", and all others return "0px"
-        
-        var parentStyle = pui.getComputedStyle( parms.dom.parentNode );
-        if (parentStyle != null && ( parentStyle["height"]=="0px" || parentStyle["height"]=="auto" )) {
+
+        var parentStyle = pui.getComputedStyle(parms.dom.parentNode);
+        if (parentStyle != null && (parentStyle["height"] == "0px" || parentStyle["height"] == "auto")) {
           pui.restoreStyles["padding"] = document.body.style.padding;
           document.body.style.padding = "0";
           pui.restoreStyles["height"] = document.body.style.height;
@@ -73,19 +69,16 @@ pui.widgets.add({
           parms.dom.layout.assignHeightOnResize = true;
           parms.dom.parentNode.style.overflowX = "hidden";
           parms.dom.parentNode.style.overflowY = "hidden";
-          parms.dom.layout.assignHeights();   //Set the height of the document and other elements.
+          parms.dom.layout.assignHeights(); // Set the height of the document and other elements.
         }
-
       }
-      else if (!parms.design && parms.dom.parentNode.isPUIWindow && 
-               (pui.isPercent(parms.properties["height"]) || 
+      else if (!parms.design && parms.dom.parentNode.isPUIWindow &&
+               (pui.isPercent(parms.properties["height"]) ||
                 pui.isPercent(parms.properties["width"]))) {
-        
         parms.dom.parentNode.style.width = "100%";
         parms.dom.parentNode.style.height = "100%";
-        
       }
-      
+
       if (parms.design) {
         if (!parms.dom.layout.designMode) {
           parms.dom.layout.enableDesign();
@@ -95,10 +88,9 @@ pui.widgets.add({
         if (parms.propertyName == "field type") {
           parms.dom.layout.setProperty("width", parms.properties["width"]);
           parms.dom.layout.setProperty("height", parms.properties["height"]);
-          
+
           if (parms.properties["inline style"])
-            pui.addInlineCSS(parms.dom, parms.properties["inline style"], true);
-          
+          { pui.addInlineCSS(parms.dom, parms.properties["inline style"], true); }
         }
       }
       parms.dom.layout.previousTemplate = parms.dom.layout.template;
@@ -120,7 +112,7 @@ pui.widgets.add({
         layout.template = savedTemplateName;
 
         // Rollback the change. Use a delay because other events in propertyWindow may fire later and overwite this rollback.
-        setTimeout(layout.updatePropertyInDesigner.bind(layout), 1, 'template', savedTemplateName);
+        setTimeout(layout.updatePropertyInDesigner.bind(layout), 1, "template", savedTemplateName);
 
         setProperty = false;
       }
@@ -130,30 +122,29 @@ pui.widgets.add({
     }
     if (setProperty) parms.dom.layout.setProperty(parms.propertyName, parms.value);
   },
-  
-  globalAfterSetter:  function(parms) {
+
+  globalAfterSetter: function (parms) {
     var dom = parms.dom;
-    if (dom){
+    if (dom) {
       var layoutT = dom.layoutT;
-      if (layoutT){
+      if (layoutT) {
         layoutT.setPropertyAfter(parms.propertyName, parms.value);
       }
     }
   },
-  
-  initialize: function(parms) {
-    if (parms.design) return;   
+
+  initialize: function (parms) {
+    if (parms.design) return;
     var dom = parms.dom;
     var id = dom.id;
     if (id == null) id = "";
     var cls = dom.className;
     if (cls == null) cls = "";
     if (id.toLowerCase() == "scroller" || cls.toLowerCase() == "scroller") {
-      if (!pui["is_old_ie"]) {  // the iScroll component can crash in IE
+      if (!pui["is_old_ie"]) { // the iScroll component can crash in IE
         dom.layout.applyScrolling();
       }
     }
   }
 
 });
-

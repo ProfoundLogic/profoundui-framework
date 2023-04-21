@@ -23,62 +23,62 @@
  * @param {Element} dom   A new or cloned DIV element.
  * @constructor
  */
-pui.FieldsetLayout = function(parms, dom) {
-  pui.layout.Template.call(this, parms, dom);  //sets this.container, etc.
-  
-  this._fieldset = document.createElement('fieldset');
-  this._fieldset.className = 'layout';
-  
-  this._legend = document.createElement('legend');
+pui.FieldsetLayout = function (parms, dom) {
+  pui.layout.Template.call(this, parms, dom); // sets this.container, etc.
+
+  this._fieldset = document.createElement("fieldset");
+  this._fieldset.className = "layout";
+
+  this._legend = document.createElement("legend");
   this._fieldset.appendChild(this._legend);
-  
-  this._div = document.createElement('div');
-  this._div.setAttribute('container', 'true');
+
+  this._div = document.createElement("div");
+  this._div.setAttribute("container", "true");
   this._fieldset.appendChild(this._div);
-  
+
   this.container.appendChild(this._fieldset);
 };
 pui.FieldsetLayout.prototype = Object.create(pui.layout.Template.prototype);
 
 /**
- * 
+ *
  * @param {String} property
  * @param {String} value
  * @returns {Boolean}
  */
-pui.FieldsetLayout.prototype.setProperty = function(property, value){
-  switch (property){
-    case 'legend':
+pui.FieldsetLayout.prototype.setProperty = function (property, value) {
+  switch (property) {
+    case "legend":
       this._legend.innerHTML = value;
       break;
-      
-    case 'legend align':
+
+    case "legend align":
       // Note: legend align has been deprecated in HTML5. The equivalent in CSS requires a bunch of style rules that could be done in the future.
-      this._legend.setAttribute('align', value);
+      this._legend.setAttribute("align", value);
       break;
-      
-    case 'legend style':
+
+    case "legend style":
       this._legend.style = value;
       break;
-    
-    case 'border style':
+
+    case "border style":
       this._fieldset.style.borderStyle = value;
       break;
-      
-    case 'border width':
+
+    case "border width":
       this._fieldset.style.borderWidth = value;
       break;
-      
-    case 'border color':
+
+    case "border color":
       this._fieldset.style.borderColor = value;
       break;
-      
+
     default:
-      return false;  //Let pui.Layout.prototype.setProperty handle other properties.
+      return false; // Let pui.Layout.prototype.setProperty handle other properties.
   }
-  
+
   // Store template property values--any handled by this class.
-  if (this.container.layout && this.container.layout.templateProps){
+  if (this.container.layout && this.container.layout.templateProps) {
     this.container.layout.templateProps[property] = value;
   }
   return true;

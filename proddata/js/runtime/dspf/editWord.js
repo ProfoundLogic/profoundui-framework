@@ -17,16 +17,13 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-pui.applyEditWord = function(obj) {
-
+pui.applyEditWord = function (obj) {
   var edtwrd = obj.edtWrd;
   var value = obj.value;
   var decPos = Number(obj.decPos);
 
-  // apply key filter  
-  var keyFilter = '[\\d';
+  // apply key filter
+  var keyFilter = "[\\d";
   for (var i = 0; i < edtwrd.length; i++) {
     var ch = edtwrd.substr(i, 1);
     var keyFilterChar = ch;
@@ -52,9 +49,9 @@ pui.applyEditWord = function(obj) {
   else {
     charValue = String(value);
   }
-  
+
   // format value as a string of digits
-  charValue = charValue.replace("-", "");  // remove negative sign
+  charValue = charValue.replace("-", ""); // remove negative sign
   var numParts = charValue.split(".");
   var intPortion = numParts[0];
   var decPortion = "";
@@ -67,31 +64,31 @@ pui.applyEditWord = function(obj) {
     decPortion += "0";
   }
   charValue = intPortion + decPortion;
-  while (charValue.substr(0,1) == "0") {
+  while (charValue.substr(0, 1) == "0") {
     charValue = charValue.substr(1);
   }
-  
+
   // get currency symbol
   var curSym = "$";
   if (pui.appJob != null && pui.appJob.curSym != null) {
     curSym = pui.appJob.curSym;
   }
-  
+
   // get edit word - it must be present and must be surrounded by single quotes
-  if (edtwrd == null || edtwrd == "") return value;  
+  if (edtwrd == null || edtwrd == "") return value;
   edtwrd = trim(edtwrd);
   if (edtwrd.length < 3) return value;
   if (edtwrd.substr(0, 1) != "'") return value;
   if (edtwrd.substr(edtwrd.length - 1, 1) != "'") return value;
   edtwrd = edtwrd.substr(1, edtwrd.length - 2);
-  
+
   // get zero suppression position
-  var zeroSuppressPos = edtwrd.indexOf("0") + 1;  
+  var zeroSuppressPos = edtwrd.indexOf("0") + 1;
   var zeroSuppressPos2 = edtwrd.indexOf("*") + 1;
   if (zeroSuppressPos == 0 || (zeroSuppressPos2 != 0 && zeroSuppressPos2 < zeroSuppressPos)) {
     zeroSuppressPos = zeroSuppressPos2;
-  }  
-  
+  }
+
   // look for farthest right character that can be replaced by a digit
   // to determine where the body part of the edit word ends
   var bodyEndPos = -1;
@@ -101,7 +98,7 @@ pui.applyEditWord = function(obj) {
       break;
     }
   }
-  
+
   // get body, status, and expansion parts of the edit word
   var editBody = edtwrd.substr(0, bodyEndPos + 1);
   var editStatus = "";
@@ -133,14 +130,14 @@ pui.applyEditWord = function(obj) {
     editStatus = edtwrd.substr(bodyEndPos + 1);
   }
 
-  // format body part of edit word  
+  // format body part of edit word
   var newValue = "";
   var beforeSignificantDigits = false;
   var asteriskProtection = false;
   var floatingCurSym = false;
   var zeroSuppress = false;
   if (zeroSuppressPos == 0) zeroSuppress = true;
-  function getDigit() {
+  function getDigit () {
     if (charValue.length > 0) {
       var ch = charValue.substr(charValue.length - 1, 1);
       charValue = charValue.substr(0, charValue.length - 1);
@@ -170,7 +167,7 @@ pui.applyEditWord = function(obj) {
     }
     else if (ch == "*") {
       asteriskProtection = true;
-      newCh = getDigit();      
+      newCh = getDigit();
     }
     else if (ch == curSym) {
       if (i + 2 == zeroSuppressPos) {
@@ -191,15 +188,15 @@ pui.applyEditWord = function(obj) {
         if (asteriskProtection) newCh = "*";
       }
     }
-    
+
     newValue = newCh + newValue;
-    
+
     if (i <= zeroSuppressPos) zeroSuppress = true;
     if (zeroSuppress && charValue.length == 0) {
       beforeSignificantDigits = true;
     }
   }
-  
+
   // format status part of edit word
   editStatus = editStatus.replace(/&/g, " ");
   editStatus = editStatus.replace(/\*/g, " ");
@@ -212,13 +209,11 @@ pui.applyEditWord = function(obj) {
   var newValue = newValue + editStatus + editExpansion;
   obj.maxLength = newValue.length;
   var newValue = trim(newValue);
-  if (asteriskProtection && newValue.substr(0,1) != "*") newValue = "*" + newValue;
+  if (asteriskProtection && newValue.substr(0, 1) != "*") newValue = "*" + newValue;
   if (floatingCurSym) newValue = curSym + newValue;
 
   return newValue;
-
-}
-
+};
 
 // -------------------------------------------------------------------
 //  This is the original applyEditMask() function.  It does not follow
@@ -226,11 +221,11 @@ pui.applyEditWord = function(obj) {
 //  via the pui["use original edit mask"] config option.
 // -------------------------------------------------------------------
 
-pui.applyEditMaskOriginal = function(dom, event, pos) {
+pui.applyEditMaskOriginal = function (dom, event, pos) {
   // get key code
   event = event || window.event;
   var key;
-  if (event != null) key = event.keyCode;   
+  if (event != null) key = event.keyCode;
 
   // get edit word, edit mask, and value
   var formatting = dom.formattingInfo;
@@ -238,16 +233,16 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
   var edtMsk = formatting.edtMsk;
   var edtWrd = formatting.edtWrd;
   if (edtMsk == null || edtMsk == "") return;
-  if (edtWrd == null || edtWrd == "") return;  // for now, edit masks only work with edit words
-  if (edtWrd.length > 1 && edtWrd.substr(0, 1) == "'" && edtWrd.substr(edtWrd.length-1, 1) == "'") {
+  if (edtWrd == null || edtWrd == "") return; // for now, edit masks only work with edit words
+  if (edtWrd.length > 1 && edtWrd.substr(0, 1) == "'" && edtWrd.substr(edtWrd.length - 1, 1) == "'") {
     edtWrd = edtWrd.substr(1, edtWrd.length - 2);
   }
-  if (edtMsk.length > 1 && edtMsk.substr(0, 1) == "'" && edtMsk.substr(edtMsk.length-1, 1) == "'") {
+  if (edtMsk.length > 1 && edtMsk.substr(0, 1) == "'" && edtMsk.substr(edtMsk.length - 1, 1) == "'") {
     edtMsk = edtMsk.substr(1, edtMsk.length - 2);
   }
   var value = dom.value;
   if (value == null) return;
-  
+
   // derive mask character array
   var mask = [];
   var n = edtMsk.length;
@@ -263,7 +258,7 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
       else mask.push(wrdCh);
     }
   }
-  
+
   // apply mask
   n = mask.length;
   while (value.length < n) {
@@ -278,50 +273,48 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
     var maskCh = mask[i];
     var valueCh = value.substr(i, 1);
     if (maskCh != null && valueCh != maskCh) {
-      value = value.substr(0, i) + maskCh + value.substr(i+1);
+      value = value.substr(0, i) + maskCh + value.substr(i + 1);
     }
     else if (maskCh == null && (valueCh < "0" || valueCh > "9")) {
-      value = value.substr(0, i) + fillCh + value.substr(i+1);
+      value = value.substr(0, i) + fillCh + value.substr(i + 1);
     }
   }
   value = rtrim(value);
-  
+
   if (value != rtrim(dom.value) || pos != null) {
     if (pos == null) pos = getCursorPosition(dom);
-    
-    if (key != 8) {  // not backspace
+
+    if (key != 8) { // not backspace
       while (pos < mask.length && mask[pos] != null) pos++;
-    }    
-    
+    }
+
     dom.value = value;
-    
+
     // position cursor
-    if (dom.createTextRange != null && !pui["is_opera"]) { 
-      var tr = dom.createTextRange(); 
-      if (tr) { 
+    if (dom.createTextRange != null && !pui["is_opera"]) {
+      var tr = dom.createTextRange();
+      if (tr) {
         tr.moveStart("character", pos);
-        tr.collapse(); 
-        tr.select(); 
+        tr.collapse();
+        tr.select();
       }
     }
-    else if (dom.selectionStart != null) {  // Firefox
+    else if (dom.selectionStart != null) { // Firefox
       dom.setSelectionRange(pos, pos);
     }
   }
-}
+};
 
-
-pui.applyEditMask = function(dom, event, pos) {
-	
+pui.applyEditMask = function (dom, event, pos) {
   // for backward compatibility:
-  if ( typeof pui["use original edit mask"] != "undefined" 
-     && pui["use original edit mask"] === true ) {
+  if (typeof pui["use original edit mask"] != "undefined" &&
+     pui["use original edit mask"] === true) {
     return pui.applyEditMaskOriginal(dom, event, pos);
   }
   // get key code
   event = event || window.event;
   var key;
-  if (event != null) key = event.keyCode;   
+  if (event != null) key = event.keyCode;
 
   // get edit word, edit mask, and value
   var formatting = dom.formattingInfo;
@@ -329,16 +322,16 @@ pui.applyEditMask = function(dom, event, pos) {
   var edtMsk = formatting.edtMsk;
   var edtWrd = formatting.edtWrd;
   if (edtMsk == null || edtMsk == "") return;
-  if (edtWrd == null || edtWrd == "") return;  // for now, edit masks only work with edit words
-  if (edtWrd.length > 1 && edtWrd.substr(0, 1) == "'" && edtWrd.substr(edtWrd.length-1, 1) == "'") {
+  if (edtWrd == null || edtWrd == "") return; // for now, edit masks only work with edit words
+  if (edtWrd.length > 1 && edtWrd.substr(0, 1) == "'" && edtWrd.substr(edtWrd.length - 1, 1) == "'") {
     edtWrd = edtWrd.substr(1, edtWrd.length - 2);
   }
-  if (edtMsk.length > 1 && edtMsk.substr(0, 1) == "'" && edtMsk.substr(edtMsk.length-1, 1) == "'") {
+  if (edtMsk.length > 1 && edtMsk.substr(0, 1) == "'" && edtMsk.substr(edtMsk.length - 1, 1) == "'") {
     edtMsk = edtMsk.substr(1, edtMsk.length - 2);
   }
   var value = dom.value;
   if (value == null) return;
-  
+
   // derive mask character array
   var mask = [];
   var n = edtMsk.length;
@@ -347,8 +340,8 @@ pui.applyEditMask = function(dom, event, pos) {
   for (var i = 0; i < n; i++) {
     wrdCh = edtWrd.substr(i, 1);
     mskCh = edtMsk.substr(i, 1);
-    if ((wrdCh == "0" || wrdCh == "*") && zeroSuppressPos > i) { 
-       zeroSuppressPos = i;
+    if ((wrdCh == "0" || wrdCh == "*") && zeroSuppressPos > i) {
+      zeroSuppressPos = i;
     }
     if (wrdCh == " " || wrdCh == "0" || mskCh == " ") {
       mask.push(null);
@@ -358,7 +351,7 @@ pui.applyEditMask = function(dom, event, pos) {
       else mask.push(wrdCh);
     }
   }
-  
+
   // apply mask
   n = mask.length;
   while (value.length < n) {
@@ -379,36 +372,34 @@ pui.applyEditMask = function(dom, event, pos) {
     var maskCh = mask[i];
     var valueCh = value.substr(i, 1);
     if (maskCh != null && valueCh != maskCh) {
-      value = value.substr(0, i) + maskCh + value.substr(i+1);
+      value = value.substr(0, i) + maskCh + value.substr(i + 1);
     }
     else if (maskCh == null && (valueCh < "0" || valueCh > "9")) {
-      value = value.substr(0, i) + fillCh + value.substr(i+1);
+      value = value.substr(0, i) + fillCh + value.substr(i + 1);
     }
   }
   value = rtrim(value);
-  
+
   if (value != rtrim(dom.value) || pos != null) {
     if (pos == null) pos = getCursorPosition(dom);
-    
-    if (key != 8) {  // not backspace
+
+    if (key != 8) { // not backspace
       while (pos < mask.length && mask[pos] != null) pos++;
-    }    
-    
+    }
+
     dom.value = value;
-    
+
     // position cursor
-    if (dom.createTextRange != null && !pui["is_opera"]) { 
-      var tr = dom.createTextRange(); 
-      if (tr) { 
+    if (dom.createTextRange != null && !pui["is_opera"]) {
+      var tr = dom.createTextRange();
+      if (tr) {
         tr.moveStart("character", pos);
-        tr.collapse(); 
-        tr.select(); 
+        tr.collapse();
+        tr.select();
       }
     }
-    else if (dom.selectionStart != null) {  // Firefox 
+    else if (dom.selectionStart != null) { // Firefox
       dom.setSelectionRange(pos, pos);
     }
   }
-}
-
-
+};

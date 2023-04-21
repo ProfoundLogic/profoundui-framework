@@ -17,17 +17,12 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 /**
  * Sliding Scrollbar Class
  * @constructor
  */
 
-
-pui.SlidingScrollBar = function() {
-
+pui.SlidingScrollBar = function () {
   this.x = 0;
   this.y = 0;
   this.height = 300;
@@ -35,8 +30,8 @@ pui.SlidingScrollBar = function() {
   this.designMode = false;
   this.container = null;
   this.rowsPerPage = 10;
-  this.totalRows = 100;  
-  this.rowHeight = 20;  
+  this.totalRows = 100;
+  this.rowHeight = 20;
   this.borderWidth = 1;
   this.onchange = null;
   this.onSetRow = null;
@@ -50,24 +45,24 @@ pui.SlidingScrollBar = function() {
   var rowNumHideRequest = 0;
   var firstRequest = true;
   var mouseWheelEnabled = false;
-  var finishTimeout = null;   // for a timeout in gridRequestFinished().
+  var finishTimeout = null; // for a timeout in gridRequestFinished().
 
   var me = this;
 
   var outerDiv;
   var innerDiv;
-  var touchBar;     //A track that touchHandle slides along for touch-capable devices. Hides when not scrolling.
-  var touchHandle;  //A scrollbar shown in touch-capable devices when the grid is scrolling.
+  var touchBar; // A track that touchHandle slides along for touch-capable devices. Hides when not scrolling.
+  var touchHandle; // A scrollbar shown in touch-capable devices when the grid is scrolling.
   var rowNumDiv;
   var multiplier = 25;
   var prevStartRow = -1;
   var fadeOutOpacity = 0;
-  
+
   var upImg;
   var downImg;
-  var innerDivOldHeight;  //Needed if Grid is in Accordion.
-  
-  this.init = function(gridDom) {
+  var innerDivOldHeight; // Needed if Grid is in Accordion.
+
+  this.init = function (gridDom) {
     me.gridDom = gridDom;
     outerDiv = document.createElement("div");
     outerDiv.style.position = "absolute";
@@ -77,11 +72,11 @@ pui.SlidingScrollBar = function() {
     outerDiv.style.padding = "0px";
     outerDiv.className = "pui-scrollbar";
     // Add the main class of the grid if it exists, needed for new classes created for issue #4131
-    if (me.gridDom.grid && me.gridDom.grid.mainClass) outerDiv.className += ' ' + me.gridDom.grid.mainClass + '-pui-scrollbar';
+    if (me.gridDom.grid && me.gridDom.grid.mainClass) outerDiv.className += " " + me.gridDom.grid.mainClass + "-pui-scrollbar";
     innerDiv = document.createElement("div");
     innerDiv.style.position = "absolute";
     innerDiv.style.left = "0px";
-    innerDiv.style.top = "0px";     
+    innerDiv.style.top = "0px";
     innerDiv.innerHTML = "&nbsp;";
     innerDiv.fontSize = "0px";
     rowNumDiv = document.createElement("div");
@@ -96,36 +91,36 @@ pui.SlidingScrollBar = function() {
     rowNumDiv.style.filter = "alpha(opacity=75)";
     rowNumDiv.style.opacity = 0.75;
     rowNumDiv.style.display = "none";
-    
+
     if ((context == "dspf" && pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation) {
       touchBar = document.createElement("div");
       touchBar.style.position = "absolute";
-      //touchBar.style.width = "25px";
+      // touchBar.style.width = "25px";
       touchBar.style.width = "3px";
-      //touchBar.style.backgroundColor = "#DDDDEE";
+      // touchBar.style.backgroundColor = "#DDDDEE";
       touchBar.style.backgroundColor = "transparent";
       touchHandle = document.createElement("div");
       touchHandle.style.position = "absolute";
-      //touchHandle.style.width = "25px";
+      // touchHandle.style.width = "25px";
       touchHandle.style.width = "3px";
       touchHandle.style.height = "25px";
       touchHandle.style.top = "0px";
-      //touchHandle.style.backgroundColor = "#BBBBDD";
+      // touchHandle.style.backgroundColor = "#BBBBDD";
       touchHandle.style.backgroundColor = "#999999";
-      if (!pui["is_android"]) {  // border radius on a moving element seems to render really slow on android for some reason
+      if (!pui["is_android"]) { // border radius on a moving element seems to render really slow on android for some reason
         touchHandle.style.borderRadius = "2px";
       }
       outerDiv.style.visibility = "hidden";
       outerDiv.style.display = "none";
-      
+
       touchHandle.style.opacity = fadeOutOpacity;
-      
+
       if (pui.iPadEmulation) {
-        function mousedown(e) {
+        function mousedown (e) {
           var target = getTarget(e);
-          if (target != null && target.row === 0 || 
+          if (target != null && target.row === 0 ||
               target != null && target.parentNode != null && target.parentNode.row === 0 ||
-              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0 ) {
+              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0) {
             if (gridDom.grid.hasHeader) {
               return;
             }
@@ -133,7 +128,7 @@ pui.SlidingScrollBar = function() {
           if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
-          //touchHandle.style.opacity = 1;
+          // touchHandle.style.opacity = 1;
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
           touchHandle.touch.startY = getMouseY(e);
@@ -144,7 +139,7 @@ pui.SlidingScrollBar = function() {
           touchHandle.touch.duration = null;
           if (touchHandle.lastTop != null) touchHandle.touch.startTop = touchHandle.lastTop;
           else touchHandle.touch.startTop = parseInt(touchHandle.style.top);
-          function mousemove(e) {
+          function mousemove (e) {
             touchHandle.style.opacity = 1;
             var y = getMouseY(e);
             var now = new Date().getTime();
@@ -164,7 +159,7 @@ pui.SlidingScrollBar = function() {
             var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
             if (maxTop < minTop) maxTop = minTop;
             if (top < minTop) top = minTop;
-            if (top > maxTop) top = maxTop;        
+            if (top > maxTop) top = maxTop;
             touchHandle.lastTop = top;
             touchHandle.style.top = parseInt(top) + "px";
             var pct = (top - minTop) / (maxTop - minTop);
@@ -173,13 +168,13 @@ pui.SlidingScrollBar = function() {
             row = Math.round(row) + 1;
             me.doScroll(row);
           }
-          function mouseup(e) {
+          function mouseup (e) {
             removeEvent(document, "mousemove", mousemove);
             removeEvent(document, "mouseup", mouseup);
             slide(touchHandle.touch);
           }
           addEvent(document, "mousemove", mousemove);
-          addEvent(document, "mouseup",   mouseup);
+          addEvent(document, "mouseup", mouseup);
           preventEvent(e);
         }
         addEvent(touchHandle, "mousedown", mousedown);
@@ -188,17 +183,17 @@ pui.SlidingScrollBar = function() {
 
       if (!pui.iPadEmulation) {
         var touchlastX, touchlastY;
-        
+
         // Make the first movement after start be the required movement: if it causes scrolling, subsequent movements always must.
         // If first movement does not cause scrolling, subsequent movements never can.
         var scrollpage;
-        
-        function touchstart(e) {
-          if (e.touches.length != 1) return;  // Only deal with one finger
+
+        function touchstart (e) {
+          if (e.touches.length != 1) return; // Only deal with one finger
           var target = e.target;
-          if (target != null && target.row === 0 || 
+          if (target != null && target.row === 0 ||
               target != null && target.parentNode != null && target.parentNode.row === 0 ||
-              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0 ) {
+              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0) {
             if (gridDom.grid.hasHeader) {
               return;
             }
@@ -206,7 +201,7 @@ pui.SlidingScrollBar = function() {
           if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
-          //touchHandle.style.opacity = 1;
+          // touchHandle.style.opacity = 1;
           var touch = e.touches[0];
           touchHandle.touch = {};
           touchHandle.touch.reverse = (target != touchHandle);
@@ -219,40 +214,40 @@ pui.SlidingScrollBar = function() {
           touchHandle.touch.duration = null;
           if (touchHandle.lastTop != null) touchHandle.touch.startTop = touchHandle.lastTop;
           else touchHandle.touch.startTop = parseInt(touchHandle.style.top);
-          //e.preventDefault();
-          
+          // e.preventDefault();
+
           touchlastX = touch.pageX;
           touchlastY = touch.pageY;
-          
+
           scrollpage = null;
         }
         addEvent(touchHandle, "touchstart", touchstart);
         addEvent(gridDom, "touchstart", touchstart);
-        function touchmove(e) {
-          if (e.touches.length != 1) return;  // Only deal with one finger
+        function touchmove (e) {
+          if (e.touches.length != 1) return; // Only deal with one finger
           if (touchHandle.touch == null) return;
-          touchHandle.style.opacity = 1;          
+          touchHandle.style.opacity = 1;
           var touch = e.touches[0];
           var y = touch.pageY;
-          
+
           var deltaX = touch.pageX - touchlastX;
           var deltaY = touch.pageY - touchlastY;
           touchlastX = touch.pageX;
           touchlastY = touch.pageY;
-          
-          if (scrollpage == null){
+
+          if (scrollpage == null) {
             // Scroll the page on this touch if the first movement has more of an x component than y. #5320.
             scrollpage = (Math.abs(deltaX) - Math.abs(deltaY) > 0);
           }
-          
+
           var propagate = false;
           var dragdrop = false;
-          if (me.gridDom){
+          if (me.gridDom) {
             propagate = me.gridDom.grid.propagateScrollEvents;
-            if (me.gridDom.grid.dragdropBusy) dragdrop = true; //Don't scroll the page when drag-and-drop is in progress.
+            if (me.gridDom.grid.dragdropBusy) dragdrop = true; // Don't scroll the page when drag-and-drop is in progress.
           }
-          
-          if (!scrollpage || propagate || dragdrop){
+
+          if (!scrollpage || propagate || dragdrop) {
             var now = new Date().getTime();
             touchHandle.touch.duration = now - touchHandle.touch.lastTime;
             touchHandle.touch.lastTime = now;
@@ -270,7 +265,7 @@ pui.SlidingScrollBar = function() {
             var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
             if (maxTop < minTop) maxTop = minTop;
             if (top < minTop) top = minTop;
-            if (top > maxTop) top = maxTop;        
+            if (top > maxTop) top = maxTop;
             touchHandle.lastTop = top;
             touchHandle.style.top = parseInt(top) + "px";
             var pct = (top - minTop) / (maxTop - minTop);
@@ -278,39 +273,38 @@ pui.SlidingScrollBar = function() {
             var row = (me.totalRows - me.rowsPerPage) * pct;
             row = Math.round(row) + 1;
             me.doScroll(row);
-            
+
             // Decide whether to prevent the page from scrolling or to start ignoring subsequent touch events.
             var prevent = true;
             if (propagate) prevent = false;
-            else if (scrollingPastEnd(delta, touchHandle.touch.reverse)){
+            else if (scrollingPastEnd(delta, touchHandle.touch.reverse)) {
               prevent = false;
               // Ensure the bar reaches the end when small movements don't move the bar enough but do set the grid on a boundary record. #5320.
               if (delta > 0) touchHandle.style.top = maxTop + "px";
               else touchHandle.style.top = minTop + "px";
             }
             if (dragdrop && !propagate) prevent = true;
-            if (prevent){
+            if (prevent) {
               e.preventDefault();
-            }else{
-              scrollpage = true;    //Once the page begins scrolling, do not scroll the grid. #5320.
+            } else {
+              scrollpage = true; // Once the page begins scrolling, do not scroll the grid. #5320.
             }
           }
         }
         addEvent(touchHandle, "touchmove", touchmove);
         addEvent(gridDom, "touchmove", touchmove);
-        addEvent(gridDom, "touchend", function(e) {
+        addEvent(gridDom, "touchend", function (e) {
           me.touchTarget = null;
           slide(touchHandle.touch);
         });
       }
-      
     }
-    
-    if (context == "genie" && !pui.usingGenieHandler) {  // for "dspf" context, the onscroll event is now attached in the rendering code
+
+    if (context == "genie" && !pui.usingGenieHandler) { // for "dspf" context, the onscroll event is now attached in the rendering code
       outerDiv.onscroll = me.doScroll;
     }
-    
-    outerDiv.onmousedown = function(event) {
+
+    outerDiv.onmousedown = function (event) {
       if (me.showRowNum || me.showRowRange) {
         if (rowNumDiv.innerHTML != "") rowNumDiv.style.display = "";
         positionRowNum();
@@ -318,41 +312,41 @@ pui.SlidingScrollBar = function() {
       if (me.designMode) designUtils.preventEvent(event);
     };
 
-    outerDiv.onmouseup = function() {
+    outerDiv.onmouseup = function () {
       hideRowNum(rowNumHideRequest);
     };
-    
+
     outerDiv.appendChild(innerDiv);
-    me.container.appendChild(outerDiv); 
-    if (touchBar != null) me.container.appendChild(touchBar); 
-    if (touchHandle != null) me.container.appendChild(touchHandle); 
-    me.container.appendChild(rowNumDiv);    
+    me.container.appendChild(outerDiv);
+    if (touchBar != null) me.container.appendChild(touchBar);
+    if (touchHandle != null) me.container.appendChild(touchHandle);
+    me.container.appendChild(rowNumDiv);
   };
-  
-  this.attachOnScroll = function() {
-    //outerDiv.onscroll = me.doScroll;
+
+  this.attachOnScroll = function () {
+    // outerDiv.onscroll = me.doScroll;
     addEvent(outerDiv, "scroll", me.doScroll);
   };
 
-  this.doScroll = function(startRowParm) {
+  this.doScroll = function (startRowParm) {
     if (!me.ready) return;
-    
-    var startRow = Math.round(outerDiv.scrollTop / multiplier) + 1; //Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
-    
+
+    var startRow = Math.round(outerDiv.scrollTop / multiplier) + 1; // Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
+
     // When setScrollToRow should set the row rather than calculating it from scrollTop; and when doScroll is called with
     // no arguments or as an event handler, use the targetRow. (i.e. user typed PgUp/PgDn or clicked paging link).
-    if (me.targetRow > 0 && (startRowParm == null || startRowParm.target != null)){
+    if (me.targetRow > 0 && (startRowParm == null || startRowParm.target != null)) {
       startRow = me.targetRow;
     }
-    
+
     if (upImg != null && downImg != null && startRowParm == null && prevStartRow > 0) startRowParm = prevStartRow;
     if (startRowParm != null && typeof startRowParm == "number") startRow = startRowParm;
-    if (startRow == prevStartRow) return;  // starting row has not changed
+    if (startRow == prevStartRow) return; // starting row has not changed
     var endRow = startRow + me.rowsPerPage - 1;
     if (me.showRowRange) rowNumDiv.innerHTML = pui["getLanguageText"]("runtimeText", "rows") + " " + startRow + " - " + endRow;
     if (me.showRowNum) rowNumDiv.innerHTML = pui["getLanguageText"]("runtimeText", "row") + " " + startRow;
     positionRowNum();
-    if (me.onchange != null) me.onchange(startRow);      
+    if (me.onchange != null) me.onchange(startRow);
     if (me.onSetRow != null) {
       currentRequestNum += 1;
       if (currentRequestNum > 10000) currentRequestNum = 10;
@@ -368,7 +362,7 @@ pui.SlidingScrollBar = function() {
           eval("row = " + startRow);
           eval(onscrollEventCode);
         }
-        catch(err) {
+        catch (err) {
           pui.scriptError(err, "onscroll Error:\n");
           return false;
         }
@@ -384,19 +378,19 @@ pui.SlidingScrollBar = function() {
     }
     else {
       rowNumDiv.style.display = "none";
-    }     
+    }
   };
-  
+
   /**
-   * Set the scrollbar position to reflect where rowNum is. This is called when pageUp/pageDown keys 
-   * are typed (or paging links are clicked); in grid find; when sorting; and when the grid is setup 
+   * Set the scrollbar position to reflect where rowNum is. This is called when pageUp/pageDown keys
+   * are typed (or paging links are clicked); in grid find; when sorting; and when the grid is setup
    * in renderFormat when "subfile record number" is set. Called by grid API, scrollToRow.
-   * 
+   *
    * @param {Number} rowNum             Assume calling function parsed any strings into integers.
    * @param {Boolean} setPrevStartRow   When true, this.doScroll should return, doing nothing.
    * @returns {Boolean}                 Returns true if position of scrollbar changed, false if unchanged.
    */
-  this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
+  this.setScrollTopToRow = function (rowNum, setPrevStartRow) {
     if (touchHandle != null) {
       var minTop = parseInt(touchBar.style.top);
       var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
@@ -405,70 +399,70 @@ pui.SlidingScrollBar = function() {
       var top = parseInt((maxTop - minTop) * pct) + minTop;
       touchHandle.style.top = top + "px";
       prevStartRow = rowNum;
-      return (touchHandle.style.top != top + "px");  // return false if position of handle not changed
+      return (touchHandle.style.top != top + "px"); // return false if position of handle not changed
     }
     else {
       if (setPrevStartRow) {
         // this prevents onscroll event from processing. Either grid is initialized or an AJAX "find" has responded.
         prevStartRow = rowNum;
-      }else{
+      } else {
         // The grid is handling pageUp, pageDown, "scrollToRow", or sorting--not being initialized--so set targetRow.
         // Note: this cannot be a string, or the grid will crash after doScroll uses targetRow.
-        me.targetRow = rowNum;   //Give the row number for doScroll to use, putting doScroll in a special state.
+        me.targetRow = rowNum; // Give the row number for doScroll to use, putting doScroll in a special state.
       }
       var prevTop = outerDiv.scrollTop;
-      outerDiv.scrollTop = (rowNum - 1) * multiplier; //fires "scroll", so doScroll is now in the event queue.
+      outerDiv.scrollTop = (rowNum - 1) * multiplier; // fires "scroll", so doScroll is now in the event queue.
 
       if (prevTop != outerDiv.scrollTop) return true;
-      me.targetRow = null;  //Avoids breaking scrollbar when calling scrollToRow on current row. #5261.
+      me.targetRow = null; // Avoids breaking scrollbar when calling scrollToRow on current row. #5261.
       return false;
     }
   };
-  
+
   /**
    * Grid calls this when it finishes loading. Signal that the process that started in setScrollTopToRow is
    * finished, and doScroll goes back to normal: outerDiv.scrollTop determines the row.
    * (This helps work around issue 3152, scrollTop is unreliable in Chrome when zoom is not at 100%.)
    * @returns {undefined}
    */
-  this.gridRequestFinished = function(){
-    clearTimeout(me.finishTimeout);  //Only the latest timeout needs to run.
-    
-    me.finishTimeout = setTimeout(function(){
+  this.gridRequestFinished = function () {
+    clearTimeout(me.finishTimeout); // Only the latest timeout needs to run.
+
+    me.finishTimeout = setTimeout(function () {
       // This is in a timeout to be cleared after a previously queued onSetRow has run. If this weren't in a timeout,
       // targetRow would be cleared before a queued second call to doScroll, which could then calculate the wrong row.
       me.targetRow = null;
     }, me.interval);
   };
-  
-  function sendRow(requestNum, rowNum) {
+
+  function sendRow (requestNum, rowNum) {
     if (firstRequest) {
       firstRequest = false;
       me.onSetRow(rowNum);
     }
     else {
-      setTimeout(function() {
+      setTimeout(function () {
         if (requestNum != currentRequestNum) return;
         me.onSetRow(rowNum);
       }, me.interval);
     }
   }
 
-  function positionRowNum() {
+  function positionRowNum () {
     var adjust = 22;
     if ((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation) adjust = 0;
     rowNumDiv.style.left = (me.x - rowNumDiv.offsetWidth + adjust) + "px";
     rowNumDiv.style.top = (me.y - rowNumDiv.offsetHeight - 2) + "px";
   }
-  
-  function hideRowNum(request) {    
-    setTimeout(function() {
+
+  function hideRowNum (request) {
+    setTimeout(function () {
       if (request != rowNumHideRequest) return;
       rowNumDiv.style.display = "none";
     }, 800);
   }
 
-  function slide(touchInfo) {
+  function slide (touchInfo) {
     if (touchInfo == null) {
       touchHandle.style.opacity = fadeOutOpacity;
       return;
@@ -481,34 +475,33 @@ pui.SlidingScrollBar = function() {
       touchHandle.style.opacity = fadeOutOpacity;
       return;
     }
-    if (duration > 500) {  // duration too big, finger must have stopped
-      //touchHandle.style.opacity = fadeOutOpacity;
+    if (duration > 500) { // duration too big, finger must have stopped
+      // touchHandle.style.opacity = fadeOutOpacity;
       return;
     }
     var speed = distance / duration;
     var animationStartTime = new Date().getTime();
 
-    function animate() {
-
+    function animate () {
       if (touchHandle.touch == null) {
         touchHandle.style.opacity = fadeOutOpacity;
         return;
       }
 
       if (touchHandle.touch.startTime > animationStartTime) {
-        //touchHandle.style.opacity = fadeOutOpacity;
+        // touchHandle.style.opacity = fadeOutOpacity;
         return;
       }
-            
+
       var done = false;
       var now = new Date().getTime();
       var top = startTop + (startTime - now) * speed;
-      
+
       startTop = top;
       startTime = now;
-      
+
       // decelarate (friction)
-      speed *= .98;
+      speed *= 0.98;
       if (speed > 0) {
         speed -= 0.001;
         if (speed <= 0) {
@@ -532,7 +525,7 @@ pui.SlidingScrollBar = function() {
         done = true;
       }
       if (top > maxTop) {
-        top = maxTop;        
+        top = maxTop;
         done = true;
       }
       touchHandle.lastTop = top;
@@ -542,29 +535,29 @@ pui.SlidingScrollBar = function() {
       var row = (me.totalRows - me.rowsPerPage) * pct;
       row = Math.round(row) + 1;
       me.doScroll(row);
-      
+
       if (done) {
         touchHandle.touch = null;
         pui["animate"]({ "element": touchHandle, "property": "opacity", "from": 1, "to": fadeOutOpacity, "duration": "1s" });
       }
       else {
-        setTimeout(animate, 1000/60);  // 60 frames per second
+        setTimeout(animate, 1000 / 60); // 60 frames per second
       }
     }
-    
+
     animate();
   }
 
   // optional dontScroll flag to not make the scrollbar scroll. #4262
-  this.draw = function(dontScroll) {
+  this.draw = function (dontScroll) {
     if (pui["is_old_ie"]) {
       multiplier = 25;
-      if (me.totalRows > 1000) multiplier = 50;      
+      if (me.totalRows > 1000) multiplier = 50;
     }
     else {
       multiplier = 19;
     }
-    
+
     if (touchHandle != null && touchBar != null) {
       touchBar.style.left = (me.x - 5) + "px";
       touchBar.style.top = (me.y) + "px";
@@ -607,21 +600,21 @@ pui.SlidingScrollBar = function() {
       // IE div height limitation of 1,342,177 pixels
       var limit = 9999990;
       if (pui["is_old_ie"]) limit = 1342177;
-      else if (pui["is_ie"]) limit = 1533917; //IE10-11 have this limit, on testing; also, found that limit on MSDN forum. (Issue 5123)
+      else if (pui["is_ie"]) limit = 1533917; // IE10-11 have this limit, on testing; also, found that limit on MSDN forum. (Issue 5123)
       while (innerHeight > limit && multiplier > 1) {
         multiplier -= 1;
         innerHeight = (me.totalRows - me.rowsPerPage) * multiplier + height;
       }
 
       if (innerHeight < 0) innerHeight = 0;
-      if (innerHeight > 5 && innerHeight == height) innerHeight = innerHeight - 5;  // this ensures that the scrollbar is disabled
+      if (innerHeight > 5 && innerHeight == height) innerHeight = innerHeight - 5; // this ensures that the scrollbar is disabled
       innerDiv.style.height = innerHeight + "px";
     }
-    
+
     positionRowNum();
-    
+
     if (touchBar == null && !dontScroll) me.doScroll();
-    
+
     // show up/down arrows instead of scrollbar if there is only 1 row
     if (!me.designMode && me.ready && me.rowsPerPage == 1) {
       innerDivOldHeight = innerDiv.style.height;
@@ -635,8 +628,8 @@ pui.SlidingScrollBar = function() {
         upImg.style.top = "0px";
         upImg.style.right = "0px";
         upImg.style.cursor = "pointer";
-        upImg.src = pui.normalizeURL("/profoundui/proddata/images/up.gif");        
-        upImg.onclick = function() {
+        upImg.src = pui.normalizeURL("/profoundui/proddata/images/up.gif");
+        upImg.onclick = function () {
           if (pui.messageSubfileHelpWindowDiv != null) pui.messageSubfileHelpWindowDiv.style.display = "none";
           var startRow = prevStartRow - 1;
           if (startRow < 1) startRow = 1;
@@ -649,7 +642,7 @@ pui.SlidingScrollBar = function() {
         downImg.style.right = "0px";
         downImg.style.cursor = "pointer";
         downImg.src = pui.normalizeURL("/profoundui/proddata/images/down.gif");
-        downImg.onclick = function() {
+        downImg.onclick = function () {
           if (pui.messageSubfileHelpWindowDiv != null) pui.messageSubfileHelpWindowDiv.style.display = "none";
           if (prevStartRow == -1) prevStartRow = 1;
           var startRow = prevStartRow + 1;
@@ -661,11 +654,11 @@ pui.SlidingScrollBar = function() {
         outerDiv.appendChild(downImg);
       }
     }
-    
+
     // For a grid in an Accordion, opening the section with the grid may cause the rowsPerPage to go from 1 to a higher
     // number. If the upImg and downImg scroll buttons still exist, then the scrollbar is broken. Restore it. #4072.
-    if (!me.designMode && me.ready && me.rowsPerPage > 1 
-    && upImg != null && downImg != null && me.totalRows > 1){
+    if (!me.designMode && me.ready && me.rowsPerPage > 1 &&
+    upImg != null && downImg != null && me.totalRows > 1) {
       outerDiv.removeChild(upImg);
       outerDiv.removeChild(downImg);
       upImg = null;
@@ -675,149 +668,144 @@ pui.SlidingScrollBar = function() {
       outerDiv.style.overflowX = "hidden";
       outerDiv.style.overflowY = "scroll";
     }
-    
   };
-  
-  this.increaseHeight = function(y) {
+
+  this.increaseHeight = function (y) {
     if (touchBar != null) touchBar.style.height = (parseInt(outerDiv.style.height) + y - 2) + "px";
     else outerDiv.style.height = (parseInt(outerDiv.style.height) + y) + "px";
   };
 
-  this.setClassName = function(value) {
-    outerDiv.className = 'pui-scrollbar';
-    if (me.gridDom.grid && value) outerDiv.className += ' ' + value + '-pui-scrollbar';
+  this.setClassName = function (value) {
+    outerDiv.className = "pui-scrollbar";
+    if (me.gridDom.grid && value) outerDiv.className += " " + value + "-pui-scrollbar";
   };
 
-  this.hide = function() {
+  this.hide = function () {
     outerDiv.style.visibility = "hidden";
     outerDiv.style.display = "none";
     rowNumDiv.style.display = "none";
     rowNumDiv.style.visibility = "hidden";
     if (touchHandle != null && touchBar != null) {
-      touchBar.style.display = "none";    
-      touchHandle.style.display = "none";    
+      touchBar.style.display = "none";
+      touchHandle.style.display = "none";
     }
   };
-  
-  this.destroy = function() {
+
+  this.destroy = function () {
     if (outerDiv.parentNode != null) outerDiv.parentNode.removeChild(outerDiv);
     if (innerDiv.parentNode != null) innerDiv.parentNode.removeChild(innerDiv);
     if (rowNumDiv.parentNode != null) rowNumDiv.parentNode.removeChild(rowNumDiv);
   };
-  
-  this.enableMouseWheel = function(gridDom) {
 
+  this.enableMouseWheel = function (gridDom) {
     if (mouseWheelEnabled) return;
     mouseWheelEnabled = true;
-    
-    function handle(delta) {
+
+    function handle (delta) {
       if (touchHandle != null) return;
       outerDiv.scrollTop -= delta * multiplier;
     }
-    
+
     /** Event handler for mouse wheel event. (Handles deprecated events)
      * @param {Object} event    Mouse event. A deprecated MouseWheel or DOMMouseScroll.
      */
-    function mousewheel(event){
+    function mousewheel (event) {
       var delta = 0;
-      if (!event) event = window.event;  // For IE.
+      if (!event) event = window.event; // For IE.
       if (event.wheelDelta) { // IE/Opera.
-        delta = event.wheelDelta/120;
+        delta = event.wheelDelta / 120;
         /** In Opera 9, delta differs in sign as compared to IE.
          */
         if (window.opera)
-                delta = -delta;
+        { delta = -delta; }
       } else if (event.detail) { /** Mozilla case. */
-              /** In Mozilla, sign of delta is different than in IE.
+        /** In Mozilla, sign of delta is different than in IE.
                * Also, delta is multiple of 3.
                */
-              delta = -event.detail/3;
+        delta = -event.detail / 3;
       }
       deltaEvent(delta, event);
     }
-    
+
     /**
      * Handle newer, non-deprecated mouse wheel event. Normalize the deltaY, which is different for each implementation.
      * @param {WheelEvent} event
      */
-    function wheel(event){
+    function wheel (event) {
       var delta = pui.normalizeWheelDelta(event);
       // Old mousewheel code expects negative to mean scrolling down, positive to mean scrolling up.
       deltaEvent(delta * -1, event);
     }
-    
+
     /**
      * Process the event captured by mousewheel, wheel, or DOMMouseScroll listeners.
      * @param {Number} delta
      * @param {Event} event
      */
-    function deltaEvent(delta, event){
+    function deltaEvent (delta, event) {
       /** If delta is nonzero, handle it.
        * Basically, delta is now positive if wheel was scrolled up,
        * and negative, if wheel was scrolled down.
        */
       if (delta && !event.shiftKey)
-              handle(delta);
+      { handle(delta); }
       /** Prevent default actions caused by mouse wheel.
        * That might be ugly, but we handle scrolls somehow
        * anyway, so don't bother here..
        */
       var prevent = false;
       if (event.preventDefault) prevent = true;
-      if (me.gridDom && (me.gridDom.grid.propagateScrollEvents || scrollingPastEnd(delta) || event.shiftKey )) prevent = false;
+      if (me.gridDom && (me.gridDom.grid.propagateScrollEvents || scrollingPastEnd(delta) || event.shiftKey)) prevent = false;
       if (prevent) {
         event.preventDefault();
         event.returnValue = false;
       }
     }
-    
-    /** Initialization code. 
+
+    /** Initialization code.
      * If you use your own event management code, change it as required.
      */
-    if (typeof WheelEvent == 'function'){ //MDN recommends using the standard "wheel" event as of 5/3/2019.
-      gridDom.addEventListener('wheel', wheel, false);
+    if (typeof WheelEvent == "function") { // MDN recommends using the standard "wheel" event as of 5/3/2019.
+      gridDom.addEventListener("wheel", wheel, false);
 
-      //-- PUI206 if any vLines or hlines then add the same event listener...
-      for (var i = 0;i < gridDom.grid.vLines.length; i++) {
-        gridDom.grid.vLines[i].addEventListener('wheel', wheel, false);
+      // -- PUI206 if any vLines or hlines then add the same event listener...
+      for (var i = 0; i < gridDom.grid.vLines.length; i++) {
+        gridDom.grid.vLines[i].addEventListener("wheel", wheel, false);
       }
 
-      for (var i = 0;i < gridDom.grid.hLines.length; i++) {
-        gridDom.grid.hLines[i].addEventListener('wheel', wheel, false);
+      for (var i = 0; i < gridDom.grid.hLines.length; i++) {
+        gridDom.grid.hLines[i].addEventListener("wheel", wheel, false);
       }
-      //--
-
+      // --
     }
     else {
       // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019
       if (gridDom.addEventListener)
-              /** DOMMouseScroll is for mozilla. */
-              gridDom.addEventListener('DOMMouseScroll', mousewheel, false);
+      /** DOMMouseScroll is for mozilla. */
+      { gridDom.addEventListener("DOMMouseScroll", mousewheel, false); }
       /** IE/Opera. */
       gridDom.onmousewheel = mousewheel;
     }
-    
   };
-  
+
   /**
    * Return true if the grid is at the bottom and scrolling down or if grid is at top and scrolling up. Else, false. #5320.
    * @param {Number} deltaY   negative when scrolling down, positive when scrolling up.
-   * @param {Boolean|Undefined} reverse  When true, deltaY is positive when scrolling down, negative when scrolling up. 
+   * @param {Boolean|Undefined} reverse  When true, deltaY is positive when scrolling down, negative when scrolling up.
    * @returns {Boolean}
    */
-  function scrollingPastEnd(deltaY, reverse){
-    if (me.gridDom){
+  function scrollingPastEnd (deltaY, reverse) {
+    if (me.gridDom) {
       if (reverse) deltaY = -deltaY;
-      if ((me.gridDom && deltaY < 0 && me.gridDom.grid.atBottom())
-      || (me.gridDom && deltaY > 0 && me.gridDom.grid.atTop())) return true;
+      if ((me.gridDom && deltaY < 0 && me.gridDom.grid.atBottom()) ||
+      (me.gridDom && deltaY > 0 && me.gridDom.grid.atTop())) return true;
     }
     return false;
   }
 
-  this.changeContainer = function(newContainer) {
+  this.changeContainer = function (newContainer) {
     me.container = newContainer;
     outerDiv.parentNode.removeChild(outerDiv);
-    me.container.appendChild(outerDiv); 
+    me.container.appendChild(outerDiv);
   };
-
 };

@@ -17,18 +17,16 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-function buildOutputField(parms, value, labelForId) {
+function buildOutputField (parms, value, labelForId) {
   if (!parms.design) {
     var originalValue = getInnerText(parms.oldDom);
     if (originalValue != null && originalValue != "" && parms.dom.originalValue == null) {
       parms.dom.originalValue = originalValue;
-    }       
+    }
   }
   parms.dom.innerHTML = "";
   var text = value;
-  if (typeof text === 'string') {
+  if (typeof text === "string") {
     text = text.replace(/ /g, "\u00a0");
   }
 
@@ -40,16 +38,16 @@ function buildOutputField(parms, value, labelForId) {
 	  labelElem.appendChild(textNode);
 	  parms.dom.appendChild(labelElem);
   } else {
-	  parms.dom.appendChild(document.createTextNode(text));  
+	  parms.dom.appendChild(document.createTextNode(text));
   }
-  
+
   if (context == "dspf" && parms.design) {
     var overflowX = parms.properties["overflow x"];
     if (overflowX == null) overflowX = "";
     var overflowY = parms.properties["overflow y"];
     if (overflowY == null) overflowY = "";
     if (parms.propertyName == "value" && pui.isBound(parms.newValue) ||
-        parms.propertyName != "value" && pui.isBound(parms.properties.value)) {      
+        parms.propertyName != "value" && pui.isBound(parms.properties.value)) {
       if (overflowX == "") parms.dom.style.overflowX = "hidden";
       if (overflowY == "") parms.dom.style.overflowY = "hidden";
     }
@@ -59,34 +57,30 @@ function buildOutputField(parms, value, labelForId) {
   }
 }
 
-
-
 pui.widgets.add({
   name: "output field",
   inlineEdit: true,
 
   propertySetters: {
-  
-    "field type": function(parms) {
-      buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));      
+
+    "field type": function (parms) {
+      buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       if (parms.design || parms.properties["value"] != "script: value") {
         buildOutputField(parms, parms.value, parms.evalProperty("label for"));
       }
     },
-    
-    "overflow x": function(parms) {
+
+    "overflow x": function (parms) {
       if (context == "dspf" && parms.design && pui.isBound(parms.properties.value) && (parms.value == "" || parms.value == null)) {
         parms.properties["overflow x"] = "";
         parms.dom.style.overflowX = "hidden";
         return false;
       }
     }
-        
+
   }
-  
+
 });
-
-

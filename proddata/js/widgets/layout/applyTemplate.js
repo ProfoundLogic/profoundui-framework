@@ -17,29 +17,27 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-pui.layout.template.applyTemplate = function(parms) {
+pui.layout.template.applyTemplate = function (parms) {
   var dom = parms.dom;
 
   var getContainers = pui.layout.template.getContainers;
   var processDOM = pui.layout.template.processDOM;
-  
+
   var containers = getContainers(dom);
-  
+
   // find last container that has any widgets
   for (var x = containers.length - 1; x >= 0; x -= 1) {
     if (containers[x].firstChild != null) break;
   }
   x += 1;
-  
-  parms.lastContWithWidget = x;  //PUI-213: when template changes make sure items can move into the new template.
 
-  var newDom = pui.layout.template.load(parms);  //A temporary element that is not attached to the DOM. The element is used to build layouts.
+  parms.lastContWithWidget = x; // PUI-213: when template changes make sure items can move into the new template.
+
+  var newDom = pui.layout.template.load(parms); // A temporary element that is not attached to the DOM. The element is used to build layouts.
   processDOM(newDom);
   var newContainers = getContainers(newDom);
   var stretchList = [];
-  
+
   // TODO: instead of moving from the old container to the new container you could do this:
   // 1. given parameters request that the template be able to accommodate whatever widgets are in the layout.
   //    Each JavaScript-based template would have functions to check if a change can be accommodated.
@@ -48,8 +46,7 @@ pui.layout.template.applyTemplate = function(parms) {
   // 2. For JS templates just use the old dom element; no need to clone, move widgets, move nodes, or re-attach properties.
   // Then you could simplify some of the template code; e.g. maybe get rid of pui.layout.Template.prototype.linkToDom.
 
-
-  // Make sure changing the layout doesn't lose any widgets. If the function returns here, then the DOM and layout 
+  // Make sure changing the layout doesn't lose any widgets. If the function returns here, then the DOM and layout
   // objects created in template.load are discarded.
   if (x > newContainers.length) {
     return {
@@ -57,7 +54,7 @@ pui.layout.template.applyTemplate = function(parms) {
       msg: "The property cannot be applied because it removes a layout section that contains other widgets.  \n\nYou must remove the contained widgets first."
     };
   }
-  
+
   // move widgets from old container to the new container
   for (var i = 0; i < x; i++) {
     var container = containers[i];
@@ -69,7 +66,7 @@ pui.layout.template.applyTemplate = function(parms) {
       child = container.firstChild;
     }
   }
-  
+
   // get stretch list
   for (var i = 0; i < newContainers.length; i++) {
     var newContainer = newContainers[i];
@@ -85,30 +82,29 @@ pui.layout.template.applyTemplate = function(parms) {
     dom.appendChild(newDom.removeChild(child));
     child = newDom.firstChild;
   }
-  
+
   // To the element in the DOM, attach references to classes and special layout properties.
   // Make sure each layout object's .container property references the correct DOM element.
-    
+
   if (newDom.panel != null) {
     dom.panel = newDom.panel;
     // Various places in Designer call sizeMe when the layout needs to be sized.
     dom.sizeMe = dom.panel.resize;
     dom.panel.container = dom;
   }
-  
-  if (newDom.layoutT != null){
-    newDom.layoutT.linkToDom(dom);  //This handles everything necessary for whatever type of class is in layoutT: TabLayout, Responsive, etc.
+
+  if (newDom.layoutT != null) {
+    newDom.layoutT.linkToDom(dom); // This handles everything necessary for whatever type of class is in layoutT: TabLayout, Responsive, etc.
   }
-  
-  return { 
+
+  return {
     success: true,
     stretchList: stretchList,
     containers: newContainers
   };
 };
 
-
-pui.layout.template.getProxy = function(defaults) {
+pui.layout.template.getProxy = function (defaults) {
   var proxy = pui.layout.template.load({
     template: defaults["template"],
     properties: defaults,
@@ -121,4 +117,3 @@ pui.layout.template.getProxy = function(defaults) {
   if (defaults["css class"] != null) proxy.className = defaults["css class"];
   return proxy;
 };
-

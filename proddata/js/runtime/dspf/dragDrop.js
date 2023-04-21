@@ -17,37 +17,35 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui["dragDropInfo"] = {};
 
-pui.attachDragDrop = function(dom, properties) {
+pui.attachDragDrop = function (dom, properties) {
   var drop, recordNumber;
-  var tryScrollTimeout = 0; //Helps avoid calling tryScroll repeatedly when the mouse moves.
-  var scrollDelay = 350;    //The grid will scroll another record up or down every 350 milliseconds after the initial delay.
-  var initialScrollDelay = scrollDelay;   //By default, wait 350 milliseconds before the grid begins to scroll up or down.
-  if (typeof pui["drop scroll wait"] == 'number'){
+  var tryScrollTimeout = 0; // Helps avoid calling tryScroll repeatedly when the mouse moves.
+  var scrollDelay = 350; // The grid will scroll another record up or down every 350 milliseconds after the initial delay.
+  var initialScrollDelay = scrollDelay; // By default, wait 350 milliseconds before the grid begins to scroll up or down.
+  if (typeof pui["drop scroll wait"] == "number") {
     // "drop scroll wait" allows the customer to set the initial delay before scrolling starts. Issue #5062.
     initialScrollDelay = pui["drop scroll wait"];
   }
 
-  dom.onselectstart = function(e) { 
+  dom.onselectstart = function (e) {
     if (isGrid || isHTMLContainer) {
-      //So that the user can select the text inside of a textarea or input element if nested in a Grid or HTML container 
+      // So that the user can select the text inside of a textarea or input element if nested in a Grid or HTML container
       var target = getTarget(e);
-      if (target.tagName == 'TEXTAREA' || target.tagName == 'INPUT') return true; 
+      if (target.tagName == "TEXTAREA" || target.tagName == "INPUT") return true;
     }
     return false;
   };
-  if (typeof dom.style.MozUserSelect!="undefined") dom.style.MozUserSelect = "none";
+  if (typeof dom.style.MozUserSelect != "undefined") dom.style.MozUserSelect = "none";
 
   var useProxy = (properties["use proxy"] == "true");
   var isGrid = (dom.grid != null);
-  var isHTMLContainer = (properties['field type'] == 'html container');
+  var isHTMLContainer = (properties["field type"] == "html container");
 
   if (isGrid) {
     useProxy = true;
-    setTimeout(function() {
+    setTimeout(function () {
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
         var dataRecords = dom.grid.dataArray;
@@ -66,30 +64,30 @@ pui.attachDragDrop = function(dom, properties) {
     }, 1);
   }
 
-  function mousedown(event) {
+  function mousedown (event) {
     if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
     var clickedOn = getTarget(event);
     var offset = pui.getOffset(dom.parentNode);
     var offsetX = offset[0];
-    var offsetY = offset[1];    
-    
+    var offsetY = offset[1];
+
     var touchEvent = false;
 
     if (event) {
       if (event.touches != null) {
         if (event.touches.length != 1) return;
         touchEvent = true;
-      } else if (event["pointerType"] === 'touch') {
+      } else if (event["pointerType"] === "touch") {
         touchEvent = true;
       }
     }
     if (touchEvent) event.preventDefault();
-    // get grid row    
+    // get grid row
     var row;
     recordNumber = null;
 
     if (isHTMLContainer) {
-      if (clickedOn.tagName == 'TEXTAREA' || clickedOn.tagName == 'INPUT') return;
+      if (clickedOn.tagName == "TEXTAREA" || clickedOn.tagName == "INPUT") return;
     }
 
     if (isGrid) {
@@ -99,7 +97,7 @@ pui.attachDragDrop = function(dom, properties) {
       if (!dom.grid.isDataGrid()) {
         var minLastRow = dataRecords.length - dom.grid.recNum + 1;
         if (lastRow > minLastRow) lastRow = minLastRow;
-      }    
+      }
       var firstRow = 0;
       if (dom.grid.hasHeader) firstRow = 1;
       var clickedOn = getTarget(event);
@@ -118,19 +116,19 @@ pui.attachDragDrop = function(dom, properties) {
       if (row > lastRow) {
         return;
       }
-      
+
       recordNumber = row + dom.grid.recNum;
       if (dom.grid.hasHeader) {
         recordNumber = recordNumber - 1;
       }
-      if (dataRecords.length > 0 && dataRecords[recordNumber - 1] !== null && 
+      if (dataRecords.length > 0 && dataRecords[recordNumber - 1] !== null &&
           dataRecords[recordNumber - 1].length != 0 &&
           dataRecords[recordNumber - 1].subfileRow != null) {
         recordNumber = dataRecords[recordNumber - 1].subfileRow;
       }
-      dom.grid.dragdropBusy = true; //Prevent the page from scrolling as a result of the touch event.
+      dom.grid.dragdropBusy = true; // Prevent the page from scrolling as a result of the touch event.
     }
-    
+
     var dropTargetIds = properties["drop targets"];
     var dropTargets = [];
     if (dropTargetIds != null && dropTargetIds != "") {
@@ -152,15 +150,15 @@ pui.attachDragDrop = function(dom, properties) {
             }
             var headerAdjust = dropTarget.grid.hasHeader ? 1 : 0;
             var lastDropIndex = headerAdjust;
-            if (dataRecords.length == 0){
-              lastLine = headerAdjust - 1;   //All records are filtered out, or there are none; 
+            if (dataRecords.length == 0) {
+              lastLine = headerAdjust - 1; // All records are filtered out, or there are none;
             }
             // Allow elements to be dropped on every line by adding the lines to a list and setting an index. (Includes line above the first row.)
             // Note: the grid may scroll when dragged, and grid.recNum may change; do not calculate target record numbers here.
             for (var j = headerAdjust; j < lines.length; j++) {
               // For when the item is not dropped below empty rows, then the subfileRow or row index will become the target record number.
-              if (j <= lastLine){
-                lines[j].dropIndex = j;   //dropIndex becomes the "row" returned by getDropInfo.
+              if (j <= lastLine) {
+                lines[j].dropIndex = j; // dropIndex becomes the "row" returned by getDropInfo.
                 lastDropIndex = j;
               }
               // If there are blank rows in the subfile, then use the last record number for the remaining lines. More intuitive on empty grids. #5415
@@ -194,14 +192,14 @@ pui.attachDragDrop = function(dom, properties) {
         var height = parseInt(cell0.style.height);
         height = height - 2;
         if (height < 5) height = 5;
-        proxy.style.height = height + "px";        
+        proxy.style.height = height + "px";
         for (var i = 0; i < cols.length; i++) {
           var cloneCell = cols[i].cloneNode(true);
           cloneCell.style.top = "0px";
           cloneCell.onclick = null;
           cloneCell.onmousedown = null;
           cloneCell.onmouseup = null;
-          proxy.appendChild(cloneCell);          
+          proxy.appendChild(cloneCell);
         }
       }
       else {
@@ -215,11 +213,11 @@ pui.attachDragDrop = function(dom, properties) {
       proxy.style.filter = "alpha(opacity=60)";
       proxy.style.border = "1px solid #333333";
     }
-    // For centering horizontal and vertical options. 
-    if (proxy.style.top.indexOf('calc') !== -1) {
+    // For centering horizontal and vertical options.
+    if (proxy.style.top.indexOf("calc") !== -1) {
       proxy.style.top = window.getComputedStyle(dom, null).getPropertyValue("top");
     }
-    if (proxy.style.left.indexOf('calc') !== -1) {
+    if (proxy.style.left.indexOf("calc") !== -1) {
       proxy.style.left = window.getComputedStyle(dom, null).getPropertyValue("left");
     }
 
@@ -240,49 +238,47 @@ pui.attachDragDrop = function(dom, properties) {
     else pui["dragDropInfo"]["text"] = "ondragstart: Dragging element " + dom.id;
     executeEvent("ondragstart");
 
-    function mousemove(event) {
+    function mousemove (event) {
       if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
       var mousey = getMouseY(event);
       var mousex = getMouseX(event);
       var y = mousey - cursorStartY;
       var x = mousex - cursorStartX;
 
-      //For Issue 3634, Chrome has a bug where the mousemove would get called with a mousedown. This will let the click event occur if defined. 
+      // For Issue 3634, Chrome has a bug where the mousemove would get called with a mousedown. This will let the click event occur if defined.
       if (x == 0 && y == 0) return true;
 
       if (!pui.hasParent(proxy)) {
         document.body.appendChild(proxy);
       }
-    
+
       if (isGrid && dom.grid.contextMenuId) {
-      
         var contextMenu = getObj(dom.grid.contextMenuId);
         contextMenu.style.visibility = "hidden";
-        contextMenu.style.display = "none";        
-      
+        contextMenu.style.display = "none";
       }
-    
+
       if (useProxy) {
         y = y + offsetY;
         x = x + offsetX;
       }
-      
+
       proxy.style.top = (startDomY + y) + "px";
       proxy.style.left = (startDomX + x) + "px";
-      
+
       if (touchEvent) event.preventDefault();
-      
+
       var prevDropInto = dropInto;
-      var foundTarget = false;      
+      var foundTarget = false;
       for (var i = 0; i < dropTargets.length; i++) {
         var tgt = dropTargets[i];
         var left = proxy.offsetLeft;
         var top = proxy.offsetTop;
-        
-        var proxyOffset = pui.getOffset(proxy.parentNode);  //If the proxy element is in a layout, then there will be an offset. #6662.
+
+        var proxyOffset = pui.getOffset(proxy.parentNode); // If the proxy element is in a layout, then there will be an offset. #6662.
         left += proxyOffset[0];
         top += proxyOffset[1];
-        
+
         var right = left + proxy.offsetWidth;
         var bottom = top + proxy.offsetHeight;
         if (tgt.targetOffsetX == null || tgt.targetOffsetY == null) {
@@ -299,19 +295,19 @@ pui.attachDragDrop = function(dom, properties) {
           var altRight2 = right2 - tgt.offsetWidth + tgt.parentNode.offsetWidth - tgt.offsetLeft;
           if (altRight2 < right2) right2 = altRight2;
         }
-        
+
         // Check if the mouse is outside the grid of this target. Allows large rows to be more easily dragged in side-by-side grids. #5192.
         var mouseOutsideGrid = false;
-        if (tgt.relatedGrid != null){
-          var tgrdoff = pui.getOffset(tgt.relatedGrid.tableDiv);  //[left,top].
-          
+        if (tgt.relatedGrid != null) {
+          var tgrdoff = pui.getOffset(tgt.relatedGrid.tableDiv); // [left,top].
+
           var tgrdright = tgrdoff[0] + tgt.relatedGrid.tableDiv.offsetWidth;
           var tgrdbot = tgrdoff[1] + tgt.relatedGrid.tableDiv.offsetHeight;
-          if ( mousex > tgrdright || mousex < tgrdoff[0] || mousey > tgrdbot || mousey < tgrdoff[1] ){
+          if (mousex > tgrdright || mousex < tgrdoff[0] || mousey > tgrdbot || mousey < tgrdoff[1]) {
             mouseOutsideGrid = true;
           }
         }
-        
+
         // Do not use this as a drop-target, because one's already picked or it's not near the proxy or mouse.
         if (foundTarget || (left2 > right || right2 < left || top2 > bottom || bottom2 < top) || mouseOutsideGrid) {
           if (tgt.relatedGrid != null) {
@@ -329,7 +325,7 @@ pui.attachDragDrop = function(dom, properties) {
             pui.addCssClass(tgt, "grid-drop-target");
           }
           else {
-            if (tgt.borderColorBeforeDrag == null) tgt.borderColorBeforeDrag = tgt.style.borderColor;          
+            if (tgt.borderColorBeforeDrag == null) tgt.borderColorBeforeDrag = tgt.style.borderColor;
             if (tgt.borderColorBeforeDrag == null) tgt.borderColorBeforeDrag = "";
             tgt.style.borderColor = "#9999ff";
             if (tgt.tagName == "IMG") {
@@ -341,12 +337,12 @@ pui.attachDragDrop = function(dom, properties) {
           foundTarget = true;
           dropInto = tgt;
         }
-      }      
+      }
       if (!foundTarget) {
         dropInto = null;
       }
       if (prevDropInto != dropInto) {
-        clearTimeout(tryScrollTimeout);   //Avoid grids scrolling when a new drag is happening.
+        clearTimeout(tryScrollTimeout); // Avoid grids scrolling when a new drag is happening.
         if (prevDropInto != null) {
           pui["dragDropInfo"] = {};
           pui["dragDropInfo"]["dd element"] = dom;
@@ -383,25 +379,23 @@ pui.attachDragDrop = function(dom, properties) {
           executeEvent("ondragenter");
           if (canScrollUp() || canScrollDown()) {
             // Note: if "wait" is -1, then scrolling on dragover is disabled.
-            if (initialScrollDelay >= 0){
+            if (initialScrollDelay >= 0) {
               clearTimeout(tryScrollTimeout);
               tryScrollTimeout = setTimeout(tryScroll, initialScrollDelay);
             }
           }
         }
       }
-      
+
       if (!touchEvent) preventEvent(event);
     }
-    
-    function mouseup() {
-      clearTimeout(tryScrollTimeout);   //Prevent any further grid scrolling.
+
+    function mouseup () {
+      clearTimeout(tryScrollTimeout); // Prevent any further grid scrolling.
 
       if (useProxy) {
         if (pui.hasParent(proxy)) {
-        
           proxy.parentNode.removeChild(proxy);
-          
         }
         proxy = null;
       }
@@ -414,9 +408,8 @@ pui.attachDragDrop = function(dom, properties) {
         removeEvent(document, "mouseup", mouseup);
       }
       document.onselectstart = savedOnselectstart;
-      
+
       if (dropInto != null) {
-        
         pui["dragDropInfo"] = {};
         pui["dragDropInfo"]["dd element"] = dom;
         pui["dragDropInfo"]["dd element id"] = dom.id;
@@ -432,13 +425,13 @@ pui.attachDragDrop = function(dom, properties) {
         if (drop.recordNumber == 0) pui["dragDropInfo"]["text"] += " before row " + (drop.recordNumber + 1) + " of grid " + drop.id;
         else if (drop.recordNumber != null) pui["dragDropInfo"]["text"] += " after row " + drop.recordNumber + " of grid " + drop.id;
         else pui["dragDropInfo"]["text"] += " into element " + drop.id;
-        
+
         if (dropInto.relatedGrid != null) {
           pui.removeCssClass(dropInto, "grid-drop-target");
         }
         else {
           if (dropInto.tagName == "IMG") {
-            dropInto.style.backgroundColor = dropInto.backgroundColorBeforeDrag;            
+            dropInto.style.backgroundColor = dropInto.backgroundColorBeforeDrag;
           }
           if (dropInto.backgroundColorBeforeDrag != null) {
             dropInto.style.borderColor = dropInto.backgroundColorBeforeDrag;
@@ -460,54 +453,52 @@ pui.attachDragDrop = function(dom, properties) {
             }
           }
         }
-
       }
-      
+
       if (!useProxy && pui.dragDropFields.respond != true) {
         dom.style.left = startDomX + "px";
         dom.style.top = startDomY + "px";
       }
-      
-      if (isGrid){
+
+      if (isGrid) {
         dom.grid.dragdropBusy = false;
       }
 
       recordNumber = drop = null;
-    } //end mouseup.
-    
+    } // end mouseup.
+
     if (touchEvent) {
       addEvent(document, "touchmove", mousemove);
-      addEvent(document, "touchend",   mouseup);
+      addEvent(document, "touchend", mouseup);
     }
     else {
       addEvent(document, "mousemove", mousemove);
-      addEvent(document, "mouseup",   mouseup);
+      addEvent(document, "mouseup", mouseup);
     }
-    document.onselectstart = function(e) { 
-      return false; 
-    };  
-     
-  } //end mousedown.
-  
-  function canScrollUp() {
+    document.onselectstart = function (e) {
+      return false;
+    };
+  } // end mousedown.
+
+  function canScrollUp () {
     if (drop.row == null) return false;
     if (drop.grid.atTop()) return false;
     if (drop.row == 0) return true;
     if (drop.row == 1 && drop.grid.hasHeader) return true;
     return false;
   }
-  
-  function canScrollDown() {
+
+  function canScrollDown () {
     if (drop.row == null) return false;
     if (drop.grid.atBottom()) return false;
     if (drop.row == drop.grid.cells.length) return true;
     return false;
   }
-  
+
   /**
    * Check if the grid can be scrolled up/down, depending which grid line is hovered over, and scroll. tryScroll is a timeout callback.
    */
-  function tryScroll() {
+  function tryScroll () {
     var go = false;
     if (canScrollUp()) {
       drop.grid.recNum -= 1;
@@ -542,13 +533,13 @@ pui.attachDragDrop = function(dom, properties) {
       tryScrollTimeout = setTimeout(tryScroll, scrollDelay + 35);
     }
   }
-  
+
   /**
-   * Return 
+   * Return
    * @param {Object|WebElement} dropEl    A grid line or another element.
    * @returns {Object}
    */
-  function getDropInfo(dropEl) {
+  function getDropInfo (dropEl) {
     var grid = dropEl.relatedGrid;
     if (grid == null) {
       return { dom: dropEl, id: dropEl.id };
@@ -558,12 +549,12 @@ pui.attachDragDrop = function(dom, properties) {
       var headerAdjust = grid.hasHeader ? 1 : 0;
       // When the grid has not been sorted or filtered, then the target record number corresponds to the row index.
       var dataRecordsPos = grid.recNum - 1 + row - headerAdjust;
-      var recnum = dataRecordsPos > 0 ? dataRecordsPos : 0;    //In case dataRecordsPos is out of bounds use 0, the top of subfile.
+      var recnum = dataRecordsPos > 0 ? dataRecordsPos : 0; // In case dataRecordsPos is out of bounds use 0, the top of subfile.
 
       var dataRecords = grid.isFiltered() ? grid.visibleDataArray : grid.dataArray;
-      if (dataRecordsPos > 0 && dataRecords.length > 0 && dataRecords[0] && dataRecords[0].subfileRow != null){
+      if (dataRecordsPos > 0 && dataRecords.length > 0 && dataRecords[0] && dataRecords[0].subfileRow != null) {
         // The grid is filtered/sorted: target record number should use subfile record number instead of the visible row index. #5999
-        if (dataRecordsPos < dataRecords.length ){
+        if (dataRecordsPos < dataRecords.length) {
           // The item was dropped on or after the first record and before the last record.
           recnum = dataRecords[dataRecordsPos - 1].subfileRow;
         }
@@ -574,14 +565,14 @@ pui.attachDragDrop = function(dom, properties) {
       }
 
       return { dom: grid.tableDiv, grid: grid, id: grid.tableDiv.id, row: row, recordNumber: recnum };
-    }      
+    }
   }
- 
+
   // The updated version of iScroll in 5.14.0 and later uses Pointer Events
-  // These events get called before the mousedown event and get cancelled. 
+  // These events get called before the mousedown event and get cancelled.
   // This causes drag and drop to not work correctly in web browsers.
   // Add an event listener for pointerdown instead of mouse down and then
-  // stop the immediate propnagation so that drag and drop works smoothly. 
+  // stop the immediate propnagation so that drag and drop works smoothly.
   // #4632
   if (window["PointerEvent"]) {
     addEvent(dom, "pointerdown", mousedown);
@@ -590,8 +581,7 @@ pui.attachDragDrop = function(dom, properties) {
     addEvent(dom, "touchstart", mousedown);
   }
 
-
-  function executeEvent(eventName) {
+  function executeEvent (eventName) {
     var eventCode = properties[eventName];
     if (pui.isRoutine(eventCode)) {
       pui.bypassValidation = pui.ddBypassValidation;
@@ -602,16 +592,10 @@ pui.attachDragDrop = function(dom, properties) {
         var returnVal = eval(eventCode);
         if (returnVal == false) return false;
       }
-      catch(err) {
+      catch (err) {
         pui.scriptError(err, eventName + " Error:\n");
         return false;
       }
     }
   }
-
 };
-
-
-
-
-
