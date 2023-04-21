@@ -18,48 +18,45 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
-pui.setupMobileEmulator = function() {
+pui.setupMobileEmulator = function () {
   var puiDiv = getObj("pui");
   if (puiDiv == null) return;
-	var mobileDiv = document.createElement("div");
+  var mobileDiv = document.createElement("div");
 
   var canvasSizeArray = pui.canvasSize.split("x");
   var curHeight = Number(canvasSizeArray[1]);
   if (isNaN(curHeight)) curHeight = 320;
   var curWidth = Number(canvasSizeArray[0]);
   if (isNaN(curWidth)) curWidth = 640;
-	
-	mobileDiv.style.position = "absolute";                             
-	mobileDiv.isCanvasOutline = true;                                  
-	mobileDiv.style.border = "2px solid #999999";                      
-	mobileDiv.style.backgroundColor = "#333333";                       
-	mobileDiv.style.borderRadius = "15px";                             
-	mobileDiv.style.boxShadow = "6px 6px 12px rgba(50, 66, 64, 0.67)"; 
-	mobileDiv.style.width = (curWidth + 60) + "px";  
-	mobileDiv.style.height = (curHeight + 60) + "px";
-	mobileDiv.style.top = "40px";
-	mobileDiv.style.left = "20px";
-	
-	puiDiv.style.width = curWidth + "px";  
-	puiDiv.style.height = curHeight + "px"
-	puiDiv.style.left = "50px";
-	puiDiv.style.top = "70px";
+
+  mobileDiv.style.position = "absolute";
+  mobileDiv.isCanvasOutline = true;
+  mobileDiv.style.border = "2px solid #999999";
+  mobileDiv.style.backgroundColor = "#333333";
+  mobileDiv.style.borderRadius = "15px";
+  mobileDiv.style.boxShadow = "6px 6px 12px rgba(50, 66, 64, 0.67)";
+  mobileDiv.style.width = (curWidth + 60) + "px";
+  mobileDiv.style.height = (curHeight + 60) + "px";
+  mobileDiv.style.top = "40px";
+  mobileDiv.style.left = "20px";
+
+  puiDiv.style.width = curWidth + "px";
+  puiDiv.style.height = curHeight + "px";
+  puiDiv.style.left = "50px";
+  puiDiv.style.top = "70px";
   puiDiv.classList.add("pui-mobile-emulator");
 
-	puiDiv.parentNode.insertBefore(mobileDiv, puiDiv);
+  puiDiv.parentNode.insertBefore(mobileDiv, puiDiv);
 
-	var dropdown = document.createElement("select");
-	dropdown.style.position = "absolute";
-	dropdown.style.width = "200px";
-	dropdown.style.top = "10px";
-	dropdown.style.left = "50px";
-	dropdown.style.fontFamily = "sans-serif";
-	dropdown.style.fontSize = "13px";
-	
-	function fillDropdown() {	
+  var dropdown = document.createElement("select");
+  dropdown.style.position = "absolute";
+  dropdown.style.width = "200px";
+  dropdown.style.top = "10px";
+  dropdown.style.left = "50px";
+  dropdown.style.fontFamily = "sans-serif";
+  dropdown.style.fontSize = "13px";
+
+  function fillDropdown () {
   	for (var i = dropdown.options.length - 1; i >= 0; i--) {
       dropdown.remove(i);
     }
@@ -70,8 +67,8 @@ pui.setupMobileEmulator = function() {
       if (size["width"] == null) continue;
       var x = dropdown.options.length;
       dropdown.options[x] = new Option(size["description"], size["height"] + "x" + size["width"]);
-      if ( (size["height"] == curHeight && size["width"] == curWidth) || 
-           (size["width"] == curHeight && size["height"] == curWidth) ) {
+      if ((size["height"] == curHeight && size["width"] == curWidth) ||
+           (size["width"] == curHeight && size["height"] == curWidth)) {
         dropdown.options[x].selected = true;
         currentSizeExists = true;
       }
@@ -81,15 +78,15 @@ pui.setupMobileEmulator = function() {
       dropdown.options[x] = new Option(curHeight + " x " + curWidth, curHeight + "x" + curWidth);
       dropdown.options[x].selected = true;
     }
-	}
-	
-	fillDropdown();
+  }
+
+  fillDropdown();
 
   ajaxJSON({
     "url": getProgramURL("PUI0009112.pgm"),
-    "method": "post",          
+    "method": "post",
     "params": {
-      "workspace_id": pui["isCloud"] ? pui.cloud.ws.id : ""      
+      "workspace_id": pui["isCloud"] ? pui.cloud.ws.id : ""
     },
     "suppressAlert": true,
     "handler": function (response) {
@@ -108,47 +105,44 @@ pui.setupMobileEmulator = function() {
     "onfail": function (response) {
       pui.alert("Error occurred while loading canvas sizes.");
     }
-  })
+  });
 
-	
-	dropdown.onchange = function() {
+  dropdown.onchange = function () {
     var sizeArray = dropdown.value.split("x");
     curHeight = Number(sizeArray[1]);
     if (isNaN(curHeight)) curHeight = 320;
     curWidth = Number(sizeArray[0]);
     if (isNaN(curWidth)) curWidth = 640;
-		mobileDiv.style.width = (curWidth + 60) + "px";
-		mobileDiv.style.height = (curHeight + 60) + "px";
-		puiDiv.style.width = curWidth + "px";
-		puiDiv.style.height = curHeight + "px";
-		pui.resize();
-  }
-	
-	document.body.appendChild(dropdown);
+    mobileDiv.style.width = (curWidth + 60) + "px";
+    mobileDiv.style.height = (curHeight + 60) + "px";
+    puiDiv.style.width = curWidth + "px";
+    puiDiv.style.height = curHeight + "px";
+    pui.resize();
+  };
 
-	var rotateImage = document.createElement("img");
-	rotateImage.src = "/profoundui/proddata/images/FlatIcons/24x24/rotate.png"; 
-	rotateImage.style.position = "absolute";
-	rotateImage.style.top = "8px";
-	rotateImage.style.left = "260px";
+  document.body.appendChild(dropdown);
+
+  var rotateImage = document.createElement("img");
+  rotateImage.src = "/profoundui/proddata/images/FlatIcons/24x24/rotate.png";
+  rotateImage.style.position = "absolute";
+  rotateImage.style.top = "8px";
+  rotateImage.style.left = "260px";
   rotateImage.style.cursor = "pointer";
   rotateImage.title = "Rotate";
-		
-	rotateImage.onclick = function(){
+
+  rotateImage.onclick = function () {
 	  var temp = mobileDiv.style.height;
-		mobileDiv.style.height = mobileDiv.style.width;
-		mobileDiv.style.width = temp;		
+    mobileDiv.style.height = mobileDiv.style.width;
+    mobileDiv.style.width = temp;
 	  var temp2 = puiDiv.style.height;
-		puiDiv.style.height = puiDiv.style.width;
-		puiDiv.style.width = temp2;
+    puiDiv.style.height = puiDiv.style.width;
+    puiDiv.style.width = temp2;
     pui.resize();
-  }
-	document.body.appendChild(rotateImage);
-}
+  };
+  document.body.appendChild(rotateImage);
+};
 
-
-
-pui.detectMobileEmulation = function(container) {
+pui.detectMobileEmulation = function (container) {
   if (container == null) container = "pui";
   if (typeof container == "string") container = document.getElementById(container);
   if (container == null) return;
@@ -168,25 +162,25 @@ pui.detectMobileEmulation = function(container) {
       pui.iPadEmulation = true;
       pui.iPhoneEmulation = true;
     }
-    return;  
+    return;
   }
   if (useFinger) {
     var finger = document.createElement("img");
     finger.src = "/profoundui/proddata/images/ipad/finger.png";
     finger.style.position = "absolute";
-    finger.style.cursor = "crosshair";  
-    finger.style.zIndex = 99;  
-    addEvent(document, "mousemove", function(event) {
+    finger.style.cursor = "crosshair";
+    finger.style.zIndex = 99;
+    addEvent(document, "mousemove", function (event) {
       var x = getMouseX(event);
-      x = x + 3;    
+      x = x + 3;
       finger.style.left = x + "px";
       var y = getMouseY(event);
       y = y + 3;
       finger.style.top = y + "px";
     });
-    addEvent(document, "mousedown", function(event) {
+    addEvent(document, "mousedown", function (event) {
       var x = getMouseX(event);
-      x = x + 1;    
+      x = x + 1;
       finger.style.left = x + "px";
       var y = getMouseY(event);
       y = y + 1;
@@ -212,18 +206,16 @@ pui.detectMobileEmulation = function(container) {
   addressbar.style.fontSize = "14px";
   addressbar.value = location.href;
   if (!pui.iPhoneEmulation) {
-    addressbar.onclick = function() {
+    addressbar.onclick = function () {
       getObj("ipadKeyboard").style.display = "";
-    }
-    addressbar.onblur = function() {
+    };
+    addressbar.onblur = function () {
       getObj("ipadKeyboard").style.display = "none";
-    }
+    };
   }
   document.body.appendChild(addressbar);
   if (useFinger) document.body.appendChild(finger);
-}
-
-
+};
 
 pui.mobileEmulatorSizes = [{
   "description": "iPhone 6/7/8",
@@ -261,5 +253,4 @@ pui.mobileEmulatorSizes = [{
   "description": "Galaxy Tablet",
   "width": 800,
   "height": 1280
-}]
-
+}];

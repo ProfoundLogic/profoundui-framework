@@ -18,9 +18,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 if (!window["pui"]) window["pui"] = {};
-window["pui"]["baseVersion"] = '6';
-window["pui"]["fixPackVersion"] = '21.0';
+window["pui"]["baseVersion"] = "6";
+window["pui"]["fixPackVersion"] = "21.0";
 window["pui"]["version"] = window["pui"]["baseVersion"] + "." + window["pui"]["fixPackVersion"];

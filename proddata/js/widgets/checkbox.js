@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // Prevent the user from checking or unchecking "read only" boxes, because that would change the value. #4925.
-pui.checkboxOnClick = function(evt) {
+pui.checkboxOnClick = function (evt) {
   var target = evt.target;
   if (target.readOnly) {
     if (target.checked == false) target.checked = true;
@@ -37,8 +37,8 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       var objValue = parms.evalProperty("value");
       var checkedValue = parms.evalProperty("checked value");
       var indeterminateValue = parms.evalProperty("indeterminate value");
@@ -64,8 +64,8 @@ pui.widgets.add({
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
         parms.dom.uncheckedValue = uncheckedValue;
-        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) && 
-            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) && 
+        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) &&
+            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) &&
             (objValue === "1" || objValue === "true" || objValue === true)) parms.dom.checked = true;
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
@@ -74,15 +74,15 @@ pui.widgets.add({
         addEvent(parms.dom, "click", pui.checkboxOnClick);
         // Double-clicking in IE10, IE11, or pre-Chromium Edge should not change the clicked state. #2865.
         if (pui["is_ie"] || navigator.userAgent.indexOf("Edge/") != -1)
-          addEvent(parms.dom, "dblclick", pui.checkboxOnClick);
+        { addEvent(parms.dom, "dblclick", pui.checkboxOnClick); }
       }
-      // Fixes printing problem for IE8. 
+      // Fixes printing problem for IE8.
       // -- DR.
-      pui.fixCheckPrint(parms.dom);      
+      pui.fixCheckPrint(parms.dom);
     },
-    
-    "value": function(parms) {
-      var checkedValue = parms.evalProperty("checked value");      
+
+    "value": function (parms) {
+      var checkedValue = parms.evalProperty("checked value");
       var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
@@ -96,18 +96,18 @@ pui.widgets.add({
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
-        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) && 
-            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) && 
+        if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) &&
+            (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) &&
             (parms.value === "1" || parms.value === "true" || parms.value === true)) parms.dom.checked = true;
       }
 
-      // Fixes printing problem for IE8. 
+      // Fixes printing problem for IE8.
       // -- DR.
-      pui.fixCheckPrint(parms.dom);        
+      pui.fixCheckPrint(parms.dom);
     },
-    
-    "checked value": function(parms) {
-      var objValue = parms.evalProperty("value");      
+
+    "checked value": function (parms) {
+      var objValue = parms.evalProperty("value");
       var checkedValue = parms.value;
       var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
@@ -119,13 +119,13 @@ pui.widgets.add({
         if (objValue == checkedValue) parms.dom.checked = true;
         else parms.dom.checked = false;
       }
-      // Fixes printing problem for IE8. 
+      // Fixes printing problem for IE8.
       // -- DR.
-      pui.fixCheckPrint(parms.dom);        
+      pui.fixCheckPrint(parms.dom);
     },
 
-    "indeterminate value": function(parms) {
-      var objValue = parms.evalProperty("value");      
+    "indeterminate value": function (parms) {
+      var objValue = parms.evalProperty("value");
       var checkedValue = parms.evalProperty("checked value");
       var indeterminateValue = parms.value;
       parms.dom.checkedValue = checkedValue;
@@ -137,43 +137,32 @@ pui.widgets.add({
         if (objValue == checkedValue) parms.dom.checked = true;
         else parms.dom.checked = false;
       }
-      // Fixes printing problem for IE8. 
+      // Fixes printing problem for IE8.
       // -- DR.
-      pui.fixCheckPrint(parms.dom);        
+      pui.fixCheckPrint(parms.dom);
     },
 
-    "visibility": function(parms) {
+    "visibility": function (parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
       // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
-      
+
       if (!parms.design && parms.dom.labelObj) {
-      
         if (parms.value == "hidden") {
-        
           parms.dom.labelObj.style.visibility = "hidden";
-        
         }
         else {
-        
           parms.dom.labelObj.style.visibility = "";
-        
         }
-      
       }
     },
-    "css class": function(parms) {
-      
+    "css class": function (parms) {
       if (parms.design && parms.designItem.label) {
-      
         parms.designItem.label.className = "label-for";
         var cls = trim(parms.value.split(" ")[0]);
         if (cls != "")
-          pui.addCssClass(parms.designItem.label, "label-for-" + cls);
-        
-      } 
-      
-    }    
+        { pui.addCssClass(parms.designItem.label, "label-for-" + cls); }
+      }
+    }
   }
 
 });
-

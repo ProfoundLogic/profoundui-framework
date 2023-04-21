@@ -17,9 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
 pui.widgets.add({
   name: "textbox",
   tag: "input",
@@ -28,36 +25,36 @@ pui.widgets.add({
     "css class": "input"
   },
   pickIcon1IsDiv: true,
-  icon1Class: 'pui-prompt',
+  icon1Class: "pui-prompt",
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
         applyAutoComp(parms.properties, parms.originalValue, parms.dom);
         if (pui.iPadEmulation && !pui.iPhoneEmulation && parms.dom.id.indexOf(".") == -1) {
-          addEvent(parms.dom, "focus", function(event) {
+          addEvent(parms.dom, "focus", function (event) {
             getObj("ipadKeyboard").style.display = "";
           });
-          addEvent(parms.dom, "blur", function(event) {
+          addEvent(parms.dom, "blur", function (event) {
             getObj("ipadKeyboard").style.display = "none";
           });
         }
         // Retain default browser behavior unless the user sets this...
         if (typeof pui["allow spellcheck"] == "boolean")
-          parms.dom.spellcheck = pui["allow spellcheck"];
-        //If they are changing a date field to a textbox, remove the calendar
-        if(parms.dom.calimg) pui.removeCal(parms.dom);
+        { parms.dom.spellcheck = pui["allow spellcheck"]; }
+        // If they are changing a date field to a textbox, remove the calendar
+        if (parms.dom.calimg) pui.removeCal(parms.dom);
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
           if (context == "dspf")
-            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
         }
       }
       var promptIcon = parms.evalProperty("prompt icon");
-      if (parms.design) { 
+      if (parms.design) {
         parms.dom.readOnly = true;
         parms.dom.spellcheck = false;
         var itm = parms.designItem;
@@ -65,64 +62,60 @@ pui.widgets.add({
         if (promptIcon) {
           itm.promptIcon = promptIcon;
         }
-        parms.dom.sizeMe = function() {            
+        parms.dom.sizeMe = function () {
           itm.drawIcon();
           itm.mirrorDown();
-        }
+        };
       }
-      else {        
-        parms.dom.sizeMe = function() {
+      else {
+        parms.dom.sizeMe = function () {
           pui.movePrompter(parms.dom);
-        }
+        };
       }
-      parms.dom.alwaysSizeMe = true;  //Don't just do sizeMe when dimensions are percents and in layouts.
+      parms.dom.alwaysSizeMe = true; // Don't just do sizeMe when dimensions are percents and in layouts.
       if (promptIcon && !parms.design) {
         pui.addPrompt(parms);
       }
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       if (parms.dom.autoCompTranslated) {
-      
         parms.dom.autoCompTranslated = false;
-      
       }
       else {
-      
         parms.dom.value = parms.value;
-        
       }
     },
-    
-    "input type": function(parms) {
+
+    "input type": function (parms) {
       if (!parms.design) {
-        try { 
+        try {
           parms.dom.setAttribute("type", parms.value);
-        } catch(e) { }
+        } catch (e) { }
       }
     },
-    
-    "browser auto complete": function(parms) {
+
+    "browser auto complete": function (parms) {
       if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
           if (parms.value == "off")
-            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
           else
-            parms.dom.removeAttribute("name");
+          { parms.dom.removeAttribute("name"); }
         }
       }
     },
 
-    "choices url": function(parms) {
+    "choices url": function (parms) {
       if (!parms.design && parms.dom && parms.dom.autoComp && typeof parms.dom.autoComp.updateUrl === "function") {
         parms.dom.autoComp.updateUrl(parms.value);
       }
     },
-    
-    "prompt icon": function(parms) {
+
+    "prompt icon": function (parms) {
       var promptIcon = parms.value;
-      if (parms.design) {        
+      if (parms.design) {
         var itm = parms.designItem;
         itm.promptIcon = null;
         if (promptIcon) itm.promptIcon = promptIcon;
@@ -131,28 +124,27 @@ pui.widgets.add({
       }
     },
 
-    "visibility": function(parms) {
+    "visibility": function (parms) {
       if (parms.dom.prompter) {
         if (parms.value === "hidden") {
-          parms.dom.prompter.style.visibility = "hidden"; 
+          parms.dom.prompter.style.visibility = "hidden";
         }
-        else {    
-          parms.dom.prompter.style.visibility = ""; 
-        }        
+        else {
+          parms.dom.prompter.style.visibility = "";
+        }
       }
     },
-    
-    "css class": function(parms) {
+
+    "css class": function (parms) {
       if (parms.design) {
         parms.designItem.drawIcon();
-      } 
+      }
     }
-  
+
   },
 
-  globalAfterSetter: function(parms) {
-
-    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+  globalAfterSetter: function (parms) {
+    if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       pui.floatPlaceholder(parms.dom);
     }
 
@@ -160,41 +152,39 @@ pui.widgets.add({
       pui.movePropertiesFromFloatingPlaceholderDiv(parms);
     }
   }
-  
+
 });
 
-
-pui.addPrompt = function(parms) {
-
-  var prompter = document.createElement("div");  
+pui.addPrompt = function (parms) {
+  var prompter = document.createElement("div");
   var promptIcon = parms.evalProperty("prompt icon");
   prompter.classList.add("pui-prompt");
   for (var i = 0; i < parms.dom.classList.length; i++) {
     prompter.classList.add("pui-prompt-" + parms.dom.classList[i]);
   }
-  if (promptIcon.substr(0,9) === 'material:') {
+  if (promptIcon.substr(0, 9) === "material:") {
     var icon = promptIcon.substr(9);
     prompter.innerText = trim(icon);
-    prompter.classList.add('pui-material-icons');
+    prompter.classList.add("pui-material-icons");
   }
-  else if (promptIcon.substr(0, 12) === 'fontAwesome:') {
+  else if (promptIcon.substr(0, 12) === "fontAwesome:") {
     var icon = trim(promptIcon.substr(12));
-    prompter.classList.add('pui-fa-icons fa-' + icon);
-    prompter.innerText = '';
+    prompter.classList.add("pui-fa-icons fa-" + icon);
+    prompter.innerText = "";
   }
   else {
     var iconSets = pui.getDefaultIconSets();
     if (pui["customIconList"] && pui["customIconList"]) {
       if (Array.isArray(pui["customIconList"]["icons"]) && pui["customIconList"]["icons"].length) {
-        iconSets =  pui["customIconList"]["icons"];
+        iconSets = pui["customIconList"]["icons"];
       }
     }
-    var iconValueArr = promptIcon.split(':');
-    var iconValueType =  iconValueArr.shift().split('-');
+    var iconValueArr = promptIcon.split(":");
+    var iconValueType = iconValueArr.shift().split("-");
     var iconValueClassList = iconValueType.pop();
-    iconValueType = iconValueType.join('-');
+    iconValueType = iconValueType.join("-");
     var iconVal = iconValueArr.pop();
-    iconSets.every(function(iconSet) {
+    iconSets.every(function (iconSet) {
       var type = iconSet["type"];
       var iconClassName = iconSet["classList"][iconValueClassList];
       if (iconValueType === type) {
@@ -202,29 +192,26 @@ pui.addPrompt = function(parms) {
         for (var i = 0; i < classes.length; i++) {
           prompter.classList.add(classes[i]);
         }
-        prompter.innerHTML = '';
+        prompter.innerHTML = "";
         return false;
       }
       return true;
     });
   }
 
-  prompter.onclick = function() {
+  prompter.onclick = function () {
     // Pass "this" and "value" parameters
-    parms.dom["onprompt"].call(parms.dom, parms.dom.value);    
-  }
+    parms.dom["onprompt"].call(parms.dom, parms.dom.value);
+  };
 
   parms.dom.parentNode.appendChild(prompter);
   parms.dom.prompter = prompter;
   parms.dom.extraDomEls = [prompter];
 
   pui.movePrompter(parms.dom);
+};
 
-}
-
-
-pui.movePrompter = function(inputDom) {
-  
+pui.movePrompter = function (inputDom) {
   var prompter = inputDom.prompter;
   if (!prompter) return;
   if (inputDom.parentNode && inputDom.parentNode.floatingPlaceholder) inputDom = inputDom.parentNode;
@@ -246,6 +233,4 @@ pui.movePrompter = function(inputDom) {
   prompter.style.visibility = inputDom.style.visibility;
   prompter.style.filter = inputDom.style.filter;
   prompter.style.opacity = inputDom.style.opacity;
-
-}
-
+};

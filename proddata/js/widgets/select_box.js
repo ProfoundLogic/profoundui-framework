@@ -17,11 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-
-pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
-
+pui.loadSelectBoxChoices = function (choicesString, choiceValuesString, dom) {
   var choices = pui.parseCommaSeparatedList(choicesString);
   var choiceValues = pui.parseCommaSeparatedList(choiceValuesString);
 
@@ -35,23 +31,22 @@ pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
       dom.options[dom.options.length] = option;
     }
     dom.choices[optionValue] = optionText;
-  }  
+  }
 };
 
-pui.setSelectBoxValue = function(value, dom) {
-  
+pui.setSelectBoxValue = function (value, dom) {
   // If this is a numeric field in Genie, trim blanks...
   if (dom.fieldInfo != null && dom.fieldInfo.shift != null) {
-    if (dom.fieldInfo.shift == '2' 
-     || dom.fieldInfo.shift == '3'
-     || dom.fieldInfo.shift == '5'
-     || dom.fieldInfo.shift == '7') {
-       value = trim(value);
-       dom.pui.properties["value"] = value;
+    if (dom.fieldInfo.shift == "2" ||
+     dom.fieldInfo.shift == "3" ||
+     dom.fieldInfo.shift == "5" ||
+     dom.fieldInfo.shift == "7") {
+      value = trim(value);
+      dom.pui.properties["value"] = value;
     }
   }
-  
-  if (dom.tagName == "INPUT") {  // read-only select box widgets do not get converted into dropdowns
+
+  if (dom.tagName == "INPUT") { // read-only select box widgets do not get converted into dropdowns
     if (dom.choices != null && dom.choices[value] != null) {
       dom.value = dom.choices[value];
     }
@@ -81,42 +76,39 @@ pui.setSelectBoxValue = function(value, dom) {
   }
 };
 
-
 pui.widgets.add({
   name: "select box",
   tag: "select",
   menuName: ["Dropdown Box", "List Box"],
 
   propertySetters: {
-  
-    "field type": function(parms) {
 
+    "field type": function (parms) {
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
       parms.dom.choices = {};
-      
+
       // Use program, if given.
       var url = parms.evalProperty("choices url");
       if (url != "" && !parms.design) {
-      	
       	var req = new pui.Ajax(pui.appendAuth(url));
       	req["async"] = true;
       	req["suppressAlert"] = true;
-      	req["onready"] = function() {
+      	req["onready"] = function () {
           if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
           parms.dom.choices = {};
-          var response = checkAjaxResponse(req, "Generate Dropdown Box Options");        	  
+          var response = checkAjaxResponse(req, "Generate Dropdown Box Options");
           if (!response) return;
           var opts = response;
           for (var i = 0; i < opts.length; i++) {
             var option = opts[i];
             if (parms.dom.tagName == "SELECT") {
               try {
-                if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null){
-                  option = new Option(option.text, option.value);  //Option can be JSON object; make into DOM element. Issue 4900.
+                if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null) {
+                  option = new Option(option.text, option.value); // Option can be JSON object; make into DOM element. Issue 4900.
                 }
                 parms.dom.add(option);
               }
-              catch(e) {
+              catch (e) {
                 parms.dom.add(option, null);
               }
             }
@@ -132,42 +124,34 @@ pui.widgets.add({
       	req.send();
       	return;
       }
-      
+
       // Use database file settings, if given.
       if (parms.evalProperty("choices database file") != "") {
         if (!parms.design) {
-          var maxChoices    = parms.evalProperty("max choices");
-          var file          = parms.evalProperty("choices database file");
-          var textFields    = pui.getFieldList(parms.evalProperty("choice options field")); 
-          var valueField    = parms.evalProperty("choice values field");
-          if (valueField   == null || valueField == "") valueField = textFields[0];
-          var whereClause   = parms.evalProperty("choices selection criteria");
+          var maxChoices = parms.evalProperty("max choices");
+          var file = parms.evalProperty("choices database file");
+          var textFields = pui.getFieldList(parms.evalProperty("choice options field"));
+          var valueField = parms.evalProperty("choice values field");
+          if (valueField == null || valueField == "") valueField = textFields[0];
+          var whereClause = parms.evalProperty("choices selection criteria");
           var orderByFields = pui.getFieldList(parms.evalProperty("order by"));
-          
+
           if (orderByFields[0] != "") {
-          
             for (var i = 0; i < orderByFields.length; i++) {
-            
               var fld = orderByFields[i];
               if (pui.arrayIndexOf(textFields, fld) == -1) {
-              
                 textFields.push(fld);
-              
               }
-            
             }
-          
-          }          
-          
+          }
+
           // Value field must always be second for backend SQL programs to work properly.
           var fieldList = textFields[0] + ", " + valueField;
           textFields.splice(0, 1);
           if (textFields.length > 0) {
-          
             fieldList += ", " + textFields.join();
-          
           }
-          
+
           var sql = "SELECT DISTINCT " + fieldList + " FROM " + file;
           if (whereClause && whereClause != "") {
             sql += " WHERE " + whereClause;
@@ -175,7 +159,7 @@ pui.widgets.add({
           if (orderByFields[0] != "") {
             sql += " ORDER BY " + orderByFields.join();
           }
-          
+
           var url = getProgramURL("PUI0009103.PGM");
           var ajaxRequest = new pui.Ajax(url);
           ajaxRequest["method"] = "post";
@@ -184,68 +168,61 @@ pui.widgets.add({
           if (pui.pjs_session_id) ajaxRequest["postData"] = "AUTH=" + pui.pjs_session_id;
           else ajaxRequest["postData"] = "AUTH=" + pui.appJob.auth;
           if (pui["secLevel"] > 0) {
-          
-            ajaxRequest["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom)); 
-          
+            ajaxRequest["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
+
             var pstring = pui.getSQLParams(parms.properties);
             if (pstring != "") {
-            
               ajaxRequest["postData"] += "&" + pstring;
-            
             }
-          
           }
           else {
-          
             ajaxRequest["postData"] += "&q=" + pui.aes.encryptString(sql);
-            
           }
-          
+
           if (pui["isCloud"]) {
             ajaxRequest["postData"] += "&workspace_id=" + pui.cloud.ws.id;
           }
-          
+
           if (maxChoices != null && maxChoices != "") {
           	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
-          if( pui["read db driven data as ebcdic"] !== true ) ajaxRequest["postData"] += "&UTF8=Y";
+          if (pui["read db driven data as ebcdic"] !== true) ajaxRequest["postData"] += "&UTF8=Y";
 
-          ajaxRequest["onsuccess"] = function() {
-
+          ajaxRequest["onsuccess"] = function () {
             var eventCode = parms.evalProperty("ondbload");
             if (typeof eventCode != "string" || eventCode == "") eventCode = null;
-            
+
           	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
           	if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
           	if (!response) {
-          	  if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id); 
-          	  return;              	
+          	  if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id);
+          	  return;
           	}
-            
+
             if (parms.properties["blank option"] == "true") {
               var blankOptionLabel = parms.evalProperty("blank option label");
               if (blankOptionLabel == null) blankOptionLabel = "";
               if (parms.dom.tagName == "SELECT") parms.dom.options[0] = new Option(blankOptionLabel, "");
             }
-            var opts = response;            
+            var opts = response;
             for (var i = 0; i < opts.length; i++) {
               var option = opts[i];
               if (parms.dom.tagName == "SELECT") {
                 try {
-                  if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null){
-                    option = new Option(option.text, option.value);  //Option can be JSON object; make into DOM element. Issue 4900.
+                  if (option != null && option.nodeType != "OPTION" && option.text != null && option.value != null) {
+                    option = new Option(option.text, option.value); // Option can be JSON object; make into DOM element. Issue 4900.
                   }
                   parms.dom.add(option);
                 }
-                catch(e) {
+                catch (e) {
                   parms.dom.add(option, null);
                 }
               }
               parms.dom.choices[option.value] = option.text;
-            }               
+            }
             pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
             if (eventCode) pui.executeDatabaseLoadEvent(eventCode, true, parms.dom.id);
-            parms.dom.isLoading = false; 
+            parms.dom.isLoading = false;
           };
           if (parms.dom.tagName == "SELECT") {
             parms.dom.options.length = 0;
@@ -256,61 +233,55 @@ pui.widgets.add({
         }
         return;
       }
-    
+
       var choicesString = parms.evalProperty("choices");
-      var choiceValuesString = parms.evalProperty("choice values");
-      pui.loadSelectBoxChoices(choicesString, choiceValuesString, parms.dom);
-      pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
-    },
-    
-    "value": function(parms) {
-      pui.setSelectBoxValue(parms.value, parms.dom);
-    },
-    
-    "choices": function(parms) {
-    
-      // Can't have this happening at the same time as other population options.
-      // Causes timing/order of events issues if you call 'get()' while Ajax calls
-      // are in progress.
-      var db = parms.evalProperty("choices database file");
-      var url = parms.evalProperty("choices url");
-      
-      if (db != "" || url != "") {
-      
-        return;
-        
-      } 
-    
-      if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
-      var choicesString = parms.value; 
       var choiceValuesString = parms.evalProperty("choice values");
       pui.loadSelectBoxChoices(choicesString, choiceValuesString, parms.dom);
       pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
     },
 
-    "choice values": function(parms) {
-    
+    "value": function (parms) {
+      pui.setSelectBoxValue(parms.value, parms.dom);
+    },
+
+    "choices": function (parms) {
       // Can't have this happening at the same time as other population options.
       // Causes timing/order of events issues if you call 'get()' while Ajax calls
       // are in progress.
       var db = parms.evalProperty("choices database file");
       var url = parms.evalProperty("choices url");
-      
+
       if (db != "" || url != "") {
-      
         return;
-        
-      }    
-    
+      }
+
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
-      var choicesString = parms.evalProperty("choices");
-      var choiceValuesString = parms.value; 
+      var choicesString = parms.value;
+      var choiceValuesString = parms.evalProperty("choice values");
       pui.loadSelectBoxChoices(choicesString, choiceValuesString, parms.dom);
       pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
     },
-    
-    "select box height": function(parms) {
-      // Process change in select box height for IE6 -- list boxes show normally, but dropdowns show as textboxes in design mode  
+
+    "choice values": function (parms) {
+      // Can't have this happening at the same time as other population options.
+      // Causes timing/order of events issues if you call 'get()' while Ajax calls
+      // are in progress.
+      var db = parms.evalProperty("choices database file");
+      var url = parms.evalProperty("choices url");
+
+      if (db != "" || url != "") {
+        return;
+      }
+
+      if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
+      var choicesString = parms.evalProperty("choices");
+      var choiceValuesString = parms.value;
+      pui.loadSelectBoxChoices(choicesString, choiceValuesString, parms.dom);
+      pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
+    },
+
+    "select box height": function (parms) {
+      // Process change in select box height for IE6 -- list boxes show normally, but dropdowns show as textboxes in design mode
       if (parms.design && pui["is_old_ie"] && pui["ie_mode"] == 6) {
         var nmodel = getPropertiesNamedModel();
         applyPropertyToField(nmodel["field type"], parms.properties, parms.dom, "select box", parms.design, parms.designItem, parms.resizer);
@@ -320,6 +291,3 @@ pui.widgets.add({
   }
 
 });
-
-
-

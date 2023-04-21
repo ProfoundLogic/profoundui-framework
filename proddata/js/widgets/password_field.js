@@ -18,55 +18,54 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // function to process the change in [password field][show visibility eye] property
-function buildVisibilityEye(parms) {
+function buildVisibilityEye (parms) {
   var showVisibilityEye = parms.properties["show visibility eye"];
   var dom = parms.dom;
-  var passwordElement = document.getElementById(dom.id); 
+  var passwordElement = document.getElementById(dom.id);
   if (showVisibilityEye === "true") {
-    var eyeElement = document.createElement('i');
-    passwordElement.style.zIndex = '21';
-    eyeElement.id = dom.id.replace('Password', 'PasswordEye');
-    eyeElement.classList = 'pui-fa-solid-icons fa-eye';
-    eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 9) + 'px';
-    eyeElement.style.left = passwordElement.offsetLeft + (passwordElement.offsetWidth - 35) + 'px';
-    eyeElement.style.fontSize = '20px';
-    eyeElement.style.color = 'lightslategray';
-    eyeElement.style.zIndex = '22';
-    eyeElement.style.position = 'absolute';
-    eyeElement.style.cursor = 'pointer';
+    var eyeElement = document.createElement("i");
+    passwordElement.style.zIndex = "21";
+    eyeElement.id = dom.id.replace("Password", "PasswordEye");
+    eyeElement.classList = "pui-fa-solid-icons fa-eye";
+    eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 9) + "px";
+    eyeElement.style.left = passwordElement.offsetLeft + (passwordElement.offsetWidth - 35) + "px";
+    eyeElement.style.fontSize = "20px";
+    eyeElement.style.color = "lightslategray";
+    eyeElement.style.zIndex = "22";
+    eyeElement.style.position = "absolute";
+    eyeElement.style.cursor = "pointer";
     passwordElement.before(eyeElement);
 
     // add event listener for the toggle control
-    eyeElement.addEventListener('click', function(e) {
-      var passwordtype = passwordElement.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordElement.setAttribute('type', passwordtype);
-      eyeElement.classList.toggle('fa-eye-slash');
-    })
-
+    eyeElement.addEventListener("click", function (e) {
+      var passwordtype = passwordElement.getAttribute("type") === "password" ? "text" : "password";
+      passwordElement.setAttribute("type", passwordtype);
+      eyeElement.classList.toggle("fa-eye-slash");
+    });
   } else {
     // remove visibility eye from the widget
-    var eyeElementID = dom.id.replace('Password','PasswordEye');
+    var eyeElementID = dom.id.replace("Password", "PasswordEye");
     var eyeElement = document.getElementById(eyeElementID);
     if (eyeElement !== null) {
       eyeElement.remove();
-      passwordElement.style.zIndex = '';
+      passwordElement.style.zIndex = "";
     }
   }
 }
 
 // reposition the visibility eye when the [passowrd field] widget is moved on the canvas
-function onPasswordElementMove(parms) {
+function onPasswordElementMove (parms) {
   var showVisibilityEye = parms.properties["show visibility eye"];
   if (showVisibilityEye === "true") {
     var dom = parms.dom;
-    var passwordElement = document.getElementById(dom.id); 
-    var eyeElementID = dom.id.replace('Password','PasswordEye');
+    var passwordElement = document.getElementById(dom.id);
+    var eyeElementID = dom.id.replace("Password", "PasswordEye");
     var eyeElement = document.getElementById(eyeElementID);
     if (eyeElement !== null) {
-      eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 9) + 'px';
-      eyeElement.style.left = passwordElement.offsetLeft + (passwordElement.offsetWidth - 35) + 'px';
+      eyeElement.style.top = passwordElement.offsetTop + ((passwordElement.offsetHeight / 2) - 9) + "px";
+      eyeElement.style.left = passwordElement.offsetLeft + (passwordElement.offsetWidth - 35) + "px";
     }
-  }  
+  }
 }
 
 pui.widgets.add({
@@ -76,15 +75,15 @@ pui.widgets.add({
   newId: "Password",
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
         if (pui.iPadEmulation && !pui.iPhoneEmulation) {
-          addEvent(parms.dom, "focus", function(event) {
+          addEvent(parms.dom, "focus", function (event) {
             getObj("ipadKeyboard").style.display = "";
           });
-          addEvent(parms.dom, "blur", function(event) {
+          addEvent(parms.dom, "blur", function (event) {
             getObj("ipadKeyboard").style.display = "none";
           });
         }
@@ -92,59 +91,58 @@ pui.widgets.add({
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
           if (context == "dspf")
-            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
         }
       }
     },
-    
-    "value": function(parms) {
+
+    "value": function (parms) {
       parms.dom.value = parms.value;
     },
-    
-    "top": function(parms){
+
+    "top": function (parms) {
       onPasswordElementMove(parms);
     },
 
-    "left": function(parms){
+    "left": function (parms) {
       onPasswordElementMove(parms);
     },
 
-    "width": function(parms){
+    "width": function (parms) {
       onPasswordElementMove(parms);
     },
 
-    "height": function(parms){
+    "height": function (parms) {
       onPasswordElementMove(parms);
     },
 
-    "browser auto complete": function(parms) {
+    "browser auto complete": function (parms) {
       if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
           if (parms.value == "off")
-            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
           else
-            parms.dom.removeAttribute("name");
+          { parms.dom.removeAttribute("name"); }
         }
       }
     },
-  
-    "show visibility eye": function(parms) {
-      if(parms.properties["parent tab"] === undefined){
+
+    "show visibility eye": function (parms) {
+      if (parms.properties["parent tab"] === undefined) {
         parms.properties["show visibility eye"] = parms.value;
         buildVisibilityEye(parms);
       } else {
-        pui.alert("Cannot turn property to true when password field is contained in a Tab Panel control. Please use a Tab Layout control.")
+        pui.alert("Cannot turn property to true when password field is contained in a Tab Panel control. Please use a Tab Layout control.");
       }
     }
-  
+
   },
 
-  globalAfterSetter: function(parms) {
-    if (parms.propertyName == 'field type' && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
+  globalAfterSetter: function (parms) {
+    if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       pui.floatPlaceholder(parms.dom);
     }
   }
-  
-});
 
+});

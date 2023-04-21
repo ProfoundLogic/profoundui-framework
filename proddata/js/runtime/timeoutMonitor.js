@@ -17,7 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
 // pui.timeoutMonitor.timer.reset() called in the onuseractivity function
 // pui.timeoutMonitor.start() called in the rendering functions in both Rich Displays and Genie
 // pui.timeoutMonitor.end() called when a screen is submitted
@@ -25,40 +24,40 @@
 pui.timeoutMonitor = {};
 
 pui.timeoutMonitor.timer = new pui["Timer"]();
-pui.timeoutMonitor.timer.action = function() {
+pui.timeoutMonitor.timer.action = function () {
   var returnValue = true;
-  if (pui["onbeforetimeout"] != null && typeof pui["onbeforetimeout"] == "function"){
+  if (pui["onbeforetimeout"] != null && typeof pui["onbeforetimeout"] == "function") {
     returnValue = pui["onbeforetimeout"]();
   }
   if (returnValue !== false) pui.timeoutMonitor.showTimeOutScreen();
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
-}
+};
 
 pui.timeoutMonitor.keepalive = new pui["Timer"]();
-pui.timeoutMonitor.keepalive.action = function() {
+pui.timeoutMonitor.keepalive.action = function () {
   pui["keepAlive"]();
-}
+};
 
-pui.timeoutMonitor.showTimeOutScreen = function() {
+pui.timeoutMonitor.showTimeOutScreen = function () {
   pui["doSessionTimeout"]();
-}
+};
 
-pui.timeoutMonitor.start = function() {  // this is called when a screen is rendered
+pui.timeoutMonitor.start = function () { // this is called when a screen is rendered
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
   if (pui.timeout == null) return;
-  var keepAliveValue = pui.timeout - 10;  // keep alive value is 10 seconds less than the timeout value 
-  if (keepAliveValue < 3) return;     // check if keep alive is too frequent
+  var keepAliveValue = pui.timeout - 10; // keep alive value is 10 seconds less than the timeout value
+  if (keepAliveValue < 3) return; // check if keep alive is too frequent
   pui.timeoutMonitor.timer.timeout = pui.timeout;
-  //pui.timeoutMonitor.timer.showDebugInfo = true;
+  // pui.timeoutMonitor.timer.showDebugInfo = true;
   pui.timeoutMonitor.keepalive.timeout = keepAliveValue;
-  //pui.timeoutMonitor.keepalive.showDebugInfo = true;
+  // pui.timeoutMonitor.keepalive.showDebugInfo = true;
   pui.timeoutMonitor.timer.start();
   pui.timeoutMonitor.keepalive.start();
-}
+};
 
-pui.timeoutMonitor.end = function() {  // this is called when a screen is submitted
+pui.timeoutMonitor.end = function () { // this is called when a screen is submitted
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
-}
+};

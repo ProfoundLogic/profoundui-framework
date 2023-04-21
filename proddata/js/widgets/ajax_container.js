@@ -17,8 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 pui.widgets.add({
   name: "ajax container",
   defaults: {
@@ -27,8 +25,8 @@ pui.widgets.add({
   },
 
   propertySetters: {
-  
-    "field type": function(parms) {
+
+    "field type": function (parms) {
       if (parms.design) {
         parms.dom.innerHTML = "AJAX content will appear here.";
         parms.dom.style.overflow = "hidden";
@@ -40,19 +38,18 @@ pui.widgets.add({
           parms.dom.innerHTML = "AJAX URL property not specified.";
         }
         else {
-          ajax(url, function(response) {
+          ajax(url, function (response) {
             try {
               pui.setHtmlWithEjs(parms.dom, response);
             }
-            catch(err) {
+            catch (err) {
               parms.dom.innerHTML = err.message;
             }
-          })
+          });
         }
       }
     }
-    
-  }
-  
-});
 
+  }
+
+});

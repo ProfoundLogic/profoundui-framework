@@ -17,128 +17,103 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
 if (!window["Atrium"]) window["Atrium"] = new Object();
 
-Atrium["launchURL"] = function(url, title, closable) {
-
+Atrium["launchURL"] = function (url, title, closable) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
-  return awin["Atrium"]["api"]["launchURL"](url, title, closable); 
-  
-}
+  return awin["Atrium"]["api"]["launchURL"](url, title, closable);
+};
 
-Atrium["closeTab"] = function(tab) {
-
+Atrium["closeTab"] = function (tab) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
   awin["Atrium"]["api"]["closeTab"](window, tab);
+};
 
-  
-}
-
-Atrium["launchItem"] = function(itemId, closable, callback) {
-
+Atrium["launchItem"] = function (itemId, closable, callback) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
   return awin["Atrium"]["api"]["launchItem"](itemId, closable, callback);
-  
-}
+};
 
-Atrium["activateTab"] = function(tab) {
-
+Atrium["activateTab"] = function (tab) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
   awin["Atrium"]["api"]["activateTab"](tab);
-  
-}
+};
 
-Atrium["closeAllTabs"] = function(keepHomePage) {
-  
+Atrium["closeAllTabs"] = function (keepHomePage) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
   awin["Atrium"]["api"]["closeAllTabs"](window, keepHomePage);
-  
-}
+};
 
-Atrium["getCurrentTab"] = function() {
-  
+Atrium["getCurrentTab"] = function () {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
 
   return awin["Atrium"]["api"]["getCurrentTab"](window);
-  
-}
+};
 
-Atrium["getToken"] = function() {
-
+Atrium["getToken"] = function () {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   return awin["Atrium"]["api"]["getToken"]();
+};
 
-}
-
-Atrium["getUser"] = function() {
-
+Atrium["getUser"] = function () {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
-  return awin["Atrium"]["api"]["getUser"]();  
 
-}
+  return awin["Atrium"]["api"]["getUser"]();
+};
 
-Atrium["runPCCommand"] = function(command) {
-  
+Atrium["runPCCommand"] = function (command) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   awin["Atrium"]["api"]["runPCCommand"](command);
-  
-}
+};
 
-Atrium["refreshNavPanel"] = function() {
-  
+Atrium["refreshNavPanel"] = function () {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   awin["Atrium"]["api"]["refreshNavPanel"]();
-  
-}
+};
 
-Atrium["setMenuFilter"] = function(value) {
-
+Atrium["setMenuFilter"] = function (value) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   awin["Atrium"]["api"]["setMenuFilter"](value);
+};
 
-}
-
-Atrium["breakMessagesShow"] = function(messages, userId){
+Atrium["breakMessagesShow"] = function (messages, userId) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   awin["Atrium"]["api"]["breakMessagesShow"](messages, userId);
 };
 
-Atrium["breakMessagesOnStorage"] = function(e){
+Atrium["breakMessagesOnStorage"] = function (e) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
-  
+
   awin["Atrium"]["api"]["breakMessagesOnStorage"](e);
 };
 
-
-Atrium["getAtriumWindow"] = function(checkOpener) {
+Atrium["getAtriumWindow"] = function (checkOpener) {
   if (checkOpener === true) {
     if (window.opener && window.opener["Atrium"] && window.opener["Atrium"]["api"])
-      return window.opener;
+    { return window.opener; }
   }
   var par = window.parent;
   while (par != null && par != par.parent && (par["Atrium"] == null || par["Atrium"]["api"] == null)) {
@@ -146,47 +121,44 @@ Atrium["getAtriumWindow"] = function(checkOpener) {
   }
   if (par == null || par["Atrium"] == null || par["Atrium"]["api"] == null) return null;
   return par;
-}
+};
 
+Atrium["collapseNav"] = function () {
+  var awin = Atrium["getAtriumWindow"]();
+  awin["Atrium"]["api"]["collapseNav"]();
+};
+Atrium["expandNav"] = function () {
+  var awin = Atrium["getAtriumWindow"]();
+  awin["Atrium"]["api"]["expandNav"]();
+};
 
-Atrium["collapseNav"] = function() {
-	var awin = Atrium["getAtriumWindow"]();
-	awin["Atrium"]["api"]["collapseNav"]();
-}
-Atrium["expandNav"] = function() {
-	var awin = Atrium["getAtriumWindow"]();
-	awin["Atrium"]["api"]["expandNav"]();
-}
-
-Atrium["setTabTitle"] = function() {
-  
+Atrium["setTabTitle"] = function () {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null)
-    return;
+  { return; }
   if (arguments.length == 1)
-    awin["Atrium"]["api"]["setTabTitle"](window, arguments[0]);
+  { awin["Atrium"]["api"]["setTabTitle"](window, arguments[0]); }
   else if (arguments.length == 2)
-    awin["Atrium"]["api"]["setTabTitle"](arguments[0], arguments[1]);
-  
-}
+  { awin["Atrium"]["api"]["setTabTitle"](arguments[0], arguments[1]); }
+};
 
-Atrium["resetInactivityTimeout"] = function() {
+Atrium["resetInactivityTimeout"] = function () {
   var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
-    return;
+  { return; }
   awin["Atrium"]["api"]["resetInactivityTimeout"]();
-}
+};
 
-Atrium["getSettings"] = function() {
+Atrium["getSettings"] = function () {
   var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
-    return;
+  { return; }
   return awin["Atrium"]["api"]["getSettings"]();
-}
+};
 
-Atrium["attachActivityMonitor"] = function() {
+Atrium["attachActivityMonitor"] = function () {
   var awin = Atrium["getAtriumWindow"](true);
   if (awin == null)
-    return;
+  { return; }
   awin["Atrium"]["api"]["attachActivityMonitor"](window);
-}
+};

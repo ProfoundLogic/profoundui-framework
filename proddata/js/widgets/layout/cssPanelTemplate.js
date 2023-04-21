@@ -24,10 +24,9 @@
  * @returns {Element|Object}
  */
 pui.layout.template.cssPanelTemplate = function (parms, dom) {
-
   var properties = parms.properties;
   var proxyMode = parms.proxyMode;
-  
+
   var panel = new pui.CSSPanel();
   panel.forLayout = true;
   panel.container = dom;
@@ -58,5 +57,4 @@ pui.layout.template.cssPanelTemplate = function (parms, dom) {
   }
 
   return dom;
-
 };

@@ -17,12 +17,10 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-pui.layout.template.processDOM = function(dom) {
+pui.layout.template.processDOM = function (dom) {
   var toRepeat = [];
-  
-  function processNodes(el) {
+
+  function processNodes (el) {
     if (el == null) return;
     if (el.getAttribute != null) {
       if (el.getAttribute("condition") == "false" && el.parentNode != null) {
@@ -46,22 +44,22 @@ pui.layout.template.processDOM = function(dom) {
         }
       }
       if (el.getAttribute("container") == "true") {
-        if (el.innerHTML == null) {  // this node cannot be a container
+        if (el.innerHTML == null) { // this node cannot be a container
           el.removeAttribute("container");
         }
         else {
-          el.innerHTML = "";  // a container cannot have any children
+          el.innerHTML = ""; // a container cannot have any children
         }
       }
-    } 
+    }
     var childNodes = el.childNodes;
     if (childNodes == null || childNodes.length == null) return;
     for (var i = 0; i < childNodes.length; i++) {
       processNodes(childNodes[i]);
     }
   }
-  
-  function repeatNodes() {
+
+  function repeatNodes () {
     var repeatObj;
     while ((repeatObj = toRepeat.pop()) != null) {
       var el = repeatObj.el;
@@ -72,9 +70,7 @@ pui.layout.template.processDOM = function(dom) {
       }
     }
   }
-  
+
   processNodes(dom);
   repeatNodes();
- 
-}
-
+};

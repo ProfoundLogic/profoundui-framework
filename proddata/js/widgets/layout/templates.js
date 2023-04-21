@@ -25,9 +25,9 @@ pui.layout["templates"] = {};
  * @param {String} templateName   URL or name of the template. Name is expected to be part of an IFS file name. See issues 3548, 5999.
  */
 pui["retrieveCustomLayoutTemplate"] = function (templateName) {
-  if (typeof templateName === 'string' && templateName.length > 0){
+  if (typeof templateName === "string" && templateName.length > 0) {
     pui.customLayoutTemplateQueue = pui.customLayoutTemplateQueue || [];
-    
+
     var url = templateName;
     if (templateName.substr(0, 1) != "/" &&
       templateName.substr(0, 5).toLowerCase() != "http:" &&
@@ -41,7 +41,6 @@ pui["retrieveCustomLayoutTemplate"] = function (templateName) {
     });
   }
 };
-
 
 pui["maximizeLayout"] = function (e) {
   var itemDom = getTarget(e).parentNode;
@@ -78,7 +77,7 @@ pui["maximizeLayout"] = function (e) {
  * @param {Object} parms
  * @returns {Element}   Returns the DOM element containing the layout.
  */
-pui.layout.template.load = function(parms){
+pui.layout.template.load = function (parms) {
   // All templates do this: get a new wrapper div.
   var dom;
   var existingDom = parms.dom;
@@ -89,33 +88,33 @@ pui.layout.template.load = function(parms){
     dom = document.createElement("div");
   }
   dom.innerHTML = "";
-  
+
   var template = pui.layout["templates"][parms.template];
   switch (parms.template) {
-    case 'css panel':
+    case "css panel":
       dom = pui.layout.template.cssPanelTemplate(parms, dom);
       break;
 
     // Constructors for these templates do everything, obviating an extra template loader file.
-    case 'accordion':
+    case "accordion":
       new pui.Accordion(parms, dom);
       break;
-    
-    case 'tab panel':
+
+    case "tab panel":
       new pui.TabLayout(parms, dom);
       break;
-    case 'responsive layout':
+    case "responsive layout":
       var constr = parms.designMode ? pui.designer.responsive.ResponsiveLayout : pui.ResponsiveLayout;
       new constr(parms, dom);
       break;
-    case 'fieldset':
+    case "fieldset":
       new pui.FieldsetLayout(parms, dom);
       break;
 
     default:
       // custom function provided instead of HTML. (Customer templates could reach this; also
       // simple container, table, and mobile device reach here.)
-      if (typeof template == "function")  dom = template(parms);
+      if (typeof template == "function") dom = template(parms);
       // The template is probably contained in an HTML string and needs to be processed.
       else dom = pui.layout.template.processHTML(parms, dom);
       break;
@@ -125,12 +124,12 @@ pui.layout.template.load = function(parms){
 
 pui.layout.maximizeIcon = "<div condition=\"{ designValue: 'true', runtimeValue: 'false', proxyValue: 'false' }\" title=\"Maximize\" style=\"position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; cursor: pointer; background-image: url(/profoundui/proddata/images/icons/maximize.png)\" onmousedown=\"pui.maximizeLayout(event)\" />";
 
-pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', helpDefault: 'hidden', help: 'Determines whether a horizontal scrollbar should be displayed.', "
-  + "choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', helpDefault: 'hidden', help: 'Determines whether a vertical scrollbar should be displayed.', "
-  + "choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
+pui.layout["templates"]["simple container"] = "<div style=\"position: relative; width: 100%; height: 100%; overflow: hidden; overflow-x: { property: 'overflow x', helpDefault: 'hidden', help: 'Determines whether a horizontal scrollbar should be displayed.', " +
+  "choices: ['visible', 'hidden', 'scroll', 'auto'] }; overflow-y: { property: 'overflow y', helpDefault: 'hidden', help: 'Determines whether a vertical scrollbar should be displayed.', " +
+  "choices: ['visible', 'hidden', 'scroll', 'auto'] };\"><div stretch=\"true\" container=\"true\" style=\"overflow: hidden; { designValue: 'border: 2px dashed #666666;' } { proxyValue: 'width: 97px; height: 97px;' } \"></div></div>";
 
-pui.layout["templates"]["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', helpDefault: '2', help: 'Specifies the number of table rows for this layout.' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" "
-    +"repeat=\"{ property: 'columns', helpDefault: '2', help: 'Specifies the number of table columns for this layout.' }\"><div stretch=\"true\" container=\"true\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr></table>";
+pui.layout["templates"]["table"] = "<table style=\"empty-cells: show; overflow: hidden;\" width=\"100%\" height=\"100%\"><tr repeat=\"{ property: 'rows', helpDefault: '2', help: 'Specifies the number of table rows for this layout.' }\"><td style=\"border: { designValue: '1', runtimeValue: 0 }px dashed #666666;\" " +
+    "repeat=\"{ property: 'columns', helpDefault: '2', help: 'Specifies the number of table columns for this layout.' }\"><div stretch=\"true\" container=\"true\" style=\"position: relative; width: 100%; overflow: hidden;\"></div></td></tr></table>";
 pui.layout["templates"]["table"] += pui.layout.maximizeIcon;
 
 pui.layout["templates"]["mobile device"] = "<table cellpadding=\"0\" cellspacing=\"0\">";
@@ -148,7 +147,7 @@ pui.layout["templates"]["tab panel"] = true;
 pui.layout["templates"]["fieldset"] = true;
 
 /**
- * Returns an array of template name strings. Referenced in pui.layout.getPropertiesModel, getTemplateList should be called any time 
+ * Returns an array of template name strings. Referenced in pui.layout.getPropertiesModel, getTemplateList should be called any time
  * the PropertiesWindow shows choices for the "templates" property in a layout.
  * @returns {Array}
  */
