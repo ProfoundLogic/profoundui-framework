@@ -500,11 +500,11 @@ pui.FieldFormat = {
         strDec = pui.formatting.rightPad(strDec, decLength, "0");
         strValue = strInt + (commaDecimal ? ',' : '.') + strDec;
         if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
-           strValue = "0" + strValue;
-         }
+          strValue = "0" + strValue;
+        }
 
         if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
-             strValue = "0" + strValue;
+          strValue = "0" + strValue;
         }
 
         if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
