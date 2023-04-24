@@ -8399,14 +8399,20 @@ pui.Grid = function () {
   };
 
   this["expandTreeLevel"] = function (rrn) {
-    var node = me.treeLevelData[rrn - 1].node;
-    me.gridTree.showChildren(node);
+    if (rrn === 0) me.gridTree.expandAll();
+    else {
+      var node = me.treeLevelData[rrn - 1].node;
+      me.gridTree.showChildren(node);
+    }
     me.refreshGridTree(node);
   };
 
   this["collapseTreeLevel"] = function (rrn) {
-    var node = me.treeLevelData[rrn - 1].node;
-    me.gridTree.hideChildren(node);
+    if (rrn === 0) me.gridTree.collapseAll();
+    else {
+      var node = me.treeLevelData[rrn - 1].node;
+      me.gridTree.hideChildren(node);
+    }
     me.refreshGridTree(node);
   };
 

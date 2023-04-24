@@ -50,10 +50,12 @@ pui.GridTree.prototype.add = function (data, toNodeData) {
   if (parent) {
     parent.children.push(node);
     node.parentNode = parent;
-  } else {
+  }
+  else {
     if (!this.root) {
       this.root = node;
-    } else {
+    }
+    else {
       return "Root node is already assigned";
     }
   }
@@ -80,7 +82,8 @@ pui.GridTree.prototype.toggleChildren = function (node) {
   if (node.currentState === "expanded") {
     this.hideChildren(node);
     node.currentState = "collapsed";
-  } else {
+  }
+  else {
     this.showChildren(node);
     node.currentState = "expanded";
   }
@@ -88,12 +91,15 @@ pui.GridTree.prototype.toggleChildren = function (node) {
 
 pui.GridTree.prototype.isAncestorHidden = function (node) {
   var parentNode = node.parentNode;
-  if (parentNode === null)
-  { return false; } // reached root node
-  if (parentNode.showNode === false)
-  { return true; } // return "true"  if any ancestor is hidden
-  else
-  { return this.isAncestorHidden(parentNode); } // recursively back up the tree
+  if (parentNode === null) {
+    return false;
+  } // reached root node
+  if (parentNode.showNode === false) {
+    return true;
+  } // return "true"  if any ancestor is hidden
+  else {
+    return this.isAncestorHidden(parentNode);
+  } // recursively back up the tree
 };
 
 pui.GridTree.prototype.remove = function (data) {
@@ -107,7 +113,8 @@ pui.GridTree.prototype.remove = function (data) {
     for (var i = 0; i < node.children.length; i++) {
       if (node.children[i].data === data) {
         node.children.splice(i, 1);
-      } else {
+      }
+      else {
         queue.push(node.children[i]);
       }
     }
@@ -173,10 +180,34 @@ pui.GridTree.prototype.collapseAll = function () {
   }
 };
 
+pui.GridTree.prototype.expandAll = function () {
+  // Set the variable of the primary level tree
+  function expandAllFn (node) {
+    // Set to show the node
+    node.showNode = true;
+    // Set to show the row (children)
+    node.showRow = true;
+    node.currentState = "expanded";
+  }
+  // Closure for the _postOrder
+  this.traverseDFS(expandAllFn);
+  // always "show" root node in the model, even though it does not show in the view
+  this.root.showNode = true;
+  // show level-1 nodes in expanded mode
+  var levelOneNodes = this.root.children;
+  for (var i = 0; i < levelOneNodes.length; i++) {
+    var levelOneNode = levelOneNodes[i];
+    levelOneNode.showNode = true;
+    levelOneNode.showRow = true;
+    levelOneNode.currentState = "expanded";
+  }
+};
+
 pui.GridTree.prototype.refreshShowRow = function (node) {
   node.showRow = true;
-  if (node.showNode === false || this.isAncestorHidden(node))
-  { node.showRow = false; }
+  if (node.showNode === false || this.isAncestorHidden(node)) {
+    node.showRow = false;
+  }
   for (var i = 0; i < node.children.length; i++) {
     this.refreshShowRow(node.children[i]);
   }
@@ -186,7 +217,8 @@ pui.GridTree.prototype.traverseDFS = function (fn, method) {
   var current = this.root;
   if (method) {
     this["_" + method](current, fn);
-  } else {
+  }
+  else {
     this._preOrder(current, fn);
   }
 };
@@ -274,8 +306,9 @@ pui.GridTree.prototype.getMaxRRN = function (node) {
 
   function _getMaxRRN (node) {
     var rrn = parseInt(node.data);
-    if (rrn > rrnMax)
-    { rrnMax = rrn; }
+    if (rrn > rrnMax) {
+      rrnMax = rrn;
+    }
     for (var i = 0; i < node.children.length; i++) {
       _getMaxRRN(node.children[i]);
     }
