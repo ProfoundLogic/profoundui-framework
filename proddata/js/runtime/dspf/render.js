@@ -335,7 +335,7 @@ pui.overlayAdjust = function (formats) {
       var protect = (pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true");
       if (protect) {
         // protect all formats that come before this one
-        for (j = 0; j < i; j++) {
+        for (var j = 0; j < i; j++) {
           pui.protectFormat(formats[j]);
         }
       }
@@ -471,10 +471,13 @@ pui.cleanup = function () {
   }
   pui.layoutsDisplayed = [];
 
-  if (typeof FusionCharts != "undefined")
-  { for (var i = 0; i < pui.chartsRendered.length; i++)
-  { if (FusionCharts(pui.chartsRendered[i]))
-  { FusionCharts(pui.chartsRendered[i]).dispose(); } } }
+  if (typeof FusionCharts != "undefined") {
+    for (var i = 0; i < pui.chartsRendered.length; i++) {
+      if (FusionCharts(pui.chartsRendered[i])) {
+        FusionCharts(pui.chartsRendered[i]).dispose();
+      }
+    }
+  }
   pui.chartsRendered = [];
 
   for (var i = 0; i < pui.widgetsToCleanup.length; i++) {
@@ -1225,6 +1228,16 @@ pui.renderFormat = function (parms) {
   if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null) {
     items.push(parms.treeLevelItem); // temp only; removed after loop below is done
     treeLevelItemAdded = true;
+  }
+
+  // PJS-391 Add all routines defined in file to Tracker
+  if (isDesignMode && pui.wf.tracker && pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object") {
+    for (var routineName in pui.display.logic) {
+      pui.wf.tracker.update({
+        name: routineName,
+        data: pui.display.logic[routineName]
+      });
+    }
   }
 
   for (var i = 0; i < items.length; i++) {
