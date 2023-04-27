@@ -20,7 +20,7 @@
 // ------------------------------------------------------------
 //  Spanish / Spain
 // -------------------------------------------------------------
-var es_ES = function (dict) {
+var es_ES = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

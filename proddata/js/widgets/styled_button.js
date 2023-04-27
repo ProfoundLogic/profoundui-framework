@@ -238,7 +238,7 @@ pui.widgets.buttonStyles = {
   }
 };
 
-pui.widgets.getStyledButtonProxy = function (defaults) {
+pui.widgets.getStyledButtonProxy = function(defaults) {
   var bstyle = defaults["button style"];
   var parms = {};
   parms.dom = document.createElement("div");
@@ -254,7 +254,7 @@ pui.widgets.getStyledButtonProxy = function (defaults) {
   parms.properties.height = "23px";
   parms.properties.value = "Click Here";
   parms.properties["button style"] = bstyle;
-  parms.evalProperty = function (propName) {
+  parms.evalProperty = function(propName) {
     return parms.properties[propName];
   };
   pui.widgets["styled button"].propertySetters["field type"](parms);
@@ -270,7 +270,7 @@ pui.widgets.getStyledButtonProxy = function (defaults) {
   return parms.dom;
 };
 
-pui.widgets.setStyledButtonImages = function (bstyle, buttonObj, state) {
+pui.widgets.setStyledButtonImages = function(bstyle, buttonObj, state) {
   var path = pui.normalizeURL("/profoundui/proddata/images/buttons/" + bstyle + "/");
   buttonObj.topLeftDiv.style.backgroundImage = "url('" + path + "topleft" + state + ".png')";
   buttonObj.topMiddleDiv.style.backgroundImage = "url('" + path + "topmiddle" + state + ".png')";
@@ -287,7 +287,7 @@ pui.widgets.setStyledButtonImages = function (bstyle, buttonObj, state) {
   // preload -hi and -click images into cache
   var settings = pui.widgets.buttonStyles[bstyle];
   if (settings != null && settings.cached != true) {
-    function preload (imageName) {
+    function preload(imageName) {
       var image = new Image();
       image.src = path + imageName + ".png";
     }
@@ -317,7 +317,7 @@ pui.widgets.setStyledButtonImages = function (bstyle, buttonObj, state) {
   }
 };
 
-pui.widgets.resizeStyledButton = function (button, settings, width, height, parms) {
+pui.widgets.resizeStyledButton = function(button, settings, width, height, parms) {
   if (typeof width == "string") {
     if (width != "" && !isNaN(width)) width += "px";
     if (width.length >= 3 && width.substr(width.length - 2) == "px") width = parseInt(width);
@@ -406,8 +406,8 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
-      parms.dom.sizeMe = function () {
+    "field type": function(parms) {
+      parms.dom.sizeMe = function() {
         var bstyle = parms.properties["button style"];
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
@@ -497,7 +497,9 @@ pui.widgets.add({
       //  button.textDiv.style.cursor = "default";
       // }
       button.textDiv.style.overflow = "hidden";
-      button.textDiv.onselectstart = function (e) { return false; };
+      button.textDiv.onselectstart = function(e) {
+        return false;
+      };
       if (typeof button.textDiv.style.MozUserSelect != "undefined") button.textDiv.style.MozUserSelect = "none";
 
       // default styling
@@ -522,7 +524,7 @@ pui.widgets.add({
         button.textDiv.style.fontWeight = parms.properties["font weight"];
       }
 
-      function mouseover (e) {
+      function mouseover(e) {
         if ((parms.dom.getAttribute != null && parms.dom.getAttribute("disabled") == "true") ||
           (parms.dom.disabled != null && parms.dom.disabled == true)) {
           return;
@@ -544,7 +546,7 @@ pui.widgets.add({
       }
       if (parms.isProxy != true) addEvent(parms.dom, "mouseover", mouseover);
 
-      function mouseout (e) {
+      function mouseout(e) {
         parms.dom.mouseIsOver = false;
         if (parms.dom.clickedDown == true) return;
         if (pui["is_old_ie"]) {
@@ -571,7 +573,7 @@ pui.widgets.add({
       }
       if (parms.isProxy != true) addEvent(parms.dom, "mouseout", mouseout);
 
-      function mousedown (event) {
+      function mousedown(event) {
         if ((parms.dom.getAttribute != null && parms.dom.getAttribute("disabled") == "true") ||
           (parms.dom.disabled != null && parms.dom.disabled == true)) {
           return;
@@ -594,7 +596,7 @@ pui.widgets.add({
       }
       if (parms.isProxy != true) addEvent(parms.dom, "mousedown", mousedown);
 
-      function mouseup () {
+      function mouseup() {
         parms.dom.clickedDown = false;
         var bstyle = parms.dom.button.bstyle;
         var settings = pui.widgets.buttonStyles[bstyle];
@@ -644,7 +646,7 @@ pui.widgets.add({
       parms.dom.button.textDiv.innerHTML = parms.evalProperty("value");
     },
 
-    "button style": function (parms) {
+    "button style": function(parms) {
       var bstyle = parms.value;
       var settings = pui.widgets.buttonStyles[bstyle];
       if (settings == null) {
@@ -661,11 +663,11 @@ pui.widgets.add({
       pui.widgets.resizeStyledButton(button, settings, parms.properties["width"], parms.properties["height"]);
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.button.textDiv.innerHTML = parms.value;
     },
 
-    "width": function (parms) {
+    "width": function(parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
       else parms.dom.style.width = parms.value;
 
@@ -680,7 +682,7 @@ pui.widgets.add({
       pui.widgets.resizeStyledButton(button, settings, parms.value, parms.properties["height"], parms);
     },
 
-    "height": function (parms) {
+    "height": function(parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
       else parms.dom.style.height = parms.value;
 
@@ -695,57 +697,57 @@ pui.widgets.add({
       pui.widgets.resizeStyledButton(button, settings, parms.properties["width"], parms.value, parms);
     },
 
-    "color": function (parms) {
+    "color": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "#335588";
       parms.dom.button.textDiv.style.color = value;
     },
 
-    "font family": function (parms) {
+    "font family": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "Arial";
       parms.dom.button.textDiv.style.fontFamily = value;
     },
 
-    "font size": function (parms) {
+    "font size": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "12px";
       parms.dom.button.textDiv.style.fontSize = value;
     },
 
-    "font style": function (parms) {
+    "font style": function(parms) {
       parms.dom.button.textDiv.style.fontStyle = parms.value;
     },
 
-    "font variant": function (parms) {
+    "font variant": function(parms) {
       parms.dom.button.textDiv.style.fontVariant = parms.value;
     },
 
-    "font weight": function (parms) {
+    "font weight": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "bold";
       parms.dom.button.textDiv.style.fontWeight = value;
     },
 
-    "letter spacing": function (parms) {
+    "letter spacing": function(parms) {
       parms.dom.button.textDiv.style.letterSpacing = parms.value;
     },
 
-    "text align": function (parms) {
+    "text align": function(parms) {
       var value = parms.value;
       if (value == null || value == "") value = "center";
       parms.dom.button.textDiv.style.textAlign = value;
     },
 
-    "text decoration": function (parms) {
+    "text decoration": function(parms) {
       parms.dom.button.textDiv.style.textDecoration = parms.value;
     },
 
-    "text transform": function (parms) {
+    "text transform": function(parms) {
       parms.dom.button.textDiv.style.textTransform = parms.value;
     },
 
-    "word spacing": function (parms) {
+    "word spacing": function(parms) {
       parms.dom.button.textDiv.style.wordSpacing = parms.value;
     }
 

@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.applyEditWord = function (obj) {
+pui.applyEditWord = function(obj) {
   var edtwrd = obj.edtWrd;
   var value = obj.value;
   var decPos = Number(obj.decPos);
@@ -137,7 +137,7 @@ pui.applyEditWord = function (obj) {
   var floatingCurSym = false;
   var zeroSuppress = false;
   if (zeroSuppressPos == 0) zeroSuppress = true;
-  function getDigit () {
+  function getDigit() {
     if (charValue.length > 0) {
       var ch = charValue.substr(charValue.length - 1, 1);
       charValue = charValue.substr(0, charValue.length - 1);
@@ -221,7 +221,7 @@ pui.applyEditWord = function (obj) {
 //  via the pui["use original edit mask"] config option.
 // -------------------------------------------------------------------
 
-pui.applyEditMaskOriginal = function (dom, event, pos) {
+pui.applyEditMaskOriginal = function(dom, event, pos) {
   // get key code
   event = event || window.event;
   var key;
@@ -305,7 +305,7 @@ pui.applyEditMaskOriginal = function (dom, event, pos) {
   }
 };
 
-pui.applyEditMask = function (dom, event, pos) {
+pui.applyEditMask = function(dom, event, pos) {
   // for backward compatibility:
   if (typeof pui["use original edit mask"] != "undefined" &&
      pui["use original edit mask"] === true) {

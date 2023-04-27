@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function getTarget (e) {
+function getTarget(e) {
   var targ;
   if (!e) e = window.event;
   if (e.touches != null && e.touches.length == 1) { // detect touch screen device like iPad
@@ -26,11 +26,13 @@ function getTarget (e) {
   if (e.target) targ = e.target;
   else if (e.srcElement) targ = e.srcElement;
   if (targ.nodeType == 3) // defeat Safari bug
-  { targ = targ.parentNode; }
+  {
+    targ = targ.parentNode;
+  }
   return targ;
 }
 
-function preventEvent (event) {
+function preventEvent(event) {
   if (!event) event = window.event;
   if (window.event) {
     window.event.cancelBubble = true;
@@ -47,7 +49,7 @@ function preventEvent (event) {
  * @param {Event} event
  * @returns {Boolean}
  */
-pui.preventEvent = function (event) {
+pui.preventEvent = function(event) {
   preventEvent(event);
   return false;
 };
@@ -57,7 +59,7 @@ pui.preventEvent = function (event) {
 //   document.forms[formName].elements[elemName]
 //   document.getElementsByName(elemName)
 // This is a known IE bug. The following is a workaround:
-function getElementByName_iefix (elemName) {
+function getElementByName_iefix(elemName) {
   var form = document.forms["main"];
   var n = form.length;
   for (var i = 0; i < n; i++) {
@@ -69,7 +71,7 @@ function getElementByName_iefix (elemName) {
   return null;
 }
 
-function disableAction (e) {
+function disableAction(e) {
   if (pui["is_old_ie"] && pui["ie_mode"] >= 5) {
     e.cancelBubble = true;
     e.returnValue = false;
@@ -82,7 +84,7 @@ function disableAction (e) {
   }
 }
 
-function preventDoubleSubmit () {
+function preventDoubleSubmit() {
   if (pui["isServerBusy"]()) return false;
 
   hide_calendar();
@@ -124,28 +126,28 @@ function preventDoubleSubmit () {
 /**
  * @param {Object} e
  */
-function numericOnly (e) {
+function numericOnly(e) {
   if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
   var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123);
   allowKeys(allowedUnicodes, e);
 }
-function numericDecimalOnly (e) {
+function numericDecimalOnly(e) {
   if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
   var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 112, 123, 144, 145, 188, 190, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, 109);
   allowKeys(allowedUnicodes, e);
 }
-function numericSignOnly (e) {
+function numericSignOnly(e) {
   if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
   var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"]);
   allowKeys(allowedUnicodes, e);
 }
-function alphabeticOnly (e) {
+function alphabeticOnly(e) {
   if (!e) e = window.event;
   var target = e.srcElement || e.target;
   if (target.autoComp != null) return;
@@ -158,7 +160,7 @@ function alphabeticOnly (e) {
   allowedUnicodes.push(8, 9, 13, 16, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 110);
   allowKeys(allowedUnicodes, e);
 }
-function inhibitKeyboard (e) {
+function inhibitKeyboard(e) {
   e = e || window.event;
   if (typeof e.keyCode != "undefined") { // onkeydown
     if (e.ctrlKey == true && e.keyCode == 86) {
@@ -167,8 +169,9 @@ function inhibitKeyboard (e) {
     }
     var allowed = allowKeys([13, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123], e);
     if (!allowed) {
-      if (!pui.isFieldExit(e) && !e.shiftKey && !e.altKey && !e.ctrlKey && e.key.length == 1)
-      { pui.alert(pui["getLanguageText"]("runtimeMsg", "keyboard input inhibited")); }
+      if (!pui.isFieldExit(e) && !e.shiftKey && !e.altKey && !e.ctrlKey && e.key.length == 1) {
+        pui.alert(pui["getLanguageText"]("runtimeMsg", "keyboard input inhibited"));
+      }
       return false;
     }
   }
@@ -178,7 +181,7 @@ function inhibitKeyboard (e) {
   }
 }
 
-function defaultField (e) {
+function defaultField(e) {
   var allowedUnicodes = new Array(256);
 
   for (var i = 0; i <= 255; i++) {
@@ -189,7 +192,7 @@ function defaultField (e) {
   allowKeys(allowedUnicodes, e);
 }
 
-function getCursorPosition (obj) {
+function getCursorPosition(obj) {
   var cur;
   if (typeof obj == "string") obj = getObj(obj);
   if (obj == null) return -1;
@@ -228,7 +231,7 @@ function getCursorPosition (obj) {
  * be called after pui.dspfDesign(), after pui.loadDependencyFiles to correctly detect Visual Designer.
  * @returns {Boolean}
  */
-function inDesignMode () {
+function inDesignMode() {
   if (pui.ide && pui.ide.designerId) return true;
   if (toolbar == null) return false;
   if (toolbar.designer == null) return false;
@@ -238,7 +241,7 @@ function inDesignMode () {
 // Checks Ajax response for errors, and adds any messages to the
 // global "errors" object.
 // Returns either standard response object or false to indicate error with the response.
-function checkAjaxResponse (ajaxRequest, operation) {
+function checkAjaxResponse(ajaxRequest, operation) {
   // Check for HTTP-layer error.
   var errorId;
   var error = "";
@@ -290,7 +293,7 @@ function checkAjaxResponse (ajaxRequest, operation) {
  * @param {String} labelText
  * @param {Object|undefined} label    Only passed by DesignItem.js drawIcon when in design mode.
  */
-pui.buildLabel = function (dom, labelText, label) {
+pui.buildLabel = function(dom, labelText, label) {
   var designMode = true;
   if (label == null) {
     designMode = false;
@@ -303,8 +306,9 @@ pui.buildLabel = function (dom, labelText, label) {
   label.innerHTML = '<label title="' + dom.title + '" for="' + dom.id + '">' + labelText + "</label>";
   label.className = "label-for";
   var cls = trim(dom.className.split(" ")[0]);
-  if (cls != "")
-  { pui.addCssClass(label, "label-for-" + cls); }
+  if (cls != "") {
+    pui.addCssClass(label, "label-for-" + cls);
+  }
 
   // get z-index from the original element
   if (dom.currentStyle) {
@@ -346,7 +350,9 @@ pui.buildLabel = function (dom, labelText, label) {
     dom.extraDomEls.push(label);
 
     if (dom.parentNode != null) // If a grid column was removed, then parentNode could be null. #4855.
-    { dom.parentNode.appendChild(label); } // If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
+    {
+      dom.parentNode.appendChild(label);
+    } // If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
   }
 
   // Determine the X position. (Happens after appending child so that label width can be used for "right".)
@@ -393,7 +399,7 @@ pui.buildLabel = function (dom, labelText, label) {
     label.style.top = ""; // Since the DOM.style.top is blank, the label's top must be cleared.
   }
 
-  function setCalcString (styleProp, appendPxStr) {
+  function setCalcString(styleProp, appendPxStr) {
     var calcString = trim(dom.style[styleProp]);
     var lastParenth = calcString.lastIndexOf(")");
     if (lastParenth != -1) {
@@ -405,7 +411,7 @@ pui.buildLabel = function (dom, labelText, label) {
 };
 
 // Returns the PC-side timestamp in milliseconds since 1970/01/01 as a string.
-function getTimeStamp () {
+function getTimeStamp() {
   return String(new Date().getTime());
 }
 
@@ -413,7 +419,7 @@ function getTimeStamp () {
 
 if (!Array.prototype.find) {
   Object.defineProperty(Array.prototype, "find", {
-    value: function (predicate) {
+    value: function(predicate) {
       // 1. Let O be ? ToObject(this value).
       if (this == null) {
         throw TypeError('"this" is null or not defined');
@@ -460,7 +466,7 @@ if (!Array.prototype.find) {
 // the array  will include the shim method; issue #6535.
 if (!Array.prototype.findIndex) {
   Object.defineProperty(Array.prototype, "findIndex", {
-    value: function (predicate) {
+    value: function(predicate) {
       // 1. Let O be ? ToObject(this value).
       if (this == null) {
         throw new TypeError('"this" is null or not defined');
@@ -506,7 +512,7 @@ if (!Array.prototype.findIndex) {
 
 if (!Array.prototype.includes) {
   Object.defineProperty(Array.prototype, "includes", {
-    value: function (searchElement, fromIndex) {
+    value: function(searchElement, fromIndex) {
       if (this == null) {
         throw new TypeError('"this" is null or not defined');
       }
@@ -533,7 +539,7 @@ if (!Array.prototype.includes) {
       //  b. If k < 0, let k be 0.
       var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
 
-      function sameValueZero (x, y) {
+      function sameValueZero(x, y) {
         return x === y || (typeof x === "number" && typeof y === "number" && isNaN(x) && isNaN(y));
       }
 
@@ -574,12 +580,13 @@ if (location.origin === undefined) {
 }
 
 if (!Object.entries) {
-  Object.entries = function (obj) {
-    var ownProps = Object.keys(obj),
-      i = ownProps.length,
-      resArray = new Array(i); // preallocate the Array
-    while (i--)
-    { resArray[i] = [ownProps[i], obj[ownProps[i]]]; }
+  Object.entries = function(obj) {
+    var ownProps = Object.keys(obj);
+    var i = ownProps.length;
+    var resArray = new Array(i); // preallocate the Array
+    while (i--) {
+      resArray[i] = [ownProps[i], obj[ownProps[i]]];
+    }
 
     return resArray;
   };
@@ -587,13 +594,15 @@ if (!Object.entries) {
 
 if (!String.prototype.includes) {
   Object.defineProperty(String.prototype, "includes", {
-    value: function (search, start) {
+    value: function(search, start) {
       "use strict";
 
       if (search instanceof RegExp) {
         throw TypeError("first argument must not be a RegExp");
       }
-      if (start === undefined) { start = 0; }
+      if (start === undefined) {
+        start = 0;
+      }
       return this.indexOf(search, start) !== -1;
     }
   });
@@ -601,14 +610,14 @@ if (!String.prototype.includes) {
 
 if (!String.prototype.startsWith) {
   Object.defineProperty(String.prototype, "startsWith", {
-    value: function (search, rawPos) {
+    value: function(search, rawPos) {
       var pos = rawPos > 0 ? rawPos | 0 : 0;
       return this.substring(pos, pos + search.length) === search;
     }
   });
 }
 
-pui.getPropConfig = function (namedModel, propertyName) {
+pui.getPropConfig = function(namedModel, propertyName) {
   var config = namedModel[propertyName];
   if (config == null) {
     var parts = propertyName.split(" ");
@@ -641,7 +650,7 @@ pui.getPropConfig = function (namedModel, propertyName) {
 };
 
 // Returns index of element in array, if found, or -1 if not.
-pui.arrayIndexOf = function (array, element) {
+pui.arrayIndexOf = function(array, element) {
   for (var i = 0; i < array.length; i++) {
     if (array[i] == element) return i;
   }
@@ -649,13 +658,13 @@ pui.arrayIndexOf = function (array, element) {
 };
 
 // Calls a function for each array element.
-pui.arrayForEach = function (array, func) {
+pui.arrayForEach = function(array, func) {
   for (var i = 0; i < array.length; i++) {
     func(array[i]);
   }
 };
 
-pui.safeParseInt = function (stringValue, nanValue) {
+pui.safeParseInt = function(stringValue, nanValue) {
   if (nanValue == null) nanValue = 0;
   var number = parseInt(stringValue, 10);
   if (isNaN(number)) number = nanValue;
@@ -668,7 +677,7 @@ pui.safeParseInt = function (stringValue, nanValue) {
         pui.keyFilter(e, regEx);
       });
 */
-pui.keyFilter = (function () {
+pui.keyFilter = (function() {
   var specialKeys = {
     9: "Tab",
     13: "Enter",
@@ -699,7 +708,7 @@ pui.keyFilter = (function () {
     63273: "Home",
     63275: "End"
   };
-  return function (e, re) {
+  return function(e, re) {
     var chr = e.key || String.fromCharCode(e.charCode || e.keyCode);
     if (e.ctrlKey ||
         (chr && chr.length > 1) ||
@@ -713,7 +722,7 @@ pui.keyFilter = (function () {
   };
 })();
 
-function allowKeys (allowedUnicodes, e) {
+function allowKeys(allowedUnicodes, e) {
   // Allow user-defined key mappings in Genie.
 
   if (context == "genie" && pui.genie.getMappedKeyName(e) != "") {
@@ -889,7 +898,7 @@ function allowKeys (allowedUnicodes, e) {
   return false;
 }
 
-function fieldExit (obj, minus) {
+function fieldExit(obj, minus) {
   if (obj.readOnly == true) return false;
   var blankFill;
   var zeroFill;
@@ -943,14 +952,15 @@ function fieldExit (obj, minus) {
   // inserted to enable CHECK(ER) functionality...
   if (obj.getAttribute("autoenter") === "Y") {
     pressKey("enter");
-  } else {
+  }
+  else {
     goNext(obj);
   }
 
   return true;
 }
 
-pui.beforeUnload = function (event) {
+pui.beforeUnload = function(event) {
   if ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation) return;
   if (pui.observer != null) return;
 
@@ -979,13 +989,14 @@ pui.beforeUnload = function (event) {
   }
 };
 
-pui["unload"] = function () {
+pui["unload"] = function() {
   // For Genie: if pui["hardshutdownOnClose"] is true, then send flag hardshutdown=1 so that the Genie CTL job
   // program PUI0002110 will issue ENDJOB *IMMED to end the Genie APP job, to free up the device to be used
   // on next sign on.
   var hardshutdownOnClose = false;
-  if (pui.genie !== null && pui["hardshutdownOnClose"])
-  { hardshutdownOnClose = true; }
+  if (pui.genie !== null && pui["hardshutdownOnClose"]) {
+    hardshutdownOnClose = true;
+  }
 
   if ((pui.shutdownOnClose || hardshutdownOnClose) && pui.observer == null) {
     pui["halted"] = true;
@@ -1006,23 +1017,27 @@ pui["unload"] = function () {
     // Use Blob to set Content-Type: application/x-www-form-urlencoded
     // Otherwise, Profound.js controller is unable to parse the POST.
     if (navigator != null && typeof navigator["sendBeacon"] == "function" && typeof window["Blob"] == "function") {
-      if (hardshutdownOnClose)
-      { var shutdownFlag = "hardshutdown=1"; }
-      else
-      { shutdownFlag = "shutdown=1"; }
+      if (hardshutdownOnClose) {
+        var shutdownFlag = "hardshutdown=1";
+      }
+      else {
+        shutdownFlag = "shutdown=1";
+      }
       var data = shutdownFlag + (pui["isCloud"] ? "&workspace_id=" + pui.cloud.ws.id : "");
       var blob = new Blob([data], { type: "application/x-www-form-urlencoded" });
       navigator["sendBeacon"](pui.addRequestId(url), blob);
     }
     else {
-      if (hardshutdownOnClose)
-      { ajaxParams = {
-        "hardshutdown": "1"
-      }; }
-      else
-      { var ajaxParams = {
-        "shutdown": "1"
-      }; }
+      if (hardshutdownOnClose) {
+        ajaxParams = {
+          "hardshutdown": "1"
+        };
+      }
+      else {
+        var ajaxParams = {
+          "shutdown": "1"
+        };
+      }
       if (pui["isCloud"]) {
         ajaxParams["workspace_id"] = pui.cloud.ws.id;
       }
@@ -1037,20 +1052,22 @@ pui["unload"] = function () {
   }
 };
 
-pui.assignUnloadEvents = function () {
+pui.assignUnloadEvents = function() {
   if (window.addEventListener) {
     window.addEventListener("beforeunload", pui.beforeUnload, false);
-    if (!pui.designer.Designer || pui.genie != null)
-    { window.addEventListener("unload", pui["unload"], false); }
+    if (!pui.designer.Designer || pui.genie != null) {
+      window.addEventListener("unload", pui["unload"], false);
+    }
   }
   else if (window.attachEvent) {
     window.attachEvent("onbeforeunload", pui.beforeUnload);
-    if (!pui.designer.Designer || pui.genie != null)
-    { window.attachEvent("onunload", pui["unload"]); }
+    if (!pui.designer.Designer || pui.genie != null) {
+      window.attachEvent("onunload", pui["unload"]);
+    }
   }
 };
 
-pui.downloadAsAttachment = function (contentType, fileName, data) {
+pui.downloadAsAttachment = function(contentType, fileName, data) {
   var form = document.createElement("form");
   form.action = getProgramURL("PUI0009106.pgm") + "?contentType=" + contentType + "&fileName=" + fileName;
   if (pui["isCloud"]) {
@@ -1064,13 +1081,13 @@ pui.downloadAsAttachment = function (contentType, fileName, data) {
   document.body.appendChild(form);
   pui.skipConfirm = true;
   form.submit();
-  setTimeout(function () {
+  setTimeout(function() {
     form.parentNode.removeChild(form);
     pui.skipConfirm = false;
   }, 0);
 };
 
-pui.addCssClass = function (dom, clsName) {
+pui.addCssClass = function(dom, clsName) {
   var cls = dom.className;
   if (cls == null) cls = "";
   var clsArray = cls.split(" ");
@@ -1089,7 +1106,7 @@ pui.addCssClass = function (dom, clsName) {
  * @param {type} clsName  Name of class to remove from className.
  * @returns {undefined}
  */
-pui.removeCssClass = function (dom, clsName) {
+pui.removeCssClass = function(dom, clsName) {
   dom.className = pui.removeFromStringList(dom.className, clsName);
 };
 
@@ -1101,7 +1118,7 @@ pui.removeCssClass = function (dom, clsName) {
  * @param {Null|String} separator     (optional) The delimiter character. Default is space.
  * @returns {String}                  Returns the list sans remString or empty string.
  */
-pui.removeFromStringList = function (separatedListStr, remString, separator) {
+pui.removeFromStringList = function(separatedListStr, remString, separator) {
   if (separatedListStr == null) return "";
   if (separatedListStr == "") return "";
   if (separator == null || separator == "") separator = " ";
@@ -1113,7 +1130,7 @@ pui.removeFromStringList = function (separatedListStr, remString, separator) {
   return newClsArray.join(" ");
 };
 
-pui.setEmptyText = function (dom, emptyText) {
+pui.setEmptyText = function(dom, emptyText) {
   if (dom.readOnly || dom.disabled) return;
   if (emptyText == null || emptyText == null) return;
   var box = dom;
@@ -1121,20 +1138,20 @@ pui.setEmptyText = function (dom, emptyText) {
   if (box.floatingPlaceholder != null) box = box.floatingPlaceholder.getBox();
   box.emptyText = emptyText;
   pui.checkEmptyText(box);
-  addEvent(box, "focus", function (e) {
+  addEvent(box, "focus", function(e) {
     var target = getTarget(e);
     if (target.value == target.emptyText) {
       target.value = "";
       pui.removeCssClass(target, "empty-text");
     }
   });
-  addEvent(box, "blur", function (e) {
+  addEvent(box, "blur", function(e) {
     var target = getTarget(e);
     pui.checkEmptyText(target);
   });
 };
 
-pui.checkEmptyText = function (dom) {
+pui.checkEmptyText = function(dom) {
   if (dom.readOnly || dom.disabled) return;
   if (dom.emptyText == null || dom.emptyText == null) return;
   if (dom.value == "") {
@@ -1148,7 +1165,7 @@ pui.checkEmptyText = function (dom) {
   }
 };
 
-pui.attachOnUserActivity = function () {
+pui.attachOnUserActivity = function() {
   if (pui.onUserActivityAttached) return;
   try {
     var atriumSettings = Atrium["getSettings"]();
@@ -1157,7 +1174,7 @@ pui.attachOnUserActivity = function () {
   }
   var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
   if (!atriumTimeout && pui["onuseractivity"] == null && pui["client side timeout"] != true) return;
-  function onUserActivity () {
+  function onUserActivity() {
     if (atriumTimeout) Atrium["resetInactivityTimeout"]();
     else if (pui["client side timeout"] == true) pui.timeoutMonitor.timer.reset();
     if (pui["onuseractivity"] != null) pui["onuseractivity"]();
@@ -1177,7 +1194,7 @@ pui.autoKeepAlive.started = false;
 pui.autoKeepAlive.timeout = 600; // in seconds
 pui.autoKeepAlive.intervalId = null;
 
-pui.autoKeepAlive.setup = function () { // called when screen is rendered
+pui.autoKeepAlive.setup = function() { // called when screen is rendered
   if (pui.autoKeepAlive.started) {
     pui.autoKeepAlive.reset();
     return;
@@ -1189,13 +1206,15 @@ pui.autoKeepAlive.setup = function () { // called when screen is rendered
   catch (error) {
   }
   if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
-  { interval = pui.timeout - 10; }
+  {
+    interval = pui.timeout - 10;
+  }
   if (interval == null) return;
   pui.autoKeepAlive.timeout = interval;
   pui.autoKeepAlive.start();
 };
 
-pui.autoKeepAlive.start = function () {
+pui.autoKeepAlive.start = function() {
   if (pui.autoKeepAlive.started) return;
   var milliseconds = pui.autoKeepAlive.timeout * 1000;
   // checking should be more frequent than timeout
@@ -1206,17 +1225,17 @@ pui.autoKeepAlive.start = function () {
   pui.autoKeepAlive.started = true;
 };
 
-pui.autoKeepAlive.stop = function () {
+pui.autoKeepAlive.stop = function() {
   if (!pui.autoKeepAlive.started) return;
   clearInterval(pui.autoKeepAlive.intervalId);
   pui.autoKeepAlive.started = false;
 };
 
-pui.autoKeepAlive.reset = function () {
+pui.autoKeepAlive.reset = function() {
   pui.autoKeepAlive.lastServerAccess = new Date().getTime();
 };
 
-pui.autoKeepAlive.check = function () {
+pui.autoKeepAlive.check = function() {
   var elapsedTime = (new Date().getTime()) - pui.autoKeepAlive.lastServerAccess; // elapsed time since last server access
   if (elapsedTime >= pui.autoKeepAlive.timeout * 1000) {
     pui["keepAlive"]();
@@ -1224,7 +1243,7 @@ pui.autoKeepAlive.check = function () {
   }
 };
 
-pui.isRightClick = function (e) {
+pui.isRightClick = function(e) {
   if (!e) e = window.event;
   if (e.which != null) {
     if (e.which > 1) {
@@ -1245,7 +1264,7 @@ pui.isRightClick = function (e) {
  * @param {Boolean|undefined} handleZoom      Pass true when handling mouse events on the design canvas or items inside of it
  * @returns {Array.<Number>}    [ left, top ].
  */
-pui.getOffset = function (obj, handleZoom) {
+pui.getOffset = function(obj, handleZoom) {
   var curleft = 0;
   var curtop = 0;
   var countdown = -1; // When it reaches zero, compensate that element's scroll for zoom.
@@ -1338,13 +1357,13 @@ pui.getOffset = function (obj, handleZoom) {
  * @constructor
  * @returns {pui.BaseClass}
  */
-pui.BaseClass = function () {};
+pui.BaseClass = function() {};
 
 /**
  * Utility for deleting class members. This should be called from a child's prototype.destroy method by: "this.deleteOwnProperties();".
  * It may also be called like this: pui.BaseClass.prototype.deleteOwnProperties.call(someObject);
  */
-pui.BaseClass.prototype.deleteOwnProperties = function () {
+pui.BaseClass.prototype.deleteOwnProperties = function() {
   if (this != null && this != window && this != document) {
     var propnames = Object.getOwnPropertyNames(this);
     for (var i = 0, n = propnames.length; i < n; i++) {
@@ -1362,7 +1381,7 @@ pui.BaseClass.prototype.deleteOwnProperties = function () {
  * Returns false. Can be used as a listener to 'selectstart' to disable selection, etc.
  * @returns {Boolean}
  */
-pui.BaseClass.prototype.returnFalse = function () {
+pui.BaseClass.prototype.returnFalse = function() {
   return false;
 };
 //
@@ -1374,9 +1393,9 @@ pui.BaseClass.prototype.returnFalse = function () {
  * @constructor
  */
 
-pui.MultiPart = function () {
+pui.MultiPart = function() {
   // Public methods.
-  this.addParts = function (partsArray) {
+  this.addParts = function(partsArray) {
     if (typeof (partsArray.length) == "undefined") {
       partsArray = new Array(partsArray);
     }
@@ -1390,7 +1409,7 @@ pui.MultiPart = function () {
     }
   };
 
-  this.send = function (url, callback) {
+  this.send = function(url, callback) {
     var newline = "\r\n";
     var partsString = "";
     var part;
@@ -1441,7 +1460,7 @@ pui.MultiPart = function () {
 
   // Private methods.
 
-  function getBoundary () {
+  function getBoundary() {
     // Generate unique boundary sequence which does not
     // appear in any part values.
     var quit = false;
@@ -1468,12 +1487,12 @@ pui.MultiPart = function () {
   }
 };
 
-pui.storeEventCursorPosition = function (e) {
+pui.storeEventCursorPosition = function(e) {
   var obj = getTarget(e);
   pui.storeCursorPosition(obj);
 };
 
-pui.storeCursorPosition = function (obj) {
+pui.storeCursorPosition = function(obj) {
   obj.cursorPosition = getCursorPosition(obj);
 };
 
@@ -1485,7 +1504,7 @@ pui.storeCursorPosition = function (obj) {
  *                              or parentheses, return fieldnames found before it.
  * @returns {Array}   Empty array if no fields parsed.
  */
-pui.getFieldList = function (propVal, stopAtFrom) {
+pui.getFieldList = function(propVal, stopAtFrom) {
   var fields = new Array();
   var fromstr = " from ";
   var frompos = 0;
@@ -1516,10 +1535,12 @@ pui.getFieldList = function (propVal, stopAtFrom) {
       }
       else if (parenLevel == 0) {
         // If this character matches another character in " from ", then increase position.
-        if (character.toLowerCase() == fromstr.charAt(frompos))
-        { frompos++; }
-        else
-        { frompos = 0; } // " from " didn't match, so reset position.
+        if (character.toLowerCase() == fromstr.charAt(frompos)) {
+          frompos++;
+        }
+        else {
+          frompos = 0;
+        } // " from " didn't match, so reset position.
       }
 
       if (parenLevel < 1) parenLevel = 0;
@@ -1565,11 +1586,11 @@ pui.sqlProps = {
 
 };
 
-pui.isSQLProp = function (prop) {
+pui.isSQLProp = function(prop) {
   return (typeof (pui.sqlProps[prop]) != "undefined");
 };
 
-pui.getSQLVarName = function (dom) {
+pui.getSQLVarName = function(dom) {
   var varName = context + ".";
 
   var id = dom.id;
@@ -1607,7 +1628,7 @@ pui.getSQLVarName = function (dom) {
  * @param {FormData|undefined} formData  Output. When not undefined, this gets appended to. (for Grid XLSX data-grid export.)
  * @returns {String}
  */
-pui.getSQLParams = function (properties, obj, formData) {
+pui.getSQLParams = function(properties, obj, formData) {
   var isTextbox = (properties["field type"] == "textbox");
   var idx = 1;
   var propVal = "";
@@ -1662,7 +1683,7 @@ pui.getSQLParams = function (properties, obj, formData) {
 
   return datetimestring();
 
-  function datetimestring () {
+  function datetimestring() {
     var dateFmt = pui.getSQLDateFmt();
     var timeFmt = pui.getSQLTimeFmt();
 
@@ -1686,7 +1707,7 @@ pui.getSQLParams = function (properties, obj, formData) {
   }
 };
 
-pui.isPercent = function (value) {
+pui.isPercent = function(value) {
   if (value == null) return false;
   if (typeof value != "string") return false;
   if (value == "") return false;
@@ -1694,7 +1715,7 @@ pui.isPercent = function (value) {
   return false;
 };
 
-pui.isNumericString = function (value) {
+pui.isNumericString = function(value) {
   if (value == null) return false;
   if (typeof value != "string") return false;
   var num = Number(value);
@@ -1706,7 +1727,7 @@ pui.isNumericString = function (value) {
 // Returns checks for position/dimension style given as a number and
 // assigns px unit, if so.
 
-pui.getPosDimString = function (styleName, value) {
+pui.getPosDimString = function(styleName, value) {
   if (styleName == "top" || styleName == "left" || styleName == "height" || styleName == "width") {
     if (pui.isNumericString(value)) {
       return value + "px";
@@ -1724,8 +1745,8 @@ pui.getPosDimString = function (styleName, value) {
  * @param {String} styleVal
  * @returns {Array}
  */
-pui.getStyleDim = function (styleVal) {
-  var unit = "", val = "";
+pui.getStyleDim = function(styleVal) {
+  var unit = ""; var val = "";
   if (typeof styleVal == "string") {
     var re = /^([0-9.,-]+)(cm|mm|in|px|pt|pc|em|ex|ch|rem|vw|vh|vmin|vmax|%)$/i;
     var matches = re.exec(styleVal);
@@ -1740,22 +1761,24 @@ pui.getStyleDim = function (styleVal) {
   return [val, unit];
 };
 
-pui.getWindowScrollTop = function () { // gets window scroll top position
+pui.getWindowScrollTop = function() { // gets window scroll top position
   var scrOfY = 0;
   if (typeof (window.pageYOffset) == "number") {
     // Netscape compliant
     scrOfY = window.pageYOffset;
-  } else if (document.body && document.body.scrollTop) {
+  }
+  else if (document.body && document.body.scrollTop) {
     // DOM compliant
     scrOfY = document.body.scrollTop;
-  } else if (document.documentElement && document.documentElement.scrollTop) {
+  }
+  else if (document.documentElement && document.documentElement.scrollTop) {
     // IE6 standards compliant mode
     scrOfY = document.documentElement.scrollTop;
   }
   return scrOfY;
 };
 
-pui.getNoConnectionMessage = function (req) {
+pui.getNoConnectionMessage = function(req) {
   var msg = pui["getLanguageText"]("runtimeMsg", "no connection message");
 
   if (pui["no connection status"] == true) {
@@ -1772,7 +1795,7 @@ pui.getNoConnectionMessage = function (req) {
   return msg;
 };
 
-pui.getSQLDateFmt = function () {
+pui.getSQLDateFmt = function() {
   var fmt = null;
   var sep = null;
 
@@ -1800,7 +1823,7 @@ pui.getSQLDateFmt = function () {
   };
 };
 
-pui.getSQLTimeFmt = function () {
+pui.getSQLTimeFmt = function() {
   var fmt = null;
   var sep = null;
 
@@ -1828,7 +1851,7 @@ pui.getSQLTimeFmt = function () {
   };
 };
 
-pui.getDomain = function () {
+pui.getDomain = function() {
   var parts = location.href.split("://");
   var prepend = "";
   var domain = "";
@@ -1844,7 +1867,7 @@ pui.getDomain = function () {
   return domain;
 };
 
-pui.getLink = function (path) {
+pui.getLink = function(path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
   var domain = pui.getDomain();
@@ -1857,7 +1880,7 @@ pui.getLink = function (path) {
   return null;
 };
 
-pui.getScript = function (path) {
+pui.getScript = function(path) {
   var head = document.getElementsByTagName("head")[0];
   if (head == null) return null;
   var domain = pui.getDomain();
@@ -1874,7 +1897,7 @@ pui.getScript = function (path) {
 //   - string (comma separated): 'A,B,C'
 //   - string (json formatted): '["A","B","C"]'
 //   - javascript array
-pui.parseCommaSeparatedList = function (list) {
+pui.parseCommaSeparatedList = function(list) {
   if (typeof list != "string") {
     if (list instanceof Array) return list;
     else return [];
@@ -1892,7 +1915,7 @@ pui.parseCommaSeparatedList = function (list) {
   return listArray;
 };
 
-pui.isHTML5InputType = function (type) {
+pui.isHTML5InputType = function(type) {
   switch (type) {
     // provided as a choice in the "input type" property
     case "number":
@@ -1915,7 +1938,7 @@ pui.isHTML5InputType = function (type) {
   }
 };
 
-pui.isTextbox = function (obj) {
+pui.isTextbox = function(obj) {
   if (obj.tagName == "INPUT") {
     if (obj.type == null || obj.type == "" || obj.type == "text" || pui.isHTML5InputType(obj.type) || obj.type == "password") {
       return true;
@@ -1925,7 +1948,7 @@ pui.isTextbox = function (obj) {
   return false;
 };
 
-pui.isFieldExit = function (e) {
+pui.isFieldExit = function(e) {
   e = e || window.event;
   var key = e.keyCode;
   var fe = pui["field exit key"];
@@ -1940,12 +1963,12 @@ pui.isFieldExit = function (e) {
   }
 };
 
-pui.hasParent = function (node) {
+pui.hasParent = function(node) {
   var prt = node.parentNode;
   return (prt != null && (!pui["is_old_ie"] || prt.nodeName != "#document-fragment"));
 };
 
-pui.appendAuth = function (url) {
+pui.appendAuth = function(url) {
   // When using PJSCALL to call a PJS module from Genie, we have Genie app job info in pui.appJob
   // and AUTH info in PUISSNP. In that case, we DO want to send AUTH even though pui.nodejs is "true".
   if (!inDesignMode() &&
@@ -1959,31 +1982,31 @@ pui.appendAuth = function (url) {
   return url;
 };
 
-pui.validateEmail = function (email) {
+pui.validateEmail = function(email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
 
-pui.isBound = function (propVal) {
+pui.isBound = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["fieldName"] == "string");
 };
 
-pui.isTranslated = function (propVal) {
+pui.isTranslated = function(propVal) {
   return (propVal != null && typeof propVal == "object" &&
     typeof propVal["translations"] == "object" &&
     propVal["translations"] != null &&
     typeof propVal["translations"].length == "number");
 };
 
-pui.isRoutine = function (propVal) {
+pui.isRoutine = function(propVal) {
   return (propVal != null && typeof propVal == "object" && typeof propVal["routine"] == "string");
 };
 
-pui.isJoin = function (propVal) {
+pui.isJoin = function(propVal) {
   return (propVal != null && typeof propVal == "object" && propVal["join"] == true);
 };
 
-pui.taphold = function (target, handler, threshold) {
+pui.taphold = function(target, handler, threshold) {
   // Some notes:
   //   1) We do not check pui["is_touch"] here because some Windows-based
   //      touch devices will return 'false' for that.  Instead, we add the
@@ -2000,14 +2023,14 @@ pui.taphold = function (target, handler, threshold) {
 
   var timeoutId;
 
-  function start (e) {
-    timeoutId = setTimeout(function () {
+  function start(e) {
+    timeoutId = setTimeout(function() {
       timeoutId = null;
       handler(e);
     }, threshold);
   }
 
-  function stop (e) {
+  function stop(e) {
     clearTimeout(timeoutId);
     timeoutId = null;
   }
@@ -2024,7 +2047,7 @@ pui.taphold = function (target, handler, threshold) {
 // Used to fix IE8 printing issue, see here:
 // http://stackoverflow.com/questions/3591464/print-page-shows-unchanged-checkbox-in-ie-with-doctype
 // --DR.
-pui.fixCheckPrint = function (el) {
+pui.fixCheckPrint = function(el) {
   if (el.checked) {
     el.setAttribute("checked", "checked");
   }
@@ -2039,7 +2062,7 @@ pui.fixCheckPrint = function (el) {
  * @param {String} str
  * @returns {String}
  */
-pui.xmlEscape = function (str) {
+pui.xmlEscape = function(str) {
   str = "" + str;
   str = str.replace(/&/g, "&amp;");
   str = str.replace(/</g, "&lt;");
@@ -2053,7 +2076,7 @@ pui.xmlEscape = function (str) {
 // Used to fix Redmine 692 - iFrame close error issue when not in the same domain - Firefox and Chrome
 // Function is used in this utils.js, genie.js and render.js
 
-pui.checkForAtrium = function (parentWindow) {
+pui.checkForAtrium = function(parentWindow) {
   var hasAtrium = false;
 
   try {
@@ -2070,7 +2093,7 @@ pui.checkForAtrium = function (parentWindow) {
  * @param {Object} parentWindow
  * @returns {Boolean}
  */
-pui.windowAccessible = function (parentWindow) {
+pui.windowAccessible = function(parentWindow) {
   var accessible = false;
   try {
     if (parentWindow.location["host"] != null) accessible = true; // Throws exception if parent has different origin.
@@ -2079,13 +2102,15 @@ pui.windowAccessible = function (parentWindow) {
   return accessible;
 };
 
-pui.isLocalStorage = function () {
+pui.isLocalStorage = function() {
   try {
-    if (localStorage != null && typeof (window.localStorage) != "undefined")
-    { return true; }
+    if (localStorage != null && typeof (window.localStorage) != "undefined") {
+      return true;
+    }
 
-    else
-    { return false; }
+    else {
+      return false;
+    }
   }
 
   catch (e) {
@@ -2093,13 +2118,15 @@ pui.isLocalStorage = function () {
   }
 };
 
-pui.isSessionStorage = function () {
+pui.isSessionStorage = function() {
   try {
-    if (sessionStorage != null && typeof (window.sessionStorage) != "undefined")
-    { return true; }
+    if (sessionStorage != null && typeof (window.sessionStorage) != "undefined") {
+      return true;
+    }
 
-    else
-    { return false; }
+    else {
+      return false;
+    }
   }
 
   catch (e) {
@@ -2107,7 +2134,7 @@ pui.isSessionStorage = function () {
   }
 };
 
-pui.normalizeColor = function (value) {
+pui.normalizeColor = function(value) {
   if (value.substr(0, 1) == "#") value = value.toUpperCase();
   if (value.substr(0, 4) == "rgb(" && value.substr(value.length - 1, 1) == ")") {
     value = value.substr(4, value.length - 5);
@@ -2123,7 +2150,7 @@ pui.normalizeColor = function (value) {
   return value;
 };
 
-pui.logException = function (e, prefix) {
+pui.logException = function(e, prefix) {
   var msg;
   if (e.stack) {
     msg = e.toString();
@@ -2148,7 +2175,7 @@ pui.logException = function (e, prefix) {
 // This fixes:
 // http://redmine/issues/791
 
-pui.posFix = function (elem) {
+pui.posFix = function(elem) {
   if (pui["is_chrome"] && pui.isTextbox(elem)) {
     // Yes, that's really all there is to it!
     var temp = elem.value;
@@ -2157,7 +2184,7 @@ pui.posFix = function (elem) {
   }
 };
 
-pui.highlightText = function (node, text) {
+pui.highlightText = function(node, text) {
   if (node === undefined || !node) return;
   if (node.tagName == "SPAN" && node.className == "pui-highlight") return;
 
@@ -2189,7 +2216,7 @@ pui.highlightText = function (node, text) {
   }
 };
 
-pui.dehighlightText = function (div) {
+pui.dehighlightText = function(div) {
   var spans = div.getElementsByTagName("span");
   var span;
   while (spans.length && (span = spans[0])) {
@@ -2199,7 +2226,7 @@ pui.dehighlightText = function (div) {
   }
 };
 
-pui.startMouseCapableMonitoring = function () {
+pui.startMouseCapableMonitoring = function() {
   if (pui["is_mouse_capable"]) {
     return;
   }
@@ -2216,10 +2243,10 @@ pui.startMouseCapableMonitoring = function () {
 
   // Look for 2 consecutive 'mousemove' events without an intervening
   // 'mousedown'; this excludes touch screen tap events
-  var onMouseDown = function () {
+  var onMouseDown = function() {
     hadMouseOver = false;
   };
-  var onMouseMove = function () {
+  var onMouseMove = function() {
     if (hadMouseOver) {
       // if iOS or Android dont set the mouse_capable flag #4460
       if (pui["is_android"] || pui["is_ios"]) {
@@ -2242,7 +2269,7 @@ pui.startMouseCapableMonitoring = function () {
   addEvent(docElement, "mousemove", onMouseMove);
 };
 
-pui.killFrames = function () {
+pui.killFrames = function() {
   // For Redmine #2287, Chrome doesn't seem to fire the "unload"
   // event for iframes when a Chrome tab is closed.
   if (pui["is_chrome"]) {
@@ -2268,7 +2295,7 @@ pui.killFrames = function () {
   }
 };
 
-pui["haltFrames"] = function () {
+pui["haltFrames"] = function() {
   var iframes = document.getElementsByTagName("iframe");
   for (var i = 0; i < iframes.length; i++) {
     var iframe = iframes[i];
@@ -2289,8 +2316,9 @@ pui["haltFrames"] = function () {
 
       // Since haltFrames can be called in the middle of a session, avoid breaking the
       // back button behavior by removing the element before clearing "src". Issue 2503.
-      if (iframe.parentNode != null)
-      { iframe.parentNode.removeChild(iframe); }
+      if (iframe.parentNode != null) {
+        iframe.parentNode.removeChild(iframe);
+      }
 
       // Prevent the browser from trying to continue loading the document.
       iframe.src = "";
@@ -2311,7 +2339,7 @@ pui["haltFrames"] = function () {
  *
  * @returns {undefined}
  */
-pui["breakMessagesInit"] = function () {
+pui["breakMessagesInit"] = function() {
   // Do nothing if local storage isn't supported or break-messages not enabled.
   if (inDesignMode() || pui["brkmsg enable"] !== true) return;
   if (!pui.isLocalStorage() || typeof (JSON) !== "object") return;
@@ -2321,30 +2349,36 @@ pui["breakMessagesInit"] = function () {
 
   // Ensure that polling interval is valid.
   pui["brkmsg poll interval"] = Number(pui["brkmsg poll interval"]);
-  if (isNaN(pui["brkmsg poll interval"]))
-  { pui["brkmsg poll interval"] = 30; }
+  if (isNaN(pui["brkmsg poll interval"])) {
+    pui["brkmsg poll interval"] = 30;
+  }
   // Fastest interval allowed is 1 second.
-  else if (pui["brkmsg poll interval"] < 1)
-  { pui["brkmsg poll interval"] = 1; }
+  else if (pui["brkmsg poll interval"] < 1) {
+    pui["brkmsg poll interval"] = 1;
+  }
 
   // Ensure that max-error-count exists.
   pui["brkmsg max errors"] = Number(pui["brkmsg max errors"]);
-  if (isNaN(pui["brkmsg max errors"]))
-  { pui["brkmsg max errors"] = 3; }
+  if (isNaN(pui["brkmsg max errors"])) {
+    pui["brkmsg max errors"] = 3;
+  }
 
   // Maximum messages to show at once.
   pui["brkmsg max messages"] = Number(pui["brkmsg max messages"]);
-  if (isNaN(pui["brkmsg max messages"]))
-  { pui["brkmsg max messages"] = 10; }
+  if (isNaN(pui["brkmsg max messages"])) {
+    pui["brkmsg max messages"] = 10;
+  }
 
   // User polling timeout in seconds. UserId will be cleared from localStorage
   // if no polling happened for that user recently.
   pui["brkmsg user timeout"] = Number(pui["brkmsg user timeout"]);
-  if (isNaN(pui["brkmsg user timeout"]))
-  { pui["brkmsg user timeout"] = 300; }
+  if (isNaN(pui["brkmsg user timeout"])) {
+    pui["brkmsg user timeout"] = 300;
+  }
   // Prevent unpredictable behavior when timeout happens too quickly.
-  else if (pui["brkmsg user timeout"] <= pui["brkmsg poll interval"])
-  { pui["brkmsg user timeout"] = pui["brkmsg poll interval"] + 10; }
+  else if (pui["brkmsg user timeout"] <= pui["brkmsg poll interval"]) {
+    pui["brkmsg user timeout"] = pui["brkmsg poll interval"] + 10;
+  }
 
   // Current error count.
   pui.breakMessageErrors = 0;
@@ -2354,9 +2388,13 @@ pui["breakMessagesInit"] = function () {
 
   // If we are a new session and old messages exist, then get ready to show them.
   var msgs;
-  try { msgs = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"])); }
+  try {
+    msgs = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"]));
+  }
   // If the messages couldn't parse, just clear them.
-  catch (exc) { localStorage.setItem("brkmsgMessages_" + pui.appJob["user"], "[]"); }
+  catch (exc) {
+    localStorage.setItem("brkmsgMessages_" + pui.appJob["user"], "[]");
+  }
 
   // Setup the non-Atrium container and event listener.
   if (window.parent == window || !pui.checkForAtrium(window.parent)) {
@@ -2395,7 +2433,7 @@ pui["breakMessagesInit"] = function () {
  *
  * @returns {Boolean}
  */
-pui.breakMessagesPollCheck = function () {
+pui.breakMessagesPollCheck = function() {
   if (!pui || !pui.appJob || pui.appJob["auth"].length <= 0 ||
   pui.appJob["user"].length <= 0) return false;
 
@@ -2430,7 +2468,9 @@ pui.breakMessagesPollCheck = function () {
   try {
     userIds = JSON.parse(localStorage.getItem("brkmsgUserIds"));
   }
-  catch (exc) { listChanged = true; }
+  catch (exc) {
+    listChanged = true;
+  }
   if (userIds == null || typeof (userIds.pop) !== "function") {
     userIds = [];
     listChanged = true;
@@ -2473,15 +2513,16 @@ pui.breakMessagesPollCheck = function () {
  *
  * @returns {undefined}
  */
-pui.breakMessagesStartPoll = function () {
+pui.breakMessagesStartPoll = function() {
   if (inDesignMode() || pui["brkmsg enable"] !== true) return;
 
   // Stop a previous Interval if it existed.
-  if (typeof (pui.breakMessagePoller) === "number")
-  { clearInterval(pui.breakMessagePoller); }
+  if (typeof (pui.breakMessagePoller) === "number") {
+    clearInterval(pui.breakMessagePoller);
+  }
 
   // Start a new poller.
-  pui.breakMessagePoller = setInterval(function () {
+  pui.breakMessagePoller = setInterval(function() {
     // If the user logged off or brkmsg became disabled, then stop the poller.
     if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
     pui.appJob["user"] === "QTMHHTP1" || pui["brkmsg enable"] !== true) {
@@ -2499,7 +2540,7 @@ pui.breakMessagesStartPoll = function () {
         "suppressAlert": true, /* Popup alerts every interval would be very annoying. */
         "params": { "AUTH": pui.appJob["auth"] },
         /* Handler for errors, such as 404. */
-        "onfail": function () {
+        "onfail": function() {
           pui.breakMessageErrors++;
           // If too many errors were encountered polling, then stop polling.
           if (pui.breakMessageErrors >= pui["brkmsg max errors"]) {
@@ -2508,7 +2549,7 @@ pui.breakMessagesStartPoll = function () {
           }
         },
         /* Handler for successful response. parms is a JSON object. */
-        "handler": function (parms) {
+        "handler": function(parms) {
           // There was an error.
           if (parms == null || typeof (parms) !== "object" || parms["error"]) {
             pui.breakMessageErrors++;
@@ -2529,7 +2570,9 @@ pui.breakMessagesStartPoll = function () {
               brkMessages = JSON.parse(localStorage.getItem("brkmsgMessages_" + pui.appJob["user"]));
             }
             // Existing messages failed to parse. Ignore.
-            catch (exc) { console.log(exc); }
+            catch (exc) {
+              console.log(exc);
+            }
 
             // If the existing messages aren't an array, discard them.
             if (brkMessages == null || typeof (brkMessages.pop) !== "function") {
@@ -2547,8 +2590,9 @@ pui.breakMessagesStartPoll = function () {
             // Send the message to Atrium.
             if (window != window.parent && pui.checkForAtrium(window.parent)) {
               // Send to Atrium if Ext.msgbox is being shown. Avoid triggering a custom function twice; a storage event will trigger breakMessagesShow.
-              if (typeof window.parent["Atrium"]["brkmsg handler"] !== "function")
-              { window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages, pui.appJob["user"]); }
+              if (typeof window.parent["Atrium"]["brkmsg handler"] !== "function") {
+                window.parent["Atrium"]["api"]["breakMessagesShow"](brkMessages, pui.appJob["user"]);
+              }
             }
             else {
               // Non-Atrium: show the message
@@ -2579,7 +2623,9 @@ pui.breakMessagesStartPoll = function () {
           pui.breakMessagesShow(brkMessages);
         }
       }
-      catch (exc) { console.log(exc); }
+      catch (exc) {
+        console.log(exc);
+      }
     }
   }, pui["brkmsg poll interval"] * 1000);
 };
@@ -2589,7 +2635,7 @@ pui.breakMessagesStartPoll = function () {
  *
  * @returns {undefined}
  */
-pui.breakMessagesStopPoll = function () {
+pui.breakMessagesStopPoll = function() {
   clearInterval(pui.breakMessagePoller);
   removeEvent(window, "storage", pui.breakMessagesOnStorage);
 };
@@ -2602,7 +2648,7 @@ pui.breakMessagesStopPoll = function () {
  * @param {Event|Object} event
  * @returns {undefined}
  */
-pui.breakMessageDismiss = function (event) {
+pui.breakMessageDismiss = function(event) {
   if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
   pui.appJob["user"] === "QTMHHTP1") {
     return;
@@ -2624,8 +2670,9 @@ pui.breakMessageDismiss = function (event) {
       if (!msgIdx && msgIdx != 0) msgIdx = brkMessages.length - 1;
       brkMessages.splice(msgIdx, 1);
     }
-    else
-    { brkMessages = []; }
+    else {
+      brkMessages = [];
+    }
   }
   catch (exc) {
     console.log(exc);
@@ -2647,7 +2694,7 @@ pui.breakMessageDismiss = function (event) {
  *
  * @returns {undefined}
  */
-pui.breakMessagesShow = function (messages) {
+pui.breakMessagesShow = function(messages) {
   if (typeof pui["brkmsg handler"] == "function") return pui["brkmsg handler"](messages); // Let the end-pgmr-defined function handle the messages.
   pui.breakMessageShowing = false;
   if (messages == null || typeof (messages.pop) !== "function") return;
@@ -2716,7 +2763,9 @@ pui.breakMessagesShow = function (messages) {
           curmsg["jobNum"] + "/" + curmsg["jobUserName"] + "/" + curmsg["jobName"];
         msgbody.innerHTML = curmsg["to"] + ":<br>" + curmsg["msg"];
       }
-      catch (exc) { console.log(exc); }
+      catch (exc) {
+        console.log(exc);
+      }
     }
 
     msgwrap.appendChild(msgbody);
@@ -2743,7 +2792,7 @@ pui.breakMessagesShow = function (messages) {
  * @param {type} e
  * @returns {Boolean}
  */
-pui.breakMessagesOnStorage = function (e) {
+pui.breakMessagesOnStorage = function(e) {
   if (typeof (pui.appJob) !== "object" || pui.appJob["user"].length <= 0 ||
   pui.appJob["user"] === "QTMHHTP1") {
     return false;
@@ -2755,13 +2804,16 @@ pui.breakMessagesOnStorage = function (e) {
     var messages = JSON.parse(e.newValue);
     pui.breakMessagesShow(messages);
   }
-  catch (exc) { console.log(exc); }
+  catch (exc) {
+    console.log(exc);
+  }
   return false;
 };
 
-pui.submitLog = function (submittingFlag) {
-  if (!pui["submit log"])
-  { return; }
+pui.submitLog = function(submittingFlag) {
+  if (!pui["submit log"]) {
+    return;
+  }
 
   console.log("=".repeat(80));
   console.log(new Date().toString() + ": submit flag = " + submittingFlag);
@@ -2771,22 +2823,27 @@ pui.submitLog = function (submittingFlag) {
   }
   catch (e) {
     var lines = e.stack.split("\n");
-    if (lines[0].indexOf("Error") == 0)
-    { lines.shift(); }
+    if (lines[0].indexOf("Error") == 0) {
+      lines.shift();
+    }
     lines.shift();
-    for (var i = 0; i < lines.length; i++)
-    { if (lines[i] != "")
-    { console.log(lines[i].replace(/^\s*at\s/, "")); } }
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i] != "") {
+        console.log(lines[i].replace(/^\s*at\s/, ""));
+      }
+    }
   }
 };
 
-if (typeof String.prototype.repeat != "function")
-{ String.prototype.repeat = function (n) {
-  var val = "";
-  for (var i = 0; i < n; i++)
-  { val += this; }
-  return val;
-}; }
+if (typeof String.prototype.repeat != "function") {
+  String.prototype.repeat = function(n) {
+    var val = "";
+    for (var i = 0; i < n; i++) {
+      val += this;
+    }
+    return val;
+  };
+}
 
 /**
  * Do a polling wait for some condition to happen. Execute a callback when finished.
@@ -2797,10 +2854,10 @@ if (typeof String.prototype.repeat != "function")
  *                            Accepts one parameter: true when condition is met, false when max time expired.
  * @returns {undefined}
  */
-pui.wait = function (interval, max, check, proceed) {
+pui.wait = function(interval, max, check, proceed) {
   var elapsed = 0;
   var handle = setInterval(
-    function () {
+    function() {
       elapsed += interval;
       if (check() === true) {
         clearInterval(handle);
@@ -2826,7 +2883,7 @@ pui.wait = function (interval, max, check, proceed) {
  *                                      conditional dependencies.
  * @returns {undefined}
  */
-pui.addItemDependenciesTo = function (item, dependencies, formatData, designer) {
+pui.addItemDependenciesTo = function(item, dependencies, formatData, designer) {
   if (item != null) {
     var fieldtype = item["field type"] || item["field_type"]; // Genie uses "field_type"; RDF uses "field type".
     if (fieldtype != null) {
@@ -2845,7 +2902,7 @@ pui.addItemDependenciesTo = function (item, dependencies, formatData, designer) 
 
         var widdep = pui.widgets[fieldtype]["dependencies"];
         if (inDesignMode() && widdep.length > 0) {
-          widdep = widdep.filter(function (file) {
+          widdep = widdep.filter(function(file) {
             if (designerIgnoredDependencies.indexOf(file) !== -1) {
               return false;
             }
@@ -2868,7 +2925,8 @@ pui.addItemDependenciesTo = function (item, dependencies, formatData, designer) 
               dependUri = widdep[dp]["script"];
               useDependency = true;
             }
-          } else if (typeof widdep[dp] == "string") {
+          }
+          else if (typeof widdep[dp] == "string") {
             useDependency = true; // Always use dependency when it is a string.
           }
           if (useDependency) {
@@ -2918,7 +2976,7 @@ pui.addItemDependenciesTo = function (item, dependencies, formatData, designer) 
  *    Genie/RDF, this would be the JSON response from the CGI program. With Designer, it has a list of widgets.
  * @param {Function} callback  Function to execute on success or failure to load files.
  */
-pui.loadDependencyFiles = function (parm, callback) {
+pui.loadDependencyFiles = function(parm, callback) {
   // List to be populated with unique URI strings.
   var dependencies = [];
 
@@ -2959,7 +3017,7 @@ pui.loadDependencyFiles = function (parm, callback) {
 
   // Recursive method to load a css/js file and callback itself onsuccess or onerror. Overall, files
   // are loaded synchronously, one at a time, in FIFO order set in the "dependencies" property.
-  function myonload () {
+  function myonload() {
     if (pui.dependencies.length <= 0) {
       // Stop recursion. All dependencies are loaded or timed out (or there were none).
       pui.dependencies = null;
@@ -2995,18 +3053,19 @@ pui.loadDependencyFiles = function (parm, callback) {
         fileref.setAttribute("src", url);
       }
       head.appendChild(fileref);
-    } else {
+    }
+    else {
       myonload(); // If the string was empty, then look for the next dependency.
     }
   } // end myonload() recursive function.
 
-  function filerefOnError (evt) {
+  function filerefOnError(evt) {
     if (evt != null && evt.target != null) console.log("Failed to load widget dependency file ", evt.target.src || evt.target.href);
     myonload();
   }
 
   // See if any custom layout templates need to load. They must be ready before pui.render or before Designer loads. Issues 3548, 5999.
-  function checkTemplates () {
+  function checkTemplates() {
     if (pui.customLayoutTemplateQueue instanceof Array && pui.customLayoutTemplateQueue.length > 0) {
       var tplt = pui.customLayoutTemplateQueue.shift();
       var req = new pui.Ajax({
@@ -3026,13 +3085,13 @@ pui.loadDependencyFiles = function (parm, callback) {
     }
   }
 
-  function templateFail (req) {
+  function templateFail(req) {
     // Note: processHTML will fall back to "simple container", because this template didn't exist.
     console.log("Failed to load custom layout template:", req.templateName);
     checkTemplates();
   }
 
-  function templateSuccess (req) {
+  function templateSuccess(req) {
     pui.layout["templates"][req.templateName] = req.getResponseText();
     checkTemplates();
   }
@@ -3044,7 +3103,7 @@ pui.loadDependencyFiles = function (parm, callback) {
  * @param {Boolean} isMobile
  * @param {Function} callback
  */
-pui.loadMobileExtensionFiles = function (isMobile, callback) {
+pui.loadMobileExtensionFiles = function(isMobile, callback) {
   if (isMobile) {
     // Get list of files to load
     ajaxJSON({
@@ -3052,28 +3111,30 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
       "method": "GET",
       "suppressAlert": true,
       "sendAsBinary": false,
-      "handler": function (response) {
+      "handler": function(response) {
         if (response && response["status"] === "success") {
           loadFiles(response["data"]["files"]);
-        } else {
+        }
+        else {
           callback();
         }
       },
-      "onfail": function () {
+      "onfail": function() {
         callback();
       }
     });
-  } else {
+  }
+  else {
     callback();
   }
 
   // Load JS and CSS files. The last completion handler to get called will call the callback.
-  function loadFiles (files) {
+  function loadFiles(files) {
     if (files.length === 0) {
       callback();
     }
 
-    files.forEach(function (file) {
+    files.forEach(function(file) {
       var loaded = false;
       var basename = file.split("?")[0];
 
@@ -3081,12 +3142,13 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
         loaded = pui["loadJS"]({
           "path": file,
           "callback": loadFilesCompletion,
-          "onerror": function () {
+          "onerror": function() {
             console.log("Failed to load " + file);
             loadFilesCompletion();
           }
         });
-      } else if (basename.substr(-4).toLowerCase() == ".css") {
+      }
+      else if (basename.substr(-4).toLowerCase() == ".css") {
         pui["loadCSS"](file);
       }
 
@@ -3095,7 +3157,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
       }
 
       // Call callback when last file has been loaded
-      function loadFilesCompletion () {
+      function loadFilesCompletion() {
         var i = files.indexOf(file);
 
         if (i >= 0) {
@@ -3118,7 +3180,7 @@ pui.loadMobileExtensionFiles = function (isMobile, callback) {
  * @param {Number} precision
  * @returns {Number}
  */
-pui.round = function (number, precision) {
+pui.round = function(number, precision) {
   var factor = Math.pow(10, precision);
   var tempNumber = number * factor;
   var roundedTempNumber = Math.round(tempNumber);
@@ -3131,7 +3193,7 @@ pui.round = function (number, precision) {
  * @param {String} html
  * @returns {String}
  */
-pui.ejs = function (html) {
+pui.ejs = function(html) {
   if (html.indexOf("<%") < 0) return html; // no ejs to process
 
   if (typeof window["ejs"] !== "object" || typeof window["ejs"]["render"] !== "function") {
@@ -3222,9 +3284,9 @@ pui.ejs = function (html) {
  * @param {String} html
  * @returns {undefined}
  */
-pui.setHtmlWithEjs = function (dom, html) {
+pui.setHtmlWithEjs = function(dom, html) {
   if (pui.ejsLoading) {
-    setTimeout(function () {
+    setTimeout(function() {
       pui.setHtmlWithEjs(dom, html);
     }, 100);
     return;
@@ -3234,12 +3296,12 @@ pui.setHtmlWithEjs = function (dom, html) {
     dom.innerHTML = "";
     pui["loadJS"]({
       "path": pui.normalizeURL("/ejs/ejs.min.js"),
-      "callback": function () {
+      "callback": function() {
         dom.innerHTML = pui.ejs(html);
         pui.ejsLoaded = true;
         pui.ejsLoading = false;
       },
-      "onerror": function () {
+      "onerror": function() {
         pui.ejsLoading = false;
       }
     });
@@ -3276,7 +3338,7 @@ Object.defineProperties(pui.xlsx, {
  * @constructor
  * @param {pui.xlsx_worksheet} worksheet
  */
-pui.xlsx_workbook = function (worksheet) {
+pui.xlsx_workbook = function(worksheet) {
   /**
    * For now the workbook supports a single worksheet.
    * @type pui.xlsx_worksheet
@@ -3333,7 +3395,7 @@ pui.xlsx_workbook.prototype = Object.create(pui.xlsx);
  * @param {Boolean} useHyperlink
  * @returns {Object}
  */
-pui.xlsx_workbook.prototype.useSharedString = function (value, useHyperlink) {
+pui.xlsx_workbook.prototype.useSharedString = function(value, useHyperlink) {
   var storedVal = this.sst[value]; // Reference the object from the shared strings table.
   if (storedVal == null) {
     storedVal = this.sst[value] = {
@@ -3357,7 +3419,7 @@ pui.xlsx_workbook.prototype.useSharedString = function (value, useHyperlink) {
  * Define a cell format that uses a blue font for hyperlinks and return the format, or just return the already defined cell format id.
  * @returns {Number}  Cell format ID.
  */
-pui.xlsx_workbook.prototype.useFormatHyperlink = function () {
+pui.xlsx_workbook.prototype.useFormatHyperlink = function() {
   if (this.cellFormatHyperlinkId < 0) this.cellFormatHyperlinkId = this.cellFormats.push(this.cellFormatHyperlink) - 1;
   return this.cellFormatHyperlinkId;
 };
@@ -3366,7 +3428,7 @@ pui.xlsx_workbook.prototype.useFormatHyperlink = function () {
  * Define a cell format that wraps cell text at NL|CR and return the format, or just return the already defined cell format id.
  * @returns {Number}  Cell format ID.
  */
-pui.xlsx_workbook.prototype.useFormatWrap = function () {
+pui.xlsx_workbook.prototype.useFormatWrap = function() {
   if (this.cellFormatWrapId < 0) this.cellFormatWrapId = this.cellFormats.push(this.cellFormatWrap) - 1;
   return this.cellFormatWrapId;
 };
@@ -3379,7 +3441,7 @@ pui.xlsx_workbook.prototype.useFormatWrap = function () {
  * @param {String} locale       Needed for certain formats, e.g. he_IL.
  * @returns {Number}
  */
-pui.xlsx_workbook.prototype.getCellFormatId = function (formatStr, locale) {
+pui.xlsx_workbook.prototype.getCellFormatId = function(formatStr, locale) {
   var cellFormatId;
   if (typeof formatStr !== "string") formatStr = "";
   if (typeof locale !== "string") locale = "";
@@ -3517,7 +3579,7 @@ pui.xlsx_workbook.prototype.getCellFormatId = function (formatStr, locale) {
  * @param {Number} numFmtId
  * @returns {Number}  Returns the cell format ID that uses the number format ID.
  */
-pui.xlsx_workbook.prototype.defineCellFormat = function (numFmtId) {
+pui.xlsx_workbook.prototype.defineCellFormat = function(numFmtId) {
   var cellFmt = { numfmtid: numFmtId, fontid: 0, fillid: 0, borderid: 0, xfid: 0, applynumberformat: 1 };
   return this.cellFormats.push(cellFmt) - 1;
 };
@@ -3528,7 +3590,7 @@ pui.xlsx_workbook.prototype.defineCellFormat = function (numFmtId) {
  * Pre-conditions: setWorksheet must have been called.
  * @param {String} fileName
  */
-pui.xlsx_workbook.prototype.download = function (fileName) {
+pui.xlsx_workbook.prototype.download = function(fileName) {
   this.fileName = fileName || "sheet";
 
   // If necessary, load the required JSZip library and FileSaver "polyfill".
@@ -3541,7 +3603,7 @@ pui.xlsx_workbook.prototype.download = function (fileName) {
     pui["loadJS"]({
       "path": path,
       "callback": this._loadSaveAsJS.bind(this),
-      "onerror": function () {
+      "onerror": function() {
         console.log("Failed to load " + path);
         cleanup();
       }
@@ -3549,7 +3611,7 @@ pui.xlsx_workbook.prototype.download = function (fileName) {
   }
 };
 
-pui.xlsx_workbook.prototype._loadSaveAsJS = function () {
+pui.xlsx_workbook.prototype._loadSaveAsJS = function() {
   var path = "/jszip/FileSaver.min.js";
   // If the script is already loaded, continue. Note: loadJS doesn't callback when a script is loaded,
   // and saveAs is never setup in IE8,IE9. Checking pui.getScript() lets export work more than once.
@@ -3561,7 +3623,7 @@ pui.xlsx_workbook.prototype._loadSaveAsJS = function () {
     pui["loadJS"]({
       "path": path,
       "callback": this._librariesLoaded.bind(this),
-      "onerror": function () {
+      "onerror": function() {
         console.log("Failed to load " + path);
         cleanup();
       }
@@ -3569,10 +3631,11 @@ pui.xlsx_workbook.prototype._loadSaveAsJS = function () {
   }
 };
 
-pui.xlsx_workbook.prototype._librariesLoaded = function () {
+pui.xlsx_workbook.prototype._librariesLoaded = function() {
   if (this.drawing) {
     this.drawing.loadImages(this._build.bind(this), this.feedbackObj);
-  } else {
+  }
+  else {
     this._build();
   }
 };
@@ -3580,9 +3643,10 @@ pui.xlsx_workbook.prototype._librariesLoaded = function () {
 /**
  * JSZip and the FileSaver are loaded, so build the Excel workbook. Also, call a method to prompt to save it.
  */
-pui.xlsx_workbook.prototype._build = function () {
-  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function")
-  { this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing")); }
+pui.xlsx_workbook.prototype._build = function() {
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function") {
+    this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
+  }
 
   // Boilerplate XML for any workbook. Some files that Excel normally includes are omitted: apparently
   // docProps/core.xml, docprops/app.xml, x1/styles.xml, x1/theme/theme1.xml are not essential.
@@ -3709,7 +3773,9 @@ pui.xlsx_workbook.prototype._build = function () {
     var images = this.drawing.rels;
     for (var i = 0; i < images.length; i++) {
       if (images[i].image) // If image failed to download, don't try to add 404/500 response as image.
-      { zip["file"]("xl/media/" + images[i].name, images[i].image, { "binary": true }); }
+      {
+        zip["file"]("xl/media/" + images[i].name, images[i].image, { "binary": true });
+      }
     }
   }
 
@@ -3737,14 +3803,14 @@ pui.xlsx_workbook.prototype._build = function () {
   promise["then"](this._zipResolved.bind(this), this._cleanup.bind(this));
 };
 
-pui.xlsx_workbook.prototype._cleanup = function () {
+pui.xlsx_workbook.prototype._cleanup = function() {
   if (this.feedbackObj && typeof this.feedbackObj.fireDownloadCleanup == "function") this.feedbackObj.fireDownloadCleanup();
   this.worksheet.deleteOwnProperties();
   if (this.drawing) this.drawing.deleteOwnProperties();
   this.deleteOwnProperties();
 };
 
-pui.xlsx_workbook.prototype._zipResolved = function (blob) {
+pui.xlsx_workbook.prototype._zipResolved = function(blob) {
   saveAs(blob, this.fileName + ".xlsx");
   this._cleanup();
 };
@@ -3753,7 +3819,7 @@ pui.xlsx_workbook.prototype._zipResolved = function (blob) {
  * Return an XML document string containing the Excel shared strings table.
  * @returns {String}
  */
-pui.xlsx_workbook.prototype.getSharedStringsXML = function () {
+pui.xlsx_workbook.prototype.getSharedStringsXML = function() {
   // Order the shared strings by the index id. Assume there are no gaps in indices.
   var sst_inorder = [];
   for (var str in this.sst) {
@@ -3783,7 +3849,7 @@ pui.xlsx_workbook.prototype.getSharedStringsXML = function () {
  * @param {Date} date    Date to convert
  * @returns {Number}
  */
-pui.xlsx_workbook.prototype.dateToOADate = function (date) {
+pui.xlsx_workbook.prototype.dateToOADate = function(date) {
   var temp = new Date(date);
   temp.setHours(0, 0, 0, 0); // Set temp to start of day and get whole days between dates,
   var temp2 = new Date(1899, 11, 30); // December 30th 1899 00:00:00 (midnight).
@@ -3807,7 +3873,7 @@ pui.xlsx_workbook.prototype.dateToOADate = function (date) {
  * @param {Number} numcols
  * @returns {pui.xlsx_worksheet}
  */
-pui.xlsx_worksheet = function (numcols) {
+pui.xlsx_worksheet = function(numcols) {
   this.numColumns = numcols;
   this.rows = [];
   this.lastRowNum = -1; // The index of the last row in rows; -1 when no rows are added.
@@ -3901,14 +3967,14 @@ pui.xlsx_worksheet.prototype = Object.create(pui.xlsx);
 /**
  * Add a new row for cells to go. Grid should add cells and rows in a sequential order.
  */
-pui.xlsx_worksheet.prototype.newRow = function () {
+pui.xlsx_worksheet.prototype.newRow = function() {
   this.lastRowNum = this.rows.push([]) - 1;
 };
 
 /**
  * @param {Array.<Number>} arr  An array with Numeric pixel values for each column in the grid.
  */
-pui.xlsx_worksheet.prototype.setColumnWidths = function (arr) {
+pui.xlsx_worksheet.prototype.setColumnWidths = function(arr) {
   this.colWidths = arr;
 };
 
@@ -3921,7 +3987,7 @@ pui.xlsx_worksheet.prototype.setColumnWidths = function (arr) {
  *   dataType (date,char,zoned,time,timestamp,graphic,...); decPos (undefined,2,...); locale; dateFormat, etc.
  * @param {Number} col      The zero-based column index.
  */
-pui.xlsx_worksheet.prototype.setColumnFormat = function (format, col) {
+pui.xlsx_worksheet.prototype.setColumnFormat = function(format, col) {
   if (typeof this.formats[col] !== "object" || this.formats[col] === null) this.formats[col] = { "dataType": "char" };
 
   this.numColumns = Math.max(this.numColumns, col);
@@ -3994,7 +4060,7 @@ pui.xlsx_worksheet.prototype.setColumnFormat = function (format, col) {
  * @param {undefined|Boolean} tryConvert     When true, values should try converting to date, time, timestamp, or
  *   numerics. This should only be true when the column formats are unknown, as in a Custom SQL or Data URL Grids.
  */
-pui.xlsx_worksheet.prototype.setCell = function (value, col, hyperlink, tryConvert) {
+pui.xlsx_worksheet.prototype.setCell = function(value, col, hyperlink, tryConvert) {
   if ((typeof value !== "string" && typeof value !== "number") || (typeof value === "string" && value.length === 0)) {
     // When values are not non-empty strings nor numbers, then leave the cell empty.
     this.rows[this.lastRowNum][col] = { value: null };
@@ -4084,7 +4150,7 @@ pui.xlsx_worksheet.prototype.setCell = function (value, col, hyperlink, tryConve
  * @param {Number} col
  * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryFixedPoint = function (value, col) {
+pui.xlsx_worksheet.prototype.tryFixedPoint = function(value, col) {
   if (typeof value === "string") {
     if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+$/.test(value)) {
       // XLSX stores numbers with "." decimal separator (and no thousands separators). Decimal separator becomes ".".
@@ -4112,7 +4178,7 @@ pui.xlsx_worksheet.prototype.tryFixedPoint = function (value, col) {
  * @param {Number} col
  * @returns {Boolean}     Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryFloatingPoint = function (value, col) {
+pui.xlsx_worksheet.prototype.tryFloatingPoint = function(value, col) {
   if (typeof value === "string") {
     if (this.decimalSepComma && /^[-+]?[0-9]*,?[0-9]+([eE][-+]?[0-9]+)?$/.test(value)) {
       value = Number(value.replace(",", "."));
@@ -4137,7 +4203,7 @@ pui.xlsx_worksheet.prototype.tryFloatingPoint = function (value, col) {
  * @param {String} formatKey
  * @returns {Array}           Returns Date in index 0 (if string was valid); the format string is in index 1; locale in index 2.
  */
-pui.xlsx_worksheet.prototype.parseDateVal = function (value, col, formatKey) {
+pui.xlsx_worksheet.prototype.parseDateVal = function(value, col, formatKey) {
   if (typeof value !== "string") value = String(value);
 
   var locale = this.formats[col]["locale"];
@@ -4159,7 +4225,7 @@ pui.xlsx_worksheet.prototype.parseDateVal = function (value, col, formatKey) {
  * @param {String} formatKey
  * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryTimestamp = function (value, col, formatKey) {
+pui.xlsx_worksheet.prototype.tryTimestamp = function(value, col, formatKey) {
   var parsed = this.parseDateVal(value, col, formatKey);
   // Excel has no formatter for "z", and our Y-z parser fails for days 32 through 366; just leave these as strings so they display consistently.
   if (parsed[1] === "Y-z") return false;
@@ -4203,7 +4269,7 @@ pui.xlsx_worksheet.prototype.tryTimestamp = function (value, col, formatKey) {
  * @param {String} formatKey
  * @returns {Boolean}         Returns true if the assignment succeeded; false if the value was not used.
  */
-pui.xlsx_worksheet.prototype.tryTime = function (value, col, formatKey) {
+pui.xlsx_worksheet.prototype.tryTime = function(value, col, formatKey) {
   var parsed = this.parseDateVal(value, col, formatKey);
   if (parsed[0] instanceof Date) {
     var hours = parsed[0].getHours();
@@ -4225,7 +4291,7 @@ pui.xlsx_worksheet.prototype.tryTime = function (value, col, formatKey) {
  * @param {String} hyperlinkTarget
  * @param {Number} col
  */
-pui.xlsx_worksheet.prototype.addHyperlink = function (hyperlinkTarget, col) {
+pui.xlsx_worksheet.prototype.addHyperlink = function(hyperlinkTarget, col) {
   var relId = -1;
   // Reuse the link target if it already exists.
   for (var i = 0, n = this.rels.length; i < n; i++) {
@@ -4248,7 +4314,7 @@ pui.xlsx_worksheet.prototype.addHyperlink = function (hyperlinkTarget, col) {
  * @param {String|Number} value
  * @param {Number} col
  */
-pui.xlsx_worksheet.prototype.updateCharCount = function (value, col) {
+pui.xlsx_worksheet.prototype.updateCharCount = function(value, col) {
   var len = 0;
   if (typeof value === "string") len = value.length;
 
@@ -4269,7 +4335,7 @@ pui.xlsx_worksheet.prototype.updateCharCount = function (value, col) {
  * Return an XML document string containing the spreadsheet data.
  * @returns {String}
  */
-pui.xlsx_worksheet.prototype.getSheetXML = function () {
+pui.xlsx_worksheet.prototype.getSheetXML = function() {
   this.makemap();
 
   var xml = this.XMLSTART + '<worksheet xmlns="' + this.XMLNS_SPREADSHEET + '"' + ' xmlns:r="' + this.XMLNS_OFFICEDOC_RELS + '">' +
@@ -4285,10 +4351,12 @@ pui.xlsx_worksheet.prototype.getSheetXML = function () {
     // Calculate column width based on number of characters. Formula comes from:
     // https://msdn.microsoft.com/en-us/library/office/documentformat.openxml.spreadsheet.column.aspx
     var width = 0;
-    if (typeof this.colWidths[col] === "number")
-    { width = pui.round((this.colWidths[col] - 5) / 7, 2); }
-    else if (this.charcounts[col] != null && !isNaN(parseInt(this.charcounts[col], 10)))
-    { width = Math.floor((this.charcounts[col] * this.fontMaxDigitWidth + 5) / this.fontMaxDigitWidth * 256) / 256 + 5; }
+    if (typeof this.colWidths[col] === "number") {
+      width = pui.round((this.colWidths[col] - 5) / 7, 2);
+    }
+    else if (this.charcounts[col] != null && !isNaN(parseInt(this.charcounts[col], 10))) {
+      width = Math.floor((this.charcounts[col] * this.fontMaxDigitWidth + 5) / this.fontMaxDigitWidth * 256) / 256 + 5;
+    }
 
     if (width < 0) width = 0; // Widths cannot be < 0 or > 255. Else width is set to 255--way too large. #5372.
     else if (width > 255) width = 255;
@@ -4363,7 +4431,7 @@ pui.xlsx_worksheet.prototype.getSheetXML = function () {
 /**
  * Fill the map of column indexes to excel-style column names for as many columns as needed.
  */
-pui.xlsx_worksheet.prototype.makemap = function () {
+pui.xlsx_worksheet.prototype.makemap = function() {
   // Map from column index to the excel column names: 0=A, ..., 25=Z, 26=AA, etc.
   // Needed for the <dimension> tag and in each <row> tag.
   this.map = [];
@@ -4402,7 +4470,7 @@ pui.xlsx_worksheet.prototype.makemap = function () {
  * @constructor
  * @returns {pui.xlsx_drawing}
  */
-pui.xlsx_drawing = function () {
+pui.xlsx_drawing = function() {
   // A collection of file extensions for all image types needed in the drawing.
   this.extensions = {};
 
@@ -4429,7 +4497,7 @@ pui.xlsx_drawing.prototype = Object.create(pui.xlsx);
  * @param {Object} dimens     Dimensions: top, left, width, height numeric values in pixels.
  *                            These should never be null or undefined.
  */
-pui.xlsx_drawing.prototype.addImage = function (row, column, imageURI, dimens) {
+pui.xlsx_drawing.prototype.addImage = function(row, column, imageURI, dimens) {
   var matches = imageURI.match(/\.(jpe?g|gif|png|tiff?)(\?.*)?(#.*)?$/i); // URL may end in query or fragment; e.g. ?r=12345#something
   if (matches == null) {
     console.log("Unsupported image type in URI:", imageURI);
@@ -4474,7 +4542,7 @@ pui.xlsx_drawing.prototype.addImage = function (row, column, imageURI, dimens) {
  * returns XML text for drawing1.xml
  * @returns {String}
  */
-pui.xlsx_drawing.prototype.getDrawingXML = function () {
+pui.xlsx_drawing.prototype.getDrawingXML = function() {
   var anchors = this.anchors;
   var xml = this.XMLSTART +
   '<xdr:wsDr xmlns:xdr="' + this.XMLNS_BASE + '/drawingml/2006/spreadsheetDrawing" xmlns:a="' + this.XMLNS_BASE + '/drawingml/2006/main">';
@@ -4530,7 +4598,7 @@ pui.xlsx_drawing.prototype.getDrawingXML = function () {
  * Returns XML text for drawing1.xml.rels
  * @returns {String}
  */
-pui.xlsx_drawing.prototype.getDrawingRelsXML = function () {
+pui.xlsx_drawing.prototype.getDrawingRelsXML = function() {
   var xml = this.XMLSTART +
   '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">';
   for (var i = 0; i < this.rels.length; i++) {
@@ -4545,7 +4613,7 @@ pui.xlsx_drawing.prototype.getDrawingRelsXML = function () {
  * @param {Function} cbFinished       Runs when all images are loaded into blobs.
  * @param {Object} feedbackObj        An object with the setDownloadStatus function.
  */
-pui.xlsx_drawing.prototype.loadImages = function (cbFinished, feedbackObj) {
+pui.xlsx_drawing.prototype.loadImages = function(cbFinished, feedbackObj) {
   if (this.rels.length < 1) { // It's possible image URLs didn't parse, but don't stop the download. #5342.
     cbFinished();
     return;
@@ -4569,17 +4637,21 @@ pui.xlsx_drawing.prototype.loadImages = function (cbFinished, feedbackObj) {
 /**
  * Handler for XMLHTTPRequest.onload. Waits until all requests are finished, moves the images to rel[i].image, then calls callback.
  */
-pui.xlsx_drawing.prototype._checkDone = function () {
+pui.xlsx_drawing.prototype._checkDone = function() {
   this.dlcount++;
-  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function")
-  { this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", [Math.round(100 * (this.dlcount / this.rels.length)) + "%"])); }
+  if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function") {
+    this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", [Math.round(100 * (this.dlcount / this.rels.length)) + "%"]));
+  }
   if (this.dlcount < this.rels.length) return; // Wait until all xhr's are finished.
 
   // All are finished, so extract the images.
   for (var i = 0; i < this.rels.length; i++) {
     if (this.rels[i].xhr.status == 200) this.rels[i].image = this.rels[i].xhr.response;
     this.rels[i].xhr = null;
-    try { delete this.rels[i].xhr; } catch (exc) {}
+    try {
+      delete this.rels[i].xhr;
+    }
+    catch (exc) {}
   }
   this.cbFinished();
 };
@@ -4607,12 +4679,12 @@ pui.xlsx_drawing.prototype._checkDone = function () {
  *                   "DB2_COLUMN_GENERATED", "DB2_COLUMN_GENERATION_TYPE", "NULLABLE"
  *
  */
-pui.getFieldDescriptions = function (parm, cb) {
+pui.getFieldDescriptions = function(parm, cb) {
   var url;
-  var library = parm["library"] || "",
-    file = parm["file"] || "",
-    customSql = parm["customSql"] || "",
-    connection = parm["connection"] || "";
+  var library = parm["library"] || "";
+  var file = parm["file"] || "";
+  var customSql = parm["customSql"] || "";
+  var connection = parm["connection"] || "";
   if (context == "genie") url = getProgramURL("PUI0009101.PGM");
   if (context == "dspf") url = getProgramURL("PUI0009101.PGM", null, true); // use auth
   var request = new pui.Ajax(url);
@@ -4643,7 +4715,7 @@ pui.getFieldDescriptions = function (parm, cb) {
  * @return {boolean} true if the event was executed successful, false otherwise
  *
  */
-pui.executeDatabaseLoadEvent = function (func, success, widget) {
+pui.executeDatabaseLoadEvent = function(func, success, widget) {
   // create a "de-obfuscated" copy of the global errors array.
 
   var myError = null;
@@ -4675,37 +4747,41 @@ pui.executeDatabaseLoadEvent = function (func, success, widget) {
   return true;
 };
 
-pui.scriptError = function (error, prefix) {
+pui.scriptError = function(error, prefix) {
   if (pui["alert script errors"] === false) {
     if (window.console && window.console.error) {
       if (error.stack) { // Stack is not available on IE < 10
         // FireFox does not include the error message in the first entry.
         var message = error.stack.split("\n");
-        if (message[0] != error.toString())
-        { message.splice(0, 0, error.toString()); }
+        if (message[0] != error.toString()) {
+          message.splice(0, 0, error.toString());
+        }
         message = message.join("\n");
 
-        if (prefix != null)
-        { message = prefix + message; }
+        if (prefix != null) {
+          message = prefix + message;
+        }
         console.error(message);
       }
       else {
         var message = error.toString();
-        if (prefix != null)
-        { message = prefix + message; }
+        if (prefix != null) {
+          message = prefix + message;
+        }
         console.error(message);
       }
     }
   }
   else {
     var message = error.message;
-    if (prefix != null)
-    { message = prefix + message; }
+    if (prefix != null) {
+      message = prefix + message;
+    }
     pui.alert(message);
   }
 };
 
-pui.preFetchFontFiles = function () {
+pui.preFetchFontFiles = function() {
   // The preload font api is still not supported in every browser
   // One way to prefetch the icons is to make hidden divs that that
   // use the CSS classes so that the browser will automattically fetch
@@ -4716,7 +4792,7 @@ pui.preFetchFontFiles = function () {
     "blueprint-defaults",
     "office-copy-defaults"
   ];
-  iconFileList.forEach(function (iconClass) {
+  iconFileList.forEach(function(iconClass) {
     var div = document.createElement("div");
     div.innerText = "face";
     div.className = iconClass;
@@ -4727,16 +4803,16 @@ pui.preFetchFontFiles = function () {
   });
 };
 
-pui.fetchMonacoIntelliSenseLibraries = function () {
+pui.fetchMonacoIntelliSenseLibraries = function() {
   if (pui["useAceEditor"] || pui["is_ie"] || pui["ie_mode"] <= 11) return;
-  ["profoundjs.d.ts", "profoundui.d.ts"].forEach(function (file) {
+  ["profoundjs.d.ts", "profoundui.d.ts"].forEach(function(file) {
     var url = "/profoundui/proddata/typings/" + file;
     var request = new pui.Ajax(url);
     request["async"] = true;
     request["headers"] = { "Content-Type": "text/plain" };
     request["overrideMimeType"] = "text/plain";
     request["suppressAlert"] = true;
-    request["onsuccess"] = function (req) {
+    request["onsuccess"] = function(req) {
       var lib = req["getResponseText"]();
       if (lib) {
         // monaco/ace may not be loaded in the first check, so check again.
@@ -4745,14 +4821,14 @@ pui.fetchMonacoIntelliSenseLibraries = function () {
         window["monaco"]["languages"]["typescript"]["typescriptDefaults"]["addExtraLib"](lib, file);
       }
     };
-    request["onfail"] = function (req) {
+    request["onfail"] = function(req) {
       console.error(req["getStatusMessage"]());
     };
     request.send();
   });
 };
 
-pui.getDefaultIconSets = function () {
+pui.getDefaultIconSets = function() {
   return [{
     "type": "material",
     "title": "Material Icons",
@@ -4778,7 +4854,7 @@ pui.getDefaultIconSets = function () {
   ];
 };
 
-pui.randomTextBoxName = function () {
+pui.randomTextBoxName = function() {
   return Math.random().toString(36).replace(/[^a-z]+/g, "");
 };
 
@@ -4788,7 +4864,7 @@ pui.randomTextBoxName = function () {
  * @param {Object} params
  * @constructor
  */
-pui.MouseListener = function (params) {
+pui.MouseListener = function(params) {
   this.x = this.y = this.cursorStartX = this.cursorStartY = 0; // All zero. These can be used in callbacks.
 
   this.downcb = params.downcb; // optional Function. callback for mousedown.
@@ -4806,7 +4882,7 @@ pui.MouseListener = function (params) {
   }
 };
 
-pui.MouseListener.prototype["handleEvent"] = function (e) {
+pui.MouseListener.prototype["handleEvent"] = function(e) {
   switch (e.type) {
     case "mousedown": this._mousedown(e); break;
     case "mousemove": this._mousemove(e); break;
@@ -4814,12 +4890,12 @@ pui.MouseListener.prototype["handleEvent"] = function (e) {
   }
 };
 
-pui.MouseListener.prototype.mousedown = function () {}; // Child classes can implement this.
+pui.MouseListener.prototype.mousedown = function() {}; // Child classes can implement this.
 /**
  * Store the mouse pointer's starting position, register other listeners, call callbacks.
  * @param {MouseEvent} e
  */
-pui.MouseListener.prototype._mousedown = function (e) {
+pui.MouseListener.prototype._mousedown = function(e) {
   preventEvent(e); // prevent selection start.
   var xy = pui.getMouseXY(e);
   this.cursorStartX = xy.x;
@@ -4832,12 +4908,12 @@ pui.MouseListener.prototype._mousedown = function (e) {
   if (typeof this.downcb === "function") this.downcb(this);
 };
 
-pui.MouseListener.prototype.mousemove = function () {}; // Child classes can implement this.
+pui.MouseListener.prototype.mousemove = function() {}; // Child classes can implement this.
 /**
  * Store the mouse pointer's current position and call callbacks.
  * @param {MouseEvent} e
  */
-pui.MouseListener.prototype._mousemove = function (e) {
+pui.MouseListener.prototype._mousemove = function(e) {
   var xy = pui.getMouseXY(e);
   this.x = xy.x;
   this.y = xy.y;
@@ -4846,11 +4922,11 @@ pui.MouseListener.prototype._mousemove = function (e) {
   if (typeof this.movecb === "function") this.movecb(this);
 };
 
-pui.MouseListener.prototype.mouseup = function () {}; // Child classes can implement this.
+pui.MouseListener.prototype.mouseup = function() {}; // Child classes can implement this.
 /**
  * Remove event listeners for mousemove and mouseup, call callback.
  */
-pui.MouseListener.prototype._mouseup = function () {
+pui.MouseListener.prototype._mouseup = function() {
   document.removeEventListener("mousemove", this);
   document.removeEventListener("mouseup", this);
   if (typeof this.upcb === "function") this.upcb(this);
@@ -4868,7 +4944,7 @@ pui.MouseListener.prototype._mouseup = function () {
  * @constructor
  * @returns {pui.MoveListener}
  */
-pui.MoveListener = function (params, bounds) {
+pui.MoveListener = function(params, bounds) {
   pui.MouseListener.call(this, params); // Assigns downcb, movecb, upcb; adds mousedown listener.
   this.moveEl = params.move; // Element to move by setting its .style.top and .style.left. Or Element to resize by setting its .style.height and/or .style.width.
   this.opacity = params.opacity; // optional Number (integer). Default no change. When set, change the percent opacity of the opEl
@@ -4889,7 +4965,7 @@ pui.MoveListener.prototype = Object.create(pui.MouseListener.prototype);
 /**
  * Implements mousedown for MouseListener. Stores the starting positions of the Element being moved.
  */
-pui.MoveListener.prototype.mousedown = function () {
+pui.MoveListener.prototype.mousedown = function() {
   this.startX = this.moveEl.offsetLeft;
   this.startY = this.moveEl.offsetTop;
 
@@ -4902,7 +4978,7 @@ pui.MoveListener.prototype.mousedown = function () {
  * Move the element, but prevent its left and top from going past the bounds--off screen or out of container.
  * Implements mousemove for MouseListener.
  */
-pui.MoveListener.prototype.mousemove = function () {
+pui.MoveListener.prototype.mousemove = function() {
   var newx = this.startX + this.x - this.cursorStartX;
   var newy = this.startY + this.y - this.cursorStartY;
   if (newx < this._bounds.left) newx = this._bounds.left;
@@ -4915,7 +4991,7 @@ pui.MoveListener.prototype.mousemove = function () {
   this.moveEl.style.top = newy + "px";
 };
 
-pui.MoveListener.prototype.mouseup = function () {
+pui.MoveListener.prototype.mouseup = function() {
   if (typeof this.opacity === "number") {
     this.moveEl.style.opacity = "";
   }
@@ -4930,13 +5006,13 @@ pui.MoveListener.prototype.mouseup = function () {
  * @constructor
  * @returns {pui.MoveListenerBoundAtClick}
  */
-pui.MoveListenerBoundAtClick = function (params, bounds) {
+pui.MoveListenerBoundAtClick = function(params, bounds) {
   pui.MoveListener.call(this, params, bounds);
 };
 pui.MoveListenerBoundAtClick.prototype = Object.create(pui.MoveListener.prototype);
 
 // Move the element, but prevent the part where the mouse was clicked from going past the bounds; e.g. Panel gets dragged partially off screen.
-pui.MoveListenerBoundAtClick.prototype.mousemove = function () {
+pui.MoveListenerBoundAtClick.prototype.mousemove = function() {
   if (this.x < this._bounds.left) this.x = this._bounds.left;
   if (this.y < this._bounds.top) this.y = this._bounds.top;
   if (this.x > this._bounds.right) this.x = this._bounds.right;
@@ -4953,7 +5029,7 @@ pui.MoveListenerBoundAtClick.prototype.mousemove = function () {
  * @constructor
  * @returns {pui.MouseResizable}
  */
-pui.MouseResizable = function (params) {
+pui.MouseResizable = function(params) {
   pui.MouseListener.call(this, params); // Assigns downcb, movecb, upcb; adds mousedown listener.
   this.minw = (typeof params.minw == "number" && params.minw > 0) ? params.minw : 0; // optional. default to 0. Minimum width.
   this.minh = (typeof params.minh == "number" && params.minh > 0) ? params.minh : 0; // optional. default to 0. Minimum height.
@@ -4971,7 +5047,7 @@ pui.MouseResizable.prototype = Object.create(pui.MouseListener.prototype);
 /**
  * Implements mousedown for MouseListener. Set the starting X and Y on the resize element's offset width and height.
  */
-pui.MouseResizable.prototype.mousedown = function () {
+pui.MouseResizable.prototype.mousedown = function() {
   this.startX = this.resizeEl.offsetWidth;
   this.startY = this.resizeEl.offsetHeight;
 };
@@ -4979,7 +5055,7 @@ pui.MouseResizable.prototype.mousedown = function () {
 /**
  * Implements mousemove for MouseListener. Change the width and or height of the resizable element.
  */
-pui.MouseResizable.prototype.mousemove = function () {
+pui.MouseResizable.prototype.mousemove = function() {
   if (this._doWidth) {
     var width = this.startX + this.x - this.cursorStartX;
     if (width < this.minw) width = this.minw;
@@ -4998,7 +5074,7 @@ pui.MouseResizable.prototype.mousemove = function () {
 // end of MouseResizable class.
 
 // Update React or Vue state
-pui.updateReactState = function (dom) {
+pui.updateReactState = function(dom) {
   if ((window["React"] || window["Vue"]) && dom != null && dom.pui && dom.pui.data && dom.pui.dataProp) {
     var els = {};
     els[dom.pui.dataProp] = [dom];
@@ -5007,14 +5083,15 @@ pui.updateReactState = function (dom) {
   }
 };
 
-pui.setModified = function (e, formatName) {
+pui.setModified = function(e, formatName) {
   if (context == "dspf") {
     if (!pui.screenIsReady) return;
     var target = getTarget(e);
 
     // Don't set modified when target is ready only
-    if (target.pui && target.pui.properties["read only"] === "true")
-    { return; }
+    if (target.pui && target.pui.properties["read only"] === "true") {
+      return;
+    }
 
     target.modified = true;
     if (target.parentNode != null && (target.parentNode.comboBoxWidget != null || target.parentNode.floatingPlaceholder != null)) {
@@ -5028,7 +5105,7 @@ pui.setModified = function (e, formatName) {
     }
 
     if ((window["React"] || window["Vue"]) && target.pui.data && target.pui.dataProp) {
-      setTimeout(function () { // allow the change to take affect before caputring the value
+      setTimeout(function() { // allow the change to take affect before caputring the value
         pui.updateReactState(target);
       }, 0);
     }
@@ -5054,7 +5131,7 @@ pui.setModified = function (e, formatName) {
       if (e.type == "click") {
         // Delay handling until after "change" so we can know the field just changed. Not all browsers
         // fire click before change, so the timeout also makes this approach cross-browser safe.
-        setTimeout(function () {
+        setTimeout(function() {
           if (pui["ie_mode"] == 8 && target.checked != target.puiinitial) target.justChanged = true;
           if (target.checked && !target.justChanged) target.checked = false;
           target.justChanged = false;
@@ -5067,7 +5144,7 @@ pui.setModified = function (e, formatName) {
   }
 };
 
-pui.dupKey = function (event) {
+pui.dupKey = function(event) {
   event = event || window.event;
   var key = event.keyCode;
   if (key == pui["dup"]["keyCode"]) {
@@ -5097,7 +5174,7 @@ pui.dupKey = function (event) {
   }
 };
 
-pui.isDup = function (parm) {
+pui.isDup = function(parm) {
   var value = "";
   if (typeof parm == "string") value = parm;
   if (typeof parm == "object") value = parm.value;
@@ -5112,7 +5189,7 @@ pui.isDup = function (parm) {
  * @param {Boolean|undefined} forceGlobal  If true, then the pattern is forced to use global match.
  * @returns {RegExp|Boolean}  Returns false if argument was not a regular expression.
  */
-pui.ensureRegExFrom = function (stringOrObj, forceGlobal) {
+pui.ensureRegExFrom = function(stringOrObj, forceGlobal) {
   var regex = stringOrObj;
   if (typeof stringOrObj === "string" && stringOrObj.length > 0) {
     var flags = forceGlobal ? "ig" : "i";
@@ -5137,7 +5214,7 @@ pui.ensureRegExFrom = function (stringOrObj, forceGlobal) {
  * @param {Boolean} toLower   When true, the function is preparing screen input for the response. When false, server output is prepared for display.
  * @returns {String}
  */
-pui.replaceProblemCaseChars = function (str, toLower) {
+pui.replaceProblemCaseChars = function(str, toLower) {
   if (str == null) return str;
   return toLower ? str.replace(/\u1E9E/g, "\u00DF") : str.replace(/\u00DF/g, "\u1E9E");
 };
@@ -5148,11 +5225,12 @@ pui.replaceProblemCaseChars = function (str, toLower) {
  * @param {String|Null} str
  * @returns {String}
  */
-pui.upperCaseExceptEszett = function (str) {
+pui.upperCaseExceptEszett = function(str) {
   if (str == null) return str;
   var parts = str.split("ß");
-  if (parts.length <= 1)
-  { return str.toUpperCase(); }
+  if (parts.length <= 1) {
+    return str.toUpperCase();
+  }
   for (var i = 0; i < parts.length; i++) {
     parts[i] = parts[i].toUpperCase();
   }
@@ -5164,7 +5242,7 @@ pui.upperCaseExceptEszett = function (str) {
  * Ensure typed or pasted ß characters become the upper-case version to avoid becomming "SS". Issue 5369. See also 5785 for test cases.
  * @param {Object} e
  */
-pui.onProblemInput = function (e) {
+pui.onProblemInput = function(e) {
   if (e.target.value.match(/\u00DF/)) {
     // Only adjust the value if the target matches ß. Avoid IE11 in Win7-8 focus jumping bug. Issue 5785.
     var cursorOrigPosition = e.target.selectionStart;
@@ -5181,7 +5259,7 @@ pui.onProblemInput = function (e) {
  * @param {Object} event
  * @returns {Number}
  */
-pui.normalizeWheelDelta = function (event) {
+pui.normalizeWheelDelta = function(event) {
   var delta = 0;
   if (pui["is_firefox"]) {
     // In Firefox, deltaY is negative = wheel pushed forward/up, positive = wheel pulled back/down. Different versions use different
@@ -5231,7 +5309,7 @@ pui.normalizeWheelDelta = function (event) {
  * @param {Number|String} precision
  * @returns {String}
  */
-pui.formatBytes = function (bytes, precision) {
+pui.formatBytes = function(bytes, precision) {
   var units = ["B", "KB", "MB", "GB", "TB"];
   bytes = Math.max(bytes, 0);
   var pow = Math.floor((bytes ? Math.log(bytes) : 0) / Math.log(1024));
@@ -5248,7 +5326,7 @@ pui.formatBytes = function (bytes, precision) {
  * @param {Object|Event} event
  * @returns {Object|Null}
  */
-pui.getTRtargetRow = function (event) {
+pui.getTRtargetRow = function(event) {
   // Note: we must use getTarget to handle #text nodes. Otherwise drag_leave leaves classes set when dragging quickly.
   var target = getTarget(event);
   if (target.tagName == "TD") target = target.parentNode;
@@ -5256,7 +5334,7 @@ pui.getTRtargetRow = function (event) {
   return target;
 };
 
-pui["getDatabaseConnections"] = function () {
+pui["getDatabaseConnections"] = function() {
   if (pui["isCloud"] && inDesignMode()) {
     var connections = Array.isArray(pui.cloud.ws["settings"]["databaseConnections"]) ? pui.cloud.ws["settings"]["databaseConnections"].slice() : [];
     var workspaceConnection = { "name": "workspace", "driver": "mysql" };
@@ -5267,8 +5345,9 @@ pui["getDatabaseConnections"] = function () {
         break;
       }
     }
-    if (!defaultFound)
-    { workspaceConnection["default"] = true; }
+    if (!defaultFound) {
+      workspaceConnection["default"] = true;
+    }
     connections.splice(0, 0, workspaceConnection);
     return connections;
   }
@@ -5277,29 +5356,33 @@ pui["getDatabaseConnections"] = function () {
   }
 };
 
-pui.getDatabaseConnection = function (name) {
+pui.getDatabaseConnection = function(name) {
   var connections = pui["getDatabaseConnections"]();
-  if (!connections)
-  { return; }
-  if (typeof name === "string")
-  { name = trim(name); }
+  if (!connections) {
+    return;
+  }
+  if (typeof name === "string") {
+    name = trim(name);
+  }
   for (var i = 0; i < connections.length; i++) {
     var connection = connections[i];
-    if ((!name && connection["default"] === true) || connection["name"] === name)
-    { return connection; }
+    if ((!name && connection["default"] === true) || connection["name"] === name) {
+      return connection;
+    }
   }
 };
 
-pui["getVersionComparer"] = function () {
-  var getVersionParts = function (version) {
+pui["getVersionComparer"] = function() {
+  var getVersionParts = function(version) {
     version = version || "0.0.0";
 
-    if (version && typeof version !== "string")
-    { version = version.toString(); }
+    if (version && typeof version !== "string") {
+      version = version.toString();
+    }
 
     return version.split(".");
   };
-  var makeMatching = function (version1, version2) {
+  var makeMatching = function(version1, version2) {
     var ver1 = getVersionParts(version1);
     var ver2 = getVersionParts(version2);
 
@@ -5309,10 +5392,12 @@ pui["getVersionComparer"] = function () {
 
       var len1 = ver1[i].length;
       var len2 = ver2[i].length;
-      if (len1 > len2)
-      { ver2[i] = "0".repeat(len1 - len2) + ver2[i]; }
-      if (len2 > len1)
-      { ver1[i] = "0".repeat(len2 - len1) + ver1[i]; }
+      if (len1 > len2) {
+        ver2[i] = "0".repeat(len1 - len2) + ver2[i];
+      }
+      if (len2 > len1) {
+        ver1[i] = "0".repeat(len2 - len1) + ver1[i];
+      }
     }
 
     return [
@@ -5322,7 +5407,7 @@ pui["getVersionComparer"] = function () {
   };
 
   return {
-    "isLessThan": function (version1, version2) {
+    "isLessThan": function(version1, version2) {
       // Create version strings with the same size segments
       var versions = makeMatching(version1, version2);
 
@@ -5331,13 +5416,14 @@ pui["getVersionComparer"] = function () {
   };
 };
 
-pui["newUUID"] = function () {
+pui["newUUID"] = function() {
   var d = new Date().getTime();
 
-  if (window["performance"] && typeof window["performance"]["now"] === "function")
-  { d += window["performance"]["now"](); }
+  if (window["performance"] && typeof window["performance"]["now"] === "function") {
+    d += window["performance"]["now"]();
+  }
 
-  var value = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+  var value = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c == "x" ? r : (r & 0x3 | 0x8)).toString(16);
@@ -5354,10 +5440,10 @@ pui["newUUID"] = function () {
  * @param {Element} container             A Designer canvas or the runtimeContainer.
  * @param {undefined|Boolean} inLayout    When true, container belongs to a layout.
  */
-pui.resizeChildrenOf = function (container, inLayout) {
+pui.resizeChildrenOf = function(container, inLayout) {
   if (container == null) return;
   var childNodes = container.childNodes;
-  var child, m = childNodes.length;
+  var child; var m = childNodes.length;
   for (var j = 0; j < m && (child = childNodes[j]); j++) {
     var layout = child.layout;
     if (layout != null) {
@@ -5379,9 +5465,9 @@ pui.resizeChildrenOf = function (container, inLayout) {
  * Causes session timeout and displays timeout screen.
  * Used by pui["client side timeout"] and Atrium session timeout management.
  */
-pui["doSessionTimeout"] = function () {
+pui["doSessionTimeout"] = function() {
   hide_calendar();
-  function showMessage (container) {
+  function showMessage(container) {
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.backgroundImage = "none";
     container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' +
@@ -5406,7 +5492,7 @@ pui["doSessionTimeout"] = function () {
     "sendAsBinary": false,
     "suppressAlert": true,
     "params": ajaxParams,
-    "handler": function (response) {
+    "handler": function(response) {
       if (pui.genie != null) {
         // When used outside of Genie, the 'onload' processing in the
         // time out screen will handle these flags.
@@ -5417,7 +5503,7 @@ pui["doSessionTimeout"] = function () {
       else {
         // render time out screen from PUISCREENS
         response.container = pui.runtimeContainer;
-        pui.handler = function () { };
+        pui.handler = function() { };
         pui.render(response);
       }
       if (pui["ontimeout"] != null && typeof pui["ontimeout"] == "function") {
@@ -5429,7 +5515,7 @@ pui["doSessionTimeout"] = function () {
         }
       }
     },
-    "onfail": function (req) {
+    "onfail": function(req) {
       showMessage(document.body);
     }
   });
@@ -5441,7 +5527,7 @@ pui["doSessionTimeout"] = function () {
  * @param {String} prefix       e.g. "pui-lyt-", "pui-grid-", ...
  * @returns {String}
  */
-pui.getStorageKey = function (screenParms, prefix) {
+pui.getStorageKey = function(screenParms, prefix) {
   var storageKey = "";
 
   if (typeof pui["view"] != "undefined") {
@@ -5458,14 +5544,14 @@ pui.getStorageKey = function (screenParms, prefix) {
  * Capture server's response into test recording
  * @param {Object} parms  5250 or Rich Display parms
  */
-pui.record = function (parms) {
+pui.record = function(parms) {
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
 };
 
 /**
  * Save test recording to file system
  */
-pui.saveRecording = function () {
+pui.saveRecording = function() {
   // Combine payload info with response info
   var user = null;
   for (var i = 0; i < pui.recording["payloads"].length; i++) {
@@ -5523,7 +5609,7 @@ pui.saveRecording = function () {
   multiPart.addParts(parts);
   var url = getProgramURL("PUI0001109.pgm");
   url = url.replace("/auth", "");
-  multiPart.send(url, function (request) {
+  multiPart.send(url, function(request) {
     // Check http layer error.
     var error;
     var response = {};
@@ -5558,8 +5644,8 @@ pui.saveRecording = function () {
 /**
  * Create recording replay user interface with arrows for advancing screens
  */
-pui.createReplayUI = function () {
-  function advance (increment) {
+pui.createReplayUI = function() {
+  function advance(increment) {
     var stepNumber = pui.replayStep + increment;
     if (!pui.replay["payloads"][stepNumber - 1]) return false;
     var container = pui.replay.container;
@@ -5581,7 +5667,7 @@ pui.createReplayUI = function () {
   var prev = document.createElement("span");
   prev.classList.add("pui-material-icons");
   prev.innerHTML = "keyboard_arrow_left";
-  prev.onclick = function () {
+  prev.onclick = function() {
     advance(-1);
   };
 
@@ -5592,7 +5678,7 @@ pui.createReplayUI = function () {
   var next = document.createElement("span");
   next.classList.add("pui-material-icons");
   next.innerHTML = "keyboard_arrow_right";
-  next.onclick = function () {
+  next.onclick = function() {
     advance(+1);
   };
 
@@ -5608,7 +5694,7 @@ pui.createReplayUI = function () {
  * Adds unique identifier to a request URL.
  * @param {String} url
  */
-pui.addRequestId = function (url) {
+pui.addRequestId = function(url) {
   if (url.indexOf("?") === -1) {
     url += "?";
   }
@@ -5626,14 +5712,14 @@ pui.addRequestId = function (url) {
  * @param {String} uri
  * @returns {pui.WebSocketClient}
  */
-pui.WebSocketClient = function (uri) {
+pui.WebSocketClient = function(uri) {
   this.uri = uri;
 };
 
 /**
  * Connect or reconnect to a socket and register listeners.
  */
-pui.WebSocketClient.prototype.connect = function () {
+pui.WebSocketClient.prototype.connect = function() {
   if (this.socket == null || this.socket.readyState === this.socket["CLOSED"] || this.socket.readyState === this.socket["CLOSING"]) {
     this.socket = new WebSocket(this.uri);
   }
@@ -5648,7 +5734,7 @@ pui.WebSocketClient.prototype.connect = function () {
 /**
  * Close the socket and cleanup.
  */
-pui.WebSocketClient.prototype.disconnect = function () {
+pui.WebSocketClient.prototype.disconnect = function() {
   if (this.socket) {
     if (this.socket.readyState === this.socket["OPEN"] || this.socket.readyState === this.socket["CONNECTING"]) this.socket.close();
     this.onCloseOrDisconnect();
@@ -5658,7 +5744,7 @@ pui.WebSocketClient.prototype.disconnect = function () {
 /**
  * Cleanup events and socket upon socket closing or disconnect.
  */
-pui.WebSocketClient.prototype.onCloseOrDisconnect = function () {
+pui.WebSocketClient.prototype.onCloseOrDisconnect = function() {
   if (this.socket) {
     this.socket.removeEventListener("message", this);
     this.socket.removeEventListener("error", this);
@@ -5672,7 +5758,7 @@ pui.WebSocketClient.prototype.onCloseOrDisconnect = function () {
  * Handle close events. Child classes may override this.
  * @param {Event} event
  */
-pui.WebSocketClient.prototype["handleEvent"] = function (event) {
+pui.WebSocketClient.prototype["handleEvent"] = function(event) {
   switch (event.type) {
     case "close":
       this.onCloseOrDisconnect();

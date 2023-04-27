@@ -33,10 +33,10 @@ pui.widgets.add({
 
   propertySetters: {
 
-    	"field type": function (parms) {
-    		var value = parms.evalProperty("value"),
-    			color = parms.evalProperty("color"),
-    			align = parms.evalProperty("text align");
+    	"field type": function(parms) {
+    		var value = parms.evalProperty("value");
+    			var color = parms.evalProperty("color");
+    			var align = parms.evalProperty("text align");
     		if (value) {
     			if (color) {
     				color = ' style="color:' + color + ';"';
@@ -48,10 +48,10 @@ pui.widgets.add({
     		}
     	},
 
-    	"value": function (parms) {
-    		var value = parms.value,
-    			color = parms.evalProperty("color"),
-    			align = parms.evalProperty("text align");
+    	"value": function(parms) {
+    		var value = parms.value;
+    			var color = parms.evalProperty("color");
+    			var align = parms.evalProperty("text align");
     		if (value) {
     			if (color) {
     				color = ' style="color:' + color + ';"';
@@ -60,15 +60,16 @@ pui.widgets.add({
     				align = ' align="' + align + '"';
     			}
     			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		} else {
+    		}
+      else {
     			parms.dom.innerHTML = "";
     		}
     	},
 
-    	"color": function (parms) {
-    		var value = parms.evalProperty("value"),
-    			color = parms.value,
-    			align = parms.evalProperty("text align");
+    	"color": function(parms) {
+    		var value = parms.evalProperty("value");
+    			var color = parms.value;
+    			var align = parms.evalProperty("text align");
     		if (value) {
     			if (color) {
     				color = ' style="color:' + color + ';"';
@@ -77,15 +78,16 @@ pui.widgets.add({
     				align = ' align="' + align + '"';
     			}
     			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		} else {
+    		}
+      else {
     			parms.dom.innerHTML = "";
     		}
     	},
 
-    	"text align": function (parms) {
-    		var value = parms.evalProperty("value"),
-    			color = parms.evalProperty("color"),
-    			align = parms.value;
+    	"text align": function(parms) {
+    		var value = parms.evalProperty("value");
+    			var color = parms.evalProperty("color");
+    			var align = parms.value;
     		if (value) {
     			if (color) {
     				color = ' style="color:' + color + ';"';
@@ -94,7 +96,8 @@ pui.widgets.add({
     				align = ' align="' + align + '"';
     			}
     			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		} else {
+    		}
+      else {
     			parms.dom.innerHTML = "";
     		}
     	}

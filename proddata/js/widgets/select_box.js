@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.loadSelectBoxChoices = function (choicesString, choiceValuesString, dom) {
+pui.loadSelectBoxChoices = function(choicesString, choiceValuesString, dom) {
   var choices = pui.parseCommaSeparatedList(choicesString);
   var choiceValues = pui.parseCommaSeparatedList(choiceValuesString);
 
@@ -34,7 +34,7 @@ pui.loadSelectBoxChoices = function (choicesString, choiceValuesString, dom) {
   }
 };
 
-pui.setSelectBoxValue = function (value, dom) {
+pui.setSelectBoxValue = function(value, dom) {
   // If this is a numeric field in Genie, trim blanks...
   if (dom.fieldInfo != null && dom.fieldInfo.shift != null) {
     if (dom.fieldInfo.shift == "2" ||
@@ -83,7 +83,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
       parms.dom.choices = {};
 
@@ -93,7 +93,7 @@ pui.widgets.add({
       	var req = new pui.Ajax(pui.appendAuth(url));
       	req["async"] = true;
       	req["suppressAlert"] = true;
-      	req["onready"] = function () {
+      	req["onready"] = function() {
           if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
           parms.dom.choices = {};
           var response = checkAjaxResponse(req, "Generate Dropdown Box Options");
@@ -188,7 +188,7 @@ pui.widgets.add({
           }
           if (pui["read db driven data as ebcdic"] !== true) ajaxRequest["postData"] += "&UTF8=Y";
 
-          ajaxRequest["onsuccess"] = function () {
+          ajaxRequest["onsuccess"] = function() {
             var eventCode = parms.evalProperty("ondbload");
             if (typeof eventCode != "string" || eventCode == "") eventCode = null;
 
@@ -240,11 +240,11 @@ pui.widgets.add({
       pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       pui.setSelectBoxValue(parms.value, parms.dom);
     },
 
-    "choices": function (parms) {
+    "choices": function(parms) {
       // Can't have this happening at the same time as other population options.
       // Causes timing/order of events issues if you call 'get()' while Ajax calls
       // are in progress.
@@ -262,7 +262,7 @@ pui.widgets.add({
       pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
     },
 
-    "choice values": function (parms) {
+    "choice values": function(parms) {
       // Can't have this happening at the same time as other population options.
       // Causes timing/order of events issues if you call 'get()' while Ajax calls
       // are in progress.
@@ -280,7 +280,7 @@ pui.widgets.add({
       pui.setSelectBoxValue(parms.evalProperty("value"), parms.dom);
     },
 
-    "select box height": function (parms) {
+    "select box height": function(parms) {
       // Process change in select box height for IE6 -- list boxes show normally, but dropdowns show as textboxes in design mode
       if (parms.design && pui["is_old_ie"] && pui["ie_mode"] == 6) {
         var nmodel = getPropertiesNamedModel();

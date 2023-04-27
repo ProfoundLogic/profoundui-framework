@@ -25,7 +25,7 @@
  * @param {Element} dom   A new or cloned DIV element.
  * @constructor
  */
-pui.Accordion = function (parms, dom) {
+pui.Accordion = function(parms, dom) {
   pui.layout.Template.call(this, parms, dom); // sets this.container=dom, this.forProxy, this.designMode, etc.
 
   this.INITIALLIST = pui["getLanguageText"]("runtimeText", "section") + " 1," +
@@ -132,7 +132,7 @@ Object.defineProperties(pui.Accordion.prototype, {
 /**
  *
  */
-pui.Accordion.prototype.init = function () {
+pui.Accordion.prototype.init = function() {
   this.container.style.overflow = "hidden";
 };
 
@@ -144,7 +144,7 @@ pui.Accordion.prototype.init = function () {
  *   See TabLayout.render for how screenParms may be utilized.
  * @public
  */
-pui.Accordion.prototype.render = function (screenParms) {
+pui.Accordion.prototype.render = function(screenParms) {
   var names = this._sections;
 
   // Append elements when the number of sections increased.
@@ -249,7 +249,7 @@ pui.Accordion.prototype.render = function (screenParms) {
  * Handle a header DIV being clicked.
  * @param {Event} e
  */
-pui.Accordion.prototype._headerOnClick = function (e) {
+pui.Accordion.prototype._headerOnClick = function(e) {
   var target = getTarget(e);
   var sectionNumber = null;
   while (sectionNumber == null && target != null) {
@@ -280,13 +280,14 @@ pui.Accordion.prototype._headerOnClick = function (e) {
  * @param {String} value
  * @returns {Boolean}
  */
-pui.Accordion.prototype.setProperty = function (property, value) {
+pui.Accordion.prototype.setProperty = function(property, value) {
   switch (property) {
     case "section names":
       var oldLen = this._sections.length;
 
-      if (value == null || value == "")
-      { value = this.INITIALLIST; }
+      if (value == null || value == "") {
+        value = this.INITIALLIST;
+      }
       else if (pui.isBound(value) || pui.isTranslated(value)) {
         var tmplist = pui.parseCommaSeparatedList(value.designValue);
         if (tmplist.length == 0) value = this.INITIALLIST;
@@ -379,7 +380,7 @@ pui.Accordion.prototype.setProperty = function (property, value) {
 
     case "onsectionclick":
       if (!this.designMode) {
-        this.container["onsectionclickevent"] = function () {
+        this.container["onsectionclickevent"] = function() {
           eval("var section = arguments[0];");
           try {
             return eval(value);
@@ -406,7 +407,7 @@ pui.Accordion.prototype.setProperty = function (property, value) {
  *
  * @param {String|Number} sectionNumber
  */
-pui.Accordion.prototype.expandSection = function (sectionNumber) {
+pui.Accordion.prototype.expandSection = function(sectionNumber) {
   this._expandedSection = parseInt(sectionNumber, 10);
 
   for (var i = 0; i < this._bodyDivs.length; i++) {
@@ -442,7 +443,7 @@ pui.Accordion.prototype.expandSection = function (sectionNumber) {
  *
  * @param {Boolean|String} allow
  */
-pui.Accordion.prototype.setAllowCollapse = function (allow) {
+pui.Accordion.prototype.setAllowCollapse = function(allow) {
   this._allowCollapse = (allow == "true" || allow == true);
   this.expandSection(this._expandedSection);
 };
@@ -451,7 +452,7 @@ pui.Accordion.prototype.setAllowCollapse = function (allow) {
  *
  * @param {String|undefined} edge   e.g. all|left|right|top|bottom
  */
-pui.Accordion.prototype.setStraightEdge = function (edge) {
+pui.Accordion.prototype.setStraightEdge = function(edge) {
   if (edge == null || pui.isBound(edge)) return;
   this._straightEdge = edge;
   var n = this._headerButtons.length;
@@ -510,7 +511,7 @@ pui.Accordion.prototype.setStraightEdge = function (edge) {
  * @param {String} styleName
  * @param {String} styleValue
  */
-pui.Accordion.prototype.setStyle = function (styleName, styleValue) {
+pui.Accordion.prototype.setStyle = function(styleName, styleValue) {
   for (var i = 0; i < this._headerButtons.length; i++) {
     this._headerButtons[i].setStyle(styleName, styleValue);
   }
@@ -520,7 +521,7 @@ pui.Accordion.prototype.setStyle = function (styleName, styleValue) {
  *
  * @param {type} properties
  */
-pui.Accordion.prototype.setAllStyles = function (properties) {
+pui.Accordion.prototype.setAllStyles = function(properties) {
   for (var i = 0; i < this._headerButtons.length; i++) {
     this._headerButtons[i].setAllStyles(properties);
   }
@@ -530,7 +531,7 @@ pui.Accordion.prototype.setAllStyles = function (properties) {
  *
  * @param {type} mini
  */
-pui.Accordion.prototype.setMini = function (mini) {
+pui.Accordion.prototype.setMini = function(mini) {
   for (var i = 0; i < this._headerButtons.length; i++) {
     this._headerButtons[i].setMini(mini);
   }
@@ -541,7 +542,7 @@ pui.Accordion.prototype.setMini = function (mini) {
  *
  * @param {type} swatch
  */
-pui.Accordion.prototype.setHeaderSwatch = function (swatch) {
+pui.Accordion.prototype.setHeaderSwatch = function(swatch) {
   for (var i = 0; i < this._headerButtons.length; i++) {
     this._headerButtons[i].setSwatch(swatch);
   }
@@ -552,7 +553,7 @@ pui.Accordion.prototype.setHeaderSwatch = function (swatch) {
  *
  * @param {type} swatch
  */
-pui.Accordion.prototype.setBodySwatch = function (swatch) {
+pui.Accordion.prototype.setBodySwatch = function(swatch) {
   for (var i = 0; i < this._bodyPanels.length; i++) {
     this._bodyPanels[i].setSwatch(swatch);
   }
@@ -564,7 +565,7 @@ pui.Accordion.prototype.setBodySwatch = function (swatch) {
  * @param {undefined|Boolean} skipSizeContainers    When true, expect the Layout object to resize child containers when appropriate.
  *                                                  True when called from Layout resize.
  */
-pui.Accordion.prototype.resize = function (skipSizeContainers) {
+pui.Accordion.prototype.resize = function(skipSizeContainers) {
   var totalHeight = this.container.offsetHeight;
   if (typeof this._pixelheight === "number") {
     // We are resizing as a result of setHeight being called, and the height was set at some pixel value. _pixelheight is not an
@@ -593,7 +594,7 @@ pui.Accordion.prototype.resize = function (skipSizeContainers) {
  * Set height and resize.
  * @param {String} newHeight
  */
-pui.Accordion.prototype.setHeight = function (newHeight) {
+pui.Accordion.prototype.setHeight = function(newHeight) {
   this.container.style.height = newHeight;
 
   // If the newHeight is some pixel value, then extract the value so that resize can use it instead of offsetHeight.
@@ -616,7 +617,7 @@ pui.Accordion.prototype.setHeight = function (newHeight) {
  * Click handler for the Add or Remove section buttons in Designer.
  * @param {Event} e
  */
-pui.Accordion.prototype._addrmvIconOnclick = function (e) {
+pui.Accordion.prototype._addrmvIconOnclick = function(e) {
   var target = e.target;
   var adding = target.adding === true;
 
@@ -665,7 +666,7 @@ pui.Accordion.prototype._addrmvIconOnclick = function (e) {
  * @returns {Boolean}  Returns true if any of the body DIVs have children; else false.
  * @private
  */
-pui.Accordion.prototype._cannotRemoveSection = function (sectNum) {
+pui.Accordion.prototype._cannotRemoveSection = function(sectNum) {
   var bodyDiv = this._bodyDivs[sectNum];
   var el = bodyDiv.querySelector("div[container=true]");
 
@@ -677,6 +678,6 @@ pui.Accordion.prototype._cannotRemoveSection = function (sectNum) {
  * Overrides pui.layout.Template.getVisibleContainerIndex
  * @returns {Number}
  */
-pui.Accordion.prototype.getVisibleContainerIndex = function () {
+pui.Accordion.prototype.getVisibleContainerIndex = function() {
   return parseInt(this._expandedSection, 10);
 };

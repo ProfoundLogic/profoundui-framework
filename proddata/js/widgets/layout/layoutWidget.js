@@ -23,7 +23,7 @@ pui.widgets.add({
   defaults: {
   },
 
-  globalPropertySetter: function (parms) {
+  globalPropertySetter: function(parms) {
     if (parms.dom.layout == null) {
       parms.dom.layout = new pui.layout.Layout();
       parms.dom.layout.layoutDiv = parms.dom;
@@ -89,8 +89,9 @@ pui.widgets.add({
           parms.dom.layout.setProperty("width", parms.properties["width"]);
           parms.dom.layout.setProperty("height", parms.properties["height"]);
 
-          if (parms.properties["inline style"])
-          { pui.addInlineCSS(parms.dom, parms.properties["inline style"], true); }
+          if (parms.properties["inline style"]) {
+            pui.addInlineCSS(parms.dom, parms.properties["inline style"], true);
+          }
         }
       }
       parms.dom.layout.previousTemplate = parms.dom.layout.template;
@@ -123,7 +124,7 @@ pui.widgets.add({
     if (setProperty) parms.dom.layout.setProperty(parms.propertyName, parms.value);
   },
 
-  globalAfterSetter: function (parms) {
+  globalAfterSetter: function(parms) {
     var dom = parms.dom;
     if (dom) {
       var layoutT = dom.layoutT;
@@ -133,7 +134,7 @@ pui.widgets.add({
     }
   },
 
-  initialize: function (parms) {
+  initialize: function(parms) {
     if (parms.design) return;
     var dom = parms.dom;
     var id = dom.id;

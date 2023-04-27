@@ -35,7 +35,7 @@ if (context == "genie" && window.parent == window) window.history.forward(1);
 
 // setup pui name space
 window.pui = {};
-(function () {
+(function() {
   var agt = navigator.userAgent.toLowerCase();
 
   pui["is_edge"] = agt.indexOf("edg/") != -1; // Chromium Edge uses "Edg/", and pre-Chromium uses "Edge/". #6054.
@@ -116,7 +116,7 @@ pui.cnv.handlers = {};
 pui.longFieldNameTable = {};
 // the definitions are here to handle the calls, however this is only needed in the design ide
 pui.toolbox = {};
-pui.toolbox.add = function () {};
+pui.toolbox.add = function() {};
 
 pui["field exit key"] = 107; // numeric pad plus sign
 
@@ -209,7 +209,7 @@ pui.wf = {
   qTypes: {}, // question types
   selectionSources: {},
   plugins: {},
-  addPlugin: function (plugin) {
+  addPlugin: function(plugin) {
     var plugins = pui.wf.plugins;
     var category = plugin.category;
     if (!plugins[category]) plugins[category] = {};

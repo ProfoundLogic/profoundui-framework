@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function buildGraphicButton (parms) {
+function buildGraphicButton(parms) {
   var dom = parms.dom;
   var value = parms.evalProperty("value");
   var imageSource = parms.evalProperty("image source");
@@ -49,11 +49,13 @@ function buildGraphicButton (parms) {
       vectorIcon = trim(vectorIcon.substr(9));
       icon = '<span class="pui-material-icons pui-material-icons-center ' + (cssClass ? cssClass + '"' : '"') + (cursorStyle ? 'style="cursor:' + cursorStyle + '"' : "") + ">" + vectorIcon + "</span>";
       if (value) value = '<span class="pui-material-icons-text ' + (cssClass ? cssClass : "") + '">' + value + "</span>";
-    } else if (vectorIcon.substr(0, 12) == "fontAwesome:") {
+    }
+    else if (vectorIcon.substr(0, 12) == "fontAwesome:") {
       vectorIcon = trim(vectorIcon.substr(12));
       icon = '<span class="pui-fa-icons pui-fa-icons-center fa-' + vectorIcon + " " + (cssClass ? cssClass : "") + '"></span>';
       if (value) value = '<span class="pui-fa-icons-text ' + (cssClass ? cssClass : "") + '">' + value + "</span>";
-    } else {
+    }
+    else {
       var iconSets = pui.getDefaultIconSets();
       vectorIcon = trim(vectorIcon);
       if (pui["customIconList"] && pui["customIconList"]) {
@@ -66,14 +68,15 @@ function buildGraphicButton (parms) {
       var iconValueClassList = iconValueType.pop();
       iconValueType = iconValueType.join("-");
       var iconVal = iconValueArr.pop();
-      iconSets.every(function (iconSet) {
+      iconSets.every(function(iconSet) {
         var type = iconSet["type"];
         var iconClassName = iconSet["classList"][iconValueClassList];
         if (iconValueType === type) {
           if (type === "fontAwesome") {
             icon = '<span class="pui-fa-icons-center ' + iconClassName + iconVal + " " + (cssClass ? cssClass : "") + '"></span>';
             if (value) value = '<span class="pui-fa-icons-text ' + (cssClass ? cssClass : "") + '">' + value + "</span>";
-          } else {
+          }
+          else {
             icon = '<span class="pui-icons-center ' + iconClassName + iconVal + " " + (cssClass ? cssClass : "") + '"></span>';
             if (value) value = '<span class="' + (cssClass ? cssClass : "") + '">' + value + "</span>";
           }
@@ -82,7 +85,8 @@ function buildGraphicButton (parms) {
         return true;
       });
     }
-  } else {
+  }
+  else {
     icon = graphic;
   }
   dom.setAttribute("type", "button");
@@ -106,32 +110,32 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       buildGraphicButton(parms);
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.properties["value"] = parms.value;
       buildGraphicButton(parms);
     },
 
-    "image source": function (parms) {
+    "image source": function(parms) {
       parms.properties["image source"] = parms.value;
       buildGraphicButton(parms);
     },
-    "icon": function (parms) {
+    "icon": function(parms) {
       parms.properties["icon"] = parms.value;
       buildGraphicButton(parms);
     },
-    "icon position": function (parms) {
+    "icon position": function(parms) {
       parms.properties["icon position"] = parms.value;
       buildGraphicButton(parms);
     },
-    "css class": function (parms) {
+    "css class": function(parms) {
       parms.properties["css class"] = parms.value;
       buildGraphicButton(parms);
     },
-    "cursor": function (parms) {
+    "cursor": function(parms) {
       parms.properties["cursor"] = parms.value;
       buildGraphicButton(parms);
     }

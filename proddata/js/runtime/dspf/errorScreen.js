@@ -19,7 +19,7 @@
 
 pui["errorScreen"] = {};
 
-pui["errorScreen"]["onload"] = function () {
+pui["errorScreen"]["onload"] = function() {
   var config = pui["errorScreen"]["getConfig"]();
 
   if (pui["errorScreen"]["getStack"]()) {
@@ -71,7 +71,7 @@ pui["errorScreen"]["onload"] = function () {
   if (config["type"] === "development-advanced") pui["errorScreen"]["interactiveStack"]();
 
   var xhr;
-  function downloadJobLog () {
+  function downloadJobLog() {
     xhr = new XMLHttpRequest();
     xhr.addEventListener("error", xhrerror);
     xhr.addEventListener("load", joblogFetch);
@@ -80,7 +80,7 @@ pui["errorScreen"]["onload"] = function () {
     xhr.send("jobinfo=" + jobinfo);
   }
 
-  function joblogFetch () {
+  function joblogFetch() {
     if (typeof xhr.response === "string" && xhr.response.length > 0) {
       var contentDisp = xhr.getResponseHeader("Content-Disposition");
       if (contentDisp === "attachment") {
@@ -98,11 +98,11 @@ pui["errorScreen"]["onload"] = function () {
     }
   }
 
-  function xhrerror (err) {
+  function xhrerror(err) {
     console.log("Job log download error:", err);
   }
 
-  function createMaximizeIcon () {
+  function createMaximizeIcon() {
     pui["errorScreen"]["maximizeIcon"] = document.createElement("div");
     pui["errorScreen"]["maximizeIcon"].id = "MaximizeIcon";
     pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
@@ -117,7 +117,7 @@ pui["errorScreen"]["onload"] = function () {
   }
 };
 
-pui.formatErrorText = function () {
+pui.formatErrorText = function() {
   var dom = document.getElementById("ESHELP");
   var text;
   if (dom != null) {
@@ -132,7 +132,7 @@ pui.formatErrorText = function () {
   }
 };
 
-pui["errorScreen"]["maximize"] = function () {
+pui["errorScreen"]["maximize"] = function() {
   if (!pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["restore"]();
     return;
@@ -158,7 +158,7 @@ pui["errorScreen"]["maximize"] = function () {
   pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "restore");
 };
 
-pui["errorScreen"]["restore"] = function () {
+pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
     pui["errorScreen"]["onload"]["mazimize"]();
     return;
@@ -178,8 +178,8 @@ pui["errorScreen"]["restore"] = function () {
   pui["errorScreen"]["maximizeIcon"].title = pui["getLanguageText"]("runtimeText", "maximize");
 };
 
-pui["errorScreen"]["positionMaximizeIcon"] = function () {
-  setTimeout(function () {
+pui["errorScreen"]["positionMaximizeIcon"] = function() {
+  setTimeout(function() {
     if (pui["errorScreen"]["maximizeIcon"]) {
       var panel = document.querySelector("#ErrorPanel");
       var x = panel.offsetLeft + panel.offsetWidth - 35;
@@ -191,16 +191,16 @@ pui["errorScreen"]["positionMaximizeIcon"] = function () {
 };
 
 pui["errorScreen"]["savedStyle"] = [];
-pui["errorScreen"]["saveStyle"] = function (dom, prop) {
+pui["errorScreen"]["saveStyle"] = function(dom, prop) {
   var newEntry = { "dom": dom, "prop": prop, "value": dom.style[prop] };
   pui["errorScreen"]["savedStyle"].push(newEntry);
 };
 
-pui["errorScreen"]["downloadStack"] = function () {
+pui["errorScreen"]["downloadStack"] = function() {
   pui.downloadAsAttachment("text/plain", "error stack.txt", pui["errorScreen"]["getStack"]());
 };
 
-pui["errorScreen"]["getStack"] = function () {
+pui["errorScreen"]["getStack"] = function() {
   var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
@@ -214,7 +214,7 @@ pui["errorScreen"]["getStack"] = function () {
   return stackData["stackText"];
 };
 
-pui["errorScreen"]["getConfig"] = function () {
+pui["errorScreen"]["getConfig"] = function() {
   var stackData = get("ESSTACK");
   try {
     stackData = JSON.parse(stackData);
@@ -228,16 +228,16 @@ pui["errorScreen"]["getConfig"] = function () {
   return stackData.config;
 };
 
-pui["errorScreen"]["interactiveStack"] = function () {
+pui["errorScreen"]["interactiveStack"] = function() {
   // Load the highlighter if it's not already loaded
   if (typeof hljs !== "object") {
     pui["loadCSS"](pui.normalizeURL("/vlog/vs2015.min.css"));
     pui["loadJS"]({
       "path": pui.normalizeURL("/vlog/highlight.min.js"),
-      "callback": function () {
+      "callback": function() {
         pui["errorScreen"]["interactiveStack"]();
       },
-      "onerror": function () {
+      "onerror": function() {
       }
 
     });
@@ -295,7 +295,7 @@ pui["errorScreen"]["interactiveStack"] = function () {
   }
   showStackEntry(stack[0]);
 
-  function showStackEntry (entry) {
+  function showStackEntry(entry) {
     var config = pui["errorScreen"]["getConfig"]();
     if (selectedEntry != null) {
       selectedEntry.div.classList.remove("pui-stack-entry-selected");
@@ -337,7 +337,7 @@ pui["errorScreen"]["interactiveStack"] = function () {
 
 pui["errorScreen"]["currentStackEntry"] = null;
 
-pui["errorScreen"]["editInIDE"] = function () {
+pui["errorScreen"]["editInIDE"] = function() {
   if (!pui["errorScreen"]["currentStackEntry"]) return;
   var entry = pui["errorScreen"]["currentStackEntry"];
   var config = pui["errorScreen"]["getConfig"]();
@@ -363,7 +363,7 @@ pui["errorScreen"]["editInIDE"] = function () {
   window.open(url, "_blank");
 };
 
-pui["errorScreen"]["downloadJobLog"] = function () {
+pui["errorScreen"]["downloadJobLog"] = function() {
   var feedback_element = getObj("JobLogDownload_fb");
   var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " "; // e.g. "Application Job ".
   var file_ext = ".txt";
@@ -399,7 +399,9 @@ pui["errorScreen"]["downloadJobLog"] = function () {
     }
   }
 
-  function waitAndClearLinkText () {
-    setTimeout(function () { feedback_element.innerHTML = ""; }, 3000);
+  function waitAndClearLinkText() {
+    setTimeout(function() {
+      feedback_element.innerHTML = "";
+    }, 3000);
   }
 };

@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.PagingBar = function () {
+pui.PagingBar = function() {
   this.x = 100;
   this.y = 100;
   this.width = 500;
@@ -73,7 +73,7 @@ pui.PagingBar = function () {
    * @param {boolean} fromClick   True when handling a click on "Previous" link.
    * @returns {undefined}
    */
-  function autoPageUp (fromClick) {
+  function autoPageUp(fromClick) {
     // if (me.prevLink.disabled || me.prevLink.disabled === undefined) return;
     if (context != "genie" || pui.usingGenieHandler) {
       // pui.attachResponse/clickEvent handles pageUp for clicks when "page up response" is defined.
@@ -93,7 +93,7 @@ pui.PagingBar = function () {
    * @param {boolean} fromClick    True when handling a click on "Next" link.
    * @returns {undefined}
    */
-  function autoPageDown (fromClick) {
+  function autoPageDown(fromClick) {
     // if (me.nextLink.disabled || me.nextLink.disabled === undefined) return;
     if (context != "genie" || pui.usingGenieHandler) {
       if (me.pageDownHotKeyDefined && (!fromClick || me.pageDownResponseDefined)) return;
@@ -103,14 +103,16 @@ pui.PagingBar = function () {
     me.grid.pageDown();
   }
 
-  this.init = function () {
+  this.init = function() {
     div = document.createElement("div");
     div.style.position = "absolute";
     div.style.backgroundRepeat = "repeat-x";
     div.style.textAlign = "center";
     div.style.paddingTop = "5px";
     div.style.overflow = "hidden";
-    div.onselectstart = function (e) { return false; };
+    div.onselectstart = function(e) {
+      return false;
+    };
     if (typeof div.style.MozUserSelect != "undefined") div.style.MozUserSelect = "none";
 
     me.container.appendChild(div);
@@ -129,7 +131,7 @@ pui.PagingBar = function () {
     exportImg.style.height = "14px";
     exportImg.style.padding = "1px";
     exportImg.style.width = "14px";
-    exportImg.onclick = function () {
+    exportImg.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
     };
@@ -144,7 +146,7 @@ pui.PagingBar = function () {
     exportLink.style.left = "24px";
     exportLink.style.textDecoration = "underline";
     exportLink.style.cursor = "pointer";
-    exportLink.onclick = function () {
+    exportLink.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV();
     };
@@ -159,7 +161,7 @@ pui.PagingBar = function () {
     exportImgXLSX.style.height = "14px";
     exportImgXLSX.style.padding = "1px";
     exportImgXLSX.style.width = "14px";
-    exportImgXLSX.onclick = function () {
+    exportImgXLSX.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV(null, true);
     };
@@ -175,7 +177,7 @@ pui.PagingBar = function () {
     exportLinkXLSX.style.left = "24px";
     exportLinkXLSX.style.textDecoration = "underline";
     exportLinkXLSX.style.cursor = "pointer";
-    exportLinkXLSX.onclick = function () {
+    exportLinkXLSX.onclick = function() {
       if (me.grid.designMode) return;
       me.grid.exportCSV(null, true);
     };
@@ -192,15 +194,15 @@ pui.PagingBar = function () {
     me.prevImg.responseValue = "0";
     me.prevImg.parentPagingBar = me;
     me.prevImg.prevPage = true;
-    me.prevImg.onmouseover = function () {
+    me.prevImg.onmouseover = function() {
       if (me.prevImg.disabled) return;
       pui.addCssClass(me.prevLink, "paging-link-hover");
     };
-    me.prevImg.onmouseout = function () {
+    me.prevImg.onmouseout = function() {
       if (me.prevImg.disabled) return;
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     };
-    me.prevImg.onclick = function () {
+    me.prevImg.onclick = function() {
       autoPageUp(true);
     };
     div.appendChild(me.prevImg);
@@ -213,17 +215,19 @@ pui.PagingBar = function () {
     me.prevLink.responseValue = "0";
     me.prevLink.parentPagingBar = me;
     me.prevLink.prevPage = true;
-    me.prevLink.onmouseover = function () {
-      if (me.prevLink.disabled)
-      { return; }
+    me.prevLink.onmouseover = function() {
+      if (me.prevLink.disabled) {
+        return;
+      }
       pui.addCssClass(me.prevLink, "paging-link-hover");
     };
-    me.prevLink.onmouseout = function () {
-      if (me.prevLink.disabled)
-      { return; }
+    me.prevLink.onmouseout = function() {
+      if (me.prevLink.disabled) {
+        return;
+      }
       pui.removeCssClass(me.prevLink, "paging-link-hover");
     };
-    me.prevLink.onclick = function () {
+    me.prevLink.onclick = function() {
       autoPageUp(true);
     };
     me.prevLink.className = "paging-link previous-paging-link";
@@ -265,15 +269,15 @@ pui.PagingBar = function () {
     me.nextLink.responseValue = "0";
     me.nextLink.parentPagingBar = me;
     me.nextLink.nextPage = true;
-    me.nextLink.onmouseover = function () {
+    me.nextLink.onmouseover = function() {
       if (me.nextLink.disabled) return;
       pui.addCssClass(me.nextLink, "paging-link-hover");
     };
-    me.nextLink.onmouseout = function () {
+    me.nextLink.onmouseout = function() {
       if (me.nextLink.disabled) return;
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     };
-    me.nextLink.onclick = function () {
+    me.nextLink.onclick = function() {
       autoPageDown(true);
     };
     me.nextLink.className = "paging-link next-paging-link";
@@ -289,15 +293,15 @@ pui.PagingBar = function () {
     me.nextImg.responseValue = "0";
     me.nextImg.parentPagingBar = me;
     me.nextImg.nextPage = true;
-    me.nextImg.onmouseover = function () {
+    me.nextImg.onmouseover = function() {
       if (me.nextImg.disabled) return;
       pui.addCssClass(me.nextLink, "paging-link-hover");
     };
-    me.nextImg.onmouseout = function () {
+    me.nextImg.onmouseout = function() {
       if (me.nextImg.disabled) return;
       pui.removeCssClass(me.nextLink, "paging-link-hover");
     };
-    me.nextImg.onclick = function () {
+    me.nextImg.onclick = function() {
       autoPageDown(true);
     };
     div.appendChild(me.nextImg);
@@ -317,7 +321,7 @@ pui.PagingBar = function () {
     //         the grid is reached. This approach is confusing, and should probably
     //         fixed up to be handled solely by the pui.handleHotKey routine.  -SK
     if (!me.grid.designMode && pui.runtimeContainer != null && div != null && div.parentNode != null) {
-      function handleKeyDown (e) {
+      function handleKeyDown(e) {
         if (div == null || div.parentNode == null) {
           removeEvent(pui.runtimeContainer, "keydown", handleKeyDown);
           return;
@@ -330,7 +334,7 @@ pui.PagingBar = function () {
       addEvent(pui.runtimeContainer, "keydown", handleKeyDown);
     }
 
-    function mousedown (event) {
+    function mousedown(event) {
       if (!me.grid.designMode) return;
       me.grid.tableDiv.designItem.designer.hideDialogs();
       me.grid.selectMe();
@@ -357,11 +361,11 @@ pui.PagingBar = function () {
       var cursorStartY = getMouseY(event);
       var startGridX = parseInt(me.grid.tableDiv.style.left);
       var startGridY = parseInt(me.grid.tableDiv.style.top);
-      me.grid.doThisToTableDivs(function (domObj) {
+      me.grid.doThisToTableDivs(function(domObj) {
         domObj.startLeft = parseInt(domObj.style.left);
         domObj.startTop = parseInt(domObj.style.top);
       });
-      function mousemove (event) {
+      function mousemove(event) {
         var y = getMouseY(event) - cursorStartY;
         var x = getMouseX(event) - cursorStartX;
         var designItem = me.grid.tableDiv.designItem;
@@ -376,7 +380,7 @@ pui.PagingBar = function () {
             y -= me.grid.tableDiv.startTop;
           }
         }
-        me.grid.doThisToTableDivs(function (domObj) {
+        me.grid.doThisToTableDivs(function(domObj) {
           domObj.style.top = (domObj.startTop + y) + "px";
           domObj.style.left = (domObj.startLeft + x) + "px";
         });
@@ -390,7 +394,7 @@ pui.PagingBar = function () {
         psBar.set(me.grid.tableDiv.designItem);
         psBar.show();
       }
-      function mouseup () {
+      function mouseup() {
         if (me.grid.tableDiv.designItem != null) {
           if (me.grid.tableDiv.designItem.moved) {
             me.grid.tableDiv.designItem.designer.addSelectionToTabs();
@@ -424,7 +428,7 @@ pui.PagingBar = function () {
     addEvent(div, "mousedown", mousedown);
   };
 
-  this.position = function () {
+  this.position = function() {
     if ((me.csvExport || me.xlsxExport || me.showPagingControls || me.showPageNumber || me.showRecordNumberRange || me.showBar) &&
         me.grid.tableDiv.style.display != "none" && me.grid.tableDiv.style.visibility != "hidden") {
       div.style.left = me.x + "px";
@@ -438,11 +442,11 @@ pui.PagingBar = function () {
     }
   };
 
-  this.hide = function () {
+  this.hide = function() {
     div.style.display = "none";
   };
 
-  this.destroy = function () {
+  this.destroy = function() {
     me._tempStatusDiv.removeEventListener("click", me);
     div.innerHTML = "";
     if (div.parentNode != null) div.parentNode.removeChild(div);
@@ -459,7 +463,7 @@ pui.PagingBar = function () {
     me = null;
   };
 
-  this.setClassName = function (cssClass) {
+  this.setClassName = function(cssClass) {
     // two classes are actually assigned here (grid specific and generic)
     // for example, the className may look like this: "crystal-grid-paging-bar paging-bar"
     if (div == null) return;
@@ -474,7 +478,7 @@ pui.PagingBar = function () {
     if (div.className != cssClass) div.className = cssClass;
   };
 
-  this.draw = function () {
+  this.draw = function() {
     me._tempStatusDiv.style.display = "none"; // By default, the temporary status div should not be visible.
 
     me.setClassName(me.grid.tableDiv.className);
@@ -538,7 +542,8 @@ pui.PagingBar = function () {
             }
           }
         }
-      } else {
+      }
+      else {
         // Only one export option is on; just show "Export to Excel" for whichever is on.
         exportLink.innerHTML = pui["getLanguageText"]("runtimeText", "excel export text");
         exportLinkXLSX.innerHTML = pui["getLanguageText"]("runtimeText", "excel export text");
@@ -618,13 +623,13 @@ pui.PagingBar = function () {
     }
   };
 
-  this.changeContainer = function (newContainer) {
+  this.changeContainer = function(newContainer) {
     me.container = newContainer;
     div.parentNode.removeChild(div);
     me.container.appendChild(div);
   };
 
-  this.getHeight = function () {
+  this.getHeight = function() {
     return div.offsetHeight;
   };
 
@@ -634,7 +639,7 @@ pui.PagingBar = function () {
    *                                       or hideTempStatus is called; e.g. "Cancelled".
    * @param {undefined|String} clickCb     Function called after the temporary status DIV is clicked; e.g. abort download.
    */
-  this.showTempStatusDiv = function (onHideText, clickCb) {
+  this.showTempStatusDiv = function(onHideText, clickCb) {
     exportImg.style.display = "none";
     exportLink.style.display = "none";
     exportImgXLSX.style.display = "none";
@@ -657,7 +662,7 @@ pui.PagingBar = function () {
    * @param {Function} dragDropCallback
    * @returns {undefined}
    */
-  this.attachDragDropEvents = function (dragDropCallback) {
+  this.attachDragDropEvents = function(dragDropCallback) {
     dragDropCallback(div);
   };
 };
@@ -667,7 +672,7 @@ pui.PagingBar.prototype = Object.create(pui.BaseClass.prototype);
  * @param {String} text
  * @param {String} className
  */
-pui.PagingBar.prototype.setTempStatusIcon = function (text, className) {
+pui.PagingBar.prototype.setTempStatusIcon = function(text, className) {
   var span = this._tempStatusDiv.childNodes[0];
   span.className = className;
   span.innerHTML = text;
@@ -677,14 +682,14 @@ pui.PagingBar.prototype.setTempStatusIcon = function (text, className) {
  * Set the text on the temporary status div. Called by the grid.
  * @param {String} text
  */
-pui.PagingBar.prototype.setTempStatus = function (text) {
+pui.PagingBar.prototype.setTempStatus = function(text) {
   this._tempStatusDiv.childNodes[1].innerHTML = text;
 };
 
 /**
  * @param {Event} e
  */
-pui.PagingBar.prototype["handleEvent"] = function (e) {
+pui.PagingBar.prototype["handleEvent"] = function(e) {
   switch (e.type) {
     case "click":
       if (e.target == this._tempStatusDiv || e.target.parentNode == this._tempStatusDiv) {
@@ -698,13 +703,13 @@ pui.PagingBar.prototype["handleEvent"] = function (e) {
 /**
  * Hide the temp status DIV after a delay. The DIV should have CSS transition defined for opacity, making a slow fade.
  */
-pui.PagingBar.prototype.hideTempStatusSlowly = function () {
+pui.PagingBar.prototype.hideTempStatusSlowly = function() {
   this._tempStatusDiv.style.cursor = "";
   this._tempStatusDiv.style.opacity = "0";
   this.setTempStatusIcon("", "");
   if (this._tempDelayedHideText != null) this.setTempStatus(this._tempDelayedHideText);
   if (typeof this._tempDelayedHideCb == "function") this._tempDelayedHideCb();
-  var delayedHide = function () {
+  var delayedHide = function() {
     this.draw();
     this._tempStatusDiv.style.opacity = "";
   };
@@ -715,13 +720,13 @@ pui.PagingBar.prototype.hideTempStatusSlowly = function () {
  * Implement a method called by pui.xlsx_drawing when downloading images and pui.xlsx_workbook when downloading DBD-data or compressing large files.
  * @param {String} str
  */
-pui.PagingBar.prototype.setDownloadStatus = function (str) {
+pui.PagingBar.prototype.setDownloadStatus = function(str) {
   this.setTempStatus(str);
 };
 
 /**
  * Implement a method called by pui.xlsx_workbook called when the download process is finished--the browser prompted the user to download.
  */
-pui.PagingBar.prototype.fireDownloadCleanup = function () {
+pui.PagingBar.prototype.fireDownloadCleanup = function() {
   this.draw();
 };

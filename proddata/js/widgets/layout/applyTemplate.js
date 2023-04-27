@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.layout.template.applyTemplate = function (parms) {
+pui.layout.template.applyTemplate = function(parms) {
   var dom = parms.dom;
 
   var getContainers = pui.layout.template.getContainers;
@@ -104,7 +104,7 @@ pui.layout.template.applyTemplate = function (parms) {
   };
 };
 
-pui.layout.template.getProxy = function (defaults) {
+pui.layout.template.getProxy = function(defaults) {
   var proxy = pui.layout.template.load({
     template: defaults["template"],
     properties: defaults,

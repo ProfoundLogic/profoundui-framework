@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function allowKeysSimple (allowedUnicodes, e) {
+function allowKeysSimple(allowedUnicodes, e) {
   var key;
 
   key = e.keyCode;
@@ -38,7 +38,7 @@ function allowKeysSimple (allowedUnicodes, e) {
 
 // this function determines if a field bound to a property belongs to the subfile rather
 // than a standard record format or a control record
-pui.isSubfileProperty = function (propertyName) {
+pui.isSubfileProperty = function(propertyName) {
   switch (propertyName) {
     case "subfile next changed": return true;
     case "subfile message key": return true;
@@ -54,7 +54,7 @@ pui.isSubfileProperty = function (propertyName) {
   }
 };
 
-pui.unicodeToHex = function (unicode) {
+pui.unicodeToHex = function(unicode) {
   if (unicode === null) return;
 
   var codesArray = [];
@@ -128,7 +128,7 @@ pui.unicodeToHex = function (unicode) {
   return codesArray[unicode];
 };
 
-pui.hexToCSS = function (hex) {
+pui.hexToCSS = function(hex) {
   if (hex == null || typeof hex != "string") return [];
 
   var cssArray = [];
@@ -202,7 +202,7 @@ pui.hexToCSS = function (hex) {
   return cssArray[hex];
 };
 
-pui.attrToCSS = function (attr) {
+pui.attrToCSS = function(attr) {
   if (attr == null || typeof attr != "string" || attr.length < 1) return [];
   var unicode = attr.charCodeAt(0);
   var hex = pui.unicodeToHex(unicode);
@@ -210,7 +210,7 @@ pui.attrToCSS = function (attr) {
 };
 
 // path is in the format of "LIBRARY/FILE(MEMBER)"
-pui.parseLibraryFileMember = function (path) {
+pui.parseLibraryFileMember = function(path) {
   var parts = path.split("(");
   if (parts.length != 2) return null;
   var file = parts[0];
@@ -237,7 +237,7 @@ pui.parseLibraryFileMember = function (path) {
   };
 };
 
-pui.assignShortcutKey = function (shortcutKey, dom) {
+pui.assignShortcutKey = function(shortcutKey, dom) {
   var formatName = pui.lastFormatName;
   if (context != "dspf" || formatName == null) return;
 
@@ -266,7 +266,7 @@ pui.assignShortcutKey = function (shortcutKey, dom) {
   }
 };
 
-pui.getParentWindow = function (el) {
+pui.getParentWindow = function(el) {
   var win;
   var prt = el.parentNode;
   while (prt != null && prt != pui.runtimeContainer) {
@@ -282,7 +282,7 @@ pui.getParentWindow = function (el) {
 };
 
 // Wrap input into a DIV and create a placeholder label
-pui.floatPlaceholder = function (idOrDom) {
+pui.floatPlaceholder = function(idOrDom) {
   if (typeof idOrDom === "string") {
     var id = idOrDom;
     var input = getObj(id);
@@ -316,18 +316,24 @@ pui.floatPlaceholder = function (idOrDom) {
     div.style.bottom = input.style.bottom;
     div.style.width = input.style.width;
     div.pui = input.pui;
-    if (input.cursorRecord != null)
-    { div.cursorRecord = input.cursorRecord; }
-    if (input.cursorField != null)
-    { div.cursorField = input.cursorField; }
-    if (input.cursorRow != null)
-    { div.cursorRow = input.cursorRow; }
-    if (input.cursorColumn != null)
-    { div.cursorColumn = input.cursorColumn; }
-    if (input.parentTab != null)
-    { div.parentTab = input.parentTab; }
-    if (input.parentTabPanel != null)
-    { div.parentTabPanel = input.parentTabPanel; }
+    if (input.cursorRecord != null) {
+      div.cursorRecord = input.cursorRecord;
+    }
+    if (input.cursorField != null) {
+      div.cursorField = input.cursorField;
+    }
+    if (input.cursorRow != null) {
+      div.cursorRow = input.cursorRow;
+    }
+    if (input.cursorColumn != null) {
+      div.cursorColumn = input.cursorColumn;
+    }
+    if (input.parentTab != null) {
+      div.parentTab = input.parentTab;
+    }
+    if (input.parentTabPanel != null) {
+      div.parentTabPanel = input.parentTabPanel;
+    }
     input.style.position = "";
     input.style.left = "";
     input.style.top = "";
@@ -361,43 +367,43 @@ pui.floatPlaceholder = function (idOrDom) {
   // Setup useful methods for outside use by the framework
   div.floatingPlaceholder = label;
   pui.movePrompter(input);
-  label.getValue = function () {
+  label.getValue = function() {
     return input.value;
   };
-  label.setValue = function (value) {
+  label.setValue = function(value) {
     input.value = value;
     pui.checkEmptyText(input);
   };
-  label.getBox = function () {
+  label.getBox = function() {
     return input;
   };
-  label.setMaxLength = function (maxLength) {
+  label.setMaxLength = function(maxLength) {
     if (maxLength) {
       input.setAttribute("maxlength", maxLength);
     }
   };
-  label.assignJSEvent = function (jsEventName, func) {
+  label.assignJSEvent = function(jsEventName, func) {
     // re-assign event to the input box and remove it from the main div element
     input[jsEventName] = func;
     if (div[jsEventName] != null) {
-      div[jsEventName] = function () {};
+      div[jsEventName] = function() {};
     }
   };
-  label.setReadOnly = function (isReadOnly) {
+  label.setReadOnly = function(isReadOnly) {
     input.readOnly = isReadOnly;
   };
-  label.setDisabled = function (isDisabled) {
+  label.setDisabled = function(isDisabled) {
     input.disabled = isDisabled;
   };
-  label.setBoxAttribute = function (attr, value) {
+  label.setBoxAttribute = function(attr, value) {
     input.setAttribute(attr, value);
   };
-  label.setFocus = function () {
+  label.setFocus = function() {
     box.focus();
   };
 };
 
-pui.movePropertiesFromFloatingPlaceholderDiv = function (parms) {
+pui.movePropertiesFromFloatingPlaceholderDiv = function(parms) {
   // If the input has a floating placeholder, then properties have been applied to the placeholder div
   // instead of the actual input. For certain properties (and this list should be added to), move them to
   // the inner input.

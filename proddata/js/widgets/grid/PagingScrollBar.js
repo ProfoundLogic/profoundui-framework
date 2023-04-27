@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.PagingScrollBar = function () {
+pui.PagingScrollBar = function() {
   this.x = 0;
   this.y = 0;
   this.height = 300;
@@ -46,14 +46,14 @@ pui.PagingScrollBar = function () {
   var innerDiv;
   var multiplier = 25;
 
-  this.init = function () {
+  this.init = function() {
     outerDiv = document.createElement("div");
 
     if (typeof me.grid !== "undefined" && typeof me.grid.recordFormatName === "string" && me.grid.recordFormatName.length > 0) {
-     scrollbarId = me.grid.recordFormatName + "scrollbar"; 
+      scrollbarId = me.grid.recordFormatName + "scrollbar";
     }
     else {
-     scrollbarId = "scrollbar" + Math.floor(Math.random() * 1000000).toString(); 
+      scrollbarId = "scrollbar" + Math.floor(Math.random() * 1000000).toString();
     }
 
     outerDiv.id = scrollbarId;
@@ -69,11 +69,11 @@ pui.PagingScrollBar = function () {
     innerDiv.innerHTML = "&nbsp;";
     innerDiv.fontSize = "0px";
 
-    outerDiv.onmousedown = function (event) {
+    outerDiv.onmousedown = function(event) {
       if (me.designMode) designUtils.preventEvent(event);
     };
 
-    outerDiv.onscroll = function () {
+    outerDiv.onscroll = function() {
       var midPoint = parseInt(me.height / 2);
 
       if (me.designMode || (me.atTop && me.atBottom)) {
@@ -153,7 +153,7 @@ pui.PagingScrollBar = function () {
     me.container.appendChild(outerDiv);
   };
 
-  this.draw = function () {
+  this.draw = function() {
     ignoreOnScroll = true;
     outerDiv.style.zIndex = me.zIndex;
     outerDiv.style.visibility = "";
@@ -181,34 +181,34 @@ pui.PagingScrollBar = function () {
     }
   };
 
-  this.reset = function () {
+  this.reset = function() {
     pagedUp = false;
     pagedDown = false;
   };
 
-  this.hide = function () {
+  this.hide = function() {
     outerDiv.style.visibility = "hidden";
   };
 
-  this.destroy = function () {
+  this.destroy = function() {
     if (outerDiv.parentNode != null) outerDiv.parentNode.removeChild(outerDiv);
     if (innerDiv.parentNode != null) innerDiv.parentNode.removeChild(innerDiv);
   };
 
-  this.changeContainer = function (newContainer) {
+  this.changeContainer = function(newContainer) {
     me.container = newContainer;
     outerDiv.parentNode.removeChild(outerDiv);
     me.container.appendChild(outerDiv);
   };
 
-  this.enableMouseWheel = function (domElement) {
+  this.enableMouseWheel = function(domElement) {
     if (domElement.mouseWheelEnabled) return;
     domElement.mouseWheelEnabled = true;
 
     addWheelListener(domElement);
   };
 
-  function handle (delta) {
+  function handle(delta) {
     document.getElementById(scrollbarId).scrollTop -= delta * multiplier;
   }
 
@@ -218,7 +218,7 @@ pui.PagingScrollBar = function () {
    * @param {Boolean|Undefined} reverse  When true, deltaY is positive when scrolling down, negative when scrolling up.
    * @returns {Boolean}
    */
-  function scrollingPastEnd (deltaY, reverse) {
+  function scrollingPastEnd(deltaY, reverse) {
     if (me.gridDom) {
       if (reverse) deltaY = -deltaY;
       if ((me.gridDom && deltaY < 0 && me.gridDom.grid.atBottom()) ||
@@ -230,16 +230,18 @@ pui.PagingScrollBar = function () {
   /** Event handler for mouse wheel event. (Handles deprecated events)
    * @param {Object} event    Mouse event. A deprecated MouseWheel or DOMMouseScroll.
    */
-  function mousewheel (event) {
+  function mousewheel(event) {
     var delta = 0;
     if (!event) event = window.event; // For IE.
     if (event.wheelDelta) { // IE/Opera.
       delta = event.wheelDelta / 120;
       /** In Opera 9, delta differs in sign as compared to IE.
        */
-      if (window.opera)
-      { delta = -delta; }
-    } else if (event.detail) { /** Mozilla case. */
+      if (window.opera) {
+        delta = -delta;
+      }
+    }
+    else if (event.detail) { /** Mozilla case. */
       /** In Mozilla, sign of delta is different than in IE.
        * Also, delta is multiple of 3.
        */
@@ -252,7 +254,7 @@ pui.PagingScrollBar = function () {
    * Handle newer, non-deprecated mouse wheel event. Normalize the deltaY, which is different for each implementation.
    * @param {WheelEvent} event
    */
-  function wheel (event) {
+  function wheel(event) {
     var delta = pui.normalizeWheelDelta(event);
     // Old mousewheel code expects negative to mean scrolling down, positive to mean scrolling up.
     deltaEvent(delta * -1, event);
@@ -263,13 +265,14 @@ pui.PagingScrollBar = function () {
    * @param {Number} delta
    * @param {Event} event
    */
-  function deltaEvent (delta, event) {
+  function deltaEvent(delta, event) {
     /** If delta is nonzero, handle it.
      * Basically, delta is now positive if wheel was scrolled up,
      * and negative, if wheel was scrolled down.
      */
-    if (delta && !event.shiftKey)
-    { handle(delta); }
+    if (delta && !event.shiftKey) {
+      handle(delta);
+    }
     /** Prevent default actions caused by mouse wheel.
      * That might be ugly, but we handle scrolls somehow
      * anyway, so don't bother here..
@@ -286,13 +289,15 @@ pui.PagingScrollBar = function () {
   /** Initialization code.
    * If you use your own event management code, change it as required.
    */
-  function addWheelListener (domElement) {
+  function addWheelListener(domElement) {
     if (typeof WheelEvent == "function") {
       domElement.addEventListener("wheel", wheel, false); // MDN recommends using the standard "wheel" event as of 5/3/2019.
-    } else {
+    }
+    else {
       // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019
-      if (domElement.addEventListener)
-      { domElement.addEventListener("DOMMouseScroll", mousewheel, false); } /** DOMMouseScroll is for mozilla. */
+      if (domElement.addEventListener) {
+        domElement.addEventListener("DOMMouseScroll", mousewheel, false);
+      } /** DOMMouseScroll is for mozilla. */
 
       domElement.onmousewheel = mousewheel; /** IE/Opera. */
     }

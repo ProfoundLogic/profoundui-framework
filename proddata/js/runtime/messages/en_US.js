@@ -20,7 +20,7 @@
 // ----------------------------------
 //  USA English
 // ----------------------------------
-var en_US = function (dict) {
+var en_US = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

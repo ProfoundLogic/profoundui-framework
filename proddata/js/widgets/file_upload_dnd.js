@@ -29,7 +29,7 @@
  * @param {Element} container
  * @returns {FileUploadDND}
  */
-pui["fileupload"].FileUploadDND = function (container) {
+pui["fileupload"].FileUploadDND = function(container) {
   // Configuration options to override the parent.
   this._clearLinkClass = "clear-files";
   this._uploadLinkClass = "upload-files";
@@ -60,7 +60,7 @@ pui["fileupload"].FileUploadDND.prototype = Object.create(pui["fileupload"].File
 /**
  * Create a dropBox for accepting dragged files. Add the other control elements below it.
  */
-pui["fileupload"].FileUploadDND.prototype._createBoxes = function () {
+pui["fileupload"].FileUploadDND.prototype._createBoxes = function() {
   this._dropBox = document.createElement("div");
   this._dropBox.className = "drop-box";
   this._setupDropBox();
@@ -81,7 +81,7 @@ pui["fileupload"].FileUploadDND.prototype._createBoxes = function () {
 /**
  * Setup text inside the Drop Box. Text may change when the "show select" property changes.
  */
-pui["fileupload"].FileUploadDND.prototype._setupDropBox = function () {
+pui["fileupload"].FileUploadDND.prototype._setupDropBox = function() {
   // Always add a select files link. Display it when configured.
   this._createSelectFilesLink(this._dropBox, pui["getLanguageText"]("runtimeText", "upload select text"));
   this._selectFilesLink.classList.add("dnd-upl-sel"); // Add space below the text.
@@ -97,7 +97,7 @@ pui["fileupload"].FileUploadDND.prototype._setupDropBox = function () {
  * @param {Event} e
  * @returns {Boolean|undefined}
  */
-pui["fileupload"].FileUploadDND.prototype["handleEvent"] = function (e) {
+pui["fileupload"].FileUploadDND.prototype["handleEvent"] = function(e) {
   switch (e.type) {
     //
     // Handlers for drag/drop events.
@@ -186,7 +186,7 @@ pui["fileupload"].FileUploadDND.prototype["handleEvent"] = function (e) {
  * To ensure the script waits until the last file is finished reading, the
  * next call to readNextFile() is only called from the handlers.
  */
-pui["fileupload"].FileUploadDND.prototype._readNextFile = function () {
+pui["fileupload"].FileUploadDND.prototype._readNextFile = function() {
   var reader = new FileReader();
   reader.addEventListener("load", this);
   reader.addEventListener("error", this);
@@ -194,7 +194,7 @@ pui["fileupload"].FileUploadDND.prototype._readNextFile = function () {
   reader["readAsArrayBuffer"](this._droppedFileList[this._droppedCtr]);
 };
 
-pui["fileupload"].FileUploadDND.prototype._readerHandleNext = function () {
+pui["fileupload"].FileUploadDND.prototype._readerHandleNext = function() {
   if (this._droppedCtr == this._droppedFileList.length - 1) {
     // We are the last file. This should only run after all the files attempted to open. Process the list of dropped files. Once
     // here, we know if dropped objects were directories or readable files.
@@ -227,7 +227,7 @@ pui["fileupload"].FileUploadDND.prototype._readerHandleNext = function () {
  * (Simplifies handling jpg/jpeg.) Called by this.upload.
  * @param {Object} params  pui.upload parameters setup in parent class.
  */
-pui["fileupload"].FileUploadDND.prototype._addAllowedTypesParam = function (params) {
+pui["fileupload"].FileUploadDND.prototype._addAllowedTypesParam = function(params) {
   params["allowedTypes"] = [];
 };
 
@@ -235,7 +235,7 @@ pui["fileupload"].FileUploadDND.prototype._addAllowedTypesParam = function (para
  * Overrides. Called when the user onupload has an exception in Genie.
  * @param {Exception|String} e
  */
-pui["fileupload"].FileUploadDND.prototype._uploadEventException = function (e) {
+pui["fileupload"].FileUploadDND.prototype._uploadEventException = function(e) {
   var msg = e.message != null ? e.message : e;
   this._error = "onupload Error:\n" + msg;
 };
@@ -244,11 +244,11 @@ pui["fileupload"].FileUploadDND.prototype._uploadEventException = function (e) {
 // Public methods.
 //
 
-pui["fileupload"].FileUploadDND.prototype.setAutoSubmit = function (autosub) {
+pui["fileupload"].FileUploadDND.prototype.setAutoSubmit = function(autosub) {
   this._autoSubmit = (autosub === true || autosub === "true");
 };
 
-pui["fileupload"].FileUploadDND.prototype.setAutoUpload = function (autoup) {
+pui["fileupload"].FileUploadDND.prototype.setAutoUpload = function(autoup) {
   this._autoUpload = (autoup === true || autoup === "true");
 };
 
@@ -256,7 +256,7 @@ pui["fileupload"].FileUploadDND.prototype.setAutoUpload = function (autoup) {
  * Handle property change for "show select"--show or hide the "Select Files" link.
  * @param {Boolean} val
  */
-pui["fileupload"].FileUploadDND.prototype.showSelect = function (val) {
+pui["fileupload"].FileUploadDND.prototype.showSelect = function(val) {
   this._showSelectFiles = val;
   this._dropBox.innerHTML = "";
   this._setupDropBox();
@@ -299,7 +299,7 @@ pui.widgets.add({
    */
   propertySetters: {
     /* The "field type" function calls the widget constructor and render(). */
-    "field type": function (parms) {
+    "field type": function(parms) {
       /*
        * If we haven't already constructed an instance of FileUpload, do it now.
        * dom["fileUpload"] is a property of our container, not of window.pui.
@@ -316,8 +316,9 @@ pui.widgets.add({
         // This pushes our widget instance onto the global list of
         // file upload widgets. When a submit happens, each widget's
         // upload() function will be called.
-        if (context === "dspf")
-        { pui.fileUploadElements.push(parms.dom["fileUpload"]); }
+        if (context === "dspf") {
+          pui.fileUploadElements.push(parms.dom["fileUpload"]);
+        }
       }
       // Process multiple occurrence property.
       var suffix = 1;
@@ -336,13 +337,13 @@ pui.widgets.add({
       window.addEventListener("drop", pui["fileupload"].myPreventDef, false);
     },
 
-    "auto submit": function (parms) {
+    "auto submit": function(parms) {
       if (!parms.design) parms.dom["fileUpload"].setAutoSubmit(parms.value);
     },
-    "auto upload": function (parms) {
+    "auto upload": function(parms) {
       if (!parms.design) parms.dom["fileUpload"].setAutoUpload(parms.value);
     },
-    "show select": function (parms) {
+    "show select": function(parms) {
       parms.dom["fileUpload"].showSelect(parms.value == "true" || parms.value == true);
     },
 
@@ -365,7 +366,7 @@ pui.widgets.add({
  * #7243: only prevent files from dropping; don't prevent text from being drag-dropped on the page.
  * @param {Event} e
  */
-pui["fileupload"].myPreventDef = function (e) {
+pui["fileupload"].myPreventDef = function(e) {
   var list = e.dataTransfer.items; // Edge, Chrome, Firefox
   if (list != null) {
     for (var i = 0, n = list.length; i < n; i++) {
