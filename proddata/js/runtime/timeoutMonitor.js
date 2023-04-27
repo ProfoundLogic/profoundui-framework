@@ -24,7 +24,7 @@
 pui.timeoutMonitor = {};
 
 pui.timeoutMonitor.timer = new pui["Timer"]();
-pui.timeoutMonitor.timer.action = function () {
+pui.timeoutMonitor.timer.action = function() {
   var returnValue = true;
   if (pui["onbeforetimeout"] != null && typeof pui["onbeforetimeout"] == "function") {
     returnValue = pui["onbeforetimeout"]();
@@ -35,15 +35,15 @@ pui.timeoutMonitor.timer.action = function () {
 };
 
 pui.timeoutMonitor.keepalive = new pui["Timer"]();
-pui.timeoutMonitor.keepalive.action = function () {
+pui.timeoutMonitor.keepalive.action = function() {
   pui["keepAlive"]();
 };
 
-pui.timeoutMonitor.showTimeOutScreen = function () {
+pui.timeoutMonitor.showTimeOutScreen = function() {
   pui["doSessionTimeout"]();
 };
 
-pui.timeoutMonitor.start = function () { // this is called when a screen is rendered
+pui.timeoutMonitor.start = function() { // this is called when a screen is rendered
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
   if (pui.timeout == null) return;
@@ -57,7 +57,7 @@ pui.timeoutMonitor.start = function () { // this is called when a screen is rend
   pui.timeoutMonitor.keepalive.start();
 };
 
-pui.timeoutMonitor.end = function () { // this is called when a screen is submitted
+pui.timeoutMonitor.end = function() { // this is called when a screen is submitted
   pui.timeoutMonitor.timer.stop();
   pui.timeoutMonitor.keepalive.stop();
 };

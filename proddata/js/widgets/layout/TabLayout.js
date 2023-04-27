@@ -23,7 +23,7 @@
  * @param {Element} dom   A new or cloned DIV element constructor.
  * @constructor
  */
-pui.TabLayout = function (parms, dom) {
+pui.TabLayout = function(parms, dom) {
   TabPanel.call(this); // Import TabPanel properties and methods into this instance.
 
   pui.layout.Template.call(this, parms, dom); // Super class constructor; sets this.layout, forProxy, designMode, etc.
@@ -73,7 +73,7 @@ pui.TabLayout.prototype = Object.create(pui.layout.Template.prototype); // TabLa
  * @param {Element} dom
  * @public
  */
-pui.TabLayout.prototype.linkToDom = function (dom) {
+pui.TabLayout.prototype.linkToDom = function(dom) {
   pui.layout.Template.prototype.linkToDom.call(this, dom); // Assign this.container=dom; set layoutT; assign resize to sizeMe.
 
   if (!this.designMode) {
@@ -95,7 +95,7 @@ pui.TabLayout.prototype.linkToDom = function (dom) {
  * @returns {Boolean}    When true is returned, the pui.Layout.prototype.setProperty will not process the property change any more.
  * @public
  */
-pui.TabLayout.prototype.setProperty = function (property, value) {
+pui.TabLayout.prototype.setProperty = function(property, value) {
   switch (property) {
     /// ////////////////////////////////////////////////////////////////////////
     case "tab names":
@@ -219,7 +219,7 @@ pui.TabLayout.prototype.setProperty = function (property, value) {
  * @param {Object|undefined} screenParms   Parameters sent to renderFormat that are not passed in property setters. Undefined when called in Designer.
  * @public
  */
-pui.TabLayout.prototype.render = function (screenParms) {
+pui.TabLayout.prototype.render = function(screenParms) {
   if (this._rendered) {
     this._addRemoveTabs();
   }
@@ -297,7 +297,7 @@ pui.TabLayout.prototype.render = function (screenParms) {
  * Add or remove tab Span and Div elements to match the number of tabs in this.tabs.
  * @private
  */
-pui.TabLayout.prototype._addRemoveTabs = function () {
+pui.TabLayout.prototype._addRemoveTabs = function() {
   var numTabsDesired = this.tabs.length;
   var nextTabId = this._tabSpans.length;
 
@@ -357,7 +357,7 @@ pui.TabLayout.prototype._addRemoveTabs = function () {
  * Pre-Conditions: this.selectedTab is the active tab.
  * @public
  */
-pui.TabLayout.prototype.drawChanged = function () {
+pui.TabLayout.prototype.drawChanged = function() {
   var tabSpan, bodyDiv, outerSpan, tabIdx;
   this.selectedTab = parseInt(this.selectedTab, 10);
 
@@ -453,7 +453,7 @@ pui.TabLayout.prototype.drawChanged = function () {
  * @param {Event} e
  * @public
  */
-pui.TabLayout.prototype["handleEvent"] = function (e) {
+pui.TabLayout.prototype["handleEvent"] = function(e) {
   switch (true) {
     // Handle changing tabs.
     case (e.type === "mousedown" || (e.type === "keyup" && e.key === "Tab")) :
@@ -629,7 +629,7 @@ pui.TabLayout.prototype["handleEvent"] = function (e) {
  * @returns {Boolean}  Returns true if any of the body DIVs have children; else false.
  * @private
  */
-pui.TabLayout.prototype._cannotRemoveTab = function (i) {
+pui.TabLayout.prototype._cannotRemoveTab = function(i) {
   var children = this._bodyWrap.children;
   return (children && children[i] && children[i].children && children[i].children.length > 0);
 };
@@ -640,7 +640,7 @@ pui.TabLayout.prototype._cannotRemoveTab = function (i) {
  * @param {String} cssClass
  * @returns {Element}
  */
-pui.TabLayout.prototype._createScrollButton = function (cssClass) {
+pui.TabLayout.prototype._createScrollButton = function(cssClass) {
   var outerSpan = document.createElement("span");
   if (cssClass) outerSpan.className = "pui-tscrbtn pui-tablayout " + cssClass;
 
@@ -664,7 +664,7 @@ pui.TabLayout.prototype._createScrollButton = function (cssClass) {
  * If "active tab" is bound, find the scroll position of the active tab. Do this only once, after the layout is visible.
  * @private
  */
-pui.TabLayout.prototype._getActiveTabPos = function () {
+pui.TabLayout.prototype._getActiveTabPos = function() {
   if (this.sendActiveTab && this._needScrollToActive && this._headerArea.offsetWidth > 0) {
     var idx = this._movabletabs ? this._findNodeIndexByTabId(this.selectedTab) : this.selectedTab;
     var outerSpan = this._headerArea.childNodes[idx];
@@ -683,7 +683,7 @@ pui.TabLayout.prototype._getActiveTabPos = function () {
  * @returns {Number}
  * @private
  */
-pui.TabLayout.prototype._findNodeIndexByTabId = function (tabId) {
+pui.TabLayout.prototype._findNodeIndexByTabId = function(tabId) {
   for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
     var node = this._headerArea.childNodes[i];
     if (node.childNodes[1] && node.childNodes[1].tabId === tabId) return i;
@@ -700,7 +700,7 @@ pui.TabLayout.prototype._findNodeIndexByTabId = function (tabId) {
  * Overrides pui.layout.Template.resize.
  * @public
  */
-pui.TabLayout.prototype.resize = function (skipSizeContainers) {
+pui.TabLayout.prototype.resize = function(skipSizeContainers) {
   if (this._rendered) {
     this._getActiveTabPos();
     this._checkScrollButtons();
@@ -712,7 +712,7 @@ pui.TabLayout.prototype.resize = function (skipSizeContainers) {
  * Overrides pui.layout.Template.destroy.
  * @public
  */
-pui.TabLayout.prototype.destroy = function () {
+pui.TabLayout.prototype.destroy = function() {
   // Remove DOM properties added by this class.
   var dom = this.container;
   if (dom) {
@@ -730,6 +730,6 @@ pui.TabLayout.prototype.destroy = function () {
  * Overrides pui.layout.Template.getVisibleContainerIndex
  * @returns {Number}
  */
-pui.TabLayout.prototype.getVisibleContainerIndex = function () {
+pui.TabLayout.prototype.getVisibleContainerIndex = function() {
   return this.selectedTab != null ? parseInt(this.selectedTab, 10) : -1;
 };

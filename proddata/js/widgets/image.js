@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.imageElementMouseOver = function (event) {
+pui.imageElementMouseOver = function(event) {
   var image = getTarget(event);
   if (image.tagName != "IMG") return;
   if (image.hoverImage != null && image.hoverImage != "") {
@@ -28,7 +28,7 @@ pui.imageElementMouseOver = function (event) {
   }
 };
 
-pui.imageElementMouseOut = function (event) {
+pui.imageElementMouseOut = function(event) {
   var image = getTarget(event);
   if (image.tagName != "IMG") return;
   image.isMouseOver = false;
@@ -39,7 +39,7 @@ pui.imageElementMouseOut = function (event) {
   }
 };
 
-pui.imageElementMouseDown = function (event) {
+pui.imageElementMouseDown = function(event) {
   var image = getTarget(event);
   if (image.tagName != "IMG") return;
   if (image.clickImage != null && image.clickImage != "") {
@@ -48,7 +48,7 @@ pui.imageElementMouseDown = function (event) {
   }
 };
 
-pui.imageElementMouseUp = function (image) {
+pui.imageElementMouseUp = function(image) {
   if (image.originalImage != null) {
     image.isMouseDown = false;
     if (image.isMouseOver == true) {
@@ -60,7 +60,7 @@ pui.imageElementMouseUp = function (image) {
   }
 };
 
-pui.imageGetDatabase = function (parms) {
+pui.imageGetDatabase = function(parms) {
   if (parms.design) return null;
 
   var dbfile = parms.evalProperty("blob table");
@@ -90,9 +90,13 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
-      parms.dom.onselectstart = function (e) { return false; };
-      parms.dom.ondragstart = function (e) { return false; };
+    "field type": function(parms) {
+      parms.dom.onselectstart = function(e) {
+        return false;
+      };
+      parms.dom.ondragstart = function(e) {
+        return false;
+      };
       parms.dom.setAttribute("draggable", "false");
       if (typeof parms.dom.style.MozUserSelect != "undefined") parms.dom.style.MozUserSelect = "none";
       parms.dom.originalImage = parms.evalProperty("image source");
@@ -100,7 +104,7 @@ pui.widgets.add({
       if (blobURL) parms.dom.originalImage = blobURL;
       parms.dom.src = parms.dom.originalImage;
 
-      function preload (imageSrc) {
+      function preload(imageSrc) {
         var image = new Image();
         image.src = imageSrc;
       }
@@ -119,11 +123,11 @@ pui.widgets.add({
       if (clickImage != null && clickImage != "") {
         parms.dom.clickImage = pui.normalizeURL(parms.dom.clickImage, true);
         addEvent(parms.dom, "mousedown", pui.imageElementMouseDown);
-        addEvent(document, "mouseup", function () {
+        addEvent(document, "mouseup", function() {
           pui.imageElementMouseUp(parms.dom);
         });
         addEvent(parms.dom, "touchstart", pui.imageElementMouseDown);
-        addEvent(document, "touchend", function () {
+        addEvent(document, "touchend", function() {
           pui.imageElementMouseUp(parms.dom);
         });
         var preloadImage2 = new Image();
@@ -131,7 +135,7 @@ pui.widgets.add({
       }
     },
 
-    "image source": function (parms) {
+    "image source": function(parms) {
       parms.dom.originalImage = pui.normalizeURL(parms.value, true);
       // SVG images need a set width or height in Firefox in order to be moved around the designer canvas,
       // if the user does not set either when setting the source to svg, we will set the width.
@@ -145,13 +149,13 @@ pui.widgets.add({
       }
     },
 
-    "blob column": function (parms) {
+    "blob column": function(parms) {
       var blobURL = pui.imageGetDatabase(parms);
       if (blobURL) parms.dom.originalImage = blobURL;
       parms.dom.src = parms.dom.originalImage;
     },
 
-    "hover image source": function (parms) {
+    "hover image source": function(parms) {
       parms.dom.hoverImage = parms.value;
       if (parms.value != null && parms.value != "") {
         parms.dom.hoverImage = pui.normalizeURL(parms.dom.hoverImage, true);
@@ -162,16 +166,16 @@ pui.widgets.add({
       }
     },
 
-    "click image source": function (parms) {
+    "click image source": function(parms) {
       parms.dom.clickImage = parms.value;
       if (parms.value != null && parms.value != "") {
         parms.dom.clickImage = pui.normalizeURL(parms.dom.clickImage, true);
         addEvent(parms.dom, "mousedown", pui.imageElementMouseDown);
-        addEvent(document, "mouseup", function () {
+        addEvent(document, "mouseup", function() {
           pui.imageElementMouseUp(parms.dom);
         });
         addEvent(parms.dom, "touchstart", pui.imageElementMouseDown);
-        addEvent(document, "touchend", function () {
+        addEvent(document, "touchend", function() {
           pui.imageElementMouseUp(parms.dom);
         });
         var preloadImage = new Image();

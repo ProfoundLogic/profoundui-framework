@@ -24,7 +24,7 @@
  * @param {Element} dom
  * @returns {Array.<Object>|Element}
  */
-pui.layout.template.processHTML = function (parms, dom) {
+pui.layout.template.processHTML = function(parms, dom) {
   var html = pui.layout["templates"][parms.template];
 
   if (typeof html != "string") {
@@ -40,7 +40,7 @@ pui.layout.template.processHTML = function (parms, dom) {
 
   var propList = {};
 
-  function findDynamicPart () {
+  function findDynamicPart() {
     var start = html.indexOf("{");
     if (start == -1) return null;
     var end = null;
@@ -72,7 +72,7 @@ pui.layout.template.processHTML = function (parms, dom) {
     };
   }
 
-  function evalProperty (obj) {
+  function evalProperty(obj) {
     if (obj == null) return "";
     if (typeof obj == "string") return obj;
     if (typeof obj == "number" || typeof obj == "boolean") return String(obj);
@@ -97,7 +97,7 @@ pui.layout.template.processHTML = function (parms, dom) {
     return "";
   }
 
-  function evalDynamicObj (obj) {
+  function evalDynamicObj(obj) {
     if (obj["designValue"] != null || obj["runtimeValue"] != null || obj["proxyValue"] != null) {
       var rv;
       if (designMode || returnProps) rv = evalProperty(obj["designValue"]);
@@ -110,7 +110,7 @@ pui.layout.template.processHTML = function (parms, dom) {
     }
   }
 
-  function evalDynamicPart (part) {
+  function evalDynamicPart(part) {
     var obj;
     var expression = "(" + html.substring(part.start, part.end + 1) + ")";
     var obj = null;
@@ -122,7 +122,7 @@ pui.layout.template.processHTML = function (parms, dom) {
     return evalDynamicObj(obj);
   }
 
-  function replaceDynamicPart (part, newValue) {
+  function replaceDynamicPart(part, newValue) {
     html = html.substr(0, part.start) + newValue + html.substr(part.end + 1);
   }
 

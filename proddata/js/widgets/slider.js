@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.Slider = function () {
+pui.Slider = function() {
   this.div = null;
   this.orientation = "horizontal";
   this.value = 2;
@@ -40,7 +40,7 @@ pui.Slider = function () {
 
   var ipad = ((pui["is_touch"] && !pui["is_mouse_capable"]) || pui.iPadEmulation);
 
-  this.init = function () {
+  this.init = function() {
     // create bar
     bar = document.createElement("div");
     bar.className = "bar";
@@ -56,11 +56,17 @@ pui.Slider = function () {
     handle = document.createElement("div");
     handle.className = "handle";
 
-    me.div.onselectstart = function (e) { return false; };
-    bar.onselectstart = function (e) { return false; };
-    handle.onselectstart = function (e) { return false; };
+    me.div.onselectstart = function(e) {
+      return false;
+    };
+    bar.onselectstart = function(e) {
+      return false;
+    };
+    handle.onselectstart = function(e) {
+      return false;
+    };
 
-    function mousedown (event) {
+    function mousedown(event) {
       if (me.readOnly) return;
       if (me.disabled) return;
       var vertical = (me.orientation == "vertical");
@@ -74,7 +80,7 @@ pui.Slider = function () {
       var handleStartX = parseInt(handle.offsetLeft);
       var handleStartY = parseInt(handle.offsetTop);
 
-      function mousemove (event) {
+      function mousemove(event) {
         var y = getMouseY(event) - cursorStartY;
         var x = getMouseX(event) - cursorStartX;
 
@@ -119,7 +125,7 @@ pui.Slider = function () {
         if (touchEvent) event.preventDefault();
       }
 
-      function mouseup () {
+      function mouseup() {
         if (touchEvent) {
           removeEvent(document, "touchmove", mousemove);
           removeEvent(document, "touchend", mouseup);
@@ -153,7 +159,7 @@ pui.Slider = function () {
     pui.widgetsToCleanup.push(me); // Causes destroy to be called when record format or screen changes.
   };
 
-  this.roundByIncrement = function (value, roundDown) {
+  this.roundByIncrement = function(value, roundDown) {
     var halfAdjust = me.incrementValue / 2;
     if (roundDown == true) halfAdjust = 0;
     var newValue = parseInt((value + me.minValue + halfAdjust) / me.incrementValue) * me.incrementValue - me.minValue;
@@ -161,7 +167,7 @@ pui.Slider = function () {
     return newValue;
   };
 
-  this.draw = function () {
+  this.draw = function() {
     pui.addCssClass(me.div, "slider");
     if (ipad && !me.design) {
       pui.addCssClass(me.div, "touch");
@@ -172,7 +178,7 @@ pui.Slider = function () {
     me.setValue(me.value);
   };
 
-  this.validateValues = function () {
+  this.validateValues = function() {
     if (isNaN(me.incrementValue)) me.incrementValue = 1;
     if (me.incrementValue <= 0) me.incrementValue = 1;
     if (isNaN(me.minValue)) me.minValue = 0;
@@ -185,7 +191,7 @@ pui.Slider = function () {
     if (!me.design && context == "genie") hiddenField.value = me.value;
   };
 
-  this.setValue = function (value) {
+  this.setValue = function(value) {
     value = Number(value);
     if (isNaN(value)) value = me.minValue;
     if (value < me.minValue) value = me.minValue;
@@ -224,7 +230,7 @@ pui.Slider = function () {
    * Remove global window event that otherwise stays registered. Called by pui.cleanup().
    * @returns {undefined}
    */
-  this.destroy = function () {
+  this.destroy = function() {
     if (me == null) return;
     me.div = null;
     bar = null;
@@ -243,7 +249,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.dom.slider == null) {
         parms.dom.slider = new pui.Slider();
       }
@@ -253,20 +259,20 @@ pui.widgets.add({
       parms.dom.slider.init();
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       if (parms.dom.slider != null) {
         parms.dom.slider.setValue(parms.value);
       }
     },
 
-    "orientation": function (parms) {
+    "orientation": function(parms) {
       if (parms.dom.slider != null) {
         parms.dom.slider.orientation = parms.value;
         parms.dom.slider.draw();
       }
     },
 
-    "min value": function (parms) {
+    "min value": function(parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.minValue = Number(parms.value);
         parms.dom.slider.maxValue = Number(parms.evalProperty("max value"));
@@ -276,7 +282,7 @@ pui.widgets.add({
       }
     },
 
-    "max value": function (parms) {
+    "max value": function(parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.maxValue = Number(parms.value);
         parms.dom.slider.minValue = Number(parms.evalProperty("min value"));
@@ -286,7 +292,7 @@ pui.widgets.add({
       }
     },
 
-    "increment value": function (parms) {
+    "increment value": function(parms) {
       if (!parms.design && parms.dom.slider != null) {
         parms.dom.slider.incrementValue = Number(parms.value);
         parms.dom.slider.value = Number(parms.evalProperty("value"));
@@ -295,7 +301,7 @@ pui.widgets.add({
       }
     },
 
-    "read only": function (parms) {
+    "read only": function(parms) {
       if (parms.dom.slider != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.slider.readOnly = true;
@@ -306,7 +312,7 @@ pui.widgets.add({
       }
     },
 
-    "disabled": function (parms) {
+    "disabled": function(parms) {
       if (parms.dom.slider != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.slider.disabled = true;
@@ -317,14 +323,14 @@ pui.widgets.add({
       }
     },
 
-    "width": function (parms) {
+    "width": function(parms) {
       parms.dom.style.width = parms.value;
       if (parms.dom.slider != null) {
         parms.dom.slider.draw();
       }
     },
 
-    "height": function (parms) {
+    "height": function(parms) {
       parms.dom.style.height = parms.value;
       if (parms.dom.slider != null) {
         parms.dom.slider.draw();
@@ -333,9 +339,10 @@ pui.widgets.add({
 
   },
 
-  globalAfterSetter: function (parms) {
-    if (parms.propertyName.indexOf("css class") === 0 && parms.dom.slider != null)
-    { parms.dom.slider.draw(); }
+  globalAfterSetter: function(parms) {
+    if (parms.propertyName.indexOf("css class") === 0 && parms.dom.slider != null) {
+      parms.dom.slider.draw();
+    }
   }
 
 });

@@ -66,8 +66,10 @@ var sjcl = {
  * Corrupt Class
  * @constructor
  */
-    corrupt: function (message) {
-      this.toString = function () { return "CORRUPT: " + this.message; };
+    corrupt: function(message) {
+      this.toString = function() {
+        return "CORRUPT: " + this.message;
+      };
       this.message = message;
     },
 
@@ -75,8 +77,10 @@ var sjcl = {
  * Invalid Parameter Class
  * @constructor
  */
-    invalid: function (message) {
-      this.toString = function () { return "INVALID: " + this.message; };
+    invalid: function(message) {
+      this.toString = function() {
+        return "INVALID: " + this.message;
+      };
       this.message = message;
     },
 
@@ -84,8 +88,10 @@ var sjcl = {
  * Bug or missing feature in SJCL Class
  * @constructor
  */
-    bug: function (message) {
-      this.toString = function () { return "BUG: " + this.message; };
+    bug: function(message) {
+      this.toString = function() {
+        return "BUG: " + this.message;
+      };
       this.message = message;
     },
 
@@ -93,8 +99,10 @@ var sjcl = {
  * Something isn't ready Class
  * @constructor
  */
-    notReady: function (message) {
-      this.toString = function () { return "NOT READY: " + this.message; };
+    notReady: function(message) {
+      this.toString = function() {
+        return "NOT READY: " + this.message;
+      };
       this.message = message;
     }
   }
@@ -126,15 +134,15 @@ var sjcl = {
  *
  * @class Advanced Encryption Standard (low-level interface)
  */
-sjcl.cipher.aes = function (key) {
+sjcl.cipher.aes = function(key) {
   if (!this._tables[0][0][0]) {
     this._precompute();
   }
 
-  var i, j, tmp,
-    encKey, decKey,
-    sbox = this._tables[0][4], decTable = this._tables[1],
-    keyLen = key.length, rcon = 1;
+  var i; var j; var tmp;
+  var encKey; var decKey;
+  var sbox = this._tables[0][4]; var decTable = this._tables[1];
+  var keyLen = key.length; var rcon = 1;
 
   if (keyLen !== 4 && keyLen !== 6 && keyLen !== 8) {
     throw new sjcl.exception.invalid("invalid key size");
@@ -165,7 +173,8 @@ sjcl.cipher.aes = function (key) {
     tmp = encKey[j & 3 ? i : i - 4];
     if (i <= 4 || j < 4) {
       decKey[j] = tmp;
-    } else {
+    }
+    else {
       decKey[j] = decTable[0][sbox[tmp >>> 24]] ^
                   decTable[1][sbox[tmp >> 16 & 255]] ^
                   decTable[2][sbox[tmp >> 8 & 255]] ^
@@ -187,14 +196,18 @@ sjcl.cipher.aes.prototype = {
    * @param {Array} data The plaintext.
    * @return {Array} The ciphertext.
    */
-  encrypt: function (data) { return this._crypt(data, 0); },
+  encrypt: function(data) {
+    return this._crypt(data, 0);
+  },
 
   /**
    * Decrypt an array of 4 big-endian words.
    * @param {Array} data The ciphertext.
    * @return {Array} The plaintext.
    */
-  decrypt: function (data) { return this._crypt(data, 1); },
+  decrypt: function(data) {
+    return this._crypt(data, 1);
+  },
 
   /**
    * The expanded S-box and inverse S-box tables.  These will be computed
@@ -215,10 +228,10 @@ sjcl.cipher.aes.prototype = {
    *
    * @private
    */
-  _precompute: function () {
-    var encTable = this._tables[0], decTable = this._tables[1],
-      sbox = encTable[4], sboxInv = decTable[4],
-      i, x, xInv, d = [], th = [], x2, x4, x8, s, tEnc, tDec;
+  _precompute: function() {
+    var encTable = this._tables[0]; var decTable = this._tables[1];
+    var sbox = encTable[4]; var sboxInv = decTable[4];
+    var i; var x; var xInv; var d = []; var th = []; var x2; var x4; var x8; var s; var tEnc; var tDec;
 
     // Compute double and third tables
     for (i = 0; i < 256; i++) {
@@ -257,31 +270,31 @@ sjcl.cipher.aes.prototype = {
    * @return {Array} The four encrypted or decrypted words.
    * @private
    */
-  _crypt: function (input, dir) {
+  _crypt: function(input, dir) {
     if (input.length !== 4) {
       throw new sjcl.exception.invalid("invalid block size");
     }
 
-    var key = this._key[dir],
-      // state variables a,b,c,d are loaded with pre-whitened data
-      a = input[0] ^ key[0],
-      b = input[dir ? 3 : 1] ^ key[1],
-      c = input[2] ^ key[2],
-      d = input[dir ? 1 : 3] ^ key[3],
-      a2, b2, c2,
+    var key = this._key[dir];
+    // state variables a,b,c,d are loaded with pre-whitened data
+    var a = input[0] ^ key[0];
+    var b = input[dir ? 3 : 1] ^ key[1];
+    var c = input[2] ^ key[2];
+    var d = input[dir ? 1 : 3] ^ key[3];
+    var a2; var b2; var c2;
 
-      nInnerRounds = key.length / 4 - 2,
-      i,
-      kIndex = 4,
-      out = [0, 0, 0, 0],
-      table = this._tables[dir],
+    var nInnerRounds = key.length / 4 - 2;
+    var i;
+    var kIndex = 4;
+    var out = [0, 0, 0, 0];
+    var table = this._tables[dir];
 
-      // load up the tables
-      t0 = table[0],
-      t1 = table[1],
-      t2 = table[2],
-      t3 = table[3],
-      sbox = table[4];
+    // load up the tables
+    var t0 = table[0];
+    var t1 = table[1];
+    var t2 = table[2];
+    var t3 = table[3];
+    var sbox = table[4];
 
     // Inner rounds.  Cribbed from OpenSSL.
     for (i = 0; i < nInnerRounds; i++) {
@@ -347,7 +360,7 @@ sjcl.bitArray = {
    * slice until the end of the array.
    * @return {bitArray} The requested slice.
    */
-  bitSlice: function (a, bstart, bend) {
+  bitSlice: function(a, bstart, bend) {
     a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
     return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend - bstart);
   },
@@ -359,14 +372,15 @@ sjcl.bitArray = {
    * @param {Number} length The length of the number to extract.
    * @return {Number} The requested slice.
    */
-  extract: function (a, bstart, blength) {
+  extract: function(a, bstart, blength) {
     // FIXME: this Math.floor is not necessary at all, but for some reason
     // seems to suppress a bug in the Chromium JIT.
-    var x, sh = Math.floor((-bstart - blength) & 31);
+    var x; var sh = Math.floor((-bstart - blength) & 31);
     if ((bstart + blength - 1 ^ bstart) & -32) {
       // it crosses a boundary
       x = (a[bstart / 32 | 0] << (32 - sh)) ^ (a[bstart / 32 + 1 | 0] >>> sh);
-    } else {
+    }
+    else {
       // within a single word
       x = a[bstart / 32 | 0] >>> sh;
     }
@@ -379,15 +393,16 @@ sjcl.bitArray = {
    * @param {bitArray} a2 The second array.
    * @return {bitArray} The concatenation of a1 and a2.
    */
-  concat: function (a1, a2) {
+  concat: function(a1, a2) {
     if (a1.length === 0 || a2.length === 0) {
       return a1.concat(a2);
     }
 
-    var out, i, last = a1[a1.length - 1], shift = sjcl.bitArray.getPartial(last);
+    var out; var i; var last = a1[a1.length - 1]; var shift = sjcl.bitArray.getPartial(last);
     if (shift === 32) {
       return a1.concat(a2);
-    } else {
+    }
+    else {
       return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
     }
   },
@@ -397,9 +412,11 @@ sjcl.bitArray = {
    * @param {bitArray} a The array.
    * @return {Number} The length of a, in bits.
    */
-  bitLength: function (a) {
-    var l = a.length, x;
-    if (l === 0) { return 0; }
+  bitLength: function(a) {
+    var l = a.length; var x;
+    if (l === 0) {
+      return 0;
+    }
     x = a[l - 1];
     return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
   },
@@ -410,8 +427,10 @@ sjcl.bitArray = {
    * @param {Number} len The length to truncate to, in bits.
    * @return {bitArray} A new array, truncated to len bits.
    */
-  clamp: function (a, len) {
-    if (a.length * 32 < len) { return a; }
+  clamp: function(a, len) {
+    if (a.length * 32 < len) {
+      return a;
+    }
     a = a.slice(0, Math.ceil(len / 32));
     var l = a.length;
     len = len & 31;
@@ -428,8 +447,10 @@ sjcl.bitArray = {
    * @param {Number} [0] _end Pass 1 if x has already been shifted to the high side.
    * @return {Number} The partial word.
    */
-  partial: function (len, x, _end) {
-    if (len === 32) { return x; }
+  partial: function(len, x, _end) {
+    if (len === 32) {
+      return x;
+    }
     return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
   },
 
@@ -438,7 +459,7 @@ sjcl.bitArray = {
    * @param {Number} x The partial word.
    * @return {Number} The number of bits used by the partial word.
    */
-  getPartial: function (x) {
+  getPartial: function(x) {
     return Math.round(x / 0x10000000000) || 32;
   },
 
@@ -448,11 +469,11 @@ sjcl.bitArray = {
    * @param {bitArray} b The second array.
    * @return {boolean} true if a == b; false otherwise.
    */
-  equal: function (a, b) {
+  equal: function(a, b) {
     if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
       return false;
     }
-    var x = 0, i;
+    var x = 0; var i;
     for (i = 0; i < a.length; i++) {
       x |= a[i] ^ b[i];
     }
@@ -466,9 +487,11 @@ sjcl.bitArray = {
    * @param {bitArray} [out] An array to prepend to the output.
    * @private
    */
-  _shiftRight: function (a, shift, carry, out) {
-    var i, last2 = 0, shift2;
-    if (out === undefined) { out = []; }
+  _shiftRight: function(a, shift, carry, out) {
+    var i; var last2 = 0; var shift2;
+    if (out === undefined) {
+      out = [];
+    }
 
     for (; shift >= 32; shift -= 32) {
       out.push(carry);
@@ -491,7 +514,7 @@ sjcl.bitArray = {
   /** xor a block of 4 words together.
    * @private
    */
-  _xor4: function (x, y) {
+  _xor4: function(x, y) {
     return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
   }
 };
@@ -506,16 +529,16 @@ sjcl.bitArray = {
 /** @namespace Hexadecimal */
 sjcl.codec.hex = {
   /** Convert from a bitArray to a hex string. */
-  fromBits: function (arr) {
-    var out = "", i, x;
+  fromBits: function(arr) {
+    var out = ""; var i; var x;
     for (i = 0; i < arr.length; i++) {
       out += ((arr[i] | 0) + 0xF00000000000).toString(16).substr(4);
     }
     return out.substr(0, sjcl.bitArray.bitLength(arr) / 4);// .replace(/(.{8})/g, "$1 ");
   },
   /** Convert from a hex string to a bitArray. */
-  toBits: function (str) {
-    var i, out = [], len;
+  toBits: function(str) {
+    var i; var out = []; var len;
     str = str.replace(/\s|0x/g, "");
     len = str.length;
     str = str + "00000000";
@@ -530,7 +553,7 @@ pui.aes = {};
 
 pui.aes.aeskey = "if(a.c=='genie'){h.g=true;a.x++}";
 
-pui.aes.encryptBlock = function (block) {
+pui.aes.encryptBlock = function(block) {
   var key = sjcl.codec.hex.toBits(pui.aes.encodeToHex(pui.aes.aeskey, 2));
   var cipher = new sjcl.cipher.aes(key);
   block = sjcl.codec.hex.toBits(block);
@@ -539,7 +562,7 @@ pui.aes.encryptBlock = function (block) {
   return result;
 };
 
-pui.aes.encryptHex = function (hex, salt) {
+pui.aes.encryptHex = function(hex, salt) {
   if (hex.length % 4 != 0) return ""; // invalid size of hex string
 
   while (hex.length % 32 != 0) {
@@ -566,7 +589,7 @@ pui.aes.encryptHex = function (hex, salt) {
   return output;
 };
 
-pui.aes.encodeToHex = function (str, byteLen) {
+pui.aes.encodeToHex = function(str, byteLen) {
   var r = "";
   var e = str.length;
   var c = 0;
@@ -579,7 +602,7 @@ pui.aes.encodeToHex = function (str, byteLen) {
   return r;
 };
 
-pui.aes.encryptString = function (str) {
+pui.aes.encryptString = function(str) {
   var hex = pui.aes.encodeToHex(str, 4);
   return pui.aes.encryptHex(hex, true).toUpperCase();
 };

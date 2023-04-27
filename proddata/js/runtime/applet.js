@@ -19,7 +19,7 @@
 
 if (typeof (window["pui"]) == "undefined") window["pui"] = {};
 
-function loadPCCommandApplet (callback) {
+function loadPCCommandApplet(callback) {
   if (document.getElementById("PCCommandApplet") == null) {
   	var applet = document.createElement("applet");
   	applet.id = "PCCommandApplet";
@@ -38,7 +38,7 @@ function loadPCCommandApplet (callback) {
   }
 }
 
-function copyToClipboard (data) {
+function copyToClipboard(data) {
   var applet = document.getElementById("PCCommandApplet");
   if (!applet) {
 	  pui.appletClipData = data;
@@ -49,7 +49,7 @@ function copyToClipboard (data) {
   applet["copyToClipboard"](data);
 }
 
-window["copyToClipboardCb"] = function () {
+window["copyToClipboardCb"] = function() {
   copyToClipboardCb(pui.appletClipData);
   pui.appletClipData = null;
 };

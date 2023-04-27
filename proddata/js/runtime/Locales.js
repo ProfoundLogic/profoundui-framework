@@ -22,17 +22,17 @@
  * @constructor
  */
 
-pui.Locales = function () {
+pui.Locales = function() {
   // private variables
   var me = this;
   var localeArray = [];
 
   // public methods
-  this.getLocales = function () {
+  this.getLocales = function() {
     return localeArray;
   };
 
-  this.add = function (obj) {
+  this.add = function(obj) {
     var name = obj["name"];
     if (name !== null) {
       for (var i = 0; i < localeArray.length; i++) {

@@ -25,7 +25,7 @@
  * @param {Element|undefined} dom   A new or cloned DIV element when constructor is called elsewhere than ResponsiveDialog.
  * @constructor
  */
-pui.ResponsiveLayout = function (parms, dom) {
+pui.ResponsiveLayout = function(parms, dom) {
   pui.layout.Template.call(this, parms, dom); // super(). sets up container, forProxy, designMode, etc.
 
   // Public
@@ -121,7 +121,7 @@ pui.ResponsiveLayout.prototype._responsiveLayoutTracker = 0;
  * Called when pui.render sets elements to be in the background of another layer and those elements lose their IDs.
  * See test for #5044: the DOM elements should not be destroyed; otherwise, responsive layout does not work in the background.
  */
-pui.ResponsiveLayout.prototype.sentToBackground = function () {
+pui.ResponsiveLayout.prototype.sentToBackground = function() {
   this.container.setAttribute("puirespbg", this._backgroundFallback);
   this.setRules(); // Refresh the rules, using attribute selectors instead of IDs.
 };
@@ -131,7 +131,7 @@ pui.ResponsiveLayout.prototype.sentToBackground = function () {
  * Pre-Condition: This.container must be set to some node before this is called.
  * @param {Number} numitems
  */
-pui.ResponsiveLayout.prototype.setNumItems = function (numitems) {
+pui.ResponsiveLayout.prototype.setNumItems = function(numitems) {
   var mainnode = this._mainnode;
   var mainchildren = mainnode.children;
   // Append elements when the number of sections increased.
@@ -163,15 +163,17 @@ pui.ResponsiveLayout.prototype.setNumItems = function (numitems) {
  *                                                         Else rules are refreshed. e.g. ID has changed.
  * @returns {undefined}
  */
-pui.ResponsiveLayout.prototype.setRules = function (cssrulestxt) {
+pui.ResponsiveLayout.prototype.setRules = function(cssrulestxt) {
   if (cssrulestxt == null) {
     cssrulestxt = this._origCssRulesText || "";
   }
   else if (pui.isBound(cssrulestxt)) {
-    if (cssrulestxt.designValue != null && typeof cssrulestxt.designValue == "string")
-    { cssrulestxt = cssrulestxt.designValue; }
-    else
-    { cssrulestxt = "@media screen { #_id_ > .puiresp { display:grid; } }"; }
+    if (cssrulestxt.designValue != null && typeof cssrulestxt.designValue == "string") {
+      cssrulestxt = cssrulestxt.designValue;
+    }
+    else {
+      cssrulestxt = "@media screen { #_id_ > .puiresp { display:grid; } }";
+    }
   }
 
   this._origCssRulesText = cssrulestxt;
@@ -209,7 +211,7 @@ pui.ResponsiveLayout.prototype.setRules = function (cssrulestxt) {
  * Re-evaluate style rules for new dimensions when necessary and when the dimensions may have changed.
  * @param {undefined|Boolean} skipSizeContainers  True when called from Layout resize.
  */
-pui.ResponsiveLayout.prototype.resize = function (skipSizeContainers) {
+pui.ResponsiveLayout.prototype.resize = function(skipSizeContainers) {
   if ((!this._useViewport || this.designMode) && this._origCssText != "") {
     this._stylenode.textContent = this._origCssText;
     this._manipulateCSSOM();
@@ -221,16 +223,18 @@ pui.ResponsiveLayout.prototype.resize = function (skipSizeContainers) {
  * @param {String|Array} nameList
  * @returns {undefined}
  */
-pui.ResponsiveLayout.prototype.setContainerNames = function (nameList) {
+pui.ResponsiveLayout.prototype.setContainerNames = function(nameList) {
   this._containerNames = [];
   if (nameList != null && nameList != "") {
     if (pui.isBound(nameList)) {
       var tmplist = pui.parseCommaSeparatedList(nameList.designValue);
       if (tmplist.length == 0) this._containerNames = [];
       else this._containerNames = tmplist; // Use the bound value saved in designer.
-    } else if (nameList instanceof Array) {
+    }
+    else if (nameList instanceof Array) {
       this._containerNames = nameList;
-    } else {
+    }
+    else {
       this._containerNames = pui.parseCommaSeparatedList(nameList);
     }
   }
@@ -250,7 +254,7 @@ pui.ResponsiveLayout.prototype.setContainerNames = function (nameList) {
  * @param {Number} idx
  * @param {Object} div
  */
-pui.ResponsiveLayout.prototype._setContainerName = function (idx, div) {
+pui.ResponsiveLayout.prototype._setContainerName = function(idx, div) {
   var haveContainerName = typeof this._containerNames[idx] === "string" && this._containerNames[idx].length > 0;
   var text = (idx + 1) + (haveContainerName ? " (" + this._containerNames[idx] + ")" : "");
   if (this.previewMode) {
@@ -274,7 +278,7 @@ pui.ResponsiveLayout.prototype._setContainerName = function (idx, div) {
  * @param {Object} parentNode  HTML Element.
  * @returns {Object}    Returns the new <style> node.
  */
-pui.ResponsiveLayout.prototype._addStyleNode = function (cssText, parentNode) {
+pui.ResponsiveLayout.prototype._addStyleNode = function(cssText, parentNode) {
   var stylenode = document.createElement("style");
   stylenode.type = "text/css";
   if (stylenode.styleSheet) { // IE
@@ -290,7 +294,7 @@ pui.ResponsiveLayout.prototype._addStyleNode = function (cssText, parentNode) {
  * Wait for the container to have a width, then manipulate the CSSOM.
  * When "use viewport" is false: can be called directly when "height" or "width" are set, or it can be a bound callback for setTimeout
  */
-pui.ResponsiveLayout.prototype._checkWidth = function () {
+pui.ResponsiveLayout.prototype._checkWidth = function() {
   this._checkCount++;
   var containerToCheck = this._getContainerToCheck();
   if (containerToCheck.offsetWidth > 0) {
@@ -316,7 +320,7 @@ pui.ResponsiveLayout.prototype._checkWidth = function () {
  * In design mode, use the canvas, not the browser viewport. It's confusing for customers that the canvas isn't the viewport. #4820
  * @returns {WebElement|Object}
  */
-pui.ResponsiveLayout.prototype._getContainerToCheck = function () {
+pui.ResponsiveLayout.prototype._getContainerToCheck = function() {
   return (this.designMode && this._useViewport) ? getObj(appContainerId) : this.container;
 };
 
@@ -326,7 +330,7 @@ pui.ResponsiveLayout.prototype._getContainerToCheck = function () {
  * For media query that matches, the styles are set, and the media query itself is dropped.
  * @returns {undefined}
  */
-pui.ResponsiveLayout.prototype._manipulateCSSOM = function () {
+pui.ResponsiveLayout.prototype._manipulateCSSOM = function() {
   this._findRulesContToCheck = this._getContainerToCheck();
   this._findRulesCssText = "";
   this._findRulesRegex2.lastIndex = 0; // ensure the search starts at 0 in case a previous "g" flag updated .lastIndex.
@@ -341,7 +345,7 @@ pui.ResponsiveLayout.prototype._manipulateCSSOM = function () {
  * Post-Conditions: this._findRulesCssText is changed.
  * @param {Object} parent
  */
-pui.ResponsiveLayout.prototype._findRules = function (parent) {
+pui.ResponsiveLayout.prototype._findRules = function(parent) {
   var conditionText;
   for (var i = 0; i < parent.cssRules.length; i++) {
     var rule = parent.cssRules[i];
@@ -367,19 +371,23 @@ pui.ResponsiveLayout.prototype._findRules = function (parent) {
               var dim = parseInt(matches_minmax[3], 10);
 
               if (matches_minmax[1] == "min") {
-                if ((widhgt == "width" && this._findRulesContToCheck.offsetWidth < dim) || (widhgt == "height" && this._findRulesContToCheck.offsetHeight < dim))
-                { ruleSatisfies = false; } // The rule was min-width|height, but the container was narrower|shorter than the rule.
+                if ((widhgt == "width" && this._findRulesContToCheck.offsetWidth < dim) || (widhgt == "height" && this._findRulesContToCheck.offsetHeight < dim)) {
+                  ruleSatisfies = false;
+                } // The rule was min-width|height, but the container was narrower|shorter than the rule.
               }
               else {
-                if ((widhgt == "width" && this._findRulesContToCheck.offsetWidth > dim) || (widhgt == "height" && this._findRulesContToCheck.offsetHeight > dim))
-                { ruleSatisfies = false; } // The rule was max-width|height, but the container was wider|taller than the rule.
+                if ((widhgt == "width" && this._findRulesContToCheck.offsetWidth > dim) || (widhgt == "height" && this._findRulesContToCheck.offsetHeight > dim)) {
+                  ruleSatisfies = false;
+                } // The rule was max-width|height, but the container was wider|taller than the rule.
               }
             }
             else if (matches_orient != null) {
-              if (matches_orient[1] == "portrait" && this._findRulesContToCheck.offsetHeight < this._findRulesContToCheck.offsetWidth)
-              { ruleSatisfies = false; } // The rule was portrait, but the container was not.
-              else if (matches_orient[1] == "landscape" && this._findRulesContToCheck.offsetHeight > this._findRulesContToCheck.offsetWidth)
-              { ruleSatisfies = false; } // The rule was landscape, but the container was not.
+              if (matches_orient[1] == "portrait" && this._findRulesContToCheck.offsetHeight < this._findRulesContToCheck.offsetWidth) {
+                ruleSatisfies = false;
+              } // The rule was portrait, but the container was not.
+              else if (matches_orient[1] == "landscape" && this._findRulesContToCheck.offsetHeight > this._findRulesContToCheck.offsetWidth) {
+                ruleSatisfies = false;
+              } // The rule was landscape, but the container was not.
             }
           }
         }
@@ -417,12 +425,12 @@ pui.ResponsiveLayout.prototype._findRules = function (parent) {
  * @param {String} str
  * @returns {Array}
  */
-pui.ResponsiveLayout.prototype.parseSectionSizes = function (str) {
+pui.ResponsiveLayout.prototype.parseSectionSizes = function(str) {
   var sizes = [];
 
   // Detect the repeat() with an explicit number of values, and expand it.
   // If repeat was not found, then just push the word.
-  function checkRepeat (destarr, word) {
+  function checkRepeat(destarr, word) {
     var matches = word.match(/^repeat\(\s*(\d+|auto-fill|auto-fit),\s*(.+)\s*\)$/i);
     if (matches != null) {
       var len = parseInt(matches[1], 10);
@@ -433,7 +441,8 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function (str) {
       }
       // TODO: else, handle auto-fill and auto-fit. Resizer lines would need to know to change the 2nd parameter;
       // e.g. repeat(auto-fill,200px). Resizing any line should change the 200px.
-    } else {
+    }
+    else {
       destarr.push(word); // Just push the word.
     }
   }
@@ -478,7 +487,7 @@ pui.ResponsiveLayout.prototype.parseSectionSizes = function (str) {
  * @param {String} value
  * @returns {Boolean}  When true is returned, the caller, pui.Layout's setProperty, will return after this function returns.
  */
-pui.ResponsiveLayout.prototype.setProperty = function (property, value) {
+pui.ResponsiveLayout.prototype.setProperty = function(property, value) {
   switch (property) {
     case "id":
       if (this.container.id != value) {
@@ -558,7 +567,7 @@ pui.ResponsiveLayout.prototype.setProperty = function (property, value) {
  * TODO: now that pui.layout.Template.render is setup throughout the code, the code could be organized better and this be removed.
  * @param {String} property  property name
  */
-pui.ResponsiveLayout.prototype.setPropertyAfter = function (property) {
+pui.ResponsiveLayout.prototype.setPropertyAfter = function(property) {
   switch (property) {
     case "height":
     case "width":

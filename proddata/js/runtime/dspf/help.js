@@ -19,7 +19,7 @@
 
 pui.help = {};
 
-pui.help.show = function () {
+pui.help.show = function() {
   // get record level properties from meta data
   var layers = pui.oldRenderParms["layers"];
   if (layers == null) return;
@@ -133,7 +133,7 @@ pui.help.show = function () {
           "AUTH": pui.appJob["auth"]
         },
         "async": true,
-        "handler": function (response) {
+        "handler": function(response) {
           pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
@@ -172,7 +172,7 @@ pui.help.show = function () {
           "AUTH": pui.appJob["auth"]
         },
         "async": true,
-        "handler": function (response) {
+        "handler": function(response) {
           pui.hideWaitAnimation();
           var success = response["success"];
           if (success == true) {
@@ -187,7 +187,7 @@ pui.help.show = function () {
   }
 };
 
-pui.help.renderHelpRecord = function (meta) {
+pui.help.renderHelpRecord = function(meta) {
   var items = meta["items"];
   var namedModel = getPropertiesNamedModel();
   var container = document.createElement("div");
@@ -217,7 +217,7 @@ pui.help.renderHelpRecord = function (meta) {
     dom.style.top = toppx;
     container.appendChild(dom);
     if (properties["field type"] == "button" || properties["field type"] == "styled button") {
-      dom.onclick = function () {
+      dom.onclick = function() {
         // close help panel
         container.innerHTML = "";
         container.parentNode.removeChild(container);
@@ -241,7 +241,7 @@ pui.help.renderHelpRecord = function (meta) {
   }
 };
 
-pui.help.error = function (response) {
+pui.help.error = function(response) {
   var id = response["id"];
   var msg = response["message"];
   var help = response["help"];
@@ -254,7 +254,7 @@ pui.help.error = function (response) {
   pui.alert(text);
 };
 
-pui.help.renderPanelGroup = function (html, showExtendedHelpButton, props) {
+pui.help.renderPanelGroup = function(html, showExtendedHelpButton, props) {
   var container = document.createElement("div");
   container.className = "help-panel-group";
   container.style.zIndex = 999;
@@ -268,7 +268,7 @@ pui.help.renderPanelGroup = function (html, showExtendedHelpButton, props) {
   var returnButton = document.createElement("input");
   returnButton.type = "button";
   returnButton.value = "Return to Application";
-  returnButton.onclick = function () {
+  returnButton.onclick = function() {
     // close help panel
     container.innerHTML = "";
     container.parentNode.removeChild(container);
@@ -281,7 +281,7 @@ pui.help.renderPanelGroup = function (html, showExtendedHelpButton, props) {
     var extendedHelpButton = document.createElement("input");
     extendedHelpButton.type = "button";
     extendedHelpButton.value = "Extended Help";
-    extendedHelpButton.onclick = function () {
+    extendedHelpButton.onclick = function() {
       pui.help.extendedHelp(props, container);
     };
     container.appendChild(extendedHelpButton);
@@ -296,7 +296,7 @@ pui.help.renderPanelGroup = function (html, showExtendedHelpButton, props) {
   }
 };
 
-pui.help.extendedHelp = function (props, container) {
+pui.help.extendedHelp = function(props, container) {
   var params = {
     "modules": 0,
     "AUTH": pui.appJob["auth"]
@@ -359,7 +359,7 @@ pui.help.extendedHelp = function (props, container) {
     "method": "post",
     "params": params,
     "async": true,
-    "handler": function (response) {
+    "handler": function(response) {
       pui.hideWaitAnimation();
       var success = response["success"];
       if (success == true) {

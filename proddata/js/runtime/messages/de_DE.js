@@ -20,7 +20,7 @@
 // ----------------------------------
 //  German / Germany
 // ----------------------------------
-var de_DE = function (dict) {
+var de_DE = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

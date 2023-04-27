@@ -23,7 +23,7 @@
  * @param {Element} dom   A new or cloned DIV element.
  * @returns {Element|Object}
  */
-pui.layout.template.cssPanelTemplate = function (parms, dom) {
+pui.layout.template.cssPanelTemplate = function(parms, dom) {
   var properties = parms.properties;
   var proxyMode = parms.proxyMode;
 
@@ -32,7 +32,7 @@ pui.layout.template.cssPanelTemplate = function (parms, dom) {
   panel.container = dom;
   panel.init();
   dom.panel = panel;
-  dom.sizeMe = function () {
+  dom.sizeMe = function() {
     dom.panel.resize();
   };
   var headerText = properties["header text"];

@@ -21,7 +21,7 @@
  * @constructor
  */
 
-pui.ComboBoxWidget = function () {
+pui.ComboBoxWidget = function() {
   this.container = null;
   this.div = null;
   this.oldDom = null;
@@ -39,7 +39,7 @@ pui.ComboBoxWidget.prototype = Object.create(pui.BaseClass.prototype);
 /**
  * Initialize the ComboBox elements. Called once when the "field type" property is set.
  */
-pui.ComboBoxWidget.prototype.init = function () {
+pui.ComboBoxWidget.prototype.init = function() {
   if (this.div == null) {
     this.div = document.createElement("div");
     if (this.container != null) this.container.appendChild(this.div);
@@ -132,7 +132,7 @@ pui.ComboBoxWidget.prototype.init = function () {
 /**
  * Set the widths and z-index of the input box. Called in "field type" and "width" property setters; can be called in doDetectSubfilePatterns.
  */
-pui.ComboBoxWidget.prototype.draw = function () {
+pui.ComboBoxWidget.prototype.draw = function() {
   var boxWidth = 0;
   var comWidth = this.div.style.width;	// get the width of the combo box
   var newWidth = this.div.offsetWidth; // get the width in pixels
@@ -151,49 +151,49 @@ pui.ComboBoxWidget.prototype.draw = function () {
   }
 };
 
-pui.ComboBoxWidget.prototype.setValue = function (value) {
+pui.ComboBoxWidget.prototype.setValue = function(value) {
   this.box.value = value;
   pui.checkEmptyText(this.box);
 };
 
-pui.ComboBoxWidget.prototype.getValue = function () {
+pui.ComboBoxWidget.prototype.getValue = function() {
   return this.box.value;
 };
 
-pui.ComboBoxWidget.prototype.setReadOnly = function (isReadOnly) {
+pui.ComboBoxWidget.prototype.setReadOnly = function(isReadOnly) {
   this.box.readOnly = isReadOnly;
 };
 
-pui.ComboBoxWidget.prototype.setDisabled = function (isDisabled) {
+pui.ComboBoxWidget.prototype.setDisabled = function(isDisabled) {
   this.box.disabled = isDisabled;
 };
 
-pui.ComboBoxWidget.prototype.setMaxLength = function (maxLength) {
+pui.ComboBoxWidget.prototype.setMaxLength = function(maxLength) {
   this.box.maxLength = maxLength;
 };
 
-pui.ComboBoxWidget.prototype.setBoxAttribute = function (attr, value) {
+pui.ComboBoxWidget.prototype.setBoxAttribute = function(attr, value) {
   this.box.setAttribute(attr, value);
 };
 
-pui.ComboBoxWidget.prototype.setClass = function (className) {
+pui.ComboBoxWidget.prototype.setClass = function(className) {
   this.box.className = "combo-main-box " + className.split(" ")[0];
   pui.addCssClass(this._choicesDiv, this.box.className.split(" ")[1] + "-combo-options");
   pui.addCssClass(this._arrow, this.box.className.split(" ")[1] + "-combo-arrow");
 };
 
-pui.ComboBoxWidget.prototype.assignJSEvent = function (jsEventName, func) {
+pui.ComboBoxWidget.prototype.assignJSEvent = function(jsEventName, func) {
   // re-assign event to the box and remove it from the main div element of the combo box
   this.box[jsEventName] = func;
   if (this.div[jsEventName] != null) {
-    this.div[jsEventName] = function () {};
+    this.div[jsEventName] = function() {};
   }
 };
 
 /**
  * Clear choices and choice values. Used in the "field type" property setter.
  */
-pui.ComboBoxWidget.prototype.clear = function () {
+pui.ComboBoxWidget.prototype.clear = function() {
   this["choices"] = [];
   this["choice values"] = [];
   this.box.value = "";
@@ -204,14 +204,14 @@ pui.ComboBoxWidget.prototype.clear = function () {
  * Returns the input box; used in several property setters and in pui.floatPlaceholder.
  * @returns {Element}
  */
-pui.ComboBoxWidget.prototype.getBox = function () {
+pui.ComboBoxWidget.prototype.getBox = function() {
   return this.box;
 };
 
 /**
  * Show the choices drop-down when the arrow was clicked or the "showChoices" API method was called.
  */
-pui.ComboBoxWidget.prototype["showChoices"] = function () {
+pui.ComboBoxWidget.prototype["showChoices"] = function() {
   var choicesDiv = this._choicesDiv;
 
   // Change arrow when opened
@@ -340,7 +340,7 @@ pui.ComboBoxWidget.prototype["showChoices"] = function () {
  * @param {String} propertyName
  * @param {String} propertyValue
  */
-pui.ComboBoxWidget.prototype.setStyleProperty = function (propertyName, propertyValue) {
+pui.ComboBoxWidget.prototype.setStyleProperty = function(propertyName, propertyValue) {
   var words = propertyName.split(" ");
   if (words.length == 2) words[1] = words[1].substr(0, 1).toUpperCase() + words[1].substr(1);
   var styleName = words.join("");
@@ -358,7 +358,7 @@ pui.ComboBoxWidget.prototype.setStyleProperty = function (propertyName, property
 /**
  *
  */
-pui.ComboBoxWidget.prototype["hideChoices"] = function () {
+pui.ComboBoxWidget.prototype["hideChoices"] = function() {
   // change arrow when closed
   if (this._arrow != null && this._arrow.className.split(" ")[0] == "open") {
     this._arrow.className = "combo-arrow " + this.box.className.split(" ")[1] + "-combo-arrow";
@@ -372,7 +372,7 @@ pui.ComboBoxWidget.prototype["hideChoices"] = function () {
  * Remove document listeners for scroll or click when the option list is hidden or on destroy. Removing makes debugging easier
  * when many elements exist and avoids a memory leak and accumulation of unnecessary click listeners.
  */
-pui.ComboBoxWidget.prototype._removeHideListeners = function () {
+pui.ComboBoxWidget.prototype._removeHideListeners = function() {
   document.removeEventListener("scroll", this, true);
   document.removeEventListener("click", this);
 };
@@ -381,7 +381,7 @@ pui.ComboBoxWidget.prototype._removeHideListeners = function () {
  * Handle any events when the listener is "this".
  * @param {Event} e
  */
-pui.ComboBoxWidget.prototype["handleEvent"] = function (e) {
+pui.ComboBoxWidget.prototype["handleEvent"] = function(e) {
   var target = e.target;
   switch (e.type) {
     case "click":
@@ -480,7 +480,7 @@ pui.ComboBoxWidget.prototype["handleEvent"] = function (e) {
 /**
  * Ensure that document listeners do not persist after this object is gone.
  */
-pui.ComboBoxWidget.prototype.destroy = function () {
+pui.ComboBoxWidget.prototype.destroy = function() {
   this._removeHideListeners();
   this.deleteOwnProperties();
 };
@@ -489,7 +489,7 @@ pui.ComboBoxWidget.prototype.destroy = function () {
  * Global property setter. The propertySetters code would be simpler if all the non "field type" properties were handled by this class.
  * @param {Object} parms
  */
-pui.ComboBoxWidget.prototype.setProperty = function (parms) {
+pui.ComboBoxWidget.prototype.setProperty = function(parms) {
   switch (parms.propertyName) {
     case "color":
     case "font family":
@@ -522,7 +522,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.dom.comboBoxWidget == null) {
         parms.dom.comboBoxWidget = new pui.ComboBoxWidget();
       }
@@ -572,7 +572,7 @@ pui.widgets.add({
       	var req = new pui.Ajax(pui.appendAuth(url));
       	req["async"] = true;
       	req["suppressAlert"] = true;
-      	req["onready"] = function () {
+      	req["onready"] = function() {
       	  parms.dom.comboBoxWidget.clear();
           var response = checkAjaxResponse(req, "Generate Combo Box Options");
       	  if (!response) return;
@@ -656,7 +656,7 @@ pui.widgets.add({
           }
           if (pui["read db driven data as ebcdic"] !== true) ajaxRequest["postData"] += "&UTF8=Y";
 
-          ajaxRequest["onsuccess"] = function () {
+          ajaxRequest["onsuccess"] = function() {
             var eventCode = parms.evalProperty("ondbload");
             if (typeof eventCode != "string" || eventCode == "") eventCode = null;
 
@@ -707,25 +707,25 @@ pui.widgets.add({
       }
     },
 
-    "choices": function (parms) {
+    "choices": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget["choices"] = pui.parseCommaSeparatedList(parms.value);
       }
     },
 
-    "choice values": function (parms) {
+    "choice values": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget["choice values"] = pui.parseCommaSeparatedList(parms.value);
       }
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget.setValue(parms.value);
       }
     },
 
-    "read only": function (parms) {
+    "read only": function(parms) {
       if (parms.dom.comboBoxWidget != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.comboBoxWidget.setReadOnly(true);
@@ -736,7 +736,7 @@ pui.widgets.add({
       }
     },
 
-    "disabled": function (parms) {
+    "disabled": function(parms) {
       if (parms.dom.comboBoxWidget != null && !parms.design) {
         if (parms.value == true || parms.value == "true") {
           parms.dom.comboBoxWidget.setDisabled(true);
@@ -747,21 +747,21 @@ pui.widgets.add({
       }
     },
 
-    "css class": function (parms) {
+    "css class": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget.setClass(parms.value);
       }
     },
 
-    "width": function (parms) {
+    "width": function(parms) {
       if (parms.dom.comboBoxWidget != null) {
         parms.dom.style.width = parms.value;
         parms.dom.comboBoxWidget.draw();
       }
     },
 
-    "onselect": function (parms) {
-      parms.dom.selectEvent = function () {
+    "onselect": function(parms) {
+      parms.dom.selectEvent = function() {
         if (pui.isRoutine(parms.properties["onselect"])) {
           pui["runLogic"](parms.properties["onselect"]["routine"], parms.dom.subfileRow, parms.dom.subfileName);
           return;
@@ -778,7 +778,7 @@ pui.widgets.add({
       };
     },
 
-    "input type": function (parms) {
+    "input type": function(parms) {
       try {
         if (!parms.design && parms.dom.comboBoxWidget != null) {
           parms.dom.comboBoxWidget.getBox().setAttribute("type", parms.value);
@@ -787,7 +787,7 @@ pui.widgets.add({
       catch (e) { }
     },
 
-    "browser auto complete": function (parms) {
+    "browser auto complete": function(parms) {
       if (!parms.design && parms.dom.comboBoxWidget != null) {
         parms.dom.comboBoxWidget.getBox().setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
@@ -803,7 +803,7 @@ pui.widgets.add({
 
   },
 
-  globalPropertySetter: function (parms) {
+  globalPropertySetter: function(parms) {
     if (parms.dom && parms.dom.comboBoxWidget && typeof parms.dom.comboBoxWidget.setProperty === "function") {
       parms.dom.comboBoxWidget.setProperty(parms);
     }
@@ -811,18 +811,18 @@ pui.widgets.add({
 
   afterSetters: {
 
-    "tab index": function (parms) {
+    "tab index": function(parms) {
       parms.dom.removeAttribute("tabindex");
       parms.dom.comboBoxWidget.getBox().setAttribute("tabindex", parms.value);
     },
 
-    "placeholder": function (parms) {
+    "placeholder": function(parms) {
       parms.dom.removeAttribute("placeholder");
       parms.dom.comboBoxWidget.getBox().setAttribute("placeholder", parms.value);
     }
 
   },
-  globalAfterSetter: function (parms) {
+  globalAfterSetter: function(parms) {
     // Fixes issue 7434, allows the combo box to retain its floating placeholder after re-render.
     // Seems as though the default for the combo box is to preserve the floating placeholder but
     // The div containing the combo box does not have the correct classes after re-render

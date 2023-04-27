@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.CSSPanelSection = function () {
+pui.CSSPanelSection = function() {
   this.container = null;
   this.type = "body";
   this.forLayout = false;
@@ -38,7 +38,7 @@ pui.CSSPanelSection = function () {
 
   var me = this;
 
-  this.init = function () {
+  this.init = function() {
     mainSpan = document.createElement("span");
     innerSpan = document.createElement("span");
     if (me.type == "header") textSpan = document.createElement("span");
@@ -64,13 +64,13 @@ pui.CSSPanelSection = function () {
     me.container.appendChild(mainSpan);
   };
 
-  this.setText = function (text) {
+  this.setText = function(text) {
     if (me.type != "header") return;
     if (text == null || pui.isBound(text) || pui.isTranslated(text) || pui.isRoutine(text)) text = "";
     textSpan.innerHTML = text;
   };
 
-  this.setSwatch = function (newSwatch) {
+  this.setSwatch = function(newSwatch) {
     if (newSwatch == null || newSwatch == "" || pui.isBound(newSwatch)) newSwatch = "c"; // default
 
     // Preconfigured themes A-G have the format 'A - Black'
@@ -95,7 +95,7 @@ pui.CSSPanelSection = function () {
     swatchLength = swatch.length;
   };
 
-  this.setStraightEdge = function (edge) {
+  this.setStraightEdge = function(edge) {
     if (edge == null || pui.isBound(edge)) return;
     mainSpan.style.borderTopLeftRadius = "";
     mainSpan.style.borderTopRightRadius = "";
@@ -145,12 +145,12 @@ pui.CSSPanelSection = function () {
     }
   };
 
-  this.setHeight = function (height) {
+  this.setHeight = function(height) {
     if (typeof height == "number") height = height + "px";
     mainSpan.style.height = height;
   };
 
-  this.setStyle = function (styleName, styleValue) {
+  this.setStyle = function(styleName, styleValue) {
     if (me.type != "header") return;
     if (pui.isBound(styleValue)) styleValue = "";
     var parts = styleName.split(" ");
@@ -165,7 +165,7 @@ pui.CSSPanelSection = function () {
     }
   };
 
-  this.setAllStyles = function (properties) {
+  this.setAllStyles = function(properties) {
     var styles = ["color", "font family", "font size", "font style", "font variant", "font weight", "letter spacing", "text align", "text decoration", "text transform", "word spacing"];
     for (var i = 0; i < styles.length; i++) {
       var style = styles[i];
@@ -174,7 +174,7 @@ pui.CSSPanelSection = function () {
     }
   };
 
-  this.setLineHeight = function (containerHeight) {
+  this.setLineHeight = function(containerHeight) {
     if (me.type != "header") return;
     if (me.container == null) return;
     if (containerHeight != null) {
@@ -190,15 +190,15 @@ pui.CSSPanelSection = function () {
     }
   };
 
-  this.getMainSpan = function () {
+  this.getMainSpan = function() {
     return mainSpan;
   };
 
-  this.getInnerSpan = function () {
+  this.getInnerSpan = function() {
     return mainSpan;
   };
 
-  this.getTextSpan = function () {
+  this.getTextSpan = function() {
     return textSpan;
   };
 };
@@ -208,7 +208,7 @@ pui.CSSPanelSection = function () {
  * @constructor
  */
 
-pui.CSSPanel = function () {
+pui.CSSPanel = function() {
   this.container = null;
   this.forLayout = false;
 
@@ -222,7 +222,7 @@ pui.CSSPanel = function () {
 
   var me = this;
 
-  this.init = function () {
+  this.init = function() {
     headerDiv = document.createElement("div");
     bodyDiv = document.createElement("div");
     headerDiv.style.position = "absolute";
@@ -255,7 +255,7 @@ pui.CSSPanel = function () {
       me.makeDraggable();
     }
     if (windowDiv == null) {
-      setTimeout(function () {
+      setTimeout(function() {
         var windowDiv = me.container.parentNode;
         if (windowDiv != null && windowDiv.isPUIWindow == true) {
           me.makeDraggable();
@@ -264,12 +264,12 @@ pui.CSSPanel = function () {
     }
   };
 
-  this.makeDraggable = function () {
+  this.makeDraggable = function() {
     var windowDiv = me.container.parentNode;
 
     new pui.MoveListenerBoundAtClick({ attachto: headerDiv, move: windowDiv });
 
-    addEvent(headerDiv, "touchstart", function (e) {
+    addEvent(headerDiv, "touchstart", function(e) {
       if (e.touches.length != 1) return; // Only deal with one finger
       var touch = e.touches[0];
       windowDiv.touch = {};
@@ -278,7 +278,7 @@ pui.CSSPanel = function () {
       windowDiv.touch.startLeft = parseInt(windowDiv.style.left);
       windowDiv.touch.startTop = parseInt(windowDiv.style.top);
     });
-    addEvent(headerDiv, "touchmove", function (e) {
+    addEvent(headerDiv, "touchmove", function(e) {
       if (e.touches.length != 1) return; // Only deal with one finger
       var touch = e.touches[0];
       var x = touch.pageX;
@@ -289,10 +289,12 @@ pui.CSSPanel = function () {
     });
     headerDiv.style.cursor = "move";
     if (headerDiv.firstChild != null) // avoid null error in IE9,IE10.
-    { headerDiv.firstChild.style.cursor = "move"; }
+    {
+      headerDiv.firstChild.style.cursor = "move";
+    }
   };
 
-  this.setHasHeader = function (flag) {
+  this.setHasHeader = function(flag) {
     if (flag) {
       headerDiv.style.display = "";
     }
@@ -304,14 +306,14 @@ pui.CSSPanel = function () {
     me.resize();
   };
 
-  this.setHeaderHeight = function (height) {
+  this.setHeaderHeight = function(height) {
     height = parseInt(height);
     if (isNaN(height) || height <= 0) height = 40; // default
     headerHeight = height;
     me.resize();
   };
 
-  this.setStraightEdge = function (edge) {
+  this.setStraightEdge = function(edge) {
     if (edge == null || pui.isBound(edge)) return;
     straightEdge = edge;
     if (!hasHeader) {
@@ -354,31 +356,31 @@ pui.CSSPanel = function () {
     }
   };
 
-  this.setText = function (text) {
+  this.setText = function(text) {
     headerPanel.setText(text);
   };
 
-  this.getTextSpan = function () {
+  this.getTextSpan = function() {
     return headerPanel.getTextSpan();
   };
 
-  this.setStyle = function (styleName, styleValue) {
+  this.setStyle = function(styleName, styleValue) {
     headerPanel.setStyle(styleName, styleValue);
   };
 
-  this.setAllStyles = function (properties) {
+  this.setAllStyles = function(properties) {
     headerPanel.setAllStyles(properties);
   };
 
-  this.setHeaderSwatch = function (swatch) {
+  this.setHeaderSwatch = function(swatch) {
     headerPanel.setSwatch(swatch);
   };
 
-  this.setBodySwatch = function (swatch) {
+  this.setBodySwatch = function(swatch) {
     bodyPanel.setSwatch(swatch);
   };
 
-  this.resize = function (newHeight) {
+  this.resize = function(newHeight) {
     var totalHeight;
     if (typeof newHeight == "string") {
       if (newHeight.length < 3 || newHeight.substr(newHeight.length - 2, 2) != "px") {
@@ -396,21 +398,21 @@ pui.CSSPanel = function () {
     bodyDiv.style.height = bodyHeight + "px";
   };
 
-  this.setHeight = function (height) {
+  this.setHeight = function(height) {
     me.container.style.height = height;
     me.resize(height);
   };
 
-  this.getHeaderMainSpan = function () {
+  this.getHeaderMainSpan = function() {
     return headerPanel.getMainSpan();
   };
 
-  this.getHeaderHeight = function () {
+  this.getHeaderHeight = function() {
     return headerHeight;
   };
 };
 
-pui.widgets.getCSSPanelProxy = function (defaultParms) {
+pui.widgets.getCSSPanelProxy = function(defaultParms) {
   var defaults = {};
   for (var x in defaultParms) {
     defaults[x] = defaultParms[x];
@@ -449,7 +451,7 @@ pui.widgets.add({
     "z index": "8"
   },
 
-  globalPropertySetter: function (parms) {
+  globalPropertySetter: function(parms) {
     switch (parms.propertyName) {
       case "color":
       case "font family":
@@ -471,8 +473,8 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
-      parms.dom.sizeMe = function () {
+    "field type": function(parms) {
+      parms.dom.sizeMe = function() {
         parms.dom.panel.resize();
       };
 
@@ -493,32 +495,32 @@ pui.widgets.add({
       panel.setHeaderHeight(parms.evalProperty("header height"));
     },
 
-    "header theme": function (parms) {
+    "header theme": function(parms) {
       parms.dom.panel.setHeaderSwatch(parms.value);
     },
 
-    "body theme": function (parms) {
+    "body theme": function(parms) {
       parms.dom.panel.setBodySwatch(parms.value);
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.panel.setText(parms.value);
     },
 
-    "straight edge": function (parms) {
+    "straight edge": function(parms) {
       parms.dom.panel.setStraightEdge(parms.value);
     },
 
-    "has header": function (parms) {
+    "has header": function(parms) {
       var hasHeader = (parms.value !== "false" && parms.value !== false);
       parms.dom.panel.setHasHeader(hasHeader);
     },
 
-    "header height": function (parms) {
+    "header height": function(parms) {
       parms.dom.panel.setHeaderHeight(parms.value);
     },
 
-    "height": function (parms) {
+    "height": function(parms) {
       parms.dom.panel.setHeight(parms.value);
     }
 

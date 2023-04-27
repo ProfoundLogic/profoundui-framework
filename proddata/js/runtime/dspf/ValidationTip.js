@@ -23,7 +23,7 @@
  * @constructor
  */
 
-pui.ValidationTip = function (el) {
+pui.ValidationTip = function(el) {
   // Public
   this.container = null;
 
@@ -78,18 +78,18 @@ pui.ValidationTip = function (el) {
   setOrientation();
   this._init();
 
-  this.setMessage = function (val) {
+  this.setMessage = function(val) {
     msg = val;
     me._contentDiv.innerHTML = '<div class="pui-tip-icon" />';
     me._contentDiv.appendChild(document.createTextNode(msg));
   };
 
-  this.setPosition = function (left, top) {
+  this.setPosition = function(left, top) {
     me._div.style.left = left + "px";
     me._div.style.top = top + "px";
   };
 
-  this.positionByElement = function () {
+  this.positionByElement = function() {
     var msgOffset = 3;
     var msgHeight = me._div.offsetHeight;
     var msgWidth = me._div.offsetWidth;
@@ -185,11 +185,11 @@ pui.ValidationTip = function (el) {
     me.setPosition(left, parseInt(top));
   };
 
-  this.show = function (hideDelay, onTimer) {
+  this.show = function(hideDelay, onTimer) {
     this.doneShowing = false;
 
     if (onTimer == true) {
-      setTimeout(function () {
+      setTimeout(function() {
         me.show(hideDelay, false);
       }, 0);
 
@@ -211,30 +211,30 @@ pui.ValidationTip = function (el) {
     me.positionByElement();
   };
 
-  function hideRequest (requestNum, delay) {
-    setTimeout(function () {
+  function hideRequest(requestNum, delay) {
+    setTimeout(function() {
       if (requestNum != currentRequestNum) return;
       me.hide();
     }, delay);
   }
 
-  this.hide = function () {
+  this.hide = function() {
     reverseFlag = true;
     animate();
   };
 
-  this.hideNow = function () {
+  this.hideNow = function() {
     // hide without animation
     me._div.style.display = "none";
     me._div.style.visibility = "hidden";
     me._opacity = 0;
   };
 
-  this.getInvalidClass = function () {
+  this.getInvalidClass = function() {
     return invalidClass;
   };
 
-  function animate () {
+  function animate() {
     var interval = 100;
     var increment = 20;
     var decrement = 30;
@@ -261,7 +261,7 @@ pui.ValidationTip = function (el) {
     }
   }
 
-  function showTipOnFocus (e) {
+  function showTipOnFocus(e) {
     if (pui.ignoreFocus) return;
     var target = getTarget(e);
     if (target == null) return;
@@ -271,7 +271,7 @@ pui.ValidationTip = function (el) {
     tip.show();
   }
 
-  function hideTipOnBlur (e) {
+  function hideTipOnBlur(e) {
     if (pui.ignoreBlurs) return;
     var target = getTarget(e);
     if (target == null) return;
@@ -280,7 +280,7 @@ pui.ValidationTip = function (el) {
     tip.hide();
   }
 
-  function hideTipOnKeyDown (event) {
+  function hideTipOnKeyDown(event) {
     var key = event.keyCode;
     if (key >= 9 && key <= 45) return; // includes keys like arrow keys, ctrl, shift, etc.
     if (key >= 112 && key <= 145) return; // includes f1-f12, num lock, scroll lock, etc.
@@ -293,7 +293,7 @@ pui.ValidationTip = function (el) {
     pui.removeCssClass(target, tip.getInvalidClass());
   }
 
-  function hideTipOnChange (event) {
+  function hideTipOnChange(event) {
     var target = getTarget(event);
     if (target == null) return;
     var tip = target.validationTip;
@@ -306,7 +306,7 @@ pui.ValidationTip = function (el) {
   /**
    * @param {String|undefined} val
    */
-  function setOrientation (val) {
+  function setOrientation(val) {
     if (val != null) {
       me._orientation = val;
     }
@@ -326,7 +326,7 @@ pui.ValidationTip.prototype = Object.create(pui.BaseClass.prototype);
 /**
  *
  */
-pui.ValidationTip.prototype.destroy = function () {
+pui.ValidationTip.prototype.destroy = function() {
   this._div.removeEventListener("mousedown", this);
   this._closeButton.removeEventListener("mousedown", this);
   this._closeButton.removeEventListener("mouseup", this);
@@ -341,7 +341,7 @@ pui.ValidationTip.prototype.destroy = function () {
 /**
  *
  */
-pui.ValidationTip.prototype._init = function () {
+pui.ValidationTip.prototype._init = function() {
   var reinit = (this._div != null);
 
   if (reinit) {
@@ -394,7 +394,7 @@ pui.ValidationTip.prototype._init = function () {
  * @param {Event} e
  * @returns {Boolean|undefined}
  */
-pui.ValidationTip.prototype["handleEvent"] = function (e) {
+pui.ValidationTip.prototype["handleEvent"] = function(e) {
   switch (e.type) {
     case "mousedown":
       if (e.target == this._closeButton) {

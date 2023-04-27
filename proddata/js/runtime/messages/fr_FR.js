@@ -20,7 +20,7 @@
 // ------------------------------------------------------------
 //  Viva la France!
 // -------------------------------------------------------------
-var fr_FR = function (dict) {
+var fr_FR = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

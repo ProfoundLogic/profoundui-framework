@@ -23,7 +23,7 @@
  * @param {Element} dom   A new or cloned DIV element.
  * @constructor
  */
-pui.FieldsetLayout = function (parms, dom) {
+pui.FieldsetLayout = function(parms, dom) {
   pui.layout.Template.call(this, parms, dom); // sets this.container, etc.
 
   this._fieldset = document.createElement("fieldset");
@@ -46,7 +46,7 @@ pui.FieldsetLayout.prototype = Object.create(pui.layout.Template.prototype);
  * @param {String} value
  * @returns {Boolean}
  */
-pui.FieldsetLayout.prototype.setProperty = function (property, value) {
+pui.FieldsetLayout.prototype.setProperty = function(property, value) {
   switch (property) {
     case "legend":
       this._legend.innerHTML = value;

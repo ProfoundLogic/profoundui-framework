@@ -20,7 +20,7 @@
 // sets the host cursor location
 // pass in row and column based on green-screen coordinates or an id of an element.
 // example: setCursor("D_24_1"); pressKey('F1');   // the id's column part can be 1 off, based on "adjust columns" setting.
-function setCursor (row, col) {
+function setCursor(row, col) {
   if (arguments.length == 1) {
     var id = row;
     var obj = getObj(id);
@@ -53,7 +53,7 @@ function setCursor (row, col) {
 
 // hide an element by id or object reference
 // example: hideElement('D_1_29')
-function hideElement (obj) {
+function hideElement(obj) {
   if (typeof (obj) == "string") obj = getObj(obj);
   if (obj != null) obj.style.visibility = "hidden";
 }
@@ -61,7 +61,7 @@ function hideElement (obj) {
 // hide many elements by id
 // parms: id1, id2, id3, id4, etc.
 // example: hideElements('D_1_29', 'D_3_1', 'I_7_11')
-function hideElements () {
+function hideElements() {
   for (var i = 0; i < hideElements.arguments.length; i++) {
     hideElement(hideElements.arguments[i]);
   }
@@ -69,7 +69,7 @@ function hideElements () {
 
 // remove an element by id or object reference
 // example: removeElement('D_1_29')
-function removeElement (obj) {
+function removeElement(obj) {
   if (typeof (obj) == "string") obj = getObj(obj);
   if (obj != null) obj.parentNode.removeChild(obj);
 }
@@ -77,7 +77,7 @@ function removeElement (obj) {
 // remove many elements by id
 // parms: id1, id2, id3, id4, etc.
 // example: removeElements('D_1_29', 'D_3_1', 'I_7_11')
-function removeElements () {
+function removeElements() {
   for (var i = 0; i < removeElements.arguments.length; i++) {
     removeElement(removeElements.arguments[i]);
   }
@@ -90,7 +90,7 @@ function removeElements () {
  * @param {Boolean|undefined} autocompUseValueField    If true and the field is an autocomplete textbox, the autocomplete value is returned.
  * @returns {String}
  */
-function getElementValue (id, autocompUseValueField) {
+function getElementValue(id, autocompUseValueField) {
   var elem;
   var elemValue;
 
@@ -156,8 +156,9 @@ function getElementValue (id, autocompUseValueField) {
     }
   }
 
-  if (elem.pui && elem.pui.widget && typeof elem.pui.widget.getPropertyValue === "function")
-  { elemValue = elem.pui.widget.getPropertyValue("value"); }
+  if (elem.pui && elem.pui.widget && typeof elem.pui.widget.getPropertyValue === "function") {
+    elemValue = elem.pui.widget.getPropertyValue("value");
+  }
 
   elemValue = elemValue.replace(/&nbsp;/g, " ");
   // Safari and Opera use the non-breaking space character A0 (160) -- we'll replace this with a standard space
@@ -171,18 +172,18 @@ function getElementValue (id, autocompUseValueField) {
 }
 
 // shortcut for getElementValue, trimmed
-function get (id, flags) {
+function get(id, flags) {
   return trim(getElementValue(id, flags));
 }
 
 // shortcut for document.getElementById()
-function getObj (id) {
+function getObj(id) {
   return document.getElementById(id);
 }
 
 // post data to a new window
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
-function postToNewWindow (url) {
+function postToNewWindow(url) {
   if (!url) {
     pui.alert("postToNewWindow Error: URL not specified.");
   }
@@ -210,7 +211,7 @@ function postToNewWindow (url) {
 // Make a call to postToNewWindow and pass a target param.
 // post data to a url
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
-function postTo (url) {
+function postTo(url) {
   if (!url) {
     pui.alert("postTo Error: URL not specified.");
   }
@@ -238,7 +239,7 @@ function postTo (url) {
 // assign a value to a field
 // parms: element id, new value
 // example: changeElementValue('I_6_52', "GENUSER");
-function changeElementValue (id, val) {
+function changeElementValue(id, val) {
   var elem;
   if (typeof id == "object") {
     elem = id;
@@ -315,7 +316,7 @@ function changeElementValue (id, val) {
 // assign a new css class to an element
 // parms: element id, class name
 // example: changeElementClass('D_6_11', "BigText");
-function changeElementClass (id, customClass) {
+function changeElementClass(id, customClass) {
   var elem = document.getElementById(id);
   if (elem == null) return "";
   elem.className = customClass;
@@ -331,7 +332,7 @@ function changeElementClass (id, customClass) {
 // example: var elemObj = newElement(3, 10, "input");
 // example: var elemObj = newElement(3, 10, "img", "../images/logo.gif");
 // example: var elemObj = newElement("img");
-function newElement (row, col, elemType, content, id) {
+function newElement(row, col, elemType, content, id) {
   if (typeof (row) == "string") {
     // row/column not specified, shift parameters over
     id = elemType;
@@ -395,7 +396,7 @@ function newElement (row, col, elemType, content, id) {
 }
 
 // Cancels an event and prevents it from bubbling up
-function preventEvent (event) {
+function preventEvent(event) {
   if (!event) event = window.event;
   if (window.event) {
     window.event.cancelBubble = true;
@@ -415,7 +416,7 @@ function preventEvent (event) {
 // in which case the setTab action is automatically delayed until the tab panel is there
 // example: setTab("TabPanel", 1);
 var setTabActions = {};
-function setTab (tabPanelId, tab) {
+function setTab(tabPanelId, tab) {
   var tabPanel = getObj(tabPanelId);
   if (tabPanel == null || tabPanel.setTab == null) {
     setTabActions[tabPanelId] = tab;
@@ -427,7 +428,7 @@ function setTab (tabPanelId, tab) {
 
 // trims leading spaces from a string
 // example: s = ltrim(s);
-function ltrim (str) {
+function ltrim(str) {
   if (typeof str !== "string") return str;
   while (str.charAt(0) == " ") {
     str = str.replace(str.charAt(0), "");
@@ -437,7 +438,7 @@ function ltrim (str) {
 
 // trims trailing spaces from a string
 // example: s = rtrim(s);
-function rtrim (str) {
+function rtrim(str) {
   if (typeof str !== "string") return str;
   while (str.charAt((str.length - 1)) == " ") {
     str = str.substring(0, str.length - 1);
@@ -447,7 +448,7 @@ function rtrim (str) {
 
 // trims a string
 // example: s = trim(s);
-function trim (str) {
+function trim(str) {
   if (typeof str !== "string") return str;
   return str.replace(/^\s*|\s*$/g, "");
 }
@@ -455,18 +456,18 @@ function trim (str) {
 // attaches a pop-up calendar to any input field
 // parms: input field id, date format
 // example: attachCalendar('I_5_20');
-function attachCalendar (id, format) {
+function attachCalendar(id, format) {
   var obj = document.getElementById(id);
   if (obj != null) cal(obj, format);
 }
 
-pui["detachCalendar"] = function (domObj) {
+pui["detachCalendar"] = function(domObj) {
   if (typeof (domObj) == "string") domObj = getObj(domObj);
   if (domObj != null) pui.removeCal(domObj);
 };
 
 // Creates a named DOM element. Necessary because IE has a non-standard way of doing this.
-function createNamedElement (type, name) {
+function createNamedElement(type, name) {
   var element;
 
   try {
@@ -481,7 +482,7 @@ function createNamedElement (type, name) {
   return element;
 }
 
-function getInnerText (domObj) {
+function getInnerText(domObj) {
   // Handle id or object.
   if (typeof (domObj) == "string") domObj = getObj(domObj);
   if (domObj == null) return "";
@@ -498,7 +499,7 @@ function getInnerText (domObj) {
   return text;
 }
 
-function getProgramURL (program, psid, useAuth) {
+function getProgramURL(program, psid, useAuth) {
   var auth = false;
   var loc = location.href;
   loc = loc.split("?")[0];
@@ -521,8 +522,9 @@ function getProgramURL (program, psid, useAuth) {
   ];
   if (typeof pui["widgetURLPrefix"] === "string" && widgetPrograms.indexOf(program.toUpperCase()) != -1) {
     url = pui["widgetURLPrefix"];
-    if (url.substr(url.length - 1) != "/")
-    { url += "/"; }
+    if (url.substr(url.length - 1) != "/") {
+      url += "/";
+    }
   }
   if (auth == true || useAuth == true) url += "auth/";
   url += program;
@@ -534,7 +536,7 @@ function getProgramURL (program, psid, useAuth) {
 pui["getProgramURL"] = getProgramURL;
 
 // Sets a DOM property on an element -- catches exceptions.
-function setDOMAttribute (dom, attribute, value) {
+function setDOMAttribute(dom, attribute, value) {
   var obj;
   if (typeof (dom) == "string") obj = document.getElementById(dom);
   else obj = dom;
@@ -548,7 +550,7 @@ function setDOMAttribute (dom, attribute, value) {
   }
 }
 
-function getActualStyle (dom, propertyName) {
+function getActualStyle(dom, propertyName) {
   var cssName = propertyName.replace(/ /g, "-");
   var jsName = "";
   var capitalize = false;
@@ -589,7 +591,7 @@ function getActualStyle (dom, propertyName) {
   return value;
 }
 
-function addEvent (obj, eventName, func) {
+function addEvent(obj, eventName, func) {
   if (obj.addEventListener) {
     obj.addEventListener(eventName, func, false);
   }
@@ -598,7 +600,7 @@ function addEvent (obj, eventName, func) {
   }
 }
 
-function removeEvent (obj, eventName, func) {
+function removeEvent(obj, eventName, func) {
   if (obj.removeEventListener) {
     obj.removeEventListener(eventName, func, false);
   }
@@ -609,7 +611,7 @@ function removeEvent (obj, eventName, func) {
 
 // DEPRECATED -- use pui.getMouseX() and pui.getMouseY() instead.
 
-function getMouseX (event) {
+function getMouseX(event) {
   if (event != null && event.touches != null && event.touches.length == 1) { // test for touch screen device like iPad
     return event.touches[0].pageX;
   }
@@ -628,7 +630,7 @@ function getMouseX (event) {
   return x;
 }
 
-function getMouseY (event) {
+function getMouseY(event) {
   if (event != null && event.touches != null && event.touches.length == 1) { // test for touch screen device like iPad
     return event.touches[0].pageY;
   }
@@ -647,15 +649,15 @@ function getMouseY (event) {
   return y;
 }
 
-pui.getMouseX = function (event) {
+pui.getMouseX = function(event) {
   return pui.getMouseXY(event).x;
 };
 
-pui.getMouseY = function (event) {
+pui.getMouseY = function(event) {
   return pui.getMouseXY(event).y;
 };
 
-pui.getMouseXY = function (event) {
+pui.getMouseXY = function(event) {
   event = event || window.event;
 
   var xy = { x: 0, y: 0 };
@@ -675,7 +677,7 @@ pui.getMouseXY = function (event) {
   return xy;
 };
 
-function showErrors () {
+function showErrors() {
   if (errors.length == 0) {
     alert("No errors have been reported.");
     return;
@@ -693,7 +695,7 @@ function showErrors () {
   }
 }
 
-function currentDate (editCode, YYYY) {
+function currentDate(editCode, YYYY) {
   if (editCode == null || editCode == "Y") {
     slashes = true;
   }
@@ -740,7 +742,7 @@ function currentDate (editCode, YYYY) {
   }
 }
 
-function currentTime () {
+function currentTime() {
   if (inDesignMode()) {
     return "TT:TT:TT";
   }
@@ -763,7 +765,7 @@ function currentTime () {
   }
 }
 
-function currentUser () {
+function currentUser() {
   if (inDesignMode()) {
     return "UUUUUUUUUU";
   }
@@ -773,11 +775,11 @@ function currentUser () {
   }
 }
 
-function currentFormatNames () {
+function currentFormatNames() {
   return pui.currentFormatNames;
 }
 
-function getQueryStringParms () {
+function getQueryStringParms() {
   var parms = {};
   var queryString = "";
   queryString = location.search.substring(1, location.search.length);
@@ -808,7 +810,7 @@ if (typeof (applyDesignProperty) != "undefined") {
 
 pui.UTF8 = {
 
-  encode: function (str) {
+  encode: function(str) {
     var utftext = "";
 
     for (var n = 0; n < str.length; n++) {
@@ -830,7 +832,7 @@ pui.UTF8 = {
     return utftext;
   },
 
-  decode: function (utftext) {
+  decode: function(utftext) {
     var str = "";
     var i = 0;
     var c = c1 = c2 = 0;
@@ -863,7 +865,7 @@ pui.Base64 = {
 
   alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
-  encode: function (input) {
+  encode: function(input) {
     var output = "";
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
@@ -879,7 +881,8 @@ pui.Base64 = {
       enc4 = chr3 & 63;
       if (isNaN(chr2)) {
         enc3 = enc4 = 64;
-      } else if (isNaN(chr3)) {
+      }
+      else if (isNaN(chr3)) {
         enc4 = 64;
       }
       output = output +
@@ -889,7 +892,7 @@ pui.Base64 = {
     return output;
   },
 
-  decode: function (input) {
+  decode: function(input) {
     var output = "";
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
@@ -918,7 +921,7 @@ pui.Base64 = {
 
 };
 
-pui["downloadJSON"] = function () {
+pui["downloadJSON"] = function() {
   if (pui.recordTest) {
     pui.saveRecording();
   }
@@ -938,11 +941,12 @@ pui["downloadJSON"] = function () {
   }
 };
 
-pui["keepAlive"] = function () {
+pui["keepAlive"] = function() {
   var url;
 
-  if (context == "genie" && pui.genie.formSubmitted == true)
-  { return; }
+  if (context == "genie" && pui.genie.formSubmitted == true) {
+    return;
+  }
 
   if (context == "dspf") {
     if (pui.genie == null) url = getProgramURL("PUI0001200.pgm");
@@ -978,7 +982,7 @@ pui["keepAlive"] = function () {
     "params": params,
     "sendAsBinary": false,
     "suppressAlert": true,
-    "handler": function () {
+    "handler": function() {
       pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
       if (context == "dspf") pui.screenIsReady = true;
@@ -987,7 +991,7 @@ pui["keepAlive"] = function () {
         grid["unMask"]();
       }
     },
-    "onfail": function (req) {
+    "onfail": function(req) {
       if (pui["onoffline"] == null && !pui["suppress comm errors"]) pui.alert(pui.getNoConnectionMessage(req));
       pui.hideWaitAnimation();
       if (context == "genie") pui.submitLog(pui.genie.formSubmitted = false);
@@ -1003,7 +1007,7 @@ pui["keepAlive"] = function () {
   return true;
 };
 
-pui["getWindowSize"] = function () {
+pui["getWindowSize"] = function() {
   var winW;
   var winH;
   if (document.body && document.body.offsetWidth) {
@@ -1044,11 +1048,11 @@ pui["getWindowSize"] = function () {
   };
 };
 
-pui["openURL"] = function (url) {
+pui["openURL"] = function(url) {
   window.open(url);
 };
 
-pui.normalizeURL = function (url, mobileClientOnly) {
+pui.normalizeURL = function(url, mobileClientOnly) {
   if (url == null || typeof url != "string") return "";
 
   if (mobileClientOnly == true && window["puiMobileClient"] == null) {
@@ -1071,7 +1075,7 @@ pui.normalizeURL = function (url, mobileClientOnly) {
 };
 
 // use css3 to animate an element or container
-pui["animate"] = function (parms) {
+pui["animate"] = function(parms) {
   var elem = parms["element"];
   if (typeof elem == "string") elem = getObj(elem);
   if (elem == null) return;
@@ -1166,19 +1170,19 @@ pui["animate"] = function (parms) {
     }
   }
 
-  setTimeout(function () {
+  setTimeout(function() {
     for (var i = 0; i < transitionProperties.length; i++) {
       var tProp = transitionProperties[i];
       elem.style[tProp] = value;
     }
 
-    setTimeout(function () {
+    setTimeout(function() {
       if (typeof to == "string" || typeof to == "number") to = [to];
       for (var i = 0; i < properties.length; i++) {
         var property = properties[i];
         elem.style[property] = to[i];
       }
-      setTimeout(function () {
+      setTimeout(function() {
         for (var i = 0; i < transitionProperties.length; i++) {
           var tProp = transitionProperties[i];
           elem.style[tProp] = "";
@@ -1189,7 +1193,7 @@ pui["animate"] = function (parms) {
   }, 1);
 };
 
-pui["getActiveElement"] = function () {
+pui["getActiveElement"] = function() {
   if (context == "genie") {
     return lastActiveElement;
   }
@@ -1199,7 +1203,7 @@ pui["getActiveElement"] = function () {
 };
 
 // API to allow scripts to send field exit.
-pui["fieldExit"] = function (minus) {
+pui["fieldExit"] = function(minus) {
 	 var obj = pui["getActiveElement"]();
 	 if (obj == null) return;
 
@@ -1214,27 +1218,31 @@ pui["fieldExit"] = function (minus) {
   }
 };
 
-pui["gotoNextElement"] = function (currentElement) {
+pui["gotoNextElement"] = function(currentElement) {
   gotoElement(currentElement, true);
 };
 
-pui["gotoPreviousElement"] = function (currentElement) {
+pui["gotoPreviousElement"] = function(currentElement) {
   gotoElement(currentElement, false);
 };
 
-function gotoElement (currentElement, forward) {
+function gotoElement(currentElement, forward) {
   var increment = forward ? 1 : -1; // go forward (next) or backward (previous)
   var inputElements = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
   var nbrElm = inputElements.length;
   if (nbrElm < 2) // nowhere to go
-  { return; }
+  {
+    return;
+  }
 
   var currentIndex = Array.prototype.indexOf.call(inputElements, currentElement);
   var nextIndex = currentIndex + increment;
   var nextElement;
   while (true) {
     if (nextIndex === currentIndex) // no other focusable element; stay where you are
-    { break; }
+    {
+      break;
+    }
     if (nextIndex === nbrElm) { // end of list; loop around to start
       nextIndex = 0;
       continue;
@@ -1267,7 +1275,7 @@ function gotoElement (currentElement, forward) {
         nextIndex = nextIndex + increment;
         continue;
       }
-      setTimeout(function () {
+      setTimeout(function() {
         if (pui["highlight on focus"] && typeof nextObjBox.select == "function") nextObjBox.select();
         pui.returnCursor(null, nextObjBox);
       }, 0);
@@ -1277,7 +1285,7 @@ function gotoElement (currentElement, forward) {
   } // endwhile looping thru the elments until finding correct one to focus on
 }
 
-pui["showCalendar"] = function (id) {
+pui["showCalendar"] = function(id) {
   var obj = id;
   if (typeof id == "string") obj = getObj(id);
   if (obj == null) return;
@@ -1288,11 +1296,13 @@ pui["showCalendar"] = function (id) {
     calimg.click();
   }
   else if (calimg.onclick != null && typeof calimg.onclick == "function") {
-    setTimeout(function () { calimg.onclick(); }, 250);
+    setTimeout(function() {
+      calimg.onclick();
+    }, 250);
   }
 };
 
-pui.getComputedStyle = function (obj) {
+pui.getComputedStyle = function(obj) {
   var rtnStyle = null;
   if (window.getComputedStyle) {
     rtnStyle = window.getComputedStyle(obj);
@@ -1309,7 +1319,7 @@ pui.getComputedStyle = function (obj) {
  * @param {Function} callback
  * @returns {XMLHTTPRequest} The XHR handling the upload.
  */
-pui["upload"] = function (params, callback) {
+pui["upload"] = function(params, callback) {
   var dir = params["dir"];
   var overwrite = (params["overwrite"] === true);
 
@@ -1435,7 +1445,7 @@ pui["upload"] = function (params, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("POST", url, true);
 
-  xhr.onreadystatechange = function () {
+  xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) {
       return;
     }
@@ -1488,7 +1498,7 @@ pui["upload"] = function (params, callback) {
   return xhr;
 };
 
-pui["getCookie"] = function (check_name) {
+pui["getCookie"] = function(check_name) {
   // first we'll split this cookie up into name/value pairs
   // note: document.cookie only returns name=value, not the other components of the cookie
   var a_all_cookies = document.cookie.split(";");
@@ -1534,7 +1544,7 @@ pui["getCookie"] = function (check_name) {
  * @param {Boolean|Null} secure   When true cookie will only be sent over HTTPS connection.
  * @param {String|Null} sameSite  None, Strict, Lax. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
  */
-pui["setCookie"] = function (name, value, expires, path, domain, secure, sameSite) {
+pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite) {
   // set time, it's in milliseconds
   var today = new Date();
   today.setTime(today.getTime());
@@ -1557,16 +1567,18 @@ pui["setCookie"] = function (name, value, expires, path, domain, secure, sameSit
 };
 
 // https://docs.profoundlogic.com/x/KICS
-pui["deleteCookie"] = function (name, path, domain, secure, sameSite) {
-  if (pui["getCookie"](name)) { document.cookie = name + "=" +
+pui["deleteCookie"] = function(name, path, domain, secure, sameSite) {
+  if (pui["getCookie"](name)) {
+    document.cookie = name + "=" +
 			((path) ? ";path=" + path : "") +
 			((domain) ? ";domain=" + domain : "") +
           ";expires=Thu, 01-Jan-1970 00:00:01 GMT" +
           (secure ? ";Secure" : "") +
-          (sameSite ? ";SameSite=" + sameSite : ""); }
+          (sameSite ? ";SameSite=" + sameSite : "");
+  }
 };
 
-pui["refresh"] = function (parms) {
+pui["refresh"] = function(parms) {
   if (parms == null) parms = {};
   var url = parms["url"];
   var skin = parms["skin"];
@@ -1600,7 +1612,7 @@ pui["refresh"] = function (parms) {
   else window.location.reload();
 };
 
-pui["downloadURL"] = function (params) {
+pui["downloadURL"] = function(params) {
   if (pui == null ||
       pui["appJob"] == null ||
       pui["appJob"]["auth"] == null ||
@@ -1637,7 +1649,7 @@ pui["downloadURL"] = function (params) {
   return url;
 };
 
-pui["download"] = function (params) {
+pui["download"] = function(params) {
   var url = pui["downloadURL"](params);
   var inline = (params["inline"] === true);
 
@@ -1656,13 +1668,13 @@ pui["download"] = function (params) {
   }
 };
 
-pui["focusOnContainer"] = function () {
+pui["focusOnContainer"] = function() {
   // Check for cloud embed box and prevent bouncing to the top of the parent page
   if (window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) {
     return;
   }
 
-  setTimeout(function () {
+  setTimeout(function() {
     // we no longer focus on container
     // this causes the browser to position the scrollbar to the container div when a header is added to start.html
     // we focus on a dummy box instead
@@ -1689,13 +1701,13 @@ pui["focusOnContainer"] = function () {
 
     pui.dummyBox.focus();
 
-    setTimeout(function () {
+    setTimeout(function() {
       pui.ignoreBlurs = false;
     }, 0);
   }, 1);
 };
 
-pui["addCSS"] = function (css) {
+pui["addCSS"] = function(css) {
   var head = document.getElementsByTagName("head")[0];
   var style = document.createElement("style");
   style.type = "text/css";
@@ -1708,7 +1720,7 @@ pui["addCSS"] = function (css) {
   head.appendChild(style);
 };
 
-pui["loadCSS"] = function (path) {
+pui["loadCSS"] = function(path) {
   if (pui.getLink(path) != null) return false;
   var head = document.getElementsByTagName("head")[0];
   var css = document.createElement("link");
@@ -1720,7 +1732,7 @@ pui["loadCSS"] = function (path) {
   return true;
 };
 
-pui["removeCSS"] = function (path) {
+pui["removeCSS"] = function(path) {
   var head = document.getElementsByTagName("head")[0];
   var link = pui.getLink(path);
   if (link == null) {
@@ -1746,7 +1758,7 @@ pui["removeCSS"] = function (path) {
  * @param {Object|String} parms    A string URL or an object with parameters.
  * @returns {Boolean}  Returns false if the argument was incorrect or if the script was already loaded; otherwise returns true.
  */
-pui["loadJS"] = function (parms) {
+pui["loadJS"] = function(parms) {
   if (parms == null) return null;
   var path;
   var callback;
@@ -1768,14 +1780,14 @@ pui["loadJS"] = function (parms) {
   var done = false;
   var script = document.createElement("script");
   script.type = "text/javascript";
-  script.onreadystatechange = function () {
+  script.onreadystatechange = function() {
     if (script.readyState == "complete" || script.readyState == "loaded") {
       if (test != null && typeof test == "function" && test() != true) return;
       if (!done && callback != null) callback();
       done = true;
     }
   };
-  script.onload = function () {
+  script.onload = function() {
     if (test != null && typeof test == "function" && test() != true) return;
     if (!done && callback != null) callback();
     done = true;
@@ -1786,7 +1798,7 @@ pui["loadJS"] = function (parms) {
   return true;
 };
 
-pui["endOfSession"] = function (message) {
+pui["endOfSession"] = function(message) {
   pui.confirmOnClose = false;
   pui.shutdownOnClose = false;
   if (window["puiMobileClient"] != null) {
@@ -1804,7 +1816,9 @@ pui["endOfSession"] = function (message) {
   if (navigator["app"] != null && navigator["app"]["exitApp"] != null) {
     document.body.innerHTML = "";
     if (message != null) {
-      pui.alert(message, function () { navigator["app"]["exitApp"](); });
+      pui.alert(message, function() {
+        navigator["app"]["exitApp"]();
+      });
     }
     else {
       navigator["app"]["exitApp"]();
@@ -1827,7 +1841,7 @@ pui["endOfSession"] = function (message) {
  *   Output: "http://www.example.com/page?name=Fred&age=21&r=1574721438278"
  * ```
  */
-pui["addUrlCacheBuster"] = function (url, method) {
+pui["addUrlCacheBuster"] = function(url, method) {
   var cb = Date.now();
 
   if (typeof method === "string" && method.toLowerCase() !== "get") {
@@ -1836,11 +1850,12 @@ pui["addUrlCacheBuster"] = function (url, method) {
 
   // Replace old cache buster query string with new one, if one exists
   if (/[&?]r=[^&]+/.test(url)) {
-    url = url.replace(/([&?]r=)[^&]+/, function (match, p1) {
+    url = url.replace(/([&?]r=)[^&]+/, function(match, p1) {
       return p1 + cb;
     });
   // Otherwise add new cache buster onto URL
-  } else {
+  }
+  else {
     var separator = (url.indexOf("?") == -1) ? "?" : "&";
     url = url + separator + "r=" + cb;
   }
@@ -1848,7 +1863,7 @@ pui["addUrlCacheBuster"] = function (url, method) {
   return url;
 };
 
-pui.alert = function (msg, alertCallback, title, buttonName) {
+pui.alert = function(msg, alertCallback, title, buttonName) {
   // Temporary work around for iOS/WKWebView problems (Redmine #6688) -- delete this block when no longer needed.
   // Use window.alert for what is probably most cases if on iOS Cordova, because navigator.notification.alert is interfering
   // somehow with the date element's picker (and possibly other input elements) on WKWebView.
@@ -1862,7 +1877,7 @@ pui.alert = function (msg, alertCallback, title, buttonName) {
       window["puiMobileClient"].alert(msg);
     }
     else {
-      if (alertCallback == null) alertCallback = function () {};
+      if (alertCallback == null) alertCallback = function() {};
       if (title == null) title = "Profound UI";
       if (buttonName == null) buttonName = "OK";
       window["navigator"]["notification"].alert(msg, alertCallback, title, buttonName);
@@ -1876,19 +1891,19 @@ pui.alert = function (msg, alertCallback, title, buttonName) {
   }
 };
 
-pui["applyProperty"] = function (domObj, propertyName, propertyValue) {
+pui["applyProperty"] = function(domObj, propertyName, propertyValue) {
   return window["applyProperty"](domObj, propertyName, propertyValue);
 };
 
-pui["get"] = function (id) {
+pui["get"] = function(id) {
   return get(id);
 };
 
-pui["set"] = function (id, val) {
+pui["set"] = function(id, val) {
   changeElementValue(id, val);
 };
 
-pui["getActiveContainer"] = function () {
+pui["getActiveContainer"] = function() {
   if (context == "genie") {
     var idx = 1;
     var topWin = document.getElementById("window" + idx);
@@ -1913,18 +1928,20 @@ pui["getActiveContainer"] = function () {
   return pui.runtimeContainer;
 };
 
-pui["getDisplayType"] = function () {
-  if (pui.usingGenieHandler)
-  { return "5250-handler"; }
-  else
-  { return (context == "dspf") ? "rdf" : "5250"; }
+pui["getDisplayType"] = function() {
+  if (pui.usingGenieHandler) {
+    return "5250-handler";
+  }
+  else {
+    return (context == "dspf") ? "rdf" : "5250";
+  }
 };
 
 /**
  * Run a command on the PC.
  * @param {String|Array} arg
  */
-function runPCCommand (arg) {
+function runPCCommand(arg) {
   var listenerMode = 1; // The PC command implementation. Use the Listener by default.
   var getSignature = false;
 
@@ -2013,7 +2030,7 @@ function runPCCommand (arg) {
   /**
    * Get the next command from a list, and route a request to the appropriate program.
    */
-  function doRunPCCommand () {
+  function doRunPCCommand() {
     if (nextCommand >= commandList.length) return;
     command = commandList[nextCommand]["command"];
     wait = commandList[nextCommand]["wait"];
@@ -2068,11 +2085,11 @@ function runPCCommand (arg) {
    * Run a command via the PC Command Listener program.
    * @param {String} signature_parm
    */
-  function do_pc_listener (signature_parm) {
+  function do_pc_listener(signature_parm) {
     if (listenerMode == 2) { // The image version.
       var cmdImg = new Image();
       cmdImg.onload = doRunPCCommand; // After this command loads look for another.
-      cmdImg.onerror = function () {
+      cmdImg.onerror = function() {
         // Show error messages in Firefox, Chrome, Edge.
         console.log("PC Command Listener image mode failure.");
         showFailureMsg(command);
@@ -2086,14 +2103,14 @@ function runPCCommand (arg) {
       req.method = "GET";
       req.async = (wait) ? false : true;
       req["suppressAlert"] = true;
-      req["onfail"] = function (req) {
+      req["onfail"] = function(req) {
         if (req.getStatus() != 200) {
           console.log("PC Command Listener comm. failure: " + req.getStatusMessage());
           showFailureMsg(command);
         }
       };
 
-      req["onsuccess"] = function (req) {
+      req["onsuccess"] = function(req) {
         try {
           var respmsg = JSON.parse(req.getResponseText());
           if (!respmsg["success"] && typeof respmsg["error"] === "string") {
@@ -2124,19 +2141,23 @@ function runPCCommand (arg) {
    * @param {Object} response
    * @param {Error|Undefined} err
    */
-  function crypt_response_handler_launcher (response, err) {
+  function crypt_response_handler_launcher(response, err) {
     try {
-      if (err)
-      { throw err; }
+      if (err) {
+        throw err;
+      }
 
-      if (response == null)
-      { throw "Empty response from PCCMD crypt program."; }
+      if (response == null) {
+        throw "Empty response from PCCMD crypt program.";
+      }
 
-      if (response["error"] != null || (typeof response["error"] === "string" && response["error"].length > 0))
-      { throw "PCCMD crypt error: " + String(response["error"]); }
+      if (response["error"] != null || (typeof response["error"] === "string" && response["error"].length > 0)) {
+        throw "PCCMD crypt error: " + String(response["error"]);
+      }
 
-      if (typeof response["cmd"] !== "string" || response["cmd"].length == 0)
-      { throw "PCCMD crypt response was missing a command."; }
+      if (typeof response["cmd"] !== "string" || response["cmd"].length == 0) {
+        throw "PCCMD crypt response was missing a command.";
+      }
 
       // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
       // Note: no onload or onerror events fire for custom protocol iframes. Also,
@@ -2152,7 +2173,7 @@ function runPCCommand (arg) {
       // This delay is necessary, because in some browsers (Chrome), the iframe isn't loaded without the delay.
       // A long enough delay is necessary; otherwise, the command is unreliable #4597.
       // 0ms is too short. A longer delay keeps the node in memory longer but shouldn't hurt anything.
-      setTimeout(function () {
+      setTimeout(function() {
         // The iframe could be orphaned from the DOM if the screen changed before it was removed.
         if (iframe != null && iframe.parentNode != null) {
           document.body.removeChild(iframe); // Remove the iframe; it's no longer needed.
@@ -2171,7 +2192,7 @@ function runPCCommand (arg) {
    * @param {Object} response
    * @param {Error|Undefined} err
    */
-  function crypt_response_handler_listener (response, err) {
+  function crypt_response_handler_listener(response, err) {
     try {
       if (err) throw err;
 
@@ -2184,8 +2205,9 @@ function runPCCommand (arg) {
 
       // If a signature exists in the response, then pass it on to the listener.
       var sig_parm = "";
-      if (typeof response["sig"] === "string" && response["sig"].length > 0)
-      { sig_parm = "&sig=" + encodeURIComponent(response["sig"]); }
+      if (typeof response["sig"] === "string" && response["sig"].length > 0) {
+        sig_parm = "&sig=" + encodeURIComponent(response["sig"]);
+      }
 
       do_pc_listener(sig_parm);
     }
@@ -2195,7 +2217,7 @@ function runPCCommand (arg) {
     }
   }
 
-  function showFailureMsg (command) {
+  function showFailureMsg(command) {
     console.log("Command: " + command);
     var msg = pui["getLanguageText"]("runtimeMsg", "pccommand error");
     if (pui["alert pccommand errors"] !== false) alert(msg);
@@ -2207,7 +2229,7 @@ function runPCCommand (arg) {
    * Use the Java applet to run a PC Command.
    * Note: as of 2023 Java applets cannot run in Firefox, Chrome, etc. This remains in case customers have a way to make it run.
    */
-  function doApplet () {
+  function doApplet() {
     // When running multiple commands with the Java applet
     //  join them together into a single string.
     //
@@ -2238,7 +2260,7 @@ function runPCCommand (arg) {
   }
 }
 
-window["runCommandCb"] = function () {
+window["runCommandCb"] = function() {
   runPCCommand(pui.appletCommandData);
   pui.appletCommandData = null;
 };
@@ -2250,9 +2272,9 @@ pui["runPCCommand"] = runPCCommand;
 // example: pressKey('Option1');              // selects option 1
 // example: pressKey('F5');                   // press F5
 // example: pressKey('F5', 'F6', 'F7');       // press F5, then F6, then F7
-function pressKey (keyDesc, onTimeoutDelay) {
+function pressKey(keyDesc, onTimeoutDelay) {
   if (onTimeoutDelay != null && typeof onTimeoutDelay != "string" && onTimeoutDelay == true) {
-    setTimeout(function () {
+    setTimeout(function() {
       pressKey(keyDesc);
     }, 0);
     return;
@@ -2288,13 +2310,23 @@ function pressKey (keyDesc, onTimeoutDelay) {
   }
 }
 // allow variations in spelling/case since this is a commonly used function
-function presskey (key) { pressKey(key); }
-function Presskey (key) { pressKey(key); }
-function PressKey (key) { pressKey(key); }
-function pressKEY (key) { pressKey(key); }
-function PRESSKEY (key) { pressKey(key); }
+function presskey(key) {
+  pressKey(key);
+}
+function Presskey(key) {
+  pressKey(key);
+}
+function PressKey(key) {
+  pressKey(key);
+}
+function pressKEY(key) {
+  pressKey(key);
+}
+function PRESSKEY(key) {
+  pressKey(key);
+}
 
-pui["isServerBusy"] = function () {
+pui["isServerBusy"] = function() {
   if (typeof context == "undefined") return false; // change password page uses api.js but doesn't set context.
   if ((context == "dspf" && pui.screenIsReady === false) ||
 	     (context == "genie" && pui.genie.formSubmitted === true)) return true;
@@ -2319,7 +2351,7 @@ pui["isServerBusy"] = function () {
   return false;
 };
 
-pui["showLastError"] = function () {
+pui["showLastError"] = function() {
   if (errors.length == 0) {
     alert("No errors have been reported.");
     return;
@@ -2356,7 +2388,7 @@ pui["showLastError"] = function () {
 //     pui.editCode(foo, "K");         output = " .123-"
 //     pui.editCode(foo, "K", 10, 5);  output = "     .12300-"
 
-pui["editCode"] = function (numeric, code) {
+pui["editCode"] = function(numeric, code) {
   var parmLen = null;
   var parmDec = 0;
   var curSym = null;
@@ -2398,7 +2430,7 @@ pui["editCode"] = function (numeric, code) {
     curSym = null;
   }
 
-  function formatAsDate (num, len) {
+  function formatAsDate(num, len) {
     var patterns = [
       "", // 0
       "", // 1
@@ -2449,7 +2481,7 @@ pui["editCode"] = function (numeric, code) {
     return returnValue;
   }
 
-  function leftPad (str, len, chr) {
+  function leftPad(str, len, chr) {
     str += "";
     while (str.length < len) {
       str = chr + str;
@@ -2457,7 +2489,7 @@ pui["editCode"] = function (numeric, code) {
     return str;
   }
 
-  function rightPad (str, len, chr) {
+  function rightPad(str, len, chr) {
     str += "";
     while (str.length < len) {
       str += chr;
@@ -2465,7 +2497,7 @@ pui["editCode"] = function (numeric, code) {
     return str;
   }
 
-  function fill () {
+  function fill() {
     var fillLen = dataLength;
     fillLen += (decLength && !noDecimal ? 1 : 0);
     if (numSep) fillLen += parseInt((dataLength - decLength - 1) / 3);
@@ -2658,7 +2690,7 @@ pui["editCode"] = function (numeric, code) {
 //                        job, or blank (period) if running
 //                        outside of a session.
 
-pui["editWord"] = function (value, edtwrd, parmOpts) {
+pui["editWord"] = function(value, edtwrd, parmOpts) {
   value = String(value);
   var controlOptions = {};
 
@@ -2779,7 +2811,7 @@ pui["editWord"] = function (value, edtwrd, parmOpts) {
   var floatingCurSym = false;
   var zeroSuppress = false;
   if (zeroSuppressPos == 0) zeroSuppress = true;
-  function getDigit () {
+  function getDigit() {
     if (charValue.length > 0) {
       var ch = charValue.substr(charValue.length - 1, 1);
       charValue = charValue.substr(0, charValue.length - 1);
@@ -2875,7 +2907,7 @@ pui["editWord"] = function (value, edtwrd, parmOpts) {
  * @returns {String|Null} Value of radio button group, null if not found
  *
  */
-pui["getRadioGroupValue"] = function (fieldName) {
+pui["getRadioGroupValue"] = function(fieldName) {
   if (typeof fieldName !== "string") return null;
   if (typeof pui.responseElements !== "object") return null;
 

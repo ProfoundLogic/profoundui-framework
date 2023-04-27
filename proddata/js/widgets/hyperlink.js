@@ -20,7 +20,7 @@
 pui["encode hyperlink spaces"] = null;
 pui["default hyperlink tabindex"] = null;
 
-pui.buildHyperlink = function (dom, value, designMode, href, target, tabIdx, downloadFile) {
+pui.buildHyperlink = function(dom, value, designMode, href, target, tabIdx, downloadFile) {
   dom.innerHTML = "";
   var a = document.createElement("a");
   var noHref = false;
@@ -42,7 +42,7 @@ pui.buildHyperlink = function (dom, value, designMode, href, target, tabIdx, dow
 
   a.appendChild(document.createTextNode(text));
   if (pui["is_old_ie"] && noHref && (context == "dspf" || context == "genie")) {
-    addEvent(a, "click", function (e) {
+    addEvent(a, "click", function(e) {
       if (e.preventDefault) e.preventDefault();
       e.returnValue = false;
       return false;
@@ -70,7 +70,7 @@ pui.widgets.add({
     color: "#0066CC"
   },
 
-  globalPropertySetter: function (parms) {
+  globalPropertySetter: function(parms) {
     switch (parms.propertyName) {
       case "color":
       case "font family":
@@ -97,19 +97,19 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       pui.buildHyperlink(parms.dom, parms.evalProperty("value"), parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"), parms.evalProperty("download file"));
       if (parms.design) {
-        designUtils.addEvent(parms.dom, "mouseover", function () {
+        designUtils.addEvent(parms.dom, "mouseover", function() {
           setTimeout(parms.designItem.designer.selection.positionSizies, 0);
         });
-        designUtils.addEvent(parms.dom, "mouseout", function () {
+        designUtils.addEvent(parms.dom, "mouseout", function() {
           setTimeout(parms.designItem.designer.selection.positionSizies, 0);
         });
       }
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       pui.buildHyperlink(parms.dom, parms.value, parms.design, parms.properties["hyperlink reference"], parms.properties["target"], parms.evalProperty("tab index"), parms.evalProperty("download file"));
     }
 

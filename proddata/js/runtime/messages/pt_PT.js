@@ -20,7 +20,7 @@
 // ----------------------------------
 //  Portuguese (Portugal)
 // ----------------------------------
-var pt_PT = function (dict) {
+var pt_PT = function(dict) {
   var dictMsg = {};
 
   switch (dict) {
