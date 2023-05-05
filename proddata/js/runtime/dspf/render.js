@@ -2953,11 +2953,32 @@ pui.renderFormat = function(parms) {
         }
       }
       else {
+        var screenItems = parms.metaData["items"];
+        // Reconstruct errors
+        for (var errorInd = 0; errorInd < errors.length; errorInd++) {
+          // Declare each error in a variable
+          var error = errors[errorInd];
+          // If it is true, check for the type, only Object should proceed.
+          // Numbers,string and bool are valid JSON so we need to specify that the value we need is of "object"
+          var errorJSON = isJSON(error.msg);
+          if (errorJSON && typeof errorJSON == "object") {
+            error.msg = pui.translationMap[errorJSON["transId"]];
+          }
+          else continue;
+        };
         pui.showErrors(errors);
       }
     }
   }
-
+  // Identifying if the string is can be parsed as JSON object.
+  function isJSON(value) {
+    try {
+      return JSON.parse(value);
+    }
+    catch (error) {
+      return false;
+    }
+  }
   // When the "setTab" API was called before tabs render, set active tabs on tab panels and tab layouts.
   for (var i = 0; i < tabPanels.length; i++) {
     var tabElem = document.getElementById(tabPanels[i]);
