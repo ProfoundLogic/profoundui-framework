@@ -492,8 +492,9 @@ pui.cleanup = function () {
   }
   pui.screenEventsToCleanup = [];
 
-  for (var prop in pui.restoreStyles)
-  { document.body.style[prop] = pui.restoreStyles[prop]; }
+  for (var prop in pui.restoreStyles) {
+    document.body.style[prop] = pui.restoreStyles[prop];
+  }
   pui.restoreStyles = {};
 
   if (!pui["keep frames"]) pui.killFrames();
@@ -541,26 +542,34 @@ pui.render = function (parms) {
     pui.pjsVersion = parms["pjsVersion"];
   }
 
-  if (typeof pui.pjsDefaultMode_original == "undefined")
-  { pui.pjsDefaultMode_original = pui["pjsDefaultMode"] || null; }
-  if (parms["pjsDefaultMode"])
-  { pui["pjsDefaultMode"] = parms["pjsDefaultMode"]; }
-  else
-  { pui["pjsDefaultMode"] = pui.pjsDefaultMode_original; }
+  if (typeof pui.pjsDefaultMode_original == "undefined") {
+    pui.pjsDefaultMode_original = pui["pjsDefaultMode"] || null;
+  }
+  if (parms["pjsDefaultMode"]) {
+    pui["pjsDefaultMode"] = parms["pjsDefaultMode"];
+  }
+  else {
+    pui["pjsDefaultMode"] = pui.pjsDefaultMode_original;
+  }
 
-  if (typeof pui.widgetURLPrefix_original == "undefined")
-  { pui.widgetURLPrefix_original = pui["widgetURLPrefix"] || null; }
-  if (parms["pjsWidgetURLPrefix"])
-  { pui["widgetURLPrefix"] = parms["pjsWidgetURLPrefix"]; }
-  else
-  { pui["widgetURLPrefix"] = pui.widgetURLPrefix_original; }
+  if (typeof pui.widgetURLPrefix_original == "undefined") {
+    pui.widgetURLPrefix_original = pui["widgetURLPrefix"] || null;
+  }
+  if (parms["pjsWidgetURLPrefix"]) {
+    pui["widgetURLPrefix"] = parms["pjsWidgetURLPrefix"];
+  }
+  else {
+    pui["widgetURLPrefix"] = pui.widgetURLPrefix_original;
+  }
 
   pui.pjs_session_id = null;
-  if (parms["pjs_id"])
-  { pui.pjs_session_id = parms["pjs_id"]; }
+  if (parms["pjs_id"]) {
+    pui.pjs_session_id = parms["pjs_id"];
+  }
 
-  if (parms["pjsDatabaseConnections"])
-  { pui["databaseConnections"] = parms["pjsDatabaseConnections"]; }
+  if (parms["pjsDatabaseConnections"]) {
+    pui["databaseConnections"] = parms["pjsDatabaseConnections"];
+  }
 
   pui.nodejs = (parms["nodejs"] === true);
   pui.ejsData = null;
@@ -800,10 +809,13 @@ pui.render = function (parms) {
   if (pui["wikihelp"]["overlays"] != null) {
     while (pui["wikihelp"]["overlays"].length > 0) {
       var overlay = pui["wikihelp"]["overlays"].pop();
-      if (overlay.parentNode != null && typeof overlay.parentNode.removeChild == "function")
-      { overlay.parentNode.removeChild(overlay); }
+      if (overlay.parentNode != null && typeof overlay.parentNode.removeChild == "function") {
+        overlay.parentNode.removeChild(overlay);
+      }
       // Try to delete the extra object from the node. IE<8 can't delete it, so catch.
-      try { delete overlay["pui"]; }
+      try {
+        delete overlay["pui"];
+      }
       catch (ex) {}
       overlay = null;
     }
@@ -946,8 +958,9 @@ pui.render = function (parms) {
     pui.windowStack.push(parms.container);
   }
 
-  if (!pui.lastFormatName && pui["format"])
-  { pui.lastFormatName = pui["format"]; }
+  if (!pui.lastFormatName && pui["format"]) {
+    pui.lastFormatName = pui["format"];
+  }
 
   if (animation) pui.transitionAnimation.animate();
 
@@ -1273,8 +1286,9 @@ pui.renderFormat = function (parms) {
     }
 
     // "export file name" property replaced "csv file name"; this supports files using older property.
-    if (items[i]["csv file name"] != null && items[i]["export file name"] == null)
-    { items[i]["export file name"] = items[i]["csv file name"]; }
+    if (items[i]["csv file name"] != null && items[i]["export file name"] == null) {
+      items[i]["export file name"] = items[i]["csv file name"];
+    }
 
     // Detect the item's container: a grid or layout.
     var gridObj = null;
@@ -1477,7 +1491,8 @@ pui.renderFormat = function (parms) {
               if (!propValue["lowerCaseField"] && pui.handler == null) {
                 pui.longFieldNameTable[pui.fieldUpper(propValue["longName"])] = pui.fieldUpper(propValue.fieldName);
                 pui.longFieldNameTable[pui.fieldUpper(propValue.fieldName)] = pui.fieldUpper(propValue["longName"]);
-              } else {
+              }
+              else {
                 pui.longFieldNameTable[propValue["longName"]] = propValue.fieldName;
                 pui.longFieldNameTable[propValue.fieldName] = propValue["longName"];
               }
@@ -1507,10 +1522,12 @@ pui.renderFormat = function (parms) {
                 dateISO = pui.evalBoundProperty(propValue, data, parms.ref);
                 propValue.dateFormat = dateFormatSave; // put back saved value
 
-                if (prop == "range low")
-                { rangeLowDateISO = dateISO; }
-                else
-                { rangeHighDateISO = dateISO; }
+                if (prop == "range low") {
+                  rangeLowDateISO = dateISO;
+                }
+                else {
+                  rangeHighDateISO = dateISO;
+                }
               }
             }
 
@@ -1573,8 +1590,9 @@ pui.renderFormat = function (parms) {
               pui.subfileChangedFields[properties["record format name"]["toLowerCase"]()] = pui.fieldUpper(propValue.fieldName);
             }
             if (prop == "column sort response" || prop == "field name sort response") {
-              if (pui.isBound(items[i]["return sort order"]))
-              { dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName); }
+              if (pui.isBound(items[i]["return sort order"])) {
+                dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
+              }
             }
           }
         } // endif bound to a field
@@ -1604,10 +1622,12 @@ pui.renderFormat = function (parms) {
             formattingObjTemp.revert = true; // back to *ISO format
             dateISO = pui.FieldFormat.format(formattingObjTemp);
 
-            if (prop == "range low")
-            { rangeLowDateISO = dateISO; }
-            else
-            { rangeHighDateISO = dateISO; }
+            if (prop == "range low") {
+              rangeLowDateISO = dateISO;
+            }
+            else {
+              rangeHighDateISO = dateISO;
+            }
           }
         } // endif not bound to a field
 
@@ -1738,8 +1758,9 @@ pui.renderFormat = function (parms) {
                         preventEvent(e);
                       }
                       // Prevent field from becoming too long.
-                      else if (target.maxLength > 0 && target.value.length >= target.maxLength)
-                      { preventEvent(e); }
+                      else if (target.maxLength > 0 && target.value.length >= target.maxLength) {
+                        preventEvent(e);
+                      }
                     });
                   } // endif maxLength > 0.
                 }
@@ -1919,8 +1940,9 @@ pui.renderFormat = function (parms) {
                 dom.grid.treeLevelField = items[i]["tree level field"]["fieldName"];
                 dom.grid.hasTreeLevelColumn = true;
                 dom.grid.sortable = false;
-                if (dom.grid.treeLevelColumnId == null)
-                { dom.grid.treeLevelColumnId = 0; }
+                if (dom.grid.treeLevelColumnId == null) {
+                  dom.grid.treeLevelColumnId = 0;
+                }
               }
             }
 
@@ -1974,7 +1996,8 @@ pui.renderFormat = function (parms) {
                 box.focusClass = trim(propValue);
                 addEvent(box, "focus", pui.applyFocusClass);
                 addEvent(box, "blur", pui.removeFocusClass);
-              } else {
+              }
+              else {
                 dom.focusClass = trim(propValue);
                 addEvent(dom, "focus", pui.applyFocusClass);
                 addEvent(dom, "blur", pui.removeFocusClass);
@@ -2076,14 +2099,16 @@ pui.renderFormat = function (parms) {
 
             if (propname == "range low" && propValue != null && propValue != "") {
               dom.rangeLow = propValue;
-              if (rangeLowDateISO != null)
-              { dom.rangeLowDateISO = rangeLowDateISO; }
+              if (rangeLowDateISO != null) {
+                dom.rangeLowDateISO = rangeLowDateISO;
+              }
             }
 
             if (propname == "range high" && propValue != null && propValue != "") {
               dom.rangeHigh = propValue;
-              if (rangeHighDateISO != null)
-              { dom.rangeHighDateISO = rangeHighDateISO; }
+              if (rangeHighDateISO != null) {
+                dom.rangeHighDateISO = rangeHighDateISO;
+              }
             }
 
             if (propname == "checked value") {
@@ -2119,8 +2144,9 @@ pui.renderFormat = function (parms) {
                     dom.style.visibility = "hidden";
                   }
                   else {
-                    if (shortcutKey != null)
-                    { pui.autoArrange.keys[shortcutKey] = true; }
+                    if (shortcutKey != null) {
+                      pui.autoArrange.keys[shortcutKey] = true;
+                    }
                     if (isWin || pui["horizontal auto arrange"]) {
 					  if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
                       if (pui.autoArrange.left == null) {
@@ -2130,11 +2156,13 @@ pui.renderFormat = function (parms) {
                       else {
                         if (pui["horizontal auto arrange"]) {
                           // This will re-arrange the buttons to fill the first line before wrapping to the second line
-                          if (pui.autoArrange.buttonCount == null)
-                          { pui.autoArrange.buttonCount = 0; }
+                          if (pui.autoArrange.buttonCount == null) {
+                            pui.autoArrange.buttonCount = 0;
+                          }
 
-                          if (pui.autoArrange.startTop == null)
-                          { pui.autoArrange.startTop = parseInt(dom.style.top); }
+                          if (pui.autoArrange.startTop == null) {
+                            pui.autoArrange.startTop = parseInt(dom.style.top);
+                          }
 
                           pui.autoArrange.buttonCount++;
 
@@ -2257,8 +2285,9 @@ pui.renderFormat = function (parms) {
           addEvent(boxDom, "keydown", function (event) {
             event = event || window.event;
             var target = getTarget(event);
-            if (target.autoComp && target.autoComp.isOpen())
-            { return; }
+            if (target.autoComp && target.autoComp.isOpen()) {
+              return;
+            }
             if (event.keyCode == 9) { // tab key
               gotoElement(target, !event.shiftKey);
               preventEvent(event);
@@ -2395,8 +2424,9 @@ pui.renderFormat = function (parms) {
                 var target = getTarget(event);
                 // Don't prevent keyboard actions like cut/copy/paste.
                 // Don't prevent typing into field when text is selected.
-                if (event.ctrlKey || target.selectionStart !== target.selectionEnd)
-                { return; }
+                if (event.ctrlKey || target.selectionStart !== target.selectionEnd) {
+                  return;
+                }
                 var key = event.keyCode;
                 if ((key >= 48 && key <= 57) || // 0-9
                      (key >= 65 && key <= 90) || // a-z
@@ -2464,8 +2494,9 @@ pui.renderFormat = function (parms) {
               if (dom.type == "number" && dom.formattingInfo["noExtraSpaces"]) {
                 addEvent(boxDom, "textInput", function (e) {
                   e = e || window.event;
-                  if (!keyFilter.test(e.data))
-                  { preventEvent(e); }
+                  if (!keyFilter.test(e.data)) {
+                    preventEvent(e);
+                  }
                 });
               }
             })();
@@ -2554,7 +2585,9 @@ pui.renderFormat = function (parms) {
           addEvent(dom, "focus", pui.setActiveElement);
           addEvent(dom, "keydown", pui.setActiveElement);
           addEvent(dom, "change", setModified);
-          if (dom.tagName != "SELECT") { addEvent(dom, "click", setModified); }
+          if (dom.tagName != "SELECT") {
+            addEvent(dom, "click", setModified);
+          }
           else {
             // prevent pagedown key from selecting last option in select box (not operational for Firefox)
             addEvent(dom, "keydown", function (e) {
@@ -2899,8 +2932,9 @@ pui.renderFormat = function (parms) {
     }
   } // end for loop to process all items
 
-  if (treeLevelItemAdded)
-  { items.pop(); } // remove temp treeLevelItem added to be processed in loop above
+  if (treeLevelItemAdded) {
+    items.pop();
+  } // remove temp treeLevelItem added to be processed in loop above
 
   // process server side errors for this format
   if (!isDesignMode) {
@@ -2919,11 +2953,32 @@ pui.renderFormat = function (parms) {
         }
       }
       else {
+        var screenItems = parms.metaData["items"];
+        // Reconstruct errors
+        for (var errorInd = 0; errorInd < errors.length; errorInd++) {
+          // Declare each error in a variable
+          var error = errors[errorInd];
+          // If it is true, check for the type, only Object should proceed.
+          // Numbers,string and bool are valid JSON so we need to specify that the value we need is of "object"
+          var errorJSON = isJSON(error.msg);
+          if (errorJSON && typeof errorJSON == "object") {
+            error.msg = pui.translationMap[errorJSON["transId"]];
+          }
+          else continue;
+        };
         pui.showErrors(errors);
       }
     }
   }
-
+  // Identifying if the string is can be parsed as JSON object.
+  function isJSON (value) {
+    try {
+      return JSON.parse(value);
+    }
+    catch (error) {
+      return false;
+    }
+  }
   // When the "setTab" API was called before tabs render, set active tabs on tab panels and tab layouts.
   for (var i = 0; i < tabPanels.length; i++) {
     var tabElem = document.getElementById(tabPanels[i]);
@@ -2978,8 +3033,9 @@ pui.renderFormat = function (parms) {
         var formatNameUC = pui.formatUpper(formatName);
         // It is possible for formatName to be lowercase; it comes from format.metaData.screen,
         // whereas the fieldname in pui.keyMap comes from format.name, which seems to stay in caps.
-        if (pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null)
-        { formatName = formatNameUC; }
+        if (pui.keyMap[formatName] == null && pui.keyMap[formatNameUC] != null) {
+          formatName = formatNameUC;
+        }
 
         if (pui.keyMap[formatName] != null) {
           if (pui.keyMap[formatName]["PageDown"] == null) {
@@ -3079,7 +3135,8 @@ pui.renderFormat = function (parms) {
                 if (!e) e = window.event;
                 customFunction(e);
               }
-            } catch (err) {
+            }
+            catch (err) {
               pui.scriptError(err, eventPropName.substr(0, 1).toUpperCase() + eventPropName.substr(1) + " Error:\n");
             }
           };
@@ -3111,8 +3168,9 @@ pui.renderFormat = function (parms) {
     pui.enableArrowKeysForGridQuickFilters();
   }
   time = timer(time);
-  if (pui.renderLog)
-  { console.log("Format " + formatName + " rendered in " + time + "ms"); }
+  if (pui.renderLog) {
+    console.log("Format " + formatName + " rendered in " + time + "ms");
+  }
 
   /**
    * Save an item to render later when a lazy-load layout contains it (directly or indirectly).
@@ -3187,8 +3245,9 @@ pui.arrowKeyEventHandler = new function () {
   me.handler = function (event) {
     event = event || window.event;
     var target = getTarget(event);
-    if (target.autoComp && target.autoComp.isOpen())
-    { return; }
+    if (target.autoComp && target.autoComp.isOpen()) {
+      return;
+    }
     var keyCode = event.keyCode;
     var box = target;
     if (box.comboBoxWidget != null) box = box.comboBoxWidget.getBox();
@@ -3373,7 +3432,8 @@ pui.showErrors = function (errors, rrn) {
       msgSave = msg; // saved/restored if msg not found
       try {
         msg = eval(js);
-      } catch (err) {
+      }
+      catch (err) {
         if (!pui.suppressPropertyScriptingErrors) {
           pui.suppressPropertyScriptingErrors = true;
           setTimeout(function () {
@@ -4072,9 +4132,12 @@ pui.buildResponse = function (customResponseElements) {
 
             if (formattingObj.formatting == "Date") {
               if (boxValueDateISO == null) // not done yet
-              { boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj); } // *ISO format for compare
-              else
-              { boxValue = boxValueDateISO; }
+              {
+                boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);
+              } // *ISO format for compare
+              else {
+                boxValue = boxValueDateISO;
+              }
               rangeHigh = dom.rangeHighDateISO;
             }
 
@@ -4152,7 +4215,8 @@ pui.buildResponse = function (customResponseElements) {
         for (var qualfield in field) {
           response[qualfield] = value;
         }
-      } else {
+      }
+      else {
         response[field] = value;
       }
     }
@@ -4403,15 +4467,18 @@ pui.submitResponse = function (response, value) {
     catch (error) {
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
-    if (atriumTimeout)
-    { Atrium["resetInactivityTimeout"](); }
+    if (atriumTimeout) {
+      Atrium["resetInactivityTimeout"]();
+    }
     pui.showWaitAnimation();
 
     function sendRichDisplayScreen () {
-      if (pui.recordTest) { pui.recording["payloads"].push({
-        url: url,
-        data: Object.assign({}, response)
-      }); }
+      if (pui.recordTest) {
+        pui.recording["payloads"].push({
+          url: url,
+          data: Object.assign({}, response)
+        });
+      }
 
       if (pui["isCloud"]) response["workspace_id"] = pui.cloud.ws.id;
 
@@ -4464,7 +4531,11 @@ pui.submitResponse = function (response, value) {
 
           // If any items depend on external files, wait for those to load before
           // rendering. Otherwise, pui.render/render5250 is called without waiting.
-          if (pui.genie == null) pui.loadDependencyFiles(parms, function () { pui.render(parms); });
+          if (pui.genie == null) {
+            pui.loadDependencyFiles(parms, function () {
+              pui.render(parms);
+            });
+          }
           // Don't load dependency-scripts yet--just render. Genie loads dependencies after fetching screen customizations.
           else pui.render5250(parms);
         },
@@ -4606,7 +4677,8 @@ pui.showWaitAnimation = function () {
   if (pui["loading animation"]["css"] != null && !pui["is_old_ie"] && pui["loading animation"]["path"] == pui["loading animation"]["default"] && pui["loading animation"]["text"] == null) {
     animation = document.createElement("div");
     animation.className = pui["loading animation"]["css"];
-  } else {
+  }
+  else {
     if (pui["loading animation"]["text"] != null) {
       animation = document.createElement("div");
       animation.innerHTML = pui["loading animation"]["text"];
@@ -4614,7 +4686,8 @@ pui.showWaitAnimation = function () {
       animation.style.border = "1px solid #333333";
       animation.style.fontSize = "10px";
       animation.style.fontFamily = "Sans-Serif";
-    } else {
+    }
+    else {
       animation = document.createElement("div");
       animation.style.backgroundImage = "url('" + pui["loading animation"]["path"] + "')";
       animation.style.backgroundRepeat = "no-repeat";
@@ -4624,8 +4697,9 @@ pui.showWaitAnimation = function () {
       animation.style.width = width + "px";
       animation.style.height = height + "px";
     }
-    if (pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0)
-    { animation.alt = pui["loading animation"]["alt"]; }
+    if (pui["loading animation"]["alt"] != null && pui["loading animation"]["alt"].length > 0) {
+      animation.alt = pui["loading animation"]["alt"];
+    }
     animation.style.position = "absolute";
     var left = pui["loading animation"]["left"];
     if (pui.isHtml && left < 0) left = 0;
@@ -4996,11 +5070,13 @@ pui["run"] = function (config) {
   if (config["mode"] == "preview") {
     var genPreview = null;
     if (window.opener && window.opener.pui && typeof window.opener.pui["generatePreview"] === "function") genPreview = window.opener.pui["generatePreview"];
-    if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function")
-    { genPreview = window.parent.noderun["generatePreview"]; }
+    if (window.parent && window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun && typeof window.parent.noderun["generatePreview"] === "function") {
+      genPreview = window.parent.noderun["generatePreview"];
+    }
     var preview;
-    if (genPreview)
-    { preview = genPreview(config["previewTab"]); }
+    if (genPreview) {
+      preview = genPreview(config["previewTab"]);
+    }
     if (!preview) {
       container.innerHTML = "";
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
@@ -5034,7 +5110,9 @@ pui["run"] = function (config) {
       }
       // If any items depend on external files, wait for those to load before
       // rendering. Without dependencies, pui.render is called without waiting.
-      pui.loadDependencyFiles(preview, function () { pui.render(preview); });
+      pui.loadDependencyFiles(preview, function () {
+        pui.render(preview);
+      });
     }
   }
   else {
@@ -5050,10 +5128,12 @@ pui["run"] = function (config) {
       url += "/" + puiRefreshId;
     }
 
-    if (pui.recordTest) { pui.recording["payloads"].push({
-      url: url,
-      data: ajaxParams
-    }); }
+    if (pui.recordTest) {
+      pui.recording["payloads"].push({
+        url: url,
+        data: ajaxParams
+      });
+    }
 
     ajaxJSON({
       "url": pui.addRequestId(url),
@@ -5091,8 +5171,9 @@ pui["run"] = function (config) {
         pui.hideWaitAnimation();
         setTimeout(function () {
           if (pui["onoffline"] == null) {
-            if (!pui["suppress comm errors"])
-            { pui.alert(pui.getNoConnectionMessage(req)); }
+            if (!pui["suppress comm errors"]) {
+              pui.alert(pui.getNoConnectionMessage(req));
+            }
             if (pui["is_touch"]) {
               setTimeout(function () {
                 if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -5200,10 +5281,12 @@ pui["signon"] = function (config) {
 
   if (pui.observer != null) return;
 
-  if (pui.recordTest) { pui.recording["payloads"].push({
-    url: url,
-    data: ajaxParams
-  }); }
+  if (pui.recordTest) {
+    pui.recording["payloads"].push({
+      url: url,
+      data: ajaxParams
+    });
+  }
 
   ajaxJSON({
     "url": pui.addRequestId(url),
@@ -5217,14 +5300,17 @@ pui["signon"] = function (config) {
 
       // If any items depend on external files, wait for those to load before
       // rendering. Otherwise, pui.render is called without waiting.
-      pui.loadDependencyFiles(parms, function () { pui.render(parms); });
+      pui.loadDependencyFiles(parms, function () {
+        pui.render(parms);
+      });
     },
     "onfail": function (req) {
       pui.hideWaitAnimation();
       setTimeout(function () {
         if (pui["onoffline"] == null) {
-          if (!pui["suppress comm errors"])
-          { pui.alert(pui.getNoConnectionMessage(req)); }
+          if (!pui["suppress comm errors"]) {
+            pui.alert(pui.getNoConnectionMessage(req));
+          }
           if (pui["is_touch"]) {
             setTimeout(function () {
               if (navigator["app"] != null && navigator["app"]["exitApp"] != null) { // Check for exitApp api in PhoneGap
@@ -5381,8 +5467,9 @@ pui.start = function () {
     if (replay != null) config["replay"] = replay;
     if (step != null) config["step"] = step;
     if (mode != null) config["mode"] = mode;
-    if (config["mode"] === "preview")
-    { config["previewTab"] = parms["previewTab"]; }
+    if (config["mode"] === "preview") {
+      config["previewTab"] = parms["previewTab"];
+    }
     pui["run"](config);
   }
 };
@@ -5497,7 +5584,8 @@ pui["maskScreen"] = function (parms) {
         }
         obj = obj.offsetParent;
       }
-    } else if (obj.x) {
+    }
+    else if (obj.x) {
       pos.x += obj.x;
       pos.y += obj.y;
     }
@@ -5820,8 +5908,9 @@ pui.showMessageSubfileHelp = function (textObj) {
 
 pui.setActiveElement = function (e) {
   var target = getTarget(e);
-  if (!(target.tagName == "INPUT" && target.type == "button"))
-  { pui.activeElement = target; }
+  if (!(target.tagName == "INPUT" && target.type == "button")) {
+    pui.activeElement = target;
+  }
   var dom = target;
   if (dom.parentNode && dom.parentNode.comboBoxWidget) dom = dom.parentNode;
   if (dom.parentNode && dom.parentNode.floatingPlaceholder) dom = dom.parentNode;
@@ -6029,8 +6118,9 @@ pui.gotoNextElementAndPossiblySelect = function (target) {
 	  // We want the afterElements to be before the beforeElements (so that it is in the proper order from current obj)
 	  var allElements = afterElements.concat(beforeElements);
 	  // Whatever the first element is, should be the next element we take them to...
-	  if (allElements.length > 0)
-		  { return allElements[0]; }
+	  if (allElements.length > 0) {
+      return allElements[0];
+    }
 
 	  return null;
   }
@@ -6049,8 +6139,9 @@ pui.gotoNextElementAndPossiblySelect = function (target) {
           nextObjBox.focus();
           // If the element we are trying to force focus doesn't get focus -- then it has something else causing this field to not allow it to be focused
           // This should catch 100% of the other causes.
-          if (document.activeElement != nextObjBox)
-        	  { continue; }
+          if (document.activeElement != nextObjBox) {
+            continue;
+          }
           if (pui["highlight on focus"]) nextObjBox.select();
           setTimeout(function () {
             pui.returnCursor(null, nextObjBox);
@@ -6123,7 +6214,8 @@ pui.measurementInPixel = function (value, parentSpread) {
   // setting the value of 16 seems to work okay.
   if (value.search(/rem/i) >= 0 || value.search(/em/i) >= 0) {
     return parseInt(parseInt(value) * 16);
-  } else {
+  }
+  else {
     return parseInt(value);
   }
 };
@@ -6590,14 +6682,18 @@ pui["wikihelp"].createOverlays = function (displayOverlays) {
         details["field type"] = item["field type"];
 
         // Pass along field name for bound fields.
-        if (typeof (item.value) == "object" && item.value.fieldName)
-        { details["fieldName"] = item.value.fieldName; }
-        else if (typeof (item["menu response"]) == "object" && item["menu response"].fieldName)
-        { details["fieldName"] = item["menu response"].fieldName; }
-        else if (typeof (item.response) == "object" && item.response.fieldName)
-        { details["fieldName"] = item.response.fieldName; }
-        else
-        { details["fieldName"] = ""; }
+        if (typeof (item.value) == "object" && item.value.fieldName) {
+          details["fieldName"] = item.value.fieldName;
+        }
+        else if (typeof (item["menu response"]) == "object" && item["menu response"].fieldName) {
+          details["fieldName"] = item["menu response"].fieldName;
+        }
+        else if (typeof (item.response) == "object" && item.response.fieldName) {
+          details["fieldName"] = item.response.fieldName;
+        }
+        else {
+          details["fieldName"] = "";
+        }
 
         // Let the end-developer limit which items to overlay via this API function.
         if (typeof pui["wikihelp"]["skipItem"] == "function" && pui["wikihelp"]["skipItem"](details) === true) continue;
@@ -6790,8 +6886,9 @@ pui["wikihelp"].onClickOverlay = function (event) {
   params["fieldName"] = target["pui"]["fieldName"];
   params["field type"] = target["pui"]["field type"];
   params["event"] = event;
-  if (typeof (pui["wikihelp"]["onclick"]) === "function")
-  { pui["wikihelp"]["onclick"](params); }
+  if (typeof (pui["wikihelp"]["onclick"]) === "function") {
+    pui["wikihelp"]["onclick"](params);
+  }
   params = null;
 
   return false;
@@ -6804,8 +6901,9 @@ pui["wikihelp"].onClickOverlay = function (event) {
  * @returns {Object}
  */
 pui["wikihelp"]["getScreenInfo"] = function () {
-  if (pui["wikihelp"]["overlays"].length < 1)
-  { pui["wikihelp"].createOverlays(false); }
+  if (pui["wikihelp"]["overlays"].length < 1) {
+    pui["wikihelp"].createOverlays(false);
+  }
 
   var info = {};
   info["formats"] = currentFormatNames();
@@ -6817,8 +6915,9 @@ pui["wikihelp"]["getScreenInfo"] = function () {
     var field = {};
     field.id = pui["wikihelp"]["overlays"][i]["pui"]["fieldId"];
     if (pui["wikihelp"]["overlays"][i]["pui"]["fieldName"] &&
-    pui["wikihelp"]["overlays"][i]["pui"]["fieldName"].length > 0)
-    { field.name = pui["wikihelp"]["overlays"][i]["pui"]["fieldName"]; }
+    pui["wikihelp"]["overlays"][i]["pui"]["fieldName"].length > 0) {
+      field.name = pui["wikihelp"]["overlays"][i]["pui"]["fieldName"];
+    }
     info["fields"].push(field);
   }
 
@@ -6946,8 +7045,9 @@ pui.transitionAnimation = {
 
 function timer (time) {
   var now = new Date().getTime();
-  if (time)
-  { now -= time; }
+  if (time) {
+    now -= time;
+  }
   return now;
 }
 
