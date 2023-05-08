@@ -2953,7 +2953,6 @@ pui.renderFormat = function(parms) {
         }
       }
       else {
-        var screenItems = parms.metaData["items"];
         // Reconstruct errors
         for (var errorInd = 0; errorInd < errors.length; errorInd++) {
           // Declare each error in a variable
@@ -2962,7 +2961,12 @@ pui.renderFormat = function(parms) {
           // Numbers,string and bool are valid JSON so we need to specify that the value we need is of "object"
           var errorJSON = isJSON(error.msg);
           if (errorJSON && typeof errorJSON == "object") {
-            error.msg = pui.translationMap[errorJSON["transId"]];
+            if (!pui.translationMap || pui.translationMap.length <= 0) {
+              continue;
+            }
+            else {
+              error.msg = pui.translationMap[errorJSON["transId"]];
+            }
           }
           else continue;
         };
