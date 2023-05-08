@@ -6209,6 +6209,8 @@ pui.getCalcValue = function(domElement, position) {
 pui.measurementInPixel = function(value, parentSpread) {
   // Default value on parameters does not work on compilation.
   // If percent the parentSpread ( total width or height of the parent ) is required.
+  //If value is empty return 0
+  if (value === "") return 0; 
   if (value.search("%") >= 0) {
     // no parentSpread, do nothing
     if (!parentSpread) return null;
