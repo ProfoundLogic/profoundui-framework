@@ -1228,7 +1228,7 @@ pui.Grid = function() {
         var pairs = me.filterString.substring(1).split("&");
         pairs.forEach(function(pair) {
           pair = pair.split("=");
-          formData.append(pair[0], pair[1]);
+          formData.append(pair[0], decodeURIComponent(pair[1]));
         });
       }
 
