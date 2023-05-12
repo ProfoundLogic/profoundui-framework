@@ -160,7 +160,7 @@ pui["errorScreen"]["maximize"] = function() {
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
-    pui["errorScreen"]["onload"]["mazimize"]();
+    pui["errorScreen"]["maximize"]();
     return;
   }
 
