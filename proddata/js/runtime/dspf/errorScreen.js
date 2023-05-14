@@ -182,6 +182,7 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
   setTimeout(function() {
     if (pui["errorScreen"]["maximizeIcon"]) {
       var panel = document.querySelector("#ErrorPanel");
+      if (!panel) return;
       var x = panel.offsetLeft + panel.offsetWidth - 35;
       var y = panel.offsetTop + 10;
       pui["errorScreen"]["maximizeIcon"].style.left = x + "px";
