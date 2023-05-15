@@ -29,7 +29,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.design && !pui["is_quirksmode"]) {
         if (!pui["is_old_ie"]) {
           parms.dom.style.margin = "2px";
@@ -51,7 +51,7 @@ pui.widgets.add({
               parms.dom.checked = true;
             }
           }
-          addEvent(parms.dom, "click", function () {
+          addEvent(parms.dom, "click", function() {
             if (parms.dom.readOnly) {
               if (parms.dom.checked == false) parms.dom.checked = true;
               else if (parms.dom.checked == true) parms.dom.checked = false;
@@ -97,7 +97,7 @@ pui.widgets.add({
         }
       }
     },
-    "visibility": function (parms) {
+    "visibility": function(parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely indicates
       // "false" in Designer when tabs are drawn or switched. Do not assume an element property exists when parms.design is false. #7606.
 
@@ -110,12 +110,13 @@ pui.widgets.add({
         }
       }
     },
-    "css class": function (parms) {
+    "css class": function(parms) {
       if (parms.design && parms.designItem.label) {
         parms.designItem.label.className = "label-for";
         var cls = trim(parms.value.split(" ")[0]);
-        if (cls != "")
-        { pui.addCssClass(parms.designItem.label, "label-for-" + cls); }
+        if (cls != "") {
+          pui.addCssClass(parms.designItem.label, "label-for-" + cls);
+        }
       }
     }
 

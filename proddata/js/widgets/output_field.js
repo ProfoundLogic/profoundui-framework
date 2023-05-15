@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function buildOutputField (parms, value, labelForId) {
+function buildOutputField(parms, value, labelForId) {
   if (!parms.design) {
     var originalValue = getInnerText(parms.oldDom);
     if (originalValue != null && originalValue != "" && parms.dom.originalValue == null) {
@@ -37,7 +37,8 @@ function buildOutputField (parms, value, labelForId) {
 	  var textNode = document.createTextNode(text);
 	  labelElem.appendChild(textNode);
 	  parms.dom.appendChild(labelElem);
-  } else {
+  }
+  else {
 	  parms.dom.appendChild(document.createTextNode(text));
   }
 
@@ -63,17 +64,17 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       if (parms.design || parms.properties["value"] != "script: value") {
         buildOutputField(parms, parms.value, parms.evalProperty("label for"));
       }
     },
 
-    "overflow x": function (parms) {
+    "overflow x": function(parms) {
       if (context == "dspf" && parms.design && pui.isBound(parms.properties.value) && (parms.value == "" || parms.value == null)) {
         parms.properties["overflow x"] = "";
         parms.dom.style.overflowX = "hidden";

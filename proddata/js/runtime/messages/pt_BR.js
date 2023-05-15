@@ -20,7 +20,7 @@
 // ----------------------------------
 //  Portuguese (Copy for Brazil) - only difference is to replace "ficheiro" with "arquivo"
 // ----------------------------------
-var pt_BR = function (dict) {
+var pt_BR = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

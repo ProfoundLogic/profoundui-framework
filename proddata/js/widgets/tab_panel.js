@@ -132,7 +132,7 @@ pui.widgets.tabStyles = {
   }
 };
 
-pui.widgets.preloadTabStyle = function (tabStyle) {
+pui.widgets.preloadTabStyle = function(tabStyle) {
   var tabStyleSettings = pui.widgets.tabStyles[tabStyle];
   if (tabStyleSettings != null) {
     if (tabStyleSettings.preloaded != true) { // not already preloaded
@@ -140,7 +140,7 @@ pui.widgets.preloadTabStyle = function (tabStyle) {
         var extension = tabStyleSettings["imageFileExtension"];
         if (extension == null) extension = "gif";
         if (extension.substr(0, 1) == ".") extension = extension.substr(1);
-        function preload (imageSrc) {
+        function preload(imageSrc) {
           var image = new Image();
           image.src = imageSrc;
         }
@@ -165,7 +165,7 @@ pui.widgets.preloadTabStyle = function (tabStyle) {
  * (TabPanel properties should not be moved into a prototype; doing so would break TabLayout, which adopts TabPanel properties.)
  * @constructor
  */
-function TabPanel () {
+function TabPanel() {
   // Public Properties
   this.INITIALLIST = "Tab 1,Tab 2,Tab 3";
   this.TXT_CANNOTREMOVE = "The tab cannot be removed because it contains other elements that must be removed first.";
@@ -231,7 +231,7 @@ function TabPanel () {
    * then select a different tab.
    * @param {Number} tabId
    */
-  this.hideTab = function (tabId) {
+  this.hideTab = function(tabId) {
     var redraw = false;
     if (this.selectedTab == tabId) {
       if (!this.sendTabResponse) {
@@ -263,7 +263,7 @@ function TabPanel () {
    * Un-hide a tab and re-draw the tabs and contents.
    * @param {Number} tabId
    */
-  this.showTab = function (tabId) {
+  this.showTab = function(tabId) {
     me._hiddenTabs[tabId] = false;
     me.drawChanged();
   };
@@ -275,7 +275,7 @@ function TabPanel () {
    * See "setTab( tabPanelid, tab )" (https://docs.profoundlogic.com/x/FwAy).
    * @param {Number} tabId
    */
-  this.setTab = function (tabId) {
+  this.setTab = function(tabId) {
     if (me.selectedTab != tabId) {
       me.selectedTab = tabId;
 
@@ -285,17 +285,17 @@ function TabPanel () {
     }
   };
 
-  this.getTab = function () {
+  this.getTab = function() {
     return me.selectedTab;
   };
 
-  this.refresh = function () {
+  this.refresh = function() {
     me.setTab(me.selectedTab);
   };
 
   // Other public methods.
 
-  this.setDefaultBackColor = function () {
+  this.setDefaultBackColor = function() {
     var settings = pui.widgets.tabStyles[me.tabStyle];
     if (settings != null && settings.defaultBackColor != null) {
       me.backColor = settings.defaultBackColor;
@@ -307,7 +307,7 @@ function TabPanel () {
    * Pre-Conditions: me.selectedTab is the active tab.
    * @returns {undefined}
    */
-  this.drawChanged = function () {
+  this.drawChanged = function() {
     me.draw(); // Just re-draw everything.
   };
 
@@ -318,7 +318,7 @@ function TabPanel () {
    * (Overridden in TabLayout subclass.)
    * @returns {undefined}
    */
-  this.draw = function () {
+  this.draw = function() {
     // Load tab style settings.
     if (me.tabStyle == null || me.tabStyle == "") me.tabStyle = "Simple";
 
@@ -414,8 +414,9 @@ function TabPanel () {
       if (this._hiddenTabs[i]) outerSpan.style.display = "none";
 
       if (i == me.selectedTab) {
-        if (me.container.className != "")
-        { outerSpan.className = me.container.className.split(" ")[0] + "-"; }
+        if (me.container.className != "") {
+          outerSpan.className = me.container.className.split(" ")[0] + "-";
+        }
         outerSpan.className += "selected-tab";
       }
       if (settings.leftWidth != null) {
@@ -554,7 +555,7 @@ function TabPanel () {
 
     // Get all elements in the page with the specified tag. Check if they belong in this tab panel.
     // If they belong, show the ones in the active tab and hide the others.
-    function processElements (tag) {
+    function processElements(tag) {
       var container;
       if (context == "dspf" && !isDesign) {
         container = pui.runtimeContainer;
@@ -575,8 +576,9 @@ function TabPanel () {
             }
             // Render charts if not done already. A chart will not render when
             // the containing tab is inactive...
-            if (!inDesignMode() && elem.pui.properties["field type"] == "chart" && !elem.chart)
-            { applyProperty(elem, "field type", "chart"); }
+            if (!inDesignMode() && elem.pui.properties["field type"] == "chart" && !elem.chart) {
+              applyProperty(elem, "field type", "chart");
+            }
           }
           else {
             elem.style.visibility = "hidden";
@@ -599,7 +601,7 @@ function TabPanel () {
    * (Also called by TabLayout subclass.)
    * @returns {undefined}
    */
-  this.createAddRemoveIcons = function () {
+  this.createAddRemoveIcons = function() {
     var addIcon = designUtils.createAndAppendIcon("plus", "Add New Tab", me.container);
     var removeIcon = designUtils.createAndAppendIcon("minus", "Remove Tab", me.container);
     addIcon.style.right = "2px";
@@ -616,7 +618,7 @@ function TabPanel () {
    * @param {Number} tab
    * @returns {undefined}
    */
-  this.processTabChange = function (tab) {
+  this.processTabChange = function(tab) {
     var dom = me.container;
     if (dom.disabled != true) {
       if (context == "dspf" && me.sendTabResponse == true) {
@@ -647,7 +649,7 @@ function TabPanel () {
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnmouseover = function (e) {
+  this.tabSpanOnmouseover = function(e) {
     var obj = getTarget(e);
     if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
     if (obj.tabId == me.selectedTab) return;
@@ -669,7 +671,7 @@ function TabPanel () {
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnmouseout = function (e) {
+  this.tabSpanOnmouseout = function(e) {
     var obj = getTarget(e);
     if (obj.tabId == null && obj.parentNode.tabId != null) obj = obj.parentNode;
     if (obj.tabId == me.selectedTab) return;
@@ -691,7 +693,7 @@ function TabPanel () {
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOnclick = function (e) {
+  this.tabSpanOnclick = function(e) {
     var target = e.target;
     me._lastScrollLeft = target.parentNode.parentNode.scrollLeft; // _headerArea is 2 nodes up.
     if (target.tabId == null && target.parentNode.tabId != null) target = target.parentNode;
@@ -722,8 +724,9 @@ function TabPanel () {
       var selection = toolbar.designer.selection;
       if (selection.resizers.length > 1) selection.clear();
     }
-    if (changed)
-    { me.processTabChange(tab); }
+    if (changed) {
+      me.processTabChange(tab);
+    }
   };
 
   /**
@@ -731,7 +734,7 @@ function TabPanel () {
    * @param {MouseEvent} e
    * @returns {undefined}
    */
-  this.tabSpanOndblclick = function (e) {
+  this.tabSpanOndblclick = function(e) {
     if (inDesignMode()) {
       var dom = e.target;
       if (dom.tabId == null && dom.parentNode.tabId != null) dom = dom.parentNode;
@@ -742,7 +745,7 @@ function TabPanel () {
       // Add an inline edit-box and a handler for updating it.
       if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
         // onUpdate gets called inside InlineEditBox.update, after a call to InlineEditBox.hide.
-        itm.designer.inlineEditBox.onUpdate = function (newName) {
+        itm.designer.inlineEditBox.onUpdate = function(newName) {
           var idx = dom.tabId;
 
           // Replace the old name with the new name. Convert string to array,
@@ -779,7 +782,7 @@ function TabPanel () {
    * Handle clicking the [+] icon: add a new tab and refresh the properties window.
    * @returns {undefined}
    */
-  this.addIconOnclick = function () {
+  this.addIconOnclick = function() {
     var itm = toolbar.designer.getDesignItemByDomObj(me.container);
     var propValue = itm.properties["tab names"];
     if (pui.isTranslated(propValue)) {
@@ -829,7 +832,7 @@ function TabPanel () {
    * Handle clicking [-] icon. Remove the last tab and refresh the properties window.
    * @returns {undefined}
    */
-  this.removeIconOnclick = function () {
+  this.removeIconOnclick = function() {
     var itm = toolbar.designer.getDesignItemByDomObj(me.container);
     var propValue = itm.properties["tab names"];
     var tabNames;
@@ -891,7 +894,7 @@ function TabPanel () {
    * @param {Object} itm            The design item for this tab panel widget.
    * @returns {Boolean}
    */
-  this._cannotRemoveTab = function (removeTabNum, itm) {
+  this._cannotRemoveTab = function(removeTabNum, itm) {
     for (var i = 0; i < itm.designer.items.length; i++) {
       var elem = itm.designer.items[i].dom;
       if (elem.parentTabPanel != null && elem.parentTab != null && elem.parentTabPanel == me.container.id) {
@@ -908,7 +911,7 @@ function TabPanel () {
    * instead of anoymous declarations here to avoid new functions+closures repeatedly being allocated on resize, etc.)
    * @returns {undefined}
    */
-  this.addScrollButtons = function () {
+  this.addScrollButtons = function() {
     leftScrollSpan = me._createScrollButton("left");
     rightScrollSpan = me._createScrollButton("right");
 
@@ -939,10 +942,11 @@ function TabPanel () {
    * Scroll the top header div to the left when a scroll button is held down.
    * @returns {undefined}
    */
-  function scrollLeft () {
+  function scrollLeft() {
     if (me._headerArea.scrollLeft > 0) {
       me._headerArea.scrollLeft -= curScrollIncrement;
-    } else {
+    }
+    else {
       clearInterval(scrollLeftIval);
       leftScrollSpan.style.display = "none";
     }
@@ -956,14 +960,18 @@ function TabPanel () {
    * Scroll the top header div to the right when a scroll button is held down.
    * @returns {undefined}
    */
-  function scrollRight () {
+  function scrollRight() {
     // Recalculating this here fixes a problem where topDiv.scrollWidth sometimes reports incorrectly above -- DR.
     var leftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
     if (me._headerArea.scrollLeft < leftMax) {
       // Note: Emulated IE8 sometimes gets Unspecified error setting topDiv.scrollLeft, and I can find no fix.
       // However, actual IE8 in Win XP has no problem with this. So ignore error. MD.
-      try { me._headerArea.scrollLeft += curScrollIncrement; } catch (exc) {}
-    } else {
+      try {
+        me._headerArea.scrollLeft += curScrollIncrement;
+      }
+      catch (exc) {}
+    }
+    else {
       clearInterval(scrollRightIval);
       rightScrollSpan.style.display = "none";
     }
@@ -974,23 +982,23 @@ function TabPanel () {
   }
 
   // Start scrolling.
-  function leftScroll_onmousedown () {
+  function leftScroll_onmousedown() {
     // Reset increment amount and speed counter. Start scrolling.
     curScrollIncrement = beginScrollIncrement;
     scrollCounter = 0;
     scrollLeftIval = setInterval(scrollLeft, 42);
   }
-  function rightScroll_onmousedown () {
+  function rightScroll_onmousedown() {
     curScrollIncrement = beginScrollIncrement;
     scrollCounter = 0;
     scrollRightIval = setInterval(scrollRight, 42);
   }
 
   // Stop scrolling.
-  function leftScroll_onmouseup () {
+  function leftScroll_onmouseup() {
     clearInterval(scrollLeftIval);
   }
-  function rightScroll_onmouseup () {
+  function rightScroll_onmouseup() {
     clearInterval(scrollRightIval);
   }
 
@@ -998,7 +1006,7 @@ function TabPanel () {
    * Check which scroll buttons should be visible, and show them.
    * @returns {undefined}
    */
-  this._checkScrollButtons = function () {
+  this._checkScrollButtons = function() {
     // Calculate scrollLeftMax: how far from left is the element scrolled.
     var topDiv_scrollLeftMax = me._headerArea.scrollWidth - me._headerArea.offsetWidth;
 
@@ -1013,13 +1021,15 @@ function TabPanel () {
     // Display either button only when needed.
     if (me._headerArea.scrollLeft > 0) {
       leftScrollSpan.style.display = "inline-block";
-    } else {
+    }
+    else {
       leftScrollSpan.style.display = ""; // Stylesheet defaults these spans' display to none.
     }
 
     if (me._headerArea.scrollLeft < topDiv_scrollLeftMax) {
       rightScrollSpan.style.display = "inline-block";
-    } else {
+    }
+    else {
       rightScrollSpan.style.display = "";
     }
   };
@@ -1030,7 +1040,7 @@ function TabPanel () {
    * @param {String} cssClass     Extra CSS class: left or right.
    * @returns {Object}            A span DOM element as the tab.
    */
-  this._createScrollButton = function (cssClass) {
+  this._createScrollButton = function(cssClass) {
     // Create a parent span to encapsulate the button image, left, and right border.
     // Note: image is defined by CSS rule like :before { content: url(); }
     var outerSpan = document.createElement("span");
@@ -1094,11 +1104,13 @@ function TabPanel () {
       tabSpan.style.borderRight = "1px solid " + borderColor;
       tabSpan.style.borderBottom = "1px solid " + me.backColor;
       // Use color of selected tab unless overridden by config option.
-      if (pui["tabpanel scroll unsel style"] != true)
-      { tabSpan.style.backgroundColor = me.backColor; }
+      if (pui["tabpanel scroll unsel style"] != true) {
+        tabSpan.style.backgroundColor = me.backColor;
+      }
       else if (settings["defaultTabColor"]) tabSpan.style.backgroundColor = settings["defaultTabColor"];
-      else
-      { tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor; }
+      else {
+        tabSpan.style.backgroundColor = simpleSelectedTabBackgroundColor;
+      }
     }
 
     // Add the left border if it, exists, add the tab itself, and add the
@@ -1128,8 +1140,8 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
-      parms.dom.sizeMe = function () {
+    "field type": function(parms) {
+      parms.dom.sizeMe = function() {
         parms.dom.tabPanel.draw();
       };
 
@@ -1145,8 +1157,9 @@ pui.widgets.add({
       parms.dom.tabPanel.container = parms.dom;
 
       parms.dom.tabPanel.tabStyle = parms.properties["tab panel style"];
-      if (parms.design && pui.isBound(parms.dom.tabPanel.tabStyle))
-      { parms.dom.tabPanel.tabStyle = "Simple"; }
+      if (parms.design && pui.isBound(parms.dom.tabPanel.tabStyle)) {
+        parms.dom.tabPanel.tabStyle = "Simple";
+      }
       if (parms.properties["background color"] == null || parms.properties["background color"] == "") {
         parms.dom.tabPanel.setDefaultBackColor();
       }
@@ -1166,7 +1179,7 @@ pui.widgets.add({
       }
     },
 
-    "tab names": function (parms) {
+    "tab names": function(parms) {
       if (parms.dom.tabPanel != null) {
         var tabNamesString = parms.value;
         if (tabNamesString != null && tabNamesString != "") {
@@ -1181,11 +1194,11 @@ pui.widgets.add({
       }
     },
 
-    "tab keys": function (parms) {
+    "tab keys": function(parms) {
       parms.dom.tabKeys = parms.value;
     },
 
-    "tab panel style": function (parms) {
+    "tab panel style": function(parms) {
       parms.dom.tabPanel.tabStyle = parms.value;
       if (parms.properties["background color"] == null || parms.properties["background color"] == "") {
         parms.dom.tabPanel.setDefaultBackColor();
@@ -1196,19 +1209,19 @@ pui.widgets.add({
       pui.widgets.preloadTabStyle(parms.value);
     },
 
-    "width": function (parms) {
+    "width": function(parms) {
       if (parms.design && pui.isPercent(parms.value)) {
         parms.dom.tabPanel.draw();
       }
     },
 
-    "height": function (parms) {
+    "height": function(parms) {
       if (parms.design && pui.isPercent(parms.value)) {
         parms.dom.tabPanel.draw();
       }
     },
 
-    "response AID": function (parms) {
+    "response AID": function(parms) {
       if (parms.dom.tabPanel) {
         var value = parms.value;
         if (typeof value !== "string" || value.length === 0) value = null;

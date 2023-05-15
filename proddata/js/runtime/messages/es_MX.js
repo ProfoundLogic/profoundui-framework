@@ -20,7 +20,7 @@
 // ------------------------------------------------------------
 //  Mexican/Latin American Spanish
 // -------------------------------------------------------------
-var es_MX = function (dict) {
+var es_MX = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

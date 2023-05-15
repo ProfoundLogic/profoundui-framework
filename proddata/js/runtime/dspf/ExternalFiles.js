@@ -22,17 +22,17 @@
  * @constructor
  */
 
-pui.ExternalFiles = function () {
+pui.ExternalFiles = function() {
   var cssLinks = {};
   var jsScripts = {};
   var me = this;
   var head;
 
-  this.init = function () {
+  this.init = function() {
     if (head == null) head = document.getElementsByTagName("head")[0];
   };
 
-  this.addCSSFile = function (path) {
+  this.addCSSFile = function(path) {
     if (typeof path != "string") return;
     path = trim(path);
     if (path == "") return;
@@ -46,7 +46,7 @@ pui.ExternalFiles = function () {
     head.appendChild(css);
   };
 
-  this.addJSFile = function (path, callback, checkIfLoadedOnly) {
+  this.addJSFile = function(path, callback, checkIfLoadedOnly) {
     if (typeof path != "string") return false;
     path = trim(path);
     if (path == "") return false;
@@ -56,13 +56,13 @@ pui.ExternalFiles = function () {
     var done = false;
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.onreadystatechange = function () {
+    script.onreadystatechange = function() {
       if (script.readyState == "complete" || script.readyState == "loaded") {
         if (!done && callback != null) callback();
         done = true;
       }
     };
-    script.onload = function () {
+    script.onload = function() {
       if (!done && callback != null) callback();
       done = true;
     };
@@ -73,7 +73,7 @@ pui.ExternalFiles = function () {
     return true;
   };
 
-  this.load = function (parms) {
+  this.load = function(parms) {
     me.init();
 
     var props = null;
@@ -124,7 +124,7 @@ pui.ExternalFiles = function () {
       idx = 1;
       path = pui.evalBoundProperty(props["external javascript"], parms.data, parms.ref);
       while (path != null) {
-        var notYetLoaded = me.addJSFile(path, function () {}, true); // check if alrady loaded, does not actually load the file
+        var notYetLoaded = me.addJSFile(path, function() {}, true); // check if alrady loaded, does not actually load the file
         if (notYetLoaded) {
           parms.runOnload = false; // don't run onload from render.js ... it will run here as a callback instead once all scripts are loaded
           jsLoadCount++;
@@ -138,7 +138,7 @@ pui.ExternalFiles = function () {
         idx = 1;
         path = pui.evalBoundProperty(props["external javascript"], parms.data, parms.ref);
         while (path != null) {
-          me.addJSFile(path, function () {
+          me.addJSFile(path, function() {
             jsLoadCount -= 1;
             if (jsLoadCount != 0) return;
 

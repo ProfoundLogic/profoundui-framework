@@ -31,7 +31,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.design) {
         parms.dom.innerHTML = "IFrame content will appear here.";
         parms.dom.style.overflow = "hidden";
@@ -56,7 +56,7 @@ pui.widgets.add({
         }
       }
     },
-    "visibility": function (parms) {
+    "visibility": function(parms) {
       if (!parms.design) {
         var iframe = parms.dom.getElementsByTagName("iframe");
         if (iframe && iframe.length == 1) {

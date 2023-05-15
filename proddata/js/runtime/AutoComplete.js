@@ -23,7 +23,7 @@
  * @constructor
  */
 
-function AutoComplete (config) {
+function AutoComplete(config) {
   /* PRIVATE MEMBERS */
   var cancelQuery = false;
 
@@ -121,7 +121,7 @@ function AutoComplete (config) {
         }
       }
     }
-    recordSet.sort(function (a, b) {
+    recordSet.sort(function(a, b) {
       if (a[0].toUpperCase() < b[0].toUpperCase()) return -1;
       else return 1;
     });
@@ -284,23 +284,23 @@ function AutoComplete (config) {
   /* END CONSTRUCTOR */
 
   /* PUBLIC METHODS */
-  this.setTemplate = function (setValue) {
+  this.setTemplate = function(setValue) {
     template = setValue;
   };
 
-  this.isOpen = function () {
+  this.isOpen = function() {
     return (resultPane.style.display == "block");
   };
 
-  this.setWidth = function (setVal) {
+  this.setWidth = function(setVal) {
     width = setVal;
   };
 
-  this.getSelectedRecord = function () {
+  this.getSelectedRecord = function() {
     return selectedRecord;
   };
 
-  this.destroy = function () {
+  this.destroy = function() {
     textBox.removeEventListener("keyup", doKeyUp);
     textBox.removeEventListener("keydown", doKeyDown);
     textBox.removeEventListener("blur", doBlur);
@@ -334,13 +334,13 @@ function AutoComplete (config) {
     me = null;
   };
 
-  this.updateUrl = function (newUrl) {
+  this.updateUrl = function(newUrl) {
     url = newUrl;
   };
 
   /* PRIVATE METHODS */
 
-  function getScrollbarWidth () {
+  function getScrollbarWidth() {
     var measureDiv = document.createElement("div");
     measureDiv.style.overflow = "scroll";
     measureDiv.style.visibility = "hidden";
@@ -360,7 +360,7 @@ function AutoComplete (config) {
     return outsideWidth - insideWidth;
   }
 
-  function doBlur (event) {
+  function doBlur(event) {
     event = event || window.event;
     // We don't want to execute the blur (regardless of browser)
     // if we are in the process of clicking in the result pane.
@@ -369,7 +369,7 @@ function AutoComplete (config) {
     setTimeout(hideResults, 200);
   }
 
-  function doKeyDown (event) {
+  function doKeyDown(event) {
     keyPressed = true; // Signals onInput to not handle the query.
 
     event = event || window.event;
@@ -437,7 +437,7 @@ function AutoComplete (config) {
     }
   }
 
-  function doKeyUp (event) {
+  function doKeyUp(event) {
     keyPressed = false; // Clear the signal so onInput may handle a subsequent query.
 
     event = event || window.event;
@@ -466,7 +466,7 @@ function AutoComplete (config) {
         else {
           clearTimeout(typeAheadTimer);
           cancelQuery = false;
-          typeAheadTimer = setTimeout(function () {
+          typeAheadTimer = setTimeout(function() {
             doQuery(rtrim(textBox.value));
           }, typeAheadDelay);
         }
@@ -478,7 +478,7 @@ function AutoComplete (config) {
    * Handle the textbox value changing as a result of pasting with the mouse or browser Edit menu. Added for issue 3817.
    * @returns {undefined}
    */
-  function onInput () {
+  function onInput() {
     if (keyPressed) return; // If keys were pressed, then doKeyUp will handle the changed text.
 
     // Hide the result pane if there are no characters in the box.
@@ -499,7 +499,7 @@ function AutoComplete (config) {
     }
   }
 
-  function activateRecord (index, scrollIntoView) {
+  function activateRecord(index, scrollIntoView) {
     if (activeRecord != null && resultPane.childNodes != null && resultPane.childNodes[activeRecord] != null) {
       resultPane.childNodes[activeRecord].className = resultPane.childNodes[activeRecord].className.replace(" autocomplete-selected", "");
       resultPane.childNodes[activeRecord].className = resultPane.childNodes[activeRecord].className.replace("autocomplete-selected", "");
@@ -515,10 +515,12 @@ function AutoComplete (config) {
         if (typeof (window.pageYOffset) == "number") {
           // Netscape compliant
           scrOfY = window.pageYOffset;
-        } else if (document.body && document.body.scrollTop) {
+        }
+        else if (document.body && document.body.scrollTop) {
           // DOM compliant
           scrOfY = document.body.scrollTop;
-        } else if (document.documentElement && document.documentElement.scrollTop) {
+        }
+        else if (document.documentElement && document.documentElement.scrollTop) {
           // IE6 standards compliant mode
           scrOfY = document.documentElement.scrollTop;
         }
@@ -550,20 +552,24 @@ function AutoComplete (config) {
         if (offset + recordDiv.offsetHeight > bottom || offset < scrOfY) {
           scrollingIntoView = true;
           recordDiv.scrollIntoView(true);
-          setTimeout(function () { scrollingIntoView = false; }, 1);
+          setTimeout(function() {
+            scrollingIntoView = false;
+          }, 1);
         }
 
         if (usingScrollbar && recordDiv.offsetTop > maxHeight && !scrollingIntoView) {
           scrollingIntoView = true;
           recordDiv.scrollIntoView(true);
-          setTimeout(function () { scrollingIntoView = false; }, 1);
+          setTimeout(function() {
+            scrollingIntoView = false;
+          }, 1);
         }
       }
     }
     activeRecord = index;
   }
 
-  function doLookup (query) {
+  function doLookup(query) {
     if (hiddenField) hiddenField.value = "";
 
     if (query == "") return;
@@ -601,7 +607,7 @@ function AutoComplete (config) {
     }
   }
 
-  function doQuery (query) {
+  function doQuery(query) {
     // Do not send blank query.
     if (query == "") {
       hideResults();
@@ -632,7 +638,7 @@ function AutoComplete (config) {
     req["suppressAlert"] = true;
     req["postData"] = postData;
     req["sequence"] = sentsequence; // Helps avoid using out-of-sequence results.
-    req["onready"] = function (req) {
+    req["onready"] = function(req) {
       if (hiddenField) autoCompQueries -= 1;
 
       if (req["sequence"] != null) {
@@ -691,7 +697,7 @@ function AutoComplete (config) {
     req.send();
   }
 
-  function showResults () {
+  function showResults() {
     drawResults();
     resultPane.style.display = "block";
     position();
@@ -699,7 +705,7 @@ function AutoComplete (config) {
     if (shadow) applyShadow();
   }
 
-  function position () {
+  function position() {
     var refEl = textBox;
     top = textBox.offsetTop;
     left = textBox.offsetLeft;
@@ -755,14 +761,14 @@ function AutoComplete (config) {
     resultPane.style.left = left + "px";
   }
 
-  function hideResults () {
+  function hideResults() {
     if (resultPane != null) resultPane.style.display = "none";
     if (shadow) shadowDiv.style.display = "none";
     records = new Array();
     activeRecord = null;
   }
 
-  function applyShadow () {
+  function applyShadow() {
     shadowDiv.style.top = (top + 3) + "px";
     shadowDiv.style.left = (left - 4) + "px";
     shadowDiv.style.width = (width + 10) + "px";
@@ -790,12 +796,12 @@ function AutoComplete (config) {
     shadowDiv.style.display = "block";
   }
 
-  function doResize () {
+  function doResize() {
     // Repaint result pane if it is open.
     if (resultPane.style.display == "block") showResults();
   }
 
-  function drawResults () {
+  function drawResults() {
     // Width sizing can work in one of two ways:
 
     // 1. In "auto" mode (default) the right edge of the inner pane will line up to the right edge of the text box.
@@ -859,7 +865,7 @@ function AutoComplete (config) {
     }
   }
 
-  function selectRecord () {
+  function selectRecord() {
     if (activeRecord == null) return;
     for (var i in records[activeRecord]) {
       textBox.value = records[activeRecord][i];
@@ -886,7 +892,7 @@ function AutoComplete (config) {
     }
   }
 
-  function getRecordValue (record, valueField) {
+  function getRecordValue(record, valueField) {
     var value = record[valueField];
     // valueField may be an expression rather than a simple field name
     // in which case the backend will return an alias, and the look up will not work
@@ -900,7 +906,7 @@ function AutoComplete (config) {
     return value;
   }
 
-  function doMouseMove (event) {
+  function doMouseMove(event) {
     if (scrollingIntoView) return;
 
     event = event || window.event;
@@ -916,7 +922,7 @@ function AutoComplete (config) {
     activateRecord(Number(recordIndex));
   }
 
-  function isOnScrollbar (event) {
+  function isOnScrollbar(event) {
     if (usingScrollbar && scrollbarWidth != null && resultPane.offsetWidth != null) {
       var scrollbarStart = event.currentTarget.getBoundingClientRect().right - scrollbarWidth;
       var mousePos = pui.getMouseX(event);
@@ -927,9 +933,9 @@ function AutoComplete (config) {
     return false;
   }
 
-  function doClick (event) {
+  function doClick(event) {
     inMouseClick = true;
-    setTimeout(function () {
+    setTimeout(function() {
       textBox.focus();
     }, 0);
     if (isOnScrollbar(event)) return;
@@ -937,11 +943,11 @@ function AutoComplete (config) {
     hideResults();
   }
 
-  function doMouseUp (event) {
+  function doMouseUp(event) {
     inMouseClick = false;
   }
 
-  function makeScrollable () {
+  function makeScrollable() {
     resultPane.style.height = "";
     usingScrollbar = false;
 
@@ -954,7 +960,7 @@ function AutoComplete (config) {
   }
 }
 
-function applyAutoComp (properties, originalValue, domObj) {
+function applyAutoComp(properties, originalValue, domObj) {
   var file = evalPropertyValue(properties["choices database file"], originalValue, domObj);
   var temp = evalPropertyValue(properties["choice options field"], originalValue, domObj);
   var fields = pui.getFieldList(temp);
@@ -1006,8 +1012,9 @@ function applyAutoComp (properties, originalValue, domObj) {
 
     // Create sql query and base params.
     var baseParams = new Object();
-    if (pui["isCloud"])
-    { baseParams["workspace_id"] = pui.cloud.ws.id; }
+    if (pui["isCloud"]) {
+      baseParams["workspace_id"] = pui.cloud.ws.id;
+    }
     if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;
     else if (url == "" || !pui.nodejs) baseParams["AUTH"] = pui.appJob.auth;
 
@@ -1052,7 +1059,7 @@ function applyAutoComp (properties, originalValue, domObj) {
       }
     }
 
-    var safeUpperCase = function (str) {
+    var safeUpperCase = function(str) {
       // The following business gets around certain browsers (i.e. Chrome)
       // upper-casing the German eszett character to SS, which throws off
       // matching in SQL WHERE clause.
@@ -1080,7 +1087,7 @@ function applyAutoComp (properties, originalValue, domObj) {
       ondbload: onDbLoadProp,
       typeAheadDelay: pui["autocomplete typeahead delay"],
       valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
-      beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function (baseParams, query) {
+      beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
         if (evalPropertyValue(properties["case sensitive"], originalValue, domObj) == "true") {
           // Note: PUIWIDGET.cpp sees the "case sensitive" property and decides not to use UPPER in the query.
           //
@@ -1089,11 +1096,13 @@ function applyAutoComp (properties, originalValue, domObj) {
           if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "uppercase" ||
             (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "uppercase")) {
             query = safeUpperCase(query);
-          } else if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "lowercase" ||
+          }
+          else if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "lowercase" ||
             (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "lowercase")) {
             query = rtrim(query.toLowerCase());
           }
-        } else {
+        }
+        else {
           // When "case sensitive" is off, always upper case. PUIWIDGET will use UPPER() in query.
           query = safeUpperCase(query);
         }
@@ -1116,7 +1125,7 @@ function applyAutoComp (properties, originalValue, domObj) {
           baseParams["q"] = pui.aes.encryptString(sql.replace("!!QUERY!!", query));
         }
       } : null,
-      onload: function (data) {
+      onload: function(data) {
         // Quit if the auto complete template and sizing have already
         // been done. This flag will be embedded into the dom object
         // at the end of this function.
@@ -1194,7 +1203,8 @@ function applyAutoComp (properties, originalValue, domObj) {
       shadow: (pui["is_old_ie"] && pui["ie_mode"] <= 6) ? false : true,
       scrollable: true,
       maxHeight: isNaN(parseInt(evalPropertyValue(properties["max height"], originalValue, domObj)))
-        ? null : parseInt(evalPropertyValue(properties["max height"], originalValue, domObj))
+        ? null
+        : parseInt(evalPropertyValue(properties["max height"], originalValue, domObj))
 
     });
     domObj.autoComp = autoComp;
@@ -1232,18 +1242,20 @@ function applyAutoComp (properties, originalValue, domObj) {
 
       req["postData"] += "&limit=1";
 
-      if (pui["isCloud"])
-      { req["postData"] += "&workspace_id=" + pui.cloud.ws.id; }
+      if (pui["isCloud"]) {
+        req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
+      }
 
-      req["onready"] = function (req) {
+      req["onready"] = function(req) {
         autoCompQueries -= 1;
 
         var response = checkAjaxResponse(req, "Generate Auto-Complete Suggestions.");
         if (!response) {
           // If FACM is false, then submit the value to the server, even when the query has an error.
           // If FACM is not false, then a query error makes the value not submit to the server.
-          if (pui["force auto complete match"] !== false)
-          { domObj.value = ""; }
+          if (pui["force auto complete match"] !== false) {
+            domObj.value = "";
+          }
           return;
         }
         var firstField;
@@ -1255,9 +1267,11 @@ function applyAutoComp (properties, originalValue, domObj) {
         if (firstField == null) {
           // If the field's value doesn't match any auto-complete results, then clear the value.
           // If FACM is false, then the response value should be used, even when no autocomplete results match.
-          if (pui["force auto complete match"] !== false)
-          { domObj.value = ""; }
-        } else {
+          if (pui["force auto complete match"] !== false) {
+            domObj.value = "";
+          }
+        }
+        else {
           if (domObj.autoCompValueField != null) domObj.autoCompValueField.value = domObj.value; // #7294. Store the existing value.
           domObj.value = firstRec[firstField];
         }

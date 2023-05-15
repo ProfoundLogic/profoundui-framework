@@ -21,7 +21,7 @@
  * GridTreeNode Class.
  * @constructor
  */
-pui.GridTreeNode = function (data) {
+pui.GridTreeNode = function(data) {
   this.data = data;
   this.showNode = true; // show or hide this node in model tree
   this.currentState = "expanded"; // current state of this node:
@@ -40,27 +40,29 @@ pui.GridTreeNode = function (data) {
  * GridTree Class.
  * @constructor
  */
-pui.GridTree = function () {
+pui.GridTree = function() {
   this.root = null;
 };
 
-pui.GridTree.prototype.add = function (data, toNodeData) {
+pui.GridTree.prototype.add = function(data, toNodeData) {
   var node = new pui.GridTreeNode(data);
   var parent = toNodeData ? this.findBFS(toNodeData) : null;
   if (parent) {
     parent.children.push(node);
     node.parentNode = parent;
-  } else {
+  }
+  else {
     if (!this.root) {
       this.root = node;
-    } else {
+    }
+    else {
       return "Root node is already assigned";
     }
   }
   return node;
 };
 
-pui.GridTree.prototype.hideChildren = function (node) {
+pui.GridTree.prototype.hideChildren = function(node) {
   node.currentState = "collapsed";
   for (var i = 0; i < node.children.length; i++) {
     node.children[i].showNode = false;
@@ -68,7 +70,7 @@ pui.GridTree.prototype.hideChildren = function (node) {
   this.refreshShowRow(node);
 };
 
-pui.GridTree.prototype.showChildren = function (node) {
+pui.GridTree.prototype.showChildren = function(node) {
   node.currentState = "expanded";
   for (var i = 0; i < node.children.length; i++) {
     node.children[i].showNode = true;
@@ -76,27 +78,31 @@ pui.GridTree.prototype.showChildren = function (node) {
   this.refreshShowRow(node);
 };
 
-pui.GridTree.prototype.toggleChildren = function (node) {
+pui.GridTree.prototype.toggleChildren = function(node) {
   if (node.currentState === "expanded") {
     this.hideChildren(node);
     node.currentState = "collapsed";
-  } else {
+  }
+  else {
     this.showChildren(node);
     node.currentState = "expanded";
   }
 };
 
-pui.GridTree.prototype.isAncestorHidden = function (node) {
+pui.GridTree.prototype.isAncestorHidden = function(node) {
   var parentNode = node.parentNode;
-  if (parentNode === null)
-  { return false; } // reached root node
-  if (parentNode.showNode === false)
-  { return true; } // return "true"  if any ancestor is hidden
-  else
-  { return this.isAncestorHidden(parentNode); } // recursively back up the tree
+  if (parentNode === null) {
+    return false;
+  } // reached root node
+  if (parentNode.showNode === false) {
+    return true;
+  } // return "true"  if any ancestor is hidden
+  else {
+    return this.isAncestorHidden(parentNode);
+  } // recursively back up the tree
 };
 
-pui.GridTree.prototype.remove = function (data) {
+pui.GridTree.prototype.remove = function(data) {
   if (this.root.data === data) {
     this.root = null;
   }
@@ -107,18 +113,19 @@ pui.GridTree.prototype.remove = function (data) {
     for (var i = 0; i < node.children.length; i++) {
       if (node.children[i].data === data) {
         node.children.splice(i, 1);
-      } else {
+      }
+      else {
         queue.push(node.children[i]);
       }
     }
   }
 };
 
-pui.GridTree.prototype.contains = function (data) {
+pui.GridTree.prototype.contains = function(data) {
   return this.findBFS(data) ? true : false;
 };
 
-pui.GridTree.prototype.findBFS = function (data) {
+pui.GridTree.prototype.findBFS = function(data) {
   var queue = [this.root];
   while (queue.length) {
     var node = queue.shift();
@@ -132,7 +139,7 @@ pui.GridTree.prototype.findBFS = function (data) {
   return null;
 };
 
-pui.GridTree.prototype._preOrder = function (node, fn) {
+pui.GridTree.prototype._preOrder = function(node, fn) {
   if (node) {
     if (fn) {
       fn(node);
@@ -143,7 +150,7 @@ pui.GridTree.prototype._preOrder = function (node, fn) {
   }
 };
 
-pui.GridTree.prototype._postOrder = function (node, fn) {
+pui.GridTree.prototype._postOrder = function(node, fn) {
   if (node) {
     for (var i = 0; i < node.children.length; i++) {
       this._postOrder(node.children[i], fn);
@@ -154,8 +161,8 @@ pui.GridTree.prototype._postOrder = function (node, fn) {
   }
 };
 
-pui.GridTree.prototype.collapseAll = function () {
-  function collapseAllFn (node) {
+pui.GridTree.prototype.collapseAll = function() {
+  function collapseAllFn(node) {
     node.showNode = false;
     node.showRow = false;
     node.currentState = "collapsed";
@@ -173,25 +180,50 @@ pui.GridTree.prototype.collapseAll = function () {
   }
 };
 
-pui.GridTree.prototype.refreshShowRow = function (node) {
+pui.GridTree.prototype.expandAll = function() {
+  // Set the variable of the primary level tree
+  function expandAllFn(node) {
+    // Set to show the node
+    node.showNode = true;
+    // Set to show the row (children)
+    node.showRow = true;
+    node.currentState = "expanded";
+  }
+  // Closure for the _postOrder
+  this.traverseDFS(expandAllFn);
+  // always "show" root node in the model, even though it does not show in the view
+  this.root.showNode = true;
+  // show level-1 nodes in expanded mode
+  var levelOneNodes = this.root.children;
+  for (var i = 0; i < levelOneNodes.length; i++) {
+    var levelOneNode = levelOneNodes[i];
+    levelOneNode.showNode = true;
+    levelOneNode.showRow = true;
+    levelOneNode.currentState = "expanded";
+  }
+};
+
+pui.GridTree.prototype.refreshShowRow = function(node) {
   node.showRow = true;
-  if (node.showNode === false || this.isAncestorHidden(node))
-  { node.showRow = false; }
+  if (node.showNode === false || this.isAncestorHidden(node)) {
+    node.showRow = false;
+  }
   for (var i = 0; i < node.children.length; i++) {
     this.refreshShowRow(node.children[i]);
   }
 };
 
-pui.GridTree.prototype.traverseDFS = function (fn, method) {
+pui.GridTree.prototype.traverseDFS = function(fn, method) {
   var current = this.root;
   if (method) {
     this["_" + method](current, fn);
-  } else {
+  }
+  else {
     this._preOrder(current, fn);
   }
 };
 
-pui.GridTree.prototype.traverseBFS = function (fn) {
+pui.GridTree.prototype.traverseBFS = function(fn) {
   var queue = [this.root];
   while (queue.length) {
     var node = queue.shift();
@@ -204,7 +236,7 @@ pui.GridTree.prototype.traverseBFS = function (fn) {
   }
 };
 
-pui.GridTree.prototype.print = function () {
+pui.GridTree.prototype.print = function() {
   if (!this.root) {
     return console.log("No root node found");
   }
@@ -224,7 +256,7 @@ pui.GridTree.prototype.print = function () {
   console.log(string.slice(0, -2).trim());
 };
 
-pui.GridTree.prototype.printByLevel = function () {
+pui.GridTree.prototype.printByLevel = function() {
   if (!this.root) {
     return console.log("No root node found");
   }
@@ -245,7 +277,7 @@ pui.GridTree.prototype.printByLevel = function () {
   console.log(string.trim());
 };
 
-pui.GridTree.prototype.load = function (treeLevelData) {
+pui.GridTree.prototype.load = function(treeLevelData) {
   var tree = this;
   // root node:
   // level = 0
@@ -267,15 +299,16 @@ pui.GridTree.prototype.load = function (treeLevelData) {
   }
 };
 
-pui.GridTree.prototype.getMaxRRN = function (node) {
+pui.GridTree.prototype.getMaxRRN = function(node) {
   var rrnMax = parseInt(node.data);
   _getMaxRRN(node);
   return rrnMax;
 
-  function _getMaxRRN (node) {
+  function _getMaxRRN(node) {
     var rrn = parseInt(node.data);
-    if (rrn > rrnMax)
-    { rrnMax = rrn; }
+    if (rrn > rrnMax) {
+      rrnMax = rrn;
+    }
     for (var i = 0; i < node.children.length; i++) {
       _getMaxRRN(node.children[i]);
     }

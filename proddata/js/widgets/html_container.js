@@ -24,7 +24,7 @@ pui.widgets.add({
   // Pre-load ejs.min.js before rendering starts, if the container uses EJS tags.
   "dependencies": [{
     "script": "/ejs/ejs.min.js",
-    "condition": function (props, data, designer) {
+    "condition": function(props, data, designer) {
       if (designer) return true; // Always load for Visual Designer.
       if (typeof props["html"] == "string") return props["html"].indexOf("<%") >= 0; // Hard-coded value.
       if (context === "dspf" && pui.isBound(props["html"])) {
@@ -43,7 +43,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       if (parms.design) {
         parms.dom.innerHTML = parms.evalProperty("html");
       }
@@ -52,7 +52,7 @@ pui.widgets.add({
       }
     },
 
-    "html": function (parms) {
+    "html": function(parms) {
       if (parms.design) {
         parms.dom.innerHTML = parms.value;
       }

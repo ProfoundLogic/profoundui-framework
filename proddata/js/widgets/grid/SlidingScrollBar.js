@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.SlidingScrollBar = function () {
+pui.SlidingScrollBar = function() {
   this.x = 0;
   this.y = 0;
   this.height = 300;
@@ -62,7 +62,7 @@ pui.SlidingScrollBar = function () {
   var downImg;
   var innerDivOldHeight; // Needed if Grid is in Accordion.
 
-  this.init = function (gridDom) {
+  this.init = function(gridDom) {
     me.gridDom = gridDom;
     outerDiv = document.createElement("div");
     outerDiv.style.position = "absolute";
@@ -116,7 +116,7 @@ pui.SlidingScrollBar = function () {
       touchHandle.style.opacity = fadeOutOpacity;
 
       if (pui.iPadEmulation) {
-        function mousedown (e) {
+        function mousedown(e) {
           var target = getTarget(e);
           if (target != null && target.row === 0 ||
               target != null && target.parentNode != null && target.parentNode.row === 0 ||
@@ -139,7 +139,7 @@ pui.SlidingScrollBar = function () {
           touchHandle.touch.duration = null;
           if (touchHandle.lastTop != null) touchHandle.touch.startTop = touchHandle.lastTop;
           else touchHandle.touch.startTop = parseInt(touchHandle.style.top);
-          function mousemove (e) {
+          function mousemove(e) {
             touchHandle.style.opacity = 1;
             var y = getMouseY(e);
             var now = new Date().getTime();
@@ -168,7 +168,7 @@ pui.SlidingScrollBar = function () {
             row = Math.round(row) + 1;
             me.doScroll(row);
           }
-          function mouseup (e) {
+          function mouseup(e) {
             removeEvent(document, "mousemove", mousemove);
             removeEvent(document, "mouseup", mouseup);
             slide(touchHandle.touch);
@@ -188,7 +188,7 @@ pui.SlidingScrollBar = function () {
         // If first movement does not cause scrolling, subsequent movements never can.
         var scrollpage;
 
-        function touchstart (e) {
+        function touchstart(e) {
           if (e.touches.length != 1) return; // Only deal with one finger
           var target = e.target;
           if (target != null && target.row === 0 ||
@@ -223,7 +223,7 @@ pui.SlidingScrollBar = function () {
         }
         addEvent(touchHandle, "touchstart", touchstart);
         addEvent(gridDom, "touchstart", touchstart);
-        function touchmove (e) {
+        function touchmove(e) {
           if (e.touches.length != 1) return; // Only deal with one finger
           if (touchHandle.touch == null) return;
           touchHandle.style.opacity = 1;
@@ -286,14 +286,15 @@ pui.SlidingScrollBar = function () {
             if (dragdrop && !propagate) prevent = true;
             if (prevent) {
               e.preventDefault();
-            } else {
+            }
+            else {
               scrollpage = true; // Once the page begins scrolling, do not scroll the grid. #5320.
             }
           }
         }
         addEvent(touchHandle, "touchmove", touchmove);
         addEvent(gridDom, "touchmove", touchmove);
-        addEvent(gridDom, "touchend", function (e) {
+        addEvent(gridDom, "touchend", function(e) {
           me.touchTarget = null;
           slide(touchHandle.touch);
         });
@@ -304,7 +305,7 @@ pui.SlidingScrollBar = function () {
       outerDiv.onscroll = me.doScroll;
     }
 
-    outerDiv.onmousedown = function (event) {
+    outerDiv.onmousedown = function(event) {
       if (me.showRowNum || me.showRowRange) {
         if (rowNumDiv.innerHTML != "") rowNumDiv.style.display = "";
         positionRowNum();
@@ -312,7 +313,7 @@ pui.SlidingScrollBar = function () {
       if (me.designMode) designUtils.preventEvent(event);
     };
 
-    outerDiv.onmouseup = function () {
+    outerDiv.onmouseup = function() {
       hideRowNum(rowNumHideRequest);
     };
 
@@ -323,12 +324,12 @@ pui.SlidingScrollBar = function () {
     me.container.appendChild(rowNumDiv);
   };
 
-  this.attachOnScroll = function () {
+  this.attachOnScroll = function() {
     // outerDiv.onscroll = me.doScroll;
     addEvent(outerDiv, "scroll", me.doScroll);
   };
 
-  this.doScroll = function (startRowParm) {
+  this.doScroll = function(startRowParm) {
     if (!me.ready) return;
 
     var startRow = Math.round(outerDiv.scrollTop / multiplier) + 1; // Note: scrollTop isn't reliable in Chrome when zoom isn't 100%.
@@ -390,7 +391,7 @@ pui.SlidingScrollBar = function () {
    * @param {Boolean} setPrevStartRow   When true, this.doScroll should return, doing nothing.
    * @returns {Boolean}                 Returns true if position of scrollbar changed, false if unchanged.
    */
-  this.setScrollTopToRow = function (rowNum, setPrevStartRow) {
+  this.setScrollTopToRow = function(rowNum, setPrevStartRow) {
     if (touchHandle != null) {
       var minTop = parseInt(touchBar.style.top);
       var maxTop = minTop + parseInt(touchBar.style.height) - parseInt(touchHandle.style.height);
@@ -405,7 +406,8 @@ pui.SlidingScrollBar = function () {
       if (setPrevStartRow) {
         // this prevents onscroll event from processing. Either grid is initialized or an AJAX "find" has responded.
         prevStartRow = rowNum;
-      } else {
+      }
+      else {
         // The grid is handling pageUp, pageDown, "scrollToRow", or sorting--not being initialized--so set targetRow.
         // Note: this cannot be a string, or the grid will crash after doScroll uses targetRow.
         me.targetRow = rowNum; // Give the row number for doScroll to use, putting doScroll in a special state.
@@ -425,44 +427,44 @@ pui.SlidingScrollBar = function () {
    * (This helps work around issue 3152, scrollTop is unreliable in Chrome when zoom is not at 100%.)
    * @returns {undefined}
    */
-  this.gridRequestFinished = function () {
+  this.gridRequestFinished = function() {
     clearTimeout(me.finishTimeout); // Only the latest timeout needs to run.
 
-    me.finishTimeout = setTimeout(function () {
+    me.finishTimeout = setTimeout(function() {
       // This is in a timeout to be cleared after a previously queued onSetRow has run. If this weren't in a timeout,
       // targetRow would be cleared before a queued second call to doScroll, which could then calculate the wrong row.
       me.targetRow = null;
     }, me.interval);
   };
 
-  function sendRow (requestNum, rowNum) {
+  function sendRow(requestNum, rowNum) {
     if (firstRequest) {
       firstRequest = false;
       me.onSetRow(rowNum);
     }
     else {
-      setTimeout(function () {
+      setTimeout(function() {
         if (requestNum != currentRequestNum) return;
         me.onSetRow(rowNum);
       }, me.interval);
     }
   }
 
-  function positionRowNum () {
+  function positionRowNum() {
     var adjust = 22;
     if ((pui["is_touch"] && !pui["is_mouse_capable"] && !me.designMode) || pui.iPadEmulation) adjust = 0;
     rowNumDiv.style.left = (me.x - rowNumDiv.offsetWidth + adjust) + "px";
     rowNumDiv.style.top = (me.y - rowNumDiv.offsetHeight - 2) + "px";
   }
 
-  function hideRowNum (request) {
-    setTimeout(function () {
+  function hideRowNum(request) {
+    setTimeout(function() {
       if (request != rowNumHideRequest) return;
       rowNumDiv.style.display = "none";
     }, 800);
   }
 
-  function slide (touchInfo) {
+  function slide(touchInfo) {
     if (touchInfo == null) {
       touchHandle.style.opacity = fadeOutOpacity;
       return;
@@ -482,7 +484,7 @@ pui.SlidingScrollBar = function () {
     var speed = distance / duration;
     var animationStartTime = new Date().getTime();
 
-    function animate () {
+    function animate() {
       if (touchHandle.touch == null) {
         touchHandle.style.opacity = fadeOutOpacity;
         return;
@@ -549,7 +551,7 @@ pui.SlidingScrollBar = function () {
   }
 
   // optional dontScroll flag to not make the scrollbar scroll. #4262
-  this.draw = function (dontScroll) {
+  this.draw = function(dontScroll) {
     if (pui["is_old_ie"]) {
       multiplier = 25;
       if (me.totalRows > 1000) multiplier = 50;
@@ -629,7 +631,7 @@ pui.SlidingScrollBar = function () {
         upImg.style.right = "0px";
         upImg.style.cursor = "pointer";
         upImg.src = pui.normalizeURL("/profoundui/proddata/images/up.gif");
-        upImg.onclick = function () {
+        upImg.onclick = function() {
           if (pui.messageSubfileHelpWindowDiv != null) pui.messageSubfileHelpWindowDiv.style.display = "none";
           var startRow = prevStartRow - 1;
           if (startRow < 1) startRow = 1;
@@ -642,7 +644,7 @@ pui.SlidingScrollBar = function () {
         downImg.style.right = "0px";
         downImg.style.cursor = "pointer";
         downImg.src = pui.normalizeURL("/profoundui/proddata/images/down.gif");
-        downImg.onclick = function () {
+        downImg.onclick = function() {
           if (pui.messageSubfileHelpWindowDiv != null) pui.messageSubfileHelpWindowDiv.style.display = "none";
           if (prevStartRow == -1) prevStartRow = 1;
           var startRow = prevStartRow + 1;
@@ -670,17 +672,17 @@ pui.SlidingScrollBar = function () {
     }
   };
 
-  this.increaseHeight = function (y) {
+  this.increaseHeight = function(y) {
     if (touchBar != null) touchBar.style.height = (parseInt(outerDiv.style.height) + y - 2) + "px";
     else outerDiv.style.height = (parseInt(outerDiv.style.height) + y) + "px";
   };
 
-  this.setClassName = function (value) {
+  this.setClassName = function(value) {
     outerDiv.className = "pui-scrollbar";
     if (me.gridDom.grid && value) outerDiv.className += " " + value + "-pui-scrollbar";
   };
 
-  this.hide = function () {
+  this.hide = function() {
     outerDiv.style.visibility = "hidden";
     outerDiv.style.display = "none";
     rowNumDiv.style.display = "none";
@@ -691,17 +693,17 @@ pui.SlidingScrollBar = function () {
     }
   };
 
-  this.destroy = function () {
+  this.destroy = function() {
     if (outerDiv.parentNode != null) outerDiv.parentNode.removeChild(outerDiv);
     if (innerDiv.parentNode != null) innerDiv.parentNode.removeChild(innerDiv);
     if (rowNumDiv.parentNode != null) rowNumDiv.parentNode.removeChild(rowNumDiv);
   };
 
-  this.enableMouseWheel = function (gridDom) {
+  this.enableMouseWheel = function(gridDom) {
     if (mouseWheelEnabled) return;
     mouseWheelEnabled = true;
 
-    function handle (delta) {
+    function handle(delta) {
       if (touchHandle != null) return;
       outerDiv.scrollTop -= delta * multiplier;
     }
@@ -709,16 +711,18 @@ pui.SlidingScrollBar = function () {
     /** Event handler for mouse wheel event. (Handles deprecated events)
      * @param {Object} event    Mouse event. A deprecated MouseWheel or DOMMouseScroll.
      */
-    function mousewheel (event) {
+    function mousewheel(event) {
       var delta = 0;
       if (!event) event = window.event; // For IE.
       if (event.wheelDelta) { // IE/Opera.
         delta = event.wheelDelta / 120;
         /** In Opera 9, delta differs in sign as compared to IE.
          */
-        if (window.opera)
-        { delta = -delta; }
-      } else if (event.detail) { /** Mozilla case. */
+        if (window.opera) {
+          delta = -delta;
+        }
+      }
+      else if (event.detail) { /** Mozilla case. */
         /** In Mozilla, sign of delta is different than in IE.
                * Also, delta is multiple of 3.
                */
@@ -731,7 +735,7 @@ pui.SlidingScrollBar = function () {
      * Handle newer, non-deprecated mouse wheel event. Normalize the deltaY, which is different for each implementation.
      * @param {WheelEvent} event
      */
-    function wheel (event) {
+    function wheel(event) {
       var delta = pui.normalizeWheelDelta(event);
       // Old mousewheel code expects negative to mean scrolling down, positive to mean scrolling up.
       deltaEvent(delta * -1, event);
@@ -742,13 +746,14 @@ pui.SlidingScrollBar = function () {
      * @param {Number} delta
      * @param {Event} event
      */
-    function deltaEvent (delta, event) {
+    function deltaEvent(delta, event) {
       /** If delta is nonzero, handle it.
        * Basically, delta is now positive if wheel was scrolled up,
        * and negative, if wheel was scrolled down.
        */
-      if (delta && !event.shiftKey)
-      { handle(delta); }
+      if (delta && !event.shiftKey) {
+        handle(delta);
+      }
       /** Prevent default actions caused by mouse wheel.
        * That might be ugly, but we handle scrolls somehow
        * anyway, so don't bother here..
@@ -782,7 +787,9 @@ pui.SlidingScrollBar = function () {
       // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019
       if (gridDom.addEventListener)
       /** DOMMouseScroll is for mozilla. */
-      { gridDom.addEventListener("DOMMouseScroll", mousewheel, false); }
+      {
+        gridDom.addEventListener("DOMMouseScroll", mousewheel, false);
+      }
       /** IE/Opera. */
       gridDom.onmousewheel = mousewheel;
     }
@@ -794,7 +801,7 @@ pui.SlidingScrollBar = function () {
    * @param {Boolean|Undefined} reverse  When true, deltaY is positive when scrolling down, negative when scrolling up.
    * @returns {Boolean}
    */
-  function scrollingPastEnd (deltaY, reverse) {
+  function scrollingPastEnd(deltaY, reverse) {
     if (me.gridDom) {
       if (reverse) deltaY = -deltaY;
       if ((me.gridDom && deltaY < 0 && me.gridDom.grid.atBottom()) ||
@@ -803,7 +810,7 @@ pui.SlidingScrollBar = function () {
     return false;
   }
 
-  this.changeContainer = function (newContainer) {
+  this.changeContainer = function(newContainer) {
     me.container = newContainer;
     outerDiv.parentNode.removeChild(outerDiv);
     me.container.appendChild(outerDiv);

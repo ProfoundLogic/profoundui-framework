@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function handleIcon (parms) {
+function handleIcon(parms) {
   var iconValue = parms.evalProperty("icon");
   var cssClass = parms.evalProperty("css class");
   var iconSize = parms.evalProperty("icon size");
@@ -40,17 +40,19 @@ function handleIcon (parms) {
     iconDiv.innerText = trim(icon);
     iconDiv.className = "pui-material-icons";
     if (cursorStyle) iconDiv.style.cursor = cursorStyle;
-  } else if (iconValue.substr(0, 12) == "fontAwesome:") {
+  }
+  else if (iconValue.substr(0, 12) == "fontAwesome:") {
     var icon = trim(iconValue.substr(12));
     iconDiv.className = "pui-fa-icons fa-" + icon;
     iconDiv.innerText = "";
-  } else {
+  }
+  else {
     var iconValueArr = iconValue.split(":");
     var iconValueType = iconValueArr.shift().split("-");
     var iconValueClassList = iconValueType.pop();
     iconValueType = iconValueType.join("-");
     var iconVal = iconValueArr.pop();
-    iconSets.every(function (iconSet) {
+    iconSets.every(function(iconSet) {
       var type = iconSet["type"];
       var iconClassName = iconSet["classList"][iconValueClassList];
       if (iconValueType === type) {
@@ -58,7 +60,8 @@ function handleIcon (parms) {
         // If custom Material icon, then innerHTML = icon name
         if (iconValue.startsWith("material-")) {
           iconDiv.innerText = trim(iconVal);
-        } else {
+        }
+        else {
           iconDiv.innerText = "";
         }
         return false;
@@ -75,12 +78,14 @@ function handleIcon (parms) {
   parms.dom.appendChild(iconDiv);
 }
 
-function handleIconResize (parms, sizeType) {
+function handleIconResize(parms, sizeType) {
   var iconDiv = parms.dom.firstChild;
-  if (parseInt(parms.value) <= parseInt(parms.dom.style[sizeType]))
-  { iconDiv.style.fontSize = parms.value; }
-  else
-  { iconDiv.style.fontSize = parms.dom.style[sizeType]; }
+  if (parseInt(parms.value) <= parseInt(parms.dom.style[sizeType])) {
+    iconDiv.style.fontSize = parms.value;
+  }
+  else {
+    iconDiv.style.fontSize = parms.dom.style[sizeType];
+  }
 
   parms.properties["icon size"] = iconDiv.style.fontSize;
 }
@@ -93,31 +98,31 @@ pui.widgets.add({
     "icon": "material:face"
   },
   propertySetters: {
-    "field type": function (parms) {
+    "field type": function(parms) {
       handleIcon(parms);
       parms.dom.style.textAlign = "center";
     },
-    "icon": function (parms) {
+    "icon": function(parms) {
       parms.properties["icon"] = parms.value;
       handleIcon(parms);
     },
-    "width": function (parms) {
+    "width": function(parms) {
       // check against height to set size
       handleIconResize(parms, "height");
     },
-    "height": function (parms) {
+    "height": function(parms) {
       // check against width to set size
       handleIconResize(parms, "width");
     },
-    "css class": function (parms) {
+    "css class": function(parms) {
       parms.properties["css class"] = parms.value;
       handleIcon(parms);
     },
-    "cursor": function (parms) {
+    "cursor": function(parms) {
       parms.properties["cursor"] = parms.value;
       handleIcon(parms);
     },
-    "font family": function (parms) {
+    "font family": function(parms) {
       parms.properties["font family"] = parms.value;
       handleIcon(parms);
     }

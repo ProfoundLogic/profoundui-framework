@@ -20,7 +20,7 @@
 // ----------------------------------
 //  Chinese (Traditional) - Hong Kong
 // ----------------------------------
-var zh_HK = function (dict) {
+var zh_HK = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

@@ -20,7 +20,7 @@
 // ------------------------------------------------------------
 //   Dutch -- Netherlands
 // -------------------------------------------------------------
-var nl_NL = function (dict) {
+var nl_NL = function(dict) {
   var dictMsg = {};
 
   switch (dict) {
