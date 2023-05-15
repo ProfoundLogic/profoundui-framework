@@ -1243,16 +1243,6 @@ pui.renderFormat = function(parms) {
     treeLevelItemAdded = true;
   }
 
-  // PJS-391 Add all routines defined in file to Tracker
-  if (isDesignMode && pui.wf.tracker && pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object") {
-    for (var routineName in pui.display.logic) {
-      pui.wf.tracker.update({
-        name: routineName,
-        data: pui.display.logic[routineName]
-      });
-    }
-  }
-
   for (var i = 0; i < items.length; i++) {
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
       continue;
