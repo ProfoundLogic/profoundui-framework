@@ -25,7 +25,7 @@
  * @param {Event|Object} e
  * @returns {undefined}
  */
-pui.textArea_cleanUp = function (e) {
+pui.textArea_cleanUp = function(e) {
   var obj = getTarget(e);
   if (obj.lineLengths == null) return;
 
@@ -227,7 +227,7 @@ pui.textArea_cleanUp = function (e) {
   }
 
   // Returns the length of a line. Usually for the length of the latest line being built, curLine.
-  function getLineLength (lineno) {
+  function getLineLength(lineno) {
     // If the current line we're on is from a unicode field of type "G" use the actual length...
     if (obj.related[lineno].fieldInfo["DBCSDataType"] && obj.related[lineno].fieldInfo["DBCSDataType"] == "G") {
       return lines[lineno].length;
@@ -236,7 +236,7 @@ pui.textArea_cleanUp = function (e) {
   }
 
   // Makes a new line for wrapping or returns false when there are no lines available.
-  function madeNewLine () {
+  function madeNewLine() {
     if (curLine >= lineLengths.length - 1) {
       return false;
     }
@@ -250,7 +250,7 @@ pui.textArea_cleanUp = function (e) {
    * @param {Number} key    Event keycode.
    * @returns {Boolean}
    */
-  function isNormalKey (key) {
+  function isNormalKey(key) {
     if (key >= 48 && key <= 90) return true; // 48=0 ..., 57=9, 59=;,  61='=',  65=a ... 90=z
     if (key >= 96 && key <= 111) return true; // numpad: 0 ... * + - . /
     if (key >= 186 && key <= 192) return true; // ; = , - . / `
@@ -259,11 +259,12 @@ pui.textArea_cleanUp = function (e) {
     return false;
   }
 
-  function setSelectionRange (inputEl, selStart, selEnd) {
+  function setSelectionRange(inputEl, selStart, selEnd) {
     if (inputEl.setSelectionRange) {
       inputEl.focus();
       inputEl.setSelectionRange(selStart, selEnd);
-    } else if (inputEl.createTextRange) {
+    }
+    else if (inputEl.createTextRange) {
       var range = inputEl.createTextRange();
       range.collapse(true);
       range.moveEnd("character", selEnd);
@@ -272,7 +273,7 @@ pui.textArea_cleanUp = function (e) {
     }
   }
 
-  function getCursorPosition (textarea) {
+  function getCursorPosition(textarea) {
     // get selection in firefox, opera, ...
     if (typeof (textarea.selectionStart) == "number") {
       return textarea.selectionStart;
@@ -289,7 +290,7 @@ pui.textArea_cleanUp = function (e) {
         var after_range = document.body.createTextRange();
         after_range.moveToElementText(textarea); // Selects all the text
         after_range.setEndPoint("StartToEnd", selection_range); // Moves the start where we need it
-        var before_finished = false, selection_finished = false, after_finished = false;
+        var before_finished = false; var selection_finished = false; var after_finished = false;
         var before_text, untrimmed_before_text, selection_text, untrimmed_selection_text, after_text, untrimmed_after_text;
         // Load the text values we need to compare
         before_text = untrimmed_before_text = before_range.text;
@@ -358,7 +359,7 @@ pui.textArea_cleanUp = function (e) {
   } // end getCursorPosition().
 
   // Returns array with obj.value split up by words, ' ', and '\n'. (\r and \t should already have been removed.)
-  function splitTextByWords () {
+  function splitTextByWords() {
     var words = [];
     var startpos = 0;
     for (var i = 0; i < len; i++) {
@@ -397,7 +398,7 @@ pui.textArea_cleanUp = function (e) {
   }
 
   // Populates "lines" with words, wrapping when necessary.
-  function wrapwords () {
+  function wrapwords() {
     var roomonline;
     var words = splitTextByWords();
     var charAddCount = 0; // Track what characters have been added so that cursorPos and cursorLine can be adjusted.
@@ -514,7 +515,8 @@ pui.textArea_cleanUp = function (e) {
               if (words[2] != " ") { // Word on next line is not a space.
                 words.splice(1, 0, " "); // Add a space after the current word.
                 skipNextNL = true; // words[2] is usually also \n, so on Del/Bksp, the NL should be skipped to avoid losing lines.
-              } else {
+              }
+              else {
                 skipNextNL = true; // Prevent losing the next line.
               }
             }
@@ -535,7 +537,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       if (parms.oldDom.maxLength && parms.dom.maxLength != parms.oldDom.maxLength) {
         parms.dom.maxLength = parms.oldDom.maxLength;
@@ -544,7 +546,7 @@ pui.widgets.add({
       if (parms.oldDom.related) parms.dom.related = parms.oldDom.related;
       if (parms.oldDom.lineLengths) parms.dom.lineLengths = parms.oldDom.lineLengths;
       if (context == "dspf" && !parms.design) {
-        addEvent(parms.dom, "keydown", function (event) {
+        addEvent(parms.dom, "keydown", function(event) {
           event = event || window.event;
           var key = event.keyCode;
           if (key == 13) { // enter
@@ -552,20 +554,22 @@ pui.widgets.add({
           }
         });
       }
-      if (parms.design)
-      { parms.dom.spellcheck = false; }
+      if (parms.design) {
+        parms.dom.spellcheck = false;
+      }
       // Retain default browser behavior unless the user sets this...
-      else if (typeof pui["allow spellcheck"] == "boolean")
-      { parms.dom.spellcheck = pui["allow spellcheck"]; }
+      else if (typeof pui["allow spellcheck"] == "boolean") {
+        parms.dom.spellcheck = pui["allow spellcheck"];
+      }
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.value = parms.value;
     }
 
   },
 
-  globalAfterSetter: function (parms) {
+  globalAfterSetter: function(parms) {
     if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       pui.floatPlaceholder(parms.dom);
     }

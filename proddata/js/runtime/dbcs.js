@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // Determines whether a Unicode Javascript character is in an EBCDIC DBCS range.
-function inDBCSRange (code) {
+function inDBCSRange(code) {
   if ((code >= 19968 && code <= 40959) || // Traditional Chinese U+4E00-U+9FFF
 		(code >= 19968 && code <= 40895) || // Japanese Kanji U+4E00-U+9FBF
 		(code >= 12352 && code <= 12447) || // Japanese Hiragana U+3040-U+309F
@@ -35,7 +35,7 @@ function inDBCSRange (code) {
 }
 
 // Determines how many bytes are needed to represent the given Unicode character string in EBCDIC.
-function getEBCDICByteCount (charString) {
+function getEBCDICByteCount(charString) {
   var dbcs = false;
   var count = 0;
   for (var i = 0; i < charString.length; i++) {
@@ -57,7 +57,7 @@ function getEBCDICByteCount (charString) {
 }
 
 // Prevents "blur-ing" field if the EBCDIC byte count of its data will overrun the amount available.
-function validateByteCount (event, field) {
+function validateByteCount(event, field) {
   if (field == null) {
     event = event || window.event;
     field = event.target || event.srcElement;
@@ -80,7 +80,8 @@ function validateByteCount (event, field) {
     pui.alert("Input data exceeds the field length.");
     addEvent(field, "blur", validateByteCount);
     // Necessary to call this on timer to avoid weird event behavior in FF3.
-    setTimeout(function () { field.focus();
+    setTimeout(function() {
+      field.focus();
     }, 100);
     return false;
   }

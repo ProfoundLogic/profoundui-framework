@@ -18,7 +18,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.setupMobileEmulator = function () {
+pui.setupMobileEmulator = function() {
   var puiDiv = getObj("pui");
   if (puiDiv == null) return;
   var mobileDiv = document.createElement("div");
@@ -56,7 +56,7 @@ pui.setupMobileEmulator = function () {
   dropdown.style.fontFamily = "sans-serif";
   dropdown.style.fontSize = "13px";
 
-  function fillDropdown () {
+  function fillDropdown() {
   	for (var i = dropdown.options.length - 1; i >= 0; i--) {
       dropdown.remove(i);
     }
@@ -89,7 +89,7 @@ pui.setupMobileEmulator = function () {
       "workspace_id": pui["isCloud"] ? pui.cloud.ws.id : ""
     },
     "suppressAlert": true,
-    "handler": function (response) {
+    "handler": function(response) {
       if (response["success"] != true) {
         if (response["message"] != null) pui.alert(response["message"]);
         else pui.alert("Error occurred while loading canvas sizes.");
@@ -102,12 +102,12 @@ pui.setupMobileEmulator = function () {
         }
       }
     },
-    "onfail": function (response) {
+    "onfail": function(response) {
       pui.alert("Error occurred while loading canvas sizes.");
     }
   });
 
-  dropdown.onchange = function () {
+  dropdown.onchange = function() {
     var sizeArray = dropdown.value.split("x");
     curHeight = Number(sizeArray[1]);
     if (isNaN(curHeight)) curHeight = 320;
@@ -130,7 +130,7 @@ pui.setupMobileEmulator = function () {
   rotateImage.style.cursor = "pointer";
   rotateImage.title = "Rotate";
 
-  rotateImage.onclick = function () {
+  rotateImage.onclick = function() {
 	  var temp = mobileDiv.style.height;
     mobileDiv.style.height = mobileDiv.style.width;
     mobileDiv.style.width = temp;
@@ -142,7 +142,7 @@ pui.setupMobileEmulator = function () {
   document.body.appendChild(rotateImage);
 };
 
-pui.detectMobileEmulation = function (container) {
+pui.detectMobileEmulation = function(container) {
   if (container == null) container = "pui";
   if (typeof container == "string") container = document.getElementById(container);
   if (container == null) return;
@@ -170,7 +170,7 @@ pui.detectMobileEmulation = function (container) {
     finger.style.position = "absolute";
     finger.style.cursor = "crosshair";
     finger.style.zIndex = 99;
-    addEvent(document, "mousemove", function (event) {
+    addEvent(document, "mousemove", function(event) {
       var x = getMouseX(event);
       x = x + 3;
       finger.style.left = x + "px";
@@ -178,7 +178,7 @@ pui.detectMobileEmulation = function (container) {
       y = y + 3;
       finger.style.top = y + "px";
     });
-    addEvent(document, "mousedown", function (event) {
+    addEvent(document, "mousedown", function(event) {
       var x = getMouseX(event);
       x = x + 1;
       finger.style.left = x + "px";
@@ -206,10 +206,10 @@ pui.detectMobileEmulation = function (container) {
   addressbar.style.fontSize = "14px";
   addressbar.value = location.href;
   if (!pui.iPhoneEmulation) {
-    addressbar.onclick = function () {
+    addressbar.onclick = function() {
       getObj("ipadKeyboard").style.display = "";
     };
-    addressbar.onblur = function () {
+    addressbar.onblur = function() {
       getObj("ipadKeyboard").style.display = "none";
     };
   }

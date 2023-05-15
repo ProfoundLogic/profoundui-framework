@@ -30,7 +30,7 @@
  * @returns {pui.Spinner}
  *
  */
-pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
+pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   // Private Properties / Constructor
   var me = this;
   var up = document.createElement("div");
@@ -60,12 +60,12 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
   }
 
   up.className = "input"; // to pick up the default zIndex value
-  up.onclick = function () {
+  up.onclick = function() {
     me.spin(increment);
   };
 
   down.className = "input"; // to pick up the default zIndex value
-  down.onclick = function () {
+  down.onclick = function() {
     me.spin(-increment);
   };
 
@@ -84,22 +84,25 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
   // Public Properties
 
   // Public Methods
-  this.positionSpinnButtons = function () {
+  this.positionSpinnButtons = function() {
     // When Spinner buttons are rendered off screen dom.offsetWidth and dom.offsetHeight are not set
     var offsetWidth = dom.offsetWidth;
     var styleWidth = dom.style.width;
-    if (offsetWidth == 0 && styleWidth != null && typeof styleWidth == "string" && styleWidth.length >= 3 && styleWidth.substr(styleWidth.length - 2, 2) == "px")
-    { offsetWidth = parseInt(styleWidth); }
+    if (offsetWidth == 0 && styleWidth != null && typeof styleWidth == "string" && styleWidth.length >= 3 && styleWidth.substr(styleWidth.length - 2, 2) == "px") {
+      offsetWidth = parseInt(styleWidth);
+    }
     if (isNaN(offsetWidth)) offsetWidth = 0;
 
     var offsetHeight = dom.offsetHeight;
     var styleHeight = dom.style.height;
-    if (offsetHeight == 0 && styleHeight != null && typeof styleHeight == "string" && styleHeight.length >= 3 && styleHeight.substr(styleHeight.length - 2, 2) == "px")
-    { offsetHeight = parseInt(styleHeight); }
+    if (offsetHeight == 0 && styleHeight != null && typeof styleHeight == "string" && styleHeight.length >= 3 && styleHeight.substr(styleHeight.length - 2, 2) == "px") {
+      offsetHeight = parseInt(styleHeight);
+    }
     if (isNaN(offsetHeight)) offsetHeight = 0;
     // Height hasn't been set and the spinner is the default height
-    if (offsetHeight == 0 && styleHeight == "")
-    { offsetHeight = 18; }
+    if (offsetHeight == 0 && styleHeight == "") {
+      offsetHeight = 18;
+    }
 
     var left;
     left = dom.style.left;
@@ -138,7 +141,7 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
 
   me.positionSpinnButtons(); // run this in the constructor
 
-  this.hide = function () {
+  this.hide = function() {
     up.style.visibility = "hidden";
     down.style.visibility = "hidden";
   };
@@ -153,12 +156,12 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
     }
   }
 
-  this.show = function () {
+  this.show = function() {
     up.style.visibility = "";
     down.style.visibility = "";
   };
 
-  this.spin = function (byValue) {
+  this.spin = function(byValue) {
     if (dom.disabled) return;
     if (dom.readOnly) return;
     var num = Number(dom.value);
@@ -191,7 +194,7 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
     pui.checkEmptyText(dom);
   };
 
-  this.setArrowClassNames = function (className) {
+  this.setArrowClassNames = function(className) {
     if (className == null) {
       up.className = "input pui-spinner-up-arrow-input";
       down.className = "input pui-spinner-down-arrow-input";
@@ -208,7 +211,7 @@ pui.Spinner = function (dom, minValue, maxValue, increment, runtimeMode) {
    * Add a "disabled" attribute to spinner buttons when input is disabled. Note: the "disabled" PUI property specifies an "attribute"
    * property, causing applyPropertyToField to set disabled via setAttribute. So, the dom.disabled is already set by this point.
    */
-  this.setDisabled = function () {
+  this.setDisabled = function() {
     if (dom.disabled) {
       up.setAttribute("disabled", "true");
       down.setAttribute("disabled", "true");
@@ -236,24 +239,25 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
         if (parms.dom.spinner == undefined) {
           parms.dom.spinner = new pui.Spinner(parms.dom, parms.evalProperty("min value"), parms.evalProperty("max value"), parms.evalProperty("increment value"), !parms.design);
-          parms.dom.sizeMe = function () {
+          parms.dom.sizeMe = function() {
             parms.dom.spinner.positionSpinnButtons();
           };
         };
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
-          if (context == "dspf")
-          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
+          if (context == "dspf") {
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          }
         }
       }
       else {
-        parms.dom.sizeMe = function () {
+        parms.dom.sizeMe = function() {
           var itm = parms.designItem;
           itm.drawIcon();
           itm.mirrorDown();
@@ -264,18 +268,18 @@ pui.widgets.add({
       parms.dom.alwaysSizeMe = true; // Make sure the spinner buttons get positioned correctly when inside inactive layouts.
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.value = parms.value;
     },
 
-    "disabled": function (parms) {
+    "disabled": function(parms) {
       if (!parms.design && parms.dom.spinner) {
         parms.dom.spinner.setDisabled();
       }
       // Note: designItem.setIcon is what renders the icons in Designer for some reason.
     },
 
-    "visibility": function (parms) {
+    "visibility": function(parms) {
       // Note: when a widget is inside an old tab layout, then the parms.design flag of "visibility" property setters falsely
       // indicates "false" in Designer when tabs are drawn or switched. Since parms.dom.spinner is undefined in Designer, do not
       // assume that parms.dom.spinner exists when parms.design is false. #7606.
@@ -289,11 +293,12 @@ pui.widgets.add({
         }
       }
     },
-    "css class": function (parms) {
+    "css class": function(parms) {
       var className = parms.value.split(" ").shift();
       if (!parms.design && parms.dom.spinner) {
         parms.dom.spinner.setArrowClassNames(className);
-      } else {
+      }
+      else {
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
         if (className == null) {
@@ -311,28 +316,31 @@ pui.widgets.add({
       }
     },
 
-    "browser auto complete": function (parms) {
+    "browser auto complete": function(parms) {
       if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
-          if (parms.value == "off")
-          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
-          else
-          { parms.dom.removeAttribute("name"); }
+          if (parms.value == "off") {
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          }
+          else {
+            parms.dom.removeAttribute("name");
+          }
         }
       }
     }
 
   },
 
-  globalAfterSetter: function (parms) {
+  globalAfterSetter: function(parms) {
     if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       // Find old spinner buttons
       var extraDomEls = parms.oldDom.extraDomEls;
       // Destroy old spinner buttons
       for (var i = 0; i < extraDomEls.length; ++i) {
-        if (extraDomEls[i].parentNode)
-        { extraDomEls[i].parentNode.removeChild(extraDomEls[i]); }
+        if (extraDomEls[i].parentNode) {
+          extraDomEls[i].parentNode.removeChild(extraDomEls[i]);
+        }
       }
       // Add floating placeholder to dom
       pui.floatPlaceholder(parms.dom);
@@ -341,7 +349,9 @@ pui.widgets.add({
     }
 
     if (context == "genie" && typeof parms.dom.sizeMe == "function") // 7492.
-    { parms.dom.sizeMe(); }
+    {
+      parms.dom.sizeMe();
+    }
   }
 
 });

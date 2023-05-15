@@ -21,7 +21,7 @@ pui.formatting = {
   Date: {
     formats: { locales: {} },
     parsers: { locales: {} },
-    getFormatCode: function (chr, locale) {
+    getFormatCode: function(chr, locale) {
       switch (chr) {
         case "n": return "(date.getMonth()+1)";
         case "m": return 'pui.formatting.leftPad(date.getMonth()+1, 2, "0")';
@@ -49,7 +49,7 @@ pui.formatting = {
         default: return '"' + chr.replace(/('|\\|"|\.)/, "\\$1") + '"'; // "
       }
     },
-    getParseObj: function (chr, matchIndex, locale) {
+    getParseObj: function(chr, matchIndex, locale) {
       /*  returns an object with the following properties:
           {
             r: string representation of the regular expression capturing group to match,
@@ -84,13 +84,13 @@ pui.formatting = {
         default: return { r: chr.replace(/('|\\|"|\.)/, "\\\\$1"), c: "", g: 0 }; // '
       }
     },
-    parse: function (str, format, locale) {
+    parse: function(str, format, locale) {
       if (!(pui.formatting.Date.parsers.locales[locale] && pui.formatting.Date.parsers.locales[locale][format])) {
         pui.formatting.Date.newParser(format, locale);
       }
       return pui.formatting.Date.parsers.locales[locale][format](str);
     },
-    newFormat: function (fmt, locale) {
+    newFormat: function(fmt, locale) {
       var format = fmt;
       var esc = false;
       var chr = "";
@@ -129,7 +129,7 @@ pui.formatting = {
 
       pui.formatting.Date.formats.locales[locale][fmt] = new Function("date", fn);
     },
-    newParser: function (fmt, locale) {
+    newParser: function(fmt, locale) {
       var format = fmt;
       var esc = false;
       var chr = "";
@@ -193,7 +193,7 @@ pui.formatting = {
 
       pui.formatting.Date.parsers.locales[locale][fmt] = new Function("str", fn);
     },
-    getSuffix: function (day) {
+    getSuffix: function(day) {
       switch (day) {
         case 1:
         case 21:
@@ -209,7 +209,7 @@ pui.formatting = {
           return "th";
       }
     },
-    getMonthNum: function (month, locale, abbrev) {
+    getMonthNum: function(month, locale, abbrev) {
       var months;
       if (abbrev) {
         months = pui.locales[locale].shortMonthNames;
@@ -224,7 +224,7 @@ pui.formatting = {
       }
       return 0;
     },
-    isMidnight: function (d) {
+    isMidnight: function(d) {
       return (d.getHours() === 0 &&
               d.getMinutes() === 0 &&
               d.getSeconds() === 0 &&
@@ -235,7 +235,7 @@ pui.formatting = {
     stdTimeStampPattern: "Y-m-d-H.i.s.uu",
     y2k: 39 // RPG's standard cutoff for dates with 2 digit year.
   },
-  leftPad: function (str, len, chr) {
+  leftPad: function(str, len, chr) {
     str += "";
     while (str.length < len) {
       str = chr + str;
@@ -244,21 +244,22 @@ pui.formatting = {
   },
   // Pad a string on the right with a specified number of pad characters.
   // If the string is longer than "len", then the string is truncated. (Could happen with PJS, mobile, or PHP., issue4344.)
-  rightPad: function (str, len, chr) {
+  rightPad: function(str, len, chr) {
     str += "";
     if (str.length > len) {
       str = str.substr(0, len); // Truncate.
-    } else {
+    }
+    else {
       while (str.length < len) {
         str += chr; // Pad.
       }
     }
     return str;
   },
-  isNumericType: function (dataType) {
+  isNumericType: function(dataType) {
     return (/^(?:zoned|floating|packed)$/).test(dataType);
   },
-  encodeGraphic: function (text, fieldLength) {
+  encodeGraphic: function(text, fieldLength) {
   	for (var i = 0; i < text.length; i++) {
   		var charCode = text.charCodeAt(i);
   		if (charCode > 0xFFFF) {
@@ -272,7 +273,7 @@ pui.formatting = {
   	}
   	return pui.Base64.encode(text);
   },
-  decodeGraphic: function (input) {
+  decodeGraphic: function(input) {
     return pui.Base64.decode(input);
   },
   keywords: {
@@ -307,15 +308,15 @@ pui.formatting = {
       " ": " "
     }
   },
-  escapeRe: (function () {
+  escapeRe: (function() {
     var re = /([\.\*\+\?\^\$\{\}\(\)\|\-\[\]\/\\])/g;
-    return function (str) {
+    return function(str) {
       return str.replace(re, "\\$1");
     };
   })()
 };
 
-Date.prototype.format = function (str, locale) {
+Date.prototype.format = function(str, locale) {
   if (!(pui.formatting.Date.formats.locales[locale] && pui.formatting.Date.formats.locales[locale][str])) {
     pui.formatting.Date.newFormat(str, locale);
   }
@@ -324,7 +325,7 @@ Date.prototype.format = function (str, locale) {
 };
 
 pui.FieldFormat = {
-  format: function (obj) {
+  format: function(obj) {
     if (obj["revert"]) {
       if (typeof pui["inputfilter"] == "function") {
         var cpy = {};
@@ -359,7 +360,7 @@ pui.FieldFormat = {
     }
   },
   "Text": {
-    format: function (obj) {
+    format: function(obj) {
       var value = obj.value + "";
 
       if (obj.customPattern != "") {
@@ -396,7 +397,7 @@ pui.FieldFormat = {
         value = value.toLowerCase();
       }
       else if (obj.textTransform == "capitalize") {
-        value = value.replace(/(?:^[a-z]| +[a-z])/g, function (str) {
+        value = value.replace(/(?:^[a-z]| +[a-z])/g, function(str) {
           return str.toUpperCase();
         });
       }
@@ -405,7 +406,7 @@ pui.FieldFormat = {
 
       return value;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var value = obj.value + "";
       value = value.replace(/\s+$/g, "");
       if (obj.blankFill == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
@@ -427,7 +428,7 @@ pui.FieldFormat = {
         value = value.toLowerCase();
       }
       else if (obj.textTransform == "capitalize") {
-        value = value.replace(/(?:^[a-z]| +[a-z])/g, function (str) {
+        value = value.replace(/(?:^[a-z]| +[a-z])/g, function(str) {
           return str.toUpperCase();
         });
       }
@@ -439,13 +440,26 @@ pui.FieldFormat = {
     }
   },
   "Number": {
-    format: function (obj) {
+    format: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
 
       var dataLength = parseInt(obj.dataLength, 10);
       var decLength = parseInt(obj.decPos, 10);
 
-      var strValue = (obj.value || 0) + "";
+      var strValue;
+      if (!obj.value) {
+        strValue = "0";
+      }
+      else if (isNaN(obj.value) && commaDecimal) {
+        // Database driven grids will return comma decimals when DCMFMT is 'J' which is something
+        //  this function does not expect.
+        //  Replace the comma with a period and the rest of the code will function normally.
+        strValue = obj.value.replace(/\./g, "").replace(/\,/g, ".");
+      }
+      else {
+        strValue = obj.value;
+      }
+
       if (decLength > 0 && strValue === "0") {
         strValue = ".";
         while (strValue.length - 1 < decLength) {
@@ -482,12 +496,20 @@ pui.FieldFormat = {
         }
       }
 
+      if (decLength > 0) {
+        strDec = pui.formatting.rightPad(strDec, decLength, "0");
+        strValue = strInt + (commaDecimal ? "," : ".") + strDec;
+        if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
+          strValue = "0" + strValue;
+        }
 
-      if (decLength > 0){
-        strDec = pui.formatting.rightPad(strDec, decLength, '0');
-        strValue = strInt + (commaDecimal ? ',' : '.') + strDec;
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength++; }
+        if (pui.appJob["decimalFormat"] == "J" && strValue.charAt(0) == ",") {
+          strValue = "0" + strValue;
+        }
+
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength++;
+        }
         if (commaDecimal) keyFilter += ",";
         else keyFilter += "\\.";
       }
@@ -506,8 +528,9 @@ pui.FieldFormat = {
         else keyFilter += ",";
         var commaCount = dataLength - decLength - 1;
         commaCount = (commaCount >= 0 ? commaCount : 0);
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength += Math.floor(commaCount / 3); }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength += Math.floor(commaCount / 3);
+        }
       }
 
       // format negative numbers
@@ -518,8 +541,9 @@ pui.FieldFormat = {
         if (isNegative) {
           strValue = "(" + strValue + ")";
         }
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength += 2; }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength += 2;
+        }
         keyFilter += "\\(\\)";
       }
       else if (obj.negNum == "999.00-") {
@@ -529,24 +553,27 @@ pui.FieldFormat = {
         else {
           strValue += " ";
         }
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength++; }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength++;
+        }
         keyFilter += "\\-";
       }
       else if (obj.negNum == "999.00 CR") {
         if (isNegative) {
           strValue = strValue + " CR";
         }
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength += 3; }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength += 3;
+        }
         keyFilter += "CR\\s";
       }
       else if (obj.negNum == "-999.00") {
         if (isNegative) {
           strValue = "-" + strValue;
         }
-        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true")
-        { maxLength++; }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength++;
+        }
         keyFilter += "\\-";
       }
 
@@ -588,7 +615,7 @@ pui.FieldFormat = {
 
       return strValue;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
 
       var decimalChar = ".";
@@ -681,7 +708,8 @@ pui.FieldFormat = {
           }
           else if (value.indexOf(".") == -1) {
             valid = value.replace(/-/g, "").length <= obj.dataLength;
-            errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid decimal", [obj.value, obj.decPos]); }
+            errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid decimal", [obj.value, obj.decPos]);
+          }
           else if (value.indexOf(".") == value.length - 1) {
             if (pui["allow decimal ending"]) value = value + "0";
             else valid = false;
@@ -704,7 +732,7 @@ pui.FieldFormat = {
     }
   },
   "Indicator": {
-    format: function (obj) {
+    format: function(obj) {
       var value = obj.value + "";
       var on, off;
       if (obj.indFormat == "Custom Values") {
@@ -721,7 +749,7 @@ pui.FieldFormat = {
       obj.maxLength = (on.length > off.length ? on.length : off.length);
       return (value === "1" || obj.value === true ? on : off);
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var value = obj.value + "";
       var on, off;
       if (obj.indFormat == "Custom Values") {
@@ -741,12 +769,14 @@ pui.FieldFormat = {
     }
   },
   "Date": {
-    format: function (obj) {
+    format: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       var parsedKWs = this.parseKeywords(obj.keywords);
       if (obj.dateFormat == "" && pui["default date pattern"]) {
@@ -781,8 +811,9 @@ pui.FieldFormat = {
         }
       }
 
-      if (obj.dataType == "timestamp")
-      { parsedKWs.internal = pui.formatting.Date.stdTimeStampPattern; }
+      if (obj.dataType == "timestamp") {
+        parsedKWs.internal = pui.formatting.Date.stdTimeStampPattern;
+      }
 
       var d = pui.formatting.Date.parse(value, parsedKWs.internal, locale);
       if (d) {
@@ -791,12 +822,14 @@ pui.FieldFormat = {
       }
       return value;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       var parsedKWs = this.parseKeywords(obj.keywords);
       // determine date format from numeric data
@@ -881,7 +914,7 @@ pui.FieldFormat = {
         return { msg: pui["getLanguageText"]("runtimeMsg", "invalid date", [obj.value, d.format(dateFormat, locale)]) };
       }
     },
-    parseKeywords: function (keywords) {
+    parseKeywords: function(keywords) {
       // Check for formatting in the object's keywords
       var datFmt, datSep;
       if (keywords && keywords.length > 0) {
@@ -937,12 +970,14 @@ pui.FieldFormat = {
         if (datFmt == "*JOB" &&
             pui.appJob &&
             pui.appJob.dateFormat &&
-            pui.formatting.keywords.DATFMT[pui.appJob.dateFormat])
-        { datFmt = pui.appJob.dateFormat; }
+            pui.formatting.keywords.DATFMT[pui.appJob.dateFormat]) {
+          datFmt = pui.appJob.dateFormat;
+        }
 
         // If the date format is currently invalid, set to default
-        if (pui.formatting.keywords.DATFMT[datFmt] == undefined)
-        { datFmt = "*ISO"; }
+        if (pui.formatting.keywords.DATFMT[datFmt] == undefined) {
+          datFmt = "*ISO";
+        }
 
         displayPattern = pui.formatting.keywords.DATFMT[datFmt].pattern;
 
@@ -953,15 +988,19 @@ pui.FieldFormat = {
           if (overridable && // If the current date format's separators are overridable then set to the jobs separator
               pui.appJob &&
               pui.appJob.dateSeparator &&
-              pui.formatting.keywords.DATSEP[pui.appJob.dateSeparator])
-          { datSep = pui.appJob.dateSeparator; }
+              pui.formatting.keywords.DATSEP[pui.appJob.dateSeparator]) {
+            datSep = pui.appJob.dateSeparator;
+          }
           else if (pui.formatting.keywords.DATFMT[datFmt]) // If not overridable, set to date format's default separators
-          { datSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep; }
+          {
+            datSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
+          }
         }
 
         // If the date separator is invalid, set to default
-        if (pui.formatting.keywords.DATSEP[datSep] == undefined)
-        { datSep = "-"; }
+        if (pui.formatting.keywords.DATSEP[datSep] == undefined) {
+          datSep = "-";
+        }
 
         displaySep = pui.formatting.keywords.DATSEP[datSep];
 
@@ -977,12 +1016,13 @@ pui.FieldFormat = {
     },
 
     // return index where keyword DATFMT is found or -1 otherewise; cloned from parseKeywords()
-    findDatFmtIndex: function (keywords) {
+    findDatFmtIndex: function(keywords) {
       if (keywords && keywords.length > 0) {
         var datFmtRegex = /^\s*DATFMT\s*\(\s*(\*\w{3})\s*\)\s*$/i;
         for (var i = 0; i < keywords.length; i++) {
-          if (datFmtRegex.test(keywords[i]))
-          { return i; } // return found index
+          if (datFmtRegex.test(keywords[i])) {
+            return i;
+          } // return found index
         }
       }
 
@@ -990,7 +1030,7 @@ pui.FieldFormat = {
     },
 
     // return date in *ISO format, for compare
-    getDateISO: function (boxValue, formattingObj) {
+    getDateISO: function(boxValue, formattingObj) {
       var returnBoxValue = boxValue; // assume in *ISO format already
 
       // return date in *ISO format
@@ -1016,12 +1056,14 @@ pui.FieldFormat = {
     }
   },
   "Time": {
-    format: function (obj) {
+    format: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       var parsedKWs = this.parseKeywords(obj.keywords);
       if (pui.formatting.isNumericType(obj.dataType)) {
@@ -1036,8 +1078,9 @@ pui.FieldFormat = {
         value6 += "00";
       }
 
-      if (obj.dataType == "timestamp")
-      { format6 = pui.formatting.Date.stdTimeStampPattern; }
+      if (obj.dataType == "timestamp") {
+        format6 = pui.formatting.Date.stdTimeStampPattern;
+      }
 
       var d = pui.formatting.Date.parse(value6, format6, locale);
       if (d) {
@@ -1052,12 +1095,14 @@ pui.FieldFormat = {
       }
       return value;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       var parsedKWs = this.parseKeywords(obj.keywords);
       if (pui.formatting.isNumericType(obj.dataType)) {
@@ -1099,7 +1144,7 @@ pui.FieldFormat = {
         return { msg: pui["getLanguageText"]("runtimeMsg", "invalid time", [obj.value, d.format(obj.timeFormat, locale)]) };
       }
     },
-    parseKeywords: function (keywords) {
+    parseKeywords: function(keywords) {
       // Check for formatting information in the object's keywords
       var timFmt, timSep;
       if (keywords && keywords.length > 0) {
@@ -1148,12 +1193,14 @@ pui.FieldFormat = {
       if (timFmt == "*JOB" &&
           pui.appJob &&
           pui.appJob.timeFormat &&
-          pui.formatting.keywords.TIMFMT[pui.appJob.timeFormat])
-      { timFmt = pui.appJob.timeFormat; }
+          pui.formatting.keywords.TIMFMT[pui.appJob.timeFormat]) {
+        timFmt = pui.appJob.timeFormat;
+      }
 
       // Set time format to default if necessary
-      if (pui.formatting.keywords.TIMFMT[timFmt] == undefined)
-      { timFmt = "*ISO"; }
+      if (pui.formatting.keywords.TIMFMT[timFmt] == undefined) {
+        timFmt = "*ISO";
+      }
 
       displayPattern = pui.formatting.keywords.TIMFMT[timFmt].pattern;
 
@@ -1163,16 +1210,19 @@ pui.FieldFormat = {
         // If the job's time separator is valid, then set the separator to the job's separator
         if (pui.appJob &&
             pui.appJob.timeSeparator &&
-            pui.formatting.keywords.TIMSEP[pui.appJob.timeSeparator])
-        { timSep = pui.appJob.timeSeparator; }
+            pui.formatting.keywords.TIMSEP[pui.appJob.timeSeparator]) {
+          timSep = pui.appJob.timeSeparator;
+        }
         // If the time format is valid and the job's time separator is invalid, then set the separator to the job's default
-        else if (pui.formatting.keywords.TIMFMT[timFmt])
-        { timSep = pui.formatting.keywords.TIMFMT[timFmt].defaultSep; }
+        else if (pui.formatting.keywords.TIMFMT[timFmt]) {
+          timSep = pui.formatting.keywords.TIMFMT[timFmt].defaultSep;
+        }
       }
 
       // If the time separator is invalid, set to default
-      if (pui.formatting.keywords.TIMSEP[timSep] == undefined)
-      { timSep = "."; }
+      if (pui.formatting.keywords.TIMSEP[timSep] == undefined) {
+        timSep = ".";
+      }
 
       displaySep = pui.formatting.keywords.TIMSEP[timSep];
 
@@ -1183,12 +1233,14 @@ pui.FieldFormat = {
     }
   },
   "Time Stamp": {
-    format: function (obj) {
+    format: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       if (obj.timeStampFormat) {
         var d = pui.formatting.Date.parse(value, pui.formatting.Date.stdTimeStampPattern, locale);
@@ -1202,12 +1254,14 @@ pui.FieldFormat = {
       }
       return value;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var locale;
-      if (pui["locale"] && pui.locales[pui["locale"]])
-      { locale = pui["locale"]; }
-      else
-      { locale = obj.locale; }
+      if (pui["locale"] && pui.locales[pui["locale"]]) {
+        locale = pui["locale"];
+      }
+      else {
+        locale = obj.locale;
+      }
       var value = obj.value + "";
       var d = pui.formatting.Date.parse(value, obj.timeStampFormat, locale);
       if (d) {
@@ -1222,7 +1276,7 @@ pui.FieldFormat = {
     }
   },
   "Special": {
-    format: function (obj) {
+    format: function(obj) {
       var value = obj.value + "";
       var validKeys = "\\d";
       var maxLength;
@@ -1305,7 +1359,7 @@ pui.FieldFormat = {
       obj.maxLength = maxLength;
       return value;
     },
-    revert: function (obj) {
+    revert: function(obj) {
       var value = obj.value + "";
       var maxLength;
       switch (obj.special) {
@@ -1420,7 +1474,7 @@ pui.FieldFormat = {
     }
   },
   "Custom": {
-    format: function (obj) {
+    format: function(obj) {
       if (obj.customFunction !== "") {
         var value, func;
         var msg;
@@ -1480,13 +1534,13 @@ pui.FieldFormat = {
         return pui.FieldFormat.format(obj);
       }
     },
-    revert: function (obj) {
+    revert: function(obj) {
       if (obj.customFunction !== "") {
         return pui.FieldFormat["Custom"].format(obj);
       }
     }
   },
-  validate: function (value, obj) {
+  validate: function(value, obj) {
     var types = {
       "char": { def: "", rx: ".*" },
       "varchar": { def: "", rx: ".*" },
@@ -1505,7 +1559,7 @@ pui.FieldFormat = {
 
     return value;
   },
-  isValidFormat: (function () {
+  isValidFormat: (function() {
     var invalid = {
       "char": {},
       "varchar": {},
@@ -1559,7 +1613,7 @@ pui.FieldFormat = {
       "reference": {}
     };
 
-    return function (obj) {
+    return function(obj) {
       // obj.dataType isn't a known type or the dataType/format combo is invalid.
       // Or the formatting is blank (issue 2216).
       if (!invalid[obj.dataType] || invalid[obj.dataType][obj.formatting] ||

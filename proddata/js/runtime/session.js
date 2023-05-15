@@ -23,7 +23,7 @@
  * @constructor
  */
 
-function Session () {
+function Session() {
   // Public Properties
   var cookieName = "GenieSession";
   if (context == "dspf") cookieName = "PUISession";
@@ -32,11 +32,11 @@ function Session () {
   // Private Properties
   var state = {}; // state object to store all values
 
-  function set (variable, value) {
+  function set(variable, value) {
     state[variable] = value;
   }
 
-  function get (variable, defaultValue) {
+  function get(variable, defaultValue) {
     var value = state[variable];
     if (value == null) value = defaultValue;
     if (value == null) value = "";
@@ -44,12 +44,12 @@ function Session () {
   }
 
   // save the state object to a cookie
-  function save () {
+  function save() {
     pui["setCookie"](cookieName, JSON.stringify(state), null, "/", null, null, "Strict");
   }
 
   // load the state from a cookie
-  function load () {
+  function load() {
     var json = pui["getCookie"](cookieName);
     if (json == null) {
       state = {};
@@ -65,18 +65,18 @@ function Session () {
     loaded = true;
   }
 
-  this.saveValue = function (variable, value) {
+  this.saveValue = function(variable, value) {
     if (!loaded) load();
     set(variable, value);
     save();
   };
 
-  this.getValue = function (variable, defaultValue) {
+  this.getValue = function(variable, defaultValue) {
     if (!loaded) load();
     return get(variable, defaultValue);
   };
 
-  this.clear = function () {
+  this.clear = function() {
     state = {};
     save();
   };

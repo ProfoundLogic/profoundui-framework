@@ -21,7 +21,7 @@ if (pui["runtimeMsg"] == null) pui["runtimeMsg"] = {};
 if (pui["runtimeText"] == null) pui["runtimeText"] = {};
 if (pui["runtimeMessages"] == null) pui["runtimeMessages"] = {};
 
-pui["getLanguageText"] = function (dict, msgid, varvals) {
+pui["getLanguageText"] = function(dict, msgid, varvals) {
   var lang = pui["language"];
   if (lang == null || trim(lang) == "") {
     lang = "en_US";
@@ -61,8 +61,9 @@ pui["getLanguageText"] = function (dict, msgid, varvals) {
   if ((dict == "runtimeMsg" || dict == "runtimeText") && msgid.substr(0, 7) == "upload " &&
   pui["fileupload"] != null && typeof (pui["fileupload"][msgid.substr(8)]) != "undefined") {
     msg = pui["fileupload"][msgid.substr(8)];
-    if (msgid == "upload file limit")
-    { msg = msg.replace("{FILE_LIMIT}", "&1"); }
+    if (msgid == "upload file limit") {
+      msg = msg.replace("{FILE_LIMIT}", "&1");
+    }
   }
 
   // Support old "csv export text" language setting, which has been replaced with "excel export text".

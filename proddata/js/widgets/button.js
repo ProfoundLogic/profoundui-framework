@@ -30,7 +30,7 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       if (parms.design && parms.properties["field type"] != "button") {
         var cssClass = parms.designItem.properties["css class"];
@@ -46,7 +46,7 @@ pui.widgets.add({
         }
       }
       if (!parms.design) {
-        addEvent(parms.dom, "keydown", function (e) {
+        addEvent(parms.dom, "keydown", function(e) {
           // prevent enter key from bubbling so that user can press enter to initiate the button
           // otherwise the enter key response would be sent to the server instead
           var key = e.keyCode;
@@ -58,7 +58,7 @@ pui.widgets.add({
       }
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.value = parms.value;
     }
 

@@ -74,7 +74,7 @@
  * @constructor
  */
 
-function RPGspRequest (arg) {
+function RPGspRequest(arg) {
   // Public fields.
   this["method"] = null;
   this["postData"] = null;
@@ -133,7 +133,7 @@ function RPGspRequest (arg) {
   // CONSTRUCTOR END.
 
   // Privileged methods.
-  this.send = function () {
+  this.send = function() {
     // Validate the properties set by the user, and assign defaults for those
     // properties not set.
     var method = null;
@@ -284,10 +284,12 @@ function RPGspRequest (arg) {
     }
 
     try {
-      if (typeof me["user"] == "string" && typeof me["password"] == "string")
-      { xmlhttpObj.open(method, url, async, me["user"], me["password"]); }
-      else
-      { xmlhttpObj.open(method, url, async); }
+      if (typeof me["user"] == "string" && typeof me["password"] == "string") {
+        xmlhttpObj.open(method, url, async, me["user"], me["password"]);
+      }
+      else {
+        xmlhttpObj.open(method, url, async);
+      }
 
       // Set any headers specified.
       var userCT = false;
@@ -326,7 +328,7 @@ function RPGspRequest (arg) {
     if (async == true) {
       xmlhttpObj.onload = handler;
       xmlhttpObj.onerror = handler;
-      xmlhttpObj.onabort = function () {
+      xmlhttpObj.onabort = function() {
         aborted = true;
         handler();
       };
@@ -346,7 +348,7 @@ function RPGspRequest (arg) {
 
     if (async != true) handler();
 
-    function handler () {
+    function handler() {
       if (xmlhttpObj.readyState == 4) {
         if (xmlhttpObj.status === 0) {
           statusMessage = aborted ? "Request aborted." : "Request failed. Check the browser console for more details.";
@@ -372,7 +374,7 @@ function RPGspRequest (arg) {
   };
   this["send"] = this.send;
 
-  this.ok = function () {
+  this.ok = function() {
     if (sendOK != null) {
       return sendOK;
     }
@@ -382,32 +384,32 @@ function RPGspRequest (arg) {
   };
   this["ok"] = this.ok;
 
-  this.getResponseText = function () {
+  this.getResponseText = function() {
     return xmlhttpObj.responseText;
   };
   this["getResponseText"] = this.getResponseText;
 
-  this.getResponseXML = function () {
+  this.getResponseXML = function() {
     return xmlhttpObj.responseXML;
   };
   this["getResponseXML"] = this.getResponseXML;
 
-  this.getStatus = function () {
+  this.getStatus = function() {
     return xmlhttpObj.status;
   };
   this["getStatus"] = this.getStatus;
 
-  this.getStatusText = function () {
+  this.getStatusText = function() {
     return xmlhttpObj.statusText;
   };
   this["getStatusText"] = this.getStatusText;
 
-  this.getStatusMessage = function () {
+  this.getStatusMessage = function() {
     return statusMessage;
   };
   this["getStatusMessage"] = this.getStatusMessage;
 
-  this.getAllResponseHeaders = function () {
+  this.getAllResponseHeaders = function() {
     if (!sendOK) return;
 
     try {
@@ -419,7 +421,7 @@ function RPGspRequest (arg) {
   };
   this["getAllResponseHeaders"] = this.getAllResponseHeaders;
 
-  this.getResponseHeader = function (headerName) {
+  this.getResponseHeader = function(headerName) {
     if (!sendOK) return;
 
     try {
@@ -431,12 +433,12 @@ function RPGspRequest (arg) {
   };
   this["getResponseHeader"] = this.getResponseHeader;
 
-  this.setRequestHeader = function (headerLabel, headerValue) {
+  this.setRequestHeader = function(headerLabel, headerValue) {
     me["headers"][headerLabel] = headerValue;
   };
   this["setRequestHeader"] = this.setRequestHeader;
 
-  this.abort = function () {
+  this.abort = function() {
     if (sending !== true) return;
 
     try {
@@ -449,7 +451,7 @@ function RPGspRequest (arg) {
   this["abort"] = this.abort;
 }
 
-function ajax (url, handler) {
+function ajax(url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
@@ -491,7 +493,7 @@ function ajax (url, handler) {
     return responseText;
   }
 
-  function internalHandler (ajaxRequest) {
+  function internalHandler(ajaxRequest) {
     responseText += ajaxRequest.getResponseText();
     if (async == true) {
       callback(responseText);
@@ -499,7 +501,7 @@ function ajax (url, handler) {
   }
 }
 
-function ajaxXML (url, handler) {
+function ajaxXML(url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
@@ -542,7 +544,7 @@ function ajaxXML (url, handler) {
     return responseXML;
   }
 
-  function internalHandler (ajaxRequest) {
+  function internalHandler(ajaxRequest) {
     responseXML = ajaxRequest.getResponseXML();
     if (async == true) {
       callback(responseXML);
@@ -550,7 +552,7 @@ function ajaxXML (url, handler) {
   }
 }
 
-function ajaxJSON (url, handler) {
+function ajaxJSON(url, handler) {
   // Handle optional parameter style and async/handler variables.
   var ajaxRequest;
   var async;
@@ -594,7 +596,7 @@ function ajaxJSON (url, handler) {
     return responseObj;
   }
 
-  function internalHandler (ajaxRequest) {
+  function internalHandler(ajaxRequest) {
     var responseText = ajaxRequest.getResponseText();
     if (saveResponse && typeof pui == "object") {
       pui["savedJSON"] = responseText;
@@ -612,7 +614,7 @@ function ajaxJSON (url, handler) {
   }
 }
 
-function ajaxSubmit (form, handler) {
+function ajaxSubmit(form, handler) {
   var formObj;
   var postData = "";
   var alertFn = (typeof (pui) != "undefined" && typeof (pui.alert) != "undefined") ? pui.alert : alert;
@@ -683,7 +685,7 @@ function ajaxSubmit (form, handler) {
     return responseText;
   }
 
-  function internalHandler (ajaxRequest) {
+  function internalHandler(ajaxRequest) {
     responseText += ajaxRequest.getResponseText();
     if (async == true) {
       handler(responseText);

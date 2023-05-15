@@ -323,6 +323,10 @@ img {
   background-repeat: repeat-x;
 }
 
+Input[type="date"]{
+  display: -webkit-box;
+}
+
 INPUT.enhanced-input {
   font-family: Consolas, Monospace;
   font-size: 14px;
@@ -4353,6 +4357,18 @@ a.ui-link-inherit {
 }
 
 /* misc */
+.readOnly {
+  filter: contrast(0.4);
+  background-color: #FFFFFF;
+  cursor: default;
+}
+.readOnly > input {
+  cursor: default;
+}
+
+.hidden {
+  display: none;
+}
 
 .ui-icon-check {
   background-position: -252px -1px;

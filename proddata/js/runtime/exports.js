@@ -76,7 +76,7 @@ window["pui"]["UTF8"]["encode"] = pui.UTF8.encode;
 window["pui"]["UTF8"]["decode"] = pui.UTF8.decode;
 
 // prevent closure from creating $ variables to avoid conflicts with libararies like jQuery - not 100% sure if this is the right method
-var $ = function () {};
+var $ = function() {};
 window["$"] = $;
 // do something similar with "id" variable (Ext seems to set window.id, which was causing conflicts with closure)
 window["id"] = window.id;

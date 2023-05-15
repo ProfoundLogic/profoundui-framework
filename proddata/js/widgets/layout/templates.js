@@ -24,7 +24,7 @@ pui.layout["templates"] = {};
  * This must be called before pui.render runs; e.g. by a script loaded automatically in userdata/custom/js/.
  * @param {String} templateName   URL or name of the template. Name is expected to be part of an IFS file name. See issues 3548, 5999.
  */
-pui["retrieveCustomLayoutTemplate"] = function (templateName) {
+pui["retrieveCustomLayoutTemplate"] = function(templateName) {
   if (typeof templateName === "string" && templateName.length > 0) {
     pui.customLayoutTemplateQueue = pui.customLayoutTemplateQueue || [];
 
@@ -42,7 +42,7 @@ pui["retrieveCustomLayoutTemplate"] = function (templateName) {
   }
 };
 
-pui["maximizeLayout"] = function (e) {
+pui["maximizeLayout"] = function(e) {
   var itemDom = getTarget(e).parentNode;
   var designer = toolbar.designer;
   var item = designer.getDesignItemByDomObj(itemDom);
@@ -77,7 +77,7 @@ pui["maximizeLayout"] = function (e) {
  * @param {Object} parms
  * @returns {Element}   Returns the DOM element containing the layout.
  */
-pui.layout.template.load = function (parms) {
+pui.layout.template.load = function(parms) {
   // All templates do this: get a new wrapper div.
   var dom;
   var existingDom = parms.dom;
@@ -151,7 +151,7 @@ pui.layout["templates"]["fieldset"] = true;
  * the PropertiesWindow shows choices for the "templates" property in a layout.
  * @returns {Array}
  */
-pui.layout.getTemplateList = function () {
+pui.layout.getTemplateList = function() {
   var templates = pui.layout["templates"];
   var list = [];
   for (var x in templates) {

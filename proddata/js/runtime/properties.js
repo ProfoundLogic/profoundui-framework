@@ -26,7 +26,7 @@ var cachedScreens = {};
 pui.suppressPropertyScriptingErrors = false;
 
 // Provides list of properties and their definitions
-function getPropertiesModel () {
+function getPropertiesModel() {
   if (cachedPropertiesModel != null) return cachedPropertiesModel;
 
   if (pui.codeBased) {
@@ -73,7 +73,9 @@ function getPropertiesModel () {
       helpDefault: "bind",
       help:
       "Specifies a data structure response field to be returned to your program when files are uploaded populated with the number of files uploaded, the directory the files were uploaded to, and the names of each of the uploaded files. " +
-      (pui.nodedesigner ? "" : "The data structure should be defined as follows:" +
+      (pui.nodedesigner
+        ? ""
+        : "The data structure should be defined as follows:" +
       '<pre class="propdefault">**FREE' + "\n" + "DCL-DS UPLOADINFO QUALIFIED;\n" + "  NUMFILES  ZONED(3:0);\n" + "  DIRECTORY CHAR(256);\n" +
       "  FILES     CHAR(256) DIM(6);\n" + "END-DS UPLOADINFO;" + "</pre>"
       ) + '<br>See also the <a href="https://docs.profoundlogic.com/x/tgD7" target="_blank">Upload Response</a> documentation.',
@@ -418,7 +420,7 @@ function getPropertiesModel () {
 
   // Remove remote server property if PJS. Not yet ready to implement.
   if (pui.nodedesigner === true) {
-    var elemIndex = cachedPropertiesModel.map(function (elem) {
+    var elemIndex = cachedPropertiesModel.map(function(elem) {
       return elem.name;
     }).indexOf("remote system name");
 
@@ -429,7 +431,7 @@ function getPropertiesModel () {
 }
 
 // Provides list of global screen properties and their definitions
-function getScreenPropertiesModel (designScreen) {
+function getScreenPropertiesModel(designScreen) {
   // Universal Designer Screens
   if (pui.codeBased) {
     var model = [
@@ -644,7 +646,7 @@ function getScreenPropertiesModel (designScreen) {
 }
 
 // Turn a model from an array to an object that you can access by property name
-function makeNamedModel (model) {
+function makeNamedModel(model) {
   var namedModel = {};
   for (var i = 0; i < model.length; i++) {
     namedModel[model[i].name] = model[i];
@@ -655,14 +657,14 @@ function makeNamedModel (model) {
   return namedModel;
 }
 
-function getPropertiesNamedModel () {
+function getPropertiesNamedModel() {
   if (cachedPropertiesNamedModel != null) return cachedPropertiesNamedModel;
   cachedPropertiesNamedModel = makeNamedModel(getPropertiesModel());
   return cachedPropertiesNamedModel;
 }
 
 // API used to apply property values in customization scripts
-function applyDesignProperty (domObj, propertyName, propertyValue) {
+function applyDesignProperty(domObj, propertyName, propertyValue) {
   // if an alias name ("display name") was used, revert it to the "real" name.
   if (pui.propertyAlias[propertyName]) propertyName = pui.propertyAlias[propertyName];
 
@@ -680,7 +682,8 @@ function applyDesignProperty (domObj, propertyName, propertyValue) {
       box.focusClass = trim(propertyValue);
       addEvent(box, "focus", pui.applyFocusClass);
       addEvent(box, "blur", pui.removeFocusClass);
-    } else {
+    }
+    else {
       domObj.focusClass = trim(propertyValue);
       addEvent(domObj, "focus", pui.applyFocusClass);
       addEvent(domObj, "blur", pui.removeFocusClass);
@@ -709,7 +712,8 @@ function applyDesignProperty (domObj, propertyName, propertyValue) {
     if (propertyValue == "true") {
       boxDom.autoAdvance = true;
       addEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
-    } else {
+    }
+    else {
       boxDom.autoAdvance = true;
       removeEvent(boxDom, "keyup", pui.autoAdvanceOnKeyUp);
     }
@@ -796,9 +800,10 @@ function applyDesignProperty (domObj, propertyName, propertyValue) {
  * @param {undefined|Boolean} skipDirty
  * @returns {undefined|Element}
  */
-function applyPropertyToField (propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
-  if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type")
-  { return domObj; }
+function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
+  if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type") {
+    return domObj;
+  }
 
   if (newValue == "Other..." && isDesignMode && propConfig.name != "value") return domObj;
 
@@ -809,17 +814,20 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
   if (isDesignMode) {
     originalValue = designItem.originalValue;
     designItem.changed = true;
-  } else {
+  }
+  else {
     if (properties.originalValue != null) {
       originalValue = properties.originalValue;
-    } else {
+    }
+    else {
       if (domObj.tagName == "DIV") {
         // Get the value from an existing floating placeholder first, then other possibilities; fallback to inner-text otherwise. #7323.
         if (domObj.floatingPlaceholder != null) originalValue = domObj.floatingPlaceholder.getValue();
         else if (domObj.comboBoxWidget != null) originalValue = domObj.comboBoxWidget.getValue();
         else if (domObj.slider != null) originalValue = domObj.slider.value;
         else originalValue = getInnerText(domObj);
-      } else {
+      }
+      else {
         originalValue = domObj.value;
       }
       properties.originalValue = originalValue;
@@ -905,8 +913,9 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       if (attr) newDomObj.setAttribute("puiwdgt", attr);
 
       newDomObj.id = domObj.id;
-      if (typeof domObj.name == "string")
-      { newDomObj.name = domObj.name; }
+      if (typeof domObj.name == "string") {
+        newDomObj.name = domObj.name;
+      }
       if (context == "dspf") {
         if (newDomObj["pui"] == null) newDomObj["pui"] = {};
 
@@ -961,11 +970,13 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
               addEvent(newDomObj, "click", disableInputControl);
             }
           }
-        } else if (tag == "textarea") {
+        }
+        else if (tag == "textarea") {
           newDomObj.readOnly = true;
         }
       }
-    } else {
+    }
+    else {
       newDomObj = domObj;
       if (tag == "div" && effectiveValue != "tab panel") newDomObj.tabPanel = null; // in case element used to be a tab panel, deactivate all tab panel functionality
       if (isDesignMode || effectiveValue == "chart" || effectiveValue == "radio button") rebuildCSSAttr = true;
@@ -987,19 +998,23 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
               if (propValue == "hidden") {
                 newDomObj.style.filter = "alpha(opacity=30)";
                 newDomObj.style.opacity = 0.30;
-              } else {
+              }
+              else {
                 newDomObj.style.filter = "";
                 newDomObj.style.opacity = "";
               }
-            } else {
+            }
+            else {
               try {
                 var posdim = pui.getPosDimString(model[i].stylename, propValue);
                 newDomObj.style[model[i].stylename] = posdim;
 
                 // To allow inline-style setting and removing, cache the style property.
-                if (isDesignMode)
-                { pui.cacheStyle(newDomObj, model[i].stylename, posdim); }
-              } catch (e) {}
+                if (isDesignMode) {
+                  pui.cacheStyle(newDomObj, model[i].stylename, posdim);
+                }
+              }
+              catch (e) {}
             }
           }
           if (model[i].attribute != null) {
@@ -1012,7 +1027,8 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
                 if (newDomObj.getAttribute(model[i].attribute) != null) {
                   newDomObj.removeAttribute(model[i].attribute);
                 }
-              } else {
+              }
+              else {
                 var valueToAssign = evalPropertyValue(propValue, originalValue, newDomObj);
                 if (model[i].attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
                 // Set the attribute if it is not "inline style", which is set
@@ -1024,7 +1040,8 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
                   newDomObj.className = propValue;
                 }
               }
-            } catch (e) {}
+            }
+            catch (e) {}
           }
         }
       }
@@ -1052,7 +1069,8 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       dom.style.width = "";
       dom.style.height = "";
     }
-  } else {
+  }
+  else {
     widget = pui.widgets[properties["field type"]];
     if (widget == null) return dom;
   }
@@ -1198,16 +1216,19 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       if (effectiveValue == "hidden") {
         domObj.style.filter = "alpha(opacity=30)";
         domObj.style.opacity = 0.30;
-      } else {
+      }
+      else {
         domObj.style.filter = "";
         domObj.style.opacity = "";
         domObj.style.visibility = effectiveValue;
       }
-    } else if (propConfig.stylename == "backgroundColor" && domObj.tabPanel != null) {
+    }
+    else if (propConfig.stylename == "backgroundColor" && domObj.tabPanel != null) {
       if (effectiveValue) domObj.tabPanel.backColor = effectiveValue;
       else domObj.tabPanel.backColor = "#eeeeff";
       if (context == "genie" || isDesignMode) domObj.tabPanel.draw();
-    } else {
+    }
+    else {
       try {
         var posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
 
@@ -1233,12 +1254,15 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
 
         // To allow inline-style setting and removing, cache the style property.
         if (isDesignMode) {
-          if (effectiveValue === null || effectiveValue.length == 0)
-          { pui.removeCachedStyle(domObj, propConfig.stylename); }
-          else
-          { pui.cacheStyle(domObj, propConfig.stylename, posdim); }
+          if (effectiveValue === null || effectiveValue.length == 0) {
+            pui.removeCachedStyle(domObj, propConfig.stylename);
+          }
+          else {
+            pui.cacheStyle(domObj, propConfig.stylename, posdim);
+          }
         }
-      } catch (err) {
+      }
+      catch (err) {
         if (js == null && isDesignMode) {
           var msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
           if (toolbar.loadingDisplay) {
@@ -1263,29 +1287,31 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       }
     }
     if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "date field") {
-      setTimeout(function () {
+      setTimeout(function() {
         if (domObj.calimg && domObj.style.visibility == "hidden") domObj.calimg.style.visibility = "hidden";
       }, 1);
     }
     if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "spinner") {
-      setTimeout(function () {
+      setTimeout(function() {
         if (domObj.spinner && domObj.style.visibility == "hidden") domObj.spinner.hide();
       }, 1);
     }
     if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "textbox") {
-      setTimeout(function () {
+      setTimeout(function() {
         if (domObj.prompter && domObj.style.visibility == "hidden") domObj.prompter.style.visibility = "hidden";
       }, 1);
     }
     if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.tagName == "A") {
       domObj.firstChild.style.color = effectiveValue;
-    } else if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.nextSibling != null && domObj.firstChild.nextSibling.tagName == "A") { // assuming first child is a text node, and has a sibling that is a hyperlink
+    }
+    else if (propConfig.stylename == "color" && domObj.firstChild != null && domObj.firstChild.nextSibling != null && domObj.firstChild.nextSibling.tagName == "A") { // assuming first child is a text node, and has a sibling that is a hyperlink
       domObj.firstChild.nextSibling.style.color = effectiveValue;
     }
 
     if (propConfig.stylename == "textDecoration" && domObj.firstChild != null && domObj.firstChild.tagName == "A") {
       domObj.firstChild.style.textDecoration = effectiveValue;
-    } else if (propConfig.stylename == "textDecoration" && domObj.firstChild != null && domObj.firstChild.nextSibling != null && domObj.firstChild.nextSibling.tagName == "A") { // assuming first child is a text node, and has a sibling that is a hyperlink
+    }
+    else if (propConfig.stylename == "textDecoration" && domObj.firstChild != null && domObj.firstChild.nextSibling != null && domObj.firstChild.nextSibling.tagName == "A") { // assuming first child is a text node, and has a sibling that is a hyperlink
       domObj.firstChild.nextSibling.style.textDecoration = effectiveValue;
     }
 
@@ -1299,16 +1325,19 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       try {
         if (propConfig.attribute === "style") {
           pui.removeInlineCSS(domObj);
-        } else {
+        }
+        else {
           domObj.removeAttribute(propConfig.attribute);
         }
         if (propConfig.attribute == "class") {
           domObj.className = "";
         }
-      } catch (err) {
+      }
+      catch (err) {
         if (js == null && isDesignMode) pui.alert(err.message);
       }
-    } else {
+    }
+    else {
       try {
         var valueToAssign = effectiveValue;
         if (propConfig.type == "boolean" && valueToAssign == "true") {
@@ -1320,18 +1349,21 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
           if (domObj.getAttribute(propConfig.attribute) != null) {
             domObj.removeAttribute(propConfig.attribute);
           }
-        } else {
+        }
+        else {
           if (propConfig.attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
           if (propConfig.attribute === "style") {
             pui.addInlineCSS(domObj, valueToAssign, (properties["field type"] === "layout"));
-          } else {
+          }
+          else {
             domObj.setAttribute(propConfig.attribute, valueToAssign);
           }
           if (propConfig.attribute == "class") {
             domObj.className = valueToAssign;
           }
         }
-      } catch (e) {
+      }
+      catch (e) {
         if (js == null && isDesignMode) {
           var msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
           if (toolbar.loadingDisplay) {
@@ -1379,7 +1411,7 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
   if (propConfig.type == "js") {
     var func = null;
     if (pui.isRoutine(newValue)) {
-      func = function (evt) {
+      func = function(evt) {
         if (!domObj.responseRoutine) {
           if (domObj.bypassValidation == "true" || domObj.bypassValidation == "send data") {
             pui.bypassValidation = domObj.bypassValidation;
@@ -1391,35 +1423,41 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
       };
     }
     else if (propConfigName == "ontabclick") {
-      func = function () {
+      func = function() {
         eval("var tab = arguments[0];");
         try {
           return eval(newValue);
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
-    } else if (propConfigName == "onoptionclick") {
-      func = function () {
+    }
+    else if (propConfigName == "onoptionclick") {
+      func = function() {
         eval("var value = arguments[0];");
         eval("var text = arguments[1];");
         try {
           eval(newValue);
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
-    } else if (propConfigName == "onprompt") {
-      func = function () {
+    }
+    else if (propConfigName == "onprompt") {
+      func = function() {
         eval("var value = arguments[0];");
         try {
           eval(newValue);
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
-    } else if (propConfigName == "onspin") {
-      func = function () {
+    }
+    else if (propConfigName == "onspin") {
+      func = function() {
         var code = newValue;
         eval("var value = arguments[0];");
         eval("var increment = arguments[1];");
@@ -1439,12 +1477,14 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
         }
         try {
           return eval(code);
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
-    } else if (propConfigName == "onchartclick") {
-      func = function () {
+    }
+    else if (propConfigName == "onchartclick") {
+      func = function() {
         eval("var name = arguments[0];");
         if (typeof name == "object") {
           eval("var category = name.category");
@@ -1455,13 +1495,14 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
           if (typeof customFunction == "function") {
             customFunction(arguments[0]);
           }
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
     }
     else if (propConfigName == "onoptiondisplay") {
-      func = function () {
+      func = function() {
         if (arguments.length >= 1) eval("var row = " + arguments[0] + ";");
         if (arguments.length >= 2) eval("var rrn = " + arguments[1] + ";");
         if (arguments.length >= 3) eval("var rowNumber = " + arguments[2] + ";");
@@ -1493,7 +1534,8 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
           if (typeof customFunction == "function") {
             customFunction();
           }
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
         if (domObj.comboBoxWidget != null && domObj.comboBoxWidget["choices"] != null) {
@@ -1517,7 +1559,7 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
     else if (propConfigName != "onselect" && propConfigName != "ondragstart") {
       // Handling for "onselect" one is provided inside the auto complete class.
       // Handling for "ondragstart" is in dragDrop.js
-      func = function (e) {
+      func = function(e) {
         if (pui.observer != null) return;
         if ((domObj.getAttribute != null && domObj.getAttribute("disabled") == "true") ||
           (domObj.disabled != null && domObj.disabled == true)) {
@@ -1548,7 +1590,8 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
             if (!e) e = window.event;
             customFunction(e, this);
           }
-        } catch (err) {
+        }
+        catch (err) {
           pui.scriptError(err, propConfigName.substr(0, 1).toUpperCase() + propConfigName.substr(1) + " Error:\n");
         }
       };
@@ -1566,8 +1609,9 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
 
   // Reflect changes to designer
   if (isDesignMode) {
-    if (newValue != "" || properties[propConfigName] != null)
-    { properties[propConfigName] = newValue; }
+    if (newValue != "" || properties[propConfigName] != null) {
+      properties[propConfigName] = newValue;
+    }
     designItem.propertiesChanged[propConfigName] = true;
     if (propConfigName == "field type" ||
       propConfigName == "left" || propConfigName == "right" ||
@@ -1627,7 +1671,7 @@ function applyPropertyToField (propConfig, properties, domObj, newValue, isDesig
  * @constructor
  * @returns {pui.SetterParms}
  */
-pui.SetterParms = function (newValue, value, design, properties, originalValue, dom, oldDom, propertyName, designItem, resizer) {
+pui.SetterParms = function(newValue, value, design, properties, originalValue, dom, oldDom, propertyName, designItem, resizer) {
   this.newValue = newValue;
   this.value = value;
   this.design = design;
@@ -1644,18 +1688,18 @@ pui.SetterParms = function (newValue, value, design, properties, originalValue, 
  * @param {String} propName
  * @returns {String}
  */
-pui.SetterParms.prototype.evalProperty = function (propName) {
+pui.SetterParms.prototype.evalProperty = function(propName) {
   return evalPropertyValue(this.properties[propName], this.originalValue, this.dom);
 };
 
-function assignDomClasses (dom, classes, lastClassIsDspAtrField) {
+function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
   var classArray = [];
   var RI = false;
   var toCombineWithRI = [];
   var foundColor = false;
   var colorIdx = null;
 
-  function isColor (cssClass) {
+  function isColor(cssClass) {
     return (cssClass == "BLU" || cssClass == "GRN" || cssClass == "PNK" || cssClass == "RED" || cssClass == "TRQ" || cssClass == "WHT" || cssClass == "YLW");
   }
   for (var i = 0; i < classes.length; i++) {
@@ -1668,7 +1712,8 @@ function assignDomClasses (dom, classes, lastClassIsDspAtrField) {
       if (!foundColor) {
         foundColor = true;
         colorIdx = classArray.length;
-      } else if (dspAtrField && colorIdx != null) {
+      }
+      else if (dspAtrField && colorIdx != null) {
         classArray[colorIdx] = cssClass;
         continue;
       }
@@ -1712,7 +1757,7 @@ function assignDomClasses (dom, classes, lastClassIsDspAtrField) {
 }
 
 // Evaluate property if javascript used
-function evalPropertyValue (propertyValue) {
+function evalPropertyValue(propertyValue) {
   var effectiveValue = "";
 
   if (pui.isBound(propertyValue) || pui.isTranslated(propertyValue) || pui.isRoutine(propertyValue)) {
@@ -1734,15 +1779,17 @@ function evalPropertyValue (propertyValue) {
   }
   if (js == null || trim(js) == "") {
     effectiveValue = propertyValue;
-  } else {
+  }
+  else {
     eval("var value = arguments[1];");
     eval("var obj = arguments[2];");
     try {
       effectiveValue = eval(js);
-    } catch (err) {
+    }
+    catch (err) {
       if (!pui.suppressPropertyScriptingErrors) {
         pui.suppressPropertyScriptingErrors = true;
-        setTimeout(function () {
+        setTimeout(function() {
           pui.alert("Expression '" + trim(js) + "' contains an error:\n\n" + err.message);
           pui.suppressPropertyScriptingErrors = false;
         }, 1);
@@ -1752,7 +1799,7 @@ function evalPropertyValue (propertyValue) {
   return effectiveValue;
 }
 
-function getScreenProperties (designScreen, onsuccess, onfail) {
+function getScreenProperties(designScreen, onsuccess, onfail) {
   var skin = pui.skin;
   var skinsFolder = "genie skins";
   var query = "?type=genie_screen&skin=" + encodeURIComponent(skin) + "&screen=" + encodeURIComponent(designScreen.name) + "&mod=";
@@ -1769,28 +1816,29 @@ function getScreenProperties (designScreen, onsuccess, onfail) {
   request["async"] = true;
   request["method"] = "get";
   request["suppressAlert"] = true;
-  request["onsuccess"] = function () {
+  request["onsuccess"] = function() {
     var text = "(" + request.getResponseText() + ")";
     var obj = eval(text);
     if (obj["items"] != null && obj["items"].length > 0) {
       // Support skin customizations using "csv file name", which was replaced by "export file name".
       for (var i = 0; i < obj["items"].length; i++) {
-        if (obj["items"][i]["csv_file_name"] != null && obj["items"][i]["export_file_name"] == null)
-        { obj["items"][i]["export_file_name"] = obj["items"][i]["csv_file_name"]; }
+        if (obj["items"][i]["csv_file_name"] != null && obj["items"][i]["export_file_name"] == null) {
+          obj["items"][i]["export_file_name"] = obj["items"][i]["csv_file_name"];
+        }
       }
     }
     screenPropertiesObj[designScreen.screenId] = obj;
     cachedScreens[designScreen.name + "." + stamp] = obj;
     onsuccess();
   };
-  request["onfail"] = function () {
+  request["onfail"] = function() {
     pui.alert("An error occurred while loading screen '" + designScreen.name + "'.\n\nHTTP " + request.getStatus() + "\n\n" + request.getStatusText() + ".");
     onfail();
   };
   request.send();
 }
 
-pui.addCustomProperty = function (parms) {
+pui.addCustomProperty = function(parms) {
   var pm = getPropertiesModel();
   var pnm = getPropertiesNamedModel();
   var found = false;
@@ -1869,7 +1917,7 @@ pui.restrictedLayoutStylenames = ["overflow", "overflow-x", "overflow-y"];
  * @param {Boolean} isLayout     True when the widget is a Layout. Overflow is ignored on Layouts.
  * @returns {undefined}
  */
-pui.addInlineCSS = function (domObj, valueToAssign, isLayout) {
+pui.addInlineCSS = function(domObj, valueToAssign, isLayout) {
   // Quickly clear any old inline styles.
   if (domObj.pui.styleInline && domObj.pui.styleInline !== null) {
     // For each style explicitly set earlier, remove it from dom.style.
@@ -1904,7 +1952,8 @@ pui.addInlineCSS = function (domObj, valueToAssign, isLayout) {
     for (var keyname in domObj.pui.styleCached) {
       domObj.style[keyname] = domObj.pui.styleCached[keyname];
     }
-  } else {
+  }
+  else {
     domObj.pui.styleCached = {};
   }
 };
@@ -1918,9 +1967,10 @@ pui.addInlineCSS = function (domObj, valueToAssign, isLayout) {
  * @param {Object} domObj
  * @returns {undefined}
  */
-pui.removeInlineCSS = function (domObj) {
-  if (typeof (domObj.pui.styleInline) !== "object" || domObj.pui.styleInline === null)
-  { return; }
+pui.removeInlineCSS = function(domObj) {
+  if (typeof (domObj.pui.styleInline) !== "object" || domObj.pui.styleInline === null) {
+    return;
+  }
 
   // For each style name explicitly set earlier, remove it from dom.style.
   for (var keyname in domObj.pui.styleInline) {
@@ -1933,7 +1983,8 @@ pui.removeInlineCSS = function (domObj) {
     for (var keyname in domObj.pui.styleCached) {
       domObj.style[keyname] = domObj.pui.styleCached[keyname];
     }
-  } else {
+  }
+  else {
     domObj.pui.styleCached = {};
   }
 };
@@ -1951,15 +2002,16 @@ pui.removeInlineCSS = function (domObj) {
  * @param {String} effectiveValue
  * @returns {undefined}
  */
-pui.cacheStyle = function (domObj, stylename, effectiveValue) {
+pui.cacheStyle = function(domObj, stylename, effectiveValue) {
   if (!domObj.pui.styleCached || domObj.pui.styleCached === null) {
     domObj.pui.styleCached = {};
   }
 
   // Cache the style if it isn't restricted. (Ignore restricted values to avoid
   // repositioning when we re-assert cached values.)
-  if (pui.arrayIndexOf(pui.restrictedStylenames, stylename) < 0)
-  { domObj.pui.styleCached[stylename] = effectiveValue; }
+  if (pui.arrayIndexOf(pui.restrictedStylenames, stylename) < 0) {
+    domObj.pui.styleCached[stylename] = effectiveValue;
+  }
 };
 
 /**
@@ -1974,7 +2026,7 @@ pui.cacheStyle = function (domObj, stylename, effectiveValue) {
  * @param {String} stylename  The CSS style keyword (not the PUI style property name).
  * @returns {undefined}
  */
-pui.removeCachedStyle = function (domObj, stylename) {
+pui.removeCachedStyle = function(domObj, stylename) {
   if (typeof domObj.pui.styleCached != "undefined" &&
     domObj.pui.styleCached[stylename] != "undefined") {
     delete domObj.pui.styleCached[stylename];
@@ -1993,11 +2045,11 @@ pui.removeCachedStyle = function (domObj, stylename) {
   }
 };
 
-pui.getDatabaseConnectionPropertyChoices = function () {
+pui.getDatabaseConnectionPropertyChoices = function() {
   var choices = [];
   var connections = pui["getDatabaseConnections"]();
   if (connections) {
-    choices = connections.map(function (el) {
+    choices = connections.map(function(el) {
       return el["name"];
     });
   }

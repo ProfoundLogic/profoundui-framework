@@ -22,7 +22,7 @@
  * @param {Array.<Object>} templateProperties
  * @returns {Array.<Object>}
  */
-pui.layout.getPropertiesModel = function (templateProperties) {
+pui.layout.getPropertiesModel = function(templateProperties) {
   var model = [
     { name: "Identification", category: true },
     { name: "id", maxLength: 75, attribute: "id", helpDefault: "id", help: "Sets the ID of the layout element.", bind: false, canBeRemoved: false },
@@ -92,7 +92,7 @@ pui.layout.getPropertiesModel = function (templateProperties) {
  * @param {Array.<Object>} list       Output. List of property configs to add to.
  * @param {Array.<String>} propNames
  */
-pui.layout.adoptNamedProperties = function (list, propNames) {
+pui.layout.adoptNamedProperties = function(list, propNames) {
   if (pui.layout.adoptedProperty === null || typeof pui.layout.adoptedProperty != "object") {
     pui.layout.adoptedProperty = {};
   }
@@ -125,7 +125,7 @@ pui.layout.adoptNamedProperties = function (list, propNames) {
 };
 
 // Define the properties that appear in Template Settings in Designer.
-pui.layout.getProperties = function (template) {
+pui.layout.getProperties = function(template) {
   var templateProperties;
   var borderStyles = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"];
   var borderWidths = ["thin", "medium", "thick", "0px", "1px", "2px", "3px", "4px", "5px", "Other..."];

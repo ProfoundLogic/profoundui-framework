@@ -20,7 +20,7 @@
 // ----------------------------------
 //  Japanese
 // ----------------------------------
-var ja_JP = function (dict) {
+var ja_JP = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

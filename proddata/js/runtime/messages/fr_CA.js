@@ -20,7 +20,7 @@
 // --------------------------------------------------------------
 //  French Canadian Eh!
 // --------------------------------------------------------------
-var fr_CA = function (dict) {
+var fr_CA = function(dict) {
   var dictMsg = {};
 
   switch (dict) {

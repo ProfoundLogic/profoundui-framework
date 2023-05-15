@@ -29,28 +29,30 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
+    "field type": function(parms) {
       parms.dom.value = parms.evalProperty("value");
       if (!parms.design) {
         applyAutoComp(parms.properties, parms.originalValue, parms.dom);
         if (pui.iPadEmulation && !pui.iPhoneEmulation && parms.dom.id.indexOf(".") == -1) {
-          addEvent(parms.dom, "focus", function (event) {
+          addEvent(parms.dom, "focus", function(event) {
             getObj("ipadKeyboard").style.display = "";
           });
-          addEvent(parms.dom, "blur", function (event) {
+          addEvent(parms.dom, "blur", function(event) {
             getObj("ipadKeyboard").style.display = "none";
           });
         }
         // Retain default browser behavior unless the user sets this...
-        if (typeof pui["allow spellcheck"] == "boolean")
-        { parms.dom.spellcheck = pui["allow spellcheck"]; }
+        if (typeof pui["allow spellcheck"] == "boolean") {
+          parms.dom.spellcheck = pui["allow spellcheck"];
+        }
         // If they are changing a date field to a textbox, remove the calendar
         if (parms.dom.calimg) pui.removeCal(parms.dom);
         // Default off if not set by 'html auto complete' property.
         if (parms.dom.getAttribute("autocomplete") == null && (context != "genie" || !pui.genie.config.browserAutoComplete)) {
           parms.dom.setAttribute("autocomplete", "off");
-          if (context == "dspf")
-          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
+          if (context == "dspf") {
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          }
         }
       }
       var promptIcon = parms.evalProperty("prompt icon");
@@ -62,13 +64,13 @@ pui.widgets.add({
         if (promptIcon) {
           itm.promptIcon = promptIcon;
         }
-        parms.dom.sizeMe = function () {
+        parms.dom.sizeMe = function() {
           itm.drawIcon();
           itm.mirrorDown();
         };
       }
       else {
-        parms.dom.sizeMe = function () {
+        parms.dom.sizeMe = function() {
           pui.movePrompter(parms.dom);
         };
       }
@@ -78,7 +80,7 @@ pui.widgets.add({
       }
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       if (parms.dom.autoCompTranslated) {
         parms.dom.autoCompTranslated = false;
       }
@@ -87,33 +89,36 @@ pui.widgets.add({
       }
     },
 
-    "input type": function (parms) {
+    "input type": function(parms) {
       if (!parms.design) {
         try {
           parms.dom.setAttribute("type", parms.value);
-        } catch (e) { }
+        }
+        catch (e) { }
       }
     },
 
-    "browser auto complete": function (parms) {
+    "browser auto complete": function(parms) {
       if (!parms.design) {
         parms.dom.setAttribute("autocomplete", parms.value);
         if (context == "dspf") {
-          if (parms.value == "off")
-          { parms.dom.setAttribute("name", pui.randomTextBoxName()); }
-          else
-          { parms.dom.removeAttribute("name"); }
+          if (parms.value == "off") {
+            parms.dom.setAttribute("name", pui.randomTextBoxName());
+          }
+          else {
+            parms.dom.removeAttribute("name");
+          }
         }
       }
     },
 
-    "choices url": function (parms) {
+    "choices url": function(parms) {
       if (!parms.design && parms.dom && parms.dom.autoComp && typeof parms.dom.autoComp.updateUrl === "function") {
         parms.dom.autoComp.updateUrl(parms.value);
       }
     },
 
-    "prompt icon": function (parms) {
+    "prompt icon": function(parms) {
       var promptIcon = parms.value;
       if (parms.design) {
         var itm = parms.designItem;
@@ -124,7 +129,7 @@ pui.widgets.add({
       }
     },
 
-    "visibility": function (parms) {
+    "visibility": function(parms) {
       if (parms.dom.prompter) {
         if (parms.value === "hidden") {
           parms.dom.prompter.style.visibility = "hidden";
@@ -135,7 +140,7 @@ pui.widgets.add({
       }
     },
 
-    "css class": function (parms) {
+    "css class": function(parms) {
       if (parms.design) {
         parms.designItem.drawIcon();
       }
@@ -143,7 +148,7 @@ pui.widgets.add({
 
   },
 
-  globalAfterSetter: function (parms) {
+  globalAfterSetter: function(parms) {
     if (parms.propertyName == "field type" && parms.oldDom && parms.oldDom.floatingPlaceholder != null && parms.dom && parms.dom.floatingPlaceholder == null) {
       pui.floatPlaceholder(parms.dom);
     }
@@ -155,7 +160,7 @@ pui.widgets.add({
 
 });
 
-pui.addPrompt = function (parms) {
+pui.addPrompt = function(parms) {
   var prompter = document.createElement("div");
   var promptIcon = parms.evalProperty("prompt icon");
   prompter.classList.add("pui-prompt");
@@ -184,7 +189,7 @@ pui.addPrompt = function (parms) {
     var iconValueClassList = iconValueType.pop();
     iconValueType = iconValueType.join("-");
     var iconVal = iconValueArr.pop();
-    iconSets.every(function (iconSet) {
+    iconSets.every(function(iconSet) {
       var type = iconSet["type"];
       var iconClassName = iconSet["classList"][iconValueClassList];
       if (iconValueType === type) {
@@ -199,7 +204,7 @@ pui.addPrompt = function (parms) {
     });
   }
 
-  prompter.onclick = function () {
+  prompter.onclick = function() {
     // Pass "this" and "value" parameters
     parms.dom["onprompt"].call(parms.dom, parms.dom.value);
   };
@@ -211,7 +216,7 @@ pui.addPrompt = function (parms) {
   pui.movePrompter(parms.dom);
 };
 
-pui.movePrompter = function (inputDom) {
+pui.movePrompter = function(inputDom) {
   var prompter = inputDom.prompter;
   if (!prompter) return;
   if (inputDom.parentNode && inputDom.parentNode.floatingPlaceholder) inputDom = inputDom.parentNode;

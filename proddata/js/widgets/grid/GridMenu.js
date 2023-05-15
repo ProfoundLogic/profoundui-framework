@@ -22,7 +22,7 @@
  * @constructor
  */
 
-pui.GridMenu = function () {
+pui.GridMenu = function() {
   // Private Properties
   var me = this;
   var menuDiv;
@@ -35,8 +35,8 @@ pui.GridMenu = function () {
   this.clickEvent = null;
   this.cell = null;
   // Public Methods
-  this.init = function () {
-    addEvent(document, "mousedown", function (e) {
+  this.init = function() {
+    addEvent(document, "mousedown", function(e) {
       if (me == null) return;
       var obj = getTarget(e);
       while (obj != null) {
@@ -52,8 +52,12 @@ pui.GridMenu = function () {
     menuDiv.style.border = "1px solid #718bb7";
     menuDiv.style.backgroundColor = "#f0f0f0";
     menuDiv.style.zIndex = me.grid.contextMenuZIndex;
-    menuDiv.onselectstart = function (e) { return false; };
-    menuDiv.oncontextmenu = function (e) { return false; };
+    menuDiv.onselectstart = function(e) {
+      return false;
+    };
+    menuDiv.oncontextmenu = function(e) {
+      return false;
+    };
     if (typeof menuDiv.style.MozUserSelect != "undefined") menuDiv.style.MozUserSelect = "none";
 
     table = document.createElement("table");
@@ -66,7 +70,7 @@ pui.GridMenu = function () {
     me.grid.container.appendChild(menuDiv);
   };
 
-  this.show = function () {
+  this.show = function() {
     var numOptions = buildMenu();
     if (numOptions == 0) {
       me.hide();
@@ -107,12 +111,14 @@ pui.GridMenu = function () {
             var grandParent = gridParent.parentNode;
             if (grandParent != null) {
               // If the grandparent is scrolled right, then maxLeft should be larger.
-              if (grandParent.scrollLeft > 0)
-              { maxLeft += grandParent.scrollLeft; }
+              if (grandParent.scrollLeft > 0) {
+                maxLeft += grandParent.scrollLeft;
+              }
 
               // Compensate for vertical scrollbar.
-              if (grandParent.style.overflowY == "scroll" || grandParent.style.overflowY == "auto")
-              { maxLeft -= 10; }
+              if (grandParent.style.overflowY == "scroll" || grandParent.style.overflowY == "auto") {
+                maxLeft -= 10;
+              }
             }// endif grandParent != null.
           }
 
@@ -164,7 +170,8 @@ pui.GridMenu = function () {
         if (menuHeight > gridHeight / 2) {
           menuSubDiv.style.height = gridHeight / 2 + "px";
           menuSubDiv.style.overflowY = "scroll";
-        } else {
+        }
+        else {
           menuSubDiv.style.overflowY = "initial";
           menuSubDiv.style.height = "auto";
         }
@@ -180,18 +187,18 @@ pui.GridMenu = function () {
     }
   };
 
-  this.hide = function () {
+  this.hide = function() {
     menuDiv.style.display = "none";
     if (menuSubDiv) me.hideSub();
   };
-  this.hideSub = function () {
+  this.hideSub = function() {
     menuSubDiv.style.display = "none";
   };
-  this.showSub = function () {
+  this.showSub = function() {
     menuSubDiv.style.display = "";
   };
   // Private functions
-  function buildMenu () {
+  function buildMenu() {
     // remove any existing menu options so they can be rebuilt
     while (table.rows.length > 0) {
       table.deleteRow(table.rows.length - 1);
@@ -213,18 +220,20 @@ pui.GridMenu = function () {
       if (me.cell.sortColumn != null) {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "sort ascending text"));
         menuIcons.push("icons/sort_ascending.png");
-        optionHandlers.push(function () {
+        optionHandlers.push(function() {
           me.cell.sortDescending = true;
-          if (me.grid.tableDiv.returnSortOrderField != null)
-          { me.grid.returnSortOrder = "A"; }
+          if (me.grid.tableDiv.returnSortOrderField != null) {
+            me.grid.returnSortOrder = "A";
+          }
           me.cell.sortColumn();
         });
         menuOptions.push(pui["getLanguageText"]("runtimeText", "sort descending text"));
         menuIcons.push("icons/sort_descending.png");
-        optionHandlers.push(function () {
+        optionHandlers.push(function() {
           me.cell.sortDescending = false;
-          if (me.grid.tableDiv.returnSortOrderField != null)
-          { me.grid.returnSortOrder = "D"; }
+          if (me.grid.tableDiv.returnSortOrderField != null) {
+            me.grid.returnSortOrder = "D";
+          }
           me.cell.sortColumn();
         });
       }
@@ -242,7 +251,7 @@ pui.GridMenu = function () {
     if (me.grid.findOption) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "find text") + "...");
       menuIcons.push("icons/search.png");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid["startFind"](me.cell);
       });
     }
@@ -251,14 +260,14 @@ pui.GridMenu = function () {
     if (me.grid.filterOption && (!me.grid.usePagingFilter() || me.grid.getFilterCount() < me.grid.filterResponseColMax)) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "filter text") + "...");
       menuIcons.push("icons/filter.png");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid["startFilter"](me.cell);
       });
 
       if (!pui["is_ie"] && context != "genie") {
         menuOptions.push(pui["getLanguageText"]("runtimeText", "multi filter text"));
         menuIcons.push("icons/filter_multi.png");
-        optionHandlers.push(function () {
+        optionHandlers.push(function() {
           me.grid.showMultiFiltersPanel(me.cell);
         });
       }
@@ -267,7 +276,7 @@ pui.GridMenu = function () {
     if (me.grid.filterOption && me.cell.filterIcon != null) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filter"));
       menuIcons.push("icons/remove_filter.png");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid["removeFilter"](me.cell);
       });
     }
@@ -275,7 +284,7 @@ pui.GridMenu = function () {
     if (me.grid.filterOption && me.grid.getFilterCount() > 1) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "remove filters text"));
       menuIcons.push("icons/remove_filter.png");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid["removeAllFilters"]();
       });
     }
@@ -283,13 +292,13 @@ pui.GridMenu = function () {
     if (me.grid.resetOption) {
       menuOptions.push(pui["getLanguageText"]("runtimeText", "reset data"));
       menuIcons.push("icons/default.png");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         var properties = me.grid.cells[0][0].parentNode.pui.properties;
 
         me.grid["alignColumnTotals"]();
         if (me.grid.hidableColumns) {
           var headings = properties["column headings"].split(",");
-          var cols = me.grid.columnInfo.map(function (col) {
+          var cols = me.grid.columnInfo.map(function(col) {
             if (!col["showing"]) me.grid.hideShowColumn(col, true);
           });
           if (me.grid.columnInfo.colSequence) me.grid.columnInfo.colSequence = null;
@@ -299,8 +308,9 @@ pui.GridMenu = function () {
         var headerRow = me.grid.cells[0];
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
-          if (headerCell.col != headerCell.columnId)
-          { me.grid.moveColumn(headerCell.col, headerCell.columnId); }
+          if (headerCell.col != headerCell.columnId) {
+            me.grid.moveColumn(headerCell.col, headerCell.columnId);
+          }
         }
 
         // Reset column widths - must follow calls to moveColumn.
@@ -334,14 +344,14 @@ pui.GridMenu = function () {
       // adjust the sequence the column options show in the menu
       if (me.grid.movableColumns && cols.colSequence) {
         var hiddenCols = [];
-        cols.filter(function (col) {
+        cols.filter(function(col) {
           if (col["currentColumn"] == -1 && !col["showing"]) {
             hiddenCols.push(col);
             return false;
           }
           return true;
         })
-          .sort(function (a, b) {
+          .sort(function(a, b) {
             var colA = a["currentColumn"];
             var colB = b["currentColumn"];
             var colAHidden = false;
@@ -361,13 +371,20 @@ pui.GridMenu = function () {
             if (colA > colB) return 1;
             else return -1;
           })
-          .forEach(function (col) { menuLists.push(col); });
-        hiddenCols.forEach(function (col) { menuLists.push(col); });
-      } else {
-        cols.forEach(function (col) { menuLists.push(col); });
+          .forEach(function(col) {
+            menuLists.push(col);
+          });
+        hiddenCols.forEach(function(col) {
+          menuLists.push(col);
+        });
+      }
+      else {
+        cols.forEach(function(col) {
+          menuLists.push(col);
+        });
       }
 
-      optionHandlers.push(function (colOption) {
+      optionHandlers.push(function(colOption) {
         me.grid["alignColumnTotals"]();
         return me.grid.hideShowColumn(colOption);
       });
@@ -382,12 +399,12 @@ pui.GridMenu = function () {
       }
       menuOptions.push(pui["getLanguageText"]("runtimeText", "export to x", ["Excel (CSV)"]) + "...");
       menuIcons.push("grids/excel.gif");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid.exportCSV();
       });
       menuOptions.push(pui["getLanguageText"]("runtimeText", "export to x", ["Excel (XLSX)"]) + "...");
       menuIcons.push("grids/excel.gif");
-      optionHandlers.push(function () {
+      optionHandlers.push(function() {
         me.grid.exportCSV(null, true);
       });
     }
@@ -416,21 +433,21 @@ pui.GridMenu = function () {
       row.style.padding = "3px";
       row.optionHandler = optionHandlers[i];
       if (menuOptions[i] != pui["getLanguageText"]("runtimeText", "displayed columns")) {
-        row.onclick = function (e) {
+        row.onclick = function(e) {
           var obj = getTarget(e).parentNode;
           obj.optionHandler();
           me.hide();
         };
         row.isHideColOption = false;
       }
-      row.onmouseover = function (e) {
+      row.onmouseover = function(e) {
         var obj = getTarget(e).parentNode;
         if (obj.tagName == "TD") obj = obj.parentNode;
         obj.style.backgroundColor = "#3399ff";
         obj.style.color = "#ffffff";
         if (me.grid.hidableColumns && this.isHideColOption) me.showSub();
       };
-      row.onmouseout = function (e) {
+      row.onmouseout = function(e) {
         if (me.grid.hidableColumns && this.isHideColOption) {
           // For IE 8, check if the event is defined
           if (e) {
@@ -475,13 +492,13 @@ pui.GridMenu = function () {
           subRow.style.color = "#333333";
           subRow.style.padding = "3px";
           subRow.style.cursor = "pointer";
-          subRow.onmouseover = function (e) {
+          subRow.onmouseover = function(e) {
             var obj = getTarget(e).parentNode;
             if (obj.tagName == "TD") obj = obj.parentNode;
             obj.style.backgroundColor = "#3399ff";
             obj.style.color = "#ffffff";
           };
-          subRow.onmouseout = function (e) {
+          subRow.onmouseout = function(e) {
             var obj = getTarget(e).parentNode;
             if (obj.tagName == "TD") obj = obj.parentNode;
             obj.style.backgroundColor = "";
@@ -498,7 +515,7 @@ pui.GridMenu = function () {
           subCell.style.padding = "3px 6px 3px 3px";
           subCell.style.whiteSpace = "normal";
           subRow.style.top = ((z + 1) * 25) + "px";
-          subRow.onmousedown = function (e) {
+          subRow.onmousedown = function(e) {
             menSubDivShowing = true;
             var target = getTarget(e);
             var obj = this;
@@ -513,18 +530,18 @@ pui.GridMenu = function () {
             // me.hide();
           };
         }
-        row.onclick = function () {
+        row.onclick = function() {
           this.classList.add("active-item");
         };
         row.isHideColOption = true;
         parent.row = row;
         parent.appendChild(subTable);
         parent.className = "pui-hide-show-columns-list";
-        parent.onmouseover = function (e) {
+        parent.onmouseover = function(e) {
           menSubDivShowing = true;
           me.showSub();
         };
-        parent.onmouseout = function (e) {
+        parent.onmouseout = function(e) {
           menSubDivShowing = false;
         };
         if (me.grid.tableDiv) {
@@ -545,7 +562,7 @@ pui.GridMenu = function () {
     return menuOptions.length;
   }
 
-  this.destroy = function () {
+  this.destroy = function() {
     if (menuDiv != null) {
       if (menuDiv.parentNode != null) menuDiv.parentNode.removeChild(menuDiv);
       if (menuSubDiv && menuSubDiv.parentNode != null) menuSubDiv.parentNode.removeChild(menuSubDiv);

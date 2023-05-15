@@ -19,7 +19,7 @@
 
 pui["dragDropInfo"] = {};
 
-pui.attachDragDrop = function (dom, properties) {
+pui.attachDragDrop = function(dom, properties) {
   var drop, recordNumber;
   var tryScrollTimeout = 0; // Helps avoid calling tryScroll repeatedly when the mouse moves.
   var scrollDelay = 350; // The grid will scroll another record up or down every 350 milliseconds after the initial delay.
@@ -29,7 +29,7 @@ pui.attachDragDrop = function (dom, properties) {
     initialScrollDelay = pui["drop scroll wait"];
   }
 
-  dom.onselectstart = function (e) {
+  dom.onselectstart = function(e) {
     if (isGrid || isHTMLContainer) {
       // So that the user can select the text inside of a textarea or input element if nested in a Grid or HTML container
       var target = getTarget(e);
@@ -45,7 +45,7 @@ pui.attachDragDrop = function (dom, properties) {
 
   if (isGrid) {
     useProxy = true;
-    setTimeout(function () {
+    setTimeout(function() {
       var lastRow = dom.grid.cells.length - 1;
       if (!dom.grid.isDataGrid()) {
         var dataRecords = dom.grid.dataArray;
@@ -64,7 +64,7 @@ pui.attachDragDrop = function (dom, properties) {
     }, 1);
   }
 
-  function mousedown (event) {
+  function mousedown(event) {
     if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
     var clickedOn = getTarget(event);
     var offset = pui.getOffset(dom.parentNode);
@@ -77,7 +77,8 @@ pui.attachDragDrop = function (dom, properties) {
       if (event.touches != null) {
         if (event.touches.length != 1) return;
         touchEvent = true;
-      } else if (event["pointerType"] === "touch") {
+      }
+      else if (event["pointerType"] === "touch") {
         touchEvent = true;
       }
     }
@@ -238,7 +239,7 @@ pui.attachDragDrop = function (dom, properties) {
     else pui["dragDropInfo"]["text"] = "ondragstart: Dragging element " + dom.id;
     executeEvent("ondragstart");
 
-    function mousemove (event) {
+    function mousemove(event) {
       if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
       var mousey = getMouseY(event);
       var mousex = getMouseX(event);
@@ -390,7 +391,7 @@ pui.attachDragDrop = function (dom, properties) {
       if (!touchEvent) preventEvent(event);
     }
 
-    function mouseup () {
+    function mouseup() {
       clearTimeout(tryScrollTimeout); // Prevent any further grid scrolling.
 
       if (useProxy) {
@@ -475,12 +476,12 @@ pui.attachDragDrop = function (dom, properties) {
       addEvent(document, "mousemove", mousemove);
       addEvent(document, "mouseup", mouseup);
     }
-    document.onselectstart = function (e) {
+    document.onselectstart = function(e) {
       return false;
     };
   } // end mousedown.
 
-  function canScrollUp () {
+  function canScrollUp() {
     if (drop.row == null) return false;
     if (drop.grid.atTop()) return false;
     if (drop.row == 0) return true;
@@ -488,7 +489,7 @@ pui.attachDragDrop = function (dom, properties) {
     return false;
   }
 
-  function canScrollDown () {
+  function canScrollDown() {
     if (drop.row == null) return false;
     if (drop.grid.atBottom()) return false;
     if (drop.row == drop.grid.cells.length) return true;
@@ -498,7 +499,7 @@ pui.attachDragDrop = function (dom, properties) {
   /**
    * Check if the grid can be scrolled up/down, depending which grid line is hovered over, and scroll. tryScroll is a timeout callback.
    */
-  function tryScroll () {
+  function tryScroll() {
     var go = false;
     if (canScrollUp()) {
       drop.grid.recNum -= 1;
@@ -539,7 +540,7 @@ pui.attachDragDrop = function (dom, properties) {
    * @param {Object|WebElement} dropEl    A grid line or another element.
    * @returns {Object}
    */
-  function getDropInfo (dropEl) {
+  function getDropInfo(dropEl) {
     var grid = dropEl.relatedGrid;
     if (grid == null) {
       return { dom: dropEl, id: dropEl.id };
@@ -576,12 +577,13 @@ pui.attachDragDrop = function (dom, properties) {
   // #4632
   if (window["PointerEvent"]) {
     addEvent(dom, "pointerdown", mousedown);
-  } else {
+  }
+  else {
     addEvent(dom, "mousedown", mousedown);
     addEvent(dom, "touchstart", mousedown);
   }
 
-  function executeEvent (eventName) {
+  function executeEvent(eventName) {
     var eventCode = properties[eventName];
     if (pui.isRoutine(eventCode)) {
       pui.bypassValidation = pui.ddBypassValidation;

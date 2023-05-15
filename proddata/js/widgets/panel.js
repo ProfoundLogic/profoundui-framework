@@ -239,7 +239,7 @@ pui.widgets.panelStyles = {
 pui.widgets.defaultPanelWidth = 200;
 pui.widgets.defaultPanelHeight = 100;
 
-pui.widgets.getPanelProxy = function (defaults) {
+pui.widgets.getPanelProxy = function(defaults) {
   var pstyle = defaults["panel style"];
   var settings = pui.widgets.panelStyles[pstyle];
 
@@ -265,7 +265,7 @@ pui.widgets.getPanelProxy = function (defaults) {
     parms.properties.value = "";
   }
   parms.properties["panel style"] = pstyle;
-  parms.evalProperty = function (propName) {
+  parms.evalProperty = function(propName) {
     return parms.properties[propName];
   };
   pui.widgets["panel"].propertySetters["field type"](parms);
@@ -280,7 +280,7 @@ pui.widgets.getPanelProxy = function (defaults) {
   return parms.dom;
 };
 
-pui.widgets.resizePanel = function (panel, settings, width, height, parms) {
+pui.widgets.resizePanel = function(panel, settings, width, height, parms) {
   if (typeof width == "string") {
     if (width != "" && !isNaN(width)) width += "px";
     if (width.length >= 3 && width.substr(width.length - 2) == "px") width = parseInt(width);
@@ -377,8 +377,8 @@ pui.widgets.add({
 
   propertySetters: {
 
-    "field type": function (parms) {
-      parms.dom.sizeMe = function () {
+    "field type": function(parms) {
+      parms.dom.sizeMe = function() {
         var pstyle = parms.properties["panel style"];
         var settings = pui.widgets.panelStyles[pstyle];
         if (settings == null) {
@@ -510,7 +510,7 @@ pui.widgets.add({
       if (!parms.design && windowDiv != null && windowDiv.isPUIWindow == true) {
         new pui.MoveListenerBoundAtClick({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv });
 
-        addEvent(panel.textDiv, "touchstart", function (e) {
+        addEvent(panel.textDiv, "touchstart", function(e) {
           if (e.touches.length != 1) return; // Only deal with one finger
           var touch = e.touches[0];
           windowDiv.touch = {};
@@ -519,7 +519,7 @@ pui.widgets.add({
           windowDiv.touch.startLeft = parseInt(windowDiv.style.left);
           windowDiv.touch.startTop = parseInt(windowDiv.style.top);
         });
-        addEvent(panel.textDiv, "touchmove", function (e) {
+        addEvent(panel.textDiv, "touchmove", function(e) {
           if (e.touches.length != 1) return; // Only deal with one finger
           var touch = e.touches[0];
           var x = touch.pageX;
@@ -544,7 +544,7 @@ pui.widgets.add({
       parms.dom.panel.textDiv.innerHTML = parms.evalProperty("value");
     },
 
-    "panel style": function (parms) {
+    "panel style": function(parms) {
       var pstyle = parms.value;
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
@@ -578,11 +578,11 @@ pui.widgets.add({
       pui.widgets.resizePanel(panel, settings, parms.properties["width"], parms.properties["height"]);
     },
 
-    "value": function (parms) {
+    "value": function(parms) {
       parms.dom.panel.textDiv.innerHTML = parms.value;
     },
 
-    "width": function (parms) {
+    "width": function(parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
       else parms.dom.style.width = parms.value;
       var pstyle = parms.properties["panel style"];
@@ -596,7 +596,7 @@ pui.widgets.add({
       pui.widgets.resizePanel(panel, settings, parms.value, parms.properties["height"], parms);
     },
 
-    "height": function (parms) {
+    "height": function(parms) {
       if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
       else parms.dom.style.height = parms.value;
       var pstyle = parms.properties["panel style"];
@@ -610,59 +610,59 @@ pui.widgets.add({
       pui.widgets.resizePanel(panel, settings, parms.properties["width"], parms.value, parms);
     },
 
-    "color": function (parms) {
+    "color": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "#ffffff";
       parms.dom.panel.textDiv.style.color = value;
       parms.dom.style.color = parms.dom.panel.textDiv.style.color;
     },
 
-    "font family": function (parms) {
+    "font family": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "Arial";
       parms.dom.panel.textDiv.style.fontFamily = value;
       parms.dom.style.fontFamily = parms.dom.panel.textDiv.style.fontFamily;
     },
 
-    "font size": function (parms) {
+    "font size": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "12px";
       parms.dom.panel.textDiv.style.fontSize = value;
       parms.dom.style.fontSize = parms.dom.panel.textDiv.style.fontSize;
     },
 
-    "font style": function (parms) {
+    "font style": function(parms) {
       parms.dom.panel.textDiv.style.fontStyle = parms.value;
     },
 
-    "font variant": function (parms) {
+    "font variant": function(parms) {
       parms.dom.panel.textDiv.style.fontVariant = parms.value;
     },
 
-    "font weight": function (parms) {
+    "font weight": function(parms) {
       var value = parms.value;
       // if (value == null || value == "") value = "bold";
       parms.dom.panel.textDiv.style.fontWeight = value;
       parms.dom.style.fontWeight = parms.dom.panel.textDiv.style.fontWeight;
     },
 
-    "letter spacing": function (parms) {
+    "letter spacing": function(parms) {
       parms.dom.panel.textDiv.style.letterSpacing = parms.value;
     },
 
-    "text align": function (parms) {
+    "text align": function(parms) {
       parms.dom.panel.textDiv.style.textAlign = parms.value;
     },
 
-    "text decoration": function (parms) {
+    "text decoration": function(parms) {
       parms.dom.panel.textDiv.style.textDecoration = parms.value;
     },
 
-    "text transform": function (parms) {
+    "text transform": function(parms) {
       parms.dom.panel.textDiv.style.textTransform = parms.value;
     },
 
-    "word spacing": function (parms) {
+    "word spacing": function(parms) {
       parms.dom.panel.textDiv.style.wordSpacing = parms.value;
     }
 

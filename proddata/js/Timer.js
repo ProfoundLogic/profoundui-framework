@@ -24,7 +24,7 @@ if (typeof (window["pui"]) == "undefined") window["pui"] = {};
  * @constructor
  */
 
-window["pui"]["Timer"] = function () {
+window["pui"]["Timer"] = function() {
   // private variables
   var lastResetTime = new Date().getTime();
   var started = false;
@@ -41,7 +41,7 @@ window["pui"]["Timer"] = function () {
   // public methods
 
   // start timer
-  this["start"] = function () {
+  this["start"] = function() {
     if (started) return;
 
     if (me["resetOnUserActivity"]) {
@@ -65,7 +65,7 @@ window["pui"]["Timer"] = function () {
   };
 
   // stop timer function
-  this["stop"] = function () {
+  this["stop"] = function() {
     if (!started) return;
 
     clearInterval(intervalId);
@@ -85,12 +85,12 @@ window["pui"]["Timer"] = function () {
   };
 
   // reset the timer
-  this["reset"] = function () {
+  this["reset"] = function() {
     lastResetTime = new Date().getTime();
   };
 
   // check if timeout has occurred
-  this["check"] = function () {
+  this["check"] = function() {
     var elapsedTime = (new Date().getTime()) - lastResetTime;
     if (me["showDebugInfo"]) {
       document.title = parseInt(elapsedTime / 1000); // show elapsed time to the nearest second

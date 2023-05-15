@@ -17,10 +17,10 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-pui.layout.template.processDOM = function (dom) {
+pui.layout.template.processDOM = function(dom) {
   var toRepeat = [];
 
-  function processNodes (el) {
+  function processNodes(el) {
     if (el == null) return;
     if (el.getAttribute != null) {
       if (el.getAttribute("condition") == "false" && el.parentNode != null) {
@@ -59,7 +59,7 @@ pui.layout.template.processDOM = function (dom) {
     }
   }
 
-  function repeatNodes () {
+  function repeatNodes() {
     var repeatObj;
     while ((repeatObj = toRepeat.pop()) != null) {
       var el = repeatObj.el;

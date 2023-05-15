@@ -22,7 +22,7 @@
  * A collection of defined widgets, including user-defined ones.
  * @constructor
  */
-pui.Widgets = function () {
+pui.Widgets = function() {
   // private variables
   this._widgetArray = []; // List of widgets that can be iterated over for "field type" menu entries, etc.
 };
@@ -34,7 +34,7 @@ pui.Widgets = function () {
  * @param {String} name
  * @returns {String}
  */
-pui.Widgets.prototype._deriveNewId = function (name) {
+pui.Widgets.prototype._deriveNewId = function(name) {
   var words = name.split(" ");
   var newId = "";
   for (var i = 0; i < words.length; i++) {
@@ -50,7 +50,7 @@ pui.Widgets.prototype._deriveNewId = function (name) {
  * @param {String} name
  * @returns {String}
  */
-pui.Widgets.prototype._deriveMenuName = function (name) {
+pui.Widgets.prototype._deriveMenuName = function(name) {
   var words = name.split(" ");
   var menuName = "";
   for (var i = 0; i < words.length; i++) {
@@ -63,7 +63,7 @@ pui.Widgets.prototype._deriveMenuName = function (name) {
 };
 
 // public methods
-pui.Widgets.prototype.getAllWidgets = function () {
+pui.Widgets.prototype.getAllWidgets = function() {
   return this._widgetArray;
 };
 
@@ -72,7 +72,7 @@ pui.Widgets.prototype.getAllWidgets = function () {
  * @param {Boolean|undefined} fullList
  * @returns {Array.<Object>}
  */
-pui.Widgets.prototype.getWidgetList = function (fullList) {
+pui.Widgets.prototype.getWidgetList = function(fullList) {
   if (fullList == null) fullList = true;
   var list = [];
   for (var i = 0; i < this._widgetArray.length; i++) {
@@ -87,7 +87,7 @@ pui.Widgets.prototype.getWidgetList = function (fullList) {
 /**
  * @returns {Array.<String>}
  */
-pui.Widgets.prototype.getMenuOptions = function () {
+pui.Widgets.prototype.getMenuOptions = function() {
   var menu = [];
   for (var i = 0; i < this._widgetArray.length; i++) {
     var menuName = this._widgetArray[i].menuName;
@@ -109,7 +109,7 @@ pui.Widgets.prototype.getMenuOptions = function () {
  * @param {String|Array.<String>} menuName
  * @returns {Object}
  */
-pui.Widgets.prototype.getWidgetByMenuName = function (menuName) {
+pui.Widgets.prototype.getWidgetByMenuName = function(menuName) {
   for (var i = 0; i < this._widgetArray.length; i++) {
     var widget = this._widgetArray[i];
     if (typeof widget.menuName == "string") {
@@ -128,7 +128,7 @@ pui.Widgets.prototype.getWidgetByMenuName = function (menuName) {
  * Add a widget to the global list, and set default values on any unconfigured properties. (API)
  * @param {Object} obj
  */
-pui.Widgets.prototype.add = function (obj) {
+pui.Widgets.prototype.add = function(obj) {
   var name = obj.name;
   if (name != null) {
     // assign defaults
@@ -169,7 +169,7 @@ pui.Widgets.prototype.add = function (obj) {
  * @param {String} widgetName
  * @param {String} propName
  */
-pui.Widgets.prototype.mapInputProp = function (widgetName, propName) {
+pui.Widgets.prototype.mapInputProp = function(widgetName, propName) {
   if (this[widgetName]) {
     var inputProps = this[widgetName].inputProps;
     if (inputProps == null) inputProps = this[widgetName].inputProps = {};
@@ -187,7 +187,7 @@ pui.Widgets.prototype.mapInputProp = function (widgetName, propName) {
  * pui.renderFormat and many Designer methods call BasicWidget's "render" after setting all properties.
  * @param {SetterParms} parms
  */
-pui.Widgets.prototype.bidirGlobalPropertySetter = function (parms) {
+pui.Widgets.prototype.bidirGlobalPropertySetter = function(parms) {
   var puiwidget;
   if (parms.dom && parms.dom.pui && parms.dom.pui.widget) puiwidget = parms.dom.pui.widget;
 
@@ -205,7 +205,9 @@ pui.Widgets.prototype.bidirGlobalPropertySetter = function (parms) {
           // The custom widget uses a subclass of pui.BasicWidget, which implements necessary methods.
           puiwidget = new widgetConfig["constr"](parms, widgetName);
         }
-        catch (exc) { console.log(exc); } // In case the custom constructor throws exceptions it's nicer to keep rendering and not halt.
+        catch (exc) {
+          console.log(exc);
+        } // In case the custom constructor throws exceptions it's nicer to keep rendering and not halt.
       }
       else {
         puiwidget = new pui.BasicWidget(parms, widgetName);
@@ -224,7 +226,9 @@ pui.Widgets.prototype.bidirGlobalPropertySetter = function (parms) {
       if (typeof puiwidget["setProperty"] === "function") puiwidget["setProperty"](parms);
     }
   }
-  catch (exc) { console.log(exc); }
+  catch (exc) {
+    console.log(exc);
+  }
 };
 
 pui.widgets = new pui.Widgets();
@@ -233,7 +237,7 @@ pui.widgets = new pui.Widgets();
  * Build a list of style choices for the "button style" property of the "styled button" widget.
  * @returns {Array.<Object>}
  */
-pui.widgets.getButtonStyles = function () {
+pui.widgets.getButtonStyles = function() {
   var buttonStyleArray = [];
   for (var buttonStyle in pui.widgets.buttonStyles) {
     buttonStyleArray.push(buttonStyle);
@@ -245,7 +249,7 @@ pui.widgets.getButtonStyles = function () {
  * Build a list of style choices for the "panel style" property of the "panel" widget.
  * @returns {Array.<Object>}
  */
-pui.widgets.getPanelStyles = function () {
+pui.widgets.getPanelStyles = function() {
   var panelStyleArray = [];
   for (var panelStyle in pui.widgets.panelStyles) {
     panelStyleArray.push(panelStyle);
@@ -257,7 +261,7 @@ pui.widgets.getPanelStyles = function () {
  * Build a list of chart choices for the "chart type" property of the "chart" widget.
  * @returns {Array.<String>}
  */
-pui.widgets.getChartTypes = function () {
+pui.widgets.getChartTypes = function() {
   return pui.widgets.chartTypes;
 };
 
@@ -265,7 +269,7 @@ pui.widgets.getChartTypes = function () {
  * Build a list of style choices for the "tab panel style" property of the "tab panel" widget.
  * @returns {Array.<Object>}
  */
-pui.widgets.getTabStyles = function () {
+pui.widgets.getTabStyles = function() {
   var tabStyleArray = [];
   for (var tabStyle in pui.widgets.tabStyles) {
     tabStyleArray.push(tabStyle);
@@ -286,7 +290,7 @@ pui.widgets.getTabStyles = function () {
  * @constructor
  * @returns {pui.BasicWidget}
  */
-pui.BasicWidget = function (parms, widgetName) {
+pui.BasicWidget = function(parms, widgetName) {
   // Public.
   // The widget name gets stored under a non-enumerable, non-writable, configurable property: widgetName.
   Object.defineProperties(this, {
@@ -326,7 +330,7 @@ pui.BasicWidget.prototype = Object.create(pui.BaseClass.prototype);
  * Remove everything in the DIV, delete all object properties, and call a 'cleanup' method if any subclasses implement it.
  * The DIV cannot be removed from the DOM here; Genie needs the element to remain when switching in and out of design mode.
  */
-pui.BasicWidget.prototype.destroy = function () {
+pui.BasicWidget.prototype.destroy = function() {
   if (this.dom != null) {
     this.dom.innerHTML = "";
     this.dom.removeEventListener("input", this);
@@ -336,7 +340,9 @@ pui.BasicWidget.prototype.destroy = function () {
   try {
     if (typeof this["cleanup"] === "function") this["cleanup"]();
   }
-  catch (exc) { console.log(exc); }
+  catch (exc) {
+    console.log(exc);
+  }
   this.deleteOwnProperties();
 };
 
@@ -344,11 +350,13 @@ pui.BasicWidget.prototype.destroy = function () {
  * Wrapper for a function to update the DOM using internal data. Profound UI calls basicRender in about 14 places--after
  * setting all properties; i.e. in renderFormat after all properties are set and in similar places in Designer.
  */
-pui.BasicWidget.prototype.basicRender = function () {
+pui.BasicWidget.prototype.basicRender = function() {
   try {
     if (typeof this["render"] === "function") this["render"]();
   }
-  catch (exc) { console.log(exc); }
+  catch (exc) {
+    console.log(exc);
+  }
 
   // If the item is inside a grid, then make sure it gets rendered for each cell, not just the first.
   if (this.design && this._designItem) {
@@ -363,7 +371,7 @@ pui.BasicWidget.prototype.basicRender = function () {
  * @param {String} propName
  * @returns {Boolean}
  */
-pui.BasicWidget.prototype.isInputCapableProp = function (propName) {
+pui.BasicWidget.prototype.isInputCapableProp = function(propName) {
   var wn = this.widgetName;
   return propName == "value" ||
     (wn && pui.widgets[wn] && pui.widgets[wn].inputProps && pui.widgets[wn].inputProps[propName] === true);
@@ -375,7 +383,7 @@ pui.BasicWidget.prototype.isInputCapableProp = function (propName) {
  * @param {Object} formattingObj
  * @param {String} fieldName
  */
-pui.BasicWidget.prototype.setFormattingObj = function (propname, formattingObj, fieldName) {
+pui.BasicWidget.prototype.setFormattingObj = function(propname, formattingObj, fieldName) {
   this._formatMap[propname] = formattingObj;
   this._fieldMap[fieldName] = propname;
 };
@@ -387,7 +395,7 @@ pui.BasicWidget.prototype.setFormattingObj = function (propname, formattingObj, 
  * @param {String} fieldName
  * @returns {Object|undefined}
  */
-pui.BasicWidget.prototype.getFormattingObj = function (fieldName) {
+pui.BasicWidget.prototype.getFormattingObj = function(fieldName) {
   var propname = this._fieldMap[fieldName];
   if (propname) {
     return this._formatMap[propname];
@@ -400,7 +408,7 @@ pui.BasicWidget.prototype.getFormattingObj = function (fieldName) {
  * @param {String|undefined|Null} propname
  * @returns {undefined|String}
  */
-pui.BasicWidget.prototype.getPropertyValue = function (propname) {
+pui.BasicWidget.prototype.getPropertyValue = function(propname) {
   var returnVal;
   if (propname != null) {
     var format = this._formatMap[propname];
@@ -416,7 +424,9 @@ pui.BasicWidget.prototype.getPropertyValue = function (propname) {
       }
       else if (returnVal == null) returnVal = "";
     }
-    catch (exc) { console.log(exc); }
+    catch (exc) {
+      console.log(exc);
+    }
   }
   return returnVal;
 };
@@ -427,7 +437,7 @@ pui.BasicWidget.prototype.getPropertyValue = function (propname) {
  * @param {String} fieldName
  * @returns {undefined|String}
  */
-pui.BasicWidget.prototype.getFieldValue = function (fieldName) {
+pui.BasicWidget.prototype.getFieldValue = function(fieldName) {
   var propname = this._fieldMap[fieldName];
   return this.getPropertyValue(propname);
 };
@@ -438,7 +448,7 @@ pui.BasicWidget.prototype.getFieldValue = function (fieldName) {
  * @param {String} propname
  * @returns {String}
  */
-pui.BasicWidget.prototype["evalProperty"] = function (propname) {
+pui.BasicWidget.prototype["evalProperty"] = function(propname) {
   return evalPropertyValue(this._properties[propname], this._originalValues[propname], this.dom);
 };
 
@@ -449,7 +459,7 @@ pui.BasicWidget.prototype["evalProperty"] = function (propname) {
  * @param {String} propname
  * @returns {String}
  */
-pui.BasicWidget.prototype["getValue"] = function (propname) {
+pui.BasicWidget.prototype["getValue"] = function(propname) {
   return this["evalProperty"](propname);
 };
 
@@ -457,7 +467,7 @@ pui.BasicWidget.prototype["getValue"] = function (propname) {
  * Handle any properties being set by the bidirGlobalSetter. Store properties so that evalProperty can be called.
  * @param {SetterParms} parms
  */
-pui.BasicWidget.prototype.basicSetProperty = function (parms) {
+pui.BasicWidget.prototype.basicSetProperty = function(parms) {
   var propName = parms.propertyName;
   this.design = parms.design;
   this._properties = parms.properties;
@@ -477,7 +487,7 @@ pui.BasicWidget.prototype.basicSetProperty = function (parms) {
  * value to be included in a screen response.
  * @param {Event} e
  */
-pui.BasicWidget.prototype["handleEvent"] = function (e) {
+pui.BasicWidget.prototype["handleEvent"] = function(e) {
   switch (e.type) {
     case "input":
     case "change":
