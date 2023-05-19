@@ -314,7 +314,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     entry.div.classList.add("pui-stack-entry-selected");
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
-    code.textContent = entry.code;
+    code.innerHTML = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
     if (typeof hljs === "object") hljs["highlightElement"](code);
 
