@@ -209,7 +209,10 @@ pui.PagingScrollBar = function() {
   };
 
   function handle(delta) {
-    document.getElementById(scrollbarId).scrollTop -= delta * multiplier;
+    if (document.getElementById(scrollbarId)) {
+      document.getElementById(scrollbarId).scrollTop -= delta * multiplier;
+    }
+    else outerDiv.scrollTop -= delta * multiplier;
   }
 
   /**

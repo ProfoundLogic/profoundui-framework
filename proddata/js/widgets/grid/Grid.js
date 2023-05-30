@@ -83,7 +83,6 @@ pui.BaseGrid.prototype.sendPropertyToDesigner = function(itm, propertyName, valu
 
 pui.Grid = function() {
   pui.BaseGrid.call(this); // Call the parent constructor to set inherited properties--this.dataArray, this.fieldNames, etc.
-
   // public properties
   if (pui.designer.DataFields != null) {
     this.dataFields = new pui.designer.DataFields();
@@ -2189,7 +2188,12 @@ pui.Grid = function() {
         me.mask();
         me.gridLoading();
       }
-      runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, true);
+      if (context == "genie") {
+        runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, false);
+      }
+      else {
+        runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, true);
+      }
     }
     else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
@@ -7682,6 +7686,7 @@ pui.Grid = function() {
    * @returns {undefined|response.results|pui.sqlcache.results}
    */
   function runSQL(sql, limit, start, callback, total, customURL, cache) {
+    
     if (limit == null) limit = 99;
     if (start == null) start = 1;
     var pstring = null;
@@ -7738,6 +7743,7 @@ pui.Grid = function() {
       }
     }
     var returnVal = null;
+
     var url = getProgramURL("PUI0009102.PGM");
     if (customURL) url = pui.appendAuth(customURL);
     var req = new pui.Ajax(url);
