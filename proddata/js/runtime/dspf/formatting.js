@@ -688,13 +688,18 @@ pui.FieldFormat = {
         valid = false;
       }
 
-      value = trim(value);
+      value = value.trim();
 
       if (valid) {
         valid = !(/[^\d.\-]/.test(value)) && value.split("-").length <= 2 && value.split(".").length <= 2;
       }
 
-      var errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid number", [obj.value]);
+      var errorMsg;
+      if (pui["getLanguageText"]) {
+        errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid number", [obj.value]);
+      } else {
+        errorMsg = "Invalid Number";
+      }
       if (valid) {
         parts = value.replace(/-/, "").split(".");
         if (parts[0].length > parseInt(obj.dataLength, 10) - parseInt(obj.decPos, 10)) {
