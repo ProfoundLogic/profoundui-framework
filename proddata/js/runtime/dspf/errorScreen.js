@@ -160,7 +160,7 @@ pui["errorScreen"]["maximize"] = function() {
 
 pui["errorScreen"]["restore"] = function() {
   if (pui["errorScreen"]["maximizeIcon"].pui.properties["icon"].includes("maximize")) {
-    pui["errorScreen"]["onload"]["mazimize"]();
+    pui["errorScreen"]["maximize"]();
     return;
   }
 
@@ -182,6 +182,7 @@ pui["errorScreen"]["positionMaximizeIcon"] = function() {
   setTimeout(function() {
     if (pui["errorScreen"]["maximizeIcon"]) {
       var panel = document.querySelector("#ErrorPanel");
+      if (!panel) return;
       var x = panel.offsetLeft + panel.offsetWidth - 35;
       var y = panel.offsetTop + 10;
       pui["errorScreen"]["maximizeIcon"].style.left = x + "px";
@@ -313,7 +314,7 @@ pui["errorScreen"]["interactiveStack"] = function() {
     }
     entry.div.classList.add("pui-stack-entry-selected");
     var code = right.querySelector(".pui-error-screen-stack-right pre code");
-    code.textContent = entry.code;
+    code.innerHTML = entry.code;
     if (!entry.code) code.textContent = "\n// Code not available for this error stack entry.\n";
     if (typeof hljs === "object") hljs["highlightElement"](code);
 
