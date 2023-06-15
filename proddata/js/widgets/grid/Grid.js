@@ -352,13 +352,14 @@ pui.Grid = function() {
   var filterMultiPanel = null; // UI for picking multiple filters from a data list to set on one column.
 
   this.enableDesign = function() {
+    var i;
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
     if (me.scrollbarObj != null) me.scrollbarObj.designMode = true;
-    for (var i = 0; i < me.vLines.length; i++) {
+    for (i = 0; i < me.vLines.length; i++) {
       lineDesign(me.vLines, i, true);
     }
-    for (var i = 0; i < me.hLines.length; i++) {
+    for (i = 0; i < me.hLines.length; i++) {
       lineDesign(me.hLines, i, false);
     }
     for (var row = 0; row < me.cells.length; row++) {
@@ -474,6 +475,7 @@ pui.Grid = function() {
   };
 
   this.doExpandToLayout = function(force) {
+    var i;
     if (!force) {
       if (me.designMode && toolbar.loadingDisplay) return;
     }
@@ -488,7 +490,7 @@ pui.Grid = function() {
     }
     var colWidths = me.getColumnWidths().split(",");
     var sum = 0;
-    for (var i = 0; i < colWidths.length; i++) {
+    for (i = 0; i < colWidths.length; i++) {
       var colWidth = colWidths[i];
       colWidth = Number(colWidth);
       colWidths[i] = colWidth;
@@ -496,7 +498,7 @@ pui.Grid = function() {
     }
     var diff = (width - sum) / colWidths.length;
     diff = parseInt(diff);
-    for (var i = 0; i < colWidths.length; i++) {
+    for (i = 0; i < colWidths.length; i++) {
       colWidths[i] += diff;
     }
     me.setColumnWidths(colWidths);
@@ -599,6 +601,7 @@ pui.Grid = function() {
   };
 
   this.expand = function(button) {
+    var i;
     if (me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
     if (me.zoomDiv != null) me.zoomDiv.style.display = "none";
@@ -609,14 +612,14 @@ pui.Grid = function() {
     rowCount = rowCount * (me.foldMultiple - 1);
     if (!me.subfileHidden) {
       me.setProperty("row height", me.rowHeight * me.foldMultiple);
-      for (var i = 0; i < rowCount; i++) {
+      for (i = 0; i < rowCount; i++) {
         me.removeLastRowCells();
       }
       me.sizeAllCells();
       me.setAllCellStyles();
       me.getData();
       // reenable any elements that were below the visible portion of the cell when collapsed
-      for (var i = 0; i < me.runtimeChildren.length; i++) {
+      for (i = 0; i < me.runtimeChildren.length; i++) {
         var domEls = me.runtimeChildren[i].domEls;
         if (domEls) {
           for (var idx in domEls) {
@@ -748,6 +751,7 @@ pui.Grid = function() {
    * @returns {undefined}
    */
   this.exportCSV = function(fileName, exportXLSX) {
+    var col, columnId, fieldName, heading, headings, i, idx, j, m, n, widths;
     // If "xlsx export" is not set but a config flag is, then "Export to Excel" uses XLSX.
     if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true")) {
       exportXLSX = true;
@@ -805,7 +809,7 @@ pui.Grid = function() {
     var totalColumns = me.vLines.length - 1;
     if (me.hidableColumns && !me.exportVisableOnly) totalColumns = me.columnInfo.length; // More columns will export than there are ones visible.
 
-    for (var i = 0; i < totalColumns; i++) {
+    for (i = 0; i < totalColumns; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
@@ -820,11 +824,11 @@ pui.Grid = function() {
     var colcount = 0;
 
     // go through all grid elements, retrieve field names, and identify data index by field name
-    for (var i = 0, n = me.runtimeChildren.length; i < n; i++) {
+    for (i = 0, n = me.runtimeChildren.length; i < n; i++) {
       var itm = me.runtimeChildren[i];
       // Look only for widgets that are not hidden.
       if (itm["visibility"] != "hidden") {
-        var col = Number(itm["column"]);
+        col = Number(itm["column"]);
         // If: "col" is valid and a widget for the column was not already found. (there can be multiple widgets per column, but only one exports).
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
           items[col] = itm;
@@ -847,8 +851,8 @@ pui.Grid = function() {
             if (pui.isBound(hyperlink) && hyperlink["dataType"] != "indicator" && hyperlink["dataType"] != "expression") {
               // If the hyperlink reference is bound, then it should be exported with XLSX as a link.
               // Find the column for the hyperlink-reference fieldname.
-              var fieldName = pui.fieldUpper(hyperlink["fieldName"]);
-              for (var j = 0, m = me.fieldNames.length; j < m; j++) {
+              fieldName = pui.fieldUpper(hyperlink["fieldName"]);
+              for (j = 0, m = me.fieldNames.length; j < m; j++) {
                 if (fieldName == me.fieldNames[j]) {
                   hyperlinks[col].linkBound = j;
                   break;
@@ -868,8 +872,8 @@ pui.Grid = function() {
           } // done handling hyperlink field.
 
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
-            var fieldName = pui.fieldUpper(val["fieldName"]);
-            for (var j = 0, m = me.fieldNames.length; j < m; j++) {
+            fieldName = pui.fieldUpper(val["fieldName"]);
+            for (j = 0, m = me.fieldNames.length; j < m; j++) {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm["columnId"]; // Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j; // Map the column number to the corresponding index in fieldNames and me.dataArray.
@@ -921,7 +925,6 @@ pui.Grid = function() {
     }
 
     // Get widths and headings of all columns, including hidden ones. #6476.
-    var widths, headings, col, n, columnId;
     if (me.hidableColumns && !me.exportVisableOnly) {
       widths = []; headings = [];
       var matchesCurCol = function(el) {
@@ -929,7 +932,7 @@ pui.Grid = function() {
       };
       for (col = 0, n = columnIds.length; col < n; col++) {
         columnId = columnIds[col];
-        var heading = ""; var width = 100;
+        heading = ""; var width = 100;
         if (columnId >= 0) {
           // Find the entry in columnInfo for the currentColumn.
           var found = me.columnInfo.find(matchesCurCol);
@@ -956,7 +959,7 @@ pui.Grid = function() {
 
       if (!me.hidableColumns || me.exportVisableOnly) widths = me.getColumnWidths().split(",");
 
-      for (var i = 0; i < columnArray.length && i < widths.length; i++) { // Get column widths. Omit any columns that are not being exported.
+      for (i = 0; i < columnArray.length && i < widths.length; i++) { // Get column widths. Omit any columns that are not being exported.
         if (columnArray[i] > -1) {
           widthsUse.push(Number(widths[i]));
         }
@@ -965,7 +968,7 @@ pui.Grid = function() {
       drawing = new pui.xlsx_drawing();
       colcount = 0;
       // Look at each column containing a value, set the format. Use same order that cell values will use.
-      for (var i = 0; i < columnArray.length; i++) {
+      for (i = 0; i < columnArray.length; i++) {
         if (columnArray[i] > -1) {
           worksheet.setColumnFormat(boundValFormats[i], colcount); // pass data type, decPos, etc.
           colcount++;
@@ -977,10 +980,10 @@ pui.Grid = function() {
     var worksheetCol = 0;
     if (me.hasHeader && me.exportWithHeadings) {
       if (exportXLSX) worksheet.newRow();
-      for (var i = 0; i < columnArray.length; i++) {
-        var idx = columnArray[i];
+      for (i = 0; i < columnArray.length; i++) {
+        idx = columnArray[i];
         if (idx > -1) {
-          var heading = "";
+          heading = "";
           if (me.hidableColumns && !me.exportVisableOnly) heading = headings[i];
           else heading = getInnerText(me.cells[0][i]);
 
@@ -1002,7 +1005,7 @@ pui.Grid = function() {
     // build csv or XLSX data
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.visibleDataArray;
-    for (var i = 0, n = dataRecords.length; i < n; i++) {
+    for (i = 0, n = dataRecords.length; i < n; i++) {
       var line = "";
       var record = dataRecords[i];
       if (record.hideRow != null && record.hideRow == true) continue;
@@ -1016,7 +1019,7 @@ pui.Grid = function() {
         fieldData.empty = true;
       }
       else {
-        for (var j = 0; j < me.fieldNames.length; j++) {
+        for (j = 0; j < me.fieldNames.length; j++) {
           fieldData[me.fieldNames[j]] = record[j];
         }
       }
@@ -1026,8 +1029,8 @@ pui.Grid = function() {
       if (exportXLSX) worksheet.newRow();
       worksheetCol = 0;
 
-      for (var j = 0, m = columnArray.length; j < m; j++) {
-        var idx = columnArray[j];
+      for (j = 0, m = columnArray.length; j < m; j++) {
+        idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
 
@@ -1752,6 +1755,7 @@ pui.Grid = function() {
         // NOTE: This assumes the DOM elements for each row will be the same.
 
         var domTest = null;
+        /* eslint no-unreachable-loop: 0 -- ignore because correctly using alternative, Object.keys, is verbose. */
         for (var i in field.domEls) {
           domTest = field.domEls[i];
           break;
@@ -7356,7 +7360,7 @@ pui.Grid = function() {
     };
 
     // cell.innerHTML = "content";
-    if (!me.cells[row]) me.cells[row] = new Array();
+    if (!me.cells[row]) me.cells[row] = [];
     cell.row = row;
     cell.col = col;
     me.cells[row][col] = cell;
