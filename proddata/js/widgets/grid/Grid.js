@@ -1971,15 +1971,12 @@ pui.Grid = function() {
     if (me.tableDiv.parentNode == null) return;
 
     // Set size
-    var left = parseInt(loadingDiv.style.left);
-    var top = parseInt(loadingDiv.style.top);
     var width = parseInt(loadingDiv.style.width) - 2;
     var height = parseInt(loadingDiv.style.height) - 5;
 
     if (animationDiv == null) animationDiv = document.createElement("div");
     animationDiv.style.display = "block";
     if (me.hasHeader) {
-      top += me.headerHeight;
       height = height - me.headerHeight;
     }
 
@@ -2431,8 +2428,6 @@ pui.Grid = function() {
       if (me["dataProps"]["load all rows"] != "true") {
         me.forceDataArray = false;
       }
-      var numRows = me.cells.length;
-      if (me.hasHeader) numRows = numRows - 1;
 
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
@@ -4373,7 +4368,6 @@ pui.Grid = function() {
           var objClass;
           var left;
           var top;
-          var pos;
           var fieldInfo;
           if (obj == null) {
             // try an input field
@@ -4586,7 +4580,6 @@ pui.Grid = function() {
 
       // check if the grid is inside a simple layout container with horizontal scrolling
       // if so, attach vertical scrollbar to the layout
-      var horizontalScroll = false;
       if (!me.designMode && me.container != null && me.container.tagName == "DIV" && me.container.getAttribute("container") == "true") {
         var parent = me.container.parentNode;
         if (parent != null && parent.tagName == "DIV" && parent.style.overflowX == "scroll") {
@@ -8057,13 +8050,13 @@ pui.Grid = function() {
 
       // Rearrange dom cells so tabbing is correct
       if (me.cells[row].length > to) {
-    	  var moveBefore = me.cells[row][to];
+        var moveBefore = me.cells[row][to];
         if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
           cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
         }
       }
       else {
-    	  var moveAfter = me.cells[row][me.cells[row].length - 1];
+        var moveAfter = me.cells[row][me.cells[row].length - 1];
         if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
           cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
         }
@@ -10315,7 +10308,6 @@ pui.Grid = function() {
       me.gridLoading();
 
       // set new filtertext only on confirm == "values x, y, z..."
-      count = 0;
       entries = dataMap.entries();
       dataCount = dataMap.size;
       var tempArray = [];
@@ -10324,7 +10316,6 @@ pui.Grid = function() {
         data = entry[0];
         checked = entry[1];
         if (checked == true) {
-          count++;
           tempArray.push(data);
         }
       }
@@ -10374,13 +10365,9 @@ pui.Grid = function() {
     var entries = [];
     var data;
     var checked = false;
-    var count = 0;
     var dataCount = 0;
     var rowCount = 0;
     var filterText = headerCell.filterText;
-    var headerFilterText = headerCell.filterText;
-    var checkFilterWithSQL = false;
-    var gotFilterArr = false;
 
     function insertRows() {
       tr = tbody.insertRow();
@@ -10454,7 +10441,6 @@ pui.Grid = function() {
       var start = 1;
       var dataURL = me["dataProps"]["data url"];
       if (dataURL == "") dataURL = null;
-      var hCell = headerCell;
       loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
     }
     else {
@@ -10514,23 +10500,16 @@ pui.Grid = function() {
       }
     }
 
-    function gettargetrow(e) {
-      var target = e.target;
-      if (target.tagName == "TD") target = target.parentNode;
-      if (target.tagName != "TR") return null;
-      return target;
-    }
-
     filterMultiPanel.onscroll = function() {
+      var i;
       // If all rows have displayed
       var dataLeft = dataCount - rowCount;
       if (dataCount <= 50 || dataLeft == 0) return;
 
-      var scrollHeight = filterMultiPanel.offsetHeight;
       if (filterMultiPanel.scrollTop >= (filterMultiPanel.scrollHeight - filterMultiPanel.offsetHeight)) {
         // If less than 50 records are left
         if (dataLeft <= 50) {
-          for (var i = 0; i < dataLeft; i++) {
+          for (i = 0; i < dataLeft; i++) {
             entry = entries.next().value;
             data = entry[0];
             checked = entry[1];
@@ -10540,7 +10519,7 @@ pui.Grid = function() {
         }
         // Display 50 more records
         else {
-          for (var i = 0; i < 50; i++) {
+          for (i = 0; i < 50; i++) {
             entry = entries.next().value;
             data = entry[0];
             checked = entry[1];
@@ -10587,7 +10566,6 @@ pui.Grid = function() {
       }
       // done creating sql query parameters.
 
-      var returnVal = null;
       var url = getProgramURL("PUI0009102.PGM");
       if (dataURL) url = pui.appendAuth(dataURL);
       var req = new pui.Ajax(url);
@@ -10628,8 +10606,7 @@ pui.Grid = function() {
       }
 
       req["onready"] = function(req) {
-        var response;
-        var successful = false;
+        var response, fieldName, fieldValue;
 
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
 
@@ -10643,33 +10620,31 @@ pui.Grid = function() {
 
           if (data.length >= 1) {
             var fieldOrder = []; // Array of field names to be in the same order as the columns.
-            for (field in response["results"][0]) {
+            for (var field in response["results"][0]) {
               fieldOrder.push(field);
             }
 
             for (var i = 0; i < data.length; i++) {
               var record = data[i];
-              var fieldNumber = 0;
               // Normal database-driven grids using dataURL or CustomURL don't have the field name in the headerCell
               if (hCell.fieldName != null) {
-                for (var fieldName in record) {
+                for (fieldName in record) {
                   if (fieldName.toUpperCase() == hCell.fieldName.toUpperCase()) {
-                    var fieldValue = record[fieldName];
+                    fieldValue = record[fieldName];
                     dataMap.set(fieldValue, false);
                   }
                 }
               }
               else {
-                var field, colNum, heading;
                 me.dataArray = data;
                 me.waitingOnRequest = false;
                 me.forceDataArray = true;
 
                 // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
                 var colFieldName = fieldOrder[hCell.columnId];
-                for (var fieldName in record) {
+                for (fieldName in record) {
                   if (fieldName == colFieldName) {
-                    var fieldValue = record[fieldName];
+                    fieldValue = record[fieldName];
                     dataMap.set(fieldValue, false);
                   }
                 }
