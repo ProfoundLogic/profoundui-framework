@@ -303,6 +303,10 @@ pui.Grid = function() {
   this.placeCursorFlag = false;
   this.positionAtTop = false;
 
+  // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
+  // filters while a prior AJAX request has been sent but the response is not received.
+  this.waitingOnRequest = false;
+
   var me = this;
 
   var addRowIcon;
@@ -332,11 +336,6 @@ pui.Grid = function() {
   var maskCover = null;
   var animationDiv = null;
 
-  // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
-  // filters while a prior AJAX request has been sent but the response is not received.
-  var waitingOnRequest = false;
-
-  var dataGridDidInitialSort = false; // Becomes true after setting up initial sort column in getData.
   var dataGridDidInitialSortOnce = false; // If initial sort was done once in getData()
   var suppressGetData = false; // Keep getData from running when called in functions already inside getData
   var dataGridDidRestoreState = false; // Becomes true after restoring datagrid state in getData.
@@ -351,7 +350,6 @@ pui.Grid = function() {
   var sortMultiOrder = []; // Order of priority of sorting multiple columns.
   var sortMultiPanel = null; // UI for picking multiple sort columns.
   var filterMultiPanel = null; // UI for picking multiple filters from a data list to set on one column.
-  var filterMultiPanelLoading = null; // panel that shows while filterMultiPanel is loading
 
   this.enableDesign = function() {
     me.designMode = true;
@@ -2026,7 +2024,7 @@ pui.Grid = function() {
         if (!dataGridDidInitialSortOnce) {
           dataGridDidInitialSortOnce = true;
           suppressGetData = true; // so GetData isn't called recursively
-          dataGridDidInitialSort = doInitialSort(true);
+          doInitialSort(true);
           suppressGetData = false;
         }
         // Only once, load any stored filter and sort options.
@@ -2751,7 +2749,6 @@ pui.Grid = function() {
     sortMultiOrder = null;
     sortMultiPanel = null;
     filterMultiPanel = null;
-    filterMultiPanelLoading = null;
     try {
       this.deleteOwnProperties(); // Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       me = null;
@@ -3941,7 +3938,6 @@ pui.Grid = function() {
       me.sortBy = "";
       me.mask();
       me.gridLoading();
-      dataGridDidInitialSort = false; // Use "initial sort column".
     }
     else {
       me.dataArray.sort(doInternalSort);
@@ -7686,7 +7682,6 @@ pui.Grid = function() {
    * @returns {undefined|response.results|pui.sqlcache.results}
    */
   function runSQL(sql, limit, start, callback, total, customURL, cache) {
-    
     if (limit == null) limit = 99;
     if (start == null) start = 1;
     var pstring = null;
@@ -10812,7 +10807,7 @@ pui.BaseGrid.getPropertiesModel = function() {
     { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf" },
     { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
     { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-    { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
+    { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
     { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
     { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
     { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
