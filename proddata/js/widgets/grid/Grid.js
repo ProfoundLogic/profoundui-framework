@@ -303,6 +303,10 @@ pui.Grid = function() {
   this.placeCursorFlag = false;
   this.positionAtTop = false;
 
+  // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
+  // filters while a prior AJAX request has been sent but the response is not received.
+  this.waitingOnRequest = false;
+
   var me = this;
 
   var addRowIcon;
@@ -332,11 +336,6 @@ pui.Grid = function() {
   var maskCover = null;
   var animationDiv = null;
 
-  // Prevent filtering too quickly on dataGrids. Grid state can get buggy if you change
-  // filters while a prior AJAX request has been sent but the response is not received.
-  var waitingOnRequest = false;
-
-  var dataGridDidInitialSort = false; // Becomes true after setting up initial sort column in getData.
   var dataGridDidInitialSortOnce = false; // If initial sort was done once in getData()
   var suppressGetData = false; // Keep getData from running when called in functions already inside getData
   var dataGridDidRestoreState = false; // Becomes true after restoring datagrid state in getData.
@@ -351,16 +350,16 @@ pui.Grid = function() {
   var sortMultiOrder = []; // Order of priority of sorting multiple columns.
   var sortMultiPanel = null; // UI for picking multiple sort columns.
   var filterMultiPanel = null; // UI for picking multiple filters from a data list to set on one column.
-  var filterMultiPanelLoading = null; // panel that shows while filterMultiPanel is loading
 
   this.enableDesign = function() {
+    var i;
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
     if (me.scrollbarObj != null) me.scrollbarObj.designMode = true;
-    for (var i = 0; i < me.vLines.length; i++) {
+    for (i = 0; i < me.vLines.length; i++) {
       lineDesign(me.vLines, i, true);
     }
-    for (var i = 0; i < me.hLines.length; i++) {
+    for (i = 0; i < me.hLines.length; i++) {
       lineDesign(me.hLines, i, false);
     }
     for (var row = 0; row < me.cells.length; row++) {
@@ -476,6 +475,7 @@ pui.Grid = function() {
   };
 
   this.doExpandToLayout = function(force) {
+    var i;
     if (!force) {
       if (me.designMode && toolbar.loadingDisplay) return;
     }
@@ -490,7 +490,7 @@ pui.Grid = function() {
     }
     var colWidths = me.getColumnWidths().split(",");
     var sum = 0;
-    for (var i = 0; i < colWidths.length; i++) {
+    for (i = 0; i < colWidths.length; i++) {
       var colWidth = colWidths[i];
       colWidth = Number(colWidth);
       colWidths[i] = colWidth;
@@ -498,7 +498,7 @@ pui.Grid = function() {
     }
     var diff = (width - sum) / colWidths.length;
     diff = parseInt(diff);
-    for (var i = 0; i < colWidths.length; i++) {
+    for (i = 0; i < colWidths.length; i++) {
       colWidths[i] += diff;
     }
     me.setColumnWidths(colWidths);
@@ -601,6 +601,7 @@ pui.Grid = function() {
   };
 
   this.expand = function(button) {
+    var i;
     if (me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
     if (me.zoomDiv != null) me.zoomDiv.style.display = "none";
@@ -611,14 +612,14 @@ pui.Grid = function() {
     rowCount = rowCount * (me.foldMultiple - 1);
     if (!me.subfileHidden) {
       me.setProperty("row height", me.rowHeight * me.foldMultiple);
-      for (var i = 0; i < rowCount; i++) {
+      for (i = 0; i < rowCount; i++) {
         me.removeLastRowCells();
       }
       me.sizeAllCells();
       me.setAllCellStyles();
       me.getData();
       // reenable any elements that were below the visible portion of the cell when collapsed
-      for (var i = 0; i < me.runtimeChildren.length; i++) {
+      for (i = 0; i < me.runtimeChildren.length; i++) {
         var domEls = me.runtimeChildren[i].domEls;
         if (domEls) {
           for (var idx in domEls) {
@@ -750,6 +751,7 @@ pui.Grid = function() {
    * @returns {undefined}
    */
   this.exportCSV = function(fileName, exportXLSX) {
+    var col, columnId, fieldName, heading, headings, i, idx, j, m, n, widths;
     // If "xlsx export" is not set but a config flag is, then "Export to Excel" uses XLSX.
     if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true")) {
       exportXLSX = true;
@@ -807,7 +809,7 @@ pui.Grid = function() {
     var totalColumns = me.vLines.length - 1;
     if (me.hidableColumns && !me.exportVisableOnly) totalColumns = me.columnInfo.length; // More columns will export than there are ones visible.
 
-    for (var i = 0; i < totalColumns; i++) {
+    for (i = 0; i < totalColumns; i++) {
       columnArray.push(-1);
       numericData.push(false);
       graphicData.push(false);
@@ -822,11 +824,11 @@ pui.Grid = function() {
     var colcount = 0;
 
     // go through all grid elements, retrieve field names, and identify data index by field name
-    for (var i = 0, n = me.runtimeChildren.length; i < n; i++) {
+    for (i = 0, n = me.runtimeChildren.length; i < n; i++) {
       var itm = me.runtimeChildren[i];
       // Look only for widgets that are not hidden.
       if (itm["visibility"] != "hidden") {
-        var col = Number(itm["column"]);
+        col = Number(itm["column"]);
         // If: "col" is valid and a widget for the column was not already found. (there can be multiple widgets per column, but only one exports).
         if (!isNaN(col) && col >= 0 && col < columnArray.length && columnArray[col] == -1) {
           items[col] = itm;
@@ -849,8 +851,8 @@ pui.Grid = function() {
             if (pui.isBound(hyperlink) && hyperlink["dataType"] != "indicator" && hyperlink["dataType"] != "expression") {
               // If the hyperlink reference is bound, then it should be exported with XLSX as a link.
               // Find the column for the hyperlink-reference fieldname.
-              var fieldName = pui.fieldUpper(hyperlink["fieldName"]);
-              for (var j = 0, m = me.fieldNames.length; j < m; j++) {
+              fieldName = pui.fieldUpper(hyperlink["fieldName"]);
+              for (j = 0, m = me.fieldNames.length; j < m; j++) {
                 if (fieldName == me.fieldNames[j]) {
                   hyperlinks[col].linkBound = j;
                   break;
@@ -870,8 +872,8 @@ pui.Grid = function() {
           } // done handling hyperlink field.
 
           if (pui.isBound(val) && val["dataType"] != "indicator" && val["dataType"] != "expression") {
-            var fieldName = pui.fieldUpper(val["fieldName"]);
-            for (var j = 0, m = me.fieldNames.length; j < m; j++) {
+            fieldName = pui.fieldUpper(val["fieldName"]);
+            for (j = 0, m = me.fieldNames.length; j < m; j++) {
               if (fieldName == me.fieldNames[j]) {
                 columnIds[col] = itm["columnId"]; // Map the columnId to the mapping of columns -> me.dataArray.
                 columnArray[col] = j; // Map the column number to the corresponding index in fieldNames and me.dataArray.
@@ -923,7 +925,6 @@ pui.Grid = function() {
     }
 
     // Get widths and headings of all columns, including hidden ones. #6476.
-    var widths, headings, col, n, columnId;
     if (me.hidableColumns && !me.exportVisableOnly) {
       widths = []; headings = [];
       var matchesCurCol = function(el) {
@@ -931,7 +932,7 @@ pui.Grid = function() {
       };
       for (col = 0, n = columnIds.length; col < n; col++) {
         columnId = columnIds[col];
-        var heading = ""; var width = 100;
+        heading = ""; var width = 100;
         if (columnId >= 0) {
           // Find the entry in columnInfo for the currentColumn.
           var found = me.columnInfo.find(matchesCurCol);
@@ -958,7 +959,7 @@ pui.Grid = function() {
 
       if (!me.hidableColumns || me.exportVisableOnly) widths = me.getColumnWidths().split(",");
 
-      for (var i = 0; i < columnArray.length && i < widths.length; i++) { // Get column widths. Omit any columns that are not being exported.
+      for (i = 0; i < columnArray.length && i < widths.length; i++) { // Get column widths. Omit any columns that are not being exported.
         if (columnArray[i] > -1) {
           widthsUse.push(Number(widths[i]));
         }
@@ -967,7 +968,7 @@ pui.Grid = function() {
       drawing = new pui.xlsx_drawing();
       colcount = 0;
       // Look at each column containing a value, set the format. Use same order that cell values will use.
-      for (var i = 0; i < columnArray.length; i++) {
+      for (i = 0; i < columnArray.length; i++) {
         if (columnArray[i] > -1) {
           worksheet.setColumnFormat(boundValFormats[i], colcount); // pass data type, decPos, etc.
           colcount++;
@@ -979,10 +980,10 @@ pui.Grid = function() {
     var worksheetCol = 0;
     if (me.hasHeader && me.exportWithHeadings) {
       if (exportXLSX) worksheet.newRow();
-      for (var i = 0; i < columnArray.length; i++) {
-        var idx = columnArray[i];
+      for (i = 0; i < columnArray.length; i++) {
+        idx = columnArray[i];
         if (idx > -1) {
-          var heading = "";
+          heading = "";
           if (me.hidableColumns && !me.exportVisableOnly) heading = headings[i];
           else heading = getInnerText(me.cells[0][i]);
 
@@ -1004,7 +1005,7 @@ pui.Grid = function() {
     // build csv or XLSX data
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.visibleDataArray;
-    for (var i = 0, n = dataRecords.length; i < n; i++) {
+    for (i = 0, n = dataRecords.length; i < n; i++) {
       var line = "";
       var record = dataRecords[i];
       if (record.hideRow != null && record.hideRow == true) continue;
@@ -1018,7 +1019,7 @@ pui.Grid = function() {
         fieldData.empty = true;
       }
       else {
-        for (var j = 0; j < me.fieldNames.length; j++) {
+        for (j = 0; j < me.fieldNames.length; j++) {
           fieldData[me.fieldNames[j]] = record[j];
         }
       }
@@ -1028,8 +1029,8 @@ pui.Grid = function() {
       if (exportXLSX) worksheet.newRow();
       worksheetCol = 0;
 
-      for (var j = 0, m = columnArray.length; j < m; j++) {
-        var idx = columnArray[j];
+      for (j = 0, m = columnArray.length; j < m; j++) {
+        idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
 
@@ -1754,6 +1755,7 @@ pui.Grid = function() {
         // NOTE: This assumes the DOM elements for each row will be the same.
 
         var domTest = null;
+        /* eslint no-unreachable-loop: 0 -- ignore because correctly using alternative, Object.keys, is verbose. */
         for (var i in field.domEls) {
           domTest = field.domEls[i];
           break;
@@ -1973,15 +1975,12 @@ pui.Grid = function() {
     if (me.tableDiv.parentNode == null) return;
 
     // Set size
-    var left = parseInt(loadingDiv.style.left);
-    var top = parseInt(loadingDiv.style.top);
     var width = parseInt(loadingDiv.style.width) - 2;
     var height = parseInt(loadingDiv.style.height) - 5;
 
     if (animationDiv == null) animationDiv = document.createElement("div");
     animationDiv.style.display = "block";
     if (me.hasHeader) {
-      top += me.headerHeight;
       height = height - me.headerHeight;
     }
 
@@ -2026,7 +2025,7 @@ pui.Grid = function() {
         if (!dataGridDidInitialSortOnce) {
           dataGridDidInitialSortOnce = true;
           suppressGetData = true; // so GetData isn't called recursively
-          dataGridDidInitialSort = doInitialSort(true);
+          doInitialSort(true);
           suppressGetData = false;
         }
         // Only once, load any stored filter and sort options.
@@ -2433,8 +2432,6 @@ pui.Grid = function() {
       if (me["dataProps"]["load all rows"] != "true") {
         me.forceDataArray = false;
       }
-      var numRows = me.cells.length;
-      if (me.hasHeader) numRows = numRows - 1;
 
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
@@ -2751,7 +2748,6 @@ pui.Grid = function() {
     sortMultiOrder = null;
     sortMultiPanel = null;
     filterMultiPanel = null;
-    filterMultiPanelLoading = null;
     try {
       this.deleteOwnProperties(); // Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       me = null;
@@ -3941,7 +3937,6 @@ pui.Grid = function() {
       me.sortBy = "";
       me.mask();
       me.gridLoading();
-      dataGridDidInitialSort = false; // Use "initial sort column".
     }
     else {
       me.dataArray.sort(doInternalSort);
@@ -4377,7 +4372,6 @@ pui.Grid = function() {
           var objClass;
           var left;
           var top;
-          var pos;
           var fieldInfo;
           if (obj == null) {
             // try an input field
@@ -4590,7 +4584,6 @@ pui.Grid = function() {
 
       // check if the grid is inside a simple layout container with horizontal scrolling
       // if so, attach vertical scrollbar to the layout
-      var horizontalScroll = false;
       if (!me.designMode && me.container != null && me.container.tagName == "DIV" && me.container.getAttribute("container") == "true") {
         var parent = me.container.parentNode;
         if (parent != null && parent.tagName == "DIV" && parent.style.overflowX == "scroll") {
@@ -7367,7 +7360,7 @@ pui.Grid = function() {
     };
 
     // cell.innerHTML = "content";
-    if (!me.cells[row]) me.cells[row] = new Array();
+    if (!me.cells[row]) me.cells[row] = [];
     cell.row = row;
     cell.col = col;
     me.cells[row][col] = cell;
@@ -7686,7 +7679,6 @@ pui.Grid = function() {
    * @returns {undefined|response.results|pui.sqlcache.results}
    */
   function runSQL(sql, limit, start, callback, total, customURL, cache) {
-    
     if (limit == null) limit = 99;
     if (start == null) start = 1;
     var pstring = null;
@@ -8062,13 +8054,13 @@ pui.Grid = function() {
 
       // Rearrange dom cells so tabbing is correct
       if (me.cells[row].length > to) {
-    	  var moveBefore = me.cells[row][to];
+        var moveBefore = me.cells[row][to];
         if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
           cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveBefore);
         }
       }
       else {
-    	  var moveAfter = me.cells[row][me.cells[row].length - 1];
+        var moveAfter = me.cells[row][me.cells[row].length - 1];
         if (cellBeingMoved.parentNode && moveBefore && moveBefore.parentNode) {
           cellBeingMoved.parentNode.insertBefore(cellBeingMoved, moveAfter.nextSibling);
         }
@@ -10320,7 +10312,6 @@ pui.Grid = function() {
       me.gridLoading();
 
       // set new filtertext only on confirm == "values x, y, z..."
-      count = 0;
       entries = dataMap.entries();
       dataCount = dataMap.size;
       var tempArray = [];
@@ -10329,7 +10320,6 @@ pui.Grid = function() {
         data = entry[0];
         checked = entry[1];
         if (checked == true) {
-          count++;
           tempArray.push(data);
         }
       }
@@ -10379,13 +10369,9 @@ pui.Grid = function() {
     var entries = [];
     var data;
     var checked = false;
-    var count = 0;
     var dataCount = 0;
     var rowCount = 0;
     var filterText = headerCell.filterText;
-    var headerFilterText = headerCell.filterText;
-    var checkFilterWithSQL = false;
-    var gotFilterArr = false;
 
     function insertRows() {
       tr = tbody.insertRow();
@@ -10459,7 +10445,6 @@ pui.Grid = function() {
       var start = 1;
       var dataURL = me["dataProps"]["data url"];
       if (dataURL == "") dataURL = null;
-      var hCell = headerCell;
       loadAllWithSQL(limit, start, (me.totalRecs == null), dataURL, headerCell);
     }
     else {
@@ -10519,23 +10504,16 @@ pui.Grid = function() {
       }
     }
 
-    function gettargetrow(e) {
-      var target = e.target;
-      if (target.tagName == "TD") target = target.parentNode;
-      if (target.tagName != "TR") return null;
-      return target;
-    }
-
     filterMultiPanel.onscroll = function() {
+      var i;
       // If all rows have displayed
       var dataLeft = dataCount - rowCount;
       if (dataCount <= 50 || dataLeft == 0) return;
 
-      var scrollHeight = filterMultiPanel.offsetHeight;
       if (filterMultiPanel.scrollTop >= (filterMultiPanel.scrollHeight - filterMultiPanel.offsetHeight)) {
         // If less than 50 records are left
         if (dataLeft <= 50) {
-          for (var i = 0; i < dataLeft; i++) {
+          for (i = 0; i < dataLeft; i++) {
             entry = entries.next().value;
             data = entry[0];
             checked = entry[1];
@@ -10545,7 +10523,7 @@ pui.Grid = function() {
         }
         // Display 50 more records
         else {
-          for (var i = 0; i < 50; i++) {
+          for (i = 0; i < 50; i++) {
             entry = entries.next().value;
             data = entry[0];
             checked = entry[1];
@@ -10592,7 +10570,6 @@ pui.Grid = function() {
       }
       // done creating sql query parameters.
 
-      var returnVal = null;
       var url = getProgramURL("PUI0009102.PGM");
       if (dataURL) url = pui.appendAuth(dataURL);
       var req = new pui.Ajax(url);
@@ -10633,8 +10610,7 @@ pui.Grid = function() {
       }
 
       req["onready"] = function(req) {
-        var response;
-        var successful = false;
+        var response, fieldName, fieldValue;
 
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
 
@@ -10648,33 +10624,31 @@ pui.Grid = function() {
 
           if (data.length >= 1) {
             var fieldOrder = []; // Array of field names to be in the same order as the columns.
-            for (field in response["results"][0]) {
+            for (var field in response["results"][0]) {
               fieldOrder.push(field);
             }
 
             for (var i = 0; i < data.length; i++) {
               var record = data[i];
-              var fieldNumber = 0;
               // Normal database-driven grids using dataURL or CustomURL don't have the field name in the headerCell
               if (hCell.fieldName != null) {
-                for (var fieldName in record) {
+                for (fieldName in record) {
                   if (fieldName.toUpperCase() == hCell.fieldName.toUpperCase()) {
-                    var fieldValue = record[fieldName];
+                    fieldValue = record[fieldName];
                     dataMap.set(fieldValue, false);
                   }
                 }
               }
               else {
-                var field, colNum, heading;
                 me.dataArray = data;
                 me.waitingOnRequest = false;
                 me.forceDataArray = true;
 
                 // Setup the field order - array of field names. Usually, the order is the order of keys of objects in the results array.
                 var colFieldName = fieldOrder[hCell.columnId];
-                for (var fieldName in record) {
+                for (fieldName in record) {
                   if (fieldName == colFieldName) {
-                    var fieldValue = record[fieldName];
+                    fieldValue = record[fieldName];
                     dataMap.set(fieldValue, false);
                   }
                 }
@@ -10812,7 +10786,7 @@ pui.BaseGrid.getPropertiesModel = function() {
     { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf" },
     { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
     { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-    { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
+    { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
     { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
     { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
     { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
