@@ -306,10 +306,12 @@ pui.TabLayout.prototype._addRemoveTabs = function() {
     var outerSpan = document.createElement("span"); // encapsulates tab text, left and right borders.
     var tabSpan = document.createElement("span"); // holds tab text.
     tabSpan.setAttribute("isTab", "true");
+    tabSpan.setAttribute("tabindex", "0");
     tabSpan.tabId = nextTabId;
     this._tabSpans.push(tabSpan);
 
     tabSpan.addEventListener("mousedown", this);
+    tabSpan.addEventListener("keyup", this);
     if (this.designMode) {
       tabSpan.addEventListener("dblclick", this);
 
@@ -452,9 +454,9 @@ pui.TabLayout.prototype.drawChanged = function() {
  * @public
  */
 pui.TabLayout.prototype["handleEvent"] = function(e) {
-  switch (e.type) {
+  switch (true) {
     // Handle changing tabs.
-    case "mousedown":
+    case (e.type === "mousedown" || (e.type === "keyup" && e.key === "Tab")) :
       if (this.designMode) e.stopPropagation(); // Prevent Resizer from moving the layout when dragging a tab.
 
       // If the user is clicking on a not-selected tab, switch to that tab.
@@ -491,14 +493,14 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       }
       return;
 
-    case "dblclick":
+    case (e.type === "dblclick"):
       this.tabSpanOndblclick(e); // In Designer, show inline edit box for changing tab names.
       return;
 
     //
     // Tab re-ordering events.
     //
-    case "dragstart":
+    case (e.type === "dragstart"):
       // Dragstart is the first event to fire when a drag is started. e.target is the element from which drag started.
       e.stopPropagation();
 
@@ -515,7 +517,7 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       }
       return;
 
-    case "dragover":
+    case (e.type === "dragover"):
       if (e.currentTarget.tabId == this._dragtabId) return; // Do not allow dropping onto self.
 
       e.preventDefault(); // Let browser know that drop is allowed.
@@ -525,12 +527,12 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       e.dataTransfer.effectAllowed = "move";
       return;
 
-    case "dragleave":
+    case (e.type === "dragleave"):
       e.preventDefault();
       e.stopPropagation();
       return;
 
-    case "drop":
+    case (e.type === "drop"):
       e.preventDefault(); // Prevent page from redirecting as link.
       e.stopPropagation();
 
@@ -615,7 +617,7 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       }
       return;
 
-    case "dragend":
+    case (e.type === "dragend"):
       delete this._dragtabId;
   }
 };
