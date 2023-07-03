@@ -530,8 +530,7 @@ pui.popstate = function(e) {
 
 pui.render = function(parms) {
   if (pui.recordTest) pui.record(parms);
-
-  pui.clientLogic = parms.clientLogic;
+  pui.clientLogic = parms.clientLogic;  
 
   if (typeof pui["beforeRender"] === "function") {
     var rv = pui["beforeRender"](parms);
@@ -1308,6 +1307,7 @@ pui.renderFormat = function(parms) {
           // Resolve translations.
           var msg = "";
           msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
+
           if (msg != "") {
             pui.alert("Missing translation data:\n\n" + msg);
           }
@@ -1434,7 +1434,6 @@ pui.renderFormat = function(parms) {
 
       var rangeLowDateISO = null;
       var rangeHighDateISO = null;
-
       // get properties for the item and put them into the "properties" object.
       for (var prop in items[i]) {
         if (prop == "domEls") continue;
@@ -2190,7 +2189,6 @@ pui.renderFormat = function(parms) {
               pui.attachDragDrop(dom, properties);
             }
           }
-
           if (!isDesignMode && propname == "visibility" && properties["parent tab panel"] != null && properties["parent tab panel"] != "") {
             propValue = "hidden";
           }
@@ -2955,7 +2953,15 @@ pui.renderFormat = function(parms) {
               continue;
             }
             else {
-              error.msg = pui.translationMap[errorJSON["transId"]];
+              // Get the widget property using items variable and error[id]
+              var widgetProps = items.find(function(item){ return item.id === error["id"] });
+              // // get the translation Map by building it.
+              var translationMapPlaceholder = pui.buildTranslationPlaceholderMap(widgetProps,null,screen,parms["data"],parms["ref"]);
+              // // Get the placeholderMap
+              if (translationMapPlaceholder.keys && translationMapPlaceholder.keys.length > 0) {
+                error.msg = widgetProps["error message"]
+              }else error.msg = pui.translationMap[errorJSON["transId"]];
+
             }
           }
           else continue;
@@ -6397,9 +6403,7 @@ pui.translate = function(parms) {
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
       var translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, null, screen, format["data"], format["ref"]);
-
       msg += pui.doTranslate(screen, pui.translationMap, true, translationPlaceholderMap);
-
       for (var iItem = 0; iItem < items.length; iItem++) {
         var item = items[iItem];
         if (!item["grid"]) { // skip items in grid now, and we will call doTranslate on them later
@@ -6449,7 +6453,6 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
           rtn += " (" + id + ").\n";
         }
       }
-
       if (phrases.length == 1) {
         obj[propName] = phrases[0];
       }
@@ -6464,6 +6467,7 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
       }
     }
   }
+
   return rtn;
 };
 
