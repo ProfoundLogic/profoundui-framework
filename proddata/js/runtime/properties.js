@@ -127,7 +127,7 @@ function getPropertiesModel() {
     { name: "download file", helpDefault: "blank", attribute: "download", help: "Specifies the name of the file to download when clicking on the link (instead of navigating to the link/file).", controls: ["hyperlink", "css button"] },
     { name: "checked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is checked.", controls: ["checkbox"], bind: false },
     { name: "unchecked value", helpDefault: "blank", help: "For a checkbox field, specifies the value to send to the application when the checkbox is not checked.", controls: ["checkbox"], bind: false },
-    { name: "indeterminate value", helpDefault: "blank", help: "Specifies the value that renders a checkbox in an indeterminate state (neither checked nor unchecked).", controls: ["checkbox"], bind: false },
+    { name: "indeterminate value", helpDefault: "2", help: "Specifies the value that renders a checkbox in an indeterminate state (neither checked nor unchecked).", controls: ["checkbox"], bind: false },
     { name: "on value", helpDefault: "blank", help: "Specifies the value to send to the application when the on/off switch is on.", controls: ["on off switch"], bind: false },
     { name: "off value", helpDefault: "blank", help: "Specifies the value to send to the application when the on/off switch is off.", controls: ["on off switch"], bind: false },
     { name: "on text", helpDefault: "ON", help: "Specifies the text to to display for the 'on' state of an on/off switch.", controls: ["on off switch"], translate: true },
