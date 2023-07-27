@@ -10434,7 +10434,7 @@ pui.Grid = function() {
         }
       }
       // #6864 - changed from innerHTML (which returned "&" as "&amp;") to something that got the text
-      data = this.cells[1].childNodes[0].nodeValue;
+      data = this.cells[1].innerHTML;
       if (data != null && dataMap.has(data)) {
         dataMap.set(data, checked);
       }
