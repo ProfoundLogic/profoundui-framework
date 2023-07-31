@@ -9909,6 +9909,14 @@ pui.Grid = function() {
         "cols": cols,
         "headings": headings
       };
+      // Get column sequence
+      if (persistState) {
+        var state = loadState();
+        if (state != null) {
+          var colSequence = state["colSequence"];
+        }
+      }
+      
       // Save the new widths, column sequence, and column state
       saveState(colState, "hidableColState");
       saveState(widths, "colWidths");
@@ -9931,12 +9939,28 @@ pui.Grid = function() {
         lineDesign(me.vLines, i, true, true);
       }
     }
+    
     // expand to layout if set
     if (me.expandToLayout) me.doExpandToLayout();
     // Redraws column headings with the new headings
     me.columnHeadings = headings;
     me.setHeadings();
     resetCellDOMOrder();
+    //Resequence columns
+    if (movableColumns && persistState) {      
+      
+      if (colSequence != null) {
+        var cells = new Array(colSequence.length);
+        for (var i = 0; i < cells.length; i++) {
+          cells[i] = me.cells[0][colSequence[i]];
+        }
+        for (var i = 0; i < cells.length; i++) {
+          var from = cells[i].col;
+          var to = i;
+          me.moveColumn(from, to);
+        }
+      }
+    } 
     return true;
   };
 
