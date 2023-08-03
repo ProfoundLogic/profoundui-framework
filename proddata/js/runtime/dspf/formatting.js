@@ -471,6 +471,10 @@ pui.FieldFormat = {
       }
       var numValue = parseFloat(strValue, 10) || 0;
 
+      if (typeof strValue !== "string") {
+        strValue = "0";
+      }
+
       // redmine #4627: moved this code up here so that zeroFill logic with negative numbers will work
       strValue = strValue.replace(/-/g, "");
 
