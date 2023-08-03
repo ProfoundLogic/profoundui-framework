@@ -21,18 +21,29 @@
 pui.checkboxOnClick = function(evt) {
   var target = evt.target;
 
-  if ( target.readOnly ) target.checked = target.readOnly = false;
-  else if ( !target.checked ) target.readOnly = target["indeterminate"]= true;
-  
-  // if (!target.readOnly) {
-  //   if (target.checked === true) {
-  //     target.checked = false;
-  //     // target.indeterminate = false;
-  //   }  
-  //   else if (target.checked === false) target.checked = true;
-  //   //else if (target.checked === true && target.indeterminate === false) target.indeterminate = true;
-  // }
+  if (!target.readOnly) {
+    var hasIndet = target["indeterminateValue"] !== undefined;
 
+    // target.checked toggles back and forth between checked to not checked...
+    // We want the checkbox value to toggle through 3 stages (When needed)
+    // 1- Checked
+    // 2- UnChecked
+    // 3- Indeterminate (If applicable)
+
+    if (target.checked === true) {
+      if (target.unchecked !== true || !hasIndet) {
+        target.unchecked = false;
+        target.indeterminate = false;
+      } else {
+        target.checked = false;
+        target.unchecked = false;
+        target.indeterminate = true;
+      }
+    } else {
+      target.indeterminate = false;
+      target.unchecked = true;
+    }
+  }
 };
 
 pui.widgets.add({
@@ -48,7 +59,6 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      
       var objValue = parms.evalProperty("value");
       var checkedValue = (parms.evalProperty("checked value") !== "" ? parms.evalProperty("checked value") : "1");
       var indeterminateValue = (parms.evalProperty("indeterminate value") !== "" ? parms.evalProperty("indeterminate value") : "2");
@@ -69,10 +79,12 @@ pui.widgets.add({
           parms.dom["indeterminate"] = true;
         }
         else {
+          parms.dom["indeterminate"] = false;
           if (objValue == checkedValue) parms.dom.checked = true;
           else parms.dom.checked = false;
         }
       }
+      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
@@ -104,9 +116,11 @@ pui.widgets.add({
         parms.dom["indeterminate"] = true;
       }
       else {
+        parms.dom["indeterminate"] = false;
         if (parms.value == checkedValue) parms.dom.checked = true;
         else parms.dom.checked = false;
       }
+      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
@@ -130,9 +144,11 @@ pui.widgets.add({
         parms.dom["indeterminate"] = true;
       }
       else {
+        parms.dom["indeterminate"] = false;
         if (objValue == checkedValue) parms.dom.checked = true;
         else parms.dom.checked = false;
       }
+      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
       // Fixes printing problem for IE8.
       // -- DR.
       pui.fixCheckPrint(parms.dom);
@@ -148,9 +164,11 @@ pui.widgets.add({
         parms.dom["indeterminate"] = true;
       }
       else {
+        parms.dom["indeterminate"] = false;
         if (objValue == checkedValue) parms.dom.checked = true;
         else parms.dom.checked = false;
       }
+      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
       // Fixes printing problem for IE8.
       // -- DR.
       pui.fixCheckPrint(parms.dom);
