@@ -30,18 +30,18 @@ pui.checkboxOnClick = function(evt) {
     // 2- UnChecked
     // 3- Indeterminate (If applicable)
 
-    if (target.checked === true) {
-      if (target.unchecked !== true || !hasIndet) {
-        target.unchecked = false;
-        target.indeterminate = false;
+    if (target["checked"] === true) {
+      if (target["unchecked"] !== true || !hasIndet) {
+        target["unchecked"] = false;
+        target["indeterminate"] = false;
       } else {
-        target.checked = false;
-        target.unchecked = false;
-        target.indeterminate = true;
+        target["checked"] = false;
+        target["unchecked"] = false;
+        target["indeterminate"] = true;
       }
     } else {
-      target.indeterminate = false;
-      target.unchecked = true;
+      target["indeterminate"] = false;
+      target["unchecked"] = true;
     }
   }
 };
@@ -72,7 +72,7 @@ pui.widgets.add({
       }
 
       if (context == "genie" && parms.dom.originallyChecked != null && parms.properties["value"] == null && parms.properties["checked value"] == null) {
-        parms.dom.checked = parms.dom.originallyChecked;
+        parms.dom["checked"] = parms.dom.originallyChecked;
       }
       else {
         if (indeterminateValue && rtrim(objValue) === rtrim(indeterminateValue)) {
@@ -80,18 +80,18 @@ pui.widgets.add({
         }
         else {
           parms.dom["indeterminate"] = false;
-          if (objValue == checkedValue) parms.dom.checked = true;
-          else parms.dom.checked = false;
+          if (objValue == checkedValue) parms.dom["checked"] = true;
+          else parms.dom["checked"] = false;
         }
       }
-      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
+      parms.dom["unchecked"] = !parms.dom["checked"] && !parms.dom["indeterminate"];
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
         parms.dom.uncheckedValue = uncheckedValue;
         if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) &&
             (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) &&
-            (objValue === "1" || objValue === "true" || objValue === true)) parms.dom.checked = true;
+            (objValue === "1" || objValue === "true" || objValue === true)) parms.dom["checked"] = true;
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
         if (labelText != "") pui.buildLabel(parms.dom, labelText);
@@ -117,16 +117,16 @@ pui.widgets.add({
       }
       else {
         parms.dom["indeterminate"] = false;
-        if (parms.value == checkedValue) parms.dom.checked = true;
-        else parms.dom.checked = false;
+        if (parms.value == checkedValue) parms.dom["checked"] = true;
+        else parms.dom["checked"] = false;
       }
-      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
+      parms.dom["unchecked"] = !parms.dom["checked"] && !parms.dom["indeterminate"];
 
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
         if ((checkedValue === "" || checkedValue === null || checkedValue === undefined) &&
             (uncheckedValue === "" || uncheckedValue === null || uncheckedValue === undefined) &&
-            (parms.value === "1" || parms.value === "true" || parms.value === true)) parms.dom.checked = true;
+            (parms.value === "1" || parms.value === "true" || parms.value === true)) parms.dom["checked"] = true;
       }
 
       // Fixes printing problem for IE8.
@@ -145,10 +145,10 @@ pui.widgets.add({
       }
       else {
         parms.dom["indeterminate"] = false;
-        if (objValue == checkedValue) parms.dom.checked = true;
-        else parms.dom.checked = false;
+        if (objValue == checkedValue) parms.dom["checked"] = true;
+        else parms.dom["checked"] = false;
       }
-      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
+      parms.dom["unchecked"] = !parms.dom["checked"] && !parms.dom["indeterminate"];
       // Fixes printing problem for IE8.
       // -- DR.
       pui.fixCheckPrint(parms.dom);
@@ -165,10 +165,10 @@ pui.widgets.add({
       }
       else {
         parms.dom["indeterminate"] = false;
-        if (objValue == checkedValue) parms.dom.checked = true;
-        else parms.dom.checked = false;
+        if (objValue == checkedValue) parms.dom["checked"] = true;
+        else parms.dom["checked"] = false;
       }
-      parms.dom.unchecked = !parms.dom.checked && !parms.dom["indeterminate"];
+      parms.dom["unchecked"] = !parms.dom["checked"] && !parms.dom["indeterminate"];
       // Fixes printing problem for IE8.
       // -- DR.
       pui.fixCheckPrint(parms.dom);
