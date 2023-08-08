@@ -4151,6 +4151,10 @@ pui.Grid = function() {
                   }
                 }
                 if (dom.tagName == "INPUT" && dom.type == "checkbox") {
+                  if (dom.indeterminate) {
+                    if (dom.indeterminateValue != null && dom.indeterminateValue != "") value = dom.indeterminateValue;
+                    else value = "2";
+                  }
                   if (dom.checked) {
                     if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
                     else value = "1";

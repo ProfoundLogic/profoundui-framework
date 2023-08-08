@@ -530,7 +530,7 @@ pui.popstate = function(e) {
 
 pui.render = function(parms) {
   if (pui.recordTest) pui.record(parms);
-  pui.clientLogic = parms.clientLogic;  
+  pui.clientLogic = parms.clientLogic;
 
   if (typeof pui["beforeRender"] === "function") {
     var rv = pui["beforeRender"](parms);
@@ -2954,14 +2954,13 @@ pui.renderFormat = function(parms) {
             }
             else {
               // Get the widget property using items variable and error[id]
-              var widgetProps = items.find(function(item){ return item.id === error["id"] });
+              var widgetProps = items.find(function(item) { return item.id === error["id"]; });
               // // get the translation Map by building it.
-              var translationMapPlaceholder = pui.buildTranslationPlaceholderMap(widgetProps,null,screen,parms["data"],parms["ref"]);
+              var translationMapPlaceholder = pui.buildTranslationPlaceholderMap(widgetProps, null, screen, parms["data"], parms["ref"]);
               // // Get the placeholderMap
               if (translationMapPlaceholder.keys && translationMapPlaceholder.keys.length > 0) {
-                error.msg = widgetProps["error message"]
-              }else error.msg = pui.translationMap[errorJSON["transId"]];
-
+                error.msg = widgetProps["error message"];
+              } else error.msg = pui.translationMap[errorJSON["transId"]];
             }
           }
           else continue;
@@ -3865,20 +3864,17 @@ pui.buildResponse = function(customResponseElements) {
               break;
 
             case "checkbox":
-              if (dom.checked) {
-                if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue
+              if (dom.indeterminate) {
+                if (dom.indeterminateValue !== null && dom.indeterminateValue !== "") value = dom.indeterminateValue;
+                else value = "2";
+              }
+              else if (dom.checked) {
+                if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
                 else value = "1";
               }
               else {
-                // indeterminate checkbox...
-                if (dom["indeterminate"] === true) { 
-                  if (dom["indeterminateValue"] !== null && dom["indeterminateValue"] !== "") value = dom["indeterminateValue"]
-                  else value = "2";
-                } 
-                else {
-                  if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue
-                  else value = " ";
-                }  
+                if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue;
+                else value = " ";
               }
               break;
 
