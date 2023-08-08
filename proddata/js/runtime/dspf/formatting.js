@@ -447,7 +447,7 @@ pui.FieldFormat = {
       var decLength = parseInt(obj.decPos, 10);
 
       var strValue;
-      if (!obj.value) {
+      if (!obj || !obj.value) {
         strValue = "0";
       }
       else if (isNaN(obj.value) && commaDecimal) {
@@ -457,7 +457,8 @@ pui.FieldFormat = {
         strValue = obj.value.replace(/\./g, "").replace(/\,/g, ".");
       }
       else {
-        strValue = obj.value;
+        //strValue = obj.value;
+        strValue = String(obj.value !== undefined && obj.value !== null ? obj.value : 0);
       }
 
       if (decLength > 0 && strValue === "0") {
