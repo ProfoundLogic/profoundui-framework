@@ -20,10 +20,19 @@
 // Prevent the user from checking or unchecking "read only" boxes, because that would change the value. #4925.
 pui.checkboxOnClick = function(evt) {
   var target = evt.target;
-  if (target.readOnly) {
-    if (target.checked == false) target.checked = true;
-    else if (target.checked == true) target.checked = false;
-  }
+
+  if ( target.readOnly ) target.checked = target.readOnly = false;
+  else if ( !target.checked ) target.readOnly = target["indeterminate"]= true;
+  
+  // if (!target.readOnly) {
+  //   if (target.checked === true) {
+  //     target.checked = false;
+  //     // target.indeterminate = false;
+  //   }  
+  //   else if (target.checked === false) target.checked = true;
+  //   //else if (target.checked === true && target.indeterminate === false) target.indeterminate = true;
+  // }
+
 };
 
 pui.widgets.add({
@@ -39,21 +48,24 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
+      
       var objValue = parms.evalProperty("value");
-      var checkedValue = parms.evalProperty("checked value");
-      var indeterminateValue = parms.evalProperty("indeterminate value");
+      var checkedValue = (parms.evalProperty("checked value") !== "" ? parms.evalProperty("checked value") : "1");
+      var indeterminateValue = (parms.evalProperty("indeterminate value") !== "" ? parms.evalProperty("indeterminate value") : "2");
       parms.dom.checkedValue = checkedValue;
-      parms.dom.indeterminateValue = indeterminateValue;
+      parms.dom["indeterminateValue"] = indeterminateValue;
+
       if (!pui["is_quirksmode"]) {
         if (!pui["is_old_ie"]) {
           parms.dom.style.margin = "2px";
         }
       }
+
       if (context == "genie" && parms.dom.originallyChecked != null && parms.properties["value"] == null && parms.properties["checked value"] == null) {
         parms.dom.checked = parms.dom.originallyChecked;
       }
       else {
-        if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+        if (indeterminateValue && rtrim(objValue) === rtrim(indeterminateValue)) {
           parms.dom["indeterminate"] = true;
         }
         else {
@@ -61,6 +73,7 @@ pui.widgets.add({
           else parms.dom.checked = false;
         }
       }
+
       if (!parms.design) {
         var uncheckedValue = parms.evalProperty("unchecked value");
         parms.dom.uncheckedValue = uncheckedValue;
@@ -87,7 +100,7 @@ pui.widgets.add({
       var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
-      if (indeterminateValue && parms.value === rtrim(indeterminateValue)) {
+      if (indeterminateValue && rtrim(parms.value) === rtrim(indeterminateValue)) {
         parms.dom["indeterminate"] = true;
       }
       else {
@@ -113,7 +126,7 @@ pui.widgets.add({
       var indeterminateValue = parms.evalProperty("indeterminate value");
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
-      if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+      if (indeterminateValue && rtrim(objValue) === rtrim(indeterminateValue)) {
         parms.dom["indeterminate"] = true;
       }
       else {
@@ -127,11 +140,11 @@ pui.widgets.add({
 
     "indeterminate value": function(parms) {
       var objValue = parms.evalProperty("value");
-      var checkedValue = parms.evalProperty("checked value");
+      var checkedValue = (parms.evalProperty("checked value") !== "" ? parms.evalProperty("checked value") : "1");
       var indeterminateValue = parms.value;
       parms.dom.checkedValue = checkedValue;
       parms.dom.indeterminateValue = indeterminateValue;
-      if (indeterminateValue && objValue === rtrim(indeterminateValue)) {
+      if (indeterminateValue && rtrim(objValue) === rtrim(indeterminateValue)) {
         parms.dom["indeterminate"] = true;
       }
       else {
