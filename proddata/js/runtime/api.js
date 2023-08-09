@@ -108,6 +108,7 @@ function getElementValue(id, autocompUseValueField) {
     }
   }
   if (elem.tagName == "INPUT" && elem.type == "checkbox") {
+    if (elem["indeterminate"] === true) return elem["indeterminateValue"];
     if (elem.checked && elem.checkedValue != null) return elem.checkedValue;
     if (!elem.checked && elem.uncheckedValue != null) return elem.uncheckedValue;
     return elem.checked; // "checked value" and/or "unchecked value" not present, so just return true or false

@@ -3866,12 +3866,19 @@ pui.buildResponse = function(customResponseElements) {
 
             case "checkbox":
               if (dom.checked) {
-                if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue;
+                if (dom.checkedValue != null && dom.checkedValue != "") value = dom.checkedValue
                 else value = "1";
               }
               else {
-                if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue;
-                else value = " ";
+                // indeterminate checkbox...
+                if (dom["indeterminate"] === true) { 
+                  if (dom["indeterminateValue"] !== null && dom["indeterminateValue"] !== "") value = dom["indeterminateValue"]
+                  else value = "2";
+                } 
+                else {
+                  if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue
+                  else value = " ";
+                }  
               }
               break;
 
