@@ -467,7 +467,7 @@ pui.FieldFormat = {
           strValue += "0";
         }
       }
-      else if (decLength > 0 && strValue.substr(0, 1) === "0.") {
+      else if (decLength > 0 && strValue.substr(0, 2) === "0.") {
         strValue = strValue.substr(1);
       }
       var numValue = parseFloat(strValue, 10) || 0;
