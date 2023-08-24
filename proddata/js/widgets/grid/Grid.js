@@ -6124,7 +6124,7 @@ pui.Grid = function() {
   }
 
   function preventDragSelectStart(e) {
-    if (me.dragging) {
+    if (me && me.dragging) {
       preventEvent(e);
       return false;
     }
