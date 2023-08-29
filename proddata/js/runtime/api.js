@@ -1651,9 +1651,8 @@ pui["downloadURL"] = function(params) {
 };
 
 pui["download"] = function(params) {
-  params["inline"] = (typeof params["inline"] !== "boolean") ? true : params["inline"];
   var url = pui["downloadURL"](params);
-  var inline = params["inline"]; 
+  var inline = (params["inline"] === true);
 
   if (pui == null ||
       pui["appJob"] == null ||
