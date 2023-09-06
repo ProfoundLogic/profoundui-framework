@@ -1669,6 +1669,170 @@ pui["download"] = function(params) {
   }
 };
 
+
+pui["downloadFile"] = function(params) {
+  if (typeof params === "undefined" || params == null || typeof params["id"] !== "string" || params["id"].length < 1) {
+    pui["alert"]("Error downloading file. \n\n No file path given", null, "Error", "Close"); 
+    return;   
+  }
+  var url = pui["downloadURL"](params);
+  var path = params["id"];
+  var ajaxObj = new XMLHttpRequest();
+  ajaxObj["responseType"] = "blob";
+  ajaxObj["open"]("GET", url, true);
+  ajaxObj["send"]();
+  
+  var dialog = null; 
+  var dialogText = null; 
+  var twoSeconds = 2000; 
+  var confirmationButton = null;
+  var cancelButton = null;
+
+  ajaxObj.onprogress = function(e) {
+    var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
+    if (path.split('/').pop() != filename && filename == "error.txt" ) {
+      return; 
+    }
+    if (typeof ajaxObj["onprogress"]["diaglogShown"] === "undefined") {
+      ajaxObj["onprogress"]["diaglogShown"] = true;
+      dialog = document["createElement"]("dialog");
+      document["body"]["appendChild"](dialog);
+      dialogText = document["createElement"]("p");
+      dialog["appendChild"](dialogText);
+      confirmationButton = document["createElement"]("button");
+      confirmationButton["innerHTML"] = "OK";
+      confirmationButton["onclick"] = function() {
+        dialog["close"]();
+        dialog["remove"]();
+      }
+      cancelButton = document["createElement"]("button");
+      cancelButton["innerHTML"] = "Cancel";
+      cancelButton["id"] = "cancelButton";
+      cancelButton["onclick"] = function() {
+        ajaxObj["abort"]();
+        dialog["close"]();
+        dialog["remove"]();
+      }
+      dialog["appendChild"](cancelButton);
+      dialogText["innerHTML"] = "Downloading file: " + path + "<br> Starting download...";
+      dialog["showModal"]();
+      ajaxObj["onprogress"]["lastTime"] = Date.now();
+    }
+    if (Date.now() > ajaxObj["onprogress"]["lastTime"] + twoSeconds) {
+      dialogText["innerHTML"] = "Downloading file: " + path + "<br>" + e["type"] + " " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+      ajaxObj["onprogress"]["lastTime"]  = Date.now();
+    }
+   
+  }
+
+  ajaxObj["onloadend"] = function(e) {
+    if (dialog != null) {
+      dialog["querySelector"]("button[id='cancelButton']")["remove"]();
+      dialog["appendChild"](confirmationButton);
+      dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+    }
+  }
+
+  ajaxObj["onreadystatechange"] = function() {
+    if (ajaxObj["readyState"] == 4 && ajaxObj["status"] == 200) {
+      var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
+      
+      if (path.split('/').pop() != filename && filename == "error.txt" ) {
+        var errorReader = new FileReader();
+        errorReader.onload = function() {
+          pui["alert"]("Error downloading file: " + path + "\n\n" + errorReader.result, null, "Error", "Close"); 
+          console.log(errorReader.result);
+        }
+        errorReader.readAsText(ajaxObj.response);
+        return; 
+      }
+  
+      var contentType = null; 
+      if (typeof params["contentType"] === "string" && params["contentType"].length > 0) {
+        contentType = params["contentType"];
+      }
+      else {
+        contentType = ajaxObj.getResponseHeader("Content-Type").split(";")[0];
+        if (typeof contentType === "string" && contentType == "application/octet-stream") {
+          var fileExtension = filename.split(".").pop();
+          if (typeof fileExtension === "string") {
+            switch (fileExtension.toLowerCase()) {
+              case "pdf":
+                contentType = "application/pdf";
+                break;
+              case "txt":
+                contentType = "text/plain";
+                break;
+              case "csv":
+                contentType = "text/csv";
+                break;
+              case "json":
+                contentType = "application/json";
+                break;
+              case "xml":
+                contentType = "application/xml";
+                break;
+              case "html":
+                contentType = "text/html";
+                break;
+              case "htm":
+                contentType = "text/html";
+                break;
+              case "jpg":
+                contentType = "image/jpeg";
+                break;
+              case "jpeg":
+                contentType = "image/jpeg";
+                break;
+              case "png":
+                contentType = "image/png";
+                break;
+              case "gif":
+                contentType = "image/gif";
+                break;
+            }
+          }
+        }
+
+
+      }
+
+      var contentTypeArray = ["application/pdf", "text/plain", "text/csv", "application/json", "application/xml", "text/html", "image/jpeg", "image/png", "image/gif"];
+      var blob = new File([ajaxObj["response"]], filename, {type: contentType});
+      var blobUrl = window["URL"]["createObjectURL"](blob);
+      var a = document.createElement("a");
+      if (typeof params["inline"] === "boolean" && params["inline"] && contentTypeArray.includes(contentType)) {
+        a.target = "_blank";
+       }
+      else {
+        a["download"] = filename;  
+      }
+      a.name = filename;
+      a.href = blobUrl;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window["URL"]["revokeObjectURL"](blobUrl);
+    
+    }
+  }
+
+}
+
+pui["extractFileNameFromContentDisposition"] = function(contentDisposition) {
+  
+  var regex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+  var matches = regex.exec(contentDisposition);
+  if (matches != null && matches[1]) { 
+    // If the filename is surrounded by quotes, remove them
+    var fileName = matches[1].replace(/['"]/g, '');
+    return fileName;
+  }
+  return null;
+
+}
+
+
 pui["focusOnContainer"] = function() {
   // Check for cloud embed box and prevent bouncing to the top of the parent page
   if (window.parent != window && pui.windowAccessible(window.parent) && window.parent.noderun) {
