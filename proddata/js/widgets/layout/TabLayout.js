@@ -306,10 +306,12 @@ pui.TabLayout.prototype._addRemoveTabs = function() {
     var outerSpan = document.createElement("span"); // encapsulates tab text, left and right borders.
     var tabSpan = document.createElement("span"); // holds tab text.
     tabSpan.setAttribute("isTab", "true");
+    tabSpan.setAttribute("tabindex", "0");
     tabSpan.tabId = nextTabId;
     this._tabSpans.push(tabSpan);
 
     tabSpan.addEventListener("mousedown", this);
+    tabSpan.addEventListener("keyup", this);
     if (this.designMode) {
       tabSpan.addEventListener("dblclick", this);
 
@@ -331,6 +333,8 @@ pui.TabLayout.prototype._addRemoveTabs = function() {
     bodyDiv.containerNumber = nextTabId + 1; // Make sure this is set, or else saving the RDF can orphan widgets that were in this layout. 7008.
     bodyDiv.tabId = nextTabId;
     bodyDiv.style.display = "none";
+    this._bodyWrap.addEventListener("keydown", this);
+    this._bodyWrap.setAttribute("tabindex", "0");
     this._bodyWrap.appendChild(bodyDiv);
 
     nextTabId++;
@@ -452,13 +456,17 @@ pui.TabLayout.prototype.drawChanged = function() {
  * @public
  */
 pui.TabLayout.prototype["handleEvent"] = function(e) {
-  switch (e.type) {
+  var inputs;
+  var tabId;
+  var position;
+  var maxTabs;
+  switch (true) {
     // Handle changing tabs.
-    case "mousedown":
+    case (e.type === "mousedown" || (e.type === "keyup" && e.key === "Tab")) :
       if (this.designMode) e.stopPropagation(); // Prevent Resizer from moving the layout when dragging a tab.
 
       // If the user is clicking on a not-selected tab, switch to that tab.
-      var tabId = e.currentTarget.tabId;
+      tabId = e.currentTarget.tabId;
 
       if (this.selectedTab != tabId) {
         // if the same field is defined on different tabs then the value of the field must be
@@ -483,22 +491,89 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
             pui.scriptError(err, "Ontabclick Error:\n");
           }
         }
-
-        this._preValidationSelectedTab = this.selectedTab; // In case validation fails with "tab response", selectedTab will be restored (in TabPanel.js).
-        this.selectedTab = tabId;
-        this._lastScrollLeft = this._headerArea.scrollLeft;
-        this.processTabChange(tabId);
+        // Check if the input is in the first or last
+        changeTab(this, tabId);
+        inputs = getInputs(this)
+        if (inputs[0]) inputs[0].focus();
+        e.preventDefault();
+      }
+      else if(this.selectedTab == tabId && e.target.localName != "input"){
+        if (e.key === "Tab" && e.shiftKey == true) {
+          return;
+        }
+        else{
+          var widgets = this.layout.containers[this.selectedTab].childNodes;
+          var inputArray = [];
+          for (var index = 0; index < widgets.length; index++) {
+            var element = widgets[index];
+            if (element.localName == 'input') inputArray.push(element);
+          }
+          if (inputArray[0]) inputArray[0].focus();
+          e.preventDefault();
+        }
       }
       return;
-
-    case "dblclick":
+    case(e.type === "keydown" && e.key === "Tab" && e.shiftKey != true) :
+      position = getInputLocation(this,e);
+      // Change Tab ONLY IF it is the last input
+      if (position == 'last') {
+        tabId = this.selectedTab + 1;
+        if (tabId > 0 && tabId < getMaxTabs(this)) {
+          changeTab(this, tabId);
+          inputs = getInputs(this)
+        if (inputs[0]) inputs[0].focus();
+          e.preventDefault();
+        }
+      }
+      return;
+    case(e.type === "keydown" && e.key === "Tab" && e.shiftKey == true) :
+      // Get whether the input is first or last Input.
+      position = getInputLocation(this,e);
+      // Change Tab ONLY IF it is the first input
+      if (position == 'first') {
+        tabId = this.selectedTab - 1;
+        if (tabId < getMaxTabs(this) && tabId >= 0) {
+          changeTab(this, tabId);
+          inputs = getInputs(this)
+          // Set the last input 
+          var lastInput = inputs.length;        
+        if (inputs[0]) inputs[lastInput - 1].focus();
+          e.preventDefault();
+        }
+        if (tabId < 0) this._headerArea.children[0].children[1].focus();
+        e.preventDefault();
+        return null;
+      }
+      // IF it is the last tab just let it shift tab
+      return;
+    case (e.type === "keydown" && e.key === "1" && e.altKey == true) :
+      tabId = this.selectedTab - 1;
+      maxTabs = getMaxTabs(this);
+      if (tabId < 0) tabId = maxTabs - 1;
+      if (tabId <= maxTabs) {
+        changeTab(this, tabId);
+        inputs = getInputs(this)
+        if (inputs[0]) inputs[0].focus();
+      }
+      return;
+    case (e.type === "keydown" &&e.key === "2" && e.altKey == true) :
+      tabId = this.selectedTab + 1;
+      maxTabs = getMaxTabs(this);
+      if (tabId >= maxTabs) tabId = 0;
+      if (tabId <= maxTabs) {
+        changeTab(this, tabId);
+        inputs = getInputs(this)
+        if (inputs[0]) inputs[0].focus();
+      }
+      return;
+    case (e.type === "dblclick"):
       this.tabSpanOndblclick(e); // In Designer, show inline edit box for changing tab names.
       return;
 
     //
     // Tab re-ordering events.
     //
-    case "dragstart":
+    case (e.type === "dragstart"):
       // Dragstart is the first event to fire when a drag is started. e.target is the element from which drag started.
       e.stopPropagation();
 
@@ -515,7 +590,7 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       }
       return;
 
-    case "dragover":
+    case (e.type === "dragover"):
       if (e.currentTarget.tabId == this._dragtabId) return; // Do not allow dropping onto self.
 
       e.preventDefault(); // Let browser know that drop is allowed.
@@ -525,12 +600,12 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       e.dataTransfer.effectAllowed = "move";
       return;
 
-    case "dragleave":
+    case (e.type === "dragleave"):
       e.preventDefault();
       e.stopPropagation();
       return;
 
-    case "drop":
+      case (e.type === "drop"):
       e.preventDefault(); // Prevent page from redirecting as link.
       e.stopPropagation();
 
@@ -615,9 +690,41 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       }
       return;
 
-    case "dragend":
+    case (e.type === "dragend"):
       delete this._dragtabId;
   }
+  // Function to check if the input is first or last
+  function getInputLocation(data,e){
+    var elements = getInputs(data);
+    var target = e.target;
+    if (target == elements[0]) {
+      return 'first'
+    }
+    if (target == elements[elements.length - 1]) {
+      return 'last'
+    }
+  }
+  function changeTab(data,newTab){
+    data._preValidationSelectedTab = data.selectedTab; // In case validation fails with "tab response", selectedTab will be restored (in TabPanel.js).
+    data.selectedTab = newTab;
+    data._lastScrollLeft = data._headerArea.scrollLeft;
+    data.processTabChange(newTab);
+  }
+  function getMaxTabs(data) {
+    return data.tabs.length
+  }
+  // Fetches the Available tab-able elements
+  function getInputs(data) {
+    var widgets = data.layout.containers[data.selectedTab].childNodes;
+        var inputs = [];
+        for (var index = 0; index < widgets.length; index++) {
+          var element = widgets[index];
+          if ((element.localName == 'input' || element.localName == 'textarea' || element.localName == 'select' || element.localName == 'button') && !element.disabled) {
+            inputs.push(element)
+          }
+        }
+  return inputs;
+}
 };
 
 /**
