@@ -26,7 +26,6 @@ pui.widgets.add({
   defaults: {
     label: "Radio Button"
   },
-
   propertySetters: {
 
     "field type": function(parms) {
@@ -57,6 +56,31 @@ pui.widgets.add({
               else if (parms.dom.checked == true) parms.dom.checked = false;
             }
           });
+          addEvent(parms.dom, "keydown", function(e){
+            console.log("tab is pressed");
+            switch (true) {
+              case (e.keyCode == 9 && e.shiftKey == false):
+                // Check if the next sibling is a label
+                var domSibling = parms.dom.nextSibling;
+                var nextElement = domSibling.nextSibling;
+                if (domSibling.isLabel == true && nextElement && nextElement.type == "radio") {
+                  e.preventDefault();
+                  nextElement.focus();
+                }
+                break;
+              case(e.keyCode == 9 && e.shiftKey == true):
+                 // Check if the next sibling is a label
+                 var prevDomSibling = parms.dom.previousSibling;
+                 var prevElement = prevDomSibling.previousSibling;
+                 if (prevDomSibling.isLabel == true && prevElement && prevElement.type == "radio") {
+                   e.preventDefault();
+                   prevElement.focus();
+                 }
+                break;
+              default:
+                break;
+            }
+          })
         }
         else if (context == "genie") {
           var relatedId = parms.evalProperty("related field");
