@@ -95,6 +95,15 @@ pui.widgets.add({
             parms.dom.setAttribute("name", pui.randomTextBoxName());
           }
         }
+        // PUI-425: Add an event listener to focus the input content when click.
+        if (context == "dspf") {
+          addEvent(parms.dom, "click", function(e) {
+            if (pui["highlight on focus"]) {
+              e.target.focus();
+              e.target.select();
+            }
+          });
+        }
       }
     },
 
