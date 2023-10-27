@@ -20,7 +20,6 @@
 // Prevent the user from checking or unchecking "read only" boxes, because that would change the value. #4925.
 pui.checkboxOnClick = function(evt) {
   var target = evt.target;
-
   if (!target.readOnly) {
     var hasIndet = target.pui.properties["indeterminate value"] !== undefined;
     // target.checked toggles back and forth between checked to not checked...
@@ -33,15 +32,21 @@ pui.checkboxOnClick = function(evt) {
       if (target.unchecked !== true || !hasIndet) {
         target.unchecked = false;
         target.indeterminate = false;
-      } else {
+      }
+      else {
         target.checked = false;
         target.unchecked = false;
         target.indeterminate = true;
       }
-    } else {
+    }
+    else {
       target.indeterminate = false;
       target.unchecked = true;
     }
+  }
+  if (target.readOnly) {
+    evt.preventDefault();
+    return false;
   }
 };
 
@@ -58,7 +63,6 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      
       var objValue = parms.evalProperty("value");
 
       var checkedValue = (parms.evalProperty("checked value") !== "" ? parms.evalProperty("checked value") : "1");
@@ -93,7 +97,7 @@ pui.widgets.add({
       if (!parms.design) {
         // Set control as disabled when it is readonly
         var readonly = parms.evalProperty("read only");
-        if (readonly === "true" || readonly === true) parms.dom.disabled = true;
+        if (readonly === "true" || readonly === true) parms.dom.disabled = false;
 
         checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
