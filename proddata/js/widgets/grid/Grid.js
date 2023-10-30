@@ -9920,7 +9920,7 @@ pui.Grid = function() {
           var colSequence = state["colSequence"];
         }
       }
-      
+
       // Save the new widths, column sequence, and column state
       saveState(colState, "hidableColState");
       saveState(widths, "colWidths");
@@ -9943,16 +9943,15 @@ pui.Grid = function() {
         lineDesign(me.vLines, i, true, true);
       }
     }
-    
+
     // expand to layout if set
     if (me.expandToLayout) me.doExpandToLayout();
     // Redraws column headings with the new headings
     me.columnHeadings = headings;
     me.setHeadings();
     resetCellDOMOrder();
-    //Resequence columns
-    if (movableColumns && persistState) {      
-      
+    // Resequence columns
+    if (movableColumns && persistState) {
       if (colSequence != null) {
         var cells = new Array(colSequence.length);
         for (var i = 0; i < cells.length; i++) {
@@ -9964,7 +9963,7 @@ pui.Grid = function() {
           me.moveColumn(from, to);
         }
       }
-    } 
+    }
     return true;
   };
 
@@ -10326,6 +10325,9 @@ pui.Grid = function() {
     btn.innerHTML = "close";
     addEvent(btn, "click", function() {
       filterMultiPanel.style.display = "none";
+      if (me.waitingOnRequest == true) {
+        me.waitingOnRequest = false;
+      }
       filterMultiPanel = null;
     });
 
