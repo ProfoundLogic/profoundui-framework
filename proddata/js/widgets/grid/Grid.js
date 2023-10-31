@@ -10329,6 +10329,9 @@ pui.Grid = function() {
         me.waitingOnRequest = false;
       }
       filterMultiPanel = null;
+      if (me.forceDataArray == true && me["dataProps"]["load all rows"] != "true") {
+        me.forceDataArray = false;
+      }
     });
 
     // Check button
