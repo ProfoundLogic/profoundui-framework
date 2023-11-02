@@ -10537,7 +10537,7 @@ pui.Grid = function() {
       }
     }
 
-    filterMultiPanel.onscroll = function() {
+    includetable.onscroll = function() {
       var i;
       // If all rows have displayed
       var dataLeft = dataCount - rowCount;
