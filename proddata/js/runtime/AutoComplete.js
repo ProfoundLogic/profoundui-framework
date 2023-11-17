@@ -1015,8 +1015,13 @@ function applyAutoComp(properties, originalValue, domObj) {
     if (pui["isCloud"]) {
       baseParams["workspace_id"] = pui.cloud.ws.id;
     }
-    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;
-    else if (url == "" || !pui.nodejs) baseParams["AUTH"] = pui.appJob.auth;
+    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;    
+    else {
+      if (url == "" || !pui.nodejs) {
+        baseParams["AUTH"] = pui.appJob.auth;
+        if (typeof pui.oldRenderParms["vId"] !== 'undefined') baseParams["VID"] = pui.oldRenderParms["vId"];
+      }
+    }
 
     if (url == "" && choices[0] == "" && values[0] == "") {
       var containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
@@ -1219,8 +1224,11 @@ function applyAutoComp(properties, originalValue, domObj) {
       req["async"] = true;
       req["suppressAlert"] = true;
 
-      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-      else req["postData"] = "AUTH=" + pui.appJob.auth;
+      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;      
+      else{
+        req["postData"] = "AUTH=" + pui.appJob.auth;
+        if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+      }
 
       if (urlReverse) {
         req["postData"] += "&reverse=1&value=" + encodeURIComponent(rtrim(domObj.value));

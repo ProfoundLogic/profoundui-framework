@@ -1151,6 +1151,8 @@ pui.Grid = function() {
     if (dataURL == "") dataURL = null;
     if (dataURL) {
       url = pui.appendAuth(dataURL);
+      if (typeof pui.oldRenderParms["vId"] !== 'undefined') url += "&VID=" + pui.oldRenderParms["vId"];
+
       setupajax();
     }
     else if (me["dataProps"]["database file"] && me["dataProps"]["database file"].length > 0) {
@@ -1218,7 +1220,10 @@ pui.Grid = function() {
       };
 
       if (pui.pjs_session_id) formData.append("AUTH", pui.pjs_session_id);
-      else formData.append("AUTH", pui.appJob.auth);
+      else{
+         formData.append("AUTH", pui.appJob.auth);
+         if (typeof pui.oldRenderParms["vId"] !== 'undefined') formData.append("VID",pui.oldRenderParms["vId"]);  
+      }
       formData.append("q", encodeURIComponent(pui.getSQLVarName(me.tableDiv)));
       pui.getSQLParams(me["dataProps"], null, formData);
       formData.append("limit", limit);
@@ -2119,6 +2124,9 @@ pui.Grid = function() {
           addField("q", pui.aes.encryptString(sql));
         }
         addField("AUTH", pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
+        if (!pui.pjs_session_id) {
+          if (typeof pui.oldRenderParms["vId"] !== 'undefined') addField("VID",pui.oldRenderParms["vId"]);
+        }
         if (me.hasHeader && me.exportWithHeadings) {
           if (me.hidableColumns) {
             var headings = "";
@@ -7747,7 +7755,11 @@ pui.Grid = function() {
     req["async"] = true;
     if (callback == null) req["async"] = false;
     if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-    else req["postData"] = "AUTH=" + pui.appJob.auth;
+    //else req["postData"] = "AUTH=" + pui.appJob.auth;
+    else {
+      req["postData"] = "AUTH=" + pui.appJob.auth;
+      if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+    }
     if (pui["secLevel"] > 0) {
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
 
@@ -10328,7 +10340,7 @@ pui.Grid = function() {
       if (me.waitingOnRequest == true) {
         me.waitingOnRequest = false;
       }
-      filterMultiPanel = null;
+      filterMultiPanel = null;  
       if (me.forceDataArray == true && me["dataProps"]["load all rows"] != "true") {
         me.forceDataArray = false;
       }
@@ -10436,7 +10448,7 @@ pui.Grid = function() {
       }
 
       filterMultiPanel.appendChild(includetable);
-      me.tableDiv.parentNode.appendChild(filterMultiPanel);
+      me.tableDiv.parentNode.appendChild(filterMultiPanel);      
     }
 
     function checkonclick(e) {
@@ -10537,6 +10549,7 @@ pui.Grid = function() {
       }
     }
 
+    
     includetable.onscroll = function() {
       var i;
       // If all rows have displayed
@@ -10609,7 +10622,11 @@ pui.Grid = function() {
       req["method"] = "post";
       req["async"] = true;
       if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-      else req["postData"] = "AUTH=" + pui.appJob.auth;
+      //else req["postData"] = "AUTH=" + pui.appJob.auth;
+      else {
+        req["postData"] = "AUTH=" + pui.appJob.auth;
+        if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+      }
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
 
