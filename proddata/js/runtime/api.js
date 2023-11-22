@@ -1729,7 +1729,8 @@ pui["downloadFile"] = function(params) {
     if (dialog != null) {
       dialog["querySelector"]("button[id='cancelButton']")["remove"]();
       dialog["appendChild"](confirmationButton);
-      dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+      //dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+      dialogText["innerHTML"] = "File " + path + " downloaded successfully.";
     }
   }
 
@@ -1799,7 +1800,7 @@ pui["downloadFile"] = function(params) {
 
       var contentTypeArray = ["application/pdf", "text/plain", "text/csv", "application/json", "application/xml", "text/html", "image/jpeg", "image/png", "image/gif"];
       var blob = new File([ajaxObj["response"]], filename, {type: contentType});
-      var blobUrl = window["URL"]["createObjectURL"](blob);
+      var blobUrl = URL["createObjectURL"](blob);
       var a = document.createElement("a");
       if (typeof params["inline"] === "boolean" && params["inline"] && contentTypeArray.includes(contentType)) {
         a.target = "_blank";
@@ -1810,10 +1811,16 @@ pui["downloadFile"] = function(params) {
       a.name = filename;
       a.href = blobUrl;
       document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window["URL"]["revokeObjectURL"](blobUrl);
-    
+  
+      a.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        })
+      );
+
+      document.body.removeChild(a);
     }
   }
 
