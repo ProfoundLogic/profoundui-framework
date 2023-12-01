@@ -13,6 +13,8 @@ Object.defineProperties = function() {};
 Object.entries = function() {};
 Object.keys = function(value) {};
 Object.getOwnPropertyNames = function(value){};
+Object.hasOwn = function(value) {}; // used in openapi-output-values.js. Short version of hasOwnProperties
+Object.assign = function(value) {}; // used in some question-type entries
 Function.bind = function(value){};
 Object.before = {};
 
