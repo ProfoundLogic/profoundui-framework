@@ -1430,7 +1430,14 @@ pui.Grid = function() {
           for (var n = fieldOrder.length; colNum < n; colNum++) {
             // Get the headings directly from the DOM cells.
             heading = me.cells[0][colNum] ? rtrim(getInnerText(me.cells[0][colNum])) : "";
-            worksheet.setCell(heading, colNum);
+            if (me.exportVisableOnly) {
+              if (me.cells[0][colNum] !== undefined) {
+                worksheet.setCell(heading, colNum);
+              }
+            }
+            else {
+              worksheet.setCell(heading, colNum);
+            }
           }
         }
 
@@ -1447,8 +1454,14 @@ pui.Grid = function() {
           var value = row[field.fieldName];
           // An alias may be in lowercase when the result may be upper. #6600.
           if (value == null && field.fieldName) value = row[field.fieldName.toUpperCase()];
-
-          worksheet.setCell(value, colNum, null, response["fields"] == null);
+          if (me.exportVisableOnly) {
+            if (me.cells[0][colNum] !== undefined) {
+              worksheet.setCell(value, colNum, null, response["fields"] == null);
+            }
+          }
+          else {
+            worksheet.setCell(value, colNum, null, response["fields"] == null);
+          }
           colNum++;
         }
       }
