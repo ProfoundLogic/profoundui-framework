@@ -623,6 +623,8 @@ function AutoComplete(config) {
     }
     if (baseParams) {
       for (var i in baseParams) {
+        // Do not send null or undefined values for baseParams["AUTH"]
+        if (baseParams[i] == null && i === "AUTH") continue;
         postData += "&";
         postData += encodeURIComponent(i) + "=" + encodeURIComponent(baseParams[i]);
       }
@@ -631,8 +633,12 @@ function AutoComplete(config) {
     if (pui["read db driven data as ebcdic"] !== true) postData += "&UTF8=Y";
 
     if (hiddenField) autoCompQueries += 1;
-
-    var req = new pui.Ajax(pui.appendAuth(url));
+    if (baseParams["AUTH"]) {
+      var req = new pui.Ajax(pui.appendAuth(url));
+    }
+    else {
+      var req = new pui.Ajax(url);
+    }
     req["method"] = "post";
     req["async"] = true;
     req["suppressAlert"] = true;
@@ -1015,11 +1021,11 @@ function applyAutoComp(properties, originalValue, domObj) {
     if (pui["isCloud"]) {
       baseParams["workspace_id"] = pui.cloud.ws.id;
     }
-    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;    
+    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;
     else {
       if (url == "" || !pui.nodejs) {
         baseParams["AUTH"] = pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') baseParams["VID"] = pui.oldRenderParms["vId"];
+        if (typeof pui.oldRenderParms["vId"] !== "undefined") baseParams["VID"] = pui.oldRenderParms["vId"];
       }
     }
 
@@ -1224,10 +1230,10 @@ function applyAutoComp(properties, originalValue, domObj) {
       req["async"] = true;
       req["suppressAlert"] = true;
 
-      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;      
-      else{
+      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
+      else {
         req["postData"] = "AUTH=" + pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+        if (typeof pui.oldRenderParms["vId"] !== "undefined") req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
       }
 
       if (urlReverse) {
