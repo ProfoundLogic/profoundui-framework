@@ -610,9 +610,10 @@ pui.widgets.add({
           url = getProgramURL("PUI0009104.PGM");
           var postData = "AUTH=";
           if (pui.pjs_session_id) postData += pui.pjs_session_id;
-          else {          
+          else {
             postData += pui.appJob.auth;
-            if (typeof pui.oldRenderParms["vId"] !== 'undefined') postData += "&VID=" + pui.oldRenderParms["vId"];
+
+            if (typeof pui["vId"] !== "undefined") postData += "&VID=" + pui["vId"];
           }
           if (pui["secLevel"] > 0) {
             postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
@@ -734,7 +735,7 @@ pui.widgets.add({
 
         else if (customSQL != "") {
           var postData = "AUTH=" + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
-          if (typeof pui.oldRenderParms["vId"] !== 'undefined') postData += "&VID=" + pui.oldRenderParms["vId"];
+          if (typeof pui["vId"] !== "undefined") postData += "&VID=" + pui["vId"];
           if (pui["secLevel"] > 0) {
             postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
             var pstring = pui.getSQLParams(parms.properties);

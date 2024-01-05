@@ -1151,7 +1151,7 @@ pui.Grid = function () {
     if (dataURL == "") dataURL = null;
     if (dataURL) {
       url = pui.appendAuth(dataURL);
-      if (typeof pui.oldRenderParms["vId"] !== 'undefined') url += "&VID=" + pui.oldRenderParms["vId"];
+      if (typeof pui["vId"] !== 'undefined') url += "&VID=" + pui["vId"];
 
       setupajax();
     }
@@ -1222,7 +1222,7 @@ pui.Grid = function () {
       if (pui.pjs_session_id) formData.append("AUTH", pui.pjs_session_id);
       else {
         formData.append("AUTH", pui.appJob.auth);
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') formData.append("VID", pui.oldRenderParms["vId"]);
+        if (typeof pui["vId"] !== "undefined") formData.append("VID", pui["vId"]);
       }
       formData.append("q", encodeURIComponent(pui.getSQLVarName(me.tableDiv)));
       pui.getSQLParams(me["dataProps"], null, formData);
@@ -2141,7 +2141,7 @@ pui.Grid = function () {
         }
         addField("AUTH", pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
         if (!pui.pjs_session_id) {
-          if (typeof pui.oldRenderParms["vId"] !== 'undefined') addField("VID", pui.oldRenderParms["vId"]);
+          if (typeof pui["vId"] !== 'undefined') addField("VID", pui["vId"]);
         }
         if (me.hasHeader && me.exportWithHeadings) {
           if (me.hidableColumns) {
@@ -7734,11 +7734,14 @@ pui.Grid = function () {
             //if mne.dataArray has at least one element
             if (me.dataArray.length > 0) {
               var bump = bumpUserDefinedColumnIds(headerCell.columnId);
-              me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1 + bump);
-              me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
-              pstring += me.filterString;
-              filtNum++;
             }
+            else {
+              var bump = 0;
+            }
+            me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1 + bump);
+            me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
+            pstring += me.filterString;
+            filtNum++;
           }
         }
       }
@@ -7784,7 +7787,7 @@ pui.Grid = function () {
     //else req["postData"] = "AUTH=" + pui.appJob.auth;
     else {
       req["postData"] = "AUTH=" + pui.appJob.auth;
-      if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+      if (typeof pui["vId"] !== 'undefined') req["postData"] += "&VID=" + pui["vId"];
     }
     if (pui["secLevel"] > 0) {
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
@@ -10653,7 +10656,7 @@ pui.Grid = function () {
       //else req["postData"] = "AUTH=" + pui.appJob.auth;
       else {
         req["postData"] = "AUTH=" + pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+        if (typeof pui["vId"] !== 'undefined') req["postData"] += "&VID=" + pui["vId"];
       }
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
@@ -10782,7 +10785,12 @@ pui.Grid = function () {
           }
         }
       }
-    } else { return 0 }
+
+    }
+    else {
+      return 0;
+    }
+
 
     if (userDefinedColumnIds.length > 0) {
       //loop through userDefinedColumnIds and bump columnId if it is greater than or equal to the current columnId
@@ -10819,7 +10827,10 @@ pui.Grid = function () {
         returnArr.push({ cid: arrColunmIds[i].cid - bump, desc: arrColunmIds[i].desc });
       }
       return returnArr;
-    } else { return arrColunmIds }
+    }
+    else {
+      return arrColunmIds;
+    }
   }
 
 };
