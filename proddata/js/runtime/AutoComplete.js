@@ -631,8 +631,13 @@ function AutoComplete(config) {
     if (pui["read db driven data as ebcdic"] !== true) postData += "&UTF8=Y";
 
     if (hiddenField) autoCompQueries += 1;
+    if (baseParams["AUTH"]) {
+      var req = new pui.Ajax(pui.appendAuth(url));
+    }
+    else {
+      var req = new pui.Ajax(url);
+    }
 
-    var req = new pui.Ajax(pui.appendAuth(url));
     req["method"] = "post";
     req["async"] = true;
     req["suppressAlert"] = true;
@@ -1019,7 +1024,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     else {
       if (url == "" || !pui.nodejs) {
         baseParams["AUTH"] = pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') baseParams["VID"] = pui.oldRenderParms["vId"];
+        if (typeof pui["vId"] !== "undefined") baseParams["VID"] = pui["vId"];
       }
     }
 
@@ -1227,7 +1232,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;      
       else{
         req["postData"] = "AUTH=" + pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== 'undefined') req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+        if (typeof pui["vId"] !== "undefined") req["postData"] += "&VID=" + pui["vId"];
       }
 
       if (urlReverse) {

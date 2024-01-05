@@ -168,7 +168,7 @@ pui.widgets.add({
           if (pui.pjs_session_id) ajaxRequest["postData"] = "AUTH=" + pui.pjs_session_id;
           else {
             ajaxRequest["postData"] = "AUTH=" + pui.appJob.auth;
-            if (typeof pui.oldRenderParms["vId"] !== 'undefined') ajaxRequest["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+            if (typeof pui["vId"] !== "undefined") ajaxRequest["postData"] += "&VID=" + pui["vId"];
           }
           if (pui["secLevel"] > 0) {
             ajaxRequest["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
