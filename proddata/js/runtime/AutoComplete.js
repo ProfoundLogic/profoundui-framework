@@ -1025,7 +1025,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     else {
       if (url == "" || !pui.nodejs) {
         baseParams["AUTH"] = pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== "undefined") baseParams["VID"] = pui.oldRenderParms["vId"];
+        if (typeof pui["vId"] !== "undefined") baseParams["VID"] = pui["vId"];
       }
     }
 
@@ -1233,7 +1233,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
       else {
         req["postData"] = "AUTH=" + pui.appJob.auth;
-        if (typeof pui.oldRenderParms["vId"] !== "undefined") req["postData"] += "&VID=" + pui.oldRenderParms["vId"];
+        if (typeof pui["vId"] !== "undefined") req["postData"] += "&VID=" + pui["vId"];
       }
 
       if (urlReverse) {
