@@ -25,7 +25,7 @@
  *       columnInfo object contains header values when columns are hidden, but data is in me.cells[0] otherwise. Move data to columnInfo always.
  * @constructor
  */
-pui.BaseGrid = function () {
+pui.BaseGrid = function() {
   this.dataArray = []; // A collection of objects containing data for each subfile record.
   this.visibleDataArray = []; // A subset of the records in this.dataArray.
   this.fieldNames = [];
@@ -39,7 +39,7 @@ pui.BaseGrid.prototype = Object.create(pui.BaseClass.prototype); // Inherit the 
  * @param {String} property
  * @returns {Boolean}
  */
-pui.BaseGrid.prototype.isPropertyReadOnly = function (property) {
+pui.BaseGrid.prototype.isPropertyReadOnly = function(property) {
   switch (property) {
     case "number of rows":
     case "height":
@@ -54,7 +54,7 @@ pui.BaseGrid.prototype.isPropertyReadOnly = function (property) {
  * @param {type} value
  * @returns {Boolean}
  */
-pui.BaseGrid.prototype.sendPropertyToDesigner = function (itm, propertyName, value) {
+pui.BaseGrid.prototype.sendPropertyToDesigner = function(itm, propertyName, value) {
   var stringValue = String(value);
   if (itm.properties[propertyName] != stringValue) {
     if (pui.isBound(itm.properties[propertyName])) {
@@ -81,7 +81,7 @@ pui.BaseGrid.prototype.sendPropertyToDesigner = function (itm, propertyName, val
  * @constructor
  */
 
-pui.Grid = function () {
+pui.Grid = function() {
   pui.BaseGrid.call(this); // Call the parent constructor to set inherited properties--this.dataArray, this.fieldNames, etc.
   // public properties
   if (pui.designer.DataFields != null) {
@@ -92,10 +92,10 @@ pui.Grid = function () {
     // dummy object
     this.dataFields = {};
     this.dataFields.forGrid = true;
-    this.dataFields.addUsage = function () { };
-    this.dataFields.removeUsage = function () { };
-    this.dataFields.removeDesignItem = function () { };
-    this.dataFields.removeUnused = function () { };
+    this.dataFields.addUsage = function() { };
+    this.dataFields.removeUsage = function() { };
+    this.dataFields.removeDesignItem = function() { };
+    this.dataFields.removeUnused = function() { };
   }
   this.cleared = true;
   this.runtimeChildren = [];
@@ -351,7 +351,7 @@ pui.Grid = function () {
   var sortMultiPanel = null; // UI for picking multiple sort columns.
   var filterMultiPanel = null; // UI for picking multiple filters from a data list to set on one column.
 
-  this.enableDesign = function () {
+  this.enableDesign = function() {
     var i;
     me.designMode = true;
     me.tableDiv.destroy = me.destroy;
@@ -369,7 +369,7 @@ pui.Grid = function () {
     }
     if (addRowIcon == null) {
       addRowIcon = createIcon("plus", "Add New Row");
-      addRowIcon.onclick = function (event) {
+      addRowIcon.onclick = function(event) {
         var itm = me.tableDiv.designItem;
         itm.designer.undo.start("Add Grid Row");
         itm.designer.undo.add(itm, "number of rows");
@@ -381,7 +381,7 @@ pui.Grid = function () {
     }
     if (removeRowIcon == null) {
       removeRowIcon = createIcon("minus", "Remove Row");
-      removeRowIcon.onclick = function () {
+      removeRowIcon.onclick = function() {
         var minRow = me.hasHeader ? 2 : 1;
         if (me.cells.length > minRow) {
           var itm = me.tableDiv.designItem;
@@ -395,7 +395,7 @@ pui.Grid = function () {
     }
     if (addColumnIcon == null) {
       addColumnIcon = createIcon("plus", "Add New Column");
-      addColumnIcon.onclick = function () {
+      addColumnIcon.onclick = function() {
         var itm = me.tableDiv.designItem;
         if (itm.properties["number of columns"] > me.maxNumberOfColumns) {
           pui.alert("Maximum number of columns reached.");
@@ -412,7 +412,7 @@ pui.Grid = function () {
     }
     if (removeColumnIcon == null) {
       removeColumnIcon = createIcon("minus", "Remove Column");
-      removeColumnIcon.onclick = function () {
+      removeColumnIcon.onclick = function() {
         var lastCol = me.vLines.length - 2;
         if (lastCol < 1) return;
         if (me.hasChildren(lastCol)) {
@@ -439,7 +439,7 @@ pui.Grid = function () {
     if (swHandle == null) swHandle = createHandle("sw");
     if (seHandle == null) seHandle = createHandle("se");
 
-    me.tableDiv.customSelect = function () {
+    me.tableDiv.customSelect = function() {
       if (!me.designMode) return;
       if (nwHandle != null) nwHandle.style.visibility = "";
       if (neHandle != null) neHandle.style.visibility = "";
@@ -447,7 +447,7 @@ pui.Grid = function () {
       if (seHandle != null) seHandle.style.visibility = "";
     };
 
-    me.tableDiv.customUnselect = function () {
+    me.tableDiv.customUnselect = function() {
       if (nwHandle != null) nwHandle.style.visibility = "hidden";
       if (neHandle != null) neHandle.style.visibility = "hidden";
       if (swHandle != null) swHandle.style.visibility = "hidden";
@@ -457,7 +457,7 @@ pui.Grid = function () {
     me.clearData();
 
     if (me.visibility == "hidden") {
-      me.doThisToTableDivs(function (domObj) {
+      me.doThisToTableDivs(function(domObj) {
         domObj.style.visibility = "";
       });
     }
@@ -474,7 +474,7 @@ pui.Grid = function () {
     me.sendToDesigner();
   };
 
-  this.doExpandToLayout = function (force) {
+  this.doExpandToLayout = function(force) {
     var i;
     if (!force) {
       if (me.designMode && toolbar.loadingDisplay) return;
@@ -517,7 +517,7 @@ pui.Grid = function () {
     // set left and top to 0
     var diffLeft = parseInt(me.tableDiv.style.left);
     var diffTop = parseInt(me.tableDiv.style.top);
-    me.doThisToTableDivs(function (domObj) {
+    me.doThisToTableDivs(function(domObj) {
       domObj.style.left = (parseInt(domObj.style.left) - diffLeft) + "px";
       domObj.style.top = (parseInt(domObj.style.top) - diffTop) + "px";
     });
@@ -525,7 +525,7 @@ pui.Grid = function () {
     me.setHeadings();
   };
 
-  this.isInitCollapsed = function () {
+  this.isInitCollapsed = function() {
     if (me.foldMultiple <= 1) return false;
     var collapsed = me.initCollapsed;
     if (me.initExpanded == true) collapsed = false; // initExpanded overrides initCollapsed
@@ -534,7 +534,7 @@ pui.Grid = function () {
     return collapsed;
   };
 
-  this.updateRecNumFromSflRcdNbr = function (recNum) {
+  this.updateRecNumFromSflRcdNbr = function(recNum) {
     // move logic from render.js to here, to be reusable
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
@@ -546,7 +546,7 @@ pui.Grid = function () {
     me.recNum = topRecNum;
   };
 
-  this.isTreeInitCollapsed = function () {
+  this.isTreeInitCollapsed = function() {
     if (me.treeLevelField === null) {
       return false;
     }
@@ -557,7 +557,7 @@ pui.Grid = function () {
     return treeInitCollapsed;
   };
 
-  this.collapse = function (button) {
+  this.collapse = function(button) {
     // if (me.visibility == "hidden") return;
     if (!me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
@@ -600,7 +600,7 @@ pui.Grid = function () {
     }
   };
 
-  this.expand = function (button) {
+  this.expand = function(button) {
     var i;
     if (me["expanded"]) return;
     if (me.foldMultiple <= 1) return;
@@ -658,7 +658,7 @@ pui.Grid = function () {
     }
   };
 
-  this.toggle = function (button) {
+  this.toggle = function(button) {
     if (me["expanded"]) {
       me.collapse(button);
     }
@@ -667,11 +667,11 @@ pui.Grid = function () {
     }
   };
 
-  this.setExpander = function (button) {
+  this.setExpander = function(button) {
 
   };
 
-  this["rowZoom"] = function (rowCells) {
+  this["rowZoom"] = function(rowCells) {
     if (context != "dspf" && !pui.usingGenieHandler) return;
     if (typeof rowCells == "number") {
       var rowNum = rowCells - me.recNum;
@@ -684,10 +684,10 @@ pui.Grid = function () {
       me.zoomDiv.style.height = (me.rowHeight * me.foldMultiple) + "px";
       me.zoomDiv.style.zIndex = me.rowZoomZIndex;
       me.zoomDiv.style.left = parseInt(me.tableDiv.style.left) + "px";
-      me.zoomDiv.onclick = function () {
+      me.zoomDiv.onclick = function() {
         me.zoomDiv.style.display = "none";
       };
-      me.zoomDiv.onmouseout = function (e) {
+      me.zoomDiv.onmouseout = function(e) {
         var target = e ? e.relatedTarget : event.toElement;
         try { // this is needed because of a ff bug that issues message: Permission denied to access property 'parentNode' from a non-chrome context
           if (target != null && target.parentNode != null) {
@@ -738,7 +738,7 @@ pui.Grid = function () {
   };
 
   // Expose API call.
-  this["exportXLSX"] = function (fileName) {
+  this["exportXLSX"] = function(fileName) {
     return me.exportCSV(fileName, true);
   };
 
@@ -750,7 +750,7 @@ pui.Grid = function () {
    * @param {Boolean} exportXLSX  When true, exports to XLSX file. Else, exports as CSV.
    * @returns {undefined}
    */
-  this.exportCSV = function (fileName, exportXLSX) {
+  this.exportCSV = function(fileName, exportXLSX) {
     var col, columnId, fieldName, heading, headings, i, idx, j, m, n, widths;
     // If "xlsx export" is not set but a config flag is, then "Export to Excel" uses XLSX.
     if (!me.pagingBar.xlsxExport && (pui["csv exports xlsx"] === true || pui["csv exports xlsx"] === "true")) {
@@ -927,7 +927,7 @@ pui.Grid = function () {
     // Get widths and headings of all columns, including hidden ones. #6476.
     if (me.hidableColumns && !me.exportVisableOnly) {
       widths = []; headings = [];
-      var matchesCurCol = function (el) {
+      var matchesCurCol = function(el) {
         return el["columnId"] == columnId;
       };
       for (col = 0, n = columnIds.length; col < n; col++) {
@@ -1137,7 +1137,7 @@ pui.Grid = function () {
    * @param {String} fileName
    * @returns {undefined}
    */
-  this.exportExcel_DataGrid = function (fileName) {
+  this.exportExcel_DataGrid = function(fileName) {
     if (pui["secLevel"] <= 0) {
       console.log("Export not implemented for low security level.");
       return;
@@ -1151,7 +1151,7 @@ pui.Grid = function () {
     if (dataURL == "") dataURL = null;
     if (dataURL) {
       url = pui.appendAuth(dataURL);
-      if (typeof pui["vId"] !== 'undefined') url += "&VID=" + pui["vId"];
+      if (typeof pui["vId"] !== "undefined") url += "&VID=" + pui["vId"];
 
       setupajax();
     }
@@ -1180,7 +1180,7 @@ pui.Grid = function () {
           "q": encodeURIComponent(pui.getSQLVarName(me.tableDiv))
         },
         "async": true,
-        "handler": function (response) {
+        "handler": function(response) {
           var fldresp = null;
           if (response != null && response["fields"] != null) {
             fldresp = response["fields"];
@@ -1188,7 +1188,7 @@ pui.Grid = function () {
           setupajax(fldresp);
         },
         "suppressAlert": true,
-        "onfail": function () {
+        "onfail": function() {
           console.log("Failed to fetch column data types for formatting. All cells in the XLSX file will contain character data.");
           setupajax();
         }
@@ -1206,10 +1206,10 @@ pui.Grid = function () {
       xhr.open("POST", url, true);
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       var formData = { data: {} }; // Note: this cannot be a FormData object, because 9102 in PJS doesn't handle multipart. #6433.
-      formData.append = function (key, val) {
+      formData.append = function(key, val) {
         formData.data[key] = encodeURIComponent(val);
       };
-      formData.get = function () {
+      formData.get = function() {
         var str = "";
         var amp = "";
         for (var key in formData.data) {
@@ -1231,7 +1231,7 @@ pui.Grid = function () {
 
       if (typeof me.filterString === "string" && me.filterString.length > 0) {
         var pairs = me.filterString.substring(1).split("&");
-        pairs.forEach(function (pair) {
+        pairs.forEach(function(pair) {
           pair = pair.split("=");
           formData.append(pair[0], decodeURIComponent(pair[1]));
         });
@@ -1262,14 +1262,14 @@ pui.Grid = function () {
       me.pagingBar.setTempStatus(pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]));
       me.pagingBar.showTempStatusDiv(
         pui["getLanguageText"]("runtimeMsg", "cancelled"),
-        function () {
+        function() {
           // Abort the download when the cancel icon is clicked.
           xhr.abort();
           me["unMask"]();
         }
       );
 
-      xhr.onreadystatechange = function () {
+      xhr.onreadystatechange = function() {
         // state 4=done, status 0 happens upon abort; no need to alert on abort.
         if (xhr.readyState != 4 || xhr.status == 0) return;
         try {
@@ -1322,7 +1322,7 @@ pui.Grid = function () {
 
       // Show the download progress to the user on the paging bar.
       var firstTS = 0; var lastTS = 0;
-      xhr.addEventListener("progress", function (progress) {
+      xhr.addEventListener("progress", function(progress) {
         var msg = pui.formatBytes(progress["loaded"], 1);
         var total = progress["timeStamp"] - firstTS;
         if (firstTS == 0) {
@@ -1359,10 +1359,10 @@ pui.Grid = function () {
       var fieldOrder = [];
       if ((me.movableColumns || me.hidableColumns) && Array.isArray(me.columnInfo) && me.columnInfo.length > 0) {
         // Get info on all visible columns or all columns, and sort that in order of being displayed.
-        var sortedcolinf = me.columnInfo.filter(function (el) {
+        var sortedcolinf = me.columnInfo.filter(function(el) {
           return el["showing"] || me.exportVisableOnly != true;
         });
-        sortedcolinf.sort(function (a, b) {
+        sortedcolinf.sort(function(a, b) {
           var colA = a["currentColumn"];
           if (colA < 0) colA = 999 + a["columnId"]; // Put hidden columns to the right of all visible cells in a relative order.
           var colB = b["currentColumn"];
@@ -1403,7 +1403,7 @@ pui.Grid = function () {
       // If the DB-Driven grid got a PUI0009101 response, then set the column formats if we can match columns.
       if (response["fields"] != null) {
         // Find the field info for each column. Note: the order of keys in "fields" may not match the order in "results".
-        fieldOrder.forEach(function (el, idx) {
+        fieldOrder.forEach(function(el, idx) {
           field = el.fieldName;
           var foundEl = response["fields"].find(matchingField);
           var format = foundEl ? { "dataType": foundEl["type"], "decPos": foundEl["decPos"] } : { "dataType": "char" };
@@ -1475,7 +1475,7 @@ pui.Grid = function () {
     } // end makexlsx().
   };
 
-  this.hasChildren = function (colNumber) {
+  this.hasChildren = function(colNumber) {
     if (context == "genie" && !pui.usingGenieHandler) return false;
     var startCol = colNumber;
     var endCol = colNumber;
@@ -1497,7 +1497,7 @@ pui.Grid = function () {
     return false;
   };
 
-  this.numberChildren = function (colNumber) { // function is to count number of element in the grid column
+  this.numberChildren = function(colNumber) { // function is to count number of element in the grid column
     var arr2 = [];
     var startCol = colNumber;
     var endCol = colNumber;
@@ -1523,7 +1523,7 @@ pui.Grid = function () {
     return arr2;
   };
 
-  this.getChildren = function () {
+  this.getChildren = function() {
     var children = [];
     var designer = me.tableDiv.designItem.designer;
     var items = designer.items;
@@ -1536,13 +1536,13 @@ pui.Grid = function () {
     return children;
   };
 
-  this.getSubfilePage = function () {
+  this.getSubfilePage = function() {
     var sflPage = me.hLines.length - 1;
     if (me.hasHeader) sflPage = sflPage - 1;
     return sflPage;
   };
 
-  this.mirrorDown = function (col) {
+  this.mirrorDown = function(col) {
     if (context == "genie" && !pui.usingGenieHandler) return;
     if (!me.designMode) return;
     var startRow;
@@ -1574,7 +1574,7 @@ pui.Grid = function () {
     }
   };
 
-  this.mirrorDownAll = function () {
+  this.mirrorDownAll = function() {
     if (context == "genie" && !pui.usingGenieHandler) return;
     var numCols = me.vLines.length - 1;
     for (var col = 0; col < numCols; col++) {
@@ -1582,7 +1582,7 @@ pui.Grid = function () {
     }
   };
 
-  this.getCellValue = function (row, col) {
+  this.getCellValue = function(row, col) {
     var rowNum = row;
     var topRecord = 1;
     if (context == "dspf" || me.isDataGrid() || pui.usingGenieHandler) topRecord = me.recNum;
@@ -1628,7 +1628,7 @@ pui.Grid = function () {
     return columnIndex;
   }
 
-  this.getDataValue = function (row, fieldName) {
+  this.getDataValue = function(row, fieldName) {
     if (typeof row != "number") return null;
     if (typeof fieldName != "string") return null;
     var record = getDataArrayForRow(row, false);
@@ -1662,7 +1662,7 @@ pui.Grid = function () {
     return record[columnIndex];
   };
 
-  this["getAllDataValues"] = function (filtered) {
+  this["getAllDataValues"] = function(filtered) {
     if (me.fieldNames.length < 1) return null;
     saveResponsesToDataArray();
 
@@ -1684,7 +1684,7 @@ pui.Grid = function () {
     return result;
   };
 
-  this["setDataValue"] = function (rowNum, fieldName, value) {
+  this["setDataValue"] = function(rowNum, fieldName, value) {
     // Update dataArray
     fieldName = pui.fieldUpper(fieldName);
     if (fieldName.length > 10 && !(pui["pjsDefaultMode"] === "case-sensitive" || pui.handler != null)) fieldName = pui.longFieldNameTable[fieldName];
@@ -1815,12 +1815,12 @@ pui.Grid = function () {
     return true;
   };
 
-  this.atTop = function () {
+  this.atTop = function() {
     if (me.recNum > 1) return false;
     else return true;
   };
 
-  this.pageUp = function () {
+  this.pageUp = function() {
     if (executeEvent("onpageup") == false) {
       return;
     }
@@ -1844,21 +1844,21 @@ pui.Grid = function () {
     else {
       me.getData();
     }
-    setTimeout(function () {
+    setTimeout(function() {
       me["unMask"]();
       if (typeof (pui.cursorValues.noFocus) == "undefined" || pui.cursorValues.noFocus == false) {
         // place cursor on first row
         var rowNum = 0;
         if (me.hasHeader) rowNum++;
         var row = me.cells[rowNum];
-        setTimeout(function () {
+        setTimeout(function() {
           placeCursorOnRow(row);
         }, 100);
       }
     }, 1);
   };
 
-  this.atBottom = function () {
+  this.atBottom = function() {
     var numRows = me.cells.length;
     if (me.hasHeader) numRows = numRows - 1;
     var lastRow = me.recNum + numRows - 1;
@@ -1873,7 +1873,7 @@ pui.Grid = function () {
     }
   };
 
-  this.pageDown = function () {
+  this.pageDown = function() {
     if (executeEvent("onpagedown") == false) {
       return;
     }
@@ -1913,14 +1913,14 @@ pui.Grid = function () {
     else {
       me.getData();
     }
-    setTimeout(function () {
+    setTimeout(function() {
       me["unMask"]();
       if (typeof (pui.cursorValues.noFocus) == "undefined" || pui.cursorValues.noFocus == false) {
         // place cursor on first row
         var rowNum = 0;
         if (me.hasHeader) rowNum++;
         var row = me.cells[rowNum];
-        setTimeout(function () {
+        setTimeout(function() {
           placeCursorOnRow(row);
         }, 100);
       }
@@ -1928,16 +1928,16 @@ pui.Grid = function () {
   };
 
   // Expose recNum -- the current grid record number. Needed for testing pageUp and pageDown in obfuscated code.
-  this["getRecNum"] = function () {
+  this["getRecNum"] = function() {
     return me.recNum;
   };
 
-  this["unMask"] = function () {
+  this["unMask"] = function() {
     if (loadingDiv != null) loadingDiv.style.display = "none";
     if (animationDiv != null) animationDiv.style.display = "none";
     if (maskCover != null) maskCover.style.display = "none";
   };
-  this.gridLoading = function () {
+  this.gridLoading = function() {
     // Container to hold the mask and animation in, for better positioning
     if (me.designMode) return;
     var gridDiv = me.tableDiv;
@@ -1966,7 +1966,7 @@ pui.Grid = function () {
     // Call animation
     me.showGridWaitAnimation();
   };
-  this.mask = function () {
+  this.mask = function() {
     if (me.designMode) return;
     var gridDiv = me.tableDiv;
     if (gridDiv.style.visibility == "hidden") return;
@@ -1990,7 +1990,7 @@ pui.Grid = function () {
     me.tableDiv.parentNode.appendChild(maskCover);
   };
 
-  this.showGridWaitAnimation = function () {
+  this.showGridWaitAnimation = function() {
     // Make sure the wait animation is needed
     if (me.designMode || maskCover == null || maskCover.style.display == "none") return;
     var gridDiv = me.tableDiv;
@@ -2031,7 +2031,7 @@ pui.Grid = function () {
    * fill internal data arrays.
    * @param {String|undefined} csvFile  Filename specified in exportCSV when grid is data-grid.
    */
-  this.getData = function (csvFile) {
+  this.getData = function(csvFile) {
     // 7647: make explicit call to hide context menu because scrolling the grid does not result in the
     // context menu from being hidden and the 'onclick' is unrecognised.
     me.hideContextMenu();
@@ -2143,12 +2143,12 @@ pui.Grid = function () {
         }
         addField("AUTH", pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
         if (!pui.pjs_session_id) {
-          if (typeof pui["vId"] !== 'undefined') addField("VID", pui["vId"]);
+          if (typeof pui["vId"] !== "undefined") addField("VID", pui["vId"]);
         }
         if (me.hasHeader && me.exportWithHeadings) {
           if (me.hidableColumns) {
             var headings = "";
-            me.columnInfo.forEach(function (col) {
+            me.columnInfo.forEach(function(col) {
               var heading = col["name"];
               if (col["blankHeader"]) heading = "";
               heading = heading.replace(/"/g, '""');
@@ -2171,7 +2171,7 @@ pui.Grid = function () {
         // add the filterString as input fields
         if (typeof me.filterString === "string" && me.filterString.length > 0) {
           var pairs = me.filterString.substring(1).split("&");
-          pairs.forEach(function (pair) {
+          pairs.forEach(function(pair) {
             pair = pair.split("=");
             addField(pair[0], decodeURIComponent(pair[1]));
           });
@@ -2180,7 +2180,7 @@ pui.Grid = function () {
         document.body.appendChild(form);
         pui.skipConfirm = true;
         form.submit();
-        setTimeout(function () {
+        setTimeout(function() {
           form.parentNode.removeChild(form);
           pui.skipConfirm = false;
         }, 0);
@@ -2461,7 +2461,7 @@ pui.Grid = function () {
 
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
-          setTimeout(function () {
+          setTimeout(function() {
             me.scrollbarObj.destroy();
             me.scrollbarObj = null;
             me.setScrollBar();
@@ -2595,7 +2595,7 @@ pui.Grid = function () {
 
       if (me.scrollbarObj != null) {
         if (me.scrollbarObj.type == "paging") {
-          setTimeout(function () {
+          setTimeout(function() {
             me.scrollbarObj.destroy();
             me.scrollbarObj = null;
             me.setScrollBar();
@@ -2716,7 +2716,7 @@ pui.Grid = function () {
     } // end of handleTreeLevelItemPerRow()
   }; // end of getData().
 
-  this.clearData = function () {
+  this.clearData = function() {
     if (me.cleared) return;
     var touchTarget;
     if (me.scrollbarObj != null) {
@@ -2743,14 +2743,14 @@ pui.Grid = function () {
     me.cleared = true;
   };
 
-  this.hideTips = function () {
+  this.hideTips = function() {
     for (var domid in me.validationTips) {
       var tip = me.validationTips[domid];
       tip.hideNow();
     }
   };
 
-  this.destroy = function () {
+  this.destroy = function() {
     if (me.contextMenuId) removeEvent(document, "click", me.hideContextMenu);
     for (var i = me.vLines.length - 1; i >= 0; i = i - 1) {
       if (me.vLines[i].parentNode != null) me.vLines[i].parentNode.removeChild(me.vLines[i]);
@@ -2781,7 +2781,7 @@ pui.Grid = function () {
     catch (ignored) { }
   };
 
-  this.getColumnWidths = function () {
+  this.getColumnWidths = function() {
     var widths = "";
     for (var i = 1; i < me.vLines.length; i++) {
       var width = parseInt(me.vLines[i].style.left) - parseInt(me.vLines[i - 1].style.left);
@@ -2795,7 +2795,7 @@ pui.Grid = function () {
     return widths;
   };
 
-  this.setColumnWidths = function (widths) {
+  this.setColumnWidths = function(widths) {
     if (typeof widths == "string") widths = widths.split(",");
     if (me.vLines.length <= 0) return;
     var curLeft = parseInt(me.vLines[0].style.left);
@@ -2816,7 +2816,7 @@ pui.Grid = function () {
     me.sendToDesigner(true);
   };
 
-  this.selectMe = function () {
+  this.selectMe = function() {
     if (me.dontSelect) return;
     if (!me.designMode) return;
     var itm = me.tableDiv.designItem;
@@ -2832,7 +2832,7 @@ pui.Grid = function () {
     me.sendToDesigner(true);
   };
 
-  this.sendToDesigner = function (forced) {
+  this.sendToDesigner = function(forced) {
     if (!me.designMode) return;
     if (toolbar.loadingDisplay) return;
     var itm = me.tableDiv.designItem;
@@ -2997,7 +2997,7 @@ pui.Grid = function () {
    * It's also called on mouse moves of resizing columns or the grid.
    * @param {Array|undefined} headings    Array of strings with headings. Optional parameter to set column headings for hideable columns.
    */
-  this.setHeadings = function (headings) {
+  this.setHeadings = function(headings) {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     var paddingCSS = getPaddingCSS();
@@ -3090,7 +3090,7 @@ pui.Grid = function () {
     }
   };
 
-  this.clearHeadings = function () {
+  this.clearHeadings = function() {
     if (!me.hasHeader) return;
     if (me.cells.length <= 0) return;
     for (var i = 0; i < me.cells[0].length; i++) {
@@ -3126,7 +3126,7 @@ pui.Grid = function () {
    * @param {undefined|Boolean} skipInitialSort   True when called for hide-show columns. (See issue 5913.)
    * @returns {undefined}
    */
-  this.makeSortable = function (skipInitialSort) {
+  this.makeSortable = function(skipInitialSort) {
     if (!me.sortable) return;
     if (context != "dspf" && !pui.usingGenieHandler) return;
     if (!me.hasHeader) return;
@@ -3306,7 +3306,7 @@ pui.Grid = function () {
 
   // Called after the grid has loaded. dataGrid state is restored before the first XHR,
   // in restoreStateDataGrid().
-  this.restoreState = function () {
+  this.restoreState = function() {
     var state = restoreStatePreCheck();
     if (state == null) {
       return;
@@ -3342,27 +3342,27 @@ pui.Grid = function () {
       var colState = state["hidableColState"];
       var widths = state["colWidths"];
       if (widths) {
-        widths = widths.filter(function (size) {
+        widths = widths.filter(function(size) {
           return (size);
         });
       }
       if (colState) {
         var savedCols = colState["cols"];
         // return newCols array
-        var cols = savedCols.map(function (col) {
+        var cols = savedCols.map(function(col) {
           return col;
         });
         var colSequence = state["colSequence"];
         if (cols != null) {
-          cols.sort(function (a, b) {
+          cols.sort(function(a, b) {
             if (a["savedColumn"] > b["savedColumn"]) return 1;
             else return -1;
           })
-            .forEach(function (col) {
+            .forEach(function(col) {
               var columnId = col["columnId"];
               if (columnId !== undefined) {
                 // Find the entry in me.columnInfo whose column ID matches the saved column. Set the found name, etc. (and stop looking).
-                me.columnInfo.every(function (orgCol) {
+                me.columnInfo.every(function(orgCol) {
                   if (orgCol["columnId"] === columnId) {
                     col["blankHeader"] = orgCol["blankHeader"]; // 7384: prevent header from being cleared when saved state header was blank but the new header was not.
                     col["name"] = orgCol["name"];
@@ -3381,10 +3381,10 @@ pui.Grid = function () {
           if (colSequence) cols.colSequence = colSequence;
           me.columnInfo = cols;
           // Resort columnInfo array based on saved state.
-          me.columnInfo.sort(function (a, b) {
+          me.columnInfo.sort(function(a, b) {
             var indexA = null;
             var indexB = null;
-            savedCols.every(function (col, index) {
+            savedCols.every(function(col, index) {
               if (a["columnId"] === col["columnId"]) indexA = index;
               if (b["columnId"] === col["columnId"]) indexB = index;
               if (indexA !== null && indexB !== null) return false;
@@ -3604,7 +3604,7 @@ pui.Grid = function () {
    * @param {Array} colPriority   An array of objects with keys, col and asc; columnId and do-sort-ascending.
    * @returns {undefined}
    */
-  this.multisort = function (colPriority) {
+  this.multisort = function(colPriority) {
     clientSortColumnId = null;
     sortMultiOrder = [];
     if (!(colPriority instanceof Array)) return;
@@ -3637,7 +3637,7 @@ pui.Grid = function () {
     comma = "";
     var columnIdMax = 0;
     if (me.runtimeChildren.length > 0) {
-      var columnIdMaxCol = me.runtimeChildren.reduce(function (prev, current) {
+      var columnIdMaxCol = me.runtimeChildren.reduce(function(prev, current) {
         return (prev["columnId"] > current["columnId"]) ? prev : current;
       });
       columnIdMax = columnIdMaxCol["columnId"];
@@ -4112,7 +4112,7 @@ pui.Grid = function () {
       hcell.setAttribute("sortorder", i); // keeps track of sort level (primary, secondary, etc) for each sorted column
       if (hcell.multiSortIcon == null) {
         hcell.multiSortIcon = document.createElement("div");
-        hcell.multiSortIcon.onclick = function (e) {
+        hcell.multiSortIcon.onclick = function(e) {
           if (!pui.isRightClick(e)) {
             preventEvent(e);
             me.showMultiSortPanel();
@@ -4367,7 +4367,7 @@ pui.Grid = function () {
     }
   }
 
-  this.consumeDataFromScreen = function (multiple, newGrid) {
+  this.consumeDataFromScreen = function(multiple, newGrid) {
     if (me.dataConsumed) return;
     me.dataConsumed = true;
     var startRow = Number(me["dataProps"]["starting row"]);
@@ -4484,7 +4484,7 @@ pui.Grid = function () {
     }
   };
 
-  this.setScrollBar = function () {
+  this.setScrollBar = function() {
     if (me.pagingBar.container == null) {
       me.pagingBar.container = me.container;
       me.pagingBar.grid = me;
@@ -4526,7 +4526,7 @@ pui.Grid = function () {
       me.scrollbarObj.zIndex = me.scrollZIndex;
       me.scrollbarObj.designMode = me.designMode;
       if (stype == "sliding") {
-        me.scrollbarObj.onSetRow = function (recNum) {
+        me.scrollbarObj.onSetRow = function(recNum) {
           // Note: even if recNum == me.recNum, we still need to call getData for certain grids; e.g.
           // a grid inside an unselected tab panel tab. Without calling getData, the data would be hidden.
           me.recNum = recNum;
@@ -4535,7 +4535,7 @@ pui.Grid = function () {
           me.getData();
           me.placeCursor(true);
         };
-        me.scrollbarObj.onchange = function (recNum) {
+        me.scrollbarObj.onchange = function(recNum) {
           if (me.isDataGrid()) {
             if (me["dataProps"]["load all rows"] != "true") {
               me.clearData();
@@ -4546,7 +4546,7 @@ pui.Grid = function () {
       }
 
       if (stype == "paging") {
-        me.scrollbarObj.onpageup = function () {
+        me.scrollbarObj.onpageup = function() {
           var returnVal = executeEvent("onpageup");
           if (returnVal == false) return false;
           if (me.forceDataArray == false && me.isDataGrid()) {
@@ -4566,7 +4566,7 @@ pui.Grid = function () {
             // Run a Page up key.
             pui.handleHotKey({}, "PageUp");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
-              setTimeout(function () {
+              setTimeout(function() {
                 me.scrollbarObj.destroy();
                 me.scrollbarObj = null;
                 me.setScrollBar();
@@ -4579,7 +4579,7 @@ pui.Grid = function () {
           }
         };
 
-        me.scrollbarObj.onpagedown = function () {
+        me.scrollbarObj.onpagedown = function() {
           var returnVal = executeEvent("onpagedown");
           if (returnVal == false) return false;
           if (me.forceDataArray == false && me.isDataGrid()) {
@@ -4593,7 +4593,7 @@ pui.Grid = function () {
             pui.scrolledGridName = me.recordFormatName;
             pui.handleHotKey({}, "PageDown");
             if (me.scrollbarObj.type == "paging" && pui.screenIsReady) {
-              setTimeout(function () {
+              setTimeout(function() {
                 me.scrollbarObj.destroy();
                 me.scrollbarObj = null;
                 me.setScrollBar();
@@ -4627,7 +4627,7 @@ pui.Grid = function () {
           if (layoutDiv != null && layoutDiv.tagName == "DIV" && layoutDiv.pui != null && layoutDiv.pui.properties != null && layoutDiv.pui.properties["template"] == "simple container" && layoutDiv.pui.properties["overflow x"] == "scroll") {
             if (layoutDiv.offsetWidth < me.tableDiv.offsetWidth + me.tableDiv.offsetLeft) {
               me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
-              parent.onscroll = function () {
+              parent.onscroll = function() {
                 // Note: if there are two grids inside the layout, scrollbarObj could be null in one. 6478.
                 if (me.scrollbarObj) {
                   me.scrollbarObj.x = layoutDiv.offsetWidth - scrollBarWidth + 2 + parent.scrollLeft;
@@ -4713,7 +4713,7 @@ pui.Grid = function () {
     icon.title = tooltipText;
     icon.style.color = "white";
     icon.style.padding = "0px";
-    icon.onmousedown = function (event) {
+    icon.onmousedown = function(event) {
       designUtils.preventEvent(event);
     };
     me.container.appendChild(icon);
@@ -4777,7 +4777,7 @@ pui.Grid = function () {
     swHandle.style.top = y + "px";
   }
 
-  this.getStyleAsInt = function (styleProperty) {
+  this.getStyleAsInt = function(styleProperty) {
     var returnValue = parseInt(me.tableDiv.style[styleProperty]);
     if (isNaN(returnValue)) returnValue = 0;
     return returnValue;
@@ -4789,7 +4789,7 @@ pui.Grid = function () {
    * @param {String|Number|Boolean|Null|undefined} value
    * @param {undefined|String} unevaledValue
    */
-  this.setProperty = function (property, value, unevaledValue) {
+  this.setProperty = function(property, value, unevaledValue) {
     if (value == null) value = "";
 
     if (property.indexOf("parameter value") == 0) {
@@ -4962,7 +4962,7 @@ pui.Grid = function () {
             else me.extendedSelection = false;
           }
           if (typeof (pui["grid text selection"]) == "undefined" || pui["grid text selection"] == false) {
-            me.tableDiv.onselectstart = function (e) {
+            me.tableDiv.onselectstart = function(e) {
               return false;
             };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
@@ -5295,7 +5295,7 @@ pui.Grid = function () {
         var colNum = me.vLines.length - 1;
         var colWidths = me.getColumnWidths()
           .split(",")
-          .map(function (num) {
+          .map(function(num) {
             return Number(num);
           });
         for (var i = 0; i < colNum; i++) {
@@ -5347,7 +5347,7 @@ pui.Grid = function () {
             me.contextMenuId = contextMenuId;
           }
           if (pui["is_touch"]) {
-            me.tableDiv.onselectstart = function (e) {
+            me.tableDiv.onselectstart = function(e) {
               return false;
             };
             if (typeof me.tableDiv.style.MozUserSelect != "undefined") me.tableDiv.style.MozUserSelect = "none";
@@ -5576,7 +5576,7 @@ pui.Grid = function () {
         var top = value;
         if (pui.isBound(top)) top = top.designValue;
         var diff = parseInt(me.tableDiv.style.top) - pui.safeParseInt(top);
-        me.doThisToTableDivs(function (domObj) {
+        me.doThisToTableDivs(function(domObj) {
           domObj.style.top = (parseInt(domObj.style.top) - diff) + "px";
         });
         me.setScrollBar();
@@ -5586,7 +5586,7 @@ pui.Grid = function () {
         var left = value;
         if (pui.isBound(left)) left = left.designValue;
         var diff = parseInt(me.tableDiv.style.left) - pui.safeParseInt(left);
-        me.doThisToTableDivs(function (domObj) {
+        me.doThisToTableDivs(function(domObj) {
           domObj.style.left = (parseInt(domObj.style.left) - diff) + "px";
         });
         me.setScrollBar();
@@ -5674,7 +5674,7 @@ pui.Grid = function () {
       case "visibility":
         me.visibility = value;
         if (!me.designMode) {
-          me.doThisToTableDivs(function (domObj) {
+          me.doThisToTableDivs(function(domObj) {
             domObj.style.visibility = value;
           });
           if (me.scrollbarObj != null) {
@@ -5785,7 +5785,7 @@ pui.Grid = function () {
     }
   };
 
-  this.doThisToTableDivs = function (handler) {
+  this.doThisToTableDivs = function(handler) {
     for (var i = 0; i < me.vLines.length; i++) {
       var line = me.vLines[i];
       handler(line);
@@ -5805,7 +5805,7 @@ pui.Grid = function () {
     if (seHandle != null) handler(seHandle);
   };
 
-  this.setCursorRRN = function (row) {
+  this.setCursorRRN = function(row) {
     var idx = me._getDataIndexFromDOMRow(row);
     if (idx >= 0) {
       var dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
@@ -5822,13 +5822,13 @@ pui.Grid = function () {
     // else: if the row is invalid, leave the cursor at the last valid row.
   };
 
-  this["setCursorRecordNumber"] = function (rrn) {
+  this["setCursorRecordNumber"] = function(rrn) {
     if (typeof rrn == "number" && rrn > 0 && rrn < 9999) {
       me.tableDiv.cursorRRN = rrn;
     }
   };
 
-  this.placeCursor = function (onTimeout) {
+  this.placeCursor = function(onTimeout) {
     var rrn = me.placeCursorRRN;
     me.placeCursorRRN = null;
     if (rrn == null) return;
@@ -5838,7 +5838,7 @@ pui.Grid = function () {
     if (rowNum > me.cells.length - 1) return;
     var row = me.cells[rowNum];
     if (onTimeout == true) {
-      setTimeout(function () {
+      setTimeout(function() {
         placeCursorOnRow(row);
       }, 1);
     }
@@ -5900,7 +5900,7 @@ pui.Grid = function () {
     return hidden;
   }
 
-  this.setupHiddenRows = function () {
+  this.setupHiddenRows = function() {
     for (var i = 0; i < me.dataArray.length; i++) {
       var record = me.dataArray[i];
       checkRowHidden(record);
@@ -5951,12 +5951,12 @@ pui.Grid = function () {
     return selected;
   }
 
-  this["isRowSelected"] = function (row) {
+  this["isRowSelected"] = function(row) {
     var rec = getDataArrayForRow(row, true);
     return checkSelected(rec);
   };
 
-  this["getSelectedRows"] = function () {
+  this["getSelectedRows"] = function() {
     var selRows = [];
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.visibleDataArray;
@@ -5981,7 +5981,7 @@ pui.Grid = function () {
    * @param {Boolean|undefined} hover  When true: the mouse is hovered over the row.
    * @param {Number|undefined} recIdx  With handler grids that have bound fields, this is the index in me.dataArray that corresponds to "row".
    */
-  this.setRowBackground = function (row, hover, recIdx) {
+  this.setRowBackground = function(row, hover, recIdx) {
     var even = ((row % 2) == 1);
     if (me.hasHeader) even = !even;
     if (me.cells == null) return;
@@ -6211,7 +6211,7 @@ pui.Grid = function () {
     }
 
     me.dragging = true;
-    me.doThisToTableDivs(function (domObj) {
+    me.doThisToTableDivs(function(domObj) {
       domObj.startLeft = pui.safeParseInt(domObj.style.left);
       domObj.startTop = pui.safeParseInt(domObj.style.top);
     });
@@ -6298,7 +6298,7 @@ pui.Grid = function () {
           headerCellProxyContainer.appendChild(headerCellProxy);
           // don't display proxy immediately to allow a potential double-click to register
           headerCellProxy.style.display = "none";
-          setTimeout(function () {
+          setTimeout(function() {
             if (headerCellProxy != null) { // still there
               headerCellProxy.style.display = "";
             }
@@ -6378,7 +6378,7 @@ pui.Grid = function () {
           deltay -= me.tableDiv.startTop;
         }
       }
-      me.doThisToTableDivs(function (domObj) {
+      me.doThisToTableDivs(function(domObj) {
         domObj.style.top = (domObj.startTop + deltay) + "px";
         domObj.style.left = (domObj.startLeft + deltax) + "px";
       });
@@ -6409,7 +6409,7 @@ pui.Grid = function () {
           me.moveColumn(cell.col, columnPointer.matchedCol);
           // if hidable columns, update the column inforamtion and save the colSequence to the object
           if (me.hidableColumns) {
-            var cols = me.columnInfo.map(function (col) {
+            var cols = me.columnInfo.map(function(col) {
               if (!col["showing"]) col["currentColumn"] = -1;
               else {
                 var curCol = getCurrentColumnFromId(col["columnId"]);
@@ -6419,7 +6419,7 @@ pui.Grid = function () {
               return col;
             });
             var colSequence = [];
-            me.cells[0].forEach(function (cell) {
+            me.cells[0].forEach(function(cell) {
               colSequence.push(cell.columnId);
             });
             cols.colSequence = colSequence;
@@ -6453,7 +6453,7 @@ pui.Grid = function () {
               var colWidths = me
                 .getColumnWidths()
                 .split(",")
-                .map(function (size) {
+                .map(function(size) {
                   return Number(size);
                 });
 
@@ -6522,7 +6522,7 @@ pui.Grid = function () {
    *
    * @returns {undefined}
    */
-  this.moveGridToDropContainer = function () {
+  this.moveGridToDropContainer = function() {
     var itm = me.tableDiv.designItem;
     var designer = itm.designer;
 
@@ -6550,7 +6550,7 @@ pui.Grid = function () {
 
     var diffTop = top - parseInt(itm.dom.style.top);
     var diffLeft = left - parseInt(itm.dom.style.left);
-    me.doThisToTableDivs(function (domObj) {
+    me.doThisToTableDivs(function(domObj) {
       domObj.parentNode.removeChild(domObj);
       container.appendChild(domObj);
       domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
@@ -6580,7 +6580,7 @@ pui.Grid = function () {
    *
    * @returns {undefined}
    */
-  this.moveGridToMainCanvas = function () {
+  this.moveGridToMainCanvas = function() {
     var designItem = me.tableDiv.designItem;
     var designer = designItem.designer;
 
@@ -6589,7 +6589,7 @@ pui.Grid = function () {
 
     var diffTop = parseInt(designer.proxyDiv.style.top) - parseInt(designItem.dom.style.top);
     var diffLeft = parseInt(designer.proxyDiv.style.left) - parseInt(designItem.dom.style.left);
-    me.doThisToTableDivs(function (domObj) {
+    me.doThisToTableDivs(function(domObj) {
       domObj.parentNode.removeChild(domObj);
       designer.container.appendChild(domObj);
       domObj.style.top = (parseInt(domObj.style.top) + diffTop) + "px";
@@ -6739,7 +6739,7 @@ pui.Grid = function () {
               var colWidths = me
                 .getColumnWidths()
                 .split(",")
-                .map(function (size) {
+                .map(function(size) {
                   return Number(size);
                 });
             }
@@ -6761,7 +6761,7 @@ pui.Grid = function () {
       }
     }
     addEvent(line, "mousedown", mousedown);
-    addEvent(line, "mouseover", function () {
+    addEvent(line, "mouseover", function() {
       if (!me.dragging) {
         var bwidth = 3;
         if (me.borderWidth > 3) bwidth = me.borderWidth;
@@ -6771,7 +6771,7 @@ pui.Grid = function () {
         if (isVertical) line.style.borderRightStyle = "solid";
       }
     });
-    addEvent(line, "mouseout", function () {
+    addEvent(line, "mouseout", function() {
       if (!line.dragging) {
         var bwidth = me.borderWidth;
         if (bwidth === null || bwidth < minBWidth) bwidth = minBWidth;
@@ -6934,7 +6934,7 @@ pui.Grid = function () {
 
     if (me.designMode) setCellStyles(cell, header, even, col);
 
-    cell.onmouseover = function (e) {
+    cell.onmouseover = function(e) {
       if (me.dragging) return;
       if (!me.hasHeader) executeEvent("onrowmouseover", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseover", row, null, e, col);
@@ -6965,14 +6965,14 @@ pui.Grid = function () {
           cell.appendChild(me.zoomIcon);
         }
         me.zoomIcon.style.display = "";
-        me.zoomIcon.onclick = function (e) {
+        me.zoomIcon.onclick = function(e) {
           me["rowZoom"](me.cells[row]);
           preventEvent(e);
         };
       }
     };
 
-    cell.onmouseout = function (e) {
+    cell.onmouseout = function(e) {
       if (!me.hasHeader) executeEvent("onrowmouseout", row + 1, null, e, col);
       if (me.hasHeader && row != 0) executeEvent("onrowmouseout", row, null, e, col);
       var header = (row == 0 && me.hasHeader);
@@ -6982,7 +6982,7 @@ pui.Grid = function () {
       me.setRowBackground(row, false, dataArrayIdx);
     };
 
-    cell.onmousedown = function (event) {
+    cell.onmousedown = function(event) {
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
@@ -7065,7 +7065,7 @@ pui.Grid = function () {
         if (pui["is_touch"] && !pui["is_mouse_capable"]) {
           x -= contextMenu.clientWidth / 2;
 
-          contextMenu.onselectstart = function (e) {
+          contextMenu.onselectstart = function(e) {
             return false;
           };
           if (typeof contextMenu.style.MozUserSelect != "undefined") contextMenu.style.MozUserSelect = "none";
@@ -7126,7 +7126,7 @@ pui.Grid = function () {
 
         preventEvent(event);
         if (event != null && event.stopPropagation != null) event.stopPropagation();
-        setTimeout(function () {
+        setTimeout(function() {
           contextMenu.showing = false;
         }, 250);
 
@@ -7136,7 +7136,7 @@ pui.Grid = function () {
 
     // Map a 'tap/hold' gesture on touch devices to the cell mousedown event.
 
-    pui.taphold(cell, function (e) {
+    pui.taphold(cell, function(e) {
       // It would be nice to just create and dispatch a 'MouseEvent' here.
       // However, the documentation on this is poor, and it was not clear how to set the
       // 'pageX' and 'pageY' properties on the created event through this interface.
@@ -7145,7 +7145,7 @@ pui.Grid = function () {
       cell.onmousedown(e);
     });
 
-    cell.onclick = function (e) {
+    cell.onclick = function(e) {
       var target = getTarget(e);
       if (target.combo) {
         return;
@@ -7215,7 +7215,7 @@ pui.Grid = function () {
             // Compensate for any rows in the visible grid that were hidden, up to the row of the clicked cell.
             if (me.rowsHidden > 0 && me.recNum > 0) {
               // Finds the index in me.dataArray for the row
-              me._unhiddenRowIter(null, row, function (idx) {
+              me._unhiddenRowIter(null, row, function(idx) {
                 adjustedRow = idx + 1;
               });
             }
@@ -7334,12 +7334,12 @@ pui.Grid = function () {
       }
     };
 
-    cell.ondblclick = function (e) {
+    cell.ondblclick = function(e) {
       if (me.designMode) {
         if (me.hasHeader && row == 0) {
           var itm = me.tableDiv.designItem;
           if (!pui.isBound(itm.properties["column headings"]) && !pui.isTranslated(itm.properties["column headings"])) {
-            itm.designer.inlineEditBox.onUpdate = function (newHeading) {
+            itm.designer.inlineEditBox.onUpdate = function(newHeading) {
               while (newHeading.indexOf("\n") != -1) {
                 newHeading = newHeading.replace("\n", "<br/>");
               }
@@ -7366,7 +7366,7 @@ pui.Grid = function () {
               itm.designer.changedScreens[itm.designer.currentScreen.screenId] = true;
               itm.designer.propWindow.refreshProperty("column headings");
             };
-            itm.designer.inlineEditBox.onStyleUpdate = function (propName, styleName, styleValue) {
+            itm.designer.inlineEditBox.onStyleUpdate = function(propName, styleName, styleValue) {
               var styleValues = "";
               for (var col = 0; col < me.cells[0].length; col++) {
                 var cellStyleValue = me.cells[0][col].style[styleName];
@@ -7449,7 +7449,7 @@ pui.Grid = function () {
    * @param {Boolean} append   When true, other rows are not deselected when multiple-selection is allowed. When false, others are
    *   deselected if multiple-selection is allowed. If single-selection, other selected records are deselected regardless of argument.
    */
-  this["selectRow"] = function (row, append) {
+  this["selectRow"] = function(row, append) {
     if (!me.selectionEnabled || row < 1 || row > me.dataArray.length) return;
     // Before sorting and filtering, the index of dataArray maps to the RRN.
     var useIndex = (!me.isFiltered() && (typeof me.sorted == "undefined" || me.sorted !== true));
@@ -7481,7 +7481,7 @@ pui.Grid = function () {
    * @param {Number} row    Relative record number of the row to select. should match RRN used in RPG program when row written.
    *   If row is out of bounds, or if record is not selected, does nothing.
    */
-  this["deselectRow"] = function (row) {
+  this["deselectRow"] = function(row) {
     if (!me.selectionEnabled || row < 1 || row > me.dataArray.length) return;
     var isFiltered = me.isFiltered();
     // Before sorting and filtering, the index of dataArray maps to the row.
@@ -7667,7 +7667,7 @@ pui.Grid = function () {
     cell.className = cssClass;
   }
 
-  this.setAllCellStyles = function () {
+  this.setAllCellStyles = function() {
     for (var row = 0; row < me.cells.length; row++) {
       var header = (row == 0 && me.hasHeader);
       for (var col = 0; col < me.cells[row].length; col++) {
@@ -7733,7 +7733,7 @@ pui.Grid = function () {
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
           if (headerCell.columnId >= 0 && headerCell.filterText != null) {
-            //if mne.dataArray has at least one element
+            // if mne.dataArray has at least one element
             if (me.dataArray.length > 0) {
               var bump = bumpUserDefinedColumnIds(headerCell.columnId);
             }
@@ -7786,10 +7786,10 @@ pui.Grid = function () {
     req["async"] = true;
     if (callback == null) req["async"] = false;
     if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-    //else req["postData"] = "AUTH=" + pui.appJob.auth;
+    // else req["postData"] = "AUTH=" + pui.appJob.auth;
     else {
       req["postData"] = "AUTH=" + pui.appJob.auth;
-      if (typeof pui["vId"] !== 'undefined') req["postData"] += "&VID=" + pui["vId"];
+      if (typeof pui["vId"] !== "undefined") req["postData"] += "&VID=" + pui["vId"];
     }
     if (pui["secLevel"] > 0) {
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
@@ -7826,7 +7826,7 @@ pui.Grid = function () {
       req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
     }
 
-    req["onready"] = function (req) {
+    req["onready"] = function(req) {
       if (me["dataProps"]["load fields into widgets"] != "true") {
         me["unMask"]();
       }
@@ -7870,7 +7870,7 @@ pui.Grid = function () {
     if (callback == null) return returnVal;
   }
 
-  this.sizeAllCells = function () {
+  this.sizeAllCells = function() {
     for (var row = 0; row < me.cells.length; row++) {
       for (var col = 0; col < me.cells[row].length; col++) {
         sizeCell(row, col);
@@ -7881,7 +7881,7 @@ pui.Grid = function () {
     }
   };
 
-  this.isDataGrid = function () {
+  this.isDataGrid = function() {
     if ((me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") ||
       (me["dataProps"]["data url"] != null && me["dataProps"]["data url"] != "") ||
       (me["dataProps"]["database file"] != null && me["dataProps"]["database file"] != "")) {
@@ -7892,7 +7892,7 @@ pui.Grid = function () {
     }
   };
 
-  this.setBorderColor = function (borderColor) {
+  this.setBorderColor = function(borderColor) {
     if (!borderColor) borderColor = me.borderColor;
     for (var i = 0; i < me.vLines.length; i++) {
       me.vLines[i].style.borderRightColor = borderColor;
@@ -7903,7 +7903,7 @@ pui.Grid = function () {
     me.borderColor = borderColor;
   };
 
-  this.setBorderWidth = function (borderWidth) {
+  this.setBorderWidth = function(borderWidth) {
     if (borderWidth == null) borderWidth = me.borderWidth;
     borderWidth = parseInt(borderWidth);
     if (isNaN(borderWidth) || (borderWidth < minBWidth && me.designMode)) borderWidth = minBWidth;
@@ -7918,15 +7918,15 @@ pui.Grid = function () {
     me.setScrollBar();
   };
 
-  this["hide"] = function () {
-    me.doThisToTableDivs(function (domObj) {
+  this["hide"] = function() {
+    me.doThisToTableDivs(function(domObj) {
       domObj.style.visibility = "hidden";
     });
     if (me.scrollbarObj != null) me.scrollbarObj.hide();
     if (me.pagingBar != null) me.pagingBar.hide();
   };
 
-  this.hideSubfile = function () {
+  this.hideSubfile = function() {
     me.subfileHidden = true;
     if (!me.hasHeader) {
       me["hide"]();
@@ -7949,8 +7949,8 @@ pui.Grid = function () {
     if (me.pagingBar != null) me.pagingBar.hide();
   };
 
-  this["show"] = function () {
-    me.doThisToTableDivs(function (domObj) {
+  this["show"] = function() {
+    me.doThisToTableDivs(function(domObj) {
       domObj.style.visibility = "";
     });
     var isSelected = false;
@@ -7963,7 +7963,7 @@ pui.Grid = function () {
     me.setScrollBar();
   };
 
-  this.addColumn = function (colId) {
+  this.addColumn = function(colId) {
     var n = me.vLines.length;
     var vLine = document.createElement("div");
     vLine.className = "grid-vline";
@@ -7994,7 +7994,7 @@ pui.Grid = function () {
     vLine.style.padding = "0px";
     vLine.style.zIndex = me.vBorderZIndex;
     // disable context menu when right clicked on vLine
-    vLine.oncontextmenu = function (e) {
+    vLine.oncontextmenu = function(e) {
       return false;
     };
     me.container.appendChild(vLine);
@@ -8038,7 +8038,7 @@ pui.Grid = function () {
    * removing the column to avoid breaking things in the grid. #6740.
    * @param {Number} columnId  The original columnId, as positioned in design-time.
    */
-  this["removeColumn"] = function (columnId) {
+  this["removeColumn"] = function(columnId) {
     if (me.hidableColumns) {
       me["hideColumn"](columnId);
     }
@@ -8051,7 +8051,7 @@ pui.Grid = function () {
    * Remove a column.
    * @param {Number} columnId    The original columnId, as positioned in design-time.
    */
-  this.rmvColumn = function (columnId) {
+  this.rmvColumn = function(columnId) {
     var lastCol = me.vLines.length - 2;
     if (lastCol < 1) {
       pui.alert(pui["getLanguageText"]("runtimeMsg", "cannot rmv last col"));
@@ -8075,7 +8075,7 @@ pui.Grid = function () {
     me.selectMe();
   };
 
-  this.removeLastColumn = function () {
+  this.removeLastColumn = function() {
     var n = me.vLines.length;
     if (n <= 0) return;
     n = n - 1;
@@ -8094,7 +8094,7 @@ pui.Grid = function () {
     me.setScrollBar();
   };
   // Pass the optional colObj for hideable columns
-  this.moveColumn = function (from, to, colObj) {
+  this.moveColumn = function(from, to, colObj) {
     for (var row = 0; row < me.cells.length; row++) {
       var cell;
       var cellBeingMoved = cell = me.cells[row][from];
@@ -8286,7 +8286,7 @@ pui.Grid = function () {
     }
   };
 
-  this.addRow = function () {
+  this.addRow = function() {
     var n = me.hLines.length;
     var hLine = document.createElement("div");
     hLine.className = "grid-hline";
@@ -8318,7 +8318,7 @@ pui.Grid = function () {
     hLine.style.zIndex = me.hBorderZIndex;
     if (me.tableDiv.style.visibility == "hidden") hLine.style.visibility = "hidden";
     // disable context menu when right clicked on hLine
-    hLine.oncontextmenu = function (e) {
+    hLine.oncontextmenu = function(e) {
       return false;
     };
     me.container.appendChild(hLine);
@@ -8340,7 +8340,7 @@ pui.Grid = function () {
   /**
    * Remove DOM elements located in the last row, including the DIV and horizontal line element.
    */
-  this.removeLastRowCells = function () {
+  this.removeLastRowCells = function() {
     var n = me.hLines.length;
     if (n <= 0) return;
     n = n - 1;
@@ -8363,7 +8363,7 @@ pui.Grid = function () {
     me.setScrollBar();
   };
 
-  this["alignColumnTotals"] = function () {
+  this["alignColumnTotals"] = function() {
     var rowNum = 0;
     if (me.hasHeader) rowNum = 1;
     var row = me.cells[rowNum];
@@ -8383,7 +8383,7 @@ pui.Grid = function () {
     }
   };
 
-  this["scrollToRow"] = function (row) {
+  this["scrollToRow"] = function(row) {
     row = parseInt(row, 10);
     if (isNaN(row)) {
       // me.recNum cannot be set to a string; otherwise, the grid will crash.
@@ -8404,14 +8404,14 @@ pui.Grid = function () {
     return me["getRRN"](row);
   };
 
-  this["setNumberOfRows"] = function (numRows) {
+  this["setNumberOfRows"] = function(numRows) {
     me.setProperty("number of rows", String(numRows));
     me.sizeAllCells();
     me.setAllCellStyles();
     if (!me.resizeOnly) me.getData();
   };
 
-  this["render"] = function () {
+  this["render"] = function() {
     me.sizeAllCells();
     me.setAllCellStyles();
     me.setHeadings();
@@ -8420,7 +8420,7 @@ pui.Grid = function () {
     }
   };
 
-  this["refresh"] = function () {
+  this["refresh"] = function() {
     me.recNum = 1;
     me.totalRecs = null;
     me.forceDataArray = false;
@@ -8431,7 +8431,7 @@ pui.Grid = function () {
     me.getData();
   };
 
-  this["getRecordCount"] = function () {
+  this["getRecordCount"] = function() {
     var count;
     if (me.isDataGrid()) {
       count = me.totalRecs;
@@ -8443,7 +8443,7 @@ pui.Grid = function () {
     return count;
   };
 
-  this["expandTreeLevel"] = function (rrn) {
+  this["expandTreeLevel"] = function(rrn) {
     if (rrn === 0) me.gridTree.expandAll();
     else {
       var node = me.treeLevelData[rrn - 1].node;
@@ -8452,7 +8452,7 @@ pui.Grid = function () {
     me.refreshGridTree(node);
   };
 
-  this["collapseTreeLevel"] = function (rrn) {
+  this["collapseTreeLevel"] = function(rrn) {
     if (rrn === 0) me.gridTree.collapseAll();
     else {
       var node = me.treeLevelData[rrn - 1].node;
@@ -8461,13 +8461,13 @@ pui.Grid = function () {
     me.refreshGridTree(node);
   };
 
-  this["toggleTreeLevel"] = function (rrn) {
+  this["toggleTreeLevel"] = function(rrn) {
     var node = me.treeLevelData[rrn - 1].node;
     me.gridTree.toggleChildren(node);
     me.refreshGridTree(node);
   };
 
-  this.refreshGridTree = function (affectedNode) {
+  this.refreshGridTree = function(affectedNode) {
     // New way to handle grid tree:
     // Use a REAL model tree stored in me.gridTree.
     // Call me.gridTree.hideChildren() or me.gridTree.showChilden() or me.gridTree.toggleChildren(),
@@ -8502,7 +8502,7 @@ pui.Grid = function () {
     me.getData();
   };
 
-  this.getTreeLevelColumnId = function () {
+  this.getTreeLevelColumnId = function() {
     // if property "tree level column" is specified, then use that; otherwise use column 0
     if (me.treeLevelColumnId !== null) {
       return me.treeLevelColumnId;
@@ -8517,7 +8517,7 @@ pui.Grid = function () {
     return me.treeLevelColumnId;
   };
 
-  this["clear"] = function (refresh) {
+  this["clear"] = function(refresh) {
     me.dataArray = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       me.runtimeChildren[i].domEls = [];
@@ -8536,13 +8536,13 @@ pui.Grid = function () {
     return entry;
   }
 
-  this["push"] = function (record, refresh) {
+  this["push"] = function(record, refresh) {
     var entry = buildEntryFromObject(record);
     me.dataArray.push(entry);
     if (refresh) me.refresh();
   };
 
-  this["addRecords"] = function (records, refresh) {
+  this["addRecords"] = function(records, refresh) {
     for (var i = 0; i < records.length; i++) {
       var record = records[i];
       me["push"](record);
@@ -8550,13 +8550,13 @@ pui.Grid = function () {
     if (refresh) me.refresh();
   };
 
-  this["replaceRecords"] = function (records, refresh) {
+  this["replaceRecords"] = function(records, refresh) {
     me["clear"]();
     me["addRecords"](records);
     if (refresh) me.refresh();
   };
 
-  this["splice"] = function (start, deleteCount) {
+  this["splice"] = function(start, deleteCount) {
     // Adjust start assumming record number (not index) is passed in
     start = start - 1;
 
@@ -8583,7 +8583,7 @@ pui.Grid = function () {
     if (refresh) me.refresh();
   };
 
-  this["insertRow"] = function (start) {
+  this["insertRow"] = function(start) {
     var refresh = false;
     var args = [start, 0];
     for (var i = 1; i < arguments.length; i++) {
@@ -8595,7 +8595,7 @@ pui.Grid = function () {
     me["splice"].apply(me, args);
   };
 
-  this["unshiftRow"] = function () {
+  this["unshiftRow"] = function() {
     var refresh = false;
     var args = [1, 0];
     for (var i = 0; i < arguments.length; i++) {
@@ -8608,12 +8608,12 @@ pui.Grid = function () {
     if (refresh) me.refresh();
   };
 
-  this["removeRow"] = function (row, refresh) {
+  this["removeRow"] = function(row, refresh) {
     me["splice"](row, 1);
     if (refresh) me.refresh();
   };
 
-  this.handleHideRow = function (rrn, status, callGetData) {
+  this.handleHideRow = function(rrn, status, callGetData) {
     var row = me.getRowInDataArray(me.dataArray, rrn);
     if (row == null) return;
     var record = me.dataArray[row - 1];
@@ -8666,15 +8666,15 @@ pui.Grid = function () {
     }
   };
 
-  this["hideRow"] = function (rrn) {
+  this["hideRow"] = function(rrn) {
     me.handleHideRow(rrn, true, true);
   };
 
-  this["showRow"] = function (rrn) {
+  this["showRow"] = function(rrn) {
     me.handleHideRow(rrn, false, true);
   };
 
-  this["clearState"] = function (part) {
+  this["clearState"] = function(part) {
     var stg = loadState();
     if (stg != null) {
       if (typeof part == "string") {
@@ -8691,7 +8691,7 @@ pui.Grid = function () {
           // If hidable columns is true, then the column order is also in hidableColState and must be reset. #5262.
           if (part === "colsequence" && stg["hidableColState"] && stg["hidableColState"]["cols"]) {
             if (stg["colWidths"] instanceof Array) {
-              var origwidths = stg["colWidths"].map(function (col) {
+              var origwidths = stg["colWidths"].map(function(col) {
                 return col;
               }); // get copy of current widths.
               stg["colWidths"] = [];
@@ -8739,7 +8739,7 @@ pui.Grid = function () {
     }
   };
 
-  this["getSelectedCount"] = function () {
+  this["getSelectedCount"] = function() {
     var count = 0;
 
     if (me.selectionEnabled && me.selectionField) {
@@ -8764,7 +8764,7 @@ pui.Grid = function () {
     return count;
   };
 
-  this.hideContextMenu = function () {
+  this.hideContextMenu = function() {
     if (!me.contextMenuId) return;
     var menu = getObj(me.contextMenuId);
     if (!menu) return;
@@ -8775,7 +8775,7 @@ pui.Grid = function () {
     menu.style.display = "none";
   };
 
-  this.getFieldNameFromColumnIndex = function (columnIndex, fieldLength) {
+  this.getFieldNameFromColumnIndex = function(columnIndex, fieldLength) {
     if (columnIndex == null || isNaN(columnIndex)) return null;
     for (var i = 0; i < me.runtimeChildren.length; i++) {
       var itm = me.runtimeChildren[i];
@@ -8805,7 +8805,7 @@ pui.Grid = function () {
     return null;
   };
 
-  this.getColumnIndexFromFieldName = function (fieldName) {
+  this.getColumnIndexFromFieldName = function(fieldName) {
     // Note: customer may pass the short field name or long field name for "initial sort field"
     var fieldNameUpper = pui.fieldUpper(fieldName);
     for (var i = 0; i < me.runtimeChildren.length; i++) {
@@ -8821,7 +8821,7 @@ pui.Grid = function () {
     return null;
   };
 
-  this["getColumnIdFromFieldName"] = function (fieldName) {
+  this["getColumnIdFromFieldName"] = function(fieldName) {
     // Note: customer may pass the short field name or long field name
     var fieldNameUpper = pui.fieldUpper(fieldName);
     for (var i = 0; i < me.runtimeChildren.length; i++) {
@@ -8848,7 +8848,7 @@ pui.Grid = function () {
    * @param {Object|Element} headerCell    A DOM element for a column header.
    * @param {Boolean} all
    */
-  this.setSearchIndexes = function (headerCell, all) {
+  this.setSearchIndexes = function(headerCell, all) {
     // dataGrids do not use client-side filtering and don't need searchIndexes, formats, or rtIdxs
     if (me.isDataGrid() && me.forceDataArray == false) return;
     if (headerCell.searchIndexes != null) return; // searchIndexes is already setup.
@@ -8883,7 +8883,7 @@ pui.Grid = function () {
     }
   };
 
-  this["startFind"] = function (headerCell) {
+  this["startFind"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.ffHeaderCell = headerCell;
@@ -8900,7 +8900,7 @@ pui.Grid = function () {
     me.ffbox.focus();
   };
 
-  this["clearHighlighting"] = function () {
+  this["clearHighlighting"] = function() {
     me.highlighting.text = "";
     me.getData();
   };
@@ -8917,7 +8917,7 @@ pui.Grid = function () {
    * @param {Boolean|Null}   parm3   next (API) or null.
    * @returns {undefined}
    */
-  this["find"] = function (parm1, parm2, parm3) {
+  this["find"] = function(parm1, parm2, parm3) {
     if (me.waitingOnRequest) return;
 
     var headerCell = me.ffHeaderCell;
@@ -9010,7 +9010,7 @@ pui.Grid = function () {
    * quickfilter box in the specified header.
    * @param {Element|Number} headerCell
    */
-  this["startFilter"] = function (headerCell) {
+  this["startFilter"] = function(headerCell) {
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
     me.ffHeaderCell = headerCell;
@@ -9040,7 +9040,7 @@ pui.Grid = function () {
     else me.ffbox.focus();
   };
 
-  this.doFilter = function (text) {
+  this.doFilter = function(text) {
     var headerCell = me.ffHeaderCell;
     if (text == "") {
       me["removeFilter"](headerCell);
@@ -9061,7 +9061,7 @@ pui.Grid = function () {
    * @param {String} text     The filter text. May be an expression.
    * @returns {undefined}
    */
-  this["setFilter"] = function (headerCell, text) {
+  this["setFilter"] = function(headerCell, text) {
     if (me.waitingOnRequest) return;
 
     var all = false;
@@ -9162,7 +9162,7 @@ pui.Grid = function () {
     executeEvent("onfilterchange");
   };
 
-  this.saveFilters = function (all, text) {
+  this.saveFilters = function(all, text) {
     var filters = [];
     if (all) {
       filters.push({ "text": text, "column": "*all", "curCol": "*all" });
@@ -9184,7 +9184,7 @@ pui.Grid = function () {
     }
   };
 
-  this["getFilter"] = function (headerCell) {
+  this["getFilter"] = function(headerCell) {
     var all = false;
     if (headerCell === "*all") {
       headerCell = 0;
@@ -9221,7 +9221,7 @@ pui.Grid = function () {
    * @returns {Boolean}       Returns true if the cell value contained the search
    *    text or passed the expression.
    */
-  this.testFilter = function (value, text) {
+  this.testFilter = function(value, text) {
     var commaDecimal = (pui.appJob != null && (pui.appJob["decimalFormat"] == "I" || pui.appJob["decimalFormat"] == "J"));
     if (text.substr(0, 8).toLowerCase() == "between ") {
       var parts = text.substr(8).toLowerCase().split(" ");
@@ -9357,7 +9357,7 @@ pui.Grid = function () {
    * @param {String} text     User input from Filter box.
    * @returns {String}        URL encoded string with &key=value pairs for the filter.
    */
-  this.prepareFilterText = function (filtNum, text) {
+  this.prepareFilterText = function(filtNum, text) {
     var retval = "";
     text = text.toUpperCase();
 
@@ -9439,7 +9439,7 @@ pui.Grid = function () {
     return retval;
   };
 
-  this.setFilteredOut = function (record) {
+  this.setFilteredOut = function(record) {
     record.filteredOut = false;
     if (record.filteredOutArray != null) {
       for (var j = 0; j < record.filteredOutArray.length; j++) {
@@ -9451,7 +9451,7 @@ pui.Grid = function () {
     }
   };
 
-  this["removeFilter"] = function (headerCell) {
+  this["removeFilter"] = function(headerCell) {
     if (me.waitingOnRequest) return;
     if (typeof headerCell == "number") headerCell = me.cells[0][getCurrentColumnFromId(headerCell)];
     if (headerCell == null) return;
@@ -9497,7 +9497,7 @@ pui.Grid = function () {
     executeEvent("onfilterchange");
   };
 
-  this["removeAllFilters"] = function () {
+  this["removeAllFilters"] = function() {
     if (me.waitingOnRequest) return;
     me.highlighting.text = ""; // #7258
     var headerRow = me.cells[0];
@@ -9533,7 +9533,7 @@ pui.Grid = function () {
     executeEvent("onfilterchange");
   };
 
-  this.getFilterCount = function () {
+  this.getFilterCount = function() {
     var count = 0;
     var headerRow = me.cells[0];
     for (var i = 0; i < headerRow.length; i++) {
@@ -9551,7 +9551,7 @@ pui.Grid = function () {
    *                                    if true only if rows were filteredOut via setFilter() will this return true.
    * @returns {Boolean}
    */
-  this.isFiltered = function (ignoreHiddenRows) {
+  this.isFiltered = function(ignoreHiddenRows) {
     if (me.filterResponse != null) return false; // With server-side filtering for paging grids, me.dataArray should be used.
     if (!ignoreHiddenRows && me.rowsHidden > 0) return true; // Use me.visibleDataArray if some rows were hidden
     var headerRow = me.cells[0];
@@ -9563,13 +9563,13 @@ pui.Grid = function () {
     return false;
   };
 
-  this.setFilterIcon = function (headerCell) {
+  this.setFilterIcon = function(headerCell) {
     if (headerCell.filterIcon == null) {
       headerCell.filterIcon = document.createElement("img");
       headerCell.filterIcon.style.paddingLeft = "3px";
       headerCell.filterIcon.src = pui.normalizeURL("/profoundui/proddata/images/grids/filter.png");
       headerCell.style.cursor = "pointer";
-      headerCell.filterIcon.onclick = function (e) {
+      headerCell.filterIcon.onclick = function(e) {
         if (!pui.isRightClick(e)) {
           me["startFilter"](headerCell);
           preventEvent(e);
@@ -9588,12 +9588,12 @@ pui.Grid = function () {
     }
   };
 
-  this.removeFilterIcon = function (headerCell) {
+  this.removeFilterIcon = function(headerCell) {
     if (headerCell.filterIcon != null && headerCell.filterIcon.parentNode != null) headerCell.filterIcon.parentNode.removeChild(headerCell.filterIcon);
     headerCell.filterIcon = null;
   };
 
-  this["isRowFilteredOut"] = function (rowNo) {
+  this["isRowFilteredOut"] = function(rowNo) {
     var record = getDataArrayForRow(rowNo, false);
     var result = false;
     if (record != null && record.filteredOut != null && record.filteredOut === true) result = true;
@@ -9604,7 +9604,7 @@ pui.Grid = function () {
    * Returns true if the grid uses server-side filtering on a paging grid.
    * @returns {Boolean}
    */
-  this.usePagingFilter = function () {
+  this.usePagingFilter = function() {
     return me.tableDiv.filterResponseField != null;
   };
 
@@ -9717,7 +9717,7 @@ pui.Grid = function () {
    * @param {Number} colId  The original columnId, as positioned in design-time.
    * @returns {Boolean} True if successful, false if not
    */
-  this["hideColumn"] = function (colId) {
+  this["hideColumn"] = function(colId) {
     return me.handleHideShow(colId, false);
   };
 
@@ -9726,7 +9726,7 @@ pui.Grid = function () {
    * @param {Number} colId  The original columnId, as positioned in design-time.
    * @returns {Boolean} True if successful, false if not
    */
-  this["showColumn"] = function (colId) {
+  this["showColumn"] = function(colId) {
     return me.handleHideShow(colId, true);
   };
 
@@ -9735,7 +9735,7 @@ pui.Grid = function () {
    * @param {Number} colId
    * @returns {Boolean} True if column is hidden, false if visible or if colId was NaN or if colId was out of bounds.
    */
-  this["isColumnHidden"] = function (colId) {
+  this["isColumnHidden"] = function(colId) {
     if (typeof colId == "string") colId = Number(colId);
     if (!isNaN(colId)) {
       for (var i = 0; i < me.columnInfo.length; i++) {
@@ -9747,7 +9747,7 @@ pui.Grid = function () {
     return false;
   };
 
-  this.getRowInDataArray = function (dataRecords, rrn) {
+  this.getRowInDataArray = function(dataRecords, rrn) {
     var idx = rrn;
     var found = true;
     // if data array has been sorted, we need to get the record
@@ -9767,7 +9767,7 @@ pui.Grid = function () {
     return idx;
   };
 
-  this["getRowNumber"] = function (rrn) {
+  this["getRowNumber"] = function(rrn) {
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.visibleDataArray;
     var idx = me.getRowInDataArray(dataRecords, rrn);
@@ -9777,7 +9777,7 @@ pui.Grid = function () {
     return idx;
   };
 
-  this["getRRN"] = function (rowNum) {
+  this["getRRN"] = function(rowNum) {
     var row = rowNum;
     var dataRecords = me.dataArray;
     if (me.isFiltered()) dataRecords = me.visibleDataArray;
@@ -9791,7 +9791,7 @@ pui.Grid = function () {
   };
 
   // Handle the showColumn and hideColumn API's
-  this.handleHideShow = function (colId, toShow) {
+  this.handleHideShow = function(colId, toShow) {
     if (!this.hidableColumns) return false;
     if (typeof colId == "string") colId = Number(colId);
     if (!isNaN(colId)) {
@@ -9809,7 +9809,7 @@ pui.Grid = function () {
 
   // Toggle the columns with the columnObject provided. If reset is passed, dont run the getData() method
   // Return false if hide columns is not set, or if there is only 1 column left, else returns true.
-  this.hideShowColumn = function (colObj, reset) {
+  this.hideShowColumn = function(colObj, reset) {
     if (!this.hidableColumns) return false;
     var numCols = me.vLines.length - 2;
     var cols = me.columnInfo;
@@ -9828,7 +9828,7 @@ pui.Grid = function () {
     var currentColWidths = me
       .getColumnWidths()
       .split(",")
-      .map(function (num) {
+      .map(function(num) {
         return Number(num);
       });
     // Loop through the columns to toggle the current column selecte and get its current width
@@ -9896,10 +9896,10 @@ pui.Grid = function () {
           // Filter out any columns that are after the current one
           // and reduce it down to the column right before the current one
           var lastCol = visibleCols
-            .filter(function (col) {
+            .filter(function(col) {
               return col["columnId"] < colId;
             })
-            .reduce(function (prev, cur) {
+            .reduce(function(prev, cur) {
               return cur["columnId"] >= prev ? cur["columnId"] : prev;
             }, 0);
           col = getCurrentColumnFromId(lastCol) + 1;
@@ -9919,13 +9919,13 @@ pui.Grid = function () {
     // Get the positions of the headings and the new widths of the columns
     var headings = [];
     var widths = visibleCols
-      .sort(function (a, b) {
+      .sort(function(a, b) {
         var colA = getCurrentColumnFromId(a["columnId"]);
         var colB = getCurrentColumnFromId(b["columnId"]);
         if (colA > colB) return 1;
         else return -1;
       })
-      .map(function (obj) {
+      .map(function(obj) {
         if (obj["blankHeader"]) headings.push("");
         else headings.push(obj["name"]);
         if (me.expandToLayout || excelLike) {
@@ -9947,7 +9947,7 @@ pui.Grid = function () {
 
     if (persistState) {
       // Get the last posistions of all the visible columns
-      var cols = cols.map(function (col) {
+      var cols = cols.map(function(col) {
         if (col["showing"]) col["savedColumn"] = getCurrentColumnFromId(col["columnId"]);
         return col;
       });
@@ -10026,12 +10026,12 @@ pui.Grid = function () {
 
   // Takes column info as an optional parm.
   // return column headings as an array.
-  this.getHeadings = function (colsInfo) {
+  this.getHeadings = function(colsInfo) {
     if (typeof colsInfo !== "object") return me.columnHeadings.split(",");
-    return colsInfo.filter(function (col) {
+    return colsInfo.filter(function(col) {
       return col["showing"];
     })
-      .sort(function (a, b) { // Sort columns by their currentColumn value
+      .sort(function(a, b) { // Sort columns by their currentColumn value
         var colA, colB;
         if (me.designMode && a["currentColumn"] != null && b["currentColumn"] != null) {
           colA = a["currentColumn"];
@@ -10044,13 +10044,13 @@ pui.Grid = function () {
         if (colA > colB) return 1;
         else return -1;
       })
-      .map(function (col) {
+      .map(function(col) {
         if (col["blankHeader"]) return "";
         return col["name"];
       });
   };
 
-  this.showMultiSortPanel = function () {
+  this.showMultiSortPanel = function() {
     if (me.tableDiv.parentNode == null) return;
 
     if (sortMultiPanel == null) {
@@ -10066,14 +10066,14 @@ pui.Grid = function () {
       var btn = document.createElement("button");
       btn.className = "pui-material-icons";
       btn.innerHTML = "close";
-      addEvent(btn, "click", function () {
+      addEvent(btn, "click", function() {
         sortMultiPanel.style.display = "none";
       });
       header.appendChild(btn);
       btn = document.createElement("button");
       btn.className = "pui-material-icons";
       btn.innerHTML = "check";
-      addEvent(btn, "click", function () {
+      addEvent(btn, "click", function() {
         sortMultiPanel.style.display = "none";
         var sortparam = [];
         for (var i = 0; i < includetable.tBodies[0].rows.length; i++) {
@@ -10109,7 +10109,7 @@ pui.Grid = function () {
 
       // If sort order was restored, sortMultiOrder may be set before the UI is made, so put things in correct order.
       // Get a list of column info while calculating order based on sortMultiOrder being set on a column.
-      var rows = me.cells[0].map(function (hcell) {
+      var rows = me.cells[0].map(function(hcell) {
         var order = -1;
         for (var i = 0; i < sortMultiOrder.length; i++) {
           if (hcell === sortMultiOrder[i]) {
@@ -10123,7 +10123,7 @@ pui.Grid = function () {
         }
         return { columnId: hcell.columnId, name: hcell["textContent"], sortDescending: desc, order: order };
       });
-      rows.sort(function (a, b) {
+      rows.sort(function(a, b) {
         if (a.order >= 0 && b.order >= 0) return a.order - b.order; // a is a smaller number; a comes before b.
         if (a.order >= 0 && b.order < 0) return -1; // a is checked, b is not; a comes before b.
         if (a.order < 0 && b.order >= 0) return 1; // b is checked, a is not; a comes after b.
@@ -10166,7 +10166,7 @@ pui.Grid = function () {
         btn.className = "pui-material-icons";
         btn.innerHTML = tr.sortDescending ? "arrow_downward" : "arrow_upward";
         btn.style.visibility = tr.order >= 0 ? "" : "hidden";
-        addEvent(btn, "click", function (e) {
+        addEvent(btn, "click", function(e) {
           var tr = e.target.parentNode.parentNode;
           if (e.target.innerHTML == "arrow_downward") {
             e.target.innerHTML = "arrow_upward";
@@ -10334,7 +10334,7 @@ pui.Grid = function () {
   };
 
   // Displays a panel that allows user to pick which data from the column to filter
-  this.showMultiFiltersPanel = function (headerCell) {
+  this.showMultiFiltersPanel = function(headerCell) {
     if (me.tableDiv.parentNode == null) return;
     if (pui["is_ie"]) return;
     // loading animation on table while panel is loading
@@ -10367,7 +10367,7 @@ pui.Grid = function () {
     var btn = document.createElement("button");
     btn.className = "pui-material-icons";
     btn.innerHTML = "close";
-    addEvent(btn, "click", function () {
+    addEvent(btn, "click", function() {
       filterMultiPanel.style.display = "none";
       if (me.waitingOnRequest == true) {
         me.waitingOnRequest = false;
@@ -10383,7 +10383,7 @@ pui.Grid = function () {
     btn = document.createElement("button");
     btn.className = "pui-material-icons";
     btn.innerHTML = "check";
-    addEvent(btn, "click", function () {
+    addEvent(btn, "click", function() {
       filterMultiPanel.style.display = "none";
       me.mask(); // disable UI until server responds.
       me.gridLoading();
@@ -10581,8 +10581,7 @@ pui.Grid = function () {
       }
     }
 
-
-    includetable.onscroll = function () {
+    includetable.onscroll = function() {
       var i;
       // If all rows have displayed
       var dataLeft = dataCount - rowCount;
@@ -10655,10 +10654,10 @@ pui.Grid = function () {
       req["method"] = "post";
       req["async"] = true;
       if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
-      //else req["postData"] = "AUTH=" + pui.appJob.auth;
+      // else req["postData"] = "AUTH=" + pui.appJob.auth;
       else {
         req["postData"] = "AUTH=" + pui.appJob.auth;
-        if (typeof pui["vId"] !== 'undefined') req["postData"] += "&VID=" + pui["vId"];
+        if (typeof pui["vId"] !== "undefined") req["postData"] += "&VID=" + pui["vId"];
       }
 
       req["postData"] += "&q=" + encodeURIComponent(pui.getSQLVarName(me.tableDiv));
@@ -10692,7 +10691,7 @@ pui.Grid = function () {
         req["postData"] += "&workspace_id=" + pui.cloud.ws.id;
       }
 
-      req["onready"] = function (req) {
+      req["onready"] = function(req) {
         var response, fieldName, fieldValue;
 
         response = checkAjaxResponse(req, "Run SQL SELECT Query");
@@ -10717,7 +10716,7 @@ pui.Grid = function () {
                 fieldOrder.push(field);
               }
             }
-            fieldOrder = fieldOrderSort(fieldOrder); // Sort the fieldOrder array.  
+            fieldOrder = fieldOrderSort(fieldOrder); // Sort the fieldOrder array.
 
             for (var i = 0; i < data.length; i++) {
               var record = data[i];
@@ -10776,31 +10775,32 @@ pui.Grid = function () {
   // Return the difference between the columnId and the position of the fieldName from the select statement.
   function bumpUserDefinedColumnIds(columnId) {
     var userDefinedColumnIds = [];
-    var bump = 0;    
+    var bump = 0;
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
-      if (me.runtimeChildren[columnId]) {
-        var scrField = me.runtimeChildren[columnId]["value"]["fieldName"];
+      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me.fieldNames) {
+        var scrField = me.runtimeChildren[columnId].value.fieldName;
         var selPos = me.fieldNames.indexOf(scrField);
         if (selPos != -1) {
           bump = selPos - columnId;
         }
       }
     }
-      return bump; 
+    return bump;
   }
 
   function fieldOrderSort(fieldOrder) {
     var newFieldOrder = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      var nxtField = me.runtimeChildren[i].value.fieldName;
-      if (fieldOrder.indexOf(nxtField) != -1) {
-        newFieldOrder.push(nxtField);
+      if (me.runtimeChildren[i].value.fieldName) {
+        var nxtField = me.runtimeChildren[i].value.fieldName;
+        if (fieldOrder.indexOf(nxtField) != -1) {
+          newFieldOrder.push(nxtField);
+        }
       }
     }
     return newFieldOrder;
   }
-
 
   // Get an array of user defined data fieldNames
   function getUserDefinedDataFields(runtimeChildren) {
@@ -10808,14 +10808,14 @@ pui.Grid = function () {
     for (var idx = 0; idx < runtimeChildren.length; idx++) {
       var child = runtimeChildren[idx];
       for (prop in child) {
-      //if (child["user defined data"] != null) {
+      // if (child["user defined data"] != null) {
         if (prop.substr(0, 17) === "user defined data") {
           var userDefinedDataField = child[prop].fieldName;
           if (userDefinedDataField != null) {
             userDefinedDataFields.push(userDefinedDataField.toUpperCase());
           }
         }
-      } 
+      }
     }
     return userDefinedDataFields;
   }
@@ -10827,241 +10827,241 @@ pui.Grid.prototype = Object.create(pui.BaseGrid.prototype); // Inherit from pui.
  * @returns {Array}
  * @static
  */
-pui.BaseGrid.getPropertiesModel = function () {
+pui.BaseGrid.getPropertiesModel = function() {
   // ddsCompatProp: the property is for backward compatibility with legacy Display File properties.
   // 1 = help description should always warn/hide.
   var model = [{ name: "Identification", category: true },
-  { name: "id", maxLength: 75, attribute: "id", helpDefault: "id", help: "Specifies the ID that is used to access the grid from client-side code.", bind: false, canBeRemoved: false },
-  { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Specifies the name that is used to access this grid from server code.", maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
-  { name: "description", helpDefault: "blank", help: "Describes the grid.", bind: false, context: "dspf" },
-  { name: "parent window", attribute: "parentWindow", helpDefault: "blank", help: "Sets the window that this field belongs to.", context: "genie" },
-  { name: "screen identifier", choices: ["true", "false"], blankChoice: false, helpDefault: "false", help: "If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.", context: "genie" },
-  { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, helpDefault: "widget", help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
-  { name: "value", helpDefault: "blank", help: "Sets the initialization value for the current element." },
+    { name: "id", maxLength: 75, attribute: "id", helpDefault: "id", help: "Specifies the ID that is used to access the grid from client-side code.", bind: false, canBeRemoved: false },
+    { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Specifies the name that is used to access this grid from server code.", maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, context: "dspf", canBeRemoved: false },
+    { name: "description", helpDefault: "blank", help: "Describes the grid.", bind: false, context: "dspf" },
+    { name: "parent window", attribute: "parentWindow", helpDefault: "blank", help: "Sets the window that this field belongs to.", context: "genie" },
+    { name: "screen identifier", choices: ["true", "false"], blankChoice: false, helpDefault: "false", help: "If set to true, this element will be used to detect the screen. The identifier element should be a static output field that is unique to this screen. For example, if the screen has a unique heading, it can be used as the identifier. At least one element on the screen must be marked as an identifier before you can save the screen. When appropriate, you can use a combination of several elements to uniquely identify the screen.", context: "genie" },
+    { name: "field type", displayName: "widget type", choices: ["grid"], blankChoice: false, helpDefault: "widget", help: "Determines the type of control that is used to render the element.", bind: false, canBeRemoved: false },
+    { name: "value", helpDefault: "blank", help: "Sets the initialization value for the current element." },
 
-  { name: "Subfile Settings", category: true, context: "dspf" },
-  { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false },
-  { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false },
-  { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false },
-  { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-  { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-  { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false },
-  { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false },
-  { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf" },
-  { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf" },
-  { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf" },
-  { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 1 },
-  { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false },
-  { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf" },
-  { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 1 },
-  { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf" },
-  { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 1 },
+    { name: "Subfile Settings", category: true, context: "dspf" },
+    { name: "display subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "true", help: "This property tells the system when to display grid records. It represents the SFLDSP keyword.", context: "dspf", viewdesigner: false },
+    { name: "display control record", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to display the subfile control record. It represents the SFLDSPCTL keyword.", context: "dspf", viewdesigner: false },
+    { name: "initialize subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system to initialize all records within the subfile. It represents the SFLINZ keyword.", context: "dspf", viewdesigner: false },
+    { name: "subfile records not active", choices: ["true", "false"], bind: false, helpDefault: "false", help: "This property can be used together with the \"initialize subfile\" property to initialize a subfile with no active records. It represents the SFLRNA keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "delete subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to delete the subfile area. It represents the SFLDLT keyword.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "clear subfile", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property tells the system when to clear all records from the subfile. It represents the SFLCLR keyword.", context: "dspf", viewdesigner: false },
+    { name: "subfile size", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "blank", help: "This property represents the SFLSIZ keyword, which specifies the number of records that can be placed into the subfile. However, if your program places a record with a relative record number larger than the SFLSIZ value into the subfile, the subfile is automatically extended to contain it (up to a maximum of 9999 records). If this property is not specified, the subfile page value plus one is used. The subfile page value is determined from the \"number of rows\" property minus the header row if it is present.", context: "dspf", viewdesigner: false },
+    { name: "subfile record number", format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "blank", help: "This property identifies the scrollbar position when the subfile is first displayed." + (pui.viewdesigner ? "" : "  It represents the SFLRCDNBR keyword."), context: "dspf" },
+    { name: "position at top", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the subfile record identified by the \"subfile record number\" property will display in the top row of the grid." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(*TOP) keyword."), context: "dspf" },
+    { name: "place cursor", choices: ["true", "false"], bind: false, helpDefault: "false", help: "When this property is set to true, the cursor is placed in the subfile record identified by the contents of the \"subfile record number\" property. The cursor is positioned at the first input-capable field in the subfile record." + (pui.viewdesigner ? "" : "  This property is equivalent to the SFLRCDNBR(CURSOR) keyword."), context: "dspf" },
+    { name: "subfile end", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property is used to indicate that a subfile with a paging bar has loaded all of its records." + (pui.viewdesigner ? "" : "  It represents the SFLEND keyword."), context: "dspf", ddsCompatProp: 1 },
+    { name: "subfile next changed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property represents the SFLNXTCHG keyword, which forces the user to correct program-detected typing errors in subfile records. The program can cause a record to be changed so that a get-next-changed operation must read the record again.", context: "dspf", viewdesigner: false },
+    { name: "cursor record number", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the record on which the cursor is located." + (pui.viewdesigner ? "" : "  It represents the SFLCSRRRN keyword."), context: "dspf" },
+    { name: "cursor progression", choices: ["left to right", "top to bottom"], helpDefault: "left to right", help: "This property determines the tab order for input elements within the subfile." + (pui.viewdesigner ? "" : "  It represents the SFLCSRPRG keyword."), context: "dspf", ddsCompatProp: 1 },
+    { name: "subfile return rrn", readOnly: true, format: "number", hideFormatting: true, validDataTypes: ["zoned", "reference"], helpDefault: "bind", help: "This property can be bound to a numeric field, which will return the relative record number of the top visible record within a grid." + (pui.viewdesigner ? "" : "  It represents the SFLSCROLL keyword."), context: "dspf" },
+    { name: "subfile changed", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a response indicator that is set on if the input data within the subfile is modified.", context: "dspf", ddsCompatProp: 1 },
 
-  { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-  { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, helpDefault: "bind", help: "This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-  { name: "subfile program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], helpDefault: "bind", help: "This property specifies a field that contains the name of the program message queue used to build a message subfile. It represents the SFLPGMQ keyword on a subfile record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
-  { name: "subfile control program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], helpDefault: "bind", help: "This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property. It represents the SFLPGMQ keyword on a subfile control record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "Message Subfile Settings", category: true, context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "subfile message key", readOnly: true, hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 4, helpDefault: "bind", help: "This property specifies a field that is used to select messages from a program message queue for display. Your program places a message reference key in this field. The property represents the SFLMSGKEY keyword on a subfile record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "subfile program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], helpDefault: "bind", help: "This property specifies a field that contains the name of the program message queue used to build a message subfile. It represents the SFLPGMQ keyword on a subfile record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
+    { name: "subfile control program message queue", readOnly: true, hideFormatting: true, validDataTypes: ["char"], helpDefault: "bind", help: "This property specifies a field that contains the name of the program message queue used to build a message subfile when used in conjunction with the <i>subfile initialize</i> property. It represents the SFLPGMQ keyword on a subfile control record format.", context: "dspf", viewdesigner: false, ddsCompatProp: 1 },
 
-  { name: "Font and Text", category: true },
-  { name: "font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "The font face for the text inside the grid. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.", helpAdd: ["other", "font"] },
-  { name: "font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], helpDefault: "css", help: "The size of the text inside the grid. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.", helpAdd: ["other"] },
-  { name: "font style", format: "italic / normal", choices: ["normal", "italic", "oblique", "Other..."], helpDefault: "css", help: "The style of the font in the grid. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.", helpAdd: ["other"] },
-  { name: "font variant", choices: ["normal", "small-caps", "Other..."], helpDefault: "css", help: "Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter.", helpAdd: ["other"] },
-  { name: "font weight", format: "bold / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], helpDefault: "css", help: "Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.", helpAdd: ["other"] },
-  { name: "letter spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], helpDefault: "css", help: "Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
-  { name: "text align", choices: ["left", "right", "center", "justify", "Other..."], helpDefault: "css", help: "Alignment of text inside cells of the grid element. To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
-  { name: "text decoration", format: "underline / none", choices: ["none", "underline", "overline", "line-through", "Other..."], helpDefault: "css", help: "Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
-  { name: "text transform", choices: ["capitalize", "uppercase", "lowercase", "none", "Other..."], helpDefault: "css", help: "Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
-  { name: "word spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], helpDefault: "css", help: "Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "Font and Text", category: true },
+    { name: "font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "The font face for the text inside the grid. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.", helpAdd: ["other", "font"] },
+    { name: "font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], helpDefault: "css", help: "The size of the text inside the grid. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.", helpAdd: ["other"] },
+    { name: "font style", format: "italic / normal", choices: ["normal", "italic", "oblique", "Other..."], helpDefault: "css", help: "The style of the font in the grid. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.", helpAdd: ["other"] },
+    { name: "font variant", choices: ["normal", "small-caps", "Other..."], helpDefault: "css", help: "Normal or <span style='font-variant:small-caps;'>small caps</span>. Small caps shows the text with all caps but same height as a lower case letter.", helpAdd: ["other"] },
+    { name: "font weight", format: "bold / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], helpDefault: "css", help: "Specifies the weight of the font inside the grid. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.", helpAdd: ["other"] },
+    { name: "letter spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "Other..."], helpDefault: "css", help: "Spacing between each letter of a word. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "text align", choices: ["left", "right", "center", "justify", "Other..."], helpDefault: "css", help: "Alignment of text inside cells of the grid element. To specify a different alignment option for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "text decoration", format: "underline / none", choices: ["none", "underline", "overline", "line-through", "Other..."], helpDefault: "css", help: "Decoration of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "text transform", choices: ["capitalize", "uppercase", "lowercase", "none", "Other..."], helpDefault: "css", help: "Transforms the default formatting of the text inside the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "word spacing", format: "px", choices: ["normal", "-3px", "-2px", "-1px", "0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "Other..."], helpDefault: "css", help: "Spacing between each word in the cells of the grid. To specify a different value for each grid column, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
 
-  { name: "Header", category: true },
-  { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "true", help: "Determines whether the grid has a header row. If &quot;show quick filters&quot; is true, then a header will appear even if &quot;has header&quot; is false." },
-  { name: "header height", helpDefault: "theme", help: "Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse.", bind: false, canBeRemoved: false },
-  { name: "header font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.", helpAdd: ["other", "font"] },
-  { name: "header font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], helpDefault: "css", help: "The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.", helpAdd: ["other"] },
-  { name: "header font style", format: "bold / normal", choices: ["normal", "italic", "oblique", "Other..."], helpDefault: "css", help: "Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.", helpAdd: ["other"] },
-  { name: "header font weight", format: "italic / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], helpDefault: "css", help: "Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.", helpAdd: ["other"] },
-  { name: "header text align", choices: ["left", "right", "center", "justify", "Other..."], helpDefault: "css", help: "Alignment of text inside the cells of the grid header row. To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
-  { name: "header font color", type: "color", helpDefault: "css", help: "Defines the color of the text inside the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.", helpAdd: ["color"] },
-  { name: "header background", type: "color", helpDefault: "css", help: "Defines the background color of the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.", helpAdd: ["background color"] },
-  { name: "header image", type: "image", helpDefault: "css", help: "Defines a repeating background image for the header row." },
-  { name: "column headings", type: "list", helpDefault: "placeholder", help: "Specifies a comma separated list of heading text for each column of the grid.", translate: true },
+    { name: "Header", category: true },
+    { name: "has header", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "true", help: "Determines whether the grid has a header row. If &quot;show quick filters&quot; is true, then a header will appear even if &quot;has header&quot; is false." },
+    { name: "header height", helpDefault: "theme", help: "Specifies the height of the header row. This can also be specified by dragging the grid's top border with the mouse.", bind: false, canBeRemoved: false },
+    { name: "header font family", choices: ["Arial", "Consolas", "Courier New", "Fantasy", "Georgia", "Monospace", "Tahoma", "Times New Roman", "Sans-Serif", "Serif", "Trebuchet MS", "Verdana", "Other..."], helpDefault: "css", help: "The font face for the text inside the grid header row. To define a different font for each grid column, select <i>Other...</i> and specify a comma separated list of fonts.", helpAdd: ["other", "font"] },
+    { name: "header font size", format: "px", choices: ["8px", "9px", "10px", "11px", "12px", "13px", "14px", "15px", "16px", "17px", "18px", "19px", "20px", "21px", "22px", "23px", "24px", "25px", "26px", "27px", "28px", "29px", "30px", "Other..."], helpDefault: "css", help: "The size of the text inside the grid header row. To specify a different font size for each grid column, select <i>Other...</i> and specify a comma separated list of font sizes.", helpAdd: ["other"] },
+    { name: "header font style", format: "bold / normal", choices: ["normal", "italic", "oblique", "Other..."], helpDefault: "css", help: "Specifies the style of the font inside the grid header row. To specify a different font style for each grid column, select <i>Other...</i> and specify a comma separated list of font styles.", helpAdd: ["other"] },
+    { name: "header font weight", format: "italic / normal", choices: ["normal", "bolder", "bold", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900", "Other..."], helpDefault: "css", help: "Specifies the weight of the font inside the grid header row. To specify a different font weight for each grid column, select <i>Other...</i> and specify a comma separated list of font weights.", helpAdd: ["other"] },
+    { name: "header text align", choices: ["left", "right", "center", "justify", "Other..."], helpDefault: "css", help: "Alignment of text inside the cells of the grid header row. To specify a different alignment option for each cell, select <i>Other...</i> and specify a comma separated list of values.", helpAdd: ["other"] },
+    { name: "header font color", type: "color", helpDefault: "css", help: "Defines the color of the text inside the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.", helpAdd: ["color"] },
+    { name: "header background", type: "color", helpDefault: "css", help: "Defines the background color of the header row. To define a different color for each grid cell in the header row, specify a comma separated list of color values.", helpAdd: ["background color"] },
+    { name: "header image", type: "image", helpDefault: "css", help: "Defines a repeating background image for the header row." },
+    { name: "column headings", type: "list", helpDefault: "placeholder", help: "Specifies a comma separated list of heading text for each column of the grid.", translate: true },
 
-  { name: "Colors", category: true },
-  { name: "odd row font color", type: "color", helpDefault: "css", help: "Defines the color of text inside the odd rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid." },
-  { name: "odd row background", type: "color", helpDefault: "css", help: "Defines the background color of the odd rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
-  { name: "even row font color", type: "color", helpDefault: "css", help: "Defines the color of text inside the even rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid." },
-  { name: "even row background", type: "color", helpDefault: "css", help: "Defines the background color of the even rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
-  { name: "row font color", type: "color", helpDefault: "css", help: "Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid. This property, if defined, will be used instead of <i>even row font color</i> and <i>odd row font color</i>.", context: "dspf" },
-  { name: "row background", type: "color", helpDefault: "css", help: "Defines the background color of an individual row. To define a different color for each grid column, specify a comma separated list of color values. You can define a dynamic background color for each record by binding this property to a field.", helpAdd: ["background color"], helpNote: "This property, if defined, will be used instead of <i>even row background</i> and <i>odd row background</i>.", context: "dspf" },
-  { name: "hover font color", type: "color", helpDefault: "css", help: "Defines the color of text when the user hovers the mouse cursor over a grid row. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"] },
-  { name: "hover background", type: "color", helpDefault: "css", help: "Defines the background color of a grid row when the user hovers the mouse cursor over it. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
-  { name: "selection font color", type: "color", helpDefault: "css", help: "Defines the color of text when the user selects a grid row.", helpAdd: ["color"], context: "dspf" },
-  { name: "selection background", type: "color", helpDefault: "css", help: "Defines the background color of a grid row when the user selects it.", helpAdd: ["background color"], context: "dspf" },
+    { name: "Colors", category: true },
+    { name: "odd row font color", type: "color", helpDefault: "css", help: "Defines the color of text inside the odd rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid." },
+    { name: "odd row background", type: "color", helpDefault: "css", help: "Defines the background color of the odd rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
+    { name: "even row font color", type: "color", helpDefault: "css", help: "Defines the color of text inside the even rows of the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid." },
+    { name: "even row background", type: "color", helpDefault: "css", help: "Defines the background color of the even rows in the grid. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
+    { name: "row font color", type: "color", helpDefault: "css", help: "Defines the color of text in an individual row. You can define a dynamic color for each record by binding this property to a field.", helpAdd: ["color"], helpNote: "This only applies to text displayed in a database driven grid. This property, if defined, will be used instead of <i>even row font color</i> and <i>odd row font color</i>.", context: "dspf" },
+    { name: "row background", type: "color", helpDefault: "css", help: "Defines the background color of an individual row. To define a different color for each grid column, specify a comma separated list of color values. You can define a dynamic background color for each record by binding this property to a field.", helpAdd: ["background color"], helpNote: "This property, if defined, will be used instead of <i>even row background</i> and <i>odd row background</i>.", context: "dspf" },
+    { name: "hover font color", type: "color", helpDefault: "css", help: "Defines the color of text when the user hovers the mouse cursor over a grid row. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["color"] },
+    { name: "hover background", type: "color", helpDefault: "css", help: "Defines the background color of a grid row when the user hovers the mouse cursor over it. To define a different color for each grid column, specify a comma separated list of color values.", helpAdd: ["background color"] },
+    { name: "selection font color", type: "color", helpDefault: "css", help: "Defines the color of text when the user selects a grid row.", helpAdd: ["color"], context: "dspf" },
+    { name: "selection background", type: "color", helpDefault: "css", help: "Defines the background color of a grid row when the user selects it.", helpAdd: ["background color"], context: "dspf" },
 
-  { name: "Grid Settings", category: true },
-  { name: "number of rows", helpDefault: "theme", help: "Specifies the number of rows in the grid, including the header row. When the &quot;expand to layout&quot; grid property is true, this is set automatically.", bind: false, canBeRemoved: false },
-  { name: "number of columns", helpDefault: "theme", help: "Specifies the number of columns in the grid.", bind: false, canBeRemoved: false },
-  { name: "row height", helpDefault: "theme", help: "Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse. Changing &quot;height&quot; causes this to change automatically.", bind: false, canBeRemoved: false },
-  { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "theme", help: "Determines whether the grid rows will be highlighted when the user hovers the mouse over them." },
-  { name: "hover image", type: "image", helpDefault: "theme", help: "Defines a repeating cell background image for the hover effect." },
-  { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], helpDefault: "none", help: "Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys" },
-  { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, helpDefault: "bind", help: "This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected.", context: "dspf" },
-  { name: "selection value", helpDefault: "blank", help: "Specifies the value used to populate the selection field when a grid row is selected.", bind: false, context: "dspf" },
-  { name: "selection image", type: "image", helpDefault: "theme", help: "Defines a repeating cell background image for row selection." },
-  { name: "row is hidden field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], defaultDataLength: 1, helpDefault: "bind", help: "This property must be bound to an indicator field, which will be used to return whether a row has been hidden.", context: "dspf" },
-  { name: "column widths", type: "list", helpDefault: "theme", help: "Specifies a comma separated list of column widths for this grid.", bind: false, canBeRemoved: false },
-  { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], helpDefault: "sliding", help: ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only.") },
-  { name: "scroll tool tip", choices: ["none", "row number", "row range"], helpDefault: "true", help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
-  { name: "propagate scroll events", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.", helpAdd: ["other"], context: "dspf" },
-  { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Enables column sorting. If set to true, the user will be able to click on the column headings to resort the data.", context: "dspf" },
-  { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], helpDefault: "Descending", help: "Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.", helpAdd: ["other"], context: "dspf" },
-  { name: "initial sort column", format: "number", helpDefault: "blank", help: "This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the &quot;initial sort field&quot; property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.<p>The value may be a comma-separated list of column numbers, with the first entry being the primary sort, 2nd the 2nd, etc.</p>", context: "dspf" },
-  { name: "initial sort field", helpDefault: "blank", help: "This property specifies the field name used to identify the column for initial sorting. If this property and the &quot;initial sort column&quot; property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.<p>The value may be a comma-separated list of field names, with the first entry being the primary sort, 2nd the 2nd, etc.</p>", hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-  { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned", "char"], helpDefault: "bind", help: "Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
-  { name: "field name sort response", readOnly: true, helpDefault: "bind", help: "Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.", hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
-  { name: "return sort order", readOnly: true, helpDefault: "bind", help: "Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used.", hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
-  { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf" },
-  { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
-  { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
-  { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
-  { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
-  { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
-  { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
-  { name: "row clicked", format: "number", readOnly: true, helpDefault: "bind", help: "Specifies row value clicked in a grid.", context: "dspf" },
-  { name: "column clicked", format: "number", readOnly: true, helpDefault: "bind", help: "Specifies column value clicked in a grid.", context: "dspf" },
+    { name: "Grid Settings", category: true },
+    { name: "number of rows", helpDefault: "theme", help: "Specifies the number of rows in the grid, including the header row. When the &quot;expand to layout&quot; grid property is true, this is set automatically.", bind: false, canBeRemoved: false },
+    { name: "number of columns", helpDefault: "theme", help: "Specifies the number of columns in the grid.", bind: false, canBeRemoved: false },
+    { name: "row height", helpDefault: "theme", help: "Specifies the height that will be applied to each row, not including the header row. This can also be controlled by resizing the grid with the mouse. Changing &quot;height&quot; causes this to change automatically.", bind: false, canBeRemoved: false },
+    { name: "hover effect", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "theme", help: "Determines whether the grid rows will be highlighted when the user hovers the mouse over them." },
+    { name: "hover image", type: "image", helpDefault: "theme", help: "Defines a repeating cell background image for the hover effect." },
+    { name: "row selection", choices: ["none", "single", "multiple (simple)", "multiple (extended)"], helpDefault: "none", help: "Determines if rows within the grid can be selected by the user with a click of the mouse. <br/><br/>Possible values are: <br/><br/><b>none</b> - rows cannot be selected <br/><br/><b>single</b> - only one row can be selected <br/><br/><b>multiple (simple)</b> - multiple rows can be selected by simply clicking on the rows <br/><br/><b>multiple (extended)</b> - multiple rows can be selected with the use of the Shift and Ctrl keys" },
+    { name: "selection field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], defaultDataLength: 1, helpDefault: "bind", help: "This property must be bound to an indicator or a character field, which will be used to both set and return the selected state on each record. If a character field is specified, the selection value property will be used to populate the field when a row is selected.", context: "dspf" },
+    { name: "selection value", helpDefault: "blank", help: "Specifies the value used to populate the selection field when a grid row is selected.", bind: false, context: "dspf" },
+    { name: "selection image", type: "image", helpDefault: "theme", help: "Defines a repeating cell background image for row selection." },
+    { name: "row is hidden field", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], defaultDataLength: 1, helpDefault: "bind", help: "This property must be bound to an indicator field, which will be used to return whether a row has been hidden.", context: "dspf" },
+    { name: "column widths", type: "list", helpDefault: "theme", help: "Specifies a comma separated list of column widths for this grid.", bind: false, canBeRemoved: false },
+    { name: "scrollbar", choices: (context == "genie" && !pui.usingGenieHandler) ? ["true", "false"] : ["none", "sliding", "paging"], helpDefault: "sliding", help: ((context == "genie" && !pui.usingGenieHandler) ? "Determines whether a vertical scrollbar for paging through data records will appear within the grid. If the grid is not a database-driven grid, the scrollbar will automatically send the PageUp/PageDown keys to the underlying application." : "Determines the type of vertical scrollbar used to scroll through records within the grid. A sliding scrollbar scrolls freely, while a paging scrollbar scrolls one page of records at a time only.") },
+    { name: "scroll tool tip", choices: ["none", "row number", "row range"], helpDefault: "true", help: "Determines if the row number or the row number range should be displayed in a tool tip when the user scrolls through the data in the grid.", context: "dspf" },
+    { name: "propagate scroll events", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "When this property is false (which is the default) the grid handles any scroll wheel or swipe events sent to it so that they scroll the grid, but not the window that the grid is placed inside. If you enable this property, these events will be propagated, which allows mouse wheel and swipe events to scroll the grid's parent window.", helpAdd: ["other"], context: "dspf" },
+    { name: "sortable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Enables column sorting. If set to true, the user will be able to click on the column headings to resort the data.", context: "dspf" },
+    { name: "default sort order", choices: ["Ascending", "Descending", "Other..."], helpDefault: "Descending", help: "Specifies the default order for sortable columns. When the user clicks a column, the default sort order is used initially. To provide a different sort order for each grid column, select <i>Other...</i> and specify a comma separated list. Entries in the list can be abbreviated using the letter A for Ascending and D for Descending.", helpAdd: ["other"], context: "dspf" },
+    { name: "initial sort column", format: "number", helpDefault: "blank", help: "This property specifies the column used to for initial sorting. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. If this property and the &quot;initial sort field&quot; property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.<p>The value may be a comma-separated list of column numbers, with the first entry being the primary sort, 2nd the 2nd, etc.</p>", context: "dspf" },
+    { name: "initial sort field", helpDefault: "blank", help: "This property specifies the field name used to identify the column for initial sorting. If this property and the &quot;initial sort column&quot; property are omitted or set to blanks, sorting is not initiated when the grid is first rendered.<p>The value may be a comma-separated list of field names, with the first entry being the primary sort, 2nd the 2nd, etc.</p>", hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+    { name: "column sort response", format: "number", hideFormatting: true, readOnly: true, validDataTypes: ["zoned", "char"], helpDefault: "bind", help: "Specifies a response variable to receive a column number for server-side sorting. If omitted, client-side sorting is used. The response is a numeric value that represents a column in the grid. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort column\" and \"default sort order\" properties.", context: "dspf" },
+    { name: "field name sort response", readOnly: true, helpDefault: "bind", help: "Specifies a response variable to receive a field name used for server-side sorting. If omitted, client-side sorting is used. The response represents the name of the field bound to the first widget in a column of the grid. It is the responsibility of the program to keep track of the sort direction, and to display an up or down arrow in the appropriate column using the \"initial sort field\" and \"default sort order\" properties.", hideFormatting: true, validDataTypes: ["char", "varchar"], context: "dspf" },
+    { name: "return sort order", readOnly: true, helpDefault: "bind", help: "Specifies a response variable to receive the selected sort order when the user clicks on one of the sort options in the grid's built-in header context menu. The response variable will be populated with 'A' for ascending, or 'D' for descending. This property is ignored if the grid does not allow column sorting, or if client-side sorting is used.", hideFormatting: true, validDataTypes: ["char"], defaultDataLength: 1, context: "dspf" },
+    { name: "sort function", type: "js", helpDefault: "blank", help: "Specifies a custom sort function that will be called. If not specified the grid will sort using built in sorting. The following variables are passed:<br /> &nbsp;&nbsp;<b>value1</b> first field value to compare <br /> &nbsp;&nbsp;<b>value2</b> second field value to compare <br />&nbsp;&nbsp;<b>fieldName</b> name fo the field <br /> &nbsp;&nbsp;<b>isDescending</b> true if sorting in descending sequence, false otherwise <br /> &nbsp;&nbsp;<b>fieldDateFormat</b> date format of the field, if the field is not a date field the value is null <br /> &nbsp;&nbsp;<b>fieldInfo</b> formatting information of the field that the grid is sorted by; if the field does not contain any formatting information, a blank object will be passed instead", context: "dspf" },
+    { name: "resizable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to resize grid columns at run time.", context: "dspf" },
+    { name: "movable columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows the user to rearrange grid columns at run time.", context: "dspf" },
+    { name: "persist state", choices: ["true", "false", "session only", "program only"], type: "boolean", validDataTypes: ["char", "indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether the grid state should be saved when the user sorts, moves, or resizes columns. When set to true, the state is saved to browser local storage with each user action, and automatically restored the next time the grid is displayed. When set to session only the state is saved to session storage, so the state exists only within the current tab, until it is closed. When set to program only, the grid's state is cleared whenever a program is called for the first time; however, the state is retained through multiple renders while the program is active.", context: "dspf" },
+    { name: "find option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to search grid data when the grid heading is right-clicked.", context: "dspf" },
+    { name: "filter option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to filter grid data when the grid heading is right-clicked.", context: "dspf" },
+    { name: "hide columns option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to hide and show columns for this grid when the grid heading is right-clicked. Defaults to false.", context: "dspf" },
+    { name: "row clicked", format: "number", readOnly: true, helpDefault: "bind", help: "Specifies row value clicked in a grid.", context: "dspf" },
+    { name: "column clicked", format: "number", readOnly: true, helpDefault: "bind", help: "Specifies column value clicked in a grid.", context: "dspf" },
 
-  // Reset the  browser cache Data for a table
-  { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },
-  { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
-  { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Defaults to false.", context: "dspf" },
-  { name: "context menu id", helpDefault: "blank", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char", "varchar"] },
+    // Reset the  browser cache Data for a table
+    { name: "reset option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents an option to reset the persistent state for this grid when the grid heading is right-clicked.", context: "dspf" },
+    { name: "export option", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Presents options to export grid data to Excel using the CSV and XLSX formats when the grid heading is right-clicked.", context: "dspf" },
+    { name: "export only visible columns", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "When the 'hide columns option' is set to true, this option determines whether to export only the visible columns or all of the columns. Defaults to false.", context: "dspf" },
+    { name: "context menu id", helpDefault: "blank", help: "Specifies the id of a Menu widget used to display a context menu when the user right-clicks a grid row.", hideFormatting: true, validDataTypes: ["char", "varchar"] },
 
-  {
-    name: "filter response",
-    hideFormatting: true,
-    validDataTypes: ["char"],
-    helpDefault: "bind",
-    help: "Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. " +
+    {
+      name: "filter response",
+      hideFormatting: true,
+      validDataTypes: ["char"],
+      helpDefault: "bind",
+      help: "Specifies a response data structure to be received by your program for server-side filtering. Use only for page-at-a-time grids, not for database-driven grids nor load-all grids. " +
       '<p>See <a href="https://docs.profoundlogic.com/x/AIF-Ag" target="_blank">Filter Response Documentation</a></p>' +
       (pui.nodedesigner ? "" : "The data structure should be defined as follows:<pre>Dcl-Ds filterinfo qualified;\n  colnum zoned(3:0) dim(c);\n  fltrtext char(s) dim(c);\nEnd-Ds;</pre>Where <b>c</b> is the value of the 'filter response column max' property, and <b>s</b> is the value of 'filter response text max'. The length should be c(3 + s); e.g. default length of 20 char with 3 column max filters is 69."),
-    context: "dspf"
-  },
+      context: "dspf"
+    },
 
-  { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "20", help: "The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value.", context: "dspf" },
-  { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "3", help: "This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure.", context: "dspf" },
-  { name: "show quick filters", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Above each column show a text-box for filtering row data. Enabling this causes a header row to display with the grid. To hide column headings and show quick filters, set &quot;column headings&quot; blank.", helpDefault: "false", context: "dspf" },
+    { name: "filter response text max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "20", help: "The maximum number of characters to use from a filter expression when server-side filtering is setup by the 'filter response' property. The length of the 'fltrtext' array field in the filter response data structure should be this property's value.", context: "dspf" },
+    { name: "filter response column max", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "3", help: "This is the maximum number of columns filtered at once when server-side filtering is setup by the 'filter response' property. This must be between 1 and than the 'number of columns' value, inclusive. Determines the size of the 'filter response' data structure.", context: "dspf" },
+    { name: "show quick filters", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, help: "Above each column show a text-box for filtering row data. Enabling this causes a header row to display with the grid. To hide column headings and show quick filters, set &quot;column headings&quot; blank.", helpDefault: "false", context: "dspf" },
 
-  { name: "Paging Bar", category: true, context: "dspf" },
-  { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays links for navigating to the previous page and the next page of records." },
-  { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the page number should display within the paging bar.", context: "dspf" },
-  { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "1", help: "Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used.", context: "dspf" },
-  { name: "show record number range", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the record number range should display within the paging bar.", context: "dspf" },
-  { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals.", context: "dspf" },
-  { name: "page down condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", helpDefault: "bind", help: "Determines if the next page link is enabled.", context: "dspf" },
-  { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is returned to your program when the next page link is clicked.", context: "dspf" },
-  { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", helpDefault: "bind", help: "Determines if the previous page link is enabled.", context: "dspf" },
-  { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
+    { name: "Paging Bar", category: true, context: "dspf" },
+    { name: "show paging controls", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays links for navigating to the previous page and the next page of records." },
+    { name: "show page number", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the page number should display within the paging bar.", context: "dspf" },
+    { name: "initial page number", format: "number", hideFormatting: true, validDataTypes: ["zoned"], helpDefault: "1", help: "Specifies the initial page number to use when the page number is displayed within the paging bar. If not specified, page number 1 is used.", context: "dspf" },
+    { name: "show record number range", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "This property determines whether the record number range should display within the paging bar.", context: "dspf" },
+    { name: "show bar", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Displays a bar at the bottom of the grid even if no paging bar elements are selected to be displayed. This can be used to show miscellaneous information such as column totals.", context: "dspf" },
+    { name: "page down condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", helpDefault: "bind", help: "Determines if the next page link is enabled.", context: "dspf" },
+    { name: "page down response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is returned to your program when the next page link is clicked.", context: "dspf" },
+    { name: "page up condition", validDataTypes: ["indicator", "expression"], hideFormatting: true, readOnly: true, format: "true / false", type: "boolean", helpDefault: "bind", help: "Determines if the previous page link is enabled.", context: "dspf" },
+    { name: "page up response", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["indicator"], helpDefault: "bind", help: "Specifies a boolean response indicator that is returned to your program when the previous page link is clicked.", context: "dspf" },
 
-  { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
-  { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
-  { name: "xlsx export pics", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Include pictures in the XLSX Export. This option only works for Load-All subfiles.", context: "dspf" },
-  { name: "export file name", helpDefault: "blank", help: "Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the grid name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },
-  { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
+    { name: "csv export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Displays a link allowing the user to export grid data to Excel using the CSV format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
+    { name: "xlsx export", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Displays a link allowing the user to export grid data to Excel using the XLSX format." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
+    { name: "xlsx export pics", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Include pictures in the XLSX Export. This option only works for Load-All subfiles.", context: "dspf" },
+    { name: "export file name", helpDefault: "blank", help: "Defines the name of the download file used to export grid data to CSV or XLSX formats. The .xlsx or .csv extension is automatically appended to the name. If omitted, the grid name is used." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : ""), translate: true },
+    { name: "export with headings", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Specifies whether subfile headings should be exported as the first row of the CSV file." + ((context == "genie" && !pui.usingGenieHandler) ? " <br /><b>Note:</b> In 5250 mode, this option only works with SQL-driven subfiles." : "") },
 
-  { name: "Row Folding", category: true, context: "dspf", ddsCompatProp: 1 },
-  { name: "fold multiple", choices: ["2", "3", "4", "Other..."], helpDefault: "blank", help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.", helpAdd: ["other"], bind: false, context: "dspf", ddsCompatProp: 1 },
-  { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."), context: "dspf", ddsCompatProp: 1 },
-  { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 1 },
-  { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 1 },
-  { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
-  { name: "tree level field", helpDefault: "blank", help: "This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.", hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
-  { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
-  { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf" },
+    { name: "Row Folding", category: true, context: "dspf", ddsCompatProp: 1 },
+    { name: "fold multiple", choices: ["2", "3", "4", "Other..."], helpDefault: "blank", help: "The property determines the height of a collapsed row, which is calculated at by taking the row height property and dividing it by the fold multiple.  The multiple represents the number of collapsed rows that can fit into one expanded row.", helpAdd: ["other"], bind: false, context: "dspf", ddsCompatProp: 1 },
+    { name: "expanded", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in expanded (also known as folded) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLFOLD keyword."), context: "dspf", ddsCompatProp: 1 },
+    { name: "collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows are first displayed in collapsed (also known as truncated) mode." + (pui.viewdesigner ? "" : "  This property is similar to the SFLDROP keyword."), context: "dspf", ddsCompatProp: 1 },
+    { name: "return mode", format: "1 / 0", readOnly: true, hideFormatting: true, validDataTypes: ["char", "indicator"], helpDefault: "bind", help: "This property can be bound to a field that will provide an indication of whether the grid rows were in expanded (also known as folded) mode or in collapsed (also known as truncated) mode on input." + (pui.viewdesigner ? "" : "  It represents the SFLMODE keyword. The bound field will contain a value of 0 if the grid rows are in expanded mode and a value of 1 if the grid rows are in collapsed mode."), context: "dspf", ddsCompatProp: 1 },
+    { name: "single row zoom", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if a zoom icon is shown on collapsed rows. Once the user clicks the icon, the row is expanded. All other rows remain collapsed.", context: "dspf", ddsCompatProp: 1 },
+    { name: "tree level field", helpDefault: "blank", help: "This property must be bound to a numeric field which contains the tree level of each grid record. Each higher level record that has lower level records below it would be collapsible.", hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+    { name: "tree level column", format: "number", helpDefault: "blank", help: 'This property specifies the column used to expand and collapse the tree levels, if property "tree level field" is specified. The default is column 0. Each grid column is identified by a sequential index, starting with 0 for the first column, 1 for the second column, and so on. Note that if this property is specified, then property "tree level field" must also be specified.', hideFormatting: true, validDataTypes: ["zoned"], context: "dspf" },
+    { name: "tree level collapsed", choices: ["true", "false"], hideFormatting: true, validDataTypes: ["indicator", "expression"], helpDefault: "false", help: "Determines if the rows in a grid tree are first displayed in collapsed mode.", context: "dspf" },
 
-  { name: "Grid Data", category: true },
-  { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false },
-  { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false },
-  { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", multOccur: (context == "dspf"), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used." },
-  { name: "database join", type: "join", bind: false, helpDefault: "blank", help: "The Database Join specifications between multiple tables to be used for a dynamic, database-driven grid.", controls: ["chart", "grid"], context: "dspf" },
-  { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", hasOKHandler: true },
-  { name: "selection criteria", type: "long", helpDefault: "blank", help: "Optional expression identifying which records should be retrieved from the database file." },
-  { name: "order by", type: "field", multiple: true, uppercase: true, helpDefault: "blank", help: 'Optional expression identifying which fields determine the order of the records retrieved from the database file. Both custom SQL grids and Database-Driven grids can use this property. <a href="https://docs.profoundlogic.com/x/vIAc" target="_blank">More info...</a>' },
-  { name: "custom sql", type: "long", helpDefault: "blank", help: "Specifies a sql statement to use to retrieve the records for a database-driven grid.", hasOKHandler: true },
+    { name: "Grid Data", category: true },
+    { name: "remote system name", bind: true, uppercase: (pui.nodedesigner !== true), helpDefault: "Local", help: "Name of database where file is located. Used only if data to be retrieved is stored on a remote server.", controls: ["textbox", "combo box", "select box", "grid", "chart", "image"], nodedesigner: false },
+    { name: "database connection", type: "database_connection", bind: true, hideFormatting: true, validDataTypes: ["string"], choices: pui.getDatabaseConnectionPropertyChoices, blankChoice: false, helpDefault: "[default connection]", help: "Name of the database connection to use. If not specified, the default connection is used. This property is ignored if the applcation is called from a Profound UI / Genie session. In that case, the *LOCAL IBM i database is used.<br /><br />See <a href=\"https://docs.profoundlogic.com/x/sgDrAw\" target=\"_blank\">here</a> for instructions on configuring database connections.", context: "dspf", nodedesigner: true, viewdesigner: false },
+    { name: "database file", displayName: (pui.nodedesigner ? "database table" : undefined), type: "file", multOccur: (context == "dspf"), uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "Database file to use for a grid that is tied directly to a database. You can specify a 'database file' or 'library/database file'. If library is omitted, the session's library list is used." },
+    { name: "database join", type: "join", bind: false, helpDefault: "blank", help: "The Database Join specifications between multiple tables to be used for a dynamic, database-driven grid.", controls: ["chart", "grid"], context: "dspf" },
+    { name: "database fields", type: "field", multiple: true, uppercase: (pui.nodedesigner !== true), helpDefault: "blank", help: "A set of database field names to use to retrieve the data for a database-driven grid. The field names should be comma separated.", hasOKHandler: true },
+    { name: "selection criteria", type: "long", helpDefault: "blank", help: "Optional expression identifying which records should be retrieved from the database file." },
+    { name: "order by", type: "field", multiple: true, uppercase: true, helpDefault: "blank", help: 'Optional expression identifying which fields determine the order of the records retrieved from the database file. Both custom SQL grids and Database-Driven grids can use this property. <a href="https://docs.profoundlogic.com/x/vIAc" target="_blank">More info...</a>' },
+    { name: "custom sql", type: "long", helpDefault: "blank", help: "Specifies a sql statement to use to retrieve the records for a database-driven grid.", hasOKHandler: true },
 
-  { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>" },
-  { name: "parameter value", type: "long", secLevel: 1, multOccur: true, helpDefault: "blank", help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value." },
-  { name: "load fields into widgets", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows fields from database-driven grids to be bound to widgets instead of loaded directly onto the grid", context: "dspf" },
-  { name: "load all rows", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Can only be used when \"load fields into widgets\" property is true. Loads all data at once, instead of page-by-page.", context: "dspf" },
+    { name: "allow any select statement", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows any valid SELECT SQL statement.<p>If this is <b>false</b> (default), a row count is retrieved by running SELECT COUNT(*) FROM (<b><i>your-custom-sql-property</i></b>), so your \"custom sql\" property must work with that syntax. This prevents the use of common table expressions, the optimize clause, and a few other things.</p><p>If set to <b>true</b>, the row count will be determined by running your statment as-is and looping through all rows to count them.</p><p><b>Note:</b> False performs better, but true allows a wider variety of SQL statements.</p>" },
+    { name: "parameter value", type: "long", secLevel: 1, multOccur: true, helpDefault: "blank", help: "Value for parameter marker in \"selection criteria\" or \"custom sql\" property. Parameter markers are specified using a question mark. Profound UI will accept values from the client for any parameter marker values which are not bound to program fields. Parameter markers are numbered in order of occurrence, from left to right. To specify multiple parameter marker values, right-click the property and select Add Another Parameter Value." },
+    { name: "load fields into widgets", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Allows fields from database-driven grids to be bound to widgets instead of loaded directly onto the grid", context: "dspf" },
+    { name: "load all rows", type: "boolean", choices: ["true", "false"], validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "Can only be used when \"load fields into widgets\" property is true. Loads all data at once, instead of page-by-page.", context: "dspf" },
 
-  { name: "data url", type: "long", helpDefault: "blank", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
-  { name: "data transform function", type: "long", helpDefault: "blank", help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget." },
+    { name: "data url", type: "long", helpDefault: "blank", help: "Sets the url to a Web service that returns JSON data for a database-driven grid." },
+    { name: "data transform function", type: "long", helpDefault: "blank", help: "The name of a JavaScript function to be called to process the results of the \"data url\" program. This can be used to transform data from the program into the format expected by the grid widget." },
 
-  { name: "Grid Data from Screen", category: true, context: "genie-nohandler" },
-  { name: "starting row", helpDefault: "blank", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie-nohandler" },
-  { name: "ending row", helpDefault: "blank", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
-  { name: "data columns", type: "list", helpDefault: "blank", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler" },
+    { name: "Grid Data from Screen", category: true, context: "genie-nohandler" },
+    { name: "starting row", helpDefault: "blank", help: "Specifies the starting subfile row for retrieving data from the screen.", context: "genie-nohandler" },
+    { name: "ending row", helpDefault: "blank", help: "Specifies the ending subfile row for retrieving data from the screen.", context: "genie-nohandler" },
+    { name: "data columns", type: "list", helpDefault: "blank", help: "Specifies a comma separated list of column numbers for retrieving data from the screen.", context: "genie-nohandler" },
 
-  { name: "Translations", category: true, context: "dspf", nodedesigner: false },
-  { name: "grid row translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["grid row translation placeholder key", "grid row translation placeholder value"], canBeRemoved: false, context: "dspf", nodedesigner: false },
-  { name: "grid row translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf", nodedesigner: false },
-  { name: "grid row translation placeholder value", label: "Placeholder Value", multOccur: true, hide: true, help: "", context: "dspf", nodedesigner: false },
+    { name: "Translations", category: true, context: "dspf", nodedesigner: false },
+    { name: "grid row translation placeholders", type: "translationplaceholders", readOnly: true, bind: false, helpDefault: "bind", help: "Define replacement values for the placeholders in translations.", relatedProperties: ["grid row translation placeholder key", "grid row translation placeholder value"], canBeRemoved: false, context: "dspf", nodedesigner: false },
+    { name: "grid row translation placeholder key", label: "Placeholder Key", multOccur: true, hide: true, bind: false, help: "", context: "dspf", nodedesigner: false },
+    { name: "grid row translation placeholder value", label: "Placeholder Value", multOccur: true, hide: true, help: "", context: "dspf", nodedesigner: false },
 
-  { name: "Position", category: true },
-  { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },
-  { name: "top", format: "px", helpDefault: "position", help: "Represents the y-coordinate of the current element.", canBeRemoved: false },
-  { name: "right", format: "px", helpDefault: "position", help: "Position of the element from the right of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
-  { name: "bottom", format: "px", helpDefault: "position", help: "Position of the element from the bottom of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
-  { name: "height", helpDefault: "css", help: "Height of the grid. When the &quot;expand to layout&quot; grid property is true, this is set automatically. Changing &quot;header height&quot; changes this automatically. Changing this causes &quot;row height&quot; to change.", bind: false, canBeRemoved: false },
-  { name: "width", helpDefault: "css", help: "Width of the grid.", bind: false, canBeRemoved: false },
-  { name: "expand to layout", choices: ["true", "false"], helpDefault: "false", help: "If set to true, the grid will automatically expand to the full size of a layout container.", context: "dspf", bind: false },
-  { name: "z index", format: "number", helpDefault: "css", help: "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements." },
-  { name: "locked in place", choices: ["true", "false"], helpDefault: "false", help: "If set to true, the grid cannot be moved or sized in the Visual Designer.", bind: false },
+    { name: "Position", category: true },
+    { name: "left", format: "px", helpDefault: "position", help: "Represents the x-coordinate of the current element.", canBeRemoved: false },
+    { name: "top", format: "px", helpDefault: "position", help: "Represents the y-coordinate of the current element.", canBeRemoved: false },
+    { name: "right", format: "px", helpDefault: "position", help: "Position of the element from the right of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
+    { name: "bottom", format: "px", helpDefault: "position", help: "Position of the element from the bottom of the screen" + ((context == "genie") ? "." : " or layout container."), canBeRemoved: false },
+    { name: "height", helpDefault: "css", help: "Height of the grid. When the &quot;expand to layout&quot; grid property is true, this is set automatically. Changing &quot;header height&quot; changes this automatically. Changing this causes &quot;row height&quot; to change.", bind: false, canBeRemoved: false },
+    { name: "width", helpDefault: "css", help: "Width of the grid.", bind: false, canBeRemoved: false },
+    { name: "expand to layout", choices: ["true", "false"], helpDefault: "false", help: "If set to true, the grid will automatically expand to the full size of a layout container.", context: "dspf", bind: false },
+    { name: "z index", format: "number", helpDefault: "css", help: "The stacking order of the current element, expressed as an integer value. The element with the higher z index will overlay lesser elements." },
+    { name: "locked in place", choices: ["true", "false"], helpDefault: "false", help: "If set to true, the grid cannot be moved or sized in the Visual Designer.", bind: false },
 
-  { name: "Drag and Drop", category: true, context: "dspf" },
-  { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "This property determines if rows within the grid can be drag and dropped.", context: "dspf" },
-  { name: "ondragstart", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
-  { name: "drop targets", type: "list", helpDefault: "blank", help: "Specifies a list of target element id's, which indentify where the row can be dropped.", context: "dspf" },
-  { name: "ondragenter", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
-  { name: "ondragleave", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
-  { name: "ondrop", type: "js", wf: true, helpDefault: "blank", help: "Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
+    { name: "Drag and Drop", category: true, context: "dspf" },
+    { name: "allow drag", choices: ["true", "false"], type: "boolean", validDataTypes: ["indicator", "expression"], hideFormatting: true, helpDefault: "false", help: "This property determines if rows within the grid can be drag and dropped.", context: "dspf" },
+    { name: "ondragstart", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user first starts to drag a row within the grid. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
+    { name: "drop targets", type: "list", helpDefault: "blank", help: "Specifies a list of target element id's, which indentify where the row can be dropped.", context: "dspf" },
+    { name: "ondragenter", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user drags a row over a valid drop target. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
+    { name: "ondragleave", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user moves a row out of a valid drop target during a drag operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
+    { name: "ondrop", type: "js", wf: true, helpDefault: "blank", help: "Initiates a client-side script when the mouse is released during a drag and drop operation. Information about the drag and drop operation is provided using the global pui.dragDropInfo object.", context: "dspf" },
 
-  { name: "Tabs", category: true },
-  { name: "parent tab panel", helpDefault: "blank", help: "This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.", bind: false },
-  { name: "parent tab", helpDefault: "blank", help: "This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.", bind: false },
-  { name: "parent field set", helpDefault: "blank", help: "This property specifies the if of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.", bind: false },
+    { name: "Tabs", category: true },
+    { name: "parent tab panel", helpDefault: "blank", help: "This property specifies the id of the Tab Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Tab Panel.", bind: false },
+    { name: "parent tab", helpDefault: "blank", help: "This property specifies the tab index of the specific tab to which this element belongs. Each tab within a Tab Panel is identified by a sequential index, starting with 0 for the first tab, 1 for the second tab, and so on. The property is set automatically when you drag and drop the element onto a Tab Panel.", bind: false },
+    { name: "parent field set", helpDefault: "blank", help: "This property specifies the if of the Field Set Panel to which this element belongs. The property is set automatically when you drag and drop the element onto a Field Set Panel.", bind: false },
 
-  { name: "Borders", category: true },
-  { name: "border color", type: "color", helpDefault: "css", help: "The color of the grid's outer borders and inner separators." },
-  { name: "border width", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "Other..."], helpDefault: "css", help: "The thickness of the grid's outer borders and inner separators.", helpAdd: ["other"] },
+    { name: "Borders", category: true },
+    { name: "border color", type: "color", helpDefault: "css", help: "The color of the grid's outer borders and inner separators." },
+    { name: "border width", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "Other..."], helpDefault: "css", help: "The thickness of the grid's outer borders and inner separators.", helpAdd: ["other"] },
 
-  { name: "Padding", category: true },
-  { name: "padding bottom", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the bottom edge of a grid cell and the cell's content.", helpAdd: ["other"] },
-  { name: "padding left", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the left edge of a grid cell and the cell's content.", helpAdd: ["other"] },
-  { name: "padding right", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the right edge of a grid cell and the cell's content.", helpAdd: ["other"] },
-  { name: "padding top", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the top edge of a grid cell and the cell's content.", helpAdd: ["other"] },
+    { name: "Padding", category: true },
+    { name: "padding bottom", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the bottom edge of a grid cell and the cell's content.", helpAdd: ["other"] },
+    { name: "padding left", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the left edge of a grid cell and the cell's content.", helpAdd: ["other"] },
+    { name: "padding right", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the right edge of a grid cell and the cell's content.", helpAdd: ["other"] },
+    { name: "padding top", format: "px", choices: ["0px", "1px", "2px", "3px", "4px", "5px", "6px", "7px", "8px", "9px", "Other..."], helpDefault: "css", help: "Sets the distance between the top edge of a grid cell and the cell's content.", helpAdd: ["other"] },
 
-  { name: "Misc", category: true },
-  { name: "css class", type: "cssClass", multOccur: (context == "dspf" ? true : false), attribute: "class", helpDefault: "widget", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
-  { name: "tool tip", type: "long", helpDefault: "blank", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
-  { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
-  { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], helpDefault: "css", help: "Determines whether the element is visible or hidden." },
+    { name: "Misc", category: true },
+    { name: "css class", type: "cssClass", multOccur: (context == "dspf" ? true : false), attribute: "class", helpDefault: "widget", help: "Defines a custom cascading style sheet class to assign to the element." + (context == "dspf" ? "  To specify multiple classes, right-click the property and select Add Another CSS Class." : "") },
+    { name: "tool tip", type: "long", helpDefault: "blank", help: "Defines the text to appear in a tool tip when the user hovers the mouse over this element.", translate: true },
+    { name: "user defined data", multOccur: true, helpDefault: "blank", help: "Specifies user-defined general purpose data associated with the widget. To provide multiple user defined data values, right-click the property and select Add Another User Defined Value." },
+    { name: "visibility", format: "visible / hidden", choices: ["hidden", "visible"], helpDefault: "css", help: "Determines whether the element is visible or hidden." },
 
-  { name: "Events", category: true },
-  { name: "ondbload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>" },
-  { name: "onfilterchange", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the filter has changed.", bind: false, context: "dspf" },
-  { name: "onrowclick", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when a row within the grid is clicked. The script can determine the row number using the <b>row</b> variable.", bind: false },
-  { name: "onrowdblclick", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when a row within the grid is double-clicked. The script can determine the row number using the <b>row</b> variable.", bind: false },
-  { name: "onrowmouseover", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved over a row within the grid. The script can determine the row number using the <b>row</b> variable.", bind: false },
-  { name: "onrowmouseout", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved off of a row within the grid. The script can determine the row number using the <b>row</b> variable.", bind: false },
-  { name: "onpagedown", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
-  { name: "onpageup", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
-  { name: "onscroll", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid.", bind: false }
+    { name: "Events", category: true },
+    { name: "ondbload", type: "js", helpDefault: "blank", help: "Initiates a client-side script when database data is loaded for a database-driven widget. An object named <b>response</b> will be defined that contains:<ul><li><b>success</b> - boolean true/false</li><li><b>id</b> - the widget id</li><li><b>error</b> - an object with \"id\", \"text\" and \"text2\" fields containing the error.</li></ul>" },
+    { name: "onfilterchange", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the filter has changed.", bind: false, context: "dspf" },
+    { name: "onrowclick", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when a row within the grid is clicked. The script can determine the row number using the <b>row</b> variable.", bind: false },
+    { name: "onrowdblclick", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when a row within the grid is double-clicked. The script can determine the row number using the <b>row</b> variable.", bind: false },
+    { name: "onrowmouseover", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved over a row within the grid. The script can determine the row number using the <b>row</b> variable.", bind: false },
+    { name: "onrowmouseout", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the mouse is moved off of a row within the grid. The script can determine the row number using the <b>row</b> variable.", bind: false },
+    { name: "onpagedown", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user pages down using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
+    { name: "onpageup", wf: true, type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user pages up using the grid's scrollbar or the grid's paging bar. To prevent the grid's default paging action, the script must evaluate to <i>false</i>.", bind: false },
+    { name: "onscroll", type: "js", helpDefault: "blank", help: "Initiates a client-side script when the user scrolls using the grid's scrollbar. The <b>row</b> variable in the script provides the top row of the grid.", bind: false }
   ];
 
   // Remove remote server property if PJS. Not yet ready to implement.
   if (pui.nodedesigner === true) {
-    var elemIndex = model.map(function (elem) {
+    var elemIndex = model.map(function(elem) {
       return elem.name;
     }).indexOf("remote system name");
 
@@ -11075,7 +11075,7 @@ pui.BaseGrid.getPropertiesModel = function () {
  * Handle request to get field listings for "custom sql" property change after user clicks OK on dialog.
  * @param {RPGspRequest} request
  */
-pui.Grid.prototype.customSqlCallback = function (request) {
+pui.Grid.prototype.customSqlCallback = function(request) {
   var response, error;
   var headings = ""; var columnWidths = "";
   var itm = this.tableDiv.designItem;
@@ -11130,7 +11130,7 @@ pui.Grid.prototype.customSqlCallback = function (request) {
  * @param {String} propName
  * @param {String} value
  */
-pui.Grid.prototype.propDialogOnOK = function (propName, value) {
+pui.Grid.prototype.propDialogOnOK = function(propName, value) {
   switch (propName) {
     case "custom sql":
       if (confirm("Adjust grid based on columns?")) {
@@ -11167,7 +11167,7 @@ pui.Grid.prototype.propDialogOnOK = function (propName, value) {
  * @param {Number|undefined} findRow    The number of a visible DOM row to find.
  * @param {Function|undefined} foundCb  Called when "row" is found. parameters: "dataArrayIndex" and "rowNum", the found row.
  */
-pui.Grid.prototype._unhiddenRowIter = function (visCb, findRow, foundCb) {
+pui.Grid.prototype._unhiddenRowIter = function(visCb, findRow, foundCb) {
   var rowHdrOffset; var idxHdrOffset; var numRows = this.hLines.length - 1;
   if (this.hasHeader) {
     rowHdrOffset = 1;
@@ -11210,7 +11210,7 @@ pui.Grid.prototype._unhiddenRowIter = function (visCb, findRow, foundCb) {
  * @param {Number} row  The row number. If there is no header, then 0 is the first row, 1 is the 2nd, etc. Else, 1 is the first data row, 2 is the 2nd, etc.
  * @returns {Number}    Returns -1 if this.recNum is not set; else, index of this.dataArray matching row.
  */
-pui.Grid.prototype._getDataIndexFromDOMRow = function (row) {
+pui.Grid.prototype._getDataIndexFromDOMRow = function(row) {
   var dataArrayIdx = -1;
   if (this.recNum > 0) {
     var dataArrayOffset = this.recNum - 1;
@@ -11220,7 +11220,7 @@ pui.Grid.prototype._getDataIndexFromDOMRow = function (row) {
     }
     else {
       // Find the index for the specified row and stop looping.
-      this._unhiddenRowIter(null, row, function (idx) {
+      this._unhiddenRowIter(null, row, function(idx) {
         dataArrayIdx = idx;
       });
     }
@@ -11231,7 +11231,7 @@ pui.Grid.prototype._getDataIndexFromDOMRow = function (row) {
 /**
  * Set row backgrounds of all visible rows. Handle hidden rows.
  */
-pui.Grid.prototype._setAllVisibleBackgrounds = function () {
+pui.Grid.prototype._setAllVisibleBackgrounds = function() {
   if (this._setAllVisibleBackgroundsCbBound == null) {
     this._setAllVisibleBackgroundsCbBound = this._setAllVisibleBackgroundsCb.bind(this); // Ensure the callback can reach "this".
   }
@@ -11246,11 +11246,11 @@ pui.Grid.prototype._setAllVisibleBackgrounds = function () {
     }
   }
 };
-pui.Grid.prototype._setAllVisibleBackgroundsCb = function (dataArrayIndex, row) {
+pui.Grid.prototype._setAllVisibleBackgroundsCb = function(dataArrayIndex, row) {
   this.setRowBackground(row, false, dataArrayIndex);
 };
 
-pui.Grid.prototype._headerHeightChange = function () {
+pui.Grid.prototype._headerHeightChange = function() {
   if (this.hasHeader && this.hLines.length >= 2) {
     this.hLines[0].style.top = (parseInt(this.hLines[1].style.top) - this.headerHeight) + "px";
     this._setLineTops();
@@ -11262,6 +11262,6 @@ pui.Grid.prototype._headerHeightChange = function () {
   }
 };
 
-pui.Grid.prototype._stopProp = function (e) {
+pui.Grid.prototype._stopProp = function(e) {
   e.stopPropagation();
 };
