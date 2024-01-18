@@ -10792,8 +10792,8 @@ pui.Grid = function() {
     var bump = 0;
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
-      if (me.runtimeChildren[columnId]) {
-        var scrField = me.runtimeChildren[columnId]["value"]["fieldName"];
+      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me.fieldNames) {
+        var scrField = me.runtimeChildren[columnId].value.fieldName;
         var selPos = me.fieldNames.indexOf(scrField);
         if (selPos != -1) {
           bump = selPos - columnId;
@@ -10806,9 +10806,11 @@ pui.Grid = function() {
   function fieldOrderSort(fieldOrder) {
     var newFieldOrder = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      var nxtField = me.runtimeChildren[i].value.fieldName;
-      if (fieldOrder.indexOf(nxtField) != -1) {
-        newFieldOrder.push(nxtField);
+      if (me.runtimeChildren[i].value.fieldName) {
+        var nxtField = me.runtimeChildren[i].value.fieldName;
+        if (fieldOrder.indexOf(nxtField) != -1) {
+          newFieldOrder.push(nxtField);
+        }
       }
     }
     return newFieldOrder;
