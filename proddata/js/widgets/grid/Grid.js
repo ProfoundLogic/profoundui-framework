@@ -10730,7 +10730,9 @@ pui.Grid = function() {
                 fieldOrder.push(field);
               }
             }
-            fieldOrder = fieldOrderSort(fieldOrder); // Sort the fieldOrder array.
+
+            var newFieldOrder = fieldOrderSort(fieldOrder); // Sort the fieldOrder array.
+            fieldOrder = (newFieldOrder.length === 0) ? fieldOrder : newFieldOrder; // If new variable is empty, use fieldOrder. Otherwise, use new variable.
 
             for (var i = 0; i < data.length; i++) {
               var record = data[i];
@@ -10788,7 +10790,6 @@ pui.Grid = function() {
 
   // Return the difference between the columnId and the position of the fieldName from the select statement.
   function bumpUserDefinedColumnIds(columnId) {
-    var userDefinedColumnIds = [];
     var bump = 0;
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
@@ -10806,7 +10807,7 @@ pui.Grid = function() {
   function fieldOrderSort(fieldOrder) {
     var newFieldOrder = [];
     for (var i = 0; i < me.runtimeChildren.length; i++) {
-      if (me.runtimeChildren[i].value.fieldName) {
+      if (me.runtimeChildren[i] && me.runtimeChildren[i].value && me.runtimeChildren[i].value.fieldName) {
         var nxtField = me.runtimeChildren[i].value.fieldName;
         if (fieldOrder.indexOf(nxtField) != -1) {
           newFieldOrder.push(nxtField);
