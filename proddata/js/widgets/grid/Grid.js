@@ -1386,6 +1386,8 @@ pui.Grid = function () {
       var numCols = 0;
       if (response["colWidths"] != null) {
         numCols = response["colWidths"].length;
+        var usrDefAry = getUserDefinedDataFields(me.runtimeChildren);
+        numCols = numCols - usrDefAry.length;
       }
       else {
         // In case the web service doesn't return "colWidths" with its data, count the number of fields in the results.
@@ -3506,7 +3508,7 @@ pui.Grid = function () {
    */
   function importArrIntoMultiSort(arr, matches, getIsDescending) {
     var headerRow = me.cells[0];
-    adjArr = bumpUserDefindedArray(arr);
+    var adjArr = arr;
 
     for (var i = 0; i < adjArr.length; i++) {
       // Find the header cell that matches the current element.
@@ -10077,7 +10079,7 @@ pui.Grid = function () {
         for (var i = 0; i < includetable.tBodies[0].rows.length; i++) {
           var tr = includetable.tBodies[0].rows[i];
           if (tr.order >= 0) {
-            var bump = bumpUserDefinedColumnIds(tr.columnId);
+            var bump = 0;
             sortparam.push({ cid: tr.columnId + bump, desc: tr.sortDescending });
           }
         }
@@ -10715,6 +10717,7 @@ pui.Grid = function () {
                 fieldOrder.push(field);
               }
             }
+            fieldOrder = fieldOrderSort(fieldOrder); // Sort the fieldOrder array.  
 
             for (var i = 0; i < data.length; i++) {
               var record = data[i];
@@ -10770,53 +10773,62 @@ pui.Grid = function () {
     }
   }
 
-  // Increse the column id by 1 if the column is a user defined data field
+  // Return the difference between the columnId and the position of the fieldName from the select statement.
   function bumpUserDefinedColumnIds(columnId) {
     var userDefinedColumnIds = [];
-    var bump = 0;
+    var bump = 0;    
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
-      for (var idx = 0; idx < me.runtimeChildren.length; idx++) {
-        var child = me.runtimeChildren[idx];
-        if (child["user defined data"] != null) {
-          var userDefinedColumnId = child["columnId"] + 1;
-          if (child["columnId"] != null) {
-            userDefinedColumnIds.push(userDefinedColumnId);
-          }
+      if (me.runtimeChildren[columnId]) {
+        var scrField = me.runtimeChildren[columnId]["value"]["fieldName"];
+        var selPos = me.fieldNames.indexOf(scrField);
+        if (selPos != -1) {
+          bump = selPos - columnId;
         }
       }
+<<<<<<< HEAD
 
     }
     else {
       return 0;
     }
 
+=======
+    }
+      return bump; 
+  }
+>>>>>>> release-pjs-7.4.0
 
-    if (userDefinedColumnIds.length > 0) {
-      //loop through userDefinedColumnIds and bump columnId if it is greater than or equal to the current columnId
-      for (var j = 0; j < userDefinedColumnIds.length; j++) {
-        if (userDefinedColumnIds[j] <= columnId) {
-          bump = bump + 1;
-        }
+  function fieldOrderSort(fieldOrder) {
+    var newFieldOrder = [];
+    for (var i = 0; i < me.runtimeChildren.length; i++) {
+      var nxtField = me.runtimeChildren[i].value.fieldName;
+      if (fieldOrder.indexOf(nxtField) != -1) {
+        newFieldOrder.push(nxtField);
       }
     }
-    return bump;
+    return newFieldOrder;
   }
+
 
   // Get an array of user defined data fieldNames
   function getUserDefinedDataFields(runtimeChildren) {
     var userDefinedDataFields = [];
     for (var idx = 0; idx < runtimeChildren.length; idx++) {
       var child = runtimeChildren[idx];
-      if (child["user defined data"] != null) {
-        var userDefinedDataField = child["user defined data"].fieldName;
-        if (userDefinedDataField != null) {
-          userDefinedDataFields.push(userDefinedDataField.toUpperCase());
+      for (prop in child) {
+      //if (child["user defined data"] != null) {
+        if (prop.substr(0, 17) === "user defined data") {
+          var userDefinedDataField = child[prop].fieldName;
+          if (userDefinedDataField != null) {
+            userDefinedDataFields.push(userDefinedDataField.toUpperCase());
+          }
         }
-      }
+      } 
     }
     return userDefinedDataFields;
   }
+<<<<<<< HEAD
 
   function bumpUserDefindedArray(arrColunmIds) {
 
@@ -10833,6 +10845,8 @@ pui.Grid = function () {
     }
   }
 
+=======
+>>>>>>> release-pjs-7.4.0
 };
 pui.Grid.prototype = Object.create(pui.BaseGrid.prototype); // Inherit from pui.BaseGrid.
 
