@@ -548,8 +548,14 @@ pui["fileupload"].FileUpload.prototype._xhrFinished = function(event) {
   this._progressBar.value = 100;
   var responseObj;
   try {
-    var responsetxt = event.target.responseText.replace(/'/g, "\""); // Single-quoted strings throw exceptions.
-    responseObj = JSON.parse(responsetxt);
+    try {
+      // For PJS 7.4.0 and later, the response should be valid JSON and should not need special processing. PJS-818.
+      responseObj = JSON.parse(event.target.responseText);
+    }
+    catch (ignored2) {
+      var responsetxt = event.target.responseText.replace(/'/g, "\""); // Single-quoted strings throw exceptions.
+      responseObj = JSON.parse(responsetxt);
+    }
   }
   catch (ignored) {
     responseObj = {
@@ -816,13 +822,14 @@ pui["fileupload"].FileUpload.prototype["handleEvent"] = function(e) {
  * @param {FileList} list
  */
 pui["fileupload"].FileUpload.prototype._processFileList = function(list) {
+  var i;
   // We are the last file. This should only run after all the files attempted to open. Process the list of dropped files. Once
   // here, we know if dropped objects were directories or readable files.
   var notice; var pushlist = [];
   var hadError = false;
 
   // Look at each dropped file.
-  for (var i = 0; i < list.length && !hadError; i++) {
+  for (i = 0; i < list.length && !hadError; i++) {
     var exists = false;
     // See if the filename already exists in the upload list.
     for (var j = 0; j < this.fileList.length; j++) {
@@ -874,7 +881,7 @@ pui["fileupload"].FileUpload.prototype._processFileList = function(list) {
 
   // Only add files if none of them had errors.
   if (!hadError) {
-    for (var i = 0; i < pushlist.length; i++) {
+    for (i = 0; i < pushlist.length; i++) {
       this.fileList.push(pushlist[i]);
     }
   }
@@ -915,9 +922,10 @@ pui.processUpload = function(param) {
  */
 pui.checkUploads = function(param) {
   var interval = 250;
+  var i;
 
   var done = true;
-  for (var i = 0; i < pui.fileUploadElements.length; i++) {
+  for (i = 0; i < pui.fileUploadElements.length; i++) {
     if (pui.fileUploadElements[i].isSubmitting()) {
       done = false;
       break;
@@ -927,7 +935,7 @@ pui.checkUploads = function(param) {
   if (done) {
     var errors = {};
     var good = true;
-    for (var i = 0; i < pui.fileUploadElements.length; i++) {
+    for (i = 0; i < pui.fileUploadElements.length; i++) {
       var error = pui.fileUploadElements[i].getError();
       if (error != "") {
         good = false;
@@ -936,7 +944,7 @@ pui.checkUploads = function(param) {
     }
 
     if (good) {
-      for (var i = 0; i < pui.fileUploadElements.length; i++) {
+      for (i = 0; i < pui.fileUploadElements.length; i++) {
         var fileUpload = pui.fileUploadElements[i];
         var qualField = fileUpload.qualField;
 

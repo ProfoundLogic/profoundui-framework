@@ -623,6 +623,8 @@ function AutoComplete(config) {
     }
     if (baseParams) {
       for (var i in baseParams) {
+        // Do not send null or undefined values for baseParams["AUTH"]
+        if (baseParams[i] == null && i === "AUTH") continue;
         postData += "&";
         postData += encodeURIComponent(i) + "=" + encodeURIComponent(baseParams[i]);
       }
@@ -637,7 +639,10 @@ function AutoComplete(config) {
     else {
       var req = new pui.Ajax(url);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> release-pjs-7.4.0
     req["method"] = "post";
     req["async"] = true;
     req["suppressAlert"] = true;
@@ -1020,7 +1025,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     if (pui["isCloud"]) {
       baseParams["workspace_id"] = pui.cloud.ws.id;
     }
-    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;    
+    if (pui.pjs_session_id) baseParams["AUTH"] = pui.pjs_session_id;
     else {
       if (url == "" || !pui.nodejs) {
         baseParams["AUTH"] = pui.appJob.auth;
@@ -1229,8 +1234,8 @@ function applyAutoComp(properties, originalValue, domObj) {
       req["async"] = true;
       req["suppressAlert"] = true;
 
-      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;      
-      else{
+      if (pui.pjs_session_id) req["postData"] = "AUTH=" + pui.pjs_session_id;
+      else {
         req["postData"] = "AUTH=" + pui.appJob.auth;
         if (typeof pui["vId"] !== "undefined") req["postData"] += "&VID=" + pui["vId"];
       }
