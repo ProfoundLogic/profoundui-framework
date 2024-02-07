@@ -12,26 +12,26 @@ Object.defineProperty = function() {};
 Object.defineProperties = function() {};
 Object.entries = function() {};
 Object.keys = function(value) {};
-Object.getOwnPropertyNames = function(value){};
+Object.getOwnPropertyNames = function(value) {};
 Object.hasOwn = function(value) {}; // used in openapi-output-values.js. Short version of hasOwnProperties
 Object.assign = function(value) {}; // used in some question-type entries
-Function.bind = function(value){};
+Object.handleEvent = function(event) {}; // Any object may be an event handler if it has this property.
+Function.bind = function(value) {};
 Object.before = {};
 
 Event.stopImmediatePropagation = function() {};
 
-//Map functions -- used by ShowMultiFilterPanel in Grid.js
+// Map functions -- used by ShowMultiFilterPanel in Grid.js
 Map.has = function() {};
 Map.set = function() {};
-Map.entries = function () {};
-
+Map.entries = function() {};
 
 // pui.Ajax properties.
 Object.onfail = function(value) {};
 Object.onsuccess = function(value) {};
 Object.suppressAlert = {};
 Object.postData = {};
-Promise.then = function(value){};
+Promise.then = function(value) {};
 
 // drag and drop web API
 Object.ondrop = function(event) {};
@@ -39,14 +39,14 @@ Object.ondragend = function(event) {};
 Object.ondragover = function(event) {};
 Object.ondragleave = function(event) {};
 
-FileReader.readAsText = {}; //used in JumpStart, 
+FileReader.readAsText = {}; // used in JumpStart,
 
-Object.transformOrigin = {}; //Style for "transform-origin".
+Object.transformOrigin = {}; // Style for "transform-origin".
 Object.backgroundSize = {}; // style for "background-size".
 
-String.trim = function(value){};
+String.trim = function(value) {};
 
-Element.dataset = {}; //HTML5 data attributes.
+Element.dataset = {}; // HTML5 data attributes.
 
 /*
  * mouse wheel event properties
@@ -59,9 +59,9 @@ Event.wheelDelta = {};
 Event.detail = {};
 
 Event.target = {};
-Event.target.result = {}; //Used by FileReader onload event in JumpStart.
+Event.target.result = {}; // Used by FileReader onload event in JumpStart.
 
-Event.dataTransfer.dropEffect = {};   //Used in JumpStart
+Event.dataTransfer.dropEffect = {}; // Used in JumpStart
 
 Element.oninput = {};
 
@@ -71,5 +71,5 @@ navigator.clipboard = {
   writeText: {}
 };
 
-// Profound UI 
+// Profound UI
 Object.multOccur = {};
