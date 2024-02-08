@@ -639,10 +639,7 @@ function AutoComplete(config) {
     else {
       var req = new pui.Ajax(url);
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> release-pjs-7.4.0
     req["method"] = "post";
     req["async"] = true;
     req["suppressAlert"] = true;
