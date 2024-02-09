@@ -10800,18 +10800,9 @@ pui.Grid = function() {
           bump = selPos - columnId;
         }
       }
-<<<<<<< HEAD
-
-    }
-    else {
-      return 0;
-    }
-
-=======
     }
     return bump;
   }
->>>>>>> release-pjs-7.4.0
 
   function fieldOrderSort(fieldOrder) {
     var newFieldOrder = [];
@@ -10843,25 +10834,6 @@ pui.Grid = function() {
     }
     return userDefinedDataFields;
   }
-<<<<<<< HEAD
-
-  function bumpUserDefindedArray(arrColunmIds) {
-
-    if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
-      returnArr = [];
-      for (var i = 0; i < arrColunmIds.length; i++) {
-        var bump = bumpUserDefinedColumnIds(arrColunmIds[i].cid);
-        returnArr.push({ cid: arrColunmIds[i].cid - bump, desc: arrColunmIds[i].desc });
-      }
-      return returnArr;
-    }
-    else {
-      return arrColunmIds;
-    }
-  }
-
-=======
->>>>>>> release-pjs-7.4.0
 };
 pui.Grid.prototype = Object.create(pui.BaseGrid.prototype); // Inherit from pui.BaseGrid.
 
