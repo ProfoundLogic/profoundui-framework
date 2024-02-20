@@ -8606,6 +8606,7 @@ pui.Grid = function() {
       if (typeof arg !== "object") continue;
       args.push(arg);
     }
+    if (refresh) args.push(true);
     me["splice"].apply(me, args);
   };
 
