@@ -639,7 +639,6 @@ function AutoComplete(config) {
     else {
       var req = new pui.Ajax(url);
     }
-
     req["method"] = "post";
     req["async"] = true;
     req["suppressAlert"] = true;
