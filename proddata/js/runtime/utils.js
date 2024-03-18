@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 //  Profound UI Runtime  -- A Javascript Framework for Rich Displays
 //  Copyright (c) 2020 Profound Logic Software, Inc.
 //
@@ -17,31 +18,27 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
+// Note: several functions defined here are exposed as APIs, e.g., via runtime/5250/exports.js, etc.
+
 function getTarget(e) {
-  var targ;
-  if (!e) e = window.event;
   if (e.touches != null && e.touches.length == 1) { // detect touch screen device like iPad
     return e.touches[0].target;
   }
-  if (e.target) targ = e.target;
-  else if (e.srcElement) targ = e.srcElement;
-  if (targ.nodeType == 3) // defeat Safari bug
-  {
+  var targ = e.target;
+  if (targ.nodeType == 3) {
+    // defeat Safari bug
     targ = targ.parentNode;
   }
   return targ;
 }
 
+/**
+ * Prevent the event's default behavior from happening, including in listeners in the bubbling and capturing phases.
+ * @param {Event} event
+ */
 function preventEvent(event) {
-  if (!event) event = window.event;
-  if (window.event) {
-    window.event.cancelBubble = true;
-    window.event.returnValue = false;
-  }
-  if (event.preventDefault) {
-    event.cancelBubble = true;
-    event.preventDefault();
-  }
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 /**
@@ -54,34 +51,13 @@ pui.preventEvent = function(event) {
   return false;
 };
 
-// IE cannot reliably get elements by name when the element is created/modified with javascript
-// The following types of statements do not work reliably in IE6 or IE7:
-//   document.forms[formName].elements[elemName]
-//   document.getElementsByName(elemName)
-// This is a known IE bug. The following is a workaround:
-function getElementByName_iefix(elemName) {
-  var form = document.forms["main"];
-  var n = form.length;
-  for (var i = 0; i < n; i++) {
-    var obj = form.elements[i];
-    if (obj.name == elemName) {
-      return obj;
-    }
-  }
-  return null;
-}
-
+/**
+ * Same as "preventEvent" now that IE is no longer supported.
+ * @param {Event} e
+ */
 function disableAction(e) {
-  if (pui["is_old_ie"] && pui["ie_mode"] >= 5) {
-    e.cancelBubble = true;
-    e.returnValue = false;
-    if (e.preventDefault) e.preventDefault();
-    if (e.stopPropagation) e.stopPropagation();
-  }
-  else {
-    e.preventDefault();
-    e.stopPropagation();
-  }
+  e.preventDefault();
+  e.stopPropagation();
 }
 
 function preventDoubleSubmit() {
@@ -127,33 +103,29 @@ function preventDoubleSubmit() {
  * @param {Object} e
  */
 function numericOnly(e) {
-  if (!e) e = window.event;
-  var target = e.srcElement || e.target;
+  var target = e.target;
   if (target.autoComp != null) return;
-  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123);
+  var allowedUnicodes = [8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
   allowKeys(allowedUnicodes, e);
 }
 function numericDecimalOnly(e) {
-  if (!e) e = window.event;
-  var target = e.srcElement || e.target;
+  var target = e.target;
   if (target.autoComp != null) return;
-  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 112, 123, 144, 145, 188, 190, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, 109);
+  var allowedUnicodes = [8, 9, 13, 16, 17, 18, 19, 20, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 112, 123, 144, 145, 188, 190, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, 109];
   allowKeys(allowedUnicodes, e);
 }
 function numericSignOnly(e) {
-  if (!e) e = window.event;
-  var target = e.srcElement || e.target;
+  var target = e.target;
   if (target.autoComp != null) return;
-  var allowedUnicodes = new Array(8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"]);
+  var allowedUnicodes = [8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"]];
   allowKeys(allowedUnicodes, e);
 }
 function alphabeticOnly(e) {
-  if (!e) e = window.event;
-  var target = e.srcElement || e.target;
+  var target = e.target;
   if (target.autoComp != null) return;
   // As per 5250 manual, allow a-z, A-Z, comma, dot, hyphen, and space.
   var allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,.- ";
-  var allowedUnicodes = new Array();
+  var allowedUnicodes = [];
   for (var i = 0; i < allowedChars.length; i++) {
     allowedUnicodes.push(allowedChars.charCodeAt(i));
   }
@@ -161,10 +133,9 @@ function alphabeticOnly(e) {
   allowKeys(allowedUnicodes, e);
 }
 function inhibitKeyboard(e) {
-  e = e || window.event;
   if (typeof e.keyCode != "undefined") { // onkeydown
     if (e.ctrlKey == true && e.keyCode == 86) {
-      disableAction(e);
+      preventEvent(e);
       return false;
     }
     var allowed = allowKeys([13, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123], e);
@@ -176,7 +147,7 @@ function inhibitKeyboard(e) {
     }
   }
   else { // oncontextmenu
-    disableAction(e);
+    preventEvent(e);
     return false;
   }
 }
@@ -188,7 +159,6 @@ function defaultField(e) {
     allowedUnicodes[i] = i;
   }
 
-  if (!e) e = window.event;
   allowKeys(allowedUnicodes, e);
 }
 
@@ -297,7 +267,7 @@ pui.buildLabel = function(dom, labelText, label) {
   var designMode = true;
   if (label == null) {
     designMode = false;
-    var label = document.createElement("div");
+    label = document.createElement("div");
     label.style.position = "absolute";
     label.style.borderStyle = "none";
     label.style.backgroundColor = "transparent";
@@ -349,8 +319,8 @@ pui.buildLabel = function(dom, labelText, label) {
     dom.extraDomEls = [];
     dom.extraDomEls.push(label);
 
-    if (dom.parentNode != null) // If a grid column was removed, then parentNode could be null. #4855.
-    {
+    if (dom.parentNode != null) {
+      // If a grid column was removed, then parentNode could be null. #4855.
       dom.parentNode.appendChild(label);
     } // If parentNode is null, then the element was added to the grid's runtimeChildren but not used. That's ok.
   }
@@ -359,13 +329,14 @@ pui.buildLabel = function(dom, labelText, label) {
   var width = dom.offsetWidth;
   if (width < 20) width = 20;
 
+  var styledim;
   if (dom.style.left != "") {
     if (dom.style.left.indexOf("calc") != -1) {
       // Add the input's width to a CSS calc function's parameters.
       setCalcString("left", " + " + width);
     }
     else {
-      var styledim = pui.getStyleDim(dom.style.left);
+      styledim = pui.getStyleDim(dom.style.left);
       if (styledim[1] == "px") {
         label.style.left = (styledim[0] + width) + "px"; // The units were in px; simply add.
       }
@@ -385,7 +356,7 @@ pui.buildLabel = function(dom, labelText, label) {
       setCalcString("right", " - " + labelWidth); // Add the input's width to a CSS calc function's parameters.
     }
     else {
-      var styledim = pui.getStyleDim(dom.style.right);
+      styledim = pui.getStyleDim(dom.style.right);
       if (styledim[1] == "px") {
         label.style.right = (styledim[0] - labelWidth) + "px"; // The units were in px; simply subtract.
       }
@@ -673,7 +644,6 @@ pui.safeParseInt = function(stringValue, nanValue) {
 
 /*  usage:
       addEvent(obj, 'keypress', function(e) {
-        e = e || window.event;
         pui.keyFilter(e, regEx);
       });
 */
@@ -733,15 +703,13 @@ function allowKeys(allowedUnicodes, e) {
 
   var obj;
   var key;
-  var n = 0;
   var len;
   var pos;
   var success;
   var shiftKey;
 
-  // key=(typeof event!='undefined')?window.event.keyCode:e.keyCode;
   key = e.keyCode;
-  obj = e.target || e.srcElement; // IE doesn't use .target
+  obj = e.target;
 
   var isTextbox = pui.isTextbox(obj);
 
@@ -752,7 +720,7 @@ function allowKeys(allowedUnicodes, e) {
       if (shiftKey) keyAhead.record("shift" + key);
       else keyAhead.record(key);
     }
-    disableAction(e);
+    preventEvent(e);
     return false;
   }
 
@@ -764,14 +732,14 @@ function allowKeys(allowedUnicodes, e) {
     if (shiftKey) {
       success = goPrev(obj, 0, true);
       if (success) {
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
     else {
       success = goNext(obj, true);
       if (success) {
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
@@ -804,14 +772,14 @@ function allowKeys(allowedUnicodes, e) {
       pos = getCursorPosition(obj);
       if (pos == 0) {
         goPrev(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
     else {
       if (obj.tagName != "TEXTAREA") {
         goPrev(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
@@ -822,7 +790,7 @@ function allowKeys(allowedUnicodes, e) {
     if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
       if (!pui.genie.config.browserAutoComplete) {
         goUp(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
@@ -834,14 +802,14 @@ function allowKeys(allowedUnicodes, e) {
       len = obj.value.length;
       if (pos >= len) {
         goNext(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
     else {
       if (obj.tagName != "TEXTAREA") {
         goNext(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
@@ -852,7 +820,7 @@ function allowKeys(allowedUnicodes, e) {
     if (obj.autoComp == null || obj.autoComp.isOpen() == false) {
       if (!pui.genie.config.browserAutoComplete) {
         goDown(obj);
-        disableAction(e);
+        preventEvent(e);
         return false;
       }
     }
@@ -869,13 +837,13 @@ function allowKeys(allowedUnicodes, e) {
   if (isTextbox && pui.isFieldExit(e)) {
     pui.storeCursorPosition(obj);
     fieldExit(obj);
-    disableAction(e);
+    preventEvent(e);
     return false;
   }
   if (key == 109 && isTextbox) { // numpad minus sign
     pui.storeCursorPosition(obj);
     if (fieldExit(obj, true)) {
-      disableAction(e);
+      preventEvent(e);
       return false;
     }
   }
@@ -894,7 +862,7 @@ function allowKeys(allowedUnicodes, e) {
       }
     }
   }
-  disableAction(e);
+  preventEvent(e);
   return false;
 }
 
@@ -1028,13 +996,14 @@ pui["unload"] = function() {
       navigator["sendBeacon"](pui.addRequestId(url), blob);
     }
     else {
+      var ajaxParams;
       if (hardshutdownOnClose) {
         ajaxParams = {
           "hardshutdown": "1"
         };
       }
       else {
-        var ajaxParams = {
+        ajaxParams = {
           "shutdown": "1"
         };
       }
@@ -1205,8 +1174,8 @@ pui.autoKeepAlive.setup = function() { // called when screen is rendered
   }
   catch (error) {
   }
-  if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") // Session timeout controlled by Atrium, keep session alive.
-  {
+  if (atriumSettings && atriumSettings["ACTIMEOUT"] === "1") {
+    // Session timeout controlled by Atrium, keep session alive.
     interval = pui.timeout - 10;
   }
   if (interval == null) return;
@@ -1244,7 +1213,6 @@ pui.autoKeepAlive.check = function() {
 };
 
 pui.isRightClick = function(e) {
-  if (!e) e = window.event;
   if (e.which != null) {
     if (e.which > 1) {
       return true;
@@ -1455,8 +1423,7 @@ pui.MultiPart = function() {
 
   // Private fields.
 
-  var me = this;
-  var parts = new Array();
+  var parts = [];
 
   // Private methods.
 
@@ -1505,7 +1472,7 @@ pui.storeCursorPosition = function(obj) {
  * @returns {Array}   Empty array if no fields parsed.
  */
 pui.getFieldList = function(propVal, stopAtFrom) {
-  var fields = new Array();
+  var fields = [];
   var fromstr = " from ";
   var frompos = 0;
   var character = "";
@@ -1949,7 +1916,6 @@ pui.isTextbox = function(obj) {
 };
 
 pui.isFieldExit = function(e) {
-  e = e || window.event;
   var key = e.keyCode;
   var fe = pui["field exit key"];
 
@@ -1983,7 +1949,7 @@ pui.appendAuth = function(url) {
 };
 
 pui.validateEmail = function(email) {
-  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
 
@@ -2911,7 +2877,7 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer) {
         }
         // Get the protocol, domain, and port for comparison because some script.src include those.
         var origin = "";
-        var re = /^(https?:\/\/[^\/]+)\//i;
+        var re = /^(https?:\/\/[^/]+)\//i;
         var matches = document.URL.match(re);
         if (matches != null && matches.length == 2) origin = matches[1];
 
@@ -2977,6 +2943,7 @@ pui.addItemDependenciesTo = function(item, dependencies, formatData, designer) {
  * @param {Function} callback  Function to execute on success or failure to load files.
  */
 pui.loadDependencyFiles = function(parm, callback) {
+  var itm;
   // List to be populated with unique URI strings.
   var dependencies = [];
 
@@ -2984,7 +2951,7 @@ pui.loadDependencyFiles = function(parm, callback) {
     // When called by genie() in 5250/genie.js, parm should be an entry from the global screenPropertiesObj.
     // When called by designer, parm is just an object with an "items" array and "designMode":true.
     if (parm["items"] != null && parm["items"].length > 0) {
-      for (var itm = 0; itm < parm["items"].length; itm++) {
+      for (itm = 0; itm < parm["items"].length; itm++) {
         // If the "dependencies" property exists, add to a list.
         pui.addItemDependenciesTo(parm["items"][itm], dependencies, null, parm["designer"]);
       }
@@ -3000,7 +2967,7 @@ pui.loadDependencyFiles = function(parm, callback) {
             var format = layer["formats"][fmt];
             if (format != null && format["metaData"] != null && format["metaData"]["items"] != null && format["metaData"]["items"].length > 0) {
               // Look at each item.
-              for (var itm = 0; itm < format["metaData"]["items"].length; itm++) {
+              for (itm = 0; itm < format["metaData"]["items"].length; itm++) {
                 // If the "dependencies" property exists, add to a list.
                 pui.addItemDependenciesTo(format["metaData"]["items"][itm], dependencies, format["data"], false);
               }// end look at each item.
@@ -3194,6 +3161,7 @@ pui.round = function(number, precision) {
  * @returns {String}
  */
 pui.ejs = function(html) {
+  var ind;
   if (html.indexOf("<%") < 0) return html; // no ejs to process
 
   if (typeof window["ejs"] !== "object" || typeof window["ejs"]["render"] !== "function") {
@@ -3205,6 +3173,7 @@ pui.ejs = function(html) {
   if (pui.ejsData == null) {
     var data = {};
     var flags = {};
+    var useflags = false;
     var layers = pui["layers"];
     if (layers == null) layers = [];
     var lastLayer = layers[layers.length - 1];
@@ -3214,10 +3183,11 @@ pui.ejs = function(html) {
       var format = formats[i];
       for (var name in format.data) {
         var value = format.data[name];
-        if (name.substr(0, 3).toUpperCase() === "*IN") {
-          var ind = name.substr(3);
+        if (name.substring(0, 3).toUpperCase() === "*IN") {
+          ind = name.substr(3);
           if (!isNaN(Number(ind))) ind = Number(ind);
           flags[ind] = value;
+          useflags = true;
         }
         else {
           // make availalbe in lower, upper case, and original case
@@ -3236,10 +3206,11 @@ pui.ejs = function(html) {
             var record = {};
             for (var k = 0; k < fields.length; k++) {
               var fieldName = fields[k];
-              if (fieldName.substr(0, 3).toUpperCase() === "*IN") {
-                var ind = fieldName.substr(3);
+              if (fieldName.substring(0, 3).toUpperCase() === "*IN") {
+                ind = fieldName.substr(3);
                 if (!isNaN(Number(ind))) ind = Number(ind);
                 flags[ind] = recordArray[k];
+                useflags = true;
               }
               else {
                 // make availalbe lower, upper, and original case
@@ -3257,11 +3228,7 @@ pui.ejs = function(html) {
         }
       }
     }
-    var useflags = false;
-    for (var key in flags) { // Object.keys(flags).length > 0 would be nicer, but IE8 doesn't support Object.keys.
-      useflags = true;
-      break;
-    }
+
     if (useflags) data.flags = flags;
     pui.ejsData = data;
   }
@@ -3644,6 +3611,7 @@ pui.xlsx_workbook.prototype._librariesLoaded = function() {
  * JSZip and the FileSaver are loaded, so build the Excel workbook. Also, call a method to prompt to save it.
  */
 pui.xlsx_workbook.prototype._build = function() {
+  var i, n;
   if (this.feedbackObj && typeof this.feedbackObj.setDownloadStatus == "function") {
     this.feedbackObj.setDownloadStatus(pui["getLanguageText"]("runtimeMsg", "compressing"));
   }
@@ -3725,7 +3693,7 @@ pui.xlsx_workbook.prototype._build = function() {
   //
   styles += '<cellXfs count="' + this.cellFormats.length + '">';
 
-  for (var i = 0, n = this.cellFormats.length; i < n; i++) {
+  for (i = 0, n = this.cellFormats.length; i < n; i++) {
     var cellfmt = this.cellFormats[i];
 
     styles += "<xf";
@@ -3771,9 +3739,9 @@ pui.xlsx_workbook.prototype._build = function() {
     zip["file"]("xl/drawings/drawing1.xml", this.drawing.getDrawingXML());
     zip["file"]("xl/drawings/_rels/drawing1.xml.rels", this.drawing.getDrawingRelsXML());
     var images = this.drawing.rels;
-    for (var i = 0; i < images.length; i++) {
-      if (images[i].image) // If image failed to download, don't try to add 404/500 response as image.
-      {
+    for (i = 0; i < images.length; i++) {
+      if (images[i].image) {
+        // If image failed to download, don't try to add 404/500 response as image.
         zip["file"]("xl/media/" + images[i].name, images[i].image, { "binary": true });
       }
     }
@@ -3783,7 +3751,7 @@ pui.xlsx_workbook.prototype._build = function() {
     // Hyperlinks and drawings need sheet relationships.
     var sheetrels = this.XMLSTART + '<Relationships xmlns="' + this.XMLNS_PACKAGE_RELS + '">';
 
-    for (var i = 0, n = relationships.length; i < n; i++) {
+    for (i = 0, n = relationships.length; i < n; i++) {
       var rel = relationships[i];
       var targetmode = "";
       if (rel.type === "hyperlink") targetmode = ' TargetMode="External"';
@@ -4336,6 +4304,7 @@ pui.xlsx_worksheet.prototype.updateCharCount = function(value, col) {
  * @returns {String}
  */
 pui.xlsx_worksheet.prototype.getSheetXML = function() {
+  var row, col, n;
   this.makemap();
 
   var xml = this.XMLSTART + '<worksheet xmlns="' + this.XMLNS_SPREADSHEET + '"' + ' xmlns:r="' + this.XMLNS_OFFICEDOC_RELS + '">' +
@@ -4345,7 +4314,7 @@ pui.xlsx_worksheet.prototype.getSheetXML = function() {
   "<cols>";
 
   // Configure each column with widths, and with styles for new cells.
-  for (var col = 0, n = this.numColumns; col < n; col++) {
+  for (col = 0, n = this.numColumns; col < n; col++) {
     // First, try to use the pixel width from the grid. XL col width = (pixels - 5) / 7; based on observation.
     // If widths are missing, then use the character count.
     // Calculate column width based on number of characters. Formula comes from:
@@ -4376,13 +4345,13 @@ pui.xlsx_worksheet.prototype.getSheetXML = function() {
   }
 
   // Output each row with either numeric data or reference to shared-strings table.
-  for (var row = 0, n = this.rows.length; row < n; row++) {
+  for (row = 0, n = this.rows.length; row < n; row++) {
     var r = String(row + 1);
     xml += '<row r="' + r + '"' + rowHeightStr + ">";
     var rowObj = this.rows[row];
     if (rowObj != null) {
       // Look in each column in the row for cells to output.
-      for (var col = 0; col < this.numColumns; col++) {
+      for (col = 0; col < this.numColumns; col++) {
         var cell = rowObj[col];
         // The cell should always have a value of type, number. If not, just omit it, leaving a blank cell. #6192. Also, empty character cells are omitted.
         if (cell != null && typeof cell.value === "number") {
@@ -4416,8 +4385,9 @@ pui.xlsx_worksheet.prototype.getSheetXML = function() {
   var hyperlink_refs = this.hyperlink_refs;
   if (hyperlink_refs.length > 0) {
     xml += "<hyperlinks>";
-    for (var i = 0, n = hyperlink_refs.length; i < n; i++) {
-      var row = hyperlink_refs[i].row + 1;
+    n = hyperlink_refs.length;
+    for (var i = 0; i < n; i++) {
+      row = hyperlink_refs[i].row + 1;
       var relId = hyperlink_refs[i].relId + 1;
       xml += '<hyperlink ref="' + this.map[hyperlink_refs[i].col] + row + '" r:id="rId' + relId + '" />';
     }
@@ -4748,11 +4718,12 @@ pui.executeDatabaseLoadEvent = function(func, success, widget) {
 };
 
 pui.scriptError = function(error, prefix) {
+  var message;
   if (pui["alert script errors"] === false) {
     if (window.console && window.console.error) {
       if (error.stack) { // Stack is not available on IE < 10
         // FireFox does not include the error message in the first entry.
-        var message = error.stack.split("\n");
+        message = error.stack.split("\n");
         if (message[0] != error.toString()) {
           message.splice(0, 0, error.toString());
         }
@@ -4764,7 +4735,7 @@ pui.scriptError = function(error, prefix) {
         console.error(message);
       }
       else {
-        var message = error.toString();
+        message = error.toString();
         if (prefix != null) {
           message = prefix + message;
         }
@@ -4773,7 +4744,7 @@ pui.scriptError = function(error, prefix) {
     }
   }
   else {
-    var message = error.message;
+    message = error.message;
     if (prefix != null) {
       message = prefix + message;
     }
@@ -4872,21 +4843,39 @@ pui.MouseListener = function(params) {
   this.upcb = params.upcb; // optional Function. callback for mouseup.
 
   // attachto: element(s) to attach the mousedown. May be element or array of elements. Listener attaches to all.
-  if (params.attachto instanceof Array) {
-    for (var i = 0; i < params.attachto.length; i++) {
-      params.attachto[i].addEventListener("mousedown", this);
+  var attachto = params.attachto;
+  if (attachto instanceof Array) {
+    for (var i = 0; i < attachto.length; i++) {
+      var attObj = attachto[i];
+      attObj.addEventListener("touchstart", this);
+      attObj.addEventListener("mousedown", this);
     }
   }
-  else if (params.attachto != null) {
-    params.attachto.addEventListener("mousedown", this);
+  else if (typeof attachto === "object" && attachto !== null) {
+    attachto.addEventListener("touchstart", this);
+    attachto.addEventListener("mousedown", this);
   }
 };
+pui.MouseListener.prototype = new pui.BaseClass(); // Inherit deleteOwnProperties
 
 pui.MouseListener.prototype["handleEvent"] = function(e) {
   switch (e.type) {
-    case "mousedown": this._mousedown(e); break;
-    case "mousemove": this._mousemove(e); break;
-    case "mouseup": this._mouseup(e); break;
+    case "touchstart":
+    case "mousedown":
+      this._start(e);
+      break;
+
+    case "touchmove":
+    case "mousemove":
+      this._mousemove(e);
+      break;
+
+    case "touchend":
+      // this._touchend(e);
+      // break;
+    case "mouseup":
+      this._stop(e);
+      break;
   }
 };
 
@@ -4895,14 +4884,17 @@ pui.MouseListener.prototype.mousedown = function() {}; // Child classes can impl
  * Store the mouse pointer's starting position, register other listeners, call callbacks.
  * @param {MouseEvent} e
  */
-pui.MouseListener.prototype._mousedown = function(e) {
+pui.MouseListener.prototype._start = function(e) {
   preventEvent(e); // prevent selection start.
   var xy = pui.getMouseXY(e);
   this.cursorStartX = xy.x;
   this.cursorStartY = xy.y;
   this.mousedown();
 
+  document.addEventListener("touchmove", this);
   document.addEventListener("mousemove", this);
+
+  document.addEventListener("touchend", this);
   document.addEventListener("mouseup", this);
 
   if (typeof this.downcb === "function") this.downcb(this);
@@ -4926,9 +4918,13 @@ pui.MouseListener.prototype.mouseup = function() {}; // Child classes can implem
 /**
  * Remove event listeners for mousemove and mouseup, call callback.
  */
-pui.MouseListener.prototype._mouseup = function() {
+pui.MouseListener.prototype._stop = function() {
+  document.removeEventListener("touchmove", this);
   document.removeEventListener("mousemove", this);
+
+  document.removeEventListener("touchend", this);
   document.removeEventListener("mouseup", this);
+
   if (typeof this.upcb === "function") this.upcb(this);
   this.mouseup();
 };
@@ -5035,7 +5031,19 @@ pui.MouseResizable = function(params) {
   this.minh = (typeof params.minh == "number" && params.minh > 0) ? params.minh : 0; // optional. default to 0. Minimum height.
   this.maxw = params.maxw; // optional. default to no bounds. Maximum width.
   this.maxh = params.maxh; // optional. default to no bounds. Maximum height.
-  this.resizeEl = params.resizeEl; // required: the element to be resized.
+
+  // Required: either resizeEl, or resizeHeightEl, or _resizeWidthEl.
+  // Allowing two different objects for with and height allows two elements to be adjusted on resize.
+  if (typeof params.resizeEl === "object" && params.resizeEl !== null) {
+    this._resizeHeightEl = params.resizeEl;
+    this._resizeWidthEl = params.resizeEl;
+  }
+  if (typeof params.resizeHeightEl === "object" && params.resizeHeightEl !== null) {
+    this._resizeHeightEl = params.resizeHeightEl;
+  }
+  if (typeof params.resizeWidthEl === "object" && params.resizeWidthEl !== null) {
+    this._resizeWidthEl = params.resizeWidthEl;
+  }
 
   // Private
   var resize = (typeof params.resize == "number" && params.resize >= 1 && params.resize <= 3) ? params.resize : 1; // 1=width (default), 2=height, 3=both.
@@ -5048,8 +5056,8 @@ pui.MouseResizable.prototype = Object.create(pui.MouseListener.prototype);
  * Implements mousedown for MouseListener. Set the starting X and Y on the resize element's offset width and height.
  */
 pui.MouseResizable.prototype.mousedown = function() {
-  this.startX = this.resizeEl.offsetWidth;
-  this.startY = this.resizeEl.offsetHeight;
+  this.startX = this._resizeWidthEl.offsetWidth;
+  this.startY = this._resizeHeightEl.offsetHeight;
 };
 
 /**
@@ -5060,14 +5068,14 @@ pui.MouseResizable.prototype.mousemove = function() {
     var width = this.startX + this.x - this.cursorStartX;
     if (width < this.minw) width = this.minw;
     if (typeof this.maxw === "number" && width > this.maxw) width = this.maxw;
-    this.resizeEl.style.width = width + "px";
+    this._resizeWidthEl.style.width = width + "px";
     this.width = width; // Can be used in movecb.
   }
   if (this._doHeight) {
     var height = this.startY + this.y - this.cursorStartY;
     if (height < this.minh) height = this.minh;
     if (typeof this.maxh === "number" && height > this.maxh) height = this.maxh;
-    this.resizeEl.style.height = height + "px";
+    this._resizeHeightEl.style.height = height + "px";
     this.height = height; // Can be used in movecb.
   }
 };
@@ -5084,9 +5092,10 @@ pui.updateReactState = function(dom) {
 };
 
 pui.setModified = function(e, formatName) {
+  var target;
   if (context == "dspf") {
     if (!pui.screenIsReady) return;
-    var target = getTarget(e);
+    target = getTarget(e);
 
     // Don't set modified when target is ready only
     if (target.pui && target.pui.properties["read only"] === "true") {
@@ -5116,7 +5125,7 @@ pui.setModified = function(e, formatName) {
     // That causes input from prior screen to get put into response object!
     // -- DR
     if (!pui.genie.rendered) return;
-    var target = getTarget(e);
+    target = getTarget(e);
     if (target == null) return;
     var fieldInfo = target.fieldInfo;
     if (fieldInfo == null) return;
@@ -5145,7 +5154,6 @@ pui.setModified = function(e, formatName) {
 };
 
 pui.dupKey = function(event) {
-  event = event || window.event;
   var key = event.keyCode;
   if (key == pui["dup"]["keyCode"]) {
     if (pui["dup"]["shift"] && !event.shiftKey) return;
