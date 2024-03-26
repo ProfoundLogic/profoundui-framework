@@ -2219,13 +2219,16 @@ pui.Grid = function() {
 
       var receiveRoutine = receiveData;
       var limit = numRows;
+      // create a Mask and Animation for tablediv
+      if (maskCover == null || maskCover.style.display == "none") {
+        me.mask();
+        me.gridLoading();
+      }
       if (me["dataProps"]["load fields into widgets"] == "true") {
         receiveRoutine = receiveIntoDataArray;
         if (me["dataProps"]["load all rows"] == "true") {
           limit = -1;
         }
-        me.mask();
-        me.gridLoading();
       }
       if (context == "genie") {
         runSQL(sql, limit, startRow, receiveRoutine, (me.totalRecs == null), dataURL, false);
@@ -4541,6 +4544,11 @@ pui.Grid = function() {
       me.scrollbarObj.designMode = me.designMode;
       if (stype == "sliding") {
         me.scrollbarObj.onSetRow = function(recNum) {
+          // when the grid is being scrolled. create a mask and show the loading message.
+          if (maskCover == null || maskCover.style.display == "none") {
+            me.mask();
+            me.gridLoading();
+          }
           // Note: even if recNum == me.recNum, we still need to call getData for certain grids; e.g.
           // a grid inside an unselected tab panel tab. Without calling getData, the data would be hidden.
           me.recNum = recNum;
