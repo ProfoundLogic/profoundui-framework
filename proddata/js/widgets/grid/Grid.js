@@ -4257,7 +4257,11 @@ pui.Grid = function() {
     }
 
     if (me.storedState != null && me.storedState != "") {
-      state = JSON.parse(me.storedState);
+      try {
+        state = JSON.parse(me.storedState);
+      } catch (error) {
+          console.warn("Error parsing stored state: " + error);
+      }
     }
     else if (state != null && state != "") {
       me.storedState = JSON.stringify(state);
