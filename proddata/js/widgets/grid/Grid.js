@@ -2398,6 +2398,7 @@ pui.Grid = function() {
         me.pagingBar.draw();
       }
       me.cleared = false;
+      me["unMask"]();
     }
     /**
      * Callback for runSQL.
