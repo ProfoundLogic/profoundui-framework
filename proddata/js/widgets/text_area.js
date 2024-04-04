@@ -146,7 +146,6 @@ pui.textArea_cleanUp = function(e) {
   //   Listen on 'input' instead of 'keyup' to solve when holding a key down would corrupt the value.
   if (isContinuedEntryField && (ename == "input" || (ename == "keydown" && key == 8))) {
     wrapwords();
-
     // Determine which line the cursor is on.
     var sum = 0;
     for (var i = 0; i < lines.length; i++) {
@@ -221,11 +220,23 @@ pui.textArea_cleanUp = function(e) {
       }
     }
   }
-  if (newVal != oldVal) {
+  // Set a new set of rules for the textarea value with related fields.
+  if (newVal != oldVal && obj.related[0] != null) {
+    // Set the value of the textarea to the new value if its pasted.
+    if (ename == "paste") {
+      obj.value = newVal;
+      setSelectionRange(obj, cursorPos, cursorPos);
+    }
+    if (key == 8) {
+      obj.value = newVal;
+      setSelectionRange(obj, origCursorPos, origCursorPos);
+    }
+  }
+  // Set a new set of rules for the textarea value without related fields.
+  if (newVal != oldVal && !obj.related) {
     obj.value = newVal;
     setSelectionRange(obj, cursorPos, cursorPos);
   }
-
   // Returns the length of a line. Usually for the length of the latest line being built, curLine.
   function getLineLength(lineno) {
     // If the current line we're on is from a unicode field of type "G" use the actual length...
@@ -393,7 +404,6 @@ pui.textArea_cleanUp = function(e) {
         }
       }
     }
-
     return words;
   }
 
@@ -405,7 +415,6 @@ pui.textArea_cleanUp = function(e) {
     var skipNextNL = false;
     var atStartOfLine = true;
     var pasting = ename == "paste";
-
     // Look at each word. Populate the model of fields with the words. Wrap when necessary.
     while (words.length > 0) {
       if (words[0] == "\n") {
@@ -428,12 +437,14 @@ pui.textArea_cleanUp = function(e) {
           if (!erasing && !pasting) skipNextNL = true;
           atStartOfLine = true;
         }
-
-        if (lineHasRoom || !pasting) {
+        if ((lineHasRoom || !pasting) && words[1] !== "\n") {
           // There is room left on the current line or not pasting; add the space.
           // The space goes either on the end of the line where there's room or beginning of next line.
           lines[curLine] += " ";
           atStartOfLine = false;
+        }
+        else if (lineHasRoom && words[1] == "\n") {
+          madeNewLine();
         }
 
         charAddCount++;
@@ -442,7 +453,6 @@ pui.textArea_cleanUp = function(e) {
       // The word is more than one whitespace character.
       else {
         var curLineLength = getLineLength(curLine);
-
         // First, check to see if the text would result in merged words after submitting the screen. Try to help the user avoid that
         // by moving words to next lines and adding spaces. Otherwise, do wrapping.
 
@@ -466,14 +476,19 @@ pui.textArea_cleanUp = function(e) {
         }
         // Room is available.
         else if (curLineLength + words[0].length <= lineLengths[curLine]) {
-          // Add the word to the line
-          lines[curLine] += words[0];
-          atStartOfLine = false;
-
+          // Create a new line if the next word is \n and the word is at the end of the line.
+          if (words[1] == "\n" && !erasing) {
+            skipNextNL = false;
+            atStartOfLine = true;
+          }
+          else {
+            // Add the word to the line
+            lines[curLine] += words[0];
+            atStartOfLine = false;
+          }
           charAddCount += words[0].length;
           words.shift();
         }
-        // No space for the word is available on this line.
         else {
           // Special case: word is larger than the line, so write it to 'lines' all at once.
           if (atStartOfLine) {
@@ -484,7 +499,6 @@ pui.textArea_cleanUp = function(e) {
               roomonline = lineLengths[curLine] - curLineLength;
               lines[curLine] += bigword.substr(splitat, roomonline);
               splitat += roomonline;
-
               if (splitat >= bigword.length) { // Big word is finished, so stop this loop. Keep looking at word queue.
                 break;
               }
@@ -507,9 +521,8 @@ pui.textArea_cleanUp = function(e) {
               }
               break;
             }
-
             if (!erasing) skipNextNL = true;
-
+            if (erasing && obj.related != null) skipNextNL = true;
             // There should be a space between the wrapped word and the next.
             if (words.length >= 3 && words[1] == "\n") { // Word is at end of line.
               if (words[2] != " ") { // Word on next line is not a space.
