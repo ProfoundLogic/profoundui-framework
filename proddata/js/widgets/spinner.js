@@ -195,6 +195,11 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
   };
 
   this.setArrowClassNames = function(className) {
+    var classList = dom.className.split(" ");
+    // Check if classList has "PR" in it.
+    // Gets the array, validate the array, and check if the array has "PR" in it.
+    // set a boolean variable for PR availability.
+    var hasPR = classList.indexOf("PR") > -1;
     if (className == null) {
       up.className = "input pui-spinner-up-arrow-input";
       down.className = "input pui-spinner-down-arrow-input";
@@ -202,6 +207,10 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     else {
       up.className = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
       down.className = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
+    }
+    if (hasPR) {
+      up.className += " PR";
+      down.className += " PR";
     }
   };
 
