@@ -870,8 +870,10 @@ function fieldExit(obj, minus) {
   var rightAdjust = false;
   var maxLength;
   var signedNumeric = obj.getAttribute("signedNumeric");
+  var numAttr = obj.getAttribute("num");
+  var isNum = (numAttr === "011" || numAttr === "101" || numAttr === "111");
   var needsOnchange = false;
-  if (minus && (signedNumeric == null || signedNumeric != "Y")) return false;
+  if (minus && (signedNumeric == null || signedNumeric != "Y") && !isNum) return false;
   var pos = obj.cursorPosition;
   if (pui["is_touch"] && !pui["is_mouse_capable"]) {
     pos = getCursorPosition(obj);
@@ -882,7 +884,7 @@ function fieldExit(obj, minus) {
     needsOnchange = (obj.value !== obj.value.substr(0, pos));
     obj.value = obj.value.substr(0, pos);
     blankFill = obj.getAttribute("blankFill");
-    if (signedNumeric != null && signedNumeric == "Y") blankFill = "Y";
+    if ((signedNumeric != null && signedNumeric == "Y") || isNum) blankFill = "Y";
     if (blankFill != null && blankFill == "Y") {
       rightAdjust = true;
       fill = "                                                                                ";
@@ -896,7 +898,7 @@ function fieldExit(obj, minus) {
     if (rightAdjust && maxLength != null) {
       var newValue = fill + ltrim(obj.value);
       newValue = newValue.substr(newValue.length - maxLength);
-      if (signedNumeric != null && signedNumeric == "Y") {
+      if ((signedNumeric != null && signedNumeric == "Y") || (minus && isNum)) {
         if (newValue.substr(newValue.length - 1) != "-") {
           if (minus) {
             newValue += "-";
