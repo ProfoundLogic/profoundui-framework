@@ -1386,14 +1386,18 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
   // Process classes
   if (context == "dspf" && (propConfigName.substr(0, 9) == "css class" || propConfigName == "display attribute field")) {
-    var classes = [];
-    classes.push(properties["css class"]);
-    var clsNum = 2;
-    var cls = properties["css class " + clsNum];
-    while (cls != null) {
-      classes.push(cls);
-      clsNum++;
-      cls = properties["css class " + clsNum];
+    if (propConfigName == "display attribute field" && properties["field type"] == "combo box") {
+      classes = domObj.className.split(" ");
+    } else {  
+      var classes = [];
+      classes.push(properties["css class"]);
+      var clsNum = 2;
+      var cls = properties["css class " + clsNum];
+      while (cls != null) {
+        classes.push(cls);
+        clsNum++;
+        cls = properties["css class " + clsNum];
+      }
     }
     var idx = Number(propConfigName.substr(10));
     if (isNaN(idx) || idx < 1 || idx > 99) idx = 1;
