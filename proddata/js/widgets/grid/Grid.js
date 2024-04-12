@@ -1074,8 +1074,16 @@ pui.Grid = function() {
             });
             if (result != null) value = result;
           }
-
           var xlsxvalue = value; // XLSX need not escape quotes (").
+          // Remove Unicode escape sequences from the value.
+          var regEx = /\\u[0-9a-zA-Z]{4}\b/g;
+          // JSON.stringify escapes Unicode string, so we can remove them.
+          var temp = JSON.stringify(xlsxvalue);
+          // Remove the unicode from the string.
+          // replace all unicode escape sequences with a space.
+          var cleanText = temp.replace(regEx, " ");
+          // Parse the string back to an object.
+          xlsxvalue = JSON.parse(cleanText);
 
           if (typeof value === "string") value = value.replace(/"/g, '""'); // Escape all double-quotes. Note: type may be number. #4085.
 
@@ -1102,7 +1110,6 @@ pui.Grid = function() {
                   linkstring = record[hyperlinks[j].linkBound]; // bound link.
                 }
               }
-
               worksheet.setCell(rtrim(xlsxvalue), worksheetCol, linkstring);
             } // end else: cell data that is not an image.
 
@@ -4260,7 +4267,7 @@ pui.Grid = function() {
       try {
         state = JSON.parse(me.storedState);
       } catch (error) {
-          console.warn("Error parsing stored state: " + error);
+        console.warn("Error parsing stored state: " + error);
       }
     }
     else if (state != null && state != "") {
