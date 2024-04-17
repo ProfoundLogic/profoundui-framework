@@ -2040,10 +2040,10 @@ pui.renderFormat = function(parms) {
               addEvent(boxDom, "keydown", function(event) {
                 event = event || window.event;
                 var key = event.keyCode;
-                if (key == pui["field exit key"] && !event.shiftKey && (pui["field exit key"] == 17 || !event.ctrlKey)) {
+                if ((key == pui["field exit key"] || key == pui["field exit minus key"]) && !event.shiftKey && (pui["field exit key"] == 17 || !event.ctrlKey)) {
                   var target = getTarget(event);
                   pui.storeCursorPosition(target);
-                  if (pui.doFieldExit(target) == false) {
+                  if (pui.doFieldExit(target, key == pui["field exit minus key"]) == false) {
                     preventEvent(event);
                     return false;
                   }
@@ -3873,7 +3873,7 @@ pui.buildResponse = function(customResponseElements) {
                 else value = "1";
               }
               else {
-                if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue
+                if (dom.uncheckedValue != null && dom.uncheckedValue != "") value = dom.uncheckedValue;
                 else value = " ";
               }
               break;
@@ -6342,7 +6342,7 @@ pui.fieldUpper = pui.formatUpper = function(fieldName) {
   else return fieldName.toUpperCase();
 };
 
-pui.doFieldExit = function(target) {
+pui.doFieldExit = function(target, minus) {
   if (!target.disabled && !target.readOnly) {
     if (target.tagName == "TEXTAREA" ||
        (target.tagName == "INPUT" && (target.type == "text" ||
@@ -6361,11 +6361,17 @@ pui.doFieldExit = function(target) {
           value = "0" + value;
         }
       }
+      else if (minus && !value.includes("-")) {
+        var numValue = Number(value);
+        if (!isNaN(numValue) && numValue != 0) {
+          value = "-" + value;
+        }
+      }
       var needsOnchange = (target.value !== value);
-   	  target.value = value;
-	  target.modified = true;
+      target.value = value;
+      target.modified = true;
       if (needsOnchange && typeof target.onchange === "function") {
-  		  target.onchange();
+        target.onchange();
       }
     }
   }

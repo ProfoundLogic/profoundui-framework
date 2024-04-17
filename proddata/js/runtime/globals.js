@@ -119,6 +119,7 @@ pui.toolbox = {};
 pui.toolbox.add = function() {};
 
 pui["field exit key"] = 107; // numeric pad plus sign
+pui["field exit minus key"] = 109; // numeric pad minus sign
 
 pui["no connection status"] = false;
 
