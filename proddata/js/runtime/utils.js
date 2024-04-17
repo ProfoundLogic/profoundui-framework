@@ -117,7 +117,7 @@ function numericDecimalOnly(e) {
 function numericSignOnly(e) {
   var target = e.target;
   if (target.autoComp != null) return;
-  var allowedUnicodes = [8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"]];
+  var allowedUnicodes = [8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 109, 112, 123, 144, 145, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 189, pui["field exit key"], pui["field exit minus key"]];
   allowKeys(allowedUnicodes, e);
 }
 function alphabeticOnly(e) {
@@ -836,16 +836,13 @@ function allowKeys(allowedUnicodes, e) {
   }
   if (isTextbox && pui.isFieldExit(e)) {
     pui.storeCursorPosition(obj);
-    fieldExit(obj);
-    preventEvent(e);
-    return false;
-  }
-  if (key == 109 && isTextbox) { // numpad minus sign
-    pui.storeCursorPosition(obj);
-    if (fieldExit(obj, true)) {
+    if (key == pui["field exit minus key"] && fieldExit(obj, true)) {
       preventEvent(e);
       return false;
     }
+    fieldExit(obj);
+    preventEvent(e);
+    return false;
   }
 
   if (e.ctrlKey == true && (key == 67 || key == 86)) { // allow ctrl-c and ctrl-v for copy/paste
@@ -873,8 +870,10 @@ function fieldExit(obj, minus) {
   var rightAdjust = false;
   var maxLength;
   var signedNumeric = obj.getAttribute("signedNumeric");
+  var numAttr = obj.getAttribute("num");
+  var isNum = (numAttr === "011" || numAttr === "101" || numAttr === "111");
   var needsOnchange = false;
-  if (minus && (signedNumeric == null || signedNumeric != "Y")) return false;
+  if (minus && (signedNumeric == null || signedNumeric != "Y") && !isNum) return false;
   var pos = obj.cursorPosition;
   if (pui["is_touch"] && !pui["is_mouse_capable"]) {
     pos = getCursorPosition(obj);
@@ -885,7 +884,7 @@ function fieldExit(obj, minus) {
     needsOnchange = (obj.value !== obj.value.substr(0, pos));
     obj.value = obj.value.substr(0, pos);
     blankFill = obj.getAttribute("blankFill");
-    if (signedNumeric != null && signedNumeric == "Y") blankFill = "Y";
+    if ((signedNumeric != null && signedNumeric == "Y") || isNum) blankFill = "Y";
     if (blankFill != null && blankFill == "Y") {
       rightAdjust = true;
       fill = "                                                                                ";
@@ -899,7 +898,7 @@ function fieldExit(obj, minus) {
     if (rightAdjust && maxLength != null) {
       var newValue = fill + ltrim(obj.value);
       newValue = newValue.substr(newValue.length - maxLength);
-      if (signedNumeric != null && signedNumeric == "Y") {
+      if ((signedNumeric != null && signedNumeric == "Y") || (minus && isNum)) {
         if (newValue.substr(newValue.length - 1) != "-") {
           if (minus) {
             newValue += "-";
@@ -1918,8 +1917,9 @@ pui.isTextbox = function(obj) {
 pui.isFieldExit = function(e) {
   var key = e.keyCode;
   var fe = pui["field exit key"];
+  var fe2 = pui["field exit minus key"];
 
-  if ((key == fe) &&
+  if ((key == fe || key == fe2) &&
       (!e.shiftKey || fe == 16) &&
       (!e.ctrlKey || fe == 17)) {
     return true;
