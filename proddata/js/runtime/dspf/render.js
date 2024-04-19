@@ -5206,11 +5206,13 @@ pui["signon"] = function(config) {
   workstnid = workstnid.toUpperCase();
   var log = config["log"];
   var plog = config["plog"];
+  var autotest = config["autotest"];
   pui.renderLog = (config["renderLog"] === true);
   if (container == null) container = "pui";
   if (debug == null) debug = "0";
   if (log == null) log = "0";
   if (plog == null) plog = "0";
+  if (autotest == null) autotest = "0";
   if (typeof container == "string") container = document.getElementById(container);
   addEvent(document.body, "keydown", pui.handleHotKey);
   addEvent(document.body, "help", pui.handleF1);
@@ -5241,6 +5243,7 @@ pui["signon"] = function(config) {
     "debug": debug,
     "log": log,
     "plog": plog,
+    "autotest": autotest,
     "workstnid": workstnid,
     "atrium_item": atriumitem
   };
@@ -5403,6 +5406,7 @@ pui.start = function() {
   var duplicateid = parms["duplicateid"];
   var log = parms["log"];
   var plog = parms["plog"];
+  var autotest = parms["autotest"];
   pui.recordTest = (parms["record"] === "1");
   var atriumItem = parms["atrium_item"];
   var initPgm = parms["initpgm"];
@@ -5443,6 +5447,7 @@ pui.start = function() {
     "debug": debug,
     "log": log,
     "plog": plog,
+    "autotest": autotest,
     "workstnid": workstnid,
     "suffixid": suffixid,
     "duplicateid": duplicateid,
