@@ -2419,6 +2419,7 @@ pui.Grid = function() {
       if (me == null || me.cells == null) return; // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
 
+      me["saveFieldNames"] = me.fieldNames;
       me.fieldNames = [];
       me.visibleDataArray = [];
       // Clears DOM elements
@@ -2433,6 +2434,7 @@ pui.Grid = function() {
         for (var fieldName in data[0]) {
           me.fieldNames.push(pui.fieldUpper(fieldName));
         }
+        me["saveFieldNames"] = me.fieldNames;
         for (var i = 0; i < data.length; i++) {
           me.dataArray[i] = [];
           me.visibleDataArray[i] = [];
@@ -7767,13 +7769,7 @@ pui.Grid = function() {
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
           if (headerCell.columnId >= 0 && headerCell.filterText != null) {
-            // if mne.dataArray has at least one element
-            if (me.dataArray.length > 0) {
-              var bump = bumpUserDefinedColumnIds(headerCell.columnId);
-            }
-            else {
-              var bump = 0;
-            }
+            var bump = bumpUserDefinedColumnIds(headerCell.columnId);
             me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1 + bump);
             me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
             pstring += me.filterString;
@@ -10813,10 +10809,12 @@ pui.Grid = function() {
   function bumpUserDefinedColumnIds(columnId) {
     var bump = 0;
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
+      userDefinedDataFields = getUserDefinedDataFields(me.runtimeChildren);
+      if (userDefinedDataFields.length == 0) return bump;
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
-      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me.fieldNames) {
+      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me["saveFieldNames"]) {
         var scrField = me.runtimeChildren[columnId].value.fieldName;
-        var selPos = me.fieldNames.indexOf(scrField);
+        var selPos = me["saveFieldNames"].indexOf(scrField);
         if (selPos != -1) {
           bump = selPos - columnId;
         }
