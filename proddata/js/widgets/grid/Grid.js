@@ -1378,21 +1378,26 @@ pui.Grid = function() {
         });
         // Get the field order from each column that has a "field" property.
         for (colNum = 0, len = sortedcolinf.length; colNum < len; colNum++) {
+          // Get the field name for the column.
           var colEl = sortedcolinf[colNum];
+          // If the column is bound to a field, then use the field name from the column.
           if (colEl["field"]) {
             fieldOrder.push({
               fieldName: colEl["field"],
               name: colEl["blankHeader"] ? "" : colEl["name"]
             });
           }
+          // If the column is not bound to a field, then use the field name from the runtimeChildren.
           else if (!colEl["field"]) {
-            var headingFields = [];
-            for (field in response["results"][0]) {
-              headingFields.push(field);
-            }
-            colEl.field = headingFields[colNum];
+            // var headingFields = [];
+            // for (field in response["results"][0]) {
+            //   headingFields.push(field);
+            // }
+            // colEl.field = headingFields[colNum];
+            colEl.field = me.runtimeChildren[colNum]["value"]["fieldName"];
             fieldOrder.push({
-              fieldName: headingFields[colNum],
+              // fieldName: headingFields[colNum],
+              fieldName: colEl.field,
               name: colEl["blankHeader"] ? "" : colEl["name"]
             });
           }
@@ -1470,13 +1475,14 @@ pui.Grid = function() {
       // Look at each result cell. and add to worksheet.
       for (var rowNum = 0, n = response["results"].length; rowNum < n; rowNum++) {
         worksheet.newRow();
+        // Get the row data from Ajax result.
         var row = response["results"][rowNum];
         colNum = 0;
         for (var j = 0, m = fieldOrder.length; j < m; j++) {
-          bump = bumpUserDefinedColumnIds(j);
-          field = fieldOrder[j + bump];
+          // Get the field array for the column.
+          field = fieldOrder[j];
           if (field == null) continue;
-
+          // Get the value for the field.
           var value = row[field.fieldName];
           // An alias may be in lowercase when the result may be upper. #6600.
           if (value == null && field.fieldName) value = row[field.fieldName.toUpperCase()];
