@@ -1074,8 +1074,16 @@ pui.Grid = function() {
             });
             if (result != null) value = result;
           }
-
           var xlsxvalue = value; // XLSX need not escape quotes (").
+          // Remove Unicode escape sequences from the value.
+          var regEx = /\\u[0-9a-zA-Z]{4}\b/g;
+          // JSON.stringify escapes Unicode string, so we can remove them.
+          var temp = JSON.stringify(xlsxvalue);
+          // Remove the unicode from the string.
+          // replace all unicode escape sequences with a space.
+          var cleanText = temp.replace(regEx, " ");
+          // Parse the string back to an object.
+          xlsxvalue = JSON.parse(cleanText);
 
           if (typeof value === "string") value = value.replace(/"/g, '""'); // Escape all double-quotes. Note: type may be number. #4085.
 
@@ -1102,7 +1110,6 @@ pui.Grid = function() {
                   linkstring = record[hyperlinks[j].linkBound]; // bound link.
                 }
               }
-
               worksheet.setCell(rtrim(xlsxvalue), worksheetCol, linkstring);
             } // end else: cell data that is not an image.
 
@@ -1371,21 +1378,26 @@ pui.Grid = function() {
         });
         // Get the field order from each column that has a "field" property.
         for (colNum = 0, len = sortedcolinf.length; colNum < len; colNum++) {
+          // Get the field name for the column.
           var colEl = sortedcolinf[colNum];
+          // If the column is bound to a field, then use the field name from the column.
           if (colEl["field"]) {
             fieldOrder.push({
               fieldName: colEl["field"],
               name: colEl["blankHeader"] ? "" : colEl["name"]
             });
           }
+          // If the column is not bound to a field, then use the field name from the runtimeChildren.
           else if (!colEl["field"]) {
-            var headingFields = [];
-            for (field in response["results"][0]) {
-              headingFields.push(field);
-            }
-            colEl.field = headingFields[colNum];
+            // var headingFields = [];
+            // for (field in response["results"][0]) {
+            //   headingFields.push(field);
+            // }
+            // colEl.field = headingFields[colNum];
+            colEl.field = me.runtimeChildren[colNum]["value"]["fieldName"];
             fieldOrder.push({
-              fieldName: headingFields[colNum],
+              // fieldName: headingFields[colNum],
+              fieldName: colEl.field,
               name: colEl["blankHeader"] ? "" : colEl["name"]
             });
           }
@@ -1463,13 +1475,14 @@ pui.Grid = function() {
       // Look at each result cell. and add to worksheet.
       for (var rowNum = 0, n = response["results"].length; rowNum < n; rowNum++) {
         worksheet.newRow();
+        // Get the row data from Ajax result.
         var row = response["results"][rowNum];
         colNum = 0;
         for (var j = 0, m = fieldOrder.length; j < m; j++) {
-          bump = bumpUserDefinedColumnIds(j);
-          field = fieldOrder[j + bump];
+          // Get the field array for the column.
+          field = fieldOrder[j];
           if (field == null) continue;
-
+          // Get the value for the field.
           var value = row[field.fieldName];
           // An alias may be in lowercase when the result may be upper. #6600.
           if (value == null && field.fieldName) value = row[field.fieldName.toUpperCase()];
@@ -2412,6 +2425,7 @@ pui.Grid = function() {
       if (me == null || me.cells == null) return; // since this is asynchronous, the user may have moved to the next screen by and the grid may no longer exist
       if (totalRecs != null) me.totalRecs = totalRecs;
 
+      me["saveFieldNames"] = me.fieldNames;
       me.fieldNames = [];
       me.visibleDataArray = [];
       // Clears DOM elements
@@ -2426,6 +2440,7 @@ pui.Grid = function() {
         for (var fieldName in data[0]) {
           me.fieldNames.push(pui.fieldUpper(fieldName));
         }
+        me["saveFieldNames"] = me.fieldNames;
         for (var i = 0; i < data.length; i++) {
           me.dataArray[i] = [];
           me.visibleDataArray[i] = [];
@@ -4260,7 +4275,7 @@ pui.Grid = function() {
       try {
         state = JSON.parse(me.storedState);
       } catch (error) {
-          console.warn("Error parsing stored state: " + error);
+        console.warn("Error parsing stored state: " + error);
       }
     }
     else if (state != null && state != "") {
@@ -7760,13 +7775,7 @@ pui.Grid = function() {
         for (var i = 0; i < headerRow.length; i++) {
           var headerCell = headerRow[i];
           if (headerCell.columnId >= 0 && headerCell.filterText != null) {
-            // if mne.dataArray has at least one element
-            if (me.dataArray.length > 0) {
-              var bump = bumpUserDefinedColumnIds(headerCell.columnId);
-            }
-            else {
-              var bump = 0;
-            }
+            var bump = bumpUserDefinedColumnIds(headerCell.columnId);
             me.filterString += "&fltrcol" + String(filtNum) + "=" + (headerCell.columnId + 1 + bump);
             me.filterString += me.prepareFilterText(String(filtNum), headerCell.filterText);
             pstring += me.filterString;
@@ -10806,10 +10815,12 @@ pui.Grid = function() {
   function bumpUserDefinedColumnIds(columnId) {
     var bump = 0;
     if (me["dataProps"]["custom sql"] != null && me["dataProps"]["custom sql"] != "") {
+      userDefinedDataFields = getUserDefinedDataFields(me.runtimeChildren);
+      if (userDefinedDataFields.length == 0) return bump;
       // loop through me.runtimeChildren and build arrray of user defined data fieldNames
-      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me.fieldNames) {
+      if (me.runtimeChildren[columnId] && me.runtimeChildren[columnId].value && me.runtimeChildren[columnId].value.fieldName && me["saveFieldNames"]) {
         var scrField = me.runtimeChildren[columnId].value.fieldName;
-        var selPos = me.fieldNames.indexOf(scrField);
+        var selPos = me["saveFieldNames"].indexOf(scrField);
         if (selPos != -1) {
           bump = selPos - columnId;
         }
