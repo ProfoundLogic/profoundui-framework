@@ -2277,9 +2277,14 @@ pui.renderFormat = function(parms) {
               return;
             }
             if (event.keyCode == 9) { // tab key
-              gotoElement(target, !event.shiftKey);
-              preventEvent(event);
-              return false;
+              // Identify if the dom is inside the tab layout.
+              // to identify the tab layout, we need to check if the parent element has a tabId and containerNumber
+              if (event.parentElement && (!event.parentElement.containerNumber || !event.parentElement.tabId)) {
+                // If the parent element does not have a tabId and containerNumber, then the dom is not inside the tab layout.
+                gotoElement(target, !event.shiftKey);
+                preventEvent(event);
+                return false;
+              }
             }
           });
         }
