@@ -581,6 +581,18 @@ pui.FieldFormat = {
         }
         keyFilter += "\\-";
       }
+      else if (obj.negNum == "999.00 (Y)") {
+        if (isNegative) {
+          strValue += " ";
+        }
+        else {
+          strValue += " ";
+        }
+        if (!obj.noExtraSpaces || obj.noExtraSpaces != "true") {
+          maxLength++;
+        }
+        keyFilter += "\\-";
+      }
 
       if (obj.curSym) {
         if (obj.curSym == "EUR") {
@@ -680,7 +692,7 @@ pui.FieldFormat = {
         if (obj.negNum == "(999.00)") {
           value = value.replace(/\(/, "").replace(/\)/, "");
         }
-        else if (obj.negNum == "999.00-" || obj.negNum == "-999.00") {
+        else if (obj.negNum == "999.00-" || obj.negNum == "-999.00" || obj.negNum == "999.00 (Y)") {
           value = value.replace(/-/, "");
         }
         else if (obj.negNum == "999.00 CR") {
