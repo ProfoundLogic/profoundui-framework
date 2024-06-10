@@ -65,6 +65,8 @@ Event.dataTransfer.dropEffect = {}; // Used in JumpStart
 
 Element.oninput = {};
 
+Element.prepend = {};
+
 Date.toISOString = function() {};
 
 navigator.clipboard = {
