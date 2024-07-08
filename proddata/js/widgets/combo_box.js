@@ -451,13 +451,13 @@ pui.ComboBoxWidget.prototype["handleEvent"] = function(e) {
 
     case "mousedown":
       // Handles the arrow and the option div.
-      preventEvent(e);
+      if (!this.design) preventEvent(e);
       break;
     case "mouseup":
       // Mouseup on the Arrow element.
-      if (this._choicesDiv.style.display == "none" && !this.box.disabled) this["showChoices"]();
+      if (this._choicesDiv.style.display == "none" && !this.box.disabled && !this.design) this["showChoices"]();
       else this["hideChoices"]();
-      preventEvent(e);
+      if (!this.design) preventEvent(e);
       break;
 
     // Set the class name of the option elements. CSS rules for these were changed to use :hover, but customers may still use the old class.
