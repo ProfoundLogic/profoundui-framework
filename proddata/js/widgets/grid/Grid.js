@@ -1074,20 +1074,20 @@ pui.Grid = function() {
             });
             if (result != null) value = result;
           }
+
           var xlsxvalue = value; // XLSX need not escape quotes ("), unlike CSV.
           if (typeof xlsxvalue === "string" && xlsxvalue.length > 0) {
             // ADO38521 There may be grid fields added on the fly by js client side code, resulting in value being undefined.
             // Avoid operations on undefined values; the resulting output will be empty cells.
             try {
               // Remove Unicode escape sequences from the value.
-              var regEx = /\\u[0-9a-zA-Z]{4}\b/g;
+              // Removes non-printable ASCII characters from a given string
+              var regEx = /[^\x20-\x7E]/g;
               // JSON.stringify escapes Unicode string, so we can remove them.
-              var temp = JSON.stringify(xlsxvalue);
               // Remove the unicode from the string.
               // replace all unicode escape sequences with a space.
-              var cleanText = temp.replace(regEx, " ");
+              xlsxvalue = xlsxvalue.replace(regEx, " ");
               // Parse the string back to an object.
-              xlsxvalue = JSON.parse(cleanText);
             }
             catch (ignored) {}
           }
