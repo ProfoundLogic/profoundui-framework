@@ -7032,6 +7032,17 @@ pui.Grid = function() {
     };
 
     cell.onmousedown = function(event) {
+      var quickFilter = document.getElementsByClassName("qf");
+      var QFArr = [];
+      for (var index = 0; index < quickFilter.length; index++) {
+        var element = quickFilter[index];
+        if (element.tagName == "INPUT") {
+          QFArr.push(element);
+        }
+      }
+      for (var qf = 0; qf < QFArr.length; qf++) {
+        QFArr[qf].blur();
+      }
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
