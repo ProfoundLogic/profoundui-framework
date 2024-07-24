@@ -87,8 +87,9 @@ pui.CSSButton = function() {
     }
     addEvent(link, "mousedown", down);
     addEvent(link, "touchstart", down);
-    addEvent(document, "mouseup", up);
-    addEvent(document, "touchend", up);
+    addEvent(link, "mouseup", up);
+    addEvent(link, "touchend", up);
+    addEvent(link, "mouseleave", up);
   };
 
   this.setText = function(text) {

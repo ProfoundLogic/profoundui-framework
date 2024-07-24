@@ -622,7 +622,9 @@ pui.widgets.add({
         }
       }
       if (parms.isProxy != true) {
-        addEvent(document, "mouseup", mouseup);
+        addEvent(parms.dom, "mouseup", mouseup);
+        addEvent(parms.dom, "touchend", mouseup);
+        addEvent(parms.dom, "mouseleave", mouseup);
       }
 
       parms.dom.appendChild(button.topLeftDiv);
