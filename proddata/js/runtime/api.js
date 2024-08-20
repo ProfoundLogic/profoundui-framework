@@ -2175,7 +2175,12 @@ function runPCCommand(arg) {
     commandList = arg;
   }
 
-  var listener_base_url = "http://localhost:" + (typeof pui["pc listener port"] == "number" ? pui["pc listener port"] : 80) + "/";
+  var listenerPort = parseInt(pui["pc listener port"], 10);
+  if (isNaN(listenerPort)) {
+    listenerPort = "80";
+  }
+
+  var listener_base_url = "http://localhost:" + listenerPort + "/";
   var url_parm_cmdwait = ""; // URL parameters that will get the "cmd" and "wait" components.
   var command;
   var wait;
@@ -2312,15 +2317,15 @@ function runPCCommand(arg) {
       }
 
       if (response == null) {
-        throw "Empty response from PCCMD crypt program.";
+        throw new Error("Empty response from PCCMD crypt program.");
       }
 
       if (response["error"] != null || (typeof response["error"] === "string" && response["error"].length > 0)) {
-        throw "PCCMD crypt error: " + String(response["error"]);
+        throw new Error("PCCMD crypt error: " + String(response["error"]));
       }
 
       if (typeof response["cmd"] !== "string" || response["cmd"].length == 0) {
-        throw "PCCMD crypt response was missing a command.";
+        throw new Error("PCCMD crypt response was missing a command.");
       }
 
       // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
