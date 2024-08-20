@@ -689,9 +689,9 @@ function showErrors() {
   for (var i = 0; i < errors.length; i++) {
     error = errors[i];
     message = "Operation: " + error.operation +
-				  "\nId: " + error.id +
-				  "\n\nMessage: " + error.text +
-				  "\n" + error.text2;
+          "\nId: " + error.id +
+          "\n\nMessage: " + error.text +
+          "\n" + error.text2;
     alert(message);
   }
 }
@@ -887,8 +887,8 @@ pui.Base64 = {
         enc4 = 64;
       }
       output = output +
-			this.alphabet.charAt(enc1) + this.alphabet.charAt(enc2) +
-			this.alphabet.charAt(enc3) + this.alphabet.charAt(enc4);
+      this.alphabet.charAt(enc1) + this.alphabet.charAt(enc2) +
+      this.alphabet.charAt(enc3) + this.alphabet.charAt(enc4);
     }
     return output;
   },
@@ -1205,11 +1205,11 @@ pui["getActiveElement"] = function() {
 
 // API to allow scripts to send field exit.
 pui["fieldExit"] = function(minus) {
-	 var obj = pui["getActiveElement"]();
-	 if (obj == null) return;
+  var obj = pui["getActiveElement"]();
+  if (obj == null) return;
 
-	 var fldminus = false;
-	 if (minus != null) fldminus = true;
+  var fldminus = false;
+  if (minus != null) fldminus = true;
 
   if (context == "genie") {
     fieldExit(obj, fldminus);
@@ -1510,28 +1510,28 @@ pui["getCookie"] = function(check_name) {
   var i = "";
 
   for (i = 0; i < a_all_cookies.length; i++) {
-  	// now we'll split apart each name=value pair
-  	a_temp_cookie = a_all_cookies[i].split("=");
+    // now we'll split apart each name=value pair
+    a_temp_cookie = a_all_cookies[i].split("=");
 
-  	// and trim left/right whitespace while we're at it
-  	cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, "");
+    // and trim left/right whitespace while we're at it
+    cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, "");
 
-  	// if the extracted name matches passed check_name
-  	if (cookie_name == check_name)	{
-  		b_cookie_found = true;
-  		// we need to handle case where cookie has no value but exists (no = sign, that is):
-  		if (a_temp_cookie.length > 1)	{
-  			cookie_value = unescape(a_temp_cookie[1].replace(/^\s+|\s+$/g, ""));
-  		}
-  		// note that in cases where cookie is initialized but no value, null is returned
-  		return cookie_value;
-  		break;
-  	}
-  	a_temp_cookie = null;
-  	cookie_name = "";
+    // if the extracted name matches passed check_name
+    if (cookie_name == check_name) {
+      b_cookie_found = true;
+      // we need to handle case where cookie has no value but exists (no = sign, that is):
+      if (a_temp_cookie.length > 1) {
+        cookie_value = unescape(a_temp_cookie[1].replace(/^\s+|\s+$/g, ""));
+      }
+      // note that in cases where cookie is initialized but no value, null is returned
+      return cookie_value;
+      break;
+    }
+    a_temp_cookie = null;
+    cookie_name = "";
   }
   if (!b_cookie_found) {
-  	return null;
+    return null;
   }
 };
 
@@ -1559,9 +1559,9 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite
   var expires_date = new Date(today.getTime() + (expires));
 
   document.cookie = name + "=" + escape(value) +
-		((expires) ? ";expires=" + expires_date.toGMTString() : "") +
-		((path) ? ";path=" + path : "") +
-		((domain) ? ";domain=" + domain : "") +
+    ((expires) ? ";expires=" + expires_date.toGMTString() : "") +
+    ((path) ? ";path=" + path : "") +
+    ((domain) ? ";domain=" + domain : "") +
           ((secure) ? ";secure" : "") +
           (sameSite ? ";SameSite=" + sameSite : "")
   ;
@@ -1571,8 +1571,8 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite
 pui["deleteCookie"] = function(name, path, domain, secure, sameSite) {
   if (pui["getCookie"](name)) {
     document.cookie = name + "=" +
-			((path) ? ";path=" + path : "") +
-			((domain) ? ";domain=" + domain : "") +
+      ((path) ? ";path=" + path : "") +
+      ((domain) ? ";domain=" + domain : "") +
           ";expires=Thu, 01-Jan-1970 00:00:01 GMT" +
           (secure ? ";Secure" : "") +
           (sameSite ? ";SameSite=" + sameSite : "");
@@ -2493,7 +2493,7 @@ function PRESSKEY(key) {
 pui["isServerBusy"] = function() {
   if (typeof context == "undefined") return false; // change password page uses api.js but doesn't set context.
   if ((context == "dspf" && pui.screenIsReady === false) ||
-	     (context == "genie" && pui.genie.formSubmitted === true)) return true;
+       (context == "genie" && pui.genie.formSubmitted === true)) return true;
 
   var frames = document.getElementsByTagName("iframe");
   for (var i = 0; i < frames.length; i++) {
@@ -2502,7 +2502,7 @@ pui["isServerBusy"] = function() {
     var framePui = null;
     // must use try/catch to prevent cross-domain access denied errors
     try {
-		  framePui = frameWin.pui;
+      framePui = frameWin.pui;
     }
     catch (e) {
     }
