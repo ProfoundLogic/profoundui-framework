@@ -1669,11 +1669,10 @@ pui["download"] = function(params) {
   }
 };
 
-
 pui["downloadFile"] = function(params) {
   if (typeof params === "undefined" || params == null || typeof params["id"] !== "string" || params["id"].length < 1) {
-    pui["alert"]("Error downloading file. \n\n No file path given", null, "Error", "Close"); 
-    return;   
+    pui["alert"]("Error downloading file. \n\n No file path given", null, "Error", "Close");
+    return;
   }
   var url = pui["downloadURL"](params);
   var path = params["id"];
@@ -1681,17 +1680,17 @@ pui["downloadFile"] = function(params) {
   ajaxObj["responseType"] = "blob";
   ajaxObj["open"]("GET", url, true);
   ajaxObj["send"]();
-  
-  var dialog = null; 
-  var dialogText = null; 
-  var twoSeconds = 2000; 
+
+  var dialog = null;
+  var dialogText = null;
+  var twoSeconds = 2000;
   var confirmationButton = null;
   var cancelButton = null;
 
   ajaxObj.onprogress = function(e) {
     var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
-    if (path.split('/').pop() != filename && filename == "error.txt" ) {
-      return; 
+    if (path.split("/").pop() != filename && filename == "error.txt") {
+      return;
     }
     if (typeof ajaxObj["onprogress"]["diaglogShown"] === "undefined") {
       ajaxObj["onprogress"]["diaglogShown"] = true;
@@ -1704,7 +1703,7 @@ pui["downloadFile"] = function(params) {
       confirmationButton["onclick"] = function() {
         dialog["close"]();
         dialog["remove"]();
-      }
+      };
       cancelButton = document["createElement"]("button");
       cancelButton["innerHTML"] = "Cancel";
       cancelButton["id"] = "cancelButton";
@@ -1712,7 +1711,7 @@ pui["downloadFile"] = function(params) {
         ajaxObj["abort"]();
         dialog["close"]();
         dialog["remove"]();
-      }
+      };
       dialog["appendChild"](cancelButton);
       dialogText["innerHTML"] = "Downloading file: " + path + "<br> Starting download...";
       dialog["showModal"]();
@@ -1720,35 +1719,34 @@ pui["downloadFile"] = function(params) {
     }
     if (Date.now() > ajaxObj["onprogress"]["lastTime"] + twoSeconds) {
       dialogText["innerHTML"] = "Downloading file: " + path + "<br>" + e["type"] + " " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
-      ajaxObj["onprogress"]["lastTime"]  = Date.now();
+      ajaxObj["onprogress"]["lastTime"] = Date.now();
     }
-   
-  }
+  };
 
   ajaxObj["onloadend"] = function(e) {
     if (dialog != null) {
       dialog["querySelector"]("button[id='cancelButton']")["remove"]();
       dialog["appendChild"](confirmationButton);
-      //dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+      // dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
       dialogText["innerHTML"] = "File " + path + " downloaded successfully.";
     }
-  }
+  };
 
   ajaxObj["onreadystatechange"] = function() {
     if (ajaxObj["readyState"] == 4 && ajaxObj["status"] == 200) {
       var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
-      
-      if (path.split('/').pop() != filename && filename == "error.txt" ) {
+
+      if (path.split("/").pop() != filename && filename == "error.txt") {
         var errorReader = new FileReader();
         errorReader.onload = function() {
-          pui["alert"]("Error downloading file: " + path + "\n\n" + errorReader.result, null, "Error", "Close"); 
+          pui["alert"]("Error downloading file: " + path + "\n\n" + errorReader.result, null, "Error", "Close");
           console.log(errorReader.result);
-        }
+        };
         errorReader.readAsText(ajaxObj.response);
-        return; 
+        return;
       }
-  
-      var contentType = null; 
+
+      var contentType = null;
       if (typeof params["contentType"] === "string" && params["contentType"].length > 0) {
         contentType = params["contentType"];
       }
@@ -1794,24 +1792,22 @@ pui["downloadFile"] = function(params) {
             }
           }
         }
-
-
       }
 
       var contentTypeArray = ["application/pdf", "text/plain", "text/csv", "application/json", "application/xml", "text/html", "image/jpeg", "image/png", "image/gif"];
-      var blob = new File([ajaxObj["response"]], filename, {type: contentType});
+      var blob = new File([ajaxObj["response"]], filename, { type: contentType });
       var blobUrl = URL["createObjectURL"](blob);
       var a = document.createElement("a");
       if (typeof params["inline"] === "boolean" && params["inline"] && contentTypeArray.includes(contentType)) {
         a.target = "_blank";
-       }
+      }
       else {
-        a["download"] = filename;  
+        a["download"] = filename;
       }
       a.name = filename;
       a.href = blobUrl;
       document.body.appendChild(a);
-  
+
       a.dispatchEvent(
         new MouseEvent("click", {
           bubbles: true,
@@ -1822,23 +1818,19 @@ pui["downloadFile"] = function(params) {
 
       document.body.removeChild(a);
     }
-  }
-
-}
+  };
+};
 
 pui["extractFileNameFromContentDisposition"] = function(contentDisposition) {
-  
   var regex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
   var matches = regex.exec(contentDisposition);
-  if (matches != null && matches[1]) { 
+  if (matches != null && matches[1]) {
     // If the filename is surrounded by quotes, remove them
-    var fileName = matches[1].replace(/['"]/g, '');
+    var fileName = matches[1].replace(/['"]/g, "");
     return fileName;
   }
   return null;
-
-}
-
+};
 
 pui["focusOnContainer"] = function() {
   // Check for cloud embed box and prevent bouncing to the top of the parent page
