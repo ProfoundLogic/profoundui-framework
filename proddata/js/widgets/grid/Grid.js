@@ -1074,16 +1074,23 @@ pui.Grid = function() {
             });
             if (result != null) value = result;
           }
-          var xlsxvalue = value; // XLSX need not escape quotes (").
-          // Remove Unicode escape sequences from the value.
-          var regEx = /\\u[0-9a-zA-Z]{4}\b/g;
-          // JSON.stringify escapes Unicode string, so we can remove them.
-          var temp = JSON.stringify(xlsxvalue);
-          // Remove the unicode from the string.
-          // replace all unicode escape sequences with a space.
-          var cleanText = temp.replace(regEx, " ");
-          // Parse the string back to an object.
-          xlsxvalue = JSON.parse(cleanText);
+
+          var xlsxvalue = value; // XLSX need not escape quotes ("), unlike CSV.
+          if (typeof xlsxvalue === "string" && xlsxvalue.length > 0) {
+            // ADO38521 There may be grid fields added on the fly by js client side code, resulting in value being undefined.
+            // Avoid operations on undefined values; the resulting output will be empty cells.
+            try {
+              // Remove Unicode escape sequences from the value.
+              // Removes non-printable ASCII characters from a given string
+              var regEx = /[^\x20-\x7E]/g;
+              // JSON.stringify escapes Unicode string, so we can remove them.
+              // Remove the unicode from the string.
+              // replace all unicode escape sequences with a space.
+              xlsxvalue = xlsxvalue.replace(regEx, " ");
+              // Parse the string back to an object.
+            }
+            catch (ignored) {}
+          }
 
           if (typeof value === "string") value = value.replace(/"/g, '""'); // Escape all double-quotes. Note: type may be number. #4085.
 
@@ -2253,7 +2260,9 @@ pui.Grid = function() {
     else if (context == "dspf" || pui.usingGenieHandler) {
       var dataRecords = me.dataArray;
       if (me.isFiltered()) dataRecords = me.visibleDataArray;
-      me.tableDiv.cursorRRN = 0;
+      if (!me.tableDiv.cursorRRN) {
+        me.tableDiv.cursorRRN = 0;
+      }
       var rrn = me.recNum;
       if (dataRecords[me.recNum - 1] && dataRecords[me.recNum - 1].subfileRow != null) {
         rrn = dataRecords[me.recNum - 1].subfileRow;
@@ -5851,14 +5860,16 @@ pui.Grid = function() {
     var idx = me._getDataIndexFromDOMRow(row);
     if (idx >= 0) {
       var dataRecords = me.isFiltered() ? me.visibleDataArray : me.dataArray;
-      if (dataRecords[idx] == null || dataRecords[idx].length == 0) {
-        me.tableDiv.cursorRRN = 0;
-      }
-      else if (dataRecords[idx].subfileRow != null) {
-        me.tableDiv.cursorRRN = dataRecords[idx].subfileRow;
-      }
-      else {
-        me.tableDiv.cursorRRN = idx + 1;
+      if (!me.tableDiv.rowDeselected) {
+        if (dataRecords[idx] == null || dataRecords[idx].length == 0) {
+          me.tableDiv.cursorRRN = 0;
+        }
+        else if (dataRecords[idx].subfileRow != null) {
+          me.tableDiv.cursorRRN = dataRecords[idx].subfileRow;
+        }
+        else {
+          me.tableDiv.cursorRRN = idx + 1;
+        }
       }
     }
     // else: if the row is invalid, leave the cursor at the last valid row.
@@ -7025,6 +7036,17 @@ pui.Grid = function() {
     };
 
     cell.onmousedown = function(event) {
+      var quickFilter = document.getElementsByClassName("qf");
+      var QFArr = [];
+      for (var index = 0; index < quickFilter.length; index++) {
+        var element = quickFilter[index];
+        if (element.tagName == "INPUT") {
+          QFArr.push(element);
+        }
+      }
+      for (var qf = 0; qf < QFArr.length; qf++) {
+        QFArr[qf].blur();
+      }
       // Handle context menu
       if (pui.isRightClick(event)) {
         if (me.designMode) return;
@@ -7206,6 +7228,7 @@ pui.Grid = function() {
         if (me.hasHeader && row != 0) executeEvent("onrowclick", row, isRight, e, col);
       }
       if (!me.designMode) {
+        me.tableDiv.rowDeselected = false;
         me.setCursorRRN(row);
 
         var prevent = ((target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "BUTTON") && !target.disabled && !target.readOnly);
@@ -7300,6 +7323,10 @@ pui.Grid = function() {
               // But, to avoid breaking things I didn't consider, I added a new parameter to handleSelection, and it does what previous code here did. MD.
               if (dataRecords[adjustedRow - 1].selected == true && !isRight) {
                 handleSelection(dataRecords[adjustedRow - 1], false, adjustedRow - 1, true);
+                if (me.tableDiv.cursorRRN) {
+                  me.tableDiv.cursorRRN = 0;
+                  me.tableDiv.rowDeselected = true;
+                }
               } // deselect
               else {
                 handleSelection(dataRecords[adjustedRow - 1], true, adjustedRow - 1, true);
