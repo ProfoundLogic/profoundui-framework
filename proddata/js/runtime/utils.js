@@ -840,6 +840,19 @@ function allowKeys(allowedUnicodes, e) {
       preventEvent(e);
       return false;
     }
+    // Retrieves the num attribute from the field and checks if it is a numeric field/Alphanumeric field.
+    var numSpec = obj.getAttribute("num");
+    // If the field is a numeric field, then the field exit is triggered on the field exit key. If the field is an alphanumeric field check if the disable field exit on alphanumeric is set to false.
+    if (key == pui["field exit minus key"] && fieldExit(obj, true) && !pui["disable field exit on alphanumeric"]) {
+      // Proceed with the field exit.
+      preventEvent(e);
+      return false;
+    }
+    // if the field is alphanumeric and the disable field exit on alphanumeric is set to true, then the field exit is disabled. and assign the "minus" character to the field.
+    else if (pui["disable field exit on alphanumeric"] && (numSpec == null || numSpec == "000" || numSpec == "010")) {
+      return false;
+    }
+    // everything else, proceed with the field exit.
     fieldExit(obj);
     preventEvent(e);
     return false;
