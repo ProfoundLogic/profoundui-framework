@@ -40,7 +40,7 @@ function AutoComplete(config) {
   var rightCorner;
   var firstField;
   var activeRecord = null;
-  var records = new Array();
+  var records = [];
   var typeAheadTimer;
   var hiddenField;
   var selectedRecord;
@@ -104,12 +104,12 @@ function AutoComplete(config) {
   if (config.choices && config.values) {
     var translated = false;
     var compare = trim(textBox.value);
-    recordSet = new Array();
+    recordSet = [];
     choices = config.choices;
     values = config.values;
     for (var i = 0; i < values.length; i++) {
       if (choices[i] != null) {
-        recordSet[recordSet.length] = new Array();
+        recordSet[recordSet.length] = [];
         recordSet[recordSet.length - 1][0] = trim(choices[i]);
         recordSet[recordSet.length - 1][1] = trim(values[i]);
         if (!translated && compare != "") {
@@ -279,7 +279,12 @@ function AutoComplete(config) {
   textBox.addEventListener("keydown", doKeyDown, false);
   textBox.addEventListener("blur", doBlur, false);
   textBox.addEventListener("input", onInput, false);
-  window.addEventListener("resize", doResize, false);
+  if (!pui.autoCompleteList || pui.autoCompleteList.length == 0) {
+    window.addEventListener("resize", doResize, false);
+    pui.autoCompleteList = [];
+  }
+  pui.autoCompleteList.push(me);
+  pui.widgetsToCleanup.push(me);
 
   /* END CONSTRUCTOR */
 
@@ -305,8 +310,17 @@ function AutoComplete(config) {
     textBox.removeEventListener("keydown", doKeyDown);
     textBox.removeEventListener("blur", doBlur);
     textBox.removeEventListener("input", onInput);
-    textBox.removeEventListener("resize", doResize);
-    window.removeEventListener("resize", doResize);
+    for (var i = pui.autoCompleteList.length - 1; i >= 0; i--) {
+      if (pui.autoCompleteList[i] === this) {
+        pui.autoCompleteList.splice(i, 1);
+        break;
+      }
+    }
+
+    if (pui.autoCompleteList.length == 0) {
+      window.removeEventListener("resize", doResize);
+    }
+
     resultPane = null;
     shadowDiv = null;
     leftShadow = null;
@@ -336,6 +350,10 @@ function AutoComplete(config) {
 
   this.updateUrl = function(newUrl) {
     url = newUrl;
+  };
+
+  this.resize = function() {
+    if (this.isOpen()) showResults();
   };
 
   /* PRIVATE METHODS */
@@ -577,7 +595,7 @@ function AutoComplete(config) {
     // Send dummy record in onload event so that template can be created.
     onload({ results: [{ "field1": "" }] });
 
-    records = new Array();
+    records = [];
 
     for (var i = 0; i < recordSet.length; i++) {
       if (config.containsMatch) {
@@ -633,11 +651,12 @@ function AutoComplete(config) {
     if (pui["read db driven data as ebcdic"] !== true) postData += "&UTF8=Y";
 
     if (hiddenField) autoCompQueries += 1;
+    var req;
     if (baseParams["AUTH"]) {
-      var req = new pui.Ajax(pui.appendAuth(url));
+      req = new pui.Ajax(pui.appendAuth(url));
     }
     else {
-      var req = new pui.Ajax(url);
+      req = new pui.Ajax(url);
     }
     req["method"] = "post";
     req["async"] = true;
@@ -770,7 +789,7 @@ function AutoComplete(config) {
   function hideResults() {
     if (resultPane != null) resultPane.style.display = "none";
     if (shadow) shadowDiv.style.display = "none";
-    records = new Array();
+    records = [];
     activeRecord = null;
   }
 
@@ -800,11 +819,6 @@ function AutoComplete(config) {
     rightCorner.style.height = "6px";
     rightCorner.style.width = "6px";
     shadowDiv.style.display = "block";
-  }
-
-  function doResize() {
-    // Repaint result pane if it is open.
-    if (resultPane.style.display == "block") showResults();
   }
 
   function drawResults() {
@@ -966,6 +980,8 @@ function AutoComplete(config) {
   }
 }
 
+// This function is declared globally here and used: in widgets/textbox.js
+// eslint-disable-next-line no-unused-vars
 function applyAutoComp(properties, originalValue, domObj) {
   var file = evalPropertyValue(properties["choices database file"], originalValue, domObj);
   var temp = evalPropertyValue(properties["choice options field"], originalValue, domObj);
@@ -1017,7 +1033,7 @@ function applyAutoComp(properties, originalValue, domObj) {
     if (typeof onDbLoadProp != "string" || onDbLoadProp == "") onDbLoadProp = null;
 
     // Create sql query and base params.
-    var baseParams = new Object();
+    var baseParams = {};
     if (pui["isCloud"]) {
       baseParams["workspace_id"] = pui.cloud.ws.id;
     }
@@ -1295,4 +1311,10 @@ function applyAutoComp(properties, originalValue, domObj) {
       req.send();
     }
   }
+}
+
+function doResize() {
+  pui.autoCompleteList.forEach(function(autocomplete) {
+    autocomplete.resize();
+  });
 }

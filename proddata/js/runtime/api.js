@@ -689,9 +689,9 @@ function showErrors() {
   for (var i = 0; i < errors.length; i++) {
     error = errors[i];
     message = "Operation: " + error.operation +
-				  "\nId: " + error.id +
-				  "\n\nMessage: " + error.text +
-				  "\n" + error.text2;
+          "\nId: " + error.id +
+          "\n\nMessage: " + error.text +
+          "\n" + error.text2;
     alert(message);
   }
 }
@@ -887,8 +887,8 @@ pui.Base64 = {
         enc4 = 64;
       }
       output = output +
-			this.alphabet.charAt(enc1) + this.alphabet.charAt(enc2) +
-			this.alphabet.charAt(enc3) + this.alphabet.charAt(enc4);
+      this.alphabet.charAt(enc1) + this.alphabet.charAt(enc2) +
+      this.alphabet.charAt(enc3) + this.alphabet.charAt(enc4);
     }
     return output;
   },
@@ -1205,11 +1205,11 @@ pui["getActiveElement"] = function() {
 
 // API to allow scripts to send field exit.
 pui["fieldExit"] = function(minus) {
-	 var obj = pui["getActiveElement"]();
-	 if (obj == null) return;
+  var obj = pui["getActiveElement"]();
+  if (obj == null) return;
 
-	 var fldminus = false;
-	 if (minus != null) fldminus = true;
+  var fldminus = false;
+  if (minus != null) fldminus = true;
 
   if (context == "genie") {
     fieldExit(obj, fldminus);
@@ -1510,28 +1510,28 @@ pui["getCookie"] = function(check_name) {
   var i = "";
 
   for (i = 0; i < a_all_cookies.length; i++) {
-  	// now we'll split apart each name=value pair
-  	a_temp_cookie = a_all_cookies[i].split("=");
+    // now we'll split apart each name=value pair
+    a_temp_cookie = a_all_cookies[i].split("=");
 
-  	// and trim left/right whitespace while we're at it
-  	cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, "");
+    // and trim left/right whitespace while we're at it
+    cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, "");
 
-  	// if the extracted name matches passed check_name
-  	if (cookie_name == check_name)	{
-  		b_cookie_found = true;
-  		// we need to handle case where cookie has no value but exists (no = sign, that is):
-  		if (a_temp_cookie.length > 1)	{
-  			cookie_value = unescape(a_temp_cookie[1].replace(/^\s+|\s+$/g, ""));
-  		}
-  		// note that in cases where cookie is initialized but no value, null is returned
-  		return cookie_value;
-  		break;
-  	}
-  	a_temp_cookie = null;
-  	cookie_name = "";
+    // if the extracted name matches passed check_name
+    if (cookie_name == check_name) {
+      b_cookie_found = true;
+      // we need to handle case where cookie has no value but exists (no = sign, that is):
+      if (a_temp_cookie.length > 1) {
+        cookie_value = unescape(a_temp_cookie[1].replace(/^\s+|\s+$/g, ""));
+      }
+      // note that in cases where cookie is initialized but no value, null is returned
+      return cookie_value;
+      break;
+    }
+    a_temp_cookie = null;
+    cookie_name = "";
   }
   if (!b_cookie_found) {
-  	return null;
+    return null;
   }
 };
 
@@ -1559,9 +1559,9 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite
   var expires_date = new Date(today.getTime() + (expires));
 
   document.cookie = name + "=" + escape(value) +
-		((expires) ? ";expires=" + expires_date.toGMTString() : "") +
-		((path) ? ";path=" + path : "") +
-		((domain) ? ";domain=" + domain : "") +
+    ((expires) ? ";expires=" + expires_date.toGMTString() : "") +
+    ((path) ? ";path=" + path : "") +
+    ((domain) ? ";domain=" + domain : "") +
           ((secure) ? ";secure" : "") +
           (sameSite ? ";SameSite=" + sameSite : "")
   ;
@@ -1571,8 +1571,8 @@ pui["setCookie"] = function(name, value, expires, path, domain, secure, sameSite
 pui["deleteCookie"] = function(name, path, domain, secure, sameSite) {
   if (pui["getCookie"](name)) {
     document.cookie = name + "=" +
-			((path) ? ";path=" + path : "") +
-			((domain) ? ";domain=" + domain : "") +
+      ((path) ? ";path=" + path : "") +
+      ((domain) ? ";domain=" + domain : "") +
           ";expires=Thu, 01-Jan-1970 00:00:01 GMT" +
           (secure ? ";Secure" : "") +
           (sameSite ? ";SameSite=" + sameSite : "");
@@ -1669,11 +1669,10 @@ pui["download"] = function(params) {
   }
 };
 
-
 pui["downloadFile"] = function(params) {
   if (typeof params === "undefined" || params == null || typeof params["id"] !== "string" || params["id"].length < 1) {
-    pui["alert"]("Error downloading file. \n\n No file path given", null, "Error", "Close"); 
-    return;   
+    pui["alert"]("Error downloading file. \n\n No file path given", null, "Error", "Close");
+    return;
   }
   var url = pui["downloadURL"](params);
   var path = params["id"];
@@ -1681,17 +1680,17 @@ pui["downloadFile"] = function(params) {
   ajaxObj["responseType"] = "blob";
   ajaxObj["open"]("GET", url, true);
   ajaxObj["send"]();
-  
-  var dialog = null; 
-  var dialogText = null; 
-  var twoSeconds = 2000; 
+
+  var dialog = null;
+  var dialogText = null;
+  var twoSeconds = 2000;
   var confirmationButton = null;
   var cancelButton = null;
 
   ajaxObj.onprogress = function(e) {
     var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
-    if (path.split('/').pop() != filename && filename == "error.txt" ) {
-      return; 
+    if (path.split("/").pop() != filename && filename == "error.txt") {
+      return;
     }
     if (typeof ajaxObj["onprogress"]["diaglogShown"] === "undefined") {
       ajaxObj["onprogress"]["diaglogShown"] = true;
@@ -1704,7 +1703,7 @@ pui["downloadFile"] = function(params) {
       confirmationButton["onclick"] = function() {
         dialog["close"]();
         dialog["remove"]();
-      }
+      };
       cancelButton = document["createElement"]("button");
       cancelButton["innerHTML"] = "Cancel";
       cancelButton["id"] = "cancelButton";
@@ -1712,7 +1711,7 @@ pui["downloadFile"] = function(params) {
         ajaxObj["abort"]();
         dialog["close"]();
         dialog["remove"]();
-      }
+      };
       dialog["appendChild"](cancelButton);
       dialogText["innerHTML"] = "Downloading file: " + path + "<br> Starting download...";
       dialog["showModal"]();
@@ -1720,35 +1719,34 @@ pui["downloadFile"] = function(params) {
     }
     if (Date.now() > ajaxObj["onprogress"]["lastTime"] + twoSeconds) {
       dialogText["innerHTML"] = "Downloading file: " + path + "<br>" + e["type"] + " " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
-      ajaxObj["onprogress"]["lastTime"]  = Date.now();
+      ajaxObj["onprogress"]["lastTime"] = Date.now();
     }
-   
-  }
+  };
 
   ajaxObj["onloadend"] = function(e) {
     if (dialog != null) {
       dialog["querySelector"]("button[id='cancelButton']")["remove"]();
       dialog["appendChild"](confirmationButton);
-      //dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
+      // dialogText["innerHTML"] = "File " + path + " downloaded successfully <br> " + (e["loaded"] / (1024 * 1024)).toFixed(4) + " mb loaded";
       dialogText["innerHTML"] = "File " + path + " downloaded successfully.";
     }
-  }
+  };
 
   ajaxObj["onreadystatechange"] = function() {
     if (ajaxObj["readyState"] == 4 && ajaxObj["status"] == 200) {
       var filename = pui["extractFileNameFromContentDisposition"](ajaxObj["getResponseHeader"]("Content-Disposition"));
-      
-      if (path.split('/').pop() != filename && filename == "error.txt" ) {
+
+      if (path.split("/").pop() != filename && filename == "error.txt") {
         var errorReader = new FileReader();
         errorReader.onload = function() {
-          pui["alert"]("Error downloading file: " + path + "\n\n" + errorReader.result, null, "Error", "Close"); 
+          pui["alert"]("Error downloading file: " + path + "\n\n" + errorReader.result, null, "Error", "Close");
           console.log(errorReader.result);
-        }
+        };
         errorReader.readAsText(ajaxObj.response);
-        return; 
+        return;
       }
-  
-      var contentType = null; 
+
+      var contentType = null;
       if (typeof params["contentType"] === "string" && params["contentType"].length > 0) {
         contentType = params["contentType"];
       }
@@ -1794,24 +1792,22 @@ pui["downloadFile"] = function(params) {
             }
           }
         }
-
-
       }
 
       var contentTypeArray = ["application/pdf", "text/plain", "text/csv", "application/json", "application/xml", "text/html", "image/jpeg", "image/png", "image/gif"];
-      var blob = new File([ajaxObj["response"]], filename, {type: contentType});
+      var blob = new File([ajaxObj["response"]], filename, { type: contentType });
       var blobUrl = URL["createObjectURL"](blob);
       var a = document.createElement("a");
       if (typeof params["inline"] === "boolean" && params["inline"] && contentTypeArray.includes(contentType)) {
         a.target = "_blank";
-       }
+      }
       else {
-        a["download"] = filename;  
+        a["download"] = filename;
       }
       a.name = filename;
       a.href = blobUrl;
       document.body.appendChild(a);
-  
+
       a.dispatchEvent(
         new MouseEvent("click", {
           bubbles: true,
@@ -1822,23 +1818,19 @@ pui["downloadFile"] = function(params) {
 
       document.body.removeChild(a);
     }
-  }
-
-}
+  };
+};
 
 pui["extractFileNameFromContentDisposition"] = function(contentDisposition) {
-  
   var regex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
   var matches = regex.exec(contentDisposition);
-  if (matches != null && matches[1]) { 
+  if (matches != null && matches[1]) {
     // If the filename is surrounded by quotes, remove them
-    var fileName = matches[1].replace(/['"]/g, '');
+    var fileName = matches[1].replace(/['"]/g, "");
     return fileName;
   }
   return null;
-
-}
-
+};
 
 pui["focusOnContainer"] = function() {
   // Check for cloud embed box and prevent bouncing to the top of the parent page
@@ -2183,7 +2175,12 @@ function runPCCommand(arg) {
     commandList = arg;
   }
 
-  var listener_base_url = "http://localhost:" + (typeof pui["pc listener port"] == "number" ? pui["pc listener port"] : 80) + "/";
+  var listenerPort = parseInt(pui["pc listener port"], 10);
+  if (isNaN(listenerPort)) {
+    listenerPort = "80";
+  }
+
+  var listener_base_url = "http://localhost:" + listenerPort + "/";
   var url_parm_cmdwait = ""; // URL parameters that will get the "cmd" and "wait" components.
   var command;
   var wait;
@@ -2320,15 +2317,15 @@ function runPCCommand(arg) {
       }
 
       if (response == null) {
-        throw "Empty response from PCCMD crypt program.";
+        throw new Error("Empty response from PCCMD crypt program.");
       }
 
       if (response["error"] != null || (typeof response["error"] === "string" && response["error"].length > 0)) {
-        throw "PCCMD crypt error: " + String(response["error"]);
+        throw new Error("PCCMD crypt error: " + String(response["error"]));
       }
 
       if (typeof response["cmd"] !== "string" || response["cmd"].length == 0) {
-        throw "PCCMD crypt response was missing a command.";
+        throw new Error("PCCMD crypt response was missing a command.");
       }
 
       // Load a custom protocol URL in a hidden iframe to trigger the PC command launcher.
@@ -2501,7 +2498,7 @@ function PRESSKEY(key) {
 pui["isServerBusy"] = function() {
   if (typeof context == "undefined") return false; // change password page uses api.js but doesn't set context.
   if ((context == "dspf" && pui.screenIsReady === false) ||
-	     (context == "genie" && pui.genie.formSubmitted === true)) return true;
+       (context == "genie" && pui.genie.formSubmitted === true)) return true;
 
   var frames = document.getElementsByTagName("iframe");
   for (var i = 0; i < frames.length; i++) {
@@ -2510,7 +2507,7 @@ pui["isServerBusy"] = function() {
     var framePui = null;
     // must use try/catch to prevent cross-domain access denied errors
     try {
-		  framePui = frameWin.pui;
+      framePui = frameWin.pui;
     }
     catch (e) {
     }
