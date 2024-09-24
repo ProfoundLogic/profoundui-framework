@@ -1885,7 +1885,10 @@ pui.parseCommaSeparatedList = function(list) {
   var listArray;
   if (list.substr(0, 1) == "[" && list.substr(list.length - 1, 1) == "]") {
     try {
-      listArray = eval(list);
+      definedPhrases = ["Image", "String", "Object", "Array", "Number", "Boolean", "Date", "Function", "RegExp", "Error"];
+      phrase = list.substring(1, list.length - 1);
+      if (definedPhrases.includes(phrase)) listArray = new Array(list);
+      else listArray = eval(list);
     }
     catch (e) {
     }

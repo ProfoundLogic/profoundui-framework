@@ -80,12 +80,13 @@ pui.MenuWidget = function() {
       table.style.borderTop = "1px solid " + bcolor;
       table.style.borderLeft = "1px solid " + bcolor;
     }
-
     for (var i = parms.from; i <= parms.to; i++) {
       if (getLevel(i) != mainLevel) continue;
       var choice = me.choices[i];
-      while (choice.substr(0, 1) == "-") {
-        choice = choice.substr(1);
+      if (typeof choice == "string") {
+        while (choice.substr(0, 1) == "-") {
+          choice = choice.substr(1);
+        }
       }
       var choiceValue = me.choiceValues[i];
       if (choiceValue == null) choiceValue = choice;
