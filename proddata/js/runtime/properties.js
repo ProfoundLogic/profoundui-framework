@@ -1388,7 +1388,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
   if (context == "dspf" && (propConfigName.substr(0, 9) == "css class" || propConfigName == "display attribute field")) {
     if (propConfigName == "display attribute field" && properties["field type"] == "combo box") {
       classes = domObj.className.split(" ");
-    } else {
+    }
+    else {
       var classes = [];
       classes.push(properties["css class"]);
       var clsNum = 2;

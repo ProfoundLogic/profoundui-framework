@@ -2959,13 +2959,16 @@ pui.renderFormat = function(parms) {
             }
             else {
               // Get the widget property using items variable and error[id]
-              var widgetProps = items.find(function(item) { return item.id === error["id"]; });
+              var widgetProps = items.find(function(item) {
+                return item.id === error["id"];
+              });
               // // get the translation Map by building it.
               var translationMapPlaceholder = pui.buildTranslationPlaceholderMap(widgetProps, null, screen, parms["data"], parms["ref"]);
               // // Get the placeholderMap
               if (translationMapPlaceholder.keys && translationMapPlaceholder.keys.length > 0) {
                 error.msg = widgetProps["error message"];
-              } else error.msg = pui.translationMap[errorJSON["transId"]];
+              }
+              else error.msg = pui.translationMap[errorJSON["transId"]];
             }
           }
           else continue;
