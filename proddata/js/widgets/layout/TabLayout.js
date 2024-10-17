@@ -493,51 +493,51 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
         }
         // Check if the input is in the first or last
         changeTab(this, tabId);
-        inputs = getInputs(this)
+        inputs = getInputs(this);
         if (inputs[0]) inputs[0].focus();
         e.preventDefault();
       }
-      else if(this.selectedTab == tabId && e.target.localName != "input"){
+      else if (this.selectedTab == tabId && e.target.localName != "input") {
         if (e.key === "Tab" && e.shiftKey == true) {
           return;
         }
-        else{
+        else {
           var widgets = this.layout.containers[this.selectedTab].childNodes;
           var inputArray = [];
           for (var index = 0; index < widgets.length; index++) {
             var element = widgets[index];
-            if (element.localName == 'input') inputArray.push(element);
+            if (element.localName == "input") inputArray.push(element);
           }
           if (inputArray[0]) inputArray[0].focus();
           e.preventDefault();
         }
       }
       return;
-    case(e.type === "keydown" && e.key === "Tab" && e.shiftKey != true) :
-      position = getInputLocation(this,e);
+    case (e.type === "keydown" && e.key === "Tab" && e.shiftKey != true) :
+      position = getInputLocation(this, e);
       // Change Tab ONLY IF it is the last input
-      if (position == 'last') {
+      if (position == "last") {
         tabId = this.selectedTab + 1;
         if (tabId > 0 && tabId < getMaxTabs(this)) {
           changeTab(this, tabId);
-          inputs = getInputs(this)
-        if (inputs[0]) inputs[0].focus();
+          inputs = getInputs(this);
+          if (inputs[0]) inputs[0].focus();
           e.preventDefault();
         }
       }
       return;
-    case(e.type === "keydown" && e.key === "Tab" && e.shiftKey == true) :
+    case (e.type === "keydown" && e.key === "Tab" && e.shiftKey == true) :
       // Get whether the input is first or last Input.
-      position = getInputLocation(this,e);
+      position = getInputLocation(this, e);
       // Change Tab ONLY IF it is the first input
-      if (position == 'first') {
+      if (position == "first") {
         tabId = this.selectedTab - 1;
         if (tabId < getMaxTabs(this) && tabId >= 0) {
           changeTab(this, tabId);
-          inputs = getInputs(this)
-          // Set the last input 
-          var lastInput = inputs.length;        
-        if (inputs[0]) inputs[lastInput - 1].focus();
+          inputs = getInputs(this);
+          // Set the last input
+          var lastInput = inputs.length;
+          if (inputs[0]) inputs[lastInput - 1].focus();
           e.preventDefault();
         }
         if (tabId < 0) this._headerArea.children[0].children[1].focus();
@@ -552,17 +552,17 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       if (tabId < 0) tabId = maxTabs - 1;
       if (tabId <= maxTabs) {
         changeTab(this, tabId);
-        inputs = getInputs(this)
+        inputs = getInputs(this);
         if (inputs[0]) inputs[0].focus();
       }
       return;
-    case (e.type === "keydown" &&e.key === "2" && e.altKey == true) :
+    case (e.type === "keydown" && e.key === "2" && e.altKey == true) :
       tabId = this.selectedTab + 1;
       maxTabs = getMaxTabs(this);
       if (tabId >= maxTabs) tabId = 0;
       if (tabId <= maxTabs) {
         changeTab(this, tabId);
-        inputs = getInputs(this)
+        inputs = getInputs(this);
         if (inputs[0]) inputs[0].focus();
       }
       return;
@@ -605,7 +605,7 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       e.stopPropagation();
       return;
 
-      case (e.type === "drop"):
+    case (e.type === "drop"):
       e.preventDefault(); // Prevent page from redirecting as link.
       e.stopPropagation();
 
@@ -694,37 +694,37 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
       delete this._dragtabId;
   }
   // Function to check if the input is first or last
-  function getInputLocation(data,e){
+  function getInputLocation(data, e) {
     var elements = getInputs(data);
     var target = e.target;
     if (target == elements[0]) {
-      return 'first'
+      return "first";
     }
     if (target == elements[elements.length - 1]) {
-      return 'last'
+      return "last";
     }
   }
-  function changeTab(data,newTab){
+  function changeTab(data, newTab) {
     data._preValidationSelectedTab = data.selectedTab; // In case validation fails with "tab response", selectedTab will be restored (in TabPanel.js).
     data.selectedTab = newTab;
     data._lastScrollLeft = data._headerArea.scrollLeft;
     data.processTabChange(newTab);
   }
   function getMaxTabs(data) {
-    return data.tabs.length
+    return data.tabs.length;
   }
   // Fetches the Available tab-able elements
   function getInputs(data) {
     var widgets = data.layout.containers[data.selectedTab].childNodes;
-        var inputs = [];
-        for (var index = 0; index < widgets.length; index++) {
-          var element = widgets[index];
-          if ((element.localName == 'input' || element.localName == 'textarea' || element.localName == 'select' || element.localName == 'button') && !element.disabled) {
-            inputs.push(element)
-          }
-        }
-  return inputs;
-}
+    var inputs = [];
+    for (var index = 0; index < widgets.length; index++) {
+      var element = widgets[index];
+      if ((element.localName == "input" || element.localName == "textarea" || element.localName == "select" || element.localName == "button") && !element.disabled) {
+        inputs.push(element);
+      }
+    }
+    return inputs;
+  }
 };
 
 /**

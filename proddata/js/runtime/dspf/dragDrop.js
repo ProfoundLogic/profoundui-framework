@@ -403,6 +403,9 @@ pui.attachDragDrop = function(dom, properties) {
       if (touchEvent) {
         removeEvent(document, "touchmove", mousemove);
         removeEvent(document, "touchend", mouseup);
+      } else if (event["pointerType"]) {
+        removeEvent(document, "pointermove", mousemove);
+        removeEvent(document, "pointerup", mouseup);
       }
       else {
         removeEvent(document, "mousemove", mousemove);
@@ -471,6 +474,9 @@ pui.attachDragDrop = function(dom, properties) {
     if (touchEvent) {
       addEvent(document, "touchmove", mousemove);
       addEvent(document, "touchend", mouseup);
+    } else if (event["pointerType"]) {
+      addEvent(document, "pointermove", mousemove);
+      addEvent(document, "pointerup", mouseup);
     }
     else {
       addEvent(document, "mousemove", mousemove);

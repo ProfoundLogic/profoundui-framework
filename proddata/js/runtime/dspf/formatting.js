@@ -457,7 +457,7 @@ pui.FieldFormat = {
         strValue = obj.value.replace(/\./g, "").replace(/\,/g, ".");
       }
       else {
-        //strValue = obj.value;
+        // strValue = obj.value;
         strValue = String(obj.value !== undefined && obj.value !== null ? obj.value : 0);
       }
 
@@ -714,7 +714,8 @@ pui.FieldFormat = {
       var errorMsg;
       if (pui["getLanguageText"]) {
         errorMsg = pui["getLanguageText"]("runtimeMsg", "invalid number", [obj.value]);
-      } else {
+      }
+      else {
         errorMsg = "Invalid Number";
       }
       if (valid) {
