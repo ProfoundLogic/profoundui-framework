@@ -82,16 +82,11 @@ pui.textArea_cleanUp = function(e) {
     if (pui["is_ie"] && val.length < cursorPos) cursorPos = val.length;
     if (val.substr(cursorPos - 1, 1) == "\n") {
       val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-      cursorPos = cursorPos - 1;
     }
     if (val.substr(cursorPos - 1, 1) == "\r") {
       val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-      cursorPos = cursorPos - 1;
     }
     val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-    if (cursorPos <= lineLengths[0]) {
-      erasingSplitAdjust = 1;
-    }
     cursorPos = cursorPos - 1;
 
     if (e.preventDefault) e.preventDefault();
@@ -168,7 +163,7 @@ pui.textArea_cleanUp = function(e) {
           cursorPos = cursorPos - 1; // Shrink the length by one; \r and \n are not part of the text.
         }
         if (ch == "\n") {
-          if (!skipNextNL && !madeNewLine()) break;
+          if (!skipNextNL && (!erasing || getLineLength(curLine) > 0) && !madeNewLine()) break;
           skipNextNL = false;
         }
       }
@@ -189,10 +184,15 @@ pui.textArea_cleanUp = function(e) {
   if (origCursorPos == len) {
     cursorLine = curLine;
   }
+  // Construct newVal from lines
   var newVal = "";
-  for (var i = 0; i <= curLine; i++) { // Concatenate each line into one string.
+  for (var i = 0; i < lines.length; i++) { // Concatenate each line into one string.
     newVal += lines[i];
-    if (i != curLine) {
+    // Only add a newline if both the current line and the next line have content
+    if (
+      i != curLine &&
+      lines[i + 1] !== undefined
+    ) {
       newVal += "\n";
       // Move cursor past the newline. Don't do for paste, because cursor stays put then. Don't do for special case.
       if (newVal.length - 1 < cursorPos && ename != "paste" && !isLongSpecialCase) {
@@ -200,6 +200,7 @@ pui.textArea_cleanUp = function(e) {
       }
     }
   }
+
   var oldVal = obj.value.replace(/\r/g, "");
   // Prevent more typing if the text lines are filled to capacity.
   if (ename == "keydown" && !obj.controlKeyDown && !(obj.selectionStart !== obj.selectionEnd) && isNormalKey(key)) {
@@ -229,7 +230,7 @@ pui.textArea_cleanUp = function(e) {
     }
     if (key == 8) {
       obj.value = newVal;
-      setSelectionRange(obj, origCursorPos, origCursorPos);
+      setSelectionRange(obj, cursorPos, cursorPos);
     }
   }
   // Set a new set of rules for the textarea value without related fields.
@@ -378,6 +379,8 @@ pui.textArea_cleanUp = function(e) {
       if (ch == "\n" || ch == " ") {
         if (startpos < i) {
           words.push(val.substring(startpos, i)); // There was a previous word; queue it.
+        } else if (ch == "\n") {
+          words.push("");
         }
         startpos = i + 1; // The next word starts after this position.
         words.push(ch); // The space is a word.
@@ -392,7 +395,6 @@ pui.textArea_cleanUp = function(e) {
       // Note: '\n' are added to textarea.value to cause wrapping, potentially splitting big words.
       for (var i = 0; i < words.length; i++) {
         var lineLength = lineLengths[0];
-        lineLength -= erasingSplitAdjust; // Erasing a character would shorten the line, but a big word would still fill the first line. Wrap back.
         erasingSplitAdjust = 0; // Only adjust for first line.
         if (words.length > i + 2) {
           // If this word fills a line, and the next word is not space, then merge the next word into this one.
@@ -418,130 +420,76 @@ pui.textArea_cleanUp = function(e) {
     // Look at each word. Populate the model of fields with the words. Wrap when necessary.
     while (words.length > 0) {
       if (words[0] == "\n") {
-        // Make a new line.
+        // Handle newlines
         if (!skipNextNL) {
-          if (!madeNewLine()) break;
-          atStartOfLine = true;
+          if (!madeNewLine()) break; // Adjusted to handle the new return value
         }
         skipNextNL = false;
+        words.shift();
         if (charAddCount < cursorPos) {
           cursorPos--;
         }
-        words.shift();
       }
       else if (words[0] == " ") {
+        // Handle spaces
         var lineHasRoom = getLineLength(curLine) < lineLengths[curLine];
-        if (!lineHasRoom) { // Make a new line if no room is left on the current line.
-          // The space is ignored (when pasting), but a new line is begun.
+        if (!lineHasRoom) {
           if (!madeNewLine()) break;
           if (!erasing && !pasting) skipNextNL = true;
           atStartOfLine = true;
         }
         if ((lineHasRoom || !pasting) && words[1] !== "\n") {
-          // There is room left on the current line or not pasting; add the space.
-          // The space goes either on the end of the line where there's room or beginning of next line.
           lines[curLine] += " ";
           atStartOfLine = false;
         }
         else if (lineHasRoom && words[1] == "\n") {
           madeNewLine();
         }
-
         charAddCount++;
         words.shift();
       }
-      // The word is more than one whitespace character.
       else {
         var curLineLength = getLineLength(curLine);
-        // First, check to see if the text would result in merged words after submitting the screen. Try to help the user avoid that
-        // by moving words to next lines and adding spaces. Otherwise, do wrapping.
-
-        // Word is at end of line and would collide with word on next line after submitting screen.
-        if (!pasting && curLineLength + words[0].length == lineLengths[curLine] && words.length >= 3 && words[1] == "\n" && words[2] != " ") {
-          if (!madeNewLine()) break;
-          skipNextNL = true; // Note: skip even when Del/Bksp, because deleting space at beginning of line would add unnecessary new line.
-          atStartOfLine = true;
-
-          var word = words.shift();
-          words.splice(1, 0, word, " "); // Move the word to after the '\n' to be with that word. Also add a space.
-
-          if (charAddCount < cursorPos && !erasing) {
-            cursorPos++;
-          }
-        }
-        // Word is 1 char from end of line and would collide with word on next line if next ch typed is not a space, and the end space is not being deleted/backspaced.
-        else if (!pasting && curLineLength + words[0].length == lineLengths[curLine] - 1 && words.length >= 3 && words[1] == "\n" && words[2] != " " &&
-        (!erasing || charAddCount >= cursorPos)) {
-          words.splice(1, 0, " "); // Add space.
-        }
-        // Room is available.
-        else if (curLineLength + words[0].length <= lineLengths[curLine]) {
-          // Create a new line if the next word is \n and the word is at the end of the line.
-          if (words[1] == "\n" && !erasing) {
-            skipNextNL = false;
-            atStartOfLine = true;
-          }
-          else {
-            // Add the word to the line
-            lines[curLine] += words[0];
-            atStartOfLine = false;
-          }
-          charAddCount += words[0].length;
+        var wordLength = words[0].length;
+        var lineLimit = lineLengths[curLine];
+        // Handle words
+        if (curLineLength + wordLength <= lineLimit) {
+          // Word fits on the current line
+          lines[curLine] += words[0];
+          atStartOfLine = false;
+          charAddCount += wordLength;
           words.shift();
         }
         else {
-          // Special case: word is larger than the line, so write it to 'lines' all at once.
-          if (atStartOfLine) {
-            var bigword = words.shift();
-            var splitat = 0;
-            while (splitat < bigword.length) {
-              curLineLength = getLineLength(curLine);
-              roomonline = lineLengths[curLine] - curLineLength;
-              lines[curLine] += bigword.substr(splitat, roomonline);
-              splitat += roomonline;
-              if (splitat >= bigword.length) { // Big word is finished, so stop this loop. Keep looking at word queue.
-                break;
-              }
-              else if (!madeNewLine()) {
-                words = []; // Stops the outside loop because no more lines and we've added as many characters as would fit.
-                break;
-              }
-              atStartOfLine = true;
-            }
-
-            if (!pasting) skipNextNL = true;
-            isLongSpecialCase = true;
-          }
-          else { // Start a new line. The next loop iteration will handle the word.
+          // Word doesn't fit on the current line
+          if (erasing && curLineLength + wordLength <= lineLimit) {
+            // During erasing, if the word fits on the current line, keep it here
+            lines[curLine] += words[0];
+            atStartOfLine = false;
+            charAddCount += wordLength;
+            words.shift();
+          } else if (wordLength <= lineLimit) {
+            // Word fits on the next line
             if (!madeNewLine()) {
-              // There are no more lines. Add as many characters as will fit.
-              if (pasting) {
-                roomonline = lineLengths[curLine] - curLineLength;
-                lines[curLine] += words[0].substr(0, roomonline);
-              }
+              // No more lines
               break;
             }
-            if (!erasing) skipNextNL = true;
-            if (erasing && obj.related != null) skipNextNL = true;
-            // There should be a space between the wrapped word and the next.
-            if (words.length >= 3 && words[1] == "\n") { // Word is at end of line.
-              if (words[2] != " ") { // Word on next line is not a space.
-                words.splice(1, 0, " "); // Add a space after the current word.
-                skipNextNL = true; // words[2] is usually also \n, so on Del/Bksp, the NL should be skipped to avoid losing lines.
-              }
-              else {
-                skipNextNL = true; // Prevent losing the next line.
-              }
-            }
-
-            atStartOfLine = true;
+            lines[curLine] += words[0];
+            atStartOfLine = false;
+            charAddCount += wordLength;
+            words.shift();
+          } else {
+            // Word is longer than line length, need to split it
+            var spaceLeft = lineLimit - curLineLength;
+            lines[curLine] += words[0].substr(0, spaceLeft);
+            words[0] = words[0].substr(spaceLeft);
+            charAddCount += spaceLeft;
           }
         }
       }
     }
-
     if (ename == "paste") cursorPos = origCursorPos; // cursor stays put for paste.
-  } // done wrapwords().
+  } // end wrapwords()
 }; // end of pui.textArea_cleanUp().
 
 pui.widgets.add({
