@@ -34,7 +34,7 @@ var usedIds = new Object();
 if (context == "genie" && window.parent == window) window.history.forward(1);
 
 // setup pui name space
-window.pui = {};
+if (typeof window.pui !== "object") window.pui = {};
 (function() {
   var agt = navigator.userAgent.toLowerCase();
 
