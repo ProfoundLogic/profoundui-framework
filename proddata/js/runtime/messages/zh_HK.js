@@ -20,6 +20,7 @@
 // ----------------------------------
 //  Chinese (Traditional) - Hong Kong
 // ----------------------------------
+// eslint-disable-next-line no-unused-vars
 var zh_HK = function(dict) {
   var dictMsg = {};
 

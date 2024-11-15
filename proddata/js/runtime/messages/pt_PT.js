@@ -20,6 +20,7 @@
 // ----------------------------------
 //  Portuguese (Portugal)
 // ----------------------------------
+// eslint-disable-next-line no-unused-vars
 var pt_PT = function(dict) {
   var dictMsg = {};
 

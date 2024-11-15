@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-if (!window["Atrium"]) window["Atrium"] = new Object();
+if (!window["Atrium"]) window["Atrium"] = {};
 
 Atrium["launchURL"] = function(url, title, closable) {
   var awin = Atrium["getAtriumWindow"]();

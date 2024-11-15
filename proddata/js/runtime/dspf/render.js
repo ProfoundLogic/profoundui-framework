@@ -215,6 +215,8 @@ pui.protectFormat = function(format) {
 };
 
 pui.doClearLine = function(clearLine, format, oRange, startingLine) {
+  var i; // loop iterator
+  var itm;
   var clearFrom, clearTo;
   var rangeFrom, rangeTo;
 
@@ -253,8 +255,8 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
 
   var gridToHide = null;
   var items = format["metaData"]["items"];
-  for (var i = 0; i < items.length; i++) {
-    var itm = items[i];
+  for (i = 0; i < items.length; i++) {
+    itm = items[i];
     var row = itm["cursor row"];
     if (row != null && row != "") {
       row = parseInt(row);
@@ -275,8 +277,8 @@ pui.doClearLine = function(clearLine, format, oRange, startingLine) {
     }
   }
   if (gridToHide != null) {
-    for (var i = 0; i < items.length; i++) {
-      var itm = items[i];
+    for (i = 0; i < items.length; i++) {
+      itm = items[i];
       if (itm["field type"] == "grid" && itm["id"] == gridToHide) {
         itm["visibility"] = "hidden";
       }
@@ -313,6 +315,13 @@ pui.rangeOverlap = function(range1, range2) {
 // determine if record formats below subfiles need to be pushed down and by how much
 // also handle "clear line" property
 pui.overlayAdjust = function(formats) {
+  var oRange;
+  var oRangeArr;
+  var format;
+  var i; // loop iterator
+  var j; // loop iterator
+  var itm;
+  var items;
   function isValueInMultOccurProperty(value, obj, baseProp) {
     var name = baseProp;
     var i = 1;
@@ -330,18 +339,18 @@ pui.overlayAdjust = function(formats) {
   var oHigh = null;
   var oGrid = null;
   if (formats.length > 1) {
-    for (var i = 0; i < formats.length; i++) {
-      var format = formats[i];
+    for (i = 0; i < formats.length; i++) {
+      format = formats[i];
       var protect = (pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true");
       if (protect) {
         // protect all formats that come before this one
-        for (var j = 0; j < i; j++) {
+        for (j = 0; j < i; j++) {
           pui.protectFormat(formats[j]);
         }
       }
       var clearLine = format["metaData"]["screen"]["clear line"];
       if (clearLine != null && clearLine != "") {
-        var oRange = format["metaData"]["screen"]["overlay range"];
+        oRange = format["metaData"]["screen"]["overlay range"];
         var startingLine = format["metaData"]["screen"]["starting line"];
         if (startingLine == null) {
           if (oRange != null) startingLine = oRange.split("-")[0];
@@ -350,9 +359,9 @@ pui.overlayAdjust = function(formats) {
         startingLine = parseInt(startingLine);
         if (isNaN(startingLine) || startingLine < 1) startingLine = 1;
         var isInputCapableFormat = false;
-        var items = format["metaData"]["items"];
+        items = format["metaData"]["items"];
         for (var x = 0; x < items.length; x++) {
-          var itm = items[x];
+          itm = items[x];
           var type = itm["field type"];
           if (type == "checkbox" || type == "combo box" || type == "date field" || type == "password field" || type == "radio button" || type == "select box" || type == "spinner" | type == "text area" || type == "textbox") {
             isInputCapableFormat = true;
@@ -369,14 +378,14 @@ pui.overlayAdjust = function(formats) {
         }
       }
       if (format["subfiles"] != null) {
-        var oRange = format["metaData"]["screen"]["overlay range"];
+        oRange = format["metaData"]["screen"]["overlay range"];
         if (oRange != null) {
-          var oRangeArr = oRange.split("-");
+          oRangeArr = oRange.split("-");
           if (oRangeArr.length == 2) {
             oHigh = Number(oRangeArr[1]);
-            var items = format["metaData"]["items"];
-            for (var j = 0; j < items.length; j++) {
-              var itm = items[j];
+            items = format["metaData"]["items"];
+            for (j = 0; j < items.length; j++) {
+              itm = items[j];
               if (itm["field type"] == "grid") {
                 oGrid = itm;
                 break;
@@ -388,11 +397,11 @@ pui.overlayAdjust = function(formats) {
     }
   }
   if (oHigh != null && !isNaN(oHigh) && oGrid != null) {
-    for (var i = 0; i < formats.length; i++) {
-      var format = formats[i];
-      var oRange = format["metaData"]["screen"]["overlay range"];
+    for (i = 0; i < formats.length; i++) {
+      format = formats[i];
+      oRange = format["metaData"]["screen"]["overlay range"];
       if (oRange != null) {
-        var oRangeArr = oRange.split("-");
+        oRangeArr = oRange.split("-");
         if (oRangeArr.length == 2) {
           var oLow = Number(oRangeArr[0]);
           if (!isNaN(oLow) && oLow > oHigh) { // overlay range low of this format is higher than the overlow range high of the subfile control format
@@ -419,9 +428,9 @@ pui.overlayAdjust = function(formats) {
             if (p3 != null && p3 != "" && p3 != "false") hasPagingBar = true;
             if (hasPagingBar) pushDown += pui.pagingBarHeight;
             if (pushDown <= 0) break;
-            var items = format["metaData"]["items"];
-            for (var j = 0; j < items.length; j++) {
-              var itm = items[j];
+            items = format["metaData"]["items"];
+            for (j = 0; j < items.length; j++) {
+              itm = items[j];
               if (itm["grid"] != null) continue;
               var itmType = itm["field type"];
               if (itmType != "panel" && itmType != "css panel" && !pui.isBound(itm["top"]) && !isValueInMultOccurProperty("stationary", itm, "css class")) {
@@ -436,13 +445,14 @@ pui.overlayAdjust = function(formats) {
 };
 
 pui.cleanup = function() {
+  var i; // loop iterator
   pui.dummyBox = null;
 
   if (pui.oldRenderParms != null && pui.isPreview != true) {
     if (pui.oldRenderParms["layers"]) {
       for (var j = 0; j < pui.oldRenderParms["layers"].length; j++) {
         var layer = pui.oldRenderParms["layers"][j];
-        for (var i = 0; i < layer.formats.length; i++) {
+        for (i = 0; i < layer.formats.length; i++) {
           var format = layer.formats[i];
           if (format.data) delete format.data;
           if (format.metaData) delete format.metaData;
@@ -459,20 +469,20 @@ pui.cleanup = function() {
     delete pui.oldRenderParms;
   }
 
-  for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+  for (i = 0; i < pui.gridsDisplayed.length; i++) {
     var grid = pui.gridsDisplayed[i];
     if (grid != null && typeof grid.destroy == "function") grid.destroy();
   }
   pui.gridsDisplayed = [];
 
-  for (var i = 0; i < pui.layoutsDisplayed.length; i++) {
+  for (i = 0; i < pui.layoutsDisplayed.length; i++) {
     var layout = pui.layoutsDisplayed[i];
     if (layout != null && typeof layout.destroy == "function") layout.destroy();
   }
   pui.layoutsDisplayed = [];
 
   if (typeof FusionCharts != "undefined") {
-    for (var i = 0; i < pui.chartsRendered.length; i++) {
+    for (i = 0; i < pui.chartsRendered.length; i++) {
       if (FusionCharts(pui.chartsRendered[i])) {
         FusionCharts(pui.chartsRendered[i]).dispose();
       }
@@ -480,13 +490,13 @@ pui.cleanup = function() {
   }
   pui.chartsRendered = [];
 
-  for (var i = 0; i < pui.widgetsToCleanup.length; i++) {
+  for (i = 0; i < pui.widgetsToCleanup.length; i++) {
     var widget = pui.widgetsToCleanup[i];
     if (widget != null && typeof widget.destroy == "function") widget.destroy();
   }
   pui.widgetsToCleanup = [];
 
-  for (var i = 0; i < pui.screenEventsToCleanup.length; i++) {
+  for (i = 0; i < pui.screenEventsToCleanup.length; i++) {
     var screenEvent = pui.screenEventsToCleanup[i];
     removeEvent(screenEvent.eventObj, screenEvent.eventName, screenEvent.eventFunc);
   }
@@ -529,6 +539,10 @@ pui.popstate = function(e) {
 };
 
 pui.render = function(parms) {
+  var prop;
+  var i; // loop iterator
+  var j; // loop iterator
+  var format;
   if (pui.recordTest) pui.record(parms);
   pui.clientLogic = parms.clientLogic;
 
@@ -666,7 +680,7 @@ pui.render = function(parms) {
   if (!parms["message"]) pui["layers"] = parms["layers"];
   if (parms["ctrlJob"] != null) {
     if (pui["ctrlJob"] == null) pui["ctrlJob"] = {};
-    for (var prop in parms["ctrlJob"]) {
+    for (prop in parms["ctrlJob"]) {
       pui["ctrlJob"][prop] = parms["ctrlJob"][prop];
     }
   }
@@ -723,7 +737,7 @@ pui.render = function(parms) {
   }
 
   if (parms["message"]) {
-    var format = parms["message"]["format"].toLowerCase();
+    format = parms["message"]["format"].toLowerCase();
     pui["message"] = parms["message"]["message"];
     pui.resetResponseValues();
     pui.hideWaitAnimation();
@@ -783,7 +797,7 @@ pui.render = function(parms) {
 
   var layers = parms["layers"];
 
-  for (var i = 0; i < layers.length; i++) {
+  for (i = 0; i < layers.length; i++) {
     pui.overlayAdjust(layers[i].formats);
   }
 
@@ -791,7 +805,7 @@ pui.render = function(parms) {
   if (layers.length > 0) {
     var layer = layers[layers.length - 1];
     if (layer.formats.length > 0) {
-      var format = layer.formats[layer.formats.length - 1];
+      format = layer.formats[layer.formats.length - 1];
       if (pui.originalTitle == null) pui.originalTitle = document.title;
       var newTitle = pui.evalBoundProperty(format.metaData.screen["document title"], format.data, format.ref);
       if (newTitle != null && newTitle != "") {
@@ -824,7 +838,7 @@ pui.render = function(parms) {
 
   pui.windowStack = [];
 
-  for (var i = 0; i < layers.length; i++) {
+  for (i = 0; i < layers.length; i++) {
     pui.responseElements = {};
     pui.changeResponseElements = {};
     pui.isBlankElements = {};
@@ -910,7 +924,7 @@ pui.render = function(parms) {
         var winRef = formats[0]["metaData"]["screen"]["window reference"];
         if (winRef != null && winRef != "" && layers[i]["metaData"] != null) {
           var refItems = layers[i]["metaData"]["items"];
-          for (var j = 0; j < refItems.length; j++) {
+          for (j = 0; j < refItems.length; j++) {
             var panel = refItems[j];
             if (panel["id"] == winRef && (panel["field type"] == "panel" || panel["field type"] == "css panel")) {
               formats[0]["metaData"]["items"].push(panel);
@@ -925,8 +939,8 @@ pui.render = function(parms) {
 
     var lastLayer = (i == layers.length - 1);
     pui.currentFormatNames = [];
-    for (var j = 0; j < formats.length; j++) {
-      var format = formats[j];
+    for (j = 0; j < formats.length; j++) {
+      format = formats[j];
       format.container = parms.container;
       if (lastLayer) {
         format.lastLayer = true;
@@ -1050,6 +1064,22 @@ pui.setupGridsDisplayedScrollBar = function() {
  * @returns {undefined}
  */
 pui.renderFormat = function(parms) {
+  var propname;
+  var msg;
+  var designItem;
+  var wfData;
+  var propValue;
+  var dateISO;
+  var gridDom;
+  var cls;
+  var boxDom;
+  var box;
+  var shortcutKey;
+  var suffix;
+  var fieldType;
+  var fieldName;
+  var top;
+  var errors;
   var time = timer();
   // retrieve parameters
   var isDesignMode = parms.designMode;
@@ -1070,13 +1100,13 @@ pui.renderFormat = function(parms) {
   var isMainFormat = parms.rowNum == null && parms.lazyContainerNum == null;
 
   if (pui["controller"] != null && screenProperties != null) {
-    var suffix = "";
+    suffix = "";
     var cnt = 1;
-    var propname = "error condition";
+    propname = "error condition";
     while (screenProperties[propname + suffix]) {
       var condition = pui.evalBoundProperty(screenProperties[propname + suffix], data);
       if (condition == "1") {
-        var msg = pui.evalBoundProperty(screenProperties["error message" + suffix], data);
+        msg = pui.evalBoundProperty(screenProperties["error message" + suffix], data);
         ctlErrors.push({ "msg": msg });
         break;
       }
@@ -1178,14 +1208,14 @@ pui.renderFormat = function(parms) {
     if (designer.currentScreen.name == null || designer.currentScreen.name == "") {
       designer.currentScreen.name = "[Unnamed Screen]";
     }
-    for (var propname in screenProperties) {
-      var propValue = screenProperties[propname];
+    for (propname in screenProperties) {
+      propValue = screenProperties[propname];
       designer.screenProperties[designer.currentScreen.screenId][propname] = propValue;
       designer.screenPropertiesChanged[designer.currentScreen.screenId][propname] = true;
 
       if (pui.wf.tracker && pui.isRoutine(propValue)) {
         if (isDesignMode) {
-          var wfData = {};
+          wfData = {};
           if (parms.keepRoutines) wfData = null;
           if (pui.display && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
             wfData = pui.display.logic[propValue.routine];
@@ -1248,7 +1278,7 @@ pui.renderFormat = function(parms) {
     }
 
     if (!isDesignMode && parms.rowNum != null && items[i]["field type"] == "output field" && items[i]["visibility"] == "hidden") {
-      var top = parseInt(items[i]["top"]);
+      top = parseInt(items[i]["top"]);
       var left = parseInt(items[i]["left"]);
       if (!isNaN(top) && top < 0 && !isNaN(left) && left < 0) {
         // don't render subfile hidden fields - this improves performance
@@ -1285,7 +1315,7 @@ pui.renderFormat = function(parms) {
     var gridId = items[i].grid;
     var layoutId = items[i]["layout"];
     if (gridId != null) { // item belongs to a grid. Note: in parms.items, grid must come before its items; else, item won't render in grid.
-      var gridDom = getObj(gridId);
+      gridDom = getObj(gridId);
       if (gridDom != null) {
         gridObj = gridDom.grid;
         var colNum = Number(items[i].column);
@@ -1305,7 +1335,7 @@ pui.renderFormat = function(parms) {
           }
 
           // Resolve translations.
-          var msg = "";
+          msg = "";
           msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
 
           if (msg != "") {
@@ -1363,7 +1393,7 @@ pui.renderFormat = function(parms) {
         if (dom.calimg != null) {
           container.appendChild(dom.calimg);
           if (dom.calimg.needsToBeMoved) {
-        	  pui.moveCal(dom);
+            pui.moveCal(dom);
           }
           if (dom.calimg.redisplay) {
             dom.calimg.style.display = "";
@@ -1420,13 +1450,13 @@ pui.renderFormat = function(parms) {
 
       // create design item object if in design mode
       var properties = {};
-      var designItem = null;
+      designItem = null;
       if (isDesignMode) {
-        var designItem = designer.addItem(dom, true);
+        designItem = designer.addItem(dom, true);
         designItem.properties = properties;
         designItem.properties.newitem = "true";
         designItem.propertiesChanged.newitem = true;
-        var fieldType = items[i]["field type"];
+        fieldType = items[i]["field type"];
         if (fieldType == "styled button" || fieldType == "panel" || fieldType == "css panel" || fieldType == "css button" || fieldType == "Layout") {
           designItem.dom.style.borderStyle = "none";
         }
@@ -1438,12 +1468,12 @@ pui.renderFormat = function(parms) {
       for (var prop in items[i]) {
         if (prop == "domEls") continue;
 
-        var propValue = items[i][prop];
+        propValue = items[i][prop];
         var newValue;
 
         if (pui.wf.tracker && pui.isRoutine(propValue)) {
           if (isDesignMode) {
-            var wfData = {};
+            wfData = {};
             if (parms.keepRoutines) wfData = null;
             if (pui.display && typeof pui.display === "object" && typeof pui.display.logic === "object" && typeof pui.display.logic[propValue.routine] === "object") {
               wfData = pui.display.logic[propValue.routine];
@@ -1505,7 +1535,6 @@ pui.renderFormat = function(parms) {
               // normalize range low/high for date data type
               if ((prop == "range low" || prop == "range high") && propValue.dataType == "date") {
                 var dateFormatSave = propValue.dateFormat;
-                var dateISO;
 
                 propValue.dateFormat = "Y-m-d"; // convert to *ISO format YYYY-DD-DD
                 dateISO = pui.evalBoundProperty(propValue, data, parms.ref);
@@ -1599,7 +1628,6 @@ pui.renderFormat = function(parms) {
           if ((prop == "range low" || prop == "range high") && items[i].value && items[i].value.dataType == "date") {
             var dateFieldValue = items[i].value;
             var formattingObjTemp = {};
-            var dateISO;
 
             // dummy up an object to pass to pui.FieldFormat.format() to convert to *ISO
             // this formattingObjTemp has no keyword, so the "To-Format" would be *ISO
@@ -1638,7 +1666,7 @@ pui.renderFormat = function(parms) {
             case "blank option label":
             case "names":
               var gridTranslationPlaceholderMap = null;
-              var gridDom = getObj(items[i].grid);
+              gridDom = getObj(items[i].grid);
               if (gridDom != null) {
                 gridTranslationPlaceholderMap = gridDom.grid.translationPlaceholderMap;
                 if (gridTranslationPlaceholderMap != null) {
@@ -1678,12 +1706,12 @@ pui.renderFormat = function(parms) {
       }
 
       // apply all properties
-      for (var propname in properties) {
+      for (propname in properties) {
         var propConfig;
         if (dom.propertiesNamedModel == null) propConfig = pui.getPropConfig(namedModel, propname);
         else propConfig = pui.getPropConfig(dom.propertiesNamedModel, propname);
         if (propConfig != null) {
-          var propValue = properties[propname];
+          propValue = properties[propname];
 
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
@@ -1755,7 +1783,7 @@ pui.renderFormat = function(parms) {
                 }
               }
 
-              var fieldName, qualField;
+              var qualField;
               if (propname == "changed") {
                 setFieldNameAndQualField();
                 if (pui.changeResponseElements[qualField] == null) pui.changeResponseElements[qualField] = [];
@@ -1863,15 +1891,15 @@ pui.renderFormat = function(parms) {
                   dom.responseValue = "";
                 }
                 if (propname == "tab response") {
-                  var cls = dom.tabPanel;
+                  cls = dom.tabPanel;
                   if (cls) cls.sendTabResponse = true;
                 }
                 if (propname == "active tab") {
-                  var cls = dom.tabPanel;
+                  cls = dom.tabPanel;
                   if (cls) cls.sendActiveTab = true;
                 }
                 if (propname == "response") {
-                  var shortcutKey = properties["shortcut key"];
+                  shortcutKey = properties["shortcut key"];
                   if (shortcutKey != null && shortcutKey != "") {
                     if (pui.keyMap[formatName] == null) pui.keyMap[formatName] = {};
                     if (pui.keyMap[formatName][shortcutKey] == null) pui.keyMap[formatName][shortcutKey] = [];
@@ -1981,7 +2009,7 @@ pui.renderFormat = function(parms) {
             }
             if (propname == "focus class" && !pui.isBound(propValue) && trim(propValue) != "") {
               if (dom["pui"]["properties"]["field type"] === "combo box") {
-                var box = dom.comboBoxWidget.getBox();
+                box = dom.comboBoxWidget.getBox();
                 box.focusClass = trim(propValue);
                 addEvent(box, "focus", pui.applyFocusClass);
                 addEvent(box, "blur", pui.removeFocusClass);
@@ -2009,7 +2037,7 @@ pui.renderFormat = function(parms) {
               dom.allowBlanks = true;
             }
             if (propname == "auto advance" && propValue == "true") {
-              var boxDom = dom;
+              boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
               if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
               boxDom.autoAdvance = true;
@@ -2030,7 +2058,7 @@ pui.renderFormat = function(parms) {
               allowFieldExit = true;
             }
             if (allowFieldExit == true) {
-              var boxDom = dom;
+              boxDom = dom;
               if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
               if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
               if (pui.isBound(items[i]["value"]) && items[i]["value"]["rjZeroFill"] == "true") {
@@ -2067,7 +2095,7 @@ pui.renderFormat = function(parms) {
             if (propname.length >= 11 && propname.substr(0, 11) == "blank value" && propValue != null && propValue != "") {
               if (dom.blankValues == null) dom.blankValues = [];
               dom.blankValues.push(propValue);
-              var box = dom;
+              box = dom;
               if (dom.floatingPlaceholder != null) box = dom.floatingPlaceholder.getBox();
               if (dom.comboBoxWidget != null) box = dom.comboBoxWidget.getBox();
               var boxValue;
@@ -2126,7 +2154,7 @@ pui.renderFormat = function(parms) {
               }
               else {
                 if (properties["visibility"] != "hidden") {
-                  var shortcutKey = properties["shortcut key"];
+                  shortcutKey = properties["shortcut key"];
                   if (pui.autoArrange.keys[shortcutKey] == true) {
                     // repeat fkeys do not render
                     dom.style.display = "none";
@@ -2137,7 +2165,7 @@ pui.renderFormat = function(parms) {
                       pui.autoArrange.keys[shortcutKey] = true;
                     }
                     if (isWin || pui["horizontal auto arrange"]) {
-					  if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
+                      if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
                       if (pui.autoArrange.left == null) {
                         pui.autoArrange.left = parseInt(dom.style.left);
                         pui.autoArrange.startLeft = parseInt(dom.style.left);
@@ -2170,10 +2198,10 @@ pui.renderFormat = function(parms) {
                             pui.autoArrange.left += pui["horizontal button spacing"];
                           }
                         }
-					 }
+                      }
                       dom.style.left = pui.autoArrange.left + "px";
                       pui.autoArrange.prevTop = parseInt(dom.style.top);
-					  if (pui["horizontal auto arrange"]) dom.style.top = pui.autoArrange.top + "px";
+                      if (pui["horizontal auto arrange"]) dom.style.top = pui.autoArrange.top + "px";
                     }
                     else {
                       if (pui.autoArrange.top == null) pui.autoArrange.top = parseInt(dom.style.top);
@@ -2212,11 +2240,11 @@ pui.renderFormat = function(parms) {
         }
 
         if (pui["controller"] != null && propname.indexOf("error condition") == 0 && propValue == "1" && !ctlErrorMap[dom.id]) {
-          var suffix = "";
+          suffix = "";
           if (propname.length > "error condition".length) {
             suffix = " " + parseInt(propname.substr("error condition".length), 10);
           }
-          var msg = properties["error message" + suffix];
+          msg = properties["error message" + suffix];
           ctlErrors.push({ "id": dom.id, "msg": msg });
           ctlErrorMap[dom.id] = true;
         }
@@ -2230,7 +2258,7 @@ pui.renderFormat = function(parms) {
       // assign auto tabbing events to input boxes
       if (pui["auto tab"] == true && properties["prevent auto tab"] != "true") {
         if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field") {
-          var boxDom = dom;
+          boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           addEvent(boxDom, "keyup", function(event) {
@@ -2258,7 +2286,7 @@ pui.renderFormat = function(parms) {
       // assign arrow key navigation events to input boxes
       if (pui["enable arrow keys"] == true) {
         if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field" || properties["field type"] == "checkbox") {
-          var boxDom = dom;
+          boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           pui.addarrowKeyEventHandler(boxDom);
@@ -2267,7 +2295,7 @@ pui.renderFormat = function(parms) {
 
       if (strictTabControl) {
         if (properties["field type"] == "combo box" || properties["field type"] == "date field" || properties["field type"] == "spinner" || properties["field type"] == "textbox" || properties["field type"] == "password field" || properties["field type"] == "checkbox") {
-          var boxDom = dom;
+          boxDom = dom;
           if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
           if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
           addEvent(boxDom, "keydown", function(event) {
@@ -2294,7 +2322,7 @@ pui.renderFormat = function(parms) {
         var myGrid = getObj(items[i]["grid"]).grid;
         if (myGrid.hasTreeLevelColumn && myGrid.treeLevelField !== null &&
             items[i]["id"] == (items[i]["grid"] + myGrid.treeLevelItemId)) { // button to expand/collapse tree levels
-          var boxDom = dom;
+          boxDom = dom;
           boxDom["pui"]["rrn"] = parms.subfileRow;
           boxDom["pui"]["grid"] = items[i]["grid"];
           addEvent(boxDom, "keydown", function(event) {
@@ -2383,7 +2411,7 @@ pui.renderFormat = function(parms) {
 
         // textboxes and text areas
         if ((dom.comboBoxWidget != null) || (dom.floatingPlaceholder != null) || (dom.tagName == "TEXTAREA") || (dom.tagName == "INPUT" && (pui.isTextbox(dom) || dom.type == "file"))) {
-          var boxDom = dom;
+          boxDom = dom;
           if (dom.comboBoxWidget != null) {
             dom.comboBoxWidget.formatName = formatName;
             boxDom = dom.comboBoxWidget.getBox();
@@ -2642,7 +2670,7 @@ pui.renderFormat = function(parms) {
       }
 
       // call widget's initialize function
-      var fieldType = properties["field type"];
+      fieldType = properties["field type"];
       if (fieldType != null) {
         var widget = pui.widgets[fieldType];
         if (widget != null && widget.initialize != null) {
@@ -2679,7 +2707,6 @@ pui.renderFormat = function(parms) {
         var subfileData;
         var fieldNames;
         var ref;
-        var errors;
         var recName = pui.formatUpper(properties["record format name"]);
         if (subfiles != null) subfile = subfiles[recName];
         if (subfile != null) subfileData = subfile.data;
@@ -2717,7 +2744,7 @@ pui.renderFormat = function(parms) {
           fieldNames = [];
           var dataArray = [];
           var fieldNamesObj = {};
-          for (var j = 0; j < items.length; j++) {
+          for (j = 0; j < items.length; j++) {
             var gridItem = items[j];
             if (gridItem["grid"] === properties.id) {
               for (var gridItemProp in gridItem) {
@@ -2730,11 +2757,11 @@ pui.renderFormat = function(parms) {
           }
           fieldNames = Object.keys(fieldNamesObj);
 
-          for (var j = 0; j < subfileData.length; j++) {
+          for (j = 0; j < subfileData.length; j++) {
             var entry = [];
             var record = subfileData[j];
             for (var k = 0; k < fieldNames.length; k++) {
-              var fieldName = fieldNames[k];
+              fieldName = fieldNames[k];
               entry.push(record[fieldName]);
             }
             dataArray.push(entry);
@@ -2915,7 +2942,7 @@ pui.renderFormat = function(parms) {
       var cell = container;
       var height = parseInt(cell.style.height);
       if (!isNaN(height)) {
-        var top = parseInt(dom.style.top);
+        top = parseInt(dom.style.top);
         if (isNaN(top)) top = 0;
         if (top > height && (dom.tagName == "INPUT" || dom.tagName == "SELECT" || dom.tagName == "TEXTAREA") && !dom.disabled) {
           dom.reenableOnExpand = true;
@@ -2931,7 +2958,6 @@ pui.renderFormat = function(parms) {
 
   // process server side errors for this format
   if (!isDesignMode) {
-    var errors;
     if (pui["controller"] != null && ctlErrors.length > 0) {
       errors = ctlErrors;
     }
@@ -2987,7 +3013,7 @@ pui.renderFormat = function(parms) {
     }
   }
   // When the "setTab" API was called before tabs render, set active tabs on tab panels and tab layouts.
-  for (var i = 0; i < tabPanels.length; i++) {
+  for (i = 0; i < tabPanels.length; i++) {
     var tabElem = document.getElementById(tabPanels[i]);
     var tabPanel = tabElem.tabPanel;
     if (!tabPanel) {
@@ -3000,7 +3026,7 @@ pui.renderFormat = function(parms) {
   }
 
   if (isDesignMode) {
-    for (var i = 0; i < designer.grids.length; i++) {
+    for (i = 0; i < designer.grids.length; i++) {
       designer.grids[i].dom.grid.doExpandToLayout(true);
     }
   }
@@ -3221,8 +3247,8 @@ pui.enableArrowKeysForGridQuickFilters = function() {
   // Reset the "arrowDownDetected" flag because the pui.addarrowKeyEventHandler
   //  is only created once, when this js file is first loaded.
   pui.arrowKeyEventHandler.resetArrowDownDetectedBeforeOnQuickFilter();
-  var grid = null;
-  var inputElement = null;
+  // var grid = null;
+  // var inputElement = null;
   var inputElementArray = null;
   var gridArray = document.querySelectorAll("[puiwdgt='grid']");
   if (gridArray.length < 1) {
@@ -3305,6 +3331,7 @@ pui.addarrowKeyEventHandler = function(element) {
 
 pui.attachResponse = function(dom) {
   function clickEvent() {
+    var i; // loop iterator
     if (dom.disabled == true) return;
     if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
 
@@ -3334,7 +3361,7 @@ pui.attachResponse = function(dom) {
       for (var formatName in pui.keyMap) {
         var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
         if (keyMapDomArray != null) {
-          for (var i = 0; i < keyMapDomArray.length; i++) {
+          for (i = 0; i < keyMapDomArray.length; i++) {
             if (!keyMapDomArray[i].parentPagingBar) { // Push if this item isn't in a grid. See issue 4807.
               doms.push(keyMapDomArray[i]);
             }
@@ -3346,7 +3373,7 @@ pui.attachResponse = function(dom) {
       doms.push(dom);
     }
 
-    for (var i = 0; i < doms.length; i++) {
+    for (i = 0; i < doms.length; i++) {
       doms[i].responseValue = "1";
       if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
         pui.bypassValidation = doms[i].bypassValidation;
@@ -3399,7 +3426,7 @@ pui.attachResponse = function(dom) {
     pui.destRedirect = null;
 
     if (returnVal == false) {
-      for (var i = 0; i < doms.length; i++) {
+      for (i = 0; i < doms.length; i++) {
         doms[i].responseValue = "0";
       }
       pui.bypassValidation = "false";
@@ -3413,8 +3440,9 @@ pui.attachResponse = function(dom) {
 };
 
 pui.showErrors = function(errors, rrn) {
+  var i; // loop iterator
   var globalMessages = [];
-  for (var i = errors.length - 1; i >= 0; i = i - 1) {
+  for (i = errors.length - 1; i >= 0; i = i - 1) {
     var err = errors[i];
     var msg = err.msg;
     if (err["encoded"]) {
@@ -3509,7 +3537,7 @@ pui.showErrors = function(errors, rrn) {
 
   if (globalMessages.length > 0) {
     var messagesText = "";
-    for (var i = globalMessages.length - 1; i >= 0; i = i - 1) { // these messages are in reverse order, so we loop backwards
+    for (i = globalMessages.length - 1; i >= 0; i = i - 1) { // these messages are in reverse order, so we loop backwards
       if (i != globalMessages.length - 1) messagesText += "<br/>";
       messagesText += globalMessages[i];
     }
@@ -3627,13 +3655,29 @@ pui.respond = function() {
 };
 
 pui.buildResponse = function(customResponseElements) {
+  var fieldName;
+  var domArr;
+  var i; // loop iterator
+  var j; // loop iterator
+  var msg;
+  var dom;
+  var radioDom;
+  var boxValue;
+  var rangeHighDisp;
+  var rangeLowDisp;
+  var sflName;
+  var rrnName;
+  var trackerName;
+  var value;
+  var field;
+  var recordNum;
   var response = {};
 
   if (!customResponseElements) {
-    for (var fieldName in pui.changeResponseElements) {
-      var domArr = pui.changeResponseElements[fieldName];
-      for (var i = 0; i < domArr.length; i++) {
-        var dom = domArr[i];
+    for (fieldName in pui.changeResponseElements) {
+      domArr = pui.changeResponseElements[fieldName];
+      for (i = 0; i < domArr.length; i++) {
+        dom = domArr[i];
         if (dom.modified && (pui["controller"] != null || pui.bypassValidation != "true")) {
           response[fieldName] = "1";
           break;
@@ -3642,10 +3686,10 @@ pui.buildResponse = function(customResponseElements) {
       if (response[fieldName] != "1") response[fieldName] = "0";
     }
 
-    for (var fieldName in pui.isBlankElements) {
-      var domArr = pui.isBlankElements[fieldName];
-      for (var i = 0; i < domArr.length; i++) {
-        var dom = domArr[i];
+    for (fieldName in pui.isBlankElements) {
+      domArr = pui.isBlankElements[fieldName];
+      for (i = 0; i < domArr.length; i++) {
+        dom = domArr[i];
         if (typeof dom.value == "string" && trim(dom.value) == "") {
           response[fieldName] = "1";
           break;
@@ -3654,10 +3698,10 @@ pui.buildResponse = function(customResponseElements) {
       if (response[fieldName] != "1") response[fieldName] = "0";
     }
 
-    for (var fieldName in pui.dupElements) {
-      var domArr = pui.dupElements[fieldName];
-      for (var i = 0; i < domArr.length; i++) {
-        var dom = domArr[i];
+    for (fieldName in pui.dupElements) {
+      domArr = pui.dupElements[fieldName];
+      for (i = 0; i < domArr.length; i++) {
+        dom = domArr[i];
         if (pui.isDup(dom)) {
           response[fieldName] = "1";
           break;
@@ -3679,30 +3723,30 @@ pui.buildResponse = function(customResponseElements) {
   var responseElements = pui.responseElements;
   if (customResponseElements) responseElements = customResponseElements;
 
-  for (var fieldName in responseElements) {
+  for (fieldName in responseElements) {
     var doms = responseElements[fieldName];
-    var dom = doms[0];
+    dom = doms[0];
 
     // If it's a 'radio button' control we want to change the
     //  'dom' entry to the 'modified' one, if any.
     if (dom.type == "radio") {
-    	for (var j = 0; j < doms.length; j++) {
-    		var radioDom = doms[j];
-    		if (radioDom.modified) {
-    			dom = radioDom;
-    			break;
-    		}
-    	}
+      for (j = 0; j < doms.length; j++) {
+        radioDom = doms[j];
+        if (radioDom.modified) {
+          dom = radioDom;
+          break;
+        }
+      }
     }
 
     var boxDom = dom;
     if (dom.comboBoxWidget != null) boxDom = dom.comboBoxWidget.getBox();
     if (dom.floatingPlaceholder != null) boxDom = dom.floatingPlaceholder.getBox();
-    var value = null;
+    value = null;
     if (dom.responseValue != null) {
       value = dom.responseValue;
       if (value == "0") { // handle same indicator variables bound to multiple buttons
-        for (var i = 1; i < doms.length; i++) {
+        for (i = 1; i < doms.length; i++) {
           if (doms[i].responseValue == "1") {
             value = "1";
             break;
@@ -3711,7 +3755,7 @@ pui.buildResponse = function(customResponseElements) {
       }
       // handle same response variable bound to multiple menus. (Note: dom.pui could be null if grid setDataValue created the domEl. Issue 3034.)
       else if (dom.responseValue == "" && dom.pui != null && dom.pui.properties["field type"] == "menu" && doms.length > 1) {
-        for (var i = 1; i < doms.length; i++) {
+        for (i = 1; i < doms.length; i++) {
           if (doms[i].responseValue != "") {
             value = doms[i].responseValue;
             break;
@@ -3725,11 +3769,11 @@ pui.buildResponse = function(customResponseElements) {
 
       if (dom.modifiedBeforeRender) {
         var splitName = fieldName.split(".");
-        var sflName = splitName[0];
+        sflName = splitName[0];
         var subfileRow = parseInt(splitName[splitName.length - 1]);
         if (!isNaN(subfileRow) && subfileRow > 0) {
-          var rrnName = sflName + ".rrn";
-          var trackerName = rrnName + "=" + subfileRow;
+          rrnName = sflName + ".rrn";
+          trackerName = rrnName + "=" + subfileRow;
           if (pui.rrnTracker[trackerName] != true) {
             if (response[rrnName] == null) response[rrnName] = [];
             response[rrnName].push(subfileRow);
@@ -3762,7 +3806,7 @@ pui.buildResponse = function(customResponseElements) {
              (dom["fileUpload"] != null && dom["fileUpload"].getCount() < 1)) {
           response.valid = false;
           if (response.errors == null) response.errors = [];
-          var msg = pui["getLanguageText"]("runtimeMsg", "required");
+          msg = pui["getLanguageText"]("runtimeMsg", "required");
           if (dom["fileUpload"] != null) msg = pui["getLanguageText"]("runtimeMsg", "file required");
           response.errors.push({ dom: boxDom, msg: msg });
           if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
@@ -3770,7 +3814,7 @@ pui.buildResponse = function(customResponseElements) {
         }
       }
       if (dom["fileUpload"] != null && pui.bypassValidation != "true" && pui.bypassValidation != "send data") {
-        var msg = dom["fileUpload"].validateCount();
+        msg = dom["fileUpload"].validateCount();
         if (msg == null) {
           msg = dom["fileUpload"].validateNames();
         }
@@ -3819,7 +3863,7 @@ pui.buildResponse = function(customResponseElements) {
                 pui.formatting.isNumericType(dom.formattingInfo.dataType)) {
                   // See if the string has only characters that appear in numbers, including (0.00) 0,00 but not "CR".
                   // This will clear out anything containing non-numeric characters.
-                  var numericRe = /^[0-9,.\- \(\)]+/;
+                  var numericRe = /^[0-9,.\- ()]+/;
                   if (!numericRe.test(value)) {
                     value = "";
                   }
@@ -3832,7 +3876,7 @@ pui.buildResponse = function(customResponseElements) {
                   replaceChar = "0";
                 }
                 var numericValue = "";
-                for (var j = 0; j < value.length; j++) {
+                for (j = 0; j < value.length; j++) {
                   var ch = value.substr(j, 1);
                   if (ch == pui["dup"]["char"]) {
                     dupMask += "1";
@@ -3887,8 +3931,8 @@ pui.buildResponse = function(customResponseElements) {
               break;
 
             case "radio":
-              for (var j = 0; j < doms.length; j++) {
-                var radioDom = doms[j];
+              for (j = 0; j < doms.length; j++) {
+                radioDom = doms[j];
                 if (radioDom.checked && radioDom["radioValue"] != null) {
                   value = radioDom["radioValue"];
                   break;
@@ -3903,7 +3947,7 @@ pui.buildResponse = function(customResponseElements) {
           if (!multiple) value = dom.value;
           if (multiple) {
             var values = [];
-            for (var j = 0; j < dom.options.length; j++) {
+            for (j = 0; j < dom.options.length; j++) {
               if (dom.options[j].selected) values.push(dom.options[j].value);
             }
             value = values.join(",");
@@ -4006,7 +4050,7 @@ pui.buildResponse = function(customResponseElements) {
             if (!pui.validateEmail(value)) {
               response.valid = false;
               if (response.errors == null) response.errors = [];
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid email");
+              msg = pui["getLanguageText"]("runtimeMsg", "invalid email");
               response.errors.push({ dom: boxDom, msg: msg });
               if (boxDom.validationTip != null && boxDom.validationTip.doneShowing != null) boxDom.validationTip.doneShowing = false;
               continue;
@@ -4016,7 +4060,7 @@ pui.buildResponse = function(customResponseElements) {
           if (typeof dom.validValues == "string") {
             var validValues = pui.parseCommaSeparatedList(dom.validValues);
             var invalid = true;
-            for (var i = 0; i < validValues.length; i++) {
+            for (i = 0; i < validValues.length; i++) {
               if (rtrim(String(validValues[i])) == value) {
                 invalid = false;
                 break;
@@ -4028,7 +4072,7 @@ pui.buildResponse = function(customResponseElements) {
 
               // Present valid values as a comma separated list where the last value is separated by "or"
               // and if any of the values are blank, use the word "blank" instead.
-              for (var i = 0; i < validValues.length; i++) {
+              for (i = 0; i < validValues.length; i++) {
                 if (typeof validValues[i] === "string" && validValues[i].trim() === "") {
                   validValues[i] = pui["getLanguageText"]("runtimeMsg", "blank");
                 }
@@ -4054,7 +4098,7 @@ pui.buildResponse = function(customResponseElements) {
 
           if (typeof dom.compOperator == "string" && typeof dom.compValue == "string") {
             var compValue = dom.compValue;
-            var boxValue = value;
+            boxValue = value;
             if (formattingObj.formatting == "Number") {
               compValue = Number(compValue);
               boxValue = Number(boxValue);
@@ -4065,7 +4109,7 @@ pui.buildResponse = function(customResponseElements) {
               compValueDisp = "'" + compValueDisp + "'";
             }
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
-            var msg = "";
+            msg = "";
             switch (dom.compOperator) {
               case "Equal":
                 if (compValue != boxValue) msg = "Value must equal " + compValueDisp + ".";
@@ -4099,7 +4143,7 @@ pui.buildResponse = function(customResponseElements) {
 
           if (typeof dom.rangeLow == "string") {
             var rangeLow = dom.rangeLow;
-            var boxValue = value;
+            boxValue = value;
 
             if (formattingObj.formatting == "Number") {
               rangeLow = Number(rangeLow);
@@ -4116,11 +4160,11 @@ pui.buildResponse = function(customResponseElements) {
             }
 
             if (boxValue < rangeLow) {
-              var rangeLowDisp = dom.rangeLow;
+              rangeLowDisp = dom.rangeLow;
               if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid low range", [rangeLowDisp]);
+              msg = pui["getLanguageText"]("runtimeMsg", "invalid low range", [rangeLowDisp]);
               if (dom.rangeHigh != null) {
-                var rangeHighDisp = dom.rangeHigh;
+                rangeHighDisp = dom.rangeHigh;
                 if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
                 msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [rangeLowDisp, rangeHighDisp]);
               }
@@ -4134,7 +4178,7 @@ pui.buildResponse = function(customResponseElements) {
 
           if (typeof dom.rangeHigh == "string") {
             var rangeHigh = dom.rangeHigh;
-            var boxValue = value;
+            boxValue = value;
 
             if (formattingObj.formatting == "Number") {
               rangeHigh = Number(rangeHigh);
@@ -4142,8 +4186,7 @@ pui.buildResponse = function(customResponseElements) {
             }
 
             if (formattingObj.formatting == "Date") {
-              if (boxValueDateISO == null) // not done yet
-              {
+              if (boxValueDateISO == null) { // not done yet
                 boxValue = pui.FieldFormat["Date"].getDateISO(boxValue, formattingObj);
               } // *ISO format for compare
               else {
@@ -4156,11 +4199,11 @@ pui.buildResponse = function(customResponseElements) {
             if (typeof boxValue == "string") boxValue = rtrim(boxValue);
 
             if (boxValue > rangeHigh) {
-              var rangeHighDisp = dom.rangeHigh;
+              rangeHighDisp = dom.rangeHigh;
               if (formattingObj.formatting != "Number") rangeHighDisp = "'" + rangeHighDisp + "'";
-              var msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [rangeHighDisp]);
+              msg = pui["getLanguageText"]("runtimeMsg", "invalid high range", [rangeHighDisp]);
               if (dom.rangeLow != null) {
-                var rangeLowDisp = dom.rangeLow;
+                rangeLowDisp = dom.rangeLow;
                 if (formattingObj.formatting != "Number") rangeLowDisp = "'" + rangeLowDisp + "'";
                 msg = pui["getLanguageText"]("runtimeMsg", "invalid range", [rangeLowDisp, rangeHighDisp]);
               }
@@ -4175,9 +4218,9 @@ pui.buildResponse = function(customResponseElements) {
 
         response[fieldName] = value;
         if (dom.subfileRow != null) {
-          var sflName = fieldName.split(".")[0];
-          var rrnName = sflName + ".rrn";
-          var trackerName = rrnName + "=" + dom.subfileRow;
+          sflName = fieldName.split(".")[0];
+          rrnName = sflName + ".rrn";
+          trackerName = rrnName + "=" + dom.subfileRow;
           if (pui.rrnTracker[trackerName] != true) {
             if (response[rrnName] == null) response[rrnName] = [];
             response[rrnName].push(dom.subfileRow);
@@ -4251,14 +4294,14 @@ pui.buildResponse = function(customResponseElements) {
   if (pui.cursorValues.wcolumn != null) response["wcolumn"] = String(pui.cursorValues.wcolumn);
 
   for (var cursorRRNFieldName in pui.cursorRRNs) {
-    var dom = pui.cursorRRNs[cursorRRNFieldName];
+    dom = pui.cursorRRNs[cursorRRNFieldName];
     if (dom.cursorRRN != null) {
       response[cursorRRNFieldName] = dom.cursorRRN;
     }
   }
 
   for (var returnRRNFieldName in pui.returnRRNs) {
-    var dom = pui.returnRRNs[returnRRNFieldName];
+    dom = pui.returnRRNs[returnRRNFieldName];
     if (dom.returnRRN != null) {
       response[returnRRNFieldName] = dom.returnRRN;
       if (pui.keyName == "PageUp") {
@@ -4276,7 +4319,7 @@ pui.buildResponse = function(customResponseElements) {
   }
 
   for (var sflModeFieldName in pui.sflModes) {
-    var dom = pui.sflModes[sflModeFieldName];
+    dom = pui.sflModes[sflModeFieldName];
     if (dom.grid["expanded"]) {
       response[sflModeFieldName] = "0";
     }
@@ -4286,8 +4329,8 @@ pui.buildResponse = function(customResponseElements) {
   }
 
   if (pui.columnSortResponseGrid != null) {
-    var field = pui.columnSortResponseGrid.tableDiv.columnSortResponseField;
-    var value = pui.columnSortResponseGrid.columnSortResponse;
+    field = pui.columnSortResponseGrid.tableDiv.columnSortResponseField;
+    value = pui.columnSortResponseGrid.columnSortResponse;
     if (field != null && value != null) {
       response[field] = value;
     }
@@ -4299,8 +4342,8 @@ pui.buildResponse = function(customResponseElements) {
   }
 
   if (pui.fieldNameSortResponseGrid != null) {
-    var field = pui.fieldNameSortResponseGrid.tableDiv.fieldNameSortResponseField;
-    var value = pui.fieldNameSortResponseGrid.fieldNameSortResponse;
+    field = pui.fieldNameSortResponseGrid.tableDiv.fieldNameSortResponseField;
+    value = pui.fieldNameSortResponseGrid.fieldNameSortResponse;
     if (field != null && value != null) {
       response[field] = value;
     }
@@ -4312,8 +4355,8 @@ pui.buildResponse = function(customResponseElements) {
   }
 
   if (pui.filterResponseGrid != null) {
-    var field = pui.filterResponseGrid.tableDiv.filterResponseField;
-    var value = pui.filterResponseGrid.filterResponse;
+    field = pui.filterResponseGrid.tableDiv.filterResponseField;
+    value = pui.filterResponseGrid.filterResponse;
     if (field != null && value != null) {
       response[field] = value;
     }
@@ -4346,7 +4389,7 @@ pui.buildResponse = function(customResponseElements) {
     }
   }
 
-  for (var i = 0; i < pui.setOffFields.length; i++) {
+  for (i = 0; i < pui.setOffFields.length; i++) {
     var setOffField = pui.setOffFields[i];
     if (response[setOffField] == null) { // not already set
       response[setOffField] = "0";
@@ -4358,7 +4401,7 @@ pui.buildResponse = function(customResponseElements) {
       response[pui.dragDropFields.ddElementId] = pui["dragDropInfo"]["dd element id"];
     }
     if (pui.dragDropFields.ddRecordNumber != null) {
-      var recordNum = pui["dragDropInfo"]["dd record number"];
+      recordNum = pui["dragDropInfo"]["dd record number"];
       if (recordNum == null) recordNum = 0;
       response[pui.dragDropFields.ddRecordNumber] = String(recordNum);
     }
@@ -4366,7 +4409,7 @@ pui.buildResponse = function(customResponseElements) {
       response[pui.dragDropFields.targetElementId] = pui["dragDropInfo"]["target element id"];
     }
     if (pui.dragDropFields.targetRecordNumber != null) {
-      var recordNum = pui["dragDropInfo"]["target record number"];
+      recordNum = pui["dragDropInfo"]["target record number"];
       if (recordNum == null) recordNum = 0;
       response[pui.dragDropFields.targetRecordNumber] = String(recordNum);
     }
@@ -4384,9 +4427,9 @@ pui.buildResponse = function(customResponseElements) {
   if (pui["controller"] != null) {
     var count = 0;
     var layers = pui.oldRenderParms["layers"];
-    for (var i = 0; i < layers.length; i++) {
+    for (i = 0; i < layers.length; i++) {
       var formats = layers[i]["formats"];
-      for (var j = 0; j < formats.length; j++) {
+      for (j = 0; j < formats.length; j++) {
         response["pui-recname." + (++count)] = formats[j]["metaData"]["screen"]["record format name"];
       }
     }
@@ -4747,6 +4790,7 @@ pui.hideWaitAnimation = function() {
 };
 
 pui.handleHotKey = function(e, keyName) {
+  var i; // loop iterator
   if (context != "dspf" || pui.isHtml) return;
 
   if (!e) e = window.event;
@@ -4823,11 +4867,11 @@ pui.handleHotKey = function(e, keyName) {
     )
   );
 
-  if (processKey && keyName == "PageUp" || keyName == "PageDown") {
+  if (processKey && (keyName == "PageUp" || keyName == "PageDown")) {
     // Do not take action for page up / page down when multiple grids
     // with paging bar are on screen.
     var pbar = false;
-    for (var i = 0; i < pui.gridsDisplayed.length; i++) {
+    for (i = 0; i < pui.gridsDisplayed.length; i++) {
       var grid = pui.gridsDisplayed[i];
       if (grid.pagingBar && grid.pagingBar.showPagingControls) {
         if (pbar == false) {
@@ -4849,7 +4893,7 @@ pui.handleHotKey = function(e, keyName) {
       var domArray = pui.keyMap[formatName][keyName];
       if (domArray != null) {
         var allDisabled = true;
-        for (var i = 0; i < domArray.length; i++) {
+        for (i = 0; i < domArray.length; i++) {
           var dom = domArray[i];
           if (!dom.disabled) allDisabled = false;
           if (dom.parentPagingBar != null) {
@@ -4951,7 +4995,7 @@ pui.handleHotKey = function(e, keyName) {
     if (mustRespond) {
       pui.keyName = keyName;
 
-      for (var i = 0; i < doms.length; i++) {
+      for (i = 0; i < doms.length; i++) {
         doms[i].responseValue = "1";
         if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
           pui.bypassValidation = doms[i].bypassValidation;
@@ -4966,7 +5010,7 @@ pui.handleHotKey = function(e, keyName) {
       var returnVal = pui.respond();
 
       if (returnVal == false) {
-        for (var i = 0; i < doms.length; i++) {
+        for (i = 0; i < doms.length; i++) {
           doms[i].responseValue = "0";
         }
         pui.bypassValidation = "false";
@@ -5575,8 +5619,8 @@ pui["maskScreen"] = function(parms) {
     setTimeout(function() {
       // maskDiv.style.left = (-pui.runtimeContainer.offsetLeft) + "px";
       // maskDiv.style.top = (-pui.runtimeContainer.offsetTop) + "px";
-	  var runtimePosition = getDivPosition(pui.runtimeContainer);
-	  maskDiv.style.left = (0 - runtimePosition.x) + "px";
+      var runtimePosition = getDivPosition(pui.runtimeContainer);
+      maskDiv.style.left = (0 - runtimePosition.x) + "px";
       maskDiv.style.top = (0 - runtimePosition.y) + "px";
       maskDiv.style.display = "";
     }, 0);
@@ -5646,7 +5690,7 @@ pui["maskScreen"] = function(parms) {
       top = window.pageYOffset;
       left = window.pageXOffset;
     }
-	  var runtimePosition = getDivPosition(pui.runtimeContainer);
+    var runtimePosition = getDivPosition(pui.runtimeContainer);
     if (pui.genie != null || pui.runtimeContainer.offsetLeft != 0 || pui.runtimeContainer.offsetTop != 0) {
       left -= runtimePosition.x;
       if (context == "dspf") top -= runtimePosition.y;
@@ -6118,32 +6162,32 @@ pui.translateDataType = function(dtype) {
 
 pui.gotoNextElementAndPossiblySelect = function(target) {
   function findNextObj(obj) {
-	  var beforeElements = [];
-	  var afterElements = [];
+    var beforeElements = [];
+    var afterElements = [];
 
-	  var allInputs = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
-	  var element = null;
-	  var objIdx = null;
-	  for (var iCnt = 0; iCnt < allInputs.length; iCnt++) {
-		  element = allInputs[iCnt];
+    var allInputs = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
+    var element = null;
+    var objIdx = null;
+    for (var iCnt = 0; iCnt < allInputs.length; iCnt++) {
+      element = allInputs[iCnt];
 
-		  // 1. We don't need to keep track of current obj.
-		  // 2. We don't care about hidden, readonly or not focusable elements (this will not drop all 100% of them... but close)
-		  // 3. We want the element in the propery order (starting at current Obj)
-		  if (element == obj) objIdx = iCnt;
-		  else if (!element.clientHeight || !element.clientWidth || element.readOnly == "true" || element.disabled == "true" || element.tabIndex == "-1") continue;
-		  else if (!objIdx) beforeElements.push(element);
-		  else afterElements.push(element);
-	  }
+      // 1. We don't need to keep track of current obj.
+      // 2. We don't care about hidden, readonly or not focusable elements (this will not drop all 100% of them... but close)
+      // 3. We want the element in the propery order (starting at current Obj)
+      if (element == obj) objIdx = iCnt;
+      else if (!element.clientHeight || !element.clientWidth || element.readOnly == "true" || element.disabled == "true" || element.tabIndex == "-1") continue;
+      else if (!objIdx) beforeElements.push(element);
+      else afterElements.push(element);
+    }
 
-	  // We want the afterElements to be before the beforeElements (so that it is in the proper order from current obj)
-	  var allElements = afterElements.concat(beforeElements);
-	  // Whatever the first element is, should be the next element we take them to...
-	  if (allElements.length > 0) {
+    // We want the afterElements to be before the beforeElements (so that it is in the proper order from current obj)
+    var allElements = afterElements.concat(beforeElements);
+    // Whatever the first element is, should be the next element we take them to...
+    if (allElements.length > 0) {
       return allElements[0];
     }
 
-	  return null;
+    return null;
   }
 
   var nextObj = target;
@@ -6243,6 +6287,10 @@ pui.measurementInPixel = function(value, parentSpread) {
   }
 };
 pui.goToClosestElement = function(baseElem, direction) {
+  var cellX;
+  var cellY;
+  var gridX;
+  var gridY;
   if (baseElem.parentNode.comboBoxWidget != null) baseElem = baseElem.parentNode;
   if (baseElem.parentNode.floatingPlaceholder != null) baseElem = baseElem.parentNode;
   var parentWidth = baseElem.parentNode.offsetWidth;
@@ -6259,13 +6307,13 @@ pui.goToClosestElement = function(baseElem, direction) {
   var container = baseElem.parentNode;
   var gridDom = container.parentNode;
   if (gridDom.grid != null) { // the base element is within a grid
-    var cellX = parseInt(baseElem.parentNode.style.left);
+    cellX = parseInt(baseElem.parentNode.style.left);
     if (isNaN(cellX)) return null;
-    var cellY = parseInt(baseElem.parentNode.style.top);
+    cellY = parseInt(baseElem.parentNode.style.top);
     if (isNaN(cellY)) return null;
-    var gridX = parseInt(gridDom.style.left);
+    gridX = parseInt(gridDom.style.left);
     if (isNaN(gridX)) return null;
-    var gridY = parseInt(gridDom.style.top);
+    gridY = parseInt(gridDom.style.top);
     if (isNaN(gridY)) return null;
     baseX += cellX + gridX;
     baseY += cellY + gridY;
@@ -6314,13 +6362,13 @@ pui.goToClosestElement = function(baseElem, direction) {
     if (isNaN(y)) continue;
     gridDom = mainElem.parentNode.parentNode;
     if (gridDom.grid != null) { // the element is within a grid
-      var cellX = parseInt(mainElem.parentNode.style.left);
+      cellX = parseInt(mainElem.parentNode.style.left);
       if (isNaN(cellX)) return null;
-      var cellY = parseInt(mainElem.parentNode.style.top);
+      cellY = parseInt(mainElem.parentNode.style.top);
       if (isNaN(cellY)) return null;
-      var gridX = parseInt(gridDom.style.left);
+      gridX = parseInt(gridDom.style.left);
       if (isNaN(gridX)) continue;
-      var gridY = parseInt(gridDom.style.top);
+      gridY = parseInt(gridDom.style.top);
       if (isNaN(gridY)) continue;
       x += cellX + gridX;
       y += cellY + gridY;
@@ -6447,6 +6495,7 @@ pui.translate = function(parms) {
 };
 
 pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderMap) {
+  var i; // loop iterator
   isScreen = (isScreen === true);
   var rtn = "";
 
@@ -6455,7 +6504,7 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
     if (pui.isTranslated(propVal)) {
       var phraseIds = propVal["translations"];
       var phrases = [];
-      for (var i = 0; i < phraseIds.length; i++) {
+      for (i = 0; i < phraseIds.length; i++) {
         var id = phraseIds[i];
         // Id zero is reserved for blank/empty entry in
         // list-type properties.
@@ -6488,7 +6537,7 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
       }
 
       if (!obj["grid"]) {
-        for (var i = 0; i < translationPlaceholderMap.keys.length; i++) {
+        for (i = 0; i < translationPlaceholderMap.keys.length; i++) {
           obj[propName] = obj[propName]["replaceAll"]("(&" + translationPlaceholderMap.keys[i] + ")", translationPlaceholderMap.values[i]);
         }
       }
@@ -6506,6 +6555,7 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
  * @returns {undefined}
  */
 pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
+  var value;
   var map = {
     keys: [],
     values: []
@@ -6514,7 +6564,7 @@ pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
   if (grid) { // Build a map for a grid
     for (property in grid) {
       if (property.includes("grid row translation placeholder key")) {
-        var value = "grid row translation placeholder value" + property.slice(36);
+        value = "grid row translation placeholder value" + property.slice(36);
         map.keys.push(grid[property]);
         map.values.push(grid[value]);
       }
@@ -6523,7 +6573,7 @@ pui.buildTranslationPlaceholderMap = function(widget, grid, screen, data, ref) {
   else { // Then we are building a map for a screen
     for (property in screen) {
       if (property.includes("translation placeholder key")) {
-        var value = "translation placeholder value" + property.slice(27);
+        value = "translation placeholder value" + property.slice(27);
         map.keys.push(screen[property]);
         map.values.push(pui.evalBoundProperty(screen[value], data, ref));
       }

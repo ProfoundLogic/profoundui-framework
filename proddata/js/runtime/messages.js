@@ -22,6 +22,7 @@ if (pui["runtimeText"] == null) pui["runtimeText"] = {};
 if (pui["runtimeMessages"] == null) pui["runtimeMessages"] = {};
 
 pui["getLanguageText"] = function(dict, msgid, varvals) {
+  var m; // loop iterator
   var lang = pui["language"];
   if (lang == null || trim(lang) == "") {
     lang = "en_US";
@@ -84,7 +85,7 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
     var oldtext = ["close browser text", "csv export text", "filter text", "reset data",
       "next link text", "previous link text", "remove filters text",
       "session ended text", "sort ascending text", "sort descending text"];
-    for (var m = 0; m < oldtext.length; m++) {
+    for (m = 0; m < oldtext.length; m++) {
       if (tmpmsgid == oldtext[m] && typeof (pui[oldtext[m]]) != "undefined") {
         msg = pui[oldtext[m]];
       }
@@ -95,7 +96,7 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
 
   if (dict == "runtimeMsg") {
     var oldmsg = ["closeMessage", "no connection message"];
-    for (var m = 0; m < oldmsg.length; m++) {
+    for (m = 0; m < oldmsg.length; m++) {
       if (msgid == oldmsg[m] && typeof (pui[oldmsg[m]]) != "undefined") {
         msg = pui[oldmsg[m]];
       }
@@ -105,7 +106,7 @@ pui["getLanguageText"] = function(dict, msgid, varvals) {
   // insert any replacement variable values &1, &2, &3, etc.
 
   if (varvals != null) {
-    for (var m = 1; m <= varvals.length; m++) {
+    for (m = 1; m <= varvals.length; m++) {
       msg = msg.replace("&" + m, varvals[m - 1]);
     }
   }
