@@ -198,8 +198,13 @@ pui.protectFormat = function(format) {
   for (var i = 0; i < items.length; i++) {
     var itm = items[i];
     var type = itm["field type"];
-    if (type == "checkbox" || type == "combo box" || type == "date field" || type == "password field" || type == "radio button" || type == "select box" || type == "spinner" | type == "text area" || type == "textbox") {
-      itm["read only"] = "true";
+    if (type == "checkbox" || type == "combo box" || type == "date field" || type == "password field" || type == "radio button" || type == "select box" || type == "spinner" || type == "text area" || type == "textbox" || type == "graphic button" || type == "hyperlink") {
+      if (type == "graphic button" || type == "hyperlink") {
+        itm["disabled"] = "true";
+      } else {
+        itm["read only"] = "true";
+        itm["set focus"] = "false";
+      }
       var done = false;
       var suffix = 1;
       var prop = "css class";
