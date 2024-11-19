@@ -18,8 +18,10 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // Number of outstanding auto complete queries.
+// eslint-disable-next-line no-unused-vars
 var autoCompQueries = 0;
 
+// eslint-disable-next-line no-unused-vars
 var yAdjust = -20;
 
 // eslint-disable-next-line no-unused-vars
