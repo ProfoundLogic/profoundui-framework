@@ -18,9 +18,9 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // Number of outstanding auto complete queries.
-// var autoCompQueries = 0;
+var autoCompQueries = 0;
 
-// var yAdjust = -20;
+var yAdjust = -20;
 
 // eslint-disable-next-line no-unused-vars
 var checkboxObjects = [];
