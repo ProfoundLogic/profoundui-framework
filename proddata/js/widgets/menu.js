@@ -410,13 +410,14 @@ pui.MenuWidget = function() {
   }
 
   function removeSameOrHigherLevelMenus(td) {
+    var i; // loop iterator
     var toRemove = [];
-    for (var i = 0; i < displayedSubMenus.length; i++) {
+    for (i = 0; i < displayedSubMenus.length; i++) {
       if (displayedSubMenus[i].level >= td.level) {
         toRemove.push(displayedSubMenus[i]);
       }
     }
-    for (var i = 0; i < toRemove.length; i++) {
+    for (i = 0; i < toRemove.length; i++) {
       me.removeSubMenu(toRemove[i]);
     }
   }
@@ -432,8 +433,10 @@ pui.MenuWidget = function() {
   };
 
   this.showSubMenu = function(td) {
+    var table;
+    var i; // loop iterator
     if (td.subMenuFrom == null) return; // this option does not have a sub menu
-    var table = td;
+    table = td;
     while (table.tagName != "TABLE") {
       table = table.parentNode;
     }
@@ -484,11 +487,11 @@ pui.MenuWidget = function() {
     }
     if (td.subMenuContainer.offsetWidth < minWidth) {
       td.subMenuContainer.style.width = minWidth + "px";
-      var table = td.subMenuContainer.firstChild;
+      table = td.subMenuContainer.firstChild;
       table.style.width = "100%";
     }
     var addToArray = true;
-    for (var i = 0; i < displayedSubMenus.length; i++) {
+    for (i = 0; i < displayedSubMenus.length; i++) {
       if (displayedSubMenus[i] == td) {
         addToArray = false;
         break;
@@ -514,7 +517,7 @@ pui.MenuWidget = function() {
     for (var i = 0; i < displayedSubMenus.length; i++) {
       toRemove.push(displayedSubMenus[i]);
     }
-    for (var i = 0; i < toRemove.length; i++) {
+    for (i = 0; i < toRemove.length; i++) {
       me.removeSubMenu(toRemove[i]);
     }
   };

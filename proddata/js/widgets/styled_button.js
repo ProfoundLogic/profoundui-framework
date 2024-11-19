@@ -408,10 +408,11 @@ pui.widgets.add({
 
     "field type": function(parms) {
       parms.dom.sizeMe = function() {
-        var bstyle = parms.properties["button style"];
+        var bstyle;
+        bstyle = parms.properties["button style"];
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
-          var bstyle = pui.widgets.getButtonStyles()[0];
+          bstyle = pui.widgets.getButtonStyles()[0];
           settings = pui.widgets.buttonStyles[bstyle];
         }
         var button = parms.dom.button;
@@ -525,16 +526,17 @@ pui.widgets.add({
       }
 
       function mouseover(e) {
+        var bstyle;
         if ((parms.dom.getAttribute != null && parms.dom.getAttribute("disabled") == "true") ||
           (parms.dom.disabled != null && parms.dom.disabled == true)) {
           return;
         }
         parms.dom.mouseIsOver = true;
         if (parms.dom.clickedDown == true) return;
-        var bstyle = parms.dom.button.bstyle;
+        bstyle = parms.dom.button.bstyle;
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
-          var bstyle = pui.widgets.getButtonStyles()[0];
+          bstyle = pui.widgets.getButtonStyles()[0];
           settings = pui.widgets.buttonStyles[bstyle];
         }
         if (settings.hasOverState) {
@@ -547,6 +549,7 @@ pui.widgets.add({
       if (parms.isProxy != true) addEvent(parms.dom, "mouseover", mouseover);
 
       function mouseout(e) {
+        var bstyle;
         parms.dom.mouseIsOver = false;
         if (parms.dom.clickedDown == true) return;
         if (pui["is_old_ie"]) {
@@ -555,10 +558,10 @@ pui.widgets.add({
           if (rel == parms.dom) return;
         }
 
-        var bstyle = parms.dom.button.bstyle;
+        bstyle = parms.dom.button.bstyle;
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
-          var bstyle = pui.widgets.getButtonStyles()[0];
+          bstyle = pui.widgets.getButtonStyles()[0];
           settings = pui.widgets.buttonStyles[bstyle];
         }
         if (settings.hasOverState) {
@@ -574,16 +577,17 @@ pui.widgets.add({
       if (parms.isProxy != true) addEvent(parms.dom, "mouseout", mouseout);
 
       function mousedown(event) {
+        var bstyle;
         if ((parms.dom.getAttribute != null && parms.dom.getAttribute("disabled") == "true") ||
           (parms.dom.disabled != null && parms.dom.disabled == true)) {
           return;
         }
         if (pui.isRightClick(event)) return;
         parms.dom.clickedDown = true;
-        var bstyle = parms.dom.button.bstyle;
+        bstyle = parms.dom.button.bstyle;
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
-          var bstyle = pui.widgets.getButtonStyles()[0];
+          bstyle = pui.widgets.getButtonStyles()[0];
           settings = pui.widgets.buttonStyles[bstyle];
         }
         parms.dom.button.textDiv.style.left = (settings.left + 1) + "px";
@@ -597,11 +601,12 @@ pui.widgets.add({
       if (parms.isProxy != true) addEvent(parms.dom, "mousedown", mousedown);
 
       function mouseup() {
+        var bstyle;
         parms.dom.clickedDown = false;
-        var bstyle = parms.dom.button.bstyle;
+        bstyle = parms.dom.button.bstyle;
         var settings = pui.widgets.buttonStyles[bstyle];
         if (settings == null) {
-          var bstyle = pui.widgets.getButtonStyles()[0];
+          bstyle = pui.widgets.getButtonStyles()[0];
           settings = pui.widgets.buttonStyles[bstyle];
         }
         parms.dom.button.textDiv.style.left = settings.left + "px";
@@ -649,12 +654,14 @@ pui.widgets.add({
     },
 
     "button style": function(parms) {
-      var bstyle = parms.value;
+      var bstyle;
+      bstyle = parms.value;
       var settings = pui.widgets.buttonStyles[bstyle];
       if (settings == null) {
-        var bstyle = pui.widgets.getButtonStyles()[0];
+        bstyle = pui.widgets.getButtonStyles()[0];
         settings = pui.widgets.buttonStyles[bstyle];
       }
+      // eslint-disable-next-line no-unused-vars
       var path = pui.normalizeURL("/profoundui/proddata/images/buttons/" + bstyle + "/");
       parms.dom.button.bstyle = bstyle;
       var button = parms.dom.button;
@@ -670,13 +677,14 @@ pui.widgets.add({
     },
 
     "width": function(parms) {
+      var bstyle;
       if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
       else parms.dom.style.width = parms.value;
 
-      var bstyle = parms.properties["button style"];
+      bstyle = parms.properties["button style"];
       var settings = pui.widgets.buttonStyles[bstyle];
       if (settings == null) {
-        var bstyle = pui.widgets.getButtonStyles()[0];
+        bstyle = pui.widgets.getButtonStyles()[0];
         settings = pui.widgets.buttonStyles[bstyle];
       }
       var button = parms.dom.button;
@@ -685,13 +693,14 @@ pui.widgets.add({
     },
 
     "height": function(parms) {
+      var bstyle;
       if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
       else parms.dom.style.height = parms.value;
 
-      var bstyle = parms.properties["button style"];
+      bstyle = parms.properties["button style"];
       var settings = pui.widgets.buttonStyles[bstyle];
       if (settings == null) {
-        var bstyle = pui.widgets.getButtonStyles()[0];
+        bstyle = pui.widgets.getButtonStyles()[0];
         settings = pui.widgets.buttonStyles[bstyle];
       }
       var button = parms.dom.button;

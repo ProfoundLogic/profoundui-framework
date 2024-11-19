@@ -459,7 +459,7 @@ function allDigits(strd) {
 }
 
 function str2dt(str_datetime) {
-  var re_date = /^(\d+)\-(\d+)\-(\d+)\s+(\d+)\:(\d+)\:(\d+)$/;
+  var re_date = /^(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)$/;
   var result = re_date.exec(str_datetime);
   if (!result) {
     // invalid date format
@@ -700,8 +700,8 @@ function cal(dateField, format) {
   dateField.calimg = newElem;
   gDateField[gDateCount++] = dateField;
   if (dateField.parentNode == null) {
-	  dateField.calimg.needsToBeMoved = true;
-	  return;
+    dateField.calimg.needsToBeMoved = true;
+    return;
   }
   dateField.parentNode.appendChild(newElem);
   pui.moveCal(dateField);

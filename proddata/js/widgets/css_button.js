@@ -401,13 +401,14 @@ pui.widgets.add({
     },
 
     "icon": function(parms) {
+      var value;
       if (parms.value) parms.value = trim(parms.value);
       if (parms.value.substr(0, 9) == "material:") {
-        var value = trim(parms.value.substr(9));
+        value = trim(parms.value.substr(9));
         parms.dom.button.setIcon(value, "material");
       }
       else if (parms.value.substr(0, 12) == "fontAwesome:") {
-        var value = trim(parms.value.substr(12));
+        value = trim(parms.value.substr(12));
         parms.dom.button.setIcon(value, "fontAwesome");
       }
       else {

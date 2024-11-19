@@ -18,6 +18,9 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.layout.template.applyTemplate = function(parms) {
+  var i; // loop iterator
+  var child;
+  var newContainer;
   var dom = parms.dom;
 
   var getContainers = pui.layout.template.getContainers;
@@ -56,10 +59,10 @@ pui.layout.template.applyTemplate = function(parms) {
   }
 
   // move widgets from old container to the new container
-  for (var i = 0; i < x; i++) {
+  for (i = 0; i < x; i++) {
     var container = containers[i];
-    var newContainer = newContainers[i];
-    var child = container.firstChild;
+    newContainer = newContainers[i];
+    child = container.firstChild;
     while (child != null) {
       container.removeChild(child);
       newContainer.appendChild(child);
@@ -68,8 +71,8 @@ pui.layout.template.applyTemplate = function(parms) {
   }
 
   // get stretch list
-  for (var i = 0; i < newContainers.length; i++) {
-    var newContainer = newContainers[i];
+  for (i = 0; i < newContainers.length; i++) {
+    newContainer = newContainers[i];
     if (newContainer.getAttribute("stretch") == "true") {
       stretchList.push(newContainer);
     }
@@ -77,7 +80,7 @@ pui.layout.template.applyTemplate = function(parms) {
 
   // Clear the child nodes from the element in the DOM, and move nodes from the temporary element into the DOM element.
   dom.innerHTML = "";
-  var child = newDom.firstChild;
+  child = newDom.firstChild;
   while (child != null) {
     dom.appendChild(newDom.removeChild(child));
     child = newDom.firstChild;
