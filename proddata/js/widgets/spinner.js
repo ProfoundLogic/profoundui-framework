@@ -303,6 +303,8 @@ pui.widgets.add({
       }
     },
     "css class": function(parms) {
+      var upClass;
+      var downClass;
       var className = parms.value.split(" ").shift();
       if (!parms.design && parms.dom.spinner) {
         parms.dom.spinner.setArrowClassNames(className);
@@ -311,12 +313,12 @@ pui.widgets.add({
         var up = parms.designItem.icon1;
         var down = parms.designItem.icon2;
         if (className == null) {
-          var upClass = "input pui-spinner-up-arrow-input " + className;
-          var downClass = "input pui-spinner-down-arrow-input " + className;
+          upClass = "input pui-spinner-up-arrow-input " + className;
+          downClass = "input pui-spinner-down-arrow-input " + className;
         }
         else {
-          var upClass = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
-          var downClass = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
+          upClass = "input pui-spinner-up-arrow-input spinner-up-arrow-" + className;
+          downClass = "input pui-spinner-down-arrow-input spinner-down-arrow-" + className;
         }
         parms.dom["icon1 class"] = upClass;
         parms.dom["icon2 class"] = downClass;
@@ -357,8 +359,7 @@ pui.widgets.add({
       parms.dom.spinner.setArrowClassNames();
     }
 
-    if (context == "genie" && typeof parms.dom.sizeMe == "function") // 7492.
-    {
+    if (context == "genie" && typeof parms.dom.sizeMe == "function") { // 7492.
       parms.dom.sizeMe();
     }
   }

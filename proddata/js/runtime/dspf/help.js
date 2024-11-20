@@ -96,6 +96,7 @@ pui.help.show = function() {
 
   // show help
   if (panelSuffix == null) {
+    // eslint-disable-next-line no-unused-vars
     var extendedHelpShown = pui.help.extendedHelp(props);
     // if (!extendedHelpShown) {
     // should submit screen with aid=0xF3 (Help) here ?
@@ -236,7 +237,7 @@ pui.help.renderHelpRecord = function(meta) {
       }
     }
 
-  	if (dom.pui && dom.pui.widget) dom.pui.widget.basicRender(); // a BasicWidget renders after properties are set.
+    if (dom.pui && dom.pui.widget) dom.pui.widget.basicRender(); // a BasicWidget renders after properties are set.
     else if (dom.layoutT) dom.layoutT.render();
   }
 };

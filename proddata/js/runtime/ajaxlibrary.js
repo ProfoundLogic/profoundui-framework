@@ -134,6 +134,7 @@ function RPGspRequest(arg) {
 
   // Privileged methods.
   this.send = function() {
+    var name;
     // Validate the properties set by the user, and assign defaults for those
     // properties not set.
     var method = null;
@@ -228,7 +229,7 @@ function RPGspRequest(arg) {
     // Determine if postData is a set of name/value pairs (i.e. url-encoded form)
     var isForm = true;
     if (postData != null) {
-      for (var name in me["headers"]) {
+      for (name in me["headers"]) {
         if (name.toUpperCase() == "CONTENT-TYPE") {
           var ctype = me["headers"][name].toLowerCase();
           if (ctype.indexOf("www-form-urlencoded") == -1) {
@@ -244,7 +245,7 @@ function RPGspRequest(arg) {
 
     if (typeof (params) == "object") {
       var paramString = "";
-      for (var name in params) {
+      for (name in params) {
         var paramValue = params[name];
         var paramValues = [];
         if (typeof paramValue == "object") { // handle multiple occurrences
@@ -294,7 +295,7 @@ function RPGspRequest(arg) {
       // Set any headers specified.
       var userCT = false;
       var headers = me["headers"];
-      for (var name in headers) {
+      for (name in headers) {
         xmlhttpObj.setRequestHeader(name, headers[name]);
         if (name.toUpperCase() == "CONTENT-TYPE") {
           userCT = true;
@@ -372,6 +373,7 @@ function RPGspRequest(arg) {
       }
     }
   };
+  // eslint-disable-next-line no-self-assign
   this["send"] = this.send;
 
   this.ok = function() {
@@ -382,31 +384,37 @@ function RPGspRequest(arg) {
       return false;
     }
   };
+  // eslint-disable-next-line no-self-assign
   this["ok"] = this.ok;
 
   this.getResponseText = function() {
     return xmlhttpObj.responseText;
   };
+  // eslint-disable-next-line no-self-assign
   this["getResponseText"] = this.getResponseText;
 
   this.getResponseXML = function() {
     return xmlhttpObj.responseXML;
   };
+  // eslint-disable-next-line no-self-assign
   this["getResponseXML"] = this.getResponseXML;
 
   this.getStatus = function() {
     return xmlhttpObj.status;
   };
+  // eslint-disable-next-line no-self-assign
   this["getStatus"] = this.getStatus;
 
   this.getStatusText = function() {
     return xmlhttpObj.statusText;
   };
+  // eslint-disable-next-line no-self-assign
   this["getStatusText"] = this.getStatusText;
 
   this.getStatusMessage = function() {
     return statusMessage;
   };
+  // eslint-disable-next-line no-self-assign
   this["getStatusMessage"] = this.getStatusMessage;
 
   this.getAllResponseHeaders = function() {
@@ -419,6 +427,7 @@ function RPGspRequest(arg) {
       alertFn(e);
     }
   };
+  // eslint-disable-next-line no-self-assign
   this["getAllResponseHeaders"] = this.getAllResponseHeaders;
 
   this.getResponseHeader = function(headerName) {
@@ -431,11 +440,13 @@ function RPGspRequest(arg) {
       alertFn(e);
     }
   };
+  // eslint-disable-next-line no-self-assign
   this["getResponseHeader"] = this.getResponseHeader;
 
   this.setRequestHeader = function(headerLabel, headerValue) {
     me["headers"][headerLabel] = headerValue;
   };
+  // eslint-disable-next-line no-self-assign
   this["setRequestHeader"] = this.setRequestHeader;
 
   this.abort = function() {
@@ -448,6 +459,7 @@ function RPGspRequest(arg) {
       alertFn(e);
     }
   };
+  // eslint-disable-next-line no-self-assign
   this["abort"] = this.abort;
 }
 
@@ -609,7 +621,7 @@ function ajaxJSON(url, handler) {
       return;
     }
     if (async == true) {
-	  callback(responseObj);
+      callback(responseObj);
     }
   }
 }

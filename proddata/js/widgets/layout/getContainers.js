@@ -45,6 +45,7 @@ pui.layout.template.getContainers = function(dom) {
 };
 
 pui.layout.getContainerOffset = function(containerDom) {
+  var comp;
   var x = 0;
   var y = 0;
   var elem = containerDom;
@@ -52,7 +53,7 @@ pui.layout.getContainerOffset = function(containerDom) {
     x += elem.offsetLeft + elem.clientLeft - elem.scrollLeft;
     y += elem.offsetTop + elem.clientTop - elem.scrollTop;
     if (elem == containerDom.parentNode) {
-      var comp = pui.getComputedStyle(elem);
+      comp = pui.getComputedStyle(elem);
       if (comp) {
         if (comp["padding-left"]) x -= parseInt(comp["padding-left"], 10);
         else if (comp["paddingLeft"]) x -= parseInt(comp["paddingLeft"], 10);
@@ -73,7 +74,7 @@ pui.layout.getContainerOffset = function(containerDom) {
     x += elem.offsetLeft + elem.clientLeft - elem.scrollLeft;
     y += elem.offsetTop + elem.clientTop - elem.scrollTop;
     if (elem == containerDom.parentNode) {
-      var comp = pui.getComputedStyle(elem);
+      comp = pui.getComputedStyle(elem);
       if (comp) {
         if (comp["padding-left"]) x -= parseInt(comp["padding-left"], 10);
         else if (comp["paddingLeft"]) x -= parseInt(comp["paddingLeft"], 10);

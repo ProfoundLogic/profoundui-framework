@@ -20,6 +20,7 @@
 // ------------------------------------------------------------
 //   Dutch -- Netherlands
 // -------------------------------------------------------------
+// eslint-disable-next-line no-unused-vars
 var nl_NL = function(dict) {
   var dictMsg = {};
 

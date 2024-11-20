@@ -367,9 +367,10 @@ pui.widgets.add({
  * @param {Event} e
  */
 pui["fileupload"].myPreventDef = function(e) {
+  var i, n; // loop iterators
   var list = e.dataTransfer.items; // Edge, Chrome, Firefox
   if (list != null) {
-    for (var i = 0, n = list.length; i < n; i++) {
+    for (i = 0, n = list.length; i < n; i++) {
       if (list[i]["kind"] === "file") {
         e.preventDefault();
         return;
@@ -378,7 +379,7 @@ pui["fileupload"].myPreventDef = function(e) {
   }
   list = e.dataTransfer.types; // IE11
   if (list != null) {
-    for (var i = 0, n = list.length; i < n; i++) {
+    for (i = 0, n = list.length; i < n; i++) {
       if (list[i] === "Files") {
         e.preventDefault();
         return;

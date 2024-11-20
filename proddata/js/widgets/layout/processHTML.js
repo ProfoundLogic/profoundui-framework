@@ -113,7 +113,7 @@ pui.layout.template.processHTML = function(parms, dom) {
   function evalDynamicPart(part) {
     var obj;
     var expression = "(" + html.substring(part.start, part.end + 1) + ")";
-    var obj = null;
+    obj = null;
     try {
       obj = eval(expression);
     }
