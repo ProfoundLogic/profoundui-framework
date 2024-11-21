@@ -4232,8 +4232,13 @@ pui.buildResponse = function(customResponseElements) {
       }
     }
   }
-  fillReturnCursorData(pui.cursorFields.record, pui.cursorValues.record);
-  fillReturnCursorData(pui.cursorFields.field, pui.cursorValues.field);
+  function upCursorValue(value) {
+    if (!pui["uppercase cursor fields"]) return value;
+    if (typeof value !== "string") return value;
+    return value.toUpperCase();
+  }
+  fillReturnCursorData(pui.cursorFields.record, upCursorValue(pui.cursorValues.record));
+  fillReturnCursorData(pui.cursorFields.field, upCursorValue(pui.cursorValues.field));
   fillReturnCursorData(pui.cursorFields.position, pui.cursorValues.position);
   fillReturnCursorData(pui.cursorFields.row, pui.cursorValues.row);
   fillReturnCursorData(pui.cursorFields.column, pui.cursorValues.column);
