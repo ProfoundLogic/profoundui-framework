@@ -90,6 +90,7 @@ pui.ValidationTip = function(el) {
   };
 
   this.positionByElement = function() {
+    var offset;
     var msgOffset = 3;
     var msgHeight = me._div.offsetHeight;
     var msgWidth = me._div.offsetWidth;
@@ -141,7 +142,7 @@ pui.ValidationTip = function(el) {
         if (top < 0) top = 0;
       }
       else if (prt.getAttribute("container") == "true") {
-        var offset = pui.layout.getContainerOffset(prt);
+        offset = pui.layout.getContainerOffset(prt);
         top = top + offset.y;
         left = left + offset.x;
       }
@@ -156,7 +157,7 @@ pui.ValidationTip = function(el) {
           left += gridElement.offsetLeft;
           top += gridElement.offsetTop;
           if (gridElement.parentNode.getAttribute("container") == "true") {
-            var offset = pui.layout.getContainerOffset(gridElement.parentNode);
+            offset = pui.layout.getContainerOffset(gridElement.parentNode);
             top = top + offset.y;
             left = left + offset.x;
           }

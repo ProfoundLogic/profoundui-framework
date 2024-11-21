@@ -18,14 +18,17 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 pui.applyEditWord = function(obj) {
+  var i; // loop iterator
+  var ch;
+  var newValue;
   var edtwrd = obj.edtWrd;
   var value = obj.value;
   var decPos = Number(obj.decPos);
 
   // apply key filter
   var keyFilter = "[\\d";
-  for (var i = 0; i < edtwrd.length; i++) {
-    var ch = edtwrd.substr(i, 1);
+  for (i = 0; i < edtwrd.length; i++) {
+    ch = edtwrd.substr(i, 1);
     var keyFilterChar = ch;
     if (ch == " ") continue;
     if (ch == "&") keyFilterChar = " ";
@@ -92,7 +95,7 @@ pui.applyEditWord = function(obj) {
   // look for farthest right character that can be replaced by a digit
   // to determine where the body part of the edit word ends
   var bodyEndPos = -1;
-  for (var i = edtwrd.length - 1; i >= 0; i = i - 1) {
+  for (i = edtwrd.length - 1; i >= 0; i = i - 1) {
     if (i + 1 == zeroSuppressPos || edtwrd.substr(i, 1) == " ") {
       bodyEndPos = i;
       break;
@@ -105,7 +108,7 @@ pui.applyEditWord = function(obj) {
   var editExpansion = "";
   var done = false;
   var encounteredSign = false;
-  for (var i = bodyEndPos + 1; i < edtwrd.length; i++) {
+  for (i = bodyEndPos + 1; i < edtwrd.length; i++) {
     if (edtwrd.substr(i, 2) == "CR") {
       encounteredSign = true;
       i++;
@@ -131,7 +134,7 @@ pui.applyEditWord = function(obj) {
   }
 
   // format body part of edit word
-  var newValue = "";
+  newValue = "";
   var beforeSignificantDigits = false;
   var asteriskProtection = false;
   var floatingCurSym = false;
@@ -153,8 +156,8 @@ pui.applyEditWord = function(obj) {
     }
     return ch;
   }
-  for (var i = editBody.length - 1; i >= 0; i = i - 1) {
-    var ch = editBody.substr(i, 1);
+  for (i = editBody.length - 1; i >= 0; i = i - 1) {
+    ch = editBody.substr(i, 1);
     var newCh = ch;
     if (ch == " ") {
       newCh = getDigit();
@@ -206,9 +209,9 @@ pui.applyEditWord = function(obj) {
   }
 
   // combine body, status, expansion results, and add floating currency symbol if applicable
-  var newValue = newValue + editStatus + editExpansion;
+  newValue = newValue + editStatus + editExpansion;
   obj.maxLength = newValue.length;
-  var newValue = trim(newValue);
+  newValue = trim(newValue);
   if (asteriskProtection && newValue.substr(0, 1) != "*") newValue = "*" + newValue;
   if (floatingCurSym) newValue = curSym + newValue;
 
@@ -222,6 +225,7 @@ pui.applyEditWord = function(obj) {
 // -------------------------------------------------------------------
 
 pui.applyEditMaskOriginal = function(dom, event, pos) {
+  var i; // loop iterator
   // get key code
   event = event || window.event;
   var key;
@@ -247,7 +251,7 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
   var mask = [];
   var n = edtMsk.length;
   if (edtWrd.length < n) n = edtWrd.length;
-  for (var i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     wrdCh = edtWrd.substr(i, 1);
     mskCh = edtMsk.substr(i, 1);
     if (wrdCh == " " || wrdCh == "0" || mskCh == " ") {
@@ -269,7 +273,7 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
     value = value.substr(0, n);
   }
   var fillCh = "0";
-  for (var i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     var maskCh = mask[i];
     var valueCh = value.substr(i, 1);
     if (maskCh != null && valueCh != maskCh) {
@@ -306,6 +310,7 @@ pui.applyEditMaskOriginal = function(dom, event, pos) {
 };
 
 pui.applyEditMask = function(dom, event, pos) {
+  var i; // loop iterator
   // for backward compatibility:
   if (typeof pui["use original edit mask"] != "undefined" &&
      pui["use original edit mask"] === true) {
@@ -337,7 +342,7 @@ pui.applyEditMask = function(dom, event, pos) {
   var n = edtMsk.length;
   var zeroSuppressPos = n;
   if (edtWrd.length < n) n = edtWrd.length;
-  for (var i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     wrdCh = edtWrd.substr(i, 1);
     mskCh = edtMsk.substr(i, 1);
     if ((wrdCh == "0" || wrdCh == "*") && zeroSuppressPos > i) {
@@ -362,7 +367,7 @@ pui.applyEditMask = function(dom, event, pos) {
     value = value.substr(0, n);
   }
   var fillCh;
-  for (var i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     if (i <= zeroSuppressPos) {
       fillCh = " ";
     }

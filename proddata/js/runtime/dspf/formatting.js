@@ -260,18 +260,18 @@ pui.formatting = {
     return (/^(?:zoned|floating|packed)$/).test(dataType);
   },
   encodeGraphic: function(text, fieldLength) {
-  	for (var i = 0; i < text.length; i++) {
-  		var charCode = text.charCodeAt(i);
-  		if (charCode > 0xFFFF) {
-  			// Character is outside of UCS-2 (fixed 2-byte encoding) range.
-  			return { msg: pui["getLanguageText"]("runtimeMsg", "outside ucs2") };
-  		}
-  	}
-  	// Blank pad field to full length.
-  	while (text.length < fieldLength) {
-  		text += " ";
-  	}
-  	return pui.Base64.encode(text);
+    for (var i = 0; i < text.length; i++) {
+      var charCode = text.charCodeAt(i);
+      if (charCode > 0xFFFF) {
+        // Character is outside of UCS-2 (fixed 2-byte encoding) range.
+        return { msg: pui["getLanguageText"]("runtimeMsg", "outside ucs2") };
+      }
+    }
+    // Blank pad field to full length.
+    while (text.length < fieldLength) {
+      text += " ";
+    }
+    return pui.Base64.encode(text);
   },
   decodeGraphic: function(input) {
     return pui.Base64.decode(input);
@@ -309,7 +309,7 @@ pui.formatting = {
     }
   },
   escapeRe: (function() {
-    var re = /([\.\*\+\?\^\$\{\}\(\)\|\-\[\]\/\\])/g;
+    var re = /([.*+?^${}()|\-[\]/\\])/g;
     return function(str) {
       return str.replace(re, "\\$1");
     };
@@ -407,10 +407,11 @@ pui.FieldFormat = {
       return value;
     },
     revert: function(obj) {
+      var dataLength;
       var value = obj.value + "";
       value = value.replace(/\s+$/g, "");
       if (obj.blankFill == "true" && (obj.dataType == "char" || obj.dataType == "varchar")) {
-        var dataLength = Number(obj.dataLength);
+        dataLength = Number(obj.dataLength);
         if (!isNaN(dataLength)) {
           value = pui.formatting.leftPad(value, dataLength, " ");
         }
@@ -433,7 +434,7 @@ pui.FieldFormat = {
         });
       }
       if (obj.dataType == "graphic" && !pui.nodejs) {
-        var dataLength = parseInt(obj.dataLength, 10);
+        dataLength = parseInt(obj.dataLength, 10);
         value = pui.formatting.encodeGraphic(value, dataLength);
       }
       return value;
@@ -454,7 +455,7 @@ pui.FieldFormat = {
         // Database driven grids will return comma decimals when DCMFMT is 'J' which is something
         //  this function does not expect.
         //  Replace the comma with a period and the rest of the code will function normally.
-        strValue = obj.value.replace(/\./g, "").replace(/\,/g, ".");
+        strValue = obj.value.replace(/\./g, "").replace(/,/g, ".");
       }
       else {
         // strValue = obj.value;
@@ -683,12 +684,12 @@ pui.FieldFormat = {
       }
 
       var valid = true;
-      var stripped = value.replace(/[^\d\-]/g, "");
+      var stripped = value.replace(/[^\d-]/g, "");
       if (/-/.test(stripped) && !/(^-|-$)/.test(stripped)) {
         valid = false;
       }
 
-      if (obj.negNum && /[\-()CR]/.test(value)) {
+      if (obj.negNum && /[-()CR]/.test(value)) {
         if (obj.negNum == "(999.00)") {
           value = value.replace(/\(/, "").replace(/\)/, "");
         }
@@ -708,7 +709,7 @@ pui.FieldFormat = {
       value = value.trim();
 
       if (valid) {
-        valid = !(/[^\d.\-]/.test(value)) && value.split("-").length <= 2 && value.split(".").length <= 2;
+        valid = !(/[^\d.-]/.test(value)) && value.split("-").length <= 2 && value.split(".").length <= 2;
       }
 
       var errorMsg;
@@ -874,21 +875,18 @@ pui.FieldFormat = {
       if (obj.dataType == "char" || obj.dataType == "varchar") {
         // check for omitted leading zero and autopad it with a "0"
         // Declare simple date patterns having a missing leading 0 (not meant to be an advanced date validation).
-        var dmyRegex = new RegExp("^([1-9])(\\/|-|\\.)(1[0-2]|0[1-9])(\\/|-|\\.)(?:[0-9]{2})?[0-9]{2}$", "gm"); // dmy date with a missing leading 0
-        var mdyRegex = new RegExp("^([1-9])(\\/|-|\\.)(3[01]|[12][0-9]|0[1-9])(\\/|-|\\.)(?:[0-9]{2})?[0-9]{2}$", "gm"); // mdy date with a missing leading 0
-        var myRegex = new RegExp("^([1-9])\\/(?:[0-9]{2})?[0-9]{2}$", "gm"); // m/y date with missing leading 0
+        var dmyRegex = /^([1-9])(\/|-|\.)(1[0-2]|0[1-9])(\/|-|\.)(?:[0-9]{2})?[0-9]{2}$/gm; // dmy date with a missing leading 0
+        var mdyRegex = /^([1-9])(\/|-|\.)(3[01]|[12][0-9]|0[1-9])(\/|-|\.)(?:[0-9]{2})?[0-9]{2}$/gm; // mdy date with a missing leading 0
+        var myRegex = /^([1-9])\/(?:[0-9]{2})?[0-9]{2}$/gm; // m/y date with missing leading 0
         // Only add omitted "0" if the existing value is a valid date with a missing leading 0.
-        if ((value.length == 7 &&
-              ((dateFormat == "m/d/y" || dateFormat == "m-d-y") && mdyRegex.test(value) == true) || // a valid mdy date
-              ((dateFormat == "d/m/y" || dateFormat == "d-m-y" || dateFormat == "d.m.y") && dmyRegex.test(value) == true) // a valid dmy date
-        ) ||
-             (value.length == 9 &&
-              ((dateFormat == "m/d/Y" || dateFormat == "m-d-Y") && mdyRegex.test(value) == true) || // a valid mdY date
-              ((dateFormat == "d/m/Y" || dateFormat == "d-m-Y" || dateFormat == "d.m.Y") && dmyRegex.test(value) == true) // a valid dmY date
-             ) ||
+        if (((value.length == 7 &&
+              ((dateFormat == "m/d/y" || dateFormat == "m-d-y") && mdyRegex.test(value) == true)) || // a valid mdy date
+              ((dateFormat == "d/m/y" || dateFormat == "d-m-y" || dateFormat == "d.m.y") && dmyRegex.test(value) == true)) || // a valid dmy date
+         ((value.length == 9 &&
+              ((dateFormat == "m/d/Y" || dateFormat == "m-d-Y") && mdyRegex.test(value) == true)) || // a valid mdY date
+              ((dateFormat == "d/m/Y" || dateFormat == "d-m-Y" || dateFormat == "d.m.Y") && dmyRegex.test(value) == true)) || // a valid dmY date
              (value.length == 6 &&
-              (dateFormat == "m/Y") && myRegex.test(value) == true // a valid Y/m date
-             )
+              (dateFormat == "m/Y") && myRegex.test(value) == true) // a valid Y/m date
         ) {
           value = "0" + value;
         }
@@ -1014,8 +1012,7 @@ pui.FieldFormat = {
               pui.formatting.keywords.DATSEP[pui.appJob.dateSeparator]) {
             datSep = pui.appJob.dateSeparator;
           }
-          else if (pui.formatting.keywords.DATFMT[datFmt]) // If not overridable, set to date format's default separators
-          {
+          else if (pui.formatting.keywords.DATFMT[datFmt]) { // If not overridable, set to date format's default separators
             datSep = pui.formatting.keywords.DATFMT[datFmt].defaultSep;
           }
         }
@@ -1577,6 +1574,7 @@ pui.FieldFormat = {
       "timestamp": { def: "0001-01-01-00.00.00.000000", rx: "\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])-(?:[0-1][0-9]|2[0-3])(?:\\.[0-5][0-9]){2}\\.\\d{6}" }
     };
 
+    // eslint-disable-next-line no-unused-vars
     var rx = new RegExp("^" + types[obj.dataType].rx + "$", "i");
     // if(!value.test(rx)
 

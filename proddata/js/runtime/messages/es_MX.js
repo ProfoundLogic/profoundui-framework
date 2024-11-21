@@ -20,6 +20,7 @@
 // ------------------------------------------------------------
 //  Mexican/Latin American Spanish
 // -------------------------------------------------------------
+// eslint-disable-next-line no-unused-vars
 var es_MX = function(dict) {
   var dictMsg = {};
 

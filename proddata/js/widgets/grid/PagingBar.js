@@ -326,7 +326,7 @@ pui.PagingBar = function() {
           removeEvent(pui.runtimeContainer, "keydown", handleKeyDown);
           return;
         }
-      	if (!e) e = window.event;
+        if (!e) e = window.event;
         var key = e.keyCode;
         if (key == 33) autoPageUp();
         if (key == 34) autoPageDown();
@@ -359,8 +359,6 @@ pui.PagingBar = function() {
 
       var cursorStartX = getMouseX(event);
       var cursorStartY = getMouseY(event);
-      var startGridX = parseInt(me.grid.tableDiv.style.left);
-      var startGridY = parseInt(me.grid.tableDiv.style.top);
       me.grid.doThisToTableDivs(function(domObj) {
         domObj.startLeft = parseInt(domObj.style.left);
         domObj.startTop = parseInt(domObj.style.top);

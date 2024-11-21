@@ -79,4 +79,5 @@ window["pui"]["UTF8"]["decode"] = pui.UTF8.decode;
 var $ = function() {};
 window["$"] = $;
 // do something similar with "id" variable (Ext seems to set window.id, which was causing conflicts with closure)
+// eslint-disable-next-line no-self-assign
 window["id"] = window.id;
