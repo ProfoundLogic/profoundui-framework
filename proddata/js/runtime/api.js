@@ -836,16 +836,29 @@ pui.UTF8 = {
     var utftext = "";
 
     for (var n = 0; n < str.length; n++) {
-      var c = str.charCodeAt(n);
+      var c = str.codePointAt(n);
+
+      // Increment n if it's a surrogate pair
+      if (c > 0xFFFF) {
+        n++;
+      }
+
       if (c < 128) {
         utftext += String.fromCharCode(c);
       }
-      else if ((c > 127) && (c < 2048)) {
+      else if (c < 2048) {
         utftext += String.fromCharCode((c >> 6) | 192);
         utftext += String.fromCharCode((c & 63) | 128);
       }
-      else {
+      else if (c < 65536) {
         utftext += String.fromCharCode((c >> 12) | 224);
+        utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+        utftext += String.fromCharCode((c & 63) | 128);
+      }
+      else {
+        // Handle 4-byte UTF-8 for supplementary characters
+        utftext += String.fromCharCode((c >> 18) | 240);
+        utftext += String.fromCharCode(((c >> 12) & 63) | 128);
         utftext += String.fromCharCode(((c >> 6) & 63) | 128);
         utftext += String.fromCharCode((c & 63) | 128);
       }
@@ -857,24 +870,37 @@ pui.UTF8 = {
   decode: function(utftext) {
     var str = "";
     var i = 0;
-    var c = c1 = c2 = 0;
+    var c = 0;
+    var c1 = 0;
+    var c2 = 0;
+    var c3 = 0;
 
     while (i < utftext.length) {
       c = utftext.charCodeAt(i);
+
       if (c < 128) {
         str += String.fromCharCode(c);
         i++;
       }
-      else if ((c > 191) && (c < 224)) {
-        c2 = utftext.charCodeAt(i + 1);
-        str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+      else if (c < 224) {
+        c1 = utftext.charCodeAt(i + 1);
+        str += String.fromCharCode(((c & 31) << 6) | (c1 & 63));
         i += 2;
       }
-      else {
-        c2 = utftext.charCodeAt(i + 1);
-        c3 = utftext.charCodeAt(i + 2);
-        str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+      else if (c < 240) {
+        c1 = utftext.charCodeAt(i + 1);
+        c2 = utftext.charCodeAt(i + 2);
+        str += String.fromCharCode(((c & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63));
         i += 3;
+      }
+      else {
+        // Decode 4-byte UTF-8 for supplementary characters
+        c1 = utftext.charCodeAt(i + 1);
+        c2 = utftext.charCodeAt(i + 2);
+        c3 = utftext.charCodeAt(i + 3);
+        var codePoint = ((c & 7) << 18) | ((c1 & 63) << 12) | ((c2 & 63) << 6) | (c3 & 63);
+        str += String.fromCodePoint(codePoint);
+        i += 4;
       }
     }
 
