@@ -26,7 +26,7 @@ else if (location.pathname.match(/^\/ide/i)) {
   pui.nodedesigner = true;
 }
 else {
-  var match = location.pathname.match(/\/([^/]+)\/?$/i);
+  var match = location.pathname.match(/\/([^\/]+)\/?$/i);
   if (match && match[1].toLowerCase() === "viewdesigner") {
     pui.viewdesigner = true;
   }

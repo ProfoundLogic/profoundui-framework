@@ -379,11 +379,10 @@ pui.widgets.add({
 
     "field type": function(parms) {
       parms.dom.sizeMe = function() {
-        var pstyle;
-        pstyle = parms.properties["panel style"];
+        var pstyle = parms.properties["panel style"];
         var settings = pui.widgets.panelStyles[pstyle];
         if (settings == null) {
-          pstyle = pui.widgets.getPanelStyles()[0];
+          var pstyle = pui.widgets.getPanelStyles()[0];
           settings = pui.widgets.panelStyles[pstyle];
         }
         var panel = parms.dom.panel;
@@ -509,7 +508,6 @@ pui.widgets.add({
       // Enable dragging if within window
       var windowDiv = parms.dom.parentNode;
       if (!parms.design && windowDiv != null && windowDiv.isPUIWindow == true) {
-        // eslint-disable-next-line no-new
         new pui.MoveListenerBoundAtClick({ attachto: [panel.textDiv, panel.topLeftDiv, panel.topRightDiv], move: windowDiv });
 
         addEvent(panel.textDiv, "touchstart", function(e) {
@@ -547,11 +545,10 @@ pui.widgets.add({
     },
 
     "panel style": function(parms) {
-      var pstyle;
-      pstyle = parms.value;
+      var pstyle = parms.value;
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
-        pstyle = pui.widgets.getPanelStyles()[0];
+        var pstyle = pui.widgets.getPanelStyles()[0];
         settings = pui.widgets.panelStyles[pstyle];
       }
       var path = pui.normalizeURL("/profoundui/proddata/images/panels/" + pstyle + "/");
@@ -586,13 +583,12 @@ pui.widgets.add({
     },
 
     "width": function(parms) {
-      var pstyle;
       if (pui.isNumericString(parms.value)) parms.dom.style.width = parms.value + "px";
       else parms.dom.style.width = parms.value;
-      pstyle = parms.properties["panel style"];
+      var pstyle = parms.properties["panel style"];
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
-        pstyle = pui.widgets.getPanelStyles()[0];
+        var pstyle = pui.widgets.getPanelStyles()[0];
         settings = pui.widgets.panelStyles[pstyle];
       }
       var panel = parms.dom.panel;
@@ -601,13 +597,12 @@ pui.widgets.add({
     },
 
     "height": function(parms) {
-      var pstyle;
       if (pui.isNumericString(parms.value)) parms.dom.style.height = parms.value + "px";
       else parms.dom.style.height = parms.value;
-      pstyle = parms.properties["panel style"];
+      var pstyle = parms.properties["panel style"];
       var settings = pui.widgets.panelStyles[pstyle];
       if (settings == null) {
-        pstyle = pui.widgets.getPanelStyles()[0];
+        var pstyle = pui.widgets.getPanelStyles()[0];
         settings = pui.widgets.panelStyles[pstyle];
       }
       var panel = parms.dom.panel;

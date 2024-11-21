@@ -21,30 +21,29 @@ if (typeof (window["pui"]) == "undefined") window["pui"] = {};
 
 function loadPCCommandApplet(callback) {
   if (document.getElementById("PCCommandApplet") == null) {
-    var applet = document.createElement("applet");
-    applet.id = "PCCommandApplet";
-    applet.archive = "/profoundui/proddata/applet/PCIntegration.jar";
-    applet.code = "com.profoundlogic.genie.PCIntegration";
-    applet.style.height = "0px";
-    applet.style.width = "0px";
-    var temp = eval(callback);
-    if (typeof (temp) == "function") { // Test if it's a good function...
-      var param = document.createElement("param");
-      param.setAttribute("name", "callback");
-      param.setAttribute("value", callback);
-      applet.appendChild(param);
-    }
-    document.body.appendChild(applet);
+  	var applet = document.createElement("applet");
+  	applet.id = "PCCommandApplet";
+  	applet.archive = "/profoundui/proddata/applet/PCIntegration.jar";
+  	applet.code = "com.profoundlogic.genie.PCIntegration";
+  	applet.style.height = "0px";
+  	applet.style.width = "0px";
+  	var temp = eval(callback);
+  	if (typeof (temp) == "function") { // Test if it's a good function...
+  	  var param = document.createElement("param");
+  	  param.setAttribute("name", "callback");
+  	  param.setAttribute("value", callback);
+  	  applet.appendChild(param);
+  	}
+  	document.body.appendChild(applet);
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function copyToClipboard(data) {
   var applet = document.getElementById("PCCommandApplet");
   if (!applet) {
-    pui.appletClipData = data;
-    loadPCCommandApplet("copyToClipboardCb");
-    return;
+	  pui.appletClipData = data;
+	  loadPCCommandApplet("copyToClipboardCb");
+	  return;
   }
 
   applet["copyToClipboard"](data);

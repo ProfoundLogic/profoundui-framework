@@ -278,12 +278,11 @@ pui.GridTree.prototype.printByLevel = function() {
 };
 
 pui.GridTree.prototype.load = function(treeLevelData) {
-  var rrn;
   var tree = this;
   // root node:
   // level = 0
   // rrn   = 0
-  rrn = "0";
+  var rrn = "0";
   var treelLevel = 0;
   tree.add("0");
   var parentRRNsave = {};
@@ -292,7 +291,7 @@ pui.GridTree.prototype.load = function(treeLevelData) {
     var data = treeLevelData[i];
     var treeLevel = data.treeLevel;
     var treeLevelMinusOne = treeLevel - 1;
-    rrn = (i + 1).toString();
+    var rrn = (i + 1).toString();
     var parentRRN = parentRRNsave[treeLevelMinusOne];
     var node = tree.add(rrn, parentRRN);
     data.node = node;

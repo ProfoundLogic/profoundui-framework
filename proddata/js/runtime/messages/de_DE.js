@@ -20,7 +20,6 @@
 // ----------------------------------
 //  German / Germany
 // ----------------------------------
-// eslint-disable-next-line no-unused-vars
 var de_DE = function(dict) {
   var dictMsg = {};
 

@@ -20,7 +20,6 @@
 // sets the host cursor location
 // pass in row and column based on green-screen coordinates or an id of an element.
 // example: setCursor("D_24_1"); pressKey('F1');   // the id's column part can be 1 off, based on "adjust columns" setting.
-// eslint-disable-next-line no-unused-vars
 function setCursor(row, col) {
   if (arguments.length == 1) {
     var id = row;
@@ -62,7 +61,6 @@ function hideElement(obj) {
 // hide many elements by id
 // parms: id1, id2, id3, id4, etc.
 // example: hideElements('D_1_29', 'D_3_1', 'I_7_11')
-// eslint-disable-next-line no-unused-vars
 function hideElements() {
   for (var i = 0; i < hideElements.arguments.length; i++) {
     hideElement(hideElements.arguments[i]);
@@ -79,7 +77,6 @@ function removeElement(obj) {
 // remove many elements by id
 // parms: id1, id2, id3, id4, etc.
 // example: removeElements('D_1_29', 'D_3_1', 'I_7_11')
-// eslint-disable-next-line no-unused-vars
 function removeElements() {
   for (var i = 0; i < removeElements.arguments.length; i++) {
     removeElement(removeElements.arguments[i]);
@@ -187,7 +184,6 @@ function getObj(id) {
 
 // post data to a new window
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
-// eslint-disable-next-line no-unused-vars
 function postToNewWindow(url) {
   if (!url) {
     pui.alert("postToNewWindow Error: URL not specified.");
@@ -216,7 +212,6 @@ function postToNewWindow(url) {
 // Make a call to postToNewWindow and pass a target param.
 // post data to a url
 // params: url, parm1, value1, parm2, value2, parm3, value3, etc.
-// eslint-disable-next-line no-unused-vars
 function postTo(url) {
   if (!url) {
     pui.alert("postTo Error: URL not specified.");
@@ -322,7 +317,6 @@ function changeElementValue(id, val) {
 // assign a new css class to an element
 // parms: element id, class name
 // example: changeElementClass('D_6_11', "BigText");
-// eslint-disable-next-line no-unused-vars
 function changeElementClass(id, customClass) {
   var elem = document.getElementById(id);
   if (elem == null) return "";
@@ -403,7 +397,6 @@ function newElement(row, col, elemType, content, id) {
 }
 
 // Cancels an event and prevents it from bubbling up
-// eslint-disable-next-line no-unused-vars
 function preventEvent(event) {
   if (!event) event = window.event;
   if (window.event) {
@@ -424,7 +417,6 @@ function preventEvent(event) {
 // in which case the setTab action is automatically delayed until the tab panel is there
 // example: setTab("TabPanel", 1);
 var setTabActions = {};
-// eslint-disable-next-line no-unused-vars
 function setTab(tabPanelId, tab) {
   var tabPanel = getObj(tabPanelId);
   if (tabPanel == null || tabPanel.setTab == null) {
@@ -447,7 +439,6 @@ function ltrim(str) {
 
 // trims trailing spaces from a string
 // example: s = rtrim(s);
-// eslint-disable-next-line no-unused-vars
 function rtrim(str) {
   if (typeof str !== "string") return str;
   while (str.charAt((str.length - 1)) == " ") {
@@ -466,7 +457,6 @@ function trim(str) {
 // attaches a pop-up calendar to any input field
 // parms: input field id, date format
 // example: attachCalendar('I_5_20');
-// eslint-disable-next-line no-unused-vars
 function attachCalendar(id, format) {
   var obj = document.getElementById(id);
   if (obj != null) cal(obj, format);
@@ -493,7 +483,6 @@ function createNamedElement(type, name) {
   return element;
 }
 
-// eslint-disable-next-line no-unused-vars
 function getInnerText(domObj) {
   // Handle id or object.
   if (typeof (domObj) == "string") domObj = getObj(domObj);
@@ -548,7 +537,6 @@ function getProgramURL(program, psid, useAuth) {
 pui["getProgramURL"] = getProgramURL;
 
 // Sets a DOM property on an element -- catches exceptions.
-// eslint-disable-next-line no-unused-vars
 function setDOMAttribute(dom, attribute, value) {
   var obj;
   if (typeof (dom) == "string") obj = document.getElementById(dom);
@@ -563,13 +551,11 @@ function setDOMAttribute(dom, attribute, value) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function getActualStyle(dom, propertyName) {
-  var i; // loop iterator
   var cssName = propertyName.replace(/ /g, "-");
   var jsName = "";
   var capitalize = false;
-  for (i = 0; i < propertyName.length; i++) {
+  for (var i = 0; i < propertyName.length; i++) {
     var ch = propertyName.substr(i, 1);
     if (capitalize) {
       ch = ch.toUpperCase();
@@ -596,7 +582,7 @@ function getActualStyle(dom, propertyName) {
       value = value.replace(/ /g, "");
       var hexCodes = value.split(",");
       value = "#";
-      for (i = 0; i < hexCodes.length; i++) {
+      for (var i = 0; i < hexCodes.length; i++) {
         var hex = Number(hexCodes[i]).toString(16).toUpperCase();
         if (hex.length == 1) hex = "0" + hex;
         value += hex;
@@ -615,7 +601,6 @@ function addEvent(obj, eventName, func) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function removeEvent(obj, eventName, func) {
   if (obj.removeEventListener) {
     obj.removeEventListener(eventName, func, false);
@@ -627,7 +612,6 @@ function removeEvent(obj, eventName, func) {
 
 // DEPRECATED -- use pui.getMouseX() and pui.getMouseY() instead.
 
-// eslint-disable-next-line no-unused-vars
 function getMouseX(event) {
   if (event != null && event.touches != null && event.touches.length == 1) { // test for touch screen device like iPad
     return event.touches[0].pageX;
@@ -647,7 +631,6 @@ function getMouseX(event) {
   return x;
 }
 
-// eslint-disable-next-line no-unused-vars
 function getMouseY(event) {
   if (event != null && event.touches != null && event.touches.length == 1) { // test for touch screen device like iPad
     return event.touches[0].pageY;
@@ -695,7 +678,6 @@ pui.getMouseXY = function(event) {
   return xy;
 };
 
-// eslint-disable-next-line no-unused-vars
 function showErrors() {
   if (errors.length == 0) {
     alert("No errors have been reported.");
@@ -714,7 +696,6 @@ function showErrors() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function currentDate(editCode, YYYY) {
   if (editCode == null || editCode == "Y") {
     slashes = true;
@@ -762,7 +743,6 @@ function currentDate(editCode, YYYY) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function currentTime() {
   if (inDesignMode()) {
     return "TT:TT:TT";
@@ -786,7 +766,6 @@ function currentTime() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function currentUser() {
   if (inDesignMode()) {
     return "UUUUUUUUUU";
@@ -920,7 +899,7 @@ pui.Base64 = {
     var enc1, enc2, enc3, enc4;
     var i = 0;
 
-    input = input.replace(/[^A-Za-z0-9+/=]/g, "");
+    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
     while (i < input.length) {
       enc1 = this.alphabet.indexOf(input.charAt(i++));
       enc2 = this.alphabet.indexOf(input.charAt(i++));
@@ -1098,8 +1077,6 @@ pui.normalizeURL = function(url, mobileClientOnly) {
 
 // use css3 to animate an element or container
 pui["animate"] = function(parms) {
-  var i; // loop iterator
-  var property;
   var elem = parms["element"];
   if (typeof elem == "string") elem = getObj(elem);
   if (elem == null) return;
@@ -1179,8 +1156,8 @@ pui["animate"] = function(parms) {
   }
   if (to == null) return;
   var value = "";
-  for (i = 0; i < properties.length; i++) {
-    property = properties[i];
+  for (var i = 0; i < properties.length; i++) {
+    var property = properties[i];
     if (value != "") value += ", ";
     value += property + " " + duration + " " + type;
   }
@@ -1188,8 +1165,8 @@ pui["animate"] = function(parms) {
 
   if (from != null) {
     if (typeof from == "string" || typeof from == "number") from = [from];
-    for (i = 0; i < properties.length; i++) {
-      property = properties[i];
+    for (var i = 0; i < properties.length; i++) {
+      var property = properties[i];
       elem.style[property] = from[i];
     }
   }
@@ -1254,7 +1231,8 @@ function gotoElement(currentElement, forward) {
   var increment = forward ? 1 : -1; // go forward (next) or backward (previous)
   var inputElements = document.querySelectorAll("INPUT,SELECT,TEXTAREA");
   var nbrElm = inputElements.length;
-  if (nbrElm < 2) { // nowhere to g0
+  if (nbrElm < 2) // nowhere to go
+  {
     return;
   }
 
@@ -1262,7 +1240,8 @@ function gotoElement(currentElement, forward) {
   var nextIndex = currentIndex + increment;
   var nextElement;
   while (true) {
-    if (nextIndex === currentIndex) { // no other focusable element; stay where you are
+    if (nextIndex === currentIndex) // no other focusable element; stay where you are
+    {
       break;
     }
     if (nextIndex === nbrElm) { // end of list; loop around to start
@@ -1342,8 +1321,6 @@ pui.getComputedStyle = function(obj) {
  * @returns {XMLHTTPRequest} The XHR handling the upload.
  */
 pui["upload"] = function(params, callback) {
-  var i; // loop iterator
-  var obj;
   var dir = params["dir"];
   var overwrite = (params["overwrite"] === true);
 
@@ -1382,8 +1359,8 @@ pui["upload"] = function(params, callback) {
   if (slimit == null || allowedTypes == null) {
     var largest;
     var types = [];
-    for (i = 0; i < params["files"].length; i++) {
-      obj = params["files"][i];
+    for (var i = 0; i < params["files"].length; i++) {
+      var obj = params["files"][i];
       var type = (typeof (obj["type"]) != "undefined" && obj["type"] != "") ? obj["type"] : "application/octet-stream";
       if (pui.arrayIndexOf(types, type) == -1) {
         types.push(type);
@@ -1438,12 +1415,12 @@ pui["upload"] = function(params, callback) {
     formData.append("generateNames", params["generateNames"]);
   }
 
-  for (i = 0; i < allowedTypes.length; i++) {
+  for (var i = 0; i < allowedTypes.length; i++) {
     formData.append("type", allowedTypes[i]);
   }
 
-  for (i = 0; i < params["files"].length; i++) {
-    obj = params["files"][i];
+  for (var i = 0; i < params["files"].length; i++) {
+    var obj = params["files"][i];
 
     if (obj["data"] && obj["data"] instanceof ArrayBuffer) {
       var blob;
@@ -1548,6 +1525,7 @@ pui["getCookie"] = function(check_name) {
       }
       // note that in cases where cookie is initialized but no value, null is returned
       return cookie_value;
+      break;
     }
     a_temp_cookie = null;
     cookie_name = "";
@@ -2387,7 +2365,7 @@ function runPCCommand(arg) {
     try {
       if (err) throw err;
 
-      if (typeof response !== "object" || response === null) throw new Error("Empty response");
+      if (typeof response !== "object" || response === null) throw "Empty response";
 
       if (response["success"] !== true) {
         var msg = typeof response["error"] === "string" && response["error"].length > 0 ? response["error"] : "Unknown error";
@@ -2501,23 +2479,18 @@ function pressKey(keyDesc, onTimeoutDelay) {
   }
 }
 // allow variations in spelling/case since this is a commonly used function
-// eslint-disable-next-line no-unused-vars
 function presskey(key) {
   pressKey(key);
 }
-// eslint-disable-next-line no-unused-vars
 function Presskey(key) {
   pressKey(key);
 }
-// eslint-disable-next-line no-unused-vars
 function PressKey(key) {
   pressKey(key);
 }
-// eslint-disable-next-line no-unused-vars
 function pressKEY(key) {
   pressKey(key);
 }
-// eslint-disable-next-line no-unused-vars
 function PRESSKEY(key) {
   pressKey(key);
 }
@@ -2554,7 +2527,7 @@ pui["showLastError"] = function() {
   }
 
   var last = errors.length - 1;
-  // var error;
+  var error;
   var message;
 
   message = "Operation: " + errors[last].operation +
@@ -2750,10 +2723,10 @@ pui["editCode"] = function(numeric, code) {
   if (code >= "5" && code <= "9") {
     pui.alert("User-defined edit code not supported: " + code + ".");
   }
-  if (!((code >= "1" && code <= "9") ||
-        (code >= "A" && code <= "D") ||
-        (code >= "J" && code <= "Q") ||
-        (code >= "X" && code <= "Z"))) {
+  if (!(code >= "1" && code <= "9" ||
+        code >= "A" && code <= "D" ||
+        code >= "J" && code <= "Q" ||
+        code >= "X" && code <= "Z")) {
     pui.alert("Invalid edit code: " + code + ".");
   }
 
@@ -2809,8 +2782,8 @@ pui["editCode"] = function(numeric, code) {
       strInt = strInt.replace(regex, "$1" + (commaDecimal ? "." : ",") + "$2");
     }
     strValue = strInt + (decLength > 0 ? decimalChar + strDec : "");
-    // var commaCount = dataLength - decLength - 1;
-    // commaCount = (commaCount >= 0 ? commaCount : 0);
+    var commaCount = dataLength - decLength - 1;
+    commaCount = (commaCount >= 0 ? commaCount : 0);
   }
 
   // format negative numbers
@@ -2887,8 +2860,6 @@ pui["editCode"] = function(numeric, code) {
 //                        outside of a session.
 
 pui["editWord"] = function(value, edtwrd, parmOpts) {
-  var i; // loop iterator
-  var ch;
   value = String(value);
   var controlOptions = {};
 
@@ -2910,7 +2881,7 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
   // look for farthest right character that can be replaced by a digit
   // to determine where the body part of the edit word ends
   var bodyEndPos = -1;
-  for (i = edtwrd.length - 1; i >= 0; i = i - 1) {
+  for (var i = edtwrd.length - 1; i >= 0; i = i - 1) {
     if (i + 1 == zeroSuppressPos || edtwrd.substr(i, 1) == " ") {
       bodyEndPos = i;
       break;
@@ -2924,8 +2895,8 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
   var done = false;
   var encounteredSign = false;
   var hasSign = (edtwrd.substr(bodyEndPos + 1).indexOf("-") >= 0 || edtwrd.substr(bodyEndPos + 1).indexOf("CR") >= 0);
-  for (i = bodyEndPos + 1; i < edtwrd.length; i++) {
-    ch = edtwrd.substr(i, 1);
+  for (var i = bodyEndPos + 1; i < edtwrd.length; i++) {
+    var ch = edtwrd.substr(i, 1);
     if (edtwrd.substr(i, 2) == "CR") {
       encounteredSign = true;
       i++;
@@ -3025,8 +2996,8 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
     }
     return ch;
   }
-  for (i = editBody.length - 1; i >= 0; i = i - 1) {
-    ch = editBody.substr(i, 1);
+  for (var i = editBody.length - 1; i >= 0; i = i - 1) {
+    var ch = editBody.substr(i, 1);
     var newCh = ch;
     if (ch == " ") {
       newCh = getDigit();
@@ -3086,7 +3057,6 @@ pui["editWord"] = function(value, edtwrd, parmOpts) {
 
   var sub = 0;
   if (newValue[newValue.length - 1] === "-") {
-    // eslint-disable-next-line no-unused-vars
     sub = 1;
   }
 

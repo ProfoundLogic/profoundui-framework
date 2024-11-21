@@ -17,7 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-// eslint-disable-next-line no-unused-vars
 function allowKeysSimple(allowedUnicodes, e) {
   var key;
 
@@ -284,17 +283,13 @@ pui.getParentWindow = function(el) {
 
 // Wrap input into a DIV and create a placeholder label
 pui.floatPlaceholder = function(idOrDom) {
-  var input;
-  var id;
-  var i; // loop iterator
-  var cls;
   if (typeof idOrDom === "string") {
-    id = idOrDom;
-    input = getObj(id);
+    var id = idOrDom;
+    var input = getObj(id);
   }
   else {
-    input = idOrDom;
-    id = input.id;
+    var input = idOrDom;
+    var id = input.id;
   }
   if (!input || !id) return;
   var isComboBox = input.comboBoxWidget != null;
@@ -305,8 +300,8 @@ pui.floatPlaceholder = function(idOrDom) {
 
   if (!isComboBox) {
     div = document.createElement("div");
-    for (i = 0; i < input.classList.length; i++) {
-      cls = input.classList[i];
+    for (var i = 0; i < input.classList.length; i++) {
+      var cls = input.classList[i];
       cls = "pui-floating-placeholder-" + cls;
       div.classList.add(cls);
     }
@@ -355,8 +350,8 @@ pui.floatPlaceholder = function(idOrDom) {
   else {
     div = input.parentNode;
     var classes = div.className.split(" ");
-    for (i = 0; i < classes.length; i++) {
-      cls = classes[i];
+    for (var i = 0; i < classes.length; i++) {
+      var cls = classes[i];
       cls = "pui-floating-placeholder-" + cls;
       div.classList.add(cls);
     }

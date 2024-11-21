@@ -145,8 +145,6 @@ pui.Accordion.prototype.init = function() {
  * @public
  */
 pui.Accordion.prototype.render = function(screenParms) {
-  var headerDiv;
-  var bodyDiv;
   var names = this._sections;
 
   // Append elements when the number of sections increased.
@@ -154,13 +152,13 @@ pui.Accordion.prototype.render = function(screenParms) {
   var nextId = this._headerDivs.length;
 
   while (numSectionsDesired > this._headerDivs.length) {
-    headerDiv = document.createElement("div");
+    var headerDiv = document.createElement("div");
     headerDiv.style.width = "100%";
     headerDiv.style.padding = "0";
     headerDiv.sectionNumber = nextId;
     headerDiv.onclick = this._boundHeaderOnClick;
 
-    bodyDiv = document.createElement("div");
+    var bodyDiv = document.createElement("div");
     bodyDiv.style.width = "100%";
     bodyDiv.style.height = "175px";
     bodyDiv.style.padding = "0";
@@ -194,10 +192,10 @@ pui.Accordion.prototype.render = function(screenParms) {
 
   // Remove elements when the number of tabs decreased.
   while (numSectionsDesired < this._headerDivs.length) {
-    headerDiv = this._headerDivs.pop();
+    var headerDiv = this._headerDivs.pop();
     this.container.removeChild(headerDiv);
 
-    bodyDiv = this._bodyDivs.pop();
+    var bodyDiv = this._bodyDivs.pop();
     this.container.removeChild(bodyDiv);
 
     this._headerButtons.pop();

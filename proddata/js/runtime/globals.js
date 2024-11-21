@@ -18,20 +18,14 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 // Number of outstanding auto complete queries.
-// eslint-disable-next-line no-unused-vars
 var autoCompQueries = 0;
 
-// eslint-disable-next-line no-unused-vars
 var yAdjust = -20;
 
-// eslint-disable-next-line no-unused-vars
 var checkboxObjects = [];
-// eslint-disable-next-line no-unused-vars
-var errors = {};
-// eslint-disable-next-line no-unused-vars
-var designScreens = [];
-// eslint-disable-next-line no-unused-vars
-var usedIds = {};
+var errors = new Array();
+var designScreens = new Array();
+var usedIds = new Object();
 
 // prevent Genie from being loaded via the back button.
 // Note: in Atrium, history.forward(1) causes the parent Atrium window to navigate forward
@@ -75,14 +69,14 @@ if (typeof window.pui !== "object") window.pui = {};
   var msie;
   var matches;
 
-  regex = /trident\/([0-9]{1,}[.0-9]{0,})/;
+  regex = new RegExp("trident/([0-9]{1,}[\.0-9]{0,})");
   matches = regex.exec(agt);
   if (matches != null) {
     trident = parseFloat(matches[1]);
   }
 
   if (!pui["is_opera"]) { // Older Opera includes MSIE token.
-    regex = /msie ([0-9]{1,}[.0-9]{0,})/;
+    regex = new RegExp("msie ([0-9]{1,}[\.0-9]{0,})"); ;
     matches = regex.exec(agt);
     if (matches != null) {
       msie = parseFloat(matches[1]);

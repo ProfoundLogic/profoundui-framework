@@ -134,11 +134,11 @@ pui.ComboBoxWidget.prototype.init = function() {
  */
 pui.ComboBoxWidget.prototype.draw = function() {
   var boxWidth = 0;
-  var comWidth = this.div.style.width;// get the width of the combo box
+  var comWidth = this.div.style.width;	// get the width of the combo box
   var newWidth = this.div.offsetWidth; // get the width in pixels
   var arrowWidth = parseInt(getComputedStyle(this._arrow).width) + 3;
 
-  if (comWidth[comWidth.length - 1] === "%") { // if the last character of the width is a % sign
+  if (comWidth[comWidth.length - 1] === "%") {	// if the last character of the width is a % sign
     boxWidth = (1 - (arrowWidth / newWidth)) * 100; // find the percent width for input box
     if (isNaN(boxWidth) || boxWidth < 0) boxWidth = 0; // if the width is not a number or < 0 -- width = 1
     this.box.style.width = boxWidth + "%"; // the new width + the % sign
@@ -523,7 +523,6 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      var url;
       if (parms.dom.comboBoxWidget == null) {
         parms.dom.comboBoxWidget = new pui.ComboBoxWidget();
       }
@@ -568,15 +567,15 @@ pui.widgets.add({
       parms.dom.comboBoxWidget.draw();
 
       // Use program, if given.
-      url = parms.evalProperty("choices url");
+      var url = parms.evalProperty("choices url");
       if (url != "" && !parms.design) {
-        var req = new pui.Ajax(pui.appendAuth(url));
-        req["async"] = true;
-        req["suppressAlert"] = true;
-        req["onready"] = function() {
-          parms.dom.comboBoxWidget.clear();
+      	var req = new pui.Ajax(pui.appendAuth(url));
+      	req["async"] = true;
+      	req["suppressAlert"] = true;
+      	req["onready"] = function() {
+      	  parms.dom.comboBoxWidget.clear();
           var response = checkAjaxResponse(req, "Generate Combo Box Options");
-          if (!response) return;
+      	  if (!response) return;
           var opts = response;
           for (var i = 0; i < opts.length; i++) {
             var opt = opts[i];
@@ -587,11 +586,11 @@ pui.widgets.add({
             parms.dom.comboBoxWidget["choice values"].push(opt.value);
           }
           parms.dom.comboBoxWidget.setValue(parms.evalProperty("value"));
-        };
+      	};
         parms.dom.comboBoxWidget.clear();
         parms.dom.comboBoxWidget.setValue(pui["getLanguageText"]("runtimeMsg", "loading"));
-        req.send();
-        return;
+      	req.send();
+      	return;
       }
 
       // Use database file settings, if given.
@@ -629,7 +628,7 @@ pui.widgets.add({
             sql += " ORDER BY " + orderByFields.join();
           }
 
-          url = getProgramURL("PUI0009103.PGM");
+          var url = getProgramURL("PUI0009103.PGM");
           var ajaxRequest = new pui.Ajax(url);
           ajaxRequest["method"] = "post";
           ajaxRequest["async"] = true;
@@ -656,7 +655,7 @@ pui.widgets.add({
           }
 
           if (maxChoices != null && maxChoices != "") {
-            ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
+          	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
           if (pui["read db driven data as ebcdic"] !== true) ajaxRequest["postData"] += "&UTF8=Y";
 
@@ -664,12 +663,12 @@ pui.widgets.add({
             var eventCode = parms.evalProperty("ondbload");
             if (typeof eventCode != "string" || eventCode == "") eventCode = null;
 
-            var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
-            parms.dom.comboBoxWidget.clear();
-            if (!response) {
+          	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
+          	parms.dom.comboBoxWidget.clear();
+          	if (!response) {
               if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id);
-              return;
-            }
+          	  return;
+          	}
 
             if (parms.properties["blank option"] == "true") {
               var blankOptionLabel = parms.evalProperty("blank option label");

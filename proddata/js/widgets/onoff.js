@@ -186,13 +186,12 @@ pui.OnOffSwitch = function() {
   };
 
   this.positionHandle = function(x, animate) {
-    var anim;
     var transitionProperties = ["transition", "MozTransition", "WebkitTransition", "msTransition", "OTransition"];
-    anim = " 0.3s ease";
+    var anim = " 0.3s ease";
     for (var i = 0; i < transitionProperties.length; i++) {
       var tProp = transitionProperties[i];
       if (animate) {
-        anim = " 0.2s ease";
+        var anim = " 0.2s ease";
         onLabel.style[tProp] = "width" + anim;
         onSpan.style[tProp] = "margin-left" + anim;
         offSpan.style[tProp] = "margin-right" + anim;

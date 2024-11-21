@@ -20,7 +20,6 @@
 // ------------------------------------------------------------
 //  Italiano
 // -------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
 var it_IT = function(dict) {
   var dictMsg = {};
 

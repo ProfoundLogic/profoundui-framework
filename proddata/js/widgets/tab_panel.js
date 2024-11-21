@@ -319,7 +319,6 @@ function TabPanel() {
    * @returns {undefined}
    */
   this.draw = function() {
-    var outerSpan;
     // Load tab style settings.
     if (me.tabStyle == null || me.tabStyle == "") me.tabStyle = "Simple";
 
@@ -410,7 +409,7 @@ function TabPanel() {
 
     for (var i = 0; i < me.tabs.length; i++) {
       // Create a parent span to encapsulate the tab text, left, and right border.
-      outerSpan = document.createElement("span");
+      var outerSpan = document.createElement("span");
       outerSpan.style.display = "inline-block";
       if (this._hiddenTabs[i]) outerSpan.style.display = "none";
 
@@ -532,7 +531,7 @@ function TabPanel() {
       if (this.sendActiveTab && this._needScrollToActive) {
         // The selected tab number should correspond to the array index of childNodes.
         if (me._headerArea.childNodes != null && me.selectedTab >= 0 && me.selectedTab < me._headerArea.childNodes.length) {
-          outerSpan = me._headerArea.childNodes[me.selectedTab];
+          var outerSpan = me._headerArea.childNodes[me.selectedTab];
           // Put the selected tab in the middle of the tab panel.
           me._lastScrollLeft = Math.round(outerSpan.offsetLeft - me._headerArea.offsetWidth / 2 + outerSpan.offsetWidth / 2);
         }
@@ -747,17 +746,16 @@ function TabPanel() {
       if (!pui.isBound(itm.properties["tab names"]) && !pui.isTranslated(itm.properties["tab names"])) {
         // onUpdate gets called inside InlineEditBox.update, after a call to InlineEditBox.hide.
         itm.designer.inlineEditBox.onUpdate = function(newName) {
-          var propValue;
           var idx = dom.tabId;
 
           // Replace the old name with the new name. Convert string to array,
           // modify element, convert back to string.
-          propValue = itm.properties["tab names"];
+          var propValue = itm.properties["tab names"];
           if (propValue == "" || propValue == null) propValue = me.INITIALLIST;
           var tabNames = pui.parseCommaSeparatedList(propValue);
 
           tabNames[idx] = newName;
-          propValue = tabNames.join(",");
+          var propValue = tabNames.join(",");
 
           // Apply the new value to the "tab names" property.
           var nmodel = getPropertiesNamedModel();

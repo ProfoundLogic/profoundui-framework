@@ -20,7 +20,6 @@
 // ------------------------------------------------------------
 //  Spanish / Spain
 // -------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
 var es_ES = function(dict) {
   var dictMsg = {};
 

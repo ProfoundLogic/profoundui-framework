@@ -84,17 +84,16 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      var url;
       if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
       parms.dom.choices = {};
 
       // Use program, if given.
-      url = parms.evalProperty("choices url");
+      var url = parms.evalProperty("choices url");
       if (url != "" && !parms.design) {
-        var req = new pui.Ajax(pui.appendAuth(url));
-        req["async"] = true;
-        req["suppressAlert"] = true;
-        req["onready"] = function() {
+      	var req = new pui.Ajax(pui.appendAuth(url));
+      	req["async"] = true;
+      	req["suppressAlert"] = true;
+      	req["onready"] = function() {
           if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
           parms.dom.choices = {};
           var response = checkAjaxResponse(req, "Generate Dropdown Box Options");
@@ -122,8 +121,8 @@ pui.widgets.add({
           parms.dom.options[0] = new Option(pui["getLanguageText"]("runtimeMsg", "loading"), "");
           parms.dom.isLoading = true;
         }
-        req.send();
-        return;
+      	req.send();
+      	return;
       }
 
       // Use database file settings, if given.
@@ -161,7 +160,7 @@ pui.widgets.add({
             sql += " ORDER BY " + orderByFields.join();
           }
 
-          url = getProgramURL("PUI0009103.PGM");
+          var url = getProgramURL("PUI0009103.PGM");
           var ajaxRequest = new pui.Ajax(url);
           ajaxRequest["method"] = "post";
           ajaxRequest["async"] = true;
@@ -188,7 +187,7 @@ pui.widgets.add({
           }
 
           if (maxChoices != null && maxChoices != "") {
-            ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
+          	ajaxRequest["postData"] += "&maxcount=" + encodeURIComponent(maxChoices);
           }
           if (pui["read db driven data as ebcdic"] !== true) ajaxRequest["postData"] += "&UTF8=Y";
 
@@ -196,12 +195,12 @@ pui.widgets.add({
             var eventCode = parms.evalProperty("ondbload");
             if (typeof eventCode != "string" || eventCode == "") eventCode = null;
 
-            var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
-            if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
-            if (!response) {
-              if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id);
-              return;
-            }
+          	var response = checkAjaxResponse(ajaxRequest, "Generate Dropdown Box Options");
+          	if (parms.dom.tagName == "SELECT") parms.dom.options.length = 0;
+          	if (!response) {
+          	  if (eventCode) pui.executeDatabaseLoadEvent(eventCode, false, parms.dom.id);
+          	  return;
+          	}
 
             if (parms.properties["blank option"] == "true") {
               var blankOptionLabel = parms.evalProperty("blank option label");

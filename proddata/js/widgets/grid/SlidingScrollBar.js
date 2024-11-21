@@ -45,7 +45,7 @@ pui.SlidingScrollBar = function() {
   var rowNumHideRequest = 0;
   var firstRequest = true;
   var mouseWheelEnabled = false;
-  // var finishTimeout = null; // for a timeout in gridRequestFinished().
+  var finishTimeout = null; // for a timeout in gridRequestFinished().
 
   var me = this;
 
@@ -118,14 +118,14 @@ pui.SlidingScrollBar = function() {
       if (pui.iPadEmulation) {
         function mousedown(e) {
           var target = getTarget(e);
-          if ((target != null && target.row === 0) ||
-              (target != null && target.parentNode != null && target.parentNode.row === 0) ||
-              (target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0)) {
+          if (target != null && target.row === 0 ||
+              target != null && target.parentNode != null && target.parentNode.row === 0 ||
+              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0) {
             if (gridDom.grid.hasHeader) {
               return;
             }
           }
-          if (target != null && (target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA")) {
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
           // touchHandle.style.opacity = 1;
@@ -191,14 +191,14 @@ pui.SlidingScrollBar = function() {
         function touchstart(e) {
           if (e.touches.length != 1) return; // Only deal with one finger
           var target = e.target;
-          if ((target != null && target.row === 0) ||
-              (target != null && target.parentNode != null && target.parentNode.row === 0) ||
-              (target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0)) {
+          if (target != null && target.row === 0 ||
+              target != null && target.parentNode != null && target.parentNode.row === 0 ||
+              target != null && target.parentNode != null && target.parentNode.parentNode != null && target.parentNode.parentNode.row === 0) {
             if (gridDom.grid.hasHeader) {
               return;
             }
           }
-          if (target != null && (target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA")) {
+          if (target != null && target.tagName == "INPUT" || target.tagName == "SELECT" || target.tagName == "TEXTAREA") {
             return;
           }
           // touchHandle.style.opacity = 1;
@@ -700,7 +700,6 @@ pui.SlidingScrollBar = function() {
   };
 
   this.enableMouseWheel = function(gridDom) {
-    var i; // loop iterator
     if (mouseWheelEnabled) return;
     mouseWheelEnabled = true;
 
@@ -775,19 +774,20 @@ pui.SlidingScrollBar = function() {
       gridDom.addEventListener("wheel", wheel, false);
 
       // -- PUI206 if any vLines or hlines then add the same event listener...
-      for (i = 0; i < gridDom.grid.vLines.length; i++) {
+      for (var i = 0; i < gridDom.grid.vLines.length; i++) {
         gridDom.grid.vLines[i].addEventListener("wheel", wheel, false);
       }
 
-      for (i = 0; i < gridDom.grid.hLines.length; i++) {
+      for (var i = 0; i < gridDom.grid.hLines.length; i++) {
         gridDom.grid.hLines[i].addEventListener("wheel", wheel, false);
       }
       // --
     }
     else {
       // mousewheel and DOMMouseScroll are deprecated and MDN recommends they be removed from code as of 5/3/2019
-      if (gridDom.addEventListener) {
+      if (gridDom.addEventListener)
       /** DOMMouseScroll is for mozilla. */
+      {
         gridDom.addEventListener("DOMMouseScroll", mousewheel, false);
       }
       /** IE/Opera. */

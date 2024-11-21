@@ -18,7 +18,7 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 var toolbar = null;
-var screenPropertiesObj = {};
+var screenPropertiesObj = new Object();
 var cachedPropertiesModel = null;
 var cachedPropertiesNamedModel = null;
 var cachedScreens = {};
@@ -431,7 +431,6 @@ function getPropertiesModel() {
 }
 
 // Provides list of global screen properties and their definitions
-// eslint-disable-next-line no-unused-vars
 function getScreenPropertiesModel(designScreen) {
   // Universal Designer Screens
   if (pui.codeBased) {
@@ -465,7 +464,6 @@ function getScreenPropertiesModel(designScreen) {
   if (context == "dspf") {
     // ddsCompatProp: the property is for backward compatibility with legacy Display File properties. 1 - help description should always warn/hide;
 
-    // eslint-disable-next-line no-redeclare
     var model = [
       { name: "Identification", category: true },
       { name: "record format name", displayName: (pui.nodedesigner ? "name" : undefined), helpDefault: "blank", help: "Identifies the name that is used to access this screen from server code.", maxLength: (pui.viewdesigner || pui.nodedesigner ? null : 10), bind: false, canBeRemoved: false },
@@ -584,7 +582,6 @@ function getScreenPropertiesModel(designScreen) {
 
   // Genie Window
   if (designScreen.isWindow == true) {
-    // eslint-disable-next-line no-redeclare
     var model = [
       { name: "Identification", category: true },
       { name: "screen name", helpDefault: "[blank or matched screen name]", help: "The screen name is used to save the current screen to the server. The screen is saved to a .scn file under the selected skin. In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false },
@@ -600,7 +597,6 @@ function getScreenPropertiesModel(designScreen) {
   }
 
   // Genie Screen
-  // eslint-disable-next-line no-redeclare
   var model = [
     { name: "Identification", category: true },
     { name: "screen name", helpDefault: "[blank or matched screen name]", help: "The screen name is used to save the current screen to the server. The screen is saved to a .scn file under the selected skin. In addition to specifying a screen name, you will have to mark one or more fields as screen identifiers.", canBeRemoved: false },
@@ -668,7 +664,6 @@ function getPropertiesNamedModel() {
 }
 
 // API used to apply property values in customization scripts
-// eslint-disable-next-line no-unused-vars
 function applyDesignProperty(domObj, propertyName, propertyValue) {
   // if an alias name ("display name") was used, revert it to the "real" name.
   if (pui.propertyAlias[propertyName]) propertyName = pui.propertyAlias[propertyName];
@@ -806,18 +801,6 @@ function applyDesignProperty(domObj, propertyName, propertyValue) {
  * @returns {undefined|Element}
  */
 function applyPropertyToField(propConfig, properties, domObj, newValue, isDesignMode, designItem, resizer, subfileRow, skipDirty) {
-  var attr;
-  var box;
-  var i; // loop iterator
-  var posdim;
-  var msg;
-  var formatName;
-  var gridDom;
-  var valueToAssign;
-  var classes;
-  var clsNum;
-  var cls;
-  var dspAtrField;
   if (context === "genie" && domObj.id.match(/^subfile-scrollbar-[0-9]+(_W[0-9]+)*$/) && propConfig.name === "field type") {
     return domObj;
   }
@@ -926,7 +909,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       newDomObj.style.visibility = domObj.style.visibility;
 
       // In case the old DOM object had that attribute, copy it to the new one. "puiwdgt" allows more useful CSS selectors for custom styling.
-      attr = domObj.getAttribute("puiwdgt");
+      var attr = domObj.getAttribute("puiwdgt");
       if (attr) newDomObj.setAttribute("puiwdgt", attr);
 
       newDomObj.id = domObj.id;
@@ -1002,7 +985,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     // set all css and attribute properties
     if (rebuildCSSAttr) {
       var model = getPropertiesModel();
-      for (i = 0; i < model.length; i++) {
+      for (var i = 0; i < model.length; i++) {
         var propName = model[i].name;
         var propValue = properties[propName];
         if (propValue != null && propValue != "") {
@@ -1023,7 +1006,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
             }
             else {
               try {
-                posdim = pui.getPosDimString(model[i].stylename, propValue);
+                var posdim = pui.getPosDimString(model[i].stylename, propValue);
                 newDomObj.style[model[i].stylename] = posdim;
 
                 // To allow inline-style setting and removing, cache the style property.
@@ -1046,7 +1029,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
                 }
               }
               else {
-                valueToAssign = evalPropertyValue(propValue, originalValue, newDomObj);
+                var valueToAssign = evalPropertyValue(propValue, originalValue, newDomObj);
                 if (model[i].attribute == "src") valueToAssign = pui.normalizeURL(valueToAssign, true);
                 // Set the attribute if it is not "inline style", which is set
                 // later in the function.
@@ -1064,17 +1047,17 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
     if (context == "dspf") {
-      classes = [];
+      var classes = [];
       classes.push(properties["css class"]);
-      clsNum = 2;
-      cls = properties["css class " + clsNum];
+      var clsNum = 2;
+      var cls = properties["css class " + clsNum];
       while (cls != null) {
         classes.push(cls);
         clsNum++;
         cls = properties["css class " + clsNum];
       }
-      attr = properties["display attribute field"];
-      dspAtrField = false;
+      var attr = properties["display attribute field"];
+      var dspAtrField = false;
       if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
         classes = classes.concat(pui.attrToCSS(attr));
         dspAtrField = true;
@@ -1133,14 +1116,14 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
   if (reassigModifiedEvents) {
     if (newDomObj.comboBoxWidget != null) {
-      box = newDomObj.comboBoxWidget.getBox();
+      var box = newDomObj.comboBoxWidget.getBox();
       pui.assignModifiedEvents(box);
       box.fieldInfo = newDomObj.fieldInfo;
       attachInputEvents(box);
       newDomObj.comboBoxWidget.setMaxLength(domObj.maxLength);
     }
     else if (newDomObj.floatingPlaceholder != null) {
-      box = newDomObj.floatingPlaceholder.getBox();
+      var box = newDomObj.floatingPlaceholder.getBox();
       pui.assignModifiedEvents(box);
       box.fieldInfo = newDomObj.fieldInfo;
       attachInputEvents(box);
@@ -1166,7 +1149,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
 
     // Update screen properties object for new items when id changes to prevent
     // double-saving of the item.
-    for (i = 0; i < selection.resizers.length; i++) {
+    for (var i = 0; i < selection.resizers.length; i++) {
       if (designItem.properties.newitem == "true") {
         if (screenPropertiesObj[designer.currentScreen.screenId] && screenPropertiesObj[designer.currentScreen.screenId].items) {
           var items = screenPropertiesObj[designer.currentScreen.screenId].items;
@@ -1182,7 +1165,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     // If the id of a tab panel changes, look for its child members.
     if (properties["field type"] == "tab panel") {
       // Look at each item in the designer.
-      for (i = 0; i < designer.items.length; i++) {
+      for (var i = 0; i < designer.items.length; i++) {
         // If the item's "parent tab panel" matches the old "id", then fix "parent tab panel".
         if (designer.items[i].properties["parent tab panel"] == designItem.dom.id) {
           designer.items[i].properties["parent tab panel"] = newValue;
@@ -1247,7 +1230,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else {
       try {
-        posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
+        var posdim = pui.getPosDimString(propConfig.stylename, effectiveValue);
 
         // Prevent German eszett from being changed to "SS" by changing it to captial eszett. 5369.
         if (propConfig.stylename == "textTransform" && effectiveValue == "uppercase") {
@@ -1281,11 +1264,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
       catch (err) {
         if (js == null && isDesignMode) {
-          msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
+          var msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
           if (toolbar.loadingDisplay) {
-            formatName = toolbar.designer.screenProperties[toolbar.designer.currentScreen.screenId]["record format name"];
+            var formatName = toolbar.designer.screenProperties[toolbar.designer.currentScreen.screenId]["record format name"];
             if (properties["grid"] != null) {
-              gridDom = getObj(properties["grid"]);
+              var gridDom = getObj(properties["grid"]);
               if (gridDom != null && gridDom.grid != null) {
                 formatName = gridDom.grid.recordFormatName;
               }
@@ -1356,7 +1339,7 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     }
     else {
       try {
-        valueToAssign = effectiveValue;
+        var valueToAssign = effectiveValue;
         if (propConfig.type == "boolean" && valueToAssign == "true") {
           valueToAssign = true;
           if (propConfig.attribute == "disabled" && isDesignMode) valueToAssign = false;
@@ -1382,11 +1365,11 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
       catch (e) {
         if (js == null && isDesignMode) {
-          msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
+          var msg = "'" + newValue + "' is not a valid value for " + propConfigName + ".";
           if (toolbar.loadingDisplay) {
-            formatName = toolbar.designer.screenProperties[toolbar.designer.currentScreen.screenId]["record format name"];
+            var formatName = toolbar.designer.screenProperties[toolbar.designer.currentScreen.screenId]["record format name"];
             if (properties["grid"] != null) {
-              gridDom = getObj(properties["grid"]);
+              var gridDom = getObj(properties["grid"]);
               if (gridDom != null && gridDom.grid != null) {
                 formatName = gridDom.grid.recordFormatName;
               }
@@ -1407,10 +1390,10 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       classes = domObj.className.split(" ");
     }
     else {
-      classes = [];
+      var classes = [];
       classes.push(properties["css class"]);
-      clsNum = 2;
-      cls = properties["css class " + clsNum];
+      var clsNum = 2;
+      var cls = properties["css class " + clsNum];
       while (cls != null) {
         classes.push(cls);
         clsNum++;
@@ -1420,8 +1403,8 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
     var idx = Number(propConfigName.substr(10));
     if (isNaN(idx) || idx < 1 || idx > 99) idx = 1;
     if (propConfigName != "display attribute field") classes[idx - 1] = effectiveValue;
-    attr = properties["display attribute field"];
-    dspAtrField = false;
+    var attr = properties["display attribute field"];
+    var dspAtrField = false;
     if (attr != null && !pui.isBound(attr) && attr != "" && attr != " ") {
       classes = classes.concat(pui.attrToCSS(attr));
       dspAtrField = true;
@@ -1715,8 +1698,6 @@ pui.SetterParms.prototype.evalProperty = function(propName) {
 };
 
 function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
-  var boxDom;
-  var i; // loop iterator
   var classArray = [];
   var RI = false;
   var toCombineWithRI = [];
@@ -1726,7 +1707,7 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
   function isColor(cssClass) {
     return (cssClass == "BLU" || cssClass == "GRN" || cssClass == "PNK" || cssClass == "RED" || cssClass == "TRQ" || cssClass == "WHT" || cssClass == "YLW");
   }
-  for (i = 0; i < classes.length; i++) {
+  for (var i = 0; i < classes.length; i++) {
     var dspAtrField = false;
     if (lastClassIsDspAtrField && i == classes.length - 1) dspAtrField = true;
     var cssClass = classes[i];
@@ -1752,13 +1733,13 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
         dom.disabled = true;
       }
       if (dom.comboBoxWidget != null) {
-        boxDom = dom.comboBoxWidget.getBox();
+        var boxDom = dom.comboBoxWidget.getBox();
         boxDom.readOnly = true;
         if (!inDesignMode()) boxDom.disabled = true;
         boxDom.tabIndex = "-1";
       }
       if (dom.floatingPlaceholder != null) {
-        boxDom = dom.floatingPlaceholder.getBox();
+        var boxDom = dom.floatingPlaceholder.getBox();
         boxDom.readOnly = true;
         boxDom.disabled = true;
         boxDom.tabIndex = "-1";
@@ -1770,7 +1751,7 @@ function assignDomClasses(dom, classes, lastClassIsDspAtrField) {
     }
   }
   if (RI) {
-    for (i = 0; i < toCombineWithRI.length; i++) {
+    for (var i = 0; i < toCombineWithRI.length; i++) {
       // classString += " RI-" + toCombineWithRI[i];
       classArray.push("RI-" + toCombineWithRI[i]);
     }
@@ -1823,10 +1804,9 @@ function evalPropertyValue(propertyValue) {
   return effectiveValue;
 }
 
-// eslint-disable-next-line no-unused-vars
 function getScreenProperties(designScreen, onsuccess, onfail) {
   var skin = pui.skin;
-  // var skinsFolder = "genie skins";
+  var skinsFolder = "genie skins";
   var query = "?type=genie_screen&skin=" + encodeURIComponent(skin) + "&screen=" + encodeURIComponent(designScreen.name) + "&mod=";
   var stamp;
   if (typeof (designScreen.modified) != "undefined") stamp = designScreen.modified;
@@ -1864,14 +1844,13 @@ function getScreenProperties(designScreen, onsuccess, onfail) {
 }
 
 pui.addCustomProperty = function(parms) {
-  var i, n; // loop iterators
   var pm = getPropertiesModel();
   var pnm = getPropertiesNamedModel();
   var found = false;
   var insertAt = pm.length;
 
   // search for category
-  for (i = 0; i < pm.length; i++) {
+  for (var i = 0; i < pm.length; i++) {
     if (pm[i].category == true && pm[i].name == parms.category) {
       insertAt = i + 1;
       found = true;
@@ -1885,7 +1864,7 @@ pui.addCustomProperty = function(parms) {
     if (prop && Array.isArray(prop.controls)) {
       var controls = prop.controls;
       // Look at each widget specified in the "controls" of the PUI property being added.
-      for (i = 0, n = parms.controls.length, newEntry; i < n && (newEntry = parms.controls[i]); i++) {
+      for (var i = 0, n = parms.controls.length, newEntry; i < n && (newEntry = parms.controls[i]); i++) {
         found = false;
         // See if any widgets listed in the existing "controls" match the current new entry.
         for (var j = 0, m = controls.length, existingEntry; j < m && (existingEntry = controls[j]); j++) {
@@ -1913,7 +1892,7 @@ pui.addCustomProperty = function(parms) {
   delete parms.category; // the category name doesn't belong on the property definition in the properties model
 
   if (parms.bidirectional && Array.isArray(parms.controls)) {
-    for (i = 0, n = parms.controls.length; i < n; i++) {
+    for (var i = 0, n = parms.controls.length; i < n; i++) {
       var widgetName = parms.controls[i];
       pui.widgets.mapInputProp(widgetName, parms.name);
     }
@@ -1944,11 +1923,10 @@ pui.restrictedLayoutStylenames = ["overflow", "overflow-x", "overflow-y"];
  * @returns {undefined}
  */
 pui.addInlineCSS = function(domObj, valueToAssign, isLayout) {
-  var keyname;
   // Quickly clear any old inline styles.
   if (domObj.pui.styleInline && domObj.pui.styleInline !== null) {
     // For each style explicitly set earlier, remove it from dom.style.
-    for (keyname in domObj.pui.styleInline) {
+    for (var keyname in domObj.pui.styleInline) {
       domObj.style[keyname] = "";
     }
   }
@@ -1976,7 +1954,7 @@ pui.addInlineCSS = function(domObj, valueToAssign, isLayout) {
   // Styles overlap when the inline style has something general like "border:",
   // "overflow:", "font:", "background:", or "padding:".
   if (domObj.pui.styleCached && domObj.pui.styleCached !== null) {
-    for (keyname in domObj.pui.styleCached) {
+    for (var keyname in domObj.pui.styleCached) {
       domObj.style[keyname] = domObj.pui.styleCached[keyname];
     }
   }
@@ -2007,7 +1985,7 @@ pui.removeInlineCSS = function(domObj) {
 
   // Restore original styles.
   if (domObj.pui.styleCached && domObj.pui.styleCached !== null) {
-    for (keyname in domObj.pui.styleCached) {
+    for (var keyname in domObj.pui.styleCached) {
       domObj.style[keyname] = domObj.pui.styleCached[keyname];
     }
   }
@@ -2067,7 +2045,7 @@ pui.removeCachedStyle = function(domObj, stylename) {
   }
 
   // Re-assert the styleCached values to override overlapping inline styles.
-  for (keyname in domObj.pui.styleCached) {
+  for (var keyname in domObj.pui.styleCached) {
     domObj.style[keyname] = domObj.pui.styleCached[keyname];
   }
 };

@@ -26,14 +26,12 @@
  * @returns {undefined}
  */
 pui.textArea_cleanUp = function(e) {
-  var i; // loop iterator
-  var ch;
   var obj = getTarget(e);
   if (obj.lineLengths == null) return;
 
   // An array indicating the allowed length of each line.
   var lineLengths = [];
-  for (i = 0; i < obj.lineLengths.length; i++) { // Parse all string values from lineLengths.
+  for (var i = 0; i < obj.lineLengths.length; i++) { // Parse all string values from lineLengths.
     lineLengths[i] = parseInt(obj.lineLengths[i], 10);
     if (isNaN(lineLengths[i])) lineLengths[i] = 0;
   }
@@ -79,7 +77,7 @@ pui.textArea_cleanUp = function(e) {
 
   // When deleting doesn't add new lines, don't skip '\n' when Delete/Backspace were pressed.
   var erasing = key == 8;
-  // var erasingSplitAdjust = 0; // Long text shouldn't be split up at the newlines.
+  var erasingSplitAdjust = 0; // Long text shouldn't be split up at the newlines.
   if (key == 8 && ename == "keydown" && cursorPos > 0) { // backspace
     if (pui["is_ie"] && val.length < cursorPos) cursorPos = val.length;
     if (val.substr(cursorPos - 1, 1) == "\n") {
@@ -110,14 +108,14 @@ pui.textArea_cleanUp = function(e) {
   }
   else if (ename == "input") {
     erasing = obj.doNotSkipNL === true;
-    // erasingSplitAdjust = obj.erasingSplitAdjust === true ? 1 : 0;
+    erasingSplitAdjust = obj.erasingSplitAdjust === true ? 1 : 0;
   }
   // done handling backspace and delete.
 
   if (key == 13 && ename == "keydown") { // enter
     var lineCount = 0;
-    for (i = 0; i < len; i++) {
-      ch = val.charAt(i);
+    for (var i = 0; i < len; i++) {
+      var ch = val.charAt(i);
       if (ch == "\n") lineCount++;
     }
     if (lineCount + 1 >= lineLengths.length) {
@@ -145,7 +143,7 @@ pui.textArea_cleanUp = function(e) {
     wrapwords();
     // Determine which line the cursor is on.
     var sum = 0;
-    for (i = 0; i < lines.length; i++) {
+    for (var i = 0; i < lines.length; i++) {
       if (cursorPos >= sum && cursorPos < (sum + lines[i].length)) {
         cursorLine = i;
         break;
@@ -158,8 +156,8 @@ pui.textArea_cleanUp = function(e) {
   else if (ename != "paste") {
     var skipNextNL = false;
     // Look at each character in the field. Populate the model of fields with the text-area data. Wrap characters to new lines when necessary.
-    for (i = 0; i < len; i++) {
-      ch = val.charAt(i);
+    for (var i = 0; i < len; i++) {
+      var ch = val.charAt(i);
       if (ch == "\n" || ch == "\r") {
         if (i < origCursorPos) {
           cursorPos = cursorPos - 1; // Shrink the length by one; \r and \n are not part of the text.
@@ -188,7 +186,7 @@ pui.textArea_cleanUp = function(e) {
   }
   // Construct newVal from lines
   var newVal = "";
-  for (i = 0; i < lines.length; i++) { // Concatenate each line into one string.
+  for (var i = 0; i < lines.length; i++) { // Concatenate each line into one string.
     newVal += lines[i];
     // Only add a newline if both the current line and the next line have content
     if (
@@ -208,7 +206,7 @@ pui.textArea_cleanUp = function(e) {
   if (ename == "keydown" && !obj.controlKeyDown && !(obj.selectionStart !== obj.selectionEnd) && isNormalKey(key)) {
     if (lines.length >= lineLengths.length && cursorLine != null) {
       var full = true;
-      for (i = cursorLine; i < lineLengths.length; i++) {
+      for (var i = cursorLine; i < lineLengths.length; i++) {
         if (lines[i].length < lineLengths[i]) {
           full = false;
           break;
@@ -309,7 +307,6 @@ pui.textArea_cleanUp = function(e) {
         // Load the text values we need to compare
         before_text = untrimmed_before_text = before_range.text;
         selection_text = untrimmed_selection_text = selection_range.text;
-        // eslint-disable-next-line no-unused-vars
         after_text = untrimmed_after_text = after_range.text;
         // Check each range for trimmed newlines by shrinking the range by 1 character and seeing
         // if the text property has changed. If it has not changed then we know that IE has trimmed
@@ -336,7 +333,6 @@ pui.textArea_cleanUp = function(e) {
             else {
               selection_range.moveEnd("character", -1);
               if (selection_range.text == selection_text) {
-                // eslint-disable-next-line no-unused-vars
                 untrimmed_selection_text += "\r\n";
               }
               else {
@@ -351,7 +347,6 @@ pui.textArea_cleanUp = function(e) {
             else {
               after_range.moveEnd("character", -1);
               if (after_range.text == after_text) {
-                // eslint-disable-next-line no-unused-vars
                 untrimmed_after_text += "\r\n";
               }
               else {
@@ -377,16 +372,14 @@ pui.textArea_cleanUp = function(e) {
 
   // Returns array with obj.value split up by words, ' ', and '\n'. (\r and \t should already have been removed.)
   function splitTextByWords() {
-    var i; // loop iterator
     var words = [];
     var startpos = 0;
-    for (i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       var ch = val.charAt(i);
       if (ch == "\n" || ch == " ") {
         if (startpos < i) {
           words.push(val.substring(startpos, i)); // There was a previous word; queue it.
-        }
-        else if (ch == "\n") {
+        } else if (ch == "\n") {
           words.push("");
         }
         startpos = i + 1; // The next word starts after this position.
@@ -400,7 +393,7 @@ pui.textArea_cleanUp = function(e) {
     if (ename != "paste") {
       // Look for words that could fill a line. Assume CNTFIELD have line lengths all the same.
       // Note: '\n' are added to textarea.value to cause wrapping, potentially splitting big words.
-      for (i = 0; i < words.length; i++) {
+      for (var i = 0; i < words.length; i++) {
         var lineLength = lineLengths[0];
         erasingSplitAdjust = 0; // Only adjust for first line.
         if (words.length > i + 2) {
@@ -418,11 +411,11 @@ pui.textArea_cleanUp = function(e) {
 
   // Populates "lines" with words, wrapping when necessary.
   function wrapwords() {
-    // var roomonline;
+    var roomonline;
     var words = splitTextByWords();
     var charAddCount = 0; // Track what characters have been added so that cursorPos and cursorLine can be adjusted.
     var skipNextNL = false;
-    // var atStartOfLine = true;
+    var atStartOfLine = true;
     var pasting = ename == "paste";
     // Look at each word. Populate the model of fields with the words. Wrap when necessary.
     while (words.length > 0) {
@@ -443,11 +436,11 @@ pui.textArea_cleanUp = function(e) {
         if (!lineHasRoom) {
           if (!madeNewLine()) break;
           if (!erasing && !pasting) skipNextNL = true;
-          // atStartOfLine = true;
+          atStartOfLine = true;
         }
         if ((lineHasRoom || !pasting) && words[1] !== "\n") {
           lines[curLine] += " ";
-          // atStartOfLine = false;
+          atStartOfLine = false;
         }
         else if (lineHasRoom && words[1] == "\n") {
           madeNewLine();
@@ -463,7 +456,7 @@ pui.textArea_cleanUp = function(e) {
         if (curLineLength + wordLength <= lineLimit) {
           // Word fits on the current line
           lines[curLine] += words[0];
-          // atStartOfLine = false;
+          atStartOfLine = false;
           charAddCount += wordLength;
           words.shift();
         }
@@ -472,22 +465,20 @@ pui.textArea_cleanUp = function(e) {
           if (erasing && curLineLength + wordLength <= lineLimit) {
             // During erasing, if the word fits on the current line, keep it here
             lines[curLine] += words[0];
-            // atStartOfLine = false;
+            atStartOfLine = false;
             charAddCount += wordLength;
             words.shift();
-          }
-          else if (wordLength <= lineLimit) {
+          } else if (wordLength <= lineLimit) {
             // Word fits on the next line
             if (!madeNewLine()) {
               // No more lines
               break;
             }
             lines[curLine] += words[0];
-            // atStartOfLine = false;
+            atStartOfLine = false;
             charAddCount += wordLength;
             words.shift();
-          }
-          else {
+          } else {
             // Word is longer than line length, need to split it
             var spaceLeft = lineLimit - curLineLength;
             lines[curLine] += words[0].substr(0, spaceLeft);

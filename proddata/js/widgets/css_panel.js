@@ -30,7 +30,7 @@ pui.CSSPanelSection = function() {
   var mainSpan;
   var innerSpan;
   var textSpan;
-  // var iconSpan;
+  var iconSpan;
   var layoutContainer;
 
   var swatch = "c";
@@ -267,7 +267,6 @@ pui.CSSPanel = function() {
   this.makeDraggable = function() {
     var windowDiv = me.container.parentNode;
 
-    // eslint-disable-next-line no-new
     new pui.MoveListenerBoundAtClick({ attachto: headerDiv, move: windowDiv });
 
     addEvent(headerDiv, "touchstart", function(e) {
@@ -289,7 +288,8 @@ pui.CSSPanel = function() {
       e.preventDefault();
     });
     headerDiv.style.cursor = "move";
-    if (headerDiv.firstChild != null) { // avoid null error in IE9,IE10.
+    if (headerDiv.firstChild != null) // avoid null error in IE9,IE10.
+    {
       headerDiv.firstChild.style.cursor = "move";
     }
   };

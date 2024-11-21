@@ -40,7 +40,6 @@ pui.widgets.chartNames = ["3D Column", "2D Column", "2D Bar", "Line", "Area", "2
  * @returns {undefined}
  */
 pui.widgets.renderChart = function(parms) {
-  var chartId;
   if (parms.dom.isRendering) return;
 
   parms.dom.isRendering = true;
@@ -63,10 +62,10 @@ pui.widgets.renderChart = function(parms) {
   // format is rendered. Then certain charts send XHR. The next format may clear "id" attributes from the first format before the
   // response arrives. To avoid setting multiple chart ids to "_Chart", don't render without an id. Otherwise disposing causes errors.
   if (parms.dom.id != null && parms.dom.id != "") {
-    chartId = parms.dom.id + "_Chart";
+    var chartId = parms.dom.id + "_Chart";
   }
   else if (parms.domId != null) {
-    chartId = parms.domId + "_Chart";
+    var chartId = parms.domId + "_Chart";
   } // certain charts send the additional domId property.
   else {
     console.log("Stopped rendering chart; missing id attribute.");
@@ -318,7 +317,7 @@ pui.widgets.addJSONChartLinks = function(id, json, isMap) {
  * @param {Object} param    A JSON object of with id, name, and category. FusionCharts already decoded any URI-sensitive characters.
  */
 pui.widgets["doChartLink"] = function(param) {
-  param = JSON.parse(param);
+  var param = JSON.parse(param);
   var id = param["id"];
   var name = param["name"];
   var category = param["category"];
@@ -406,10 +405,6 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      var dataValue;
-      var postData;
-      var sql;
-      var pstring;
       if (parms.dom["pui"] == null) parms.dom["pui"] = {}; // In case dom.pui isn't already set.
 
       // Do not render chart in tab panel until the tab is activated. Note: if this chart were listed
@@ -524,14 +519,14 @@ pui.widgets.add({
             if (valueArray.length > n) n = valueArray.length;
             for (var i = 0; i < n; i++) {
               var dataName = nameArray[i];
-              dataValue = valueArray[i];
+              var dataValue = valueArray[i];
               if (dataName == null) dataName = "";
               dataName = trim(dataName);
               if (dataName.substr(0, 2) == "D_" || dataName.substr(0, 2) == "I_") {
                 var retrievedDataName = get(dataName);
                 if (retrievedDataName != "") dataName = retrievedDataName;
               }
-              dataValue = valueArray[i];
+              var dataValue = valueArray[i];
               if (dataValue == null) dataValue = "0";
               dataValue = String(dataValue);
               dataValue = trim(dataValue);
@@ -596,7 +591,7 @@ pui.widgets.add({
             }
           }
 
-          sql = "SELECT ";
+          var sql = "SELECT ";
           if (summary != "") {
             valueField = summary + valueField + ")";
           }
@@ -613,7 +608,7 @@ pui.widgets.add({
           else sql += " ORDER BY " + nameField;
 
           url = getProgramURL("PUI0009104.PGM");
-          postData = "AUTH=";
+          var postData = "AUTH=";
           if (pui.pjs_session_id) postData += pui.pjs_session_id;
           else {
             postData += pui.appJob.auth;
@@ -623,7 +618,7 @@ pui.widgets.add({
           if (pui["secLevel"] > 0) {
             postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
 
-            pstring = pui.getSQLParams(parms.properties);
+            var pstring = pui.getSQLParams(parms.properties);
             if (pstring != "") {
               postData += "&" + pstring;
             }
@@ -739,17 +734,17 @@ pui.widgets.add({
         }
 
         else if (customSQL != "") {
-          postData = "AUTH=" + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
+          var postData = "AUTH=" + (pui.pjs_session_id ? pui.pjs_session_id : pui.appJob.auth);
           if (typeof pui["vId"] !== "undefined") postData += "&VID=" + pui["vId"];
           if (pui["secLevel"] > 0) {
             postData += "&q=" + encodeURIComponent(pui.getSQLVarName(parms.dom));
-            pstring = pui.getSQLParams(parms.properties);
+            var pstring = pui.getSQLParams(parms.properties);
             if (pstring != "") {
               postData += "&" + pstring;
             }
           }
           else {
-            sql = customSQL;
+            var sql = customSQL;
             if (orderBy != "") sql += " ORDER BY " + orderBy;
             postData += "&q=" + pui.aes.encryptString(sql);
           }

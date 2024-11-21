@@ -179,22 +179,20 @@ pui.layout.Layout.prototype.updatePropertyInDesigner = function(propertyName, va
  * Pre-conditions: this.resize should have run to size this layout, if necessary.
  */
 pui.layout.Layout.prototype.stretch = function() {
-  var i; // loop iterator;
-  var container;
   var dims = [];
 
   // Reset the sizes of each container so that no content inside them gets included in the browser's calculation of offsetWidth and
   // offsetHeight. Sometimes the content size may depend on the parent; so, if we did not reset these sizes, then there
   // would be a catch-22 of dimension calculations. #7124. Use 0px and do not set the display to none to avoid mobile keyboard issues. #2512
-  for (i = 0; i < this.stretchList.length; i++) {
-    container = this.stretchList[i];
+  for (var i = 0; i < this.stretchList.length; i++) {
+    var container = this.stretchList[i];
     container.style.width = "0px";
     container.style.height = "0px";
   }
 
   // While content is hidden, get the sizes of each container's parent.
-  for (i = 0; i < this.stretchList.length; i++) {
-    container = this.stretchList[i];
+  for (var i = 0; i < this.stretchList.length; i++) {
+    var container = this.stretchList[i];
     var parent = container.parentNode;
     dims.push({
       width: parent.offsetWidth,
@@ -203,15 +201,15 @@ pui.layout.Layout.prototype.stretch = function() {
   }
 
   // Fit each container to the previously-calculated size of its parent.
-  for (i = 0; i < this.stretchList.length; i++) {
-    container = this.stretchList[i];
+  for (var i = 0; i < this.stretchList.length; i++) {
+    var container = this.stretchList[i];
     var dim = dims[i];
     var overflowX = parent.style.overflowX;
     var overflowY = parent.style.overflowY;
     // In design mode, we accommodate to be able to show the layout border, etc. At runtime, the calculation is more exact.
-    dim.width -= ((this.designMode && (this.template !== "mobile device" || overflowX === "auto" || overflowX === "scroll" || this.template == "table")) ? 4 : 2);
+    dim.width -= ((this.designMode && this.template !== "mobile device" || overflowX === "auto" || overflowX === "scroll" || this.template == "table") ? 4 : 2);
     if (dim.width < 0) dim.width = 0;
-    dim.height -= ((this.designMode && (this.template !== "mobile device" || overflowY === "auto" || overflowY === "scroll" || this.template == "table")) ? 4 : 2);
+    dim.height -= ((this.designMode && this.template !== "mobile device" || overflowY === "auto" || overflowY === "scroll" || this.template == "table") ? 4 : 2);
     if (dim.height < 0) dim.height = 0;
     container.style.width = dim.width + "px";
     container.style.height = dim.height + "px";
@@ -346,7 +344,6 @@ pui.layout.Layout.prototype.getVisibleContainerIndex = function() {
  * @param {String} value
  */
 pui.layout.Layout.prototype.setProperty = function(property, value) {
-  var me;
   if (value == null) value = "";
   var panel = this.layoutDiv.panel;
 
@@ -470,7 +467,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
     case "onmouseup":
       // Note: this function seems to be overwritten in runtime by code in applyPropertyToField in runtime/properties.js around line 1898.
       if (!this.designMode) {
-        me = this;
+        var me = this;
         var func = function(e) {
           try {
             var customFunction = eval(value);
@@ -559,7 +556,7 @@ pui.layout.Layout.prototype.setProperty = function(property, value) {
         if (layoutT != null) layoutT.resize();
         if (rv.success == false) {
           this.templateProps[property] = savedValue;
-          me = this;
+          var me = this;
           setTimeout(function() {
             me.updatePropertyInDesigner(property, savedValue);
           }, 0);

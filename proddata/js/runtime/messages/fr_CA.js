@@ -20,7 +20,6 @@
 // --------------------------------------------------------------
 //  French Canadian Eh!
 // --------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
 var fr_CA = function(dict) {
   var dictMsg = {};
 
@@ -45,12 +44,12 @@ var fr_CA = function(dict) {
       dictMsg["invalid number"] = "&1 n'est pas un numéro valide.";
       dictMsg["invalid length"] = "&1 n'a pas le bon nombre de caractères ou de décimales.'";
       dictMsg["invalid decimal"] = "&1 contient trop de décimales. (max: &2)";
-      dictMsg["invalid choice"] = '"&1" est invalide. Les choix valides sont: "&2" ou "&3".';
-      dictMsg["invalid date"] = '"&1" est une date invalide. Exemple de format: &2';
-      dictMsg["invalid time"] = '"&1" est une heure invalide. Exemple de format: &2';
-      dictMsg["invalid time stamp"] = '"&1" est une date et heure invalide. Exemple de format: &2';
+      dictMsg["invalid choice"] = '\"&1\" est invalide. Les choix valides sont: \"&2\" ou \"&3\".';
+      dictMsg["invalid date"] = '\"&1\" est une date invalide. Exemple de format: &2';
+      dictMsg["invalid time"] = '\"&1\" est une heure invalide. Exemple de format: &2';
+      dictMsg["invalid time stamp"] = '\"&1\" est une date et heure invalide. Exemple de format: &2';
       dictMsg["invalid percent"] = "&1 n'est pas une décimale valide.";
-      dictMsg["invalid digits"] = '"&1" contient trop de caractères. Max: &2';
+      dictMsg["invalid digits"] = '\"&1\" contient trop de caractères. Max: &2';
       dictMsg["exceeds whole"] = '"&1" dépasse le nombre de caractères maximum pour le nombre avant les décimales (&2 caractères).';
       dictMsg["exceeds decimal"] = '"&1" dépasse le nombre de caractères maximum pour les décimales (&2 caractères).';
       dictMsg["zip too long"] = "Le code postal est trop long. (Maximum: &1 caractères)";

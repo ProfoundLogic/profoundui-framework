@@ -137,7 +137,7 @@ pui.widgets.add({
   },
 
   initialize: function(parms) {
-    // var sql = null;
+    var sql = null;
     if (!parms.design && parms.dom != null && parms.dom.grid != null) {
       if (parms.properties["field type"]) parms.dom.setAttribute("puiwdgt", parms.properties["field type"]);
 

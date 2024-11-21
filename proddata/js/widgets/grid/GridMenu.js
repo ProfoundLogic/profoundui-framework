@@ -71,7 +71,6 @@ pui.GridMenu = function() {
   };
 
   this.show = function() {
-    var ctrOffset;
     var numOptions = buildMenu();
     if (numOptions == 0) {
       me.hide();
@@ -139,7 +138,7 @@ pui.GridMenu = function() {
         }// endif container.
         // Grid is not inside a layout/container. See 2612 for test cases.
         else {
-          ctrOffset = pui.getOffset(gridParent);
+          var ctrOffset = pui.getOffset(gridParent);
           offset.x = ctrOffset[0];
           offset.y = ctrOffset[1];
           // Handle overflow scroll for column list
@@ -150,7 +149,7 @@ pui.GridMenu = function() {
       }
       // Grid is not in a display file.
       else {
-        ctrOffset = pui.getOffset(gridParent);
+        var ctrOffset = pui.getOffset(gridParent);
         offset.x = ctrOffset[0];
         offset.y = ctrOffset[1];
       }
@@ -301,7 +300,6 @@ pui.GridMenu = function() {
           var headings = properties["column headings"].split(",");
           var cols = me.grid.columnInfo.map(function(col) {
             if (!col["showing"]) me.grid.hideShowColumn(col, true);
-            return col;
           });
           if (me.grid.columnInfo.colSequence) me.grid.columnInfo.colSequence = null;
           while (headings.length < cols.length) headings.push("");

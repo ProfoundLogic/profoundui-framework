@@ -122,7 +122,6 @@ pui["showHelp"] = function() {
   pui.help.show();
 };
 
-// eslint-disable-next-line no-unused-vars
 function getSystemName() {
   if (inDesignMode()) {
     return "SSSSSSSS";
@@ -303,8 +302,6 @@ pui["setPSHBTNFLD"] = function(fieldId, button) {
 };
 
 pui["buildFKeyMenu"] = function(parms) {
-  var i; // loop iterator
-  var ch;
   if (parms == null) parms = {};
 
   var prefix = parms["prefix"]; // id prefix to identify fkeys - "link" or "btn"
@@ -331,7 +328,7 @@ pui["buildFKeyMenu"] = function(parms) {
   }
   var availableKeysString = "";
   if (availableKeys != null) {
-    for (i = 0; i < availableKeys.length; i++) {
+    for (var i = 0; i < availableKeys.length; i++) {
       var dom = getObj(availableKeys[i]);
       if (dom != null) {
         availableKeysString += " " + getInnerText(dom);
@@ -424,10 +421,10 @@ pui["buildFKeyMenu"] = function(parms) {
     if (idx != -1) {
       var avText = "";
       var equalSigns = 0;
-      var j;
+      var i, j;
       // search for next equal sign (which is the 2nd equal sign from idx)
       for (i = idx; i < availableKeysString.length; i++) {
-        ch = availableKeysString.substr(i, 1);
+        var ch = availableKeysString.substr(i, 1);
         if (ch == "=") equalSigns++;
         if (equalSigns >= 2) break;
       }
@@ -439,7 +436,7 @@ pui["buildFKeyMenu"] = function(parms) {
       }
       // capture text until we get to the original equal sign
       for (j = i - 1; j >= 0; j = j - 1) {
-        ch = availableKeysString.substr(j, 1);
+        var ch = availableKeysString.substr(j, 1);
         if (ch == "=") break;
         avText = ch + avText;
       }

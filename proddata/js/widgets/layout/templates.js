@@ -97,21 +97,17 @@ pui.layout.template.load = function(parms) {
 
     // Constructors for these templates do everything, obviating an extra template loader file.
     case "accordion":
-      // eslint-disable-next-line no-new
       new pui.Accordion(parms, dom);
       break;
 
     case "tab panel":
-      // eslint-disable-next-line no-new
       new pui.TabLayout(parms, dom);
       break;
     case "responsive layout":
       var constr = parms.designMode ? pui.designer.responsive.ResponsiveLayout : pui.ResponsiveLayout;
-      // eslint-disable-next-line no-new
       new constr(parms, dom);
       break;
     case "fieldset":
-      // eslint-disable-next-line no-new
       new pui.FieldsetLayout(parms, dom);
       break;
 

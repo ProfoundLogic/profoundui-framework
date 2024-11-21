@@ -365,7 +365,6 @@ pui["errorScreen"]["editInIDE"] = function() {
 };
 
 pui["errorScreen"]["downloadJobLog"] = function() {
-  var job_num_user_name;
   var feedback_element = getObj("JobLogDownload_fb");
   var filename_prefix = pui["getLanguageText"]("runtimeText", "app job") + " "; // e.g. "Application Job ".
   var file_ext = ".txt";
@@ -373,7 +372,7 @@ pui["errorScreen"]["downloadJobLog"] = function() {
   if (pui.genie != null) {
     // In Genie the job log is the Genie App Job and can be downloaded from Profound UI via an API.
     var appJob = pui["appJob"];
-    job_num_user_name = "NA";
+    var job_num_user_name = "NA";
     if (appJob["number"] && appJob["user"] && appJob["name"]) {
       job_num_user_name = appJob["number"] + "_" + appJob["user"] + "_" + appJob["name"];
     }
@@ -391,7 +390,7 @@ pui["errorScreen"]["downloadJobLog"] = function() {
       feedback_element.innerHTML = "Job log failed to download. Please check browser console for more information.";
     }
     else {
-      job_num_user_name = pui.get("ESAPPJOB").replace(/\//g, "_");
+      var job_num_user_name = pui.get("ESAPPJOB").replace(/\//g, "_");
       var filesaver = saveAs(
         new Blob([joblog]),
         filename_prefix + job_num_user_name + file_ext,

@@ -822,7 +822,6 @@ function AutoComplete(config) {
   }
 
   function drawResults() {
-    var i; // loop iterator
     // Width sizing can work in one of two ways:
 
     // 1. In "auto" mode (default) the right edge of the inner pane will line up to the right edge of the text box.
@@ -839,7 +838,7 @@ function AutoComplete(config) {
     if (config.columnData) {
       recs = [];
       var gotSome = false;
-      for (i = 0; i < config.columnData.length; i++) {
+      for (var i = 0; i < config.columnData.length; i++) {
         // test if textbox entry starts the same as data
         var val1 = textBox.value;
         var val2 = choices[i];
@@ -863,8 +862,7 @@ function AutoComplete(config) {
     // Set template if not provided.
     if (!template) {
       var fieldName;
-      // eslint-disable-next-line no-unreachable-loop
-      for (i in recs[0]) {
+      for (var i in recs[0]) {
         fieldName = i;
         break;
       }
@@ -873,7 +871,7 @@ function AutoComplete(config) {
 
     resultPane.innerHTML = "";
     var html;
-    for (i = 0; i < recs.length; i++) {
+    for (var i = 0; i < recs.length; i++) {
       // Replace all fields in the template;
       html = template;
       for (var k in recs[i]) {
@@ -882,14 +880,13 @@ function AutoComplete(config) {
       resultPane.innerHTML += html;
       resultPane.lastChild.setAttribute("recordIndex", String(i));
     }
-    for (i = 0; i < resultPane.childNodes.length; i++) {
+    for (var i = 0; i < resultPane.childNodes.length; i++) {
       resultPane.childNodes[i].addEventListener("mousemove", doMouseMove, false);
     }
   }
 
   function selectRecord() {
     if (activeRecord == null) return;
-    // eslint-disable-next-line no-unreachable-loop
     for (var i in records[activeRecord]) {
       textBox.value = records[activeRecord][i];
       break;
@@ -986,9 +983,6 @@ function AutoComplete(config) {
 // This function is declared globally here and used: in widgets/textbox.js
 // eslint-disable-next-line no-unused-vars
 function applyAutoComp(properties, originalValue, domObj) {
-  var containsMatch;
-  var i; // loop iterator
-  var where;
   var file = evalPropertyValue(properties["choices database file"], originalValue, domObj);
   var temp = evalPropertyValue(properties["choice options field"], originalValue, domObj);
   var fields = pui.getFieldList(temp);
@@ -997,7 +991,7 @@ function applyAutoComp(properties, originalValue, domObj) {
   urlReverse = (url != "" && urlReverse != null && (urlReverse == "true" || urlReverse == true)) ? true : false;
   var valueField = evalPropertyValue(properties["choice values field"], originalValue, domObj);
   var limit = evalPropertyValue(properties["max choices"], originalValue, domObj);
-  containsMatch = (evalPropertyValue(properties["contains match"]) == "true");
+  var containsMatch = (evalPropertyValue(properties["contains match"]) == "true");
   var choices = evalPropertyValue(properties["choices"], originalValue, domObj);
 
   choices = pui.parseCommaSeparatedList(choices);
@@ -1006,7 +1000,7 @@ function applyAutoComp(properties, originalValue, domObj) {
   var values = evalPropertyValue(properties["choice values"], originalValue, domObj);
   if (values == "") {
     values = [];
-    for (i = 0; i < choices.length; i++) {
+    for (var i = 0; i < choices.length; i++) {
       values.push(choices[i]);
     }
   }
@@ -1052,9 +1046,9 @@ function applyAutoComp(properties, originalValue, domObj) {
     }
 
     if (url == "" && choices[0] == "" && values[0] == "") {
-      containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
+      var containsMatch = (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true");
       var sql = "SELECT DISTINCT ";
-      for (i = 0; i < fields.length; i++) {
+      for (var i = 0; i < fields.length; i++) {
         if (i != 0) sql += ", ";
         sql += fields[i];
       }
@@ -1063,7 +1057,7 @@ function applyAutoComp(properties, originalValue, domObj) {
       sql += " WHERE UPPER(" + fields[0] + ") LIKE '";
       if (containsMatch) sql += "%";
       sql += "!!QUERY!!%'";
-      where = evalPropertyValue(properties["choices selection criteria"], originalValue, domObj);
+      var where = evalPropertyValue(properties["choices selection criteria"], originalValue, domObj);
       if (where != "") sql += " AND (" + where + ")";
       sql += " ORDER BY " + fields[0];
     }
@@ -1120,47 +1114,44 @@ function applyAutoComp(properties, originalValue, domObj) {
       ondbload: onDbLoadProp,
       typeAheadDelay: pui["autocomplete typeahead delay"],
       valueField: (url == "" && choices[0] == "" && values[0] == "" && valueField != "" && valueField != fields[0]) ? valueField : null,
-      beforequery: (url == "" && choices[0] == "" && values[0] == "")
-        ? function(baseParams, query) {
-          if (evalPropertyValue(properties["case sensitive"], originalValue, domObj) == "true") {
+      beforequery: (url == "" && choices[0] == "" && values[0] == "") ? function(baseParams, query) {
+        if (evalPropertyValue(properties["case sensitive"], originalValue, domObj) == "true") {
           // Note: PUIWIDGET.cpp sees the "case sensitive" property and decides not to use UPPER in the query.
           //
           // If "text transform" or the bound setting for text transform are set, then make the user's input
           // upper/lower case. They would want this if their database values are already all upper/lowercase.
-            if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "uppercase" ||
+          if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "uppercase" ||
             (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "uppercase")) {
-              query = safeUpperCase(query);
-            }
-            else if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "lowercase" ||
-            (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "lowercase")) {
-              query = rtrim(query.toLowerCase());
-            }
-          }
-          else {
-          // When "case sensitive" is off, always upper case. PUIWIDGET will use UPPER() in query.
             query = safeUpperCase(query);
           }
-
-          if (query == "") return false;
-
-          if (pui["secLevel"] > 0) {
-            if (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true") {
-              query = "%" + trim(query) + "%";
-            }
-            else {
-              query += "%";
-            }
-            baseParams["q"] = pui.getSQLVarName(domObj);
-            baseParams["p1"] = query;
-            pui.getSQLParams(properties, baseParams);
-          }
-          else {
-            query = query.replace(/'/g, "''"); // escape single quotes only when secLevel=0
-            baseParams["q"] = pui.aes.encryptString(sql.replace("!!QUERY!!", query));
+          else if (evalPropertyValue(properties["text transform"], originalValue, domObj) == "lowercase" ||
+            (domObj.formattingInfo != null && domObj.formattingInfo.textTransform == "lowercase")) {
+            query = rtrim(query.toLowerCase());
           }
         }
-        : null,
+        else {
+          // When "case sensitive" is off, always upper case. PUIWIDGET will use UPPER() in query.
+          query = safeUpperCase(query);
+        }
 
+        if (query == "") return false;
+
+        if (pui["secLevel"] > 0) {
+          if (evalPropertyValue(properties["contains match"], originalValue, domObj) == "true") {
+            query = "%" + trim(query) + "%";
+          }
+          else {
+            query += "%";
+          }
+          baseParams["q"] = pui.getSQLVarName(domObj);
+          baseParams["p1"] = query;
+          pui.getSQLParams(properties, baseParams);
+        }
+        else {
+          query = query.replace(/'/g, "''"); // escape single quotes only when secLevel=0
+          baseParams["q"] = pui.aes.encryptString(sql.replace("!!QUERY!!", query));
+        }
+      } : null,
       onload: function(data) {
         // Quit if the auto complete template and sizing have already
         // been done. This flag will be embedded into the dom object
@@ -1273,7 +1264,7 @@ function applyAutoComp(properties, originalValue, domObj) {
         }
       }
       else {
-        where = evalPropertyValue(properties["choices selection criteria"], originalValue, domObj);
+        var where = evalPropertyValue(properties["choices selection criteria"], originalValue, domObj);
         var sql2 = "SELECT " + fields[0] + " FROM " + file + " WHERE " + valueField + " = '" + rtrim(domObj.value).replace("'", "''") + "'";
         if (where != "") sql2 += " AND (" + where + ")";
         req["postData"] += "&q=" + pui.aes.encryptString(sql2);
@@ -1299,7 +1290,6 @@ function applyAutoComp(properties, originalValue, domObj) {
         }
         var firstField;
         var firstRec = response.results[0];
-        // eslint-disable-next-line no-unreachable-loop
         for (var i in firstRec) {
           firstField = i;
           break;

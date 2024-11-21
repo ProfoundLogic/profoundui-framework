@@ -20,13 +20,13 @@
 // Determines whether a Unicode Javascript character is in an EBCDIC DBCS range.
 function inDBCSRange(code) {
   if ((code >= 19968 && code <= 40959) || // Traditional Chinese U+4E00-U+9FFF
-    (code >= 19968 && code <= 40895) || // Japanese Kanji U+4E00-U+9FBF
-    (code >= 12352 && code <= 12447) || // Japanese Hiragana U+3040-U+309F
-    (code >= 12448 && code <= 12543) || // U+30A0-U+30FF  Japanese Katakana
-    (code >= 44032 && code <= 55203) || // U+AC00-U+D7A3 Korean Hangul
-    (code >= 4352 && code <= 4607) || // U+1100-U+11FF Korean Hangul
-    (code >= 12593 && code <= 12686) || // U+3131-U+318E Korean Hangul
-    (code >= 65441 && code <= 65500)) { // U+FFA1-U+FFDC Korean Hangul
+		(code >= 19968 && code <= 40895) || // Japanese Kanji U+4E00-U+9FBF
+		(code >= 12352 && code <= 12447) || // Japanese Hiragana U+3040-U+309F
+		(code >= 12448 && code <= 12543) || // U+30A0-U+30FF  Japanese Katakana
+		(code >= 44032 && code <= 55203) || // U+AC00-U+D7A3 Korean Hangul
+		(code >= 4352 && code <= 4607) || // U+1100-U+11FF Korean Hangul
+		(code >= 12593 && code <= 12686) || // U+3131-U+318E Korean Hangul
+		(code >= 65441 && code <= 65500)) { // U+FFA1-U+FFDC Korean Hangul
     return true;
   }
   else {
@@ -57,7 +57,6 @@ function getEBCDICByteCount(charString) {
 }
 
 // Prevents "blur-ing" field if the EBCDIC byte count of its data will overrun the amount available.
-// eslint-disable-next-line no-unused-vars
 function validateByteCount(event, field) {
   if (field == null) {
     event = event || window.event;

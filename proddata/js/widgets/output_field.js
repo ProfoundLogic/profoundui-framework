@@ -32,14 +32,14 @@ function buildOutputField(parms, value, labelForId) {
 
   // If the "label for" property was set, create a <label> tag
   if (labelForId) {
-    var labelElem = document.createElement("label");
-    labelElem.htmlFor = labelForId;
-    var textNode = document.createTextNode(text);
-    labelElem.appendChild(textNode);
-    parms.dom.appendChild(labelElem);
+	  var labelElem = document.createElement("label");
+	  labelElem.htmlFor = labelForId;
+	  var textNode = document.createTextNode(text);
+	  labelElem.appendChild(textNode);
+	  parms.dom.appendChild(labelElem);
   }
   else {
-    parms.dom.appendChild(document.createTextNode(text));
+	  parms.dom.appendChild(document.createTextNode(text));
   }
 
   if (context == "dspf" && parms.design) {
@@ -47,8 +47,8 @@ function buildOutputField(parms, value, labelForId) {
     if (overflowX == null) overflowX = "";
     var overflowY = parms.properties["overflow y"];
     if (overflowY == null) overflowY = "";
-    if ((parms.propertyName == "value" && pui.isBound(parms.newValue)) ||
-        (parms.propertyName != "value" && pui.isBound(parms.properties.value))) {
+    if (parms.propertyName == "value" && pui.isBound(parms.newValue) ||
+        parms.propertyName != "value" && pui.isBound(parms.properties.value)) {
       if (overflowX == "") parms.dom.style.overflowX = "hidden";
       if (overflowY == "") parms.dom.style.overflowY = "hidden";
     }

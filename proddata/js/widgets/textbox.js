@@ -171,7 +171,6 @@ pui.widgets.add({
 });
 
 pui.addPrompt = function(parms) {
-  var icon;
   var prompter = document.createElement("div");
   var promptIcon = parms.evalProperty("prompt icon");
   prompter.classList.add("pui-prompt");
@@ -179,12 +178,12 @@ pui.addPrompt = function(parms) {
     prompter.classList.add("pui-prompt-" + parms.dom.classList[i]);
   }
   if (promptIcon.substr(0, 9) === "material:") {
-    icon = promptIcon.substr(9);
+    var icon = promptIcon.substr(9);
     prompter.innerText = trim(icon);
     prompter.classList.add("pui-material-icons");
   }
   else if (promptIcon.substr(0, 12) === "fontAwesome:") {
-    icon = trim(promptIcon.substr(12));
+    var icon = trim(promptIcon.substr(12));
     prompter.classList.add("pui-fa-icons fa-" + icon);
     prompter.innerText = "";
   }
@@ -217,7 +216,7 @@ pui.addPrompt = function(parms) {
 
   prompter.onclick = function() {
     // Pass "this" and "value" parameters
-    parms.dom["onprompt"](parms.dom.value);
+    parms.dom["onprompt"].call(parms.dom, parms.dom.value);
   };
 
   parms.dom.parentNode.appendChild(prompter);

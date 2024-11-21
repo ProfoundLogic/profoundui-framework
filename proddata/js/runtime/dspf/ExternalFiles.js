@@ -74,7 +74,6 @@ pui.ExternalFiles = function() {
   };
 
   this.load = function(parms) {
-    var path;
     me.init();
 
     var props = null;
@@ -92,7 +91,7 @@ pui.ExternalFiles = function() {
 
     // get new css paths
     var idx = 1;
-    path = props["external css"];
+    var path = props["external css"];
     if (!isDesignMode) path = pui.evalBoundProperty(path, parms.data, parms.ref);
     while (path != null) {
       cssPaths[path] = true;
@@ -103,18 +102,18 @@ pui.ExternalFiles = function() {
 
     // unload old css paths if they aren't in the list of new paths
     var toUnload = [];
-    for (path in cssLinks) {
+    for (var path in cssLinks) {
       if (cssPaths[path] != true) toUnload.push(path);
     }
     for (var i = 0; i < toUnload.length; i++) {
-      path = toUnload[i];
+      var path = toUnload[i];
       var css = cssLinks[path];
       head.removeChild(css);
       delete cssLinks[path];
     }
 
     // load new css paths
-    for (path in cssPaths) {
+    for (var path in cssPaths) {
       me.addCSSFile(path);
     }
 
@@ -162,17 +161,17 @@ pui.ExternalFiles = function() {
             }
 
             // execute format's onload event
-            var onloadProp = props["onload"];
-            if (onloadProp != null && onloadProp != "") {
-              try {
-                eval('var format = "' + props["record format name"] + '";');
-                eval('var file = "' + parms.file + '";');
-                eval(onloadProp);
-              }
-              catch (err) {
-                pui.scriptError(err, "Onload Error:\n");
-              }
-            }
+          	var onloadProp = props["onload"];
+          	if (onloadProp != null && onloadProp != "") {
+          	  try {
+          	    eval('var format = "' + props["record format name"] + '";');
+          	    eval('var file = "' + parms.file + '";');
+          	    eval(onloadProp);
+          	  }
+          	  catch (err) {
+          	    pui.scriptError(err, "Onload Error:\n");
+          	  }
+          	}
 
             if (props["onmessage"] && parms["msgInfo"] != null) {
               pui["message"] = parms["msgInfo"];

@@ -44,7 +44,7 @@ pui.SignaturePad = function() {
     if (me.backgroundColor != null) {
       canvas.style.backgroundColor = me.backgroundColor;
       canvasContext.fillStyle = me.backgroundColor;
-      canvasContext.fillRect(0, 0, me.container.offsetWidth, me.container.offsetHeight);
+	  	canvasContext.fillRect(0, 0, me.container.offsetWidth, me.container.offsetHeight);
     }
     canvasContext.lineJoin = "round";
     canvasContext.lineWidth = 5;

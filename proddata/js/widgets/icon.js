@@ -18,7 +18,6 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 
 function handleIcon(parms) {
-  var icon;
   var iconValue = parms.evalProperty("icon");
   var cssClass = parms.evalProperty("css class");
   var iconSize = parms.evalProperty("icon size");
@@ -37,13 +36,13 @@ function handleIcon(parms) {
   }
 
   if (iconValue.substr(0, 9) == "material:") {
-    icon = iconValue.substr(9);
+    var icon = iconValue.substr(9);
     iconDiv.innerText = trim(icon);
     iconDiv.className = "pui-material-icons";
     if (cursorStyle) iconDiv.style.cursor = cursorStyle;
   }
   else if (iconValue.substr(0, 12) == "fontAwesome:") {
-    icon = trim(iconValue.substr(12));
+    var icon = trim(iconValue.substr(12));
     iconDiv.className = "pui-fa-icons fa-" + icon;
     iconDiv.innerText = "";
   }

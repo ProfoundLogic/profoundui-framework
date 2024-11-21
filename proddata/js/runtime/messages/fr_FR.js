@@ -20,7 +20,6 @@
 // ------------------------------------------------------------
 //  Viva la France!
 // -------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
 var fr_FR = function(dict) {
   var dictMsg = {};
 

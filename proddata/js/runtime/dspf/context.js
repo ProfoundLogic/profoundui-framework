@@ -17,7 +17,6 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-/* eslint-disable no-unused-vars */
 var context = "dspf";
 var appContainerId = "dspfDesigner0";
 var appContainerIdPrefix = "dspfDesigner";
