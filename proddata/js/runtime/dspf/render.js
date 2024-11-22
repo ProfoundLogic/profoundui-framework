@@ -201,7 +201,8 @@ pui.protectFormat = function(format) {
     if (type == "checkbox" || type == "combo box" || type == "date field" || type == "password field" || type == "radio button" || type == "select box" || type == "spinner" || type == "text area" || type == "textbox" || type == "graphic button" || type == "hyperlink") {
       if (type == "graphic button" || type == "hyperlink") {
         itm["disabled"] = "true";
-      } else {
+      }
+      else {
         itm["read only"] = "true";
         itm["set focus"] = "false";
       }
@@ -1272,11 +1273,11 @@ pui.renderFormat = function(parms) {
   //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that
   //  is inside the lazy layout, and this container will be rendered on a later pass.
   var treeLevelItemAdded = false;
+  var tempClsValue = null;
   if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null) {
     items.push(parms.treeLevelItem); // temp only; removed after loop below is done
     treeLevelItemAdded = true;
   }
-
   for (var i = 0; i < items.length; i++) {
     if (parms["hideControlRecord"] == true && !isDesignMode && items[i]["field type"] != "grid" && items[i]["grid"] == null && items[i]["cursor row"] != null) {
       continue;
@@ -1414,12 +1415,10 @@ pui.renderFormat = function(parms) {
             }
           }
         }
-
         if (dom.highlighted === true) {
           pui.dehighlightText(dom);
           dom.highlighted = false;
         }
-
         if (parms.highlighting != null && parms.highlighting.text != "" && (String(items[i]["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {
             pui.highlightText(dom, parms.highlighting.text);
@@ -1443,7 +1442,6 @@ pui.renderFormat = function(parms) {
       if (!isDesignMode && items[i]["parent tab panel"] != null && items[i]["parent tab panel"] != "") {
         dom.style.visibility = "hidden";
       }
-
       if (container != null) {
         if (items[i].insertBeforeObj != null) {
           container.insertBefore(dom, items[i].insertBeforeObj);
@@ -1452,7 +1450,6 @@ pui.renderFormat = function(parms) {
           container.appendChild(dom);
         }
       }
-
       // create design item object if in design mode
       var properties = {};
       designItem = null;
@@ -1466,16 +1463,13 @@ pui.renderFormat = function(parms) {
           designItem.dom.style.borderStyle = "none";
         }
       }
-
       var rangeLowDateISO = null;
       var rangeHighDateISO = null;
       // get properties for the item and put them into the "properties" object.
       for (var prop in items[i]) {
         if (prop == "domEls") continue;
-
         propValue = items[i][prop];
         var newValue;
-
         if (pui.wf.tracker && pui.isRoutine(propValue)) {
           if (isDesignMode) {
             wfData = {};
@@ -1492,7 +1486,6 @@ pui.renderFormat = function(parms) {
             });
           }
         }
-
         if (pui.isBound(propValue)) {
           if (isDesignMode) {
             designer.dataFields.addUsage({
@@ -1521,7 +1514,6 @@ pui.renderFormat = function(parms) {
                 pui.longFieldNameTable[propValue.fieldName] = propValue["longName"];
               }
             }
-
             if (items[i]["field type"] == "grid" && (prop == "row background" || prop == "row font color")) {
               // These grid properties are per-record fields; values can be different per record. To avoid letting an indicator's
               // off-value become the color for each row, this must be blank or not evaluated here. Issue 4775. 6391.
@@ -1536,15 +1528,12 @@ pui.renderFormat = function(parms) {
             else {
               propValue["revert"] = false;
               newValue = pui.evalBoundProperty(propValue, data, parms.ref);
-
               // normalize range low/high for date data type
               if ((prop == "range low" || prop == "range high") && propValue.dataType == "date") {
                 var dateFormatSave = propValue.dateFormat;
-
                 propValue.dateFormat = "Y-m-d"; // convert to *ISO format YYYY-DD-DD
                 dateISO = pui.evalBoundProperty(propValue, data, parms.ref);
                 propValue.dateFormat = dateFormatSave; // put back saved value
-
                 if (prop == "range low") {
                   rangeLowDateISO = dateISO;
                 }
@@ -1616,6 +1605,21 @@ pui.renderFormat = function(parms) {
               if (pui.isBound(items[i]["return sort order"])) {
                 dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
               }
+            }
+            // Create a RegEx to match the string "css class" in the property name.
+            var cssRegEx = /\bcss class\b/;
+            // create a if-else block to handle the css class property
+            if (cssRegEx.test(prop) && pui.isBound(propValue)) {
+              // Make sure that the property is css class.
+              // If it is make sure that the value for the dataType is "indicator"
+              // Proceed to the next if.
+              // if(!propValue["dataType"] || propValue["dataType"] !== "indicator")
+              // If the dataType is "indicator" then set the value of the property as null, or do nothing.
+              if (propValue["dataType"] && propValue["dataType"] == "indicator") {
+                newValue = "";
+              }
+              // identify the supposed to be Class name for the dom element.
+              tempClsValue = pui.evalBoundProperty(propValue, data, parms.ref);
             }
           }
         } // endif bound to a field
@@ -1694,8 +1698,26 @@ pui.renderFormat = function(parms) {
               }
           }
         }
-
         properties[prop] = newValue;
+        // Fall back for when the "hidden class is persistent, but the value is not.
+        if (prop == "hidden" && newValue == "hidden" && tempClsValue != null) {
+          // for hidden fields, the css class is not applied, so the value is set to null.
+          // This is to ensure that the css class is not applied
+          // get the first class number
+          var classNumber = 2;
+          // get the property, (e.g css class 2,css class 3, css class 4)
+          var classProp = properties["css class " + classNumber];
+          while (classProp != null) {
+            // continue incrementing the class number until there is no property with "class name + class number"
+            classNumber++;
+            // get the property, (e.g css class 2,css class 3, css class 4)
+            classProp = properties["css class " + classNumber];
+            if (classProp === tempClsValue) {
+              // if the property is the same as the tempClsValue, then set the value to null.
+              properties["css class " + classNumber] = null;
+            }
+          }
+        }
       } // endfor thru all properties
 
       // Retain information about tab panels, tab-layouts and their active tabs.
@@ -1717,7 +1739,6 @@ pui.renderFormat = function(parms) {
         else propConfig = pui.getPropConfig(dom.propertiesNamedModel, propname);
         if (propConfig != null) {
           propValue = properties[propname];
-
           if (!isDesignMode) {
             var formattingObj = items[i][propname];
 
@@ -2225,25 +2246,21 @@ pui.renderFormat = function(parms) {
           if (!isDesignMode && propname == "visibility" && properties["parent tab panel"] != null && properties["parent tab panel"] != "") {
             propValue = "hidden";
           }
-
           if (propValue != null && propValue != "") {
             var propParm = properties;
             if (isDesignMode) propParm = designItem.properties;
             dom = applyPropertyToField(propConfig, propParm, dom, propValue, isDesignMode, designItem, null, parms.subfileRow);
           }
-
           if (!isDesignMode && propname == "visibility" && propValue == "visible" && parms.rowNum != null) {
             dom.style.visibility = ""; // ensures that the grid's visibility is not overridden
           }
         }
-
         if (parms.highlighting != null && parms.highlighting.text != "" && (String(properties["column"]) === String(parms.highlighting.col) || parms.highlighting.col === "*all")) {
           if (dom.tagName == "DIV") {
             pui.highlightText(dom, parms.highlighting.text);
             dom.highlighted = true;
           }
         }
-
         if (pui["controller"] != null && propname.indexOf("error condition") == 0 && propValue == "1" && !ctlErrorMap[dom.id]) {
           suffix = "";
           if (propname.length > "error condition".length) {
