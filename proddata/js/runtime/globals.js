@@ -27,7 +27,7 @@ var yAdjust = -20;
 // eslint-disable-next-line no-unused-vars
 var checkboxObjects = [];
 // eslint-disable-next-line no-unused-vars
-var errors = {};
+var errors = [];
 // eslint-disable-next-line no-unused-vars
 var designScreens = [];
 // eslint-disable-next-line no-unused-vars
