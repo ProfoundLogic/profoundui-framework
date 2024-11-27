@@ -40,7 +40,10 @@ var usedIds = {};
 if (context == "genie" && window.parent == window) window.history.forward(1);
 
 // setup pui name space
-if (typeof window.pui !== "object") window.pui = {};
+var serverURL = typeof window.pui == "object" ? pui["serverURL"] : null;
+window.pui = {};
+if (serverURL) pui["serverURL"] = serverURL;
+
 (function() {
   var agt = navigator.userAgent.toLowerCase();
 
