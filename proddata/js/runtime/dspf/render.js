@@ -122,7 +122,8 @@ pui["enable arrow keys"] = false;
 pui["horizontal auto arrange"] = false;
 pui["buttons per row"] = 1; // required when pui["horizontal auto arrange"] set to true
 pui["strict tab control"] = false;
-
+// This is a global setting that can be override the behavior of onsubmit, if set to true, it prioritizes the onsubmit statements of the screen over submitting the form.
+pui["prioritize onsubmit event"] = pui["prioritize onsubmit event"] ? pui["prioritize onsubmit event"] : false;
 // Parent namespace for wikihelp functions, settings, and objects.
 pui["wikihelp"] = {};
 
@@ -155,7 +156,6 @@ pui.fkeyValues = {
 };
 
 pui.aidKeyValues = {
-
   "F1": 0x31,
   "F2": 0x32,
   "F3": 0x33,
@@ -3608,15 +3608,22 @@ pui.showErrors = function(errors, rrn) {
 };
 
 pui.respond = function() {
+  var onsubmitReturnVal = "";
   if (pui.observer != null) return false;
 
   // if (!pui.screenIsReady) {
   if (pui["isServerBusy"]()) {
     return false;
   }
-
+  // Create a new setting with is named "prioritize onsubmit event" and if it is set to true
+  if (pui["prioritize onsubmit event"] == true) {
+    // handle screen's "onsubmit" event, but identify it has a value first
+    if (pui.onsubmitProp != null && pui.onsubmitProp != "") {
+      // if the value if the on submit are code, then execute the code.
+      onsubmitReturnVal = eval(pui.onsubmitProp);
+    }
+  }
   var response = pui.buildResponse();
-
   if (typeof response.valid == "boolean" && response.valid == false) {
     if (pui.bypassValidation != "true" && (pui.bypassValidation != "send data" || response.nobypass == true)) {
       response.nobypass = false;
@@ -3628,12 +3635,15 @@ pui.respond = function() {
   }
 
   hide_calendar();
-
+  if (typeof onsubmitReturnVal == "function" && pui["prioritize onsubmit event"] == true) {
+    onsubmitReturnVal = onsubmitReturnVal(response);
+  }
   // handle screen's "onsubmit" event
-  if (pui.onsubmitProp != null && pui.onsubmitProp != "") {
+  if (pui.onsubmitProp != null && pui.onsubmitProp != "" && pui["prioritize onsubmit event"] == false) {
     try {
+      onsubmitReturnVal = "";
       pui.referenceToResponse = response; // create temporary reference to response object, so it can be updated by certain API's
-      var onsubmitReturnVal = eval(pui.onsubmitProp);
+      onsubmitReturnVal = eval(pui.onsubmitProp);
       if (typeof onsubmitReturnVal == "function") {
         onsubmitReturnVal = onsubmitReturnVal(response);
       }
