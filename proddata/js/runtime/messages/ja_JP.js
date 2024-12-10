@@ -20,6 +20,7 @@
 // ----------------------------------
 //  Japanese
 // ----------------------------------
+// eslint-disable-next-line no-unused-vars
 var ja_JP = function(dict) {
   var dictMsg = {};
 

@@ -20,6 +20,7 @@
 // ----------------------------------
 //  USA English
 // ----------------------------------
+// eslint-disable-next-line no-unused-vars
 var en_US = function(dict) {
   var dictMsg = {};
 

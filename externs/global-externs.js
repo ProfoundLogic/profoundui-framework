@@ -45,6 +45,8 @@ Object.transformOrigin = {}; // Style for "transform-origin".
 Object.backgroundSize = {}; // style for "background-size".
 
 String.trim = function(value) {};
+String.prototype.codePointAt = function() {};
+String.fromCodePoint = function() {};
 
 Element.dataset = {}; // HTML5 data attributes.
 

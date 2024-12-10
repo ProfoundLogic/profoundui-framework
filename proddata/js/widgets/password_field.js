@@ -19,11 +19,12 @@
 
 // function to process the change in [password field][show visibility eye] property
 function buildVisibilityEye(parms) {
+  var eyeElement;
   var showVisibilityEye = parms.properties["show visibility eye"];
   var dom = parms.dom;
   var passwordElement = document.getElementById(dom.id);
   if (showVisibilityEye === "true") {
-    var eyeElement = document.createElement("i");
+    eyeElement = document.createElement("i");
     passwordElement.style.zIndex = "21";
     eyeElement.id = dom.id.replace("Password", "PasswordEye");
     eyeElement.classList = "pui-fa-solid-icons fa-eye";
@@ -46,7 +47,7 @@ function buildVisibilityEye(parms) {
   else {
     // remove visibility eye from the widget
     var eyeElementID = dom.id.replace("Password", "PasswordEye");
-    var eyeElement = document.getElementById(eyeElementID);
+    eyeElement = document.getElementById(eyeElementID);
     if (eyeElement !== null) {
       eyeElement.remove();
       passwordElement.style.zIndex = "";

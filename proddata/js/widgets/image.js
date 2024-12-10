@@ -104,6 +104,7 @@ pui.widgets.add({
       if (blobURL) parms.dom.originalImage = blobURL;
       parms.dom.src = parms.dom.originalImage;
 
+      // eslint-disable-next-line no-unused-vars
       function preload(imageSrc) {
         var image = new Image();
         image.src = imageSrc;

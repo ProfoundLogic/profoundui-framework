@@ -220,6 +220,7 @@ pui.TabLayout.prototype.setProperty = function(property, value) {
  * @public
  */
 pui.TabLayout.prototype.render = function(screenParms) {
+  var outerSpan;
   if (this._rendered) {
     this._addRemoveTabs();
   }
@@ -265,7 +266,7 @@ pui.TabLayout.prototype.render = function(screenParms) {
         var outerSpans = [];
         // Remove each tab outer element.
         while (this._headerArea.childNodes.length > 0) {
-          var outerSpan = this._headerArea.childNodes[0];
+          outerSpan = this._headerArea.childNodes[0];
           this._headerArea.removeChild(outerSpan);
           outerSpans.push(outerSpan);
         }
@@ -273,7 +274,7 @@ pui.TabLayout.prototype.render = function(screenParms) {
         // Add the outer elements in the order that was saved.
         while (state["order"].length > 0) {
           var tabId = state["order"][0];
-          var outerSpan = outerSpans[tabId];
+          outerSpan = outerSpans[tabId];
           this._headerArea.appendChild(outerSpan);
           state["order"].shift();
         }
@@ -456,6 +457,8 @@ pui.TabLayout.prototype.drawChanged = function() {
  * @public
  */
 pui.TabLayout.prototype["handleEvent"] = function(e) {
+  var outerSpan;
+  var i, n; // loop iterators
   var inputs;
   var tabId;
   var position;
@@ -653,8 +656,8 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
         var reorderedNames = "";
         var comma = "";
         this._tabSpans = [];
-        for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
-          var outerSpan = this._headerArea.childNodes[i];
+        for (i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
+          outerSpan = this._headerArea.childNodes[i];
           var tabSpan = outerSpan.childNodes[1];
           this._tabSpans.push(tabSpan);
           tabSpan.tabId = i;
@@ -679,8 +682,8 @@ pui.TabLayout.prototype["handleEvent"] = function(e) {
         if (this._storageKey) {
           try {
             var state = { "order": [] };
-            for (var i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
-              var outerSpan = this._headerArea.childNodes[i];
+            for (i = 0, n = this._headerArea.childNodes.length; i < n; i++) {
+              outerSpan = this._headerArea.childNodes[i];
               state["order"].push(outerSpan.childNodes[1].tabId);
             }
             sessionStorage[this._storageKey] = JSON.stringify(state);

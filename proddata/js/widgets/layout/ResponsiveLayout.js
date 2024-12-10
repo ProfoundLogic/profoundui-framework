@@ -346,6 +346,7 @@ pui.ResponsiveLayout.prototype._manipulateCSSOM = function() {
  * @param {Object} parent
  */
 pui.ResponsiveLayout.prototype._findRules = function(parent) {
+  var j; // loop iterator
   var conditionText;
   for (var i = 0; i < parent.cssRules.length; i++) {
     var rule = parent.cssRules[i];
@@ -362,7 +363,7 @@ pui.ResponsiveLayout.prototype._findRules = function(parent) {
         var ruleSatisfies = true;
         if (reMatches2 != null) { // Rule has "and" with media feature in parentheses.
           // Look at each captured string: each media feature.
-          for (var j = 0; j < reMatches2.length; j++) {
+          for (j = 0; j < reMatches2.length; j++) {
             var matches_minmax = reMatches2[j].match(this._findRulesRegex_minmax);
             var matches_orient = reMatches2[j].match(this._findRulesRegex_orient);
 
@@ -406,7 +407,7 @@ pui.ResponsiveLayout.prototype._findRules = function(parent) {
       // Copy each style from the CSSStyleRule's style object. (Note: we can't just use rule.cssText because
       // Edge doesn't include grid-(row|column)-gap in cssText.)
       var ruletext = rule.selectorText + "{";
-      for (var j = 0; j < rule.style.length; j++) {
+      for (j = 0; j < rule.style.length; j++) {
         var styleprop = rule.style[j];
         var styleval = rule.style[styleprop];
         ruletext += styleprop + ":" + styleval + "; ";

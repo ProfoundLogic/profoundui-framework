@@ -26,80 +26,80 @@ pui.widgets.add({
   container: true,
   inlineEdit: true,
   defaults: {
-    	width: "300px",
-    	height: "200px",
-    	"z index": "8"
+    width: "300px",
+    height: "200px",
+    "z index": "8"
   },
 
   propertySetters: {
 
-    	"field type": function(parms) {
-    		var value = parms.evalProperty("value");
-    			var color = parms.evalProperty("color");
-    			var align = parms.evalProperty("text align");
-    		if (value) {
-    			if (color) {
-    				color = ' style="color:' + color + ';"';
-    			}
-    			if (align) {
-    				align = ' align="' + align + '"';
-    			}
-    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		}
-    	},
+    "field type": function(parms) {
+      var value = parms.evalProperty("value");
+      var color = parms.evalProperty("color");
+      var align = parms.evalProperty("text align");
+      if (value) {
+        if (color) {
+          color = ' style="color:' + color + ';"';
+        }
+        if (align) {
+          align = ' align="' + align + '"';
+        }
+        parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
+      }
+    },
 
-    	"value": function(parms) {
-    		var value = parms.value;
-    			var color = parms.evalProperty("color");
-    			var align = parms.evalProperty("text align");
-    		if (value) {
-    			if (color) {
-    				color = ' style="color:' + color + ';"';
-    			}
-    			if (align) {
-    				align = ' align="' + align + '"';
-    			}
-    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		}
+    "value": function(parms) {
+      var value = parms.value;
+      var color = parms.evalProperty("color");
+      var align = parms.evalProperty("text align");
+      if (value) {
+        if (color) {
+          color = ' style="color:' + color + ';"';
+        }
+        if (align) {
+          align = ' align="' + align + '"';
+        }
+        parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
+      }
       else {
-    			parms.dom.innerHTML = "";
-    		}
-    	},
+        parms.dom.innerHTML = "";
+      }
+    },
 
-    	"color": function(parms) {
-    		var value = parms.evalProperty("value");
-    			var color = parms.value;
-    			var align = parms.evalProperty("text align");
-    		if (value) {
-    			if (color) {
-    				color = ' style="color:' + color + ';"';
-    			}
-    			if (align) {
-    				align = ' align="' + align + '"';
-    			}
-    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		}
+    "color": function(parms) {
+      var value = parms.evalProperty("value");
+      var color = parms.value;
+      var align = parms.evalProperty("text align");
+      if (value) {
+        if (color) {
+          color = ' style="color:' + color + ';"';
+        }
+        if (align) {
+          align = ' align="' + align + '"';
+        }
+        parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
+      }
       else {
-    			parms.dom.innerHTML = "";
-    		}
-    	},
+        parms.dom.innerHTML = "";
+      }
+    },
 
-    	"text align": function(parms) {
-    		var value = parms.evalProperty("value");
-    			var color = parms.evalProperty("color");
-    			var align = parms.value;
-    		if (value) {
-    			if (color) {
-    				color = ' style="color:' + color + ';"';
-    			}
-    			if (align) {
-    				align = ' align="' + align + '"';
-    			}
-    			parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
-    		}
+    "text align": function(parms) {
+      var value = parms.evalProperty("value");
+      var color = parms.evalProperty("color");
+      var align = parms.value;
+      if (value) {
+        if (color) {
+          color = ' style="color:' + color + ';"';
+        }
+        if (align) {
+          align = ' align="' + align + '"';
+        }
+        parms.dom.innerHTML = "<legend" + color + align + ">" + value + "</legend>";
+      }
       else {
-    			parms.dom.innerHTML = "";
-    		}
-    	}
+        parms.dom.innerHTML = "";
+      }
+    }
   }
 });

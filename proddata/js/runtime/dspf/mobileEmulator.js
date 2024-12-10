@@ -56,15 +56,17 @@ pui.setupMobileEmulator = function() {
   dropdown.style.fontSize = "13px";
 
   function fillDropdown() {
-  	for (var i = dropdown.options.length - 1; i >= 0; i--) {
+    var i; // loop iterator
+    var x;
+    for (i = dropdown.options.length - 1; i >= 0; i--) {
       dropdown.remove(i);
     }
     var currentSizeExists = false;
-    for (var i = 0; i < pui.mobileEmulatorSizes.length; i++) {
+    for (i = 0; i < pui.mobileEmulatorSizes.length; i++) {
       var size = pui.mobileEmulatorSizes[i];
       if (size["height"] == null) continue;
       if (size["width"] == null) continue;
-      var x = dropdown.options.length;
+      x = dropdown.options.length;
       dropdown.options[x] = new Option(size["description"], size["height"] + "x" + size["width"]);
       if ((size["height"] == curHeight && size["width"] == curWidth) ||
            (size["width"] == curHeight && size["height"] == curWidth)) {
@@ -73,7 +75,7 @@ pui.setupMobileEmulator = function() {
       }
     }
     if (!currentSizeExists) {
-      var x = dropdown.options.length;
+      x = dropdown.options.length;
       dropdown.options[x] = new Option(curHeight + " x " + curWidth, curHeight + "x" + curWidth);
       dropdown.options[x].selected = true;
     }
@@ -130,10 +132,10 @@ pui.setupMobileEmulator = function() {
   rotateImage.title = "Rotate";
 
   rotateImage.onclick = function() {
-	  var temp = mobileDiv.style.height;
+    var temp = mobileDiv.style.height;
     mobileDiv.style.height = mobileDiv.style.width;
     mobileDiv.style.width = temp;
-	  var temp2 = puiDiv.style.height;
+    var temp2 = puiDiv.style.height;
     puiDiv.style.height = puiDiv.style.width;
     puiDiv.style.width = temp2;
     pui.resize();

@@ -20,6 +20,7 @@
 // ----------------------------------
 //  Portuguese (Copy for Brazil) - only difference is to replace "ficheiro" with "arquivo"
 // ----------------------------------
+// eslint-disable-next-line no-unused-vars
 var pt_BR = function(dict) {
   var dictMsg = {};
 

@@ -65,8 +65,10 @@ pui.attachDragDrop = function(dom, properties) {
   }
 
   function mousedown(event) {
+    var clickedOn;
+    var i; // loop iterator
     if (event["pointerType"] && event["stopImmediatePropagation"]) event["stopImmediatePropagation"]();
-    var clickedOn = getTarget(event);
+    clickedOn = getTarget(event);
     var offset = pui.getOffset(dom.parentNode);
     var offsetX = offset[0];
     var offsetY = offset[1];
@@ -101,7 +103,7 @@ pui.attachDragDrop = function(dom, properties) {
       }
       var firstRow = 0;
       if (dom.grid.hasHeader) firstRow = 1;
-      var clickedOn = getTarget(event);
+      clickedOn = getTarget(event);
       if (clickedOn.tagName == "A" || clickedOn.tagName == "IMG" || clickedOn.tagName == "INPUT" || clickedOn.tagName == "SELECT" || clickedOn.tagName == "TEXTAREA") {
         return;
       }
@@ -135,7 +137,7 @@ pui.attachDragDrop = function(dom, properties) {
     if (dropTargetIds != null && dropTargetIds != "") {
       dropTargetIds = dropTargetIds.split(",");
       // Look in each drop target widget and make a list of drop target elements.
-      for (var i = 0; i < dropTargetIds.length; i++) {
+      for (i = 0; i < dropTargetIds.length; i++) {
         var dropTarget = getObj(dropTargetIds[i]);
         if (dropTarget != null) {
           // If the target is a grid, then each of its lines may be drop targets.
@@ -194,7 +196,7 @@ pui.attachDragDrop = function(dom, properties) {
         height = height - 2;
         if (height < 5) height = 5;
         proxy.style.height = height + "px";
-        for (var i = 0; i < cols.length; i++) {
+        for (i = 0; i < cols.length; i++) {
           var cloneCell = cols[i].cloneNode(true);
           cloneCell.style.top = "0px";
           cloneCell.onclick = null;
@@ -403,7 +405,8 @@ pui.attachDragDrop = function(dom, properties) {
       if (touchEvent) {
         removeEvent(document, "touchmove", mousemove);
         removeEvent(document, "touchend", mouseup);
-      } else if (event["pointerType"]) {
+      }
+      else if (event["pointerType"]) {
         removeEvent(document, "pointermove", mousemove);
         removeEvent(document, "pointerup", mouseup);
       }
@@ -474,7 +477,8 @@ pui.attachDragDrop = function(dom, properties) {
     if (touchEvent) {
       addEvent(document, "touchmove", mousemove);
       addEvent(document, "touchend", mouseup);
-    } else if (event["pointerType"]) {
+    }
+    else if (event["pointerType"]) {
       addEvent(document, "pointermove", mousemove);
       addEvent(document, "pointerup", mouseup);
     }
