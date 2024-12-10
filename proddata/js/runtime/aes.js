@@ -29,7 +29,6 @@
 
 "use strict";
 /* jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
-/* global document, window, escape, unescape */
 
 /** @namespace The Stanford Javascript Crypto Library, top-level namespace. */
 var sjcl = {
@@ -398,7 +397,8 @@ sjcl.bitArray = {
       return a1.concat(a2);
     }
 
-    var out; var i; var last = a1[a1.length - 1]; var shift = sjcl.bitArray.getPartial(last);
+    var last = a1[a1.length - 1];
+    var shift = sjcl.bitArray.getPartial(last);
     if (shift === 32) {
       return a1.concat(a2);
     }
@@ -530,11 +530,12 @@ sjcl.bitArray = {
 sjcl.codec.hex = {
   /** Convert from a bitArray to a hex string. */
   fromBits: function(arr) {
-    var out = ""; var i; var x;
+    var out = "";
+    var i;
     for (i = 0; i < arr.length; i++) {
       out += ((arr[i] | 0) + 0xF00000000000).toString(16).substr(4);
     }
-    return out.substr(0, sjcl.bitArray.bitLength(arr) / 4);// .replace(/(.{8})/g, "$1 ");
+    return out.substring(0, sjcl.bitArray.bitLength(arr) / 4);// .replace(/(.{8})/g, "$1 ");
   },
   /** Convert from a hex string to a bitArray. */
   toBits: function(str) {
@@ -563,6 +564,7 @@ pui.aes.encryptBlock = function(block) {
 };
 
 pui.aes.encryptHex = function(hex, salt) {
+  var i;
   if (hex.length % 4 != 0) return ""; // invalid size of hex string
 
   while (hex.length % 32 != 0) {
@@ -572,7 +574,7 @@ pui.aes.encryptHex = function(hex, salt) {
   if (salt) {
     // every other hex char is random
     var salted = "";
-    for (var i = 0; i < hex.length; i += 2) {
+    for (i = 0; i < hex.length; i += 2) {
       salted += hex.substr(i, 2);
       salted += ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"][Math.floor(Math.random() * 16)];
       salted += ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"][Math.floor(Math.random() * 16)];
@@ -581,7 +583,7 @@ pui.aes.encryptHex = function(hex, salt) {
   }
 
   var output = "";
-  for (var i = 0; i < hex.length; i += 32) {
+  for (i = 0; i < hex.length; i += 32) {
     var block = hex.substr(i, 32);
     output += pui.aes.encryptBlock(block);
   }
