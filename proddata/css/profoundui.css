@@ -12968,7 +12968,7 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   padding: 5px;
   height: 25px;
   overflow-y: auto;
-  white-space: normal;
+  white-space: pre-wrap;
 }
 
 .blueprint-defaults.blueprint-spinner {
@@ -15546,7 +15546,7 @@ input.office-copy-radio-button-no-label:hover:checked+.label-for-office-copy-rad
   padding: 5px;
   overflow-y: auto;
   height: 25px;
-  white-space: normal;
+  white-space: pre-wrap;
 }
 
 .office-copy-defaults.office-copy-spinner {
