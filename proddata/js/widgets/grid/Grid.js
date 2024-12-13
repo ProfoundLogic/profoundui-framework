@@ -7203,8 +7203,11 @@ pui.Grid = function() {
           // Use the parent layout offsets to avoid the context menu being cutoff at the right or bottom. Note: maxX is compared
           // with x, which already has been adjusted to the parentOffset.x, so there is no need to include parentOffset.x in this calculation.
           // Test cases see: 7489, 7895.
-          maxX = parent.offsetWidth - contextMenu.clientWidth;
-          maxY = parent.offsetHeight - contextMenu.clientHeight;
+          function calculateMaxDimension(dimension, clientSize, childSize) {
+            return dimension > 0 ? dimension - clientSize : childSize;
+          }
+          maxX = calculateMaxDimension(parent.offsetWidth, contextMenu.clientWidth, parent.firstChild.offsetWidth);
+          maxY = calculateMaxDimension(parent.offsetHeight, contextMenu.clientHeight, parent.firstChild.offsetHeight);
         }
 
         // Make sure the pop-up is not positioned outside of the page or grid's parent layout.
