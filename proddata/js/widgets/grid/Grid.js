@@ -1605,6 +1605,7 @@ pui.Grid = function() {
         clone.id = "";
         if (clone.removeDesignEvents != null) clone.removeDesignEvents(clone);
         dupSpan.appendChild(clone);
+        appendDupIcon(obj, dupSpan);
       }
       obj = obj.nextSibling;
     }
@@ -1613,6 +1614,27 @@ pui.Grid = function() {
       me.cells[row][col].innerHTML = "";
       me.cells[row][col].appendChild(dupSpan.cloneNode(true));
     }
+
+    function appendDupIcon(obj, dupSpan) {
+      if (obj == null || dupSpan == null || clone == null) return;
+      // Set a icon array
+      // Get the icons, normally just 2 and push it in iconClasses
+      for (var index = 1; index < 3; index++) {
+        var iconClass = obj["icon" + index + " class"];
+        // get the parent of the obj
+        var objParent = obj.parentNode;
+        var iconDom = objParent.getElementsByClassName(iconClass)[0];
+        if (iconDom && iconClass !== null) {
+          var iconClone = document.createElement("div");
+          iconClone.style.top = iconDom.style.top;
+          iconClone.style.left = iconDom.style.left;
+          iconClone.style.cursor = "default";
+          iconClone.className = iconClass;
+          // get the dupSpan and append the icon
+          dupSpan.appendChild(iconClone);
+        }
+      }
+    };
   };
 
   this.mirrorDownAll = function() {
