@@ -1050,7 +1050,9 @@ pui.assignUnloadEvents = function() {
 
 pui.downloadAsAttachment = function(contentType, fileName, data) {
   var form = document.createElement("form");
-  form.action = getProgramURL("PUI0009106.pgm") + "?contentType=" + contentType + "&fileName=" + fileName;
+  form.action = getProgramURL("PUI0009106.pgm");
+  if (pui["pjsServer"]) form.action = "/profoundui/PUI0009106.pgm"; // Don't use getProgramURL() when served from PJS server
+  form.action += "?contentType=" + contentType + "&fileName=" + fileName;
   if (pui["isCloud"]) {
     form.action += "&workspace_id=" + pui.cloud.ws.id;
   }
@@ -5570,99 +5572,6 @@ pui.getStorageKey = function(screenParms, prefix) {
  */
 pui.record = function(parms) {
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
-};
-
-/**
- * Save test recording to file system
- */
-pui.saveRecording = function() {
-  // Combine payload info with response info
-  var user = null;
-  for (var i = 0; i < pui.recording["payloads"].length; i++) {
-    // Capture the user from the server response.
-    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
-    pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
-  }
-  var json = JSON.stringify({ "user": user, "payloads": pui.recording["payloads"] });
-  var recordingName;
-  // Get recording name from macro variables in the URL query string
-  var qryParms = getQueryStringParms();
-  for (x = 1; x < 99; x++) { // check for up to 99 macro variables
-    var macroVarName = qryParms["var" + x];
-    var macroVarValue = qryParms["value" + x];
-    if (!macroVarName && !macroVarValue) break;
-    if (macroVarName === "testid") { // look for testid macro variable
-      recordingName = macroVarValue;
-      break;
-    }
-  }
-  // Prompt for recording name if not found in macro variables
-  if (!recordingName) {
-    recordingName = prompt("Enter recording name");
-  }
-  if (!recordingName) return;
-
-  var fileName = recordingName;
-  if (!fileName.endsWith(".json")) fileName += ".json";
-
-  if (!pui["recording path"]) {
-    pui.downloadAsAttachment("text/plain", fileName, json);
-    return;
-  }
-
-  // Setup multipart form data.
-  var parts = [];
-  parts.push({
-    "name": "path",
-    "value": pui["recording path"] + fileName
-  });
-  parts.push({
-    "name": "text",
-    "value": "1"
-  });
-  parts.push({
-    "name": "replace",
-    "value": "Y"
-  });
-  parts.push({
-    "name": "json",
-    "value": json,
-    "fileName": fileName
-  });
-  var multiPart = new pui.MultiPart();
-  multiPart.addParts(parts);
-  var url = getProgramURL("PUI0001109.pgm");
-  url = url.replace("/auth", "");
-  multiPart.send(url, function(request) {
-    // Check http layer error.
-    var error;
-    var response = {};
-    if (request.getStatus() != 200) {
-      error = request.getStatusMessage();
-    }
-
-    // Check application-reported error.
-    if (!error) {
-      response = eval("(" + request.getResponseText() + ")");
-      if (!response["success"]) {
-        error = response["errorText"];
-      }
-    }
-
-    // Report error and quit on failure.
-    if (error) {
-      pui.alert(error);
-      return;
-    }
-
-    pui.alert("Recording saved.");
-
-    // Clear recording
-    pui.recording = {
-      "payloads": [],
-      "responses": []
-    };
-  });
 };
 
 /**

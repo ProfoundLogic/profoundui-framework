@@ -971,7 +971,7 @@ pui.Base64 = {
 
 pui["downloadJSON"] = function() {
   if (pui.recordTest) {
-    pui.saveRecording();
+    pui["saveRecording"]();
   }
   else {
     if (pui["savedJSON"] == null) {
@@ -989,6 +989,145 @@ pui["downloadJSON"] = function() {
   }
 };
 
+pui["saveRecording"] = function(successCallback) {
+  // Combine payload info with response info
+  var user = null;
+  for (var i = 0; i < pui.recording["payloads"].length; i++) {
+    // Capture the user from the server response.
+    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
+    pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
+  }
+  var recordingName;
+  var testId;
+  // Get recording name from macro variables in the URL query string
+  var qryParms = getQueryStringParms();
+  for (x = 1; x < 99; x++) { // check for up to 99 macro variables
+    var macroVarName = qryParms["var" + x];
+    var macroVarValue = qryParms["value" + x];
+    if (!macroVarName && !macroVarValue) break;
+    if (macroVarName === "testid") { // look for testid macro variable
+      recordingName = macroVarValue;
+      testId = macroVarValue;
+      break;
+    }
+  }
+  // Prompt for recording name if not found in macro variables
+  if (!recordingName) {
+    recordingName = prompt("Enter recording name");
+  }
+  if (!recordingName) return;
+
+  if (pui["pjsServer"]) {
+    if (pui.recording["payloads"].length === 0) {
+      pui.alert("No recording to save.");
+      return;
+    }
+    var data = {
+      "id": testId,
+      "appuser": user,
+      "payloads": pui.recording["payloads"]
+    };
+    var headers = {
+      "Content-Type": "application/json"
+    };
+    if (sessionStorage["atrium-token"]) {
+      headers["Authorization"] = "Basic " + sessionStorage["atrium-token"];
+    };
+    fetch("/auto-testing/save-recording", {
+      "method": "POST",
+      "headers": headers,
+      "body": JSON.stringify(data)
+    })["then"](function(response) {
+      if (response["ok"]) {
+        if (window.parent && window.parent["Atrium"] && window.parent["Atrium"]["api"] && typeof window.parent["Atrium"]["api"]["reloadNavParent"] === "function") {
+          window.parent["Atrium"]["api"]["reloadNavParent"]("test-" + testId);
+        }
+        // Clear recording
+        pui.recording = {
+          "payloads": [],
+          "responses": []
+        };
+        if (typeof successCallback === "function") {
+          successCallback();
+        }
+        else {
+          pui.alert("Recording saved.");
+        }
+      }
+      else {
+        pui.alert("Failed to save recording.");
+      }
+    })["catch"](function(error) {
+      pui.alert("Error: Unable to save recording.");
+      console.error("Fetch error:", error);
+    });
+    return;
+  }
+
+  var json = JSON.stringify({ "user": user, "payloads": pui.recording["payloads"] });
+  var fileName = recordingName;
+  if (!fileName.endsWith(".json")) fileName += ".json";
+
+  if (!pui["recording path"]) {
+    pui.downloadAsAttachment("text/plain", fileName, json);
+    return;
+  }
+
+  // Setup multipart form data.
+  var parts = [];
+  parts.push({
+    "name": "path",
+    "value": pui["recording path"] + fileName
+  });
+  parts.push({
+    "name": "text",
+    "value": "1"
+  });
+  parts.push({
+    "name": "replace",
+    "value": "Y"
+  });
+  parts.push({
+    "name": "json",
+    "value": json,
+    "fileName": fileName
+  });
+  var multiPart = new pui.MultiPart();
+  multiPart.addParts(parts);
+  var url = getProgramURL("PUI0001109.pgm");
+  url = url.replace("/auth", "");
+  multiPart.send(url, function(request) {
+    // Check http layer error.
+    var error;
+    var response = {};
+    if (request.getStatus() != 200) {
+      error = request.getStatusMessage();
+    }
+
+    // Check application-reported error.
+    if (!error) {
+      response = eval("(" + request.getResponseText() + ")");
+      if (!response["success"]) {
+        error = response["errorText"];
+      }
+    }
+
+    // Report error and quit on failure.
+    if (error) {
+      pui.alert(error);
+      return;
+    }
+
+    pui.alert("Recording saved.");
+
+    // Clear recording
+    pui.recording = {
+      "payloads": [],
+      "responses": []
+    };
+  });
+};
+
 pui["keepAlive"] = function() {
   var url;
 
@@ -1001,7 +1140,7 @@ pui["keepAlive"] = function() {
     else url = getProgramURL("PUI0002110.pgm");
   }
   else if (context == "genie") {
-    url = DOCUMENT_URI;
+    url = window["DOCUMENT_URI"];
   }
   else {
     return false;
@@ -1906,7 +2045,7 @@ pui["focusOnContainer"] = function() {
       pui.dummyBox.style.width = "10px";
       pui.dummyBox.style.borderStyle = "none";
       pui.dummyBox.style.backgroundColor = "transparent";
-      pui.runtimeContainer.appendChild(pui.dummyBox);
+      if (pui.runtimeContainer) pui.runtimeContainer.appendChild(pui.dummyBox);
     }
 
     pui.ignoreBlurs = true;

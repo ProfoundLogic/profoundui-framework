@@ -695,7 +695,9 @@ pui.render = function(parms) {
     getObj("ipadKeyboard").style.display = "none";
   }
 
-  pui.attachOnUserActivity();
+  if (!pui.isAutoTesting) {
+    pui.attachOnUserActivity();
+  }
   if (pui.handler == null) {
     pui.timeout = parms["timeout"];
     try {
@@ -704,11 +706,13 @@ pui.render = function(parms) {
     catch (error) {
     }
     var atriumTimeout = (atriumSettings && atriumSettings["ACTIMEOUT"] === "1");
-    if (!atriumTimeout && pui["client side timeout"] == true) {
-      pui.timeoutMonitor.start();
-    }
-    else {
-      pui.autoKeepAlive.setup();
+    if (!pui.isAutoTesting) {
+      if (!atriumTimeout && pui["client side timeout"] == true) {
+        pui.timeoutMonitor.start();
+      }
+      else {
+        pui.autoKeepAlive.setup();
+      }
     }
   }
 
@@ -983,7 +987,7 @@ pui.render = function(parms) {
 
   if (animation) pui.transitionAnimation.animate();
 
-  if (pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true)) {
+  if (!pui.isAutoTesting && pui.focusField != null && pui.focusField.dom != null && (!pui.placeCursorOnSubfile || pui.cursorValues.setRow != null || pui.cursorValues.setColumn != null || pui.focusField.setFocusFlag == true)) {
     var cell = pui.focusField.dom.parentNode;
     if (cell != null && cell.parentNode != null && cell.parentNode.grid != null && parseInt(pui.focusField.dom.style.top) > parseInt(cell.style.height)) {
       // focus field is in the hidden portion of an expandable subfile
@@ -1028,7 +1032,7 @@ pui.render = function(parms) {
     }
   }
   else if (!pui.placeCursorOnSubfile && (pui.cursorValues.setRow == null || pui.cursorValues.setColumn == null)) {
-    pui["focusOnContainer"]();
+    if (!pui.isAutoTesting) pui["focusOnContainer"]();
   }
 
   pui.screenIsReady = true;
@@ -3615,6 +3619,11 @@ pui.respond = function() {
   if (pui["isServerBusy"]()) {
     return false;
   }
+
+  if (pui.isAutoTesting) {
+    return false;
+  }
+
   // Create a new setting with is named "prioritize onsubmit event" and if it is set to true
   if (pui["prioritize onsubmit event"] == true) {
     // handle screen's "onsubmit" event, but identify it has a value first

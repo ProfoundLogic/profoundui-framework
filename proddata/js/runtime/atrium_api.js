@@ -89,6 +89,13 @@ Atrium["refreshNavPanel"] = function() {
   awin["Atrium"]["api"]["refreshNavPanel"]();
 };
 
+Atrium["reloadNavParent"] = function() {
+  var awin = Atrium["getAtriumWindow"]();
+  if (awin == null) return;
+
+  awin["Atrium"]["api"]["reloadNavParent"]();
+};
+
 Atrium["setMenuFilter"] = function(value) {
   var awin = Atrium["getAtriumWindow"]();
   if (awin == null) return;
