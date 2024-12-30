@@ -17,14 +17,16 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function buildOutputField(parms, value, labelForId) {
+pui.buildOutputField = function(parms, value, labelForId) {
   if (!parms.design) {
     var originalValue = getInnerText(parms.oldDom);
     if (originalValue != null && originalValue != "" && parms.dom.originalValue == null) {
       parms.dom.originalValue = originalValue;
     }
   }
-  parms.dom.innerHTML = "";
+
+  pui.clearChildNodes(parms.dom); // Clear the DIV.
+
   var text = value;
   if (typeof text === "string") {
     text = text.replace(/ /g, "\u00a0");
@@ -56,7 +58,11 @@ function buildOutputField(parms, value, labelForId) {
       parms.dom.style.overflowX = overflowX;
     }
   }
-}
+
+  // Assist with garbage-collection.
+  parms.dom.puiTrackEvent = pui.trackEvent;
+  parms.dom.destroy = pui.basicDestroy;
+};
 
 pui.widgets.add({
   name: "output field",
@@ -65,12 +71,12 @@ pui.widgets.add({
   propertySetters: {
 
     "field type": function(parms) {
-      buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));
+      pui.buildOutputField(parms, parms.evalProperty("value"), parms.evalProperty("label for"));
     },
 
     "value": function(parms) {
       if (parms.design || parms.properties["value"] != "script: value") {
-        buildOutputField(parms, parms.value, parms.evalProperty("label for"));
+        pui.buildOutputField(parms, parms.value, parms.evalProperty("label for"));
       }
     },
 

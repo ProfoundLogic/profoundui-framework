@@ -2827,15 +2827,19 @@ pui.Grid = function() {
   };
 
   this.destroy = function() {
-    var i;
     if (me.contextMenuId) removeEvent(document, "click", me.hideContextMenu);
-    for (i = me.vLines.length - 1; i >= 0; i = i - 1) {
-      if (me.vLines[i].parentNode != null) me.vLines[i].parentNode.removeChild(me.vLines[i]);
-    }
-    for (i = me.hLines.length - 1; i >= 0; i = i - 1) {
-      if (me.hLines[i].parentNode != null) me.hLines[i].parentNode.removeChild(me.hLines[i]);
-    }
     if (me.scrollbarObj != null) me.scrollbarObj.destroy();
+
+    while (me.vLines.length > 0) {
+      var vLine = me.vLines.pop();
+      if (vLine.parentNode != null) vLine.parentNode.removeChild(vLine);
+    }
+
+    while (me.hLines.length > 0) {
+      var hLine = me.hLines.pop();
+      if (hLine.parentNode != null) hLine.parentNode.removeChild(hLine);
+    }
+
     if (me.pagingBar != null) me.pagingBar.destroy();
     if (me.gridMenu != null) me.gridMenu.destroy();
     if (nwHandle != null) nwHandle.parentNode.removeChild(nwHandle);
@@ -2851,11 +2855,31 @@ pui.Grid = function() {
     sortMultiOrder = null;
     sortMultiPanel = null;
     filterMultiPanel = null;
+
+    // These DOM elements are being retained in memory, so they must be removed manually.
     try {
+      if (Array.isArray(me.runtimeChildren)) {
+        while (me.runtimeChildren.length > 0) {
+          var item = me.runtimeChildren.pop();
+          if (typeof item === "object" && item !== null && Array.isArray(item.domEls)) {
+            var domEls = item.domEls;
+            while (domEls.length > 0) {
+              var domel = domEls.pop(); // Note: the array can have empty slots.
+              if (typeof domel === "object" && domel !== null) {
+                pui.clearChildNodes(domel); // Remove child nodes cleanly.
+                pui.clearNode(domel); // call destroy, remove properties, etc. from domel itself.
+              }
+            }
+          }
+        }
+      }
+
       this.deleteOwnProperties(); // Deletes anything that is set like "this.something = foo", including me.dataArray, me.fieldNames, me.runtimeChildren, etc.
       me = null;
     }
-    catch (ignored) { }
+    catch (err) {
+      console.log(err);
+    }
   };
 
   this.getColumnWidths = function() {

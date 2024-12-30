@@ -451,7 +451,7 @@ pui.overlayAdjust = function(formats) {
 };
 
 pui.cleanup = function() {
-  var i; // loop iterator
+  var i;
   pui.dummyBox = null;
 
   if (pui.oldRenderParms != null && pui.isPreview != true) {
@@ -475,38 +475,37 @@ pui.cleanup = function() {
     delete pui.oldRenderParms;
   }
 
-  for (i = 0; i < pui.gridsDisplayed.length; i++) {
-    var grid = pui.gridsDisplayed[i];
+  while (pui.gridsDisplayed.length > 0) {
+    var grid = pui.gridsDisplayed.pop();
     if (grid != null && typeof grid.destroy == "function") grid.destroy();
   }
-  pui.gridsDisplayed = [];
 
-  for (i = 0; i < pui.layoutsDisplayed.length; i++) {
-    var layout = pui.layoutsDisplayed[i];
+  while (pui.layoutsDisplayed.length > 0) {
+    var layout = pui.layoutsDisplayed.pop();
     if (layout != null && typeof layout.destroy == "function") layout.destroy();
   }
-  pui.layoutsDisplayed = [];
 
   if (typeof FusionCharts != "undefined") {
-    for (i = 0; i < pui.chartsRendered.length; i++) {
-      if (FusionCharts(pui.chartsRendered[i])) {
-        FusionCharts(pui.chartsRendered[i]).dispose();
+    while (pui.chartsRendered.length > 0) {
+      var chart = pui.chartsRendered.pop();
+      if (chart != null && FusionCharts(chart)) {
+        FusionCharts(chart).dispose();
       }
     }
   }
-  pui.chartsRendered = [];
 
-  for (i = 0; i < pui.widgetsToCleanup.length; i++) {
-    var widget = pui.widgetsToCleanup[i];
+  // Widgets and DOM nodes that have a "destroy" method.
+  while (pui.widgetsToCleanup.length > 0) {
+    var widget = pui.widgetsToCleanup.pop();
     if (widget != null && typeof widget.destroy == "function") widget.destroy();
   }
-  pui.widgetsToCleanup = [];
 
-  for (i = 0; i < pui.screenEventsToCleanup.length; i++) {
-    var screenEvent = pui.screenEventsToCleanup[i];
-    removeEvent(screenEvent.eventObj, screenEvent.eventName, screenEvent.eventFunc);
+  while (pui.screenEventsToCleanup.length > 0) {
+    var ref = pui.screenEventsToCleanup.pop();
+    if (typeof ref === "object" && ref !== null) {
+      ref.eventObj.removeEventListener(ref.eventName, ref.eventFunc);
+    }
   }
-  pui.screenEventsToCleanup = [];
 
   for (var prop in pui.restoreStyles) {
     document.body.style[prop] = pui.restoreStyles[prop];
@@ -765,6 +764,7 @@ pui.render = function(parms) {
 
   if (parms["html"]) {
     // Render html
+    pui.clearChildNodes(parms.container);
     parms.container.innerHTML = parms["html"];
     parms.container.style.width = "100%";
     if (pui.genie && pui.genie.middleDiv != null) pui.genie.middleDiv.style.width = "100%";
@@ -922,7 +922,7 @@ pui.render = function(parms) {
       }
       else {
         pui.transitionAnimation.cleanup();
-        parms.container.innerHTML = "";
+        pui.clearChildNodes(parms.container);
       }
     }
     else {
@@ -1091,6 +1091,7 @@ pui.renderFormat = function(parms) {
   var top;
   var errors;
   var time = timer();
+  var widget;
   // retrieve parameters
   var isDesignMode = parms.designMode;
   if (isDesignMode == null) isDesignMode = false;
@@ -1432,7 +1433,16 @@ pui.renderFormat = function(parms) {
       }
     }
     else {
-      dom = document.createElement("div");
+      widget = pui.widgets[items[i]["field type"]];
+      if (typeof widget === "object" && widget !== null && typeof widget.tag === "string" && widget.tag.length > 0) {
+        // Attempt to avoid a mismatch in applyPropertyToField and thus memory leaks.
+        dom = document.createElement(widget.tag);
+        dom.type = widget.inputType;
+      }
+      else {
+        dom = document.createElement("div");
+      }
+
       dom.style.position = "absolute";
       dom.setAttribute("puiwdgt", items[i]["field type"]); // Mark the dom Element to assist with styling in profoundui.css. Sets absolute position.
       var leftpx = items[i].left;
@@ -2133,7 +2143,7 @@ pui.renderFormat = function(parms) {
               else boxValue = box.value;
               if (boxValue == propValue) {
                 // clear box
-                if (box.tagName == "DIV") box.innerHTML = "";
+                if (box.tagName == "DIV") pui.clearChildNodes(box);
                 else box.value = "";
               }
             }
@@ -2698,7 +2708,7 @@ pui.renderFormat = function(parms) {
       // call widget's initialize function
       fieldType = properties["field type"];
       if (fieldType != null) {
-        var widget = pui.widgets[fieldType];
+        widget = pui.widgets[fieldType];
         if (widget != null && widget.initialize != null) {
           widget.initialize({
             design: isDesignMode,
@@ -3199,8 +3209,9 @@ pui.renderFormat = function(parms) {
               pui.scriptError(err, eventPropName.substr(0, 1).toUpperCase() + eventPropName.substr(1) + " Error:\n");
             }
           };
-          addEvent(document.body, eventPropName.substr(2), func);
-          pui.screenEventsToCleanup.push({ eventObj: document.body, eventName: eventPropName.substr(2), eventFunc: func });
+          var evName = eventPropName.substring(2); // Remove "on" from the event name.
+          document.body.addEventListener(evName, func);
+          pui.screenEventsToCleanup.push({ eventObj: document.body, eventName: evName, eventFunc: func });
         }
       });
     }
@@ -3356,113 +3367,127 @@ pui.addarrowKeyEventHandler = function(element) {
 }; /* end addarrowKeyEventHandler */
 
 pui.attachResponse = function(dom) {
-  function clickEvent() {
-    var i; // loop iterator
-    if (dom.disabled == true) return;
-    if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
+  dom.handlesResponse = true; // Flag for handler code to know if target or its ancestor should be "dom".
+  addEvent(dom, "click", pui.responseClickEvent);
+};
 
-    if (dom.parentPagingBar != null) {
-      if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
-        dom.parentPagingBar.grid.pageDown();
-        return;
-      }
-      if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
-        dom.parentPagingBar.grid.pageUp();
-        return;
-      }
+/**
+ * Handler for click event when an element that sends a response is clicked.
+ * This is its own function to avoid creating a new function for each element,
+ * and so the click event can be removed.
+ * @param {Event} evt
+ */
+pui.responseClickEvent = function(evt) {
+  var dom = evt.target;
+  // Find the element associated with the response.
+  while (dom != null && !dom.handlesResponse) {
+    dom = dom.parentNode;
+  }
+  if (dom == null) return;
+
+  var i;
+  if (dom.disabled == true) return;
+  if (dom.getAttribute != null && dom.getAttribute("disabled") == "true") return;
+
+  if (dom.parentPagingBar != null) {
+    if (dom.nextPage == true && !dom.parentPagingBar.grid.atBottom()) {
+      dom.parentPagingBar.grid.pageDown();
+      return;
+    }
+    if (dom.prevPage == true && !dom.parentPagingBar.grid.atTop()) {
+      dom.parentPagingBar.grid.pageUp();
+      return;
+    }
+  }
+
+  if (dom.shortcutKey != null) {
+    pui.keyName = dom.shortcutKey;
+  }
+
+  var doms = [];
+  if (dom.shortcutKey != null) {
+    // If this is a grid paging bar item, do not pickup doms with matching shortcut key in other grids.
+    // This allows paging controls for grids in same control format to function independently of one another.
+    if (dom.parentPagingBar) {
+      doms.push(dom);
     }
 
-    if (dom.shortcutKey != null) {
-      pui.keyName = dom.shortcutKey;
-    }
-
-    var doms = [];
-    if (dom.shortcutKey != null) {
-      // If this is a grid paging bar item, do not pickup doms with matching shortcut key in other grids.
-      // This allows paging controls for grids in same control format to function independently of one another.
-      if (dom.parentPagingBar) {
-        doms.push(dom);
-      }
-
-      for (var formatName in pui.keyMap) {
-        var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
-        if (keyMapDomArray != null) {
-          for (i = 0; i < keyMapDomArray.length; i++) {
-            if (!keyMapDomArray[i].parentPagingBar) { // Push if this item isn't in a grid. See issue 4807.
-              doms.push(keyMapDomArray[i]);
-            }
+    for (var formatName in pui.keyMap) {
+      var keyMapDomArray = pui.keyMap[formatName][pui.keyName];
+      if (keyMapDomArray != null) {
+        for (i = 0; i < keyMapDomArray.length; i++) {
+          if (!keyMapDomArray[i].parentPagingBar) { // Push if this item isn't in a grid. See issue 4807.
+            doms.push(keyMapDomArray[i]);
           }
         }
       }
     }
-    else {
-      doms.push(dom);
-    }
+  }
+  else {
+    doms.push(dom);
+  }
 
-    for (i = 0; i < doms.length; i++) {
-      doms[i].responseValue = "1";
-      if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
-        pui.bypassValidation = doms[i].bypassValidation;
-      }
-    }
-
-    var cell = dom.parentNode;
-    if (cell != null) {
-      var gridDiv = cell.parentNode;
-      if (gridDiv != null) {
-        var grid = gridDiv.grid;
-        if (grid != null) {
-          grid.setCursorRRN(cell.row);
-        }
-      }
-    }
-
-    pui.destURL = null;
-    pui.destParams = null;
-    pui.destBookmarkable = null;
-    pui.destRedirect = null;
-
-    if (dom.pui && dom.pui.properties && dom.pui.properties["destination url"]) {
-      var props = dom.pui.properties;
-
-      pui.destURL = props["destination url"];
-      pui.destBookmarkable = (!props["bookmarkable"] || props["bookmarkable"] == "true");
-      pui.destRedirect = (props["redirect to destination"] == "true");
-      pui.destParams = [];
-
-      var suffix = 1;
-      var prop1 = "destination parameter name";
-      var prop2 = "destination parameter value";
-      while (props[prop1]) {
-        pui.destParams.push([props[prop1], props[prop2]]);
-        prop1 = "destination parameter name " + (++suffix);
-        prop2 = "destination parameter value " + suffix;
-      }
-    }
-
-    pui.responseRoutine = dom.responseRoutine;
-    pui.responseRoutineRow = dom.subfileRow;
-    pui.responseRoutineGrid = dom.subfileName;
-
-    var returnVal = pui.respond();
-
-    pui.destURL = null;
-    pui.destParams = null;
-    pui.destBookmarkable = null;
-    pui.destRedirect = null;
-
-    if (returnVal == false) {
-      for (i = 0; i < doms.length; i++) {
-        doms[i].responseValue = "0";
-      }
-      pui.bypassValidation = "false";
-      pui.responseRoutine = null;
-      pui.responseRoutineRow = null;
-      pui.responseRoutineGrid = null;
+  for (i = 0; i < doms.length; i++) {
+    doms[i].responseValue = "1";
+    if (doms[i].bypassValidation == "true" || doms[i].bypassValidation == "send data") {
+      pui.bypassValidation = doms[i].bypassValidation;
     }
   }
 
-  addEvent(dom, "click", clickEvent);
+  var cell = dom.parentNode;
+  if (cell != null) {
+    var gridDiv = cell.parentNode;
+    if (gridDiv != null) {
+      var grid = gridDiv.grid;
+      if (grid != null) {
+        grid.setCursorRRN(cell.row);
+      }
+    }
+  }
+
+  pui.destURL = null;
+  pui.destParams = null;
+  pui.destBookmarkable = null;
+  pui.destRedirect = null;
+
+  if (dom.pui && dom.pui.properties && dom.pui.properties["destination url"]) {
+    var props = dom.pui.properties;
+
+    pui.destURL = props["destination url"];
+    pui.destBookmarkable = (!props["bookmarkable"] || props["bookmarkable"] == "true");
+    pui.destRedirect = (props["redirect to destination"] == "true");
+    pui.destParams = [];
+
+    var suffix = 1;
+    var prop1 = "destination parameter name";
+    var prop2 = "destination parameter value";
+    while (props[prop1]) {
+      pui.destParams.push([props[prop1], props[prop2]]);
+      prop1 = "destination parameter name " + (++suffix);
+      prop2 = "destination parameter value " + suffix;
+    }
+  }
+
+  pui.responseRoutine = dom.responseRoutine;
+  pui.responseRoutineRow = dom.subfileRow;
+  pui.responseRoutineGrid = dom.subfileName;
+
+  var returnVal = pui.respond();
+
+  pui.destURL = null;
+  pui.destParams = null;
+  pui.destBookmarkable = null;
+  pui.destRedirect = null;
+
+  if (returnVal == false) {
+    for (i = 0; i < doms.length; i++) {
+      doms[i].responseValue = "0";
+    }
+    pui.bypassValidation = "false";
+    pui.responseRoutine = null;
+    pui.responseRoutineRow = null;
+    pui.responseRoutineGrid = null;
+  }
 };
 
 pui.showErrors = function(errors, rrn) {
@@ -5179,7 +5204,7 @@ pui["run"] = function(config) {
       preview = genPreview(config["previewTab"]);
     }
     if (!preview) {
-      container.innerHTML = "";
+      pui.clearChildNodes(container);
       pui.alert("Preview data is no longer available.  You can rebuild the preview in the Visual Designer.");
     }
     else {
@@ -5442,6 +5467,7 @@ pui.runMVC = function(response) {
     "suppressAlert": true,
     "handler": function(parms) {
       if (parms == null) {
+        pui.clearChildNodes(document.body);
         document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + "<br/><br/>" + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
         pui.closeSession(); // Without this, a parent atrium tab can't be closed by clicking [x].
         return;
@@ -5463,6 +5489,7 @@ pui.runMVC = function(response) {
         return;
       }
       if (parms["html"] != null) {
+        pui.clearChildNodes(pui.runtimeContainer);
         pui.runtimeContainer.innerHTML = parms["html"];
         return;
       }
@@ -5610,6 +5637,7 @@ pui.closeSession = function() {
     return;
   }
 
+  pui.clearChildNodes(document.body);
   document.body.innerHTML = '<div id="close-browser-msg" style="width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
 
   // This can throw an exception in some older releases of FireFox 3 when attempting to
@@ -7132,7 +7160,7 @@ pui.transitionAnimation = {
 
   cleanup: function() {
     if (!this.prevScreen) return;
-    this.prevScreen.innerHTML = "";
+    pui.clearChildNodes(this.prevScreen);
     if (this.prevScreen.parentNode) this.prevScreen.parentNode.removeChild(this.prevScreen);
     this.prevScreen = null;
   },
@@ -7204,6 +7232,7 @@ pui["downloadJobLog"] = function(parms) {
     return;
   }
 
+  pui.clearChildNodes(outputEl);
   outputEl.innerHTML = pui["getLanguageText"]("runtimeMsg", "downloading x", ["..."]);
 
   var filesaverPath = "/jszip/FileSaver.min.js";

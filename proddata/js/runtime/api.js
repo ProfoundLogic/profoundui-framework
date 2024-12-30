@@ -607,21 +607,30 @@ function getActualStyle(dom, propertyName) {
 }
 
 function addEvent(obj, eventName, func) {
-  if (obj.addEventListener) {
-    obj.addEventListener(eventName, func, false);
-  }
-  else if (obj.attachEvent) {
-    obj.attachEvent("on" + eventName, func);
+  // Note: the default value for "useCapture" is false.
+  obj.addEventListener(eventName, func, false);
+
+  if (typeof obj.puiTrackEvent === "function") {
+    obj.puiTrackEvent(eventName, func);
   }
 }
 
 // eslint-disable-next-line no-unused-vars
 function removeEvent(obj, eventName, func) {
-  if (obj.removeEventListener) {
-    obj.removeEventListener(eventName, func, false);
-  }
-  else if (obj.detachEvent) {
-    obj.detachEvent("on" + eventName, func);
+  obj.removeEventListener(eventName, func, false);
+
+  // If events are tracked, then remove this specific event from the list. Assume this call to removeEvent
+  // is different from grid paging or screen cleanup. (Otherwise, calling destroy() would be expected.)
+  if (Array.isArray(obj.puievtlist)) {
+    for (var i = 0, n = obj.puievtlist.length; i < n; i++) {
+      var el = obj.puievtlist[i];
+      if (typeof el === "object" && el !== null && el.name === eventName && el.f === func) {
+        obj.puieltlist.splice(i, 1);
+        delete el.name;
+        delete el.f;
+        break;
+      }
+    }
   }
 }
 

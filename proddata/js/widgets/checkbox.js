@@ -84,6 +84,10 @@ pui.widgets.add({
       parms.dom.checked = false;
       parms.dom.indeterminate = false;
 
+      // Needed for garbage-collection.
+      parms.dom.puiTrackEvent = pui.trackEvent;
+      parms.dom.destroy = pui.basicDestroy;
+
       if (context == "genie" && parms.dom.originallyChecked != null && parms.properties["value"] == null && parms.properties["checked value"] == null) {
         parms.dom.checked = parms.dom.originallyChecked;
       }
@@ -99,7 +103,6 @@ pui.widgets.add({
         var readonly = parms.evalProperty("read only");
         if (readonly === "true" || readonly === true) parms.dom.disabled = false;
 
-        checkboxObjects.push(parms.dom);
         var labelText = parms.evalProperty("label");
         if (labelText != "") pui.buildLabel(parms.dom, labelText);
         // For "read only" checkboxes, don't allow the user to check or uncheck the box, because that would change the value. #4925.
