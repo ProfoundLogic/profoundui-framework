@@ -1033,12 +1033,6 @@ pui.Grid = function() {
         idx = columnArray[j];
         if (idx > -1) {
           var value = record[idx];
-          // ADO38521 There may be grid fields added on the fly by js client side code.
-          // These fields are usually used for row selection and we don't want them to break the export, so we print them as blank.
-          if (!value) {
-            worksheetCol++;
-            continue;
-          }
 
           if (hyperlinks[j] != null && hyperlinks[j].value != null) {
             // value was a hard-coded href link, use it as cell text.
