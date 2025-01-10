@@ -1681,6 +1681,9 @@ pui["upload"] = function(params, callback) {
     else {
       success = false;
       error = xhr.status + " - " + xhr.statusText + ".";
+      if (xhr.status == 0 && xhr.statusText == "") {
+        error = "The FILE could not be found in the system.";
+      }
     }
 
     if (typeof (callback) == "function") {
