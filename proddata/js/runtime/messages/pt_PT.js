@@ -333,6 +333,7 @@ var pt_PT = function(dict) {
       dictMsg["rdf application"] = "Aplicação Rich Display File";
       dictMsg["web application"] = "Apliacação Web";
       dictMsg["pc command"] = "Comando de PC";
+      dictMsg["launcher command"] = "Comando de Launcher";
       dictMsg["dspf program library"] = "Biblioteca de programa de ficheiro de ecrã";
       dictMsg["dspf program"] = "Programa de ficheiro de ecrã";
       dictMsg["variable name x"] = "Nome da variável &1";

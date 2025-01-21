@@ -334,6 +334,7 @@ var de_DE = function(dict) {
       dictMsg["rdf application"] = "Rich Display File Applikation";
       dictMsg["web application"] = "Web Applikation";
       dictMsg["pc command"] = "PC Befehl";
+      dictMsg["launcher command"] = "Launcher Befehl";
       dictMsg["dspf program library"] = "Display file Programm Bibliothek";
       dictMsg["dspf program"] = "Display file Programm";
       dictMsg["variable name x"] = "Variablenname &1";

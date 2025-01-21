@@ -322,6 +322,7 @@ var ja_JP = function(dict) {
       dictMsg["rdf application"] = "リッチ画面ファイルアプリケーション";
       dictMsg["web application"] = "Webアプリケーション";
       dictMsg["pc command"] = "PCコマンド";
+      dictMsg["launcher command"] = "Launcherコマンド";
       dictMsg["dspf program library"] = "画面ファイルプログラムライブラリ";
       dictMsg["dspf program"] = "画面ファイルプログラム";
       dictMsg["variable name x"] = "変数名 &1";
