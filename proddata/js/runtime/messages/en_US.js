@@ -354,6 +354,7 @@ var en_US = function(dict) {
       dictMsg["rdf application"] = "Rich Display File Application";
       dictMsg["web application"] = "Web Application";
       dictMsg["pc command"] = "PC Command";
+      dictMsg["launcher command"] = "Launcher Command";
       dictMsg["dspf program library"] = "Display file program library";
       dictMsg["dspf program"] = "Display file program";
       dictMsg["variable name x"] = "Variable name &1";

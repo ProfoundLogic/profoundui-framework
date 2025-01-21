@@ -329,6 +329,7 @@ var it_IT = function(dict) {
       dictMsg["rdf application"] = "Rich Display File Application";
       dictMsg["web application"] = "Web Application";
       dictMsg["pc command"] = "PC Command";
+      dictMsg["launcher command"] = "Launcher Command";
       dictMsg["dspf program library"] = "Libreria del programma del display file";
       dictMsg["dspf program"] = "Programma del display file";
       dictMsg["variable name x"] = "Nome della variabile &1";

@@ -327,6 +327,7 @@ var fr_CA = function(dict) {
       dictMsg["rdf application"] = "Application Rich Display File";
       dictMsg["web application"] = "Application web";
       dictMsg["pc command"] = "Commande PC";
+      dictMsg["launcher command"] = "Commande Launcher";
       dictMsg["dspf program library"] = "Bibliothèque du programme";
       dictMsg["dspf program"] = "Nom du programme";
       dictMsg["variable name x"] = "Nom de Variable &1";

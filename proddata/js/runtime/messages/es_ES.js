@@ -331,6 +331,7 @@ var es_ES = function(dict) {
       dictMsg["rdf application"] = "Aplicación de archivo de pantalla enriquecido";
       dictMsg["web application"] = "Aplicación Web";
       dictMsg["pc command"] = "Comando PC";
+      dictMsg["launcher command"] = "Comando Launcher";
       dictMsg["dspf program library"] = "Biblioteca del programa de archivo de pantalla";
       dictMsg["dspf program"] = "Programa de archivo de pantalla";
       dictMsg["variable name x"] = "Nombre de variable &1";

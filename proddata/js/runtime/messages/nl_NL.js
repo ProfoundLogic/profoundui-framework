@@ -333,6 +333,7 @@ var nl_NL = function(dict) {
       dictMsg["rdf application"] = "Rich Display File toepassing";
       dictMsg["web application"] = "Web toepassing";
       dictMsg["pc command"] = "PC commando";
+      dictMsg["launcher command"] = "Launcher commando";
       dictMsg["dspf program library"] = "Display file programma bibliotheek";
       dictMsg["dspf program"] = "Display file programma";
       dictMsg["variable name x"] = "Naam variabele &1";

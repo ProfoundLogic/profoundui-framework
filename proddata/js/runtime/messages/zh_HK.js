@@ -324,6 +324,7 @@ var zh_HK = function(dict) {
       dictMsg["rdf application"] = "Rich Display 檔案應用";
       dictMsg["web application"] = "網頁應用程式";
       dictMsg["pc command"] = "PC命令";
+      dictMsg["launcher command"] = "Launcher命令";
       dictMsg["dspf program library"] = "顯示檔案的程式庫";
       dictMsg["dspf program"] = "顯示檔案程式";
       dictMsg["variable name x"] = "變數名稱 &1";
