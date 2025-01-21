@@ -45,16 +45,21 @@ pui.widgets.add({
           }
         }
       }
+
+      // Assist with garbage-collection.
+      parms.dom.puiTrackEvent = pui.trackEvent;
+      parms.dom.destroy = pui.basicDestroy;
+
       if (!parms.design) {
-        addEvent(parms.dom, "keydown", function(e) {
+        var onkeydown = function(e) {
           // prevent enter key from bubbling so that user can press enter to initiate the button
           // otherwise the enter key response would be sent to the server instead
           var key = e.keyCode;
           if (key == 13) {
-            if (!e) e = window.event;
             e.cancelBubble = true;
           }
-        });
+        };
+        addEvent(parms.dom, "keydown", onkeydown); // Add event, and also track listener for removal.
       }
     },
 

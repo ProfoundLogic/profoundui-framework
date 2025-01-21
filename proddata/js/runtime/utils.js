@@ -1050,7 +1050,9 @@ pui.assignUnloadEvents = function() {
 
 pui.downloadAsAttachment = function(contentType, fileName, data) {
   var form = document.createElement("form");
-  form.action = getProgramURL("PUI0009106.pgm") + "?contentType=" + contentType + "&fileName=" + fileName;
+  form.action = getProgramURL("PUI0009106.pgm");
+  if (pui["pjsServer"]) form.action = "/profoundui/PUI0009106.pgm"; // Don't use getProgramURL() when served from PJS server
+  form.action += "?contentType=" + contentType + "&fileName=" + fileName;
   if (pui["isCloud"]) {
     form.action += "&workspace_id=" + pui.cloud.ws.id;
   }
@@ -3276,10 +3278,11 @@ pui.setHtmlWithEjs = function(dom, html) {
   }
   if (!pui.ejsLoaded) {
     pui.ejsLoading = true;
-    dom.innerHTML = "";
+    pui.clearChildNodes(dom);
     pui["loadJS"]({
       "path": pui.normalizeURL("/ejs/ejs.min.js"),
       "callback": function() {
+        pui.clearChildNodes(dom);
         dom.innerHTML = pui.ejs(html);
         pui.ejsLoaded = true;
         pui.ejsLoading = false;
@@ -3290,6 +3293,7 @@ pui.setHtmlWithEjs = function(dom, html) {
     });
   }
   else {
+    pui.clearChildNodes(dom);
     dom.innerHTML = pui.ejs(html);
   }
 };
@@ -5494,6 +5498,7 @@ pui["doSessionTimeout"] = function() {
   function showMessage(container) {
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.backgroundImage = "none";
+    pui.clearChildNodes(container);
     container.innerHTML = '<div style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' +
                               pui["getLanguageText"]("runtimeMsg", "session timed out") + "</div>";
   }
@@ -5570,99 +5575,6 @@ pui.getStorageKey = function(screenParms, prefix) {
  */
 pui.record = function(parms) {
   pui.recording["responses"].push(JSON.parse(JSON.stringify(parms)));
-};
-
-/**
- * Save test recording to file system
- */
-pui.saveRecording = function() {
-  // Combine payload info with response info
-  var user = null;
-  for (var i = 0; i < pui.recording["payloads"].length; i++) {
-    // Capture the user from the server response.
-    if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
-    pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
-  }
-  var json = JSON.stringify({ "user": user, "payloads": pui.recording["payloads"] });
-  var recordingName;
-  // Get recording name from macro variables in the URL query string
-  var qryParms = getQueryStringParms();
-  for (x = 1; x < 99; x++) { // check for up to 99 macro variables
-    var macroVarName = qryParms["var" + x];
-    var macroVarValue = qryParms["value" + x];
-    if (!macroVarName && !macroVarValue) break;
-    if (macroVarName === "testid") { // look for testid macro variable
-      recordingName = macroVarValue;
-      break;
-    }
-  }
-  // Prompt for recording name if not found in macro variables
-  if (!recordingName) {
-    recordingName = prompt("Enter recording name");
-  }
-  if (!recordingName) return;
-
-  var fileName = recordingName;
-  if (!fileName.endsWith(".json")) fileName += ".json";
-
-  if (!pui["recording path"]) {
-    pui.downloadAsAttachment("text/plain", fileName, json);
-    return;
-  }
-
-  // Setup multipart form data.
-  var parts = [];
-  parts.push({
-    "name": "path",
-    "value": pui["recording path"] + fileName
-  });
-  parts.push({
-    "name": "text",
-    "value": "1"
-  });
-  parts.push({
-    "name": "replace",
-    "value": "Y"
-  });
-  parts.push({
-    "name": "json",
-    "value": json,
-    "fileName": fileName
-  });
-  var multiPart = new pui.MultiPart();
-  multiPart.addParts(parts);
-  var url = getProgramURL("PUI0001109.pgm");
-  url = url.replace("/auth", "");
-  multiPart.send(url, function(request) {
-    // Check http layer error.
-    var error;
-    var response = {};
-    if (request.getStatus() != 200) {
-      error = request.getStatusMessage();
-    }
-
-    // Check application-reported error.
-    if (!error) {
-      response = eval("(" + request.getResponseText() + ")");
-      if (!response["success"]) {
-        error = response["errorText"];
-      }
-    }
-
-    // Report error and quit on failure.
-    if (error) {
-      pui.alert(error);
-      return;
-    }
-
-    pui.alert("Recording saved.");
-
-    // Clear recording
-    pui.recording = {
-      "payloads": [],
-      "responses": []
-    };
-  });
 };
 
 /**
@@ -5786,5 +5698,122 @@ pui.WebSocketClient.prototype["handleEvent"] = function(event) {
   switch (event.type) {
     case "close":
       this.onCloseOrDisconnect();
+  }
+};
+
+/**
+ * Remove properties from a node itself, clear commonly added "on" event listeners, remove any attributes.
+ * @param {Element} node
+ */
+pui.clearNode = function(node) {
+  // Clear event properties that are commonly set (and are not "own"--are up the prototype chain).
+  if (typeof node.onchange === "function") node.onchange = null;
+  if (typeof node.onclick === "function") node.onclick = null;
+
+  // Remove style, class, and other attributes to reduce memory leaks if the HTMLElement still remains.
+  var attributes = node["attributes"];
+  if (typeof attributes === "object" && attributes !== null) {
+    while (attributes.length > 0) {
+      var attr = attributes[0];
+      attributes["removeNamedItem"](attr["name"]);
+    }
+  }
+
+  // Remove any own, enumerable properties in case PUI added functions or references that prevent garbage collection.
+  pui.BaseClass.prototype.deleteOwnProperties.apply(node);
+};
+
+/**
+ * DFS function to remove all children of an element, but leave the element itself alone.
+ * Use pui.clearChildNodes(dom) instead of dom.innerHTML = "" to avoid memory leaks of event listeners. (PJS-1110)
+ * @param {Element} el
+ */
+pui.clearChildNodes = function(el) {
+  if (el == null) return;
+
+  var node = el.firstChild;
+  while (typeof node === "object" && node !== null && node !== el) {
+    if (typeof node.destroy === "function") {
+      // Allow a destroy function to cleanup all nodes of a widget.
+      try {
+        node.destroy();
+        node.destroy = null; // Avoid infinite loop in case destroy does not remove itself.
+      }
+      catch (err) {
+        console.log(err);
+      }
+    }
+    // Otherwise, clear the children here.
+    else if (node.firstChild != null) {
+      // The node has at least one child, so go to the first child.
+      node = node.firstChild;
+    }
+    else {
+      // There are no children of this node, so remove it.
+      var parent = node.parentNode;
+      parent.removeChild(node);
+
+      pui.clearNode(node);
+
+      // If there are more siblings, go to the next sibling. Otherwise, go to the parent.
+      node = parent.firstChild != null ? parent.firstChild : parent;
+    }
+  }
+};
+
+/**
+ * Track listeners added by code outside of a widget's file; e.g. renderFormat adds things not defined in each widget.
+ * "this" may be an Element or a class instance.
+ * Note: the name is quoted because Closure Compiler can otherwise assign the wrong function to nodes.
+ * @param {String} name
+ * @param {Function} f
+ */
+pui.trackEvent = function(name, f) {
+  var el = this;
+  if (typeof el === "object" && el !== null) {
+    if (!Array.isArray(el.puievtlist)) el.puievtlist = [];
+    el.puievtlist.push({ name: name, f: f });
+  }
+  el = null;
+};
+
+/**
+ * Look for a "puievtlist" property, and detach all event listeners listed in it to reduce memory leaking.
+ * Assume this is called by a .destroy() function.
+ * @param {Object} obj  An Element or a class instance; should match what was "this" in pui.trackEvent.
+ */
+pui.removeEvents = function(obj) {
+  if (Array.isArray(obj.puievtlist)) {
+    while (obj.puievtlist.length > 0) {
+      var el = obj.puievtlist.pop();
+      if (typeof el === "object" && el !== null) {
+        obj.removeEventListener(el.name, el.f);
+        delete el.name;
+        delete el.f;
+      }
+    }
+    delete obj.puievtlist;
+  }
+};
+
+/**
+ * Re-usable function in simple widgets that assumes the "field type" field setter has assigned:
+ * dom.puiTrackEvent = pui.trackEvent;
+ * dom.destroy = pui.basicDestroy;
+ * This allows event listeners assigned in render.js to be removed to allow garbage collection.
+ * Pre-condition: "this" is the dom element, because the function is assigned to that element.
+ */
+pui.basicDestroy = function() {
+  try {
+    var el = this;
+    if (typeof el === "object" && el !== null) {
+      pui.removeEvents(el);
+      pui.clearChildNodes(el);
+      pui.clearNode(el);
+    }
+    el = null;
+  }
+  catch (err) {
+    console.log(err);
   }
 };

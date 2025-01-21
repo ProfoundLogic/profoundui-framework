@@ -105,6 +105,10 @@ function RPGspRequest(arg) {
 
   // CONSTRUCTOR START.
 
+  if (RPGspRequest["defaultHeaders"]) {
+    this["headers"] = RPGspRequest["defaultHeaders"];
+  }
+
   // Handle alternate parameter style.
   if (typeof (arguments[0]) == "object") {
     var paramObj = arguments[0];

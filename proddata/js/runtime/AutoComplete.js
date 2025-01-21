@@ -279,8 +279,8 @@ function AutoComplete(config) {
   textBox.addEventListener("keydown", doKeyDown, false);
   textBox.addEventListener("blur", doBlur, false);
   textBox.addEventListener("input", onInput, false);
-  if (!pui.autoCompleteList || pui.autoCompleteList.length == 0) {
-    window.addEventListener("resize", doResize, false);
+  if (!Array.isArray(pui.autoCompleteList) || pui.autoCompleteList.length == 0) {
+    window.addEventListener("resize", pui.autoCompResize, false);
     pui.autoCompleteList = [];
   }
   pui.autoCompleteList.push(me);
@@ -317,8 +317,10 @@ function AutoComplete(config) {
       }
     }
 
+    // If no other auto-complete widgets are open, remove the resize event listener. e.g. we wouldn't always
+    // remove "resize" if "this" was in a grid cell, the grid is scrolling, but there is an autocomplete outside the grid.
     if (pui.autoCompleteList.length == 0) {
-      window.removeEventListener("resize", doResize);
+      window.removeEventListener("resize", pui.autoCompResize);
     }
 
     resultPane = null;
@@ -345,6 +347,7 @@ function AutoComplete(config) {
     values = null;
     recordSet = null;
     ondbload = null;
+    this.destroy = null; // Avoid letting error be called again.
     me = null;
   };
 
@@ -983,9 +986,8 @@ function AutoComplete(config) {
   }
 }
 
-// This function is declared globally here and used: in widgets/textbox.js
-// eslint-disable-next-line no-unused-vars
-function applyAutoComp(properties, originalValue, domObj) {
+// This function is used: in widgets/textbox.js
+pui.applyAutoComp = function(properties, originalValue, domObj) {
   var containsMatch;
   var i; // loop iterator
   var where;
@@ -1321,10 +1323,10 @@ function applyAutoComp(properties, originalValue, domObj) {
       req.send();
     }
   }
-}
+};
 
-function doResize() {
-  pui.autoCompleteList.forEach(function(autocomplete) {
-    autocomplete.resize();
-  });
-}
+pui.autoCompResize = function() {
+  for (var i = 0, length = pui.autoCompleteList.length; i < length; i++) {
+    pui.autoCompleteList[i].resize();
+  }
+};

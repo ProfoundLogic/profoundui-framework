@@ -93,6 +93,7 @@ pui.CSSButton = function() {
   };
 
   this.setText = function(text) {
+    pui.clearChildNodes(textSpan);
     textSpan.innerHTML = text;
   };
 
@@ -133,11 +134,12 @@ pui.CSSButton = function() {
   this.setIcon = function(icon, iconType) {
     if (icon && iconType == "material") {
       iconSpan.className = "pui-material-icons";
+      pui.clearChildNodes(iconSpan);
       iconSpan.innerHTML = icon;
     }
     else if (icon && iconType == "fontAwesome") {
       iconSpan.className = "pui-fa-icons fa-" + icon;
-      iconSpan.innerHTML = "";
+      pui.clearChildNodes(iconSpan);
     }
     else {
       if (icon && icon.indexOf(":") !== -1) {
@@ -158,7 +160,7 @@ pui.CSSButton = function() {
           var iconClassName = iconSet["classList"][iconValueClassList];
           if (iconValueType === type) {
             iconSpan.className = iconClassName + iconVal;
-            iconSpan.innerHTML = "";
+            pui.clearChildNodes(iconSpan);
             return false;
           }
           return true;
@@ -172,7 +174,7 @@ pui.CSSButton = function() {
         if (icon == null) icon = "";
         if (icon != "") icon = " ui-icon-" + icon;
         iconSpan.className = "ui-icon" + icon + iconShadowClass;
-        iconSpan.innerHTML = "";
+        pui.clearChildNodes(iconSpan);
       }
     }
   };
@@ -310,6 +312,30 @@ pui.CSSButton = function() {
       if (value != null) me.setStyle(style, value);
     }
   };
+
+  this.destroy = function() {
+    if (me && me.container) pui.basicDestroy.apply(me.container);
+    if (link) {
+      pui.clearNode(link);
+      link = null;
+    }
+    if (innerSpan) {
+      pui.clearNode(innerSpan);
+      innerSpan = null;
+    }
+    if (textSpan) {
+      pui.clearNode(textSpan);
+      textSpan = null;
+    }
+    if (iconSpan) {
+      pui.clearNode(iconSpan);
+      iconSpan = null;
+    }
+    if (me) {
+      pui.BaseClass.prototype.deleteOwnProperties.apply(me);
+      me = null;
+    }
+  };
 };
 
 pui.widgets.getCSSButtonProxy = function(defaultParms) {
@@ -373,7 +399,9 @@ pui.widgets.add({
       var button = new pui.CSSButton();
       button.container = parms.dom;
       button.designMode = parms.design;
-      parms.dom.innerHTML = "";
+
+      pui.clearChildNodes(parms.dom); // clear any existing content
+
       if (!parms.design && parms.properties["hyperlink reference"] == null && parms.properties["target"] == null) {
         button.useSpan = true;
       }
@@ -386,6 +414,10 @@ pui.widgets.add({
       button.setMini(parms.evalProperty("small button") == "true");
       button.setStraightEdge(parms.evalProperty("straight edge"));
       button.setHeight("100%");
+
+      // Assist with garbage-collection.
+      parms.dom.puiTrackEvent = pui.trackEvent;
+      parms.dom.destroy = button.destroy;
     },
 
     "theme": function(parms) {

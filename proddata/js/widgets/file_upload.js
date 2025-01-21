@@ -353,7 +353,14 @@ pui["fileupload"].FileUpload.prototype.upload = function() {
     this._abortLink.style.display = "";
     params["id"] = this._mainBox.id; // Ensure PUI0009109 passes the Widget ID from POST data into the PUIUPLEXIT program. #6158
     params["mode"] = "widget";
-    this._xhr = pui.upload(params);
+    this._xhr = pui.upload(params, function(success, errorMsg) {
+      if (!success) {
+        me._error = errorMsg;
+        me._submitHandle = null;
+        me._clearLink.style.display = "";
+        me._abortLink.style.display = "none";
+      }
+    });
   }
   else {
     this._submitHandle = null;

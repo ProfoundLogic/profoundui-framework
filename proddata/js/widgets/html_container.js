@@ -50,6 +50,10 @@ pui.widgets.add({
       else {
         parms.dom.innerHTML = pui.ejs(parms.evalProperty("html"));
       }
+
+      // Needed for garbage-collecting events.
+      parms.dom.puiTrackEvent = pui.trackEvent;
+      parms.dom.destroy = pui.basicDestroy;
     },
 
     "html": function(parms) {

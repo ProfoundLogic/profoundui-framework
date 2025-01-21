@@ -42,11 +42,14 @@ pui.textArea_cleanUp = function(e) {
   var len = val.length;
   // A model of the green-screen fields. Array of strings that is used to wrap and fit the text in the textarea.
   var lines = [];
+  var valPart1;
+  var valPart2;
 
   lines.push("");
   var curLine = 0; // Tracks which string in the "lines" model that characters are added to.
   var cursorPos = getCursorPosition(obj);
   var origCursorPos = cursorPos;
+
   if (!e) e = window.event;
   var key = e.which;
   if (!key) key = e.keyCode;
@@ -82,19 +85,49 @@ pui.textArea_cleanUp = function(e) {
   // var erasingSplitAdjust = 0; // Long text shouldn't be split up at the newlines.
   if (key == 8 && ename == "keydown" && cursorPos > 0) { // backspace
     if (pui["is_ie"] && val.length < cursorPos) cursorPos = val.length;
-    if (val.substr(cursorPos - 1, 1) == "\n") {
-      val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-    }
-    if (val.substr(cursorPos - 1, 1) == "\r") {
-      val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-    }
-    val = val.substr(0, cursorPos - 1) + val.substr(cursorPos);
-    cursorPos = cursorPos - 1;
 
+    // Case where there is a selection (text is selected by the user)
+    if (cursorPos === obj.selectionStart && cursorPos < obj.selectionEnd) {
+      valPart1 = val.slice(0, cursorPos - 1);
+      valPart2 = val.slice(obj.selectionEnd);
+
+      // Clean up unwanted newlines, combine the two parts and adjust cursor position for the backspace
+      valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+      valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
+      val = valPart1 + valPart2;
+      cursorPos = cursorPos - 1;
+    }
+    else {
+      var cursorChar = val.substr(cursorPos - 1, 1);
+
+      // If not on a newline, remove one character
+      if (cursorChar !== "\n" && cursorChar !== "\r") {
+        valPart1 = val.slice(0, cursorPos - 1);
+        valPart2 = val.slice(cursorPos);
+        valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+        valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
+        val = valPart1 + valPart2;
+      }
+
+      // If the cursor is on a newline, we need to merge lines correctly
+      if (cursorChar === "\n" || cursorChar === "\r") {
+        valPart1 = val.slice(0, cursorPos - 1);
+        valPart2 = val.slice(cursorPos);
+        valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+        valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
+        val = valPart1 + valPart2;
+      }
+
+      cursorPos = cursorPos - 1;
+    }
+
+    // Prevent the default backspace action (deleting only one character)
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
     e.cancelBubble = true;
     e.returnValue = false;
+
+    // Update the original cursor position
     origCursorPos = cursorPos;
   }
   // Make sure NL are not skipped when Del was typed and 'input' handles wrap. 'input' events don't know what key was typed.
@@ -115,19 +148,40 @@ pui.textArea_cleanUp = function(e) {
   // done handling backspace and delete.
 
   if (key == 13 && ename == "keydown") { // enter
+    // Split the value based on the cursor position
+    valPart1 = val.slice(0, cursorPos);
+    valPart2 = val.slice(cursorPos);
+    valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+    valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
+
+    // Check if adding a newline would exceed the line limit or boundaries
     var lineCount = 0;
-    for (i = 0; i < len; i++) {
-      ch = val.charAt(i);
-      if (ch == "\n") lineCount++;
+    for (i = 0; i < valPart1.length; i++) {
+      if (valPart1.charAt(i) == "\n") lineCount++;
     }
-    if (lineCount + 1 >= lineLengths.length) {
+
+    // If we've reached the line limit, prevent adding a newline
+    if (lineCount >= lineLengths.length) {
+      // Prevent the default Enter key behavior (i.e., adding a newline)
       if (e.preventDefault) e.preventDefault();
-      e.returnValue = false;
-    }
-    else {
       if (e.stopPropagation) e.stopPropagation();
       e.cancelBubble = true;
+      e.returnValue = false;
+      return; // Exit early to avoid adding the newline
     }
+
+    // Add a newlines to valPart1, as long as it's within line boundary limits
+    valPart1 += "\n\n";
+    val = valPart1 + valPart2;
+
+    // Prevent the default behavior of the Enter key
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    e.cancelBubble = true;
+    e.returnValue = false;
+
+    // Update the cursor position after inserting the newline
+    origCursorPos = cursorPos + 2;
   }
 
   //
@@ -135,13 +189,13 @@ pui.textArea_cleanUp = function(e) {
   //
   var cursorLine; // Gets the line number in the model where the cursor was. Helps prevent overfill.
 
-  // When the field uses CNTFIELD the field should word wrap on client-side. (The server doesn't add a "wrapped" property in the JSON response for CNTFIELD.)
+  // When the field uses CNTFLD the field should word wrap on client-side. (The server doesn't add a "wrapped" property in the JSON response for CNTFLD.)
   var isContinuedEntryField = obj.related != null && obj.related[0] != null && obj.related[0].fieldInfo != null && obj.related[0].fieldInfo["wrapped"] !== true;
   var isLongSpecialCase = false;
 
   // Wrap by word. Note: because val is manually changed on Backspace, we must handle that change on keydown and key 8.
   //   Listen on 'input' instead of 'keyup' to solve when holding a key down would corrupt the value.
-  if (isContinuedEntryField && (ename == "input" || (ename == "keydown" && key == 8))) {
+  if (isContinuedEntryField && (ename == "input" || (ename == "keydown" && key == 8) || (ename === "keydown" && key === 13))) {
     wrapwords();
     // Determine which line the cursor is on.
     var sum = 0;
@@ -186,6 +240,7 @@ pui.textArea_cleanUp = function(e) {
   if (origCursorPos == len) {
     cursorLine = curLine;
   }
+
   // Construct newVal from lines
   var newVal = "";
   for (i = 0; i < lines.length; i++) { // Concatenate each line into one string.
@@ -223,23 +278,19 @@ pui.textArea_cleanUp = function(e) {
       }
     }
   }
+
   // Set a new set of rules for the textarea value with related fields.
-  if (newVal != oldVal && obj.related[0] != null) {
-    // Set the value of the textarea to the new value if its pasted.
-    if (ename == "paste") {
-      obj.value = newVal;
-      setSelectionRange(obj, cursorPos, cursorPos);
-    }
-    if (key == 8) {
-      obj.value = newVal;
-      setSelectionRange(obj, cursorPos, cursorPos);
-    }
+  if (newVal !== oldVal && obj.related[0] != null && (ename === "paste" || key === 8 || key === 13)) {
+    obj.value = newVal;
+    setSelectionRange(obj, cursorPos, cursorPos);
   }
+
   // Set a new set of rules for the textarea value without related fields.
   if (newVal != oldVal && !obj.related) {
     obj.value = newVal;
     setSelectionRange(obj, cursorPos, cursorPos);
   }
+
   // Returns the length of a line. Usually for the length of the latest line being built, curLine.
   function getLineLength(lineno) {
     // If the current line we're on is from a unicode field of type "G" use the actual length...
@@ -362,7 +413,7 @@ pui.textArea_cleanUp = function(e) {
         }
         while ((!before_finished || !selection_finished || !after_finished));
         // Untrimmed success test to make sure our results match what is actually in the textarea
-        // This can be removed once you�re confident it�s working correctly
+        // This can be removed once you re confident it s working correctly
         // var untrimmed_text = untrimmed_before_text + untrimmed_selection_text + untrimmed_after_text;
         // var untrimmed_successful = false;
         // if (textarea.value == untrimmed_text) {
@@ -398,7 +449,7 @@ pui.textArea_cleanUp = function(e) {
     }
 
     if (ename != "paste") {
-      // Look for words that could fill a line. Assume CNTFIELD have line lengths all the same.
+      // Look for words that could fill a line. Assume CNTFLD have line lengths all the same.
       // Note: '\n' are added to textarea.value to cause wrapping, potentially splitting big words.
       for (i = 0; i < words.length; i++) {
         var lineLength = lineLengths[0];

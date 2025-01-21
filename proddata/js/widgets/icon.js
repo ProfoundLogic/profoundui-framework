@@ -17,7 +17,7 @@
 //  In the COPYING and COPYING.LESSER files included with the Profound UI Runtime.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-function handleIcon(parms) {
+pui.handleIcon = function(parms) {
   var icon;
   var iconValue = parms.evalProperty("icon");
   var cssClass = parms.evalProperty("css class");
@@ -27,7 +27,8 @@ function handleIcon(parms) {
   var iconDiv = document.createElement("div");
 
   // Remove the previous icon if it exists
-  parms.dom.innerHTML = "";
+  pui.clearChildNodes(parms.dom);
+
   var iconSets = pui.getDefaultIconSets();
   if (iconValue) iconValue = trim(iconValue);
   if (pui["customIconList"] && pui["customIconList"]) {
@@ -38,6 +39,7 @@ function handleIcon(parms) {
 
   if (iconValue.substr(0, 9) == "material:") {
     icon = iconValue.substr(9);
+    pui.clearChildNodes(iconDiv);
     iconDiv.innerText = trim(icon);
     iconDiv.className = "pui-material-icons";
     if (cursorStyle) iconDiv.style.cursor = cursorStyle;
@@ -45,7 +47,7 @@ function handleIcon(parms) {
   else if (iconValue.substr(0, 12) == "fontAwesome:") {
     icon = trim(iconValue.substr(12));
     iconDiv.className = "pui-fa-icons fa-" + icon;
-    iconDiv.innerText = "";
+    pui.clearChildNodes(iconDiv);
   }
   else {
     var iconValueArr = iconValue.split(":");
@@ -60,10 +62,11 @@ function handleIcon(parms) {
         iconDiv.className = iconClassName + iconVal;
         // If custom Material icon, then innerHTML = icon name
         if (iconValue.startsWith("material-")) {
+          pui.clearChildNodes(iconDiv);
           iconDiv.innerText = trim(iconVal);
         }
         else {
-          iconDiv.innerText = "";
+          pui.clearChildNodes(iconDiv);
         }
         return false;
       }
@@ -77,9 +80,9 @@ function handleIcon(parms) {
   // Add font family to the icon div, if set.
   if (fontFamily) iconDiv.style.fontFamily = fontFamily;
   parms.dom.appendChild(iconDiv);
-}
+};
 
-function handleIconResize(parms, sizeType) {
+pui.handleIconResize = function(parms, sizeType) {
   var iconDiv = parms.dom.firstChild;
   if (parseInt(parms.value) <= parseInt(parms.dom.style[sizeType])) {
     iconDiv.style.fontSize = parms.value;
@@ -89,7 +92,7 @@ function handleIconResize(parms, sizeType) {
   }
 
   parms.properties["icon size"] = iconDiv.style.fontSize;
-}
+};
 
 pui.widgets.add({
   name: "icon",
@@ -100,32 +103,36 @@ pui.widgets.add({
   },
   propertySetters: {
     "field type": function(parms) {
-      handleIcon(parms);
+      pui.handleIcon(parms);
       parms.dom.style.textAlign = "center";
+
+      // Assist with garbage-collection.
+      parms.dom.puiTrackEvent = pui.trackEvent;
+      parms.dom.destroy = pui.basicDestroy;
     },
     "icon": function(parms) {
       parms.properties["icon"] = parms.value;
-      handleIcon(parms);
+      pui.handleIcon(parms);
     },
     "width": function(parms) {
       // check against height to set size
-      handleIconResize(parms, "height");
+      pui.handleIconResize(parms, "height");
     },
     "height": function(parms) {
       // check against width to set size
-      handleIconResize(parms, "width");
+      pui.handleIconResize(parms, "width");
     },
     "css class": function(parms) {
       parms.properties["css class"] = parms.value;
-      handleIcon(parms);
+      pui.handleIcon(parms);
     },
     "cursor": function(parms) {
       parms.properties["cursor"] = parms.value;
-      handleIcon(parms);
+      pui.handleIcon(parms);
     },
     "font family": function(parms) {
       parms.properties["font family"] = parms.value;
-      handleIcon(parms);
+      pui.handleIcon(parms);
     }
   }
 });
