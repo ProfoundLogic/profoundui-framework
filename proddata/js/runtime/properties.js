@@ -241,6 +241,7 @@ function getPropertiesModel() {
     { name: "hover background color", type: "color", helpDefault: "css", help: "Defines the background color of a menu option when the user hovers the mouse over it.", helpAdd: ["background color"], controls: ["menu"] },
     { name: "hover text color", type: "color", helpDefault: "css", help: "Defines the text color of a menu option when the user hovers the mouse over it.", helpAdd: ["color"], controls: ["menu"] },
     { name: "animate", choices: ["true", "false"], blankChoice: false, helpDefault: "true", help: "Determines if hovering over menu options is animated.", controls: ["menu"] },
+    { name: "highlight choice", choices: ["true", "false"], blankChoice: false, helpDefault: "false", help: "Adds a \"selected\" value in css class for active choice.", controls: ["menu"] },
     { name: "border color", type: "color", helpDefault: "css", help: "The color of the border used for menu options.", helpAdd: ["color"], controls: ["menu"] },
     { name: "menu option padding", choices: paddings, format: "px", helpDefault: "css", help: "Sets the distance between the edge of the menu option and the menu option text.", helpAdd: ["other", "pixel"], controls: ["menu"] },
     { name: "menu option indent", choices: paddings, format: "px", helpDefault: "css", help: "Sets the distance between the left edge of the menu option and the menu option text.", helpAdd: ["other", "pixel"], controls: ["menu"] },

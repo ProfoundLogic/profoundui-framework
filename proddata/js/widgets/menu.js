@@ -34,6 +34,7 @@ pui.MenuWidget = function() {
   this.hoverBackgroundColor = null;
   this.hoverTextColor = null;
   this.animate = true;
+  this.highlightChoice = false;
   this.repeat = null; // background-repeat property and style.
   this.borderColor = null;
   this.padding = null;
@@ -47,7 +48,6 @@ pui.MenuWidget = function() {
   function drawMenu(parms) {
     var container = parms.container;
     var parentTable = parms.parentTable;
-
     // The showing property gets set in the Grid.js and gets checked when hiding the Menu.
     // If the menu happens to have the same ID as another menu in a different record format,
     // the menu will be hidden after the other one is displayed. #3870
@@ -100,12 +100,14 @@ pui.MenuWidget = function() {
 
       var td = tr.insertCell(tr.cells.length);
       if (choice == null || choice == "" || trim(choice) == "") choice = "&nbsp;";
+      if (me.highlightChoice) td.parentMenuIndex = parms.parentIndex;
       td.innerHTML = choice;
       td.choiceValue = choiceValue;
       td.level = mainLevel;
       if (inDesignMode()) td.choiceNum = i; // Needed for double-click to edit menu with submenus in designer.
       td.menuId = me.container.id;
       td.orientation = parms.orientation;
+      td.prevTD = parms.previousTD;
 
       // Set inline padding of table cells if "menu option padding" is set.
       if (me.padding != null && me.padding.length > 0) {
@@ -193,8 +195,35 @@ pui.MenuWidget = function() {
           td.style.backgroundColor = me.hoverBackgroundColor;
         }
         else {
+          // get the previous td for the main table.
+          var prevTD = td.prevTD;
+          if (!prevTD && td.level == 0) {
+            var menuTable = getParentTable(td);
+            clearHighlightClass(menuTable, "prev-menu");
+          }
+          if (prevTD && td.level > 0) {
+            // Set the class so a user can define custom style (when bg color isn't set).
+            if (prevTD.className != "") {
+              // remove all of the existing "menu-hover" class first
+              var classValue = prevTD.className.replace("prev-menu", "");
+              // Concatenate the new "menu-hover" class.
+              prevTD.className = classValue.replace(/\s\s+/g, " ") + "prev-menu";
+            }
+            else prevTD.className = "prev-menu";
+          }
           // Set the class so a user can define custom style (when bg color isn't set).
-          td.className = "menu-hover";
+          if (td.className != "") {
+            if (prevTD && td.level > 0) {
+              var prevMenuTable = getParentTable(td);
+              clearHighlightClass(prevMenuTable, "prev-menu");
+            }
+            // var originalClassName = td.className;
+            // remove all of the existing "menu-hover" class first
+            var newClassNameValue = td.className.replace("menu-hover", "");
+            // Concatenate the new "menu-hover" class.
+            td.className = newClassNameValue.replace(/\s\s+/g, " ") + "menu-hover";
+          }
+          else td.className = "menu-hover";
         }
 
         if (me.hoverTextColor != null && me.hoverTextColor != "") td.style.color = me.hoverTextColor;
@@ -302,7 +331,15 @@ pui.MenuWidget = function() {
         }
         else {
           // when bg color isn't set, clear class. (for potential custom css).
-          td.className = "";
+          // td.className = "";
+          // PUI634 Added a new option to only remove the class menu-hover rather than clearing the classname altogether.
+          if (td.className != "") {
+            // var originalClassName = td.className;
+            var newClassNameValue = td.className.replace("menu-hover", "");
+            // remove all consecutive whitespaces and apply the class name.
+            td.className = newClassNameValue.replace(/\s\s+/g, " ");
+          }
+          else td.className = "";
         }
       };
 
@@ -352,6 +389,27 @@ pui.MenuWidget = function() {
       };
       function itemChosen() {
         if (td.level > 0 && td.subMenuFrom == null) me.removeAllSubMenus();
+        if (me.highlightChoice == true && context == "dspf") {
+          // Get the ID for the table.
+          var table = getParentTable(td);
+          // Get all of the TD inside the table
+          clearHighlightClass(table, "selected ");
+          // Set the new td class
+          if (td.className != "") {
+            var newClassNameValue = td.className + " selected ";
+            // remove all consecutive whitespaces and apply the class name.
+            td.className = newClassNameValue.replace(/\s\s+/g, " ");
+            if (td.level > 0 && td.subMenuFrom == null) {
+              // Clear the classes again.
+              var parentChoice = td.parentMenuIndex;
+              var mainTable = getParentTable(parentChoice);
+              clearHighlightClass(mainTable, "selected ");
+              clearHighlightClass(mainTable, "menu-hover ");
+              parentChoice.className = "selected ";
+            }
+          }
+          else td.className = "selected ";
+        }
         if (me.container["onoptionclick"] != null && !me.usesLogic) {
           if (inDesignMode()) return;
           if (td.subMenuFrom != null) return;
@@ -408,7 +466,16 @@ pui.MenuWidget = function() {
     }
     return false;
   }
-
+  function clearHighlightClass(table, className) {
+    var tdArr = table.getElementsByTagName("td");
+    for (let i = 0; i < tdArr.length; i++) {
+      const tdElement = tdArr[i];
+      tdElement.className = tdElement.className.replace(className, "");
+      if (tdElement.className == " ") {
+        tdElement.className = "";
+      }
+    }
+  }
   function removeSameOrHigherLevelMenus(td) {
     var i; // loop iterator
     var toRemove = [];
@@ -474,12 +541,24 @@ pui.MenuWidget = function() {
     }
     td.subMenuContainer.style.display = "";
     parentContainer.style.display = "";
+    // Mouse-hover.
+    var prevTD = td;
+    // Selection Highlights
+    if (me.highlightChoice == true) {
+      var parentChoice = null;
+      if (td.parentMenuIndex != null) {
+        parentChoice = td.parentMenuIndex;
+      }
+      else parentChoice = td;
+    }
     drawMenu({
       container: td.subMenuContainer,
       orientation: "vertical",
       from: td.subMenuFrom,
       to: td.subMenuTo,
-      parentTable: table
+      parentTable: table,
+      parentIndex: parentChoice,
+      previousTD: prevTD
     });
     var minWidth = 100;
     if (td.orientation == "horizontal" && td.level == 0 && td.offsetWidth > minWidth) {
@@ -585,6 +664,7 @@ pui.widgets.add({
       parms.dom.menuWidget.padding = parms.properties["menu option padding"];
       parms.dom.menuWidget.paddingLeft = parms.properties["menu option indent"];
       parms.dom.menuWidget.animate = (parms.properties["animate"] != "false");
+      parms.dom.menuWidget.highlightChoice = Boolean(parms.properties["highlight choice"]);
       var orientation = parms.properties["orientation"];
       if (orientation != "horizontal" && orientation != "vertical") {
         orientation = "vertical"; // default
@@ -639,6 +719,12 @@ pui.widgets.add({
           parms.dom.menuWidget.animate = true;
         }
         parms.dom.menuWidget.draw();
+      }
+    },
+
+    "highligh choice": function(parms) {
+      if (parms.dom.menuWidget != null) {
+        parms.dom.menuWidget.highlightChoice = Boolean(parms.value);
       }
     },
 
