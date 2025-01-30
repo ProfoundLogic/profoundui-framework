@@ -468,8 +468,8 @@ pui.MenuWidget = function() {
   }
   function clearHighlightClass(table, className) {
     var tdArr = table.getElementsByTagName("td");
-    for (let i = 0; i < tdArr.length; i++) {
-      const tdElement = tdArr[i];
+    for (i = 0; i < tdArr.length; i++) {
+      var tdElement = tdArr[i];
       tdElement.className = tdElement.className.replace(className, "");
       if (tdElement.className == " ") {
         tdElement.className = "";
