@@ -80,15 +80,15 @@ pui.MenuWidget = function() {
       table.style.borderTop = "1px solid " + bcolor;
       table.style.borderLeft = "1px solid " + bcolor;
     }
-    for (var i = parms.from; i <= parms.to; i++) {
-      if (getLevel(i) != mainLevel) continue;
-      var choice = me.choices[i];
+    for (var parmsIndex = parms.from; parmsIndex <= parms.to; parmsIndex++) {
+      if (getLevel(parmsIndex) != mainLevel) continue;
+      var choice = me.choices[parmsIndex];
       if (typeof choice == "string") {
         while (choice.substr(0, 1) == "-") {
           choice = choice.substr(1);
         }
       }
-      var choiceValue = me.choiceValues[i];
+      var choiceValue = me.choiceValues[parmsIndex];
       if (choiceValue == null) choiceValue = choice;
       var tr;
       if (prevTR == null || parms.orientation == "vertical") {
@@ -135,8 +135,8 @@ pui.MenuWidget = function() {
         td.optionImage = me.optionImage;
         // Try using a unique image for this menu option.
         if (me.optionImages.length > 1) {
-          if (me.optionImages[i] != null) {
-            td.optionImage = me.optionImages[i];
+          if (me.optionImages[parmsIndex] != null) {
+            td.optionImage = me.optionImages[parmsIndex];
           }
           else {
             td.optionImage = "";
@@ -159,10 +159,10 @@ pui.MenuWidget = function() {
         td.style.backgroundImage = "";
       }
 
-      if (hasSubMenu(i)) {
-        td.subMenuFrom = i + 1;
-        td.subMenuTo = i + 1;
-        var subMenuLevel = getLevel(i + 1);
+      if (hasSubMenu(parmsIndex)) {
+        td.subMenuFrom = parmsIndex + 1;
+        td.subMenuTo = parmsIndex + 1;
+        var subMenuLevel = getLevel(parmsIndex + 1);
         while (td.subMenuTo < me.choices.length - 1 && getLevel(td.subMenuTo + 1) >= subMenuLevel) {
           td.subMenuTo += 1;
         }
@@ -443,8 +443,8 @@ pui.MenuWidget = function() {
     var choice = me.choices[idx];
     var level = 0;
     if (choice == null) return level;
-    for (var i = 0; i < choice.length; i++) {
-      if (choice.substr(i, 1) == "-") level += 1;
+    for (var choiceIndex = 0; choiceIndex < choice.length; choiceIndex++) {
+      if (choice.substr(choiceIndex, 1) == "-") level += 1;
       else break;
     }
     return level;
@@ -468,8 +468,8 @@ pui.MenuWidget = function() {
   }
   function clearHighlightClass(table, className) {
     var tdArr = table.getElementsByTagName("td");
-    for (i = 0; i < tdArr.length; i++) {
-      var tdElement = tdArr[i];
+    for (var tdIndex = 0; tdIndex < tdArr.length; tdIndex++) {
+      var tdElement = tdArr[tdIndex];
       tdElement.className = tdElement.className.replace(className, "");
       if (tdElement.className == " ") {
         tdElement.className = "";
@@ -477,15 +477,15 @@ pui.MenuWidget = function() {
     }
   }
   function removeSameOrHigherLevelMenus(td) {
-    var i; // loop iterator
+    var subMenuIndex; // loop iterator
     var toRemove = [];
-    for (i = 0; i < displayedSubMenus.length; i++) {
-      if (displayedSubMenus[i].level >= td.level) {
-        toRemove.push(displayedSubMenus[i]);
+    for (subMenuIndex = 0; subMenuIndex < displayedSubMenus.length; subMenuIndex++) {
+      if (displayedSubMenus[subMenuIndex].level >= td.level) {
+        toRemove.push(displayedSubMenus[subMenuIndex]);
       }
     }
-    for (i = 0; i < toRemove.length; i++) {
-      me.removeSubMenu(toRemove[i]);
+    for (var removeIndex = 0; removeIndex < toRemove.length; removeIndex++) {
+      me.removeSubMenu(toRemove[removeIndex]);
     }
   }
 
@@ -501,7 +501,7 @@ pui.MenuWidget = function() {
 
   this.showSubMenu = function(td) {
     var table;
-    var i; // loop iterator
+    var subMenuIndex; // loop iterator
     if (td.subMenuFrom == null) return; // this option does not have a sub menu
     table = td;
     while (table.tagName != "TABLE") {
@@ -570,8 +570,8 @@ pui.MenuWidget = function() {
       table.style.width = "100%";
     }
     var addToArray = true;
-    for (i = 0; i < displayedSubMenus.length; i++) {
-      if (displayedSubMenus[i] == td) {
+    for (subMenuIndex = 0; subMenuIndex < displayedSubMenus.length; subMenuIndex++) {
+      if (displayedSubMenus[subMenuIndex] == td) {
         addToArray = false;
         break;
       }
@@ -581,9 +581,9 @@ pui.MenuWidget = function() {
 
   this.removeSubMenu = function(td) {
     if (td.subMenuContainer == null) return;
-    for (var i = 0; i < displayedSubMenus.length; i++) {
-      if (displayedSubMenus[i] == td) {
-        displayedSubMenus.splice(i, 1);
+    for (var subMenuIndex = 0; subMenuIndex < displayedSubMenus.length; subMenuIndex++) {
+      if (displayedSubMenus[subMenuIndex] == td) {
+        displayedSubMenus.splice(subMenuIndex, 1);
         break;
       }
     }
@@ -592,12 +592,13 @@ pui.MenuWidget = function() {
   };
 
   this.removeAllSubMenus = function() {
+    var subMenuIndex; // loop iterator
     var toRemove = [];
-    for (var i = 0; i < displayedSubMenus.length; i++) {
-      toRemove.push(displayedSubMenus[i]);
+    for (subMenuIndex = 0; subMenuIndex < displayedSubMenus.length; subMenuIndex++) {
+      toRemove.push(displayedSubMenus[subMenuIndex]);
     }
-    for (i = 0; i < toRemove.length; i++) {
-      me.removeSubMenu(toRemove[i]);
+    for (subMenuIndex = 0; subMenuIndex < toRemove.length; subMenuIndex++) {
+      me.removeSubMenu(toRemove[subMenuIndex]);
     }
   };
 };
