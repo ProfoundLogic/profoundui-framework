@@ -1715,8 +1715,16 @@ pui.Grid = function() {
       }
     }
     var columnIndex = getColumnIndex(fieldName);
-    if (columnIndex == null) return null;
-    return record[columnIndex];
+    // Fieldname is less than 10, but returns null.
+    if (columnIndex == null && fieldName.length <= 10 && !(pui["pjsDefaultMode"] === "case-sensitive" || pui.handler != null)) {
+      fieldName = pui.longFieldNameTable[fieldName];
+      columnIndex = getColumnIndex(fieldName);
+      if (columnIndex != null) {
+        return record[columnIndex];
+      }
+      else return null;
+    }
+    else return record[columnIndex];
   };
 
   this["getAllDataValues"] = function(filtered) {
