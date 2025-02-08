@@ -18194,3 +18194,12 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
   cursor: pointer !important;
   border: 2px dashed red;
 }
+
+.pui-auto-testing-step-number {
+  display: inline-block;
+  font-weight: bold;
+  margin-right: 8px;
+  color: #007bff;
+  width: 20px;
+  text-align: right;
+}
