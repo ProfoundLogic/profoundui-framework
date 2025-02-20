@@ -106,9 +106,11 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
 
     var left;
     left = dom.style.left;
+
     if (left != null && typeof left == "string" && left.length >= 3 && left.substr(left.length - 2, 2) == "px") left = parseInt(left);
     else left = dom.offsetLeft;
     if (isNaN(left)) left = 0;
+
     var top;
     top = dom.style.top;
     if (top != null && typeof top == "string" && top.length >= 3 && top.substr(top.length - 2, 2) == "px") top = parseInt(top);
@@ -116,6 +118,11 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     if (isNaN(top)) top = 0;
     up.style.left = left + offsetWidth - 15 + "px";
     top += parseInt((offsetHeight - 18) / 2);
+    if (offsetHeight % 2 == 1) {
+      if (offsetHeight < 18) top -= 1;
+      if (((offsetHeight - 18) / 2) > 2) top -= 1;
+      top += 1;
+    }
     if (pui["is_quirksmode"]) top -= 1;
     up.style.top = top + "px";
     up.style.zIndex = dom.style.zIndex;
@@ -132,13 +139,14 @@ pui.Spinner = function(dom, minValue, maxValue, increment, runtimeMode) {
     top += 9;
     top += parseInt((offsetHeight - 18) / 2);
     if (offsetHeight % 2 == 1) {
-      if (offsetHeight < 18) top -= 1;
-      else top += 1;
+      if (offsetHeight < 18) top -= 4;
+      if (((offsetHeight - 18) / 2) > 2) top += 1;
+      else top += 3;
     }
+
     down.style.top = top + "px";
     down.style.zIndex = dom.style.zIndex;
   };
-
   me.positionSpinnButtons(); // run this in the constructor
 
   this.hide = function() {

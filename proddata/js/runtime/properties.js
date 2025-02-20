@@ -1304,6 +1304,9 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
         }
       }
     }
+    if (properties["field type"] == "spinner" && propConfig.stylename == "width" && domObj.spinner) {
+      domObj.spinner.positionSpinnButtons();
+    }
     if (propConfig.stylename == "visibility" && effectiveValue == "hidden" && !isDesignMode && properties["field type"] == "date field") {
       setTimeout(function() {
         if (domObj.calimg && domObj.style.visibility == "hidden") domObj.calimg.style.visibility = "hidden";
