@@ -1006,20 +1006,10 @@ pui["saveRecording"] = function(successCallback) {
     if (!user && pui.recording["responses"][i].appJob) user = pui.recording["responses"][i].appJob.user;
     pui.recording["payloads"][i]["response"] = pui.recording["responses"][i];
   }
-  var recordingName;
-  var testId;
   // Get recording name from macro variables in the URL query string
   var qryParms = getQueryStringParms();
-  for (x = 1; x < 99; x++) { // check for up to 99 macro variables
-    var macroVarName = qryParms["var" + x];
-    var macroVarValue = qryParms["value" + x];
-    if (!macroVarName && !macroVarValue) break;
-    if (macroVarName === "testid") { // look for testid macro variable
-      recordingName = macroVarValue;
-      testId = macroVarValue;
-      break;
-    }
-  }
+  var testId = qryParms["testid"];
+  var recordingName = testId;
   // Prompt for recording name if not found in macro variables
   if (!recordingName) {
     recordingName = prompt("Enter recording name");

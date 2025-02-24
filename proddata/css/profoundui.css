@@ -12870,6 +12870,12 @@ input.blueprint-radio-button-no-label:hover:checked+.label-for-blueprint-radio-b
   cursor: pointer;
 }
 
+.blueprint-menu.blueprint-defaults.pui-menu>table>tbody>tr>td.prev-menu {
+  background-color: #5fade1;
+  color: #fff;
+  cursor: pointer;
+}
+
 .blueprint-menu.blueprint-defaults.pui-menu>table>tbody>tr:not(:last-child)>td {
   border-bottom: 1px solid #2980b9;
 }
@@ -18187,4 +18193,13 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
 .pui-auto-testing-elem-diff {
   cursor: pointer !important;
   border: 2px dashed red;
+}
+
+.pui-auto-testing-step-number {
+  display: inline-block;
+  font-weight: bold;
+  margin-right: 8px;
+  color: #007bff;
+  width: 20px;
+  text-align: right;
 }
