@@ -306,10 +306,12 @@ function AutoComplete(config) {
   };
 
   this.destroy = function() {
-    textBox.removeEventListener("keyup", doKeyUp);
-    textBox.removeEventListener("keydown", doKeyDown);
-    textBox.removeEventListener("blur", doBlur);
-    textBox.removeEventListener("input", onInput);
+    if (textBox) {
+      textBox.removeEventListener("keyup", doKeyUp);
+      textBox.removeEventListener("keydown", doKeyDown);
+      textBox.removeEventListener("blur", doBlur);
+      textBox.removeEventListener("input", onInput);
+    }
     for (var i = pui.autoCompleteList.length - 1; i >= 0; i--) {
       if (pui.autoCompleteList[i] === this) {
         pui.autoCompleteList.splice(i, 1);
