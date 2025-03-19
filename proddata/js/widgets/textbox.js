@@ -26,7 +26,6 @@ pui.TextBoxWidget = function(parms) {
   this.dom = parms.dom;
   this.dom.value = parms.evalProperty("value");
   this.design = parms.design;
-
   if (!this.design) {
     pui.applyAutoComp(parms.properties, parms.originalValue, this.dom);
 
@@ -65,6 +64,7 @@ pui.TextBoxWidget = function(parms) {
       itm.promptIcon = promptIcon;
     }
     this.dom.sizeMe = this._sizeMeDesign;
+    this.dom.id = parms.properties["id"];
   }
   else {
     if (promptIcon) {
@@ -77,6 +77,7 @@ pui.TextBoxWidget = function(parms) {
   if (promptIcon && !this.design) {
     this.addPrompt(parms);
   }
+
 
   // PUI-425: Add an event listener to focus the input content when click.
   // PJS-1070: Add !inDesignMode() in the condition to ensure that this block only executes at runtime.
@@ -287,7 +288,6 @@ pui.widgets.add({
   icon1Class: "pui-prompt",
 
   propertySetters: {
-
     "field type": function(parms) {
       if (parms.dom.textboxWidget != null) {
         parms.dom.destroy();

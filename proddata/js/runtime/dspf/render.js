@@ -4616,13 +4616,37 @@ pui.submitResponse = function(response, value) {
         "suppressAlert": true,
         "handler": function(parms) {
           if (parms == null) {
-            // document.body.style.backgroundColor = "#DFE8F6";
+            function exit() {
+              var returnVal = shutDown();
+              if (returnVal == false) return;
+              if (typeof pui != "undefined" && pui != null) {
+                pui.shutdownOnClose = false;
+                pui.confirmOnClose = false;
+              }
+              context = "";
+            }
+            if (getQueryStringParms()["record"] === "1") {
+              document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + '</div><div style="background-color: transparent" class="genie-sign-on--right"><button id="exitButton" class="genie-sign-on--exit">Exit</button><button id="saveRecordingButton" class="genie-sign-on--save-recording">Save Recording</button></div>';
+              var exitButton = getObj("exitButton");
+              exitButton.onclick = function() {
+                exit();
+              };
+              var saveRecordingButton = getObj("saveRecordingButton");
+              saveRecordingButton.onclick = function() {
+                // Initiate saving of the recording
+                saveRecordingButton.disabled = true;
+                saveRecordingButton.innerHTML = "Saving...";
+                pui["saveRecording"](function() {
+                  saveRecordingButton.innerHTML = "Saved!";
+                  setTimeout(function() {
+                    exit();
+                  }, 750);
+                });
+              };
+              return;
+            }
             document.body.innerHTML = '<div id="close-browser-msg" style="font-family: Trebuchet MS; width: 95%; text-align: center; font-size: 200%;"><br/>' + pui["getLanguageText"]("runtimeMsg", "session ended text") + "<br/><br/>" + pui["getLanguageText"]("runtimeMsg", "close browser text") + "</div>";
-            var returnVal = shutDown();
-            if (returnVal == false) return;
-            pui.shutdownOnClose = false;
-            pui.confirmOnClose = false;
-            context = "";
+            exit();
             return;
           }
           parms.container = pui.runtimeContainer;

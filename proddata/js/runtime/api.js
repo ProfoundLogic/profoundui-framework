@@ -618,16 +618,21 @@ function addEvent(obj, eventName, func) {
 // eslint-disable-next-line no-unused-vars
 function removeEvent(obj, eventName, func) {
   obj.removeEventListener(eventName, func, false);
-
   // If events are tracked, then remove this specific event from the list. Assume this call to removeEvent
   // is different from grid paging or screen cleanup. (Otherwise, calling destroy() would be expected.)
   if (Array.isArray(obj.puievtlist)) {
     for (var i = 0, n = obj.puievtlist.length; i < n; i++) {
       var el = obj.puievtlist[i];
       if (typeof el === "object" && el !== null && el.name === eventName && el.f === func) {
-        obj.puieltlist.splice(i, 1);
-        delete el.name;
-        delete el.f;
+        if (!obj.puieltlist) {
+          delete el.name;
+          delete el.f;
+        }
+        else {
+          obj.puieltlist.splice(i, 1);
+          delete el.name;
+          delete el.f;
+        }
         break;
       }
     }
