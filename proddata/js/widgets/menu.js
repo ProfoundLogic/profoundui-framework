@@ -100,13 +100,13 @@ pui.MenuWidget = function() {
 
       var td = tr.insertCell(tr.cells.length);
       if (choice == null || choice == "" || trim(choice) == "") choice = "&nbsp;";
-      if (me.highlightChoice) td.parentMenuIndex = parms.parentIndex;
       td.innerHTML = choice;
       td.choiceValue = choiceValue;
       td.level = mainLevel;
       if (inDesignMode()) td.choiceNum = i; // Needed for double-click to edit menu with submenus in designer.
       td.menuId = me.container.id;
       td.orientation = parms.orientation;
+      if (td.level > 0) td.parentMenuIndex = parms.parentIndex;
       td.prevTD = parms.previousTD;
 
       // Set inline padding of table cells if "menu option padding" is set.
@@ -408,8 +408,27 @@ pui.MenuWidget = function() {
               parentChoice.className = "selected ";
             }
           }
-          else td.className = "selected ";
+          else {
+            if (me.highlightChoice == true) {
+              var mainTableIndex = getParentTable(td);
+              td.className = "selected ";
+              clearHighlightClass(mainTableIndex, "prev-menu");
+            }
+          }
         }
+        if (td.level > 0 && !me.highlightChoice) {
+          var menuIndex = td.parentMenuIndex;
+          var prevTD = td.prevTD;
+          var mainIndexTable;
+          if (menuIndex) {
+            mainIndexTable = getParentTable(menuIndex);
+            clearHighlightClass(mainIndexTable, "prev-menu");
+          }
+          else if (prevTD) {
+            mainTable = getParentTable(prevTD);
+            clearHighlightClass(mainTable, "prev-menu");
+          }
+        };
         if (me.container["onoptionclick"] != null && !me.usesLogic) {
           if (inDesignMode()) return;
           if (td.subMenuFrom != null) return;
@@ -544,13 +563,12 @@ pui.MenuWidget = function() {
     // Mouse-hover.
     var prevTD = td;
     // Selection Highlights
-    if (me.highlightChoice == true) {
-      var parentChoice = null;
-      if (td.parentMenuIndex != null) {
-        parentChoice = td.parentMenuIndex;
-      }
-      else parentChoice = td;
+    // indicates the starting table, used in adding highlights for multi-level choices.
+    var parentChoice = null;
+    if (td.parentMenuIndex != null) {
+      parentChoice = td.parentMenuIndex;
     }
+    else parentChoice = td;
     drawMenu({
       container: td.subMenuContainer,
       orientation: "vertical",
@@ -665,7 +683,7 @@ pui.widgets.add({
       parms.dom.menuWidget.padding = parms.properties["menu option padding"];
       parms.dom.menuWidget.paddingLeft = parms.properties["menu option indent"];
       parms.dom.menuWidget.animate = (parms.properties["animate"] != "false");
-      parms.dom.menuWidget.highlightChoice = Boolean(parms.properties["highlight choice"]);
+      parms.dom.menuWidget.highlightChoice = parms.properties["highlight choice"] == "true" ? true : false;
       var orientation = parms.properties["orientation"];
       if (orientation != "horizontal" && orientation != "vertical") {
         orientation = "vertical"; // default
@@ -725,7 +743,7 @@ pui.widgets.add({
 
     "highligh choice": function(parms) {
       if (parms.dom.menuWidget != null) {
-        parms.dom.menuWidget.highlightChoice = Boolean(parms.value);
+        parms.dom.menuWidget.highlightChoice = parms.value == "true" ? true : false;
       }
     },
 
