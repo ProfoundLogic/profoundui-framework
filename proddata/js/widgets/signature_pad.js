@@ -295,7 +295,8 @@ pui.widgets.add({
   defaults: {
     "height": "150px",
     "width": "450px",
-    "css class": "pui-signature-pad-container"
+    "css class": "pui-signature-pad-container",
+    "background color": "#ffffff" // default background for canvas
   },
 
   propertySetters: {
