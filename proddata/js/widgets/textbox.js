@@ -78,7 +78,9 @@ pui.TextBoxWidget = function(parms) {
   this.dom.alwaysSizeMe = true;
 
   // Register for post-render instead of adding prompt now
-  pui.widgetsToPostRender.push(this);
+  if (context == "dspf" && !inDesignMode()) {
+    pui.widgetsToPostRender.push(this);
+  }
 
   // PUI-425: Add an event listener to focus the input content when click.
   // PJS-1070: Add !inDesignMode() in the condition to ensure that this block only executes at runtime.
