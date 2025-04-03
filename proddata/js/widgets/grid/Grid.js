@@ -1396,17 +1396,14 @@ pui.Grid = function() {
           }
           // If the column is not bound to a field, then use the field name from the runtimeChildren.
           else if (!colEl["field"]) {
-            // var headingFields = [];
-            // for (field in response["results"][0]) {
-            //   headingFields.push(field);
-            // }
-            // colEl.field = headingFields[colNum];
-            colEl.field = me.runtimeChildren[colNum]["value"]["fieldName"];
-            fieldOrder.push({
-              // fieldName: headingFields[colNum],
-              fieldName: colEl.field,
-              name: colEl["blankHeader"] ? "" : colEl["name"]
-            });
+            // ensure runtimeChildren array is populated and has the data
+            if (me.runtimeChildren && me.runtimeChildren[colNum] && me.runtimeChildren[colNum]["value"]) {
+              colEl.field = me.runtimeChildren[colNum]["value"]["fieldName"];
+              fieldOrder.push({
+                fieldName: colEl.field,
+                name: colEl["blankHeader"] ? "" : colEl["name"]
+              });
+            }
           }
         }
       }

@@ -784,5 +784,6 @@ var pui = {
   checkedValue: {},
   uncheckedValue: {},
   indeterminateValue: {},
-  recordTest: {}
+  recordTest: {},
+  wfDesigner: {}
 };

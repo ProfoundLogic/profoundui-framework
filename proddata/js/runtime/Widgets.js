@@ -336,6 +336,7 @@ pui.BasicWidget.prototype.destroy = function() {
     this.dom.removeEventListener("input", this);
     this.dom.removeEventListener("change", this);
   }
+
   // Allow subclasses to implement a cleanup method that would run before another renderFormat runs.
   try {
     if (typeof this["cleanup"] === "function") this["cleanup"]();
