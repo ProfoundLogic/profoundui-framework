@@ -548,6 +548,9 @@ pui.render = function(parms) {
   var i; // loop iterator
   var j; // loop iterator
   var format;
+
+  pui.widgetsToPostRender = [];
+
   if (pui.recordTest) pui.record(parms);
   pui.clientLogic = parms.clientLogic;
 
@@ -1037,6 +1040,16 @@ pui.render = function(parms) {
 
   pui.screenIsReady = true;
 
+  // Perform any post-render processing
+  if (pui.widgetsToPostRender) {
+    while (pui.widgetsToPostRender.length > 0) {
+      var widget = pui.widgetsToPostRender.shift();
+      if (widget && typeof widget.postRender === "function") {
+        widget.postRender();
+      }
+    }
+  }
+
   pui.setupGridsDisplayedScrollBar();
 
   if (pui.observed != null) pui.observed.update();
@@ -1278,7 +1291,6 @@ pui.renderFormat = function(parms) {
   //  when value is an object like {root: a pui.Layout, container: n }, then this is a container that
   //  is inside the lazy layout, and this container will be rendered on a later pass.
   var treeLevelItemAdded = false;
-  var tempClsValue = null;
   if (parms.treeLevelItem !== undefined && parms.treeLevelItem !== null) {
     items.push(parms.treeLevelItem); // temp only; removed after loop below is done
     treeLevelItemAdded = true;
@@ -1620,21 +1632,6 @@ pui.renderFormat = function(parms) {
                 dom.returnSortOrderField = (pui.handler == null ? formatName + "." : "") + pui.fieldUpper(items[i]["return sort order"].fieldName);
               }
             }
-            // Create a RegEx to match the string "css class" in the property name.
-            var cssRegEx = /\bcss class\b/;
-            // create a if-else block to handle the css class property
-            if (cssRegEx.test(prop) && pui.isBound(propValue)) {
-              // Make sure that the property is css class.
-              // If it is make sure that the value for the dataType is "indicator"
-              // Proceed to the next if.
-              // if(!propValue["dataType"] || propValue["dataType"] !== "indicator")
-              // If the dataType is "indicator" then set the value of the property as null, or do nothing.
-              if (propValue["dataType"] && propValue["dataType"] == "indicator") {
-                newValue = "";
-              }
-              // identify the supposed to be Class name for the dom element.
-              tempClsValue = pui.evalBoundProperty(propValue, data, parms.ref);
-            }
           }
         } // endif bound to a field
         else { // not bound to a field
@@ -1713,25 +1710,6 @@ pui.renderFormat = function(parms) {
           }
         }
         properties[prop] = newValue;
-        // Fall back for when the "hidden class is persistent, but the value is not.
-        if (prop == "hidden" && newValue == "hidden" && tempClsValue != null) {
-          // for hidden fields, the css class is not applied, so the value is set to null.
-          // This is to ensure that the css class is not applied
-          // get the first class number
-          var classNumber = 2;
-          // get the property, (e.g css class 2,css class 3, css class 4)
-          var classProp = properties["css class " + classNumber];
-          while (classProp != null) {
-            // continue incrementing the class number until there is no property with "class name + class number"
-            classNumber++;
-            // get the property, (e.g css class 2,css class 3, css class 4)
-            classProp = properties["css class " + classNumber];
-            if (classProp === tempClsValue) {
-              // if the property is the same as the tempClsValue, then set the value to null.
-              properties["css class " + classNumber] = null;
-            }
-          }
-        }
       } // endfor thru all properties
 
       // Retain information about tab panels, tab-layouts and their active tabs.

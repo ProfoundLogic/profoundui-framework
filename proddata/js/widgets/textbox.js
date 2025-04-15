@@ -26,6 +26,10 @@ pui.TextBoxWidget = function(parms) {
   this.dom = parms.dom;
   this.dom.value = parms.evalProperty("value");
   this.design = parms.design;
+
+  // Store prompt icon value for later
+  this._promptIcon = parms.evalProperty("prompt icon");
+
   if (!this.design) {
     pui.applyAutoComp(parms.properties, parms.originalValue, this.dom);
 
@@ -51,8 +55,6 @@ pui.TextBoxWidget = function(parms) {
     }
   }
 
-  var promptIcon = parms.evalProperty("prompt icon");
-
   if (this.design) {
     this.dom.readOnly = true;
     this.dom.spellcheck = false;
@@ -60,24 +62,25 @@ pui.TextBoxWidget = function(parms) {
     var itm = parms.designItem;
     this.designItem = itm;
     itm.promptIcon = null;
-    if (promptIcon) {
-      itm.promptIcon = promptIcon;
+    if (this._promptIcon) {
+      itm.promptIcon = this._promptIcon;
     }
     this.dom.sizeMe = this._sizeMeDesign;
     this.dom.id = parms.properties["id"];
   }
   else {
-    if (promptIcon) {
+    if (this._promptIcon) {
       this.dom.sizeMe = this._sizeMe;
     }
   }
 
-  this.dom.alwaysSizeMe = true; // Don't just do sizeMe when dimensions are percents and in layouts.
+  // Don't just do sizeMe when dimensions are percents and in layouts.
+  this.dom.alwaysSizeMe = true;
 
-  if (promptIcon && !this.design) {
-    this.addPrompt(parms);
+  // Register for post-render instead of adding prompt now
+  if (context == "dspf" && !inDesignMode()) {
+    pui.widgetsToPostRender.push(this);
   }
-
 
   // PUI-425: Add an event listener to focus the input content when click.
   // PJS-1070: Add !inDesignMode() in the condition to ensure that this block only executes at runtime.
@@ -274,6 +277,30 @@ pui.TextBoxWidget.prototype.promptOnClick = function() {
   var onprompt = dom["onprompt"];
   if (typeof onprompt === "function") {
     onprompt(dom.value);
+  }
+};
+
+/**
+ * The postRender function updates the position of the prompt icon once the final
+ * 'width' is known.
+ */
+pui.TextBoxWidget.prototype.postRender = function() {
+  if (this._promptIcon && !this.design) {
+    var parms = {
+      dom: this.dom,
+      evalProperty: function(propertyName) {
+        if (propertyName === "prompt icon") {
+          return this._promptIcon;
+        }
+        return null;
+      }.bind(this)
+    };
+
+    this.addPrompt(parms);
+
+    if (this.dom && this.dom.sizeMe) {
+      this.dom.sizeMe();
+    }
   }
 };
 
