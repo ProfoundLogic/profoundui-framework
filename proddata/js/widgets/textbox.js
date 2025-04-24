@@ -274,9 +274,9 @@ pui.TextBoxWidget.prototype.addPrompt = function(parms) {
  */
 pui.TextBoxWidget.prototype.promptOnClick = function() {
   var dom = this.owner;
-  var onprompt = dom["onprompt"];
-  if (typeof onprompt === "function") {
-    onprompt(dom.value);
+  // Caution: make sure "this" in the function is the input field. Customers expect "this" to be the dom element. PUI-688
+  if (typeof dom["onprompt"] === "function") {
+    dom["onprompt"](dom.value);
   }
 };
 
