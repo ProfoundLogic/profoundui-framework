@@ -18252,7 +18252,7 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
   color: #333;
   background-color: #fff;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, opacity 0.2s;
 }
 
 .pui-annotation-tool-button:hover {
@@ -18287,4 +18287,24 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
 
 mjs-marker-area {
   z-index: 99;
+}
+
+/* Style for the active tool button */
+.pui-annotation-tool-button.active {
+  background-color: #cce5ff; /* Light blue background */
+  border-color: #007bff; /* Blue border */
+}
+
+/* Style for disabled buttons (Undo, Redo, Save) */
+.pui-annotation-tool-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #eee; /* Slightly grayer background */
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pui-annotation-tool-button.disabled:hover {
+  background-color: #eee; /* Keep background the same on hover */
+  border-color: transparent;
 }
