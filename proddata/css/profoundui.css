@@ -18274,7 +18274,28 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
 .pui-auto-testing-annotation-icon {
   margin-left: 5px;
   font-size: 0.8em;
-  color: red;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pui-auto-testing-annotation-icon.pui-annotations-exist {
+  color: #007bff;
+}
+.pui-auto-testing-annotation-icon.pui-annotations-dirty {
+  color: #007bff;
+}
+
+/* Add bullet using a pseudo-element */
+.pui-auto-testing-annotation-icon.pui-annotations-dirty::after {
+  content: '*';
+  position: absolute;
+  top: -0.6em;
+  right: -0.4em;
+  font-weight: bold;
+  font-size: 1.5em; /* Relative to the icon's font-size */
+  color: #f47b20;
+  line-height: 1;
 }
 
 .pui-auto-testing-annotation-container {
