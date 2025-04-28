@@ -77,3 +77,4 @@ navigator.clipboard = {
 
 // Profound UI
 Object.multOccur = {};
+Object.container = {};
