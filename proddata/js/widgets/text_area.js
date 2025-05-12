@@ -57,6 +57,18 @@ pui.textArea_cleanUp = function(e) {
   if (ename == "keydown" && key == 17) obj.controlKeyDown = true;
   if (ename == "keyup") obj.controlKeyDown = false;
 
+  // Helper function to handle single newline removal with browser compatibility
+  function replaceSingleNewlines(text) {
+    try {
+      // Try modern regex with lookbehind/lookahead first
+      return text.replace(/(?<!\n)\n(?!\n)/g, "");
+    }
+    catch (e) {
+      // Fallback for older browsers - captures char before/after single newline
+      return text.replace(/([^\n])\n([^\n])/g, "$1$2");
+    }
+  }
+
   // Handle paste differently than what happens with user typing, because ACS does things that way.
   // This tries to handle pasting similarly to ACS while still making sense for web input. Issue 4766.
   if (ename == "paste") {
@@ -92,7 +104,7 @@ pui.textArea_cleanUp = function(e) {
       valPart2 = val.slice(obj.selectionEnd);
 
       // Clean up unwanted newlines, combine the two parts and adjust cursor position for the backspace
-      valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+      valPart2 = replaceSingleNewlines(valPart2);
       valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
       val = valPart1 + valPart2;
       cursorPos = cursorPos - 1;
@@ -104,7 +116,7 @@ pui.textArea_cleanUp = function(e) {
       if (cursorChar !== "\n" && cursorChar !== "\r") {
         valPart1 = val.slice(0, cursorPos - 1);
         valPart2 = val.slice(cursorPos);
-        valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+        valPart2 = replaceSingleNewlines(valPart2);
         valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
         val = valPart1 + valPart2;
       }
@@ -113,7 +125,7 @@ pui.textArea_cleanUp = function(e) {
       if (cursorChar === "\n" || cursorChar === "\r") {
         valPart1 = val.slice(0, cursorPos - 1);
         valPart2 = val.slice(cursorPos);
-        valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
+        valPart2 = replaceSingleNewlines(valPart2);
         valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
         val = valPart1 + valPart2;
       }
@@ -148,40 +160,32 @@ pui.textArea_cleanUp = function(e) {
   // done handling backspace and delete.
 
   if (key == 13 && ename == "keydown") { // enter
-    // Split the value based on the cursor position
+    // Get current position info
     valPart1 = val.slice(0, cursorPos);
     valPart2 = val.slice(cursorPos);
-    valPart2 = valPart2.replace(/(?<!\n)\n(?!\n)/g, "");
-    valPart2 = valPart2.replace(/\n{3,}/g, "\n\n");
 
-    // Check if adding a newline would exceed the line limit or boundaries
-    var lineCount = 0;
-    for (i = 0; i < valPart1.length; i++) {
-      if (valPart1.charAt(i) == "\n") lineCount++;
-    }
+    // Count existing lines to check limits
+    var lineCount = (valPart1.match(/\n/g) || []).length;
 
     // If we've reached the line limit, prevent adding a newline
-    if (lineCount >= lineLengths.length) {
-      // Prevent the default Enter key behavior (i.e., adding a newline)
+    if (lineCount >= lineLengths.length - 1) {
       if (e.preventDefault) e.preventDefault();
       if (e.stopPropagation) e.stopPropagation();
       e.cancelBubble = true;
       e.returnValue = false;
-      return; // Exit early to avoid adding the newline
+      return;
     }
 
-    // Add a newlines to valPart1, as long as it's within line boundary limits
-    valPart1 += "\n\n";
-    val = valPart1 + valPart2;
+    // Insert single newline at cursor position
+    val = valPart1 + "\n" + valPart2;
+    cursorPos = cursorPos + 1;
+    origCursorPos = cursorPos;
 
-    // Prevent the default behavior of the Enter key
+    // Prevent default to handle our own newline
     if (e.preventDefault) e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
     e.cancelBubble = true;
     e.returnValue = false;
-
-    // Update the cursor position after inserting the newline
-    origCursorPos = cursorPos + 2;
   }
 
   //
