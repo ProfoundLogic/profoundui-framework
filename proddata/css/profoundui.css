@@ -17865,7 +17865,6 @@ mark.pui-error-screen-highlighted-line {
   white-space: nowrap;
   overflow: hidden;
   width: 100%;
-  height: 32px;
 }
 
 .pui-auto-testing-step-name:focus {
@@ -17898,7 +17897,6 @@ mark.pui-error-screen-highlighted-line {
 /* Content Area */
 .pui-auto-testing-content {
   flex: 1;
-  overflow: auto;
   position: relative;
 }
 
@@ -18202,4 +18200,132 @@ table.auto-testing-user-input tr:hover, table.auto-testing-results tr:hover, tab
   color: #007bff;
   width: 20px;
   text-align: right;
+}
+
+/* CSS for the floating draggable annotation toolbar */
+.pui-auto-testing-annotation-toolbar {
+  position: absolute;
+  top: 75px; /* Initial position */
+  left: 275px; /* Initial position */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1001; /* Ensure it's above most other content */
+  display: none; /* Initially hidden */
+  flex-direction: column; /* Stack handle and tools vertically */
+  padding: 5px;
+  width: 160px;
+}
+
+.pui-annotation-toolbar-handle {
+  cursor: grab; /* Indicate draggability */
+  background-color: #e0e0e0;
+  padding: 5px 8px;
+  border-bottom: 1px solid #ccc;
+  border-radius: 4px 4px 0 0; /* Rounded top corners */
+  text-align: center;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #555;
+  user-select: none; /* Prevent text selection on the handle */
+}
+
+.pui-annotation-toolbar-handle:active {
+  cursor: grabbing;
+}
+
+.pui-annotation-toolbar-tools {
+  display: flex; /* Arrange tools horizontally */
+  flex-wrap: wrap; /* Allow wrapping if space is limited */
+  padding: 5px 0 0 0; /* Space below the handle */
+  justify-content: center; /* Center tools */
+}
+
+.pui-annotation-tool-button {
+  cursor: pointer;
+  padding: 6px 8px;
+  margin: 2px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 1.1em; /* Slightly larger icons */
+  color: #333;
+  background-color: #fff;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+  transition: background-color 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.pui-annotation-tool-button:hover {
+  background-color: #eee;
+  border-color: #bbb;
+}
+
+.pui-annotation-tool-button:active {
+  background-color: #ddd;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Style for the active annotation toggle button in the header */
+.pui-auto-testing-action-button.pui-active {
+  border-bottom: 2px solid #fff;
+  border-radius: 0px 0px 0px 0px;
+}
+
+.pui-auto-testing-annotation-icon {
+  margin-left: 5px;
+  font-size: 0.8em;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pui-auto-testing-annotation-icon.pui-annotations-exist {
+  color: #007bff;
+}
+.pui-auto-testing-annotation-icon.pui-annotations-dirty {
+  color: #007bff;
+}
+
+/* Add bullet using a pseudo-element */
+.pui-auto-testing-annotation-icon.pui-annotations-dirty::after {
+  content: '*';
+  position: absolute;
+  top: -0.6em;
+  right: -0.4em;
+  font-weight: bold;
+  font-size: 1.5em; /* Relative to the icon's font-size */
+  color: #f47b20;
+  line-height: 1;
+}
+
+.pui-auto-testing-annotation-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 1920px;
+  height: 1080px;
+}
+
+mjs-marker-area {
+  z-index: 99;
+}
+
+/* Style for the active tool button */
+.pui-annotation-tool-button.active {
+  background-color: #cce5ff; /* Light blue background */
+  border-color: #007bff; /* Blue border */
+}
+
+/* Style for disabled buttons (Undo, Redo, Save) */
+.pui-annotation-tool-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #eee; /* Slightly grayer background */
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pui-annotation-tool-button.disabled:hover {
+  background-color: #eee; /* Keep background the same on hover */
+  border-color: transparent;
 }
