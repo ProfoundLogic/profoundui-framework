@@ -345,14 +345,27 @@ pui.overlayAdjust = function(formats) {
   var oHigh = null;
   var oGrid = null;
   if (formats.length > 1) {
+    var formatsToProtect = new Set();
+    var foundProtect = false;
+
+    for (var i = formats.length - 1; i >= 0; i--) {
+      var format = formats[i];
+      var isProtected = (
+        pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true"
+      );
+
+      if (isProtected) {
+        foundProtect = true;
+      }
+
+      if (foundProtect && i !== formats.length - 1) {
+        formatsToProtect.add(format);
+      }
+    }
     for (i = 0; i < formats.length; i++) {
-      format = formats[i];
-      var protect = (pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true");
-      if (protect) {
-        // protect all formats that come before this one
-        for (j = 0; j < i; j++) {
-          pui.protectFormat(formats[j]);
-        }
+      var format = formats[i];
+      if (formatsToProtect.has(format)) {
+        pui.protectFormat(format);
       }
       var clearLine = format["metaData"]["screen"]["clear line"];
       if (clearLine != null && clearLine != "") {
