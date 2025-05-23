@@ -1082,12 +1082,8 @@ pui.Grid = function() {
             try {
               // Remove Unicode escape sequences from the value.
               // Removes non-printable ASCII characters from a given string
-              var regEx = /[^\x20-\x7E]/g;
-              // JSON.stringify escapes Unicode string, so we can remove them.
-              // Remove the unicode from the string.
-              // replace all unicode escape sequences with a space.
-              xlsxvalue = xlsxvalue.replace(regEx, " ");
-              // Parse the string back to an object.
+              var regEx = /[\x00-\x1F\x7F]/g;
+              xlsxvalue = xlsxvalue.replace(regEx, "");
             }
             catch (ignored) {}
           }
