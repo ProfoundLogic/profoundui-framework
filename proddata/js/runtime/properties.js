@@ -912,12 +912,23 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
 
-    // if (domObj.tagName.toLowerCase() != tag || (domObj.tagName.toLowerCase() == "input" && domObj.type != inpType)) {
-    if (mismatch) {
+    if (mismatch || domObj.needinit) {
       rebuildCSSAttr = true;
-      newDomObj = document.createElement(tag);
-      if (tag == "input" || (!pui["is_old_ie"] && tag == "button")) newDomObj.type = inpType;
-      if (domObj.parentNode != null) domObj.parentNode.replaceChild(newDomObj, domObj);
+
+      if (domObj.needinit) {
+        // PUI-704: the tag name and type did not change, but widget properties have not been evaluated.
+        // To avoid memory leaks, just re-use the existing DOM object.
+        newDomObj = domObj;
+        if (tag == "input" || tag == "button") newDomObj.type = inpType;
+        delete domObj.needinit;
+      }
+      else {
+        newDomObj = document.createElement(tag);
+
+        if (tag == "input" || tag == "button") newDomObj.type = inpType;
+        if (domObj.parentNode != null) domObj.parentNode.replaceChild(newDomObj, domObj);
+      }
+
       newDomObj.style.left = domObj.style.left;
       newDomObj.style.top = domObj.style.top;
       newDomObj.style.width = domObj.style.width;

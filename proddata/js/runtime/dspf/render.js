@@ -348,8 +348,8 @@ pui.overlayAdjust = function(formats) {
     var formatsToProtect = new Set();
     var foundProtect = false;
 
-    for (var i = formats.length - 1; i >= 0; i--) {
-      var format = formats[i];
+    for (i = formats.length - 1; i >= 0; i--) {
+      format = formats[i];
       var isProtected = (
         pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true"
       );
@@ -363,7 +363,7 @@ pui.overlayAdjust = function(formats) {
       }
     }
     for (i = 0; i < formats.length; i++) {
-      var format = formats[i];
+      format = formats[i];
       if (formatsToProtect.has(format)) {
         pui.protectFormat(format);
       }
@@ -1463,6 +1463,7 @@ pui.renderFormat = function(parms) {
         // Attempt to avoid a mismatch in applyPropertyToField and thus memory leaks.
         dom = document.createElement(widget.tag);
         dom.type = widget.inputType;
+        dom.needinit = true; // PUI-704: widget properties need to be evaluated at least once.
       }
       else {
         dom = document.createElement("div");
