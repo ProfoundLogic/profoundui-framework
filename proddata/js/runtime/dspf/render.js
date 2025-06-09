@@ -3102,12 +3102,12 @@ pui.renderFormat = function(parms) {
           if (pui.keyMap[formatName]["PageDown"] == null) {
             pui.keyMap[formatName]["PageDown"] = [];
           }
-          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+          // pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
           grid.pagingBar.pageDownHotKeyDefined = true;
           if (pui.keyMap[formatName]["PageUp"] == null) {
             pui.keyMap[formatName]["PageUp"] = [];
           }
-          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+          // pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
           grid.pagingBar.pageUpHotKeyDefined = true;
         }
       }
