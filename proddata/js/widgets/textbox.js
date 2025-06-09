@@ -26,7 +26,6 @@ pui.TextBoxWidget = function(parms) {
   this.dom = parms.dom;
   this.dom.value = parms.evalProperty("value");
   this.design = parms.design;
-
   // Store prompt icon value for later
   this._promptIcon = parms.evalProperty("prompt icon");
 
@@ -54,7 +53,6 @@ pui.TextBoxWidget = function(parms) {
       }
     }
   }
-
   if (this.design) {
     this.dom.readOnly = true;
     this.dom.spellcheck = false;
@@ -71,6 +69,55 @@ pui.TextBoxWidget = function(parms) {
   else {
     if (this._promptIcon) {
       this.dom.sizeMe = this._sizeMe;
+    }
+  }
+  if (context == "dspf" && !this.design) {
+    // reapply properties that are set in parms.properties
+    // check if properties is not null
+    if (parms.properties && typeof parms.properties === "object") {
+      var propArr = ["height", "width", "left", "top"];
+      propArr.forEach(function(prop) {
+        // If the property exists in parms.properties, set it on the dom element
+        if (Object.prototype.hasOwnProperty.call(parms.properties, prop)) {
+          // If the property is not a function, set it on the dom element
+          if (typeof parms.properties[prop] !== "function") {
+            this.dom.style[prop] = parms.properties[prop];
+          }
+          else {
+            // If it is a function, call it with the dom element as the context
+            parms.properties[prop].call(this.dom);
+          }
+        }
+      }, this);
+      // add position absolute if it is not already set
+      if (parms.properties["position"] && parms.properties["position"] !== "") {
+        this.dom.style.position = parms.properties["position"];
+      }
+      else {
+        // if position is not set, default to relative
+        this.dom.style.position = "absolute";
+      }
+      // add id if it exists
+      if (parms.properties["id"] && parms.properties["id"] !== "") {
+        this.dom.id = parms.properties["id"];
+      }
+      // add css class if it exists, iterate through the classList
+      // classes are named "class name" in properties + number
+      if (parms.properties && parms.properties["css class"] !== null) {
+        // get all property key that start with "css name"
+        var domProp = parms.properties;
+        // get all keys that start with "css name"
+        var cssClassKeys = Object.keys(domProp).filter(function(key) {
+          return key.startsWith("css class") && domProp[key] !== null && domProp[key] !== "";
+        });
+        // apply each css class to the dom element
+        cssClassKeys.forEach(function(key) {
+          var classes = domProp[key].split(" ");
+          for (var i = 0; i < classes.length; i++) {
+            this.dom.classList.add(classes[i]);
+          }
+        }, this);
+      }
     }
   }
 
