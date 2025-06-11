@@ -345,14 +345,27 @@ pui.overlayAdjust = function(formats) {
   var oHigh = null;
   var oGrid = null;
   if (formats.length > 1) {
+    var formatsToProtect = new Set();
+    var foundProtect = false;
+
+    for (i = formats.length - 1; i >= 0; i--) {
+      format = formats[i];
+      var isProtected = (
+        pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true"
+      );
+
+      if (isProtected) {
+        foundProtect = true;
+      }
+
+      if (foundProtect && i !== formats.length - 1) {
+        formatsToProtect.add(format);
+      }
+    }
     for (i = 0; i < formats.length; i++) {
       format = formats[i];
-      var protect = (pui.evalBoundProperty(format["metaData"]["screen"]["protect"], format["data"], format["ref"]) == "true");
-      if (protect) {
-        // protect all formats that come before this one
-        for (j = 0; j < i; j++) {
-          pui.protectFormat(formats[j]);
-        }
+      if (formatsToProtect.has(format)) {
+        pui.protectFormat(format);
       }
       var clearLine = format["metaData"]["screen"]["clear line"];
       if (clearLine != null && clearLine != "") {
@@ -1450,6 +1463,7 @@ pui.renderFormat = function(parms) {
         // Attempt to avoid a mismatch in applyPropertyToField and thus memory leaks.
         dom = document.createElement(widget.tag);
         dom.type = widget.inputType;
+        dom.needinit = true; // PUI-704: widget properties need to be evaluated at least once.
       }
       else {
         dom = document.createElement("div");

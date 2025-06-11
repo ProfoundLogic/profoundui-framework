@@ -858,6 +858,23 @@ pui["fileupload"].FileUpload.prototype._processFileList = function(list) {
     if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && this._allowedTypes.indexOf("image/jpeg") >= 0) allowedT = true;
     if (!allowedT && ftypeTmp.toLowerCase() === "image/jpeg" && this._allowedTypes.indexOf("image/jpg") >= 0) allowedT = true;
 
+    // PUI 701: File Upload Allowed Type Bound Field
+    // double check when the allowedtypes is populated from a bound field, if it does, trim the types before checking.
+    // This is needed for Genie or dspf, where the allowed types are set by a bound field.
+    // if genie, check for trimmed allowed types.
+    if ((context == "dspf" || context == "genie") && this._allowedTypes.length > 0 && !allowedT) {
+      // clone the _allowedTypes array so we can trim it.
+      // trim the allowed types array to remove any that are not in the list.
+      allowedTClone = this._allowedTypes.map(function(type) {
+        return type.toLowerCase().trim();
+      });
+      allowedT = (this._allowedTypes.length <= 0 || allowedTClone.indexOf(ftypeTmp) >= 0);
+      // check if the file type is in the trimmed allowed types.
+      // backward compatibility for image types. jpg and jpeg.
+      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpeg" && allowedTClone.indexOf("image/jpg") >= 0) allowedT = true;
+      if (!allowedT && ftypeTmp.toLowerCase() === "image/jpg" && allowedTClone.indexOf("image/jpeg") >= 0) allowedT = true;
+      if (!allowedT && ftypeTmp.toLowerCase() === "image/png" && allowedTClone.indexOf(ftypeTmp) >= 0) allowedT = true;
+    }
     // Only add the file to our list if it passes our parameter checks.
 
     // Don't add if the MIME type is not accepted, or if the
@@ -1028,7 +1045,6 @@ pui["fileupload"].propset = {
       parms.dom["fileUpload"] = new pui["fileupload"].FileUpload(parms.dom);
       if (context == "dspf") pui.fileUploadElements.push(parms.dom["fileUpload"]);
     }
-
     // Process multiple occurrence property.
     var suffix = 1;
     var prop = "allowed type";
@@ -1036,7 +1052,6 @@ pui["fileupload"].propset = {
     while (typeof (parms.properties[prop]) == "string") {
       var mimeType = parms.evalProperty(prop);
       if (types.length === 0 || types.indexOf(mimeType) === -1) types.push(mimeType);
-
       // 6839: FIX MIME type:  Historically, PUI supported image/jpg (which is not a valid MIME type)
       //   instead of the correct image/jpeg.  For backward compatibility, if one is specified,
       //   allow both.
