@@ -1124,6 +1124,7 @@ pui.renderFormat = function(parms) {
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
   var ddsFieldOrder = parms.metaData["dds field order"];
+  var dspfRecordLayout = parms.metaData["dspf record layout"];
   var subfileFieldOrder = parms.metaData["subfile field order"];
   var designer = parms.designer;
   var data = parms.data;
@@ -1279,13 +1280,14 @@ pui.renderFormat = function(parms) {
           property: propname,
           force: true,
           "longName": propValue["longName"]
-        }, designer);
+        }, designer, true);
       }
     }
 
     // 7415. Send field order to designer
     designer.ddsFieldOrder = ddsFieldOrder;
     designer.subfileFieldOrder = subfileFieldOrder;
+    if (dspfRecordLayout) designer.addDspfRecordLayout(dspfRecordLayout);
   }
 
   if (!isDesignMode && isMainFormat) {
@@ -1539,7 +1541,7 @@ pui.renderFormat = function(parms) {
               property: prop,
               force: true,
               "longName": propValue["longName"]
-            }, designer);
+            }, designer, true);
             newValue = propValue;
           }
           else {
