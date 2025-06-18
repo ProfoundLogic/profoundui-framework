@@ -114,7 +114,9 @@ pui.TextBoxWidget = function(parms) {
         cssClassKeys.forEach(function(key) {
           var classes = domProp[key].split(" ");
           for (var i = 0; i < classes.length; i++) {
-            this.dom.classList.add(classes[i]);
+            if (classes[i] && classes[i].trim() !== "") {
+              this.dom.classList.add(classes[i]);
+            }
           }
         }, this);
       }
