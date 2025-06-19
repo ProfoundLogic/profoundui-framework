@@ -1374,7 +1374,7 @@ pui.renderFormat = function(parms) {
 
           // Resolve translations.
           msg = "";
-          msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
+          msg += pui.doTranslate(items[i], pui.translationMap,pui.translationMap2, false, gridObj.translationPlaceholderMap);
 
           if (msg != "") {
             pui.alert("Missing translation data:\n\n" + msg);
@@ -6544,6 +6544,7 @@ pui.translate = function(parms) {
   // Translation map will always be sent from up-to-date backend.
   // Allow compatability with older backend for now.
   pui.translationMap = parms["translations"];
+  pui.translationMap2 = parms["translations 2"];
   if (pui.translationMap == null) {
     return;
   }
@@ -6551,6 +6552,12 @@ pui.translate = function(parms) {
   // The map comes in UTF-16, hex encoded.
   for (var i in pui.translationMap) {
     pui.translationMap[i] = pui.formatting.decodeGraphic(pui.translationMap[i]);
+  }
+
+  if (pui.translationMap2) {
+    for (var i in pui.translationMap2) {
+      pui.translationMap2[i] = pui.formatting.decodeGraphic(pui.translationMap2[i]);
+    }
   }
 
   var msg = "";
@@ -6565,12 +6572,12 @@ pui.translate = function(parms) {
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
       var translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, null, screen, format["data"], format["ref"]);
-      msg += pui.doTranslate(screen, pui.translationMap, true, translationPlaceholderMap);
+      msg += pui.doTranslate(screen, pui.translationMap, pui.translationMap2, true, translationPlaceholderMap);
       for (var iItem = 0; iItem < items.length; iItem++) {
         var item = items[iItem];
         if (!item["grid"]) { // skip items in grid now, and we will call doTranslate on them later
           var itemTranslationPlaceholderMap = pui.buildTranslationPlaceholderMap(item, null, screen, format["data"], format["ref"]);
-          msg += pui.doTranslate(item, pui.translationMap, false, itemTranslationPlaceholderMap);
+          msg += pui.doTranslate(item, pui.translationMap, pui.translationMap2, false, itemTranslationPlaceholderMap);
         }
       }
     }
@@ -6581,7 +6588,7 @@ pui.translate = function(parms) {
   }
 };
 
-pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderMap) {
+pui.doTranslate = function(obj, translationMap, translationMap2, isScreen, translationPlaceholderMap) {
   var i; // loop iterator
   isScreen = (isScreen === true);
   var rtn = "";
@@ -6591,11 +6598,14 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
     if (pui.isTranslated(propVal)) {
       var phraseIds = propVal["translations"];
       var phrases = [];
+      var phrases2 = [];
       for (i = 0; i < phraseIds.length; i++) {
         var id = phraseIds[i];
         // Id zero is reserved for blank/empty entry in
         // list-type properties.
         var phrase = (id == 0) ? "" : translationMap[id];
+        var phrase2 = (id == 0) ? "" : translationMap2 ? translationMap2[id]: null;
+
         if (phrase != null) {
           phrases.push(phrase);
         }
@@ -6615,12 +6625,30 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
           rtn += "Phrase: " + designValue;
           rtn += " (" + id + ").\n";
         }
+
+        if (phrase2 != null) {
+          phrases2.push(phrase2);
+        }
       }
       if (phrases.length == 1) {
         obj[propName] = phrases[0];
+        if (phrases2.length == 1 && phrases2[0]) {
+          obj[propName + "_secondary"] = phrases2[0];
+        }
       }
       else if (phrases.length > 1) {
         obj[propName] = JSON.stringify(phrases);
+        // Check if at least one non-empty secondary phrase exists
+        var hasSecondary = false;
+        for (var j = 0; j < phrases2.length; j++) {
+          if (phrases2[j]) {
+            hasSecondary = true;
+            break;
+          }
+        }
+        if (hasSecondary) {
+          obj[propName + "_secondary"] = JSON.stringify(phrases2);
+        }
       }
 
       if (!obj["grid"]) {
