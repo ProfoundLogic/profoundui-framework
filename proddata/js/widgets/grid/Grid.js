@@ -87,6 +87,7 @@ pui.Grid = function() {
   if (pui.designer.DataFields != null) {
     this.dataFields = new pui.designer.DataFields();
     this.dataFields.forGrid = true;
+    this.dataFields.forGridObj = this;
   }
   else {
     // dummy object
