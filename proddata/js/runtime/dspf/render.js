@@ -1465,7 +1465,9 @@ pui.renderFormat = function(parms) {
         // Attempt to avoid a mismatch in applyPropertyToField and thus memory leaks.
         dom = document.createElement(widget.tag);
         dom.type = widget.inputType;
-        dom.needinit = true; // PUI-704: widget properties need to be evaluated at least once.
+
+        // PUI-704: widget properties need to be evaluated at least once, except in IDE/Designer.
+        if (!isDesignMode) dom.mismatch = true;
       }
       else {
         dom = document.createElement("div");
