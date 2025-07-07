@@ -1374,7 +1374,7 @@ pui.renderFormat = function(parms) {
 
           // Resolve translations.
           msg = "";
-          msg += pui.doTranslate(items[i], pui.translationMap,pui.translationMap2, false, gridObj.translationPlaceholderMap);
+          msg += pui.doTranslate(items[i], pui.translationMap, pui.translationMap2, false, gridObj.translationPlaceholderMap);
 
           if (msg != "") {
             pui.alert("Missing translation data:\n\n" + msg);
@@ -6541,6 +6541,7 @@ pui.doFieldExit = function(target, minus) {
 };
 
 pui.translate = function(parms) {
+  var i;
   // Translation map will always be sent from up-to-date backend.
   // Allow compatability with older backend for now.
   pui.translationMap = parms["translations"];
@@ -6550,12 +6551,12 @@ pui.translate = function(parms) {
   }
 
   // The map comes in UTF-16, hex encoded.
-  for (var i in pui.translationMap) {
+  for (i in pui.translationMap) {
     pui.translationMap[i] = pui.formatting.decodeGraphic(pui.translationMap[i]);
   }
 
   if (pui.translationMap2) {
-    for (var i in pui.translationMap2) {
+    for (i in pui.translationMap2) {
       pui.translationMap2[i] = pui.formatting.decodeGraphic(pui.translationMap2[i]);
     }
   }
@@ -6604,7 +6605,7 @@ pui.doTranslate = function(obj, translationMap, translationMap2, isScreen, trans
         // Id zero is reserved for blank/empty entry in
         // list-type properties.
         var phrase = (id == 0) ? "" : translationMap[id];
-        var phrase2 = (id == 0) ? "" : translationMap2 ? translationMap2[id]: null;
+        var phrase2 = (id == 0) ? "" : translationMap2 ? translationMap2[id] : null;
 
         if (phrase != null) {
           phrases.push(phrase);
