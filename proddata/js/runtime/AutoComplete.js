@@ -284,8 +284,10 @@ function AutoComplete(config) {
     pui.autoCompleteList = [];
   }
   pui.autoCompleteList.push(me);
+  if (!pui.widgetsToCleanup) {
+    pui.widgetsToCleanup = [];
+  }
   pui.widgetsToCleanup.push(me);
-
   /* END CONSTRUCTOR */
 
   /* PUBLIC METHODS */
