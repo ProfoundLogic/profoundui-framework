@@ -1124,6 +1124,7 @@ pui.renderFormat = function(parms) {
   var screenProperties = parms.metaData.screen;
   var items = parms.metaData.items;
   var ddsFieldOrder = parms.metaData["dds field order"];
+  var dspfRecordLayout = parms.metaData["dspf record layout"];
   var subfileFieldOrder = parms.metaData["subfile field order"];
   var designer = parms.designer;
   var data = parms.data;
@@ -1279,13 +1280,14 @@ pui.renderFormat = function(parms) {
           property: propname,
           force: true,
           "longName": propValue["longName"]
-        }, designer);
+        }, designer, true);
       }
     }
 
     // 7415. Send field order to designer
     designer.ddsFieldOrder = ddsFieldOrder;
     designer.subfileFieldOrder = subfileFieldOrder;
+    if (dspfRecordLayout) designer.addDspfRecordLayout(dspfRecordLayout);
   }
 
   if (!isDesignMode && isMainFormat) {
@@ -1372,7 +1374,7 @@ pui.renderFormat = function(parms) {
 
           // Resolve translations.
           msg = "";
-          msg += pui.doTranslate(items[i], pui.translationMap, false, gridObj.translationPlaceholderMap);
+          msg += pui.doTranslate(items[i], pui.translationMap, pui.translationMap2, false, gridObj.translationPlaceholderMap);
 
           if (msg != "") {
             pui.alert("Missing translation data:\n\n" + msg);
@@ -1463,7 +1465,9 @@ pui.renderFormat = function(parms) {
         // Attempt to avoid a mismatch in applyPropertyToField and thus memory leaks.
         dom = document.createElement(widget.tag);
         dom.type = widget.inputType;
-        dom.needinit = true; // PUI-704: widget properties need to be evaluated at least once.
+
+        // PUI-704: widget properties need to be evaluated at least once, except in IDE/Designer.
+        if (!isDesignMode) dom.mismatch = true;
       }
       else {
         dom = document.createElement("div");
@@ -1539,7 +1543,7 @@ pui.renderFormat = function(parms) {
               property: prop,
               force: true,
               "longName": propValue["longName"]
-            }, designer);
+            }, designer, true);
             newValue = propValue;
           }
           else {
@@ -3102,12 +3106,12 @@ pui.renderFormat = function(parms) {
           if (pui.keyMap[formatName]["PageDown"] == null) {
             pui.keyMap[formatName]["PageDown"] = [];
           }
-          pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
+          // pui.keyMap[formatName]["PageDown"].push(grid.pagingBar.nextLink);
           grid.pagingBar.pageDownHotKeyDefined = true;
           if (pui.keyMap[formatName]["PageUp"] == null) {
             pui.keyMap[formatName]["PageUp"] = [];
           }
-          pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
+          // pui.keyMap[formatName]["PageUp"].push(grid.pagingBar.prevLink);
           grid.pagingBar.pageUpHotKeyDefined = true;
         }
       }
@@ -6539,16 +6543,24 @@ pui.doFieldExit = function(target, minus) {
 };
 
 pui.translate = function(parms) {
+  var i;
   // Translation map will always be sent from up-to-date backend.
   // Allow compatability with older backend for now.
   pui.translationMap = parms["translations"];
+  pui.translationMap2 = parms["translations 2"];
   if (pui.translationMap == null) {
     return;
   }
 
   // The map comes in UTF-16, hex encoded.
-  for (var i in pui.translationMap) {
+  for (i in pui.translationMap) {
     pui.translationMap[i] = pui.formatting.decodeGraphic(pui.translationMap[i]);
+  }
+
+  if (pui.translationMap2) {
+    for (i in pui.translationMap2) {
+      pui.translationMap2[i] = pui.formatting.decodeGraphic(pui.translationMap2[i]);
+    }
   }
 
   var msg = "";
@@ -6563,12 +6575,12 @@ pui.translate = function(parms) {
       var screen = format["metaData"]["screen"];
       var items = format["metaData"]["items"];
       var translationPlaceholderMap = pui.buildTranslationPlaceholderMap(null, null, screen, format["data"], format["ref"]);
-      msg += pui.doTranslate(screen, pui.translationMap, true, translationPlaceholderMap);
+      msg += pui.doTranslate(screen, pui.translationMap, pui.translationMap2, true, translationPlaceholderMap);
       for (var iItem = 0; iItem < items.length; iItem++) {
         var item = items[iItem];
         if (!item["grid"]) { // skip items in grid now, and we will call doTranslate on them later
           var itemTranslationPlaceholderMap = pui.buildTranslationPlaceholderMap(item, null, screen, format["data"], format["ref"]);
-          msg += pui.doTranslate(item, pui.translationMap, false, itemTranslationPlaceholderMap);
+          msg += pui.doTranslate(item, pui.translationMap, pui.translationMap2, false, itemTranslationPlaceholderMap);
         }
       }
     }
@@ -6579,7 +6591,7 @@ pui.translate = function(parms) {
   }
 };
 
-pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholderMap) {
+pui.doTranslate = function(obj, translationMap, translationMap2, isScreen, translationPlaceholderMap) {
   var i; // loop iterator
   isScreen = (isScreen === true);
   var rtn = "";
@@ -6589,11 +6601,14 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
     if (pui.isTranslated(propVal)) {
       var phraseIds = propVal["translations"];
       var phrases = [];
+      var phrases2 = [];
       for (i = 0; i < phraseIds.length; i++) {
         var id = phraseIds[i];
         // Id zero is reserved for blank/empty entry in
         // list-type properties.
         var phrase = (id == 0) ? "" : translationMap[id];
+        var phrase2 = (id == 0) ? "" : translationMap2 ? translationMap2[id] : null;
+
         if (phrase != null) {
           phrases.push(phrase);
         }
@@ -6613,12 +6628,30 @@ pui.doTranslate = function(obj, translationMap, isScreen, translationPlaceholder
           rtn += "Phrase: " + designValue;
           rtn += " (" + id + ").\n";
         }
+
+        if (phrase2 != null) {
+          phrases2.push(phrase2);
+        }
       }
       if (phrases.length == 1) {
         obj[propName] = phrases[0];
+        if (phrases2.length == 1 && phrases2[0]) {
+          obj[propName + "_secondary"] = phrases2[0];
+        }
       }
       else if (phrases.length > 1) {
         obj[propName] = JSON.stringify(phrases);
+        // Check if at least one non-empty secondary phrase exists
+        var hasSecondary = false;
+        for (var j = 0; j < phrases2.length; j++) {
+          if (phrases2[j]) {
+            hasSecondary = true;
+            break;
+          }
+        }
+        if (hasSecondary) {
+          obj[propName + "_secondary"] = JSON.stringify(phrases2);
+        }
       }
 
       if (!obj["grid"]) {

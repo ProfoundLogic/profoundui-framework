@@ -912,15 +912,15 @@ function applyPropertyToField(propConfig, properties, domObj, newValue, isDesign
       }
     }
 
-    if (mismatch || domObj.needinit) {
+    if (mismatch || domObj.mismatch) {
       rebuildCSSAttr = true;
 
-      if (domObj.needinit) {
+      if (domObj.mismatch) {
         // PUI-704: the tag name and type did not change, but widget properties have not been evaluated.
         // To avoid memory leaks, just re-use the existing DOM object.
         newDomObj = domObj;
         if (tag == "input" || tag == "button") newDomObj.type = inpType;
-        delete domObj.needinit;
+        delete domObj.mismatch;
       }
       else {
         newDomObj = document.createElement(tag);

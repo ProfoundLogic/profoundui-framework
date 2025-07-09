@@ -87,6 +87,7 @@ pui.Grid = function() {
   if (pui.designer.DataFields != null) {
     this.dataFields = new pui.designer.DataFields();
     this.dataFields.forGrid = true;
+    this.dataFields.forGridObj = this;
   }
   else {
     // dummy object
@@ -2861,6 +2862,8 @@ pui.Grid = function() {
             while (domEls.length > 0) {
               var domel = domEls.pop(); // Note: the array can have empty slots.
               if (typeof domel === "object" && domel !== null) {
+                // SKIP FusionCharts containers so they are not destroyed here
+                if (domel.chart && domel.chart.FusionCharts) continue;
                 pui.clearChildNodes(domel); // Remove child nodes cleanly.
                 pui.clearNode(domel); // call destroy, remove properties, etc. from domel itself.
               }
